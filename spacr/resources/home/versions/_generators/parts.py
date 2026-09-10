@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Sequence, Tuple
 
+import common
+from common import MOCK, Ctx, blurb_of, name_of
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont, QFontMetrics, QTextLayout
 from PySide6.QtWidgets import (
@@ -31,10 +33,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-import common
-from common import MOCK, Ctx, blurb_of, name_of
-
 
 # ---------------------------------------------------------------------------
 # Text that never clips
@@ -308,11 +306,13 @@ class Page(QWidget):
     :param chrome: draw the app's menu strip + status bar, so the space
         a variant actually gets on a 1440x900 laptop is what is rendered.
     :param margins: content margins of the body area.
+    :param spacing: gap between the body column's children, in px.
     """
 
     def __init__(self, ctx: Ctx, *, chrome: bool = True,
                  margins: Tuple[int, int, int, int] = (28, 22, 28, 18),
                  spacing: int = 16):
+        """Build the themed home canvas, optional chrome, and content column."""
         super().__init__()
         self.ctx = ctx
         self.setObjectName("Page")
@@ -458,6 +458,7 @@ def top_bar(ctx: Ctx, *, title: str = "spaCR",
             actions: Sequence[Tuple[str, bool]] = ()) -> QWidget:
     """A slim brand bar: logo mark + title (+ subtitle) + right actions.
 
+    :param ctx: render context supplying the active palette, logo, and theme.
     :param actions: ``(label, primary)`` pairs rendered right-aligned.
     """
     w, row = transparent(horizontal=True, spacing=12)
@@ -554,15 +555,16 @@ def htile_height(icon_px: int) -> int:
     return max(72, icon_px + 28)
 
 
-#: Narrowest an ``HTile`` may be drawn before "Annotator Agreement"
-#: elides, measured by bisection (see the module notes in VARIANTS.md).
+#: Narrowest an ``HTile`` may be drawn before the longest registry names
+#: elide, measured by bisection (see the module notes in VARIANTS.md).
 #: ``{name font px: {icon px: min width}}``; the shipped tile uses the
-#: 17 px subtitle size and therefore needs 255-263 px.
+#: 17 px subtitle size and therefore needs 255-263 px. Compact sizes include
+#: four pixels of tolerance for supported Open Sans rasterizers.
 HTILE_MIN_WIDTH = {
     0:  {32: 243, 36: 247, 40: 251, 44: 255, 52: 263},
-    12: {32: 192, 36: 196, 40: 200},
-    13: {32: 202, 36: 206, 40: 210},
-    14: {32: 212, 36: 216, 40: 220},
+    12: {32: 196, 36: 200, 40: 204},
+    13: {32: 206, 36: 210, 40: 214},
+    14: {32: 216, 36: 220, 40: 224},
 }
 
 
@@ -570,6 +572,10 @@ def htile(ctx: Ctx, key: str, *, width: int, height: int = 0,
           icon_px: int = 44, name_px: int = 0) -> QWidget:
     """One of the app's real ``HTile`` cards, at a fixed width.
 
+    :param ctx: render context supplying the icon and palette for the tile.
+    :param key: registered application key used to resolve the displayed name,
+        icon, blurb, and tooltip.
+    :param width: fixed tile width in pixels.
     :param name_px: override the tile name's font size. The shipped
         tile draws it at the 17 px "subtitle" size, which is what forces
         a 255 px minimum width and therefore at most five columns on a
@@ -621,6 +627,15 @@ class FixedButton(QPushButton):
     """
 
     def __init__(self, width: int, height: int, parent=None):
+        """Create a button whose size hints preserve the requested dimensions.
+
+        :param width: width to report through the size hints, in px.
+        :param height: height to report through the size hints, in px.
+        :param parent: parent widget.
+
+        Reported through ``sizeHint``/``minimumSizeHint`` rather than set with
+        ``setFixedSize``, for the reason the class docstring gives.
+        """
         super().__init__(parent)
         self._fixed = QSize(int(width), int(height))
         self.setFixedSize(self._fixed)
@@ -646,6 +661,18 @@ class BigTile(FixedButton):
     def __init__(self, ctx: Ctx, key: str, *, width: int, height: int,
                  icon_px: int = 56, blurb_lines: int = 0,
                  accent: bool = False, badge: str = ""):
+        """Build an illustrated launcher tile for one registered app key.
+
+        :param ctx: the theme context supplying the palette and icons.
+        :param key: the registered app this tile launches; its name, blurb
+            and icon are read from the registry rather than passed in.
+        :param width: tile width in px.
+        :param height: tile height in px.
+        :param icon_px: icon size in px.
+        :param blurb_lines: how many lines of blurb to draw. 0 draws none.
+        :param accent: whether to draw the accented variant.
+        :param badge: short text for the corner badge. Empty draws none.
+        """
         super().__init__(width, height)
         self.setObjectName("BigTileAccent" if accent else "BigTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -710,12 +737,23 @@ class DenseRow(QPushButton):
 
     The "dense list" answer to the tile grid — many more apps above the
     fold, at the cost of the tile's visual weight.
+
+    :param ctx: the theme context supplying the palette and icons.
+    :param key: the registered app this row launches.
+    :param width: row width in px.
+    :param name_width: px reserved for the name column, so names line up
+        down the list rather than each row sizing to its own text.
+    :param icon_px: icon size in px.
+    :param show_blurb: whether to draw the blurb after the name.
+    :param badge: short text for the badge. Empty draws none.
+    :param shortcut: the keyboard shortcut to show. Empty draws none.
     """
 
     def __init__(self, ctx: Ctx, key: str, *, width: int,
                  name_width: int = 136, icon_px: int = 20,
                  show_blurb: bool = True, badge: str = "",
                  shortcut: str = ""):
+        """Build one compact launcher row with optional blurb, badge, and shortcut."""
         super().__init__()
         self.setObjectName("DenseRow")
         self.setCursor(Qt.PointingHandCursor)
@@ -865,7 +903,7 @@ def recent_runs_list(ctx: Ctx, *, count: int = 4, width: int = 320) -> QWidget:
     col.addWidget(text_label(ctx, "Recent runs", size=11, weight=600,
                              color=ctx.P["fg_muted"], tracking="2px",
                              upper=True))
-    for key, plate, when, ok, elapsed in MOCK["recent"][:count]:
+    for key, plate, when, ok, _elapsed in MOCK["recent"][:count]:
         row_w, row = transparent(horizontal=True, spacing=8)
         row.addWidget(text_label(ctx, "●" if ok else "○", size=12,
                                  color=ctx.P["success"] if ok
@@ -904,6 +942,7 @@ def project_status_strip(ctx: Ctx) -> QWidget:
 
 
 def _dot(ctx: Ctx) -> QLabel:
+    """Create the muted separator used between project summary values."""
     return text_label(ctx, "·", size=13, color=ctx.P["fg_dim"])
 
 
@@ -916,7 +955,7 @@ def system_panel(ctx: Ctx, *, width: int = 300, title: str = "System"
     col.addWidget(text_label(ctx, title, size=11, weight=600,
                              color=ctx.P["fg_muted"], tracking="2px",
                              upper=True))
-    for label, pct, note in MOCK["system"]:
+    for label, pct, _note in MOCK["system"]:
         bar = UsageBar(label)
         bar.set_value(pct)
         col.addWidget(bar)
@@ -1110,9 +1149,8 @@ def real_sidebar(ctx: Ctx) -> QWidget:
     """The app's actual ``Sidebar`` widget, unmodified.
 
     Used by the baseline variant so the render shows exactly what a
-    1440x900 laptop gets today — including the fact that one row per
-    registered app plus five section headings does not fit in 900 px,
-    so the bottom of the list is simply not reachable.
+    1440x900 laptop gets today. The complete registry is taller than the
+    viewport, so the shipped scroll area keeps every section reachable.
     """
     from spacr.qt.app import Sidebar
     return Sidebar()

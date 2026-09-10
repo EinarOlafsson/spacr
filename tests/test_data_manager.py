@@ -170,6 +170,15 @@ def du(path: str) -> int:
     return total
 
 
+def registry_bytes(path: str) -> int:
+    """Current registry storage, including transient SQLite sidecars."""
+    return sum(
+        os.path.getsize(candidate)
+        for candidate in (path, f"{path}-wal", f"{path}-shm")
+        if os.path.isfile(candidate)
+    )
+
+
 def n_files(path: str) -> int:
     """Files under ``path``, symlinks excluded."""
     if os.path.isfile(path):
@@ -462,13 +471,19 @@ def test_the_plan_frees_exactly_the_bytes_it_promised(project):
     """The size the user was shown is the size the disk gives back."""
     root, registry = project
     before = du(root)
+    before_registry = registry_bytes(registry.path)
     plan = DM.plan_prune(root, registry=registry)
     promised = plan.total_bytes
     assert promised > 0
 
     result = DM.prune(plan, confirm=plan.token, registry=registry)
     assert result.freed_bytes == promised
-    assert du(root) == before - promised
+    # Pruning intentionally records its audit facts in the registry before
+    # deleting files. SQLite may reuse a page or allocate one plus WAL/SHM
+    # sidecars, so the registry's own byte delta is not deleted payload. The
+    # promised artifact bytes must disappear exactly either way.
+    assert du(root) - registry_bytes(registry.path) == (
+        before - before_registry - promised)
 
 
 def test_a_prune_without_the_token_refuses_and_deletes_nothing(project):
@@ -992,12 +1007,14 @@ def test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt(project):
     root, registry = project
     usage = DM.scan_project(root, registry=registry)
     assert usage.total_bytes == du(root)
+    before_registry = registry_bytes(registry.path)
 
     plan = DM.plan_prune(root, registry=registry)
     freed = plan.total_bytes
     assert freed > 0
 
-    DM.prune(plan, confirm=plan.token, registry=registry)
+    result = DM.prune(plan, confirm=plan.token, registry=registry)
+    assert result.freed_bytes == freed
 
     # The originals are all still there.
     assert du(os.path.join(root, "orig")) > 0
@@ -1007,4 +1024,50 @@ def test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt(project):
     assert readiness.ok, readiness.reason
 
     after = DM.scan_project(root, registry=registry)
-    assert after.total_bytes == usage.total_bytes - freed
+    assert after.total_bytes == du(root)
+    # The prune also persists its audit facts.  SQLite is free to allocate a
+    # page (and transient WAL/SHM sidecars) for that write, so compare project
+    # payload separately from the registry instead of pretending bookkeeping
+    # consumes no disk space.
+    assert after.total_bytes - registry_bytes(registry.path) == (
+        usage.total_bytes - before_registry - freed)
+
+
+def test_the_registered_bytes_are_the_sum_of_the_kinds(project):
+    """Instruction 60: this property had no test at all.
+
+    It is the number the archive dialog subtracts from the total to say how
+    much of a project the registry does NOT know about -- so a wrong sum
+    tells the user they can safely delete something no artifact claims when
+    an artifact does claim it.
+    """
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.registered_bytes == sum(row.registered_bytes
+                                         for row in usage.kinds)
+
+
+def test_registered_and_unregistered_account_for_everything(project):
+    """The two halves are how the breakdown adds up; a project where they
+    do not is a report with bytes that belong to neither."""
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.registered_bytes + usage.unregistered_bytes == \
+        usage.total_bytes
+
+
+def test_a_registered_path_is_findable_by_its_name(project):
+    """`artifact_at` is what the dialog calls when the user clicks a row,
+    and a miss there leaves the panel empty with nothing said."""
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    if not usage.artifacts:
+        pytest.skip("this project registered nothing")
+    first = usage.artifacts[0]
+    assert usage.artifact_at(first.path) is first
+
+
+def test_an_unregistered_path_is_a_none_not_a_guess(project):
+    root, registry = project
+    usage = DM.scan_project(root, registry=registry)
+    assert usage.artifact_at(os.path.join(root, "nothing-here")) is None

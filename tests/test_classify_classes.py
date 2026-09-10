@@ -5,6 +5,8 @@ CSV written before this exists in every user's project folder, and a run from
 one has to select the same objects it did before. Everything else is about
 what the old shape could not say.
 """
+from dataclasses import fields
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -34,6 +36,10 @@ def test_a_class_names_its_value_and_the_column_it_came_from():
     settings = {"classes": {"infected": {"column": "annot_1", "value": 1},
                             "clean": {"column": "annot_1", "value": 2}}}
     rules = class_rules(settings)
+    assert all(
+        f":param {field.name}:" in (ClassRule.__doc__ or "")
+        for field in fields(ClassRule)
+    )
     assert [r.name for r in rules] == ["infected", "clean"]
     assert rules[0].column == "annot_1" and rules[0].value == 1
 
@@ -124,6 +130,7 @@ def test_one_annotated_class_gets_a_random_comparison_group():
     settings = {"classes": {"infected": {"column": "annot_1", "value": 1},
                             "control": {"random_complement": True}}}
     labels = assign_classes(_annotated(), settings)
+    assert ":param random_complement:" in (ClassRule.__doc__ or "")
     assert (labels == "infected").sum() == 5
     assert (labels == "control").sum() == 5, "the groups are lopsided"
 
@@ -310,11 +317,16 @@ def test_a_settings_file_written_before_the_split_still_trains():
     assert folder_names({"classes": ["alive", "dead"]}) == ["alive", "dead"]
 
 
-def test_the_new_key_is_read_once_classes_holds_definitions():
-    """`class_folder_names` is the answer for a post-split settings file.
+def test_a_defined_class_outranks_a_recorded_folder_list():
+    """The class field decides the folder names (instruction 229).
 
-    Which is the file whose `classes` is a dict. It deliberately does NOT
-    win over a list-shaped `classes` -- see
+    REVERSED DELIBERATELY. `class_folder_names` used to win here. It is a
+    RECORD of what a previous generation wrote to disk; a defined class is
+    the user's own statement of what they are training on, and letting the
+    record outrank the statement is how the folders on disk and the classes
+    in the panel come to disagree with nothing on screen saying so.
+
+    It still does NOT win over a list-shaped `classes` -- see
     `test_a_legacy_list_beats_the_injected_folder_default` for why that
     direction would silently retrain every settings file in existence.
     """
@@ -322,7 +334,7 @@ def test_the_new_key_is_read_once_classes_holds_definitions():
 
     names = folder_names({"classes": {"new": {"column": "c", "value": 1}},
                           "class_folder_names": ["new", "newer"]})
-    assert names == ["new", "newer"]
+    assert names == ["new"]
 
 
 def test_defined_classes_name_their_own_folders():
@@ -466,13 +478,26 @@ def test_an_empty_dict_is_not_an_empty_list():
                          "class_folder_names": ["nc", "pc"]}) == ["nc", "pc"]
 
 
-def test_an_explicitly_empty_new_folder_list_means_no_folders():
+def test_an_explicitly_empty_folder_list_loses_to_a_defined_class():
+    """Also reversed by instruction 229, and for the same reason.
+
+    An empty `class_folder_names` records a generation that wrote nothing.
+    A defined class says what the user wants trained. The statement wins.
+    """
     from spacr.classify_classes import folder_names
 
     assert folder_names({
         "classes": {"defined": {"column": "condition", "value": 1}},
         "class_folder_names": [],
-    }) == []
+    }) == ["defined"]
+
+
+def test_an_empty_folder_list_still_means_no_folders_with_no_classes():
+    """The record is still the answer when nothing is defined -- which is
+    every settings file written before the Classes editor existed."""
+    from spacr.classify_classes import folder_names
+
+    assert folder_names({"classes": {}, "class_folder_names": []}) == []
 
 
 def test_absent_new_folder_list_falls_back_to_definition_names():

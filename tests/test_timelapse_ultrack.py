@@ -627,12 +627,13 @@ def test_gui_offers_ultrack_in_the_timelapse_mode_combo():
     This used to grep ``inspect.getsource(spacr.gui_utils)`` for the dict
     literal. The literal moved to ``spacr.settings_spec`` (an import-cost
     change: the Qt interface wants the widget spec without Tk's 770 ms of
-    imports) and ``gui_utils`` re-exports the function, so the grep went
-    looking for text that had left the file while the combo itself was fine.
-    Calling the function instead of reading the source asks the question the
-    GUI actually asks, and survives the next move.
+    imports), so the grep went looking for text that had left the file while
+    the combo itself was fine. Calling the function instead of reading the
+    source asks the question the GUI actually asks, and survives the next
+    move -- which is exactly what it did: the ``gui_utils`` re-export it was
+    reached through is deleted, and the function it forwarded to is not.
     """
-    import spacr.gui_utils as G
+    import spacr.settings_spec as G
 
     spec = G.convert_settings_dict_for_gui({"timelapse_mode": "trackastra"})
     assert "timelapse_mode" in spec, "timelapse_mode has no widget spec"

@@ -46,7 +46,6 @@ from spacr.agreement import (
     table_columns,
 )
 
-
 # ---------------------------------------------------------------------------
 # Database fixtures — png_list exactly as spacr.utils.filepaths_to_database
 # writes it, plus one INTEGER column per annotation pass (which is what
@@ -139,6 +138,7 @@ def test_cohens_kappa_matches_the_hand_computed_value():
     assert detail.expected_agreement == pytest.approx(0.50)
     assert detail.kappa == pytest.approx(0.400)
     assert cohens_kappa(a, b) == pytest.approx(0.400)
+    assert ":param interpretation:" in (type(detail).__doc__ or "")
     assert detail.interpretation == "fair"      # Landis & Koch: 0.21-0.40
     assert detail.defined is True
 
@@ -600,7 +600,10 @@ def test_report_on_two_annotators_uses_cohens_kappa(two_annotator_db):
     pair = report.pair("bob", "alice")           # order-insensitive lookup
     assert pair is not None and pair.kappa == pytest.approx(0.400)
     assert report.pair("alice", "nobody") is None
+    assert ":param convention:" in (type(report).__doc__ or "")
+    assert ":param warnings:" in (type(report).__doc__ or "")
     assert report.convention == CONVENTION
+    assert isinstance(report.warnings, list)
 
 
 def test_report_per_class_kappa_equals_the_overall_for_a_binary_problem(
@@ -911,3 +914,31 @@ def test_report_scales_without_pandas_row_iteration(tmp_path):
     assert report.n_rows == 5000
     assert report.n_complete + report.n_partial + report.n_unlabelled == 5000
     assert np.isfinite(report.overall_kappa)
+
+
+def test_a_report_with_no_labels_at_all_omits_the_per_class_section(tmp_path):
+    """Nobody labelled anything, so there are no classes to break down.
+
+    ``_per_class_frame`` writes one row per class in the universe, and when
+    every annotator abstained the universe is empty. Printing the section's
+    header over nothing would tell a reader the decomposition was computed and
+    found no structure, when in fact there was nothing to decompose -- a
+    different message about a different screen.
+
+    This is not a contrived state. It is what an annotation table looks like
+    the moment the columns are created and before anyone has opened the
+    annotator, which is exactly when somebody runs the report to check the
+    wiring.
+    """
+    db = make_db(tmp_path / "run" / "measurements" / "measurements.db",
+                 ["a1", "a2"], [(None, None)] * 6)
+    report = agreement_report(db, ["a1", "a2"])
+
+    assert len(report.per_class) == 0
+
+    text = format_agreement(report)
+
+    assert "Per class" not in text
+    # ...and the rest of the report is still there, so the omission is the
+    # section and not the render giving up.
+    assert "spaCR" in text or "annotator" in text.lower() or text.strip()

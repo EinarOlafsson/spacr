@@ -1,42 +1,22 @@
-"""Which widget a setting gets, decided without importing a GUI.
+"""Map settings to GUI widget specifications without importing a GUI.
 
-This module exists because of one measured number. Opening the first module
-in the Qt application spent **770 ms** inside a single statement:
+The conversion helpers return plain dictionaries that both the Qt and legacy
+interfaces can consume. Keeping this module dependency-light lets callers
+inspect setting metadata without importing plotting, imaging, or deep-learning
+libraries.
 
-    from spacr.gui_utils import convert_settings_dict_for_gui
-
--- and that was the whole remaining cost of the first module open, measured
-with the event-loop watchdog in ``tests/qt/test_gui_responsiveness.py``
-*after* ``spacr`` and ``spacr.settings`` were already imported. The function
-being fetched is a hundred lines of dictionary lookups. Everything else in
-the 770 ms belongs to the module it happened to live in: ``spacr.gui_utils``
-imports ``spacr.gui_elements`` (IPython 154 ms, matplotlib.pyplot 145 ms),
-``cv2`` (79 ms), ``tkinter``, ``huggingface_hub``, ``requests``, ``PIL`` and
-``screeninfo`` -- the *Tk* interface's dependencies, none of which the Qt
-interface has any use for.
-
-``spacr.qt.app.main`` prewarms ``gui_utils`` on a background thread, and that
-helps a user who looks at the home screen for a second first. It does not
-help the user who clicks a module immediately: CPython's per-module import
-lock makes the GUI thread *wait for the prewarm thread to finish*, so the
-window freezes for whatever is left of the 770 ms. A prewarm cannot fix a
-cost; it can only move it, and only when there is somewhere to move it to.
-
-So the function moved to a module with no imports at all. ``gui_utils``
-re-exports it, unchanged, for the Tk interface and for every existing caller.
-
-This is the same argument already written down twice in ``gui_utils``: once
-for ``torch`` (1.40 s, removed from that module's header) and once for
-``torchvision`` (~5 s, never imported by
-:func:`convert_settings_dict_for_gui` -- see the curated list below). Applied
-a third time, to the module itself.
+``spacr.gui_utils`` re-exports
+:func:`convert_settings_dict_for_gui` for compatibility with existing callers.
 """
 from __future__ import annotations
 
 import sys
-from .organelle_types import (DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT,
-                              TYPE_ORDER as _ORGANELLE_TYPE_ORDER)
-from .schema import ALL_ROLES, ORGANELLE_ROLES
+
+from .organelle_types import ALL_ORGANELLE_ROLES as _ORGANELLE_SLOT_ROLES
+from .organelle_types import DEFAULT_NUMBER_OF_ORGANELLES, MAX_ORGANELLES
+from .organelle_types import DEFAULT_TYPE as _ORGANELLE_TYPE_DEFAULT
+from .organelle_types import TYPE_ORDER as _ORGANELLE_TYPE_ORDER
+from .schema import ALL_ROLES
 
 __all__ = ["convert_settings_dict_for_gui"]
 
@@ -62,6 +42,62 @@ _TORCHVISION_MODELS_CURATED = [
 ]
 
 
+def _regression_type_choices():
+    """Every family that fits, as ``(stored value, label)``, grouped.
+
+    :returns: pairs whose first element is the stored ``regression_type`` and
+        whose second is the line the dropdown shows -- the family's name, the
+        kind of fit it is, and what it assumes.
+
+    A long list of unlabelled names in alphabetical order is a menu that hides
+    its own contents: the quantile fit, the two robust losses and the rank
+    aggregation were all on it and none of them could be found.
+    :func:`spacr.regression_families.regression_family_choices` places each
+    family in one of three honest kinds -- parametric,
+    robust/semiparametric, rank-based -- and gives it a sentence saying what
+    has to be true of the data for its answer to mean anything.
+
+    Mixed leads because it is the default and answers the most central
+    question; then the rest of the parametric group, then the robust one,
+    then the rank-based one, so a family added to the inventory lands
+    somewhere predictable instead of at the end.
+
+    NOTHING IS RENAMED. The stored value is unchanged and leads its own
+    label, so a settings CSV written before the grouping asks for exactly the
+    fit it always asked for, and a user looking for 'quantile' still finds
+    the word.
+
+    `spacr.regression_families` imports only `spacr.regression_spec`, which
+    imports nothing -- that is the whole reason the vocabulary was split out
+    of `spacr.ml`, which pulls in torch through `spacr.plot` -- so asking it
+    here costs a dict lookup rather than 2.2 seconds.
+    """
+    from .regression_families import regression_family_choices
+
+    return regression_family_choices()
+
+
+def _regression_backend_choices():
+    """Every backend, labelled ``(CPU)`` or ``(GPU)``, in panel order.
+
+    THE OPTIONS ARE THE LABELS, and so is the stored value -- see
+    :func:`spacr.settings._resolve_regression_backend` for why. The labels
+    state whether a backend uses the CPU or GPU, and both front ends render
+    them verbatim.
+
+    Read from :mod:`spacr.regression_backends`, which imports nothing heavier
+    than stdlib, so a settings panel still costs a dict lookup rather than
+    ``import torch``.
+
+    Every entry is offered, including those that cannot run in the current
+    environment. The panel disables unavailable entries and obtains their
+    explanations from :func:`spacr.regression_backends.backend_menu`.
+    """
+    from .regression_backends import backend_choices
+
+    return backend_choices()
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -76,6 +112,79 @@ def _torchvision_model_names():
         except Exception:
             pass
     return list(_TORCHVISION_MODELS_CURATED)
+
+
+def _cellpose_model_names():
+    """Return live Cellpose choices without loading the numerical stack.
+
+    A cold settings-panel build needs only the shipped fallback.  Once either
+    Cellpose or :mod:`spacr.settings` is already loaded, the lightweight
+    accessor in ``settings`` can add installed and user-registered models
+    without making this module responsible for a heavy first import.
+    """
+    settings_name = f"{__package__}.settings"
+    if (settings_name not in sys.modules
+            and "cellpose.models" not in sys.modules):
+        return ["cpsam"]
+
+    from .settings import cellpose_model_choices
+
+    return list(cellpose_model_choices())
+
+
+#: Settings whose widget cannot be decided from the NAME alone, because two
+#: modules use that name for two different closed vocabularies. The value in
+#: hand decides; anything not listed falls through to the name-keyed table.
+#:
+#: ``level`` is the only one. The proportion and endodyogeny plots have meant
+#: 'object'/'well'/'plate' by it for years, while regression uses
+#: 'both'/'grna'/'gene'. The shared tables here and in :mod:`spacr.settings`
+#: are keyed by name with no module scope, so dispatch uses the value already
+#: present on the panel.
+#:
+#: Deliberately NOT a fallback: a value in neither vocabulary returns None and
+#: takes the ordinary path, so no module's existing widget changes shape.
+_VALUE_SPECIAL_CASES = {
+    'level': (
+        # NAMED FOR WHAT THEY PRODUCE. 'grna'/'gene'/'both' are the keys the
+        # settings file and the API have always used and they do not change;
+        # what changes is that the panel says which analysis each one asks
+        # for, so a reader who wants gene effects can find them without
+        # knowing that `level` is the control that gives them.
+        (('both', 'grna', 'gene'),
+         ('combo', [('both', 'both — gRNA and gene effects, each corrected '
+                             'as its own family'),
+                    ('grna', 'gRNA effects — one estimate per guide'),
+                    ('gene', 'gene effects — one estimate per gene, its '
+                             'guides pooled')],
+          'both')),
+        (('object', 'well', 'plate'),
+         ('combo', ['object', 'well', 'plate'], 'object')),
+    ),
+}
+
+
+def _value_special_cases(key, value):
+    """The widget spec for ``key`` when its VALUE decides, else ``None``.
+
+    :param key: the setting name.
+    :param value: the value the panel is being built from.
+    :returns: a ``(kind, options, default)`` triple, or ``None`` to fall
+        through to the name-keyed ``special_cases`` table.
+    """
+    table = _VALUE_SPECIAL_CASES.get(key)
+    if not table:
+        return None
+    if not isinstance(value, str):
+        return None
+    current = value.strip().lower()
+    for vocabulary, spec in table:
+        if current in vocabulary:
+            kind, options, _default = spec
+            # The panel's own value is the default, so opening a settings
+            # screen never rewrites the setting it was opened on.
+            return (kind, list(options), current)
+    return None
 
 
 def convert_settings_dict_for_gui(settings):
@@ -102,12 +211,40 @@ def convert_settings_dict_for_gui(settings):
     # torch (~2.5 s) and this runs while a settings page is being built, so
     # the accessor reads the API only when Cellpose is already loaded and
     # degrades to the shipped list otherwise. It is never empty.
-    from .settings import cellpose_model_choices
-    cellpose_models = list(cellpose_model_choices())
+    cellpose_models = _cellpose_model_names()
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
 
     variables = {}
     special_cases = {
+        # Instruction 134: two valid values, and it was a free-text box in
+        # both front ends. Declared here rather than only in the Qt combo
+        # table so the two GUIs cannot offer different lists.
+        # THE LABELS READ, and the VALUES do not change (134's third point).
+        # 'guide_permutation' is what the settings key is called; what the
+        # dropdown shows is the sentence, the same way 132's model box
+        # explains what it fits. (value, label) pairs, so every settings file
+        # already written goes on meaning what it meant.
+        'analysis_mode': ('combo',
+                          [('regression', 'regression — fit every guide at '
+                                          'once in the chosen model'),
+                           ('guide_permutation', 'guide permutation — test '
+                                                 'each guide on its own, '
+                                                 'wells reshuffled within '
+                                                 'each plate')],
+                          'regression'),
+        # Instruction 135, and the same argument as `analysis_mode` above:
+        # two valid values, and the RUN now has to agree with the volcano's
+        # right-click menu about which P value 'significant' meant. A
+        # free-text box lets a settings CSV say 'Adjusted' or 'bh' and be
+        # refused at the seam instead of picked from a list of two. Declared
+        # here rather than only in the Qt combo table so the Tk and Qt panels
+        # cannot offer different lists.
+        # OFFERED, NOT TYPED. Two spellings, and a free-text box lets a
+        # settings CSV say 'spearman' -- a reasonable guess for what
+        # 'rank' does -- and be refused at the seam rather than picked
+        # from a list of two.
+        'grna_statistic': ('combo', ['pearson', 'rank'], 'pearson'),
+        'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
@@ -115,7 +252,7 @@ def convert_settings_dict_for_gui(settings):
         # io.generate_training_dataset dispatches on metadata|annotation|
         # measurement and returns (None, None) for anything else. 'recruitment'
         # was offered here and silently produced no dataset.
-        'dataset_mode': ('combo', ['annotation', 'metadata', 'measurement'], 'metadata'),
+        'dataset_mode': ('combo', ['annotation', 'metadata'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'crop_mode': ('combo',
                       [repr([role]) for role in ALL_ROLES]
@@ -127,7 +264,30 @@ def convert_settings_dict_for_gui(settings):
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
         'model_name': ('combo', cellpose_models, cellpose_models[0]),
-        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
+        # DEFAULT 'mixed' since 2026-08-17, matching
+        # settings.get_perform_regression_default_settings: "mixed answers
+        # the most central question best". A combo whose default differs
+        # from the settings default posts a different model than the one
+        # the panel was built for.
+        # READ FROM THE INVENTORY, NOT LISTED BY HAND. The hand-written
+        # list offered 'gls' -- which is in UNSUPPORTED_REGRESSION_TYPES and
+        # RAISES -- and omitted six families that fit: huber, beta,
+        # quasi_binomial, elasticnet, hinge and horseshoe. So the panel
+        # could pick a type that fails and could not reach a third of the
+        # ones that work.
+        # (value, label) PAIRS, GROUPED BY WHAT THEY ASSUME. Bare
+        # names in one alphabetical list hid the four families a user was
+        # looking for; the label says whether the fit is parametric,
+        # robust/semiparametric or rank-based and what it assumes. The
+        # stored values are unchanged, so every settings file already
+        # written goes on meaning what it meant.
+        'regression_type': ('combo', _regression_type_choices(), 'mixed'),
+        # WHO fits it (instruction 141 A). Default 'statsmodels (CPU)' --
+        # every existing result was produced with it, and a default that
+        # changes the numbers under a user who changed nothing is not a
+        # default. The label is the value; see _regression_backend_choices.
+        'regression_backend': ('combo', _regression_backend_choices(),
+                               'statsmodels (CPU)'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
@@ -148,7 +308,21 @@ def convert_settings_dict_for_gui(settings):
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
-        'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+        'transform': ('combo', ['log', 'sqrt', 'square', 'beta', None], None),
+        # The four intercept modes, from spacr.ml.INTERCEPT_MODES. A combo
+        # rather than free text: each name selects a different construction
+        # of the design matrix, and an unrecognised one is refused at the
+        # door by prepare_formula rather than quietly fitted.
+        'intercept': ('combo', ['fitted', 'zero', 'control', 'value'],
+                      'fitted'),
+        # HOW MANY ORGANELLE SLOTS, as a closed list rather than a free
+        # number. The bound is real -- a slot's name is the prefix of its
+        # keys and the prefixes are lettered, so the alphabet runs out at
+        # twenty-six -- and a typed thirty would have to be clamped to a
+        # number the user did not ask for.
+        'number_of_organelles': ('combo',
+                                 list(range(MAX_ORGANELLES + 1)),
+                                 DEFAULT_NUMBER_OF_ORGANELLES),
         # The ONE visible organelle choice (instruction 72). A combo, not a
         # free-text field: the nine names are a closed set, and
         # `organelle_types.resolve_type` raises on anything else -- typing it
@@ -167,11 +341,14 @@ def convert_settings_dict_for_gui(settings):
     }
 
     # All slot-specific controls use the primary organelle widget contract.
-    # This is generated so a newly registered slot cannot fall back to a
-    # free-text entry for a value whose pipeline vocabulary is closed.
+    # Generated for every slot `number_of_organelles` can name, not for the
+    # slots this run has: a settings file written at seven slots is opened by
+    # a session set to two, and its seventh slot's method must still arrive
+    # as the closed dropdown it is rather than as a free-text field whose
+    # every value fails validation.
     primary_widget_keys = tuple(
         key for key in special_cases if key.startswith('organelle_'))
-    for role in ORGANELLE_ROLES[1:]:
+    for role in _ORGANELLE_SLOT_ROLES[1:]:
         for key in primary_widget_keys:
             slot_key = f"{role}_{key[len('organelle_'):]}"
             kind, options, default = special_cases[key]
@@ -180,7 +357,10 @@ def convert_settings_dict_for_gui(settings):
                 default)
 
     for key, value in settings.items():
-        if key in special_cases:
+        by_value = _value_special_cases(key, value)
+        if by_value is not None:
+            variables[key] = by_value
+        elif key in special_cases:
             variables[key] = special_cases[key]
         elif isinstance(value, bool):
             variables[key] = ('check', None, value)

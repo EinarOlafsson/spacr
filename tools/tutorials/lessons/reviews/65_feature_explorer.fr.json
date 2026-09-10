@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Feature Explorer : classer des mesures réelles et garder la comparaison explicite",
+  "description": "Ouvrez le sous-module de Classify, comparez des mesures réelles par rangée de plaque, examinez les distributions, filtrez en direct, ajoutez une colonne calculée et exportez le classement voulu sans entraîner de classifieur.",
+  "objectives": [
+    "Trouver Feature Explorer dans Classify et charger des mesures cellulaires existantes.",
+    "Distinguer AUC et séparation, puis examiner les effectifs et les différences de distribution.",
+    "Filtrer en direct sans manquer un changement automatique de colonne de comparaison.",
+    "Utiliser Top délibérément, vérifier une colonne remise à l’échelle et exporter le classement réel."
+  ],
+  "prerequisite": "Utilisez l’exemple téléchargé d’Annotate, pas des mesures inventées. L’enregistrement ouvre une copie privée identique octet par octet de sa base de 2 341 cellules et 276 colonnes. Les groupes rowID sont les rangées spatiales r12 et r5, pas des traitements établis ; les cellules partagent champs et puits et ne sont pas des expériences indépendantes. Les données originales restent inchangées. AUC, KS, ordre du classement et effectifs finis sont vérifiés indépendamment pour les comparaisons prévues à deux classes. La comparaison automatique à huit classes est un avertissement, pas une inférence validée indépendamment. Shuffle test reste désactivé. Aucun entraînement, nouvelle analyse d’image, téléchargement dédié, calcul GPU ou requête d’IA n’a lieu ici ; les histogrammes sont les graphiques du module.",
+  "scenes": [
+    "Ouvrez Classify, puis son bouton Feature Explorer. Cet outil imbriqué classe des mesures existantes ; l’ouvrir n’entraîne pas de classifieur. Nous utilisons l’exemple réel téléchargeable d’Annotate dans une copie privée de la base. Consultez la leçon Annotate pour l’obtenir et conservez votre source expérimentale inchangée.",
+    "Choisissez Load table, la base de mesures et sa table cell, puis réglez Split by sur rowID. Il y a deux mille trois cent quarante et une cellules et deux cent soixante-seize colonnes. Nos deux groupes sont des rangées de plaque enregistrées, pas des traitements établis ; ces cellules ne sont pas des expériences indépendantes.",
+    "Classez par AUC et lisez les deux colonnes numériques. Separation est la valeur absolue de deux fois l’AUC moins un : une séparation d’environ zéro virgule trente-quatre n’est donc pas une AUC de zéro virgule trente-quatre. Higher in indique le sens ; min n compte les mesures finies de la plus petite classe, pas des répétitions expérimentales.",
+    "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque variable, les classes partagent les mêmes bornes de classes d’histogramme, et les hauteurs sont des effectifs. La première variable n’est pas automatiquement un biomarqueur utile. Lisez l’avertissement : l’AUC peut manquer une différence de dispersion malgré des distributions différentes.",
+    "Export ranking avec Top quatre écrit quatre lignes de variables. Dans cette version, l’export suit Top malgré un texte suggérant le classement complet. Il n’exporte pas les cellules sous-jacentes et ne sauvegarde pas de modèle entraîné. Nous avons comparé chaque valeur exportée au classement réel affiché.",
+    "Réglez Top sur cinq cents avant d’exporter toutes les variables évaluées dans cet exemple. Deux cent soixante et une sont évaluables ; deux candidates numériques ne le sont pas. L’export contient les deux cent soixante et une lignes, mais l’affichage dessine au maximum huit distributions. Variables, lignes du tableau et panneaux graphiques sont des quantités distinctes.",
+    "Passez Rank by à KS pour comparer le plus grand écart entre distributions cumulées, puis revenez à AUC. KS peut révéler des différences que l’AUC manque, mais ne donne pas lui-même le sens. Les autres statistiques ont leurs limites ; lisez l’avertissement au lieu de prendre un classement pour un test de significativité.",
+    "Dans Filter, ajoutez cell_area et fixez le minimum à vingt et un mille neuf cent vingt-cinq. La population visible passe à mille cent soixante et onze cellules, avec deux cent cinquante-cinq variables évaluables. Ce seuil médian est une démonstration, pas un seuil biologique de qualité. Classements et distributions s’actualisent sans remesurer les images.",
+    "Clear all retire les filtres d’affichage, pas les données. Les deux mille trois cent quarante et une cellules et le classement original reviennent. Revérifiez la population et Split by après chaque changement de filtre. Une différence qui change avec le filtre décrit une autre population sélectionnée, pas une nouvelle expérience.",
+    "Cette version comporte un piège important. Filtrer rowID sur r12 retire l’autre rangée, mais l’écran remplace silencieusement Split by par cell_channel_0_maxima_count. Il compare maintenant huit groupes, dont le plus petit n’a qu’un objet. Ces scores impressionnants ne sont ni la comparaison initiale des rangées ni la preuve d’une découverte biologique.",
+    "Effacez le filtre et choisissez à nouveau explicitement rowID. L’effacement seul ne restaure pas nécessairement la comparaison initiale. Vérifiez la colonne de classe et la population avant d’exporter. Shuffle test propose cinquante permutations d’étiquettes, mais nous le laissons désactivé : permuter librement ces cellules corrélées n’établirait pas de preuve au niveau des puits ou des traitements.",
+    "Ouvrez Columns et nommez une nouvelle colonne area_k. Entrez cell_area divisé par un e trois, c’est-à-dire mille, puis choisissez Add column sans remplacement. Cela remet l’aire à l’échelle, sans calibration en unités physiques ni nouvelle mesure. Preview vérifie les deux mille premières lignes ; l’ajout applique la formule à toute la table.",
+    "La colonne remise à l’échelle rejoint le classement et l’export, soit deux cent soixante-deux variables évaluées. Son AUC et son KS sont identiques à ceux de cell_area, car un facteur positif conserve l’ordre. Chaque valeur calculée a été vérifiée. Supprimez la formule pour retrouver les deux cent soixante et une variables originales ; la base reste inchangée.",
+    "Utilisez ces classements pour l’exploration descriptive, pas pour valider indépendamment une variable sélectionnée ou un classifieur entraîné. En Python, spacr.qt.widgets.feature_rank fournit rank_features et ExplorerSpec. Pour les tables brutes ou d’autres comparaisons, poursuivez avec Database Browser et Graph Builder. Aucune nouvelle analyse d’image ni requête d’IA n’a été exécutée."
+  ]
+}

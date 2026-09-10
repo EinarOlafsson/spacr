@@ -35,7 +35,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -63,6 +63,7 @@ from .gate_spec import (
     CylinderGate, PrismGate,
 )
 from .toggle import Toggle
+from .sortable_table import install_sorting, tree_item
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
@@ -150,11 +151,15 @@ def _gate_tree_qss(palette, opacity=None) -> str:
         background: {palette['accent']};
         color: {palette['bg']};
     }}
-    QHeaderView::section {{
+    QTreeWidget#GateHierarchy QHeaderView::section {{
         background: transparent;
         color: {palette['fg_muted']};
         border: none;
         padding: 2px 4px;
+    }}
+    QTreeWidget#GateHierarchy QHeaderView::section:hover {{
+        background: {palette['accent']};
+        color: {palette['bg']};
     }}
     QWidget#GateTree {{
         background: transparent;
@@ -165,7 +170,7 @@ def _gate_tree_qss(palette, opacity=None) -> str:
 try:
     from ..theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(QSS_NAME, _gate_tree_qss, replace=True)
-except Exception:      # pragma: no cover - decoration is not load-bearing
+except Exception:      # decoration is not load-bearing
     LOG.debug("could not register the gate tree stylesheet", exc_info=True)
 
 __all__ = ["GateCanvas", "GateTree", "GateEditorPanel", "TOOL_LABELS"]
@@ -217,6 +222,20 @@ class GateCanvas(GraphCanvas):
     Adds interactive gate drawing, dragging and hit-testing to the shared
     canvas, and pins the axes while a gate exists -- see
     :data:`RESCALE_ON_FILTER` for why that is not optional here.
+
+    Emits :attr:`gate_drawn` with a finished
+    :class:`~spacr.qt.widgets.gate_spec.Gate` that has **no name yet** --
+    naming is the host's job, because a gate is not a gate until it is named
+    and a dialog does not belong in a canvas.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Gating is the one place a filter must NOT move the axes. A gate is
@@ -224,13 +243,6 @@ class GateCanvas(GraphCanvas):
     #: it kept moves that view out from under it, which reads as the plot
     #: zooming into the gate and makes the gate impossible to drag.
     RESCALE_ON_FILTER = False
-
-    """The plot, with gates drawn on it and a tool that draws more.
-
-    Emits :attr:`gate_drawn` with a finished :class:`~spacr.qt.widgets.gate_spec.Gate`
-    that has **no name yet** — naming is the host's job, because a gate is not
-    a gate until it is named, and a dialog does not belong in a canvas.
-    """
 
     #: A shape was completed. Carries a gate named ``"(unnamed)"``.
     gate_drawn = Signal(object)
@@ -249,6 +261,12 @@ class GateCanvas(GraphCanvas):
     depth_requested = Signal(str)
 
     def __init__(self, parent=None, *, link=None, source: str = "gate_editor"):
+        """Build a gating canvas over one graph spec.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table being gated.
+        """
         super().__init__(parent, link=link, source=source)
         self._tool = DEFAULT_TOOL
         #: How near the first vertex a click has to land to close a polygon.
@@ -272,7 +290,7 @@ class GateCanvas(GraphCanvas):
             # hand, and the point of snapping is only about the FINAL view.
             self._canvas.mpl_connect("button_release_event",
                                      self._on_button_release)
-        except Exception:      # pragma: no cover - no canvas in a bare test
+        except Exception:      # no canvas in a bare test
             LOG.debug("no scroll events available", exc_info=True)
         #: Which plane the pending polygon's vertices were clicked on, as
         #: (first, second). A polygon spanning two planes is not one shape.
@@ -323,6 +341,10 @@ class GateCanvas(GraphCanvas):
     # -- the tool ---------------------------------------------------------
     @property
     def tool(self) -> str:
+        """Which drawing tool is armed.
+
+        :returns: the tool's name.
+        """
         return self._tool
 
     def set_tool(self, tool: str) -> None:
@@ -339,6 +361,12 @@ class GateCanvas(GraphCanvas):
         return tuple(self._pending)
 
     def clear_pending(self) -> None:
+        """Throw away a part-drawn gate and tell the panel the count is zero.
+
+        The signal matters as much as the clearing: the panel's Finish button
+        is enabled by the vertex count, and clearing without saying so would
+        leave it offering to close a polygon that no longer exists.
+        """
         self._pending = []
         self.polygon_changed.emit(0)
         self.render_now()
@@ -346,37 +374,28 @@ class GateCanvas(GraphCanvas):
     # -- the gates --------------------------------------------------------
     @property
     def gates(self) -> GateSet:
+        """The gates drawn on this canvas.
+
+        :returns: the gate set.
+        """
         return self._gates
 
     def set_gates(self, gates: GateSet, *, active: Optional[str] = None) -> None:
-        """Show ``gates``, with ``active`` as the population being drawn on."""
+        """Display ``gates`` and select ``active`` as the hierarchy parent."""
         self._gates = gates
         self._active = active
         self.render_now()
 
     @property
     def active_gate(self) -> Optional[str]:
-        """The gate whose population the canvas is showing."""
+        """Return the selected gate used as the next gate's parent."""
         return self._active
 
     def population(self) -> Optional[pd.DataFrame]:
-        """The rows on screen -- the whole table.
+        """Return the locally filtered table displayed beneath gate overlays.
 
-        This used to return the ACTIVE GATE'S population, and `render_now`
-        plots whatever this returns, so selecting or drawing a gate replotted
-        only the objects inside it. That is textbook hierarchical gating, and
-        it is not what was asked for: "draw a gate on the graph ... but never
-        zoom into the gated data ... be able to select this gate in the gate
-        panel and toggle it on and off."
-
-        It is also the whole of the stuck state -- "the only way to get back
-        to the main figure is to delete a gate" -- because clearing the active
-        name was the only thing that ever restored the full view, and deleting
-        was the only thing that cleared it.
-
-        Gates are overlays now: outlined on the full plot, highlighting their
-        own objects. `_active` survives only as the PARENT of the next gate
-        drawn, which is a statement about the hierarchy, not about the view.
+        Selecting a gate does not subset this frame; the selected gate only
+        determines the parent of the next gate drawn.
         """
         if self._frame is None:
             return None
@@ -384,15 +403,10 @@ class GateCanvas(GraphCanvas):
         return base
 
     def apply_settings(self, settings) -> None:
-        """Take the drawing settings and redraw once.
+        """Apply drawing settings and redraw the canvas once.
 
-        Every one of these has to reach the DRAWING. The settings window
-        shipped with fields the canvas never read, so the colour map said
-        viridis while the points stayed blue and nothing but the sampling
-        appeared to do anything.
-
-        Guarded with getattr so a partial settings object -- an older saved
-        set, a test double -- cannot stop the editor from drawing at all.
+        Missing attributes retain their defaults so older saved settings and
+        lightweight settings objects remain usable.
         """
         self._settings = settings
         tool = getattr(settings, "default_tool", None)
@@ -664,7 +678,7 @@ class GateCanvas(GraphCanvas):
         # axis lock exists to replace. Disabled so the two cannot fight.
         try:
             ax.disable_mouse_rotation()
-        except Exception:      # pragma: no cover - older matplotlib
+        except Exception:      # older matplotlib
             LOG.debug("could not take over 3d rotation", exc_info=True)
         if self._view_angles is not None:
             ax.view_init(elev=self._view_angles[0], azim=self._view_angles[1])
@@ -693,20 +707,11 @@ class GateCanvas(GraphCanvas):
     VOXEL_THRESHOLD = 20000
 
     def _draw_voxels(self, ax, x, y, z) -> bool:
-        """Draw the volume as occupancy voxels. False if it should not be.
+        """Draw a three-dimensional occupancy grid when the data supports it.
 
-        THIS IS WHAT `voxel_bins` IS FOR, and until now nothing read it --
-        the setting was declared, given a control, saved, reloaded and
-        ignored, which is the phantom-control defect instruction 77 swept
-        for.
-
-        A voxel is drawn where objects ARE, sized by how many. Occupancy
-        rather than a surface: a surface implies a boundary the data has not
-        got, while a cloud of sized markers says "this many here" and is the
-        same claim the 2D density plot makes.
-
-        :returns: False when the point count does not justify it, so the
-            caller scatters as before.
+        Voxel size represents the number of objects in each occupied bin.
+        Return ``False`` when too few points justify binning so the caller can
+        use the ordinary scatter representation.
         """
         bins = int(getattr(self._settings, "voxel_bins", 0) or 0)
         if bins < 2 or len(x) < self.VOXEL_THRESHOLD:
@@ -769,6 +774,7 @@ class GateCanvas(GraphCanvas):
             return None
 
         def screen(point):
+            """Project one data point to screen pixels."""
             try:
                 projected = ax.transData.transform(
                     ax.get_proj() is not None and _project(ax, point) or (0, 0))
@@ -796,6 +802,12 @@ class GateCanvas(GraphCanvas):
         inverse = np.linalg.inv(matrix)
 
         def invert(dx, dy):
+            """Turn a screen-pixel delta back into a data delta.
+
+            Uses the INVERSE of the projection taken once outside, so a drag is
+            measured in the units the axis is in rather than in pixels -- the same
+            drag near the origin and far from it means the same change.
+            """
             data = inverse @ np.asarray([dx, dy], dtype=float)
             return float(data[0]), float(data[1])
 
@@ -881,6 +893,11 @@ class GateCanvas(GraphCanvas):
         """The twelve edges of a box, drawn in the volume."""
         frame = self.population()
         def bound(low, high, column):
+            """One axis's limits: the gate's own, or the column's actual range.
+
+            Falls back to the DATA when a side is unset, so a half-open gate still
+            draws as a box rather than running off the axis.
+            """
             if low is not None and high is not None:
                 return float(low), float(high)
             values = pd.to_numeric(frame[column], errors="coerce") \
@@ -974,6 +991,7 @@ class GateCanvas(GraphCanvas):
             return
 
         def scaled(event):
+            """Scale one wheel step by the spin box's own speed setting."""
             try:
                 start_x = getattr(axes, "_sx", None)
                 start_y = getattr(axes, "_sy", None)
@@ -1257,6 +1275,12 @@ class GateCanvas(GraphCanvas):
 
     # -- the shape that follows the mouse ---------------------------------
     def _clear_ghost(self) -> None:
+        """Remove the shape being drawn.
+
+        EACH REMOVAL IS GUARDED: an artist matplotlib has already disposed of
+        raises on removal, and one stale artist must not leave the rest of
+        the ghost on screen.
+        """
         for artist in self._ghost:
             try:
                 artist.remove()
@@ -1292,7 +1316,11 @@ class GateCanvas(GraphCanvas):
                             bound, color=palette["warning"], linewidth=1.4,
                             linestyle=":", zorder=10))
                 continue
-            points = self._gate_points(ax, gate)
+            # AS FLAT, for the same reason gate_at and _outline are: the
+            # ghost previews what the drag would produce ON THIS VIEW, and a
+            # box has no flat layout until it is seen from the front. Without
+            # it a box gate was pulled with no preview of the result.
+            points = self._gate_points(ax, self._as_flat(gate))
             if not points:
                 continue
             patch = MplPolygon(points, closed=True, fill=False,
@@ -1336,12 +1364,89 @@ class GateCanvas(GraphCanvas):
                 gate.y_low if gate.y_low is not None else y_low,
                 gate.y_high if gate.y_high is not None else y_high)
 
+    def _volume_face_point(self, ax, u: float, v: float):
+        """Where a pending vertex ``(u, v)`` sits in the volume.
+
+        The two numbers a pending vertex holds are its position on the plane
+        the polygon is being clicked out on -- NOT ``x`` and ``y``. Which of
+        the three axes they belong to is `_pending_plane`, and the third one
+        is pinned to the face the blue aura is drawn on, so the trail of
+        markers lands on the surface the user is drawing on.
+
+        :returns: ``[x, y, z]``, or None once the plane the vertices were
+            placed on is no longer among the three measurements on screen --
+            which is what changing a picker mid-polygon does.
+        """
+        if not self._pending_plane:
+            return None
+        columns = (self._spec.x, self._spec.y, self._z_column)
+        first, second = self._pending_plane
+        normal = next((c for c in columns if c not in (first, second)), "")
+        if not normal:
+            return None
+        try:
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+            point = [0.0, 0.0, 0.0]
+            point[columns.index(first)] = float(u)
+            point[columns.index(second)] = float(v)
+            point[columns.index(normal)] = float(
+                limits[columns.index(normal)][0])
+        except Exception:
+            LOG.debug("the pending plane is no longer on screen",
+                      exc_info=True)
+            return None
+        return point
+
     def _outline_pending(self, ax, palette) -> None:
+        """Trace the vertices placed so far."""
+        if self._in_volume():
+            self._outline_pending_in_volume(ax, palette)
+            return
         xs = [v[0] for v in self._pending]
         ys = [v[1] for v in self._pending]
         self._artists.append(ax.plot(
             xs, ys, color=palette["warning"], linewidth=1.2,
             marker="o", markersize=3, zorder=8)[0])
+
+    def _outline_pending_in_volume(self, ax, palette) -> None:
+        """Trace the pending vertices on the face they were placed on.
+
+        Two things a flat `ax.plot(xs, ys)` on an `Axes3D` got wrong, and
+        both of them stopped a 3D polygon being finished at all:
+
+        the vertices were drawn as ``(x, y)`` at a depth of zero, which is
+        neither the measurements the user clicked nor a depth the data
+        reaches; and a flat plot AUTOSCALES all three limits, so the volume
+        was rescaled by the act of drawing on it. Every click moved the
+        picture and the vertex already placed slid out from under the cursor
+        that placed it -- measured at 104 px against a `CLOSE_RADIUS_PX` of
+        12, so clicking the first vertex back added a fourth one instead of
+        closing the shape.
+
+        The limits are therefore put back afterwards. A half-drawn polygon is
+        a GESTURE, not data, and nothing about a gesture belongs in the range
+        of the axes it is drawn over.
+        """
+        points = [self._volume_face_point(ax, u, v) for u, v in self._pending]
+        if any(point is None for point in points):
+            return
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        try:
+            line = ax.plot(
+                [p[0] for p in points], [p[1] for p in points],
+                [p[2] for p in points],
+                color=palette["warning"], linewidth=1.2,
+                marker="o", markersize=3, zorder=8)[0]
+        except Exception:
+            # An outline that cannot be painted costs the view nothing, and
+            # is not worth falling back to the flat plot that caused this.
+            LOG.debug("could not draw the pending outline", exc_info=True)
+            return
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
+        self._artists.append(line)
 
     # -- drawing gates ----------------------------------------------------
     def gate_at(self, x: float, y: float) -> Optional[str]:
@@ -1373,7 +1478,13 @@ class GateCanvas(GraphCanvas):
                 probe = pd.DataFrame({columns[0]: [float(x)]})
                 if len(columns) > 1:
                     probe[columns[1]] = [float(y)]
-                if bool(gate.mask(probe)[0]):
+                # AS FLAT, like _outline and _handles_for above. The click is
+                # on the flat view, where a box IS its front rectangle -- and
+                # the raw box names a third measurement the two-column probe
+                # cannot carry, so mask() raised GateError, the except below
+                # swallowed it, and a gate that was drawn on screen with its
+                # corners showing could not be picked up at all.
+                if bool(self._as_flat(gate).mask(probe)[0]):
                     hit = gate.name
             except Exception:
                 # A gate on columns this scatter is not showing cannot be
@@ -1382,13 +1493,13 @@ class GateCanvas(GraphCanvas):
         return hit
 
     def set_spin_axis(self, axis: str) -> None:
-        """Lock the volume's rotation to one axis.
+        """Constrain subsequent volume rotation to the selected axis.
 
-        "i want to be able to spinn allong axees not meev freely ... say click
-        the y axis, then i should be able to spin on the x axis." Free
-        rotation reaches angles from which nothing can be read, and getting
-        back to a square-on view by hand is not realistic. Locked, a drag is
-        one rotation about one axis and every view stays interpretable.
+        ``"z"`` changes azimuth, ``"x"`` and ``"y"`` change elevation, and
+        ``""`` permits both. Unsupported values fall back to ``"z"``. Axis
+        locking prevents a drag from changing both viewing angles at once.
+
+        :param axis: ``"x"``, ``"y"``, ``"z"``, or ``""`` for free rotation.
         """
         self._spin_axis = axis if axis in ("x", "y", "z", "") else "z"
 
@@ -1430,6 +1541,11 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_motion(self, event) -> bool:
+        """Track a 3-D gate's drag, if one is in progress.
+
+        :param event: the matplotlib motion event.
+        :returns: True when this consumed the event.
+        """
         if not self._in_volume():
             return False
         if self._volume_drag is not None:
@@ -1472,6 +1588,11 @@ class GateCanvas(GraphCanvas):
         return True
 
     def _volume_release(self, event) -> bool:
+        """Finish a 3-D gate's drag.
+
+        :param event: the matplotlib release event.
+        :returns: True when this consumed the event.
+        """
         if not self._in_volume():
             return False
         if self._depth_drag_from is not None:
@@ -1525,8 +1646,16 @@ class GateCanvas(GraphCanvas):
         limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
                   "z": ax.get_zlim3d()}
         spec = self._spec
-        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
-                            if c not in (first, second))
+        depth_column = next((c for c in (spec.x, spec.y, self._z_column)
+                             if c not in (first, second)), "")
+        if not depth_column:
+            # Two of the three axes are showing the SAME measurement -- which
+            # the pickers allow, being filled from one column list with
+            # nothing excluded -- so there is no third axis to extend the
+            # footprint through and no rectangle to preview. Refused the way
+            # close_polygon already refuses it, rather than raising
+            # StopIteration out of a handler that runs on every motion event.
+            return
         depth = limits[{spec.x: "x", spec.y: "y",
                         self._z_column: "z"}[depth_column]]
         palette = active_palette()
@@ -1566,8 +1695,13 @@ class GateCanvas(GraphCanvas):
             return None
 
         spec = self._spec
-        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
-                            if c not in (first, second))
+        depth_column = next((c for c in (spec.x, spec.y, self._z_column)
+                             if c not in (first, second)), "")
+        if not depth_column:
+            # The same measurement is on two of the three axes, so the drag
+            # describes no volume. Refused, like every other gesture the view
+            # cannot read, rather than raising out of the release handler.
+            return None
 
         # THE SHAPE DROPDOWN DECIDES, on the plane the user picked. The
         # depth bound comes from `pending_depth()` -- a slab the user drags
@@ -1595,6 +1729,7 @@ class GateCanvas(GraphCanvas):
         bounds = {first: (min(x0, x1), max(x0, x1)),
                   second: (min(y0, y1), max(y0, y1))}
         def side(column):
+            """The stored bounds for one column, or ``(None, None)``."""
             return bounds.get(column, (None, None))
         x_low, x_high = side(spec.x)
         y_low, y_high = side(spec.y)
@@ -1617,7 +1752,7 @@ class GateCanvas(GraphCanvas):
     def set_pending_depth(self, low, high) -> None:
         """The slab depth the next volume gate is made with.
 
-        Instruction 52, at the maintainer's choice of "a slab you drag out"
+        The depth is represented as a slab you drag out
         over "all the way through": the depth is a second gesture after the
         shape is drawn, so the gate is finite from the start rather than
         something to narrow afterwards in a panel.
@@ -1697,6 +1832,15 @@ class GateCanvas(GraphCanvas):
         return (low, low + span * fraction)
 
     def _finish_volume_depth(self, bounds) -> Optional[Gate]:
+        """Turn a drawn face plus a depth into a solid gate.
+
+        THE DEPTH IS A SECOND GESTURE. A volume cannot be drawn in one drag
+        on a 2-D screen, so the face is swept first and the height asked for
+        afterwards -- which is why this is separate from the release handler.
+
+        :param bounds: the depth extent chosen.
+        :returns: the finished gate, or None if it was abandoned.
+        """
         gate = self._pending_volume_gate
         axis = self._pending_volume_axis
         if gate is None or not axis:
@@ -1726,6 +1870,10 @@ class GateCanvas(GraphCanvas):
         self._draw_gates()
 
     def anchor_axis(self) -> str:
+        """Which world axis a 3-D drag rotates about.
+
+        :returns: the axis name, defaulting to ``z``.
+        """
         return getattr(self, "_anchor_axis", "z")
 
     def set_drag_mode(self, mode: str) -> None:
@@ -1733,6 +1881,10 @@ class GateCanvas(GraphCanvas):
         self._drag_mode = mode if mode in ("spin", "draw") else "spin"
 
     def drag_mode(self) -> str:
+        """What dragging does right now: spin the view, or draw.
+
+        :returns: the mode's name, defaulting to ``spin``.
+        """
         return getattr(self, "_drag_mode", "spin")
 
     def set_volume_shape(self, shape: str) -> None:
@@ -1740,6 +1892,10 @@ class GateCanvas(GraphCanvas):
         self._volume_shape = str(shape or "box")
 
     def volume_shape(self) -> str:
+        """Which solid a 3-D gate is drawn as.
+
+        :returns: the shape's name, defaulting to ``box``.
+        """
         return getattr(self, "_volume_shape", "box")
 
     def anchor_plane(self) -> Optional[Tuple[str, str, str]]:
@@ -1761,6 +1917,16 @@ class GateCanvas(GraphCanvas):
         columns = {"x": spec.x, "y": spec.y, "z": self._z_column}
         if not all(columns.values()):
             return None
+        # A plane and the normal it is extended along are THREE measurements.
+        # The pickers are filled from one column list with nothing excluded,
+        # so a user can name the same one twice -- and this used to hand back
+        # a triple with a repeat in it, ('a', 'b', 'a'), which every caller
+        # then went wrong on in its own way. The aura was the visible one:
+        # its `order` map is keyed by column name, so the repeat collapsed it
+        # and every corner of the quad kept a None in the slot nothing filled.
+        # All three callers already treat None as "no plane is armed".
+        if len(set(columns.values())) != 3:
+            return None
         normal_axis = self.anchor_axis()
         normal = columns[normal_axis]
         plane = [columns[a] for a in ("x", "y", "z") if a != normal_axis]
@@ -1781,12 +1947,16 @@ class GateCanvas(GraphCanvas):
         axis_of = {spec.x: "x", spec.y: "y", self._z_column: "z"}
         limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
                   "z": ax.get_zlim3d()}
-        try:
-            u0, u1 = limits[axis_of[first]]
-            v0, v1 = limits[axis_of[second]]
-            far = limits[axis_of[normal]][0]
-        except KeyError:
-            return
+        # No KeyError is possible here and the handler that used to be around
+        # this block never ran. `anchor_plane` builds first/second/normal from
+        # exactly `spec.x`, `spec.y` and `self._z_column`, returns None if any
+        # is blank, and now returns None unless the three are DISTINCT -- so
+        # `axis_of` has an entry for each of them. Its values are 'x'/'y'/'z',
+        # which are exactly the keys of `limits`. Deleted rather than excluded
+        # from coverage: a branch that cannot be reached is dead code.
+        u0, u1 = limits[axis_of[first]]
+        v0, v1 = limits[axis_of[second]]
+        far = limits[axis_of[normal]][0]
         order = {spec.x: 0, spec.y: 1, self._z_column: 2}
         corners = []
         for pu, pv in ((u0, v0), (u1, v0), (u1, v1), (u0, v1)):
@@ -1833,6 +2003,10 @@ class GateCanvas(GraphCanvas):
             setter(centre - half * factor, centre + half * factor)
 
     def _on_press(self, event) -> None:
+        """Begin drawing a gate, or pass the press to the view.
+
+        :param event: the matplotlib press event.
+        """
         if (self._in_volume() and self.drag_mode() == "draw"
                 and self.volume_shape() == "polygon"):
             placed = self.screen_to_volume(event)
@@ -1884,31 +2058,18 @@ class GateCanvas(GraphCanvas):
         if self._tool != POLYGON:
             super()._on_press(event)
             return
-        if self._mode in ("3D", "xD"):
-            # In the volume, `event.xdata` is a projected screen coordinate
-            # and means nothing in data units. The same reader the drag tools
-            # use answers this properly, in the two measurements facing the
-            # camera.
-            placed = self.screen_to_volume(event)
-            if placed is None:
-                return
-            first, x, second, y = placed
-            plane = (first, second)
-            if self._pending and self._pending_plane != plane:
-                # The view turned mid-polygon. Vertices from two planes are
-                # not one shape, and quietly mixing them would produce a
-                # prism whose outline nobody drew.
-                LOG.debug("polygon abandoned: the view turned mid-shape")
-                self._pending = []
-            self._pending_plane = plane
-            if (len(self._pending) >= 3
-                    and self._near_first_volume_vertex(event)):
-                self.close_polygon_now()
-                return
-            self._pending.append((x, y))
-            self.polygon_changed.emit(len(self._pending))
-            self._draw_gates()
-            return
+        # From here the vertex is read off a FLAT plot, and the plot is flat
+        # whatever the mode says it is. A second copy of the volume block at
+        # the top of this method used to stand here, guarded by the MODE
+        # rather than by what is on screen -- and a 3D or xD view that fell
+        # back to the flat scatter (a third measurement the table has not got,
+        # an xD view with no third component, an empty table) is in one of
+        # those modes with an ordinary flat axes under the cursor. Every click
+        # went to the volume reader, which correctly answered that there is no
+        # volume to read, and the polygon tool placed nothing at all with no
+        # feedback. In a REAL volume `_volume_press` above has already taken
+        # the event, so the only state that block could ever reach was the one
+        # it broke.
         if event.inaxes is None or event.xdata is None or event.ydata is None:
             return
         x, y = float(event.xdata), float(event.ydata)
@@ -1990,19 +2151,14 @@ class GateCanvas(GraphCanvas):
         if not self._pending or not self._pending_plane:
             return False
         ax = getattr(event, "inaxes", None)
-        spec = self._spec
-        columns = (spec.x, spec.y, self._z_column)
-        first, second = self._pending_plane
-        normal = next((c for c in columns if c not in (first, second)), "")
-        if ax is None or not normal:
+        if ax is None:
+            return False
+        # The SAME point `_outline_pending_in_volume` draws the marker at, so
+        # the vertex you are asked to click is the vertex that is measured.
+        point = self._volume_face_point(ax, *self._pending[0])
+        if point is None:
             return False
         try:
-            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
-            point = [0.0, 0.0, 0.0]
-            point[columns.index(first)] = float(self._pending[0][0])
-            point[columns.index(second)] = float(self._pending[0][1])
-            point[columns.index(normal)] = float(
-                limits[columns.index(normal)][0])
             fx, fy = ax.transData.transform(_project(ax, point))
             px = float(getattr(event, "x", 0) or 0)
             py = float(getattr(event, "y", 0) or 0)
@@ -2012,12 +2168,9 @@ class GateCanvas(GraphCanvas):
             <= self.CLOSE_RADIUS_PX
 
     def close_polygon_now(self) -> None:
-        """Close the pending polygon.
+        """Close the pending polygon and emit at most one completed gate.
 
-        `close_polygon` ALREADY emits `gate_drawn`. Emitting again here made
-        one drawn polygon prompt for a name twice and create two identical
-        gates -- which is exactly what was reported. This wrapper exists only
-        so the click-the-first-vertex path and the Close button share a name.
+        The first-vertex shortcut and the Close button both use this method.
         """
         if self._mode in ("3D", "xD") and self._pending_plane:
             gate = self.close_polygon(emit=False)
@@ -2045,6 +2198,12 @@ class GateCanvas(GraphCanvas):
             1 if getattr(event, "button", "") == "up" else -1)
         factor = 0.8 ** float(step)
         def zoomed(limits, anchor):
+            """Scale one axis's limits about the anchor the pointer is over.
+
+            Anchored on the POINTER rather than the centre, so the point under the
+            cursor stays put -- which is what makes a scroll feel like zooming in on
+            something rather than the plot sliding away.
+            """
             low, high = limits
             return (anchor + (low - anchor) * factor,
                     anchor + (high - anchor) * factor)
@@ -2083,6 +2242,10 @@ class GateCanvas(GraphCanvas):
         ax.set_ylim(*y_limits)
 
     def _on_motion(self, event) -> None:
+        """Grow the gate being drawn.
+
+        :param event: the matplotlib motion event.
+        """
         if self._volume_motion(event):
             return
         if self._resize is not None or getattr(self, "_move_name", None):
@@ -2097,6 +2260,10 @@ class GateCanvas(GraphCanvas):
         super()._on_motion(event)
 
     def _on_release(self, event) -> None:
+        """Finish the gate and hand it to the panel.
+
+        :param event: the matplotlib release event.
+        """
         if self._volume_release(event):
             return
         if self._resize is not None:
@@ -2143,7 +2310,12 @@ class GateCanvas(GraphCanvas):
         if self._drag_patch is not None:
             try:
                 self._drag_patch.remove()
-            except (ValueError, NotImplementedError):  # pragma: no cover
+            except (ValueError, NotImplementedError):
+                # Matplotlib raises ValueError when an artist is already
+                # gone and NotImplementedError for containers that do not
+                # support removal. Either way the drag is over; the
+                # reference below is dropped regardless, or the next drag
+                # draws over a stale patch nothing cleans up.
                 pass
             self._drag_patch = None
         if origin is None or event.inaxes is not origin[0]:
@@ -2157,13 +2329,7 @@ class GateCanvas(GraphCanvas):
             self.gate_drawn.emit(gate)
 
     def _make_drag_patch(self, x0: float, y0: float):
-        """Preview the shape the armed tool will actually make.
-
-        A rectangular preview for an elliptical gate tells the user the wrong
-        thing about what they are about to draw -- reported as "the oval
-        looks like a square when dragged but does in fact generate an oval
-        gate".
-        """
+        """Create a drag preview matching the armed gate shape."""
         if self._tool == ELLIPSE:
             from matplotlib.patches import Ellipse
 
@@ -2172,6 +2338,18 @@ class GateCanvas(GraphCanvas):
 
     def _update_drag_patch(self, patch, x0: float, y0: float,
                            x1: float, y1: float) -> None:
+        """Redraw the in-progress shape for the current drag box.
+
+        AN ELLIPSE IS INSCRIBED IN THE SWEPT BOX, which is what makes the
+        drag mean the same thing for every tool: the user sweeps a rectangle
+        and the tool decides what fits inside it.
+
+        :param patch: the artist being updated.
+        :param x0: the drag's start x.
+        :param y0: its start y.
+        :param x1: its current x.
+        :param y1: its current y.
+        """
         if self._tool == ELLIPSE:
             # Inscribed in the swept box, exactly as EllipseGate.from_drag
             # builds it -- so the preview and the gate are the same shape.
@@ -2272,6 +2450,8 @@ class GateTree(QWidget):
     :class:`~spacr.qt.widgets.gate_spec.GateStats` — 90% of a parent that is 2%
     of the table is 1.8% of the objects, and a strategy that prints only the
     first is flattering itself.
+
+    :param parent: parent widget.
     """
 
     #: The selected gate changed — carries the name, or ``""`` for the root.
@@ -2282,6 +2462,10 @@ class GateTree(QWidget):
     enabled_changed = Signal(str, bool)
 
     def __init__(self, parent=None):
+        """Build the hierarchy view.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GateTree")
         self._gates = GateSet()
@@ -2293,6 +2477,7 @@ class GateTree(QWidget):
         outer.setSpacing(SPACING["xs"])
 
         self.tree = QTreeWidget(self)
+        install_sorting(self.tree)
         self.tree.setObjectName("GateHierarchy")
         self.tree.setColumnCount(4)
         self.tree.setHeaderLabels(["Gate", "n", "% parent", "% all"])
@@ -2360,6 +2545,15 @@ class GateTree(QWidget):
         outer.addLayout(row)
 
     def set_gates(self, gates: GateSet, frame: Optional[pd.DataFrame]) -> None:
+        """Show a gate hierarchy, counted against a table.
+
+        BOTH ARGUMENTS TOGETHER. The counts and percentages are a property of
+        the gates AND the rows they were applied to, so a tree given new
+        gates against the old frame would show numbers belonging to neither.
+
+        :param gates: the hierarchy to show.
+        :param frame: the rows to count against, or None for no counts.
+        """
         self._gates = gates
         self._frame = frame
         self.refresh()
@@ -2373,15 +2567,50 @@ class GateTree(QWidget):
         finally:
             self._rebuilding = False
 
+    #: What the count column reads for a gate this table cannot answer.
+    UNAVAILABLE = "n/a"
+
+    def _gate_stats(self):
+        """``(stats by gate name, reason by gate name)`` for this frame.
+
+        :meth:`GateSet.stats` is all-or-nothing: it walks every gate and the
+        first one whose columns are absent raises, taking the counts of every
+        OTHER gate with it. Dropping the nucleus table from the working set
+        must cost the nucleus gates their numbers and nothing else, so the
+        fallback here evaluates gate by gate and keeps the reason for each
+        one it could not.
+        """
+        try:
+            return {s.name: s for s in self._gates.stats(self._frame)}, {}
+        except GateError as exc:
+            LOG.info("some gates do not apply to this table: %s", exc)
+
+        from .gate_spec import GateStats
+
+        stats: Dict[str, Any] = {}
+        why: Dict[str, str] = {}
+        total = int(len(self._frame))
+        counts: Dict[str, int] = {}
+        for gate in self._gates.order():
+            try:
+                n_in = int(self._gates.mask(self._frame, gate.name).sum())
+            except Exception as gate_exc:
+                why[gate.name] = str(gate_exc)
+                continue
+            counts[gate.name] = n_in
+            n_parent = (counts.get(gate.parent, total) if gate.parent
+                        else total)
+            stats[gate.name] = GateStats(
+                name=gate.name, depth=self._gates.depth(gate.name),
+                n_total=total, n_parent=n_parent, n_in=n_in)
+        return stats, why
+
     def _rebuild(self, current: str) -> None:
+        """Rebuild every row from the gates and their counts."""
         self.tree.clear()
         if self._frame is None:
             return
-        try:
-            stats = {s.name: s for s in self._gates.stats(self._frame)}
-        except GateError as exc:
-            LOG.info("gates do not apply to this table: %s", exc)
-            stats = {}
+        stats, unavailable = self._gate_stats()
         items: Dict[str, QTreeWidgetItem] = {}
         for gate in self._gates.order():
             stat = stats.get(gate.name)
@@ -2390,7 +2619,12 @@ class GateTree(QWidget):
                 labels = [gate.name, f"{stat.n_in:,}",
                           f"{100.0 * stat.of_parent:.1f}%",
                           f"{100.0 * stat.of_total:.1f}%"]
-            item = QTreeWidgetItem(labels)
+            elif gate.name in unavailable:
+                # Says so rather than vanishing: the gate keeps its row and
+                # its colour, and the count column carries the fact that this
+                # working set cannot answer it.
+                labels = [gate.name, self.UNAVAILABLE, "", ""]
+            item = tree_item(labels)
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
                                else Qt.Checked)
@@ -2400,7 +2634,13 @@ class GateTree(QWidget):
                 # makes colour-coding useful: a colour on the plot that is not
                 # also in the list is a colour with nothing to look it up in.
                 item.setForeground(0, QBrush(QColor(colour)))
-            item.setToolTip(0, gate.describe())
+            reason = unavailable.get(gate.name)
+            if reason:
+                item.setToolTip(0, f"{gate.describe()}\n\nNot applicable to "
+                                   f"the tables in the working set: {reason}")
+                item.setToolTip(1, reason)
+            else:
+                item.setToolTip(0, gate.describe())
             parent_item = items.get(gate.parent) if gate.parent else None
             if parent_item is None:
                 self.tree.addTopLevelItem(item)
@@ -2450,16 +2690,30 @@ class GateTree(QWidget):
         return name not in self._disabled
 
     def active_gate(self) -> str:
+        """The name of the selected gate.
+
+        :returns: the gate's name, or ``""`` when nothing is selected.
+        """
         item = self.tree.currentItem()
         return item.data(0, Qt.UserRole) if item is not None else ""
 
     def select(self, name: str) -> None:
+        """Select a gate by name, wherever it sits in the hierarchy.
+
+        :param name: the gate's name.
+        """
         for index in range(self.tree.topLevelItemCount()):
             if self._select_in(self.tree.topLevelItem(index), name):
                 return
         self.tree.setCurrentItem(None)
 
     def _select_in(self, item: QTreeWidgetItem, name: str) -> bool:
+        """Find and select a gate under one row, recursing into its children.
+
+        :param item: the row to search under.
+        :param name: the gate's name.
+        :returns: True when it was found and selected.
+        """
         if item.data(0, Qt.UserRole) == name:
             self.tree.setCurrentItem(item)
             return True
@@ -2467,6 +2721,7 @@ class GateTree(QWidget):
                    for i in range(item.childCount()))
 
     def remove_selected(self) -> None:
+        """Delete the selected gate, and everything drawn inside it."""
         name = self.active_gate()
         if not name:
             return
@@ -2525,6 +2780,7 @@ class GateTree(QWidget):
             return
 
         def value(edit):
+            """One threshold field as a number, or ``None`` when blank."""
             text = edit.text().strip()
             if not text:
                 return None
@@ -2544,6 +2800,7 @@ class GateTree(QWidget):
         self.gates_changed.emit()
 
     def _on_selection(self, *_args) -> None:
+        """Tell the panel which gate the tree now has selected."""
         self.active_changed.emit(self.active_gate())
 
 
@@ -2582,9 +2839,17 @@ class _ClusterSettingsDialog(QDialog):
     deliberately were discarded, and the two disagreed about the defaults as
     well (0.5 and 20 against 0.30 and 10). `settings` is optional only
     because the dialog is constructible before `apply_settings` has run.
+
+    :param parent: parent widget; ownership only.
+    :param settings: the screen's settings, read for the user's own
+        ``cluster_scale`` and friends. ``None`` falls back to the built-in
+        defaults and is the reason above -- NOT an invitation to omit it:
+        a dialog opened without settings is the bug this paragraph
+        describes, silently discarding values the user set deliberately.
     """
 
     def __init__(self, parent=None, settings=None):
+        """Build the form, seeded from the screen's settings when given."""
         super().__init__(parent)
         try:
             from ..dialogs import detach_from_window_manager
@@ -2602,6 +2867,12 @@ class _ClusterSettingsDialog(QDialog):
         source = settings if settings is not None else fallback
 
         def _setting(name):
+            """One setting from the source, falling back per NAME rather than wholesale.
+
+            A source that carries some settings and not others is the ordinary case,
+            and taking the fallback object entire would discard the ones it did
+            carry.
+            """
             value = getattr(source, name, None)
             return getattr(fallback, name) if value is None else value
 
@@ -2659,23 +2930,34 @@ class _ClusterSettingsDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         form.addRow(buttons)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def eps(self) -> float:
+        """The neighbour distance, in scaled units while scaling is on."""
         return float(self._eps.value())
 
     def min_samples(self) -> int:
+        """How many neighbours an object needs before it can seed a cluster."""
         return int(self._min_samples.value())
 
     def scale(self) -> bool:
+        """Whether the measurements are standardised before clustering."""
         return bool(self._scale.isChecked())
 
     def walk(self) -> bool:
+        """Whether to search the parameter space rather than use the two numbers."""
         return bool(self._walk.isChecked())
 
     def walk_steps(self) -> int:
+        """How many parameter combinations the walk tries."""
         return int(self._walk_steps.value())
 
     def method(self) -> str:
+        """The clustering method chosen."""
         return self._method
 
 
@@ -2685,6 +2967,15 @@ class GateEditorPanel(QWidget):
     :meth:`publish` is the point of the screen — it turns the selected gate
     into a :class:`~spacr.selection.DataFilter` clause and pushes it onto the
     shared filter, so every open view narrows to the gated population.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     gates_changed = Signal()
@@ -2703,6 +2994,10 @@ class GateEditorPanel(QWidget):
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "gate_editor"):
+        """Build the gating surface: canvas, tools and hierarchy.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GateEditorPanel")
         self._gates = GateSet()
@@ -2960,19 +3255,36 @@ class GateEditorPanel(QWidget):
         self.body.setStretchFactor(0, 1)
         self.body.setStretchFactor(1, 0)
         outer.addWidget(self.body, 1)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the panel at a new table.
+
+        :param frame: the rows to gate, or None to clear.
+        """
         self._frame = frame
         self.canvas.set_frame(frame)
         self.tree.set_gates(self._gates, frame)
         self._refresh_status()
 
     def set_spec(self, spec: GraphSpec) -> None:
+        """Draw a different chart under the gates.
+
+        :param spec: the graph spec for the canvas.
+        """
         self.canvas.set_spec(spec)
 
     @property
     def gates(self) -> GateSet:
+        """The gates currently drawn.
+
+        :returns: the gate set.
+        """
         return self._gates
 
     def set_gates(self, gates: GateSet) -> None:
@@ -2995,11 +3307,19 @@ class GateEditorPanel(QWidget):
 
     # -- drawing ----------------------------------------------------------
     def _on_tool_changed(self, *_args) -> None:
+        """Arm a different drawing tool.
+
+        :param _args: the signal's payload; the tool is re-read from the buttons.
+        """
         tool = self._tool.currentData() or ""
         self.canvas.set_tool(tool)
         self._refresh_status()
 
     def _on_polygon_changed(self, count: int) -> None:
+        """Enable Finish only once the outline has enough vertices.
+
+        :param count: how many vertices are placed.
+        """
         if count:
             self._status.setText(
                 f"{count} vertex(es) — three or more make a region")
@@ -3092,7 +3412,12 @@ class GateEditorPanel(QWidget):
                 frame, x_column, y_column,
                 eps=eps, min_samples=params.min_samples,
                 scale=params.scale, method=params.method,
-                parent=self.canvas.active_gate())
+                # A PROPERTY on the canvas, a METHOD on the tree. Calling the
+                # canvas one called its RESULT, so every cluster run that got
+                # past the dialog died on "'NoneType' object is not callable".
+                # The same mix-up is already recorded a few screens up for
+                # `gates`.
+                parent=self.canvas.active_gate)
         except ClusterError as exc:
             # Named, not swallowed: every one of these messages says what to
             # change, and a silent empty result reads as a broken button.
@@ -3106,11 +3431,23 @@ class GateEditorPanel(QWidget):
                 "eps to group them more loosely, or lower min_samples.")
             return
 
-        gates = self.canvas.gates
+        # THE PANEL'S GateSet, not the canvas's. Until something calls
+        # set_gates the two are different objects, and on a fresh session
+        # nothing does -- so clusters added to the canvas's copy never
+        # reached the gate list, were never saved by screen.save_gates,
+        # were not counted in the status line, and were deleted by the next
+        # hand-drawn gate, which pushes self._gates back over the canvas.
+        # Same sequence as _on_gate_drawn, for the same reasons; tree.select
+        # is needed because tree.set_gates clears the tree and drives active
+        # back to None.
+        gates = self._gates
         for gate in found:
             gates.add(gate)
         self.canvas.set_gates(gates, active=found[0].name)
+        self.tree.set_gates(gates, self._frame)
+        self.tree.select(found[0].name)
         self._refresh_status()
+        self.gates_changed.emit()
         if chosen is not None:
             # What the walk decided, in the units the user typed in, so the
             # number can be carried back to Gate Settings by hand. A search
@@ -3121,9 +3458,6 @@ class GateEditorPanel(QWidget):
                 f"Clustered at eps {chosen.eps:.3g}, which gave "
                 f"{chosen.clusters} populations and left "
                 f"{chosen.noise_fraction:.0%} of objects outside them.")
-
-    def _on_close_polygon(self) -> None:
-        self.canvas.close_polygon()
 
     def _on_gate_edited(self, gate: Gate) -> None:
         """Replace a gate that was dragged on the canvas.
@@ -3141,6 +3475,10 @@ class GateEditorPanel(QWidget):
         self._refresh_status()
 
     def _on_gate_drawn(self, gate: Gate) -> None:
+        """Name a newly drawn gate and add it to the set.
+
+        :param gate: the gate the canvas produced.
+        """
         name = self._ask_name()
         if not name:
             self.canvas.render_now()
@@ -3158,6 +3496,10 @@ class GateEditorPanel(QWidget):
         self.gates_changed.emit()
 
     def _ask_name(self) -> str:
+        """Ask what to call a gate, defaulting to a free name.
+
+        :returns: the chosen name, or ``""`` if cancelled.
+        """
         if self._namer is not None:
             return str(self._namer() or "")
         name, ok = QInputDialog.getText(
@@ -3167,6 +3509,10 @@ class GateEditorPanel(QWidget):
         return name.strip() if ok else ""
 
     def _on_active_changed(self, name: str) -> None:
+        """Redraw for a different active gate.
+
+        :param name: the gate now active.
+        """
         self.canvas.set_gates(self._gates, active=name or None)
         self._refresh_status()
         # Choosing a gate should show you that gate. It is drawn on two named
@@ -3184,6 +3530,7 @@ class GateEditorPanel(QWidget):
                                      columns[1] if len(columns) > 1 else "")
 
     def _on_tree_changed(self) -> None:
+        """Re-apply the gates after the hierarchy was edited."""
         self.canvas.set_gates(self._gates,
                               active=self.tree.active_gate() or None)
         self._refresh_status()
@@ -3191,31 +3538,11 @@ class GateEditorPanel(QWidget):
 
     # -- publishing -------------------------------------------------------
     def publish(self) -> Optional[DataFilter]:
-        """Push the selected gate onto the shared filter.
+        """Publish objects inside the selected gate as a shared selection.
 
-        Composed onto whatever the Local Data Filter already published rather
-        than replacing it: a gate and a filter are both ways of narrowing the
-        population, and a screen with both must not have one silently undo the
-        other.
-
-        NOTE, and the next thing to change here: the user has asked that
-        applying a gate HIGHLIGHT its points and leave the rest of the graph
-        on screen, rather than hide the rows outside it --
-
-            "i dont want it to zoom in the first place. i want it to
-             highlight the datapoints in the gate and show the gate but also
-             show the rest of the graph."
-
-        That is a SELECTION, not a filter, and the distinction already
-        exists: `link.set_selection` rings rows and keeps every one of them
-        on screen, while `link.set_filter` removes them. The Graph Builder's
-        own test states both behaviours side by side. Switching this to a
-        selection is what makes the axes stop moving for the right reason,
-        rather than because rescaling was suppressed.
-
-        Keep the filter available -- narrowing to a gate is a real thing to
-        want -- but it should be the explicit second action, not what the
-        primary button does.
+        Objects outside the gate remain visible. The status label reports
+        missing input, evaluation errors, and tables that lack shareable
+        object identifiers.
         """
         name = self.tree.active_gate()
         if not name:
@@ -3261,6 +3588,10 @@ class GateEditorPanel(QWidget):
         return None
 
     def status(self) -> str:
+        """Whatever the status line is telling the user.
+
+        :returns: the status text.
+        """
         return self._status.text()
 
     def volume_shape(self) -> str:
@@ -3287,6 +3618,10 @@ class GateEditorPanel(QWidget):
         # is already checked, but called programmatically -- restoring saved
         # settings, or a test -- it is not, and the control would then show a
         # different plane from the one the canvas is armed on.
+        """Rotate a 3-D view to look down one axis.
+
+        :param axis: the axis to look along.
+        """
         button = getattr(self, "_plane_buttons", {}).get(axis)
         if button is not None and not button.isChecked():
             button.setChecked(True)
@@ -3300,6 +3635,10 @@ class GateEditorPanel(QWidget):
             self._on_drag_mode("draw")
 
     def _on_drag_mode(self, mode: str) -> None:
+        """Switch dragging between spinning the view and drawing.
+
+        :param mode: the mode's name.
+        """
         self.canvas.set_drag_mode(mode)
 
     def set_projection_active(self, on: bool) -> None:
@@ -3316,6 +3655,13 @@ class GateEditorPanel(QWidget):
         button.blockSignals(blocked)
 
     def set_spin_controls_visible(self, visible: bool) -> None:
+        """Show or hide the 3-D plane controls.
+
+        Hidden for a 2-D chart, where an axis picker and a spin toggle are
+        controls for something the view cannot do.
+
+        :param visible: True to show them.
+        """
         self._plane_label.setVisible(visible)
         for button in self._plane_buttons.values():
             button.setVisible(visible)
@@ -3363,6 +3709,7 @@ class GateEditorPanel(QWidget):
         self._refresh_status()
 
     def _refresh_status(self) -> None:
+        """Say how many gates there are and what the active one selects."""
         if self._frame is None:
             self._status.setText("no table loaded")
             return
@@ -3382,5 +3729,9 @@ class GateEditorPanel(QWidget):
         self._status.setText(" · ".join(parts))
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Close the canvas first, so it can unlink from the shared selection.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)

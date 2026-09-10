@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.align#10",
+      "source_sha256": "5ecff9d17f14c7cbd42d4bfc20ecfd1870433691c186dc1d8ff48149a54fce18",
+      "source": "**z is not stitched.** Tiles are 2-D ``(H, W)`` or channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z-plane at a time by calling this module per plane; a 4-D array is refused with a message that says so rather than being silently reinterpreted.",
+      "context": "**z is not stitched.** Microscope image fields are 2-D ``(H, W)`` or image-channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z image layer at a time by calling this module for each image layer; a 4-D array is refused with a message that says so rather than being silently reinterpreted.",
+      "translation": "**z 轴不做拼接。** 视野图像为二维 ``(H, W)`` 或通道在后的三维 ``(H, W, C)``，这正是 spaCR 的 ``merged/*.npy`` 已经采用的布局。z 堆栈必须先做投影，或者对每一个 z 层分别调用本模块逐层对齐；四维数组会被拒绝，并给出说明原因的提示，而不是被悄悄地重新解读。"
+    },
+    {
+      "label": "spacr.batch_correction.BatchCorrectionReport#13",
+      "source_sha256": "b2b718afdda749f6568161f247a90762e5e4a5637a2e7c79df13c1b9e2f1daab",
+      "source": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "context": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "translation": "明确的无操作、回退、批次未变、常量特征或 ComBat 限制等提示信息。"
+    },
+    {
+      "label": "spacr.measure#2",
+      "source_sha256": "e5cc930071641f4a21c565f1d31565508d9d87cc34d80859e47d3b2417682f38",
+      "source": "WHAT IT NEEDS. A ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the label masks for one field, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is simply not measured, rather than measured as empty.",
+      "context": "What it needs. A ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity image data channels and the label masks for one microscope field of view, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is simply not measured, rather than measured as empty.",
+      "translation": "它需要什么。一个 ``merged/`` 文件夹，由 :func:`spacr.core.preprocess_generate_masks` 写出：某一个视野的强度图像通道与标签掩膜，一起保存为 ``.npy``。要测量哪些掩膜按对象逐一指定 —— ``cell_mask_dim``、``nucleus_mask_dim``、``pathogen_mask_dim`` 以及各个细胞器槽位 —— 没有掩膜维度的对象根本不会被测量，而不是被当作空对象测量。"
+    },
+    {
+      "label": "spacr.measure#4",
+      "source_sha256": "728f36aa73181c2bc95b9844792b8e7d73dd50f7a2083d4eb826eee79cdbc2ec",
+      "source": "``measurements/measurements.db``, one SQLite table per object type, one row per object, keyed by the plate/row/column/field/object identity :mod:`spacr.schema` composes. The columns are shape, intensity, texture and SPATIAL features -- how many neighbours an object has within a radius, how far the nearest one is, what fraction of its border touches another.",
+      "context": "``measurements/measurements.db``, one SQLite table per object type, one row per object, keyed by the laboratory microplate/row/column/microscope field of view/object identity :mod:`spacr.schema` composes. The columns are shape, intensity, texture and SPATIAL features -- how many neighbours an object has within a radius, how far the nearest one is, what fraction of its border touches another.",
+      "translation": "``measurements/measurements.db``，每种对象类型一张 SQLite 表，每个对象一行，以 :mod:`spacr.schema` 组成的 板/行/列/视野/对象 标识为键。列包括形状、强度、纹理以及空间特征 —— 一个对象在给定半径内有多少邻居、最近的邻居有多远、它的边界有多大比例与另一个对象相接。"
+    },
+    {
+      "label": "spacr.ml#4",
+      "source_sha256": "840d545efb08862de418b298b309fbeb66a5ad9a28d4ab441cc20187572830b5",
+      "source": "A regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "context": "A regression processing session is configured with ``paired_data``: ordered score/count CSV pairs whose laboratory microplate and microplate sample position identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control microplate sample positions, laboratory microplate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "translation": "回归运行通过 ``paired_data`` 配置：成对且有序的分数/计数 CSV，其板与孔的标识必须一致。较旧的 ``score_data`` 与 ``count_data`` 列表会按位置迁移，但显式配对更为稳妥。用 ``dependent_variable`` 选择分数列，并提供相关的对照孔、板的元数据、分析 ``level``（guide、gene 或两者）、多重检验阈值，以及受支持的 ``regression_type`` 或 ``None``（表示基于分布的选择）。各系列专有的设置会被校验，而不是被悄悄忽略。经典机器学习路径则需要一个或多个 ``measurements.db`` 文件、带标注的阳性与阴性对照或一个标注列，以及模型选择，例如 XGBoost、逻辑回归或随机森林。"
+    },
+    {
+      "label": "spacr.ops_sbs.estimate_read_locations#1",
+      "source_sha256": "17164c6b21c494379c256f1aca65958b2de0b38fccd4a81d92b1b74bfeb83749",
+      "source": "A sequencing spot changes colour from cycle to cycle, which is exactly what a constant piece of debris does not do. Taking the standard deviation over the CYCLE axis and then the mean over channels therefore scores \"something here changed\" rather than \"something here is bright\", and the brightest object in a field is very often not a read.",
+      "context": "A sequencing spot changes colour from cycle to cycle, which is exactly what a constant piece of debris does not do. Taking the standard deviation over the CYCLE axis and then the mean over channels therefore scores \"something here changed\" rather than \"something here is bright\", and the brightest object in a microscope field of view is very often not a read.",
+      "translation": "测序斑点的颜色会随循环而变化，而一粒恒定的碎屑恰恰不会。因此，先沿循环轴取标准差、再沿通道取均值，衡量的是 \"something here changed\"，而不是 \"something here is bright\"，而视野中最亮的物体往往并不是一次读出。"
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#9",
+      "source_sha256": "f3740c4e162a81304f7dc17f9d11b87f18ca455db2f5e9346bfc2b3a93bddd2d",
+      "source": "optional :class:`spacr.illumination.SegmentationIlluminationSession`. Its corrector sees private selected-channel copies immediately before normalisation/Cellpose; persisted intensity planes and scratch NPZs remain raw, and completion is recorded only after the combined stack has been atomically replaced.",
+      "context": "optional :class:`spacr.illumination.SegmentationIlluminationSession`. Its corrector sees private selected-image data channel copies immediately before normalisation/Cellpose; persisted intensity image layers and scratch NPZs remain raw, and completion is recorded only after the combined stack has been atomically replaced.",
+      "translation": "可选的 :class:`spacr.illumination.SegmentationIlluminationSession`。它的校正器只在归一化/Cellpose 之前看到私有的、已选通道副本；持久化的强度图层与临时 NPZ 保持原始状态，并且只有在合并后的堆栈被原子性替换之后才记录完成。"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ForeignProjectDropHandler.apply#1",
+      "source_sha256": "becbb88cb86112ce27b9e271454d4e13541ccd63000b2d09116f2478d16f2fcb",
+      "source": "A CSV IS READ BEFORE IT IS PLACED. A mapping and a measurement table are both CSVs, and only the header says which -- so the header is checked rather than the extension trusted.",
+      "context": "A CSV is read before it is placed. A mapping and a measurement table are both CSVs, and only the header says which -- so the header is checked rather than the extension trusted.",
+      "translation": "CSV 会在放置之前先被读取。映射表和测量表都是 CSV，只有表头能区分二者 —— 因此检查的是表头，而不是轻信扩展名。"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ReportDropHandler.apply#0",
+      "source_sha256": "53a335a11112815ccf884f310bbd2d45001adaa3e25845080cc3193d669a0b80",
+      "source": "Set the source and scan it, raising the screen's own reason on failure.",
+      "context": "Set the source and scan it, raising the screen's own reason on failure.",
+      "translation": "设置来源并扫描它，失败时抛出该界面自己的原因。"
+    },
+    {
+      "label": "spacr.qt.preferences.get_dashboard_watermark#1",
+      "source_sha256": "73e1e9eda5b2629dd0c710d85c8176b4550146a0cab1233b4b2086d46514760c",
+      "source": "A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the queue's Clear, but the queue holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "context": "A watermark, not a deletion, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the software job list's Clear, but the software job list holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "translation": "这是一个水印，而不是删除，这正是整个设计的用意。“最近运行”上的 **Clear** 与“总计”上的 **Reset** 就挨着作业队列的 Clear，但作业队列装的是等待启动的板，而这两个读的是运行日志 —— 它记录了这套安装实际做过什么，是运行历史界面所搜索的对象，也是一次运行的 `manifest.json` 存在的意义。清空一块仪表板面板绝不能把它删掉。"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog#2",
+      "source_sha256": "a79b163d9e4318d469b9aaca2e21e2193c849ad9a65c46db8c3604758c144003",
+      "source": "IT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "context": "It fills in two stages, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of extracted image regions must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the main GUI execution path, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on application view — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "translation": "它分两个阶段填充，其中的原因正是这项工作的全部要点。文件清单并不存放在计划里：每次调用 ``file_list`` 都会对每一个候选目录执行 ``os.walk``，因为一个包含数百万张裁剪图的项目，其计划不可以携带数百万个字符串。把这件事放进 ``__init__`` 就等于把对用户项目的一次完整递归遍历放到了 GUI 主线程上，而那正是他们在等待窗口出现的时刻 —— 并且在一个已休眠的共享盘上，花掉二十秒去唤醒挂载的是遍历的第一次 stat，而不是遍历本身。因此对话框先以不需要磁盘的那一半打开（总计、每个候选项、每个保留项及其原因），文件清单随后到达。没有任何东西被丢弃：用户在删除任何内容之前仍会读到每一条路径，这也正是确认按钮要一直保持禁用、直到清单出现在界面上的原因 —— 或者在遍历失败时，直到 :meth:`_on_listing_failed` 在清单的位置说明了这一点。唯一绝不会发生的，是那个复选框在占位内容之上被启用。"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.describe#1",
+      "source_sha256": "57d1820232b0d7dff5cd447d3956a9cb6f06f76ff14d3748566793e6796d4252",
+      "source": "WALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT. :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over every candidate each time it is asked, which is the twenty seconds this exercise removed, so nothing on the GUI thread may call this. The dialog builds the same string in two pieces instead: :meth:`_heading` at once, then :meth:`_with_the_files` on the walk that :meth:`_start_the_file_list` sent to a worker.",
+      "context": "Walks the project, and the dialog no longer calls it. :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over every candidate each time it is asked, which is the twenty seconds this exercise removed, so nothing on the main GUI execution path may call this. The dialog builds the same string in two pieces instead: :meth:`_heading` at once, then :meth:`_with_the_files` on the walk that :meth:`_start_the_file_list` sent to a worker.",
+      "translation": "遍历整个项目，而对话框已不再调用它。:meth:`spacr.data_manager.PrunePlan.file_list` 每次被询问都会对每个候选目录执行 ``os.walk``，那正是这项工作所消除的二十秒，因此 GUI 主线程上任何代码都不得调用它。对话框改为分两段构建同一个字符串：先是 :meth:`_heading`，随后是 :meth:`_with_the_files`，后者建立在 :meth:`_start_the_file_list` 交给工作线程的那次遍历之上。"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
+      "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
+      "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "translation": "删除与取消都会走到这里，而且两者都不会发送关闭事件 —— ``QDialog.done`` 只是隐藏了控件 —— 因此模态对话框的清理必须写在这里，而不是 ``closeEvent`` 里。如果一个正在执行的 ``QThread`` 随其所有者一起被销毁，Qt 会直接中止进程，而当用户取消时，那次遍历可能仍在进行。"
+    },
+    {
+      "label": "spacr.qt.screens.foreign.object_label#1",
+      "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
+      "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "translation": "用户看不到字母，这是 2026-09-02 明确提出的要求：“i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles”。槽位在存储时带字母 —— ``organelle``、``organelleb``、``organellec`` —— 因为角色名是它所拥有的每一个设置名的前缀，而 ``organelle2`` 无法在 ``prcfo`` 键中往返而不与标号为 2 的对象相撞。那是一个存储上的决定，它与界面无关；在界面上，槽位是一个数字：Organelle 1、Organelle 2。"
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitScreen.configure_hit#1",
+      "source_sha256": "a8f21e6fbd8a72d23e65436561308dbab6c0f2b48d3f4237eae1aa86db632295",
+      "source": "the hit's folder, gene, effect and guides.",
+      "context": "the hit's folder, gene, effect and guides.",
+      "translation": "该命中的文件夹、基因、效应与向导序列。"
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab#2",
+      "source_sha256": "1ba043a9b2ec2a52078315843114427e6a4706c7f8c0c38cceb6045d6f658a8d",
+      "source": "THE EMBEDDING IS DRAWN THROUGH THE SAME PLOT EVERY OTHER PANEL USES -- :class:`spacr.qt.widgets.fast_plots.FastPlot` beside :class:`~spacr.qt.widgets.fast_plots.ResultsTable` -- rather than on a canvas of its own. A scatter here needs exactly what those already carry: hovering a point to see which guide it came from, the right-click restyle menu, the export, and a table whose rows can be read against the picture. A second canvas would be a second set of all of that, drifting from the first.",
+      "context": "The embedding is drawn through the same plot every other panel uses -- :class:`spacr.qt.widgets.fast_plots.FastPlot` beside :class:`~spacr.qt.widgets.fast_plots.ResultsTable` -- rather than on a canvas of its own. A scatter here needs exactly what those already carry: hovering a point to see which guide it came from, the right-click restyle menu, the export, and a table whose rows can be read against the picture. A second canvas would be a second set of all of that, drifting from the first.",
+      "translation": "该嵌入图通过其他每个面板都在用的同一套绘图组件绘制 —— :class:`spacr.qt.widgets.fast_plots.FastPlot` 搭配 :class:`~spacr.qt.widgets.fast_plots.ResultsTable` —— 而不是画在自己的画布上。这里的散点图所需要的，正是那两者已经具备的：悬停某个点即可看到它来自哪条向导序列、右键重设样式菜单、导出，以及一张可以对照图形逐行阅读的表。再来一块画布，就意味着再来一整套这些东西，并且会与第一套逐渐分道扬镳。"
+    },
+    {
+      "label": "spacr.qt.widgets.dock#7",
+      "source_sha256": "6897603ad102b8ba59ddf75525553a62aedc9fa8b7b423e3b7c3deced5d616bb",
+      "source": "None of that is here. A row is a button with an icon and its name, always both. The only thing the pointer changes is the colour.",
+      "context": "None of that is here. A row is a button with an icon and its name, always both. The only thing the pointer changes is the colour.",
+      "translation": "None 之类的东西在这里一概没有。一行就是一个按钮，带一个图标和它的名字，两者始终同时存在。指针唯一改变的只有颜色。"
+    },
+    {
+      "label": "spacr.qt.widgets.home.RecentRunsPanel#1",
+      "source_sha256": "bed05b0be9fb725825d7211d1fc0f894339ac0717ccf4174ef4634a2401f2f3c",
+      "source": "\"Real module\" is doing work here. The panel used to list whatever the run journal's newest manifests said, and those rows were clickable without representing runs -- they opened a ``_job`` module. On one machine the journal held 11,046 run folders of which 7,323 were written under the app_key ``_job`` or ``job``: a test fixture's key, written straight into the real `~/.spacr/runs` because nothing sandboxed it (fixed in ``tests/conftest.py``). So most rows named a module that does not exist, and clicking one asked the window to open it.",
+      "context": "\"Real module\" is doing work here. The panel used to list whatever the processing-session journal's newest manifests said, and those rows were clickable without representing runs -- they opened a ``_job`` module. On one machine the journal held 11,046 processing-session folders of which 7,323 were written under the app_key ``_job`` or ``job``: a test fixture's structured-data name, written straight into the real `~/.spacr/runs` because nothing sandboxed it (fixed in ``tests/conftest.py``). So most rows named a module that does not exist, and clicking one asked the window to open it.",
+      "translation": "\"Real module\" 在这里是有分量的说法。该面板过去会列出运行日志中最新清单所说的任何内容，而那些行虽然可以点击，却并不代表任何运行 —— 它们打开的是一个 ``_job`` 模块。在某台机器上，日志里有 11,046 个运行文件夹，其中 7,323 个是以 app_key ``_job`` 或 ``job`` 写入的：一个测试夹具的键，因为没有任何沙箱拦住它而被直接写进了真实的 `~/.spacr/runs`（已在 ``tests/conftest.py`` 中修复）。于是大多数行指名了一个并不存在的模块，点击其中一行就是在要求窗口去打开它。"
+    },
+    {
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbench#5",
+      "source_sha256": "c0fa4551e350a749322c8e6093f5669f8e1c78e0fbcad710e0f292d537eb0ac4",
+      "source": "The walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.",
+      "context": "The walk over dropped paths executes on its own worker. A drop is a path the user chose, and a laboratory microplate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a processing session, and it is safe to do so because that runner carries nothing but the walk.",
+      "translation": "对拖入路径的遍历运行在它自己的工作线程上。一次拖放就是用户选定的一条路径，而板存放在显微镜的共享盘上：在一个休眠的 autofs 挂载下，一次 ``os.path.exists`` 二十秒都没有返回，而一次遍历是成千上万次这样的调用。若放在内联执行，拖放会让整个应用冻结且没有任何回溯 —— 事件循环停滞并不是崩溃，它被报告成了悬停闪烁和瞥见其他界面。该运行器被标记为对用户不可见，因为拖入一个文件夹并不是启动一次运行；这样做是安全的，因为那个运行器除了这次遍历之外什么也不承载。"
+    },
+    {
+      "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.toggle_quarantine#1",
+      "source_sha256": "3d6bda99c6f2909ff21d1d7b1055b3270eaf203bff04d0e38d69935ceeaf6561",
+      "source": "THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made the whole `path_probe` gate in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
+      "context": "The move executes on a worker. It did not until 2026-09-04, and that made the whole `path_probe` data-selection boundary in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
+      "translation": "移动操作运行在工作线程上。在 2026-09-04 之前并非如此，这使得 `path_probe` 在 `_sync_action` 里的整个边界形同虚设：这个按钮前面的轮询不再冻结，而按钮本身仍然会冻结，因为 `quarantine_dir_for` 是一次 `Path.resolve()` 真实路径遍历，紧随其后的重命名还要再加上一次 mkdir、一次 stat、一次 link、一次带 ``fsync`` 的账本写入和一次 unlink —— 全都发生在用户选定的板路径上，而按假设那正是休眠的 ``autofs`` 共享盘。参见 `_move_field`。"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs#3",
+      "source_sha256": "1a8b1fbb0ef2dbfd40d78893e0172ee74b3b90ff82c339216f868a8822b1d2f6",
+      "source": "NOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on one workstation: one ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had NOT RETURNED AFTER TWENTY SECONDS. Every row here carries a folder the user chose, and this panel used to walk, stat, read and delete those folders in the click that asked for it: the chooser's start directory, the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu was being built. Each of those is a frozen application with no traceback for as long as the mount takes to wake -- reported as \"opening map barcodes crashes spacr\", as hover flicker, and as glimpses of other screens. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and the one bare existence question left -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
+      "context": "Nothing on this tab touches a processing-session folder from the main GUI execution path. Measured on one workstation: one ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds. Every row here carries a folder the user chose, and this panel used to walk, stat, read and delete those folders in the click that asked for it: the chooser's start directory, the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu was being built. Each of those is a frozen application with no traceback for as long as the mount takes to wake -- reported as \"opening map barcodes crashes spacr\", as hover flicker, and as glimpses of other application views. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and the one bare existence question left -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
+      "translation": "本标签页上没有任何东西会从 GUI 主线程去碰一个运行文件夹。在一台工作站上实测：一次 ``os.path.exists``，针对的是 ``/nas_mnt`` 下的某条路径 —— 那是一个共享盘已休眠的 ``autofs`` 挂载 —— 二十秒都没有返回。这里的每一行都带着用户选定的一个文件夹，而这块面板过去会在请求它的那一次点击里遍历、stat、读取并删除这些文件夹：选择器的起始目录、切换标签页时读取的扫描表、删除确认里 ``describe_folder`` 的 ``os.walk``、其后的 ``shutil.rmtree``，以及构建行菜单时的 ``workspace.has_workspace``。只要挂载还没醒来，其中每一项都是一个冻结且没有回溯的应用 —— 被报告为“打开 map barcodes 会让 spacr 崩溃”、悬停闪烁，以及瞥见其他界面。它们现在运行在 :class:`spacr.qt.job_runner.JobRunner` 上，而仅剩的那一个裸的存在性问题 —— 该在哪个文件夹里打开选择器 —— 由 :mod:`spacr.qt.path_probe` 的缓存来回答。"
+    },
+    {
+      "label": "spacr.regression_backends.backend_install_offer#1",
+      "source_sha256": "e03502892ce75e12531bab2fc94b067b1e553d9e649bf785263f032097e34d33",
+      "source": "THE ENVIRONMENT IS ASKED FIRST, before spaCR's own wiring, because the answer a user can act on is about their machine. \"cuML needs Python 3.11 and this is 3.10\" is a thing they can go and do; \"spaCR routes no fit through it yet\" is a thing only spaCR can fix, and saying that instead would hide the part they could have acted on.",
+      "context": "The environment is asked first, before spaCR's own wiring, because the answer a user can act on is about their machine. \"cuML needs Python 3.11 and this is 3.10\" is a thing they can go and do; \"spaCR routes no fit through it yet\" is a thing only spaCR can fix, and saying that instead would hide the part they could have acted on.",
+      "translation": "先问环境，再问 spaCR 自己的接线，因为用户能据以行动的答案是关于他们机器的。“cuML 需要 Python 3.11，而这是 3.10”是他们可以去动手解决的事；“spaCR 还没有把任何拟合路由到它”则只有 spaCR 能修，改说后者就会把他们本可以着手的那一部分藏起来。"
+    },
+    {
+      "label": "spacr.resume#16",
+      "source_sha256": "c7dbe80819c119b7845aa8fde3124a0e7d2b2f20052ddb74541a0ada8b9cdc79",
+      "source": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "context": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "translation": "本模块刻意**只依赖标准库** —— 导入时只有 ``os``/``sqlite3``/``ast``，别无其他。它在 ``measure_crop`` 的最开头就会被查询，远在任何模型被加载之前，因此绝不能成为把 torch 或 cellpose 拖进进程的那个东西。"
+    },
+    {
+      "label": "spacr.run_journal.recent_runs#3",
+      "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
+      "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
+      "context": "Each dictionary contains ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` dictionary when available.",
+      "translation": "每个字典包含 ``dir``（Path）、``app_key``（str）、``status``（str）、``start_utc``（ISO 字符串）、``elapsed_s``（float），以及在可用时的原始 ``manifest`` 字典。"
+    },
+    {
+      "label": "spacr.spacrops.FOVAlignAndCropper#1",
+      "source_sha256": "5c8ad1a151ba791bc462f077fe64c0580ca69cdbb92ea1cb60adf5e35c0e7313",
+      "source": "For each FOV, saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)`` (native FOV channels stacked with the mosaic channels warped into the FOV frame) and a CSV row with the transform, score and mosaic bbox.",
+      "context": "For each FOV (microscope field of view), saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)`` (native FOV (microscope field of view) channels stacked with the stitched image grid channels warped into the FOV (microscope field of view) frame) and a CSV row with the transform, score and stitched image grid bbox.",
+      "translation": "对每一个 FOV（视野），保存一个 ``.npy``，其形状为 ``(C_fov + C_mosaic, H_fov, W_fov)``（该 FOV 的原生通道，与被变换到该 FOV 坐标系中的拼接图通道堆叠在一起），以及一行包含变换、评分与拼接图边界框的 CSV。"
+    },
+    {
+      "label": "spacr.submodules#4",
+      "source_sha256": "c2c8491b52a6133a22d4485b6e9d575c7f23314812aca393a74e62468238c0f7",
+      "source": "Plaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence channel, object filters, and plate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain channels and preferably known control wells; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.",
+      "context": "Plaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence image data channel, object filters, and laboratory microplate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain image data channels and preferably known control microplate sample positions; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.",
+      "translation": "空斑分析接受一个装有 TIFF 图像的文件夹，或该文件夹下已有的掩膜，外加 Cellpose 设置以及一个随附的、目录中的或本地的空斑模型。招募分析从一个 spaCR ``measurements.db`` 开始，其中含有已连接的细胞、细胞核、病原体与细胞质特征；它需要一个荧光图像通道、对象过滤条件，以及为细胞类型、病原体与处理赋值的板元数据。侵染与复制两者都需要测量表中每个已分割寄生虫一行，以及条件元数据。侵染还额外需要外部染色与总染色两个图像通道，最好还有已知的对照孔；复制则需要一个站得住脚的 ``vacuole_key`` 或空间关联距离。Cellpose 工具要么需要成对的图像与掩膜用于训练/测试，要么需要一个图像文件夹与模型路径用于推理。"
+    }
+  ]
+}

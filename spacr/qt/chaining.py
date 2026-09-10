@@ -147,9 +147,16 @@ class _ShowFilter(QObject):
     A module screen is built once and kept, so ``__init__`` fires exactly
     once while returning to the screen — which is when a run on another tab
     may have produced the thing this strip is about — fires ``Show``.
+
+    :param on_show: called with no arguments on every Show. It CANNOT
+        swallow the event -- :meth:`eventFilter` forwards and returns False
+        whatever happens, and an exception in it is logged rather than
+        raised, so a failing refresh never stops the screen appearing.
+    :param parent: parent object; ownership only.
     """
 
     def __init__(self, on_show, parent=None) -> None:
+        """Hold the callback and take the parent."""
         super().__init__(parent)
         self._on_show = on_show
 
@@ -183,9 +190,20 @@ class ChainingBar(QFrame):
         belongs to.
     :param pins: the pin store to use. Defaults to the shared one; tests
         hand in their own so the developer's real pins are never touched.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, screen: QWidget, *, pins=None, parent=None) -> None:
+        """Build the strip that carries settings forward from the previous module.
+
+        What this strip wrote into a widget is remembered per key, which is what
+        separates "the user chose this" from "we put it there".
+
+        :param screen: the module screen the strip sits on.
+        :param pins: the pin store to read and write; ``None`` uses the shared
+            one.
+        :param parent: parent widget; defaults to ``screen``.
+        """
         super().__init__(parent or screen)
         self.setObjectName("ChainingBar")
         self.setFrameShape(QFrame.NoFrame)
@@ -212,6 +230,69 @@ class ChainingBar(QFrame):
         #: different digest, and every result would report as stale.
         self._collect_ok = False
         self._last_steps: Tuple[NextStep, ...] = ()
+        #: The worker that resolves the registry. THE REGISTRY LIVES IN THE
+        #: PROJECT ROOT, and the roots are paths the user chose -- which on
+        #: this maintainer's machine includes an `autofs` share whose stat
+        #: did not return for twenty seconds. Doing that inline is what froze
+        #: the application on every module open; see `_refresh`.
+        #:
+        #: `user_visible=False`: nothing here is a run the user started, so
+        #: it must never claim a run banner on Home.
+        from .job_runner import JobRunner
+        self._resolver = JobRunner(self, threaded=True,
+                                   app_key=f"{self.app_key} chaining",
+                                   user_visible=False)
+        #: True while a resolution is in flight. A second refresh arriving
+        #: mid-flight is dropped rather than queued: they all ask the same
+        #: question, and a keystroke-per-job queue would ask it hundreds of
+        #: times.
+        self._resolving = False
+        #: Set when a refresh was dropped for that reason, so exactly one
+        #: catch-up runs when the in-flight one lands.
+        self._resolve_again: Optional[bool] = None
+        # A root skipped because the probe had not answered yet comes back
+        # when it does -- otherwise `search_roots` would drop it for the life
+        # of the screen and the strip would silently stop chaining.
+        from . import path_probe as _probe
+
+        def _root_answered(_path: str, _answer: bool) -> None:
+            """Redraw once a probe has an answer for a root.
+
+            Both arguments are ignored: the strip re-reads every root it
+            cares about, so WHICH path answered does not change what has to
+            be done. `RuntimeError` means the strip has been destroyed and
+            the signal outlived it, which is not an error worth raising.
+
+            :param _path: the path that was probed; unused.
+            :param _answer: what the probe found; unused.
+            """
+            try:
+                self.refresh()
+            except RuntimeError:
+                pass            # the strip has gone; the signal outlived it
+
+        self._root_answered = _root_answered
+        _probe.probes.answered.connect(_root_answered)
+        # AND DISCONNECTED WHEN THE STRIP GOES. `probes` is process-wide and
+        # outlives any one screen, so a connection left behind is a signal
+        # delivered to a Python wrapper whose C++ half has been deleted --
+        # which raises out of whatever happened to emit it. `destroyed` fires
+        # while the wrapper is still usable, which is the moment to let go.
+        def _let_go(*_args) -> None:
+            """Drop the probe connection while this wrapper still works.
+
+            Connected to `destroyed` rather than done in a destructor: by the
+            time Python collects the wrapper the C++ object is gone and
+            `disconnect` raises out of whatever happened to emit it.
+
+            :param _args: whatever `destroyed` sends; unused.
+            """
+            try:
+                _probe.probes.answered.disconnect(_root_answered)
+            except (RuntimeError, TypeError):
+                pass            # already disconnected, or the source is gone
+
+        self.destroyed.connect(_let_go)
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 4, 0, 0)
@@ -474,7 +555,7 @@ class ChainingBar(QFrame):
 
         A method rather than an inline ``self._screen.window()`` so a test can
         stand a window in without reaching into Qt's ownership chain, and so a
-        screen shown outside a MainWindow simply finds nothing to navigate.
+        screen shown outside a MainWindow has no navigation host.
         """
         try:
             return self._screen.window()
@@ -548,10 +629,19 @@ class ChainingBar(QFrame):
             keys.extend(_ports.upstream_modules(self.app_key))
         except Exception:
             pass
+        from . import path_probe
         for key in keys:
             for candidate in (get_last_source(key),
                               *get_recent_sources(key, limit=4)):
-                if candidate and candidate not in roots:
+                if not candidate or candidate in roots:
+                    continue
+                # BELT AND BRACES, on top of running this off the GUI
+                # thread. `isdir` answers False for a root it has not probed
+                # yet, which is the pessimistic direction and the right one
+                # here: skipping a root costs one refresh, and the probe
+                # signal below brings it back the moment the answer lands.
+                # Stating it costs however long a sleeping mount takes.
+                if path_probe.isdir(candidate):
                     roots.append(candidate)
         return tuple(roots)
 
@@ -571,12 +661,76 @@ class ChainingBar(QFrame):
                           self.app_key)
 
     def _refresh(self, *, finished: bool) -> None:
-        """The body of :meth:`refresh`, without the guard."""
+        """Start a resolution off the GUI thread; paint it when it lands.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        Everything here is widget and QSettings work -- fast and local. The
+        half that runs in :meth:`_resolve` reads the artifacts REGISTRY, and
+        the registry lives in the project root: `resolve_settings` stats
+        `<root>/artifacts.db` for every candidate root and then opens it with
+        sqlite. The roots come from `search_roots`, which is the list of
+        folders the user last worked in.
+
+        Measured on one workstation: one of those roots
+        was an `autofs` mount whose share was asleep, and a single
+        `os.path.isfile` on it had not returned after TWENTY SECONDS. This
+        function is called from `install_chaining` during screen
+        construction, so that was the whole interface, frozen, on every
+        module open -- reported as "opening map barcodes crashes spacr",
+        and it left no traceback because a stalled event loop is not a crash.
+
+        :param finished: a run just finished successfully, so offer the next
+            step as well.
+        """
         self._capture_edits()
         settings = self.current_settings()
+        if self._resolving:
+            # One question, asked once. `finished` is sticky so a completed
+            # run's next-step offer is not lost to a coalesced refresh.
+            self._resolve_again = bool(self._resolve_again) or finished
+            return
         roots = self.search_roots()
-        resolution = _chaining.resolve_settings(
-            self.app_key, settings, roots=roots, pins=self._pins)
+        pins = self._pins
+        app_key = self.app_key
+        collect_ok = self._collect_ok
+        self._resolving = True
+
+        def work():
+            """Off the GUI thread. Touches no widget -- returns data only."""
+            resolution = _chaining.resolve_settings(
+                app_key, settings, roots=roots, pins=pins)
+            notes = _chaining.staleness_notes(
+                app_key, settings if collect_ok else None,
+                root=_ports.project_root(settings, app_key))
+            return resolution, notes
+
+        def done(payload):
+            """Paint what the worker resolved, back on the GUI thread.
+
+            Clears `_resolving` FIRST, so a request that arrived while this
+            one was in flight -- held in `_resolve_again` -- can start
+            immediately rather than being refused by a flag this callback
+            has not got round to clearing yet.
+
+            :param payload: the worker's ``(resolution, notes)``, or None
+                when it produced nothing to draw.
+            """
+            self._resolving = False
+            again, self._resolve_again = self._resolve_again, None
+            try:
+                if payload is not None:
+                    self._paint(payload[0], payload[1], finished=finished)
+            finally:
+                if again is not None:
+                    self.refresh(finished=bool(again))
+
+        if not self._resolver.submit(work, done):
+            # The runner refused -- shutting down, or already busy. The strip
+            # simply does not update, which is what `refresh` promises.
+            self._resolving = False
+
+    def _paint(self, resolution, notes, *, finished: bool) -> None:
+        """Draw a finished resolution. GUI thread only."""
         self._held = dict(resolution.held)
 
         # Everything the resolution decided — a restored pin as much as a
@@ -602,7 +756,7 @@ class ChainingBar(QFrame):
 
         self._draw_sources(resolution.inputs, resolution.filled)
         self._draw_pins(resolution.moved)
-        self._draw_staleness(resolution.settings)
+        self._draw_staleness(resolution.settings, notes)
         self._draw_next(resolution.settings, finished=finished)
         # ``isHidden`` and not ``isVisible``: a widget whose window has not
         # been shown yet is not *visible*, so asking that question during the
@@ -624,8 +778,8 @@ class ChainingBar(QFrame):
                          f"{chained.producer} at {chained.artifact.path}")
         self._source.setText("Inputs: " + " · ".join(parts))
         self._source.setToolTip(
-            "Resolved from the artifact registry — where the run that "
-            "produced these actually wrote, not a guessed folder name.")
+            "Resolved from the artifact registry using the output path "
+            "recorded by the producing run rather than an inferred folder.")
         self._source.show()
 
     def _draw_pins(self, moved: Sequence[HeldPin]) -> None:
@@ -644,9 +798,15 @@ class ChainingBar(QFrame):
             "not the change.")
         self._pinned_row.show()
 
-    def _draw_staleness(self, settings: Dict[str, Any]) -> None:
-        """Row 3 — what is out of date, why, and what to do."""
-        notes = self._staleness(settings)
+    def _draw_staleness(self, settings: Dict[str, Any], notes=None) -> None:
+        """Row 3 — what is out of date, why, and what to do.
+
+        :param notes: the notes a worker already computed. ``None`` computes
+            them here, which READS THE REGISTRY and therefore blocks -- kept
+            for callers outside the refresh path, and never used by it.
+        """
+        if notes is None:
+            notes = self._staleness(settings)
         if not notes:
             self._stale.hide()
             self._fix.hide()
@@ -681,6 +841,7 @@ class ChainingBar(QFrame):
             LOG.exception("could not work out what comes after %s",
                           self.app_key)
             steps = ()
+        steps = _only_what_the_gui_offers(steps)
         self._last_steps = steps
         if not steps:
             self._next_row.hide()
@@ -721,6 +882,11 @@ class ChainingBar(QFrame):
 
     def _staleness(self, settings: Dict[str, Any]) -> Tuple[StaleNote, ...]:
         """Ask the registry what is out of date around this module.
+
+        BLOCKS: it opens the artifacts registry, which lives under a project
+        root the user chose and may be on a network mount. `_refresh` runs
+        this on a worker and hands the answer to `_draw_staleness`; nothing
+        on the GUI thread should call it directly.
 
         The settings are only handed over for the hash comparison when
         ``collect()`` gave a whole dict.  A partial one hashes differently
@@ -777,6 +943,25 @@ def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
         bar = ChainingBar(screen, pins=pins)
         index = layout.indexOf(actions)
         layout.insertWidget(index if index >= 0 else layout.count(), bar)
+        # SWEEP THE STRIP'S OWN CONTAINERS. The screen was themed when it
+        # was built, and this arrives afterwards -- so the page-surface
+        # sweep that ran then never saw the rows inside it. An anonymous
+        # QWidget holding a layout inherits the blanket
+        # `QWidget { background-color: bg }` rule and paints the WINDOW
+        # colour, which is not a surface and which no opacity setting can
+        # reach. That is the black box the user reported behind the
+        # pinned-input row and its "Use it" button, directly above Run.
+        #
+        # The bar itself is a QFrame and is deliberately NOT swept: it is
+        # a component that paints on purpose. Only the scaffolding inside
+        # it is tagged, which is the same rule the screen sweep uses.
+        try:
+            from .theme import clear_container_surfaces
+
+            clear_container_surfaces(bar)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not clear the chaining strip's surfaces",
+                      exc_info=True)
         screen._chaining_bar = bar
         bar.refresh()
         return bar
@@ -823,6 +1008,75 @@ def _chained_app_screen(app_key: str, host=None):
     _connect_host(screen, host)
     install_chaining(screen)
     return screen
+
+
+#: Retired module keys and the screen that took each one over.
+#:
+#: The port graph still declares `classify`, `ml_analyze` and `timelapse`
+#: because the CLI still runs them, and a headless chain that stopped
+#: resolving them would break scripts. The GUI has ONE Classify and ONE mask
+#: screen, so the strip that offers what comes next must not offer the same
+#: screen three times under three names -- and must not drop an offer just
+#: because the key it is declared under no longer has a tile.
+_SUCCEEDED_BY = {
+    "classify": "classify_merged",
+    "ml_analyze": "classify_merged",
+    # Timelapse is the mask pipeline with tracking on, and the GUI folded it
+    # into Mask Generation as a settings category with a switch. The port
+    # graph still declares it because `spacr-run timelapse` still runs it, so
+    # a chain whose next step is timelapse must offer the screen that now
+    # carries it -- otherwise "what comes next" simply stops mentioning a
+    # step that is perfectly runnable.
+    "timelapse": "mask",
+}
+
+
+def screen_for_module(app_key: str) -> str:
+    """Resolve a module key to the GUI screen that currently hosts it.
+
+    Modules consolidated into another screen retain their pipeline keys for
+    command-line, saved-run, and chaining compatibility. Their keys are
+    resolved through :data:`_SUCCEEDED_BY`; keys without a successor mapping
+    are returned unchanged.
+
+    :param app_key: Pipeline module key supplied by a record or signal.
+    :returns: GUI screen key that presents the module.
+    """
+    return _SUCCEEDED_BY.get(str(app_key), str(app_key))
+
+
+def _only_what_the_gui_offers(steps):
+    """Drop successors with no screen, and fold retired keys onto theirs.
+
+    Ready steps win over blocked ones for the same screen: two keys can
+    resolve to one screen with different readiness, and the offer the
+    user should see is the one that can actually run.
+    """
+    try:
+        from .app import APPS
+
+        offered = {row[0] for row in APPS}
+    except Exception:                                        # noqa: BLE001
+        return steps
+    best = {}
+    for step in steps:
+        key = _SUCCEEDED_BY.get(step.module, step.module)
+        if key not in offered:
+            continue
+        current = best.get(key)
+        if current is None or (step.ok and not current.ok):
+            best[key] = step if key == step.module else _renamed(step, key)
+    return tuple(sorted(best.values(), key=lambda s: (not s.ok, s.module)))
+
+
+def _renamed(step, key: str):
+    """The same step under the key the GUI knows it by."""
+    try:
+        import dataclasses
+
+        return dataclasses.replace(step, module=key)
+    except Exception:                                        # noqa: BLE001
+        return step
 
 
 def chained_app_keys() -> Tuple[str, ...]:

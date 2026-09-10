@@ -18,6 +18,7 @@ blocking the suite. Since 2026-08-08 that helper also has to put the real
 from __future__ import annotations
 
 import contextlib
+import time
 from pathlib import Path
 
 import pytest
@@ -71,7 +72,37 @@ def _drop(widget, paths, remote=(), enter_paths=None):
     e3 = QDropEvent(QPointF(5, 5), Qt.CopyAction, drop_mime,
                     Qt.LeftButton, Qt.NoModifier)
     QApplication.sendEvent(widget, e3)
+    _settle(widget)
     return e3
+
+
+def _settle(widget, timeout_ms=20000):
+    """Wait for the drop's classification to come back, and no further.
+
+    Since 2026-09-04 ``_on_drop`` does no filesystem work itself: it accepts
+    the event and hands the stat/list/read to the screen's drop scanner,
+    because a path the user dragged can live on a sleeping ``autofs`` mount
+    that takes more than twenty seconds to answer, and the drop event is
+    delivered on the GUI thread. So the handler is called one turn of the
+    event loop later, and every assertion in this file about what a drop DID
+    has to let that turn happen.
+
+    Exactly ONE delivery is waited for -- the classification's. A handler
+    like the mask one submits its own folder scan from inside ``apply``, and
+    waiting for the scanner to fall idle would swallow that too, hiding the
+    very difference the tests here are checking.
+    """
+    scanner = getattr(getattr(widget, "_dnd_screen", None), "_dnd_scanner",
+                      None)
+    runner = getattr(scanner, "_runner", None)
+    if runner is None:                    # ran inline: nothing to wait for
+        return
+    seen = []
+    runner.job_finished.connect(lambda *_: seen.append(True))
+    deadline = time.monotonic() + timeout_ms / 1000.0
+    while not seen and time.monotonic() < deadline:
+        QApplication.processEvents()
+    assert seen, "the drop classification never came back"
 
 
 # Captured at import time, which runs during collection — before the autouse
@@ -419,15 +450,18 @@ def test_accepted_folder_drop_calls_apply_and_accepts_event(zone, tmp_path,
     assert msgbox.calls == []
 
 
-def test_a_real_handler_still_applies_inside_the_drop_event(
+def test_a_real_handler_applies_before_it_has_read_the_folder(
         zone, tmp_path, qtbot, msgbox):
-    """``apply`` became a dispatcher, not an asynchronous call.
+    """``apply`` is a dispatcher, and it runs one turn after the drop.
 
-    The work a mask drop does moved onto a worker thread, but ``_on_drop``
-    still calls ``apply`` — and ``apply`` still finishes — inside the drop
-    event. Everything downstream depends on that: the source field is set
-    before the user's next click, the event is accepted for the right
-    reason, and a handler that raises is still reported by ``_on_drop``.
+    Two separate hops, and the gap between them is the point. Since
+    2026-09-04 the CLASSIFICATION (``can_accept`` and friends, which list
+    the folder) runs on the drop scanner, so ``apply`` is called from that
+    scan's callback rather than inside Qt's delivery of the drop —
+    :func:`_settle` is that one turn. What ``apply`` itself does is a
+    dispatcher: the source field is set immediately, and the folder READ
+    that produces the regex is a second scan still outstanding at that
+    point. A handler that raises is still reported either way.
     """
     from spacr.qt import dnd_handlers as dh
 
@@ -440,7 +474,7 @@ def test_a_real_handler_still_applies_inside_the_drop_event(
     ev = _drop(w, [folder])
 
     assert ev.isAccepted() is True
-    # Synchronously, before the event loop has turned once:
+    # As soon as the classification lands, and not a turn later:
     assert f"[drop] mask src = {folder}" in w._console.text
     # ...and the reading of the folder is still outstanding at that point.
     assert "regex" not in w._console.text
@@ -675,15 +709,30 @@ def test_apply_settings_csv_falls_back_to_setting_key_columns(tmp_path,
 
 
 def test_apply_settings_csv_warns_when_columns_are_unusable(tmp_path, msgbox):
+    """A CSV that is neither settings nor data any input on this screen wants.
+
+    The user is told which file was refused and which two column shapes WOULD
+    have been read, in the console -- and is not made to dismiss a modal
+    first. This test used to pin that modal. It was pinning the behaviour in
+    the state it was found in rather than the state it should be in: a
+    dropped CSV is DATA unless its header says it is settings, so a file that
+    never claimed to be settings was reported as a failed settings import.
+    "plate1_dv.csv must contain setting_key and setting_value columns" is an
+    accurate sentence about a file nobody said was settings, and a dead end
+    for the gesture the file inputs exist for. Both halves changed together
+    and only the modal is gone: the report is still made, in the same place
+    every other rejected drop reports, and still names both shapes.
+    """
     csv = tmp_path / "wrong.csv"
     csv.write_text("alpha,beta\n1,2\n")
     screen = FakeScreen()
     _apply_settings_csv(csv, screen)
     assert screen.applied == []
-    assert len(msgbox.calls) == 1
-    kind, title, text = msgbox.calls[0]
-    assert (kind, title) == ("warning", "CSV import failed")
-    assert "setting_key" in text
+    assert msgbox.calls == [], "a rejected drop should not block the user"
+    said = screen._console.text
+    assert "wrong.csv" in said, "the user is not told which file was refused"
+    assert "setting_key" in said and "Key/Value" in said, (
+        "the report does not say what a settings CSV would have looked like")
 
 
 def test_apply_settings_csv_works_without_a_console(tmp_path, msgbox):

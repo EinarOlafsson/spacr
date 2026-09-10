@@ -13,7 +13,6 @@ from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
-
 POSITIVE_PREFIXES = ("run", "propagate")
 NEGATIVE_PREFIXES = (
     "stop", "close", "cancel", "abort", "delete", "remove", "clear",
@@ -73,6 +72,11 @@ def alive(button) -> bool:
 
 
 def _repolish(button: QPushButton) -> None:
+    """Re-apply the stylesheet to a button after its properties changed.
+
+    :param button: the button; one whose C++ half is gone is ignored rather
+        than raising from inside an event delivery.
+    """
     if not alive(button):
         return
     style = button.style()
@@ -123,6 +127,8 @@ def _adopt_activity_spinner(button: QPushButton) -> None:
     ``getattr`` calls, and only until it finds the one button it is looking
     for.
     """
+    if not alive(button):
+        return
     if button.property(_SPINNER_PROPERTY):
         return
     host = button.parentWidget()
@@ -141,6 +147,37 @@ class _SemanticButtonFilter(QObject):
     """Tag buttons globally and preserve Run's fill until work completes."""
 
     def classify(self, button: QPushButton) -> None:
+        # A queued event can outlive the C++ widget while a signal connection
+        # still retains its Python wrapper.  Every operation below crosses
+        # into Qt, so reject that wrapper at the single entry boundary.
+        """Give one button its semantic role, if its C++ half is still there.
+
+        A queued event can outlive the widget while a signal connection still
+        retains the Python wrapper, and every operation below crosses into Qt --
+        so the wrapper is rejected at this single boundary rather than at each
+        call.
+
+        Qt 6.6 can also delete a dialog button re-entrantly while
+        ``parentWidget()`` delivers another construction event. A real
+        ``RuntimeError`` stays visible; a wrapper that became invalid DURING the
+        call has no remaining state to classify, so it is dropped.
+
+        :param button: the button to classify.
+        """
+        if not alive(button):
+            return
+        try:
+            self._classify_live(button)
+        except RuntimeError:
+            # Qt 6.6 can delete a dialog button re-entrantly while
+            # ``parentWidget()`` delivers another construction event.  Keep
+            # real RuntimeErrors visible, but a wrapper that became invalid
+            # during that call has no remaining state to classify.
+            if alive(button):
+                raise
+
+    def _classify_live(self, button: QPushButton) -> None:
+        """Apply the semantic role after the entry liveness check."""
         # spaCR's dialog buttons are text, not text-plus-glyph. Qt's platform
         # styles put a standard icon on the standard roles — a cross on
         # Cancel and Close, a downward arrow on Save — which reads as system
@@ -176,11 +213,23 @@ class _SemanticButtonFilter(QObject):
             _repolish(button)
 
     def _after_clicked(self, button: QPushButton) -> None:
+        """Re-settle the button's fill once the click handler has run.
+
+        Deferred to the next event-loop turn on purpose: the handler is what
+        disables or relabels the button, and reading its state before it has run
+        settles against the state the button had a moment ago.
+        """
         QTimer.singleShot(
             0, lambda target=button: self._settle_after_handler(target))
 
     @staticmethod
     def _settle_after_handler(button: QPushButton) -> None:
+        """Repaint one button for the state its handler left it in.
+
+        A DISABLED Run or Stop keeps the solid operation fill: conventionally it
+        means the worker is still starting or stopping, and greying it out would
+        say the action is unavailable rather than in progress.
+        """
         try:
             # Disabled Run/Stop buttons conventionally mean their asynchronous
             # worker is still starting or stopping. Keep the solid operation
@@ -196,15 +245,26 @@ class _SemanticButtonFilter(QObject):
             pass
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
+        """Re-classify a button as it appears, is re-parented, or changes enabled state.
+
+        Re-enabling also clears a stale busy mark: a button disabled while busy
+        and enabled again by something else would otherwise keep saying it was
+        still working.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: ``False`` -- every event is observed and passed on.
+        """
         if isinstance(watched, QPushButton):
             event_type = event.type()
             if event_type in (
                     QEvent.Show, QEvent.Polish, QEvent.ParentChange):
                 self.classify(watched)
-                _adopt_activity_spinner(watched)
+                if alive(watched):
+                    _adopt_activity_spinner(watched)
             elif event_type == QEvent.EnabledChange:
                 self.classify(watched)
-                if (watched.isEnabled()
+                if (alive(watched) and watched.isEnabled()
                         and watched.property("buttonActionBusy") is True):
                     set_button_busy(watched, False)
         return False

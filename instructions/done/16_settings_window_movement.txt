@@ -2,7 +2,7 @@
 SETTINGS WINDOW: DRAGGING IT UN-MAXIMIZES THE MAIN WINDOW
 ================================================================================
 
-Status:    done - 2026-08-06, needs a look on the desktop
+Status:    DONE, and verified on a real desktop by the maintainer.
 Requested: 2026-08-06 — "whenever i have a settings window up and try to move it the main app goes from full screen to boxed and the settings window is anchored to the middle of the window. i should be able to freely move the settings window irrespective of the main window state"
 
 --------------------------------------------------------------------------------
@@ -66,12 +66,21 @@ green. Measured: an untouched QDialog(parent) reports window type Dialog;
 both of these report Window, keep their parent, and still return Accepted
 from accept().
 
-NOT VERIFIED: where the window actually lands. That is the window manager's
-decision and there is no window manager under QT_QPA_PLATFORM=offscreen.
-The tests assert that spaCR has stopped ASKING to be attached. Someone has
-to maximise the main window on a real desktop, open Preferences, and drag
-it. If it still attaches, the next thing to try is dropping the parent and
-managing stacking manually - the trade-offs are in the module docstring.
+WHERE THE WINDOW LANDS could not be checked here: that is the window
+manager's decision, and there is no window manager under
+QT_QPA_PLATFORM=offscreen. The tests assert only that spaCR has stopped
+ASKING to be attached.
+
+VERIFIED ON THE DESKTOP by the maintainer, which is the only place it could
+be: with the main window maximised, Preferences drags freely and the main
+window stays maximised -- "the main window stayed and the preferences popup
+window moved." Annotate settings, the other dialog the fix was applied to,
+behaves the same way.
+
+So dropping the parent and managing stacking by hand is NOT needed. It was
+the fallback if the window still attached, and it would have cost the
+dialog its always-on-top behaviour; the trade-offs stay recorded in the
+module docstring in case the window manager rules change again.
 
 --------------------------------------------------------------------------------
 PRE-EXISTING, UNTOUCHED

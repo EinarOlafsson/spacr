@@ -23,7 +23,6 @@ import os
 import re
 import threading
 from dataclasses import dataclass, field
-from importlib import metadata
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 __all__ = [
@@ -138,9 +137,9 @@ class AppContribution:
 class ModelProviderContribution:
     """Immutable record naming a plugin's model-zoo provider.
 
-    :ivar key: identifier for the provider; must match
+    :param key: identifier for the provider; must match
         ``^[a-z][a-z0-9_]{1,63}$`` and be unique across all loaded plugins.
-    :ivar provider: ``"module:callable"`` reference string -- not the callable
+    :param provider: ``"module:callable"`` reference string -- not the callable
         itself -- resolved at catalogue time to a zero-argument callable
         returning model-zoo entries or entry mappings.
     """
@@ -156,15 +155,16 @@ class ReportSectionContribution:
     :func:`spacr.report.collect_report` resolves and calls the builder, and
     substitutes a visible problem section if it fails.
 
-    :ivar key: identifier for the section; must match
-        ``^[a-z][a-z0-9_]{1,63}$`` and not repeat an existing section key.
-    :ivar title: heading for the section, used when the builder returns no
-        title of its own and when the builder fails; cannot be blank.
-    :ivar builder: ``"module:callable"`` reference string -- not the callable
-        itself -- to a callable taking a :class:`ReportContext` and returning
-        a ``spacr.report.Section``.
-    :ivar after: key of the existing section this one is inserted directly
-        after; an unmatched key appends it to the end of the report.
+    :param key: stable section identifier; plugin validation requires
+        ``^[a-z][a-z0-9_]{1,63}$`` and discovery rejects duplicate
+        contribution keys.
+    :param title: fallback section heading used when the builder returns no
+        title and when the builder fails; cannot be blank.
+    :param builder: ``"module:callable"`` reference resolved at report
+        collection to a callable taking :class:`ReportContext` and returning
+        a :class:`spacr.report.Section`.
+    :param after: existing section key after which this section is inserted;
+        an unmatched key appends it to the report.
     """
 
     key: str
@@ -175,7 +175,22 @@ class ReportSectionContribution:
 
 @dataclass(frozen=True)
 class SpacrPlugin:
-    """Validated plugin manifest returned by a ``spacr.plugins`` entry point."""
+    """Validated plugin manifest returned by a ``spacr.plugins`` entry point.
+
+    :param name: human-readable plugin name used in diagnostics and discovery
+        output.
+    :param version: version of the plugin distribution, reported to users
+        without being interpreted by spaCR.
+    :param api_version: plugin SDK version the manifest targets; its major
+        version must match :data:`PLUGIN_API_VERSION`.
+    :param apps: runnable applications the plugin adds to the GUI and headless
+        registry.
+    :param model_providers: providers that extend the model-zoo catalogue.
+    :param report_sections: builders that insert plugin-owned sections into
+        generated reports.
+    :param translations: locale-to-message mappings that translate the
+        plugin's own visible strings.
+    """
 
     name: str
     version: str
@@ -188,7 +203,15 @@ class SpacrPlugin:
 
 @dataclass(frozen=True)
 class PluginDiagnostic:
-    """One discovery or contribution error visible to users and logs."""
+    """One discovery or contribution error visible to users and logs.
+
+    :param plugin: entry-point or manifest name identifying the plugin that
+        could not be loaded.
+    :param severity: diagnostic level, such as ``"error"`` or ``"warning"``.
+    :param message: concise user-facing account of the failed operation.
+    :param exception: captured exception text with the technical cause; empty
+        when no exception accompanied the diagnostic.
+    """
 
     plugin: str
     severity: str
@@ -198,7 +221,15 @@ class PluginDiagnostic:
 
 @dataclass(frozen=True)
 class ReportContext:
-    """Read-only inputs passed to plugin report-section builders."""
+    """Read-only inputs passed to plugin report-section builders.
+
+    :param src: source folder or object from which the core report is built.
+    :param artifacts: named core report artifacts available for reuse by the
+        plugin section.
+    :param runs: immutable sequence of recorded run summaries associated with
+        the report source.
+    :param options: report-generation options supplied by the caller.
+    """
 
     src: Any
     artifacts: Mapping[str, Any]
@@ -208,6 +239,18 @@ class ReportContext:
 
 @dataclass
 class _Registry:
+    """Everything the loaded plugins contribute, in one immutable snapshot.
+
+    ONE OBJECT REPLACED WHOLESALE rather than several mutable collections
+    kept in step. A plugin that fails half way through contributing would
+    otherwise leave the registry holding its apps and not its models, and
+    nothing would say so; building a new `_Registry` and swapping it means
+    a partial load is discarded rather than published.
+
+    Tuples for the ordered contributions so plugin order is reproducible,
+    and a dict for `apps` because they are looked up by key.
+    """
+
     plugins: Tuple[SpacrPlugin, ...] = ()
     apps: Dict[str, AppContribution] = field(default_factory=dict)
     models: Tuple[Tuple[str, ModelProviderContribution], ...] = ()
@@ -233,6 +276,7 @@ def load_object(reference: str) -> Any:
 
 
 def _tuple_strings(value: Any, field_name: str) -> Tuple[str, ...]:
+    """Normalize an optional string sequence into a nonblank string tuple."""
     if value is None:
         return ()
     if isinstance(value, str) or not isinstance(value, Sequence):
@@ -244,6 +288,7 @@ def _tuple_strings(value: Any, field_name: str) -> Tuple[str, ...]:
 
 
 def _mapping_of_strings(value: Any, field_name: str) -> Dict[str, str]:
+    """Normalize an optional mapping by converting every key and value to text."""
     if value is None:
         return {}
     if not isinstance(value, Mapping):
@@ -252,6 +297,7 @@ def _mapping_of_strings(value: Any, field_name: str) -> Dict[str, str]:
 
 
 def _app_from_mapping(value: Any) -> AppContribution:
+    """Coerce and validate one application contribution."""
     if isinstance(value, AppContribution):
         app = value
     elif isinstance(value, Mapping):
@@ -296,6 +342,7 @@ def _app_from_mapping(value: Any) -> AppContribution:
 
 
 def _model_from_mapping(value: Any) -> ModelProviderContribution:
+    """Coerce and validate one model-provider contribution."""
     if isinstance(value, ModelProviderContribution):
         contribution = value
     elif isinstance(value, Mapping):
@@ -308,6 +355,7 @@ def _model_from_mapping(value: Any) -> ModelProviderContribution:
 
 
 def _report_from_mapping(value: Any) -> ReportSectionContribution:
+    """Coerce and validate one report-section contribution."""
     if isinstance(value, ReportSectionContribution):
         contribution = value
     elif isinstance(value, Mapping):
@@ -346,6 +394,7 @@ def plugin_from_mapping(value: Mapping[str, Any]) -> SpacrPlugin:
 
 
 def _validate_plugin(plugin: SpacrPlugin) -> None:
+    """Validate plugin metadata, contribution shapes, and unique local keys."""
     if not plugin.name.strip() or not plugin.version.strip():
         raise ValueError("plugin name and version are required")
     if plugin.api_version.split(".", 1)[0] != PLUGIN_API_VERSION.split(".", 1)[0]:
@@ -375,6 +424,7 @@ def _validate_plugin(plugin: SpacrPlugin) -> None:
 
 
 def _coerce_plugin(value: Any) -> SpacrPlugin:
+    """Resolve an entry-point value or factory into a validated plugin."""
     if callable(value) and not isinstance(value, type):
         value = value()
     if isinstance(value, SpacrPlugin):
@@ -386,6 +436,14 @@ def _coerce_plugin(value: Any) -> SpacrPlugin:
 
 
 def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
+    """Yield named plugin loaders from installed entry points and the environment."""
+    # Importing the metadata machinery costs more than the rest of this
+    # dependency-light SDK. Keep the documented SPACR_DISABLE_PLUGINS path a
+    # true opt-out: _build_registry() returns before reaching this generator,
+    # so a headless CLI that disables plugins never imports or scans package
+    # metadata at all.
+    from importlib import metadata
+
     try:
         discovered = metadata.entry_points()
         points = (
@@ -406,6 +464,7 @@ def _installed_sources() -> Iterable[Tuple[str, Callable[[], Any]]]:
 
 
 def _build_registry() -> _Registry:
+    """Discover valid contributions while recording each isolated load failure."""
     registry = _Registry()
     if os.environ.get(DISABLE_PLUGINS_ENV, "").strip().lower() in {
         "1", "true", "yes", "on",
@@ -449,6 +508,7 @@ def _build_registry() -> _Registry:
 
 
 def _registry() -> _Registry:
+    """Return the lazily built process-wide plugin registry under its lock."""
     global _REGISTRY
     with _LOCK:
         if _REGISTRY is None:

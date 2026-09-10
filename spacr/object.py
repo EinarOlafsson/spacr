@@ -1,6 +1,9 @@
 """Object segmentation, filtering, mask generation, and post-processing."""
 
 import os, gc, torch, time
+
+# CUDA, ROCm, Metal or XPU from one resolver -- see instruction 319.
+from . import accelerator
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count
@@ -12,6 +15,7 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Discard display payloads when IPython's helper is unavailable."""
         pass
 import warnings
 from cellpose import models as cp_models
@@ -30,6 +34,41 @@ from skimage.exposure import equalize_adapthist
 from skimage.restoration import rolling_ball
 
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+
+def _eval_diameter(raw, object_type=""):
+    """The diameter to hand Cellpose's ``eval``, or ``None`` for native scale.
+
+    Cellpose tests ``diameter > 0``, so a value that reaches it as a STRING
+    raises ``TypeError: '>' not supported between instances of 'str' and
+    'int'`` -- and it raises inside the segmentation call, after the run has
+    already spent minutes loading and normalising plates. Every route into
+    this setting that is not a Python literal produces a string: a number
+    typed into the GUI, and any settings CSV.
+
+    ``None`` is PRESERVED rather than replaced with a default. A blank
+    diameter means "let CPSAM work at native scale"; substituting the
+    magnification-derived default from `_get_object_settings` would rescale
+    every image by 30/diameter -- a different segmentation, silently, for
+    every run that left the field empty. That is why this coerces the user's
+    own value instead of reading `object_settings['diameter']`, which always
+    holds that default.
+
+    An unparseable value is reported and treated as blank, which is what
+    `_get_object_settings` has always done for this field.
+    """
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        raw = raw.strip()
+        if not raw:
+            return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        print(f"{object_type}_diameter must be a number, got {raw!r}; "
+              f"segmenting at native scale instead")
+        return None
 
 
 def _remove_objects_smaller_than(binary, min_size):
@@ -79,7 +118,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
     im = settings.get(f'{object_type}_intensity_merge', False)
     isp = settings.get(f'{object_type}_intensity_split', False)
-    moa = settings.get(f'{object_type}_min_object_area', 0)
+    moa = settings.get(f'{object_type}_min_split_area', 0)
     mna = settings.get(f'{object_type}_min_area', 0)
     mxa = settings.get(f'{object_type}_max_area', 0)
     rb = settings.get(f'{object_type}_remove_border_objects', False)
@@ -316,6 +355,7 @@ def _cellpose_z_segment_fn(model, eval_kwargs, stitch_threshold):
     :returns: a callable matching the ``segment_fn`` contract.
     """
     def _segment(array, do_3D=False, anisotropy=None, z_axis=None, stitch=False):
+        """Return labels from a 3-D, plane-list, or single-plane Cellpose call."""
         kwargs = dict(eval_kwargs)
 
         if do_3D:
@@ -691,8 +731,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     
     batch_size = settings['batch_size']
     
-    cellprob_threshold = settings[f'{object_type}_CP_prob']
-    flow_threshold = settings[f'{object_type}_FT']
+    cellprob_threshold = settings[f'{object_type}_cellprob_threshold']
+    flow_threshold = settings[f'{object_type}_flow_threshold']
     object_settings = _get_object_settings(object_type, settings)
 
     # None unless the user opted into 3D (Beta). Every branch below is guarded
@@ -746,8 +786,11 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        if _raw in _dense:
-            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+        # ``dense_mask_channel_positions`` walks this same role key before
+        # returning, with the same ``int`` coercion.  A numeric raw channel is
+        # therefore necessarily present; indexing directly keeps any future
+        # drift loud instead of silently leaving the alias unset.
+        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
@@ -758,8 +801,6 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     if settings['verbose']:
         print(channels)
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     # pretrained_model used to be the literal 'cpsam' here, so a checkpoint
     # from spaCR's own Train Cellpose module was discarded and the stock
     # weights ran instead — silently, on the pipeline's DEFAULT path.
@@ -767,9 +808,18 @@ def generate_cellpose_masks_sam(src, settings, object_type):
     # returns the checkpoint path when the user named one.
     model_name = object_settings['model_name']
     if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        # LEGACY ONLY. `pathogen_model` was a second setting naming the same
+        # thing as `pathogen_model_name`, and two controls for one value is
+        # how a user sets one and wonders why the other wins. It is no longer
+        # OFFERED -- see _APP_HIDDEN_KEYS -- and is read here so a settings
+        # CSV written before it was retired still segments with the model it
+        # names rather than silently falling back to cpsam.
         model_name = settings['pathogen_model']
     pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
-    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(), pretrained_model=pretrained, device=device)
+    model = cp_models.CellposeModel(
+        pretrained_model=pretrained,
+        **accelerator.cellpose_kwargs(),
+    )
     paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
@@ -876,7 +926,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     # <obj>_diameter (and anything spacr.diameter proposes) never
                     # reached Cellpose. The setting defaults to None, so None here
                     # still means "let CPSAM work at native scale".
-                    diameter=settings.get(f'{object_type}_diameter'),
+                    diameter=_eval_diameter(
+                        settings.get(f'{object_type}_diameter'),
+                        object_type),
                     flow_threshold=flow_threshold,
                     cellprob_threshold=cellprob_threshold,
                     resample=object_settings['resample']
@@ -894,7 +946,9 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                     channel_axis=-1,
                     min_size=object_settings['min_size'],
                     progress=True,
-                    diameter=settings.get(f'{object_type}_diameter'),
+                    diameter=_eval_diameter(
+                        settings.get(f'{object_type}_diameter'),
+                        object_type),
                     flow_threshold=flow_threshold,
                     cellprob_threshold=cellprob_threshold,
                     resample=object_settings['resample'],
@@ -1155,9 +1209,9 @@ def generate_cellpose_masks(src, settings, object_type):
     
     batch_size = settings['batch_size']
     
-    cellprob_threshold = settings[f'{object_type}_CP_prob']
+    cellprob_threshold = settings[f'{object_type}_cellprob_threshold']
 
-    flow_threshold = settings[f'{object_type}_FT']
+    flow_threshold = settings[f'{object_type}_flow_threshold']
 
     object_settings = _get_object_settings(object_type, settings)
     
@@ -1179,8 +1233,9 @@ def generate_cellpose_masks(src, settings, object_type):
             _raw = int(_raw)
         except (TypeError, ValueError):
             continue
-        if _raw in _dense:
-            settings[f'cellpose_{_role}_channel'] = _dense[_raw]
+        # The map was built from this same numeric role channel immediately
+        # above, so absence is impossible unless the two contracts drift.
+        settings[f'cellpose_{_role}_channel'] = _dense[_raw]
 
     # _get_cellpose_channels takes the settings dict and returns
     # (channels_to_extract, cellpose_channels). It used to be called here with
@@ -1198,7 +1253,7 @@ def generate_cellpose_masks(src, settings, object_type):
     
     channels = cellpose_channels[object_type]
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = accelerator.torch_device()
     
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
         model_name = settings['pathogen_model']
@@ -1282,7 +1337,11 @@ def generate_cellpose_masks(src, settings, object_type):
                                 batch_size=batch_size,
                                 normalize=False,
                                 channel_axis=-1,
-                                channels=channels,
+                                # No channels=: Cellpose 4 logs "channels
+                                # deprecated in v4.0.1+" and never reads it, so
+                                # the pair configured nothing. The planes are
+                                # already chosen above by stack[..., channels],
+                                # which is what the remap was always for.
                                 # <obj>_min_area is documented as "passed to
                                 # Cellpose as min_size"; this generator never
                                 # passed it, so Cellpose used its own default of
@@ -1556,7 +1615,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     if method == 'cellpose':
         from .utils import _choose_model
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = accelerator.torch_device()
         dl_model = _choose_model(
             settings['organelle_model_name'],
             device,
@@ -1666,8 +1725,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
             # ---------------------------------------------------------- #
             mask_stack = _postprocess_masks(
                 masks,
-                min_size=settings['organelle_min_size'],
-                max_size=settings['organelle_max_size'],
+                min_size=settings['organelle_min_area'],
+                max_size=settings['organelle_max_area'],
                 remove_border=settings['organelle_remove_border'],
             )
 
@@ -1760,8 +1819,8 @@ def _build_object_settings(settings):
     return {
         'model_name': settings['organelle_model_name'],
         'diameter': settings['organelle_diameter'],
-        'minimum_size': settings['organelle_min_size'],
-        'maximum_size': settings['organelle_max_size'],
+        'minimum_size': settings['organelle_min_area'],
+        'maximum_size': settings['organelle_max_area'],
         'resample': settings['organelle_resample'],
         'filter_size': False,
         'filter_intensity': False,
@@ -1774,7 +1833,7 @@ def _extract_classical_settings(settings):
     """Return a pickle-safe subset of ``settings`` for classical segmentation workers."""
     keys = [
         'organelle_morphology', 'organelle_method',
-        'organelle_min_size', 'organelle_max_size',
+        'organelle_min_area', 'organelle_max_area',
         # Spots
         'organelle_tophat_radius', 'organelle_watershed_spots',
         'organelle_log_min_sigma', 'organelle_log_max_sigma',
@@ -1859,7 +1918,7 @@ def _load_unet_model(settings):
             f"organelle_unet_model_path must point to a valid .pt/.pth file, "
             f"got '{model_path}'"
         )
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = accelerator.torch_device()
     model = torch.load(model_path, map_location=device, weights_only=False)
     model.eval()
     return model
@@ -1917,10 +1976,11 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
         batch_size=settings['batch_size'],
         normalize=False,
         channel_axis=-1,
-        channels=[0, 1],
+        # No channels=: Cellpose 4 never reads it, so [0, 1] configured
+        # nothing. cp_batch already holds the planes this call should see.
         diameter=settings['organelle_diameter'],
-        flow_threshold=settings['organelle_FT'],
-        cellprob_threshold=settings['organelle_CP_prob'],
+        flow_threshold=settings['organelle_flow_threshold'],
+        cellprob_threshold=settings['organelle_cellprob_threshold'],
         rescale=None,
         resample=settings['organelle_resample'],
     )
@@ -1984,8 +2044,8 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
         normalize=False,
         channel_axis=-1,
         diameter=None,
-        flow_threshold=settings[f'{object_type}_FT'],
-        cellprob_threshold=settings[f'{object_type}_CP_prob'],
+        flow_threshold=settings[f'{object_type}_flow_threshold'],
+        cellprob_threshold=settings[f'{object_type}_cellprob_threshold'],
         resample=settings.get(f'{object_type}_resample', True)
     )
 
@@ -2027,7 +2087,7 @@ def _segment_unet(img_batch, model, settings):
             binary = pred > threshold
 
             binary = _remove_objects_smaller_than(
-                binary, settings['organelle_min_size'])
+                binary, settings['organelle_min_area'])
 
             if do_skeleton:
                 skeleton = skeletonize(binary)
@@ -2111,7 +2171,7 @@ def _segment_spots(img, method, settings):
     # --- Morphological cleanup ---
     binary = opening(binary, disk(1))
     binary = _remove_objects_smaller_than(
-        binary, settings['organelle_min_size'])
+        binary, settings['organelle_min_area'])
 
     # --- Watershed to split touching spots ---
     if use_watershed:
@@ -2216,7 +2276,7 @@ def _segment_network(img, method, settings):
     morph_r = max(settings['organelle_morph_radius'] // 2, 1)
     binary = closing(binary, disk(morph_r))
     binary = _remove_objects_smaller_than(
-        binary, settings['organelle_min_size'])
+        binary, settings['organelle_min_area'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
@@ -2261,7 +2321,7 @@ def _network_ridge(img, settings):
 
     binary = closing(binary, disk(1))
     binary = _remove_objects_smaller_than(
-        binary, settings['organelle_min_size'])
+        binary, settings['organelle_min_area'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
@@ -2293,7 +2353,7 @@ def _network_hysteresis(img, settings):
     morph_r = max(settings['organelle_morph_radius'] // 2, 1)
     binary = closing(binary, disk(morph_r))
     binary = _remove_objects_smaller_than(
-        binary, settings['organelle_min_size'])
+        binary, settings['organelle_min_area'])
 
     if settings['organelle_skeletonize']:
         skeleton = skeletonize(binary)
@@ -2333,7 +2393,7 @@ def _segment_irregular(img, method, settings):
         binary = _fill_holes_smaller_than(binary, fill_area)
 
     binary = _remove_objects_smaller_than(
-        binary, settings['organelle_min_size'])
+        binary, settings['organelle_min_area'])
 
     labeled = _watershed_split(binary, smooth)
     return labeled
@@ -2387,7 +2447,7 @@ def _segment_ring(img, method, settings):
     # Cleanup edges
     binary_edges = closing(binary_edges, disk(1))
     binary_edges = _remove_objects_smaller_than(
-        binary_edges, max(settings['organelle_min_size'] // 4, 3))
+        binary_edges, max(settings['organelle_min_area'] // 4, 3))
 
     # Step 3: Fill rings to get solid objects
     if fill_method == 'flood':

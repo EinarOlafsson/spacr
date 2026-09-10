@@ -1,4 +1,60 @@
-"""Per-object morphology and intensity measurement pipeline."""
+"""Turn masks and channels into one row per object, in a database.
+
+WHAT IT IS FOR. Segmentation says WHERE the objects are; this module says
+what they are LIKE. It reads the arrays Mask wrote and produces the table
+every downstream question is asked of -- which genes changed a phenotype,
+which cells to train a classifier on, which wells to believe.
+
+WHAT IT NEEDS. A ``merged/`` folder written by
+:func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
+label masks for one field, saved together as ``.npy``. Which masks to measure
+is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
+``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
+dimension is simply not measured, rather than measured as empty.
+
+WHAT IT PRODUCES.
+
+* ``measurements/measurements.db``, one SQLite table per object type, one row
+  per object, keyed by the plate/row/column/field/object identity
+  :mod:`spacr.schema` composes. The columns are shape, intensity, texture and
+  SPATIAL features -- how many neighbours an object has within a radius, how
+  far the nearest one is, what fraction of its border touches another.
+* Optionally, one PNG per object (``save_png``), cropped by the mask. Those
+  crops are what :func:`spacr.deep_spacr.deep_spacr` trains on and what
+  Annotate shows, which is why the cropping lives here rather than beside the
+  classifier: they must be cut by the same mask the measurements came from.
+
+WHAT TO DO NEXT. Annotate or Classify, if the crops were written; Regression,
+if the question is which perturbation moved which measurement. Both read the
+database this writes and neither re-measures anything.
+
+--------------------------------------------------------------------------
+
+THREE THINGS THAT ARE NOT OBVIOUS AND ARE LOAD-BEARING:
+
+A FIELD THAT FAILS TO MEASURE IS RECORDED, SUMMARISED AND STAMPED INTO THE
+DATABASE. Silence would let a regression analyse 344 of 384 wells and report
+a result with no sign that forty are missing, which is the failure this
+module is most careful about -- the same reason its 3-D path refuses a volume
+it cannot measure correctly instead of measuring it wrongly.
+
+THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)``
+label volumes now (see :mod:`spacr.zstack`), and everything about voxel
+spacing, volume columns and the units stamp exists so that a 3-D field is
+measured in real units or refused. A 2-D field takes exactly the code it took
+before, with ``spacing=None``; a screen measured last year and re-measured
+today produces the same numbers.
+
+THE RADIUS IS IN THE COLUMN NAME. ``neighbors_within_30`` is a different
+column from ``neighbors_within_50``, following the same precedent as
+``homogeneity_distance_<d>``, so two plates measured at different radii will
+not silently concatenate into one frame that means two things.
+
+Illumination correction and a user-drawn ROI reach this module through the
+registries in :mod:`spacr.measure_hooks` rather than by editing it. Both are
+empty by default and both entry points return their input unchanged when they
+are, so an ordinary run is byte-identical to one from before they existed.
+"""
 
 import os, cv2, time, sqlite3, threading, traceback, shutil, inspect
 import numpy as np
@@ -6,7 +62,7 @@ import pandas as pd
 from collections import defaultdict
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
-from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve, find_objects
 from scipy.spatial import cKDTree
 from skimage.measure import regionprops, regionprops_table, shannon_entropy
 from skimage.exposure import rescale_intensity
@@ -68,8 +124,7 @@ from .measure_hooks import (
     unregister_region_filter_hook,
     warn_if_hooks_will_not_reach_workers,
 )
-from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
-                           organelle_settings_view)
+from .object_roles import ORGANELLE_ROLES, SEGMENTED_ROLES
 from .intensity_rescale import (
     PLAN_SETTINGS_KEY,
     build_plate_plan,
@@ -77,6 +132,11 @@ from .intensity_rescale import (
     needs_warning as _intensity_scale_needs_warning,
     resolve_record as _resolve_intensity_rescale_record,
 )
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
 
 
 # ---------------------------------------------------------------------------
@@ -184,20 +244,10 @@ def _pool_context():
 
 
 class ManagerStartError(ConfigurationError):
-    """:func:`measure_crop` could not start its :class:`multiprocessing.Manager`.
+    """Raised when Measure cannot start its multiprocessing manager.
 
-    A :class:`~spacr.errors.ConfigurationError` because it is not a per-field
-    failure: the Manager owns the shared timing list every worker writes to, so
-    if it will not start then no field can be measured and continuing past it
-    produces nothing. The remedy is a configuration change
-    (:data:`START_METHOD_ENV_VAR`), which is what this class exists to say.
-
-    What it replaces is the point. ``ctx.Manager()`` fails as a bare
-    ``EOFError`` raised four frames down in ``multiprocessing/connection.py``
-    -- no message, no mention of spaCR, no mention of the start method, and no
-    hint that the process that called Measure is the thing at fault. This was
-    reproduced deterministically 33 times across 7 test modules; see
-    :func:`_manager_start_diagnosis` for the mechanism.
+    The exception message reports the active start method, underlying error,
+    and practical remedies. No fields are measured after this error.
     """
 
 
@@ -319,28 +369,11 @@ def _start_manager(ctx):
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):
-    """Return how many worker processes to actually start for ``n_files`` fields.
+    """Return the worker count for a set of image fields.
 
-    Under ``fork`` a surplus worker is nearly free -- it is a page-table copy of
-    a process that has already imported everything -- so spaCR has always
-    started exactly the requested number and existing behaviour is preserved.
-
-    Under ``spawn`` and ``forkserver`` it is not free. Each worker is a fresh
-    interpreter that re-imports the whole measure chain from scratch; measured
-    on a developer box that was **8.1 s and ~1.54 GB of RSS per worker**, and
-    is **3.5 s and ~930 MB** now that ``spacr.plot`` and umap (and, through
-    umap, TensorFlow) are off that path. Either way it is paid before a single
-    field is read. A default ``n_jobs`` of ``cpu_count - 4`` on a 16-core
-    Windows machine therefore boots 12 interpreters and reserves 11-18 GB to
-    measure a 4-field test plate, and the run either swaps itself to a
-    standstill or has workers killed out from under it -- which presents as
-    "Measure prints 'using 12 cpu cores' and then nothing happens", because a
-    pool worker that dies at bootstrap is silently replaced and dies again.
-    Windows and macOS default to ``spawn``; Linux does not, which is exactly
-    why this only ever bit the other two.
-
-    A worker with no field to measure cannot contribute, so capping at the
-    number of fields costs nothing and is the whole fix.
+    ``spawn`` and ``forkserver`` start a fresh interpreter for every worker,
+    so their worker count is capped at the number of fields. ``fork`` keeps
+    the requested count for compatibility.
 
     :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
     :param n_files: how many fields there are to measure.
@@ -361,16 +394,8 @@ def resolve_pool_size(n_jobs, n_files, start_method=None):
 def resolve_n_jobs(n_jobs, cpu_count=None):
     """Return the number of worker processes ``measure_crop`` will actually use.
 
-    This used to discard the user's value outright. The old block compared
-    ``n_jobs`` with the core count *before* the ``is None`` check -- so leaving
-    it blank, which the printed warning itself recommends, raised
-    ``TypeError: '>' not supported between instances of 'NoneType' and 'int'``
-    -- and then ended with an unconditional ``settings['n_jobs'] =
-    spacr_cores``, which threw the request away: on a 32-core machine
-    ``n_jobs=1`` ran 28 workers. That is not a performance detail. It is what
-    made the concurrent ``CREATE TABLE`` race reachable from a test that had
-    explicitly asked for one worker, and it takes away the only lever a user
-    has on a shared machine.
+    ``None`` selects spaCR's default. Explicit values are validated and capped
+    at the available CPU count.
 
     :param n_jobs: what the user asked for. ``None`` means "pick for me".
     :param cpu_count: core count to resolve against; defaults to
@@ -464,6 +489,12 @@ def resolve_measurement_spacing(settings, ndim, n_z=1):
     from .zstack import UnknownAnisotropyError
 
     def _positive(name):
+        """One spacing value, refused unless it is a positive number.
+
+        A zero or negative spacing makes every physical measurement wrong by a
+        factor nobody can recover afterwards, so it is refused rather than
+        defaulted.
+        """
         value = cfg.get(name)
         if value is None:
             return None
@@ -653,6 +684,40 @@ def _calculate_zernike(mask, df, degree=8):
     return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
 
 
+#: Whether Mahotas answered, decided once per process rather than per object.
+#:
+#: `_morphological_measurements` runs once per FIELD, in each of up to `n_jobs`
+#: worker processes, and probed the import every time -- so a machine without
+#: Mahotas got the same four-line install notice fifty-two times, burying the
+#: one message in that run that mattered (a field that actually failed).
+_ZERNIKE_AVAILABLE = None
+
+
+def _zernike_is_available() -> bool:
+    """Whether Zernike moments can be computed here. Said once.
+
+    THE ANSWER CANNOT CHANGE inside a run: a package does not become
+    installable between two fields. So it is probed on the first field and
+    remembered, and the notice is printed with it.
+
+    Still once PER PROCESS rather than once per run, because a pool worker is a
+    fresh interpreter with its own module state. That turns fifty-two notices
+    into at most `n_jobs`, and the parent-side decision that would make it
+    exactly one belongs with the settings resolution rather than here.
+    """
+    global _ZERNIKE_AVAILABLE
+    if _ZERNIKE_AVAILABLE is not None:
+        return _ZERNIKE_AVAILABLE
+    try:
+        _load_zernike_moments()
+    except ImportError as exc:
+        _ZERNIKE_AVAILABLE = False
+        print(f"[measure] {exc} Zernike columns will be skipped.")
+    else:
+        _ZERNIKE_AVAILABLE = True
+    return _ZERNIKE_AVAILABLE
+
+
 def _load_zernike_moments():
     """Load Mahotas only when its optional descriptor is computed."""
     try:
@@ -661,7 +726,11 @@ def _load_zernike_moments():
         raise ImportError(
             "Zernike morphology requires the optional Mahotas package. "
             "Install it with `pip install \"spacr[zernike]\"`, or run "
-            "morphological measurements with zernike=False."
+            "morphological measurements with zernike=False. "
+            "NOTE: Mahotas publishes no wheel for Python 3.13 or newer, so on "
+            "those interpreters that install builds from source and needs a "
+            "C++ toolchain -- see the note in setup.py. Every other "
+            "morphological measurement is unaffected."
         ) from exc
     return zernike_moments
 
@@ -888,16 +957,6 @@ def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
 #: separable -- but it is a sentinel, not a distance, and must not be averaged.
 _SPATIAL_NO_NEIGHBOUR = -1.0
 
-#: Organelle families that are one connected network per cell rather than a
-#: population of separable objects. Neighbour statistics of a single connected
-#: network are not a measurement of anything, so the spatial block skips them.
-#: These are MORPHOLOGY values, not type names. An `organelle_type` is
-#: resolved to its morphology by `_morphology_of_organelle_type` before it
-#: is tested here -- 'filamentous' and 'tubular' both map to 'network', and
-#: comparing the type name directly missed both. 'reticular'/'cisternal'
-#: remain listed because a run may still carry them as a raw morphology.
-_SPATIAL_NETWORKED_ORGANELLES = frozenset({'network', 'reticular', 'cisternal'})
-
 #: ``expand_labels`` grew its ``spacing`` argument after scikit-image 0.22, and
 #: setup.py's floor is ``>=0.22.0``. Probed once rather than assumed: without it
 #: a 3-D run would silently measure an unscaled radius, which was measured wrong
@@ -907,10 +966,6 @@ try:
         'spacing' in inspect.signature(expand_labels).parameters)
 except (TypeError, ValueError):  # pragma: no cover - C-implemented signature
     _EXPAND_LABELS_TAKES_SPACING = False
-
-#: One-shot console note when the organelle spatial gate has to assume the
-#: shipped 'spots' default because neither key reached the measure stage.
-_SPATIAL_ORGANELLE_ASSUMED = False
 
 
 def spatial_column_names(radius):
@@ -963,17 +1018,21 @@ def _spatial_adjacency(mask, spacing=None, expand=1):
     if _EXPAND_LABELS_TAKES_SPACING:
         grown = expand_labels(mask, distance=expand, spacing=spacing)
     else:
-        if spacing is not None and len(set(np.atleast_1d(spacing).tolist())) > 1:
-            raise ConfigurationError(
-                "spatial_measurements on an anisotropic 3-D volume needs "
-                "skimage.segmentation.expand_labels(spacing=...), which this "
-                "scikit-image "
-                f"({getattr(__import__('skimage'), '__version__', 'unknown')}) "
-                "does not provide. Without it the one-voxel growth is applied "
-                "equally along z and xy, which on a (2.0, 0.2, 0.2) voxel is "
-                "wrong by 10x along z. Upgrade scikit-image, or set "
-                "spatial_measurements=False for this run.")
-        grown = expand_labels(mask, distance=expand)
+        # scikit-image 0.22 is still the supported floor and predates the
+        # ``spacing`` keyword. Its implementation is a nearest-label EDT, so
+        # reproduce that small operation with scipy's long-standing
+        # ``sampling`` argument instead of silently growing anisotropic
+        # volumes in voxel units (or rejecting a documented feature).
+        if spacing is None:
+            grown = expand_labels(mask, distance=expand)
+        else:
+            distances, nearest = distance_transform_edt(
+                np.asarray(mask) == 0, sampling=spacing,
+                return_distances=True, return_indices=True)
+            grown = np.zeros_like(mask)
+            within = distances <= float(expand)
+            nearest_labels = np.asarray(mask)[tuple(nearest)]
+            grown[within] = nearest_labels[within]
 
     ndim = grown.ndim
     inner = find_boundaries(grown, mode='inner')
@@ -1117,50 +1176,14 @@ def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
 
 
 def _spatial_organelle_eligible(settings):
-    """Whether the organelle mask gets spatial columns.
+    """Return ``True`` for every organelle settings mapping.
 
-    THE TYPE IS RESOLVED TO A MORPHOLOGY, NOT COMPARED AS A STRING, and that
-    is what this gate got wrong the moment instruction 72 landed. It read
-    ``organelle_type`` first and tested the raw value for membership. Two
-    things then broke at once, silently, on every run:
-
-      * `organelle_type` now DEFAULTS to 'custom', which is not in the
-        networked set -- so a run that said `organelle_morphology='network'`
-        and meant it had its explicit choice shadowed by a default it never
-        set, and the spatial block ran on a connected network.
-      * 'filamentous' and 'tubular' are not in the set either, though the
-        preset maps both to `network`. Picking the biological name for a
-        mitochondrial network turned the block back on.
-
-    Neighbour statistics of ONE connected network are not a measurement of
-    anything -- that is why this gate exists -- so both cases wrote columns
-    that look like data and are not.
-
-    The type is therefore put through the same preset mapping the mask stage
-    uses, and only the resulting morphology is tested. 'custom' has no
-    opinion by design, so it falls through to `organelle_morphology`.
-
-    Neither key is defined by ``get_measure_crop_settings`` --
-    ``organelle_morphology`` is a *mask*-stage setting -- so in a
-    measure-only run the gate sees neither and assumes the shipped default
-    'spots', which is eligible. That keeps the default reproducing today's
-    behaviour; the assumption is printed once.
+    Kept as a compatibility predicate for callers that imported the former
+    private gate.  Organelle Type is advisory: it records measurement caveats
+    but never switches off a requested family or removes its output columns.
     """
-    global _SPATIAL_ORGANELLE_ASSUMED
-
-    kind = _morphology_of_organelle_type(settings)
-    if kind is None:
-        kind = settings.get('organelle_morphology')
-    if kind is None:
-        kind = 'spots'
-        if not _SPATIAL_ORGANELLE_ASSUMED:
-            _SPATIAL_ORGANELLE_ASSUMED = True
-            print("[measure] spatial_measurements: neither organelle_type nor "
-                  "organelle_morphology reached the measure stage, so the "
-                  "organelle spatial block assumes the shipped default "
-                  "'spots' (punctate, eligible). Set organelle_morphology to "
-                  "'network' to skip it.")
-    return str(kind).strip().lower() not in _SPATIAL_NETWORKED_ORGANELLES
+    del settings
+    return True
 
 
 def _morphology_of_organelle_type(settings):
@@ -1186,7 +1209,7 @@ def _morphology_of_organelle_type(settings):
 def _morphological_measurements(
         cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
         cytoplasm_mask, settings, zernike=None, degree=8,
-        extra_organelle_masks=None):
+        extra_organelle_masks=None, channel_arrays=None):
     """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
 
     :param cell_mask: Label mask of cells.
@@ -1216,19 +1239,14 @@ def _morphological_measurements(
     .. note::
 
        With ``spatial_measurements=True`` the cell, nucleus, pathogen and
-       (when the organelle is not a single connected network) organelle frames
-       gain :func:`spatial_column_names`. Cytoplasm never does -- its mask
-       carries the cell's own label, so it is one object per cell by
+       organelle frames gain :func:`spatial_column_names`. Organelle Type never
+       suppresses requested measurements; doubtful interpretations are
+       recorded as caveats instead. Cytoplasm never gains these columns -- its
+       mask carries the cell's own label, so it is one object per cell by
        construction. Default ``False``: an unchanged run does no extra work.
     """
     if zernike is None:
-        try:
-            _load_zernike_moments()
-        except ImportError as exc:
-            zernike = False
-            print(f"[measure] {exc} Zernike columns will be skipped.")
-        else:
-            zernike = True
+        zernike = _zernike_is_available()
 
     ndim = _ndim_of(cell_mask)
     spacing, stamp = resolve_measurement_spacing(settings, ndim)
@@ -1254,6 +1272,50 @@ def _morphological_measurements(
         spatial_radius = int(settings.get('spatial_neighbor_radius', 50))
     except (TypeError, ValueError):
         spatial_radius = 50
+
+    # EVERY DISTANCE WORTH MEASURING, opt-in and off by default for the same
+    # reason `spatial_measurements` is: it is real time on a 3-D field.
+    distances_on = bool(settings.get('object_distances', False))
+
+    def _all_masks():
+        """Object type -> label image, for the masks this run actually has."""
+        found = {}
+        for name, mask in (('cell', cell_mask), ('nucleus', nucleus_mask),
+                           ('pathogen', pathogen_mask)):
+            if mask is not None and getattr(mask, 'size', 0):
+                found[name] = mask
+        return found
+
+    def _with_distances(frame, mask, name):
+        """Merge the object-distance block onto a props frame.
+
+        Props on the LEFT for the reason `_with_spatial` gives: 'label' has
+        to keep column position 0.
+        """
+        if not distances_on or len(frame) == 0:
+            return frame
+        masks = _all_masks()
+        if name not in masks:
+            masks = dict(masks, **{name: mask})
+        try:
+            from .object_distances import object_distances
+
+            block = object_distances(
+                masks, images=channel_arrays if settings.get(
+                    'object_distance_intensity', True) else None,
+                primary=name, channels=tuple(settings.get('channels') or ()),
+                spacing=spacing,
+                maxima=bool(settings.get('object_distance_maxima', True)))
+        except Exception as error:                           # noqa: BLE001
+            # A MEASUREMENT FAMILY THAT FAILS IS NOT A FAILED RUN. Every
+            # other measurement in this frame is still correct.
+            print(f"[measure] object distances for {name} were not "
+                  f"measured: {type(error).__name__}: {error}")
+            return frame
+        if len(block.columns) <= 1:
+            return frame
+        return frame.merge(block, on='label', how='left',
+                           validate='one_to_one')
 
     def _with_spatial(frame, mask):
         """Merge the spatial block onto a props frame. Props on the LEFT."""
@@ -1287,6 +1349,7 @@ def _morphological_measurements(
         cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
         cell_props = _props(cell_mask)
         cell_props = _with_spatial(cell_props, cell_mask)
+        cell_props = _with_distances(cell_props, cell_mask, 'cell')
         if zernike:
             cell_props = _calculate_zernike(
                 cell_mask, cell_props, degree=degree)
@@ -1299,6 +1362,7 @@ def _morphological_measurements(
     if settings['nucleus_mask_dim'] is not None:
         nucleus_props = _props(nucleus_mask)
         nucleus_props = _with_spatial(nucleus_props, nucleus_mask)
+        nucleus_props = _with_distances(nucleus_props, nucleus_mask, 'nucleus')
         if zernike:
             nucleus_props = _calculate_zernike(
                 nucleus_mask, nucleus_props, degree=degree)
@@ -1330,6 +1394,7 @@ def _morphological_measurements(
     if settings['pathogen_mask_dim'] is not None:
         pathogen_props = _props(pathogen_mask)
         pathogen_props = _with_spatial(pathogen_props, pathogen_mask)
+        pathogen_props = _with_distances(pathogen_props, pathogen_mask, 'pathogen')
         if zernike:
             pathogen_props = _calculate_zernike(
                 pathogen_mask, pathogen_props, degree=degree)
@@ -1358,13 +1423,11 @@ def _morphological_measurements(
     organelle_masks = {'organelle': organelle_mask}
     organelle_masks.update(dict(extra_organelle_masks or {}))
     for organelle_role, current_organelle_mask in organelle_masks.items():
-        role_settings = organelle_settings_view(settings, organelle_role)
         if settings.get(f'{organelle_role}_mask_dim') is not None:
             organelle_props = _props(current_organelle_mask)
-        # Gated, unlike cell/nucleus/pathogen: a single connected network per
-        # cell has no population of separable neighbours to count. See
-        # _spatial_organelle_eligible (and instruction 72's organelle_type).
-            if spatial_on and _spatial_organelle_eligible(role_settings):
+            # Type can warn that a family may be hard to interpret, but it
+            # never removes requested measurements or their output columns.
+            if spatial_on:
                 organelle_props = _with_spatial(
                     organelle_props, current_organelle_mask)
             if len(organelle_props) > 0 and zernike:
@@ -1609,6 +1672,10 @@ def _intensity_measurements(
     
     for i in range(0, channel_arrays.shape[-1]):
         channel = channel_arrays[..., i]
+        # frac_high90 / frac_low10 are cut at the whole field's percentiles, so
+        # the pair belongs to the channel, not to the mask being measured.
+        # Computed once here instead of once per mask inside the call below.
+        channel_percentiles = _field_reference_percentiles(channel)
         for j, (label, df) in enumerate(zip(labels, dfs)):
 
             if np.max(label) == 0:
@@ -1616,7 +1683,9 @@ def _intensity_measurements(
                 df.append(empty_df)
                 continue
 
-            mask_intensity_df = _extended_regionprops_table(label, channel, intensity_props, spacing=spacing)
+            mask_intensity_df = _extended_regionprops_table(
+                label, channel, intensity_props, spacing=spacing,
+                field_percentiles=channel_percentiles)
 
             if homogeneity:
                 homogeneity_df = _calculate_homogeneity(label, channel, distances)
@@ -1638,8 +1707,21 @@ def _intensity_measurements(
             # writing the prefix here too produced
             # 'cell_channel_0_cell_channel_0_blur' in every database written
             # before this fix.
-            blur_col = [_estimate_blur(channel, mask=(label == region_label))
-                        for region_label in mask_intensity_df['label']]
+            # _estimate_blur cuts the object's bounding box grown by one
+            # pixel out of whatever it is handed, so hand it that patch rather
+            # than a whole-field boolean: the pixels it measures are the same
+            # ones, and the loop stops comparing the entire field once per
+            # object per channel.
+            label_shape = np.asarray(label).shape
+            label_boxes = _label_bounding_boxes(label)
+            label_field = _whole_field_window(label_shape)
+            blur_col = []
+            for region_label in mask_intensity_df['label']:
+                box = _box_for(label_boxes, region_label)
+                window = (label_field if box is None
+                          else _grow_window(box, 1, label_shape))
+                blur_col.append(_estimate_blur(
+                    channel[window], mask=(label[window] == region_label)))
             mask_intensity_df['blur'] = blur_col
 
             mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
@@ -1724,7 +1806,155 @@ def _create_dataframe(radial_distributions, object_type):
         df = df.reset_index().rename(columns={'index': 'label'})
         return df
 
-def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
+def _whole_field_window(shape):
+    """The slice tuple covering every voxel of an array of ``shape``."""
+    return tuple(slice(0, int(dim)) for dim in shape)
+
+
+def _label_bounding_boxes(label_mask):
+    """Return ``{label: slice tuple}``, one bounding box per non-zero label.
+
+    Per-object work in this module is written as a whole-field comparison
+    (``label_mask == region``) inside a loop over objects, so reaching an
+    object a few tens of pixels across costs a pass over the entire field and
+    the loop costs O(objects x field). Restricting each iteration to the
+    object's own bounding box is exact rather than approximate: it selects the
+    same pixels in the same C order, so every reduction over them -- a mean, a
+    percentile, a pairwise correlation -- is unchanged to the last bit.
+
+    The mapping is an optimisation hint and never a filter. A label with no
+    box in it is simply measured over the whole field, which is what the
+    callers do, so no object is ever dropped by cropping.
+
+    :param label_mask: label mask, 2-D or 3-D.
+    :returns: mapping from label to slice tuple. Empty when the labels are not
+        whole numbers, or when the largest label exceeds the voxel count --
+        :func:`scipy.ndimage.find_objects` enumerates every label up to the
+        maximum, so a mask numbered that sparsely would cost more to box than
+        the crops save.
+    """
+    arr = np.asarray(label_mask)
+    if arr.size == 0:
+        return {}
+    if not np.issubdtype(arr.dtype, np.integer):
+        if not np.all(np.isfinite(arr)) or not np.all(arr == np.rint(arr)):
+            return {}
+        arr = arr.astype(np.int64)
+    if int(arr.max()) > arr.size:
+        return {}
+    return {index + 1: box
+            for index, box in enumerate(find_objects(arr))
+            if box is not None}
+
+
+def _box_for(boxes, label):
+    """The bounding box recorded for ``label``, or ``None`` when there is none.
+
+    An empty mapping is answered without touching ``label`` at all. That is not
+    a shortcut: :func:`_label_bounding_boxes` returns nothing precisely when the
+    labels are not whole numbers, and those are the labels that cannot be used
+    as a key -- ``1.5`` would truncate onto object 1's box, and a NaN label,
+    which a float mask can carry and which every caller currently reports as an
+    empty object, would raise.
+    """
+    if not boxes:
+        return None
+    return boxes.get(int(label))
+
+
+def _grow_window(window, pad, shape):
+    """Grow a slice tuple by ``pad`` voxels per axis, clipped to ``shape``.
+
+    :param window: slice tuple to grow.
+    :param pad: one margin for every axis, or a per-axis sequence.
+    :param shape: array shape the result is clipped to.
+    """
+    pads = pad if isinstance(pad, (tuple, list)) else (pad,) * len(shape)
+    return tuple(slice(max(0, sl.start - int(margin)),
+                       min(int(dim), sl.stop + int(margin)))
+                 for sl, margin, dim in zip(window, pads, shape))
+
+
+def _union_window(first, second):
+    """The smallest slice tuple containing both windows."""
+    return tuple(slice(min(a.start, b.start), max(a.stop, b.stop))
+                 for a, b in zip(first, second))
+
+
+def _ring_padding(distance, spacing, shape):
+    """Voxels of margin an object needs for a ``distance``-wide outside ring.
+
+    With a voxel spacing, a voxel ``n`` steps from the object along axis ``k``
+    is at least ``n * spacing[k]`` away, so nothing inside the ring lies
+    further than ``ring_width / spacing[k]`` steps out and a box grown by that
+    much contains the whole ring. Without one the ring is ``distance``
+    iterations of :func:`scipy.ndimage.binary_dilation`, whose reach is
+    ``distance`` voxels along each axis.
+
+    Two inputs bound nothing and get the whole field, so that the ring is
+    measured exactly as it would be with no cropping at all: a spacing with a
+    step that is zero or not finite, and a ``distance`` that is not positive --
+    ``binary_dilation`` reads ``iterations < 1`` as "repeat until the result
+    stops changing", which floods the array rather than growing a ring.
+    """
+    whole = tuple(int(dim) for dim in shape)
+    if not float(distance) > 0:
+        return whole
+    if spacing is None:
+        return (int(distance),) * len(shape)
+    steps = [float(step) for step in spacing]
+    if not all(np.isfinite(step) and step > 0 for step in steps):
+        return whole
+    ring_width = float(distance) * steps[-1]
+    return tuple(int(ceil(ring_width / step)) for step in steps)
+
+
+def _percentiles_of(values, cut_points):
+    """Return the percentiles of ``values`` at every point in ``cut_points``.
+
+    ``np.percentile`` accepts a sequence for ``q`` and answering several cut
+    points in one call is several times cheaper than one call each, because the
+    vector is partitioned once instead of once per point.
+
+    It is not always the same arithmetic, though. On a float32 input numpy's
+    sequence form computes the interpolation in float64 and its scalar form
+    computes it in float32, and the two disagree in the last bits -- so an
+    intensity column would quietly move the day it was batched. Batching is
+    therefore used only where numpy reaches float64 either way (integers,
+    booleans and float64 itself); a narrower float gets one call per point and
+    the value a database already holds.
+
+    :param values: 1-D array of pixel values.
+    :param cut_points: percentile positions in [0, 100].
+    :returns: array of percentiles, one per cut point, in the given order.
+    """
+    array = np.asarray(values)
+    batched_is_exact = (np.issubdtype(array.dtype, np.integer)
+                        or array.dtype == np.bool_
+                        or array.dtype == np.float64)
+    if batched_is_exact:
+        return np.percentile(array, cut_points)
+    return np.array([np.percentile(array, point) for point in cut_points])
+
+
+def _field_reference_percentiles(image):
+    """Return the field's ``(p90, p10)`` intensity references, NaN when empty.
+
+    ``frac_high90`` / ``frac_low10`` are thresholded on the whole field, so the
+    pair depends only on the channel and not on which mask is being measured.
+    :func:`_intensity_measurements` measures every mask against every channel,
+    so computing them inside :func:`_extended_regionprops_table` re-ravelled
+    and re-sorted the same channel once per mask.
+    """
+    field = np.asarray(image, dtype=float).ravel()
+    field = field[~np.isnan(field)]
+    if not field.size:
+        return np.nan, np.nan
+    return float(np.percentile(field, 90)), float(np.percentile(field, 10))
+
+
+def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
+                                field_percentiles=None):
     """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
 
     :param labels: label mask, 2-D or 3-D.
@@ -1732,6 +1962,11 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     :param intensity_props: regionprops property names.
     :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
         ``None`` in 2-D, which skimage treats as "not supplied".
+    :param field_percentiles: the ``(p90, p10)`` of ``image`` from
+        :func:`_field_reference_percentiles`, for a caller that measures
+        several masks against one channel and would otherwise recompute them
+        per mask. Computed here when omitted, so the values are identical
+        either way.
     """
 
     def _gini(array):
@@ -1757,14 +1992,9 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     # whole field's percentiles instead gives what the names promise: the
     # fraction of the object that is bright (or dim) relative to this field.
     # A dim object scores near 0 for frac_high90, a bright one near 1.
-    _field = np.asarray(image, dtype=float).ravel()
-    _field = _field[~np.isnan(_field)]
-    if _field.size:
-        field_p90 = float(np.percentile(_field, 90))
-        field_p10 = float(np.percentile(_field, 10))
-    else:
-        field_p90 = np.nan
-        field_p10 = np.nan
+    if field_percentiles is None:
+        field_percentiles = _field_reference_percentiles(image)
+    field_p90, field_p10 = field_percentiles
 
     regions = regionprops(labels, intensity_image=image, spacing=spacing)
     integrated_intensity = []
@@ -1828,7 +2058,8 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
             mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
             mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))
-            iqr_intensity.append(np.percentile(intens, 75) - np.percentile(intens, 25))
+            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
+            iqr_intensity.append(upper_quartile - lower_quartile)
             cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
             gini_intensity.append(_gini(intens))
             frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
@@ -1849,12 +2080,19 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None):
     df['frac_low10'] = frac_low10
     df['entropy_intensity'] = entropy_intensity
 
+    # One np.percentile call per region covering all six cut points, rather
+    # than one call per (region, cut point) that re-extracted and re-sorted the
+    # object's pixels each time. numpy takes a sequence for q and returns the
+    # same values.
+    #
+    # The vector is the RAW masked intensity, deliberately not the NaN-filtered
+    # `intens` the loop above uses: filtering here would change these numbers
+    # on any region carrying a NaN.
     percentiles = [5, 10, 25, 75, 85, 95]
-    for p in percentiles:
-        df[f'percentile_{p}'] = [
-            np.percentile(_masked_intensity(region), p)
-            for region in regions
-        ]
+    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
+                  for region in regions]
+    for position, p in enumerate(percentiles):
+        df[f'percentile_{p}'] = [values[position] for values in per_region]
     return df
 
 def _calculate_homogeneity(label, channel, distances=None):
@@ -1890,7 +2128,17 @@ def _calculate_homogeneity(label, channel, distances=None):
             homogeneity_per_distance = []
             for d in distances:
                 glcm = graycomatrix(rescaled_image, [d], [0], symmetric=True, normed=True)
-                homogeneity_per_distance.append(graycoprops(glcm, 'homogeneity')[0, 0])
+                # No pixels in this bounding box are ``d`` columns apart.
+                # ``graycoprops`` deliberately turns that empty matrix into
+                # 0.0, which looks like a confidently heterogeneous object
+                # rather than an unobserved statistic.  Preserve the missing
+                # measurement honestly; the model boundary drops an entirely
+                # absent feature and median-imputes a partially observed one.
+                if not np.any(glcm):
+                    homogeneity_per_distance.append(np.nan)
+                else:
+                    homogeneity_per_distance.append(
+                        graycoprops(glcm, 'homogeneity')[0, 0])
             homogeneity_values.append(homogeneity_per_distance)
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
@@ -1906,16 +2154,23 @@ def _periphery_intensity(label_mask, image):
     """
     periphery_intensity_stats = []
     boundary = find_boundaries(label_mask)
+    # The boundary map is a single whole-field pass; the per-object work that
+    # follows is confined to each object's own bounding box (see
+    # _label_bounding_boxes) instead of comparing the whole field per object.
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(np.asarray(label_mask).shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask)[1:]:  # skip the background label
-        region_boundary = boundary & (label_mask == region)
-        intensities = image[region_boundary]
+        box = _box_for(boxes, region)
+        window = whole if box is None else box
+        region_boundary = boundary[window] & (label_mask[window] == region)
+        intensities = image[window][region_boundary]
         if intensities.size == 0:
             periphery_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
         else:
-            periphery_intensity_stats.append((region, np.mean(intensities), np.percentile(intensities,5), np.percentile(intensities,10),
-                                              np.percentile(intensities,25), np.percentile(intensities,50),
-                                              np.percentile(intensities,75), np.percentile(intensities,85), 
-                                              np.percentile(intensities,95)))
+            quantiles = _percentiles_of(intensities, cut_points)
+            periphery_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
 def _outside_intensity(label_mask, image, distance=5, spacing=None):
@@ -1942,22 +2197,33 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None):
     outside_intensity_stats = []
     if spacing is not None:
         ring_width = float(distance) * float(spacing[-1])
+    # The ring is at most `distance` xy pixels wide, so it lives inside the
+    # object's bounding box grown by that much (_ring_padding). Dilating and
+    # distance-transforming that box instead of the whole field is exact: the
+    # object is the only source in the map either way, and the box holds every
+    # voxel the ring can reach.
+    shape = np.asarray(label_mask).shape
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(shape)
+    pad = _ring_padding(distance, spacing, shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask)[1:]:  # skip the background label
-        region_mask = label_mask == region
+        box = _box_for(boxes, region)
+        window = whole if box is None else _grow_window(box, pad, shape)
+        region_mask = label_mask[window] == region
         if spacing is None:
             dilated_mask = binary_dilation(region_mask, iterations=distance)
         else:
             edt = distance_transform_edt(~region_mask, sampling=spacing)
             dilated_mask = edt <= ring_width
         outside_mask = dilated_mask & ~region_mask
-        intensities = image[outside_mask]
+        intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
         else:
-            outside_intensity_stats.append((region, np.mean(intensities), np.percentile(intensities,5), np.percentile(intensities,10),
-                                              np.percentile(intensities,25), np.percentile(intensities,50),
-                                              np.percentile(intensities,75), np.percentile(intensities,85), 
-                                              np.percentile(intensities,95)))
+            quantiles = _percentiles_of(intensities, cut_points)
+            outside_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
     return outside_intensity_stats
 
 def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_bins=6, spacing=None):
@@ -2029,25 +2295,52 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
 
     object_radial_distributions = {}
 
+    # Every pair is measured inside the union of the cell's and the object's
+    # bounding boxes, grown by two voxels, rather than over the whole field.
+    # The bins are read only inside the cell, and an outer boundary lies at
+    # most one voxel outside its object, so that window holds every pixel the
+    # result depends on and every distance in it is the distance the whole
+    # field would have given: the object is the only source in the transform,
+    # and all of it is inside the window.
+    #
+    # The window has to be the UNION and not the cell's box alone. Objects are
+    # selected by any overlap with the cell, so an object larger than its cell
+    # would otherwise contribute no boundary voxel to the crop and every
+    # distance in it would come back infinite.
+    shape = np.asarray(cell_mask).shape
+    whole = _whole_field_window(shape)
+    cell_boxes = _label_bounding_boxes(cell_mask)
+    object_boxes = _label_bounding_boxes(object_mask)
+
     # get unique cell labels
     cell_labels = np.unique(cell_mask)
     cell_labels = cell_labels[cell_labels != 0]
 
     for cell_label in cell_labels:
-        cell_region = cell_mask == cell_label
+        cell_box = _box_for(cell_boxes, cell_label)
+        cell_window = whole if cell_box is None else cell_box
+        cell_region_in_box = cell_mask[cell_window] == cell_label
 
-        object_labels = np.unique(object_mask[cell_region])
+        object_labels = np.unique(object_mask[cell_window][cell_region_in_box])
         object_labels = object_labels[object_labels != 0]
 
         for object_label in object_labels:
-            objecyt_region = object_mask == object_label
+            object_box = _box_for(object_boxes, object_label)
+            if object_box is None:
+                window = whole
+            else:
+                window = _grow_window(
+                    _union_window(cell_window, object_box), 2, shape)
+            cell_region = cell_mask[window] == cell_label
+            objecyt_region = object_mask[window] == object_label
             object_boundary = find_boundaries(objecyt_region, mode='outer')
             # NOT multiplied by cell_region: that zeroed the distance of every
             # pixel outside the cell and put the whole background in bin 0.
             # The cell is applied as a mask when binning instead.
             distance_map = distance_transform_edt(~object_boundary, sampling=spacing)
+            channels_in_window = channel_arrays[window]
             for channel_index in range(channel_arrays.shape[-1]):
-                radial_distribution = _calculate_average_intensity(distance_map, channel_arrays[..., channel_index], num_bins, cell_region)
+                radial_distribution = _calculate_average_intensity(distance_map, channels_in_window[..., channel_index], num_bins, cell_region)
                 object_radial_distributions[(cell_label, object_label, channel_index)] = radial_distribution
 
     return object_radial_distributions
@@ -2067,18 +2360,22 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
         .. note::
 
-           **The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns are not
-           Manders' coefficients and are DEPRECATED.** Both channels are cut at
-           their *own within-object percentile* ``t`` and then share a single
-           overlap mask, so M1 is capped at the object's own top-``(100-t)``
-           intensity fraction no matter where the other channel is: with
-           ``channel_image2 == channel_image1`` the value is that cap, not 1.0.
-           The pair is ~99% redundant (measured r(M1, M2) ~ 0.99) and two pure
-           noise channels score 0.047 rather than ~0. The columns keep their
-           names and their values so old plates keep agreeing with themselves.
+           **The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns were
+           removed on 2026-09-02 and are no longer written.** They were never
+           Manders' coefficients: both channels were cut at their *own
+           within-object percentile* ``t`` and then shared a single overlap
+           mask, so M1 was capped at the object's own top-``(100-t)``
+           intensity fraction no matter where the other channel was -- with
+           ``channel_image2 == channel_image1`` the value was that cap, not
+           1.0. The pair was ~99% redundant (measured r(M1, M2) ~ 0.99) and
+           two pure noise channels scored 0.047 rather than ~0.
 
-           With ``settings['corrected_manders'] = True`` (default ``False``)
-           three additional columns are written per object, per channel pair:
+           They were kept for a while beside the correct columns, behind
+           ``corrected_manders``, so old plates kept agreeing with themselves.
+           That shape is the problem: two definitions shipping at once,
+           under names that do not say which produced them, with the WRONG
+           one on by default. The setting is retired and the
+           three correct columns are now written unconditionally:
 
            * ``manders_m1`` -- the true M1: the fraction of channel 1's
              above-background intensity that lies where channel 2 is above
@@ -2103,20 +2400,18 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
            64.5% of background-only objects would produce one. The cost is that
            "no signal" and "signal that does not colocalise" both read 0.0.
         """
-        thresholds = settings['manders_thresholds']
-        # .get, not [...]: this function is called by tests (and by external
-        # code) with a bare dict carrying only 'manders_thresholds'. A KeyError
-        # here would be a break with no relation to the colocalisation fix.
-        corrected_manders = bool(settings.get('corrected_manders', False))
-
         corr_data = {}
+        # Each object's pixels are gathered from its own bounding box rather
+        # than by comparing the whole field once per object. The pixels and
+        # their order are the same, so every statistic below is unchanged.
+        boxes = _label_bounding_boxes(mask)
+        whole = _whole_field_window(np.asarray(mask).shape)
         for i in np.unique(mask)[1:]:
-            object_mask = (mask == i)
-            object_channel_image1 = channel_image1[object_mask]
-            object_channel_image2 = channel_image2[object_mask]
-            total_intensity1 = np.sum(object_channel_image1)
-            total_intensity2 = np.sum(object_channel_image2)
-
+            box = _box_for(boxes, i)
+            window = whole if box is None else box
+            object_mask = (mask[window] == i)
+            object_channel_image1 = channel_image1[window][object_mask]
+            object_channel_image2 = channel_image2[window][object_mask]
             if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
                 pearson_corr = np.nan
             else:
@@ -2125,41 +2420,30 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             corr_data[i] = {f'label_correlation': i,
                             f'Pearson_correlation': pearson_corr}
 
-            for thresh in thresholds:
-                chan1_thresh = np.percentile(object_channel_image1, thresh)
-                chan2_thresh = np.percentile(object_channel_image2, thresh)
+            # UNCONDITIONAL since 2026-09-02: the deprecated pair this used to
+            # sit beside is gone, so there is nothing left to choose between.
+            # Reuses the object_channel_image1/2 vectors the loop already
+            # extracted -- that reuse is what makes this ~+20% on the
+            # colocalisation block instead of ~+46%.
+            v1 = np.asarray(object_channel_image1, dtype=np.float64)
+            v2 = np.asarray(object_channel_image2, dtype=np.float64)
+            med1 = np.median(v1)
+            thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
+            med2 = np.median(v2)
+            thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
+            a = np.clip(v1 - thr1, 0, None)
+            b = np.clip(v2 - thr2, 0, None)
+            sa = a.sum()
+            sb = b.sum()
+            # 0.0, not NaN -- see the note in this function's docstring.
+            M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
+            M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
+            den = np.sqrt((a * a).sum() * (b * b).sum())
+            MOC = float((a * b).sum() / den) if den > 0 else 0.0
 
-                # boolean mask where both signals are present
-                overlap_mask = (object_channel_image1 > chan1_thresh) & (object_channel_image2 > chan2_thresh)
-                M1 = np.sum(object_channel_image1[overlap_mask]) / total_intensity1 if total_intensity1 > 0 else 0
-                M2 = np.sum(object_channel_image2[overlap_mask]) / total_intensity2 if total_intensity2 > 0 else 0
-
-                corr_data[i].update({f'M1_correlation_{thresh}': M1,
-                                     f'M2_correlation_{thresh}': M2})
-
-            if corrected_manders:
-                # Reuses the object_channel_image1/2 vectors the loop already
-                # extracted -- that reuse is what makes this ~+20% on the
-                # colocalisation block instead of ~+46%.
-                v1 = np.asarray(object_channel_image1, dtype=np.float64)
-                v2 = np.asarray(object_channel_image2, dtype=np.float64)
-                med1 = np.median(v1)
-                thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
-                med2 = np.median(v2)
-                thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
-                a = np.clip(v1 - thr1, 0, None)
-                b = np.clip(v2 - thr2, 0, None)
-                sa = a.sum()
-                sb = b.sum()
-                # 0.0, not NaN -- see the note in this function's docstring.
-                M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
-                M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
-                den = np.sqrt((a * a).sum() * (b * b).sum())
-                MOC = float((a * b).sum() / den) if den > 0 else 0.0
-
-                corr_data[i].update({'manders_m1': M1_true,
-                                     'manders_m2': M2_true,
-                                     'manders_overlap_coefficient': MOC})
+            corr_data[i].update({'manders_m1': M1_true,
+                                 'manders_m2': M2_true,
+                                 'manders_overlap_coefficient': MOC})
 
         return pd.DataFrame(corr_data.values())
 
@@ -2436,8 +2720,8 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``.spacr_crop_format.json`` sidecar into the crop folder before the
        first PNG lands, recording format 3 (``declared_rgb``). An unmarked
        folder means format 1 (legacy), whose bytes match format 3 for the
-       same declared mapping, so both are read as-is; only format 2 — written
-       between 2026-07-26 and 2026-08-06 — is reversed by
+       same declared mapping, so both are read as-is; only format 2, whose
+       stored channel order is reversed, is corrected by
        :func:`spacr.crops.read_crop_png`, and
        ``spacr.crops.migrate_crop_folder`` rewrites such a folder in place.
 
@@ -2481,43 +2765,48 @@ def img_list_to_grid(grid, titles=None):
     n_images = len(grid)
     grid_size = ceil(sqrt(n_images))
     
-    fig, axs = plt.subplots(
-        grid_size, grid_size, figsize=(15, 15), facecolor='black',
-        squeeze=False)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(
+            grid_size, grid_size, figsize=(15, 15), facecolor='black',
+            squeeze=False)
     
-    from matplotlib.patches import FancyBboxPatch
-    for i, ax in enumerate(axs.flat):
-        if i < n_images:
-            image = grid[i]
-            # Grid entries are produced from ``png_dims`` in RGB order.  The
-            # OpenCV reversal belongs only at the PNG write boundary above.
-            im = ax.imshow(image)
-            ax.axis('off')
-            ax.set_facecolor('black')
+        from matplotlib.patches import FancyBboxPatch
+        for i, ax in enumerate(axs.flat):
+            if i < n_images:
+                image = grid[i]
+                # Grid entries are produced from ``png_dims`` in RGB order.  The
+                # OpenCV reversal belongs only at the PNG write boundary above.
+                im = ax.imshow(image)
+                ax.axis('off')
+                ax.set_facecolor('black')
 
-            # Clip each crop to a rounded rectangle so the grid reads like the
-            # annotate view (soft corners) rather than hard square tiles.
-            h, w = image.shape[:2]
-            r = max(2.0, min(h, w) * 0.08)
-            bbox = FancyBboxPatch(
-                (0, 0), w - 1, h - 1,
-                boxstyle=f"round,pad=0,rounding_size={r}",
-                transform=ax.transData, facecolor='none', edgecolor='none')
-            ax.add_patch(bbox)
-            im.set_clip_path(bbox)
+                # Clip each crop to a rounded rectangle so the grid reads like the
+                # annotate view (soft corners) rather than hard square tiles.
+                h, w = image.shape[:2]
+                r = max(2.0, min(h, w) * 0.08)
+                bbox = FancyBboxPatch(
+                    (0, 0), w - 1, h - 1,
+                    boxstyle=f"round,pad=0,rounding_size={r}",
+                    transform=ax.transData, facecolor='none', edgecolor='none')
+                ax.add_patch(bbox)
+                im.set_clip_path(bbox)
 
-            if titles:
-                # Determine text size
-                img_height, img_width = image.shape[:2]
-                text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
-                ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
-        else:
-            fig.delaxes(ax)
+                if titles:
+                    # Determine text size
+                    img_height, img_width = image.shape[:2]
+                    text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
+                    ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
+            else:
+                fig.delaxes(ax)
 
-    # A little more breathing room between crops.
-    plt.subplots_adjust(wspace=0.08, hspace=0.08)
-    plt.tight_layout(pad=0.2)
-    return fig
+        # A little more breathing room between crops.
+        plt.subplots_adjust(wspace=0.08, hspace=0.08)
+        plt.tight_layout(pad=0.2)
+        return fig
 
 
 #: crop_mode entries that name a mask _measure_crop_core knows how to crop.
@@ -2842,8 +3131,20 @@ def _measure_crop_core(index, time_ls, file, settings):
         if settings['cell_mask_dim'] is not None:
             cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
 
-            if settings['cell_min_size'] is not None and settings['cell_min_size'] != 0:
-                cell_mask = _filter_object(cell_mask, settings['cell_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            cell_max = settings.get('cell_max_size')
+            if ((settings['cell_min_size'] is not None
+                 and settings['cell_min_size'] != 0) or cell_max):
+                before = int(len(np.unique(cell_mask)) - 1)
+                cell_mask = _filter_object(
+                    cell_mask, settings['cell_min_size'],
+                    max_value=cell_max)
+                dropped = before - int(len(np.unique(cell_mask)) - 1)
+                if dropped and cell_max:
+                    print(f'cell: {dropped} object(s) outside '
+                          f'[{settings["cell_min_size"]}, {cell_max}] px')
         else:
             cell_mask = np.zeros_like(data[..., 0])
             settings['cytoplasm'] = False
@@ -2853,8 +3154,20 @@ def _measure_crop_core(index, time_ls, file, settings):
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
                 nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
-            if settings['nucleus_min_size'] is not None and settings['nucleus_min_size'] != 0:
-                nucleus_mask = _filter_object(nucleus_mask, settings['nucleus_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            nucleus_max = settings.get('nucleus_max_size')
+            if ((settings['nucleus_min_size'] is not None
+                 and settings['nucleus_min_size'] != 0) or nucleus_max):
+                before = int(len(np.unique(nucleus_mask)) - 1)
+                nucleus_mask = _filter_object(
+                    nucleus_mask, settings['nucleus_min_size'],
+                    max_value=nucleus_max)
+                dropped = before - int(len(np.unique(nucleus_mask)) - 1)
+                if dropped and nucleus_max:
+                    print(f'nucleus: {dropped} object(s) outside '
+                          f'[{settings["nucleus_min_size"]}, {nucleus_max}] px')
             if settings['timelapse_objects'] == 'nucleus':
                 if settings['cell_mask_dim'] is not None:
                     cell_mask, nucleus_mask = _relabel_parent_with_child_labels(cell_mask, nucleus_mask)
@@ -2870,8 +3183,20 @@ def _measure_crop_core(index, time_ls, file, settings):
             if settings['merge_edge_pathogen_cells']:
                 if settings['cell_mask_dim'] is not None:
                     pathogen_mask, cell_mask = _merge_overlapping_objects(mask1=pathogen_mask, mask2=cell_mask)
-            if settings['pathogen_min_size'] is not None and settings['pathogen_min_size'] != 0:
-                pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
+            # AN UPPER BOUND TOO. A minimum removes debris; only a maximum
+            # removes a segmentation blow-up, which passes every minimum
+            # and carries its area into everything downstream.
+            pathogen_max = settings.get('pathogen_max_size')
+            if ((settings['pathogen_min_size'] is not None
+                 and settings['pathogen_min_size'] != 0) or pathogen_max):
+                before = int(len(np.unique(pathogen_mask)) - 1)
+                pathogen_mask = _filter_object(
+                    pathogen_mask, settings['pathogen_min_size'],
+                    max_value=pathogen_max)
+                dropped = before - int(len(np.unique(pathogen_mask)) - 1)
+                if dropped and pathogen_max:
+                    print(f'pathogen: {dropped} object(s) outside '
+                          f'[{settings["pathogen_min_size"]}, {pathogen_max}] px')
         else:
             pathogen_mask = np.zeros_like(data[..., 0])
 
@@ -2880,15 +3205,45 @@ def _measure_crop_core(index, time_ls, file, settings):
             dim = settings.get(f'{organelle_role}_mask_dim')
             if dim is not None:
                 current_mask = data[..., dim].astype(data_type)
-                minimum = settings.get(f'{organelle_role}_min_size')
+                # THE SURVIVING NAME. `_min_size` was retired in favour
+                # of `_min_area` because the two meant the same thing
+                # and were read by different code, so the preview and
+                # the run filtered differently with nothing saying so.
+                # A file still carrying `_min_size` is migrated by
+                # `RETIRED_SETTINGS` before it reaches here.
+                minimum = settings.get(f'{organelle_role}_min_area')
                 if minimum:
                     current_mask = _filter_object(current_mask, minimum)
-            else:
+            elif organelle_role == 'organelle':
+                # THE PRIMARY SLOT KEEPS ITS ZEROS FALLBACK, because
+                # `organelle_mask` below is read unconditionally and the
+                # measurement path expects an array there whether or not a
+                # dimension was configured.
                 current_mask = np.zeros_like(data[..., 0])
+            else:
+                # AN UNCONFIGURED SLOT ALLOCATES NOTHING, and this is the
+                # whole of the fix. Every role used to get a full-size zero
+                # array, so the allocation was a function of the VOCABULARY
+                # rather than of the experiment. 326 widened
+                # `ORGANELLE_ROLES` from four to 702 to close the untyped
+                # organelle collision, and that turned 8.4 MB per field into
+                # 1.47 GB at 1024x1024 uint16 -- 5.89 GB at 2048x2048, 2.94
+                # GB at int32. A 175x regression in the measure loop, paid
+                # by every run whether or not it uses a single organelle.
+                #
+                # Nothing downstream loses anything. Both consumers of these
+                # dicts iterate them and act only when
+                # `settings[f'{role}_mask_dim'] is not None` -- see
+                # `_measure_crop_core` at the `organelle_masks.update(...)`
+                # lines -- so the arrays being dropped here are exactly the
+                # ones that were allocated, copied, passed down, iterated
+                # and never read.
+                continue
             organelle_masks[organelle_role] = current_mask
         organelle_mask = organelle_masks['organelle']
         extra_organelle_masks = {
-            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
 
         # Create cytoplasm mask
         if settings['cytoplasm']:
@@ -2938,7 +3293,8 @@ def _measure_crop_core(index, time_ls, file, settings):
             # change; removing the FIRST is a silent one.
         organelle_mask = organelle_masks['organelle']
         extra_organelle_masks = {
-            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
 
         # REGION-FILTER EXTENSION POINT. Registered filters are handed the
         # label ids of each object type (and, only if they ask, the centroids)
@@ -2985,10 +3341,12 @@ def _measure_crop_core(index, time_ls, file, settings):
             nucleus_mask = _region_masks['nucleus']
             pathogen_mask = _region_masks['pathogen']
             organelle_masks = {
-                role: _region_masks[role] for role in ORGANELLE_ROLES}
+                role: _region_masks[role] for role in ORGANELLE_ROLES
+                if role in _region_masks}
             organelle_mask = organelle_masks['organelle']
             extra_organelle_masks = {
-                role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]}
+                role: organelle_masks[role]
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
             cytoplasm_mask = _region_masks['cytoplasm']
 
         if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
@@ -3002,7 +3360,7 @@ def _measure_crop_core(index, time_ls, file, settings):
             organelle_mask = organelle_masks['organelle']
             extra_organelle_masks = {
                 role: organelle_masks[role]
-                for role in ORGANELLE_ROLES[1:]}
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
             data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
 
         if settings['nucleus_mask_dim'] is not None:
@@ -3033,15 +3391,39 @@ def _measure_crop_core(index, time_ls, file, settings):
 
 
         if settings['save_measurements']:
+            # NAMED FOR WHAT WAS PASSED, NOT FOR THE WHOLE VOCABULARY.
+            # These names are zipped POSITIONALLY against the measurement
+            # lists below, and those lists carry one entry per mask that
+            # went in -- `_morphological_measurements` appends an empty
+            # frame for an unconfigured role rather than skipping it, which
+            # is what kept the old pairing aligned.
+            #
+            # So `*ORGANELLE_ROLES` was only ever correct because
+            # `organelle_masks` held EVERY role, configured or not, which is
+            # the 1.47 GB-per-field allocation this function no longer
+            # makes. With only the configured slots passed, a 705-name list
+            # zipped against a shorter result list silently truncates -- and
+            # `zip` drops from the END, so 'cytoplasm' was the entry lost
+            # and its morphology was looked up under an organelle's name.
+            #
+            # Deriving the order from `extra_organelle_masks` keeps the two
+            # in step by construction. `_measure_crop_core` builds its dict
+            # as {'organelle': ...} then updates with the extras, so this is
+            # that same order.
             role_order = [
-                'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES,
-                'cytoplasm']
+                'cell', 'nucleus', 'pathogen',
+                'organelle', *extra_organelle_masks, 'cytoplasm']
             morphology = dict(zip(
                 role_order,
                 _morphological_measurements(
                     cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
                     cytoplasm_mask, settings,
-                    extra_organelle_masks=extra_organelle_masks)))
+                    extra_organelle_masks=extra_organelle_masks,
+                    # THE INTENSITY IMAGES, for the distance families that
+                    # need them: local maxima and the intensity-centre
+                    # offset. Optional, so a caller that only wants
+                    # geometry passes nothing and pays for nothing.
+                    channel_arrays=channel_arrays)))
             intensities = dict(zip(
                 role_order,
                 _intensity_measurements(
@@ -3320,18 +3702,30 @@ def _measure_crop_core(index, time_ls, file, settings):
                         # ``img_path`` or register a .npy path in ``png_list``.
 
         cells = np.unique(cell_mask)
+        error_text = ""
     except Exception as e:
-        print('main',e)
         # `cells = 0` (a plain int) is the cross-process failure sentinel:
         # the success path always assigns np.unique(...), an ndarray, so the
         # parent's job_callback can tell the two apart and file this field on
         # the run ledger. Without that the pool callback saw a normal result
         # and the run reported as complete.
         cells = 0
-        traceback.print_exc()
-        # Also lands in ~/.spacr/logs/spacr.log with the file id, so the
-        # failure survives a scrolled-away terminal.
-        RunLedger('_measure_crop_core').record_failure(file, stage='measure', exc=e)
+        # THE TRACEBACK GOES HOME WITH THE RESULT, because this runs in a
+        # multiprocessing.Pool worker and the parent's logging configuration
+        # is not this process's. `traceback.print_exc()` here writes to a
+        # worker stderr nobody is reading, and `RunLedger(...)` opened here
+        # is a second ledger in a second process -- so the parent could say
+        # only "worker traceback in ~/.spacr/logs/spacr.log", which was NOT
+        # TRUE: reported 2026-09-01 against plate1_E02_20_1.npy, where the
+        # named log held nothing about it and the one thing needed to fix the
+        # field was the one thing thrown away.
+        #
+        # Returned as text rather than as the exception: an exception is not
+        # always picklable, and a field that fails with an unpicklable error
+        # would then fail again on the way back, losing the first failure.
+        error_text = "".join(
+            traceback.format_exception(type(e), e, e.__traceback__))
+        print(f"[measure] {os.path.basename(str(file))} failed:\n{error_text}")
 
     end = time.time()
     duration = end-start
@@ -3343,9 +3737,37 @@ def _measure_crop_core(index, time_ls, file, settings):
     if settings['plot'] and grid:
         fig = img_list_to_grid(grid)
         figs[f'{file_name}__pngs'] = fig
-    return index, average_time, cells, figs
+    return index, average_time, cells, figs, error_text
 
 #@log_function_call
+def _record_organelle_caveats(settings, run):
+    """Put the per-type organelle caveats on the run journal.
+
+    :param settings: the measure settings for this source folder, read for
+        each slot's ``*_type`` and the count-dependent families it enabled.
+    :param run: the :class:`spacr.runctx.RunContext` the tables are written
+        under. Its logger stamps every record with the run id, so
+        :func:`spacr.runctx.read_run_log` gives the caveats back beside the
+        database they are about.
+    :returns: the caveats recorded, so a caller can see what was said.
+
+    NOTHING IS SWITCHED OFF: a family the organelle type makes doubtful is
+    still measured and still written, because a number that vanished without
+    being asked to is worse than one that comes with a caveat. What the type
+    buys is that the run SAYS SO -- and saying it only to the console leaves
+    the sentence out of the one record a batch is read back from.
+
+    Silent when there is nothing to say, so a run measuring punctate
+    organelles is not given a paragraph telling it everything is fine.
+    """
+    from .settings import organelle_measurement_caveats
+
+    caveats = organelle_measurement_caveats(settings)
+    for label, setting, reason in caveats:
+        run.log.warning("[organelle] %s: %s %s.", label, setting, reason)
+    return caveats
+
+
 def measure_crop(settings):
     """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
@@ -3508,7 +3930,11 @@ def measure_crop(settings):
                 # this call is the whole feature: without it the setting is a
                 # switch that does nothing and every intensity feature keeps
                 # its position-dependent bias. See spacr.illumination.
-                from .illumination import prepare_illumination_correction
+                from .illumination import (
+                    prepare_illumination_correction,
+                    validate_measurement_illumination_inputs,
+                )
+                validate_measurement_illumination_inputs(settings)
                 prepare_illumination_correction(settings)
 
                 if settings['cell_mask_dim'] is None:
@@ -3561,7 +3987,15 @@ def measure_crop(settings):
                             settings=settings)
                         return
 
-                if not all(isinstance(settings[key], int) or settings[key] is None for key in int_setting_keys):
+                # Secondary organelle slots beyond ``number_of_organelles``
+                # are intentionally absent from the settings mapping. Missing
+                # therefore means the same thing as an explicit ``None``:
+                # this run has no mask/minimum for that optional slot. Direct
+                # indexing made every ordinary one-organelle Measure demo die
+                # on the first undeclared slot (``organelleb_mask_dim``).
+                if not all(isinstance(settings.get(key), int)
+                           or settings.get(key) is None
+                           for key in int_setting_keys):
                     print(f"WARNING: {int_setting_keys} must all be integers")
                     raise_if_strict(
                         f"{int_setting_keys} must all be int or None. "
@@ -3631,6 +4065,15 @@ def measure_crop(settings):
                 # one id, so the log of the run that produced a measurements.db
                 # can be pulled back with spacr.runctx.read_run_log().
                 run.adopt(ledger)
+                # WHAT THE ORGANELLE NUMBERS ABOUT TO BE WRITTEN WILL AND
+                # WILL NOT MEAN, on the run's own journal. The caveat reached
+                # the console and stopped there, so a run read back later --
+                # which is the only way anyone reads a batch -- carried the
+                # count-dependent columns with nothing beside them saying a
+                # reticular organelle is one connected object per cell and
+                # its neighbour count is therefore a fact about the
+                # segmentation.
+                _record_organelle_caveats(settings, run)
                 policy = run.policy.bind(ledger=ledger, record=False)
                 index_to_file = dict(enumerate(files))
                 reported_files = set()
@@ -3641,7 +4084,7 @@ def measure_crop(settings):
                     :param result: The 4-tuple ``(index, average_time, cells,
                         figs)`` that :func:`_measure_crop_core` returns, taken
                         straight off the ``AsyncResult`` -- one result, not the
-                        list that :func:`process_meassure_crop_results` takes,
+                        list that :func:`process_measure_crop_results` takes,
                         which is why it is re-wrapped as ``[result]`` below.
                         ``index`` is the position in ``files`` and is translated
                         back through ``index_to_file`` so the ledger entry names
@@ -3663,13 +4106,19 @@ def measure_crop(settings):
                     # cells is np.unique(cell_mask) on success and the int 0 when
                     # _measure_crop_core swallowed an exception for this field.
                     if isinstance(result[2], int) and result[2] == 0:
+                        # The worker's own traceback, carried back in the
+                        # result. Recorded HERE, in the parent, whose logging
+                        # configuration is the one writing spacr.log -- so the
+                        # message that says the traceback is in the log is
+                        # true.
+                        detail = (result[4] if len(result) > 4 else "") or (
+                            'field failed inside _measure_crop_core, and the '
+                            'worker returned no traceback')
                         ledger.record_failure(
-                            item, stage='measure',
-                            exc='field failed inside _measure_crop_core '
-                                '(worker traceback in ~/.spacr/logs/spacr.log)')
+                            item, stage='measure', exc=detail)
                     else:
                         ledger.record_success(item, stage='measure')
-                    process_meassure_crop_results([result], settings)
+                    process_measure_crop_results([result], settings)
                     files_processed = len(completed_jobs)
                     files_to_process = len(files)
                     print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
@@ -3700,6 +4149,7 @@ def measure_crop(settings):
                         reported here at all.
                     """
                     def _on_error(exc):
+                        """Record one worker's failure against the file that caused it."""
                         reported_files.add(job_file)
                         ledger.record_failure(job_file, stage='measure_worker', exc=exc)
                     return _on_error
@@ -3818,20 +4268,21 @@ def measure_crop(settings):
             # recorded against each artifact covers the values actually used.
             run.register_outputs(settings=settings, roots=source_folders)
 
-def process_meassure_crop_results(partial_results, settings):
-    """
-    Save and display the figures carried by each partial result.
+def process_measure_crop_results(partial_results, settings):
+    """Save and display figures carried by completed Measure jobs.
 
-    Args:
-        partial_results (list): List of partial results; ``None`` entries are
-            skipped. Each figure is written under
-            ``<src>/../results/`` and then shown and closed.
-        settings (dict): Settings dictionary; ``src`` gives the output root.
+    :param partial_results: Completed job tuples. ``None`` entries are skipped;
+        each figure is written below ``<src>/../results/`` and then closed.
+    :param settings: Resolved Measure settings. ``src`` identifies the output
+        root.
     """
     for result in partial_results:
         if result is None:
             continue
-        index, avg_time, cells, figs = result
+        # Five since the worker started carrying its traceback home; the
+        # four-tuple form is still accepted so a partial result saved by an
+        # older run can still be processed.
+        index, avg_time, cells, figs = result[:4]
         if figs is not None:
             for key, fig in figs.items():
                 part_1, part_2 = key.split('__')
@@ -3844,11 +4295,33 @@ def process_meassure_crop_results(partial_results, settings):
                 # tests/test_measure_spawn.py.
                 from .plot import save_figure
                 fig_path = save_figure(fig, fig_path)
-                plt.figure(fig.number)
-                plt.show()
-                plt.close(fig)
+                # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+                # rcParams reach an artist when it is CREATED, so a
+                # context opened after `plt.subplots` would leave the
+                # spines, ticks and labels at the caller's globals.
+                with figure_style(theme_target()):
+                    plt.figure(fig.number)
+                    plt.show()
+                    plt.close(fig)
             result = (index, None, None, None)
-            
+
+
+def process_meassure_crop_results(partial_results, settings):
+    """Deprecated alias for :func:`process_measure_crop_results`.
+
+    The misspelled name remains available for existing scripts and will be
+    removed in a future major release.
+    """
+    import warnings
+    warnings.warn(
+        "process_meassure_crop_results is deprecated; use "
+        "process_measure_crop_results",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return process_measure_crop_results(partial_results, settings)
+
+
 def generate_cellpose_train_set(folders, dst, min_objects=5):
     """Copy image/mask pairs from source folders into a Cellpose training set.
 
@@ -4232,6 +4705,12 @@ def generate_object_dataset(
         clauses.append(f"{object_type}_area < ?"); params.append(float(max_area))
 
     def _in(colname, values, prefix):
+        """An ``IN (...)`` clause and its parameters, built safely.
+
+        Placeholders rather than interpolation: the values come from a settings
+        file, and a formatted list is an injection waiting for a filename with a
+        quote in it.
+        """
         vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
         placeholders = ",".join("?" for _ in vals)
         clauses.append(f"{colname} IN ({placeholders})")
@@ -4392,8 +4871,8 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param data: merged array ``(H, W, C)`` — image channels then mask slices.
     :param mask_dim: slice index of the object-class mask to crop by.
     :param channels: image channel indices to assemble (order = RGB order).
-    :param min_area/max_area: keep objects within this pixel-area range
-        (``0`` = no bound).
+    :param min_area: smallest object area (px) to keep; ``0`` = no lower bound.
+    :param max_area: largest object area (px) to keep; ``0`` = no upper bound.
     :param mask_background: zero pixels outside the object.
     :param normalize: per-channel percentile-normalise each crop.
     :param percentiles: ``(low, high)`` for normalisation.

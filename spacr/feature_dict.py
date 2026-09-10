@@ -45,10 +45,19 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
-import pandas as pd
-
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 from .object_roles import ORGANELLE_ROLES
+
+# PANDAS IS NOT IMPORTED HERE. Everything above the export section is
+# strings and parsing: what a measured column is called, what it means and
+# which object it belongs to. Only `describe_database` and the export path
+# below build or read a DataFrame, and they import pandas themselves.
+#
+# The Feature Dictionary panel imports this module for those strings, and
+# that panel registers its app and its stylesheet block at launch -- so a
+# module-level pandas here was several hundred modules and a good fraction
+# of a second spent before the window drew, on behalf of a user who may
+# never open it.
 
 __all__ = [
     "CHANNEL_NONE",
@@ -134,6 +143,13 @@ FEATURE_FAMILIES: dict[str, str] = {
         "Image/shape moments: rotation-invariant shape descriptors and "
         "intensity-weighted centroids."
     ),
+    "spatial": (
+        "Where an object, its centroid, or its intensity peaks sit relative "
+        "to its own boundary, the field edge, and other segmented object "
+        "types. This also includes same-type neighbourhood and touching "
+        "measurements, the per-object handle on local density — a dominant "
+        "confounder in image screens."
+    ),
     "meta": (
         "Identifiers and bookkeeping — plate/well/field, object labels, file "
         "paths, settings. Not a measurement; never feed these to a model as "
@@ -151,15 +167,16 @@ FEATURE_FAMILIES: dict[str, str] = {
 class PropertyInfo:
     """One curated definition, shared by every column that instantiates it.
 
-    :ivar family: One of the keys of :data:`FEATURE_FAMILIES`.
-    :ivar description: What the number means, in prose. ``None`` only when the
+    :param family: feature-family key from :data:`FEATURE_FAMILIES` used to
+        group and filter the measurement.
+    :param description: prose explaining what the value means, or ``None``
+        only when the
         meaning could not be determined from the spaCR source.
-    :ivar unit: Physical/derived unit, or ``None`` for identifiers. A
-        :class:`ConditionalUnit` for the geometric columns, whose unit depends
-        on the row's ``measurement_units``; :func:`parse_column` resolves it.
-    :ivar computed_by: The real provenance — the function or library call that
-        produces the value. Never empty.
-    :ivar notes: Caveats, known defects, comparability warnings.
+    :param unit: physical or derived unit, ``None`` for identifiers, or a
+        :class:`ConditionalUnit` resolved from the row's measurement units.
+    :param computed_by: function or library call that produces the value;
+        curated properties require non-empty provenance.
+    :param notes: optional caveats, known defects, or comparability warnings.
     """
 
     family: str
@@ -173,38 +190,40 @@ class PropertyInfo:
 class FeatureEntry:
     """A single database column, decomposed and explained.
 
-    :ivar column: The column name exactly as it appears in the database.
-    :ivar object_type: ``cell`` / ``nucleus`` / ``pathogen`` / ``organelle`` /
-        ``cytoplasm``, or ``None`` for metadata and un-prefixed columns.
-    :ivar channel: Zero-based index of the measured channel, or ``None``.
-    :ivar family: One of the keys of :data:`FEATURE_FAMILIES`.
-    :ivar description: Prose meaning, or ``None`` when undetermined.
-    :ivar unit: Unit of the value, or ``None``.
-    :ivar computed_by: Provenance string; ``"unknown"`` for unrecognised names.
-    :ivar notes: Caveats, or ``None``.
-    :ivar channel_2: Second channel index for two-channel (colocalisation)
-        columns, otherwise ``None``.
-    :ivar object_type_2: Second object type, set when a column carries a
-        pandas merge suffix such as ``..._nucleus`` from
-        :func:`spacr.io._read_and_join_tables`.
-    :ivar measurement_units: The ``measurement_units`` value ``unit`` was
-        resolved under — ``px``, ``px_xy``, ``um``, or ``None`` when it was not
-        known and ``unit`` therefore states its own condition. Always ``None``
-        for columns whose unit does not depend on it.
-    :ivar key: The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` key
-        this column resolved through — the *feature*, as opposed to this one
-        instantiation of it. ``None`` for an unrecognised column.
-    :ivar object_types: Every object type this feature is written for, which
-        is not the same thing as ``object_type`` (the one this column came
-        from): ``nucleus_periphery_mean`` exists and ``cell_periphery_mean``
-        does not. Empty when the feature is not per-object.
-    :ivar channel_scope: :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE` or
-        :data:`CHANNEL_PAIR` — how channels enter this feature at all, as
-        opposed to which channel this column happens to be.
-    :ivar module: The spaCR module that produces the value.
-    :ivar written_when: What has to be true for the column to exist, or
-        ``None`` when every run writes it.
-    :ivar concepts: The :data:`CONCEPTS` this feature answers to.
+    :param column: Column name exactly as it appears in the database.
+    :param object_type: Object-type prefix parsed from the column, or ``None``
+        when the column has no object prefix.
+    :param channel: Zero-based first channel index parsed from the column, or
+        ``None`` when no channel enters it.
+    :param family: Feature-family key from :data:`FEATURE_FAMILIES`.
+    :param description: Prose meaning of the value, or ``None`` when the
+        meaning is undetermined.
+    :param unit: Unit text for the value, or ``None`` for identifiers and
+        unrecognised columns.
+    :param computed_by: Provenance string naming the producer, or ``"unknown"``
+        for an unrecognised column.
+    :param notes: Optional caveats about the column, or ``None`` when none
+        apply.
+    :param channel_2: Zero-based second channel index for two-channel
+        colocalisation columns, otherwise ``None``.
+    :param object_type_2: Second object type carried by a pandas merge suffix
+        such as ``..._nucleus``, otherwise ``None``.
+    :param measurement_units: Measurement-unit stamp supplied while resolving
+        a conditional unit; ``None`` for fixed-unit columns or when no stamp
+        was supplied. An unrecognised supplied stamp is retained while
+        ``unit`` states the unresolved conditions.
+    :param key: Curated :data:`KNOWN_PROPERTIES` or :data:`META_COLUMNS` key
+        through which the column resolved, or ``None`` for an unrecognised
+        column.
+    :param object_types: Object types for which the feature is written; empty
+        for features that are not per-object.
+    :param channel_scope: :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE`, or
+        :data:`CHANNEL_PAIR`, describing how channels enter the feature.
+    :param module: spaCR module that produces the value, or ``"unknown"`` when
+        it cannot be identified.
+    :param written_when: Condition under which the column exists, or ``None``
+        when no condition is recorded.
+    :param concepts: Names from :data:`CONCEPTS` associated with the feature.
     """
 
     column: str
@@ -283,9 +302,14 @@ class ConditionalUnit:
     exactly why the dictionary has to read it from the data rather than assert
     it.
 
-    :ivar px: the unit when ``measurement_units == 'px'`` (a 2-D run).
-    :ivar px_xy: the unit when ``measurement_units == 'px_xy'``.
-    :ivar um: the unit when ``measurement_units == 'um'``.
+    :param px: unit text for rows stamped ``measurement_units='px'`` (the 2-D
+        pixel mode), or ``None`` when the column is not written in that mode.
+    :param px_xy: unit text for rows stamped ``measurement_units='px_xy'``
+        (3-D geometry scaled by anisotropy in xy-pixel units), or ``None``
+        when the column is not written in that mode.
+    :param um: unit text for rows stamped ``measurement_units='um'`` (3-D
+        geometry measured with physical voxel sizes), or ``None`` when the
+        column is not written in that mode.
 
     A field is ``None`` when the column is not written at all in that mode —
     the ``_z``/``_y``/``_x`` centroid axes exist only in 3-D, for instance.
@@ -955,6 +979,247 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "spacr.measure._calculate_correlation_object_level (manders_thresholds)",
         "Same caveats as M1_correlation_<t>; the two differ only in which "
         "channel's intensity is summed over the shared overlap mask.",
+    ),
+    # ---------------- Manders (measure.py; unconditional since 2026-09-02)
+    "manders_m1": PropertyInfo(
+        "correlation",
+        "Manders' M1: the fraction of the FIRST channel's above-background "
+        "intensity inside the object that lies in pixels where the SECOND "
+        "channel is above its own background.",
+        _FRACTION,
+        "spacr.measure._calculate_correlation_object_level",
+        "This is the statistic M1_correlation_<t> was named after and is not. "
+        "Each channel's background is estimated inside each object as "
+        "median + 3 * 1.4826 * MAD and subtracted before the fraction is "
+        "taken, so the two channels are thresholded independently rather than "
+        "sharing one overlap mask. It REPLACED the deprecated "
+        "M1_correlation_<t> columns on 2026-09-02; a plate measured before "
+        "that still carries them and still agrees with itself. 0.0, never "
+        "NaN, when the channel has no above-background intensity in the "
+        "object -- a NaN would delete the column from every model matrix.",
+    ),
+    "manders_m2": PropertyInfo(
+        "correlation",
+        "Manders' M2: the fraction of the SECOND channel's above-background "
+        "intensity inside the object that lies in pixels where the FIRST "
+        "channel is above its own background.",
+        _FRACTION,
+        "spacr.measure._calculate_correlation_object_level",
+        "The mirror of manders_m1 and subject to the same caveats; the two "
+        "differ only in which channel's intensity is summed.",
+    ),
+    "manders_overlap_coefficient": PropertyInfo(
+        "correlation",
+        "Manders' overlap coefficient over the object's pixels: "
+        "sum(a*b) / sqrt(sum(a^2) * sum(b^2)) on the two background-"
+        "subtracted, non-negative channel vectors. One symmetric number for "
+        "the pair, unlike M1 and M2.",
+        _DIMLESS + ", in [0, 1]",
+        "spacr.measure._calculate_correlation_object_level",
+        "Nothing in spaCR computed this before 2026-08, although "
+        "the colocalisation tooltips have long named it. Backgrounds are the "
+        "per-object median + 3 * 1.4826 * MAD of each channel. 0.0, never "
+        "NaN, when either channel has no above-background intensity.",
+    ),
+    # ---------------- spatial context (measure.py, spatial_measurements)
+    "neighbors_within_<r>": PropertyInfo(
+        "spatial",
+        "How many OTHER objects of the same kind have their centroid within "
+        "{r} of this object's centroid. The object itself is not counted.",
+        "count (objects)",
+        "scipy.spatial.cKDTree.query_ball_point in "
+        "spacr.measure._spatial_measurements (spatial_neighbor_radius)",
+        "The radius is in the units of the row's measurement_units stamp, "
+        "because the tree is built on spacing-scaled centroids: pixels in a "
+        "2-D run, micrometres in a 3-D run that knew its voxel size. The "
+        "radius is baked into the NAME, so two plates measured at different "
+        "spatial_neighbor_radius values produce different columns and will "
+        "not concatenate. Counted over the whole FIELD, so an object near the "
+        "field edge has fewer neighbours than the biology gave it.",
+    ),
+    "nearest_neighbor_distance": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance from this object to the closest other "
+        "object of the same kind in the field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.measure._spatial_measurements",
+        "-1.0 is a SENTINEL, not a distance: it means the field held no such "
+        "neighbour at all (a one-object field). NaN is not written because "
+        "one NaN anywhere deletes the column from every model matrix, so the "
+        "sentinel has to be excluded before averaging this column.",
+    ),
+    "second_neighbor_distance": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance from this object to the SECOND "
+        "closest other object of the same kind in the field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.measure._spatial_measurements",
+        "-1.0 is the same sentinel nearest_neighbor_distance uses, and a "
+        "two-object field writes it here while the nearest distance is real. "
+        "Exclude it before averaging.",
+    ),
+    "percent_touching": PropertyInfo(
+        "spatial",
+        "Percentage of this object's own boundary pixels that lie against "
+        "another object of the same kind, after each label is grown by one "
+        "pixel so that objects separated by a segmentation gap still count "
+        "as touching.",
+        "percent (0-100)",
+        "skimage.segmentation.expand_labels + find_boundaries in "
+        "spacr.measure._spatial_adjacency",
+        "Has zero variance in a confluent monolayer -- 100.0 for every "
+        "object -- so utils.remove_low_variance_columns drops it from model "
+        "matrices for exactly the plates where it is most trivially true. "
+        "That is correct behaviour and shows up as a missing column.",
+    ),
+    "touching_neighbors": PropertyInfo(
+        "spatial",
+        "Number of DISTINCT other objects of the same kind that share a "
+        "border with this one, counted after the same one-pixel growth.",
+        "count (objects)",
+        "skimage.segmentation.expand_labels + find_boundaries in "
+        "spacr.measure._spatial_adjacency",
+        "Named without the word 'count': schema.model_feature_columns strips "
+        "any column whose name contains 'count', so a neighbour_count column "
+        "would be computed, stored, and then never reach a model. The "
+        "identities of the adjacent objects are deliberately not stored -- "
+        "the object namespace refuses a non-numeric column, and any name "
+        "carrying 'label' is folded into the merge key.",
+    ),
+    # ---------------- object geometry (object_distances.py)
+    "distance_to_own_boundary": PropertyInfo(
+        "spatial",
+        "Distance from this object's geometric centroid to its own nearest "
+        "boundary pixel.",
+        _PX,
+        "spacr.object_distances.between_object_types using "
+        "interior_distance_transform sampled at the object centroid",
+        "A large value can mean a large object, not necessarily a centred "
+        "one; relative_radial_position removes that size dependence.",
+    ),
+    "relative_radial_position": PropertyInfo(
+        "spatial",
+        "The centroid-to-boundary distance divided by the object's deepest "
+        "interior distance and reversed: 0 means the centroid lies at the "
+        "deepest point, while values approaching 1 place it near the rim.",
+        _DIMLESS + ", normally in [0, 1]",
+        "spacr.object_distances.between_object_types",
+        "NaN when the object has no positive interior distance. This is a "
+        "shape-relative position, not a distance in pixels.",
+    ),
+    "distance_to_field_edge": PropertyInfo(
+        "spatial",
+        "Smallest array-coordinate distance from this object's centroid to "
+        "any edge of the acquired field.",
+        "pixels in 2-D; voxels in 3-D (voxel spacing is not applied)",
+        "spacr.object_distances.between_object_types",
+        "Zero means the centroid is on the field edge. This flags objects "
+        "whose measurements may describe a clipped fragment; in anisotropic "
+        "3-D data the axes are not physically comparable because the current "
+        "emitter uses array coordinates here.",
+    ),
+    "centre_to_<other>_surface": PropertyInfo(
+        "spatial",
+        "Distance from this object's centroid to the nearest pixel belonging "
+        "to any {other} object.",
+        _PX,
+        "spacr.object_distances.between_object_types sampling "
+        "surface_distance_transform",
+        "Asymmetric: the reverse direction generally differs. Zero means "
+        "the centroid lies inside a {other}; infinity means no {other} is "
+        "present in the field.",
+    ),
+    "surface_to_<other>_surface": PropertyInfo(
+        "spatial",
+        "Shortest distance from any boundary pixel of this object to the "
+        "nearest {other} surface.",
+        _PX,
+        "spacr.object_distances.between_object_types using "
+        "_min_over_boundary on a surface_distance_transform",
+        "Zero when the masks touch or overlap; infinity when no {other} is "
+        "present in the field.",
+    ),
+    "centre_to_nearest_<other>_centre": PropertyInfo(
+        "spatial",
+        "Centroid-to-centroid distance to the nearest {other} object in the "
+        "same field.",
+        _PX,
+        "scipy.spatial.cKDTree.query in "
+        "spacr.object_distances.between_object_types",
+        "Only the nearest partner is retained. Infinity means no {other} is "
+        "present; unlike a surface distance this stays positive when two "
+        "large objects touch.",
+    ),
+    "<other>_overlap_fraction": PropertyInfo(
+        "spatial",
+        "Fraction of this object's pixels that are also labelled as any "
+        "{other} object.",
+        _FRACTION,
+        "spacr.object_distances.between_object_types",
+        "The denominator is this object's area, so the reverse fraction is "
+        "generally different. NaN is reserved for a zero-area object.",
+    ),
+    "intensity_centre_offset": PropertyInfo(
+        "spatial",
+        "Distance between this object's geometric centroid and the "
+        "intensity-weighted centroid of one image channel.",
+        _PX,
+        "skimage.measure.regionprops_table(centroid_weighted) in "
+        "spacr.object_distances.intensity_centre_offset",
+        "A uniformly stained object is near zero; a polarised signal is "
+        "larger. Written only when object_distance_intensity=True and image "
+        "data are available.",
+    ),
+    "maxima_count": PropertyInfo(
+        "spatial",
+        "Number of local intensity maxima retained inside this object for "
+        "one image channel.",
+        "count (local maxima)",
+        "skimage.feature.peak_local_max in "
+        "spacr.object_distances.maxima_distances",
+        "Peaks are at least 3 pixels apart and capped at 20 per object. Zero "
+        "means no peak was found; the associated distances are then NaN.",
+    ),
+    "maxima_spread": PropertyInfo(
+        "spatial",
+        "Mean pairwise distance among the retained local intensity maxima "
+        "inside this object for one channel.",
+        _PX,
+        "scipy.spatial.distance.pdist in "
+        "spacr.object_distances._pairwise_spread",
+        "Zero for fewer than two maxima. Read with maxima_count because zero "
+        "otherwise cannot distinguish one peak from none.",
+    ),
+    "maxima_to_own_boundary_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the object's own boundary.",
+        _PX,
+        "spacr.object_distances.maxima_distances sampling "
+        "interior_distance_transform",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; maxima_count records that case.",
+    ),
+    "maxima_to_centre_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the object's geometric centroid.",
+        _PX,
+        "numpy.linalg.norm in spacr.object_distances.maxima_distances",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; maxima_count records that case.",
+    ),
+    "maxima_to_<other>_surface_<summary>": PropertyInfo(
+        "spatial",
+        "The {summary} distance from this channel's retained local maxima to "
+        "the nearest {other} surface.",
+        _PX,
+        "spacr.object_distances.maxima_distances sampling "
+        "surface_distance_transform",
+        "summary is min or mean over the retained peaks. NaN when no peak "
+        "was found; infinity when peaks exist but no {other} is present.",
     ),
     # ---------------- periphery / outside rings (measure.py:561-603)
     "periphery_mean": PropertyInfo(
@@ -1681,7 +1946,7 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "meta",
         "Manual annotation class recorded by the spaCR annotation app.",
         None,
-        "spacr.gui_utils (ALTER TABLE png_list ADD COLUMN <annotation_column>)",
+        "spacr.utils.add_column_to_database (ALTER TABLE ... ADD COLUMN)",
         "'test' is only the default annotation column name; a run may use any "
         "name, in which case the column will be reported as unknown here.",
     ),
@@ -1689,7 +1954,7 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         "meta",
         "Manual annotation class recorded by the spaCR annotation app.",
         None,
-        "spacr.gui_utils (ALTER TABLE png_list ADD COLUMN <annotation_column>)",
+        "spacr.utils.add_column_to_database (ALTER TABLE ... ADD COLUMN)",
         "Annotation column names are user-chosen; see 'test'.",
     ),
     # ---------------- measurement provenance stamp
@@ -1872,6 +2137,14 @@ _RING_OBJECTS = ("nucleus", "pathogen", *ORGANELLE_ROLES)
 _ZERNIKE_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
 #: `_measure_intensity_distance`'s frame is appended to `cell_dfs` alone.
 _CELL_ONLY = ("cell",)
+#: The spatial block is merged onto the cell, nucleus, pathogen and organelle
+#: props frames (measure.py `_with_spatial`) and never onto cytoplasm, which
+#: is one object per cell by construction.
+_SPATIAL_OBJECTS = ("cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
+#: The current measure integration calls ``_with_distances`` for these three
+#: frames.  ``object_distances`` itself is generic, but organelle and cytoplasm
+#: frames are not routed through it by ``_morphological_measurements``.
+_OBJECT_DISTANCE_OBJECTS = ("cell", "nucleus", "pathogen")
 #: `_summarize_organelles_per_parent` is called once per parent, and the
 #: result lands in its own ``<parent>_organelle_summary`` table.
 _SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
@@ -1881,14 +2154,15 @@ _SUMMARY_PARENTS = ("cell", "nucleus", "pathogen", "cytoplasm")
 class FeatureScope:
     """Where a curated feature exists, and what has to be on for it to.
 
-    :ivar objects: object types the feature is written for. Empty for a
-        feature that is not per-object at all (a settings row, a field count).
-    :ivar channels: one of :data:`CHANNEL_NONE`, :data:`CHANNEL_SINGLE`,
-        :data:`CHANNEL_PAIR`.
-    :ivar module: the spaCR module that produces it — what a user should read
-        (or re-run) to change it.
-    :ivar written_when: the condition under which the column exists at all,
-        in prose. ``None`` means "every run writes it".
+    :param objects: object types whose per-object tables receive the feature.
+        An empty tuple denotes a non-per-object or never-written feature.
+    :param channels: channel arity, one of :data:`CHANNEL_NONE`,
+        :data:`CHANNEL_SINGLE`, or :data:`CHANNEL_PAIR`, indicating whether
+        the feature depends on zero, one, or two intensity channels.
+    :param module: dotted spaCR module name that computes or emits the
+        feature.
+    :param written_when: human-readable condition under which the column is
+        emitted, or ``None`` when every run writes it.
     """
 
     objects: tuple[str, ...]
@@ -1899,6 +2173,7 @@ class FeatureScope:
 
 def _scope(objects: tuple[str, ...], channels: str, module: str = "spacr.measure",
            when: str | None = None) -> FeatureScope:
+    """Build an immutable feature scope with a normalized object tuple."""
     return FeatureScope(objects=tuple(objects), channels=channels,
                         module=module, written_when=when)
 
@@ -1917,6 +2192,7 @@ FEATURE_SCOPE: dict[str, FeatureScope] = {}
 
 
 def _set_scope(keys: Iterable[str], scope: FeatureScope) -> None:
+    """Associate every feature ``key`` with the shared ``scope`` record."""
     for key in keys:
         FEATURE_SCOPE[key] = scope
 
@@ -1996,6 +2272,45 @@ _set_scope(
            when="calculate_correlation=True and at least two channels; one "
                 "column per unordered channel pair (i < j)."))
 _set_scope(
+    ("manders_m1", "manders_m2", "manders_overlap_coefficient"),
+    _scope(_ALL_OBJECTS, CHANNEL_PAIR,
+           when="calculate_correlation=True with at least two channels; one "
+                "column per unordered channel pair (i < j)."))
+_set_scope(
+    ("neighbors_within_<r>", "nearest_neighbor_distance",
+     "second_neighbor_distance", "percent_touching", "touching_neighbors"),
+    _scope(_SPATIAL_OBJECTS, CHANNEL_NONE,
+           when="spatial_measurements=True (default True since 2026-09-02). Never written "
+                "for cytoplasm, which is cell-minus-its-contents and so is "
+                "one object per cell by construction -- its neighbours are "
+                "the cell's, restated. Written for every configured organelle "
+                "mask when requested; organelle type may add an interpretation "
+                "caveat but never removes the output columns."))
+_set_scope(
+    ("distance_to_own_boundary", "relative_radial_position",
+     "distance_to_field_edge", "centre_to_<other>_surface",
+     "surface_to_<other>_surface", "centre_to_nearest_<other>_centre",
+     "<other>_overlap_fraction"),
+    _scope(
+        _OBJECT_DISTANCE_OBJECTS, CHANNEL_NONE,
+        module="spacr.object_distances",
+        when="object_distances=True. The current measure pipeline writes "
+             "these for cell, nucleus and pathogen frames; each partner-type "
+             "column exists only when that mask is present and has the same "
+             "shape."))
+_set_scope(
+    ("intensity_centre_offset", "maxima_count", "maxima_spread",
+     "maxima_to_own_boundary_<summary>",
+     "maxima_to_centre_<summary>",
+     "maxima_to_<other>_surface_<summary>"),
+    _scope(
+        _OBJECT_DISTANCE_OBJECTS, CHANNEL_SINGLE,
+        module="spacr.object_distances",
+        when="object_distances=True and object_distance_intensity=True with "
+             "image data available. The maxima families additionally require "
+             "object_distance_maxima=True; partner-surface columns exist only "
+             "for same-shaped masks present in the field."))
+_set_scope(
     ("distance_to_nucleus", "distance_to_pathogen"),
     _scope(_CELL_ONLY, CHANNEL_SINGLE,
            when="distance_gaussian_sigma is a non-zero int, a cell mask "
@@ -2045,7 +2360,6 @@ _MODULE_HINTS: tuple[tuple[str, str], ...] = (
     ("spacr.utils", "spacr.utils"),
     ("spacr.io", "spacr.io"),
     ("spacr.object", "spacr.object"),
-    ("spacr.gui_utils", "spacr.gui_utils"),
     ("spacr.annotate", "spacr.annotate"),
 )
 
@@ -2075,7 +2389,14 @@ def _module_from_provenance(computed_by: str) -> str:
 
 @dataclass(frozen=True)
 class Concept:
-    """One searchable idea, and the curated keys that answer to it."""
+    """One searchable idea, and the curated keys that answer to it.
+
+    :param name: canonical concept identifier accepted by the search filter.
+    :param gloss: short human explanation of the scientific idea.
+    :param synonyms: alternative query phrases resolved to :attr:`name`.
+    :param keys: curated feature keys associated with the concept, ordered from
+        most to least characteristic for search ranking.
+    """
 
     name: str
     gloss: str
@@ -2107,6 +2428,7 @@ _INTENSITY_KEYS = ("mean_intensity", "max_intensity", "min_intensity",
                    "periphery_percentile_<p>", "outside_percentile_<p>",
                    "periphery_<p>_percentile", "outside_<p>_percentile",
                    "frac_high90", "frac_low10", "shannon_entropy",
+                   "intensity_centre_offset", "maxima_count", "maxima_spread",
                    "organelle_summary_organelle_channel_<c>_mean_intensity_per_<parent>",
                    "organelle_summary_organelle_channel_<c>_std_intensity_per_<parent>")
 _SPREAD_KEYS = ("std_intensity", "skew_intensity", "kurtosis_intensity",
@@ -2117,6 +2439,13 @@ _TEXTURE_KEYS = ("homogeneity_distance_<d>", "blur", "entropy_intensity",
                  "gini_intensity", "cv_intensity", "std_intensity",
                  "skeleton_length", "skeleton_branch_points")
 _DISTANCE_KEYS = ("distance_to_nucleus", "distance_to_pathogen",
+                  "distance_to_own_boundary", "distance_to_field_edge",
+                  "centre_to_<other>_surface",
+                  "surface_to_<other>_surface",
+                  "centre_to_nearest_<other>_centre",
+                  "maxima_to_own_boundary_<summary>",
+                  "maxima_to_centre_<summary>",
+                  "maxima_to_<other>_surface_<summary>",
                   "rad_dist_channel_<c>_bin_<b>", "periphery_mean",
                   "periphery_percentile_<p>", "periphery_<p>_percentile",
                   "outside_mean", "outside_percentile_<p>",
@@ -2126,12 +2455,14 @@ _POSITION_KEYS = ("centroid_weighted-0", "centroid_weighted-1",
                   "centroid_weighted_z", "centroid_weighted_y",
                   "centroid_weighted_x", "centroid_weighted_local_z",
                   "centroid_weighted_local_y", "centroid_weighted_local_x",
+                  "distance_to_field_edge", "intensity_centre_offset",
                   "distance_to_nucleus", "distance_to_pathogen",
                   "rad_dist_channel_<c>_bin_<b>")
 _COLOC_KEYS = ("Pearson_correlation", "M1_correlation_<t>",
                "M2_correlation_<t>")
 _COUNT_KEYS = ("organelle_summary_organelle_count", "before_filtration",
-               "after_filtration", "timelapse", "skeleton_branch_points")
+               "after_filtration", "timelapse", "skeleton_branch_points",
+               "maxima_count")
 
 #: The concept vocabulary. Order is the order the panel lists them in.
 CONCEPTS: dict[str, Concept] = {
@@ -2284,6 +2615,29 @@ _PARAMETERIZED: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"^outside_(?P<p>\d+)_percentile$"), "outside_<p>_percentile"),
     (re.compile(r"^M1_correlation_(?P<t>\d+)$"), "M1_correlation_<t>"),
     (re.compile(r"^M2_correlation_(?P<t>\d+)$"), "M2_correlation_<t>"),
+    # The neighbourhood radius is part of the name, the same way the
+    # percentile is in percentile_<p>: two plates measured at different radii
+    # carry different columns rather than the same column meaning two things.
+    (re.compile(r"^neighbors_within_(?P<r>\d+)$"), "neighbors_within_<r>"),
+    (re.compile(
+        rf"^centre_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
+     "centre_to_<other>_surface"),
+    (re.compile(
+        rf"^surface_to_(?P<other>{_OBJECT_ALTERNATION})_surface$"),
+     "surface_to_<other>_surface"),
+    (re.compile(
+        rf"^centre_to_nearest_(?P<other>{_OBJECT_ALTERNATION})_centre$"),
+     "centre_to_nearest_<other>_centre"),
+    (re.compile(rf"^(?P<other>{_OBJECT_ALTERNATION})_overlap_fraction$"),
+     "<other>_overlap_fraction"),
+    (re.compile(r"^maxima_to_own_boundary_(?P<summary>min|mean)$"),
+     "maxima_to_own_boundary_<summary>"),
+    (re.compile(r"^maxima_to_centre_(?P<summary>min|mean)$"),
+     "maxima_to_centre_<summary>"),
+    (re.compile(
+        rf"^maxima_to_(?P<other>{_OBJECT_ALTERNATION})_surface_"
+        r"(?P<summary>min|mean)$"),
+     "maxima_to_<other>_surface_<summary>"),
 )
 
 
@@ -2429,10 +2783,12 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
             params={"c": m.group("c"), "parent": m.group("parent")},
             measurement_units=measurement_units,
         )
+    matched_role = None
     for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
         prefix = f'organelle_summary_{role}_'
         if not name.startswith(prefix):
             continue
+        matched_role = role
         canonical = 'organelle_summary_organelle_' + name[len(prefix):]
         info = KNOWN_PROPERTIES.get(canonical)
         if info is not None:
@@ -2446,7 +2802,7 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
                       measurement_units=measurement_units)
     return _unknown(
         name,
-        "organelle",
+        matched_role or "organelle",
         None,
         "Column carries the organelle_summary_ prefix written by "
         "spacr.measure._measure_crop_core, but the summary statistic is not in "
@@ -2665,7 +3021,12 @@ def describe_columns(columns: Iterable[str],
 
 @dataclass(frozen=True)
 class Coverage:
-    """How much of a set of column names the dictionary can explain."""
+    """How much of a set of column names the dictionary can explain.
+
+    :param total: number of input column names examined, including repeats.
+    :param explained: number of inputs that resolved to a known feature.
+    :param unknown: unresolved names in input order, with duplicates removed.
+    """
 
     total: int
     explained: int
@@ -2714,7 +3075,7 @@ def coverage(columns: Iterable[str],
 #: so the examples are names a user can paste into a query.
 _EXAMPLE_PARAMS: dict[str, str] = {
     "p": "75", "i": "12", "d": "16", "t": "85", "c": "1", "b": "3",
-    "parent": "cell",
+    "parent": "cell", "other": "nucleus", "summary": "mean",
 }
 
 #: Example column for each link key. These are per-object-table join keys with
@@ -2749,14 +3110,27 @@ class FeatureDoc:
     columns onto them, because a user reading a results table wants "what is a
     percentile here" answered once, not four hundred times.
 
-    :ivar key: the curated key — the feature's identity.
-    :ivar title: a human title for the key.
-    :ivar unit: the unit, with a conditional unit spelled out in full.
-    :ivar object_types: object types the feature is written for. Empty means
+    :param key: the curated key — the feature's identity.
+    :param title: a human title for the key.
+    :param kind: ``"feature"``, ``"metadata"``, or ``"link"``, identifying
+        how the column participates in a measurement table.
+    :param family: feature family used for browsing and search filtering.
+    :param concepts: searchable scientific concepts associated with the key.
+    :param description: scientific meaning of the value, or ``None`` when the
+        curated dictionary has no definition.
+    :param unit: the unit, with a conditional unit spelled out in full.
+    :param computed_by: function or algorithm responsible for producing the
+        value.
+    :param module: spaCR module that owns that computation or metadata field.
+    :param object_types: object types the feature is written for. Empty means
         "not per-object" (metadata) or "never written" (dead code).
-    :ivar channel_scope: :data:`CHANNEL_NONE` / :data:`CHANNEL_SINGLE` /
+    :param channel_scope: :data:`CHANNEL_NONE` / :data:`CHANNEL_SINGLE` /
         :data:`CHANNEL_PAIR`.
-    :ivar examples: concrete column names that resolve back to this key.
+    :param written_when: condition under which the column is emitted, or
+        ``None`` when it is unconditional.
+    :param notes: caveats needed to interpret the value, or ``None`` when no
+        additional warning applies.
+    :param examples: concrete column names that resolve back to this key.
     """
 
     key: str
@@ -2890,7 +3264,12 @@ def doc_for(key: str) -> FeatureDoc | None:
 
 @dataclass(frozen=True)
 class SearchHit:
-    """One search result: a feature, how well it matched, and why."""
+    """One search result: a feature, how well it matched, and why.
+
+    :param doc: feature definition selected by the search.
+    :param score: accumulated relevance score used for descending result order.
+    :param reason: semicolon-separated explanation of the rules that matched.
+    """
 
     doc: FeatureDoc
     score: float
@@ -3002,6 +3381,10 @@ def search_features(query: str,
                 query_concepts.add(name)
 
     terms = _query_terms(text)
+    if text and not terms and exact_key is None and not query_concepts:
+        # A stopword-only query carries no searchable meaning. Letting the raw
+        # substring rules below see it makes ``of`` match ``centre_offset``.
+        return []
     hits: list[SearchHit] = []
     for doc in docs:
         if object_type and object_type not in doc.object_types:
@@ -3053,12 +3436,11 @@ def search_features(query: str,
         # "zzzzz-not-a-feature" scored every entry in the dictionary, because
         # `a` and `not` appear in all of them — a nonsense search came back
         # with 137 confident results.
-        if terms:
-            hay = _haystack(doc)
-            if all(term in hay for term in terms):
-                score += 2.0 * len(terms)
-                if not reasons:
-                    reasons.append("mentioned in the definition")
+        hay = _haystack(doc)
+        if all(term in hay for term in terms):
+            score += 2.0 * len(terms)
+            if not reasons:
+                reasons.append("mentioned in the definition")
         if score > 0:
             hits.append(SearchHit(doc, score, "; ".join(reasons)))
 
@@ -3194,7 +3576,7 @@ def _table_measurement_units(db_path: str | Path, table: str,
 
 
 def describe_database(db_path: str | Path, table: str | None = None,
-                      measurement_units: str | None = None) -> pd.DataFrame:
+                      measurement_units: str | None = None) -> Any:
     """Describe every column of a spaCR measurements database.
 
     Every column of every table is returned — a column that this dictionary
@@ -3234,10 +3616,21 @@ def describe_database(db_path: str | Path, table: str | None = None,
             row["table"] = table_name
             rows.append(row)
 
+    import pandas as pd
+
     df = pd.DataFrame(rows, columns=_FRAME_COLUMNS)
     for col in _TUPLE_FRAME_COLUMNS:
         df[col] = [", ".join(v) if isinstance(v, (list, tuple)) else v
                    for v in df[col]]
+    # Pandas 3 infers ``str`` for text columns and exposes missing values from
+    # that dtype as ``nan``.  Keep the public contract for an unstamped unit:
+    # callers receive the Python ``None`` stored by ``FeatureEntry``.
+    df["measurement_units"] = pd.Series(
+        [None if pd.isna(value) else value
+         for value in df["measurement_units"]],
+        index=df.index,
+        dtype=object,
+    )
     # Keep channel indices as integers-or-missing rather than letting pandas
     # promote them to float and print "channel 0.0" in the exports.
     for col in ("channel", "channel_2"):
@@ -3257,6 +3650,8 @@ def _is_missing(value: Any) -> bool:
     if value is None:
         return True
     try:
+        import pandas as pd
+
         return bool(pd.isna(value))
     except (TypeError, ValueError):
         return False
@@ -3299,7 +3694,7 @@ _UNITS_GLOSS: dict[str, str] = {
 }
 
 
-def _markdown(df: pd.DataFrame, db_path: Path,
+def _markdown(df: Any, db_path: Path,
               units_by_table: dict[str, tuple[str | None, str]] | None = None
               ) -> str:
     """Render the dictionary as markdown grouped by object then family."""
@@ -3360,10 +3755,9 @@ def _markdown(df: pd.DataFrame, db_path: Path,
     # Collapse every missing marker (None / NaN) onto a single None bucket, so
     # the "no object" section is emitted exactly once.
     missing = df["object_type"].isna()
-    seen: list[str | None] = []
-    for value in df["object_type"].where(~missing, None):
-        if value not in seen:
-            seen.append(value)
+    seen: list[str | None] = df.loc[~missing, "object_type"].unique().tolist()
+    if bool(missing.any()):
+        seen.append(None)
     objects = sorted(seen, key=lambda o: (o is None, order.get(o, len(order)),
                                           str(o)))
     fam_order = {name: i for i, name in enumerate(FEATURE_FAMILIES)}

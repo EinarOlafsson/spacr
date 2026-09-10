@@ -1,0 +1,209 @@
+{
+  "id": "66_outliers",
+  "number": 66,
+  "slug": "outliers",
+  "series": 5,
+  "app_key": "outliers",
+  "section": "Explore",
+  "title": "Outliers: inspect real flags without deleting observations",
+  "description": "Open Outliers inside QC, compare robust rules on real cell measurements, distinguish unscored wells from clean wells, inspect an actual log-transform refusal and export every row with its flags.",
+  "objectives": [
+    "Find the QC submodule and select measured features deliberately before Scan.",
+    "Compare MAD, IQR and explicit log transforms without treating flags as validated errors.",
+    "Distinguish object counts, displayed rows and unscored well comparisons.",
+    "Export original measurements with flags and recover safely from an invalid transform."
+  ],
+  "prerequisite": "Use the downloadable Annotate example on a byte-identical private database copy. Its 2,341 cells occupy four recorded wells; they are not independent experiments or known defective objects. Original measurements are never edited or deleted. The lesson independently checks finite, nondegenerate single-feature MAD/IQR arithmetic, each object's flag position, well medians/counts and the explicit fewer-than-five-wells refusal. It does not validate the automatic all-feature scan, zero-scale fallback, multivariate MCD inference or biological quality. These are scans of an existing measurement table, not new image segmentation, GPU analysis or classifier training. This screen has no image preview, Plot toggle, dedicated test-data downloader or AI console; its Objects, Wells and Report tabs are the actual outputs.",
+  "scenes": [
+    {
+      "visual": "02_qc_host",
+      "narration": "Open QC from Home, then choose its Outliers button. QC's dashboard reads stored checks, while this nested tool computes flags from a measurement table. We use the real downloadable Annotate example on a private database copy. Follow that lesson to obtain the example and leave your experimental source unchanged.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "54_qc_dashboard"
+      ]
+    },
+    {
+      "visual": "04_automatic_all_features",
+      "narration": "Choose Load table and the database's cell table. Loading automatically scans all selected continuous features: two hundred fifty-five here, over two thousand three hundred forty-one cells. This broad default flags two thousand three hundred thirty-eight objects. That does not prove nearly every cell is bad. Loading the wide result table can take time.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        345,
+        3515,
+        170
+      ]
+    },
+    {
+      "visual": "05_choose_one_feature_before_scan",
+      "narration": "With the feature search empty, choose None to untick everything. Search for cell_area and tick only that exact feature, then press Scan. The search narrows feature names, not cell rows. Changing the selection does not automatically rescan: the old result can remain visible until you run the new rule.",
+      "hold_after": 0.7,
+      "focus": [
+        3295,
+        455,
+        390,
+        1595
+      ]
+    },
+    {
+      "visual": "06_area_mad_3_5",
+      "narration": "For MAD, leave the transform at none and k at three point five. The rule divides the absolute distance from the median by about one point four eight two six times the median absolute deviation. It flags twenty-six cells. These are candidates for inspection, not confirmed segmentation mistakes, and no row has been removed.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        1510,
+        315
+      ]
+    },
+    {
+      "visual": "07_four_wells_not_scored",
+      "narration": "Open Wells. All four wells contain over five hundred objects, but none is scored: the across-well comparison needs at least five eligible wells. Read well_scored and the specific reason, not just Wells zero. Flagged share summarizes object flags; it is not a well-level score or evidence that the well is clean.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        3005,
+        300
+      ]
+    },
+    {
+      "visual": "08_area_report",
+      "narration": "The Report gives the rule, measured centre, scale and caveats. One caveat in this build wrongly says these four wells had fewer than twenty objects. Their actual counts are five hundred one to seven hundred; the reason is too few wells. Use the specific well-table reason, and do not repeat the incorrect count explanation.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        3005,
+        550
+      ]
+    },
+    {
+      "visual": "10_broad_rule_not_quality_cutoff",
+      "narration": "A stricter distance requirement flags fewer objects. Lowering k to two produced one hundred forty-two flags; at zero point five it produces one thousand four hundred seventy-nine. That last setting is deliberately broad for demonstration, not a recommended quality cutoff. The object table displays only five hundred rows, so its row count is not the flag count.",
+      "hold_after": 0.7,
+      "focus": [
+        3295,
+        1745,
+        390,
+        330
+      ]
+    },
+    {
+      "visual": "11_all_rows_not_display_cap_complete",
+      "narration": "Choose Export and a new filename. The objects CSV keeps all two thousand three hundred forty-one rows and appends flags; flagged contains the one thousand four hundred seventy-nine flagged rows. Wells contains four summaries, and report is a text file. Every exported measurement and flag was checked. Export is not deletion, and it is not limited to the displayed five hundred rows.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        345,
+        3515,
+        170
+      ]
+    },
+    {
+      "visual": "13_area_iqr",
+      "narration": "Restore the original rule, then choose IQR. The threshold now means c times the interquartile range, not robust standard deviations. With c at one point five, raw cell area gives fifty-five flags. We independently checked both quartile fences and every flagged position. A tail of a skewed distribution can be flagged even when its measurements are valid.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        1510,
+        315
+      ]
+    },
+    {
+      "visual": "14_iqr_report",
+      "narration": "There is another wording error to recognize. This IQR report labels twenty-two thousand six hundred sixty-three as the median, but that number is the midpoint of the first and third quartiles. The actual median is twenty-one thousand nine hundred twenty-five. The checked fences are correct; do not cite that displayed centre as the median.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        3005,
+        550
+      ]
+    },
+    {
+      "visual": "16_log_area_mad",
+      "narration": "Choose log10 explicitly and scan again. On these positive areas, IQR gives seventy-nine flags, while switching back to MAD at three point five gives thirty-six. Log transformation changes distances and the question being asked; it does not guarantee fewer flags or biological correctness. The reported centres and scales are now in log10 units.",
+      "hold_after": 0.7,
+      "focus": [
+        3295,
+        1745,
+        390,
+        330
+      ]
+    },
+    {
+      "visual": "17_real_intensity_raw",
+      "narration": "For a real refusal example, return to no transform and select cell_channel_0_min_intensity alone. Scan succeeds and flags sixty-eight objects. One measured value is actually zero. This positive counterpart matters: the table and feature work before we ask for a transform whose domain excludes that value.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        1700,
+        315
+      ]
+    },
+    {
+      "visual": "18_real_zero_refusal",
+      "narration": "Now select log10 and press Scan. The real error names the one zero or negative value and its feature. No pseudocount is invented and no object is dropped; export is disabled. Old object-table rows and its count can remain visible after failure, so they are not a successful new result. Read the error and restore a valid rule.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        375,
+        3540,
+        230
+      ]
+    },
+    {
+      "visual": "21_low_count_reasons",
+      "narration": "Return to raw cell_area and MAD three point five, then scan to recover the original twenty-six flags. Raising Min objects per well to seven hundred changes eligibility: only one well reaches that count, while the other three retain explicit low-count reasons. Lowering this minimum cannot create the missing fifth well. Not scored is never the same as cleared.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        455,
+        3005,
+        300
+      ]
+    },
+    {
+      "visual": "22_objects_only",
+      "narration": "Restore the minimum to twenty and switch Score wells too off, then scan. Object flags remain twenty-six and no well comparison is requested. Switch it back on and scan to restore the four unscored well summaries. This setting changes the analysis level; it is not a filter that deletes cells or wells from your database.",
+      "hold_after": 0.7,
+      "focus": [
+        3295,
+        1745,
+        390,
+        330
+      ]
+    },
+    {
+      "visual": "24_final_flags_and_report_complete",
+      "narration": "Export the restored rule under a different filename. The final files contain two thousand three hundred forty-one object rows, twenty-six flagged rows, four well summaries and the report. Both the original and private measurement database are unchanged. Keep the rule and report with the flags so a different threshold is not mistaken for the same analysis.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        345,
+        3515,
+        170
+      ]
+    },
+    {
+      "visual": "method_choices_mad",
+      "narration": "The menu also offers robust multivariate Mahalanobis, which we have not run in this lesson. Its alpha depends on distribution assumptions and is not a guaranteed error rate. The Python consumer is detect_outliers with OutlierSpec in spacr.qt.widgets.outlier_model. To inspect distributions or images, continue with Feature Explorer or Annotate; no image preview or AI request happened here.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "09_annotate",
+        "65_feature_explorer"
+      ],
+      "focus": [
+        3435,
+        1785,
+        395,
+        155
+      ]
+    }
+  ]
+}

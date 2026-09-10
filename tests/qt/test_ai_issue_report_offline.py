@@ -18,18 +18,14 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def _allow_writes_because_everything_here_is_mocked(monkeypatch):
-    """`file_issue` refuses to post from a test run unless this is set.
+def _github_transport_is_offline(monkeypatch):
+    """Use the explicit process-local HTTP seam; never an env bypass."""
+    from spacr.qt.ai import github_auth
 
-    That backstop exists because `[auto 54a0e8] [mask] Error: boom` (#75)
-    reached the PUBLIC tracker from a fixture's exception -- spaCR posts
-    whenever a token is resolvable and `gh` supplies one on a dev machine.
+    def _no_network(*args, **kwargs):
+        pytest.fail("an offline issue-report test reached HTTP")
 
-    Every test in this file replaces `github_auth` wholesale, so nothing here
-    can reach the network; the flag says that deliberately rather than
-    leaving the guard to be discovered as five confusing failures.
-    """
-    monkeypatch.setenv("SPACR_ALLOW_GITHUB_WRITES", "1")
+    monkeypatch.setattr(github_auth, "_HTTP_OPEN", _no_network)
 
 
 
@@ -294,12 +290,24 @@ def test_build_report_omits_log_section_when_tail_is_empty(monkeypatch):
     assert "Recent log lines" not in body
 
 
-def test_build_report_includes_log_section_when_tail_is_present(monkeypatch):
+def test_build_report_points_at_the_log_instead_of_carrying_it(monkeypatch,
+                                                               tmp_path):
+    """The log section names a file now; it used to hold the lines.
+
+    This test asserted that the last fifty log lines were pasted into the
+    body. That body is URL-encoded onto a public `issues/new`, so the
+    assertion was pinning a leak: a log line carries sample names, plate
+    barcodes and folder names, none of which the redaction pass can
+    recognise. The section still exists, and still tells the maintainer
+    the log is available -- it just does not publish it.
+    """
     from spacr.qt.ai import issue_report as ir
     monkeypatch.setattr(ir, "log_tail", lambda *a, **k: "line A\nline B\n")
+    monkeypatch.setattr(ir, "log_bundle_dir", lambda: tmp_path / "reports")
     body = ir.build_report("E: x", include_log_tail=True)["body"]
-    assert "<details><summary>Recent log lines</summary>" in body
-    assert "line A\nline B" in body
+    assert "<details><summary>Log</summary>" in body
+    assert "line A" not in body
+    assert "log-" in body
     assert body.count("</details>") == 1
 
 
@@ -500,6 +508,11 @@ def test_open_issue_in_browser_swallows_backend_errors(monkeypatch):
 def _patch_auth(monkeypatch, *, authed, create=None):
     from spacr.qt.ai import github_auth
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: authed)
+    monkeypatch.setattr(
+        github_auth,
+        "find_issue_by_fingerprint",
+        lambda repo, fingerprint: (True, None),
+    )
     if create is not None:
         monkeypatch.setattr(github_auth, "create_issue", create)
     else:

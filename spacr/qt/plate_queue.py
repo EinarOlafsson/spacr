@@ -97,9 +97,18 @@ class PlateQueue:
     The queue is thread-agnostic — the Qt screen owns exclusive
     access. If two callers ever need to touch it concurrently, wrap
     each mutation in a lock at the call site.
+
+    :param path: where the snapshot is written. ``None`` uses spaCR's own
+        queue file, which is the ordinary case; a test passes a temporary
+        path so it does not disturb the user's real queue.
     """
 
     def __init__(self, path: Optional[Path] = None):
+        """Open the queue, loading whatever is already on disk.
+
+        :param path: where the queue is stored; ``None`` uses the default
+            location, so the queue survives a restart.
+        """
         self._path = path or _queue_path()
         self._items: List[QueueItem] = []
         self.load()
@@ -107,9 +116,11 @@ class PlateQueue:
     # -- accessors ---------------------------------------------------------
 
     def __len__(self) -> int:
+        """Return the number of queued items."""
         return len(self._items)
 
     def __iter__(self):
+        """Iterate the queued items in order."""
         return iter(self._items)
 
     def items(self) -> List[QueueItem]:
@@ -133,16 +144,49 @@ class PlateQueue:
     # -- mutations ---------------------------------------------------------
 
     def add(self, item: QueueItem) -> None:
+        """Append a plate and save immediately.
+
+        SAVED ON EVERY CHANGE, not on close: the queue is shared with other
+        screens and read from disk, so an unsaved change is one another
+        screen cannot see.
+
+        :param item: the plate to queue.
+        """
         self._items.append(item)
         self.save()
 
     def remove(self, item_id: str) -> bool:
+        """Drop one plate by id and save.
+
+        :param item_id: the plate's id.
+        :returns: True when it was there to remove.
+        """
         before = len(self._items)
         self._items = [i for i in self._items if i.id != item_id]
         changed = len(self._items) != before
         if changed:
             self.save()
         return changed
+
+    def clear(self) -> int:
+        """Remove EVERY item whatever its status; return count removed.
+
+        The counterpart to :meth:`clear_finished`, which keeps what is still
+        waiting. This one does not, so a RUNNING item goes too -- and that is
+        the whole reason to say so here: dropping the record does NOT stop
+        the run. The worker holds its own settings and keeps going; what
+        disappears is the queue's knowledge of it, so its completion is never
+        written back.
+
+        Only reachable from **Clear** on Home's Queued panel, where the
+        queue being wrong is what the user is trying to fix. A caller that
+        wants to leave a live run alone wants :meth:`clear_finished`.
+        """
+        removed = len(self._items)
+        if removed:
+            self._items = []
+            self.save()
+        return removed
 
     def clear_finished(self) -> int:
         """Remove SUCCESS/FAILED/SKIPPED items; return count removed."""
@@ -170,6 +214,7 @@ class PlateQueue:
     # -- persistence -------------------------------------------------------
 
     def save(self) -> None:
+        """Write the queue to disk."""
         try:
             payload = {"items": [self._serialise(i) for i in self._items]}
             self._path.write_text(json.dumps(payload, indent=2))
@@ -177,6 +222,7 @@ class PlateQueue:
             LOG.warning("failed to persist queue: %s", e)
 
     def load(self) -> None:
+        """Read the queue from disk, replacing what is held."""
         if not self._path.exists():
             self._items = []
             return
@@ -196,12 +242,25 @@ class PlateQueue:
 
     @staticmethod
     def _serialise(item: QueueItem) -> Dict[str, Any]:
+        """Convert one item to a JSON-safe dict.
+
+        :param item: the item to convert.
+        :returns: its fields, with the status written as its string value rather
+            than the enum member.
+        """
         d = asdict(item)
         d["status"] = item.status.value
         return d
 
     @staticmethod
     def _deserialise(d: Dict[str, Any]) -> QueueItem:
+        """Rebuild one item from a stored dict.
+
+        :param d: the stored fields. A missing status reads as ``queued`` --
+            a record written before the field existed is a queued plate, not a
+            broken one.
+        :returns: the item.
+        """
         status = Status(d.get("status", "queued"))
         return QueueItem(
             id=str(d["id"]),

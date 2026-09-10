@@ -100,6 +100,8 @@ TABLE_COLUMNS = (
     ("note", "Note"),
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 #: Substrings that make a column the first guess for the dose axis. A
 #: convenience for the common column names, not a classifier — nothing is
@@ -113,6 +115,13 @@ _STATUS_LABELS = {
     STATUS_REFUSED: "refused",
 }
 
+
+# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
+# still declared but are no longer in SECTION_ORDER. Every screen below now
+# files under Data. The docstrings keep their original reasoning because it
+# still says what each screen IS -- and they are published, translated API
+# prose, so editing them invalidates reviewed translations in nine languages.
 
 def _format(value) -> str:
     """One cell of the results grid, as text.
@@ -139,6 +148,12 @@ class DoseResponseScreen(QWidget):
     """
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: the curve canvas beside the fit table and report.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read and fit on a worker thread. Set ``False`` in tests
+            so ``fit`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("DoseResponseScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -258,6 +273,7 @@ class DoseResponseScreen(QWidget):
         side = QSplitter(Qt.Vertical, self)
         side.setChildrenCollapsible(False)
         self.table = QTableWidget(0, len(TABLE_COLUMNS), self)
+        install_sorting(self.table)
         self.table.setObjectName("DoseResponseTable")
         self.table.setHorizontalHeaderLabels(
             [header for _key, header in TABLE_COLUMNS])
@@ -289,6 +305,11 @@ class DoseResponseScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "dose_response")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data --------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
@@ -401,6 +422,11 @@ class DoseResponseScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
@@ -455,9 +481,13 @@ class DoseResponseScreen(QWidget):
                     # The refusal messages are paragraphs by design; the grid
                     # shows the first sentence and the tooltip has all of it.
                     text = text[:NOTE_WIDTH].rstrip() + "…"
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 if status != STATUS_FITTED:
                     item.setToolTip(str(record["note"]))
+                if column == 0:
+                    # Which fit this row is, so a sorted table still draws
+                    # the curve the user clicked.
+                    item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
         self.table.resizeColumnsToContents()
         if len(rows):
@@ -467,10 +497,20 @@ class DoseResponseScreen(QWidget):
             self._draw(None)
 
     def _on_row_selected(self) -> None:
+        """Show the curve for the selected row.
+
+        The row carries the index of the fit it was built from rather than being
+        identified by its position: the table sorts, so the top row is not
+        always the first curve.
+        """
         rows = {index.row() for index in self.table.selectedIndexes()}
         if not rows or self._set is None:
             return
-        self.show_group(sorted(rows)[0])
+        item = self.table.item(sorted(rows)[0], 0)
+        # The fit index the row was built from, not the row number: the
+        # table sorts, and the top row is not always the first curve.
+        fit = None if item is None else item.data(Qt.UserRole)
+        self.show_group(sorted(rows)[0] if fit is None else int(fit))
 
     def show_group(self, index: int) -> None:
         """Draw and describe the ``index``-th curve of the last fit."""
@@ -602,6 +642,10 @@ class DoseResponseScreen(QWidget):
     def closeEvent(self, event):  # noqa: N802 - Qt name
         # Abandon an in-flight fit rather than let it outlive the screen: Qt
         # aborts the process if a running QThread is destroyed.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         cancel = getattr(self.canvas, "cancel_pending_draw", None)
         if cancel is not None:
@@ -614,31 +658,17 @@ def make_dose_response_screen(app_key: Optional[str] = None) -> QWidget:
     return DoseResponseScreen()
 
 
-APP_NAME = "Dose–Response"
-APP_DESCRIPTION = "4PL curves and EC50s, with an interval that can say no"
-APP_INTRO = (
-    "Point it at a concentration column and a response column and it fits a "
-    "four-parameter logistic per gene or compound, in log10(EC50) so the "
-    "interval is multiplicative and never reaches below zero. The interval "
-    "is a profile likelihood by default, because the usual asymptotic one is "
-    "finite even for a series that never reached a plateau: when the "
-    "midpoint is outside the doses you tested, this reports "
-    "'EC50 > 30 µM' and no point estimate rather than a confident wrong "
-    "number. Bell-shaped series — cytotoxicity at the top dose — are refused "
-    "with the concentrations where they turn. R² is shown with the warning "
-    "that it means almost nothing on a sigmoid, next to the lack-of-fit test "
-    "against pure error that does.")
-APP_CLI_NOTE = (
-    "Dose–Response is interactive: choosing the columns and reading the "
-    "refusals is the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.dose_response.fit_frame() computes the same curves, "
-    "intervals, bounds and lack-of-fit tests with no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Dos–respons", "Dosis-Wirkung", "Dosis–respuesta", "剂量反应",
-    "Dose–resposta", "खुराक–अनुक्रिया", "용량–반응", "Skammtasvörun",
-    "Dose–réponse")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -651,10 +681,14 @@ def register() -> bool:
     to reach :class:`DoseResponseScreen` from a test or a notebook does not
     mutate process-wide state.
 
-    Everything after the section is a table this key would otherwise need a
-    hand-edit in: the screen header and blurb, the "no headless run" sentence,
-    the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     ``SECTION_DESIGN``, which is not the obvious answer and is the right one.
     Design is "everything that happens before the microscope: power, sample
@@ -674,12 +708,4 @@ def register() -> bool:
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DESIGN,
-                 factory=make_dose_response_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/dose_response",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

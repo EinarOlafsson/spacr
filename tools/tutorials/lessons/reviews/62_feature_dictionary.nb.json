@@ -1,0 +1,20 @@
+{
+  "lesson": "62_feature_dictionary", "language": "nb",
+  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
+  "review": {"kind": "Parent editorial rewrite checked against frozen English and actual GUI; corrected dropdown, measurement and unmatched-query terms; caption-only locale", "independent_peer_review": false, "native_speaker_signoff": false},
+  "title": "Feature Dictionary: slå opp betydninger, enheter og beregningsfunksjoner",
+  "description": "Bruk den faktiske ordboken under Help til å finne definisjoner, avgrense dem etter begrep og objekt og skille generell dokumentasjon fra målinger som finnes i et prosjekt.",
+  "objectives": ["Finn ordboken under Help og søk etter en idé eller et målenavn.", "Bruk de faktiske begreps- og objektfiltrene uten å endre prosjektdata.", "Les enheter, beregningsfunksjoner og forbehold, inkludert forskjellen mellom areal og volum.", "Kopier definisjonstekst og skill oppslagspanelet fra en prosjektspesifikk Python-eksport."],
+  "prerequisite": "Du trenger ikke et prosjekt, en nedlasting eller en modell: Leksjonen viser innebygde definisjoner. Ingen målinger, grafer, AI-forespørsler, GPU-jobber eller fileksporter utføres. Eksempelkolonnene finnes i den faktiske måledatabasen fra Database Browser, men ordboken laster ikke inn databasen her. Panelet viser for tiden hundrevis av navn på organellroller; vanlig rulling viser funksjonene og merknadene nedenfor. Tekst kopieres bare til utklippstavlen på opptakets private skrivebord.",
+  "scenes": [
+    "Åpne Help og deretter Feature Dictionary. Dette vinduet slår opp innebygde måledefinisjoner; det er verken en egen arbeidsflyt på Home eller en analyse som skal kjøres. Ingen datasett eller modeller må lastes ned.",
+    "Skriv en idé som size. Resultatene oppdateres mens du skriver, og Area viser definisjonen sin. Antallet gjelder samsvarende definisjoner, ikke målte celler eller kolonner som er bekreftet å finnes i prosjektet.",
+    "De faktiske nedtrekkslistene filtrerer etter begrep og objekttype. Her gir intensity og cell tretten definisjoner. Filtrene avgrenser ordboken, ikke bildedata eller analyseinnstillinger. Velg Any concept og Any object igjen før neste oppslag.",
+    "Søk etter gjennomsnittsintensiteten i cellens kanal én med det nøyaktige kolonnenavnet på skjermen. Oppføringen Mean intensity forklarer pikselstatistikken og enhetene. Et navnesøk henter dokumentasjon; det undersøker ikke kolonnens verdier eller beviser at den finnes i det aktuelle prosjektet.",
+    "Rull ned til Channel, Module og Computed by. Henvisningen identifiserer målingens implementering, inkludert funksjonen for utvidede regionegenskaper. Ordboken slår opp definisjonen; den beregner ikke målingen på nytt. Python-API-ene for oppslag finnes i modulen feature_dict.",
+    "Slå nå opp cell_area. Les betingelsene under Unit: En todimensjonal analyse rapporterer et pikselareal, mens samme navn representerer et volum i tre dimensjoner. Feltet measurement_units i raden avgjør om volumet er i kubiske bildepikselenheter eller kubikkmikrometer. Ikke utled fysiske enheter bare fra kolonnenavnet.",
+    "Les også Note, ikke bare hoveddefinisjonen. En tredimensjonal verdi som allerede er uttrykt i fysiske enheter, skal ikke omregnes igjen. For prosjektspesifikk dokumentasjon undersøker Python-funksjonene describe_database og export_dictionary databasen og tolker de registrerte måleenhetene; de er ikke knapper i dette panelet.",
+    "Et søk uten treff viser ingen definisjon. Det betyr at ordboken ikke fant noe som passet, ikke at dataene ikke kan inneholde en egendefinert egenskap. Prøv et kjent navn eller en bredere idé; manglende dokumentasjon er ikke et vitenskapelig resultat.",
+    "Gå tilbake til Area, marker detaljteksten og kopier den. Opptaket kontrollerer det som faktisk ble kopiert. Grensesnittet har ingen Run- eller Export-handling: Å kopiere tekst er noe annet enn å opprette en prosjektspesifikk ordboksfil med Python. Lukk vinduet når du er ferdig; ingen analyse er endret."
+  ]
+}

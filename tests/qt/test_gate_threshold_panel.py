@@ -106,6 +106,9 @@ def test_editing_announces_the_change(tree, qtbot):
     with qtbot.waitSignal(tree.gates_changed, timeout=500):
         tree._threshold_rows["z"][0].setText("1")
         tree._apply_threshold("z")
+    # The signal fired AND the edit landed. waitSignal alone would pass for a
+    # gate that announced a change it did not make.
+    assert gates.get("c").thresholds()["z"][0] == 1.0
 
 
 def test_editing_a_column_the_gate_cannot_take_is_a_no_op(tree):

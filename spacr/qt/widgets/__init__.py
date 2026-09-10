@@ -10,14 +10,17 @@ imports meant every other widget paid for it. Measured with
     333 ms      spacr.qt.widgets.data_filter_panel
     238 ms        pandas
 
-All of that lands before the first window is drawn, which is the startup
-stutter in instruction 55. `from spacr.qt.widgets import DataFilterPanel`
+All of that lands before the first window is drawn, causing a visible startup
+stutter. `from spacr.qt.widgets import DataFilterPanel`
 still works and still returns the same class; it just costs pandas at the
 moment something actually asks for it, which is when a data screen opens
 and pandas is needed anyway.
 """
 from .ai_chat_panel import AIChatPanel
 from .ai_toggle_label import AiToggleLabel
+from .api_help_label import ApiHelpLabel
+from .availability_panel import (AvailabilityPanel, disable_combo_row,
+                                 explain, run_install_offer)
 from .card import Card
 from .column_picker import (ColumnPickerButton, ColumnPickerDialog,
                              attach_column_picker)
@@ -25,12 +28,12 @@ from .console_panel import ConsolePanel
 from .divider import Divider
 from .eliding import ElidingLabel, ElidingPushButton
 from .empty_state import EmptyState
-# Imported here, not lazily: it registers its QSS block through
-# `theme.register_widget_qss`, and `launch()` builds the stylesheet before the
-# first window. A block registered after that call is missing from the
-# stylesheet the application is actually given.
+# Kept eager because it is a cheap, public widget. QSS registration is no
+# longer a reason to import a heavy widget at launch: the screen host scopes
+# any late registered block to the screen before its first paint.
 from .hover_tooltip import HoverTooltip
 from .info_link import InfoLink
+from .object_settings_grid import ObjectSettingsGrid, ObjectSettingsModel
 from .section import Section
 from .tile import HTile, Tile
 from .toggle import Toggle
@@ -79,7 +82,7 @@ def __dir__():
 
 
 __all__ = [
-    "AIChatPanel", "AiToggleLabel", "Card",
+    "AIChatPanel", "AiToggleLabel", "ApiHelpLabel", "Card",
     "attach_column_picker",
     "ColumnPickerDialog",
     "ColumnPickerButton", "ColumnWell", "ConsolePanel", "DataFilterPanel",
@@ -87,7 +90,8 @@ __all__ = [
     "ElidingLabel", "ElidingPushButton",
     "EmptyState", "FigureQueue", "GraphBuilderPanel", "GraphCanvas",
     "HTile", "HoverTooltip", "InfoLink",
-    "ImageUmapExplorer", "LivePreviewPanel", "Section",
+    "ImageUmapExplorer", "LivePreviewPanel",
+    "ObjectSettingsGrid", "ObjectSettingsModel", "Section",
     "Tile", "Toggle",
     "UsageBar",
 ]

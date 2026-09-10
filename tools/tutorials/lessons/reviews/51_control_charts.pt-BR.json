@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Control Charts: examinar uma campanha com controles e limites explícitos",
+  "description": "Abra a ferramenta dentro de QC, carregue uma campanha claramente sintética de trinta placas, confira o controle e a referência selecionados e exporte pontos verificados de forma independente.",
+  "objectives": [
+    "Encontrar Control Charts em QC e carregar o CSV sintético fornecido.",
+    "Distinguir linhas de poços de médias por placa e selecionar exatamente um controle.",
+    "Comparar regras, alterar e restaurar o controle e a referência e ler os avisos.",
+    "Exportar a tabela real de pontos sem afirmar que houve exportação de imagem ou validação biológica."
+  ],
+  "prerequisite": "O CSV tools/tutorials/fixtures/control_chart_campaign.csv é inteiramente sintético, adaptado de uma campanha de teste com semente fixa: trinta placas fictícias, três poços por tipo de controle por placa e uma deriva crescente programada após a placa vinte. As datas são marcadores ilustrativos de ordem, não registros de aquisição. Este painel não tem atualmente Load test data; não se baixam imagens nem se usam modelos, análises GPU ou solicitações AI. A gravação antiga de duas placas foi rejeitada porque o aplicativo recusou estimar limites. A coluna estreita corta opções longas quando fechadas; os menus abertos mostram os nomes completos. Os modos Z-prime e reestimativa não são exercitados aqui.",
+  "scenes": [
+    "Abra QC e depois o botão Control Charts. Este fluxo especializado representa controles repetidos ao longo de uma campanha. Nosso CSV é explicitamente sintético, incluindo a deriva: demonstra o software, não um experimento adquirido nem um ensaio validado.",
+    "Escolha Load table e abra o CSV de exemplo. Ele contém duzentas e setenta linhas de poços: trinta placas, cada uma com três poços de controle negativo, três de controle positivo e três de amostra. O gráfico mostrará uma média do controle selecionado por placa, não um ponto por célula.",
+    "Confira Plate, Run order, Measurement e Control column com os nomes exibidos. Selecione apenas neg em Control is. A lista permite várias seleções; deixar todos os níveis desmarcados representa todas as linhas. Não suponha que carregar o arquivo já selecionou o controle desejado.",
+    "Abra Sigma from para ler todas as opções. Auto escolhe aqui o estimador por subgrupos porque cada placa tem três poços selecionados. Os limites usam a variação dentro das placas de referência, ajustada ao tamanho amostral da média, em vez do desvio padrão de toda a série com deriva.",
+    "Rules oferece as quatro regras usuais, todas as oito ou Limits only. Mais regras também criam mais oportunidades de alarmes falsos. Escolhemos Limits only para isolar a regra de três sigma; alterar o menu recalcula o gráfico sem um botão Run separado.",
+    "Baseline plates está em vinte: de P zero um a P vinte são estimados os limites aplicados às placas restantes. Nove pontos, de P vinte e dois a P trinta, ultrapassam o limite superior. O relatório e a tabela de regras os identificam; esses sinais programados não são descobertas biológicas.",
+    "Desmarque neg e selecione apenas pos. O gráfico passa a mostrar as médias do outro controle e seus próprios limites de referência, sem violações da regra um neste exemplo. Um gráfico tranquilo, por si só, não comprova a validade de um ensaio. Restaure neg antes de continuar.",
+    "Altere Baseline plates para doze e observe a mudança no centro e nos limites; depois restaure vinte. O aplicativo exige pelo menos oito placas de referência, mas esse mínimo não é uma recomendação. Planeje e justifique a referência; não a ajuste apenas para remover alertas indesejados.",
+    "Com o controle original e a referência de vinte placas restaurados, escolha Export points e salve um CSV separado. Ele contém trinta linhas com identidade e ordem da placa, média, tamanho e dispersão do subgrupo, limites, distância padronizada, pertencimento à referência e regras acionadas. Não exporta uma imagem do gráfico nem a configuração completa.",
+    "Cada identidade e campo numérico exportado foi comparado ao CSV de origem, incluindo as marcações da regra um. A entrada original permanece inalterada. Para scripts, o módulo do widget de gráficos de controle oferece ControlChartSpec e control_chart; seu resultado fornece points_frame. Mantenha dados, configurações e notas de aquisição juntos ao investigar alertas reais."
+  ]
+}

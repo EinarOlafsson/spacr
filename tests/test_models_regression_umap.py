@@ -38,10 +38,37 @@ matplotlib.use("Agg")
 # Guards
 # ---------------------------------------------------------------------------
 
-def _require_gpu():
+#: How much of the card a GPU test needs before it is worth starting. The
+#: cellpose tiles below are 128x128, so this is generous -- it is a check
+#: that the card is USABLE, not a measurement of the test.
+GPU_ROOM_MB = 1500
+
+
+def _require_gpu(room_mb: int = GPU_ROOM_MB):
+    """Skip unless there is a CUDA device with room to work in.
+
+    THE CARD IS SHARED. Another session's training run holding 21 GiB of 24
+    is the ordinary state of this machine, and it is not something a test
+    may do anything about -- so five cellpose tests failed with
+    `torch.OutOfMemoryError: Tried to allocate 20.00 MiB` and were red for
+    a reason that has nothing to do with spaCR.
+
+    A test that cannot run is SKIPPED, with the free memory in the reason,
+    so the difference between "cellpose is broken" and "there was no room
+    today" is legible in the summary line rather than in a traceback.
+    """
     torch = pytest.importorskip("torch")
     if not torch.cuda.is_available():
         pytest.skip("no CUDA")
+    try:
+        free, total = torch.cuda.mem_get_info()
+    except Exception:                                        # noqa: BLE001
+        return
+    free_mb = free / (1024 * 1024)
+    if free_mb < room_mb:
+        pytest.skip(
+            f"the GPU is busy: {free_mb:.0f} MiB free of "
+            f"{total / (1024 * 1024):.0f}, and this needs about {room_mb}")
 
 
 # ---------------------------------------------------------------------------

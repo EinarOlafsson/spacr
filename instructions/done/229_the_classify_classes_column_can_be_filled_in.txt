@@ -1,0 +1,174 @@
+================================================================================
+THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
+================================================================================
+
+Status:    DONE 2026-08-21.
+Requested: 2026-08-21 -- "in the classify modual in labels and classes, the
+           classes column setting cannot be filled in and therefor classes
+           cannot be added. class folder names should be preplaced with
+           putting together what is in written in the class field. the
+           Classes Column setting should also replace the annotation column
+           and class metadata should be replaced by the Classes Class and
+           value. The Classes setting Column should have a SQL butto. remove
+           the measurement option from dataset mode and remove the metadata
+           type by and measurement rules. change the name of Sample to
+           Sample size limit."
+Owner:     Qt GUI (classify module settings), spacr.settings
+
+--------------------------------------------------------------------------------
+THE BUG THAT BLOCKS EVERYTHING ELSE
+--------------------------------------------------------------------------------
+
+THE CLASSES COLUMN SETTING CANNOT BE FILLED IN. Nothing typed into it takes,
+so no classes can be added, so the module cannot be configured at all. This
+is the first thing to fix and the rest of the item is unreachable until it
+is: every change below is about what the classes MEAN once they can be
+entered.
+
+Find out WHY it is uneditable before changing it. A read-only field, a
+missing type in `list_shape_for`, a gate that never opens, and a widget that
+takes text and discards it on save are four different defects with four
+different fixes, and the audit is the work -- `list_shape_for` returning
+None for a union containing `str` has already caused one field to render
+wrong in this codebase.
+
+--------------------------------------------------------------------------------
+WHAT THE CLASSES THEN DRIVE
+--------------------------------------------------------------------------------
+
+CLASS FOLDER NAMES ARE BUILT FROM THE CLASS FIELD, not configured separately.
+The folder a class's crops are written to is assembled from what the user
+wrote in the class field, so the names on disk and the names in the settings
+cannot disagree -- which is the failure a separate folder-name setting
+invites and the reason to remove it.
+
+THE CLASSES COLUMN REPLACES THE ANNOTATION COLUMN. One setting naming the
+column that holds the label, not two that can point at different columns.
+
+CLASS METADATA IS REPLACED BY THE CLASSES' CLASS AND VALUE. The pair is what
+identifies a class; a free-form metadata blob beside it is a second place
+for the same fact.
+
+THE CLASSES COLUMN GETS A SQL BUTTON. The same affordance the other
+column-picking settings have: the user should be choosing from the columns
+their database actually holds, not typing a name and finding out at run time.
+
+--------------------------------------------------------------------------------
+WHAT IS REMOVED
+--------------------------------------------------------------------------------
+
+  * the MEASUREMENT option from dataset mode;
+  * METADATA TYPE BY;
+  * MEASUREMENT RULES.
+
+REMOVED, NOT HIDDEN. A setting behind a gate is still a setting somebody
+will find, and the three above describe a way of selecting a dataset that
+the classes column now covers.
+
+--------------------------------------------------------------------------------
+WHAT IS RENAMED
+--------------------------------------------------------------------------------
+
+  * "Sample" becomes "SAMPLE SIZE LIMIT" -- it is a cap, and "Sample" reads
+    as the thing being sampled rather than as a bound on how many.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Text typed into the classes column setting is there after a save and a
+  reload, and a class can be added.
+* The class folders on disk are named from the class field, and a test
+  asserts the two agree rather than asserting either alone.
+* There is one column setting for the label, not an annotation column
+  beside it.
+* The classes column has a SQL button that lists the columns the attached
+  database actually has.
+* Dataset mode offers no measurement option; metadata type by and
+  measurement rules are gone from the panel AND from `settings.py`.
+* The panel reads "Sample size limit".
+* Settings CSVs written before this item still load -- the removed keys are
+  migrated or ignored with a stated reason, not left to raise.
+
+  THE TK CLAUSE IS RETIRED, NOT MET OR UNMET. This criterion also asked that
+  the legacy Tk GUI still open, under the Tk-accommodates-new-code rule. The
+  Tk front end has since been DELETED: `spacr.gui` no longer imports and no
+  module in the package references tkinter, so there is nothing left for the
+  rule to accommodate. The deletion answers the clause rather than failing
+  it. The migration half is what still has to hold, and re-checked
+  2026-08-26 it does: `training_basis.RETIRED_BASES` maps
+  `dataset_mode='measurement'` onto `annotation`, and `io._class_column`
+  still honours a legacy `metadata_type_by`.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+THE BLOCKING BUG WAS NOT A DISABLED WIDGET. The column combo is populated
+from a LOADED TABLE, and the panel is reached before there is one -- so the
+list came back empty, and a non-editable empty combo offers no way to name
+anything. The setting that decides every class in the module was the one
+setting that could not be filled in.
+
+Two fixes, because there are two situations. The combo is EDITABLE, so a
+column can be typed when there is no database; and it has the SQL BUTTON the
+other column-naming settings already have, so the names can be read out of
+the database rather than guessed. The composite attaches its own button --
+wrapping the whole editor would have put it beside the table rather than
+beside the field it fills, and could not have written into it either.
+
+A TYPED NAME NOW SURVIVES `set_frame`, which runs again on every basis change
+and every attached table and used to discard it. Silently: an empty combo
+looks exactly like one nobody has touched.
+
+THE REMOVALS. `dataset_mode` loses `measurement`; `metadata_type_by` and
+`measurement_rules` are gone from `settings.py`, from both GUIs and from
+`ml.py` -- the whole `_labels_from_measurements` path, not a gate over it.
+
+REMOVED, MIGRATED, NOT REFUSED. A settings CSV naming the retired basis
+loads and runs: `RETIRED_BASES` maps it to `annotation`, which is not an
+approximation -- the measurement path WROTE a label column and then read it
+back as an annotation, so `annotation` is the second half of what it did. A
+basis that never existed still raises, because migration is for what was
+valid, not a blanket fallback.
+
+`metadata_type_by` NAMED THE COLUMN A CLASS IS DEFINED BY, which is the
+Classes editor's own column field -- so `io._class_column` reads it off
+`classes` now, and honours the old key first so an old CSV runs unchanged.
+
+THE RENAME is of the LABEL, not the key: every settings CSV in existence
+says `sample`, and "Sample size limit" is what it has always bounded.
+
+THE FOLDER NAMES COME FROM THE CLASS FIELD. `folder_names` now takes the
+DEFINED class names ahead of `class_folder_names`, reversing a precedence
+that was deliberate before and is wrong now: `class_folder_names` is a
+RECORD of what a previous generation wrote to disk, a defined class is the
+user's own statement of what they are training on, and letting the record
+outrank the statement is how the folders on disk and the classes in the
+panel come to disagree with nothing on screen saying so.
+
+ONLY WHEN CLASSES ARE ACTUALLY DEFINED. An empty definition means "this
+settings file says nothing about classes" and must not shadow a recorded
+folder list -- that would break every settings file written before the
+Classes editor existed. A list-shaped legacy `classes` still wins over
+everything, for the reason its own test gives.
+
+--------------------------------------------------------------------------------
+AND THE LAST TWO FOLDS, DONE
+--------------------------------------------------------------------------------
+
+`annotation_column` AND `class_metadata` ARE GONE FROM THE PANEL and derived
+from `classes`. The Classes editor already names the column each class is
+defined by and the value that defines it, so a box for either was a second
+place to say the same thing -- and nothing downstream reads both and
+compares them, which is why two settings naming one column is two chances
+to point at different ones.
+
+DERIVED VALUES ARE WRITTEN BACK, not computed at every read. Every consumer
+downstream reads those two keys, and rewriting each of them to ask
+`classify_classes` instead would be a large change for a small gain -- and
+one of them would be missed.
+
+A SETTINGS FILE THAT DEFINES NO CLASS KEEPS EXACTLY WHAT IT HAD. The fold
+runs AFTER the defaults and only when `classes` holds something, so a file
+written before the Classes editor still runs unchanged.

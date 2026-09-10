@@ -2,9 +2,17 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    NO LONGER CRASHING (2026-08-09). Two consecutive runs
-           reached 66% with zero crashes and zero failures, both stopped
-           by a 5.5h timeout on a machine that was not idle.
+Status:    DONE for what this file is about, and the shutdown gap it left
+           open is closed: the budget now starts when the last test ends
+           rather than at the end of `pytest_sessionfinish`, so the interval
+           between the coverage write and the summary line -- where the
+           reported wedge sits, and the one interval nothing was armed for --
+           is bounded and names what is holding the process open.
+           OPEN, AND NOT THIS FILE'S: a full SERIAL `pytest tests/qt` is
+           stopped at about 15% by SEGFAULTS in
+           tests/qt/test_cellpose_workbench.py -- five tests, reproducible
+           alone and outside pytest, so the file has to be ignored for a
+           whole-suite run. See the last entry.
 Severity:  test-only, but it makes the qt suite unrunnable as a whole,
            which is how the order-dependent failures in 03 and 46 stay
            invisible.
@@ -942,3 +950,280 @@ Result:
 The suite reaches its summary unattended, throughput stays steady, and no
 strict xfails remain from the six feature-dictionary/ranking defects repaired
 while triaging the formerly hidden failures.
+
+--------------------------------------------------------------------------------
+THE TWO REMAINING ITEMS DO NOT REPRODUCE, AND THE ONE FAILURE MODE NOTHING
+COVERED IS NOW BOUNDED
+--------------------------------------------------------------------------------
+
+`tests/qt/test_ambient_none.py` was carried here as a hanging test under the
+CI serial tail, with its neighbours costing about 50 s each. Run exactly as CI
+runs that tail -- its five files with that one appended, the Qt marker
+expression, `--timeout=300 --timeout-method=thread`:
+
+    3 failed, 150 passed, 3 deselected in 165 s
+
+No timeout fired, and the file's own two slowest tests are 5.05 s and 4.36 s.
+Alone it is 10 tests in 8.6 s. The three failures are import-budget
+assertions in `test_perf_guard` and `test_gui_responsiveness` and have
+nothing to do with a hang. The 50 s figure is not reproducible on this tree
+either: the slowest test in the whole tail is 3.04 s.
+
+THE FAILURE MODE THAT IS REAL, and that every guard in this file misses: the
+run finishing its tests and then never reporting them. `--timeout` is a
+PER-TEST guard, so once the last test is done it is gone. Anything that stops
+the interpreter exiting then stops the run between the final test and the
+summary line, with no test to blame and no output to read -- and under `-n`
+the workers have already written their results and sit on a core apiece while
+the controller waits.
+
+Python joins every NON-DAEMON thread before it finalises, which is what turns
+one forgotten thread into an unbounded wait. So `tests/conftest.py` now, at
+`pytest_sessionfinish`:
+
+  * NAMES every non-daemon thread still alive, with its target, while the run
+    can still print. Daemon threads are left out deliberately -- they cannot
+    delay finalisation, and this suite ends with a handful every run, so
+    listing them would bury the one that matters.
+
+  * ARMS A WATCHDOG. If shutdown has not finished inside the budget (300 s by
+    default, `SPACR_PYTEST_SHUTDOWN_WATCHDOG_S=0` turns it off), every
+    thread's stack is dumped and the process exits non-zero. An endless
+    shutdown becomes a diagnosis.
+
+Armed at `pytest_sessionfinish` because that is the last hook guaranteed to
+run: `pytest_unconfigure` is on the far side of the stall it exists to catch.
+
+Demonstrated rather than asserted, in `tests/test_shutdown_watchdog.py`: a
+generated one-test run that leaks a parked non-daemon thread. Without the
+hook that run prints nothing at all and never returns -- killed at 25 s with
+no summary, which is exactly the reported shape. With it, the leaked thread
+is named in the run's own output and the process dies with every stack
+printed.
+
+WHAT IS NOT ANSWERED, and it needs a distributed run to answer: WHICH object
+holds a worker open. No `-n` run was available here, and the wedge does not
+appear serially -- a 40-file Qt chunk under `--cov`, the thread-heavy files
+(`test_ai_shutdown`, `test_qt_worker_teardown`, `test_force_quit`,
+`test_bridge`, `test_console_thread_safety`, `test_worker_stack_size`,
+`test_threading_cancellation_audit`, `test_cov_4_shutdown`) and the serial
+tail all exit cleanly, leaving nothing but daemon `Dummy-*` threads, which are
+QThreads that have run Python and cannot delay finalisation. spaCR itself
+starts no non-daemon thread: the three `threading.Thread` call sites in the
+package all pass `daemon=True`.
+
+So the next distributed run answers it for free -- the wedged worker now
+prints its stacks and its lingering threads instead of spinning silently, and
+that output is the name of the culprit.
+
+--------------------------------------------------------------------------------
+THE WEDGE WAS OUTSIDE THE WATCHDOG'S BUDGET, AND THAT IS WHY IT PRINTED
+NOTHING
+--------------------------------------------------------------------------------
+
+THE TWO ITEMS THIS FILE WAS CARRYING, re-measured on this tree:
+
+    tests/qt/test_ambient_none.py alone      10 tests, 8.1 s, summary reached
+    the interleaved reproduction from 25     149 passed, 0 errors, 59 s
+
+Neither hangs, and the "~50 s per test" figure for the neighbours does not
+reproduce: the whole ten-test file costs less than nine seconds.
+
+THE LIVE ONE. A distributed run wedges after every worker has WRITTEN ITS
+COVERAGE DATA and before anything prints a summary, spinning at 100% CPU with
+no test to blame. The watchdog installed here for exactly that shape did not
+fire, and the reason is hook order rather than anything about Qt:
+
+    pytest-cov stops and SAVES coverage from the tail of its own
+    `pytest_runtestloop` WRAPPER -- before a single `pytest_sessionfinish`
+    implementation runs anywhere. Its source says why: "we need to wrap
+    pytest_runtestloop. by the time pytest_sessionfinish runs, it's too late
+    to set testsfailed".
+
+    xdist's worker reports itself finished from the tail of its
+    `pytest_sessionfinish` wrapper.
+
+    this file's watchdog was armed from a `pytest_sessionfinish`
+    implementation marked `trylast` -- after every other implementation of
+    that hook.
+
+So the interval between "coverage on disk" and "summary printed", which is
+where the evidence puts the wedge, was the one interval nothing was armed for.
+A stall there produces no stack dump, no exit code and no name, which is
+exactly what was reported.
+
+FIXED by starting the budget when the last test ends. tests/conftest.py now
+arms the watchdog from the post-yield of an INNERMOST `pytest_runtestloop`
+wrapper, so it covers the rest of that hook's wrappers (the coverage write
+included), every `pytest_sessionfinish`, `pytest_unconfigure`, `atexit` and
+interpreter finalisation. `pytest_sessionfinish` re-arms, so a shutdown that
+is honestly slow is measured from the point the reporting plugins have
+finished rather than from the last test.
+
+That reporting phase gets its own, longer budget --
+`SPACR_PYTEST_REPORT_WATCHDOG_S`, four times the shutdown one, and off when
+the shutdown watchdog is off. It holds the one operation here that is
+legitimately slow, combining and reporting a distributed run's coverage, and
+bounding that at the shutdown budget would have shot the runs this guard
+exists to protect. A distributed WORKER gets the SHORT budget instead: a
+collocated worker saves its coverage data and stops, the combining and
+reporting are the controller's job, and a worker that then goes quiet is the
+process most worth shooting quickly -- the whole run is waiting on it and
+until it says something there is nothing to read.
+
+Driven both ways in tests/test_teardown_watchdog_arming.py: a plugin that
+stalls in `pytest_sessionfinish` and one that stalls in the tail of a
+`pytest_runtestloop` wrapper are each dumped and killed with the stalling hook
+named in the stack, and switching the loop-end arming off restores the endless
+wait, so the hazard and the guard are both demonstrated rather than asserted.
+
+AND THE REPORT NOW NAMES WHAT PYTHON CANNOT SEE. "0 non-daemon threads" was
+the whole of the old report, and it is true and useless: a QThread that has
+run Python is a DAEMON `Dummy-N` and is filtered out with the harmless ones,
+and a QApplication is not a thread at all. The report also names, when there
+is something to name, a still-registered job in `bridge.registry()`, parked
+QThreads, busy JobRunners, live child processes, and a retained widget tree
+above five thousand -- with the threshold there because every Qt run ends with
+a live QApplication and a report that always prints is a report nobody reads.
+
+IT FOUND ONE ON ITS FIRST USE. `tests/qt/test_worker_stack_size.py` stubs
+`QThread.start` to test that the stack size is set BEFORE the thread runs,
+which means `finished` never fires and `make_thread`'s RunHandle is never
+retired: the job stayed in the process-wide registry for the rest of the run,
+so `registry().is_busy()` answered True for every later test and the activity
+spinner turned for a job nobody started. tests/qt/conftest.py now clears
+handles with NO LIVE THREAD at each test's setup -- never a running one, and
+never during Qt teardown, for the reason the 2026-08-08 drain fixture is
+documented above as having crashed the suite three ways. Pinned by
+tests/qt/test_bridge_registry_isolation.py, which leaks a handle in one test
+and finds it gone in the next, and separately proves a live job is left alone.
+
+THE ACCUMULATION THIS FILE BLAMED FOR THE SLOWDOWN IS NOT COSTING TIME.
+Measured over the first 24 files, 758 tests, same machine, back to back:
+
+    no collection between tests    274.55 s   peak 12,658 retained widgets
+    collect over 2,000 widgets     274.19 s   peak  5,133 retained widgets
+
+21 collections, 9.4 s of GC, and the wall clock is identical. The retained
+tree does churn -- it climbs into five figures and falls back to double digits
+on its own as allocation pressure triggers Python's own collector -- but it is
+not what the run is spending its time on, so no collection fixture was added.
+A change with no measured effect is a change that only makes the next
+measurement harder.
+
+WHAT STOPS A FULL SERIAL RUN TODAY IS A SEGFAULT, NOT A HANG.
+
+    tests/qt/test_cellpose_workbench.py::test_each_half_keeps_its_own_path_field
+
+dies with SIGSEGV, deterministically, ALONE, at about 15% of `pytest tests/qt`.
+Minimal reproduction, no pytest involved: give `spacr.settings.
+get_train_cellpose_default_settings` a `src` key -- which is what that file's
+`train_src_offered` fixture does, and which the training half's entry point
+genuinely reads -- and then just CONSTRUCT `CellposeWorkbenchScreen`. The
+process segfaults with no Python frame on the stack. Without the extra `src`
+key, constructing and deleting the same screen is clean.
+
+IT IS NOT ONE TEST. Four tests in that file use that fixture; deselecting all
+four moves the crash to a fifth,
+`test_the_factory_wires_the_host_the_way_a_module_page_is_wired`, which does
+not use it at all and builds the same screen through `build_screen(host=...)`.
+The common factor is `CellposeWorkbenchScreen`, so the whole file has to be
+ignored for a full serial run to get past 15%.
+
+WHERE IT DIES, under gdb, which makes it one bug rather than five:
+
+    PySide::destroyQCoreApplication()
+      Shiboken::BindingManager::visitAllPyObjects(...)
+        QWidget::~QWidget / QObjectPrivate::deleteChildren()   x5, through
+        QStackedWidget::~QStackedWidget()                      the tab stack
+          Shiboken::Object::destroy(SbkObject*, void*)
+            Shiboken::BindingManager::releaseWrapper(SbkObject*)   <-- SIGSEGV
+
+A Python wrapper is released a second time while the application destroys the
+widget tree: an ownership bug, not an arithmetic one. The two `AppScreen`s are
+built with no parent, `QTabWidget.addTab` then transfers ownership to the tab
+stack, and `self._screens` keeps holding them -- which is the shape that
+produces exactly this, and `QStackedWidget` sitting in the middle of the trace
+is the tab widget's own stack. This is a product crash in
+`spacr/qt/screens/train_cellpose.py` reachable by a user closing that screen,
+not a test artefact, and it is left for whoever owns that file.
+
+IT IS ALSO THE ONE CANDIDATE ON THE WEDGE LIST THAT IS REAL HERE. "A
+QApplication never destroyed" was on the list of things to rule out; what this
+tree actually has is a QApplication whose destruction walks into a released
+wrapper. That path -- `destroyQCoreApplication` -> `visitAllPyObjects` -> the
+whole tree -- runs at the end of EVERY Qt process, worker included, and it is
+the only place found so far where the amount of work at exit depends on the
+state the tests left behind.
+
+WHICH OBJECT HOLDS A WORKER OPEN IS STILL NOT NAMED, and the honest answer is
+that it is not visible serially. Every serial run measured here -- the
+thread-heavy Qt files, the ambient files, the mixed-ordering set -- reaches
+its summary and the interpreter is gone within half a second of it. What the
+candidates cost was measured rather than assumed, and three of them are ruled
+out as the shape being chased:
+
+    a live QThread at exit          ABORTS in 1.7 s (signal 6). Qt's
+                                    "Destroyed while thread is still running"
+                                    is fatal, whether the thread is spinning
+                                    or blocked in C++. Loud, not silent.
+    a retained widget tree          60,000 widgets built and torn down in
+                                    ~5 s. Proportional, not unbounded.
+    a parked non-daemon thread      0% CPU, and already named and bounded.
+
+None of those produces a process burning a core with nothing to read, which
+is what was reported. What does fit is work inside the teardown window itself,
+and that window is now inside the budget and dumps its stacks. So the next
+distributed run answers the question for free: the wedged process prints every
+thread's stack and names whatever Qt state it is still holding, instead of
+spinning unwatched.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE SEGFAULT NAMED IN THE STATUS HEADER NO LONGER REPRODUCES
+--------------------------------------------------------------------------------
+
+The header says a full SERIAL run is stopped at about 15% by SIGSEGV in
+`tests/qt/test_cellpose_workbench.py`, "five tests, reproducible alone and
+outside pytest", and that the file has to be ignored for a whole-suite run.
+
+Re-run alone, offscreen, single process:
+
+    pytest tests/qt/test_cellpose_workbench.py -q -p no:randomly
+    21 passed, exit 0
+
+and the minimal no-pytest reproduction -- give
+`get_train_cellpose_default_settings` a `src` key, construct and delete
+`CellposeWorkbenchScreen` -- also exits 0. The ownership shape the entry
+blames (`addTab` transferring ownership while `self._screens` still holds
+the screens) is unchanged in train_cellpose.py, so the crash was
+environment- or state-dependent rather than the deterministic one recorded.
+
+WHAT IS STILL NOT CHECKED: the criterion itself. A full `pytest tests/qt`
+was not re-run for this audit -- the machine was carrying a coverage run,
+and a whole-suite run is hours. The last recorded full run that reached its
+summary line is the `-n 8` one above. Treat "the blocker is gone" and "the
+run finishes" as two separate claims; only the first was measured here.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE NAMED SEGFAULT FILE NO LONGER SEGFAULTS
+--------------------------------------------------------------------------------
+
+The header above says a serial `pytest tests/qt` is stopped at about 15% by
+segfaults in tests/qt/test_cellpose_workbench.py, "reproducible alone". Run
+alone today:
+
+    QT_QPA_PLATFORM=offscreen pytest tests/qt/test_cellpose_workbench.py
+      -q -p no:randomly --timeout=250     ->  21 passed in 7.29s
+
+No crash, no faulthandler dump. So the standalone half of that claim is
+stale; whatever fixed it is not recorded here.
+
+WHAT IS STILL NOT CHECKED, and it is this file's actual criterion: a full
+serial `pytest tests/qt` reaching its summary line. It was not run -- 512
+files, and CI needs 67 minutes for half of them WITH xdist. What CI shows
+instead is that both sharded runs reach a summary: shard 0 ended
+"27 failed, 7826 passed ... in 4026.68s" and shard 1 "15 failed, 5093 passed
+... in 1839.04s". Shard 1 printed one `Fatal Python error: Segmentation
+fault` on the way and still summarised, because an xdist worker that dies is
+replaced. That is the hang being gone; it is not the same statement as a
+serial run finishing, and nobody should read it as one.

@@ -2,8 +2,12 @@
 
 Everything here is CPU-only, offline and deterministic: group data is built
 from normal quantiles (``norm.ppf`` on an evenly spaced grid) so the
-D'Agostino / Shapiro normality verdicts are fixed rather than sampled, and
-the log-transform of the same grid gives a reproducibly *non*-normal group.
+Shapiro-Wilk normality verdicts are fixed rather than sampled, and the
+log-transform of the same grid gives a reproducibly *non*-normal group.
+
+Which test applies is decided by ``spacr.figures.stats`` since 2026-08-17
+(instruction 127 finding 2); ``spacrGraph`` is a translation layer onto it.
+Assertions that moved with that change carry the date and the reason.
 
 Four genuine defects found while writing these tests are pinned with
 ``xfail(strict=True)`` asserting the CORRECT behaviour:
@@ -96,6 +100,37 @@ def line_df(groups=("p1", "p2", "p3"), n=8):
 # create_grouped_plot
 # ===========================================================================
 
+def test_a_grouped_plot_does_not_restyle_the_rest_of_the_session():
+    """One grouped plot must not decide how every later figure looks.
+
+    ``sns.set(style="whitegrid")`` writes a whole seaborn theme -- grid,
+    background, fonts, colour cycle -- into matplotlib's process-wide
+    rcParams. Drawing one grouped plot therefore restyled every figure the
+    session drew after it, on every other screen, over whatever the user had
+    chosen in figure preferences.
+
+    The plot must still come out on a white grid, so both halves are asserted.
+    """
+    import matplotlib
+
+    from spacr.plot import create_grouped_plot
+
+    before = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+
+    fig, _results = create_grouped_plot(
+        normal_df(groups=("a", "b"), n=20), grouping_column="grp",
+        data_column="v1", graph_type="bar", save=False)
+
+    # It drew itself on the seaborn whitegrid...
+    assert fig.get_axes()[0].xaxis.get_gridlines(), "the whitegrid is gone"
+    # ...without leaving the theme behind for the next figure.
+    after = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    changed = sorted(key for key in after if before.get(key) != after[key])
+    assert not changed, (
+        "a grouped plot left a seaborn theme on matplotlib's globals; every "
+        f"later figure of the session inherits it: {changed}")
+
+
 def test_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order():
     """order= branch + 2-group normal branch (T-test)."""
     from spacr.plot import create_grouped_plot
@@ -130,30 +165,48 @@ def test_create_grouped_plot_two_skewed_groups_uses_mann_whitney():
     assert 0.0 <= float(pw["p-value"].iloc[0]) <= 1.0
 
 
-def test_create_grouped_plot_three_skewed_groups_uses_kruskal():
-    """>2-group non-normal branch (Kruskal-Wallis) + no Tukey post-hoc."""
+def test_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test():
+    """CHANGED 2026-08-17: the three rows said 'Kruskal-Wallis test'.
+
+    They were `kruskal(data1, data2)` -- Kruskal-Wallis across TWO groups,
+    which is a Mann-Whitney U in a chi-squared approximation, filed under a
+    name that told a reader an omnibus test had run. The choice is the one
+    engine's now and each pair is named as the two-group test it is.
+    """
     from spacr.plot import create_grouped_plot
 
     df = skewed_df(groups=("a", "b", "c"), n=20)
     _fig, results = create_grouped_plot(
         df, grouping_column="grp", data_column="v1", graph_type="bar")
 
-    assert "Kruskal-Wallis test" in set(results["Test Name"])
     # 3 groups -> 3 pairwise comparisons
-    assert (results["Test Name"] == "Kruskal-Wallis test").sum() == 3
+    assert (results["Test Name"] == "Mann-Whitney U test").sum() == 3
     # Tukey post-hoc is only added for the normal case
     assert "Tukey HSD Post-hoc" not in set(results["Test Name"])
 
 
 def test_create_grouped_plot_three_normal_groups_adds_tukey_posthoc():
+    """CHANGED 2026-08-17: the three pairwise rows said 'One-way ANOVA'.
+
+    A LABEL CHANGE, not an answer change: `f_oneway` on two groups returns
+    F = t squared and therefore the identical p-value, which is asserted
+    below so the rename cannot hide a moved number. The Tukey rows are
+    untouched -- they are the genuine across-group post-hoc.
+    """
+    from scipy.stats import ttest_ind
     from spacr.plot import create_grouped_plot
 
     df = normal_df(groups=("a", "b", "c"), n=20)
     _fig, results = create_grouped_plot(
         df, grouping_column="grp", data_column="v1", graph_type="bar")
 
-    assert (results["Test Name"] == "One-way ANOVA").sum() == 3
+    assert (results["Test Name"] == "T-test").sum() == 3
     assert (results["Test Name"] == "Tukey HSD Post-hoc").sum() == 3
+
+    pair = results[results["Comparison"] == "a vs b"]
+    expected = ttest_ind(df.loc[df["grp"] == "a", "v1"],
+                         df.loc[df["grp"] == "b", "v1"], equal_var=True)[1]
+    assert float(pair["p-value"].iloc[0]) == pytest.approx(expected)
 
 
 def test_create_grouped_plot_sem_errorbars_custom_colors_and_ylim():
@@ -357,8 +410,22 @@ def test_create_plot_with_remove_outliers_still_plots():
 # spacrGraph.perform_normality_tests
 # ===========================================================================
 
-def test_perform_normality_tests_picks_test_by_sample_size(capsys):
-    """n>=8 -> D'Agostino, 3<=n<8 -> Shapiro, n<3 -> skipped."""
+def test_perform_normality_tests_reports_shapiro_and_its_power(capsys):
+    """CHANGED 2026-08-17 (instruction 127 finding 2, Einar).
+
+    The check itself moved: `spacrGraph` no longer runs D'Agostino above n=8
+    and Shapiro below it, it asks `spacr.figures.stats.check_normality`, the
+    one engine, which is Shapiro-Wilk against a Bonferroni threshold across
+    the groups. Two assertions here reversed, and both reversed because the
+    ANSWER changed rather than the label:
+
+    * ``is_normal`` was True. Groups of 10, 5 and 2 cannot establish
+      normality -- five points give Shapiro no power to reject anything --
+      and the old code read "not rejected" as "normal".
+    * the n=5 group's p-value was a number. It is NaN now, with a sentence
+      saying the check could not see, because a plausible-looking p beside
+      "Shapiro-Wilk" is what made the defect invisible.
+    """
     from spacr.plot import spacrGraph
 
     df = _frame(("big", "small", "tiny"),
@@ -368,14 +435,18 @@ def test_perform_normality_tests_picks_test_by_sample_size(capsys):
     is_normal, results = g.perform_normality_tests()
     by_group = {r["Comparison"].split(" for ")[1].split(" on ")[0]: r for r in results}
 
-    assert by_group["big"]["Test Name"] == "D'Agostino-Pearson test"
+    assert by_group["big"]["Test Name"] == "Shapiro-Wilk"
     assert by_group["big"]["n"] == 10
-    assert by_group["small"]["Test Name"] == "Shapiro-Wilk test"
+    assert by_group["big"]["Informative"] is True
+    assert by_group["small"]["Test Name"] == "Shapiro-Wilk"
     assert by_group["small"]["n"] == 5
+    assert by_group["small"]["Informative"] is False
+    assert np.isnan(by_group["small"]["p-value"])
     assert by_group["tiny"]["Test Name"] == "Skipped"
     assert by_group["tiny"]["Test Statistic"] is None
     assert by_group["tiny"]["p-value"] is None
-    assert is_normal is True
+    assert is_normal is False, (
+        "five replicates cannot license a parametric test")
     assert "Skipping normality test for group 'tiny'" in capsys.readouterr().out
 
 
@@ -387,12 +458,20 @@ def test_perform_normality_tests_flags_skewed_groups():
     is_normal, results = g.perform_normality_tests()
 
     assert is_normal is False
-    assert all(r["Test Name"] == "D'Agostino-Pearson test" for r in results)
+    # LABEL ONLY: the same rejection, now reported under the name of the test
+    # the one engine actually ran.
+    assert all(r["Test Name"] == "Shapiro-Wilk" for r in results)
     assert all(r["p-value"] < 0.05 for r in results)
 
 
-def test_degenerate_groups_are_not_mistaken_for_normal_data():
-    """One value per well cannot establish normality or equal variance."""
+def test_degenerate_groups_are_refused_rather_than_named():
+    """One value per well cannot establish normality or equal variance.
+
+    CHANGED 2026-08-17: the comparison used to be reported as
+    'Mann-Whitney U test' with a NaN p. Naming a test that never ran is the
+    same defect as claiming Student's when Welch's was used, so the engine's
+    refusal is reported instead, with its reason.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -409,12 +488,25 @@ def test_degenerate_groups_are_not_mistaken_for_normal_data():
 
     assert is_normal is False
     assert np.isnan(levene_stat) and np.isnan(levene_p)
-    assert tests[0]["Test Name"] == "Mann-Whitney U test"
+    assert tests[0]["Test Name"] == "not testable"
+    assert np.isnan(tests[0]["p-value"])
+    assert "cannot be tested" in tests[0]["Why This Test"]
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
 
-def test_constant_parametric_groups_return_nan_without_scipy_warning():
+def test_constant_groups_do_not_license_a_t_test():
+    """CHANGED 2026-08-17: was 'T-test' with a NaN statistic.
+
+    Five wells that all read exactly the same number carry no spread, so the
+    normality check has nothing to describe and the engine takes the rank
+    branch. p = 1.0 on two identical arms is a true statement about them; a
+    NaN under the heading 'T-test' was a test name with no test behind it.
+
+    The half that must NOT change is the reason this test was written: scipy
+    emits a RuntimeWarning on a degenerate t-test, and a plot call that
+    prints one into a user's console is how the case was found.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -426,9 +518,8 @@ def test_constant_parametric_groups_return_nan_without_scipy_warning():
         results = graph.perform_statistical_tests(
             graph.df["grp"].unique(), is_normal=True)
 
-    assert results[0]["Test Name"] == "T-test"
-    assert np.isnan(results[0]["Test Statistic"])
-    assert np.isnan(results[0]["p-value"])
+    assert results[0]["Test Name"] == "Mann-Whitney U test"
+    assert results[0]["p-value"] == pytest.approx(1.0)
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
@@ -468,7 +559,17 @@ def test_paired_ttest_branch():
     assert res[0]["p-value"] < 0.05  # b is shifted +2 from a
 
 
-def test_paired_ttest_marks_zero_variance_differences_undefined():
+def test_paired_differences_with_no_spread_are_refused():
+    """CHANGED 2026-08-17: was reported as 'Paired T-test' with a NaN p.
+
+    `normal_df` shifts group b by a constant, so every matched difference is
+    the same number and the standard error of the difference is zero. Left to
+    itself `spacr.figures.stats.compare(paired=True)` hands that to
+    `ttest_rel`, which returns t = -inf and p = 0.0 with a RuntimeWarning --
+    the strongest claim the software can make, off an input that says
+    nothing. spacrGraph refuses on the engine's behalf; the engine has no
+    guard of its own for the paired case and should grow one.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -480,9 +581,10 @@ def test_paired_ttest_marks_zero_variance_differences_undefined():
         result = graph.perform_statistical_tests(
             graph.df["grp"].unique(), is_normal=True)[0]
 
-    assert result["Test Name"] == "Paired T-test"
+    assert result["Test Name"] == "not testable"
     assert np.isnan(result["Test Statistic"])
     assert np.isnan(result["p-value"])
+    assert "no spread" in result["Why This Test"]
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
@@ -627,8 +729,10 @@ def test_create_plot_single_data_column_graph_types(graph_type):
     # _standerdize_figure_format enforces a square >=10 inch canvas
     assert tuple(fig.get_size_inches()) == (10.0, 10.0)
     # stats survived onto results_df: normality + omnibus + tukey
+    # (LABEL ONLY: the normality rows say Shapiro-Wilk since 2026-08-17,
+    # because that is the test the one engine runs.)
     res = g.get_results()
-    assert set(res["Test Name"]) >= {"D'Agostino-Pearson test", "One-way ANOVA"}
+    assert set(res["Test Name"]) >= {"Shapiro-Wilk", "One-way ANOVA"}
     assert len(res) == 3 + 1 + 3
 
 
@@ -980,7 +1084,13 @@ def test_save_results_without_summary_df(tmp_path):
     g.results_df = pd.DataFrame([{"Comparison": "a vs b", "p-value": 0.1}])
     g._save_results()
 
-    stem = "bare_v1_grp_bar"
+    # THE OBJECT'S OWN NAME, not a hard-coded one. The stem ends in the
+    # graph type, so spelling it out here made this a test of what the
+    # DEFAULT graph type happens to be -- and it failed the moment that
+    # default moved from a bar to a box with jitter, which is a statistical
+    # correction and not a change to `_save_results` at all.
+    stem = g.results_name
+    assert stem.startswith("bare_v1_grp_")
     assert (out / f"{stem}.pdf").is_file()
     assert (out / f"{stem}_stats.csv").is_file()
     assert not (out / f"{stem}_summary.csv").exists()
@@ -994,3 +1104,51 @@ def test_significance_marker_boundaries():
     assert _significance_marker(0.01) == "**"
     assert _significance_marker(0.05) == "*"
     assert _significance_marker(0.051) == "ns"
+
+
+def test_a_p_value_that_is_not_a_number_has_no_answer():
+    """A results row can carry a value no float can be made of.
+
+    A skipped test writes ``None``; a refused one can write a string, and a
+    column read back from CSV can hold anything the file did. ``None`` is the
+    honest answer for all of them, and it is what stops a significance bar
+    being drawn over a comparison that was never made.
+
+    The alternative is worse than it sounds: ``float("n/a")`` raises inside
+    the plotting call, so a single unparseable cell takes down the whole
+    figure rather than omitting one bracket.
+    """
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(None) is None
+    assert _finite_p_value("not a number") is None
+    assert _finite_p_value([0.01]) is None
+    assert _finite_p_value({}) is None
+
+
+def test_a_non_finite_p_value_has_no_answer_either():
+    """``nan`` is what a refused test writes, and it is not a small number.
+
+    ``nan < 0.05`` is False, so a NaN would silently read as "not
+    significant" rather than as "not tested" -- the same figure, with a
+    comparison quietly downgraded instead of omitted.
+    """
+    import numpy as np
+
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(float("nan")) is None
+    assert _finite_p_value(np.nan) is None
+    assert _finite_p_value(float("inf")) is None
+    assert _finite_p_value(float("-inf")) is None
+
+
+def test_a_real_p_value_comes_back_as_a_float():
+    """Otherwise the four refusals above would pass on a function that only
+    ever returns None."""
+    from spacr.plot import _finite_p_value
+
+    assert _finite_p_value(0.01) == pytest.approx(0.01)
+    assert _finite_p_value("0.04") == pytest.approx(0.04)
+    assert _finite_p_value(0) == pytest.approx(0.0)
+    assert isinstance(_finite_p_value(1), float)

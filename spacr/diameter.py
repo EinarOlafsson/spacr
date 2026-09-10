@@ -104,11 +104,13 @@ from __future__ import annotations
 import math
 import os
 import re
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass
+from dataclasses import field as _dc_field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 
+from .object_roles import SEGMENTED_ROLES
 from .validate import (
     IMAGE_EXTENSIONS,
     _candidate_patterns,
@@ -184,6 +186,10 @@ class DiameterEstimate:
         return isinstance(self.diameter, float) and not math.isnan(self.diameter)
 
     def __str__(self) -> str:
+        """Return the estimate and interval, or the reason none is usable.
+
+        :returns: Compact human-readable diameter-estimate summary.
+        """
         if not self.usable:
             return f"{self.object_type}: no estimate ({self.note})"
         return (
@@ -236,7 +242,7 @@ def channels_from_settings(settings: Dict[str, Any]) -> Dict[str, int]:
 
     Reads ``cell_channel``, ``nucleus_channel``, ``pathogen_channel`` and
     ``organelle_channel``; object types whose channel is None or unparseable
-    are simply absent from the result.
+    are absent from the result.
 
     :param settings: a spaCR settings dict (or anything dict-like).
     :returns: mapping suitable for :func:`estimate_diameters`.
@@ -1070,6 +1076,12 @@ def format_estimates(estimates: Dict[str, DiameterEstimate]) -> str:
     widths = [max(len(header[i]), *(len(r[i]) for r in rows)) for i in range(len(header))]
 
     def _line(cells: Sequence[str]) -> str:
+        """Pad one report row to the captured column widths.
+
+        :param cells: cell text in the same order as ``header``.
+        :returns: two-space-indented, column-aligned text with trailing
+            padding removed.
+        """
         return "  " + "  ".join(c.ljust(widths[i]) for i, c in enumerate(cells)).rstrip()
 
     lines = ["Proposed Cellpose diameters (pixels)", _line(header), _line(["-" * w for w in widths])]

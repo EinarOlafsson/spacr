@@ -1,0 +1,133 @@
+================================================================================
+A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
+================================================================================
+
+Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
+           maintainer's instruction: "for all of these add them to
+           instructions but add to the instruction to hold of on working on
+           them untill the next version bump 1.5.0.5."
+Requested: 2026-09-09 -- asked what would be most valuable to add; this was
+           the first of three filed together (386, 387, 388).
+Owner:     unassigned. Lands in a new `spacr/embeddings.py`, with the column
+           family in `spacr/measure.py` and the consumers already built.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR has two ways to turn an image into numbers, and both require you to
+already know what you are looking for.
+
+  * MEASURED FEATURES. `spacr/measure.py` and the `spacr/measurement_*`
+    family compute a fixed, hand-designed panel -- intensity, shape, texture,
+    and the distances in `spacr/object_distances.py`. Excellent, auditable,
+    and closed: it measures what somebody thought to name.
+
+  * SUPERVISED CLASSIFICATION. `spacr/deep_spacr.py`, `spacr/classify.py` and
+    `spacr/flowview/classify_blueprint.py` fine-tune ImageNet backbones --
+    resnet18/34/50/101/152, convnext_tiny..large, efficientnet_b0..b7 and
+    _v2_s/m/l, vit_b_16/b_32/l_16/l_32, maxvit_t. Every one of them needs
+    labels, and labels need a phenotype somebody can already describe.
+
+WHAT DOES NOT EXIST: any self-supervised or foundation-model embedding.
+Grepped 2026-09-09 across the package -- no DINOv2, no OpenPhenom, no
+SubCell, no scDINO, no CLIP-style image encoder used as a feature extractor.
+Every backbone in the tree is a supervised ImageNet classifier being
+fine-tuned.
+
+WHAT ALREADY EXISTS AND WOULD CONSUME IT, unchanged: `spacr/umap.py` and
+`spacr/umap_search.py`, `spacr/regression_backends.py` and the whole
+regression family, `spacr/hits.py` and `spacr/hit_attribution.py`,
+`spacr/batch_correction.py`, `spacr/anndata_export/`. The downstream is
+already built for a wide numeric matrix keyed by object. It does not care
+where the columns came from.
+
+AND THE PLUMBING EXISTS TOO: `spacr/model_zoo.py` (published checkpoints with
+checksums, per instruction 370), `spacr/torch_artifacts.py`,
+`spacr/checkpoint.py`, `spacr/mixed_gpu.py`, `spacr/accelerator.py`.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A pooled CRISPR screen exists to find a phenotype nobody has named yet. Both
+current paths make that hard in the same way: the measured panel finds only
+what was designed in, and the supervised path finds only what was annotated.
+A screen whose real hit is "the vacuole is subtly mislocalised in a way we
+have no column for" returns nothing, and returns it confidently.
+
+Self-supervised embeddings are the standard answer, and on Cell Painting
+benchmarks they beat hand-crafted panels at retrieving known mechanism
+without a single label. For this lab specifically they are the difference
+between a screen that confirms a hypothesis and one that generates one.
+
+The cost of the gap is invisible, which is what makes it worth writing down:
+you do not see the hits you had no column for.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. `spacr/embeddings.py` -- the engine. One entry point that takes the same
+   crops the classifier path already produces (`spacr/crops.py`,
+   `spacr/crop_source.py`) and returns a float32 matrix keyed by object id.
+   No new cropping, no new I/O.
+
+2. THE CHANNEL PROBLEM IS THE DESIGN PROBLEM, and it must be settled first.
+   These encoders expect three channels; spaCR images routinely have four or
+   five with no RGB meaning. Decide and record: per-channel encoding then
+   concatenation (keeps channel identity, costs N forward passes), or a
+   learned/fixed projection to three (one pass, mixes channels). Do not let
+   this be decided implicitly by whatever the first backbone wants.
+
+3. Register the encoder in `spacr/model_zoo.py` like any other published
+   model, with its checksum. Instruction 370's scorecard applies: an
+   embedding that ships without one is a black box twice over.
+
+4. The column family in `spacr/measure.py` -- a documented prefix so
+   embedding dimensions never collide with measured features, and so
+   `spacr/columns.py` and `spacr/column_groups.py` can group them for the UI
+   and for `spacr/attribution_columns.py`.
+
+5. Only then the consumers, none of which should need changing: UMAP,
+   regression, hit calling, anndata export.
+
+6. A GUI surface last, if at all. The engine is useful from the API on day
+   one; the screen can follow the way Dose-Response's did.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+THE MEASUREMENT IS RETRIEVAL, NOT LOSS. Take a plate where the answer is
+already known -- a positive control gene with a phenotype the measured panel
+already detects. Embed it, then ask whether the control wells retrieve each
+other: k-nearest-neighbour accuracy on gene identity, embeddings versus the
+measured panel, same wells, same split.
+
+  * SUCCESS: embeddings match or beat the measured panel on that retrieval.
+  * THE INTERESTING RESULT: embeddings separate something the panel does not.
+    That is the whole point and it needs a human to look at the crops before
+    it is believed.
+  * FAILURE THAT LOOKS LIKE SUCCESS: separation that tracks plate, batch or
+    illumination rather than gene. Check against `spacr/batch_correction.py`
+    and `spacr/plate_qc.py` BEFORE reporting any result. An embedding is an
+    excellent batch detector and will happily hand you one.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+TRAINING AN ENCODER FROM SCRATCH. Use published weights. A lab-trained
+encoder is months of compute to arrive somewhere near the public checkpoint,
+and it cannot be compared to anybody else's result.
+
+REPLACING THE MEASURED PANEL. Embeddings are added alongside, never instead.
+The panel is interpretable and a reviewer can be told what a column means;
+an embedding dimension has no such sentence. Instruction 364's question --
+is this setting needed, is its name honest -- cannot even be asked of a
+column called `emb_0347`.
+
+PSEUDOTIME AND TRAJECTORY INFERENCE on top of the embedding. Considered and
+rejected: these are fixed-cell endpoint screens, and a trajectory through
+fixed cells is an ordering the data cannot support.

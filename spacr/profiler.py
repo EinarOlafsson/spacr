@@ -1,4 +1,4 @@
-"""Interrogate a fitted model: move one input, watch the prediction move.
+"""Evaluate a fitted model by varying one input and plotting its predictions.
 
 A coefficient table answers "which terms matter". It does not answer the
 question anyone actually has in front of a fitted screen model, which is
@@ -204,6 +204,8 @@ def _linear_predictor(model: Any, frame: pd.DataFrame) -> Optional[np.ndarray]:
 def response_scale(model: Any) -> str:
     """Name what :func:`predict` returns for this model, for the axis label.
 
+    :param model: fitted model or result whose prediction scale is identified.
+
     Not cosmetic. The same curve means "probability that a well is
     positive", "positive objects per cell" or "distance from a decision
     boundary" depending on the backend, and a plot that does not say which
@@ -255,6 +257,12 @@ class FittedLinear:
     label: str = "fitted coefficients"
 
     def __post_init__(self) -> None:
+        """Validate the link and normalize coefficients to floating point.
+
+        :returns: ``None``.
+        :raises ValueError: :attr:`link` does not name a supported inverse
+            link.
+        """
         if self.link not in LINKS:
             raise ValueError(
                 f"unknown link {self.link!r}; choose from {sorted(LINKS)}")
@@ -267,10 +275,13 @@ class FittedLinear:
                      if str(name) != "Intercept")
 
     def predict(self, exog: Any) -> np.ndarray:
-        """Predict on the response scale, applying :attr:`link`."""
+        """Predict on the response scale, applying :attr:`link`.
+
+        :param exog: design row or rows aligned with the fitted coefficients.
+        """
         frame = _as_frame(exog)
         eta = _linear_predictor(self, frame)
-        if eta is None:                                # pragma: no cover
+        if eta is None:
             raise TypeError("no coefficients to predict from")
         return np.asarray(LINKS[self.link](eta), dtype=float).ravel()
 
@@ -453,7 +464,11 @@ class Profile:
         return (self.predictions[-1] - self.predictions[0]) / run
 
     def at(self, value: float) -> float:
-        """The prediction at the swept point nearest ``value``."""
+        """The prediction at the swept point nearest ``value``.
+
+        :param value: swept-variable value whose nearest prediction is
+            requested.
+        """
         if not self.values:
             return float("nan")
         index = int(np.argmin(np.abs(np.asarray(self.values) - float(value))))

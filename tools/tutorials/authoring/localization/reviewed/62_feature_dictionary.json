@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "62_feature_dictionary",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Descubra o significado de uma característica medida pesquisando pelo nome ou pelo conceito.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Feature Dictionary.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Feature Dictionary. Descubra o significado de uma característica medida pesquisando pelo nome ou pelo conceito.",
+        "Pesquise pelo nome da característica, pela família de medições, pelo tipo de objeto ou por um conceito biológico.",
+        "Na área principal de configuração, filtre por compartimento, canal, unidade, cálculo ou disponibilidade no projeto atual.",
+        "Abra uma entrada para examinar sua definição, as unidades esperadas, as dependências e as limitações.",
+        "Ao término do fluxo de trabalho, as definições selecionadas podem ser copiadas ou exportadas junto com uma análise."
+      ]
+    }
+  }
+}

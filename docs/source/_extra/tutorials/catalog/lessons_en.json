@@ -32,25 +32,25 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Choose the official source for a packaged release, desktop installer, development branch, or future conda-forge package.",
+      "description": "Choose the official source for a Python package, conda-forge package, desktop installer, or development branch.",
       "objectives": [
-        "Identify the official PyPI package and GitHub repository.",
+        "Identify the official PyPI and conda-forge packages.",
         "Distinguish stable releases from the nightly branch.",
-        "Understand the current conda-forge publication status."
+        "Select the appropriate installation route for the intended environment."
       ],
       "prerequisite": "No installation is required.",
       "scenes": [
         {
-          "narration": "Before installing spaCR, choose the official source. PyPI provides the released Python package, GitHub provides source code and desktop installers, and conda-forge will become an option once its package is published.",
+          "narration": "Before installing spaCR, choose an official distribution route. PyPI and conda-forge provide released packages, while GitHub provides source code, desktop installers, and release records.",
           "visual": "sources",
           "hold_after": 0.7,
-          "speech_text": "Before installing spacer, choose the official source. pie-P-I provides the released Python package, [GitHub](/ɡˈɪthˌʌb/) provides source code and desktop installers, and [conda-forge](/kˈɑndə fˌɔɹʤ/) will become an option once its package is published."
+          "speech_text": "Before installing spacer, choose an official distribution route. pypie and [conda-forge](/kˈɑndə fˌɔɹʤ/) provide released packages, while [GitHub](/ɡˈɪthˌʌb/) provides source code, desktop installers, and release records."
         },
         {
           "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
           "visual": "pypi_release",
           "hold_after": 0.7,
-          "speech_text": "On pie-P-I, the release header shows the current stable version and the pip install spacer command."
+          "speech_text": "On pypie, the release header shows the current stable version and the pip install spacer command."
         },
         {
           "narration": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
@@ -71,16 +71,16 @@
           "speech_text": "In a [GitHub](/ɡˈɪthˌʌb/) Release, expand Assets to download the Windows, [macOS](/mˈækOˌɛs/), or Linux installer, the Python package files, or the checksum list."
         },
         {
-          "narration": "Conda-forge does not publish spaCR yet. Today, create a Conda environment and install spaCR from PyPI; use the conda-forge channel only after the package is published.",
+          "narration": "The official conda-forge package installs spaCR and its desktop dependencies into the active Conda environment. Use the exact command conda install conda-forge::spacr.",
           "visual": "conda_status",
           "hold_after": 0.7,
-          "speech_text": "[Conda-forge](/kˈɑndə fˌɔɹʤ/) does not publish spacer yet. Today, create a [Conda](/kˈɑndə/) environment and install spacer from pie-P-I; use the [conda-forge](/kˈɑndə fˌɔɹʤ/) channel only after the package is published."
+          "speech_text": "The official [conda-forge](/kˈɑndə fˌɔɹʤ/) package installs spacer and its desktop dependencies into the active [Conda](/kˈɑndə/) environment. Use the exact command [conda](/kˈɑndə/) install [conda-forge](/kˈɑndə fˌɔɹʤ/)::spacer."
         },
         {
-          "narration": "Use PyPI or pip for a Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
+          "narration": "Use conda-forge or PyPI for a managed Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
           "visual": "decision",
           "hold_after": 0.7,
-          "speech_text": "Use pie-P-I or pip for a Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
+          "speech_text": "Use [conda-forge](/kˈɑndə fˌɔɹʤ/) or pypie for a managed Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route."
         }
       ]
     },
@@ -92,25 +92,25 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Create an isolated Python 3.12 environment and install the desktop or headless package into it.",
+      "description": "Create an isolated Python 3.12 environment and install the complete spaCR desktop package directly from conda-forge.",
       "objectives": [
-        "Create and verify an isolated spaCR environment.",
-        "Choose the desktop or headless installation.",
-        "Validate the installation before launching spaCR."
+        "Create and activate an isolated spaCR environment.",
+        "Install spaCR directly from the official conda-forge channel.",
+        "Verify the package and diagnostics before launching spaCR."
       ],
       "prerequisite": "Install Miniforge, Miniconda, Anaconda, or another Conda-compatible manager.",
       "scenes": [
         {
-          "narration": "Use a Conda environment to isolate spaCR and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages.",
+          "narration": "Install spaCR from conda-forge in a dedicated Conda environment. The package includes the desktop interface and declares spaCR's scientific dependencies.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Use a [Conda](/kˈɑndə/) environment to isolate spacer and its scientific dependencies. Python three point twelve is the example because it currently supports the widest range of optional packages."
+          "speech_text": "Install spacer from [conda-forge](/kˈɑndə fˌɔɹʤ/) in a dedicated [Conda](/kˈɑndə/) environment. The package includes the desktop interface and declares spacer's scientific dependencies."
         },
         {
-          "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve and pip.",
+          "narration": "Open a Conda-enabled terminal and create an environment named spacr with Python three point twelve.",
           "visual": "create",
           "hold_after": 0.7,
-          "speech_text": "Open a [Conda](/kˈɑndə/)-enabled terminal and create an environment named spacer with Python three point twelve and pip."
+          "speech_text": "Open a [Conda](/kˈɑndə/)-enabled terminal and create an environment named spacer with Python three point twelve."
         },
         {
           "narration": "Activate the environment. Confirm that Python belongs to the spacr environment before installing anything.",
@@ -119,16 +119,16 @@
           "speech_text": "Activate the environment. Confirm that Python belongs to the spacer environment before installing anything."
         },
         {
-          "narration": "Upgrade pip through the active Python interpreter. Using python -m pip prevents a different pip executable from receiving the package.",
-          "visual": "upgrade",
+          "narration": "Install the official package with conda install conda-forge::spacr. The channel-qualified command selects the conda-forge build explicitly.",
+          "visual": "install",
           "hold_after": 0.7,
-          "speech_text": "Upgrade pip through the active Python interpreter. Using python dash m pip prevents a different pip executable from receiving the package."
+          "speech_text": "Install the official package with [conda](/kˈɑndə/) install [conda-forge](/kˈɑndə fˌɔɹʤ/)::spacer. The channel-qualified command selects the [conda-forge](/kˈɑndə fˌɔɹʤ/) build explicitly."
         },
         {
-          "narration": "For the desktop application, install spacr with the qt extra. Use the plain spacr package for a headless workstation or server.",
-          "visual": "desktop",
+          "narration": "Confirm that Conda reports spaCR in the environment, then import it and print the installed version.",
+          "visual": "verify",
           "hold_after": 0.7,
-          "speech_text": "For the desktop application, install spacer with the cute extra. Use the plain spacer package for a headless workstation or server."
+          "speech_text": "Confirm that [Conda](/kˈɑndə/) reports spacer in the environment, then import it and print the installed version."
         },
         {
           "narration": "Run spacr-doctor before the first launch. It reports the active installation, Qt, PyTorch, optional components, and hardware support with a suggested fix for every failed check.",
@@ -137,10 +137,10 @@
           "speech_text": "Run spacer doctor before the first launch. It reports the active installation, cute, [PyTorch](/pˈItˌɔɹʧ/), optional components, and hardware support with a suggested fix for every failed check."
         },
         {
-          "narration": "After spacr-doctor passes, keep this environment activated whenever you run spaCR.",
+          "narration": "After spacr-doctor passes, launch spaCR with the spacr command. Keep this environment activated whenever you run spaCR.",
           "visual": "finish",
           "hold_after": 0.7,
-          "speech_text": "After spacer doctor passes, keep this environment activated whenever you run spacer."
+          "speech_text": "After spacer doctor passes, launch spacer with the spacer command. Keep this environment activated whenever you run spacer."
         }
       ]
     },
@@ -459,11 +459,11 @@
           "speech_text": "Switch to Flows to inspect the direction field used by [Cellpose](/sˈɛlpˌOz/). Irregular flow patterns can help explain masks that split or merge incorrectly."
         },
         {
-          "narration": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath.",
+          "narration": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image.",
           "visual": "29_cell_objects",
           "hold_after": 0.7,
           "focus_key": "action_and_canvases",
-          "speech_text": "Masks isolates the final labels against a black background. Use it to check object coverage and separation without the source image underneath."
+          "speech_text": "The Masks view displays the final labels against a black background. Use it to assess object coverage and separation without the source image."
         },
         {
           "narration": "Object filters update the cached preview immediately. Raise minimum area only enough to remove obvious fragments; the correct cutoff depends on image scale.",
@@ -764,7 +764,8 @@
           "focus_key": "actions",
           "speech_text": "Run first validates labels and splits, then trains and evaluates the configured model. Review held-out metrics and examples before applying it broadly; spacer stores the checkpoint, predictions, settings, and run record."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "11_classify_ml",
@@ -859,7 +860,8 @@
           "focus_key": "actions",
           "speech_text": "Run validates controls, prepares features, applies any plate correction, evaluates the [classifier](/klˈæsəfIəɹ/), calculates importance, and saves enabled outputs. Review held-out and per-plate behavior before using predictions biologically."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "12_map_barcodes",
@@ -950,41 +952,41 @@
       "series": 1,
       "app_key": "regression",
       "section": "Core",
-      "description": "Link pooled-screen guide abundance to measured phenotypes and inspect evidence, diagnostics, and effect estimates.",
+      "description": "Relate pooled-screen guide abundance to measured phenotypes with blocked permutation tests or simultaneous regression, then inspect support, diagnostics, and effect estimates.",
       "objectives": [
         "Align phenotype, guide-count, and control information.",
-        "Choose a justified model, correction, and evidence rules.",
+        "Choose a justified inference procedure, correction, and evidence rules.",
         "Interpret effects together with controls and diagnostics."
       ],
       "prerequisite": "Complete barcode mapping and prepare phenotype and guide-count tables with matching plate and well identifiers.",
       "scenes": [
         {
-          "narration": "Regression links phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, model diagnostics, results, and reproducibility records.",
+          "narration": "Regression relates phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, the selected inference procedure, diagnostics, results, and reproducibility records.",
           "visual": "01_console",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "Regression links phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, model diagnostics, results, and reproducibility records."
+          "speech_text": "Regression relates phenotype scores to sequencing-derived guide abundance. The console reports table alignment, filtering, the selected inference procedure, diagnostics, results, and reproducibility records."
         },
         {
-          "narration": "Input Tables selects phenotype scores, sequencing counts, and optional gene metadata. Confirm that plates and wells use matching identifiers before modeling.",
+          "narration": "Input Tables selects phenotype scores, sequencing counts, optional gene metadata, and the result destination. Leave the destination blank to write beside the first count table; confirm matching plate and well identifiers before analysis.",
           "visual": "12_category_01_input_tables",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Input Tables selects phenotype scores, sequencing counts, and optional gene metadata. Confirm that plates and wells use matching identifiers before modeling."
+          "speech_text": "Input Tables selects phenotype scores, sequencing counts, optional gene metadata, and the result destination. Leave the destination blank to write beside the first count table; confirm matching plate and well identifiers before analysis."
         },
         {
-          "narration": "Essentials contains the controls required for a first model. Use Modified to audit deliberate changes, All for advanced families, and Recipes for a reusable design.",
+          "narration": "Essentials contains the inputs and inference controls required for a first analysis. Use Modified to audit deliberate changes, All to inspect advanced controls, and Recipes to save a reusable design.",
           "visual": "08_all_settings",
           "hold_after": 0.7,
           "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the controls required for a first model. Use Modified to audit deliberate changes, All for advanced families, and Recipes for a reusable design."
+          "speech_text": "Essentials contains the inputs and inference controls required for a first analysis. Use Modified to audit deliberate changes, All to inspect advanced controls, and Recipes to save a reusable design."
         },
         {
-          "narration": "Controls and Plate Design identifies positive, negative, and neutral controls plus any wells or rows excluded before fitting. These choices define the reference behavior.",
-          "visual": "12_category_02_controls_plate_design",
+          "narration": "Controls and Filters identifies positive, negative, and neutral controls; excludes specified guides, wells, or table rows; and sets the evidence and normalization rules that determine which observations enter the analysis.",
+          "visual": "12_category_02_controls_filters",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Controls and Plate Design identifies positive, negative, and neutral controls plus any wells or rows excluded before fitting. These choices define the reference behavior."
+          "speech_text": "Controls and Filters identifies positive, negative, and neutral controls; excludes specified guides, wells, or table rows; and sets the evidence and normalization rules that determine which observations enter the analysis."
         },
         {
           "narration": "Plate and Batch Correction can remove technical offsets by centering, robust scaling, reference controls, or batch models. Apply correction only when the design supports it.",
@@ -994,39 +996,46 @@
           "speech_text": "Plate and Batch Correction can remove technical offsets by centering, robust scaling, reference controls, or batch models. Apply correction only when the design supports it."
         },
         {
-          "narration": "Model and Covariates selects the response, aggregation, transform, regression family, uncertainty estimate, and any justified row, column, or experimental covariates.",
-          "visual": "12_category_04_model_covariates",
+          "narration": "Response selects the phenotype column, analysis unit, aggregation, optional inversion, and transform. These choices define the quantity associated with guide abundance.",
+          "visual": "12_category_04_response",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Model and Covariates selects the response, aggregation, transform, regression family, uncertainty estimate, and any justified row, column, or experimental covariates."
+          "speech_text": "Response selects the phenotype column, analysis unit, aggregation, optional inversion, and transform. These choices define the quantity associated with guide abundance."
         },
         {
-          "narration": "Hit Calling and Outliers sets minimum cell, well, and guide evidence plus optional outlier rules. Choose thresholds from control behavior and data quality.",
-          "visual": "12_category_06_hit_calling_outliers",
+          "narration": "Model and Inference chooses nonparametric guide testing, parametric simultaneous regression, or automatic selection. It also defines the reported level, model family when applicable, multiple-testing correction, and significance rule.",
+          "visual": "12_category_05_model_inference",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Hit Calling and Outliers sets minimum cell, well, and guide evidence plus optional outlier rules. Choose thresholds from control behavior and data quality."
+          "speech_text": "Model and Inference chooses nonparametric guide testing, parametric simultaneous regression, or automatic selection. It also defines the reported level, model family when applicable, multiple-testing correction, and significance rule."
         },
         {
-          "narration": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep untruncated tables for interpretation.",
-          "visual": "12_category_07_regression_plots",
+          "narration": "Estimator Tuning contains covariance, regularization, robust-fit, quantile, bootstrap, and rank-aggregation controls. Only settings used by the selected estimator affect the analysis.",
+          "visual": "12_category_06_estimator_tuning",
           "hold_after": 0.7,
           "focus_key": "category",
-          "speech_text": "Regression Plots configures diagnostic and volcano displays. Plot limits change presentation, not the fitted coefficients, so keep [untruncated](/ʌntɹˈʌŋkATᵻd/) tables for interpretation."
+          "speech_text": "Estimator Tuning contains covariance, regularization, robust-fit, quantile, bootstrap, and rank-aggregation controls. Only settings used by the selected estimator affect the analysis."
         },
         {
-          "narration": "Run validates schemas and well keys, applies exclusions and correction, aggregates scores, fits the selected model, and evaluates evidence. Watch controls and diagnostics before calling hits.",
+          "narration": "Permutation Test configures the guide statistic, minimum well support, permutation count and seed, exchangeability block, nuisance variables, presence threshold, and memory-bounded batch size.",
+          "visual": "12_category_07_permutation_test",
+          "hold_after": 0.7,
+          "focus_key": "category",
+          "speech_text": "Permutation Test configures the guide statistic, minimum well support, permutation count and seed, exchangeability block, nuisance variables, presence threshold, and memory-bounded batch size."
+        },
+        {
+          "narration": "Run validates schemas and well keys, applies exclusions and correction, aggregates the response, and executes the selected inference procedure. The default nonparametric procedure uses plate-blocked Freedman–Lane permutations and does not fit a regression model.",
           "visual": "21_run",
           "hold_after": 0.7,
           "focus_key": "actions",
-          "speech_text": "Run validates schemas and well keys, applies exclusions and correction, aggregates scores, fits the selected model, and evaluates evidence. Watch controls and diagnostics before calling hits."
+          "speech_text": "Run validates schemas and well keys, applies exclusions and correction, aggregates the response, and executes the selected inference procedure. The default nonparametric procedure uses plate-blocked Freedman–Lane permutations and does not fit a regression model."
         },
         {
-          "narration": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a rerunnable manifest.",
+          "narration": "The completed project contains aligned analysis data, guide- and gene-level effect estimates, empirical or model-based significance tables, diagnostic figures, saved settings, and a rerunnable manifest.",
           "visual": "23_output",
           "hold_after": 0.7,
           "focus_key": "console",
-          "speech_text": "The completed project contains aligned regression data, guide- and gene-level coefficients, uncertainty or significance tables, diagnostic figures, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
+          "speech_text": "The completed project contains aligned analysis data, guide- and gene-level effect estimates, empirical or model-based significance tables, diagnostic figures, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
       ]
     },
@@ -1224,7 +1233,7 @@
       "description": "Inspect which image regions influence a trained vision classifier and test whether those explanations are credible.",
       "objectives": [
         "Match the attribution run to the trained model and inputs.",
-        "Choose an attribution method with appropriate sanity checks.",
+        "Choose an attribution method with appropriate validation controls.",
         "Interpret maps across representative successes and failures."
       ],
       "prerequisite": "Train and validate a vision classifier and retain its exact crop, channel, architecture, and preprocessing metadata.",
@@ -1299,7 +1308,8 @@
           "focus_key": "console",
           "speech_text": "Review maps across correct, incorrect, high-confidence, and low-confidence examples, together with validation checks. Draw biological conclusions only from a validated trained [classifier](/klˈæsəfIəɹ/)."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "17_timelapse",
@@ -1401,7 +1411,8 @@
           "focus_key": "console",
           "speech_text": "A successful project contains time-indexed masks, stable track identities, quality-control records, movies, merged arrays, saved settings, and a [rerunnable](/ɹˌiɹˈʌnəbəl/) manifest."
         }
-      ]
+      ],
+      "host_app_key": "mask"
     },
     {
       "id": "18_motility",
@@ -1489,7 +1500,8 @@
           "focus_key": "console",
           "speech_text": "Review per-frame and per-track tables together with trajectory and quality-control figures. Confirm track continuity, calibration units, and group labels before comparing conditions."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "19_train_cellpose",
@@ -1570,7 +1582,8 @@
           "focus_key": "console",
           "speech_text": "After training, test candidate checkpoints on held-out fields and inspect failures, not only loss. spacer saves the checkpoint, settings, run manifest, and paired-field previews together."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "20_cellpose_masks",
@@ -1651,7 +1664,8 @@
           "focus_key": "figures",
           "speech_text": "Inspect representative originals, mask outlines, and flow fields in the figure panel before downstream measurement. Choose normalization and thresholds from those previews rather than copying tutorial values."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "21_model_compare",
@@ -1725,7 +1739,8 @@
           "focus_key": "previews",
           "speech_text": "Choose a model only when the visual differences and metrics improve the errors that matter for the downstream analysis. Equal results are informative and do not demonstrate improvement."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "22_model_zoo",
@@ -1799,7 +1814,8 @@
           "focus_key": "comparison",
           "speech_text": "Model Compare receives both checkpoints and the same fields, so differences in masks and quality metrics can be judged on identical inputs."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "23_agreement",
@@ -1873,7 +1889,8 @@
           "focus_key": "crop",
           "speech_text": "Inspect representative crops before changing labels or class definitions. Aggregate statistics cannot explain why reviewers disagreed."
         }
-      ]
+      ],
+      "host_app_key": "annotate"
     },
     {
       "id": "24_plaque",
@@ -2387,7 +2404,7 @@
       "series": 4,
       "app_key": "external_masks",
       "section": "Data and batch runs",
-      "description": "Turn third-party images and label masks into a measured, traceable spaCR project.",
+      "description": "Import third-party images and label masks as a measured, traceable spaCR project.",
       "objectives": [
         "Map external inputs correctly.",
         "Validate the import in Preview.",
@@ -3027,7 +3044,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, spacer produces discrimination, calibration, confusion, leakage, and robustness reports."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "40_run_history",
@@ -3171,7 +3189,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, corrected labels and track changes are stored with provenance so downstream measurements can be refreshed."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "43_illumination",
@@ -3219,7 +3238,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, approved correction fields and diagnostics are saved for reproducible pre-processing."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "44_data_manager",
@@ -3363,7 +3383,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, corrected masks and the curation record remain connected to the original field."
         }
-      ]
+      ],
+      "host_app_key": "make_masks"
     },
     {
       "id": "47_barcode_qc",
@@ -3411,7 +3432,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the report records the selected abundance threshold, supporting diagnostics, and affected wells."
         }
-      ]
+      ],
+      "host_app_key": "map_barcodes"
     },
     {
       "id": "48_hit_list",
@@ -3459,7 +3481,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the filtered hit list retains scores, evidence, annotations, and source identifiers."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "49_methods_results",
@@ -3507,7 +3530,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, editable methods and results documents are exported with a provenance summary."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "50_run_compare",
@@ -3795,7 +3819,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, selected objects and the plot can be exported with stable source identifiers."
         }
-      ]
+      ],
+      "host_app_key": "umap"
     },
     {
       "id": "56_lineage",
@@ -3987,7 +4012,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the H five A D file preserves the selected matrix, annotations, and provenance for downstream analysis."
         }
-      ]
+      ],
+      "host_app_key": "measure"
     },
     {
       "id": "60_pca",
@@ -4035,7 +4061,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, scores, loadings, settings, and plots can be exported for reproducible exploration."
         }
-      ]
+      ],
+      "host_app_key": "umap"
     },
     {
       "id": "61_tabulate",
@@ -4534,7 +4561,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the run records fidelity, validation-set permutation importance, SHAP summaries, excluded columns, grouping, back end, and provenance; weak fidelity is reported rather than hidden."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "71_investigate_hit",
@@ -4630,7 +4658,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, PDF and PNG exports are re-rendered from the recorded data and style at the requested size while the original regression results remain unchanged."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "73_parameter_sweep",
@@ -4677,6 +4706,194 @@
           "visual": "output",
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the resumable results table records every trial's settings, status, discovery count, positive-control rank, duration, output folder, and failure reason."
+        }
+      ],
+      "host_app_key": "regression"
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: inspect the plan before importing",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Open Import Images inside Import, check a real microscopy subset before writing, and save a reusable plan. The example explicitly distinguishes unsupported raw naming from prepared copies.",
+      "objectives": [
+        "Find Import Images inside the Import module and distinguish it from importing existing measurements and masks.",
+        "Check image identities and unresolved filename tokens before writing a project.",
+        "Choose copying or linking, save and reload a plan, and verify the completed import."
+      ],
+      "prerequisite": "Download Mask's real example first. This recording uses copied E01/F001 and L01/F009 fields, four C channels each. Prepared copies omit only the A token immediately before Z; originals remain unchanged. This is a specifically checked example, not a general instruction to delete unfamiliar filename metadata.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Open Import from Home's Data category, then choose Import Images. This nested tool prepares raw image files. Import Project, Format Converter, and External Masks are related workflows with their own tutorials.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Our eight images are real microscopy data from Mask's downloadable example: one field from each of two wells, with four channels per field. We work on separate copies and leave the downloaded originals untouched.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan reveals an unresolved acquisition token in these raw names. Import stays disabled and nothing is written. Do not guess a channel mapping: two different channels share this acquisition value, so that answer would corrupt their identities.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "For this checked example, prepared copies omit only the redundant acquisition token. Their well, field, and channel names remain intact. Scan now shows eight rows, two wells, two field numbers, and four channels. This does not mean the original naming was accepted.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Compare the proposal with the filenames before importing. Read inside each file checks embedded axis metadata as well as names. Sample limits the files inspected; ensure the proposal includes the images you intend to import. Resolve questions from acquisition records, not guesses.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Choose a destination outside the input folder and set the plate name. We turn off Link instead of copy for an independent project. Links save disk space, but depend on the originals staying accessible at their existing locations.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "These example files are not tiles. For tiled acquisitions, read the Tiles choice carefully: stitching assembles fields, keeping tiles separately changes what a field means, and skipping loses those images. Check the report and any unverified seams before measuring.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan writes a JSON record of the source and your mapping answers, not a backup of the images. Keep it with the acquisition notes. The same plan can be read through the Python image import API.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan reads the source folder again and reuses the saved answers. Check the new proposal before importing; a saved plan does not guarantee that a changed acquisition is correct. Here it restores the same eight checked image identities.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Press Import and read the summary. This run wrote eight independent image copies with no skipped files; their contents match the source. Next, point Mask at the project and inspect its live preview before segmentation. Importing alone does not generate masks or measurements.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: read the evidence behind the results",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Open the diagnostic files produced by a real example-screen analysis, distinguish design warnings from permutation results, and recognize the limits of a short demonstration run.",
+      "objectives": [
+        "Open Diagnostics inside Regression and verify the output folder being inspected.",
+        "Interpret design identifiability, guide support and inference panels in the context of the selected analysis.",
+        "Recognize missing fitted-residual panels and limited permutation resolution without inventing a model fit."
+      ],
+      "prerequisite": "Complete the Regression example using its four downloadable score/count pairs. This recording inspects a bounded nonparametric run with 199 permutations, a minimum of two wells, and both guide and gene results. It demonstrates the software and diagnostic interpretation, not final discovery-quality inference.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Inside Regression, hover over Diagnostics and open it after an analysis has completed. This button reads saved output; it does not fit another model. It opens the newest diagnostics folder found in the project, so verify the path when several runs exist.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "The system file manager shows the actual files from our downloaded example-screen analysis. Here the figure preference was PNG. The folder contains design identifiability, design diagnostics, inference diagnostics, a summary table, and a table of collinear guide pairs.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "The design has six hundred and six wells, seven hundred and ninety-three parameters, and rank five hundred and ninety-nine. It cannot identify a unique simultaneous coefficient for every guide. This warning explains why we used a permutation analysis; it does not mean a simultaneous model was fitted successfully.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Guide support is uneven: three hundred and fifty-five guides occur in just one well in this design. Sparse support limits what the experiment can establish. Inspect coverage before interpreting effects, and distinguish the full design from the filtered family of guides actually tested.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "The design panel helps locate poor support and dependencies between guide predictors. Guides that always occur together are hard to distinguish statistically. Use the collinear-pairs table to inspect specific pairs rather than treating a warning badge as a complete explanation.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "The inference panel summarizes four hundred and thirty-four guide tests: their p-value distribution, comparison with a uniform null, and discoveries across adjusted thresholds. This short run has no discoveries at the displayed threshold. A calibration warning is a prompt to investigate, not proof of biological effects.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "We used only one hundred and ninety-nine permutations to keep the demonstration short. The minimum attainable empirical p-value is therefore zero point zero zero five. That resolution can be inadequate after multiple-testing correction; use an appropriately planned permutation count for the real analysis.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "There is no fitted-residual panel for this permutation run because it did not fit the simultaneous regression model. The p-value comparison we just viewed is not a residual diagnostic. Other analysis modes can write residual panels when they supply observed and fitted values.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "The summary records individual panel assessments and the worst assessment for the suite. Read each assessment in context rather than interpreting the overall badge as a software error. The Python regression diagnostics API writes the same kinds of panels from the inputs it is given.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Return to Regression to investigate the inputs or change an analysis choice deliberately. A change needs a new run and new diagnostics; opening this folder never updates old results. Use the Regression tutorial for the full dataset, console, interactive results, and assistance workflow.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
         }
       ]
     }

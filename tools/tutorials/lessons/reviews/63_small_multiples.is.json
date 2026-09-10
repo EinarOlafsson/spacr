@@ -1,0 +1,38 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Small Multiples: raunverulegir hópar, síur í rauntíma og réttir áskvarðar",
+  "description": "Opnaðu Small Multiples innan Graph Builder, berðu niðurhalaðar mælingar saman á sameiginlegum eða sjálfstæðum ásum, skoðaðu tóma hópa og takmörkuð flokkunargildi og búðu til afleiddan dálk sem má fjarlægja aftur.",
+  "objectives": [
+    "Finna undireininguna og búa til dreifiritafylki úr raunverulegum mældum hlutum.",
+    "Bera saman sameiginlega, frjálsa, línuskipta og dálkaskipta kvarða án þess að rugla kvarðabreytingu saman við gagnabreytingu.",
+    "Sía í rauntíma, greina tóma hópa frá ónotuðum sætum og telja flokkunargildi sem ekki birtast.",
+    "Bæta við og fjarlægja tölulega umkvörðun í minni, varðveita upprunann og skrá valkosti myndarinnar."
+  ],
+  "prerequisite": "Notaðu bæti-fyrir-bæti eins einkaeintak af measurements.db úr niðurhalanlega Annotate-dæminu: 2.341 hlut, fjóra brunna, 13 sjónsviðsauðkenni og 51 raunverulega brunns/sjónsviðs-samsetningu. Fjöldi hluta er ekki fjöldi óháðra tilraunaendurtekninga og staðsetningarauðkenni eru ekki staðfestar meðferðir. Hnit allra sýndra punkta, nákvæm hópaðild, ásmörk, titlar og sýnileiki reita eru sannreynd óháð út frá upprunaröðunum. Sannprófunin nær til endanlegra samfelldra ása með breytileika í þessu gagnasafni án úrtaks; hún staðfestir ekki handahófskennd myndrit, val milli sýna, líffræðileg áhrif eða kvörðun í eðlisfræðilegar einingar. Small Multiples er töfluundireining Graph Builder án eigin niðurhals, forskoðunar mynda, GPU-vinnslukeðju, AI-stjórnborðs, almenns Plot-rofa eða útflutningshnapps. Endurnýttu Annotate-gögnin og Load table í undireiningunni sjálfri.",
+  "scenes": [
+    "Opnaðu Graph Builder frá Home og veldu innfellda Small Multiples-hnappinn. Þetta er núverandi leið að undireiningunni, ekki sjálfstæður Home-reitur. Við endurnýtum raunverulegar niðurhalanlegar Annotate-mælingar í einkaeintaki; Annotate-kennslan sýnir hvernig dæmið er sótt.",
+    "Notaðu Load table inni í Small Multiples, veldu einkaeintak mæligagnagrunnsins og síðan cell. Þar eru 2.341 mældur hlutur úr fjórum brunnum. Yfireiningin Graph Builder hefur annan Load table-hnapp. Notaðu hér þann við fyrirsögnina Small Multiples.",
+    "Leitaðu að cell_area og dragðu á X; settu cell_channel_1_mean_intensity á Y. Veldu Scatter undir Plot. Dragðu rowID á Facet niður og columnID á Facet til hægri. Leitin þrengir dálkalistann, ekki frumuhópinn. Hver punktur er hér hlutur sem þegar hefur verið mældur.",
+    "Með báða kvarða á shared nota allir fjórir myndreitir sömu láréttu og lóðréttu mörk. Titlarnir sýna 615, 525, 700 og 501 hlut. Línu- og dálkaauðkennin lýsa staðsetningu, ekki sannreyndum meðferðum. Þessar frumur eru ekki óháðar tilraunaendurtekningar.",
+    "Stilltu bæði X scale og Y scale á free. Hver myndreitur notar nú sitt eigið bil. Það sýnir lögun innan hóps, en jafn breið punktaský þurfa ekki að ná yfir jafn stórt mæligildabil. Lestu ásgildin áður en þú berð saman. Breyttur kvarði breytir engum upprunamælingum.",
+    "Veldu per row fyrir báða kvarða. Myndreitir í sömu línu fylkisins deila mörkum, en mismunandi línur geta haft mismunandi mörk. Þetta er hópun kvarða eftir uppsetningu, ekki tölfræðileg leiðrétting. Hér má bera dálkana tvo í hverri línu saman á samræmdum ásum.",
+    "Veldu per column fyrir báða kvarða. Myndreitir í sama dálki deila mörkum. Einnig má stilla X og Y sitt í hvoru lagi; hér breytum við báðum saman. Endurstilltu báða á shared áður en þú berð alla fjóra brunnana saman. Sameiginlegt merkir sameiginlegt innan núverandi fylkis, ekki óbreytt eftir hverja síðari síu.",
+    "Bættu cell_area við undir Filter og settu neðri mörkin í 21.925. Raunverulega fylkið uppfærist strax í 1.171 hlut. Fjöldi og punktar myndreitanna breytast saman. Þetta er rauntímasía á mælingar, ekki myndaskipting eða ný greiningarkeyrsla.",
+    "Veldu Clear all undir Filter. Allir 2.341 hlutirnir koma aftur með upprunaleg punkthnit og sameiginleg ásmörk. Þessi hnappur hreinsar síuna; Clear all channels vinstra megin fjarlægir hins vegar dálkaval myndritsins. Hvorug aðgerðin eyðir röðum úr gagnagrunninum.",
+    "Til að skoða raunverulega vantaðan hóp skaltu sía columnID að c2 og fieldID að f20 og f21; skrunaðu í flokkalistanum eftir þörfum. Settu fieldID á Facet til hægri og haltu rowID á Facet niður. Eftir standa 174 frumur. Myndreiturinn með línuauðkenni 5 og sjónsviði 20 hefur n = 0: engir upprunahlutir, ekki mældur ljósstyrkur núll.",
+    "Hreinsaðu síurnar og settu columnID aftur á Facet til hægri. Stilltu Wrap at á 5 meðan báðar flokkunarrásir eru fylltar. Fylkið helst 2 × 2 og tilkynningin segir að línuskiptingin sé hunsuð. Wrap virkar með einni flokkunarrás, ekki til að endurraða tvívíðu fylki.",
+    "Tæmdu Facet niður, settu fieldID á Facet til hægri og haltu Wrap at í 5. Sjónsviðin sem tekin eru með mynda þrjár línur með fimm sætum hver. Aðeins 12 flokkunargildi eru teiknuð þótt uppruninn hafi 13. Ónotuðu sætin þrjú eru falið fyllirými, ekki raunverulegir hópar sem birtast með n = 0.",
+    "Lestu tilkynninguna undir fylkinu. Sjónsvið 21 fellur utan þeirra 12 gilda sem birtast og 264 upprunahlutir eru því ekki í myndreitunum. Í raun eru 2.077 punktar teiknaðir þótt innlesna taflan hafi enn 2.341 röð. Fjöldi innlesinna raða sannar ekki að þær séu allar sýnilegar.",
+    "Slökktu á Wrap og endurheimtu rowID og columnID sem flokkunarrásir. Skrifaðu area_k sem heiti undir Columns og cell_area deilt með 1.000 sem segð, nákvæmlega eins og sýnt er. Forskoðunin athugar fyrstu 2.000 raðirnar. Veldu Add column til að reikna afleidd gildi fyrir alla töfluna án þess að endurskrifa gagnagrunninn.",
+    "Dragðu area_k á X. Hvert lárétt hnit er nú upprunalegt flatarmál frumunnar deilt með 1.000; Y-gildi og hópaðild eru óbreytt. Þetta er töluleg umkvörðun, ekki kvörðun í fermíkrómetra, ný mæling eða sönnun um líffræðileg áhrif. Öll 2.341 afleiddu gildin voru sannreynd.",
+    "Settu cell_area aftur á X áður en þú velur area_k undir Columns og smellir á Remove. Upprunalega myndritið með fjórum reitum kemur aftur og afleiddi dálkurinn hverfur. Einkagagnagrunnurinn og upprunalegu niðurhöluðu gögnin eru bæði óbreytt. Skráðu breytur, hópun, síur og kvarða svo aðrir geti endurskapað sýnina.",
+    "Í kóða skilgreina trellis og TrellisSpec í Qt-einingu spaCR, trellis_spec, hópun, kvarða og Wrap; GraphSpec skilgreinir myndritsrásirnar. Þessi skjár hefur hvorki eigin útflutningshnapp né eigið niðurhalanlegt gagnasafn. Notaðu Tabulate fyrir sannreyndan CSV-útflutning samantekta. Myndaforskoðun, GPU-vinnslukeðjur og spaCR AI tilheyra viðeigandi greiningarkennslu, ekki þessari töflusýn."
+  ]
+}

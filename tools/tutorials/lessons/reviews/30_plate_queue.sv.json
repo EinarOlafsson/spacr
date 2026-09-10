@@ -1,0 +1,23 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
+  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "language": "sv",
+  "title": "Plate Queue: kör, stoppa mellan jobb och fortsätt",
+  "description": "Kör två separata upprepningar av det verifierade Recruitment-exemplet, kontrollera sparade resultat och skilj ett kontrollerat stopp från oprövad återställning efter krasch.",
+  "objectives": ["Importera en validerad konfiguration och hitta Plate queue under Help.", "Lägg till aktuella inställningar och en förberedd projektmapp som separata jobb.", "Se sekventiell behandling, stoppa mellan jobb och fortsätt utan att upprepa lyckade jobb.", "Kontrollera siffror och ta bort slutförda köposter utan att radera projekten."],
+  "prerequisite": "Gör först Recruitment-handledningen. Dess verifierade mätdata från fyra bildfält kopieras till två mappar: samma insamlade data, inte oberoende plattor eller biologiska replikat. Varje mapp innehåller measurements/measurements.db och settings/recruitment_settings.csv. Första CSV-filen importeras via den riktiga filväljaren; den andra mappen dras till kön. Ingen simulerad jobbkörning, modell eller AI-förfrågan används. Plate Queue har ingen egen Load test data eller liveförhandsvisning. Import CSV demonstreras inte: den skapar nu Mask-jobb, inte jobb för valfria moduler. Långa etiketter kan kapas; kontrollera fullständiga sökvägar och inställningar innan du lägger till jobb. Kraschåterställning och nya försök med misslyckade jobb är inte verifierade.",
+  "scenes": [
+    "Börja med det validerade Recruitment-exemplet. Vi kopierade mätdatabasen från fyra bildfält till två separata projektmappar med varsin inställningsfil. Det är två upprepningar av samma verkliga data, inte oberoende plattor. Välj Import settings i Recruitment och öppna första mappens CSV.",
+    "Konsolen bekräftar att inställningarna laddats. Kontrollera källa och kanalindelning före tillägg; varje begärt värde jämfördes efter import. Recruitment-handledningen visar figurer, konsol och förhandsvisning. Kön bedömer inte om dina biologiska val är lämpliga.",
+    "Öppna Help och sedan Plate queue. Det gemensamma verktyget öppnas från menyn, inte en ny Home-ruta. Nuvarande köhanterare kör ett jobb i taget; skärmen saknar val av antal arbetare och återupptagningspolicy.",
+    "Välj Add current plate. Första raden sparar en kopia av Recruitment-konfigurationen vi just laddade. Kontrollera modul och källa före körning. Tabellen visar identifierare, modul, etikett, status och förfluten tid; den är ingen fullständig inställningsredigerare.",
+    "Dra den andra förberedda projektmappen till kön. Dess sparade Recruitment-inställningar identifierar modulen och den släppta mappen blir källan. Båda raderna visar queued. Separata mappar skiljer resultaten åt; att lägga till samma mapp två gånger ger inte den isoleringen.",
+    "Välj Run queue. Första jobbet blir running medan det andra förblir queued. Det är verklig Recruitment-bearbetning, inte simulerad förloppsvisning. Listan följer jobb men visar inte varje mellanliggande bild eller bearbetningssteg.",
+    "Tryck Stop under första jobbet. Köhanteraren slutför aktuellt jobb och stoppar före nästa. Det är inget omedelbart avbrott: vänta tills det aktiva jobbet avslutats i stället för att anta att dess resultat redan slutat ändras.",
+    "Första raden visar nu success och den andra fortfarande queued. Välj Run queue igen för att bara behandla det återstående jobbet. Vi verifierade att första jobbets tidsstämplar inte ändrades. Detta kontrollerade stopp bevisar inte återställning efter en datorkrasch.",
+    "Båda jobben visar success. Varje projekt innehåller CSV-resultat för celler och brunnar: tvåhundratjugotre kvarvarande celler i fyra brunnar. Objektidentiteter och rekryteringskvoter kontrollerades oberoende mot mätningarna; en grön status ensam bevisar inte korrekta siffror.",
+    "Plot var aktiverat i sparade inställningar, men denna köhanterare visar eller sparar inte Recruitment-figurerna. Figurhanteringen visas i modulens handledning. Kön har heller ingen AI-samtalspanel; ingen AI-förfrågan eller modellkörning behövdes här.",
+    "Clear finished tar bort slutförda köposter, inte projektmappar eller resultat. Vi bevarade registreringen före rensning och kontrollerade att båda projekten fanns kvar. För skript hanterar PlateQueue i Qt-modulen för plattkön beständiga jobbposter; det är inte själva Recruitment-analysfunktionen."
+  ]
+}

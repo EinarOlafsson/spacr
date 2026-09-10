@@ -1,0 +1,248 @@
+"""The user sets the memory budget, and nothing claims to unload a library."""
+from __future__ import annotations
+
+import sys
+import time
+import os
+import subprocess
+import textwrap
+from pathlib import Path
+
+import pytest
+from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox
+
+from spacr.qt import memory_budget as mb
+from spacr.qt import preferences as P
+
+
+def test_a_session_that_opens_no_deep_learning_module_never_imports_torch(
+        tmp_path):
+    """Assert the import boundary in a genuinely clean Python session.
+
+    ``sys.modules`` belongs to the pytest worker, so checking it in-process
+    makes the result depend on which tests ran in that worker first.  The
+    subprocess still drives the real window and navigation path; it merely
+    gives the session-under-test its own import state.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    settings_root = tmp_path / "qsettings"
+    script = textwrap.dedent(
+        f"""
+        import os, sys
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        from pathlib import Path
+        from PySide6.QtCore import QSettings
+        from PySide6.QtWidgets import QApplication
+        settings_root = str(Path({str(settings_root)!r}))
+        for settings_format in (QSettings.NativeFormat, QSettings.IniFormat):
+            for settings_scope in (QSettings.UserScope, QSettings.SystemScope):
+                QSettings.setPath(
+                    settings_format, settings_scope, settings_root)
+        import spacr
+        assert Path(spacr.__file__).resolve().is_relative_to(
+            Path({str(repo)!r}).resolve())
+        from spacr.qt.app import MainWindow
+        app = QApplication.instance() or QApplication([])
+        win = MainWindow()
+        win.show()
+        app.processEvents()
+        imported_at_start = 'torch' in sys.modules
+        for key in ('mask', 'measure', 'regression'):
+            win._on_nav_selected(key)
+            app.processEvents()
+        imported_after_navigation = 'torch' in sys.modules
+        win.close()
+        app.processEvents()
+        from spacr.qt.job_runner import shutdown_all
+        shutdown_all()
+        if imported_at_start:
+            raise AssertionError('opening the application imported torch')
+        if imported_after_navigation:
+            raise AssertionError(
+                'opening ordinary modules pulled in 477 MB of torch')
+        """
+    )
+    env = os.environ.copy()
+    env["QT_QPA_PLATFORM"] = "offscreen"
+    env["XDG_CONFIG_HOME"] = str(settings_root)
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=str(repo), env=env,
+        capture_output=True, text=True, timeout=45,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_opening_classify_does_not_import_its_operation_stack():
+    """Collecting a configuration form must not allocate the training stack.
+
+    This is a fresh process because ``sys.modules`` is the assertion and any
+    earlier ML test would make a same-process pass or failure meaningless.
+    It drives the real navigation/chaining path: the regression was caused by
+    the chaining bar collecting every setting, not by constructing the bare
+    ``SettingsWidgets`` in isolation.
+    """
+    repo = Path(__file__).resolve().parents[2]
+    script = textwrap.dedent(
+        f"""
+        import os, sys
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        from pathlib import Path
+        from PySide6.QtWidgets import QApplication
+        import spacr
+        assert Path(spacr.__file__).resolve().is_relative_to(
+            Path({str(repo)!r}).resolve())
+        from spacr.qt.app import MainWindow
+        app = QApplication.instance() or QApplication([])
+        win = MainWindow()
+        win.show()
+        app.processEvents()
+        win._on_nav_selected('classify_merged')
+        app.processEvents()
+        forbidden = {{
+            'spacr.utils', 'torch', 'torchvision', 'cv2', 'IPython',
+            'matplotlib.pyplot',
+        }}
+        imported = sorted(forbidden.intersection(sys.modules))
+        win.close()
+        app.processEvents()
+        from spacr.qt.job_runner import shutdown_all
+        shutdown_all()
+        if imported:
+            raise AssertionError(imported)
+        """
+    )
+    env = os.environ.copy()
+    env["QT_QPA_PLATFORM"] = "offscreen"
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=str(repo), env=env,
+        capture_output=True, text=True, timeout=45,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_every_level_has_a_recommendation_and_the_hardware_it_suits():
+    """"system configuration recomendations for each level"."""
+    for level in P.PERFORMANCE_LEVELS:
+        idle, cache, headroom = mb.recommended_for(level)
+        assert idle >= 0 and cache > 0 and headroom > 0
+        assert level in mb.HARDWARE_NOTES
+        assert len(mb.HARDWARE_NOTES[level]) > 10
+
+
+def test_the_recommendations_are_monotonic_with_the_level():
+    """Laptop keeps least, Workstation most, and the order is the scale."""
+    caches = [mb.RECOMMENDED[l][1] for l in P.PERFORMANCE_LEVELS]
+    idles = [mb.RECOMMENDED[l][0] for l in P.PERFORMANCE_LEVELS]
+    assert caches == sorted(caches), caches
+    assert idles == sorted(idles), idles
+
+
+def test_idle_entries_are_dropped():
+    now = time.time()
+    entries = [
+        ("fresh", 10.0, now - 60),          # 1 minute idle
+        ("stale", 10.0, now - 3600),        # an hour idle
+    ]
+    doomed = mb.what_to_drop(entries, now, idle_minutes=15.0,
+                             ceiling_mb=10_000)
+    assert doomed == ["stale"]
+
+
+def test_over_the_ceiling_the_least_recently_used_goes_first():
+    """A cache under pressure gives up what it is least likely to want."""
+    now = time.time()
+    entries = [
+        ("newest", 100.0, now - 10),
+        ("middle", 100.0, now - 20),
+        ("oldest", 100.0, now - 30),
+    ]
+    doomed = mb.what_to_drop(entries, now, idle_minutes=600.0,
+                             ceiling_mb=150)
+    assert doomed[0] == "oldest"
+    assert "newest" not in doomed
+
+
+def test_size_alone_never_drops_an_entry():
+    """Idleness decides WHETHER a trim happens; size decides the order."""
+    now = time.time()
+    entries = [("huge", 5000.0, now)]
+    assert mb.what_to_drop(entries, now, idle_minutes=600.0,
+                           ceiling_mb=10_000) == []
+
+
+def test_headroom_that_cannot_be_measured_drops_nothing():
+    """A cache that cannot be shown to be a problem is not dropped on
+    suspicion."""
+    real = mb.free_megabytes
+    mb.free_megabytes = lambda: None
+    try:
+        assert mb.headroom_is_short(1_000_000) is False
+    finally:
+        mb.free_megabytes = real
+
+
+def test_the_three_settings_round_trip(monkeypatch):
+    store = {}
+
+    class _Mem:
+        def value(self, key, default=None, type=None):
+            return store.get(key, default)
+
+        def setValue(self, key, value):
+            store[key] = value
+
+        def sync(self):
+            pass
+
+    monkeypatch.setattr(P, "_settings", lambda: _Mem())
+    monkeypatch.setattr(P, "_SAFE_MODE", False)
+
+    P.set_headroom_mb(4096)
+    P.set_idle_minutes(7.5)
+    P.set_cache_ceiling_mb(8192)
+    assert P.get_headroom_mb() == 4096
+    assert P.get_idle_minutes() == 7.5
+    assert P.get_cache_ceiling_mb() == 8192
+
+    # Nonsense in the store reads as the default rather than raising.
+    store[P._KEY_HEADROOM] = "not a number"
+    assert P.get_headroom_mb() == mb.DEFAULT_HEADROOM_MB
+
+
+def test_the_controls_are_on_the_performance_tab(qtbot):
+    dlg = P.PreferencesDialog(None)
+    qtbot.addWidget(dlg)
+    assert dlg.findChild(QSpinBox, "HeadroomMb") is not None
+    assert dlg.findChild(QDoubleSpinBox, "CacheIdleMinutes") is not None
+    assert dlg.findChild(QSpinBox, "CacheCeilingMb") is not None
+
+
+def test_no_setting_claims_to_unload_a_library(qtbot):
+    """"If a setting is named for that, it is lying."
+
+    The help is read out of the hint bar's register rather than off the
+    control: Preferences moves every tooltip there so a control answers in
+    the strip instead of in a window over it.
+    """
+    from spacr.qt.widgets.hint_bar import HintBar
+
+    dlg = P.PreferencesDialog(None)
+    qtbot.addWidget(dlg)
+    bar = dlg.findChildren(HintBar)[0]
+    # Keyed by the row's LABEL, which is the hover target -- the help was
+    # moved there deliberately, so the register is searched by content.
+    said = list(getattr(bar, "_hints", {}).values())
+    assert said, "the strip registered nothing at all"
+
+    # It has to say so outright, because the request asked for exactly the
+    # thing that cannot be done.
+    unloadable = [text for text in said if "cannot be unloaded" in str(text)]
+    assert unloadable, "no setting says a library cannot be unloaded"
+
+    # And every level's recommendation is quoted somewhere, which is what
+    # makes a number a decision.
+    floor = [text for text in said if "must stay free" in str(text)]
+    assert floor, "the headroom floor is not explained"
+    for level in P.PERFORMANCE_LEVELS:
+        assert P.PERFORMANCE_LABELS[level] in floor[0], (
+            f"{level} has no recommendation in the headroom help")

@@ -1,0 +1,554 @@
+================================================================================
+ONE READER, ONE WRITER, ONE KEY VOCABULARY
+================================================================================
+
+Status:    DONE 2026-08-20. See the closing section.
+Requested: 2026-08-18 --
+
+  "filter column was columnID it worked but when i press the csv button i only
+   see column_name and column. now that means that there is logic that changes
+   comumnn and column_name to columnID befor ColumnID is checked for the
+   Control wells. this is behaviour that i programed into spacr earlier. so for
+   whenever spacr reads a database or a csv it should change:
+     Plate, PLATE, plate, plateid, plate_name, etc. to plateID
+     Row, ROW, row, row_name, etc. to rowID
+     Column, COLUMN, column, columnid, column_name, etc. to columnID
+     Field, FIELD, field, fieldid, field_name, etc. to fieldID
+     Well, WELL, well, wellid, well_name, etc. to wellID
+   The import function should also check e.g. if it finds well and wellID then
+   it checks if the columns rows have the same values if they do it quietly
+   picks wellID or if it is choosing between options and none are wellID, it
+   just silently chooses one and renames it to wellID (then keeps wellID and
+   removes the other well metadata columns). give a print but no warning. if
+   they are not the same it has the same behaviour but throws a warning that
+   well metadata columns X,Y,Z, do not agress and that X is being chosen.
+   also if the function that reads database files or CSVs allways does this,
+   its hardcoded in, then the user should also see columnID in the csv button
+   list and SQL table column lists and not column_name, etc, etc.
+   this rule should apply across all spacr moduals there should be common
+   functions that all moduals use to loade databases and save databases and
+   loade CSV files nad save CSV files (these rules should apply to other
+   tabular data types also)"
+
+Related: 137 is the import table, which needs this. 119 B is the key-vs-
+         positional join. 130 is the per-plate database merge.
+
+--------------------------------------------------------------------------------
+THE DIAGNOSIS IS CORRECT, AND HERE IS THE SIZE OF IT
+--------------------------------------------------------------------------------
+
+COUNTED 2026-08-18 across spacr/:
+
+    pd.read_csv(       69 sites
+    pd.read_sql*(      32
+    .to_csv(          128
+    .to_sql(           19
+                      ---
+                      248 tabular reads and writes
+
+    call sites that normalise column names AT ALL:   13
+
+So roughly 235 of 248 do not. There is no funnel; there are 248 doors.
+
+AND THE NORMALISER THAT EXISTS IS TOO SMALL. `utils.correct_metadata_column_names`
+handles exactly `plate_name`, `column_name`, `col`, `row_name`, `grna_name`
+and splits `plate_row`. It is CASE SENSITIVE and knows nothing of `Plate`,
+`PLATE`, `plate`, `plateid`, `Well`, `well`, `wellid`, `Field`, `fieldid`.
+
+THAT IS EXACTLY THE REPORTED SYMPTOM. `filter_column=columnID` worked, because
+some path downstream renamed on the way to the fit -- and the CSV picker read
+the RAW header and offered `column_name` and `column`, which are the names the
+user must not have to know.
+
+--------------------------------------------------------------------------------
+A. THE VOCABULARY, IN ONE PLACE
+--------------------------------------------------------------------------------
+
+`spacr/schema.py` already holds the key names and is the right home.
+
+    plateID   plate, PLATE, Plate, plateid, plate_id, plate_name, plateName
+    rowID     row, ROW, Row, rowid, row_id, row_name, rowName
+    columnID  column, COLUMN, Column, col, columnid, column_id, column_name
+    fieldID   field, FIELD, Field, fieldid, field_id, field_name
+    wellID    well, WELL, Well, wellid, well_id, well_name
+
+MATCHED CASE-INSENSITIVELY AND PUNCTUATION-INSENSITIVELY, so the table is
+short and `Plate_ID` needs no entry of its own. Fold to lowercase, strip
+non-alphanumerics, then look up.
+
+DO NOT INVENT MEMBERS. `col` is real and in the existing map; `c` is not, and
+a one-letter alias would capture a measurement column called `c` and rename a
+real variable into a plate key. When in doubt leave it out -- a name that is
+not normalised is visible; a measurement silently renamed to `columnID` is
+not, and it corrupts a join.
+
+--------------------------------------------------------------------------------
+B. THE COLLISION RULE, EXACTLY AS ASKED
+--------------------------------------------------------------------------------
+
+Several columns can map to one key. What happens is decided by whether they
+AGREE ROW-BY-ROW:
+
+  THEY AGREE
+      Keep one, drop the rest. Prefer the one already spelled canonically
+      (`wellID`); if none is, choose one and rename it.
+      PRINT what happened. No warning -- nothing is wrong.
+
+  THEY DISAGREE
+      Same action -- keep one, drop the rest -- but WARN, and the warning
+      NAMES the columns and the choice:
+      "well metadata columns well, wellID, well_name do not agree; wellID is
+       being used".
+
+COMPARE AS STRINGS, STRIPPED. `1` and `1.0` and ` 1 ` are the same well, and
+a dtype difference is not a disagreement. This is where a naive `.equals()`
+would warn on every file and teach the user to ignore the warning.
+
+THE DISAGREEMENT WARNING IS THE VALUABLE ONE. It means the file carries two
+different opinions about which well a row came from, and every join downstream
+is picking one of them. Say how many rows differ, not just that they do.
+
+--------------------------------------------------------------------------------
+C. ONE READER AND ONE WRITER, USED BY EVERY MODULE
+--------------------------------------------------------------------------------
+
+"there should be common functions that all moduals use to loade databases and
+save databases and loade CSV files nad save CSV files (these rules should
+apply to other tabular data types also)"
+
+Four functions, in one module, and every module goes through them:
+
+    read_table(path_or_query, ...)      csv, sqlite, parquet, xlsx, feather
+    write_table(frame, path, ...)
+    read_database(db, tables, ...)
+    write_database(frame, db, table, ...)
+
+NORMALISATION HAPPENS ON READ, ALWAYS, WITH NO OPT-OUT ON THE ORDINARY PATH.
+That is what makes the picker correct for free: it reads through the same door
+and therefore sees `columnID`.
+
+DOING IT AT THE FUNNEL IS THE POINT. Do NOT edit 248 call sites; build the
+four functions, move the readers over in batches, and let the count of direct
+`pd.read_csv` calls under spacr/ fall. A test that asserts that count is the
+honest ratchet -- it can only go down.
+
+WRITING IS THE HALF THAT NEEDS CARE. Writing canonical names changes the
+HEADER of every exported file, and somebody's downstream script reads those.
+Decide it deliberately and say which was chosen: write canonical (clean, and
+a release note), or write back what was read (safe, and the ambiguity
+survives). Do not leave it accidental.
+
+THE EXISTING GUARDS ARE NOT NEGOTIABLE. `_read_db` expands `~` (GitHub issue
+#108), `spacr.hits` joins on keys rather than positions (instruction 119 B),
+and the measurements schema migration runs on open. Whatever these functions
+become, those behaviours survive -- move them in, do not leave them behind.
+
+--------------------------------------------------------------------------------
+D. WHAT THE USER SEES
+--------------------------------------------------------------------------------
+
+The CSV button and the SQL table/column lists show CANONICAL names, because
+they read through the same reader. `spacr.columns` already reads headers only
+(`nrows=0`) for the CSV picker -- it normalises through the shared vocabulary
+rather than growing its own copy.
+
+A column the vocabulary renamed is shown renamed. If a picker ever wants to
+show the original too, it shows it as a note beside the canonical name --
+never as a second selectable entry, which would let a user pick a column the
+run will not find.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A CSV with `Plate`, `Row`, `Column`, `Field`, `Well` reads back with the
+  five canonical names.
+* Two agreeing well columns collapse to one with a printed note and no
+  warning; two disagreeing ones collapse with a warning naming both and the
+  number of differing rows.
+* The CSV button and the SQL column list show `columnID`, never
+  `column_name`.
+* The number of direct `pd.read_csv` / `pd.read_sql` calls under spacr/ is
+  lower than 101 and falling, with a test holding the ratchet.
+* Issue #108's tilde expansion and the schema migration still happen.
+
+================================================================================
+RESULT (2026-08-18)
+================================================================================
+
+A, B, C and D are built and used. Commits:
+
+  bac4715   145: one reader, one writer, one key vocabulary
+  387cb6e   145: one place composes a key, and three writers go through the
+            one door
+
+--------------------------------------------------------------------------------
+A. THE VOCABULARY, IN ONE PLACE -- spacr/schema.py
+--------------------------------------------------------------------------------
+
+`canonical_column_name` now folds CASE AND PUNCTUATION (`fold_column_name`:
+lower case, strip everything that is not a letter or a digit). That is what
+keeps the table short instead of combinatorial:
+
+    Plate  PLATE  plate  plateid  plateID  plate_id  Plate_ID  plate_name
+    plateName  'plate name'  plate.id            ->  plateID
+
+all from five entries. Same for rowID, columnID, fieldID.
+
+`wellID` IS NEW. It is now a canonical key (`WELL_KEY`), and `well`, `Well`,
+`WELL`, `wellid`, `well_id`, `well_name` all reach it. It had NO canonical
+spelling before -- spaCR keys on (rowID, columnID) and never on the well, so
+user metadata arriving as a `Well` column had nowhere to land. It is
+deliberately NOT in `WELL_KEY_COLUMNS` and not part of any composed key; it is
+a metadata column that now has one name.
+
+`METADATA_KEYS` is the closed vocabulary the collision rule is allowed to
+collapse: plateID rowID columnID fieldID wellID screenID timeID chanID
+sliceID.
+
+DID NOT INVENT MEMBERS, as instructed. `col` is in because spaCR wrote it. `c`
+is not: it would capture a measurement column called `c` and rename a real
+variable into a plate key. Pinned by
+`test_the_vocabulary_does_not_invent_members` over c, r, p, f, w, `columns`,
+`rows`, `well_area`, `row_std`.
+
+A FOLDED ALIAS THAT WOULD MEAN TWO THINGS RAISES AT IMPORT. `plate.id` and
+`plate_id` folding to one key is the point; two entries folding to one key
+with different targets is a bug in the vocabulary, and it is refused in every
+process at import rather than resolved at runtime one way on Tuesday.
+
+--------------------------------------------------------------------------------
+B. THE COLLISION RULE -- EXACTLY AS ASKED
+--------------------------------------------------------------------------------
+
+`schema.resolve_metadata_collisions(frame, report=, warn=)`.
+
+  AGREE      keep one, drop the rest, PRINT. No warning; nothing is wrong.
+             The canonical spelling wins if one is present; otherwise the
+             leftmost, and it is renamed.
+  DISAGREE   same action, and a WARNING that names the columns, the choice,
+             and HOW MANY ROWS DIFFER:
+
+             "wellID metadata columns well, wellID do not agree (2 of 4 rows
+              differ); wellID is being used and the rest are dropped"
+
+COMPARED AS STRIPPED STRINGS, through `comparable_key_value`. `1`, `1.0`,
+`'01'` and `' 1 '` are the same well; missing (`None`/`NaN`/`''`) is its own
+value, so two blanks agree. This is the half a naive `.equals()` gets wrong:
+it would warn on every file that stored one copy of the well as text and the
+other as a number, and a warning that fires every time is a warning the user
+learns to ignore -- including the one that means the file carries two
+different opinions about which well a row came from.
+
+ONLY METADATA COLLAPSES. Two feature spellings keep both columns. A
+measurement is data; dropping one to tidy a name is not the reader's call.
+
+DUPLICATE LABELS ARE HANDLED POSITIONALLY, so a frame that already carries two
+columns both literally named `rowID` -- which pandas allows and `to_sql`
+refuses -- is repaired rather than raising.
+
+--------------------------------------------------------------------------------
+C. ONE READER, ONE WRITER -- spacr/tabular.py (NEW)
+--------------------------------------------------------------------------------
+
+    read_table(path, table=None, ...)      csv tsv sqlite parquet feather xlsx
+    write_table(frame, path, ...)
+    read_database(db, tables, ...)         + read_only=, limit=, migrate=
+    write_database(frame, db, table, ...)
+    table_columns(path, table=None)        headers only, canonical
+    database_tables(db)
+    resolve_path(path)
+
+NORMALISATION HAPPENS ON READ, ALWAYS. `canonicalise=False` exists and is used
+in exactly four places, each with a one-line reason in the code: the two
+curated third-party annotation tables in ml.py, the gene metadata file in
+utils.py, and `hits.load_gene_metadata`, whose `key` argument names a column
+in the vendor's header ('Gene ID'). Renaming a caller's own column name is not
+normalisation.
+
+pandas + sqlite3 + schema at module scope and NOTHING ELSE -- pinned by
+`test_tabular_imports_without_pandas_of_the_heavy_kind`, which asserts a
+subprocess import pulls in no torch, matplotlib, cellpose or skimage. That is
+a requirement, not tidiness: the CSV picker and the SQL column list have to be
+able to import the reader, and they cannot pay for a torch import to do it.
+
+WRITING -- THE DECISION, MADE OUT LOUD: **spaCR WRITES CANONICAL NAMES.**
+`write_table` and `write_database` canonicalise on the way out by default. The
+alternative (write back what was read) preserves an ambiguity that this whole
+instruction exists to remove, and a frame assembled by hand would put
+`column_name` straight back into the next file. THE COST IS REAL AND NEEDS A
+RELEASE NOTE: the header of an exported CSV changes for anyone whose
+downstream script reads `column_name` or `plate`. `canonicalise=False` is the
+escape hatch for a caller that owes an external format an exact header.
+
+THE EXISTING GUARDS MOVED IN, NOT LEFT BEHIND:
+  * `~` and `$VAR` expansion (issue #108), in `resolve_path`, on every entry
+    point. Two tests drive it.
+  * `ensure_database_schema` on open, with identifier validation BEFORE the
+    migration walks the file, so the public read API's error stays stable.
+  * chunked SQL reads (100k), the empty-table column-preserving read, and the
+    ValueError that names the missing table.
+  * a `read_only=True` mode, because a merge reads several of the user's
+    measurement databases and must not be able to write to one.
+    `read_only` + `migrate` is REFUSED rather than one silently winning.
+
+THE FUNNEL, NOT 248 EDITS. Direct `pd.read_csv` / `pd.read_sql` sites under
+spacr/ went 118 -> 96. Every read in utils.py (10), ml.py (9), hits.py (2) and
+multi_database.py (1) now goes through the door.
+`test_the_number_of_direct_readers_only_falls` holds the ratchet at 100 --
+below the bar the instruction set, with headroom so a concurrent worker's new
+reader does not turn the suite red on somebody else's change. IT IS ONLY EVER
+LOWERED. `test_none_of_the_owned_modules_reads_a_table_directly` holds the
+batch that has moved so it cannot move back.
+
+--------------------------------------------------------------------------------
+ONE NORMALISER AND ONE COMPOSER, WHICH IS THE OTHER HALF OF THE TITLE
+--------------------------------------------------------------------------------
+
+  * `canonical_plate_id` and the `pp` repair were THREE copies of one rule --
+    `utils.correct_metadata` for frames, `multi_database` for scalars and for
+    database reads. That is why a test had to pin two of them against each
+    other. They are now `schema.canonical_plate_id` /
+    `schema.normalise_plate_columns`; multi_database re-exports the names and
+    utils calls them. Pinned by
+    `test_there_is_not_a_second_plate_id_normaliser` and
+    `test_the_frame_normalisers_all_answer_the_same`.
+  * `ml._compose_prc_column` -> `schema.compose_prc_column`, beside the scalar
+    `compose_prc`. `utils.process_vision_results` was hand-joining its `prc`
+    while the regression path composed the same key with escaping, so a plate
+    called `exp1_plate2` produced two spellings of one well.
+  * `utils.correct_metadata` and `correct_metadata_column_names` are now one
+    call into `schema.canonicalise_frame` each. Their private six-spelling
+    case-sensitive list is gone -- that list is why a CSV headed `Column`
+    reached a fit with no `columnID` in it.
+
+--------------------------------------------------------------------------------
+D. WHAT THE USER SEES
+--------------------------------------------------------------------------------
+
+`tabular.table_columns` reads the header through the same door, for CSV and
+for SQL alike, and returns canonical names. A collapsed duplicate is listed
+ONCE -- a picker that offered both `well` and `wellID` lets a user pick a
+column the run will not find.
+
+NOT WIRED, and it is one line in a file this worker does not own:
+
+    spacr/columns.py:92    list(pd.read_csv(path, nrows=0).columns)
+      ->                   list(tabular.table_columns(path))
+
+That is the CSV button. Until it is changed the picker still shows
+`column_name`; everything behind it already agrees on `columnID`.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED -- against the instruction's own list
+--------------------------------------------------------------------------------
+
+  * a CSV with Plate/Row/Column/Field/Well reads back with the five canonical
+    names -- test_a_csv_of_the_five_legacy_names_reads_back_canonical.  YES
+  * agreeing columns collapse with a print and no warning; disagreeing ones
+    warn, naming both and the row count -- two tests.                  YES
+  * the CSV button and the SQL column list show `columnID` -- YES for the
+    reader (`table_columns`), NOT YET for `spacr/columns.py` (above).
+  * direct pd.read_csv / pd.read_sql under spacr/ below 101 and falling, with
+    a ratchet test -- 96, ceiling 100.                                 YES
+  * issue #108's tilde expansion and the schema migration still happen -- both
+    driven by test rather than inspected.                              YES
+
+TESTS: tests/test_one_key_vocabulary.py, 88 tests, all green. Before the
+change, run against the previous tree, the vocabulary and funnel tests fail
+(no module, no wellID, no collision rule); the reported-bug reproduction
+`test_the_picker_shows_columnID_not_column_name` is the one to read first.
+
+--------------------------------------------------------------------------------
+HANDED ON
+--------------------------------------------------------------------------------
+
+  1. `spacr/columns.py:92` -- the one line above. The CSV picker.
+  2. The other 96 direct readers: plot.py (9), io.py (9), submodules.py (10),
+     filters.py (7), timelapse.py (5), sequencing.py (5) and the qt screens.
+     Move them in batches and LOWER `DIRECT_READER_CEILING`.
+  3. The write side beyond the three that moved: 144 `.to_csv` and 19
+     `.to_sql` sites. The decision is made and the writer exists; what is
+     left is the migration.
+  4. `utils._update_database_with_merged_info` builds `prcfo` by hand twice.
+     It cannot move until `filepaths_to_database` is known to escape the same
+     way, because it matches against `prcfo` values already in the database.
+     Named in KNOWN_HAND_JOINED so the guard still catches anything new.
+  5. `grna_name` -> `grna` is deliberately NOT in the shared vocabulary.
+     `submodules.py` and `plot.py` read `grna_name` by name out of sequencing
+     CSVs; putting it in the vocabulary would make the database migration
+     rename a column those readers then cannot find. It stays local to
+     `utils.correct_metadata_column_names` until those two move.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- FOUR MORE READERS FOUND, ON THE MAINTAINER'S OWN SCREEN
+--------------------------------------------------------------------------------
+
+Every one of these was a reader that did not canonicalise, and every one
+produced a WRONG NUMBER THAT LOOKED RIGHT rather than an error.
+
+1. `fractions_from_counts` read the count CSVs raw. The real tables carry
+   `row_name, column_name, grna_name, count` and NO PLATE COLUMN AT ALL -- the
+   plate is which file it is -- so four plates' `r1/c1` pooled into one well:
+   384 wells instead of 1,536, every fraction a share of four plates' reads,
+   and the fractions still summed to 1 so nothing downstream could notice.
+
+2. `load_montage_objects` read `png_list` raw, and png_list is not spelled the
+   same way on every plate of one screen:
+
+       plate1   rowID / columnID    and plateID = 'pplate1'
+       plate2   row_name / column_name
+       plate3   row_name / column_name
+       plate4   row_name / column_name
+
+   Plates 2-4 could compose no well key at all and plate1 composed one against
+   a doubled plate name matching nothing. EVERY plate failed, the montage drew
+   nothing, and its caption said "no object in the imported databases comes
+   from this well" for wells holding 105 to 244 objects.
+
+3. The SCORE CSVs say `pplate1` too. A sweep joining them to the measurement
+   databases matched no well, and the resulting all-NaN circularity column was
+   reported as "0 of 5,959 hits are circular" -- the most confident possible
+   way to say nothing.
+
+4. `crop_source` means 'auto'/'png'/'merged' in the crop layer and
+   'pre_generated'/'on_demand'/'generate' in the training settings. One idea,
+   two spellings, in two panels a user is expected to compare. See 171, which
+   gives the choice ONE pair of names and bars a third.
+
+THE PATTERN, and it is the argument for the ratchet this file already asks
+for: a reader that does not canonicalise does not fail. It returns a number.
+All four of these returned numbers, and three of them were nearly reported as
+findings.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE RATCHET, AND FOUR MORE READERS THROUGH THE FUNNEL
+--------------------------------------------------------------------------------
+
+A, B AND C ARE BUILT -- `spacr/schema.py`'s vocabulary, the collision rule,
+and `spacr/tabular.py`'s `read_table` / `write_table`. What was missing was
+the thing that keeps them from being undone: a partial conversion silently
+un-converts itself as new code is written, and there is no symptom.
+
+THE RATCHET, in tests/test_the_raw_reader_count_only_goes_down.py. It counts
+`pd.read_csv` / `pd.read_sql*` / `.to_csv` / `.to_sql` across `spacr/` and
+FAILS IF THE NUMBER GOES UP. Not a coverage target and not a demand for zero
+-- some of these are genuinely raw, a settings CSV or a log with no metadata
+columns at all -- but a new raw reader now has to either go through the funnel
+or be argued for in a file the next person reads.
+
+IT ALSO REFUSES TO LEAVE SLACK. A second test fails when the count has fallen
+more than 15 below the ceiling, because a ratchet with a gap in it is room for
+a raw reader to be added without anybody noticing. Lowering it is part of
+converting a site.
+
+AND WHY COUNTING IS WORTH DOING AT ALL, which is this file's own finding: a
+reader that does not canonicalise DOES NOT FAIL. All four of the readers found
+on the maintainer's screen returned numbers, and three were nearly reported as
+results -- "0 of 5,959 hits are circular" being the most confident possible
+way to say nothing.
+
+FOUR CONVERTED, chosen for damage rather than for count:
+
+  * `hit_investigation._read_fractions` required plateID/rowID/columnID and
+    fell through to a `prc` split when the file said row_name / column_name --
+    which the count CSVs on the maintainer's screen do. With no `prc` either
+    it returned a frame MISSING THE KEYS and every join downstream matched
+    nothing while raising nothing.
+  * `cell_montage.read_well_guide_fractions`, whose `_well_key` composes prc
+    from the three keys and was given none of them.
+  * the count-CSV reader, which is the 384-wells-instead-of-1,536 case
+    measured in the note above.
+  * the score-CSV reader beside it.
+
+267 -> 263. The direction is the point.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- TWO MORE COUNT READERS, AND THE OTHER HALF OF THE RULE.
+--------------------------------------------------------------------------------
+
+`sequencing_qc` read the COUNT CSVs raw in two places -- the same files, and
+the same failure, as the `fractions_from_counts` case measured above: four
+plates' r1/c1 pooling into one well, 384 instead of 1,536, fractions still
+summing to 1. Both go through `read_table` now. 263 -> 261.
+
+AND THE OTHER HALF OF THE RULE IS WRITTEN DOWN WHERE IT APPLIES. Not every
+raw reader is a defect, and treating them all as one would make the ratchet a
+number nobody could ever bring to zero and therefore a number nobody would try
+to move:
+
+  * `sequencing_qc`'s barcode reader takes a table of `name` and `sequence`.
+    It carries no plate, row, column, field or well. Canonicalising it is a
+    no-op with an import behind it, and it is marked RAW, DELIBERATELY, with
+    that reason on the line.
+  * `gene_tile._read_csv` reads the gene ANNOTATION table, and
+    `hyperparam._default_read` reads a per-fold metrics CSV. Neither carries
+    plate metadata, and the first has a real risk the others do not:
+    canonicalising could rename a column the annotation index is built on.
+
+145's rule is about readers of METADATA-BEARING tables. A reader that touches
+none is not a door this instruction is trying to close, and saying so beside
+it is what stops the next person converting it and breaking something.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later still) -- SEVEN MORE READERS, AND BOTH CEILINGS LOWERED.
+--------------------------------------------------------------------------------
+
+THE RATCHET DID ITS JOB FIRST, which is worth recording: it went RED at 263
+against a ceiling of 261 because the settings advisor (192) was written with
+`pd.read_csv` in it. That is exactly the failure mode this instruction
+describes -- "a partial conversion silently un-converts itself as new code is
+written, and there is no symptom" -- caught by the only thing that can catch
+it.
+
+The advisor now reads through `tabular.read_table`, and it needed one thing
+saying out loud: `usecols` is matched against the name in the FILE, before any
+renaming, so a header read for that purpose must NOT be canonicalised while
+every line after the read wants the canonical names. `_columns_of` takes a
+`canonical=` flag and the docstring says which question each answers.
+
+SEVEN IN `submodules.py`, chosen for damage rather than for count. Two of them
+sat directly above a comment recording that the helper "was left half-way
+through the column_name -> columnID rename: it grouped by 'columnID' but
+filtered and merged on 'column_name', a key the grouped frame can never
+carry". Canonicalising at the read is what makes that impossible, rather than
+a note asking the next reader to be careful.
+
+AND ONE BEHAVIOUR CHANGE, DELIBERATE AND VISIBLE. `interperate_vision_model`
+used to read its scores CSV raw and let a LATER alias overwrite an earlier
+one, so a file carrying both `row` and `row_name` was resolved by declaration
+order and said nothing. The funnel collapses the pair and WARNS with the
+count -- "24 of 24 rows differ" -- which is the whole argument in
+`resolve_metadata_collisions`' docstring: "they disagree" is not actionable,
+"3 of 40 000" is a typo, and all of them is the wrong file. The test that
+pinned the old rule now pins the new one, and a second test pins the warning.
+
+  raw tabular calls   261 -> 254
+  direct readers       96 -> 85, with NO SLACK: the ceiling IS the count,
+                       because a gap in a ratchet is room for a raw reader to
+                       be added without anybody noticing.
+
+WHAT IS LEFT IS NOT A LIST OF LEAKS. The remaining calls are in modules whose
+tables carry no plate metadata at all -- a settings CSV, a per-fold metrics
+file, a gene annotation index -- and the instruction's own rule says so: "a
+reader that touches none is not a door this instruction is trying to close".
+Both ratchets hold the direction from here.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE RATCHET HAD BEEN BROKEN AND IS BACK.
+--------------------------------------------------------------------------------
+
+The ceiling has no slack, and a new raw reader landed against it:
+`ml._concat_named_csvs` (the screen's count/score CSVs for a control-well
+calibration) read with `pd.read_csv`, which made 86 direct readers against a
+ceiling of 85 and put `ml.py` back in the owned-module set that must have
+none. Both `test_the_number_of_direct_readers_only_falls` and
+`test_none_of_the_owned_modules_reads_a_table_directly` were failing.
+
+It now reads through `spacr.tabular.read_table`, so a count file headed
+`Plate`/`column_name` reaches the fit under the canonical keys like every
+other table. Count is 85 again; the ceiling is unchanged, because it is the
+count. A behavioural test holds the canonicalisation --
+`test_the_screen_csvs_arrive_with_canonical_key_names` in
+tests/test_the_threshold_can_be_measured_not_named.py -- confirmed to fail
+against the old `pd.read_csv` line.

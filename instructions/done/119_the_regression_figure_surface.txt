@@ -1,0 +1,325 @@
+================================================================================
+THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
+================================================================================
+
+Status:    filed 2026-08-16, not started. THIS FILE IS THE INDEX for one
+           request that spans seven instructions -- see WHAT LIVES WHERE.
+Requested: 2026-08-16 - "The regression itself i working pretty well. but the
+           figures being generated are verry slow, espessially the last
+           regression figure. ... The image UMAP modual works really well now,
+           the hyperparamiter search looks great, take insiration from that
+           module for the following features to the regression module ...
+           - figures should not have a background not black not white just
+             transparent
+           - figures should pop up in a grid above the console
+           - each figure should be editable and savable
+           - if a figure is clicked it should fill the container
+           - the results for the regression shoild pop up in a container to
+             the left of the figures
+           - this table should be clickable so the user can click a row and
+             that rows datapoint in the regression graph gets highlighted
+           - for the paramiter search there should be a different structure
+             with the run table to the top of the figure grid with figures and
+             the figures should change when a run row is clicked
+           - all gigures should be editable by right clicking
+           - use the fastest graphing library possible
+           - currently changing settings on most graphs laggs to much and
+             esspecially on the regression plot, that is super slow
+           - add quality controll graphs for variance homogenicite and all
+             other regression relevant features
+           - the paramiter search needs to be verry safe so it dosnt crash
+             spacr or the machine (it crashed vscode many tinmes)"
+
+--------------------------------------------------------------------------------
+WHAT LIVES WHERE
+--------------------------------------------------------------------------------
+
+Most of this request already had a home. Folding it in rather than filing a
+thirteenth duplicate, because a requirement written down twice gets built
+twice and the two copies disagree:
+
+    108  right-click to restyle  ... and SAVE the restyled figure
+    114  the sweep cannot take the machine down  (VS Code was OOM-killed)
+    115  variance homogeneity + every standard regression diagnostic
+    116  the search is the module setup PLUS A RUNS TAB (corrected same
+         day -- NOT a table above the grid)
+    117  a grid ABOVE the console; click a figure to fill the container
+    118  transparent background -- never black, never white
+
+Each of those now carries the maintainer's 2026-08-16 words in its own file.
+
+WHAT IS ONLY HERE, because nothing else covers it:
+
+    A. the regression RESULTS TABLE, to the LEFT of the figures
+    B. clicking a results row HIGHLIGHTS that row's point in the graph
+    C. "use the fastest graphing library possible"
+    D. settings changes lag; the regression plot is "super slow"
+
+--------------------------------------------------------------------------------
+A. THE RESULTS TABLE IS TO THE LEFT
+--------------------------------------------------------------------------------
+
+The regression screen gets a results container to the LEFT of the figure
+grid.
+
+DELIBERATELY DIFFERENT FROM THE SEARCH SCREEN, which was corrected on
+2026-08-16 to be the ordinary module setup plus a RUNS TAB (116). The two are
+not the same surface and should not be made one:
+
+  * the SEARCH's runs are a TAB. They are a short list, scanned top to
+    bottom, and picking one replaces the whole grid. A tab, because the
+    search screen is otherwise the module setup every other screen is.
+  * the REGRESSION's results are a PANEL BESIDE the figures -- one row per
+    guide or gene, hundreds of rows, sorted by effect, read ALONGSIDE the
+    figure it describes. Picking a row changes one point, not the view, so
+    both have to be on screen at once.
+
+One is navigation between runs; the other is reading within a run. Anyone who
+"unifies" them has removed the reason for both.
+
+--------------------------------------------------------------------------------
+B. CLICK A ROW, LIGHT UP ITS POINT
+--------------------------------------------------------------------------------
+
+Clicking a results row highlights that row's datapoint in the regression
+graph. This is the feature that makes the table and the figure one object
+instead of two.
+
+WHAT IT REQUIRES, and this is the part that is easy to get wrong: the row and
+the point must be joined on a KEY, not on a position. A regression table
+sorted by effect and a scatter drawn in input order are the same points in
+two orders, and joining them by index highlights the wrong guide -- silently,
+and in exactly the direction a user would not question, because SOMETHING
+lights up.
+
+The key is the guide/gene identifier the row carries. Assert it.
+
+Highlighting should also survive a re-draw: change a setting, and the
+selected point stays selected.
+
+--------------------------------------------------------------------------------
+C. THE FASTEST GRAPHING LIBRARY POSSIBLE
+--------------------------------------------------------------------------------
+
+Taken as "make it fast", not as "add a dependency". In that order:
+
+1. FIND OUT WHAT IS ALREADY HERE. `spacr/qt/widgets/fast_plots.py` exists.
+   Establish what it uses and where it is already wired before proposing
+   anything new. A second plotting stack that only the regression module
+   speaks is a second set of theme bugs, export bugs and DPI bugs.
+2. MEASURE BEFORE SWITCHING. "Slow" has a cause (see D), and if the cause is
+   a full re-render on every settings change then no library is fast enough
+   to hide it. Fix the pipeline first; a faster renderer on a wasteful
+   pipeline is still wasteful.
+3. ONLY THEN consider a different renderer, and only for the plots whose
+   point count actually justifies it -- a volcano with 800 guides does not
+   need a GPU, a per-cell scatter with 300,000 does.
+
+State what was measured. "It felt faster" is not a result.
+
+--------------------------------------------------------------------------------
+D. THE LAG, AND THE LAST REGRESSION FIGURE
+--------------------------------------------------------------------------------
+
+Two complaints, and they may not have the same cause:
+
+  * changing settings on most graphs lags;
+  * the LAST regression figure is "verry slow" -- named specifically, so
+    identify WHICH figure that is before optimising anything.
+
+The likely shape, to be confirmed rather than assumed: a settings change
+re-renders the whole figure, and possibly re-fits the model behind it. A
+restyle should never re-fit -- 108 says the same thing from the other side,
+"without re-running anything".
+
+PROFILE IT. Time one settings change end to end, and say where the
+milliseconds go. A fix aimed at the wrong stage is the most expensive kind of
+optimisation, and this repository has already spent a day on one of those.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The regression screen shows a results table on the LEFT and a figure grid
+  on the right, above the console.
+* Clicking a results row highlights that guide's point, joined ON THE KEY --
+  with a test that sorts the table differently from the plot order and
+  asserts the right point still lights up.
+* The selection survives a settings change.
+* The parameter-search screen is the ordinary module setup with one extra
+  tab holding the runs, and clicking a run swaps the figures.
+* Figures are transparent, restyleable by right-click, savable, and click to
+  fill the container.
+* One settings change on the slowest regression figure is measurably faster,
+  with the before and after numbers written down, and no re-fit in the path.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - THE DATA TO MEASURE AGAINST, AND WHICH GRAPH
+--------------------------------------------------------------------------------
+
+    "if you are going to test grapjs test the regression graph based on the
+     data in /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/
+     which is real data and that is the slowest graph and the one i want to be
+     interactive."
+
+THIS ANSWERS SECTION D's OPEN QUESTION -- "identify WHICH figure that is
+before optimising anything". It is the regression graph itself, on the
+tsg101 screen.
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/
+    36 MB -- four plates (plate1_dv.csv .. plate4_dv.csv), their unique-
+    combination tables, grna_barcodes.csv, and a results/ folder.
+
+USE IT. A synthetic frame with a thousand rows will not reproduce a lag that
+only appears on a real screen, and "it felt faster" on fake data is not a
+result. Profile the real thing, write the before number down, and write the
+after number next to it.
+
+THIS IS ALSO THE GRAPH THAT MUST BECOME INTERACTIVE -- the row-to-point
+highlighting of section B and the gene tile of instruction 121 both land
+here first. Whatever renderer this graph ends up using has to carry hit
+testing (click a point, know which guide it is), so a renderer chosen purely
+for draw speed is the wrong choice if it cannot answer that.
+
+DO NOT WRITE INTO THAT DIRECTORY. It is the maintainer's real screen data,
+not a fixture. Copy what is needed into a temp directory, or open it
+read-only.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - FOUND WHILE BUILDING B: THE VOLCANO'S Y-AXIS IS 3.6x TOO TALL
+--------------------------------------------------------------------------------
+
+Not requested. Found by opening the graph this file names -- plate1_dv/ols/
+list/results.csv, 1,213 coefficients -- and looking at what is on it.
+
+    the tallest point on the plot        45.50   Intercept
+    the tallest REAL hit                 12.54   gene_fraction:gene[244480]
+    the 99th percentile of the rest       2.30
+
+The Intercept is not a guide, not a gene, and not a hypothesis. It is a
+nuisance parameter, and this repository already says so in the one place that
+matters: ml.py excludes `row|column|Intercept` from the multiple-testing
+family, so those rows are written to results.csv with **q_value = NaN**. They
+were never candidates for being hits.
+
+But the volcano plots them, so a nuisance term with p = 3e-46 sets the top of
+the y-axis and squashes every real result into the bottom quarter. The screen
+looks like it has one enormous hit and nothing else. That is a misleading
+picture drawn from correct numbers, which is the worst kind.
+
+    plate1_dv carries ONE such row and it costs 3.6x of the axis. A fit with
+    row and column nuisance terms carries ~25 of them.
+
+THE RULE ALREADY EXISTS AND MUST NOT BE COPIED. `ml.py:3975` holds the only
+correct statement of what is being tested, and a second copy in the plotting
+code is a second copy that can drift from it -- a volcano drawing a family
+the correction did not correct. Factor it out, call it from both.
+
+The dropped rows are reported in the plot's status line rather than silently
+removed. "1,212 coefficients (1 nuisance term not shown)" is the difference
+between a filter and a lie.
+
+--------------------------------------------------------------------------------
+2026-08-16 - HOW B IS BUILT: THE KEY IS `feature`
+--------------------------------------------------------------------------------
+
+Checked against the real table rather than assumed:
+
+    feature    1,213 values, 1,213 distinct   <- unique, and it is the key
+    grna         823 distinct
+    gene         389 distinct
+    condition      3 distinct
+
+`feature` is the design-matrix term name and it is one-to-one with the row,
+which is exactly what section B needs. `grna` and `gene` are NOT keys -- a
+gene has several guides and several rows -- so joining on either highlights
+an arbitrary one of them.
+
+The volcano therefore carries its own key array and looks the row up in it.
+It does not accept a position from the table. That is what makes the join
+survive the table being sorted, filtered, or -- once 122 lands -- built from
+a different frame than the one that was plotted.
+
+
+================================================================================
+RESULT - 2026-08-16
+================================================================================
+
+D (THE LAG) -- DONE. Measured 262.7 ms per full render on an 823-point
+volcano, then removed two wasted ones:
+  * closing the settings dialog rendered twice (its closeEvent already
+    renders, and the caller called refresh_current_figure again);
+  * every context-menu toggle forced FULL quality, vector page included,
+    mid-gesture. It previews now.
+The plan's third item -- add a dirty flag and anti-stacking guard -- was
+wrong: both already existed at figure_settings.py:448-462 and are why the
+app survived at all. Commit c5d9b4b3.
+
+C (FASTEST LIBRARY) -- ANSWERED WITHOUT ADDING ONE. fast_plots.py is
+pyqtgraph and was already wired. Redraw of the real 1,213-coefficient screen:
+10.9 ms. Nothing was switched; the cost was never the renderer.
+
+A (RESULTS ON THE LEFT) -- DONE. The three-tab stack is gone. The figures
+card is now a horizontal splitter: results panel LEFT, a stack RIGHT holding
+the figure grid (pressable tiles) and, when a tile is pressed, the one
+figure filling the container with a way back. Sizing floors were needed and
+were measured, not guessed -- at the old 360 px card minimum every pane was
+a scrollbar with a sliver behind it.
+
+B (ROW -> POINT, ON THE KEY) -- DONE, and the position join it warned about
+was really there. The old link passed an integer both ways and did not
+highlight anything -- it wrote a status line. Now: `feature` is the key
+(1,213 rows, 1,213 distinct on the real screen), the volcano carries its own
+key array, an open ring marks the selection, and it survives a redraw.
+
+    ON THE REAL SCREEN, table sorted by p, row 5:
+        key join      fraction:grna[409250_160]     <- correct
+        position join fraction:grna[000000_15]      <- a CONTROL guide
+
+    Clicking a real hit would have highlighted a control. That is the
+    failure section B predicted, reproduced on the maintainer's own data.
+
+FOUND AND FIXED: the volcano plotted the Intercept, making the y-axis span
+51.4 instead of 14.2 -- 3.6x taller than the data. spacr.hits.tested_family
+is now the single statement of which coefficients are hypotheses, shared with
+ml.py's multiple-testing correction so a volcano cannot draw a family the
+correction did not correct. The dropped count is reported in the status line.
+
+RIGHT-CLICK A TILE, AND SAVE -- DONE. The gesture reached the one open
+figure and the thumbnails, never the grid. And "savable" had no
+implementation at all: the menu could restyle a figure and then offer no way
+to keep the result. Restyling a tile does NOT navigate to it -- a grid is for
+comparing figures and jumping to one loses the comparison.
+
+THE LIVE GRAPH IS NOW THE BIG ONE -- DONE, and it was the open question in
+the RESULT above. The volcano was a thumbnail above its own table on the
+left, while the pipeline's SAVED PNG of the same plot took a full tile on the
+right: two volcanoes on screen and the big one dead to a click. The live
+widget now owns the right-hand container, reachable from a pinned first tile,
+and picking a row in the table raises it -- because a ring drawn on a view
+nobody is looking at is not a highlight.
+
+    verified through the widgets on the real screen:
+      table sorted by p, row 4 -> gene_fraction:gene[239740]
+      ringed                   -> gene_fraction:gene[239740]
+      right-hand container     -> the live volcano, 1,212 points
+
+TRANSPARENCY, measured rather than eyeballed: the plot was rendered over a
+magenta host and sampled. (255, 0, 255) inside the axes and outside them --
+the host shows through everywhere, so nothing is painting a background.
+
+STILL OPEN in this file's scope: nothing. The remaining regression work is
+121 (the gene tile) and 122 (across screens), which have their own files.
+
+================================================================================
+2026-08-17 - CLOSED
+================================================================================
+
+The trailing note above already said "STILL OPEN in this file's scope:
+nothing", and 121 and 122 -- the two it handed on to -- have their own files.
+124, which carried the rest of the same request, was closed 2026-08-16.
+
+Filed to done/ after re-reading the file rather than its header, which still
+said "not started".

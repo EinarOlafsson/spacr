@@ -175,6 +175,91 @@ def test_partial_mask_folder_is_regenerated(run_dir, stubs):
     assert [c[0][2] for c in stubs["cellpose"].calls] == ["cell"]
 
 
+def test_preprocess_false_validates_exact_illumination_fields_before_cellpose(
+        run_dir, stubs, monkeypatch):
+    """Existing corrected segmentation inputs need a complete matching record."""
+    import spacr.illumination as illumination
+    from spacr.core import preprocess_generate_masks
+
+    masks = run_dir / "masks"
+    masks.mkdir()
+    np.savez_compressed(
+        masks / "stack_0_norm.npz",
+        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+    )
+    events = []
+
+    def validate(settings, **kwargs):
+        events.append(("validate", kwargs))
+        return object()
+
+    monkeypatch.setattr(
+        illumination, "load_segmentation_illumination_resume", validate)
+    original_cellpose = stubs["cellpose"]
+
+    def cellpose(*args, **kwargs):
+        events.append(("cellpose", args[2]))
+        return original_cellpose(*args, **kwargs)
+
+    import spacr.object as sobj
+    monkeypatch.setattr(sobj, "generate_cellpose_masks_sam", cellpose)
+
+    preprocess_generate_masks(_mask_settings(
+        run_dir,
+        illumination_correction=True,
+        illumination_model="",
+        preprocess=False,
+        masks=True,
+        cell_channel=1,
+        nucleus_channel=None,
+    ))
+
+    assert events[0][0] == "validate"
+    assert events[0][1] == {
+        "provenance_path": str(
+            run_dir / "illumination" / "segmentation_application.json"),
+        "pipeline_style": "v1",
+        "expected_fields": ("f0", "f1", "f2"),
+        "verbose": False,
+    }
+    assert events[1:] == [("cellpose", "cell")]
+
+
+def test_preprocess_false_stops_before_cellpose_when_provenance_is_invalid(
+        run_dir, stubs, monkeypatch):
+    """A stale application record cannot be bypassed by re-masking."""
+    import spacr.illumination as illumination
+    from spacr.core import preprocess_generate_masks
+
+    masks = run_dir / "masks"
+    masks.mkdir()
+    np.savez_compressed(
+        masks / "stack_0_norm.npz",
+        data=np.zeros((3, 8, 8, 2), dtype=np.float32),
+        filenames=np.asarray(["f0.npy", "f1.npy", "f2.npy"]),
+    )
+
+    def refuse(*args, **kwargs):
+        raise illumination.IlluminationError("provenance mismatch")
+
+    monkeypatch.setattr(
+        illumination, "load_segmentation_illumination_resume", refuse)
+
+    with pytest.raises(illumination.IlluminationError,
+                       match="provenance mismatch"):
+        preprocess_generate_masks(_mask_settings(
+            run_dir,
+            illumination_correction=True,
+            preprocess=False,
+            masks=True,
+            cell_channel=1,
+            nucleus_channel=None,
+        ))
+
+    assert stubs["cellpose"].n == 0
+
+
 # ---------------------------------------------------------------------------
 # merge step
 # ---------------------------------------------------------------------------
@@ -196,21 +281,18 @@ def test_merge_receives_every_channel_index_positionally(run_dir, stubs):
     assert args[3] == 0      # nucleus
     assert args[4] == 2      # pathogen
     assert args[5] == 3      # organelle
-    assert kwargs == {
-        "organelle_chann_dims": {
-            "organelleb": None, "organellec": None, "organelled": None},
-        "resume": True,
-    }
+    # EMPTY, NOT THREE NULLS. This named the four-slot vocabulary that
+    # existed when it was written; 326 took it to 702, and core.py now sends
+    # the slots the run configured rather than every slot that can be named.
+    # This run configures none of them.
+    assert kwargs == {"organelle_chann_dims": {}, "resume": True}
 
 
 def test_merge_resume_defaults_to_false(run_dir, stubs):
     from spacr.core import preprocess_generate_masks
     preprocess_generate_masks(_mask_settings(run_dir))
     assert stubs["concat"].calls[0][1] == {
-        "organelle_chann_dims": {
-            "organelleb": None, "organellec": None, "organelled": None},
-        "resume": False,
-    }
+        "organelle_chann_dims": {}, "resume": False}
 
 
 def test_secondary_organelle_slots_are_segmented_and_merged(run_dir, stubs):
@@ -224,8 +306,11 @@ def test_secondary_organelle_slots_are_segmented_and_merged(run_dir, stubs):
 
     assert [call[0][2] for call in stubs["organelle"].calls] == [
         "organelle", "organelleb"]
+    # The configured slot, and only it -- which is also the whole point:
+    # `organelleb` is here because this run asked for it, and the 700 it did
+    # not ask for are absent rather than present-and-null.
     assert stubs["concat"].calls[0][1]["organelle_chann_dims"] == {
-        "organelleb": 2, "organellec": None, "organelled": None}
+        "organelleb": 2}
 
 
 def test_pivot_runs_only_when_a_measurements_folder_exists(run_dir, stubs):
@@ -330,6 +415,7 @@ def test_examples_to_plot_caps_the_overlay_count(run_dir, stubs):
         assert kwargs["save_pdf"] is True
 
 
+@pytest.mark.heavy
 def test_test_mode_plots_every_merged_field(run_dir, stubs):
     """BUG (fixed): test_mode set examples_to_plot to len() of the merged
     *path string*, a number that depends on how deep tmp_path is nested, not
@@ -364,6 +450,7 @@ def test_one_unplottable_field_does_not_cancel_the_rest(run_dir, stubs, capsys):
     assert "Successfully completed run" in printed
 
 
+@pytest.mark.heavy
 def test_missing_merged_folder_reports_and_continues(run_dir, stubs, capsys):
     """No merged/ at all → the listing failure is reported, no overlay is
     attempted, and the run still finishes."""

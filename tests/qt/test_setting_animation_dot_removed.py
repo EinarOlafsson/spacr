@@ -1,9 +1,11 @@
-"""The purple animation dot is gone, and so is the popup it opened.
+"""Neither dot is drawn beside a setting, and the popup one opened is gone.
 
 Every setting label used to carry two coloured dots: a teal one linking to the
 API page and a purple one that opened the setting's animation in a window of
 its own. The hover tooltip shows that animation inline now, on request, so the
 purple dot was 585 marks of clutter in front of a window nothing else needed.
+The teal one followed it: a column of dots read as texture rather than as one
+affordance per setting, and the API link is in the hover text either way.
 
 Measured on the rendered label, not on a class name: the removal is only real
 if no purple ink reaches the screen. The probe below is run against a purple
@@ -18,7 +20,6 @@ import numpy as np
 from PySide6.QtWidgets import QFormLayout, QLabel, QSpinBox, QWidget
 
 from spacr.qt.screens.settings_model import (
-    build_setting_link_widget,
     install_api_tooltips,
     refresh_api_tooltips,
 )
@@ -68,15 +69,15 @@ def _purple_pixels(widget) -> int:
 # 1. No setting label carries the dot
 # ---------------------------------------------------------------------------
 
-def test_an_animated_setting_gets_one_dot_and_it_is_the_teal_one(qtbot):
+def test_an_animated_setting_gets_no_dot_of_either_colour(qtbot):
     _root, label, _field = _setting_row(qtbot, ANIMATED_KEY)
 
-    host = label.parentWidget()
-    assert host.objectName() == "SettingLabelWithInfo", (
+    assert label.property("settingHelpLabel"), (
         "the label was never decorated, so counting its dots proves nothing")
-    dots = host.findChildren(DotLink)
-    assert [d.objectName() for d in dots] == ["SettingInfoLink"]
-    assert isinstance(dots[0], InfoLink)
+    assert "href=" in str(label.property("apiTooltipHtml")), (
+        "the API link left with the dot instead of staying in the hover text")
+    assert label.parentWidget().findChildren(DotLink) == []
+    assert label.parentWidget().findChildren(InfoLink) == []
 
 
 def test_no_purple_ink_is_rendered_beside_an_animated_setting(qtbot):
@@ -96,7 +97,7 @@ def test_no_purple_ink_is_rendered_beside_an_animated_setting(qtbot):
         "the purple probe cannot see a purple dot it was pointed at")
 
 
-def test_a_combined_control_row_carries_one_dot_too(qtbot):
+def test_a_combined_control_row_carries_no_dot_either(qtbot):
     """The label-less branch — a checkbox that is its own row label."""
     from PySide6.QtWidgets import QCheckBox, QVBoxLayout
 
@@ -107,32 +108,24 @@ def test_a_combined_control_row_carries_one_dot_too(qtbot):
     root.layout().addWidget(box)
     install_api_tooltips(root, "umap", {box: ANIMATED_KEY})
 
-    host = box.parentWidget()
-    assert host.objectName() == "SettingControlWithInfo"
-    assert [d.objectName() for d in host.findChildren(DotLink)] == [
-        "SettingInfoLink"]
+    assert "href=" in str(box.property("apiTooltipHtml")), (
+        "the checkbox was never decorated, so counting its dots proves "
+        "nothing")
+    assert root.findChildren(DotLink) == []
 
 
-def test_the_builder_returns_the_api_dot_alone(qtbot):
-    """``AppScreen`` still unpacks three values; the third is always ``None``."""
-    widget, dot, animation_dot = build_setting_link_widget(
-        "umap", ANIMATED_KEY, "<b>x</b>")
-    qtbot.addWidget(widget)
-    assert widget is dot
-    assert isinstance(dot, InfoLink)
-    assert animation_dot is None
-    assert not widget.findChildren(DotLink), "the dot stack is back"
-
-
-def test_no_widget_claims_the_animation_link_role_any_more(qtbot):
-    """``refresh_api_tooltips`` used to retranslate the purple dot's caption."""
-    root, _label, field = _setting_row(qtbot, ANIMATED_KEY)
+def test_no_widget_claims_either_dot_role_any_more(qtbot):
+    """``refresh_api_tooltips`` used to retranslate both dots' captions."""
+    root, label, field = _setting_row(qtbot, ANIMATED_KEY)
     refresh_api_tooltips(root, "sv")
 
     roles = {w.property("apiTooltipDisplayRole")
              for w in root.findChildren(QWidget)}
     assert "animation-link" not in roles
-    assert "api-link" in roles, "the teal dot lost its role too"
+    assert "api-link" not in roles
+    # The help itself was retranslated rather than lost with the dots.
+    assert label.property("apiTooltipDisplayRole") == "tooltip"
+    assert str(label.property("apiTooltipHtml"))
     assert field.toolTip() == ""
 
 

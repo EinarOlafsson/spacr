@@ -1,0 +1,104 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-27",
+    "review_scope": "Complete current eleven-scene Regression review for every caption-only locale. UI labels and the Freedman–Lane procedure name remain exact."
+  },
+  "lessons": {
+    "13_regression": {
+      "languages": {
+        "de": {
+          "narrations": [
+            "Regression setzt Phänotypwerte mit der aus Sequenzierungsdaten abgeleiteten Guide-Häufigkeit in Beziehung. Die Konsole meldet Tabellenabgleich, Filterung, das gewählte Inferenzverfahren, Diagnosen, Ergebnisse und Reproduzierbarkeitsnachweise.",
+            "Input Tables wählt Phänotypwerte, Sequenzierungszählungen, optionale Genmetadaten und den Zielordner für die Ergebnisse aus. Lassen Sie den Zielordner leer, um neben der ersten Zähltabelle zu speichern; prüfen Sie vor der Analyse, ob die Platten- und Well-Kennungen übereinstimmen.",
+            "Essentials enthält die Eingaben und Inferenzparameter für eine erste Analyse. Verwenden Sie Modified, um bewusste Änderungen zu prüfen, All für erweiterte Parameter und Recipes, um einen wiederverwendbaren Analyseplan zu speichern.",
+            "Controls and Filters legt positive, negative und neutrale Kontrollen fest, schließt angegebene Guides, Wells oder Tabellenzeilen aus und definiert die Evidenz- und Normalisierungsregeln, nach denen Beobachtungen in die Analyse eingehen.",
+            "Plate and Batch Correction kann technische Verschiebungen durch Zentrierung, robuste Skalierung, Referenzkontrollen oder Batch-Modelle entfernen. Wenden Sie eine Korrektur nur an, wenn das Versuchsdesign sie rechtfertigt.",
+            "Response wählt die Phänotypspalte, die Analyseeinheit, die Aggregation, eine optionale Vorzeichenumkehr und die Transformation aus. Diese Entscheidungen definieren die Größe, die mit der Guide-Häufigkeit in Beziehung gesetzt wird.",
+            "Model and Inference wählt zwischen einem nichtparametrischen Test pro Guide, einer parametrischen simultanen Regression und einer automatischen Auswahl. Außerdem werden die Berichtsebene, gegebenenfalls die Modellfamilie, die Korrektur für multiples Testen und die Signifikanzregel festgelegt.",
+            "Estimator Tuning enthält Parameter für Kovarianz, Regularisierung, robuste Anpassung, Quantile, Bootstrap und Rangaggregation. Nur die vom gewählten Schätzer verwendeten Einstellungen beeinflussen die Analyse.",
+            "Permutation Test konfiguriert die Guide-Statistik, die minimale Well-Unterstützung, Anzahl und Startwert der Permutationen, den Austauschbarkeitsblock, Störvariablen, den Präsenzschwellenwert und die speicherbegrenzte Batch-Größe.",
+            "Run validiert Schemata und Well-Schlüssel, wendet Ausschlüsse und Korrekturen an, aggregiert die Response und führt das gewählte Inferenzverfahren aus. Das standardmäßige nichtparametrische Verfahren verwendet nach Platte blockierte Freedman–Lane-Permutationen und passt kein Regressionsmodell an.",
+            "Das abgeschlossene Projekt enthält abgeglichene Analysedaten, Effektschätzungen auf Guide- und Genebene, empirische oder modellbasierte Signifikanztabellen, Diagnoseabbildungen, gespeicherte Einstellungen und ein erneut ausführbares Manifest."
+          ]
+        },
+        "sv": {
+          "narrations": [
+            "Regression relaterar fenotyppoäng till guideförekomst som har härletts från sekvensering. Konsolen rapporterar tabelljustering, filtrering, vald inferensmetod, diagnostik, resultat och reproducerbarhetsposter.",
+            "Input Tables väljer fenotyppoäng, sekvenseringsräkningar, valfria genmetadata och målplatsen för resultaten. Lämna målplatsen tom för att skriva bredvid den första räknetabellen; kontrollera att platt- och brunnsidentifierarna stämmer överens före analysen.",
+            "Essentials innehåller de indata och inferensinställningar som krävs för en första analys. Använd Modified för att granska avsiktliga ändringar, All för avancerade inställningar och Recipes för att spara en återanvändbar analysdesign.",
+            "Controls and Filters identifierar positiva, negativa och neutrala kontroller, utesluter angivna guider, brunnar eller tabellrader och anger de evidens- och normaliseringsregler som avgör vilka observationer som ingår i analysen.",
+            "Plate and Batch Correction kan ta bort tekniska förskjutningar genom centrering, robust skalning, referenskontroller eller batchmodeller. Använd korrigering endast när försöksdesignen motiverar den.",
+            "Response väljer fenotypkolumn, analysenhet, aggregering, valfri teckenvändning och transformation. Dessa val definierar den storhet som ska relateras till guideförekomsten.",
+            "Model and Inference väljer icke-parametrisk testning per guide, parametrisk samtidig regression eller automatiskt val. Här anges även rapporteringsnivå, modellfamilj när den är relevant, korrigering för multipla tester och signifikansregel.",
+            "Estimator Tuning innehåller inställningar för kovarians, regularisering, robust anpassning, kvantiler, bootstrap och rangaggregering. Endast de inställningar som den valda estimatorn använder påverkar analysen.",
+            "Permutation Test konfigurerar guidestatistik, minsta brunnsstöd, antal permutationer och slumpfrö, utbytbarhetsblock, störvariabler, närvarotröskel och en batchstorlek som begränsas av minnet.",
+            "Run validerar scheman och brunnsnycklar, tillämpar uteslutningar och korrigering, aggregerar responsen och kör den valda inferensmetoden. Standardmetoden är icke-parametrisk, använder plattblockerade Freedman–Lane-permutationer och anpassar ingen regressionsmodell.",
+            "Det slutförda projektet innehåller justerade analysdata, effektskattningar på guide- och gennivå, empiriska eller modellbaserade signifikanstabeller, diagnostiska figurer, sparade inställningar och ett manifest som kan köras på nytt."
+          ]
+        },
+        "is": {
+          "narrations": [
+            "Regression tengir svipgerðarskor við magn leiðsöguraða sem er leitt af raðgreiningu. Stjórnborðið sýnir samsvörun taflna, síun, valda ályktunaraðferð, greiningar, niðurstöður og gögn um endurgeranleika.",
+            "Input Tables velur svipgerðarskor, talningar úr raðgreiningu, valfrjáls genalýsigögn og áfangastað niðurstaðna. Skildu áfangastaðinn eftir auðan til að skrifa við hlið fyrstu talningatöflunnar; staðfestu samsvarandi auðkenni platna og brunna fyrir greiningu.",
+            "Essentials inniheldur þau inntök og ályktunarviðföng sem þarf fyrir fyrstu greiningu. Notaðu Modified til að yfirfara vísvitandi breytingar, All til að skoða ítarleg viðföng og Recipes til að vista endurnýtanlega greiningarhönnun.",
+            "Controls and Filters tilgreinir jákvæðar, neikvæðar og hlutlausar viðmiðanir, útilokar tilteknar leiðsöguraðir, brunna eða töflulínur og setur sönnunar- og stöðlunarreglur sem ráða hvaða mælingar fara í greininguna.",
+            "Plate and Batch Correction getur fjarlægt tæknilegar hliðranir með miðjun, þolinni kvörðun, viðmiðunarstýringum eða lotulíkönum. Beittu leiðréttingu aðeins þegar tilraunahönnunin styður hana.",
+            "Response velur svipgerðardálk, greiningareiningu, samantekt, valfrjálsa formerkisbreytingu og umbreytingu. Þessi val skilgreina stærðina sem tengd er magni leiðsöguraða.",
+            "Model and Inference velur óparametrískt próf fyrir leiðsöguraðir, parametríska samtímis aðhvarfsgreiningu eða sjálfvirkt val. Þar eru einnig skilgreind framsetningarstig, líkanafjölskylda þegar við á, leiðrétting fyrir fjölprófun og marktækniregla.",
+            "Estimator Tuning inniheldur viðföng fyrir samdreifni, reglun, þolna aðlögun, fjórðunga, bootstrap og samantekt raða. Aðeins stillingar sem valdi metillinn notar hafa áhrif á greininguna.",
+            "Permutation Test stillir tölfræði leiðsöguraða, lágmarksstuðning brunna, fjölda umröðunarprófa og slembifræ, skiptanleikablokk, truflandi breytur, viðveruþröskuld og lotustærð sem takmarkast af minni.",
+            "Run sannreynir töfluskemu og brunnalykla, beitir útilokunum og leiðréttingu, tekur saman svörunina og keyrir valda ályktunaraðferð. Sjálfgefna óparametríska aðferðin notar Freedman–Lane-umraðanir sem eru blokkaðar eftir plötu og aðlagar ekki aðhvarfslíkan.",
+            "Lokaverkefnið inniheldur samræmd greiningargögn, áhrifamat á stigi leiðsöguraða og gena, reynslu- eða líkanabyggðar marktæknitöflur, greiningarmyndir, vistaðar stillingar og keyranlegt birtingarskjal."
+          ]
+        },
+        "nb": {
+          "narrations": [
+            "Regression relaterer fenotyppoeng til guideforekomst utledet fra sekvensering. Konsollen rapporterer tabelljustering, filtrering, valgt inferensprosedyre, diagnostikk, resultater og sporbarhetsdata for reproduksjon.",
+            "Input Tables velger fenotyppoeng, sekvenseringstellinger, valgfrie genmetadata og målmappe for resultatene. La målmappen stå tom for å skrive ved siden av den første tellingstabellen; bekreft samsvarende plate- og brønnidentifikatorer før analysen.",
+            "Essentials inneholder inndataene og inferensinnstillingene som kreves for en første analyse. Bruk Modified for å kontrollere bevisste endringer, All for avanserte innstillinger og Recipes for å lagre et gjenbrukbart analysedesign.",
+            "Controls and Filters identifiserer positive, negative og nøytrale kontroller, utelukker angitte guider, brønner eller tabellrader og angir evidens- og normaliseringsreglene som bestemmer hvilke observasjoner som inngår i analysen.",
+            "Plate and Batch Correction kan fjerne tekniske forskyvninger ved sentrering, robust skalering, referansekontroller eller batchmodeller. Bruk korreksjon bare når forsøksdesignet gir grunnlag for det.",
+            "Response velger fenotypekolonne, analyseenhet, aggregering, valgfri fortegnsvending og transformasjon. Disse valgene definerer størrelsen som skal relateres til guideforekomsten.",
+            "Model and Inference velger ikke-parametrisk testing per guide, parametrisk samtidig regresjon eller automatisk valg. Her angis også rapporteringsnivå, modellfamilie når det er relevant, korreksjon for multippel testing og signifikansregel.",
+            "Estimator Tuning inneholder innstillinger for kovarians, regularisering, robust tilpasning, kvantiler, bootstrap og rangaggregering. Bare innstillingene som den valgte estimatoren bruker, påvirker analysen.",
+            "Permutation Test konfigurerer guidestatistikk, minste brønnstøtte, antall permutasjoner og tilfeldig startverdi, utbyttbarhetsblokk, forstyrrende variabler, tilstedeværelsesterskel og en batchstørrelse begrenset av minnet.",
+            "Run validerer skjemaer og brønnøkler, bruker eksklusjoner og korreksjon, aggregerer responsen og kjører den valgte inferensprosedyren. Standardprosedyren er ikke-parametrisk, bruker plateblokkerte Freedman–Lane-permutasjoner og tilpasser ingen regresjonsmodell.",
+            "Det fullførte prosjektet inneholder justerte analysedata, effektestimater på guide- og gennivå, empiriske eller modellbaserte signifikanstabeller, diagnostiske figurer, lagrede innstillinger og et manifest som kan kjøres på nytt."
+          ]
+        },
+        "ko": {
+          "narrations": [
+            "Regression은 표현형 점수와 시퀀싱에서 산출한 가이드 풍부도를 연결합니다. 콘솔은 테이블 정렬, 필터링, 선택한 추론 절차, 진단, 결과 및 재현성 기록을 보고합니다.",
+            "Input Tables에서 표현형 점수, 시퀀싱 계수, 선택적 유전자 메타데이터 및 결과 저장 위치를 선택합니다. 저장 위치를 비워 두면 첫 번째 계수 테이블 옆에 기록됩니다. 분석 전에 플레이트와 웰 식별자가 일치하는지 확인하십시오.",
+            "Essentials에는 첫 분석에 필요한 입력 및 추론 설정이 포함되어 있습니다. 의도적으로 변경한 항목은 Modified에서 검토하고, 고급 설정은 All에서 확인하며, 재사용할 분석 설계는 Recipes에 저장하십시오.",
+            "Controls and Filters에서 양성, 음성 및 중립 대조군을 지정하고, 특정 가이드, 웰 또는 테이블 행을 제외하며, 분석에 포함할 관측값을 결정하는 근거 및 정규화 규칙을 설정합니다.",
+            "Plate and Batch Correction은 중심화, 강건한 스케일링, 참조 대조군 또는 배치 모델을 사용하여 기술적 편차를 제거할 수 있습니다. 실험 설계가 뒷받침하는 경우에만 보정을 적용하십시오.",
+            "Response에서 표현형 열, 분석 단위, 집계 방식, 선택적 부호 반전 및 변환을 선택합니다. 이러한 선택은 가이드 풍부도와 연결할 값을 정의합니다.",
+            "Model and Inference에서 가이드별 비모수 검정, 모수적 동시 회귀 또는 자동 선택을 지정합니다. 또한 보고 수준, 해당되는 경우 모델 계열, 다중 검정 보정 및 유의성 규칙을 설정합니다.",
+            "Estimator Tuning에는 공분산, 정규화, 강건 적합, 분위수, bootstrap 및 순위 집계 설정이 있습니다. 선택한 추정량이 실제로 사용하는 설정만 분석에 영향을 줍니다.",
+            "Permutation Test에서 가이드 통계량, 최소 웰 지지도, 순열 횟수와 난수 시드, 교환 가능성 블록, 방해 변수, 존재 임계값 및 메모리로 제한되는 배치 크기를 설정합니다.",
+            "Run은 스키마와 웰 키를 검증하고, 제외 규칙과 보정을 적용하고, 반응값을 집계한 뒤 선택한 추론 절차를 실행합니다. 기본 비모수 절차는 플레이트별로 블록화한 Freedman–Lane 순열을 사용하며 회귀 모델을 적합하지 않습니다.",
+            "완료된 프로젝트에는 정렬된 분석 데이터, 가이드 및 유전자 수준 효과 추정값, 경험적 또는 모델 기반 유의성 테이블, 진단 그림, 저장된 설정 및 다시 실행할 수 있는 매니페스트가 포함됩니다."
+          ]
+        },
+        "da": {
+          "narrations": [
+            "Regression relaterer fænotypescorer til guideforekomst udledt fra sekventering. Konsollen rapporterer tabeljustering, filtrering, den valgte inferensprocedure, diagnostik, resultater og reproducerbarhedsoplysninger.",
+            "Input Tables vælger fænotypescorer, sekventeringstællinger, valgfrie genmetadata og resultatdestinationen. Lad destinationen være tom for at skrive ved siden af den første tællingstabel; bekræft matchende plade- og brøndidentifikatorer før analysen.",
+            "Essentials indeholder de input og inferensindstillinger, der kræves til en første analyse. Brug Modified til at kontrollere bevidste ændringer, All til avancerede indstillinger og Recipes til at gemme et analysedesign, der kan genbruges.",
+            "Controls and Filters identificerer positive, negative og neutrale kontroller, udelukker angivne guider, brønde eller tabelrækker og fastlægger de evidens- og normaliseringsregler, som bestemmer, hvilke observationer der indgår i analysen.",
+            "Plate and Batch Correction kan fjerne tekniske forskydninger ved centrering, robust skalering, referencekontroller eller batchmodeller. Anvend kun korrektion, når forsøgsdesignet understøtter den.",
+            "Response vælger fænotypekolonne, analyseenhed, aggregering, valgfri fortegnsvending og transformation. Disse valg definerer den størrelse, der relateres til guideforekomsten.",
+            "Model and Inference vælger ikke-parametrisk testning pr. guide, parametrisk samtidig regression eller automatisk valg. Her angives også rapporteringsniveau, modelfamilie når relevant, korrektion for multiple test og signifikansregel.",
+            "Estimator Tuning indeholder indstillinger for kovarians, regularisering, robust tilpasning, kvantiler, bootstrap og rangaggregering. Kun de indstillinger, som den valgte estimator bruger, påvirker analysen.",
+            "Permutation Test konfigurerer guidestatistik, mindste brøndstøtte, antal permutationer og tilfældighedsfrø, udskiftelighedsblok, forstyrrende variable, tilstedeværelsestærskel og en batchstørrelse begrænset af hukommelsen.",
+            "Run validerer skemaer og brøndnøgler, anvender udelukkelser og korrektion, aggregerer responsen og kører den valgte inferensprocedure. Standardproceduren er ikke-parametrisk, bruger pladeblokerede Freedman–Lane-permutationer og tilpasser ingen regressionsmodel.",
+            "Det afsluttede projekt indeholder justerede analysedata, effektestimater på guide- og genniveau, empiriske eller modelbaserede signifikanstabeller, diagnostiske figurer, gemte indstillinger og et manifest, der kan køres igen."
+          ]
+        }
+      }
+    }
+  }
+}

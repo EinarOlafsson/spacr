@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -26,62 +26,134 @@
    :alt: GitHub समस्याएँ
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm गैर-व्यावसायिक लाइसेंस
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+   :alt: BSD 3-Clause लाइसेंस
+.. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+   :alt: bioRxiv प्रीप्रिंट
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: नवीनतम इंस्टॉलर
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge रेसिपी
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge संस्करण
 
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
+.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
 
-भाषाएँ: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
-`Deutsch <README.de.rst>`_ ·
-`Español <README.es.rst>`_ ·
-`简体中文 <README.zh_CN.rst>`_ ·
-`Português <README.pt.rst>`_ ·
-`हिन्दी <README.hi.rst>`_ ·
-`한국어 <README.ko.rst>`_ ·
-`Íslenska <README.is.rst>`_ ·
-`Français <README.fr.rst>`_
+.. spacr-language-picker-begin
 
-`अनुवाद मॉडल की जानकारी <../TRANSLATION_MODELS.md>`_
+भाषाएँ: `🌐 हिन्दी ▾ <README.md>`_
+
+.. spacr-language-picker-end
 
 **CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।**
 
-spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रत्येक कोशिका को मिले gRNA से जोड़ता है और बताता है कि किन जीनों ने फीनोटाइप बदला। इनपुट के रूप में प्लेट छवियाँ और FASTQ रीड आती हैं; आउटपुट में प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव आकार तथा प्राथमिकता के अनुसार परिणामों की सूची मिलती है।
+spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है।
 
-छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए यह पूरा कार्यप्रवाह है। यदि आपके पास उच्च-सामग्री माइक्रोस्कोपी है लेकिन कोई स्क्रीनिंग नहीं है, तो विभाजन, मापन, एनोटेशन और वर्गीकरण वाले भाग स्वतंत्र रूप से चलाए जा सकते हैं।
+segmentation, measurement, annotation और classification modules भी एक sequencing arm के बिना चलता है।
 
-छवियाँ, मास्क, इमेज क्रॉप, मापन, एनोटेशन, पूर्वानुमान, बारकोड और वेल पहचानकर्ता एक ही SQLite प्रोजेक्ट में रहते हैं, इसलिए किसी परिणाम के मान को उसके स्रोत ऑब्जेक्ट तक वापस खोजा जा सकता है।
+छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।
 
-spaCR को डेस्कटॉप एप्लिकेशन के रूप में या वर्कस्टेशन, सर्वर अथवा क्लस्टर पर बिना ग्राफ़िकल इंटरफ़ेस के चलाएँ। दोनों तरीके समान मॉड्यूल चलाते हैं और समर्थित मॉड्यूल में CUDA अपने आप उपयोग होता है।
+यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।
+
+हार्डवेयर समर्थन
+~~~~~~~~~~~~~~~~
+
+.. spacr-hardware-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 18 18 22
+
+   * - Hardware
+     - Cellpose 4
+     - Torch
+     - UMAP / clustering
+   * - NVIDIA (CUDA)
+     - 🟢 GPU
+     - 🟢 GPU
+     - 🟢 GPU
+   * - AMD on Linux (ROCm)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - AMD in an Intel Mac (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Apple Silicon (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Intel Arc/Xe (XPU)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - No GPU
+     - 🟢 CPU
+     - 🟢 CPU
+     - 🟢 CPU
+
+समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल
+
+.. spacr-hardware-end
 
 
-कार्यप्रवाह का अवलोकन
----------------------
+spaCR इंस्टॉल करें
+-----------------
 
-|Tutorials|
+डेस्कटॉप एप्लिकेशन
+~~~~~~~~~~~~~~~~~~~
 
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR कार्यप्रवाह और आउटपुट संगठन
-   :align: center
+इंस्टॉलर अपने स्वयं के Python को जोड़ते हैं. कॉन्डा की आवश्यकता नहीं है.
 
-माइक्रोस्कोपी छवियाँ (TIFF, OME-TIFF, LIF, CZI, ND2) और सीक्वेंसिंग रीड (FASTQ) पूरक इमेज-विश्लेषण तथा बारकोड-मैपिंग कार्यप्रवाह में जाती हैं। इसके बाद ऑब्जेक्ट तालिकाएँ, इमेज क्रॉप, एनोटेशन, पूर्वानुमान, गाइड पहचान, QC परिणाम और प्रति-वेल सारांश एक साथ विश्लेषित किए जाते हैं।
+.. spacr-installer-links-begin
 
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-त्वरित शुरुआत
--------------
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11 के लिए spaCR 1.5.0.4 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.4 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: 64-बिट Linux के लिए spaCR 1.5.0.4 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: spaCR के पुराने इंस्टॉलर
+   :target: ../../source/installers.rst
+
+.. spacr-installer-links-end
+
+पहले तीन आइकन वर्तमान रिलीज डाउनलोड करते हैं. spaCR आईकन पूरे इंस्टॉलर संग्रहालय को खोलता है. इंस्टॉलर लिंक और संस्करण फ़ाइल नाम जारी कार्यप्रवाह द्वारा अद्यतन किए जाते हैं; पिछले इंस्टोलर एक ही रिलीज़ संग्रहीत में रहते हैं.
+
+Linux पर डाउनलोड की गई फ़ाइल को निष्पादन योग्य बनाएँ और चलाएँ:
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+macOS पर, ``.pkg`` खोलें. वर्तमान बीटा नोटिस नहीं किया गया है; यदि Gatekeeper इसे ब्लॉक करता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा → किसी भी तरह से खोलें** का चयन करें.
+
+अद्यतन, अनइंस्टॉल, ऑफ़लाइन और समस्या हल करने के लिए निर्देशों के लिए `इंस्टॉलर गाइड <../../source/installer_guide.rst>`_ देखें।
+
+PyPI से इंस्टॉलेशन
+~~~~~~~~~~~~~~~~~
+
+PyPI रिलीज़ के लिए, Conda वातावरण के भीतर pip से spaCR इंस्टॉल करें। Python 3.12 में वैकल्पिक वैज्ञानिक पैकेजों की सबसे व्यापक उपलब्धता है:
 
 .. code-block:: bash
 
@@ -91,104 +163,75 @@ spaCR को डेस्कटॉप एप्लिकेशन के रू�
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR Python **3.9 से 3.14** का समर्थन करता है (Python 3.14.1 को छोड़कर, जिसे torchvision समर्थित नहीं करता)। Python 3.12 पर वैकल्पिक वैज्ञानिक पैकेजों का सबसे व्यापक चयन उपलब्ध है। CUDA कार्यप्रवाह के लिए Linux की सिफ़ारिश की जाती है; macOS और Windows भी समर्थित हैं।
+spaCR, Python **3.9 through 3.14** का समर्थन करता है, Python 3.14.1 को छोड़कर, जिसे torchvision बाहर रखता है। सबसे भारी CUDA और ROCm कार्यप्रवाहों के लिए Linux की अनुशंसा की जाती है; macOS और Windows भी समर्थित हैं, और दोनों अपने GPU का उपयोग करते हैं — macOS, Metal के माध्यम से, जो Apple Silicon और Intel Mac में लगे AMD कार्डों को कवर करता है, और Windows, CUDA या DirectML के माध्यम से।
 
-
-स्थापना विवरण
---------------------
-
-|Release| |PyPI| |CondaRecipe|
-
-**(बीटा) हल्के डेस्कटॉप इंस्टॉलर:**
-
-.. spacr-installer-links-begin
-
-* `Windows 10/11: डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (इंटेल और एप्पल सिलिकॉन): डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64-बिट Linux: डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
-
-.. spacr-installer-links-end
-
-हल्के इंस्टॉलर — conda या पहले से स्थापित Python की आवश्यकता नहीं
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-इंस्टॉलर स्थापना के दौरान एक निजी Python 3.12 रनटाइम, Qt, PyTorch, spaCR और वैज्ञानिक निर्भरताएँ डाउनलोड करता है, इसलिए conda या पहले से स्थापित Python की आवश्यकता नहीं है। पोर्टेबल CPU बिल्ड डिफ़ॉल्ट है, जिससे कई गीगाबाइट की CUDA लाइब्रेरियाँ बिना सूचना डाउनलोड नहीं होतीं। Windows में NVIDIA एक्सेलरेशन वैकल्पिक घटक है, Linux ``--torch-backend auto`` स्वीकार करता है, और macOS का मानक PyTorch wheel Apple MPS एक्सेलरेशन को बनाए रखता है।
-
-इंस्टॉलर की सहायता, प्रगति और त्रुटि संदेश सभी दस spaCR भाषाओं में ऑपरेटिंग सिस्टम की भाषा का अनुसरण करते हैं: अंग्रेज़ी, स्वीडिश, जर्मन, स्पेनिश, सरलीकृत चीनी, पुर्तगाली, हिन्दी, कोरियाई, आइसलैंडी और फ़्रेंच। असमर्थित लोकेल पर अंग्रेज़ी का उपयोग होता है।
-
-Linux पर डाउनलोड किए गए इंस्टॉलर को खोलने से पहले एक्ज़ीक्यूटेबल बनाएँ:
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-macOS पर डाउनलोड की गई ``.pkg`` फ़ाइल खोलें। यदि Gatekeeper वर्तमान बीटा इंस्टॉलर को notarize न होने के कारण रोकता है, तो **सिस्टम सेटिंग्स → गोपनीयता और सुरक्षा** खोलें, spaCR के लिए **फिर भी खोलें** चुनें और पैकेज दोबारा चलाएँ।
-
-पुराने इंस्टॉलेशन को बदलने से पहले इंस्टॉलर spaCR, Qt, PyTorch और सभी निर्भरताओं की संगति की जाँच करता है। इसलिए अपडेट बीच में रुकने पर पिछला कार्यशील वातावरण सुरक्षित रहता है। निदान लॉग निजी spaCR इंस्टॉलेशन निर्देशिका में ``install.log`` नाम से रखा जाता है।
-
-PyPI से डेस्कटॉप एप्लिकेशन
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   python -m pip install "spacr[qt]"
-   spacr
-
-बिना ग्राफ़िकल इंटरफ़ेस या सर्वर पर स्थापना
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+सर्वर, क्लस्टर या CI रनर पर Qt को छोड़ दें:
 
 .. code-block:: bash
 
    python -m pip install spacr
    spacr-run --list
 
-नवीनतम विकास शाखा
+वैकल्पिक एकीकरण अलग से स्थापित किए जाते हैं, उदाहरण के लिए ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` और ``spacr[czi,nd2,lif]``. पूर्ण अतिरिक्त और Python संस्करण संगतता तालिका में `स्थापना गाइड <../../source/installer_guide.rst>`_ देखें.
+
+conda-forge से इंस्टॉलेशन
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+आधिकारिक conda-forge पैकेज सक्रिय वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ इंस्टॉल करता है:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+स्रोत से स्थापित करें
+~~~~~~~~~~~~~~~~~~~
+
+संग्रहालय को क्लोन करें और इसे संपादित करने योग्य मोड में स्थापित करें, ताकि आपका कामकाजी कॉपी *is* स्थापित पैकेज और संपादन पुन: स्थापित किए बिना प्रभावी हो जाएं::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+डिफ़ॉल्ट शाखा ``nightly`` है. एक विशिष्ट रिलीज के लिए::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+बाद में परिवर्तनों को खींचने के लिए, क्लोन के अंदर से::
+
+    git pull
+    pip install -e .
+
+दूसरी पंक्ति केवल तब आवश्यक है जब निर्भरता या प्रवेश बिंदु बदल जाते हैं; Python कोड इसके बिना उठाया जाता है. यदि एक कमांड अभी भी खींचने के बाद पुराने कोड चलाता है, तो ``spacr-doctor`` रिपोर्ट करता है कि ``spacr`` वास्तव में आपके रास्ते पर है, जो सामान्य कारण है.
+
+स्रोत से स्थापित करें (प्रकाश)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+पूर्ण क्लोन: 427 एमबी. कोर क्लन: 76 एमबी।
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+स्काइप ``docs/``, ``tests/`` , Cellpose चेक पॉइंट, संग्रहीत आंकड़े और विस्तारित अनुवाद कैटलॉग. परिणाम एक सामान्य चेकअप है.
+
+विकल्प: ``--dir``, ``--branch`` (डिफ़ॉल्ट ``main``), ``--with-tests``, [``--with-docs``,] ``--with-translations`` और [``--no-install``।
+
+``packaging/source_install_excludes.txt`` प्रत्येक पारित मार्ग को सूचीबद्ध करता है।
+
+
+कमांड-लाइन प्रवेश बिंदु
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   git clone https://github.com/EinarOlafsson/spacr.git
-   cd spacr
-   git switch nightly
-   python -m pip install -e ".[qt]"
-
-Conda वातावरण
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 pip -y
-   conda activate spacr
-   python -m pip install "spacr[qt]"
-
-वैकल्पिक सुविधाएँ
-~~~~~~~~~~~~~~~~~~~~~
-
-केवल वही अतिरिक्त पैकेज इंस्टॉल करें जिनकी आपके कार्यप्रवाह को आवश्यकता है:
-
-.. code-block:: bash
-
-   python -m pip install "spacr[trackastra]"    # transformer tracking
-   python -m pip install "spacr[ultrack]"       # global-optimization tracking
-   python -m pip install "spacr[btrack]"        # btrack timelapse tracking
-   python -m pip install "spacr[attribution]"   # TorchCAM methods
-   python -m pip install "spacr[boosting]"      # LightGBM and CatBoost
-   python -m pip install "spacr[zernike]"       # Zernike measurements
-   python -m pip install "spacr[napari]"        # napari mask correction
-   python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
-
-कौन-से extras स्थापित हो सकते हैं, यह Python संस्करण पर निर्भर करता है। Python 3.13 पर ultrack ``spacr[all]`` को सीमित करता है और TorchCAM की NumPy शर्त ``attribution`` extra को सीमित करती है; मुख्य पैकेज और Qt एप्लिकेशन प्रभावित नहीं होते। Python 3.14 पर btrack अपने extra के माध्यम से उपलब्ध है। pylibCZIrw CZI कनवर्टर वैकल्पिक और अपरीक्षित है; czifile पर आधारित CZI रीडिंग उपलब्ध रहती है।
-
-पुराना Tk इंटरफ़ेस अभी भी ``spacr-legacy`` के रूप में इंस्टॉल होता है, लेकिन अब उसका विकास नहीं किया जाता।
-
-
-कमांड-लाइन प्रवेश बिंदु
--------------------------
-
-.. code-block:: bash
-
-   spacr                                      # Qt application
+   spacr                                      # launch the Qt application
    spacr-doctor                               # diagnose the installation
    spacr-run --list                           # list headless modules
    spacr-run --describe MODULE                # inspect a module contract
@@ -196,345 +239,200 @@ Conda वातावरण
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
-समस्या-निवारण के लिए ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेट होने वाली लॉग फ़ाइलें ``~/.spacr/logs/spacr.log`` में लिखी जाती हैं।
+समस्या निवारण के समय ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं।
+
+``spacr-run --list`` उन मॉड्यूलों की सूची दिखाता है जिनके पास ग्राफ़िकल इंटरफ़ेस के बिना चलाने के लिए कमांड-लाइन प्रवेश बिंदु हैं। केवल GUI में उपलब्ध एनोटेशन, क्यूरेशन, तुलना और अन्वेषण मॉड्यूल इस सूची में शामिल नहीं होते।
 
 
-विशेषताएँ
----------
+मुख्य वर्कफ़्लो
+-------------
 
-अधिकांश स्क्रीनिंग में उपयोग होने वाले छह मॉड्यूल
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+मुख्य कार्यप्रवाह में छह मॉड्यूल हैं:
 
-**Mask** Cellpose की सहायता से 2D छवियों, आयतन डेटा और समय-श्रृंखला में कोशिकाओं, नाभिकों, रोगजनकों तथा कोशिकांगों का खंडन करता है। मॉडल सूची को हार्ड-कोड करने के बजाय स्थापित Cellpose से पढ़ा जाता है और रन शुरू होने से पहले छवियों से ऑब्जेक्ट का व्यास अनुमानित किया जाता है। मास्क को परत व्यूअर में हाथ से सुधारा जा सकता है या सुधार के लिए napari को भेजकर वापस लाया जा सकता है।
+- **Mask** Cellpose से कोशिकाओं, नाभिकों, रोगजनकों और कोशिकांगों का विभाजन करता है।
+- **Measure** आकृति-विज्ञान, तीव्रता, टेक्सचर, स्थानिक और सह-स्थानीकरण विशेषताओं के साथ ऑब्जेक्ट क्रॉप को SQLite में लिखता है।
+- **Annotate** कीबोर्ड से संचालित ग्रिड में क्रॉप को लेबल करता है और सक्रिय-अधिगम कतारों का समर्थन करता है।
+- **Classify** छवि- या मापन-आधारित मॉडल प्रशिक्षित करता है और प्रत्येक चेकपॉइंट के साथ होल्ड-आउट डेटा पर प्रदर्शन दर्ज करता है।
+- **Map Barcodes** FASTQ रीड को वेल और gRNA से मैप करता है तथा प्रचुरता, टकराव और कवरेज का QC प्रदान करता है।
+- **Regression** सतत, भिन्नात्मक और गणना प्रतिक्रियाओं के अनुकूल मॉडल परिवारों से गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है।
 
-**Measure** प्रत्येक ऑब्जेक्ट की आकृति, तीव्रता, बनावट और सह-स्थानीयकरण विशेषताओं को इमेज क्रॉप के साथ प्रोजेक्ट डेटाबेस में लिखता है। 1.5.0.0 में नया: प्रकाश-सुधार प्लेट से ही फ्लैट-फ़ील्ड का अनुमान लगाकर तीव्रता मापने से पहले उसका सुधार करता है; इससे प्लेट हीटमैप में किनारे के प्रभाव की तरह दिखने वाला वेल-स्थिति पूर्वाग्रह हटता है। खंडन QC बैनर Measure चलने से पहले सरल भाषा में मास्क की गुणवत्ता बताता है; वह जानकारी देता है, रन को रोकता नहीं। बनाया गया बहुभुज मापन को रुचि के क्षेत्र तक सीमित करता है।
+spaCR मॉड्यूल
+-------------
 
-**Annotate** कीबोर्ड से चलने वाले ग्रिड पर इमेज क्रॉप दिखाता है और लेबल सीधे SQLite में लिखता है। अब पूरा सक्रिय-अधिगम चक्र इसी स्क्रीन पर चलता है: मौजूदा लेबल पर मॉडल को दोबारा प्रशिक्षित करें, अनिश्चितता के अनुसार कतार को फिर क्रमबद्ध करें, सीखने का वक्र देखें और जब अतिरिक्त लेबल से मॉडल बदलना बंद हो तो रुकने का संकेत पाएँ। कवरेज कक्षा, वेल और प्लेट के अनुसार दिखाई जाती है और हर चक्र दर्ज किया जाता है।
+.. spacr-workflow-begin
 
-**Classify** एनोटेट किए गए इमेज क्रॉप पर PyTorch CNN और ट्रांसफ़ॉर्मर तथा मापन तालिकाओं पर पारंपरिक या बूस्टेड मॉडल प्रशिक्षित करता है। अब प्रत्येक epoch में प्रति-वर्ग सटीकता सुरक्षित रहती है और हर चेकपॉइंट के साथ डेटासेट, वर्ग संतुलन, विभाजन नियम तथा होल्ड-आउट मेट्रिक वाला मॉडल कार्ड बनता है। मूल्यांकन स्क्रीन में कन्फ़्यूज़न मैट्रिक्स की सेल एक क्वेरी की तरह काम करती है: उससे संबंधित क्रॉप खोलने के लिए क्लिक करें; उच्च-विश्वास वाली गलत भविष्यवाणियाँ अनिश्चित भविष्यवाणियों से अलग दिखाई जाती हैं।
+मुख्य
+^^^^
 
-**Map Barcodes** FASTQ रीड से पंक्ति, स्तंभ और gRNA बारकोड डिकोड करता है, वेल को गाइड पहचान देता है और उन्हें इमेज की गई कोशिकाओं से जोड़ता है। बारकोड QC हर वेल की रीड संख्या, टकराव दर और न मिले रीड का अनुपात बताता है। यह निश्चित सीमा के बजाय आपके बताए प्रत्याशित प्रति-वेल gRNA संख्या के आसपास परीक्षण करता है।
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
 
-**Regression** 17 मॉडल परिवारों से गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है। इनमें मिश्रित मॉडल, logistic, probit, quantile, beta, quasi-binomial variance वाले GLM, lasso, ridge, elastic net, hinge और horseshoe शामिल हैं। परिणाम केवल गुणांकों का ढेर नहीं, बल्कि क्रमबद्ध और टिप्पणी-युक्त संभावित परिणामों की सूची होती है।
+| |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
-1.5.0.0 में नया
+डेटा
+^^^^
+
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
+
+| |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+
+उपकरण
+^^^^^
+
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
+
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
+
+एसे
+^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 16.0%
+   :alt: Mask API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+   :align: middle
+.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 16.0%
+   :alt: Measure API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 16.0%
+   :alt: Annotate API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
+   :align: middle
+.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 16.0%
+   :alt: Classify API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 16.0%
+   :alt: Map Barcodes API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 16.0%
+   :alt: Regression API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
+   :width: 16.0%
+   :alt: Import API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
+   :width: 16.0%
+   :alt: Run Compare API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
+   :align: middle
+.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
+   :width: 16.0%
+   :alt: Experiment Design API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
+   :align: middle
+.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
+   :width: 16.0%
+   :alt: Power / Design API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
+   :align: middle
+.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 16.0%
+   :alt: Dose–Response API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
+.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
+   :width: 16.0%
+   :alt: QC API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
+   :align: middle
+.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
+   :width: 16.0%
+   :alt: Make Masks API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
+   :align: middle
+.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
+   :width: 16.0%
+   :alt: Align & Stitch API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
+   :align: middle
+.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
+   :width: 16.0%
+   :alt: Image UMAP API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
+   :align: middle
+.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 16.0%
+   :alt: Gate Editor API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
+   :width: 16.0%
+   :alt: Graph Builder API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
+   :align: middle
+.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+   :width: 16.0%
+   :alt: Plaque Assay API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :align: middle
+.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+   :width: 16.0%
+   :alt: Recruitment API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :align: middle
+.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+   :width: 16.0%
+   :alt: Invasion Assay API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
+   :align: middle
+.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
+   :width: 16.0%
+   :alt: Replication Assay API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :align: middle
+
+.. spacr-workflow-end
+
+प्रत्येक मॉड्यूल spaCR जहाज है, जिस क्रम में होम स्क्रीन उन्हें सूचीबद्ध करता है: छह पाइपलाइन मॉडल पहले, फिर सब कुछ. उस मॉडल के API पृष्ठ को खोलने के लिए एक शीट चुनें.
+
+
+Make Masks
+~~~~~~~~~~
+
+मेक मास्क के तहत दिखाई देता है **Tools** के लिए मैन्युअल को सही करने के लिए सेगमेंटेशन मास्क; इसके मस्टहेड Cellpose कार्यप्रवाहों को खोलता है. नौ टूल: **Brush**, **Erase**, [**Erases object**, (**Wand +**), **Wang −**, "**Draw**, '**Divide**, #**Zoom** और #**Recrop**. ड्राइंग एक भरा लेबल बनाता है एक बंद आउटलाइन से, विभाजित एक मिश्रित वस्तु को एक ड्रॉप लाइन के साथ, एक बहुतायत में एक वस्तु बदलता है अपने स्वयं के फ़ील्ड में.
+
+प्रत्येक टूल के लिए `फ़ीड गाइड <../../source/features.rst>`_ देखें।
+
+अन्य संसाधन
 ~~~~~~~~~~~~~~~
 
-स्क्रीनिंग शुरू होने से पहले Power / Design मॉड्यूल आवश्यक कोशिकाओं और वेल की संख्या बताता है; इस गणना में अनुक्रमण त्रुटि और बहुत कम कोशिकाएँ चित्रित होने के कारण छूटने वाले वेल, दोनों शामिल होते हैं। प्रयोग डिज़ाइनर प्लेट, नियंत्रण और प्रतिकृतियों को व्यवस्थित करके पाइपलाइन के लिए लेआउट निर्यात करता है। इसके बाद QC डैशबोर्ड खंडन, प्लेट, एनोटेटर सहमति और डेटा रिसाव संबंधी जाँचों को एक निर्णय में जोड़ता है; बैच सुधार के लिए ``center`` और ``zscore`` के साथ ComBat भी उपलब्ध है।
+- `इंटरैक्टिव ट्यूटोरियल <https://einarolafsson.github.io/spacr/tutorials/>`_ — स्थापना से हिट जांच के माध्यम से 73 निर्देशित कार्यप्रवाह।
+- `Python API त्वरित प्रारंभ <../../source/python_api.rst>`_ - स्क्रिप्ट, नोटबुक या एक क्लस्टर से पाइपलाइन चलाएं और वैध करें।
+- `सुविधा गाइड <../../source/features.rst>`_ — क्षमताओं, परिपक्वता और वैकल्पिक एकीकरण।
+- `शुद्ध API संदर्भ <https://einarolafsson.github.io/spacr/api/index.html>`_ - कार्य के आधार पर समर्थित प्रवेश बिंदु, पूर्ण मॉड्यूल संदर्भ एक स्तर गहरा है।
+- `भाषा और अनुवाद गाइड <../../source/localization.rst>`_ — इंटरफ़ेस भाषाएं, संदर्भ सहायता और वैज्ञानिक-आउटपुट नीति।
 
-परिणामों को निर्यात करके दोबारा आयात करने के बजाय सीधे spaCR में खोजा जा सकता है। Graph Builder में स्तंभों को x, y, रंग, आकार और पहलू पर खींचकर तालिका का ग्राफ़ बनाया जाता है। आवृत्ति-चित्र या बिखराव-चित्र पर बनाए गए गेट फ़िल्टर बन जाते हैं। Feature Explorer विशेषताओं को इस आधार पर क्रम देता है कि वे कक्षाओं को कितनी अच्छी तरह अलग करती हैं। छोटे बहु-चित्र, मात्रा–प्रतिक्रिया फ़िट, नियंत्रण चार्ट और सुदृढ़ असामान्य-मान पहचान एक ही अक्ष-इंजन का उपयोग करते हैं। एक दृश्य में ऑब्जेक्ट चुनने पर वह सभी दृश्यों में चुना जाता है, और चयन खोलने पर उससे संबंधित इमेज क्रॉप दिखते हैं। Layer Viewer छवियों, लेबल, बिंदुओं और आकारों को परतों में दिखाता है; इसमें लंबवत दृश्य, समकालिक तुलना ग्रिड और कोशिका से नाभिक होते हुए रोगजनक तक का वंश-वृक्ष शामिल है।
+भाषा और अनुवाद
+~~~~~~~~~~~~~~~~~~~~~~
 
-अब प्रत्येक रन की स्पष्ट पहचान और ट्रेसिंग की जा सकती है। हर रन में एक रन ID, एक सीड और ``on_error`` नीति होती है; Mask, Measure, Classify और AnnData निर्यात अपने आउटपुट को आर्टिफ़ैक्ट रजिस्ट्री में दर्ज करते हैं, इसलिए किसी आउटपुट फ़ाइल से उसे बनाने वाली सेटिंग तक पहुँचा जा सकता है। मॉड्यूल पिछले चरण द्वारा वास्तव में लिखे गए आउटपुट पर खुलता है, पाइपलाइन ग्राफ़ पुराने हो चुके आउटपुट चिह्नित करता है, रन तुलना दो रन की सेटिंग, ऑब्जेक्ट संख्या और संभावित परिणामों की सूचियों में अंतर दिखाती है, और हर GUI रन समतुल्य Python स्क्रिप्ट भी बनाता है। मापन scanpy के लिए ``.h5ad`` में निर्यात होते हैं; OME-Zarr और OMERO Python API के माध्यम से उपलब्ध हैं। विधि एवं परिणाम निर्यातक रन के संरचित सार से पांडुलिपि के वे दोनों अनुभाग तैयार करता है: मॉडल गद्य लिखता है, पर प्रत्येक संख्या सार से आती है, और सार में अनुपस्थित संख्या वाला मसौदा अस्वीकार कर दिया जाता है। स्थापना में समस्या होने पर ``spacr-doctor`` बताता है कि वास्तव में कौन-सा spaCR चल रहा है, GPU उपयोग योग्य है या नहीं, Cellpose spaCR द्वारा उपयोग किए जाने वाले API से मेल खाता है या नहीं, और प्रोजेक्ट डेटाबेस तथा सेटिंग मान्य हैं या नहीं; हर विफल जाँच के लिए कॉपी किया जा सकने वाला समाधान भी देता है।
+इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <docs/source/localization.rst#contextual-help>`_ देखें।
 
-बहुभाषी डेस्कटॉप इंटरफ़ेस
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**spaCR → प्राथमिकताएँ → भाषा** से चल रहे एप्लिकेशन की भाषा बिना पुनः आरंभ किए अंग्रेज़ी, स्वीडिश, जर्मन, स्पेनिश, मंदारिन चीनी, पुर्तगाली, हिन्दी, कोरियाई, आइसलैंडिक या फ़्रेंच में बदली जा सकती है। यह चयन सहेजा रहता है और बाद में खुलने वाली स्क्रीन भी उसी भाषा का उपयोग करती हैं।
-
-नेविगेशन, प्राथमिकताएँ, AI और LIVE नियंत्रण, मॉड्यूल विवरण तथा spaCR द्वारा लिखे गए कंसोल संदेश चुनी हुई भाषा में दिखाई देते हैं। वर्कर आउटपुट, लॉग, ट्रेसबैक, पथ, डेटाबेस मान, एनोटेशन, AI उत्तर, मापन और सहेजे गए परिणाम कभी अनुवादित नहीं किए जाते, इसलिए वैज्ञानिक आउटपुट मानक अंग्रेज़ी में ही रहता है। जिन सेटिंग टूलटिप का किसी भाषा में अभी मानवीय पुनरीक्षण नहीं हुआ है, वे मिश्रित-भाषा विवरण बनने के बजाय अंग्रेज़ी में रहते हैं। `स्थानीयकरण मार्गदर्शिका <https://einarolafsson.github.io/spacr/localization.html>`_ में इस व्यवहार, पर्यावरण ओवरराइड और साथ में अनुवादित होने वाली `संदर्भ-सहायता <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ का विवरण है।
+नौ गैर-अंग्रेजी कैटलॉग मशीन-ग्रेड किए जाते हैं और तकनीकी रूप से समीक्षा की जाती है, प्रत्येक भाषा के एक स्वदेशी बोलने वाले द्वारा अंत तक पढ़ने के बजाय. `समीक्षा स्कोप <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ रिकॉर्ड किस भाषाओं में एक मानव पास था, कितने शरीर को कवर किया गया था, और प्रत्येक शब्द अंग्रेजी में निर्णय के अनुसार छोड़ दिया गया था.
 
 एनिमेटेड सेटिंग मार्गदर्शन
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-94 छोटे एनिमेशन दिखाते हैं कि 143 दृश्य सेटिंग किसी छवि को कैसे प्रभावित करती हैं। किसी सेटिंग पर पॉइंटर रखें और उसके टूलटिप में **एनिमेशन** पर क्लिक करके पाठ के पास वाला चौकोर पूर्वावलोकन चलाएँ; दोबारा क्लिक करने पर वह बंद हो जाएगा। एनिमेशन माँगे जाने तक बंद रहते हैं और प्राथमिकताओं में पूरी तरह अक्षम भी किए जा सकते हैं। `गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ में सभी एनिमेशन हैं और `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ बताती है कि प्रत्येक एनिमेशन किस सेटिंग से संबंधित है।
-
-मॉड्यूल संदर्भ
-~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 25 25 25 25
-
-   * - मॉड्यूल
-     - सुविधा
-     - स्थिति
-     - विवरण
-   * - **डेस्कटॉप अनुभव**
-     -
-     -
-     -
-   * - |api-qt-app|_
-     - |doc-i18n|_
-     - स्थिर
-     - खुली और आवश्यकता पर बनाई जाने वाली स्क्रीन को दस अंतर्निहित भाषाओं में तुरंत पुनः अनुवादित करता है।
-   * - |api-qt-app|_
-     - |doc-i18n-help|_
-     - स्थिर
-     - API URL को ज्यों का त्यों रखते हुए मॉड्यूल सारांश और सेटिंग-सहायता इंटरफ़ेस का स्थानीयकरण करता है।
-   * - |api-qt-ai|_
-     - |api-qt-ai-console|_
-     - स्थिर
-     - उपयोगकर्ता या मॉडल की सामग्री बदले बिना AI और LIVE नियंत्रणों का स्थानीयकरण करता है।
-   * - |api-animations|_
-     - |doc-animations|_
-     - स्थिर
-     - सेटिंग टूलटिप से 143 दृश्य सेटिंग के लिए 94 अंतर्निहित एनिमेशन चलाता है।
-   * - |api-selection|_
-     - |api-linked-views|_
-     - अल्फ़ा
-     - तालिका, प्लेट, एम्बेडिंग, स्कैटर और ग्राफ़ दृश्यों में एक ही ऑब्जेक्ट चयन साझा करता है।
-   * - |api-doctor|_
-     - |api-doctor-checks|_
-     - अल्फ़ा
-     - GPU, Cellpose API, डेटाबेस और सेटिंग की जाँच करता है तथा हर विफल जाँच के लिए समाधान देता है।
-   * - **छवि विश्लेषण**
-     -
-     -
-     -
-   * - |api-mask|_
-     - |api-mask-2d|_
-     - स्थिर
-     - 2D छवियों में कोशिकाओं, नाभिकों, रोगजनकों और कोशिकांगों का खंडन करता है।
-   * - |api-mask|_
-     - |api-mask-3d|_
-     - बीटा
-     - आयतन छवियों और 4D समय-श्रृंखला का खंडन करता है।
-   * - |api-illumination|_
-     - |api-flatfield|_
-     - अल्फ़ा
-     - प्लेट से फ्लैट-फ़ील्ड का अनुमान लगाकर तीव्रता मापने से पहले उसका सुधार करता है।
-   * - |api-measure|_
-     - |api-measure-2d|_
-     - स्थिर
-     - आकृति, तीव्रता, बनावट और सह-स्थानीयकरण मापता है तथा इमेज क्रॉप सहेजता है।
-   * - |api-segqc|_
-     - |api-segqc-verdict|_
-     - अल्फ़ा
-     - Measure चलने से पहले खंडन की गुणवत्ता बताता है, पर प्रक्रिया को रोकता नहीं है।
-   * - |api-timelapse|_
-     - |api-tracking|_
-     - बीटा
-     - IoU, Trackpy, btrack, Trackastra या ultrack से ऑब्जेक्ट ट्रैक करता है और गतिशीलता मापता है।
-   * - |api-layers|_
-     - |api-layer-viewer|_
-     - अल्फ़ा
-     - ऑर्थोगोनल दृश्य और तुलना ग्रिड के साथ छवि, लेबल, बिंदु और आकृति परतें एक साथ दिखाता है।
-   * - |api-napari|_
-     - |api-napari-curation|_
-     - अल्फ़ा
-     - सुधार के लिए मास्क napari को भेजकर वापस लेता है और हर संपादन दर्ज करता है।
-   * - **AI और फीनोटाइपिंग**
-     -
-     -
-     -
-   * - |api-annotate|_
-     - |api-annotation|_
-     - स्थिर
-     - कीबोर्ड-संचालित ग्रिड में इमेज क्रॉप की समीक्षा करता है और एनोटेशन SQLite में सहेजता है।
-   * - |api-active-learning|_
-     - |api-al-loop|_
-     - अल्फ़ा
-     - Annotate के भीतर पुनः प्रशिक्षण करता है, अनिश्चितता के अनुसार कतार दोबारा क्रमित करता है और बताता है कि लेबलिंग कब रोकी जा सकती है।
-   * - |api-classify|_
-     - |api-classification|_
-     - स्थिर
-     - PyTorch CNN और ट्रांसफ़ॉर्मर मॉडल को प्रशिक्षित और लागू करता है।
-   * - |api-classify|_
-     - |api-model-cards|_
-     - अल्फ़ा
-     - हर चेकपॉइंट के साथ डेटासेट, वर्ग संतुलन, विभाजन नियम और होल्ड-आउट मेट्रिक दर्ज करता है।
-   * - |api-confusion|_
-     - |api-confusion-drill|_
-     - अल्फ़ा
-     - कन्फ़्यूज़न मैट्रिक्स की किसी सेल से संबंधित क्रॉप खोलता है और उच्च-विश्वास वाली गलतियों को अनिश्चित नमूनों से अलग दिखाता है।
-   * - |api-ml|_
-     - |api-ml-models|_
-     - स्थिर
-     - मापन तालिकाओं पर व्याख्यायोग्य पारंपरिक और बूस्टेड मॉडल प्रशिक्षित करता है।
-   * - |api-classify|_
-     - |api-activation|_
-     - बीटा
-     - Captum, SmoothGrad और TorchCAM से पूर्वानुमानों की व्याख्या करता है।
-   * - |api-umap|_
-     - |api-embedding|_
-     - बीटा
-     - इमेज एम्बेडिंग को इंटरैक्टिव रूप से खोजता है और क्लस्टर लेबल प्रसारित करता है।
-   * - **सीक्वेंसिंग और स्क्रीन विश्लेषण**
-     -
-     -
-     -
-   * - |api-sequencing|_
-     - |api-barcodes|_
-     - स्थिर
-     - FASTQ रीड से पंक्ति, स्तंभ और gRNA बारकोड मैप करता है तथा इमेज की गई कोशिकाओं को गाइड सौंपता है।
-   * - |api-barcode-qc|_
-     - |api-barcode-qc-sweep|_
-     - अल्फ़ा
-     - प्रति वेल अपेक्षित gRNA की संख्या के संदर्भ में प्रति-वेल रीड, टकराव दर और अमैप्ड अंश रिपोर्ट करता है।
-   * - |api-regression|_
-     - |api-regression-models|_
-     - स्थिर
-     - 17 मॉडल परिवारों से गाइड, जीन, दशा और नियंत्रण प्रभावों का अनुमान लगाता है।
-   * - |api-power|_
-     - |api-power-design|_
-     - अल्फ़ा
-     - सीक्वेंसिंग त्रुटि और वेल ड्रॉपआउट को ध्यान में रखकर बताता है कि स्क्रीन के लिए कितनी कोशिकाएँ और वेल चाहिए।
-   * - |api-graph|_
-     - |api-graph-builder|_
-     - अल्फ़ा
-     - स्तंभों को x, y, रंग, आकार और फ़ैसेट पर खींचकर प्लॉट बनाता है।
-   * - |api-artifacts|_
-     - |api-provenance|_
-     - अल्फ़ा
-     - Mask, Measure, Classify और निर्यात आउटपुट के पीछे के रन ID, सीड और सेटिंग दर्ज करता है।
-
-.. |api-qt-app| replace:: **Qt एप्लिकेशन**
-.. _api-qt-app: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
-
-.. |doc-i18n| replace:: **दस भाषाओं में स्थानीयकरण**
-.. _doc-i18n: https://einarolafsson.github.io/spacr/localization.html
-
-.. |doc-i18n-help| replace:: **स्थानीयकृत संदर्भ-सहायता**
-.. _doc-i18n-help: https://einarolafsson.github.io/spacr/localization.html#contextual-help
-
-.. |api-qt-ai| replace:: **Qt AI**
-.. _api-qt-ai: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
-
-.. |api-qt-ai-console| replace:: **AI-सहायित कंसोल**
-.. _api-qt-ai-console: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
-
-.. |api-animations| replace:: **सेटिंग एनिमेशन रजिस्ट्री**
-.. _api-animations: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
-
-.. |doc-animations| replace:: **दृश्य सेटिंग एनिमेशन**
-.. _doc-animations: https://einarolafsson.github.io/spacr/setting_animations.html
-
-.. |api-selection| replace:: **चयन**
-.. _api-selection: https://einarolafsson.github.io/spacr/api/spacr/selection/index.html
-
-.. |api-linked-views| replace:: **लिंक किया हुआ चयन**
-.. _api-linked-views: https://einarolafsson.github.io/spacr/api/spacr/qt/linked_selection/index.html
-
-.. |api-doctor| replace:: **Doctor**
-.. _api-doctor: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
-
-.. |api-doctor-checks| replace:: **स्थापना निदान**
-.. _api-doctor-checks: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
-
-.. |api-mask| replace:: **Mask**
-.. _api-mask: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-
-.. |api-mask-2d| replace:: **2D मास्क निर्माण**
-.. _api-mask-2d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-
-.. |api-mask-3d| replace:: **3D और 4D मास्क निर्माण**
-.. _api-mask-3d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-
-.. |api-illumination| replace:: **प्रकाश सुधार**
-.. _api-illumination: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-
-.. |api-flatfield| replace:: **फ्लैट-फ़ील्ड सुधार**
-.. _api-flatfield: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-
-.. |api-measure| replace:: **Measure**
-.. _api-measure: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-
-.. |api-measure-2d| replace:: **ऑब्जेक्ट मापन**
-.. _api-measure-2d: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
-
-.. |api-segqc| replace:: **खंडन गुणवत्ता नियंत्रण**
-.. _api-segqc: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
-
-.. |api-segqc-verdict| replace:: **रन-पूर्व मूल्यांकन**
-.. _api-segqc-verdict: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
-
-.. |api-timelapse| replace:: **Timelapse**
-.. _api-timelapse: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-
-.. |api-tracking| replace:: **ऑब्जेक्ट ट्रैकिंग**
-.. _api-tracking: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-
-.. |api-layers| replace:: **परतें**
-.. _api-layers: https://einarolafsson.github.io/spacr/api/spacr/layers/index.html
-
-.. |api-layer-viewer| replace:: **परत व्यूअर**
-.. _api-layer-viewer: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
-
-.. |api-napari| replace:: **napari सेतु**
-.. _api-napari: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
-
-.. |api-napari-curation| replace:: **मास्क सुधार**
-.. _api-napari-curation: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
-
-.. |api-annotate| replace:: **Annotate**
-.. _api-annotate: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-
-.. |api-annotation| replace:: **मैन्युअल एनोटेशन**
-.. _api-annotation: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-
-.. |api-active-learning| replace:: **सक्रिय अधिगम**
-.. _api-active-learning: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
-
-.. |api-al-loop| replace:: **पुनः प्रशिक्षण और पुनः क्रम निर्धारण**
-.. _api-al-loop: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
-
-.. |api-classify| replace:: **Classify**
-.. _api-classify: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-classification| replace:: **छवि वर्गीकरण**
-.. _api-classification: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-model-cards| replace:: **मॉडल कार्ड**
-.. _api-model-cards: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-activation| replace:: **सक्रियण मानचित्र**
-.. _api-activation: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-confusion| replace:: **Confusion**
-.. _api-confusion: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
-
-.. |api-confusion-drill| replace:: **कन्फ़्यूज़न मैट्रिक्स की विस्तृत जाँच**
-.. _api-confusion-drill: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
-
-.. |api-ml| replace:: **मशीन लर्निंग**
-.. _api-ml: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-ml-models| replace:: **मापन वर्गीकरण**
-.. _api-ml-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-umap| replace:: **Image UMAP**
-.. _api-umap: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
-
-.. |api-embedding| replace:: **इंटरैक्टिव एम्बेडिंग**
-.. _api-embedding: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
-
-.. |api-sequencing| replace:: **सीक्वेंसिंग**
-.. _api-sequencing: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |api-barcodes| replace:: **बारकोड मैपिंग**
-.. _api-barcodes: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |api-barcode-qc| replace:: **बारकोड गुणवत्ता नियंत्रण**
-.. _api-barcode-qc: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-
-.. |api-barcode-qc-sweep| replace:: **वेल और टकराव रिपोर्ट**
-.. _api-barcode-qc-sweep: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-
-.. |api-regression| replace:: **Regression**
-.. _api-regression: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-regression-models| replace:: **स्क्रीन प्रभाव अनुमान**
-.. _api-regression-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-power| replace:: **Power**
-.. _api-power: https://einarolafsson.github.io/spacr/api/spacr/power_model/index.html
-
-.. |api-power-design| replace:: **सांख्यिकीय शक्ति और डिज़ाइन**
-.. _api-power-design: https://einarolafsson.github.io/spacr/api/spacr/power_simulate/index.html
-
-.. |api-graph| replace:: **Graph**
-.. _api-graph: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_spec/index.html
-
-.. |api-graph-builder| replace:: **Graph Builder**
-.. _api-graph-builder: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_builder/index.html
-
-.. |api-artifacts| replace:: **आर्टिफ़ैक्ट**
-.. _api-artifacts: https://einarolafsson.github.io/spacr/api/spacr/artifacts/index.html
-
-.. |api-provenance| replace:: **रन की उत्पत्ति**
-.. _api-provenance: https://einarolafsson.github.io/spacr/api/spacr/runctx/index.html
-
+दृश्य व्याख्या वाली सेटिंग के टूलटिप में **Animation** नियंत्रण मिलता है। `सेटिंग एनिमेशन गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ या `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ देखें।
 
 डेटा
 ----
@@ -542,32 +440,188 @@ Conda वातावरण
 संदर्भ डेटासेट
 ~~~~~~~~~~~~~~~~~~
 
-- `पूर्ण माइक्रोस्कोप डेटासेट: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `परीक्षण डेटासेट: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `अनुक्रम डेटा: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `सांख्यिकीय शक्ति विश्लेषण: spaCRPower <https://github.com/maomlab/spaCRPower>`_
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: BioStudies माइक्रोस्कोपी डेटासेट खोलें
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Hugging Face परीक्षण डेटासेट खोलें
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: NCBI अनुक्रमण डेटासेट खोलें
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: spaCRPower खोलें
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: bioRxiv प्रीप्रिंट खोलें
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+जानवरों का मॉडल
+~~~~~~~~~~~~~~~
+
+spaCR प्रशिक्षित मॉडलों का एक कैटलॉग भेजता है और उन्हें मांग पर पकड़ता है. होम स्क्रीन से ब्राउज़ करने और स्थापित करने के लिए **मॉडल Zoo** खोलें, या सेटिंग्स फ़ाइल में एक कुंजी नामित करें - ``pathogen_model: toxoplasma_pv_v1`` - और मॉडल को डाउनलोड किया जाता है और पहली बार जांच की जाती है. प्रत्येक प्रकाशित प्रविष्टि में एक SHA-256 होता है; एक के बिना एक प्रविष्ट को अस्वीकार कर दिया जाता है, बल्कि स्थापित किया जा सकता है, क्योंकि एक ट्रिगर या प्रतिस्थापित चेकपॉइंट को वास्तविक से नहीं बताया जा सकता।
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 34 42
+
+   * - Model
+     - Training data
+     - Hold-out performance
+   * - ``toxoplasma_pv_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
+     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+   * - ``toxoplasma_plaque_v1``
+       (Cellpose-SAM (cpsam))
+     - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
+     - F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
+   * - ``toxoplasma_well_detector_v1``
+       (YOLO11n)
+     - whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987
+
+.. spacr-model-zoo-end
+
+ऊपर दिए गए प्रत्येक आंकड़े को उन छवियों पर मापा जाता है जिन्हें मॉडल ने प्रशिक्षण में कभी नहीं देखा है।
+
+**सटीकता** यह है कि एक मॉडल के वस्तुओं में से कितने वास्तविक हैं; **रिकॉर्ड** यह कि वास्तविक वस्तुएं कितनी हैं. वे विपरीत दिशाओं में विफल होते हैं: खराब परिशुद्धता प्लेटों का आविष्कार करती है, खराब रिकॉल उन्हें याद करती है.
+
+**F1** दोनों संयुक्त हैं, और यह उद्धृत किया जाता है क्योंकि प्रत्येक अकेले ट्रिविल रूप से खेला जाता है - निकट-पूर्ण सटीकता के लिए एक अविश्वसनीय प्लेक की रिपोर्ट करें, या करीब-पूर्ण पुनरावृत्ति के लिए प्रत्येक अंधेरे ब्लॉब. जो आप बेहतर खो देंगे, यह अनुमान पर निर्भर करता है, और गिनती आमतौर पर बेहतर है अति-कवाना द्वारा सेवा की जाती है: प्लेक्स मॉडल को 0.858 की परिभाषा में स्वीकार किया गया था और 0.811 को 0.939 और 0.631.
+
+**IoU**, यूनियन के माध्यम से पारगमन, यह है कि कितना एक अनुमानित वस्तु और वास्तविक एक ओवरपॉप, वे एक साथ कवर क्षेत्र द्वारा विभाजित है. यह नियंत्रक है कि बाकी के खिलाफ पढ़ा जाता है, इसलिए एक स्कोर इसका सीमा के बिना कुछ भी नहीं है: "F1 0.867 में IoU 0.5" एक वैक्यूल की गिनती करता है जैसा कि पाया जाता है जब दोनों आउटलिन अपने संयुक्त क्षेत्र के आधे से अधिक सहमत होते हैं।
+
+**mAP50** और **map50-95** डिटेक्टर से संबंधित हैं. पहला पूछता है कि क्या बर्तन पाए गए हैं; दूसरा इसे 0.5 से 0.95 तक के दस सीमाओं के माध्यम से दोहराता है, इसलिए यह भी पूछा जाता है कि प्रत्येक बॉक्स को कितनी ठोस रूप से खींचा जाता है. उनके बीच का अंतर स्थान है, नहीं पहचान।
+
+**Cross-validated**, एक **SD** के साथ, स्कोर का मतलब है कि विभिन्न विभाजनों पर तीन रनों का औसत है और एसडी यह है कि वे कितनी दूर चले गए हैं. एक विभाजन भाग्यशाली हो सकता है: इस मॉडल का साहित्यिक आंकड़ा एक 19 अच्छी विभाजन पर 0.834 है और सभी तीनों के बीच 0.806 है.
+
+मॉडलों को उनके लेखक के स्वयं के Hugging Face खाते पर होस्ट किया जाता है, इसलिए एक में योगदान करने का मतलब किसी और के लेखन एक्सेस को सौंपना नहीं है. ``spacr.model_zoo`` का ``publish_model`` अपलोड करता है और जोड़ने के लिए कैटलॉग पंक्ति प्रिंट करता है.
+
+
+प्रदर्शन का निदान
+----------------------
+
+हार्डवेयर रिपोर्ट बनाएँ और उसे प्रदर्शन-संबंधी इश्यू के साथ संलग्न करें::
+
+    python tools/spacr_hardware_report.py
+
+``~/.spacr/reports`` पर बचत करें और मार्ग प्रिंट करें. ``--quick`` लंबे संदर्भ संकेतों को स्काइप करता है; ``--out PATH`` स्थान निर्धारित करता है.
+
+कोई परियोजना डेटा नहीं पढ़ता. टाइम आयात, संख्यात्मक पुस्तकालय, खिड़की निर्माण और एनीमेशन. रिपोर्ट प्रोसेसर-आर्किटेक्चर इमुलेशन (एक x86_64 Python Apple सिलिकॉन पर निर्माण) और NumPy के BLAS कार्यान्वयन।
+
+कमांड लाइन संदर्भ
+----------------------
+
+नीचे दिए गए प्रत्येक कमांड को ``pip install spacr`` द्वारा स्थापित किया जाता है. उनमें से सभी ``--help`` को स्वीकार करते हैं.
+
+आवेदन शुरू करने के लिए
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` मॉडल सेटअप स्क्रीनिंग को स्काइप करता है, जो अन्यथा एक अप्रत्याशित नौकरी को अवरुद्ध करेगा।
+
+``spacr-qt`` और ``spacr-nightly`` ``spacr`` के सहयोगी हैं।
+
+जब spaCR शुरू नहीं होता है
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` प्रत्येक चेक पर एक पंक्ति प्रिंट करता है, जिसमें प्रत्येक विफलता के लिए एक कमांड चलाया जाता है. यह यह भी रिपोर्ट करता है कि ``spacr`` मार्ग पर है, जो कि एक पुराने संपादित करने योग्य स्थापना की छाया है.
+
+``safespacr`` प्रत्येक प्राथमिकता को अपने डिफ़ॉल्ट के रूप में पढ़ता है और पृष्ठभूमि, एनीमेशन, वर्बस लॉगिंग और प्री-लोड को मजबूर करता है. जब एक सहेजा गया प्राथमिकता लॉन्च को तोड़ देती है तो इसका उपयोग करें. यह स्थायी रूप से कुछ भी नहीं बदलता है.
+
+मॉड्यूल बेहोश रूप से चलाएं
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+कोई Qt, कोई डिस्प्ले नहीं - क्लस्टर, सर्वर और सीआई के लिए।
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+``validate`` उसी सेटिंग्स को पढ़ता है जो चलता है और रिपोर्ट करता है कि क्या खो रहा है, विरोधाभासी है या कुछ भी नहीं बता रहा है।
+
+``spacr-run --list`` केवल एक शीर्ष के बिना प्रवेश बिंदु के साथ मॉड्यूल दिखाता है; नोटिस, चिकित्सा और अन्वेषण इंटरैक्टिव हैं और अनदेखा किया गया है।
+
+बाद में एक दौड़ की जांच करें
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+प्रत्येक रन ``~/.spacr/runs`` में रिकॉर्ड किया जाता है, जिसमें इसकी सेटिंग्स, हैश किए गए इनपुट, आउटपुट्स, चेतावनी, संस्करण और बीज होते हैं।
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+डेटा की जांच और स्थापना
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+परिवेश
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+रूटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं. उस फ़ाइल को एक बग रिपोर्ट में जोड़ें.
 
 
 योगदान और सहायता
 ------------------------
 
-बग रिपोर्ट और विशिष्ट सुविधा अनुरोधों का `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ पर स्वागत है। किसी विफलता की रिपोर्ट में spaCR संस्करण, ऑपरेटिंग सिस्टम, Python संस्करण, मॉड्यूल सेटिंग और संबंधित लॉग का अंश शामिल करें। ``spacr-doctor`` इनमें से अधिकांश जानकारी आपके लिए इकट्ठी कर देता है।
+बग रिपोर्ट और स्पष्ट रूप से सीमित फ़ीचर अनुरोध `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ के माध्यम से भेजें। किसी विफलता की रिपोर्ट करते समय spaCR संस्करण, ऑपरेटिंग सिस्टम, Python संस्करण, मॉड्यूल सेटिंग्स और संबंधित लॉग अंश शामिल करें। ``spacr-doctor`` इनमें से अधिकांश जानकारी एकत्र करता है; प्रदर्शन संबंधी समस्या की रिपोर्ट करते समय हार्डवेयर रिपोर्ट भी शामिल करें।
 
 लाइसेंस
 ~~~~~~~~~
 
-वर्तमान विकास शाखा का स्रोत `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अधीन उपलब्ध है। वाणिज्यिक उपयोग के लिए कॉपीराइट धारक से अलग लाइसेंस लेना आवश्यक है। spaCR 1.4.9.9 तक जारी संस्करण उनके साथ दिए गए MIT License के अधीन उपलब्ध रहेंगे।
+spaCR is released under the `BSD 3 क्लास लाइसेंस <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+
+यदि spaCR प्रकाशित कार्य में योगदान देता है, तो एक उद्धरण का मूल्यांकन किया जाता है और लाइसेंस की शर्त नहीं है - नीचे `spaCR का संदर्भ`_ देखें।
 
 ट्यूटोरियल
-~~~~~~~~~~
+~~~~~~~~~
 
-`इंटरैक्टिव spaCR ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में आठ भाषाओं में स्थापना और अनुप्रयोग के हर कार्यप्रवाह की वाचित और उपशीर्षक-युक्त मार्गदर्शिकाएँ हैं।
+`इंटरैक्टिव spaCR ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में स्थापना और प्रत्येक ऐप कार्यप्रवाह के वर्णित तथा कैप्शनयुक्त मार्गदर्शन हैं: आठ भाषाओं में 50 आवाज़ों के साथ 73 पाठ।
 
 spaCR का संदर्भ
+~~~~~~~~~~~~~~
+
+यदि spaCR आपके शोध में योगदान देता है, तो इसका उद्धरण दें:
+
+Olafsson EB, *et al.* एक संयोजित छवि-आधारित CRISPR स्क्रीनिंग EAF1 को *T. gondii* के रूप में पहचानती है ESCRT उप-विवाद का मॉड्यूलर।
+
+`BioRxiv प्रीप्रिंट <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `सॉफ्टवेयर संग्रह <https://doi.org/10.5281/zenodo.21343316>`_
+
+आभार
 ~~~~~~~~~~~~~~~
 
-यदि spaCR आपके शोध में योगदान देता है, तो उद्धरण करें:
-
-Olafsson EB, *et al.* एक पूल्ड, छवि-आधारित CRISPR स्क्रीन EAF1 की पहचान *T. gondii* द्वारा ESCRT तंत्र के अपहरण के नियामक के रूप में करती है।
-
-`bioRxiv प्रीप्रिंट <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `सॉफ़्टवेयर अभिलेख <https://doi.org/10.5281/zenodo.21343317>`_
+spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए `अनुवाद मॉडल श्रेय <docs/i18n/TRANSLATION_MODELS.md>`_ देखें।

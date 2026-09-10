@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Pipeline Graph: skoða raunverulegan uppruna og gagnahluti sem vantar",
+  "description": "Lestu raunverulegar færslur, greindu á milli skráa sem vantar og óskráðs uppruna, síaðu grafið og afritaðu alla Graphviz-framsetninguna án þess að endurkeyra greiningu.",
+  "objectives": [
+    "Opna Pipeline graph í Help og velja fyrirliggjandi verkefni.",
+    "Bera skráðan uppruna saman við skrár sem eru til og skilja óskráð tengsl milli niðurstaðna.",
+    "Nota Current, Stale og Missing án þess að rugla földum hnútum saman við færslur sem vantar.",
+    "Lesa aftur með Redraw, afrita allt grafið og kanna málið með viðeigandi verkferli."
+  ],
+  "prerequisite": "Notaðu raunverulega External Masks-verkefnið og lokið tiltektardæmi úr Data Manager. Upptakan les bæti-fyrir-bæti staðfest afrit af varðveittri stöðumynd eftir tiltekt, á sögulegri slóð verkefnisins í einangruðu umhverfi; frumgögnum og skráningarfærslum er ekki endurskrifað. Önnur raunveruleg Batch Runner-umbreyting sýnir óskráðan uppruna, ekki óunna tilraun. Allar 131 upprunalegu skrárnar, 26 varðveittar skrár og sjö umbreytingarskrár haldast óbreyttar. Þrjár sögulegar færslur hafa engar skráðar inntakstengingar; fjórða færslan tilheyrir annarri verkefnisslóð. Hér fer hvorki fram eyðing, greining, sérstakt niðurhal, lifandi forskoðun mynda, notkun Plot, gervigreindarbeiðni né endurheimtarkeyrsla.",
+  "scenes": [
+    "Opnaðu Help og síðan Pipeline graph. Þessi skjár skoðar skráðar niðurstöður og tengsl þeirra; hann keyrir ekki vinnslurásina. Við notum sértæk afrit af niðurstöðum úr raunverulega söfnuðum gögnum í External Masks og raunverulegu tiltektardæmi úr Data Manager. Fylgdu þeim kennslum til að búa til gögnin og meðhöndla þau á öruggan hátt.",
+    "Veldu fyrst möppuna með umbreyttum myndum með Browse. Batch Runner-umbreytingunni lauk, en enginn niðurstöðugagnahlutur var skráður hér, svo grafið er tómt. Upprunaskráningu vantar; það sannar ekki að engin vinnsla hafi farið fram. Declared order lýsir mögulegum tengslum milli eininga, ekki sögu lokinna keyrslna.",
+    "Veldu stöðumynd mælingaverkefnisins eftir tiltekt. Þrjár sögulegar færslur birtast: mælingagagnagrunnur, myndútskurðir og auðlindanotkunarskrá. Tvær slóðir eru enn til, en möppunni með myndútskurðum var í raun eytt við fyrri tiltekt á sértæku afriti. Þessi upptaka eyðir engu og upprunalega tilraunaverkefnið er óskert.",
+    "Smelltu á reit mælingagagnagrunnsins og víkkaðu upplýsingasvæðið með skilrúminu. Lestu slóð, hlutverk, keyrsluauðkenni, myndunartíma, útgáfu spaCR og tætigildi stillinga. Tætigildi er fingrafar, ekki allar stillingarnar eða endurheimtarhnappur. Current staðfestir hvorki vísindalegt réttmæti né fullkomna upprunaskráningu.",
+    "Veldu rauða reitinn fyrir myndútskurði. Missing merkir að skráða slóðin sé ekki til. Skráð stærð er enn um þrjú komma fjögur megabæti í hundrað og fjórum skrám: hundrað og þrjár útskornar myndir og ein sniðsskrá. Þetta er söguleg stærð, ekki núverandi diskanotkun og ekki hundrað og fjórar frumur.",
+    "Auðlindanotkunarskráin er sérstakur gagnahlutur utan verkefnismöppunnar. Slóðin er enn til, en skráin var ekki flutt í varðveislumöppuna. Þetta graf hefur engar skráðar inntakstengingar. Nothing was derived from this merkir að engin afleidd tengsl hafi verið skráð hér, ekki að vísindalegu niðurstöðurnar hafi verið óháðar.",
+    "Slökktu á Current til að sýna aðeins gagnahlutinn með myndútskurðum sem vantar. Current, Stale og Missing eru birtingarsíur, ekki aðgerðir á skrám. Stale er viðvörun um skráðan uppruna; þetta dæmi inniheldur engan úreltan gagnahlut. Hér eru engar aðskildar síur fyrir einingu, tegund gagnahlutar eða grein verkferlis.",
+    "Slökktu einnig á Missing. Engir reitir sjást, þótt borðinn segi enn að einn af þremur gagnahlutum vanti. Í þessari útgáfu segir tóma teiknisvæðið ranglega að ekkert sé skráð og fyrri upplýsingar geta haldist sýnilegar. Athugaðu síurnar áður en þú túlkar skilaboðin: falið merkir ekki eytt.",
+    "Copy Graphviz setur allt grafið á klippiborðið, líka falda hnúta. Við staðfestum að öll þrjú raunverulegu gagnahlutaauðkennin væru með og að engar tengslaörvar væru tilbúnar. Þetta er Graphviz DOT-texti til notkunar annars staðar, ekki vistuð mynd eða útflutningur á sýnilega valinu einu.",
+    "Kveiktu aftur á Current og síðan Missing: fyrst birtast tveir reitir, síðan allir þrír. Veldu reit aftur svo upplýsingarnar samsvari sýnilega grafinu. Birtingarsíur laga ekki skrár sem vantar, breyta ekki uppruna og velja ekki einingu til endurkeyrslu. Kannaðu skráðu slóðina og fyrri verkferli áður en þú grípur til aðgerða.",
+    "Redraw les skráninguna aftur og athugar gagnahlutina á ný. Færslur okkar og bæti skráanna haldast óbreytt. Notaðu Run History fyrir vistaðar stillingar og keyrsluskrár eða Data Manager fyrir skýrt valda tiltekt. Í Python býður spacr.pipeline_graph upp á build_graph og to_dot. Þessi skoðun endurgerir engar niðurstöður og framkvæmir enga vísindalega sannprófun."
+  ]
+}

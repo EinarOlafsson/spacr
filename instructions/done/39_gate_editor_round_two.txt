@@ -2,7 +2,10 @@
 GATE EDITOR: SETTINGS THAT ACTUALLY APPLY, COLOUR-CODED GATES, MODES, CONSOLE
 ================================================================================
 
-Status:    not started
+Status:    COMPLETE 2026-08-07 (fe32c5f0, 3a2dfae9, 5c15056c, bb5c56be,
+           1d2f952e, f1719e46, 794439be). Header corrected 2026-08-26:
+           it still said "not started" while this file's own closing
+           section says all thirteen items landed, and the code agrees.
 Requested: 2026-08-07
 
 Verbatim:
@@ -170,3 +173,33 @@ STILL OPEN: item 12 only -- the console and the AI chat box.
 All thirteen items. The last two were the console + AI chat box
 (spacr/qt/widgets/gate_console.py) and multi-gate annotation (binary and
 multi-class, through spacr.filters.export_annotation).
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE HEADER WAS THE ONLY THING WRONG
+--------------------------------------------------------------------------------
+
+Checked against the code and the suites rather than against the header, which
+said "not started".
+
+  * No "Close polygon" and no "Apply filter" button anywhere in the Gate
+    Editor. The two matches left in the tree are other screens -- the DB
+    browser's own Apply filter and make_masks' "Apply filter now".
+    `gate_editor.py` says at the click handler that the first vertex closes
+    the shape.
+  * `gate_line_width` defaults to 0.5 (`gate_settings.py`).
+  * Four gates get four colours from `GATE_COLOURS`, indexed by position in
+    the gate list, and the tree takes its colour from the same
+    `canvas.gate_colour`, so a row and its shape cannot disagree.
+  * `filters.annotate_from_gates(mode="binary"|"multiclass")` is the
+    multi-gate annotation, binary being the intersection and multiclass one
+    class per OBSERVED combination.
+  * `spacr/qt/widgets/gate_console.py` is item 12.
+
+Re-run: tests/qt/test_gates.py, test_gate_cluster_honours_settings.py,
+test_gate_console_sizing.py, test_cov_gate_editor_mouse.py (127 passed) and
+tests/test_filters.py (59 passed).
+
+NOT re-derived here, and said plainly: the purely visual criteria -- the
+colour map moving the POINTS, hexbin/histogram/density drawing, and no
+column cut off at startup -- rest on the suites above rather than on a
+screenshot taken in this pass.

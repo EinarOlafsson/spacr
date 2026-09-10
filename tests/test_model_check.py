@@ -1,5 +1,5 @@
 """Is the chosen model compatible with spaCR and the chosen classes?"""
-import os
+from dataclasses import fields
 
 import pytest
 
@@ -11,6 +11,18 @@ from spacr.model_check import (
 
 def _classes(n=2):
     return {f"c{i}": {"column": "annot", "value": i} for i in range(n)}
+
+
+def test_model_report_documents_and_retains_its_diagnostic_fields():
+    """All public compatibility evidence survives direct construction."""
+    report = ModelReport(True, "custom.pth", problems=("bad head",),
+                         notes=("adapted input",), channels=3, classes=2)
+
+    for field in fields(ModelReport):
+        assert f":param {field.name}:" in (ModelReport.__doc__ or "")
+    assert report.problems == ("bad head",)
+    assert report.notes == ("adapted input",)
+    assert (report.channels, report.classes) == (3, 2)
 
 
 # ---------------------------------------------------------------------------
@@ -35,12 +47,11 @@ def test_a_missing_custom_path_falls_back_to_model_type(tmp_path):
     assert kind == "builtin" and name == "maxvit_t"
 
 
-def test_no_boolean_is_consulted(tmp_path):
-    """The old custom_model flag could disagree with the path beside it."""
+def test_custom_model_path_needs_no_boolean_selector(tmp_path):
+    """A valid classifier checkpoint path selects itself."""
     path = tmp_path / "m.pth"
     path.write_bytes(b"x")
-    kind, _ = resolve_model_source({"custom_model": False,
-                                    "custom_model_path": str(path)})
+    kind, _ = resolve_model_source({"custom_model_path": str(path)})
     assert kind == "custom"
 
 

@@ -25,6 +25,8 @@ reaches nothing, and the control proves the positive test can fail).
 
 from __future__ import annotations
 
+import hashlib
+import json
 import multiprocessing as mp
 import os
 import sqlite3
@@ -189,6 +191,46 @@ def context(name='plate1_A01_F000', channels=(0,), **kwargs):
     """A :class:`PreprocessingContext` for a hand-made array."""
     return PreprocessingContext(file_name=name, channels=list(channels),
                                 settings={}, **kwargs)
+
+
+def segmentation_prepared(tmp_path, *, legacy=False):
+    """A tiny saved model with the segmentation application contract."""
+    model = hand_model([
+        np.asarray([[0.5, 1.0], [1.0, 1.0]], dtype=np.float32)
+    ])
+    if not legacy:
+        model.meta.update({
+            'application_contract_version': 1,
+            'channel_index_space': 'persisted-intensity-axis',
+            'estimated_from_intensity_state': 'raw',
+        })
+    path = model.save(str(tmp_path / 'illumination' / 'model.npz'))
+    digest = hashlib.sha256((tmp_path / 'illumination' / 'model.npz').read_bytes())
+    return ill.PreparedIllumination(
+        model=model,
+        corrector=ill.IlluminationCorrector(model, verbose=False),
+        model_path=path,
+        model_sha256=digest.hexdigest(),
+    )
+
+
+def write_segmentation_application(root, **changes):
+    """Write the four facts Measure needs before correcting merged pixels."""
+    merged = root / 'merged'
+    merged.mkdir(parents=True)
+    illumination = root / 'illumination'
+    illumination.mkdir()
+    record = {
+        'schema_version': 1,
+        'source_intensity_state': 'raw',
+        'target_scope': 'segmentation-input-only',
+        'correction_depth': 1,
+        'raw_persisted_intensities_modified': False,
+    }
+    record.update(changes)
+    path = illumination / 'segmentation_application.json'
+    path.write_text(json.dumps(record, indent=2) + '\n')
+    return merged, path, record
 
 
 # ---------------------------------------------------------------------------
@@ -884,6 +926,11 @@ def test_measure_crop_writes_corrected_intensities_under_a_spawn_pool(
         'experiment': 'exp', 'n_jobs': 2, 'test_mode': False,
         'cytoplasm': False, 'homogeneity': False, 'radial_dist': False,
         'calculate_correlation': False,
+        # This is an illumination transport test, not a size-filter test.
+        # The synthetic discs are deliberately tiny so the spawn run stays
+        # cheap; pin their filters instead of inheriting production defaults.
+        'cell_min_size': 0, 'nucleus_min_size': 0,
+        'pathogen_min_size': 0,
     })
 
     model = ill.estimate_illumination(estimate_from, channels=[0, 1],
@@ -1011,8 +1058,49 @@ def test_fields_of_a_different_shape_sit_the_estimate_out(tmp_path, capsys):
 # 7. Settings, registered through the seam and off by default
 # ---------------------------------------------------------------------------
 
+
+def _categories_in_the_settings_literal():
+    """``{category: [key, ...]}`` read out of the settings.py source.
+
+    Parsed rather than imported so it shows what EVERY process sees. The
+    live ``spacr.settings.categories`` also holds whatever the modules this
+    interpreter happened to import contributed through ``register_defaults``,
+    and a heading that is only there for some processes is a heading the
+    panel sometimes loses.
+    """
+    import ast
+    import pathlib
+
+    import spacr.settings as S
+
+    tree = ast.parse(pathlib.Path(S.__file__).read_text())
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            continue
+        if not any(getattr(t, 'id', None) == 'categories' for t in node.targets):
+            continue
+        return {
+            key.value: [k.value for k in value.elts]
+            for key, value in zip(node.value.keys, node.value.values)
+            if isinstance(key, ast.Constant) and isinstance(value, ast.List)
+        }
+    raise AssertionError('no `categories = {...}` literal in settings.py')
+
+
 def test_the_settings_are_registered_off_by_default_and_typed():
-    """Registered through register_defaults, not appended to settings.py."""
+    """Registered through register_defaults, not appended to settings.py.
+
+    The category half of this test was inverted when the illumination
+    settings were folded into Measure. It used to require that no
+    illumination key appear in ``spacr.settings.categories`` at all, on the
+    grounds that no shipped panel offered them; Measure now does, and an
+    offered key with no category is dumped into the panel's trailing
+    bucket. What made the old rule worth having -- that the map must not
+    depend on which modules a process happened to import -- is kept, and
+    checked directly: the keys are in the ``categories`` literal in
+    settings.py, which every process sees, not contributed by this module
+    at import time.
+    """
     import spacr.settings as S
 
     assert S.has_registered_defaults(ill.APP_KEY)
@@ -1027,12 +1115,14 @@ def test_the_settings_are_registered_off_by_default_and_typed():
         assert key in S.expected_types, f'{key} is untyped'
         assert key in S.tooltips, f'{key} has no tooltip'
         assert S.tooltips[key].startswith('('), f'{key} tooltip has no type'
-        # ...and NOT in the shared category map: that map's growth is checked
-        # by exact equality against a hand-kept list, and a key contributed at
-        # import time is only in it in a session that imported this module.
-        # See register_illumination_settings.
-        assert not any(key in keys for keys in S.categories.values()), \
-            f'{key} would make the shared category map import-order dependent'
+        homes = [name for name, keys in S.categories.items() if key in keys]
+        assert homes == ['Illumination Correction'], \
+            f'{key} is filed under {homes}, not one illumination heading'
+    # Contributed by the settings.py literal, not by this module:
+    # `register_illumination_settings` passes no categories, so the heading
+    # is there for a process that never imported spacr.illumination.
+    assert set(_categories_in_the_settings_literal()['Illumination Correction']) \
+        == {k for k in defaults if k.startswith('illumination_')}
     assert S.descriptions[ill.APP_KEY].startswith('Illumination')
     # Registering again is a no-op rather than a duplicate declaration.
     assert ill.register_illumination_settings() is False
@@ -1070,6 +1160,8 @@ def test_prepare_does_nothing_at_all_unless_it_is_asked_to(tmp_path):
     settings = ill.illumination_settings({'src': merged, 'channels': [0]})
 
     assert ill.prepare_illumination_correction(settings) is None
+    assert ill.prepare_segmentation_illumination(
+        settings, pipeline_style='v1') is None
     assert mh.preprocessing_hooks() == ()
     assert not os.path.isdir(tmp_path / 'illumination')
 
@@ -1108,6 +1200,457 @@ def test_prepare_refuses_to_correct_without_a_source(tmp_path):
             {'illumination_correction': True, 'src': '', 'channels': [0]})
 
 
+def test_segmentation_preparation_labels_qc_and_preserves_raw_fields(tmp_path):
+    """Preparation fits beside the run but never rewrites microscope pixels."""
+    merged = write_plate(
+        tmp_path / 'merged', quadratic_vignette((64, 64)),
+        n_fields=12, radius=5, n_objects=4)
+    raw_before = {
+        name: (tmp_path / 'merged' / name).read_bytes()
+        for name in os.listdir(merged)
+    }
+    settings = ill.illumination_settings({
+        'src': merged,
+        'channels': [0],
+        'illumination_correction': True,
+        'verbose': False,
+    })
+
+    session = ill.prepare_segmentation_illumination(
+        settings, pipeline_style='v1')
+
+    assert isinstance(session, ill.SegmentationIlluminationSession)
+    assert mh.preprocessing_hooks() == ()
+    assert session.prepared.model.meta['application_contract_version'] == 1
+    assert session.prepared.model.meta['channel_index_space'] == \
+        'persisted-intensity-axis'
+    assert session.prepared.model.meta['estimated_from_intensity_state'] == 'raw'
+    folder = tmp_path / 'illumination'
+    assert (folder / 'illumination_model.npz').is_file()
+    assert (folder / 'illumination_qc_segmentation_input_plate1.png').is_file()
+    record = json.loads(
+        (folder / 'segmentation_application.json').read_text(encoding='utf-8'))
+    assert record['application_state'] == 'prepared'
+    assert record['completed_fields'] == []
+    assert record['target_scope'] == 'segmentation-input-only'
+    assert record['raw_persisted_intensities_modified'] is False
+    assert {
+        name: (tmp_path / 'merged' / name).read_bytes()
+        for name in os.listdir(merged)
+    } == raw_before
+
+
+def test_segmentation_session_corrects_a_copy_and_commits_only_after_mark(
+        tmp_path, monkeypatch):
+    """The application record distinguishes prepared, durable and complete."""
+    from spacr import run_journal
+
+    events = []
+
+    class FakeRun:
+        def _record_stage(self, stage_id, **payload):
+            events.append((stage_id, payload))
+
+    monkeypatch.setattr(run_journal, 'current_run', lambda: FakeRun())
+    base = segmentation_prepared(tmp_path)
+
+    class MutatingCorrector:
+        """A legal future corrector that edits the array it is handed."""
+        def __init__(self):
+            self.stats = {
+                'corrected': 0, 'skipped': 0,
+                'clipped_pixels': 0, 'clipped_fields': 0,
+            }
+
+        def __call__(self, array, _context):
+            array[0, 0, 0] *= 2
+            self.stats['corrected'] += 1
+            return array
+
+    prepared = ill.PreparedIllumination(
+        model=base.model,
+        corrector=MutatingCorrector(),
+        model_path=base.model_path,
+        model_sha256=base.model_sha256,
+    )
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+
+    initial = json.loads(record_path.read_text(encoding='utf-8'))
+    assert initial['application_state'] == 'prepared'
+    assert initial['completed_fields'] == []
+    assert events[-1][1]['metrics']['applied'] is False
+    raw = np.full((2, 2, 1), 10, dtype=np.uint16)
+    untouched = raw.copy()
+
+    corrected = session.correct('field-1', raw, context(channels=[0]))
+
+    np.testing.assert_array_equal(raw, untouched)
+    assert corrected is not raw
+    assert corrected[0, 0, 0] == 20
+    # In-memory correction is not durable output, so it cannot advance the
+    # application record on its own.
+    assert json.loads(record_path.read_text(encoding='utf-8')) == initial
+    assert events[-1][1]['metrics']['applied'] is True
+    assert session.mark_completed('field-1') is True
+    durable = json.loads(record_path.read_text(encoding='utf-8'))
+    assert durable['application_state'] == 'running'
+    assert durable['completed_fields'] == ['field-1']
+    assert session.mark_completed('field-1') is False
+    with pytest.raises(ill.IlluminationError, match='twice'):
+        session.correct('field-1', raw, context(channels=[0]))
+    with pytest.raises(ill.IlluminationError, match='missing'):
+        session.finish(['field-1', 'field-2'])
+    assert json.loads(record_path.read_text(encoding='utf-8')) == durable
+
+    session.finish(['field-1'])
+
+    complete = json.loads(record_path.read_text(encoding='utf-8'))
+    assert complete['application_state'] == 'complete'
+    assert complete['completed_fields'] == ['field-1']
+    assert events[-1][1]['state'] == 'done'
+
+    fresh = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    reset = json.loads(record_path.read_text(encoding='utf-8'))
+    assert fresh.completed_fields == ()
+    assert reset['application_state'] == 'prepared'
+    assert reset['completed_fields'] == []
+    assert events[-1][1]['metrics']['applied'] is False
+
+
+def test_a_skipped_segmentation_field_cannot_be_claimed_as_corrected(tmp_path):
+    """Measure may skip a missing plate; segmentation provenance may not."""
+    base = segmentation_prepared(tmp_path)
+    prepared = ill.PreparedIllumination(
+        model=base.model,
+        corrector=ill.IlluminationCorrector(
+            base.model, on_missing='skip', verbose=False),
+        model_path=base.model_path,
+        model_sha256=base.model_sha256,
+    )
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v2')
+
+    with pytest.raises(ill.IlluminationError, match='uncorrected field'):
+        session.correct(
+            'field-2', np.full((2, 2, 1), 10, dtype=np.uint16),
+            context(name='plate2_A01_F000', channels=[0]))
+
+    assert session.applied_fields == ()
+    assert session.completed_fields == ()
+    with pytest.raises(ill.IlluminationError, match='before'):
+        session.mark_completed('field-2')
+    record = json.loads(record_path.read_text(encoding='utf-8'))
+    assert record['application_state'] == 'prepared'
+    assert record['completed_fields'] == []
+
+
+def test_segmentation_completion_is_atomic_when_the_replace_fails(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    before = record_path.read_bytes()
+
+    monkeypatch.setattr(ill.os, 'replace', lambda *_args: (_ for _ in ()).throw(
+        OSError('disk refused replace')))
+    with pytest.raises(OSError, match='disk refused replace'):
+        session.mark_completed('field-1')
+
+    assert session.completed_fields == ()
+    assert record_path.read_bytes() == before
+    assert list(record_path.parent.glob('.segmentation_application_*.json')) == []
+
+
+def test_a_secondary_temp_cleanup_failure_keeps_the_original_record(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    before = record_path.read_bytes()
+
+    def replace_fails(*_args):
+        raise OSError('original replace failure')
+
+    def cleanup_fails(*_args):
+        raise OSError('secondary cleanup failure')
+
+    monkeypatch.setattr(ill.os, 'replace', replace_fails)
+    monkeypatch.setattr(ill.os, 'remove', cleanup_fails)
+    with pytest.raises(OSError, match='original replace failure'):
+        session.mark_completed('field-1')
+
+    assert session.completed_fields == ()
+    assert record_path.read_bytes() == before
+    assert len(list(record_path.parent.glob(
+        '.segmentation_application_*.json'))) == 1
+
+
+def test_preprocess_false_resume_is_read_only_and_requires_a_complete_record(
+        tmp_path, monkeypatch):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    session.mark_completed('field-1')
+    partial_bytes = record_path.read_bytes()
+    partial_mtime = record_path.stat().st_mtime_ns
+
+    with pytest.raises(ill.IlluminationError, match='only.*running'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': True, 'illumination_model': ''},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1'], verbose=False)
+    assert record_path.read_bytes() == partial_bytes
+    assert record_path.stat().st_mtime_ns == partial_mtime
+
+    session.finish(['field-1'])
+    complete_bytes = record_path.read_bytes()
+    complete_mtime = record_path.stat().st_mtime_ns
+    partial_resume = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1',
+        resume=True)
+    assert partial_resume.completed_fields == ('field-1',)
+    assert record_path.read_bytes() == complete_bytes
+    assert record_path.stat().st_mtime_ns == complete_mtime
+    paths_before = sorted(path.name for path in record_path.parent.iterdir())
+    record_before = record_path.read_bytes()
+    record_mtime = record_path.stat().st_mtime_ns
+    model_before = (tmp_path / 'illumination' / 'model.npz').read_bytes()
+    model_mtime = (tmp_path / 'illumination' / 'model.npz').stat().st_mtime_ns
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError('a read-only resume attempted preparation work')
+
+    monkeypatch.setattr(ill, 'estimate_illumination', forbidden)
+    monkeypatch.setattr(ill, 'illumination_qc', forbidden)
+    monkeypatch.setattr(ill, 'enable_illumination_correction', forbidden)
+    resumed = ill.load_segmentation_illumination_resume(
+        {'illumination_correction': True, 'illumination_model': ''},
+        provenance_path=str(record_path), pipeline_style='v1',
+        expected_fields=['field-1'], verbose=False)
+
+    assert resumed.model_sha256 == prepared.model_sha256
+    assert mh.preprocessing_hooks() == ()
+    assert sorted(path.name for path in record_path.parent.iterdir()) == paths_before
+    assert record_path.read_bytes() == record_before
+    assert record_path.stat().st_mtime_ns == record_mtime
+    assert (tmp_path / 'illumination' / 'model.npz').read_bytes() == model_before
+    assert (tmp_path / 'illumination' / 'model.npz').stat().st_mtime_ns == \
+        model_mtime
+    with pytest.raises(ill.IlluminationError, match='does not cover exactly'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': True, 'illumination_model': ''},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1', 'field-2'], verbose=False)
+    assert record_path.read_bytes() == record_before
+    assert record_path.stat().st_mtime_ns == record_mtime
+
+
+def test_segmentation_rejects_legacy_tampered_and_unknown_pipeline_models(
+        tmp_path):
+    legacy = segmentation_prepared(tmp_path / 'legacy', legacy=True)
+    with pytest.raises(ill.IlluminationError, match='legacy or incompatible'):
+        ill.SegmentationIlluminationSession(
+            legacy,
+            provenance_path=str(tmp_path / 'legacy' / 'application.json'),
+            pipeline_style='v1')
+
+    tampered = segmentation_prepared(tmp_path / 'tampered')
+    with open(tampered.model_path, 'ab') as handle:
+        handle.write(b'tampered')
+    with pytest.raises(ill.IlluminationError, match='SHA-256'):
+        ill.SegmentationIlluminationSession(
+            tampered,
+            provenance_path=str(tmp_path / 'tampered' / 'application.json'),
+            pipeline_style='v1')
+
+    valid = segmentation_prepared(tmp_path / 'valid')
+    absent_resume_path = tmp_path / 'valid' / 'absent.json'
+    with pytest.raises(ill.IlluminationError, match='no record exists'):
+        ill.SegmentationIlluminationSession(
+            valid,
+            provenance_path=str(absent_resume_path),
+            pipeline_style='v1', resume=True)
+    assert not absent_resume_path.exists()
+    with pytest.raises(ill.IlluminationError, match='v1.*v2'):
+        ill.SegmentationIlluminationSession(
+            valid,
+            provenance_path=str(tmp_path / 'valid' / 'application.json'),
+            pipeline_style='legacy')
+
+
+def test_malformed_segmentation_application_records_fail_closed(tmp_path):
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+    session.mark_completed('field-1')
+    session.finish(['field-1'])
+    original = json.loads(record_path.read_text(encoding='utf-8'))
+
+    def refused(payload, fragment, *, settings=None):
+        if isinstance(payload, str):
+            record_path.write_text(payload, encoding='utf-8')
+        else:
+            record_path.write_text(
+                json.dumps(payload), encoding='utf-8')
+        before = record_path.read_bytes()
+        with pytest.raises(ill.IlluminationError, match=fragment):
+            ill.load_segmentation_illumination_resume(
+                settings or {
+                    'illumination_correction': True,
+                    'illumination_model': '',
+                },
+                provenance_path=str(record_path), pipeline_style='v1',
+                expected_fields=['field-1'], verbose=False)
+        assert record_path.read_bytes() == before
+
+    changed = dict(original)
+    changed['pipeline_style'] = 'v2'
+    refused(changed, 'different provenance')
+    changed = dict(original)
+    changed['completed_fields'] = 'field-1'
+    refused(changed, 'must be a list')
+    changed = dict(original)
+    changed['application_state'] = 'claimed'
+    refused(changed, 'application_state')
+    changed = dict(original)
+    changed['model_path'] = ''
+    refused(changed, 'no usable model_path')
+    changed = dict(original)
+    changed['model_path'] = 'missing-model.npz'
+    refused(changed, 'cannot be read')
+    changed = dict(original)
+    changed['model_sha256'] = '0' * 64
+    refused(changed, 'hash does not match')
+    changed = dict(original)
+    changed['qc_artifacts'] = 'not-a-list'
+    refused(changed, 'qc_artifacts must be a list')
+    changed = dict(original)
+    changed['model_path'] = prepared.model_path
+    refused(changed, 'different provenance')
+    refused(['not', 'an', 'object'], 'JSON object')
+    refused('{broken JSON', 'unreadable')
+
+    record_path.write_text(json.dumps(original), encoding='utf-8')
+    refused(
+        original,
+        "does not name the model recorded",
+        settings={
+            'illumination_correction': True,
+            'illumination_model': str(tmp_path / 'other-model.npz'),
+        },
+    )
+    with pytest.raises(ill.IlluminationError, match='requires.*True'):
+        ill.load_segmentation_illumination_resume(
+            {'illumination_correction': False},
+            provenance_path=str(record_path), pipeline_style='v1',
+            expected_fields=['field-1'], verbose=False)
+
+
+def test_segmentation_validation_names_a_missing_saved_model(tmp_path):
+    base = segmentation_prepared(tmp_path)
+    missing = ill.PreparedIllumination(
+        model=base.model,
+        corrector=base.corrector,
+        model_path=str(tmp_path / 'illumination' / 'gone.npz'),
+        model_sha256=base.model_sha256,
+    )
+    with pytest.raises(ill.IlluminationError, match='cannot verify'):
+        ill.SegmentationIlluminationSession(
+            missing,
+            provenance_path=str(tmp_path / 'illumination' / 'application.json'),
+            pipeline_style='v1')
+
+
+def test_a_broken_run_journal_cannot_replace_the_scientific_result(
+        tmp_path, monkeypatch):
+    from spacr import run_journal
+
+    class BrokenRun:
+        def _record_stage(self, *_args, **_kwargs):
+            raise RuntimeError('journal storage unavailable')
+
+    monkeypatch.setattr(run_journal, 'current_run', lambda: BrokenRun())
+    prepared = segmentation_prepared(tmp_path)
+    record_path = tmp_path / 'illumination' / 'application.json'
+
+    session = ill.SegmentationIlluminationSession(
+        prepared, provenance_path=str(record_path), pipeline_style='v1')
+    corrected = session.correct(
+        'field-1', np.full((2, 2, 1), 10, dtype=np.uint16),
+        context(channels=[0]))
+
+    assert corrected[0, 0, 0] == 20
+    assert record_path.is_file()
+
+
+def test_an_external_model_keeps_application_provenance_in_the_current_run(
+        tmp_path):
+    shared = segmentation_prepared(tmp_path / 'shared')
+    stack = tmp_path / 'current_run' / 'stack'
+    stack.mkdir(parents=True)
+    settings = ill.illumination_settings({
+        'src': str(tmp_path / 'wrong_run' / 'stack'),
+        'channels': [0],
+        'illumination_correction': True,
+        'illumination_model': shared.model_path,
+        'illumination_qc': False,
+        'verbose': False,
+    })
+
+    session = ill.prepare_segmentation_illumination(
+        settings, src=str(stack), channels=[0], pipeline_style='v2')
+
+    expected = tmp_path / 'current_run' / 'illumination' / \
+        'segmentation_application.json'
+    assert session.provenance_path == str(expected)
+    assert expected.is_file()
+    assert not (tmp_path / 'shared' / 'illumination' /
+                'segmentation_application.json').exists()
+
+
+def test_a_measure_qc_failure_does_not_leave_a_new_model_behind(
+        tmp_path, monkeypatch):
+    merged = write_plate(
+        tmp_path / 'merged', quadratic_vignette((64, 64)),
+        n_fields=12, radius=5, n_objects=4)
+    settings = ill.illumination_settings({
+        'src': merged,
+        'channels': [0],
+        'illumination_correction': True,
+        'verbose': False,
+    })
+    monkeypatch.setattr(
+        ill, 'illumination_qc',
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError('QC could not be rendered')))
+
+    with pytest.raises(RuntimeError, match='QC could not be rendered'):
+        ill.prepare_illumination_correction(settings)
+
+    assert not (tmp_path / 'illumination' / 'illumination_model.npz').exists()
+    assert mh.preprocessing_hooks() == ()
+
+
 def test_describe_says_what_the_field_is_and_where_it_came_from(tmp_path):
     """A model on disk has to be able to say what produced it."""
     merged = write_plate(tmp_path / 'merged', quadratic_vignette((64, 64)),
@@ -1120,6 +1663,222 @@ def test_describe_says_what_the_field_is_and_where_it_came_from(tmp_path):
     assert 'polynomial degree 4 over 12 field(s)' in text
     assert model.meta['src'] == [os.path.abspath(merged)]
     assert model.field_for('plate1').nonuniformity()[0] > 0.1
+
+
+# ---------------------------------------------------------------------------
+# 8. Set on the run it affects: the settings belong to Measure
+# ---------------------------------------------------------------------------
+# The call in measure_crop was there, and the settings it reads were not:
+# `get_measure_crop_settings` returned 61 keys and none of them was
+# `illumination_correction`, so `prepare_illumination_correction` returned
+# None on every run started from the Measure panel. The switch that decides
+# whether every intensity feature carries a position-dependent bias could
+# only be thrown on the separate Illumination screen -- which enables the
+# correction by setting process environment variables, so whether a table
+# was corrected depended on what had been run in the same process before it.
+
+
+def test_measure_offers_every_illumination_setting():
+    """Measure's defaults are a superset of the Illumination module's."""
+    from spacr.settings import get_measure_crop_settings
+
+    measure = get_measure_crop_settings(settings={})
+    for key, value in ill.illumination_settings({}).items():
+        assert key in measure, (
+            f'{key} is not in the measure defaults, so a Measure run cannot '
+            f'set it and prepare_illumination_correction never sees it')
+        if key.startswith('illumination_'):
+            assert measure[key] == value, (
+                f'{key} defaults to {measure[key]!r} under Measure and '
+                f'{value!r} under Illumination; the same run would be '
+                f'corrected differently depending on which screen started it')
+
+    # Measure's own `src` and `channels` win. The estimate reads the fields
+    # the run measures, and Illumination's three-channel default would
+    # silently drop the fourth channel of a four-channel measure run.
+    assert measure['channels'] == [0, 1, 2, 3]
+    assert measure['src'] == 'path'
+
+
+def test_mask_offers_every_illumination_setting_off_by_default():
+    """Mask owns the same correction controls, with correction opt-in."""
+    from spacr.settings import set_default_settings_preprocess_generate_masks
+
+    mask = set_default_settings_preprocess_generate_masks({})
+    expected = ill.illumination_settings({})
+    for key, value in expected.items():
+        if not key.startswith('illumination_'):
+            continue
+        assert key in mask
+        assert mask[key] == value
+    assert mask['illumination_correction'] is False
+
+
+def test_the_mask_panel_places_illumination_under_one_heading():
+    """Mask must expose every correction knob in a named section."""
+    pytest.importorskip('PySide6')
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, resolve_default_settings,
+    )
+    import spacr.settings as S
+
+    sections = categories_for_app('mask', S.categories)
+    defaults = resolve_default_settings('mask')
+    illumination_keys = {key for key in defaults
+                         if key.startswith('illumination_')}
+    assert illumination_keys
+    homes = {name for name, keys in sections.items()
+             if illumination_keys & set(keys)}
+    assert homes == {'Illumination Correction'}
+    assert illumination_keys <= set(sections['Illumination Correction'])
+
+
+def test_the_measure_panel_shows_them_under_one_heading():
+    """Folded into one section, not the four the Illumination screen uses.
+
+    Illumination splits its knobs across Correction Model, Field Sampling and
+    QC & Failure Handling because estimating a field is that screen's whole
+    job. Inside Measure it is one decision -- correct these fields or do not
+    -- so it is one group, and every key is in it: a key the layout does not
+    place lands in the trailing "Additional Settings" bucket, which is not a
+    heading anyone chose.
+    """
+    pytest.importorskip('PySide6')
+    from spacr.qt.screens.settings_model import (
+        categories_for_app, resolve_default_settings,
+    )
+    import spacr.settings as S
+
+    sections = categories_for_app('measure', S.categories)
+    defaults = resolve_default_settings('measure')
+    illumination_keys = {k for k in defaults if k.startswith('illumination_')}
+    assert illumination_keys, 'the Measure panel offers no illumination keys'
+    homes = {name for name, keys in sections.items()
+             if illumination_keys & set(keys)}
+    assert homes == {'Illumination Correction'}
+    assert illumination_keys <= set(sections['Illumination Correction'])
+    # The trailing bucket is built from the whole shared map, so it always
+    # exists; what matters is that nothing Measure OFFERS ends up in it,
+    # because those are the keys that would render under that non-heading.
+    assert not [key for key in sections.get('Additional Settings', ())
+                if key in defaults]
+
+
+def test_a_measure_run_hands_the_panel_settings_to_the_correction(
+        tmp_path, monkeypatch):
+    """The whole point: the values set on Measure reach the correction.
+
+    Driven from `resolve_default_settings('measure')` -- what the Qt panel
+    builds its widgets from -- rather than from a hand-written dict, so the
+    test fails if the keys stop being offered there. Every illumination key
+    is checked by VALUE and not merely by presence: the defect was a dict
+    that lacked them, and a dict that carries them at somebody else's
+    defaults corrects the plate with settings the user never chose.
+    """
+    pytest.importorskip('PySide6')
+    from spacr import measure as measure_mod
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    seen = {}
+    monkeypatch.setattr(ill, 'prepare_illumination_correction',
+                        lambda settings, **kw: seen.update(settings) or None)
+    monkeypatch.setattr(measure_mod, '_start_manager',
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            RuntimeError('stop before the pool')))
+
+    plate = tmp_path / 'plate'
+    merged = plate / 'merged'
+    os.makedirs(merged)
+    write_plate(merged, quadratic_vignette((64, 64)), n_fields=2,
+                n_objects=2, radius=5)
+
+    settings = resolve_default_settings('measure')
+    settings.update({
+        'src': str(plate), 'channels': [0, 1],
+        'cell_mask_dim': 2, 'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4,
+        'save_measurements': False, 'save_png': False, 'save_arrays': False,
+        'plot': False, 'verbose': False, 'timelapse': False,
+        'crop_mode': ['cell'], 'normalize': [1, 99], 'normalize_by': 'png',
+        'experiment': 'exp', 'n_jobs': 1, 'test_mode': False,
+    })
+    # What a user changes on the panel, in the panel's own dict.
+    chosen = {
+        'illumination_correction': True,
+        'illumination_estimator': 'smooth',
+        'illumination_degree': 3,
+        'illumination_per_plate': False,
+        'illumination_max_fields': 12,
+        'illumination_dark': 2.5,
+        'illumination_qc': False,
+        'illumination_on_missing': 'skip',
+        'illumination_model': '',
+    }
+    # ASSIGNED, not injected. `settings.update(chosen)` would put the keys in
+    # the dict whether or not the panel offers them, and measure_crop's
+    # `get_measure_crop_settings` only ever setdefaults -- so the test would
+    # pass against exactly the defect it exists to catch. Writing into keys
+    # that must already be there is what makes it a control.
+    for key, value in chosen.items():
+        assert key in settings, (
+            f'{key} is not among the settings the Measure panel builds, so '
+            f'there is no control for it and no value for the correction '
+            f'to read')
+        settings[key] = value
+
+    try:
+        measure_mod.measure_crop(settings)
+    except Exception:
+        # Stopped at the worker pool on purpose; the call under test is
+        # everything that happened before it.
+        pass
+
+    assert seen, 'measure_crop never called prepare_illumination_correction'
+    for key, value in chosen.items():
+        assert seen.get(key) == value, (
+            f'the correction was handed {key}={seen.get(key)!r} instead of '
+            f'the {value!r} the Measure panel was set to')
+
+
+def test_a_saved_model_is_reused_and_nothing_is_re_estimated(tmp_path,
+                                                             monkeypatch):
+    """`illumination_model` is a path, and filling it skips the estimate.
+
+    That is what makes the estimate a once-per-plate cost rather than a
+    once-per-run one: the first Measure run over a plate fits the field and
+    saves it, and every later run over the same plate points at the file. A
+    reuse that quietly re-fitted would still produce corrected numbers, so
+    the estimator is replaced by one that raises -- the only way to tell
+    "reused" from "re-derived the same answer".
+    """
+    from spacr.settings import get_measure_crop_settings
+
+    shape = (64, 64)
+    merged = write_plate(tmp_path / 'merged', quadratic_vignette(shape),
+                         n_fields=12, radius=5, n_objects=4)
+    first = get_measure_crop_settings(settings={})
+    first.update({'src': merged, 'channels': [0],
+                  'illumination_correction': True, 'verbose': False})
+    model = ill.prepare_illumination_correction(first)
+    saved = os.path.join(str(tmp_path), 'illumination',
+                         'illumination_model.npz')
+    assert os.path.isfile(saved)
+
+    mh.clear_measurement_hooks()
+
+    def no_estimate(*args, **kwargs):
+        raise AssertionError('re-estimated a field that was already saved')
+
+    monkeypatch.setattr(ill, 'estimate_illumination', no_estimate)
+    second = get_measure_crop_settings(settings={})
+    second.update({'src': merged, 'channels': [0],
+                   'illumination_correction': True, 'verbose': False,
+                   'illumination_model': saved})
+
+    reused = ill.prepare_illumination_correction(second)
+
+    np.testing.assert_array_equal(reused.field_for('plate1').flatfield,
+                                  model.field_for('plate1').flatfield)
+    assert [entry.name for entry in mh.preprocessing_hooks()] == [ill.HOOK_NAME]
 
 
 # ---------------------------------------------------------------------------
@@ -1145,9 +1904,18 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     from spacr import measure as measure_mod
     from spacr.settings import get_measure_crop_settings
 
-    seen = {}
+    seen = {'events': []}
+
+    def validate(settings, **kwargs):
+        seen['events'].append('validate')
+        seen['validated_src'] = settings['src']
+        return {}
+
+    monkeypatch.setattr(
+        ill, 'validate_measurement_illumination_inputs', validate)
 
     def spy(settings, **kwargs):
+        seen['events'].append('prepare')
         seen['src'] = settings['src']
         seen['before_pool'] = 'pool' not in seen
         return None
@@ -1155,6 +1923,7 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     monkeypatch.setattr(ill, 'prepare_illumination_correction', spy)
 
     def no_pool(*args, **kwargs):
+        seen['events'].append('pool')
         seen['pool'] = True
         raise RuntimeError('stop here')
 
@@ -1198,6 +1967,8 @@ def test_measure_crop_prepares_the_correction_before_it_measures(
     assert seen.get('before_pool') is True, (
         "the correction was installed after the worker pool was built, so "
         "no spawned worker inherits it")
+    assert seen['events'] == ['validate', 'prepare', 'pool']
+    assert os.path.basename(seen['validated_src']) == 'merged'
 
 
 def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):
@@ -1247,3 +2018,87 @@ def test_measure_crop_leaves_an_uncorrected_run_alone(tmp_path, monkeypatch):
     assert dict(mh.preprocessing_hooks()) == before, (
         "a run with illumination_correction off installed a hook anyway")
     assert not os.path.isdir(plate / 'illumination')
+
+
+# ---------------------------------------------------------------------------
+# Segmentation-to-Measure handoff: persisted pixels must still be raw
+# ---------------------------------------------------------------------------
+
+def test_measure_input_guard_is_a_read_only_noop_without_a_segmentation_record(
+        tmp_path):
+    merged = tmp_path / 'plate' / 'merged'
+    merged.mkdir(parents=True)
+    absent_parent = merged.parent / 'illumination'
+
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': False,
+        'src': str(merged),
+    }) == {}
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': str(merged),
+    }) == {}
+    assert ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': '',
+    }) == {}
+    assert not absent_parent.exists()
+
+
+def test_measure_input_guard_accepts_raw_segmentation_records_without_writing(
+        tmp_path):
+    first, path, record = write_segmentation_application(tmp_path / 'plate1')
+    second = tmp_path / 'plate2' / 'merged'
+    second.mkdir(parents=True)
+    before = path.read_bytes()
+    stamp = path.stat().st_mtime_ns
+
+    found = ill.validate_measurement_illumination_inputs({
+        'illumination_correction': True,
+        'src': '/ignored/by/the/explicit/override',
+    }, src=[str(first), str(first), str(second)])
+
+    assert found == {str(path.resolve()): record}
+    assert path.read_bytes() == before
+    assert path.stat().st_mtime_ns == stamp
+    assert not (second.parent / 'illumination').exists()
+
+
+@pytest.mark.parametrize('change', [
+    {'source_intensity_state': 'corrected'},
+    {'target_scope': 'persisted-intensities'},
+    {'correction_depth': 2},
+    {'raw_persisted_intensities_modified': True},
+    {'raw_persisted_intensities_modified': 0},
+])
+def test_measure_input_guard_refuses_any_record_that_cannot_prove_raw_pixels(
+        tmp_path, change):
+    merged, path, _record = write_segmentation_application(
+        tmp_path / 'plate', **change)
+    before = path.read_bytes()
+
+    with pytest.raises(ill.IlluminationError, match='double correction'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })
+
+    assert path.read_bytes() == before
+
+
+def test_measure_input_guard_fails_closed_on_malformed_provenance(tmp_path):
+    merged, path, _record = write_segmentation_application(tmp_path / 'plate')
+    path.write_text('{broken')
+
+    with pytest.raises(ill.IlluminationError, match='cannot verify'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })
+
+    path.write_text('[]')
+    with pytest.raises(ill.IlluminationError, match='not a JSON object'):
+        ill.validate_measurement_illumination_inputs({
+            'illumination_correction': True,
+            'src': str(merged),
+        })

@@ -63,7 +63,7 @@ def test_propagation_maps_measure_keys(qtbot, tmp_path):
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
     p = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(p)
-    p._channels.setText("0,2,4")
+    p._channels.set_value({"r": 0, "g": 2, "b": 4})
     p._crop_size.setValue(200)
     s = p.settings_for_propagation()
     # This used to read `s["png_dims"] == [0, 2, 4]`, and it was green while
@@ -104,10 +104,11 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
         if label is not None:
             assert widget.toolTip() == ""
             assert "https://" in label.toolTip()
-            assert getattr(label, "_spacr_api_dot", None) is not None
         else:
             assert "https://" in widget.toolTip()
-            assert getattr(widget, "_spacr_api_dot", None) is not None
+        # NO DOT, EITHER WAY. The link is in the hover text, which is where
+        # it was always being read from.
+        assert getattr(label or widget, "_spacr_api_dot", None) is None
     propagated = panel.settings_for_propagation()
     assert propagated["normalize"] == [1.0, 99.0]
     panel._normalise.setChecked(False)

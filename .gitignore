@@ -31,6 +31,7 @@ share/python-wheels/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+!packaging/spacr.spec
 
 # Installer logs
 pip-log.txt
@@ -166,15 +167,48 @@ tutorial_colab.ipynb
 
 #do not include docs
 /docs/*
+!/docs/flowview.md
+# Instruction 336's consumer map is committed on purpose: the next audit
+# is meant to be a diff rather than a rerun of the generator.
+!/docs/setting_consumers.json
+# Instruction 380's performance baseline, for the same reason and a
+# stronger one: "RECORD A BASELINE and commit it, so later work can be
+# shown to have moved the number rather than asserted to have." An
+# uncommitted baseline is a number in a session's scrollback.
+!/docs/perf_baseline.json
 !/docs/source/
 !/docs/i18n/
 !/docs/i18n/**
 /docs/source/*
 !/docs/source/_static/
 !/docs/source/_static/api_i18n.js
+!/docs/source/_static/workflow/
+!/docs/source/_static/workflow/**
 !/docs/source/_static/i18n/
 !/docs/source/_static/i18n/**
 !/docs/source/module_audit.rst
+!/docs/source/installers.rst
+!/docs/source/installer_guide.rst
+!/docs/source/features.rst
+!/docs/source/python_api.rst
+# The model zoo's own page, added 2026-09-03 for instruction 370. It
+# includes the two generated blocks beside it; before it existed
+# `_generated/model_zoo_table.rst` was written on every run and
+# included by nothing, so the API had no model zoo page at all.
+!/docs/source/model_zoo.rst
+# The settings-flow page's own wrapper, which owns the heading and the
+# prose that `_generated/settings_flow.rst` deliberately has no title for.
+# It was written on 2026-09-08 and never committed, because this allowlist
+# did not name it and `/docs/source/*` above ignores anything that is not
+# named here. The generated fragment WAS committed, `index.rst` was pointed
+# at the wrapper, and every docs build since has failed on "toctree contains
+# reference to nonexisting document 'settings_flow'" -- silently, because
+# the catalog audit fails first and the Sphinx step never runs.
+!/docs/source/settings_flow.rst
+!/docs/source/_autoapi_templates/
+!/docs/source/_autoapi_templates/**
+!/docs/source/_generated/
+!/docs/source/_generated/workflow_grid.rst
 !/docs/source/localization.rst
 !/docs/source/setting_animations.rst
 !/docs/source/checkpoint_resume.rst
@@ -194,4 +228,30 @@ tutorial_colab.ipynb
 /scratch/
 /path/
 
+# Local-only agent guidance and retired task notes. Keep recoverable copies
+# outside the repository; these directories are not part of the product.
+/.claude/skills/
+/skill/
+/to_do/
+
 build/
+
+# catboost writes a training log beside the working directory
+catboost_info/
+
+# The built documentation site. GitHub Pages deploys from the Actions
+# artifact, so a copy committed here serves nothing and goes stale: the one
+# that was tracked advertised an API two hundred releases old.
+docs/.buildinfo
+docs/.doctrees/
+docs/_build/
+docs/_modules/
+docs/_sources/
+docs/_static/
+docs/_images/
+docs/genindex.html
+docs/index.html
+docs/py-modindex.html
+docs/search.html
+docs/searchindex.js
+docs/objects.inv

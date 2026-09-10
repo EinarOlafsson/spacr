@@ -1,28 +1,131 @@
-# Handoff — 2026-08-14
+# Handoff — header rewritten 2026-09-02
 
 Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
 Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
-taking. The authoritative status is the current ledger and each instruction's
-latest dated record; older sections below are preserved as history.
+taking. The INDEX is generated from the folder and carries a percentage on
+every open row; this file carries the things a generator cannot know.
 
-Current checkpoint: branch `nightly`, 82 done / 4 open after instruction 48's
-closure. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
-at `https://einarolafsson.github.io/spacr/tutorials/`; its reusable audit skill,
-scene sampler, live verifier, and tests are committed. Hosted tutorial media is
-at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
-mobile playback passed the full 69.6-second default narration, captions,
-pause/resume, end, and replay contract. Instruction 83 remains independently
-open for the current API/runtime localization catalogs; the tutorial-only
-deployment preserved the prior non-tutorial documentation baseline rather than
-publishing those stale catalogs. The other open records are 58, 59, and 82.
+**THERE IS ONE LEDGER AND IT IS `00_INDEX.txt`.** `instructions/PROGRESS.md`
+was a second, hand-maintained one; it went stale, listed about 34 closed items
+as unfinished, and carried a row for an item 60 that has no file anywhere. It
+was retired on 2026-09-04 at the maintainer's decision — see instruction 352
+for the measurement and for where item 60's goal now lives. Do not start
+another one.
 
-The remainder of this handoff contains historical investigation notes. Its old
-69-done / 17-open count and hands-off ownership table are superseded.
+## WHERE THINGS ACTUALLY STAND (2026-09-02)
 
----
+Branch `nightly`. **349 done / 24 open** (2026-09-04; the count is generated
+into `00_INDEX.txt`, so read it there rather than here). The old header said 92/10 and named
+a `codex/tutorial-api-final` checkpoint; both were nine months of work out of
+date and are in section 8 below with the rest of the history.
+
+Two sessions share this repository.
+`instructions/325_two_sessions_one_repo_working_protocol.temp` is the channel
+between them and the record of who owns what — **read it before touching
+anything**,
+
+> NOT UNDER `open/`, AND NOT A MISFILING. The maintainer took 325 off the
+> instructions list on 2026-09-09: it is a standing protocol rather than a
+> task that can be finished, so it does not belong in a ledger that counts
+> what is done. `build_instruction_index.py` globs `open/*.txt` and
+> `done/*.txt`, so 325 is deliberately invisible to `00_INDEX.txt` and
+> `--check` passes without it. Do not "repair" it back into `open/`. and announce there before editing `setup.py`, `spacr/__init__.py`,
+`spacr/schema.py`, `spacr/accelerator.py` or `.github/**`.
+
+WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
+before and after the version bump: **288** (green CI, per-module coverage),
+**05** and **304** (the bump and Zenodo, both needing the maintainer), **316**
+(translations), and **01** (Windows self-update, code-complete and waiting only
+on publication).
+
+**314 CAME OFF THAT LIST ON 2026-09-04**, closed by the maintainer — "i never
+get that problem any more!" — and NOT by a fix: nothing was ever changed
+against the stall. Its 2026-09-03 measurement of a 6,252 ms event-loop freeze
+opening Regression stands unretracted in `done/314`, along with Home's
+unexplained 2.03 → 4.51 s doubling, which was always a separate regression and
+is still unowned. If a module feels slow again, read that file before
+measuring anything: eleven causes are already eliminated there.
+
+WHAT NEEDS THE MAINTAINER AND NOTHING ELSE — see section 1 — is now short
+enough to list here: the Zenodo toggle, the 1.5.0.5 go-ahead, the measure
+settings instruction 337 part 3 needs, three sentences of Spanish, Chinese and
+Korean for instruction 306, and the nine hand-written `_ROWS` translations
+instruction 316 is waiting on.
+
+## THE MEASUREMENT LESSONS OF 2026-09-02
+
+Four items were advanced in one night and every one of them turned on a
+measurement being wrong before it was right. They are here because they cost
+hours and will cost them again.
+
+**A HEAD BASELINE, OR THE NUMBER MEANS NOTHING.** Run the same selection twice
+— once with the work stashed — and `comm` the two failure lists. Every claim of
+"no regressions" made this week rests on that and none of it would survive
+without it. It found two failures that were mine and cleared five that were
+not.
+
+**A CACHED IMPORT AND THE IMPORT ARE TWO PIECES OF STATE.** `monkeypatch`
+restores what it was asked to restore. It does not restore a module-level
+`_ZERNIKE_AVAILABLE` filled while a fake package sat in `sys.modules`, and it
+does not restore a module object deleted by a reload. Both poisoned the whole
+process from one file; instruction 346 has the bisect that found them.
+
+**MEASURE A WIDGET ONLY AFTER THE LAYOUT SETTLES.** One
+`app.processEvents()` after `show()` is not enough — widths are still
+pre-layout defaults. A clipping sweep run that way reported 38 problems in
+German where there are none. Pump until the geometry stops changing.
+
+**AND ASK A WIDGET WHAT IT IS PAINTING, NOT WHAT IT HOLDS.** A control that
+elides on purpose reports its full caption from `text()`. Comparing that to
+its width reports clipping by construction. `displayed_text()` exists for
+this.
+
+**TWO MEASUREMENTS THAT DISAGREE ARE WORTH MORE THAN ONE THAT LOOKS RIGHT.**
+Both clipping retractions were caught that way, not by re-reading the code.
+
+## THE MEASUREMENT LESSONS OF 2026-09-10
+
+Four more, and every one cost real time before it paid.
+
+**A RE-IMPORTED MODULE LIVES IN THREE PLACES, NOT TWO.** `sys.modules`, the
+module object itself, and — the one nobody restores — **the attribute on the
+parent package**. `importlib.import_module` rebinds `spacr.qt.screens` →
+`settings_model`, and a fixture that saves and restores `sys.modules` leaves
+the two disagreeing. That matters because they are reached by different
+syntax: `from .settings_model import X` goes through the ATTRIBUTE while
+`monkeypatch.setattr("spacr.qt.screens.settings_model.X", spy)` goes through
+`sys.modules`. A spy installed by one is invisible to the other and it fails
+SILENTLY — the code under test runs the unpatched original and something
+else goes red. Found three times now; `tests/qt/test_zz_a_reimported_module_is_put_back_properly.py`
+is the detector. NOTE that `importlib.reload` and `runpy.run_module` are
+both SAFE — reload re-executes in place, runpy never touches the package.
+
+**XVFB IS A REAL X SERVER AND IT HAS A GPU PATH.** Two instructions had
+written off measurements as needing a physical display. Neither did:
+`xvfb-run` gives real windows with real occlusion, and
+`gpu_is_available()` returns True under it because Mesa's llvmpipe is a
+genuine GLX context. 385's whole remaining search space — "does an X server
+stop feeding an obscured native GL surface" — was answerable here in four
+minutes. It says nothing about how FAST a card draws; it says everything
+about what the X server and the compositor do.
+
+**AND COUNT THE THING THAT IS ACTUALLY DRAWN.** A vispy canvas never
+delivers `QEvent.Paint` to the QWidget around it, so counting paint events
+on the wrapper reports ZERO for a backdrop that is visibly running. The
+first version of that measurement had zero in every column INCLUDING the
+baseline, which is the only reason it was caught. Always have a baseline
+column; a number with nothing to compare it to is not a measurement.
+
+**REBUILD THE CATALOGS ONCE, AT THE END OF A BATCH OF CODE.** Two new public
+docstrings from an unrelated performance fix turned a green API audit red
+and moved the symbol count 10,283 → 10,284. A rebuild is tens of minutes per
+language; doing it after each change multiplies that by the number of
+changes and throws every intermediate result away. Finish the code, then
+rebuild, then commit the catalogs. A private name (`_build_the_dialog`) costs
+nothing at all — it never enters the manifest.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
@@ -99,15 +202,22 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ## 2. State of the tree
 
-* Branch `nightly`, 51 commits on 2026-08-13, all pushed.
-* Working tree carries four files that are **not ours**: `README.rst`,
-  `docs/source/index.rst`, `skill/FACTS.md`, `tests/test_docs_media_budget.py`.
-  These belong to the concurrent codex session (48/83). **Do not commit them.**
-* `instructions/open/48` and `83` are codex's. So are
-  `docs/source/_extra/tutorials/**` and the i18n catalogs.
-* `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` is a **stale**
-  checkout (last commit 2026-07-26). Line numbers quoted from it will not
-  match. The working copy is `/mnt/firecuda2/codex/repo/spacr`.
+* Branch `nightly`. SUPERSEDED 2026-09-02: the file list and ownership that
+  used to be here were true in August and are not now.
+  **`instructions/325_two_sessions_one_repo_working_protocol.temp`
+  sections 1 and 2 are the current answer** to which
+  tree is whose and which files are whose, and it stays current because both
+  sessions write to it.
+* THERE ARE TWO LIVE TREES, one per session:
+
+      Claude   /mnt/firecuda2/Claude/repo/spacr
+      Codex    /mnt/firecuda2/codex/repo/spacr
+
+  Confirm with `git worktree list` before your first commit. An older version
+  of this section called the Claude tree a stale mirror; that stopped being
+  true in August and cost a session an hour of confusion on 2026-09-01.
+* `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` IS still stale
+  (last commit 2026-07-26). Line numbers quoted from it will not match.
 
 ### The environment
 
@@ -188,6 +298,48 @@ Grep the module you are about to accuse, not just its callers.
 
 ---
 
+### 3f. `pip -e` POINTED AT THE WRONG CHECKOUT, AND A CHECK CAN'T SEE IT
+
+FOUND AND FIXED 2026-08-18. `pip show spacr` reported
+
+    Editable project location: /mnt/firecuda2/Claude/repo/spacr
+
+which is the STALE MIRROR (§2), frozen at commit `90714c9e`, while all work
+happens in `/mnt/firecuda2/codex/repo/spacr`. Consequences, both real:
+
+  * `spacr` on PATH launched dead code. The maintainer had the GUI open all
+    day against a tree fifteen commits behind, which makes "I still see the
+    bug" impossible to interpret.
+  * ANY CHECK RUN AS `python /some/other/dir/script.py` VERIFIED THE MIRROR.
+    `python script.py` puts the SCRIPT's directory on `sys.path` and never
+    adds cwd, so it falls through to site-packages and the editable finder
+    answers. Four such checks ran before this was noticed.
+
+Fixed with `pip install -e /mnt/firecuda2/codex/repo/spacr --no-deps
+--no-build-isolation`. Verify after any env change:
+
+    cd <live tree>  && python -c "import spacr; print(spacr.__file__)"
+    python /tmp/anywhere/check.py        # <- the one that used to lie
+
+WHAT DOES *NOT* SAVE YOU, measured rather than assumed: setting PYTHONPATH is
+not the general fix and neither is trusting cwd. On this interpreter
+`sys.meta_path` is
+
+    [DistutilsMetaFinder, PynvmlFinder, BuiltinImporter, FrozenImporter,
+     PathFinder, _EditableFinder, _EditableFinder]
+
+so `_EditableFinder` sits AFTER `PathFinder` and cwd/PYTHONPATH DO win here --
+but that ordering is a setuptools implementation detail, not a guarantee, and
+a peer session had a recorded incident from a repo where a `git worktree`
+control silently tested current code for this family of reason.
+
+THE RULE THAT SURVIVES BOTH: ASSERT THE RESOLVED PATH INSIDE THE CHECK.
+
+    import spacr; assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
+
+A check that prints its own `__file__` cannot lie about which tree it read.
+One that trusts its invocation can, and did.
+
 ## 4. Findings filed but not fixed
 
 **93 — the intensity rescale factor is per field and unrecorded.**
@@ -214,6 +366,13 @@ looked.
 
 ## 5. Where each open instruction stands
 
+> **SUPERSEDED — this table is an August snapshot.** Several of its items are
+> closed and fourteen more have been filed since. `instructions/00_INDEX.txt`
+> is regenerated from the folder and carries a percentage on every open row;
+> read that instead. The table is kept because its one-line characterisations
+> of 52, 95, 94 and 47 are still the best short descriptions of what those
+> items were about.
+
 | # | Item | Stage |
 |---|---|---|
 | **52** | 3D plane-anchored gates | **Controls rebuilt today.** Plane picker, shape dropdown, spin/draw, dragged slab. Geometry (Cylinder/Prism/Box/Composite/thresholds) was already right |
@@ -233,10 +392,47 @@ looked.
 
 ## 6. Standing rules the maintainer has set
 
+* **CHECK THE GITHUB ISSUES AT THE START OF EVERY SESSION, AND AGAIN
+  PERIODICALLY WITHIN IT.** Set 2026-08-17. This is not an instruction that
+  can be finished, so it deliberately has no number in `open/` to be moved to
+  `done/` -- it is a recurring check, and its home is here because this file
+  is what a session reads first.
+
+      gh issue list --repo EinarOlafsson/spacr --state open
+
+  Read each one, fix what is fixable, and reply on the issue saying what was
+  done and in which commit. An issue that is a duplicate, a question, or a
+  decision for the maintainer gets said so on the issue rather than left
+  open in silence.
+
+  Auto-filed issues carry a traceback fingerprint and the pipeline settings,
+  so they are usually reproducible without asking the reporter. TWO THINGS
+  THEY ALSO DO, both seen on the first one checked (#108):
+    - the title names the CRASH, but the body often reports a DIFFERENT
+      problem the user hit first. Read the prose, not just the traceback.
+    - paths are redacted to `<PATH>` / `<DB>`, so the shape of a path is
+      evidence even when its content is not -- `~<DB>` is a tilde that was
+      never expanded.
+
+* **ASK WITH THE QUESTION PROMPT, NEVER IN THE CHAT.** Set 2026-09-04: "if you
+  have a question ask me with the question prompt dont ask in the chat." A
+  question buried in a paragraph of report is a question that gets skimmed
+  past, and this repository's whole intake item (357) exists because answers
+  that live only in a chat log are answers nobody can act on next week. Use the
+  structured question tool, put the recommended option first, and say what each
+  choice costs. This applies to every decision that is genuinely the
+  maintainer's -- a release, a retirement, wording he must approve -- and not
+  to reporting a measurement he did not ask a question about.
+
 * A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
   quoting the request in a `Requested:` line. Merge overlapping asks into the
   first task; do not file duplicates.
-* Print the done/left table whenever an item is finished.
+* Print the done/left table whenever an item is finished. Refined
+  2026-08-17: show it EVERY time an item reaches 100% and every time
+  the maintainer adds one, unprompted -- one row per item with a
+  percentage, grouped by the instruction that owns it, and an overall
+  figure underneath. Keep the rows honest: work a background agent has
+  built but not committed is not 100%.
 * Commits are authored **Einar Olafsson**, never any AI attribution, and carry
   no `Co-Authored-By` trailer.
 * Fix bugs and logic that lead to erroneous or misleading results.
@@ -262,3 +458,53 @@ looked.
   grouped, ImageNet statistics given to a run that asked for its own.
 * **Measure, then decide.** Every palette, threshold and default that changed
   this week changed on a number recorded in the instruction file.
+
+
+## 8. The header this file used to carry (August 2026)
+
+Preserved because this file's own convention is that older sections stay as
+history. It describes the tutorial release and the instruction-83 catalog
+freeze; its counts are the ones the 2026-09-02 header replaced.
+
+---
+
+# Handoff — 2026-08-15
+
+Written for whoever picks this up next, human or agent. It records what is
+true right now, what needs the maintainer, and the traps that cost time so
+they cost nobody else any.
+
+Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
+taking. The authoritative status is the current ledger and each instruction's
+latest dated record; older sections below are preserved as history.
+
+Current checkpoint: branch `codex/tutorial-api-final`, 92 done / 10 open after
+this closeout. The complete tutorial release has 73 lessons, 508 purposeful
+scenes, eight languages, 50 voices, 3,650 strict-freshness narration tracks,
+and 73 4K silent masters. Its reusable audit skill, frame sampler, live
+verifier, and tests are committed. Two hundred new audio/timing pairs and four
+masters were uploaded to the existing Hugging Face release surface; the
+tutorial commits are ``4caa7db1`` and ``6aeb6693``, and the matching main
+publication change was merged through PR #105 at
+``ea0d96b7d6f545bae8f73c1a7af2460f8457979a``.
+
+Instruction 83 is complete on the current source freeze: all nine API
+catalogs are current at 6,655 symbols, all nine runtime catalogs are current
+at 3,678 entries, and every installer catalog is current at 57 strings.
+Coverage, exact source-bound review evidence, signature/placeholder guards,
+and the English manifests were regenerated together. Instruction 108 records
+the bounded human review and the explicitly named mechanically checked
+remainder. The coherent catalog/evidence/test closeout is commit
+``16ee2065``.
+Instruction 99 adds first-class CV-model explanations and regression-hit to
+candidate-cell investigation with guarded provenance and quantitative evidence.
+Instructions 58 and 82 are closed in the immutable pre-rewrite ledger: the
+1.5.0.5 release remains canceled, while the approved contributor-history
+rewrite and green post-rewrite CI are the final external operations. Their new
+SHAs and run IDs are intentionally reported outside the repository because the
+history instruction forbids a later commit.
+
+The remainder of this handoff contains historical investigation notes. Its old
+69-done / 17-open count and hands-off ownership table are superseded.
+
+---

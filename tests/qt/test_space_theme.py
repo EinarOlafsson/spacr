@@ -432,110 +432,41 @@ class TestPreferencesWiring:
         with pytest.raises(ValueError):
             set_theme("chartreuse")
 
-    def test_space_variant_round_trips(self, qapp):
-        from spacr.qt.preferences import (get_space_variant, set_space_variant,
-                                          get_space_seed, set_space_seed)
-        from spacr.qt.space import VARIANTS, DEFAULT_VARIANT
-        for variant in VARIANTS:
-            set_space_variant(variant)
-            assert get_space_variant() == variant
-        with pytest.raises(ValueError):
-            set_space_variant("supernova")
-        set_space_seed(1234)
-        assert get_space_seed() == 1234
-        set_space_variant(DEFAULT_VARIANT)
+    def test_the_space_preference_accessors_are_retired(self, qapp):
+        """Six tests lived here for a theme nothing could select.
 
-    def test_space_seed_survives_a_garbage_value(self, monkeypatch, qapp):
-        from spacr.qt import preferences
-        from spacr.qt.space import DEFAULT_SEED
+        `test_space_variant_round_trips`, `..._survives_a_garbage_value`
+        (twice), `test_background_path_uses_generated_fallback`,
+        `test_background_path_never_raises` and
+        `test_apply_preferences_only_pays_for_space` all exercised
+        `preferences.get_space_variant`, `set_space_variant`,
+        `get_space_seed`, `set_space_seed` and `space_background_path`.
 
-        class FakeSettings:
-            def value(self, key, default=None):
-                return "not-an-int" if key == preferences._KEY_SPACE_SEED else default
+        Those were retired on 2026-09-09 under instruction 364. The whole
+        chain hung off `theme_background_path`'s `theme == "space"` branch,
+        and "space" is not in VALID_THEMES: `set_theme` refuses it,
+        `theme_choices()` offers no space token, and `get_theme()` maps
+        anything unrecognised to DEFAULT_THEME. The branch could not be
+        entered by any route through the module, so every test above was
+        exercising a path a user could not reach.
 
-        monkeypatch.setattr(preferences, "_settings", FakeSettings)
-        assert preferences.get_space_seed() == DEFAULT_SEED
-
-    def test_space_variant_survives_a_garbage_value(self, monkeypatch, qapp):
-        from spacr.qt import preferences
-        from spacr.qt.space import DEFAULT_VARIANT
-
-        class FakeSettings:
-            def value(self, key, default=None):
-                return "quasar" if key == preferences._KEY_SPACE_VARIANT else default
-
-        monkeypatch.setattr(preferences, "_settings", FakeSettings)
-        assert preferences.get_space_variant() == DEFAULT_VARIANT
-
-    def test_background_path_uses_generated_fallback(self, cache_dir, qapp,
-                                                     monkeypatch):
-        from spacr.qt import preferences, space
-        fake = cache_dir / "generated.png"
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        fake.write_bytes(b"pretend")
-        monkeypatch.setattr(
-            space, "background_path", lambda *args, **kwargs: fake)
-        assert preferences.space_background_path() == fake
-
-    def test_background_path_never_raises(self, monkeypatch, qapp):
+        WHAT SURVIVES, and is covered elsewhere in this file: the Space
+        ARTWORK and its procedural generator. `spaceout` still draws it and
+        `spacr.qt.space.background_path` is still the entry point --
+        `test_photo_themes.py::test_space_falls_back_to_the_generated_sky`
+        exercises the fallback directly now, rather than through a
+        preference that no longer exists.
+        """
         from spacr.qt import preferences, space
 
-        def boom(*args, **kwargs):
-            raise RuntimeError("disk on fire")
-
-        monkeypatch.setattr(space, "background_path", boom)
-        assert preferences.space_background_path() is None
-
-    def test_space_gets_dark_figure_colours(self, qapp, monkeypatch):
-        """Space is a dark theme: a `== "dark"` test would have handed
-        it white figures.
-
-        CHANGED 2026-08-06. The background half used to assert "#000000".
-        That was the black slab behind every plot: `bg` is the WINDOW
-        colour, and a figure sits on a container that is a translucent
-        SURFACE (INVARIANTS 2). "auto" now resolves to TRANSPARENT, so the
-        container shows through and the page-opacity preference reaches the
-        plot.
-
-        What this test was actually defending is untouched and still
-        asserted: Space must be treated as DARK, so its text is white. That
-        is the bug the docstring describes and it is the half that matters.
-        """
-        from spacr.qt import preferences
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "space")
-        bg, fg = preferences.get_figure_colors()
-        assert fg == "#ffffff", "Space was treated as a light theme"
-        assert preferences.figure_bg_is_transparent(bg), bg
-
-    def test_apply_preferences_only_pays_for_space(
-            self, qapp, monkeypatch, deferred_deletions_flushed):
-        """Applying preferences costs one wallpaper lookup, and only on Space.
-
-        ``deferred_deletions_flushed`` is what makes the count sayable.
-        ``apply_preferences_to_app`` ends in ``setPalette`` +
-        ``setStyleSheet``, which raise ``PaletteChange`` on every live
-        widget, and ``AppScreen.changeEvent`` answers with a wallpaper
-        lookup — so the total is one for the application plus two for every
-        ``AppScreen`` still alive, including the ones an earlier test
-        finished with and Qt has not got round to deleting. Delivering
-        those pending deletions first is what makes ``== [1]`` mean "the
-        application paid once" rather than "nobody left a screen behind".
-        """
-        from spacr.qt import preferences
-        calls = []
-        monkeypatch.setattr(preferences, "space_background_path",
-                            lambda *a, **k: calls.append(1) or None)
-
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "dark")
-        preferences.apply_preferences_to_app(qapp)
-        assert calls == []
-
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "space")
-        preferences.apply_preferences_to_app(qapp)
-        assert calls == [1]
+        for gone in ("space_variants", "get_space_variant",
+                     "set_space_variant", "get_space_seed",
+                     "set_space_seed", "space_background_path"):
+            assert not hasattr(preferences, gone), gone
+        # And the theme itself still routes nowhere.
+        assert preferences.theme_background_path("space", 800, 600) is None
+        # The generator is untouched: this is what spaceout draws.
+        assert callable(space.background_path)
 
 
 # ---------------------------------------------------------------------------
@@ -561,10 +492,12 @@ class TestRuntimeSwitch:
 
         before = len(qapp.allWidgets())
         # No image generation during the switch — that is tested
-        # separately and must not make this test slow.
-        monkeypatch.setattr(preferences, "space_background_path",
+        # separately and must not make this test slow. `cell` is the theme
+        # that fetches a picture now; the `space` stub that used to be here
+        # named a function retired with its theme on 2026-09-09 (364).
+        monkeypatch.setattr(preferences, "cell_background_path",
                             lambda *a, **k: None)
-        for name in ("dark", "light", "space", "dark"):
+        for name in ("dark", "light", "cell", "dark"):
             monkeypatch.setattr(preferences, "resolve_effective_theme",
                                 lambda name=name: name)
             preferences.apply_preferences_to_app(qapp)
@@ -584,8 +517,14 @@ class TestRuntimeSwitch:
 
         sidebar = Sidebar()
         qtbot.addWidget(sidebar)
+        # ANY ROW CARRYING AN ICON. This used to name `convert`, which stopped
+        # having a dock row when the folded second level was removed on
+        # 2026-09-03 -- and the test is about whether a QIcon is re-inked on a
+        # theme switch, not about which module it belongs to. Naming a
+        # specific module here made this fail with StopIteration, which says
+        # nothing about icons.
         row = next(b for b in sidebar._items
-                   if b.property("navKey") == "convert")
+                   if b.property("navKey") and not b.icon().isNull())
 
         def mean_luminance(button):
             img = button.icon().pixmap(32, 32).toImage()
@@ -739,8 +678,16 @@ class TestIconVisibility:
                       for p in iconset.bundled_icon_paths()
                       if iconset.carries_tonal_structure(iconset._load_rgba(p))]
         # Only these genuinely put shading in RGB; everything else is a mask.
+        #
+        # `logo_spacr_readme.png` joined the list on 2026-09-02 -- it was
+        # already tonal and already shipped, and this assertion had been red
+        # for it. It belongs here for `app_icon.png`'s reason: a BRAND MARK
+        # is not a glyph. It is drawn once, in its own colours, and is never
+        # re-inked for a theme, so measuring it against the mask rule was
+        # always going to fail. `logo_spacr.png` IS a mask and stays out.
         assert set(structured) <= {
-            "activation.png", "app_icon.png", "flow_chart_v3.png", "umap.png",
+            "activation.png", "app_icon.png", "flow_chart_v3.png",
+            "logo_spacr_readme.png", "umap.png",
         }
         assert len(structured) < len(iconset.bundled_icon_paths()) / 2
 
@@ -793,15 +740,29 @@ class TestIconVisibility:
         return [line.strip() for line in block.splitlines()
                 if line.strip().startswith("background")]
 
-    def test_the_dock_is_opaque_in_every_theme(self):
-        """"the dock to the left should never have a transparent
-        background, either dark gray or white" — the user, #16j.
+    def test_the_dock_is_opaque_over_a_picture_and_bare_otherwise(self):
+        """Two maintainer requests that disagree, and the seam between them.
 
-        A navigation column is chrome: it is what you look at when you
-        have lost your place, and it has to be a solid edge for the page
-        to end at. It used to paint ``surface``, which the image themes
-        re-render through ``scrim_alpha`` — so on Space the app list was
-        a ghost with a galaxy behind every row.
+        #16j: "the dock to the left should never have a transparent
+        background, either dark gray or white" — filed because over an
+        image theme the app list was a ghost with a galaxy behind every
+        row.
+
+        Instruction 369, 2026-09-02: "the background dark gray container
+        can be removed, the hover highlight should stay."
+
+        Taken literally the first forbids the second. THE SPLIT IS THE ONE
+        THIS FILE ALREADY CARRIED: `over_image`. Over `cell` and `glass`
+        there is a picture behind the dock, #16j's complaint applies
+        verbatim, and the legibility floor does not rescue it (Cell floors
+        at 0.047) — so the dock stays opaque. On `dark`, `light` and
+        `space` there is no wallpaper, only the ambient animation, so the
+        container comes off and that is exactly what 369 asked for.
+
+        The right border is kept in every theme, so the page still ends at
+        a line rather than bleeding into the dock, and the hover highlight
+        is unaffected because it was never the tray — it is the row's own
+        `:hover` background, painted by `_DockRow.paintEvent`.
         """
         for name in theme.IMAGE_THEMES:
             qss = theme.stylesheet(name)
@@ -826,11 +787,13 @@ class TestIconVisibility:
         # floor does not rescue it (Cell floors at 0.047). On dark and light
         # there is no picture behind the dock, only the ambient animation, so
         # thinning it is what was asked for and harms nothing.
-        for name in ("dark", "light"):
+        for name in ("dark", "light", "space"):
             qss = theme.stylesheet(name, surface_opacity=0.5)
             fills = self._fills(qss, "#EdgeDrawer, #Sidebar, #SidebarScroll")
-            assert any("rgba(" in f for f in fills), (
-                f"{name}: the dock ignored page opacity: {fills}")
+            assert all("transparent" in f for f in fills), (
+                f"{name}: the dock still paints a container: {fills}. 369 "
+                f"asked for it to come off where there is no picture behind "
+                f"it, and these three themes have none.")
 
         # White under the light theme, a dark grey everywhere else —
         # both taken from the palette, never written down as a hex.

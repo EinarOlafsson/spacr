@@ -26,6 +26,8 @@ suite for no extra coverage.
 """
 from __future__ import annotations
 
+import subprocess
+import sys
 import warnings
 
 import numpy as np
@@ -34,6 +36,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from spacr import power_model as pm
+from spacr.qt.screens import power as power_mod
 from spacr.qt.screens.power import (
     APP_KEY,
     APP_NAME,
@@ -527,6 +530,59 @@ def test_a_protective_effect_is_refused_rather_than_reported_as_no_power(qapp):
 # The registration seams
 # ---------------------------------------------------------------------------
 
+@pytest.mark.parametrize("screen_first", [False, True],
+                         ids=["declared-app-first", "screen-first"])
+def test_declared_defaults_resolve_in_either_import_order(screen_first):
+    """The lazy declared row and its defaults converge in a fresh process."""
+    first = (
+        "import spacr.qt.screens.power\n"
+        if screen_first else
+        "from spacr.qt import app\n"
+    )
+    code = first + """
+from spacr import settings
+from spacr.qt import app
+from spacr.qt.screens.settings_model import resolve_default_settings
+
+assert 'power' in {row[0] for row in app.APPS}
+defaults = resolve_default_settings('power')
+assert len(defaults) == 15
+assert settings.has_registered_defaults('power')
+assert set(defaults) <= set(settings.expected_types)
+assert set(defaults) <= set(settings.tooltips)
+"""
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, (
+        f"fresh registration probe failed\nstdout:\n{completed.stdout}"
+        f"\nstderr:\n{completed.stderr}"
+    )
+
+
+def test_register_restores_settings_after_the_screen_was_imported(
+        registry_sandbox):
+    """One public registration call restores both halves of the app.
+
+    A self-registration caller imports this screen before it can call
+    :func:`register`, so the defaults cannot depend on importing the
+    already-loaded module again. Clearing both registries reproduces that
+    order deterministically.
+    """
+    from spacr import settings as settings_mod
+
+    app_mod = registry_sandbox
+    app_mod.unregister_app(APP_KEY)
+    settings_mod.unregister_defaults(APP_KEY)
+
+    assert register() is True
+    assert settings_mod.has_registered_defaults(APP_KEY)
+    assert settings_mod.defaults_for(APP_KEY) == power_default_settings()
+
+
 @pytest.fixture
 def registry_sandbox():
     """Restore the app registry and the defaults registry after the test.
@@ -581,20 +637,34 @@ def test_register_puts_the_app_in_the_design_section_and_is_idempotent(
     # claim is stated as the rule rather than as the count — otherwise the
     # test reads as a regression in Power the day anything else is filed
     # under Design.
+    # DATA, not DESIGN. Home was restructured into Core/Data/Tools/Assays
+    # on 2026-08-31 and Power moved with it; SECTION_DESIGN survives as a
+    # legacy alias that nothing is filed under any more.
+    section = app_mod.SECTION_DATA
     neighbours = [row[0] for row in app_mod.APPS
-                  if row[3] == app_mod.SECTION_DESIGN and row[0] != APP_KEY]
+                  if row[3] == section and row[0] != APP_KEY]
     app_mod.unregister_app(APP_KEY)
-    assert (app_mod.SECTION_DESIGN in app_mod.SECTIONS) == bool(neighbours), (
+    assert (section in app_mod.SECTIONS) == bool(neighbours), (
         "a section is drawn exactly when something is filed under it; "
-        f"Design still holds {neighbours}")
+        f"{section} still holds {neighbours}")
 
     assert register() is True
     assert register() is False, "a second import must not raise or duplicate"
 
     row = next(row for row in app_mod.APPS if row[0] == APP_KEY)
-    assert row[3] == app_mod.SECTION_DESIGN
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
-    assert app_mod.APP_FACTORIES[APP_KEY] is make_power_screen
+    assert row[3] == section
+    assert section in app_mod.SECTIONS
+    assert section in app_mod.SECTION_ORDER
+    # Through the accessor, not the raw table: this screen's row is declared
+    # in `spacr.qt.app_catalog`, so what sits in APP_FACTORIES until somebody
+    # asks is a stand-in that has not imported this module.
+    # `registered_factory` is what resolves it -- and what every caller that
+    # builds a screen goes through.
+    from spacr.qt.app_catalog import LazyScreenFactory
+
+    assert isinstance(app_mod.APP_FACTORIES[APP_KEY], LazyScreenFactory) or \
+        app_mod.APP_FACTORIES[APP_KEY] is make_power_screen
+    assert app_mod.registered_factory(APP_KEY) is make_power_screen
     # `spacr.qt.maturity` reassessed every alpha module against the
     # evidence in the repository and this one no longer qualifies; the
     # reason is recorded beside the decision. Applied here because the
@@ -659,6 +729,169 @@ def test_the_settings_seam_registers_typed_and_documented_keys(
         assert key in settings_mod.expected_types
         assert settings_mod.tooltips[key].startswith("(")
     assert set(defaults) <= set(settings_mod.categories["Power analysis"])
+
+
+def test_power_settings_declare_the_exact_defaults_and_types():
+    """The generic settings seam must stay aligned with ``DesignSpec``.
+
+    These values are user-visible, persisted in settings files and coerced by
+    ``check_settings``. A prose repair must not accidentally move a default or
+    turn (for example) a whole-number read count into a floating-point field.
+    """
+    expected = {
+        "power_n_genes": (452, int),
+        "power_n_grnas_per_gene": (4, int),
+        "power_score_per": ("gene", str),
+        "power_cells_per_well": (123.0, float),
+        "power_wells_per_plate": (384, int),
+        "power_n_plates": (4, int),
+        "power_constructs_per_well": (4.6, float),
+        "power_background_positive_rate": (0.12, float),
+        "power_effect_fold": (6.667, float),
+        "power_hit_rate": (0.025, float),
+        "power_reads_per_well": (30000, int),
+        "power_n_replicates": (3, int),
+        "power_detection_auroc": (0.80, float),
+        "power_seed": (0, int),
+        "power_backend": ("torch", str),
+    }
+    declared = {
+        key: (default, expected_type)
+        for key, (default, expected_type, _tooltip) in power_mod._SETTINGS.items()
+    }
+    assert declared == expected
+    assert power_default_settings() == {
+        key: default for key, (default, _expected_type) in expected.items()
+    }
+
+
+def test_rendered_power_form_uses_the_registered_tooltips(qapp):
+    """Every visible setting label reads the semantic `_SETTINGS` source.
+
+    Construction finishes by moving hover help from each editor to its form
+    label. Exercise that real offscreen path: the label must own formatted,
+    source-bound help and its identity while the editor remains quiet,
+    including Wells / plate, which previously had no tooltip at all.
+    """
+    from spacr.qt.screens.settings_model import format_tooltip
+
+    screen = PowerScreen(threaded=False)
+    fields = screen._setting_fields
+    try:
+        screen.show()
+        qapp.processEvents()
+        assert set(fields) == set(power_mod._SETTINGS)
+        for key, field in fields.items():
+            label = field.parentWidget().layout().labelForField(field)
+            assert label is not None, key
+            assert field.toolTip() == "", key
+            source = power_mod._SETTINGS[key][2]
+            assert field.property("settingsAppKey") == APP_KEY, key
+            assert field.property("settingKey") == key, key
+            assert label.property("settingsAppKey") == APP_KEY, key
+            assert label.property("settingKey") == key, key
+            assert label.property("apiTooltipDescriptionSource") == source, key
+            assert label.toolTip() == format_tooltip(
+                source, APP_KEY, key, "en"), key
+    finally:
+        screen.close()
+        screen.deleteLater()
+
+
+def test_rendered_power_form_retranslates_semantic_tooltips(qapp):
+    """A language switch must reach custom Power help, not leave English."""
+    from html import escape
+
+    from spacr.qt import i18n as i18n_mod
+    from spacr.qt.i18n_catalogs import de
+
+    screen = PowerScreen(threaded=False)
+    try:
+        screen.show()
+        qapp.processEvents()
+        i18n_mod.retranslate_widget_tree(screen, "de")
+        for key, field in screen._setting_fields.items():
+            label = field.parentWidget().layout().labelForField(field)
+            assert label is not None, key
+            translated = de.SETTING_TOOLTIPS[key]
+            assert escape(translated) in label.toolTip(), key
+            english = " ".join(
+                power_mod._SETTINGS[key][2].split(" - ", 1)[-1].split())
+            assert english not in label.toolTip(), key
+            assert field.toolTip() == "", key
+    finally:
+        screen.close()
+        screen.deleteLater()
+
+
+def test_power_tooltips_state_the_simulator_and_fit_contracts():
+    """Help text must distinguish model inputs from convenient metaphors.
+
+    The simulator has no plate hierarchy or gene-grouped guide layer. Several
+    form values are distribution targets, not promises about one realised
+    screen, and ADVI offers neither guaranteed ordering nor calibrated
+    intervals. Those are scientific conclusions, so pin them directly.
+    """
+    tips = {key: row[2] for key, row in power_mod._SETTINGS.items()}
+
+    wells = tips["power_wells_per_plate"]
+    plates = tips["power_n_plates"]
+    assert "only the resulting total well count reaches the simulator" in wells
+    assert "no plate identity is modelled" in wells
+    assert "do not model plate identity or plate-to-plate variance" in plates
+    assert "random effect" not in plates
+
+    score_per = tips["power_score_per"]
+    assert "independent guide-level units" in score_per
+    assert "each with its own coefficient and reads" in score_per
+    assert "no guide-efficiency or within-gene grouping layer" in score_per
+    assert "pools a gene's guides" not in score_per
+
+    genes = tips["power_n_genes"]
+    assert "simulator evaluates the resulting design directly" in genes
+    assert "the sweep measures the effect" not in genes
+
+    assert "Target mean distinct library units" in tips[
+        "power_constructs_per_well"]
+    assert "Probability clipping can make the realised mean lower" in tips[
+        "power_constructs_per_well"]
+    assert "Mean probability" in tips["power_background_positive_rate"]
+    assert "Rates vary" in tips["power_background_positive_rate"]
+    assert "Requested fold multiplier" in tips["power_effect_fold"]
+    assert "min(0.999, background rate × fold)" in tips["power_effect_fold"]
+    assert "Independent probability" in tips["power_hit_rate"]
+    assert "realised hit fraction varies" in tips["power_hit_rate"]
+    assert "Target mean sequencing depth" in tips["power_reads_per_well"]
+    assert "realised reads cannot exceed" in tips["power_reads_per_well"]
+
+    backend = tips["power_backend"]
+    assert "'numpyro' and 'pymc' use optional NUTS" in backend
+    assert "An unavailable named backend raises" in backend
+    assert "ADVI can reach a local optimum" in backend
+    assert "intervals are not calibrated" in backend
+    assert "exact NUTS" not in backend
+    assert "always available" not in backend
+    assert "gets the coefficient ORDER right" not in backend
+
+    advi = next(c for c in CAVEATS if c.key == "advi_not_nuts")
+    assert "can reach a local optimum" in advi.headline
+    assert "intervals are not calibrated" in advi.headline
+    assert "does not guarantee that ordering" in advi.detail
+    assert "ranking is trustworthy" not in advi.headline
+    assert "does get right is the ORDER" not in advi.detail
+
+    seed = tips["power_seed"]
+    for dependency in (
+            "complete DesignSpec", "same sweep grid and order",
+            "resolved backend", "software stack"):
+        assert dependency in seed
+
+    design_doc = DesignSpec.__doc__ or ""
+    for dependency in (
+            "complete design", "same sweep grid", "resolved backend",
+            "software stack"):
+        assert dependency in design_doc
+    assert "Every number on the screen is reproducible" not in design_doc
 
 
 def test_settings_round_trip_into_the_same_design(registry_sandbox):

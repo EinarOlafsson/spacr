@@ -75,7 +75,7 @@ from .macro import begin_recording, finish_recording
 
 LOG = logging.getLogger("spacr.run_journal")
 
-MANIFEST_SCHEMA_VERSION = 2
+MANIFEST_SCHEMA_VERSION = 3
 """Current on-disk reproducibility-manifest schema."""
 
 #: Ceiling on files inventoried under any one setting-derived root. A
@@ -113,6 +113,72 @@ def runs_root() -> Path:
     return p
 
 
+def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
+    """Delete journalled run folders. Returns ``(deleted, refused)``.
+
+    THIS REMOVES FILES, so every guard below is load-bearing rather than
+    defensive habit:
+
+    * A path is deleted only if, once resolved, it is strictly INSIDE
+      :func:`runs_root`. A record's ``dir`` is read from a manifest on
+      disk, and a manifest is a file a user can edit; ``../../..`` in one
+      must not reach anything. Resolving first is what makes the check
+      real -- comparing unresolved strings passes for a symlink that
+      points anywhere.
+    * ``runs_root()`` ITSELF is refused. "Delete everything" is a loop
+      over children, never a removal of the root, so a caller that
+      computes an empty selection cannot take the journal with it.
+    * The run OPEN ON THIS THREAD is refused: deleting the folder a run
+      is still writing into leaves it failing on its next write with an
+      error that names nothing.
+    * A path that is not a directory is refused rather than unlinked.
+
+    Refusals are RETURNED, not raised. Deleting fifty runs where one is
+    live should delete forty-nine and say which one it kept -- an
+    exception at that point has already deleted an unknown number and
+    tells the caller nothing about which.
+
+    :param directories: run folder paths, as in a record's ``"dir"``.
+    :returns: how many were removed, and a message per refusal.
+    """
+    import shutil
+
+    root = runs_root().resolve()
+    live = ""
+    try:
+        run = current_run()
+        if run is not None and getattr(run, "dir", None):
+            live = str(Path(run.dir).resolve())
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("Could not identify the running run", exc_info=True)
+
+    deleted, refused = 0, []
+    for raw in directories:
+        try:
+            target = Path(str(raw)).resolve()
+        except Exception:                                   # noqa: BLE001
+            refused.append(f"{raw}: not a usable path")
+            continue
+        if target == root:
+            refused.append(f"{target}: that is the run journal itself")
+            continue
+        if root not in target.parents:
+            refused.append(f"{target}: outside {root}")
+            continue
+        if not target.is_dir():
+            refused.append(f"{target}: not a run folder")
+            continue
+        if live and str(target) == live:
+            refused.append(f"{target.name}: still running")
+            continue
+        try:
+            shutil.rmtree(target)
+            deleted += 1
+        except Exception as error:                          # noqa: BLE001
+            refused.append(f"{target.name}: {type(error).__name__}: {error}")
+    return deleted, refused
+
+
 def _new_run_dir(app_key: str) -> Path:
     """Return a fresh ``<UTC-timestamp>_<short-uuid>__<app>`` folder."""
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S")
@@ -131,6 +197,7 @@ def _new_run_dir(app_key: str) -> Path:
 # ---------------------------------------------------------------------------
 
 def _pkg_version(name: str) -> str:
+    """Return an installed distribution version or ``"not installed"``."""
     try:
         from importlib.metadata import version as _v
         return _v(name)
@@ -414,6 +481,11 @@ def _iter_files(path: Path, excluded_roots: Iterable[Path]) -> Iterator[Path]:
         resolved_excludes = tuple(excluded_roots)
 
     def excluded(candidate: Path) -> bool:
+        """Return whether ``candidate`` resolves to or below an excluded root.
+
+        A path that cannot be resolved is retained so one hostile entry does
+        not abort or silently empty the rest of the file walk.
+        """
         try:
             resolved = candidate.resolve(strict=False)
             return any(
@@ -487,7 +559,9 @@ class Run:
     :ivar start_ts: unix epoch seconds when the run opened.
     :ivar end_ts: unix epoch seconds when the run closed (set by
         :func:`open_run` on exit).
-    :ivar status: ``"running"`` / ``"success"`` / ``"failed"``.
+    :ivar status: ``"running"`` / ``"success"`` / ``"failed"`` /
+        ``"cancelled"``. The last is a run the user stopped, which is not a
+        run that broke, and the two want different things done next.
     :ivar model_hashes: dict of ``{human-name: "filename:sha256-16"}``.
         Populated by callers via :meth:`record_model`.
     :ivar model_files: full SHA-256, size, and path records for models.
@@ -498,6 +572,10 @@ class Run:
         manifest instead of being silently discarded.
     :ivar run_warnings: distinct warning lines emitted by the pipeline.
     :ivar environment: host, spaCR, Git, and installed-package versions.
+    :ivar stages: consolidated FlowView lifecycle records in execution order.
+    :ivar stdout_path: captured standard-output log path, when one is attached.
+    :ivar error_traceback: formatted exception traceback for failed or
+        cancelled runs; empty for successful runs.
     """
     app_key: str
     settings: Dict[str, Any]
@@ -513,6 +591,7 @@ class Run:
     provenance_warnings: List[str] = field(default_factory=list)
     run_warnings: List[str] = field(default_factory=list)
     environment: Dict[str, Any] = field(default_factory=dict)
+    stages: List[Dict[str, Any]] = field(default_factory=list)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
     _path_candidates: List[Tuple[str, Path, bool]] = field(
@@ -526,6 +605,9 @@ class Run:
     # -- external mutations ------------------------------------------------
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
+
+        :param name: human-readable key under which to record the model.
+        :param checkpoint_path: model checkpoint file to fingerprint.
 
         Records ``"<filename>:<digest>"`` in ``model_hashes``. An unreadable
         checkpoint is only logged and leaves no entry at all; any other
@@ -602,7 +684,10 @@ class Run:
             return None
 
     def set_status(self, status: str) -> None:
-        """Explicitly stamp ``status`` (``success`` / ``failed`` / …)."""
+        """Explicitly stamp ``status`` (``success`` / ``failed`` / …).
+
+        :param status: lifecycle state to store on the run.
+        """
         self.status = status
 
     def record_warning(self, message: Any) -> None:
@@ -617,6 +702,76 @@ class Run:
             # field-specific text thousands of times.
             if len(self.run_warnings) < 500:
                 self.run_warnings.append(text)
+
+    def _record_stage(
+        self,
+        stage_id: Any,
+        *,
+        label: Any = None,
+        state: Any = None,
+        started_at: Any = None,
+        ended_at: Any = None,
+        metrics: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Merge one pipeline-stage observation into the run record.
+
+        Instrumentation calls this at the same boundary used for its live
+        graph, so ``manifest.json`` and the graph share exact timestamps
+        rather than trying to reconcile two clocks after the run. Repeated
+        calls update the existing stage in place and preserve first-seen
+        order. Invalid diagnostics are ignored: provenance must never replace
+        a scientific result or exception.
+
+        :param stage_id: stable stage identifier.
+        :param label: optional human-readable stage label.
+        :param state: optional lifecycle state such as ``running`` or ``done``.
+        :param started_at: optional Unix epoch start timestamp.
+        :param ended_at: optional Unix epoch terminal timestamp.
+        :param metrics: scalar counts or measurements to merge.
+        """
+        try:
+            identifier = str(stage_id).strip()
+            if not identifier:
+                return
+            stage = next(
+                (item for item in self.stages if item.get("id") == identifier),
+                None,
+            )
+            if stage is None:
+                stage = {
+                    "id": identifier,
+                    "label": str(label) if label is not None else identifier,
+                    "state": "pending",
+                    "started_at": None,
+                    "ended_at": None,
+                    "duration_s": None,
+                    "metrics": {},
+                }
+                self.stages.append(stage)
+            elif label is not None:
+                stage["label"] = str(label)
+            if state is not None:
+                stage["state"] = str(state)
+            if started_at is not None:
+                stage["started_at"] = float(started_at)
+            if ended_at is not None:
+                stage["ended_at"] = float(ended_at)
+            if metrics:
+                stage_metrics = stage.setdefault("metrics", {})
+                for name, value in metrics.items():
+                    stage_metrics[str(name)] = value
+            start = stage.get("started_at")
+            end = stage.get("ended_at")
+            stage["duration_s"] = (
+                float(end) - float(start)
+                if start is not None and end is not None
+                else None
+            )
+        except BaseException:
+            try:
+                LOG.debug("could not record pipeline stage evidence", exc_info=True)
+            except BaseException:
+                pass
 
     # -- private -----------------------------------------------------------
     def _record_tree(
@@ -852,6 +1007,7 @@ class Run:
             "output_tree_sha256": _json_digest(self.output_hashes),
             "provenance_warnings": self.provenance_warnings,
             "warnings":       self.run_warnings,
+            "stages":         self.stages,
             "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
@@ -876,15 +1032,14 @@ class Run:
                 w.writerow([k, "" if v is None else str(v)])
 
     def _snapshot_log_tail(self, n: int = 200) -> None:
-        """Copy the last ``n`` application-log lines into this run folder."""
+        """Copy the application tail and append this run's stage evidence."""
+        lines: List[str] = []
         try:
             from .logging_util import log_path
             src = log_path()
-            if not src.exists():
-                return
-            with open(src, encoding="utf-8", errors="replace") as f:
-                lines = f.readlines()
-            (self.dir / "log.txt").write_text("".join(lines[-n:]))
+            if src.exists():
+                with open(src, encoding="utf-8", errors="replace") as f:
+                    lines = f.readlines()
         except Exception as exc:
             # This is the run's own record of what it printed, and it is the
             # first thing anyone opens when a run went wrong. A folder with no
@@ -892,6 +1047,35 @@ class Run:
             # failed", so say which it was — but do not fail the run over it.
             LOG.warning("could not copy the last %d log lines into %s (%s)",
                         n, self.dir, exc)
+        try:
+            stage_lines = []
+            for stage in self.stages:
+                metrics = json.dumps(
+                    stage.get("metrics") or {},
+                    default=str,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                stage_lines.append(
+                    "FlowView stage "
+                    f"{stage.get('id')} state={stage.get('state')} "
+                    f"started_at={stage.get('started_at')} "
+                    f"ended_at={stage.get('ended_at')} "
+                    f"duration_s={stage.get('duration_s')} metrics={metrics}\n"
+                )
+            if not lines and not stage_lines:
+                return
+            content = "".join(lines[-n:])
+            if content and not content.endswith("\n"):
+                content += "\n"
+            (self.dir / "log.txt").write_text(
+                content + "".join(stage_lines), encoding="utf-8",
+            )
+        except Exception as exc:
+            LOG.warning(
+                "could not write run log snapshot into %s (%s)", self.dir, exc
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -952,7 +1136,17 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             run.status = "success"
     except BaseException as e:
         import traceback as _tb
-        run.status = "failed"
+        # A RUN THE USER STOPPED IS NOT A RUN THAT FAILED, and instruction
+        # 140 C asks for a folder they can see afterwards. Recorded as
+        # "cancelled" so the Runs tab, `recent_runs` and a reviewer reading
+        # the manifest can all tell "I pressed Stop" from "this screen broke
+        # the model" -- which are different things to do next, and the folder
+        # is otherwise identical.
+        #
+        # The traceback is still kept: where a long fit was interrupted is
+        # exactly what a user asks afterwards.
+        run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
+                      else "failed")
         run.error_traceback = "".join(
             _tb.format_exception(type(e), e, e.__traceback__)
         )
@@ -973,6 +1167,17 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             # A manifest failure is never silent, but it also must not mask the
             # original pipeline exception during context-manager unwinding.
             LOG.exception("Could not finalize run manifest in %s", run.dir)
+        # Instruction 180: what was OPEN around the run, when anything was.
+        # Imported here and not at module scope so a pipeline that never
+        # touches the GUI does not import it at all, and inside its own try
+        # because a workspace bundle is a convenience -- a run that produced
+        # results must not be reported as failed because a panel could not
+        # describe itself.
+        try:
+            from .workspace import save_for_run
+            save_for_run(run.dir, run.settings, app_key=run.app_key)
+        except Exception:
+            LOG.exception("Could not save the workspace for %s", run.dir)
         # Macro recorder, half two: write the Python script that repeats
         # this run — and, when it continues one, the whole chain before it.
         finish_recording(macro, status=run.status, settings=run.settings)
@@ -984,6 +1189,33 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
 # Listing + lookup
 # ---------------------------------------------------------------------------
 
+def _run_dir_names(root: Path) -> List[str]:
+    """Every run-folder name under ``root``, from ONE directory read.
+
+    ``root.iterdir()`` followed by ``d.is_dir()`` is two syscalls per
+    entry, and both `recent_runs` and `journal_totals` used to make that
+    pass twice each. On a journal of 10,192 runs -- an ordinary number
+    after a few weeks of use -- that was over 30,000 stat calls to answer
+    a question the directory read had already answered, on the GUI
+    thread, every time Home refreshed.
+
+    ``os.scandir`` carries the directory-ness in the entry itself on
+    Linux (``d_type``), so this is one read and no stats at all. Entries
+    whose type the filesystem declines to report fall back to a stat,
+    which is what ``is_dir()`` would have cost anyway.
+
+    A name is returned rather than a Path because both callers sort by
+    name before they touch anything on disk.
+    """
+    import os as _os
+
+    try:
+        with _os.scandir(root) as entries:
+            return [e.name for e in entries if e.is_dir()]
+    except OSError:
+        return []
+
+
 def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     """Return the ``limit`` most-recent runs newest-first.
 
@@ -993,7 +1225,12 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     to seconds and would produce ties. Only the newest
     ``max(limit * 4, limit + 64)`` folders by name are opened at all
     (for non-negative ``limit``), so startup cost does not grow with the
-    size of the journal. A folder with no ``manifest.json`` is skipped
+    size of the journal.
+
+    PASS ``None`` FOR "EVERY RUN", never a negative number. The truncation
+    at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole
+    journal and then hands back all but the OLDEST entry -- observed
+    2026-09-03 on an 11,027-run journal, which returned 11,026. A folder with no ``manifest.json`` is skipped
     quietly; one whose manifest cannot be parsed is skipped with a
     logged warning.
 
@@ -1018,10 +1255,10 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     # `start_utc` does not, so runs inside one second can reorder. Reading a
     # margin past the limit and sorting those precisely keeps the documented
     # ordering while bounding the work.
-    candidates = sorted(
-        (d for d in root.iterdir() if d.is_dir()),
-        key=lambda d: d.name, reverse=True,
-    ) if root.exists() else []
+    candidates = [
+        root / name
+        for name in sorted(_run_dir_names(root), reverse=True)
+    ] if root.exists() else []
     if limit is not None and limit >= 0:
         candidates = candidates[:max(limit * 4, limit + 64)]
 
@@ -1050,6 +1287,7 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     # Sort by parsed timestamp (with folder-mtime as tiebreaker for
     # any manifests missing / mangled start_utc).
     def _sort_key(e):
+        """Sort a recent-run entry by parsed start time, then folder mtime."""
         s = e.get("start_utc") or ""
         try:
             return (datetime.fromisoformat(s), e["dir"].stat().st_mtime)
@@ -1116,7 +1354,9 @@ def search_runs(
             values = manifest.get(key) or []
             if isinstance(values, (list, tuple)):
                 warnings_list.extend(str(value) for value in values if value)
-            elif values:
+            # Falsy values became ``[]`` above and took the list arm, so every
+            # remaining JSON scalar is truthy and represents one warning.
+            else:
                 warnings_list.append(str(values))
         warnings_list.extend(str(error) for error in rec["errors"])
 
@@ -1204,6 +1444,7 @@ def search_runs(
         records.append(record)
 
     def _history_sort_key(record: Dict[str, Any]) -> Tuple[datetime, float]:
+        """Return a UTC-aware start and resilient directory-mtime tiebreaker."""
         try:
             started = datetime.fromisoformat(record["start_utc"])
             if started.tzinfo is None:
@@ -1307,7 +1548,8 @@ def journal_totals() -> Dict[str, int]:
     # only folders not already counted are parsed. A DELETED folder cannot
     # be undone incrementally -- nothing records what it contributed -- so
     # that case falls back to a full recount, which is correct and rare.
-    present = {d.name for d in root.iterdir() if d.is_dir()}
+    names = _run_dir_names(root)
+    present = set(names)
     cached = _read_totals_cache()
     counted: set = set()
     if cached is not None and cached["counted"] <= present:
@@ -1315,11 +1557,10 @@ def journal_totals() -> Dict[str, int]:
         seen_models |= cached["models"]
         counted = cached["counted"]
 
-    for d in root.iterdir():
-        if not d.is_dir():
+    for name in names:
+        if name in counted:
             continue
-        if d.name in counted:
-            continue
+        d = root / name
         manifest_path = d / "manifest.json"
         if not manifest_path.exists():
             continue
@@ -1358,7 +1599,10 @@ def journal_totals() -> Dict[str, int]:
 
 
 def load_run_settings(run_dir: Path) -> Dict[str, Any]:
-    """Read a run's ``settings.json`` (falling back to settings.csv)."""
+    """Read a run's ``settings.json`` (falling back to settings.csv).
+
+    :param run_dir: journal run directory containing the settings files.
+    """
     run_dir = Path(run_dir)
     j = run_dir / "settings.json"
     if j.exists():
@@ -1492,6 +1736,9 @@ def _normalize_str(s: str, depth: int = 0) -> Any:
 def values_equal(a: Any, b: Any) -> bool:
     """True when ``a`` and ``b`` mean the same thing.
 
+    :param a: first settings value to compare after normalisation.
+    :param b: second settings value to compare after normalisation.
+
     Compares :func:`_normalize_value` output structurally, falling back
     to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
     to produce a bool (numpy-style elementwise comparison, etc.) — and
@@ -1510,6 +1757,8 @@ def values_equal(a: Any, b: Any) -> bool:
 
 def resolve_run_dir(ref: Any) -> Path:
     """Turn a run reference into a run-folder :class:`~pathlib.Path`.
+
+    :param ref: run object, directory path, run id, or unambiguous id prefix.
 
     Accepts, in order of preference:
 
@@ -1761,6 +2010,7 @@ def _render_change_pair(av: Any, bv: Any, width: int = 46) -> tuple:
 
 
 def _render_elapsed(v: Any) -> str:
+    """Render a duration to one decimal second, or an em dash when invalid."""
     try:
         return f"{float(v):.1f}s"
     except (TypeError, ValueError):

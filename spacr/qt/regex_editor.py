@@ -26,10 +26,61 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, QVBoxLayout, QWidget,
+    QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QVBoxLayout,
+    QWidget,
 )
 
 from . import regex_detect as rd
+
+
+def _let_it_have_its_height(label: QLabel) -> QLabel:
+    """Stop a layout squeezing a word-wrapped label below its own text.
+
+    TWO THINGS ARE NEEDED AND EITHER ALONE IS NOT ENOUGH, which is the trap
+    this function exists to close:
+
+    * ``(Preferred, Minimum)`` -- the house rule ``prerun._label`` writes
+      down. With Qt's default ``Preferred`` height a parent may hand the
+      label less than its ``heightForWidth`` and the last lines are
+      silently clipped.
+    * ``policy.setHeightForWidth(True)`` -- without it a layout never ASKS
+      for the height at this width, so the policy above is applied to a
+      single-line hint. Setting only the first left this dialog's intro
+      still wrapping to 54 px inside 36.
+
+    :param label: a word-wrapped label.
+    :returns: the same label, for use inline.
+    """
+    policy = label.sizePolicy()
+    policy.setHorizontalPolicy(QSizePolicy.Preferred)
+    policy.setVerticalPolicy(QSizePolicy.Minimum)
+    policy.setHeightForWidth(True)
+    label.setSizePolicy(policy)
+    return label
+
+
+def _fit_wrapped_height(label: QLabel) -> None:
+    """Pin ``label``'s minimum height to the height its text actually needs.
+
+    THE THIRD THING, and the policy above is still not enough without it.
+    A layout holding an EXPANDING widget -- here the preview pane -- will
+    take height from a `Minimum` neighbour to satisfy it, and
+    `heightForWidth` only tells the layout what the label would like. A
+    minimum is the only thing it cannot take back.
+
+    Called from ``resizeEvent`` because the answer depends on the width the
+    label actually got, which is not known when it is built. Same pattern
+    as ``console_panel``'s wrapped label.
+
+    :param label: a word-wrapped label already through
+        :func:`_let_it_have_its_height`.
+    """
+    width = label.width()
+    if width <= 0:
+        return
+    needed = label.heightForWidth(width)
+    if needed > 0 and label.minimumHeight() != needed:
+        label.setMinimumHeight(needed)
 
 LOG = logging.getLogger("spacr.qt.regex_editor")
 
@@ -55,9 +106,22 @@ class RegexEditorDialog(QDialog):
         multichannel: bool = True,
         parent=None,
     ):
+        """Build the filename-regex editor over a sample of filenames.
+
+        :param sample_filenames: names to match against; the first twenty are
+            kept, which is enough to see whether a pattern generalises.
+        :param initial_regex: the pattern to open with; empty runs auto-detect.
+        :param multichannel: validate that a channel group is captured.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Regex editor")
-        self.setMinimumSize(760, 520)
+        # SCALED. 760x520 was measured at font scale 1.0; the prose inside
+        # it is not, so at 2x the dialog stayed the same size while every
+        # line in it doubled.
+        from .preferences import scaled_px
+
+        self.setMinimumSize(scaled_px(760), scaled_px(520))
         self.regex: str = ""
         self._samples = list(sample_filenames)[:20]
         self._multi = multichannel
@@ -73,6 +137,15 @@ class RegexEditorDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
+        # (Preferred, Minimum), WHICH IS THE HOUSE RULE `prerun._label`
+        # writes down: with Qt's default Preferred height a parent is free
+        # to hand a word-wrapped label LESS than its heightForWidth, and the
+        # last lines are silently clipped. Measured before this: this label
+        # wrapped to 54 px and was given 36 at font scale 1.0, and to 180 px
+        # in 88 at 2.0 -- so the sentence naming `chanID`, which is the one
+        # thing the dialog exists to explain, was the part cut off.
+        _let_it_have_its_height(intro)
+        self._intro = intro
         outer.addWidget(intro)
 
         # ─── Regex input row ────────────────────────────────────────
@@ -89,6 +162,19 @@ class RegexEditorDialog(QDialog):
         self._auto_btn = QPushButton("Auto detect")
         self._auto_btn.clicked.connect(self._on_auto_detect)
         row.addWidget(self._auto_btn)
+
+        # THE WORKBENCH (137 A, C, D). This dialog previews the MATCH; the
+        # workbench previews the IMPORT -- one row per file with the name it
+        # would get, a dropdown saying what each group means, and the folder
+        # tree it would produce, with the unmatched files named. Two windows
+        # because they answer two questions, and this one is what a drop
+        # opens.
+        self._workbench_btn = QPushButton("Work it out from the files…")
+        self._workbench_btn.setToolTip(
+            "Drop the images in, name what each group means, and see the "
+            "new filenames and the folder tree before anything is written.")
+        self._workbench_btn.clicked.connect(self._on_workbench)
+        row.addWidget(self._workbench_btn)
 
         wrap = QWidget(); wrap.setLayout(row)
         outer.addWidget(wrap)
@@ -110,6 +196,11 @@ class RegexEditorDialog(QDialog):
         self._warnings_lbl = QLabel("")
         self._warnings_lbl.setTextFormat(Qt.RichText)
         self._warnings_lbl.setWordWrap(True)
+        # The same rule, and it matters more here: this label holds the
+        # warnings that say WHY a regex will not work, and it grows with
+        # however many there are. Clipped, it shows the first and hides the
+        # rest.
+        _let_it_have_its_height(self._warnings_lbl)
         outer.addWidget(self._warnings_lbl)
 
         outer.addWidget(QLabel("Preview:"))
@@ -135,6 +226,14 @@ class RegexEditorDialog(QDialog):
     # -- reactive updates ------------------------------------------------
     def _on_regex_changed(self, text: str) -> None:
         # Match the dropdown to the current text if it matches a preset
+        """Follow the typed pattern with the preset box and the preview.
+
+        The box is set to the matching preset, or to ``(custom)`` when the text
+        is nobody's preset, with signals blocked so setting it does not read as
+        the user picking one.
+
+        :param text: the pattern now in the box.
+        """
         for i in range(self._preset_combo.count()):
             key = self._preset_combo.itemData(i)
             if key is not None and rd.BUILTIN_REGEXES.get(key) == text:
@@ -151,7 +250,25 @@ class RegexEditorDialog(QDialog):
             self._preset_combo.blockSignals(False)
         self._refresh_preview()
 
+    def resizeEvent(self, event):        # noqa: N802  (Qt naming)
+        """Re-fit the wrapped labels to the width they have just been given.
+
+        Both labels grow when the dialog narrows, and a label that is only
+        allowed its one-line hint is the clipping this dialog was found
+        with: the intro wrapped to 54 px inside 36, and the sentence naming
+        `chanID` -- the one thing the dialog exists to explain -- was the
+        part cut off.
+        """
+        super().resizeEvent(event)
+        for label in (self._intro, self._warnings_lbl):
+            _fit_wrapped_height(label)
+
     def _on_preset_pick(self, _idx: int) -> None:
+        """Put the chosen preset's pattern in the box and re-preview.
+
+        :param _idx: the newly current index; the preset key is read from the
+            box's data, so it is not used.
+        """
         key = self._preset_combo.currentData()
         if key is None:
             return
@@ -162,6 +279,13 @@ class RegexEditorDialog(QDialog):
         self._refresh_preview()
 
     def _on_auto_detect(self) -> None:
+        """Infer a pattern from the sample and say how much of it matched.
+
+        The preview is rebuilt explicitly rather than left to ``textChanged``:
+        ``QLineEdit`` stays silent when the text is unchanged, so a second click
+        on Auto detect used to stack another status line onto a stale preview,
+        and the no-pattern branch left the warnings blank entirely.
+        """
         pattern, label, hits = rd.auto_detect_regex(self._samples)
         if pattern:
             self._regex_input.setText(pattern)
@@ -178,6 +302,12 @@ class RegexEditorDialog(QDialog):
         self._preview.appendPlainText(note)
 
     def _refresh_preview(self) -> None:
+        """Re-run the pattern over the sample and show what it captured.
+
+        Missing required fields are listed as warnings and unmatched filenames
+        are counted with the first one named -- a pattern that matches most of a
+        folder is the case worth seeing, not just a pass or fail.
+        """
         pattern = self._regex_input.text()
         records, missed = rd.apply_regex(self._samples, pattern)
         warnings = rd.validate_records(records, multichannel=self._multi)
@@ -197,7 +327,44 @@ class RegexEditorDialog(QDialog):
                         f"first: {missed[0]}]")
         self._preview.setPlainText(preview)
 
+    def _on_workbench(self) -> None:
+        """Open the import workbench on this dialog's files.
+
+        It hands the pattern BACK rather than saving it, so the editor stays
+        the one place the regex is accepted from -- two doors that both write
+        the setting is how they end up disagreeing about what it is.
+        """
+        from PySide6.QtWidgets import QDialog
+
+        from .widgets.import_workbench import ImportWorkbenchDialog
+
+        dialog = ImportWorkbenchDialog(self._samples,
+                                       self._regex_input.text().strip(),
+                                       parent=self)
+        if dialog.exec() == QDialog.Accepted:
+            chosen = dialog.workbench.regex.text().strip()
+            if chosen:
+                self._regex_input.setText(chosen)
+
     # -- accept ---------------------------------------------------------
     def _on_save(self) -> None:
-        self.regex = self._regex_input.text().strip()
+        # TRIMMED FOR `_get_regex`, which appends the extension itself. What
+        # this box holds matches WHOLE FILENAMES -- the preview above is
+        # matched against them -- and `auto_detect_regex` returns a pattern
+        # ending `\.(?:tif|tiff|png|jpg|jpeg)$`. Saved verbatim into
+        # `custom_regex` that became `(...$)..tif`: an anchor with characters
+        # after it, which can never match. Measured through the real path on
+        # eight cellvoyager names: 0 of 8, with no error anywhere and the
+        # pattern in the box looking exactly right.
+        """Trim the pattern for ``get_regex`` and accept.
+
+        The box matches whole filenames, so auto-detect's pattern ends with an
+        extension anchor. Saved verbatim into ``custom_regex`` that became
+        ``(...$)..tif`` -- an anchor with characters after it, which can never
+        match -- and it failed silently: 0 of 8 real names, with no error
+        anywhere and the pattern in the box looking exactly right.
+        """
+        from ..import_plan import for_get_regex
+
+        self.regex = for_get_regex(self._regex_input.text())
         self.accept()

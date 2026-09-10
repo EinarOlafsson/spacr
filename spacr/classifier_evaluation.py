@@ -27,6 +27,11 @@ from sklearn.metrics import (
     recall_score,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 
 EVALUATION_FILES = {
     "summary": "summary.json",
@@ -56,7 +61,21 @@ _SPLIT_COLUMNS: Dict[str, Tuple[str, ...]] = {
 
 @dataclass(frozen=True)
 class SplitReport:
-    """Provenance and realised sizes for one train/test split."""
+    """Provenance and realised sizes for one train/test split.
+
+    :param group_by: canonical isolation unit used for the split, from objects
+        through fields, wells, and plates.
+    :param requested_fraction: held-out object fraction requested by the caller.
+    :param cell_fraction: realised share of objects assigned to the test side.
+    :param group_fraction: realised share of distinct groups assigned to test.
+    :param train_cells: number of object rows used for fitting.
+    :param test_cells: number of object rows held out for evaluation.
+    :param train_groups: number of distinct groups used for fitting.
+    :param test_groups: number of distinct groups held out for evaluation.
+    :param total_groups: distinct groups across both sides of the split.
+    :param rule: human-readable algorithm and isolation guarantee that produced
+        the realised split.
+    """
 
     group_by: str
     requested_fraction: float
@@ -231,13 +250,29 @@ def split_group_values(*, group_by: Any = "well",
 
 
 def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
-                  seed: int = 0, *, group_by: Any = "well"
+                  seed: int = 0, *, group_by: Any = "well",
+                  hold_out_groups: Optional[Sequence[Any]] = None
                   ) -> Tuple[np.ndarray, np.ndarray, SplitReport]:
     """Return a stratified holdout while keeping named groups intact.
 
     A grouped design is refused when either side cannot contain every class.
     This is intentionally stricter than silently scoring a model on siblings
     of its training rows or on a holdout that contains only one class.
+
+    :param groups: group identifier for every labelled object. All members of
+        one group remain on the same side of the split.
+    :param labels: class label for every object, aligned to ``groups``.
+    :param holdout: requested test fraction, strictly between zero and one.
+    :param hold_out_groups: groups that go to the TEST side whatever the
+        fraction says. This is what `holdout_plate` is: cross-validation
+        splits within the data it is given, so a model can learn the plate
+        rather than the phenotype and every number it reports will look
+        fine. Naming a plate here trains without it and scores on it, which
+        is the one number that says whether a classifier generalises.
+
+        The class check still applies: a named holdout that leaves either
+        side without every class is refused, for the same reason a random
+        one is.
     """
     from sklearn.model_selection import (GroupShuffleSplit,
                                          StratifiedGroupKFold,
@@ -249,11 +284,76 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
     fraction = float(holdout)
     if not np.isfinite(fraction) or not 0.0 < fraction < 1.0:
         raise ValueError("holdout must be a finite fraction strictly between 0 and 1")
-    if len(y) != len(group_values):
-        raise ValueError("group-aware splitting requires one group per label")
+
+    # NOTHING TO SPLIT, SAID HERE RATHER THAN BY SKLEARN (issue #110).
+    #
+    # An empty label array falls all the way through to `train_test_split`
+    # and surfaces as
+    #
+    #     ValueError: With n_samples=0, test_size=0.2 the train set will be
+    #     empty
+    #
+    # which names neither the setting that is wrong nor what to do about it,
+    # and is filed against spaCR rather than read as a data problem. Every
+    # other degenerate shape below is already refused in words; this was the
+    # one that was not.
+    #
+    # The named-holdout path divides by `len(y)` to report the cell fraction,
+    # so an empty array is a ZeroDivisionError there instead. Both are
+    # answered by refusing before either can happen.
+    if len(y) == 0:
+        raise ValueError(
+            "there are no labelled objects to split, so a classifier cannot "
+            "be trained or scored. This usually means the control values "
+            "matched no rows, or that filtering removed every row before the "
+            "split. Check that positive_control and negative_control name "
+            "values present in the control column, and that any measurement "
+            "filters still leave objects behind.")
+    if len(group_values) != len(y):
+        # A group per label is what every split below assumes; a mismatch
+        # silently misaligns the two and produces a split that looks valid.
+        raise ValueError(
+            "group-aware splitting requires one group per label; the split "
+            f"has {len(group_values)} groups for {len(y)} labels")
     if len(y) < 2:
         raise ValueError("a train/test split needs at least two labelled cells")
     classes = np.unique(y)
+
+    # A NAMED HOLDOUT SHORT-CIRCUITS THE SAMPLING. There is nothing to
+    # stratify: the caller has said which groups are the test side.
+    if hold_out_groups:
+        wanted = {str(g).strip() for g in hold_out_groups if str(g).strip()}
+        as_text = np.array([str(g) for g in group_values])
+        test_mask = np.isin(as_text, list(wanted))
+        if not test_mask.any():
+            raise ValueError(
+                f"none of the held-out {level}(s) {sorted(wanted)} appear in "
+                f"the data; it has {sorted(set(as_text))[:8]}")
+        if test_mask.all():
+            raise ValueError(
+                f"the held-out {level}(s) {sorted(wanted)} are ALL of the "
+                f"data, so there is nothing left to train on")
+        train_idx = np.where(~test_mask)[0]
+        test_idx = np.where(test_mask)[0]
+        for side, name in ((train_idx, "training"), (test_idx, "held-out")):
+            missing = set(classes) - set(np.unique(y[side]))
+            if missing:
+                raise ValueError(
+                    f"holding out {level}(s) {sorted(wanted)} leaves the "
+                    f"{name} side without class(es) {sorted(missing)}, so the "
+                    f"score would not mean what it says")
+        total_groups = len(set(as_text))
+        test_groups = len(set(as_text[test_mask]))
+        report = SplitReport(
+            group_by=level,
+            requested_fraction=float(fraction),
+            cell_fraction=float(test_mask.sum()) / float(len(y)),
+            group_fraction=float(test_groups) / float(max(1, total_groups)),
+            train_cells=int(len(train_idx)), test_cells=int(len(test_idx)),
+            train_groups=int(total_groups - test_groups),
+            test_groups=int(test_groups), total_groups=int(total_groups),
+            rule=f"held out by name: {', '.join(sorted(wanted))}")
+        return train_idx, test_idx, report
 
     indices = np.arange(len(y))
     distinct = np.unique(group_values.astype(str))
@@ -383,14 +483,19 @@ class LeakageError(ValueError):
 class LeakageReport:
     """Overlap counts and examples for one train/validation boundary.
 
-    :ivar group_by: protected split level (``none``, ``field``, ``well``,
-        or ``plate``).
-    :ivar train_samples: number of training paths.
-    :ivar validation_samples: number of validation paths.
-    :ivar overlap_counts: overlap count at each identity level.
-    :ivar examples: up to ten shared identities per level.
-    :ivar critical_levels: levels that invalidate the requested split.
-    :ivar warnings: non-fatal caveats.
+    :param group_by: protected split level (``cell``, ``field``, ``well``, or
+        ``plate``); the legacy ``none`` spelling is normalized to ``cell``.
+    :param train_samples: number of training paths.
+    :param validation_samples: number of validation paths.
+    :param overlap_counts: overlap count at each identity level.
+    :param examples: up to ten shared identities per level.
+    :param split_name: caller-supplied label for the audited boundary.
+    :param critical_levels: levels that invalidate the requested split.
+    :param warnings: non-fatal caveats.
+    :param unverifiable_counts: samples lacking a requested identity or content
+        hash, counted by the level that could not be verified.
+    :param hash_errors: up to twenty file-specific failures from optional
+        byte-content hashing.
     """
 
     group_by: str
@@ -448,11 +553,48 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
+    # Exported crop names use either ``plate_well_field_object`` (for example
+    # ``plate1_A01_f2_o7``), separate row/column exports such as
+    # ``plate1_A_01_1_7``, or canonical PRCFO tokens
+    # (``plate1_r1_c1_f2_o7``). Parse from the field token toward the left so
+    # plate identifiers may themselves contain underscores. Including a field
+    # token in the well identity would split one biological well into multiple
+    # leakage groups.
     family = augmentation_family(path)
     parts = family.split("_")
-    plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    well = "_".join(parts[:2]) if len(parts) >= 2 else ""
-    field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
+    field_index = next(
+        (
+            index
+            for index in range(len(parts) - 1, -1, -1)
+            if re.fullmatch(r"(?i)f\d+", parts[index]) is not None
+        ),
+        None,
+    )
+    if (
+        field_index is None
+        and len(parts) >= 3
+        and re.fullmatch(r"\d+", parts[-2]) is not None
+        and re.fullmatch(r"(?i)(?:o)?\d+", parts[-1]) is not None
+    ):
+        field_index = len(parts) - 2
+    if field_index is not None and field_index >= 1:
+        split_row_column = (
+            field_index >= 2
+            and re.fullmatch(
+                r"(?i)(?:r\d+|[a-z])", parts[field_index - 2]
+            ) is not None
+            and re.fullmatch(
+                r"(?i)(?:c\d+|\d+)", parts[field_index - 1]
+            ) is not None
+        )
+        plate_end = field_index - 2 if split_row_column else field_index - 1
+        plate = "_".join(parts[:plate_end]) if plate_end > 0 else ""
+        well = "_".join(parts[:field_index])
+        field_id = "_".join(parts[: field_index + 1])
+    else:
+        plate = parts[0] if parts and parts[0] else ""
+        well = "_".join(parts[:2]) if len(parts) >= 2 else ""
+        field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),
@@ -515,7 +657,7 @@ def _identity_sets_with_hashes(
             digest, error = _content_sha256(path)
             if digest:
                 result["content_sha256"].add(digest)
-            elif error:
+            else:
                 errors.append(error)
     return result, errors
 
@@ -628,7 +770,28 @@ def audit_split_leakage(
 
 @dataclass
 class FoldLeakageAudit:
-    """Whole-CV proof that each related sample family belongs to one fold."""
+    """Whole-CV proof that each related sample family belongs to one fold.
+
+    :param group_by: canonical identity level required to remain within one
+        validation fold.
+    :param n_samples: number of source paths whose fold membership was audited.
+    :param n_folds: number of train/validation fold pairs inspected.
+    :param validation_membership_missing: up to twenty sample indexes that were
+        never held out for validation.
+    :param validation_membership_duplicate: up to twenty sample indexes held
+        out in more than one fold.
+    :param overlap_counts: identities assigned to multiple validation folds,
+        counted at each exact, content, family, object, and acquisition level.
+    :param examples: up to ten conflicting identities per level, annotated with
+        the folds that contain them.
+    :param critical_levels: completeness, overlap, identity, or label failures
+        that make :attr:`passed` false.
+    :param warnings: non-fatal caveats and explanations accompanying failures.
+    :param unverifiable_counts: samples whose requested identity or optional
+        byte-content hash could not be checked, counted by level.
+    :param hash_errors: up to twenty file-specific content-hashing failures.
+    :param split_name: stable label for this whole-CV audit record.
+    """
 
     group_by: str
     n_samples: int
@@ -1008,9 +1171,10 @@ def fit_temperature(
     if len(y) < 2 or np.unique(y).size < 2:
         raise ValueError(
             "Temperature calibration needs at least two classes and two samples."
-        )
+    )
 
     def objective(log_temperature: float) -> float:
+        """Return multiclass log loss after applying an exponentiated scale."""
         calibrated = _temperature_probabilities(
             probs, math.exp(float(log_temperature)),
         )
@@ -1417,9 +1581,8 @@ def evaluate_predictions(
         metrics["plate"] = plate or "unknown"
         per_plate_rows.append(metrics)
     per_plate = pd.DataFrame(per_plate_rows)
-    if not per_plate.empty:
-        columns = ["plate", *[c for c in per_plate if c != "plate"]]
-        per_plate = per_plate[columns]
+    columns = ["plate", *[c for c in per_plate if c != "plate"]]
+    per_plate = per_plate[columns]
 
     return {
         "summary": summary,
@@ -1516,6 +1679,7 @@ def write_evaluation_bundle(
     destination.mkdir(parents=True, exist_ok=True)
 
     def write_json(name: str, payload: Any) -> None:
+        """Atomically replace ``name`` with stable indented JSON."""
         path = destination / name
         temporary = path.with_name(f".{path.name}.tmp")
         temporary.write_text(
@@ -1525,6 +1689,7 @@ def write_evaluation_bundle(
         temporary.replace(path)
 
     def write_csv(name: str, frame: pd.DataFrame, *, index: bool = False) -> None:
+        """Atomically replace ``name`` with ``frame`` and optional index."""
         path = destination / name
         temporary = path.with_name(f".{path.name}.tmp")
         frame.to_csv(temporary, index=index)
@@ -1586,49 +1751,85 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render a normalized confusion heatmap."""
     import matplotlib.pyplot as plt
 
-    fig, axis = plt.subplots(figsize=(6, 5))
-    image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
-                        cmap="Blues")
-    axis.set_xticks(np.arange(len(frame.columns)), labels=frame.columns,
-                    rotation=45, ha="right")
-    axis.set_yticks(np.arange(len(frame.index)), labels=frame.index)
-    axis.set_xlabel("Predicted")
-    axis.set_ylabel("True")
-    axis.set_title("Out-of-fold confusion matrix")
-    for row in range(len(frame.index)):
-        for column in range(len(frame.columns)):
-            value = float(frame.iloc[row, column])
-            axis.text(column, row, f"{value:.2f}", ha="center", va="center",
-                      color="white" if value > 0.5 else "black")
-    fig.colorbar(image, ax=axis, label="Row-normalized fraction")
-    fig.tight_layout()
-    fig.savefig(path, dpi=180)
-    plt.close(fig)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axis = plt.subplots(figsize=(6, 5))
+        image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
+                            cmap="Blues")
+        axis.set_xticks(np.arange(len(frame.columns)), labels=frame.columns,
+                        rotation=45, ha="right")
+        axis.set_yticks(np.arange(len(frame.index)), labels=frame.index)
+        axis.set_xlabel("Predicted")
+        axis.set_ylabel("True")
+        axis.set_title("Out-of-fold confusion matrix")
+        for row in range(len(frame.index)):
+            for column in range(len(frame.columns)):
+                value = float(frame.iloc[row, column])
+                axis.text(column, row, f"{value:.2f}", ha="center", va="center",
+                          color="white" if value > 0.5 else "black")
+        fig.colorbar(image, ax=axis, label="Row-normalized fraction")
+        fig.tight_layout()
+        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
+        # This wrote a PNG at a fixed DPI whatever the preferences said, so
+        # "Resolution" reached everything except the files a pipeline leaves
+        # behind -- and it gains `print_ready`, so a bundle written from a
+        # dark session is not white ink on a white page.
+        #
+        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
+        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
+        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
+        # name. Letting a format preference rename it makes the bundle
+        # unreadable by the function that wrote it -- a preference must not
+        # rename a file another part of the code opens by name.
+        from .plot import save_figure
+
+        save_figure(fig, path, fmt="png", close=True)
 
 
 def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
     """Render one reliability curve per class."""
     import matplotlib.pyplot as plt
 
-    fig, axis = plt.subplots(figsize=(6, 5))
-    axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
-              label="Perfect calibration")
-    for class_name, group in frame.groupby("class_name"):
-        axis.plot(
-            group["mean_confidence"],
-            group["observed_frequency"],
-            marker="o",
-            label=str(class_name),
-        )
-    axis.set_xlim(0, 1)
-    axis.set_ylim(0, 1)
-    axis.set_xlabel("Mean predicted probability")
-    axis.set_ylabel("Observed frequency")
-    axis.set_title("Out-of-fold calibration")
-    axis.legend(loc="best")
-    fig.tight_layout()
-    fig.savefig(path, dpi=180)
-    plt.close(fig)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axis = plt.subplots(figsize=(6, 5))
+        axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
+                  label="Perfect calibration")
+        for class_name, group in frame.groupby("class_name"):
+            axis.plot(
+                group["mean_confidence"],
+                group["observed_frequency"],
+                marker="o",
+                label=str(class_name),
+            )
+        axis.set_xlim(0, 1)
+        axis.set_ylim(0, 1)
+        axis.set_xlabel("Mean predicted probability")
+        axis.set_ylabel("Observed frequency")
+        axis.set_title("Out-of-fold calibration")
+        axis.legend(loc="best")
+        fig.tight_layout()
+        # THE RESOLUTION IS THE USER'S; THE FORMAT IS NOT (108 point 6).
+        # This wrote a PNG at a fixed DPI whatever the preferences said, so
+        # "Resolution" reached everything except the files a pipeline leaves
+        # behind -- and it gains `print_ready`, so a bundle written from a
+        # dark session is not white ink on a white page.
+        #
+        # BUT `fmt` STAYS PNG, and that is not an oversight. These two files
+        # are named in `EVALUATION_FILES`, which is the bundle's CONTRACT:
+        # `read_evaluation_bundle` opens `confusion_matrix.png` by that exact
+        # name. Letting a format preference rename it makes the bundle
+        # unreadable by the function that wrote it -- a preference must not
+        # rename a file another part of the code opens by name.
+        from .plot import save_figure
+
+        save_figure(fig, path, fmt="png", close=True)
 
 
 def find_evaluation_bundles(root: Any) -> List[Path]:
@@ -1663,6 +1864,7 @@ def load_evaluation_bundle(path: Any) -> Dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     def read_csv(key: str, **kwargs) -> pd.DataFrame:
+        """Load a manifest-named CSV, or an empty frame when it is absent."""
         file_name = manifest.get("files", EVALUATION_FILES).get(
             key, EVALUATION_FILES[key],
         )

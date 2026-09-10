@@ -2,6 +2,21 @@ recursive-include spacr/resources/models/cp *
 recursive-include spacr/resources/icons *
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
+# The bundled GitHub release notes Home's News panel draws. Built by
+# tools/build_release_notes.py before a tag; a wheel without it shows
+# an empty News panel and no error.
+include spacr/resources/release_notes.json
+# The measured layout policy (359). Built by
+# tools/measure_the_layout_matrix.py; spacr/qt/layout_policy.py reads it
+# to choose a first-run window size, and falls back to the size the
+# text-fit sweep proves when a wheel does not carry it.
+include spacr/resources/layout_policy.json
+# app_key -> tutorial lesson, for the Tutorial link in the hover
+# strip. Built by tools/build_tutorial_index.py from the docs
+# build's lesson catalog.
+include spacr/resources/tutorial_index.json
+recursive-include packaging/linux *.desktop *.png
+include packaging/spacr.spec
 recursive-include spacr/resources/setting_animations *.gif *.json
 # Theme wallpapers: three JPEGs, ~3.9 MB total. Cropped, capped at
 # 3840x2400 and pre-exposed by spacr/qt/imagery.py; the originals
@@ -14,6 +29,15 @@ include *.sh
 include *.txt
 include *.yaml
 include requirements.txt
+
+# The community files, by name rather than as `include *.md`. A blanket rule
+# would sweep up every scratch note that ever lands at the root; these three
+# are policy documents a user of the sdist has a reason to read, and a
+# security policy that ships only on GitHub is one the person running an
+# offline install cannot find.
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+include SECURITY.md
 
 # Recursively include specific folders and file types
 #
@@ -86,9 +110,10 @@ prune spacr/resources/home
 # `grep -r` finds zero references to any of the three. Only
 # loading_spinner.gif is used (gui_core.py:69). Kept in git, not shipped.
 exclude spacr/resources/icons/loading_spinner_1.gif
-exclude spacr/resources/icons/loading_spinner_logo.gif
-exclude spacr/resources/icons/loading_spinner_logo (1).gif
-exclude spacr/resources/icons/loading_spinner_logo
+# One glob is intentional: distutils splits manifest arguments on spaces, so
+# spelling ``loading_spinner_logo (1).gif`` literally treated it as two
+# patterns and leaked the 2.4 MB review render into every wheel and sdist.
+exclude spacr/resources/icons/loading_spinner_logo*
 
 # ---------------------------------------------------------------------------
 # The built docs are not a distribution artefact. Docs live at

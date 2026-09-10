@@ -23,14 +23,27 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, List, Mapping, Optional, Tuple
 
 LOG = logging.getLogger("spacr.model_check")
 
 
 @dataclass(frozen=True)
 class ModelReport:
-    """What was found. ``ok`` first, because it is the answer."""
+    """What was found. ``ok`` first, because it is the answer.
+
+    :param ok: whether the compatibility check found no blocking problem.
+    :param source: display identifier for the checked model: a built-in name,
+        custom-file basename, or ``"no model"``.
+    :param problems: blocking diagnostic messages used by the unsuccessful
+        summary.
+    :param notes: non-blocking compatibility facts retained separately and
+        appended to the summary when ``ok`` is true.
+    :param channels: dataset input-channel count requested by the settings, or
+        ``None`` when it cannot be determined.
+    :param classes: requested class count derived from the class definitions,
+        or ``None`` when it cannot be determined.
+    """
 
     ok: bool
     source: str
@@ -42,6 +55,7 @@ class ModelReport:
     classes: Optional[int] = None
 
     def summary(self) -> str:
+        """Return a one-line verdict followed by its notes or blocking problems."""
         if self.ok:
             head = f"{self.source} looks compatible"
             return "; ".join([head, *self.notes]) if self.notes else head
@@ -50,6 +64,8 @@ class ModelReport:
 
 def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
     """``(kind, name)`` for the model that will actually be used.
+
+    :param settings: classification settings containing model choices.
 
     ``kind`` is ``'custom'`` or ``'builtin'``. A custom path that EXISTS wins:
     the old ``custom_model`` boolean could disagree with the path beside it,
@@ -66,7 +82,10 @@ def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
 
 
 def expected_channels(settings: Mapping[str, Any]) -> Optional[int]:
-    """How many image channels this dataset will hand the model."""
+    """How many image channels this dataset will hand the model.
+
+    :param settings: classification settings containing channel declarations.
+    """
     for key in ("train_channels", "extract_channels", "channels"):
         value = settings.get(key)
         if value is None:
@@ -81,7 +100,10 @@ def expected_channels(settings: Mapping[str, Any]) -> Optional[int]:
 
 
 def expected_classes(settings: Mapping[str, Any]) -> Optional[int]:
-    """How many classes the training set will have."""
+    """How many classes the training set will have.
+
+    :param settings: classification settings containing class definitions.
+    """
     from .classify_classes import class_names
 
     names = class_names(settings)
@@ -135,8 +157,33 @@ def _head_size(model) -> Optional[int]:
     return size
 
 
+def _known_builtin_models() -> set[str]:
+    """Return the TorchVision factories this installation can build.
+
+    Importing TorchVision is deferred until the user asks for a compatibility
+    check.  If that optional stack is unavailable or broken, the lightweight
+    settings inventory still lets the checker reject misspellings without
+    making the settings screen import torch during startup.
+    """
+    from .settings_spec import _TORCHVISION_MODELS_CURATED
+
+    known = set(_TORCHVISION_MODELS_CURATED)
+    try:
+        from torchvision import models as torchvision_models
+
+        known.update(torchvision_models.list_models(
+            module=torchvision_models))
+    except (ImportError, AttributeError):
+        pass
+    except Exception:
+        LOG.debug("could not read TorchVision's model registry", exc_info=True)
+    return known
+
+
 def check_model(settings: Mapping[str, Any]) -> ModelReport:
     """Whether the chosen model can train on the chosen data and classes.
+
+    :param settings: classification settings to validate against the model.
 
     Never raises: this runs from a click, and a dialog that crashes the screen
     is a worse answer than one that says what is wrong.
@@ -148,10 +195,20 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
             problems=("no model is chosen: set model_type, or point "
                       "custom_model_path at a saved model",))
 
-    wanted_classes = expected_classes(settings)
-    wanted_channels = expected_channels(settings)
     problems: List[str] = []
     notes: List[str] = []
+    classes_problem = False
+    try:
+        wanted_classes = expected_classes(settings)
+    except ValueError as exc:
+        # ``class_names`` raises ClassDefinitionError (a ValueError) when the
+        # Classes editor has written an incomplete rule.  This checker is a
+        # click-time diagnostic, so that user error belongs in its report,
+        # not on the Qt event loop as an exception.
+        wanted_classes = None
+        classes_problem = True
+        problems.append(f"the classes setting is invalid: {exc}")
+    wanted_channels = expected_channels(settings)
     head: Optional[int] = None
 
     if kind == "custom":
@@ -159,31 +216,33 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
         try:
             model = _load_custom(name)
         except ValueError as exc:
+            problems.append(str(exc))
             return ModelReport(ok=False, source=os.path.basename(name),
-                               problems=(str(exc),),
+                               problems=tuple(problems),
                                classes=wanted_classes,
                                channels=wanted_channels)
         except ImportError:
+            problems.append(
+                "PyTorch is not installed in this environment, so a saved "
+                "model cannot be checked")
             return ModelReport(
                 ok=False, source=os.path.basename(name),
-                problems=("PyTorch is not installed in this environment, so a "
-                          "saved model cannot be checked",))
+                problems=tuple(problems),
+                classes=wanted_classes,
+                channels=wanted_channels)
         head = _head_size(model)
     else:
-        try:
-            from .model_zoo import KNOWN_MODELS
-            known = set(KNOWN_MODELS)
-        except Exception:
-            known = set()
-        if known and name not in known:
+        known = _known_builtin_models()
+        if name not in known:
             problems.append(
                 f"{name!r} is not a model spaCR knows; choose one of "
                 f"{', '.join(sorted(known)[:8])}…")
 
     if wanted_classes is None:
-        problems.append(
-            "no classes are defined, so the model's output cannot be checked; "
-            "set the Classes dict")
+        if not classes_problem:
+            problems.append(
+                "no classes are defined, so the model's output cannot be "
+                "checked; set the Classes dict")
     elif wanted_classes < 2:
         problems.append(
             f"only {wanted_classes} class is defined; a classifier needs two")

@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "pt-BR",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Use Brazilian Portuguese while retaining English GUI names.", "Correct recortes de imagens, module hosting, assay names and hover instructions.", "Retain every source sentence rather than accepting fluent omissions."]},
+  "title": "Tela Home e navegação",
+  "description": "Encontre as seis etapas de Core, explore as categorias atuais de Home e localize as ferramentas integradas aos respectivos módulos principais.",
+  "objectives": ["Seguir o fluxo de Core, das imagens aos resultados da regressão.", "Encontrar Data, Tools e Assays sem confundir uma ação integrada com um módulo ausente.", "Distinguir os dados reais disponíveis para download das demonstrações geradas e encontrar os tutoriais especializados correspondentes."],
+  "prerequisite": "Instale o spaCR e abra o aplicativo de desktop. A gravação usa o tema escuro e texto ampliado na interface.",
+  "scenes": [
+    "A tela Home organiza o spaCR em Core, Data, Tools e Assays. Essas são categorias de fluxo de trabalho. Ferramentas relacionadas também podem ficar dentro de um módulo principal, portanto os botões de Home não representam todos os recursos disponíveis.",
+    "Core segue o fluxo de análise da triagem: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Comece na etapa adequada aos seus dados de entrada. Não é necessário repetir a segmentação se você já tiver medições ou recortes de imagens compatíveis.",
+    "Data reúne Import, Run Compare, Experiment Design, Power and Design, Dose Response e controle de qualidade. Import também dá acesso a Import Images, Format Converter e External Masks. Abra primeiro o módulo principal para encontrar esses fluxos de trabalho.",
+    "Tools contém Make Masks, Align and Stitch, Image UMAP, Gate Editor e Graph Builder. Cada módulo reúne ações relacionadas. Por exemplo, Make Masks inclui treinamento e comparação de modelos, enquanto Graph Builder inclui Plate Viewer e Small Multiples.",
+    "Assays agrupa Plaque Assay, Recruitment, Invasion Assay e Replication Assay. Escolha um fluxo de trabalho adequado ao experimento e aos dados que ele exige. A cor que indica a maturidade de um módulo é independente da categoria; leia a dica de ferramenta antes de confiar em um recurso experimental.",
+    "Classify é um único módulo. A configuração Classifier family permite escolher visão computacional baseada em imagens ou aprendizado de máquina a partir de características medidas. Os tutoriais anteriores de visão computacional e aprendizado de máquina continuam como guias específicos dessas duas opções, e não de botões separados de Home.",
+    "Os ícones na parte superior de Classify abrem Classifier Evaluation, Explain CV Model, Activation, Training Runs e Feature Explorer. Passe o cursor sobre cada ícone para ver o nome e a descrição. Use o tutorial especializado vinculado quando quiser examinar um modelo treinado ou seus resultados.",
+    "Os tutoriais de Core usam os dados reais oferecidos por Load test data. O download preenche as entradas relevantes e as configurações compatíveis. As demonstrações geradas no menu Help são outra opção. Em Mask, os controles Time e 3D mostram os fluxos temporais e volumétricos; Live abre a prévia.",
+    "Use Help para voltar às visitas guiadas e aos tutoriais. Mantenha o tutorial do módulo atual ao lado do aplicativo e siga suas verificações dos dados, das configurações e dos resultados. A próxima lição mostra como acessar os mesmos fluxos de trabalho pela API Python e pela linha de comando."
+  ]
+}

@@ -1,24 +1,8 @@
-"""Widgets that shrink their text to an ellipsis instead of clipping it.
+"""Qt labels and buttons that elide text without losing the full value.
 
-Qt's :class:`~PySide6.QtWidgets.QLabel` and
-:class:`~PySide6.QtWidgets.QPushButton` both *clip* text that doesn't fit
-the geometry the layout gave them — the last characters simply stop
-being painted, with no ellipsis and no hint that anything is missing.
-On a navigation surface that is a real bug: a user cannot click what
-they cannot read, and "Annotator Agreeme" looks like a typo rather than
-a too-narrow tile.
-
-The two widgets here keep the full string, render an elided copy when
-the width is genuinely too small, and put the full string in the
-tooltip while that's the case. They also report a *stable* size hint,
-computed from the full text rather than from whatever elided copy is
-currently displayed — without that the hint would shrink as soon as the
-text elided, the layout would hand back a different width, and the
-label would oscillate.
-
-Both expose :meth:`full_text` and :meth:`is_elided` so tests (and
-callers) can assert "either it fits, or it is elided and the tooltip
-carries the whole name".
+The widgets render an ellipsis when space is limited and expose the complete
+text in a tooltip. Stable size hints prevent layouts from oscillating between
+full and shortened text.
 """
 from __future__ import annotations
 
@@ -41,6 +25,12 @@ class ElidingLabel(QLabel):
 
     def __init__(self, text: str = "", parent=None,
                  mode: Qt.TextElideMode = Qt.ElideRight):
+        """Create a label that shortens its text rather than forcing a width.
+
+        :param text: the full text; kept, so widening restores it.
+        :param parent: parent widget, or ``None``.
+        :param mode: where the ellipsis goes.
+        """
         super().__init__(parent)
         self._full_text = ""
         self._elide_mode = mode
@@ -94,6 +84,10 @@ class ElidingLabel(QLabel):
 
     # -- internals -----------------------------------------------------
     def _available_width(self) -> int:
+        """Return the width left for text after the contents margins.
+
+        :returns: the usable width in pixels.
+        """
         m = self.contentsMargins()
         return self.width() - m.left() - m.right()
 
@@ -136,6 +130,16 @@ class ElidingPushButton(QPushButton):
 
     def __init__(self, text: str = "", parent=None,
                  mode: Qt.TextElideMode = Qt.ElideRight):
+        """Create a button that shortens its label rather than forcing a width.
+
+        The horizontal policy is loosened deliberately: without it the layout
+        treats the size hint as a hard minimum and squeezes the whole sidebar
+        instead of shortening one label.
+
+        :param text: the full text; kept, so widening restores it.
+        :param parent: parent widget, or ``None``.
+        :param mode: where the ellipsis goes.
+        """
         super().__init__(parent)
         self._full_text = ""
         self._elide_mode = mode
@@ -203,6 +207,12 @@ class ElidingPushButton(QPushButton):
 
     # -- internals -----------------------------------------------------
     def _refresh(self) -> None:
+        """Re-elide the label to whatever width the button now has.
+
+        Nothing is elided before the first layout pass: a widget carries a
+        default 100 px until then, and eliding against it would shorten a label
+        that was never actually short of room.
+        """
         fm = QFontMetrics(self.font())
         available = self.available_text_width()
         needed = fm.horizontalAdvance(self._full_text)

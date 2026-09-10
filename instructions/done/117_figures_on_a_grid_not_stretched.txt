@@ -1,0 +1,134 @@
+================================================================================
+FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
+================================================================================
+
+Status:    done - 2026-08-17. See the CLOSED section at the foot of this
+           file; the header had been left at its original value.
+Requested: 2026-08-16 — "it would also be great if we could overhaul the
+           figure showing mechanism to show the figures on a grid and not
+           stretch them . so e.g. teach graph gettts on square box and the
+           heatmaps get e.g. 2 or 1 per plate. then the user sees everything
+           on their screen or in a field that they can scroll"
+Owner:     figures panel
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+FigureQueue shows ONE figure at a time, fitted into whatever shape the panel
+happens to be. A run produces seventeen figures; seeing the fourth means
+clicking to it, and every one is stretched to a container that has nothing to
+do with its own proportions. A square volcano and a wide plate heatmap get
+the same box.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A plate heatmap distorted to a square is not a heatmap of a plate any more --
+the wells stop being square and positional artefacts, the whole reason to
+look at it, become impossible to see. And a run's figures are meant to be read
+TOGETHER: the fraction histogram explains the volcano, and one-at-a-time
+navigation hides that relationship.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A scrollable grid. Each figure keeps its own aspect ratio inside its cell:
+square plots get a square cell, a plate heatmap gets a wide one and takes one
+or two per row. Cell size follows the panel width, so widening the window
+shows more per row rather than stretching what is already there. Clicking a
+cell opens that figure full size; the one-at-a-time view stays as that
+detail view.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+A run's seventeen figures are visible by scrolling one panel, a plate heatmap
+is still the shape of a plate, and no figure is drawn at an aspect ratio it
+was not created with.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: ABOVE THE CONSOLE, AND CLICK TO FILL
+--------------------------------------------------------------------------------
+
+"figures should pop up in a grid above the console" and "if a figure is
+clicked it should fill the container".
+
+The second is the Image UMAP behaviour the maintainer is asking to be
+copied: a grid of small figures, one click to promote one to full size.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - WHAT "GRID" MEANS: TILES THAT CAN BE PRESSED
+--------------------------------------------------------------------------------
+
+    "when i say figure grid im thinking of tiles that can be pressed."
+
+So this is not a static montage and not a scroll of stacked images. Each cell
+is a TILE and a tile is a control: it has a hover state, it takes a click,
+and clicking it fills the container (the click-to-fill half of this file).
+
+That settles two things that would otherwise be guessed:
+
+  * a tile is the unit. Anything else that belongs in the grid -- the gene
+    information panel of instruction 121, a table, a note -- is A TILE TOO,
+    not a special case beside the grid. One grid, one interaction, one set of
+    tests.
+  * the aspect rule in this file applies to the FIGURE INSIDE the tile, not
+    to the tile. Tiles are a regular grid; the plot inside one keeps its own
+    aspect and is letterboxed rather than stretched.
+
+================================================================================
+2026-08-17 - CLOSED
+================================================================================
+
+Both halves ship and both are tested:
+
+  * the grid is scrollable, sits above the console, and reflows to the
+    container -- `spacr/qt/widgets/figure_grid_view.py`;
+  * a click fills the container, the Image UMAP behaviour that was asked to
+    be copied -- `figure_activated` -> `FigureQueue.show_index`;
+  * a plate heatmap is still the shape of a plate. `cell_span` accepts an
+    aspect and deliberately ignores it, with the reason written down: a grid
+    whose cells are different sizes is not a grid, so the FIGURE is
+    letterboxed inside a regular cell rather than the cell being stretched.
+
+Verified 2026-08-17: 30 pass across test_figure_grid_view.py,
+test_the_plates_are_a_small_multiple.py and test_each_run_is_its_own_section.py.
+
+Filed to done/ after re-reading the file rather than its header.
+
+--------------------------------------------------------------------------------
+2026-08-25 -- RE-AUDIT: THE WORK IS DONE; THE HEADER SAID "not started"
+--------------------------------------------------------------------------------
+
+The status line still read "not started" while the body of the file ended in
+a CLOSED section. The header is corrected above; nothing about the code
+changed. Re-measured against what the file promises:
+
+    17 figures scroll in one panel      test_a_run_worth_of_figures_all_appear
+    aspect is the figure's own          test_every_figure_keeps_the_aspect_it_
+                                        was_drawn_at (800x800, 1200x800,
+                                        1600x700 all survive)
+    nothing is stretched                test_the_image_is_never_set_to_scale_
+                                        its_contents -- `setScaledContents`
+                                        is the stretch this replaced
+    a tile is a control                 test_clicking_a_cell_reports_which_one,
+                                        test_every_tile_carries_an_upper_case_
+                                        letter
+    the grid is above the console       `app_screen` builds `FigureGridView`
+                                        into the figures card
+
+    30 passed across test_figure_grid_view.py,
+    test_the_plates_are_a_small_multiple.py and
+    test_each_run_is_its_own_section.py -- the count this file recorded.
+
+The three test files live in `tests/`, not `tests/qt/`.

@@ -348,9 +348,8 @@ def four_parameter_logistic(x, bottom, top, log10_ec50, hill):
 class MonotonicityCheck:
     """Whether the concentration-ordered response only ever goes one way.
 
-    Computed on the **per-concentration medians**, not the raw points: with
-    replicates the median is the robust summary of what happened at that
-    dose, and a single outlier well should not be able to veto a fit.
+    Computed on the **per-concentration medians**, not the raw points. The
+    median limits the influence of one outlier well on the fit decision.
 
     :param doses: the distinct positive concentrations, ascending.
     :param medians: the median response at each of them.
@@ -501,6 +500,14 @@ class DoseResponseSpec:
     max_reversal: float = MAX_REVERSAL
 
     def __post_init__(self) -> None:
+        """Normalise the column names and validate the fit settings.
+
+        :raises DoseResponseError: if ``ci_method`` or ``direction`` is not one
+            this module offers; if ``confidence`` is not strictly between 0 and
+            1 -- it is a coverage probability, so a 95% interval is 0.95 and not
+            95; or if ``max_reversal`` is not a fraction of the response span in
+            ``(0, 1]``.
+        """
         object.__setattr__(self, "concentration", str(self.concentration or ""))
         object.__setattr__(self, "response", str(self.response or ""))
         object.__setattr__(self, "unit", str(self.unit or "").strip())
@@ -609,7 +616,8 @@ class DoseResponseResult:
     hiding it would only make people re-derive it; the name says what it is.
 
     :param group: the level this curve belongs to, or ``""``.
-    :param bottom: smaller plateau. :param top: larger plateau.
+    :param bottom: smaller plateau.
+    :param top: larger plateau.
     :param log10_ec50: the fitted parameter. Always finite when the fit
         converged, whether or not it is inside the tested range.
     :param hill: slope; negative for inhibition, positive for activation.
@@ -642,7 +650,8 @@ class DoseResponseResult:
         error, or ``None`` when the design cannot support it.
     :param lack_of_fit_df: ``(numerator, denominator)`` df of that test.
     :param covariance: the 4×4 matrix, or ``None`` when it could not be
-        estimated. :param covariance_ok: whether it is finite and usable.
+        estimated.
+    :param covariance_ok: whether it is finite and usable.
     :param optimizer_notes: every warning scipy raised during the fit,
         captured rather than allowed to escape — an
         ``OptimizeWarning: Covariance of the parameters could not be
@@ -725,7 +734,16 @@ class DoseResponseResult:
         """
         if self.ec50_low is None or self.ec50_high is None:
             return None
-        if self.ec50_low <= 0:  # pragma: no cover - a log-space CI is positive
+        if self.ec50_low <= 0:
+            # A bound from `fit_dose_response` IS positive -- both ends
+            # are back-transformed out of log space. But this dataclass
+            # is public, frozen and validates nothing, so one
+            # `dataclasses.replace` away is a bound of zero, and the
+            # alternative to declining is a division that yields `inf`
+            # and a panel reporting "within a factor of inf".
+            #
+            # `<= 0` rather than `== 0`: a negative bound would otherwise
+            # take the square root of a negative number.
             return None
         return float(np.sqrt(self.ec50_high / self.ec50_low))
 
@@ -826,6 +844,12 @@ class DoseResponseResult:
 
     # -- saying it in words ------------------------------------------------
     def _dose(self, value: Optional[float]) -> str:
+        """Render one dose for the report, with its unit.
+
+        :param value: the dose; ``None`` or non-finite renders as ``"n/a"``,
+            which is what an EC50 the data does not determine looks like.
+        :returns: the formatted dose.
+        """
         if value is None or not np.isfinite(value):
             return "n/a"
         return f"{value:.3g}" + (f" {self.unit}" if self.unit else "")
@@ -1461,7 +1485,14 @@ def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
         if candidate == limit:
             return None
         reach *= 2.0
-    else:  # pragma: no cover - 60 doublings passes any finite limit
+    else:
+        # THE WALK NEVER ARRIVED. Sixty doublings covers `step * 2**59`,
+        # which is not the same as "any finite limit" -- a step small
+        # enough against a large enough limit exhausts the loop, and an
+        # infinite limit exhausts it outright.
+        #
+        # Either way the answer is the same one the limit case gives:
+        # this experiment does not bound the EC50 on that side.
         return None
     while abs(outside - inside) > PROFILE_TOLERANCE:
         middle = 0.5 * (inside + outside)
@@ -1618,6 +1649,12 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
                 if dof > 0 else float("nan"))
 
     def wald(index: int) -> Tuple[Optional[float], Optional[float]]:
+        """One parameter's Wald interval, or ``None`` when it cannot be formed.
+
+        Returns None rather than an interval when the covariance is unusable:
+        an interval computed from a bad covariance looks like a result and is
+        not one.
+        """
         if not covariance_ok or not np.isfinite(quantile):
             return (None, None)
         error = float(np.sqrt(covariance[index, index]))
@@ -1801,7 +1838,7 @@ def candidate_concentration_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     column in the project. The classifier is still what excludes object keys
     and free text (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), which is
     the part of its judgement that transfers; the continuous/categorical split
-    is simply not the cut a dose column falls on.
+    does not identify dose columns reliably.
     """
     from .graph_spec import UNPLOTTABLE
     kinds = _kinds(frame)

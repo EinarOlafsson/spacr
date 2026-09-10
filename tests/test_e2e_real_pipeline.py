@@ -30,7 +30,7 @@ R1_FASTQ = "/nas_mnt/data/sequencing/seq_3/EO1_R1_001.fastq.gz"
 WELLS = ["E01", "E02", "L01", "L02"]     # E→row5(c1/c2), L→row12(c1/c2)
 FIELDS = ["F001", "F009"]                # 2 fields/well → 8 fields, 2 columns
 
-pytestmark = [pytest.mark.slow, pytest.mark.nas]
+pytestmark = [pytest.mark.slow, pytest.mark.nas, pytest.mark.gpu]
 
 # Probe autofs in a bounded child process: a connected NAS enables the suite
 # automatically, while a disconnected mount cannot stall test collection.
@@ -74,7 +74,10 @@ def pipeline(tmp_path_factory):
     preprocess_generate_masks(ms)
 
     merged = os.path.join(src, "merged")
-    assert os.path.isdir(merged) and len(os.listdir(merged)) == 8
+    assert os.path.isdir(merged)
+    merged_arrays = sorted(
+        name for name in os.listdir(merged) if name.endswith(".npy"))
+    assert len(merged_arrays) == 8
 
     # --- Stage 2: measure + crop ---
     cs = load_settings(MEASURE_SETTINGS, setting_key="Key", setting_value="Value")
@@ -105,8 +108,11 @@ def test_stage1_masks_and_stacks(pipeline):
         assert not os.path.isdir(os.path.join(src, chan)), (
             f"per-channel folder {chan} should not be created")
     # merged stacks carry the appended masks (7 planes: 4 chan + 3 masks)
-    sample = np.load(os.path.join(src, "merged",
-                                  sorted(os.listdir(pipeline["merged"]))[0]))
+    merged_arrays = sorted(
+        name for name in os.listdir(pipeline["merged"])
+        if name.endswith(".npy"))
+    assert len(merged_arrays) == 8
+    sample = np.load(os.path.join(src, "merged", merged_arrays[0]))
     assert sample.ndim == 3 and sample.shape[-1] >= 7
 
 
@@ -137,20 +143,29 @@ def test_stage2_measurements(pipeline):
 # ---------------------------------------------------------------------------
 
 @_skip
-def test_stage2b_measure_crop_core_inprocess(pipeline):
+def test_stage2b_measure_crop_core_inprocess(pipeline, tmp_path):
     from spacr.utils import load_settings
     from spacr.settings import get_measure_crop_settings
     from spacr.measure import _measure_crop_core
 
-    merged = pipeline["merged"]
+    # _measure_crop_core writes directly into the measurements database next
+    # to its input directory.  Give this coverage-only call its own source so
+    # it cannot append a field to the module pipeline's canonical database and
+    # make later one-to-one joins depend on randomized test order.
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    source = sorted(
+        name for name in os.listdir(pipeline["merged"])
+        if name.endswith(".npy"))[0]
+    shutil.copy2(
+        os.path.join(pipeline["merged"], source), merged / source)
     s = load_settings(MEASURE_SETTINGS, setting_key="Key", setting_value="Value")
-    s.update(dict(src=merged, input_folder=merged, plot=False,
+    s.update(dict(src=str(merged), input_folder=str(merged), plot=False,
                   save_measurements=True, save_png=True, n_job=1,
                   verbose=False, test_mode=False))
     s = get_measure_crop_settings(s)
-    s["src"] = merged
-    f = sorted(x for x in os.listdir(merged) if x.endswith(".npy"))[0]
-    result = _measure_crop_core(0, [], f, s)
+    s["src"] = str(merged)
+    result = _measure_crop_core(0, [], source, s)
     assert isinstance(result, tuple)
 
 
@@ -166,7 +181,7 @@ def test_stage3_generate_ml_scores(pipeline):
         "location_column": "columnID",
         "positive_control": "c2", "negative_control": "c1",
         "model_type_ml": "random_forest", "heatmap_feature": "predictions",
-        "grouping": "mean", "min_max": "allq", "minimum_cell_count": 25,
+        "grouping": "mean", "min_max": "allq", "min_cell_count": 25,
         "n_repeats": 2, "top_features": 20, "test_size": 0.25,
         "n_estimators": 50, "n_jobs": 2, "reg_alpha": 0.1, "reg_lambda": 1.0,
         "learning_rate": 0.001, "remove_low_variance_features": True,

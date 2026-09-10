@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "headless-module-list",
+      "source_sha256": "ba692202a90d45cc9c603ecd4496cc0dc0ab15e50cb585983e67a3e4c576dee3",
+      "source": "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
+      "translation": "``spacr-run --list`` enumera los módulos con puntos de entrada de línea de comandos para ejecutarse sin interfaz gráfica. Se omiten los módulos de anotación, curación, comparación y exploración disponibles únicamente en la interfaz gráfica."
+    },
+    {
+      "label": "host-modules-heading",
+      "source_sha256": "8974e5e3d47e0eecbbbc6339f970a9f05e5c855e0bc0aa42bfa6e25a5577b722",
+      "source": "Modules available from host screens",
+      "translation": "Módulos disponibles desde sus pantallas anfitrionas"
+    },
+    {
+      "label": "host-modules-introduction",
+      "source_sha256": "12a5d01d329b5b5525d7816855f4e3f214c4e91a729b3173a6c5d734097bf4b9",
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "translation": "Veinte módulos están integrados en pantallas anfitrionas relacionadas, en lugar de aparecer como mosaicos independientes en la pantalla de inicio. Cada módulo se abre desde la cabecera de su pantalla anfitriona y utiliza el proyecto activo. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP y Make Masks proporcionan estos módulos integrados. Su ayuda y documentación de la API siguen disponibles, y los módulos con puntos de entrada de canalización aún pueden ejecutarse sin interfaz gráfica. La `guía de funciones <docs/source/features.rst>`_ enumera cada módulo integrado y su pantalla anfitriona."
+    },
+    {
+      "label": "make-masks-heading",
+      "source_sha256": "3b6b87a84692b587aa2299fc27a05cbe60c36d7c0c53f37d68e9e3e7e3d780e3",
+      "source": "Make Masks",
+      "translation": "Make Masks"
+    },
+    {
+      "label": "make-masks-tools",
+      "source_sha256": "cf42b5d15a73956955227f308b7278340d7169c0dcd43c4b8b782ce04b030ded",
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "translation": "Make Masks aparece en **Data** y permite corregir manualmente las máscaras de segmentación. Su cabecera también da acceso a los flujos de trabajo de Cellpose. El lienzo tiene nueve herramientas: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** y **Recrop**. Draw crea una etiqueta rellena a partir de un contorno cerrado dibujado a mano alzada. Divide separa un objeto fusionado por una línea definida por el usuario y conserva las etiquetas de todos los demás objetos."
+    },
+    {
+      "label": "make-masks-recrop",
+      "source_sha256": "c5dc0f507fac105cec72a090640d29182dcb99677f21a2d3f4e0d5f43e659d83",
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "translation": "Recrop extrae un campo con un solo objeto de una imagen preparada que contiene varios objetos. Un cuadro delimitador alrededor de un objeto guarda las regiones correspondientes de la imagen y la máscara como un campo nuevo, programa ese campo después del actual y elimina de la cola de curación el campo original con varios objetos. Recrop cambia el campo activo, no los píxeles de las etiquetas."
+    },
+    {
+      "label": "make-masks-cellpose-sam",
+      "source_sha256": "0a66d7dfcafc418b8d544c33f766ee40df8a6dcb12ec4aa855c992c64beba969",
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "translation": "Al ejecutar Cellpose-SAM desde Make Masks se muestran dos resultados intermedios junto a la máscara: el **mapa de probabilidad celular** y el **campo de flujo**. La máscara se define mediante un umbral sobre el mapa de probabilidad, y las comprobaciones de coherencia del flujo pueden rechazar objetos cuyos flujos derivados difieran del campo predicho. Examine estos resultados para distinguir una probabilidad celular baja de un flujo incoherente al evaluar una máscara incorrecta o incompleta."
+    },
+    {
+      "label": "objects-settings-heading",
+      "source_sha256": "5320cf91af838c922615828f8276df4446d13c513c12bfa245d9b3f09de909fd",
+      "source": "Objects and settings",
+      "translation": "Objetos y ajustes"
+    },
+    {
+      "label": "objects-settings-inventory",
+      "source_sha256": "24b939c6e8e38f0b312c7f55263277e8dca9da0d4405aa2cc83722f6e7628e9c",
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "translation": "spaCR admite objetos de célula, núcleo y patógeno, un citoplasma derivado de sus máscaras y entre cero y veintiséis espacios para orgánulos. Cada espacio para orgánulos tiene un canal, diámetro, ajuste predefinido de morfología y método de detección independientes."
+    },
+    {
+      "label": "objects-settings-visibility",
+      "source_sha256": "2e03aefa953cc86eac19f424339cca26dc2e704c5ef13485a756f95018e8fd63",
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "translation": "El panel de ajustes solo muestra los controles cuando son aplicables. Los espacios para orgánulos por encima de la cantidad configurada se ocultan, los objetos sin un canal asignado se excluyen de la ejecución y los controles específicos de la morfología solo se muestran para el método seleccionado. Los interruptores **3D** y **Time** definen la dimensionalidad: ``z_stack`` activa los ajustes volumétricos, ``timelapse`` activa los ajustes de seguimiento y los ajustes de cuatro dimensiones aparecen cuando ambos están activados."
+    },
+    {
+      "label": "performance-heading",
+      "source_sha256": "3cca4da3c2a1c9529adaa3e2b0e38b7a94d84eb65fc08e0429484abc75276b3a",
+      "source": "Diagnosing performance",
+      "translation": "Diagnóstico del rendimiento"
+    },
+    {
+      "label": "performance-report-heading",
+      "source_sha256": "f84f94d824bd95e3df7b1c4c3dff1fc57dff13079e145c43b00e83f6fd35786e",
+      "source": "Generate a hardware report and attach it to a performance-related issue",
+      "translation": "Genere un informe de hardware y adjúntelo a una incidencia relacionada con el rendimiento"
+    },
+    {
+      "label": "performance-report-location",
+      "source_sha256": "ea84a760589415ed93d0dd9086ecdd13b5d2e32e0c2d75c6aa019c15b3e1b021",
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "translation": "El comando imprime un informe y guarda una copia en ``~/.spacr/reports``; la última línea indica la ruta del archivo guardado. ``--quick`` omite las pruebas de rendimiento más largas y ``--out PATH`` selecciona otra ubicación de salida."
+    },
+    {
+      "label": "performance-report-scope",
+      "source_sha256": "f7a25b53879a3d74d166fbc6eeeeb3a83608aaf21e42749381eca6467ff1c0a1",
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "translation": "El informe no abre ningún proyecto ni lee datos del proyecto. Registra los tiempos de importación y de las bibliotecas numéricas, el escalado de pantalla, las preferencias activas, la construcción de la ventana principal y de las pantallas de los módulos, y el rendimiento de las animaciones. El archivo del informe es la única salida que crea."
+    },
+    {
+      "label": "performance-report-platform",
+      "source_sha256": "c9d044f42e7b846be8dc37dbc88d2b39a7a7b0dd86044e4b2545ed5bb33fc49d",
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "translation": "El informe también identifica la emulación de la arquitectura del procesador, como una compilación x86_64 de Python en Apple Silicon, y la implementación de BLAS utilizada por NumPy. Ambos factores pueden afectar considerablemente al rendimiento."
+    },
+    {
+      "label": "support-performance-context",
+      "source_sha256": "75d5a4b6f9960ae3ac303786f491da789e21b9b4eafe434645aa44d1a542e3ba",
+      "source": "Submit bug reports and focused feature requests through `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of this information; include the hardware report when reporting performance problems.",
+      "translation": "Envíe informes de errores y solicitudes de funciones concretas mediante `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Al informar de un fallo, incluya la versión de spaCR, el sistema operativo, la versión de Python, los ajustes del módulo y el fragmento de registro pertinente. ``spacr-doctor`` recopila la mayor parte de esta información; incluya el informe de hardware cuando notifique problemas de rendimiento."
+    },
+    {
+      "label": "debug-log-location",
+      "source_sha256": "0de8a1be0b0750ef6a744a16c65c099aa9518fc71609d05bfcf6174668b9ca87",
+      "source": "Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written to ``~/.spacr/logs/spacr.log``.",
+      "translation": "Establezca ``SPACR_LOG_LEVEL=DEBUG`` durante la resolución de problemas. Los registros rotatorios se escriben en ``~/.spacr/logs/spacr.log``."
+    },
+    {
+      "label": "primary-workflow-introduction",
+      "source_sha256": "7316054874b435fb4973b106b8f88d2d3c5aab456a43e2db41954aafb6d94a26",
+      "source": "The primary workflow comprises six modules:",
+      "translation": "El flujo de trabajo principal comprende seis módulos:"
+    },
+    {
+      "label": "additional-project-capabilities",
+      "source_sha256": "8c884d15546a2332066e175a59b258b23bf0af33a09dcd833eda7e15f1ff13fd",
+      "source": "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.",
+      "translation": "El mismo proyecto también puede diseñar placas, estimar la potencia estadística, corregir efectos de lote, inspeccionar la calidad de la segmentación, explorar gráficos e imágenes recortadas vinculados, exportar AnnData, reanudar procesos interrumpidos y registrar los ajustes asociados a cada resultado."
+    }
+  ]
+}

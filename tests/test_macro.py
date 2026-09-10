@@ -24,6 +24,7 @@ import json
 import os
 import subprocess
 import sys
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
@@ -32,6 +33,14 @@ from spacr import macro
 
 
 REPO_ROOT = str(Path(__file__).resolve().parent.parent)
+
+
+def test_macro_documents_and_retains_its_last_touch_time():
+    """The public idle-chain timestamp remains discoverable and usable."""
+    chain = macro.Macro(touched=123.5)
+
+    assert ":param touched:" in (macro.Macro.__doc__ or "")
+    assert chain.touched == 123.5
 
 
 # ---------------------------------------------------------------------------
@@ -463,6 +472,11 @@ class TestSettings:
 
         recording = macro.begin_recording(
             "mask", {"src": str(tmp_path), "cell_diameter": Odd()})
+        for field in fields(macro.Recording):
+            assert f":param {field.name}:" in (macro.Recording.__doc__ or "")
+        assert recording.run_dir == ""
+        assert recording.started > 0 and recording.started_utc
+        assert recording.capture is not None
         step = macro.finish_recording(recording, status="success")
         source = macro.current_macro().source()
         assert "'cell_diameter': 'odd-value'," in source

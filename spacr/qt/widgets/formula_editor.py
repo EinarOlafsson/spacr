@@ -45,7 +45,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, QVBoxLayout, QWidget,
+    QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from ..theme import RADIUS, SPACING, font_px, register_widget_qss
@@ -71,7 +71,11 @@ DEBOUNCE_MS = 120
 class FormulaPanel(QWidget):
     """Define computed columns for one table.
 
-    :param frame: the table, or ``None`` until :meth:`set_frame`.
+    :param parent: owning widget, or ``None``.
+
+    The panel starts with no table. Give it one with :meth:`set_frame`, which
+    may be called again whenever the table changes; the formulas defined so
+    far are kept and re-validated against the new columns.
 
     Emits :attr:`formulas_changed` whenever the set changes — the host's cue
     to re-read :meth:`computed_frame`.
@@ -80,6 +84,10 @@ class FormulaPanel(QWidget):
     formulas_changed = Signal()
 
     def __init__(self, parent=None):
+        """Build the computed-columns panel.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("FormulaPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -143,6 +151,14 @@ class FormulaPanel(QWidget):
         self._status = QLabel("", self)
         self._status.setObjectName("FormulaStatus")
         self._status.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._status.setSizePolicy(QSizePolicy.Preferred,
+                                      QSizePolicy.Minimum)
         self._status.setProperty("state", "idle")
         outer.addWidget(self._status)
 
@@ -169,6 +185,14 @@ class FormulaPanel(QWidget):
         self._help = QLabel(self._help_text(), self)
         self._help.setObjectName("FormulaHelp")
         self._help.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._help.setSizePolicy(QSizePolicy.Preferred,
+                                    QSizePolicy.Minimum)
         outer.addWidget(self._help)
 
         self._debounce = QTimer(self)
@@ -179,6 +203,11 @@ class FormulaPanel(QWidget):
         self._name.textChanged.connect(self._schedule)
         self._replace.toggled.connect(self._schedule)
         self._expression.returnPressed.connect(self.commit)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- the table -------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
@@ -187,7 +216,7 @@ class FormulaPanel(QWidget):
         Existing formulas are **kept** and re-applied. That is the opposite of
         what the Local Data Filter does with its clauses, on purpose: a filter
         clause naming a missing column narrows by less than it claims and is
-        dangerous to keep, while a formula naming a missing column simply
+        dangerous to keep, while a formula naming a missing column
         fails, says which column, and is exactly what the user wants back when
         they reload the same table.
         """
@@ -257,6 +286,7 @@ class FormulaPanel(QWidget):
         return True
 
     def remove_selected(self) -> None:
+        """Drop the selected computed columns."""
         item = self._list.currentItem()
         if item is None:
             return
@@ -272,6 +302,7 @@ class FormulaPanel(QWidget):
         self.formulas_changed.emit()
 
     def clear(self) -> None:
+        """Drop every computed column."""
         if self._formulas.is_empty:
             return
         self._formulas.clear()
@@ -289,6 +320,11 @@ class FormulaPanel(QWidget):
 
     # -- internals -------------------------------------------------------
     def _current_formula(self) -> Optional[ColumnFormula]:
+        """Build a formula from what is currently typed.
+
+        :returns: the formula, or ``None`` while either the name or the
+            expression is still empty.
+        """
         name = self._name.text().strip()
         expression = self._expression.text().strip()
         if not name or not expression:
@@ -297,6 +333,13 @@ class FormulaPanel(QWidget):
                              replace=self._replace.isChecked())
 
     def _schedule(self) -> None:
+        """Disable Add and queue a validation of what is currently typed.
+
+        Debounced, so typing an expression costs one validation rather than one
+        per keystroke, and Add stays off until the pending check has run -- a
+        button enabled against stale validation is a button that commits a
+        formula nobody checked.
+        """
         self._add.setEnabled(False)
         self._debounce.start()
 
@@ -362,6 +405,12 @@ class FormulaPanel(QWidget):
             self._say(self._apply_error, "error")
 
     def _refresh_list(self) -> None:
+        """Rebuild the formula list in computation order.
+
+        Each row's tooltip is the validator's notice when there is one, and the
+        expression otherwise, so why a column is unavailable is reachable from
+        the row itself.
+        """
         self._list.clear()
         notices = {r.formula.name: r.notice for r in self._results}
         for formula in self._formulas.formulas:
@@ -371,6 +420,11 @@ class FormulaPanel(QWidget):
             self._list.addItem(item)
 
     def _say(self, text: str, state: str) -> None:
+        """Write the status line and repolish it so the state style takes effect.
+
+        :param text: the message.
+        :param state: the style key, which colours the line.
+        """
         self._status.setText(text)
         self._status.setProperty("state", state)
         self._status.style().unpolish(self._status)
@@ -378,6 +432,13 @@ class FormulaPanel(QWidget):
 
     @staticmethod
     def _help_text() -> str:
+        """Return the one-paragraph formula help shown under the list.
+
+        :returns: the operators, the function names, and the two distinctions
+            worth stating -- ``min``/``max`` collapse the whole table while
+            ``minimum``/``maximum`` compare per object, and a name with spaces
+            is backticked.
+        """
         picks = ("log", "sqrt", "abs", "clip", "where", "minimum", "maximum",
                  "zscore", "rank", "mean", "median", "std", "quantile",
                  "count", "min", "max")
@@ -393,9 +454,23 @@ class FormulaDialog(QDialog):
 
     Non-modal, so the chart behind it redraws as columns are added — which is
     the point of adding them.
+
+    :param parent: parent widget.
+    :param panel: an existing :class:`FormulaPanel` to host. ``None`` builds
+        one, which is the ordinary case; passing one lets a screen keep the
+        panel alive across openings so a half-written formula survives.
     """
 
     def __init__(self, parent=None, *, panel: Optional[FormulaPanel] = None):
+        """Wrap a formula panel in its own window.
+
+        The window is sized in scaled pixels rather than raw ones: a size set
+        from Python does not grow with the stylesheet's font size, and at the
+        200% scale the prose inside wrapped to more height than the window had.
+
+        :param parent: parent widget, or ``None``.
+        :param panel: an existing panel to show; ``None`` builds one.
+        """
         super().__init__(parent)
         self.setObjectName("FormulaDialog")
         self.setWindowTitle("Computed columns")
@@ -407,10 +482,32 @@ class FormulaDialog(QDialog):
         close = QPushButton("Close", self)
         close.clicked.connect(self.accept)
         outer.addWidget(close)
-        self.resize(560, 460)
+        from ..preferences import scaled_px
+
+        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
+        # Python does not grow when the stylesheet's font size does, so at
+        # the 200%% font scale the prose inside this window wrapped to more
+        # height than the window had and the last line was cut off. The
+        # size-policy fix on the label was necessary and not sufficient:
+        # a policy stops a parent handing a label less than it asks for, but
+        # it cannot make a window grow that has no room to give.
+        self.resize(scaled_px(560), scaled_px(460))
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
 
 def _formula_qss(palette, _opacity) -> str:
+    """Build the formula panel's stylesheet.
+
+    :param palette: the active palette.
+    :param _opacity: the page opacity; unused -- this panel sits inside a
+        surface that already carries it, so blending again would darken it
+        twice.
+    :returns: the QSS.
+    """
     return f"""
     QLabel#FormulaTitle {{
         color: {palette['fg']};

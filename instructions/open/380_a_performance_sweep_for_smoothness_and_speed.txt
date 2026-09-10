@@ -1,0 +1,440 @@
+================================================================================
+A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
+================================================================================
+
+Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09. Two of the five
+           areas were already covered by tooling nobody had connected to
+           this item; the two the request judges "smoothness" by were not,
+           and are now. First baseline recorded. No fixes yet -- the
+           defects the harness names are below and they are the next work.
+           Filed 2026-09-07.
+Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
+           and fix any performance defects in starting spacr, running the
+           themes, or starting the moduals and handelling the widgets and
+           settings in the moduals and on the home screen. this should all be
+           optimized for smoothness and speed (on all platforms) while not
+           comproon functionallity."
+Owner:     spacr/qt/** -- startup, theme, screens, widgets, settings panels.
+
+THE LAST CLAUSE IS THE CONSTRAINT, NOT A PLEASANTRY. "while not compromising
+functionality" rules out the cheap wins: dropping the backdrop, lowering the
+frame rate, lazy-loading a panel so it appears blank, eliding text that then
+cannot be read. A change that makes spaCR faster by making it do less is not
+an answer to this item unless the maintainer agrees the thing removed was not
+wanted.
+
+--------------------------------------------------------------------------------
+WHY THIS IS FILED SEPARATELY, AND WHAT IT IS NOT
+--------------------------------------------------------------------------------
+
+Performance work has been done here in pieces, always reactively, and each
+piece was found by the maintainer noticing something rather than by anyone
+looking. That is the pattern this item exists to break.
+
+  315  THE FORCE-QUIT DIALOG. "Force quit window still appears at each
+       modular start." Root-caused 2026-09-05: two comprehensions in
+       `settings.py` rebuilt constants inside inner loops (1932 ms -> 484 ms),
+       plus a 30-second `urlopen` on the GUI thread. The desktop offering to
+       kill spaCR is the most severe symptom this class of defect has, and it
+       was shipped for weeks.
+  378  HOLD Z AND SCROLL. Measured `app.setStyleSheet` + re-polish at 587.5 ms
+       on 847 widgets, against 107 ms for the visible screen alone. That
+       number was measured because one feature needed it, and it describes
+       every theme change spaCR makes, not just that one.
+  305  LOAD TIME WITHIN RESOURCES. Filed, deferred to after the version bump.
+  327  THE BACKDROP CAMERA. "the fullscreen mode fractal is super choppy while
+       the normal background one is super smoothe."
+  The one-backdrop fix, 2026-09-05: TWO full-size animated fields were being
+       shaded and blitted per frame on a 4K screen -- 950 paints/s, 393 Mpx/s,
+       idle GUI-thread CPU at ~16% of a core, for a picture nobody could see.
+
+SO THIS ITEM IS THE SWEEP, not another instance. Its output is a MEASUREMENT
+HARNESS plus the defects that harness finds, in that order. An audit that only
+records "this felt slow" produces a list nobody can act on, and the four
+entries above show the causes are unrelated to each other.
+
+--------------------------------------------------------------------------------
+WHAT TO MEASURE, AND THE FIVE AREAS THE REQUEST NAMES
+--------------------------------------------------------------------------------
+
+1. STARTING SPACR. Cold import to first painted frame, broken down: which
+   imports, which registry builds, which file reads. `spacr-doctor` and the
+   preloader already exist and should be read before anything new is written.
+   THE TARGET IS THE SLOWEST STEP NAMED, not a total -- a 3-second startup
+   with one 2.4-second step is a different problem from thirty 100 ms steps.
+
+2. RUNNING THE THEMES. Frames per second and paint cost per theme, at 1080p
+   AND at 4K, because the cost is counted in pixels and 327 was reported from
+   a 3840x2160 machine. Include the fullscreen screensaver path, which 327
+   says is choppy where the windowed one is smooth -- that gap is a defect
+   with a cause, not a fact of life.
+
+3. STARTING A MODULE. Registry lookup to first painted settings panel, per
+   module, since 315 showed one module's settings build can dominate. Every
+   declared app, not a sample: the four that were sampled in 350's sweep all
+   passed and the sixteen added later found nothing, but that was luck rather
+   than method.
+
+4. HANDLING THE WIDGETS AND SETTINGS. The interactions, which is where
+   "smoothness" is actually judged: expanding a section, typing in a field,
+   scrolling a long settings column, dragging a splitter, hovering the grid.
+   Measure INPUT LATENCY and DROPPED FRAMES, not wall-clock -- a 200 ms
+   hitch on a keystroke is felt, and a 200 ms total spread over ten frames
+   is not.
+
+5. THE HOME SCREEN. Named separately by the maintainer, and it is the one
+   surface every user sees before anything else.
+
+--------------------------------------------------------------------------------
+"ON ALL PLATFORMS", WHICH IS THE HARD PART OF THIS ITEM
+--------------------------------------------------------------------------------
+
+The maintainer said all platforms and it cannot be waved through, because
+this project has already shipped two defects that were invisible on the
+machine they were written on:
+
+  * the packaging failure (331/PKG) reproduced only where setuptools was >= 77,
+    and the home workstation has 69.5.1 -- so a green build there was never
+    evidence about anything;
+  * the label-contrast failures in issue #6 were reported as a macOS problem
+    and were really a light-theme one, because macOS defaults to the light
+    appearance far more often than Linux does.
+
+A PROFILE FROM ONE MACHINE IS A FACT ABOUT THAT MACHINE. So the harness has
+to run in CI on all three platforms and record numbers, even if the fixing is
+done locally. Scale matters too: font scale, screen resolution and HiDPI all
+multiply paint cost, and 04 already records that the tests measured a font
+scale no user has.
+
+--------------------------------------------------------------------------------
+HOW TO DO IT
+--------------------------------------------------------------------------------
+
+1. WRITE THE HARNESS FIRST, and prove it catches a defect that is already
+   known before trusting it on anything else -- 350 did exactly this against
+   the Annotate instance and it is why that sweep is believable. The
+   one-backdrop regression is the ideal calibration case: a harness that
+   cannot see 950 paints/s for an invisible layer is not measuring paint.
+
+2. RECORD A BASELINE and commit it, so later work can be shown to have moved
+   the number rather than asserted to have.
+
+3. FIX BY CAUSE, NOT BY SYMPTOM, and record which cause each fix addressed.
+   The four known instances had four unrelated causes -- work in an inner
+   loop, a blocking call on the GUI thread, a whole-application re-polish,
+   and a duplicated layer -- and a list organised by symptom would have
+   grouped none of them correctly.
+
+4. RATCHET WHAT IS FIXED. A performance defect with no test comes back; 315
+   came back three times. Prefer a ceiling assertion ("first paint under
+   N ms", "no more than one animated layer") over a benchmark that fails on
+   a loaded machine.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* MEASURE ON THE MACHINE THAT CANNOT COPE, not the one that can. The
+  maintainer's report that started 315 was "It's like my computer has an
+  unusually low tolerance for applications loading." That is the environment
+  to optimise for.
+* DO NOT MEASURE WITH `QWidget.grab()`. It does not capture the GL-backed
+  AmbientWidget, so a grab-based check reports a black window and cannot tell
+  a working backdrop from a broken one. Found the hard way on 2026-09-07,
+  after an A/B across two commits came out byte-identical for that reason.
+* RAM IS PART OF PERFORMANCE HERE. This machine has been taken down twice by
+  spaCR's own test suite; a "faster" change that raises peak RSS is not
+  obviously a win.
+* THE FIRST RUN AFTER AN INSTALL IS THE ONE USERS JUDGE. Warm-cache numbers
+  flatter every result in this file.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- WHAT ALREADY EXISTED, AND THE TWO HALVES THAT DID NOT
+--------------------------------------------------------------------------------
+
+"READ THEM BEFORE ANYTHING NEW IS WRITTEN" was the right instruction and it
+saved most of this item. `tools/spacr_startup_benchmark.py` is 988 lines and
+already covers three of the five areas properly:
+
+    1. STARTING SPACR      cold and warm, fresh interpreter per run,
+                           real entry point, isolated home
+    3. STARTING A MODULE   every live sidebar app pressed, time to ready
+    5. THE HOME SCREEN     Home ready as its own budgeted number
+
+with a 5 s Home budget, a 10 s module budget, a 500 ms event-loop stall
+detector and a JSON schema. It also states, correctly, that a hosted CI
+runner is not release performance evidence: no real display, no compositor,
+no hardware profile, shared-host scheduling.
+
+  SO AREA 1, 3 AND 5 NEED RUNNING AND WATCHING, NOT BUILDING. What this
+  item adds there is the discipline of step 2 -- record a baseline and
+  commit it -- rather than another harness.
+
+AND A THIRD TOOL WAS MISSED ON THE FIRST PASS, which is worth recording
+because this item's whole argument is that reading first is cheaper than
+writing. `tools/measure_the_backdrop.py` (instruction 327, 255 lines) is
+AUTHORITATIVE for area 2's cost half: the CPU kernel per surface at the
+adaptive scale's top and at its 0.58 floor, the whole pipeline through the
+real widget, and each GPU shader into an offscreen framebuffer with a real
+GL context. It was found an hour after `perf_paint.py` was written, and the
+overlap is now stated in that file's own docstring rather than left for
+somebody to trip over: measure_the_backdrop answers what a frame COSTS,
+perf_paint answers what the RATE is per theme, and neither replaces the
+other. Anyone extending this should grep `tools/` before adding a fourth.
+
+WHAT WAS MISSING IS EXACTLY THE TWO THE REQUEST JUDGES SMOOTHNESS BY, and
+`tools/perf_paint.py` is those two:
+
+    2. RUNNING THE THEMES  backdrop paints/s per theme at 1080p AND 4K,
+                           and the cost of a whole-application theme change
+                           with the widget count beside it
+    4. WIDGETS AND SETTINGS  input latency for expanding a section, typing
+                           a character and scrolling the settings column,
+                           reported as FIRST and REPEAT with dropped frames
+
+IT COUNTS PAINTS RATHER THAN GRABBING PIXELS, per this file's own WATCH
+list: `QWidget.grab()` does not capture the GL-backed `AmbientWidget`.
+`ambient.total_frames_painted()` already existed and counts the thing that
+costs.
+
+CALIBRATED FIRST, WHICH IS THIS FILE'S OWN RULE.
+`tests/qt/test_the_paint_harness_can_see_a_second_layer.py` reproduces the
+one-backdrop regression deliberately -- two layers must read as at least
+1.5x the paints of one -- and asserts the ratio rather than a frame count,
+because the count moves with the machine's load and the ratio does not. It
+also pins two mistakes the harness made while being written, so neither can
+come back silently:
+
+  * `app.findChildren(QWidget)` reported 1 widget where `app.allWidgets()`
+    reports 1,050. A top-level window is not a CHILD of the application
+    object, and a per-widget cost over a denominator of one reads as a
+    flattering result rather than as a broken measurement.
+  * a bare `AmbientWidget()` measures the DEFAULT theme however the row is
+    labelled: the look is read at construction. Four identical numbers
+    under four theme names were the only clue.
+
+--------------------------------------------------------------------------------
+THE FIRST BASELINE, 2026-09-09. TAKEN UNDER LOAD, AND SAYING SO.
+--------------------------------------------------------------------------------
+
+`docs/perf_baseline.json`, offscreen, while the full test suite was running
+in another process -- the record carries the load average and the Qt
+platform for exactly that reason. Every number here is a CEILING on the
+speed rather than the speed.
+
+    BACKDROP     24.7 fps at 1080p and 24.7 at 4K, every theme
+                 51 Mpx/s at 1080p, 205 Mpx/s at 4K
+
+    THEME CHANGE 299-340 ms over 1,050 widgets, all four palettes
+
+    INTERACTION  expand a section   47.6 ms first, 4.2 ms repeat, 2 frames
+                 collapse           12.3 ms first, 3.8 ms repeat
+                 type a character    0.06 ms
+                 scroll              0.01 ms
+
+THREE THINGS THE FIRST RUN ALREADY SAYS:
+
+  1. THE FRAME RATE IS THE SAME AT FOUR TIMES THE PIXELS, which means the
+     cap is holding and the per-frame COST is what varies -- 4x the
+     megapixels for the same 24.7 fps. So a 4K machine is doing four times
+     the shading work per second for the same picture, which is consistent
+     with 327 being reported from a 3840x2160 screen and is the thread to
+     pull on next.
+  2. THE THEME CHANGE IS STILL A THIRD OF A SECOND. 378 measured 587.5 ms
+     on 847 widgets; this is 299-340 ms on 1,050, on a loaded machine and
+     offscreen. The shape is unchanged: every theme change repolishes the
+     whole application.
+  3. EXPANDING A SECTION DROPS TWO FRAMES THE FIRST TIME AND NONE
+     AFTERWARDS. That is work done once per section, and the first time is
+     the time a user meets it. Typing and scrolling are free, which is
+     worth recording precisely so that nobody optimises them.
+
+WHAT THIS BASELINE IS NOT. It is one machine, offscreen, under load. "On
+all platforms" is unanswered and needs the harness in CI on all three, per
+this file's own argument about setuptools 77 and the light theme. And the
+fullscreen screensaver path -- 327's actual complaint -- is not measured
+yet: it needs a real display, and this session has none.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- FIRST FIX LANDED: THE LANGUAGE IS RESOLVED ONCE PER BUILD, NOT
+ONCE PER TRANSLATED STRING
+--------------------------------------------------------------------------------
+
+Found while measuring something else -- the backdrop freeze of 385 -- which is
+the pattern this item exists to break, so it is recorded here rather than
+there.
+
+THE DEFECT. `i18n.current_language()` reaches into `QSettings` on every call,
+and `tr()` calls it once per string. Profiling one `PreferencesDialog(...)`
+build:
+
+    346 tr() calls -> 347 get_language() -> 415 QSettings reads   18 ms of 55
+
+Every one of those 415 reads returns the same answer. Nothing runs between
+them: it is one synchronous build.
+
+WHY IT SURVIVED. A scope for exactly this already existed in TWO places and
+neither covered `tr`. `settings_model.language_resolved_once` memoises what
+*that* module resolves and is what took the Mask screen's build down from
+3,516 lookups for 1,538 settings. And `i18n._RESOLVED_LANGUAGE` -- a
+ContextVar read by `current_language` on both arms -- was declared, read, and
+**set nowhere in the package**. `tests/qt/test_cov_r8_i18n_current_language.py`
+had pinned that dead state deliberately, with a test asserting no setter
+exists and a note that a future caller wiring it up "has a description to
+check against".
+
+THE FIX, three small pieces:
+
+  * `i18n.ui_language_resolved_once()` -- a context manager that opens the
+    ContextVar scope. Nested scopes share the outermost dict and only the
+    outermost resets it, so a screen wrapping its build and a helper
+    wrapping itself do not drop each other's cache.
+  * `settings_model.language_resolved_once` opens it too, so ONE scope
+    covers both mechanisms and callers do not have to know there are two.
+  * `PreferencesDialog.__new__` wraps its build in it. The body moved to
+    `_build_the_dialog` unchanged rather than being re-indented, so the
+    diff is the wrapper and nothing else.
+
+MEASURED, same machine, same dialog, imports already warm:
+
+    before   55 ms   415 QSettings reads   current_language 4th by cumtime
+    after    30 ms    70 QSettings reads   current_language absent from the
+                                           top 28 entirely
+
+45% off a build that happens every time the user opens Preferences.
+
+FUNCTIONALITY IS NOT COMPROMISED, which is this item's constraint. The scope
+is per-build, not per-process: a language change between two builds is seen
+by the second, because the dict is discarded when the outermost scope exits.
+The `SPACR_LANGUAGE` environment override still wins -- `current_language`
+consults it before filling the scope -- and there is a test for that.
+
+TESTS. `test_cov_r8_i18n_current_language.py` grew from 8 to 15: the
+dead-cache class became `TestTheContextVarCacheThatIsNowOpened`, and the
+"nothing sets it" assertion became "exactly `i18n.py` sets it" -- which is
+the assertion worth keeping, because a SECOND setter would have both scopes
+resetting the same ContextVar and each dropping the other's cache, with no
+failure anywhere, only a silent return to reading the store. Plus the read
+count as a test, nesting, an exception inside the body, the environment
+override, and settings_model opening it. 160 tests across
+`test_preferences.py`, `test_cov_s1_preferences_edges.py`,
+`test_ambient_wiring.py` and `test_ambient_none.py` pass unchanged.
+
+STILL OPEN, AND BIGGER: the FIRST `PreferencesDialog(...)` in a session costs
+**902 ms**, against 55 ms (now 30) for the second. The difference is import
+work -- `figure_settings`, the settings model, the catalogs -- paid on the
+GUI thread at the moment the user asks for Preferences, with the backdrop
+frozen for all of it. 385 has the paint counts. The backdrop's own heavy
+import is already warmed off the GUI thread (`_HeavyImportInProgress`); this
+one is not, and the same treatment applies.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- SECOND FIX: THE 902 ms FIRST OPEN IS NOW 139 ms
+--------------------------------------------------------------------------------
+
+The "STILL OPEN, AND BIGGER" note above is closed. Broken down by import,
+first `PreferencesDialog(...)` in a cold process:
+
+    474.3 ms  spacr.qt.screens.settings_model
+     84.9 ms  spacr.qt.theme
+     83.3 ms  spacr.qt.imagery
+     48.5 ms  matplotlib.colors
+     34.3 ms  spacr.qt.widgets.toggle
+                                        812 ms of import in an 812 ms build
+
+`launch` ALREADY warms heavy imports on a daemon thread while the user looks
+at the home screen (`app.py:6094`), and the list held one name. Two were
+added -- `settings_model` and `imagery` -- which is 557 ms of the 812 moved
+off the GUI thread. `theme` is already imported during startup by
+`apply_preferences_to_app`, so it is warm by the time anyone can click.
+
+    first open, cold          902 ms
+    first open, prewarmed     139 ms
+    second open                30 ms   (was 55 before the language scope)
+
+VERIFIED THAT THE OFF-THREAD IMPORT IS ACTUALLY SAFE rather than assumed:
+both modules were imported on a daemon thread with a live QApplication and a
+shown widget, and the GUI thread pumped events throughout. No exception, no
+Qt object constructed at import time. This is the same claim the existing
+comment makes for `spacr.settings`; it is now measured for the two new names
+as well.
+
+`PREWARMED_MODULES` in `tests/qt/test_cov_qt_app.py` is updated in the same
+change, which its own note demands: the list is read back out of `launch`'s
+source and compared to the table, so a silent edit to either fails.
+
+WHAT THIS DOES NOT FIX. 139 ms is still eight times the warm build. The
+remainder is `matplotlib.colors` and `widgets.toggle`, neither of which is
+worth a third name in the prewarm list until something else wants them.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- DEFECT 2 MEASURED PROPERLY, AND THE OBVIOUS FIX IS RULED OUT
+--------------------------------------------------------------------------------
+
+The baseline's second finding -- "THE THEME CHANGE IS STILL A THIRD OF A
+SECOND" -- is now decomposed. This is a NEGATIVE result and it is worth
+more than a guess: it closes the optimisation everybody reaches for first.
+
+WHERE THE TIME IS. One theme change on a Mask screen, 1,049 live widgets,
+offscreen:
+
+    stylesheet() composition          0.7 ms
+    app.setStyleSheet(sheet)        262 ms
+    the whole apply                 307 ms
+
+Composing the sheet is FREE. All of it is the one Qt call. And there is
+exactly ONE such call per preference change -- traced, not assumed; an
+earlier count of two was this measurement's own clearing call being
+counted with it. So there is no redundant apply to remove.
+
+WHAT THE COST IS NOT: THE SHEET. The sheet is 71,472 characters, 389
+blocks, ~655 selectors. Measured on the same 1,049 widgets:
+
+    empty sheet                       0.8 ms
+    ONE rule (`QWidget { color }`)   89.2 ms
+    half the sheet, by characters   182.6 ms
+    base only, 196 blocks, 382 sel  199.2 ms
+    the whole sheet                 204.6 ms
+
+Dropping the 42 registered widget-QSS blocks -- 25,195 characters and 273
+selectors, 42 % of the sheet by size -- saves FIVE MILLISECONDS of 205.
+Going from 655 selectors to ONE saves 56 %. So the curve is a step, not a
+slope: there is a large fixed cost for having any sheet at all, and after
+that the sheet's size barely matters. TRIMMING OR SPLITTING THE SHEET IS
+NOT THE LEVER, and an afternoon spent shrinking it would buy single-digit
+milliseconds.
+
+WHAT THE COST IS: THE WIDGET COUNT. Same sheet, a window filled with plain
+labels:
+
+        1 widget       1.0 ms
+      250 widgets      9.6 ms      38 us/widget
+      500 widgets     19.9 ms      40 us/widget
+    1,000 widgets     46.8 ms      46 us/widget
+    2,000 widgets    132.0 ms      66 us/widget
+
+Linear at first and worse than linear by 2,000. A real module screen costs
+more per widget than a QLabel does -- 1,049 of them come to 205 ms, not the
+50 the label curve predicts -- because they are nested, named and styled.
+
+SO THE ONLY LEVER IS NOT REPOLISHING EVERYTHING, which is what 378 already
+measured from the other side: 107 ms for the visible screen against 587 for
+the application. The change that would do it is to stop setting the sheet on
+the QApplication and set it per top-level window, marking hidden module
+screens dirty so their `showEvent` applies it.
+
+NOT ATTEMPTED HERE, and the reason is this item's own constraint rather than
+timidity. `app.setStyleSheet` covers every widget that exists AND every one
+created later -- dialogs, popups, menus, a screen built after the change.
+Per-window application has to reproduce that, and the failure mode is a
+dialog opening in the previous theme, which is exactly "compromising
+functionality". It needs a display to verify and a session that can watch
+it happen.
+
+WHAT IS WORTH KNOWING BEFORE THAT IS TRIED: `apply_preferences_to_app`
+already has a signature guard that skips the whole rebuild when nothing
+visual changed, and it already clears and reinstalls screen-local QSS
+overlays around the global call. Whoever does the per-window version
+inherits both, and the overlay mechanism is the half that already knows how
+to give one screen its own sheet.

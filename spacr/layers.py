@@ -64,7 +64,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field, replace
 from types import MappingProxyType
-from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping,
+from typing import (Any, Callable, ClassVar, Dict, Iterable, List, Mapping, cast,
                     Optional, Sequence, Tuple, Union)
 
 import numpy as np
@@ -153,6 +153,9 @@ def to_rgba(colour: Any, *, alpha: Optional[float] = None
     component above 1 switches the whole tuple to the 0–255 reading, which is
     the only unambiguous rule — ``(1, 1, 1)`` is white either way).
 
+    :param colour: named, hexadecimal or three-/four-component colour value
+        to normalise; numeric components may use either the 0–1 or 0–255
+        scale.
     :param alpha: overrides whatever the colour carried.
     :raises LayerError: on anything else.
     """
@@ -201,12 +204,28 @@ class Colormap:
     every microscopy channel LUT there is (black → the channel's colour), and
     more stops covers the perceptual maps without pulling matplotlib into a
     module that has to stay importable in a worker.
+
+    :param name: Display and lookup name stored with the colour ramp; it is
+        coerced to a string.
+    :param colors: Ordered sequence of at least two colour specifications
+        accepted by :func:`to_rgba`; the ramp interpolates them in order.
+    :param stops: where each colour sits, in 0..1. Defaults to spacing them
+        evenly. One stop per colour, ascending -- an out-of-order stop would
+        make the ramp non-monotonic and is refused rather than sorted, since
+        sorting would silently give a different ramp than the caller wrote.
+    :raises LayerError: with fewer than two colours, or when ``stops`` does
+        not match ``colors`` one for one.
     """
 
     __slots__ = ("name", "_colors", "_stops")
 
     def __init__(self, name: str, colors: Sequence[Any],
                  stops: Optional[Sequence[float]] = None):
+        """Build a colormap from at least two colours.
+
+        Fewer than two is refused: one colour is not a map, and interpolating
+        between a colour and nothing has no answer.
+        """
         cols = np.asarray([to_rgba(c)[:3] for c in colors], dtype=np.float32)
         if len(cols) < 2:
             raise LayerError(
@@ -237,26 +256,45 @@ class Colormap:
         return self._stops.copy()
 
     def map(self, values: Any) -> np.ndarray:
-        """Map ``values`` (any shape, 0–1, clipped) to ``(..., 3)`` float32."""
+        """Map ``values`` (any shape, 0–1, clipped) to ``(..., 3)`` float32.
+
+        :param values: Numeric scalar or array-like values to interpolate;
+            values outside 0–1 are clipped to the nearest end of the ramp.
+        """
         t = np.clip(np.asarray(values, dtype=np.float64), 0.0, 1.0)
         out = np.empty(t.shape + (3,), dtype=np.float32)
         for c in range(3):
             out[..., c] = np.interp(t, self._stops, self._colors[:, c])
         return out
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
+        """The map's name and how many stops it has."""
         return f"Colormap({self.name!r}, {len(self._colors)} stops)"
 
     def __eq__(self, other: Any) -> bool:
+        """Equal when the name AND the colours and stops match.
+
+        The name alone is not enough -- two maps can be renamed to the same thing
+        -- and the arrays alone are not either, because the name is what a saved
+        setting refers to.
+        """
         return (isinstance(other, Colormap) and other.name == self.name
                 and np.array_equal(other._colors, self._colors)
                 and np.array_equal(other._stops, self._stops))
 
     def __hash__(self) -> int:
+        """Hash the name and the colours, so equal maps hash alike."""
         return hash((self.name, self._colors.tobytes()))
 
 
 def _ramp(name: str, colour: Any) -> Colormap:
+    """Build a black-to-colour ramp.
+
+    :param name: the colormap's name.
+    :param colour: the colour the ramp ends on.
+    :returns: the colormap -- black at zero, so an unlabelled pixel is
+        background rather than a dark shade of the channel.
+    """
     return Colormap(name, ["black", colour])
 
 
@@ -297,6 +335,9 @@ def colormap(spec: Any) -> Colormap:
     is never a hard dependency; but if a user types ``"viridis"`` and
     matplotlib is there, refusing would be pedantry.
 
+    :param spec: Existing :class:`Colormap`, built-in or matplotlib colormap
+        name, or a colour specification from which to build a black-to-colour
+        ramp.
     :raises LayerError: if ``spec`` names nothing.
     """
     if isinstance(spec, Colormap):
@@ -307,7 +348,7 @@ def colormap(spec: Any) -> Colormap:
             return COLORMAPS[key]
         if key in _NAMED_COLORS or key.startswith("#"):
             return _ramp(key, key)
-        try:  # pragma: no cover - depends on the installed matplotlib
+        try:  # depends on the installed matplotlib
             from matplotlib import colormaps as _mpl_colormaps
             mpl = _mpl_colormaps[key]
             samples = [tuple(mpl(v)[:3]) for v in np.linspace(0.0, 1.0, 16)]
@@ -337,6 +378,9 @@ def label_color(label: int, *, seed: int = 0) -> Tuple[float, float, float]:
     outlines, so a mask has the same object colours in both viewers. It is
     reimplemented rather than imported because that module imports PySide6 and
     this one must not — see the module docstring.
+
+    :param label: Integer-like object label. Label 0 is reserved for the black
+        background colour.
     """
     n = int(label)
     if n == 0:
@@ -356,6 +400,9 @@ def label_colors(labels: Any, *, seed: int = 0) -> np.ndarray:
 
     Built by looking up the unique labels once rather than per pixel: a
     2048×2048 mask holds a few hundred objects and tens of millions of pixels.
+
+    :param labels: Array-like integer labels; the output preserves their shape
+        and appends one RGB axis.
     """
     arr = np.asarray(labels)
     out = np.zeros(arr.shape + (3,), dtype=np.float32)
@@ -402,6 +449,9 @@ class Blending:
     def check(mode: str) -> str:
         """Normalise and validate a blending name.
 
+        :param mode: Blending-mode name. Leading and trailing whitespace and
+            letter case are normalised before validation against
+            :attr:`Blending.ALL`.
         :raises LayerError: on an unknown mode — a typo that silently fell
             back to translucent would be a compositing bug nobody could see.
         """
@@ -484,6 +534,13 @@ class Spacing:
     units: str = "px"
 
     def __post_init__(self) -> None:
+        """Coerce and validate the voxel size, then freeze it.
+
+        A ZERO OR NON-FINITE SCALE IS REFUSED HERE rather than tolerated. It
+        collapses an axis -- every world coordinate on it resolves to element 0 --
+        and the overlay is then drawn a slice out of register with NO VISIBLE
+        SYMPTOM, which is why this raises rather than clamping.
+        """
         try:
             scale = tuple(float(v) for v in self.scale)
         except (TypeError, ValueError):
@@ -536,6 +593,9 @@ class Spacing:
         was written — the same order the array's axes are in. Naming the axes
         at the call site is the point: ``(2.0, 0.65, 0.65)`` on its own has
         been read backwards before.
+
+        :param sizes: Mapping from axis name to non-zero finite voxel size;
+            mapping iteration order becomes the array-axis order.
         """
         names = tuple(str(k) for k in sizes)
         scale = tuple(float(v) for v in sizes.values())
@@ -546,11 +606,16 @@ class Spacing:
     # -- queries --------------------------------------------------------
     @property
     def ndim(self) -> int:
+        """How many world axes this spacing describes.
+
+        :returns: the axis count.
+        """
         return len(self.scale)
 
     def axis_index(self, axis: str) -> int:
         """Position of ``axis`` in this spacing.
 
+        :param axis: Axis name to locate in :attr:`axes`.
         :raises LayerError: if this spacing has no such axis.
         """
         try:
@@ -560,10 +625,18 @@ class Spacing:
                 f"no axis {axis!r} in {self.axes}") from None
 
     def has_axis(self, axis: str) -> bool:
+        """Whether this spacing contains ``axis``.
+
+        :param axis: Axis name to test after coercion to a string.
+        """
         return str(axis) in self.axes
 
     def to_world(self, index: Sequence[float]) -> Tuple[float, ...]:
-        """Data index → world coordinate, per axis."""
+        """Data index → world coordinate, per axis.
+
+        :param index: Fractional data coordinate in :attr:`axes` order, with
+            one entry per spacing axis.
+        """
         idx = tuple(float(v) for v in index)
         if len(idx) != self.ndim:
             raise LayerError(
@@ -572,7 +645,11 @@ class Spacing:
                      for t, s, i in zip(self.translate, self.scale, idx))
 
     def to_data(self, world: Sequence[float]) -> Tuple[float, ...]:
-        """World coordinate → (fractional) data index, per axis."""
+        """World coordinate → (fractional) data index, per axis.
+
+        :param world: World coordinate in :attr:`axes` order, with one entry
+            per spacing axis.
+        """
         pos = tuple(float(v) for v in world)
         if len(pos) != self.ndim:
             raise LayerError(
@@ -582,7 +659,10 @@ class Spacing:
                      for w, t, s in zip(pos, self.translate, self.scale))
 
     def world_map(self, index: Sequence[float]) -> Dict[str, float]:
-        """:meth:`to_world` keyed by axis name."""
+        """:meth:`to_world` keyed by axis name.
+
+        :param index: Fractional data coordinate in :attr:`axes` order.
+        """
         return dict(zip(self.axes, self.to_world(index)))
 
     def data_from_map(self, world: Mapping[str, float]) -> Tuple[float, ...]:
@@ -591,6 +671,9 @@ class Spacing:
         Axes the mapping does not mention are taken to be 0 in world units,
         which is what a 2-D click on a 3-D layer means once the viewer has
         supplied the slice it is showing.
+
+        :param world: Mapping from axis names to world coordinates. Unnamed
+            spacing axes are evaluated at world coordinate zero.
         """
         return self.to_data([float(world.get(a, 0.0)) for a in self.axes])
 
@@ -601,6 +684,9 @@ class Spacing:
         the first and last centres), because that is the region the data
         actually covers — a canvas fitted to element centres clips half a
         voxel off every side, which at 2 µm z-steps is a visible slab.
+
+        :param shape: Array shape in :attr:`axes` order, with one size per
+            spacing axis.
         """
         if len(shape) != self.ndim:
             raise LayerError(
@@ -695,6 +781,12 @@ class Canvas:
     units: str = "px"
 
     def __post_init__(self) -> None:
+        """Coerce and validate the canvas geometry, then freeze it.
+
+        Two dimensions exactly, two distinct axes, a positive shape and a non-zero
+        finite step. Each is refused rather than repaired: a canvas whose rows and
+        columns name the same axis has no meaning to fall back to.
+        """
         origin = tuple(float(v) for v in self.origin)
         step = tuple(float(v) for v in self.step)
         shape = tuple(int(v) for v in self.shape)
@@ -748,18 +840,23 @@ class Canvas:
             transposes the result. An axis the spacing does not have, or the
             same axis twice, raises :exc:`LayerError`.
         :param depth: world coordinate for the axes outside the plane.
-            Defaults to empty, which pins them at world ``0`` rather than at
-            the spacing's own origin: for a stack whose ``z`` translate is
-            10.0 the default canvas sits off the volume entirely and layers
-            render blank, so pass ``depth={"z": 10.0}`` to land on plane 0.
-            Entries naming an in-plane axis are kept but never consulted.
+            When omitted, each out-of-plane axis is pinned at the spacing's
+            own origin, so a translated volume starts on its first plane.
+            Passing a mapping selects those world coordinates explicitly;
+            entries naming an in-plane axis are kept but never consulted.
         """
         r = spacing.axis_index(axes[0])
         c = spacing.axis_index(axes[1])
+        if depth is None:
+            depth = {
+                axis: spacing.translate[index]
+                for index, axis in enumerate(spacing.axes)
+                if axis not in axes
+            }
         return cls(origin=(spacing.translate[r], spacing.translate[c]),
                    step=(spacing.scale[r], spacing.scale[c]),
                    shape=(int(shape[r]), int(shape[c])),
-                   axes=axes, depth=depth or {}, units=spacing.units)
+                   axes=axes, depth=depth, units=spacing.units)
 
     @classmethod
     def covering(cls, source: Any, *, height: Optional[int] = None,
@@ -807,10 +904,18 @@ class Canvas:
     # -- queries --------------------------------------------------------
     @property
     def height(self) -> int:
+        """The window's height in pixels: rows run along ``axes[0]``.
+
+        :returns: the row count.
+        """
         return self.shape[0]
 
     @property
     def width(self) -> int:
+        """The window's width in pixels: columns run along ``axes[1]``.
+
+        :returns: the column count.
+        """
         return self.shape[1]
 
     def row_world(self) -> np.ndarray:
@@ -828,6 +933,9 @@ class Canvas:
 
         Includes the pinned :attr:`depth` axes, so the result is a complete
         world position a layer can be asked about.
+
+        :param row: Fractional canvas-row coordinate.
+        :param column: Fractional canvas-column coordinate.
         """
         out = dict(self.depth)
         out[self.axes[0]] = self.origin[0] + self.step[0] * float(row)
@@ -840,6 +948,9 @@ class Canvas:
         The inverse of :meth:`world_at`, and the reason a points layer and a
         labels layer at the same world coordinate land on the same pixel: they
         are both put through this, not through their own array indices.
+
+        :param world: Mapping containing world coordinates for both axes of
+            this canvas plane.
         """
         return ((float(world[self.axes[0]]) - self.origin[0]) / self.step[0],
                 (float(world[self.axes[1]]) - self.origin[1]) / self.step[1])
@@ -850,6 +961,9 @@ class Canvas:
 
         ``factor > 1`` zooms in. The default centre is the middle of the view,
         which is what a keyboard zoom means; a wheel zoom passes the cursor.
+
+        :param factor: Positive finite magnification factor; values above one
+            zoom in and values below one zoom out.
         """
         factor = float(factor)
         if factor <= 0 or not math.isfinite(factor):
@@ -863,7 +977,11 @@ class Canvas:
         return replace(self, origin=origin, step=step)
 
     def panned(self, d_row: float, d_column: float) -> "Canvas":
-        """A canvas moved by ``(d_row, d_column)`` canvas pixels."""
+        """A canvas moved by ``(d_row, d_column)`` canvas pixels.
+
+        :param d_row: Signed displacement in canvas-row pixels.
+        :param d_column: Signed displacement in canvas-column pixels.
+        """
         return replace(self, origin=(
             self.origin[0] + self.step[0] * float(d_row),
             self.origin[1] + self.step[1] * float(d_column)))
@@ -873,6 +991,9 @@ class Canvas:
 
         The world *span* is held, not the step, so a widget resize shows the
         same field of view rather than more of the sample.
+
+        :param height: New canvas height in pixels, coerced to at least one.
+        :param width: New canvas width in pixels, coerced to at least one.
         """
         height, width = max(1, int(height)), max(1, int(width))
         span = (self.step[0] * self.shape[0], self.step[1] * self.shape[1])
@@ -915,6 +1036,15 @@ class OrthoViews:
     10-slice 2 µm stack is 31 px of a 0.65 µm/px view, not 10.
 
     Build one with :meth:`covering` and move the crosshair with :meth:`at`.
+
+    :param xy: Top-view canvas whose rows and columns span the second and
+        third volume axes.
+    :param zx: Lower side-view canvas whose rows span depth and whose columns
+        align with :attr:`xy`.
+    :param yz: Side-view canvas whose rows align with :attr:`xy` and whose
+        columns span depth.
+    :param point: Mapping from world-axis names to the shared crosshair
+        coordinates.
     """
 
     xy: Canvas
@@ -928,6 +1058,7 @@ class OrthoViews:
     DEFAULT_AXES: ClassVar[Tuple[str, str, str]] = ("z", "y", "x")
 
     def __post_init__(self) -> None:
+        """Coerce and validate the axis names, then freeze them."""
         object.__setattr__(self, "point", MappingProxyType(
             {str(k): float(v) for k, v in dict(self.point).items()}))
         object.__setattr__(self, "steps", MappingProxyType(
@@ -988,6 +1119,7 @@ class OrthoViews:
         centre.update({str(k): float(v) for k, v in dict(point or {}).items()})
 
         def _canvas(pair, shape):
+            """Return a shared-scale ``Canvas`` for ``pair`` and ``shape``."""
             origin = tuple(lows[a] + 0.5 * scale for a in pair)
             pinned = {a: v for a, v in centre.items() if a not in pair}
             return Canvas(origin=origin, step=(scale, scale), shape=shape,
@@ -1025,6 +1157,8 @@ class OrthoViews:
         fraction of the volume — and a µm-calibrated stack's slider is
         labelled in µm, which is the number a user can check against the
         acquisition settings.
+
+        :param axis: World axis for which to return bounds and voxel step.
         """
         axis = str(axis)
         if axis not in self.extent:
@@ -1035,7 +1169,10 @@ class OrthoViews:
         return low, high, self.steps.get(axis, self.scale)
 
     def n_slices(self, axis: str) -> int:
-        """How many slices the slider on ``axis`` has."""
+        """How many slices the slider on ``axis`` has.
+
+        :param axis: World axis whose extent and voxel step define the count.
+        """
         low, high, step = self.slider(axis)
         return max(1, int(round((high - low) / max(step, _EPS))))
 
@@ -1073,6 +1210,10 @@ class OrthoViews:
 
         Clicking the side view to move the top view's slice, which is the
         interaction an orthogonal view is for.
+
+        :param panel: Panel key: ``"xy"``, ``"zx"`` or ``"yz"``.
+        :param row: Fractional row coordinate within the selected panel.
+        :param column: Fractional column coordinate within the selected panel.
         """
         canvas = self.canvases().get(str(panel))
         if canvas is None:
@@ -1086,6 +1227,9 @@ class OrthoViews:
 
         All three together, and about the crosshair rather than about each
         panel's own middle, so the panels still line up afterwards.
+
+        :param factor: Positive finite magnification factor applied to every
+            panel; values above one zoom in.
         """
         factor = float(factor)
         if factor <= 0 or not math.isfinite(factor):
@@ -1097,14 +1241,21 @@ class OrthoViews:
         return replace(self, **moved)
 
     def resized(self, width: int) -> "OrthoViews":
-        """The same crosshair at a different pixel width, panels still aligned."""
+        """The same crosshair at a different pixel width, panels still aligned.
+
+        :param width: New top-panel width in pixels; derived panel dimensions
+            remain aligned to the same world scale.
+        """
         return replace(
             type(self).covering(self.extent, width=width, point=self.point,
                                 axes=self.axes),
             steps=self.steps)
 
     def render(self, stack: "LayerStack") -> Dict[str, np.ndarray]:
-        """``{panel: (H, W, 3)}`` — the same stack drawn on all three planes."""
+        """``{panel: (H, W, 3)}`` — the same stack drawn on all three planes.
+
+        :param stack: Layer stack to render through each orthogonal canvas.
+        """
         return {name: stack.render(canvas)
                 for name, canvas in self.canvases().items()}
 
@@ -1135,11 +1286,16 @@ class CanvasLink:
     way a panel that is 10 px narrower shows 10 px less of the same view at the
     same magnification, which is what a grid of unequal cells should do.
 
+    :param canvases: the panels to start with, as ``{key: canvas}``. Added
+        one at a time through :meth:`add`, so each is adopted onto the shared
+        world window as it arrives rather than the first one winning.
+
     A panel can opt out with :meth:`unlock`, for the ordinary case of wanting
     to look closely at one of them without losing the others' place.
     """
 
     def __init__(self, canvases: Optional[Mapping[str, Canvas]] = None):
+        """Link a set of named canvases so they can move together."""
         self._canvases: Dict[str, Canvas] = {}
         self._locked: Dict[str, bool] = {}
         self._listeners: List[Callable[[str], None]] = []
@@ -1148,12 +1304,15 @@ class CanvasLink:
 
     # -- the panels ------------------------------------------------------
     def __len__(self) -> int:
+        """How many panels this link holds."""
         return len(self._canvases)
 
     def __contains__(self, key: Any) -> bool:
+        """Whether a panel key is in this link."""
         return str(key) in self._canvases
 
     def __getitem__(self, key: str) -> Canvas:
+        """One panel's canvas, by key."""
         try:
             return self._canvases[str(key)]
         except KeyError:
@@ -1176,6 +1335,10 @@ class CanvasLink:
         A panel added to a link that has already been panned starts where the
         others are, not where it was built — otherwise adding a fifth channel
         to a grid the user has zoomed into shows the whole field in one cell.
+
+        :param key: Unique panel identifier, coerced to a string.
+        :param canvas: Canvas that defines this panel's plane, size and world
+            window.
         """
         if not isinstance(canvas, Canvas):
             raise LayerError(f"a linked panel needs a Canvas, got {canvas!r}")
@@ -1191,7 +1354,10 @@ class CanvasLink:
         return canvas
 
     def remove(self, key: str) -> Canvas:
-        """Take a panel out and return its canvas."""
+        """Take a panel out and return its canvas.
+
+        :param key: Identifier of an existing panel.
+        """
         canvas = self[key]
         del self._canvases[str(key)]
         self._locked.pop(str(key), None)
@@ -1199,6 +1365,12 @@ class CanvasLink:
         return canvas
 
     def _leader(self) -> Optional[Canvas]:
+        """The first FOLLOWING canvas, or ``None`` if none follow.
+
+        The leader is whichever linked panel comes first, not a panel anyone
+        nominated: an unlocked panel has opted out of the link, so it cannot be
+        what the others follow.
+        """
         for key, canvas in self._canvases.items():
             if self._locked.get(key, True):
                 return canvas
@@ -1211,28 +1383,41 @@ class CanvasLink:
 
     # -- locking ---------------------------------------------------------
     def is_locked(self, key: str) -> bool:
-        """Whether a panel follows the others."""
+        """Whether a panel follows the others.
+
+        :param key: Identifier of an existing panel.
+        """
         self[key]
         return self._locked.get(str(key), True)
 
     def lock(self, key: str) -> None:
-        """Make a panel follow the others again, moving it there now."""
+        """Make a panel follow the others again, moving it there now.
+
+        :param key: Identifier of the panel to align and lock.
+        """
         canvas = self[key]
         self._locked[str(key)] = True
-        leader = self._leader()
-        if leader is not None:
-            self._canvases[str(key)] = self._aligned(canvas, leader)
+        leader = cast(Canvas, self._leader())
+        self._canvases[str(key)] = self._aligned(canvas, leader)
         self._emit(str(key))
 
     def unlock(self, key: str) -> None:
-        """Let a panel be moved on its own."""
+        """Let a panel be moved on its own.
+
+        :param key: Identifier of the panel to detach from linked movement.
+        """
         self[key]
         self._locked[str(key)] = False
         self._emit(str(key))
 
     # -- moving ----------------------------------------------------------
     def set(self, key: str, canvas: Canvas) -> None:
-        """Replace one panel's canvas, and bring the locked ones with it."""
+        """Replace one panel's canvas, and bring the locked ones with it.
+
+        :param key: Identifier of the existing panel to replace.
+        :param canvas: Replacement canvas whose world window locked peers
+            adopt.
+        """
         if not isinstance(canvas, Canvas):
             raise LayerError(f"a linked panel needs a Canvas, got {canvas!r}")
         key = str(key)
@@ -1253,6 +1438,10 @@ class CanvasLink:
         neighbour must show 10 px less of the sample at the same scale, or the
         two pictures are at different magnifications and the comparison the
         grid exists for is not one.
+
+        :param key: Identifier of the existing panel whose widget resized.
+        :param height: New panel height in pixels, coerced to at least one.
+        :param width: New panel width in pixels, coerced to at least one.
         """
         height, width = max(1, int(height)), max(1, int(width))
         self._canvases[str(key)] = replace(self[key], shape=(height, width))
@@ -1265,6 +1454,9 @@ class CanvasLink:
         The world point under ``centre`` in the panel being driven is what the
         other panels are zoomed about too — not their own middles, or a wheel
         over one cell would slide the rest of the grid sideways.
+
+        :param factor: Positive finite magnification factor passed to each
+            affected canvas.
         """
         driver = self._require_key(key)
         canvas = self[driver]
@@ -1282,6 +1474,10 @@ class CanvasLink:
         panels are at different zooms (one unlocked, then relocked) still moves
         by the same distance across the sample rather than the same number of
         pixels.
+
+        :param d_row: Signed row displacement in pixels of the driving panel.
+        :param d_column: Signed column displacement in pixels of the driving
+            panel.
         """
         driver = self._require_key(key)
         canvas = self[driver]
@@ -1295,7 +1491,11 @@ class CanvasLink:
         self._apply(driver, lambda c: c.at_depth(**coords))
 
     def reset(self, source: Any, **kwargs: Any) -> None:
-        """Fit every locked panel to ``source`` again, keeping its pixel size."""
+        """Fit every locked panel to ``source`` again, keeping its pixel size.
+
+        :param source: Layer stack, layer or extent mapping accepted by
+            :meth:`Canvas.covering`.
+        """
         for key, canvas in list(self._canvases.items()):
             if not self._locked.get(key, True):
                 continue
@@ -1306,6 +1506,11 @@ class CanvasLink:
         self._emit("")
 
     def _require_key(self, key: Optional[str]) -> str:
+        """Resolve ``key``, or the first panel when it is ``None``.
+
+        Raises rather than returning ``None`` for an empty link -- a move with no
+        panel to move is a caller error, not a no-op.
+        """
         if key is not None:
             self[key]
             return str(key)
@@ -1328,6 +1533,9 @@ class CanvasLink:
 
         Held by strong reference, exactly like :meth:`LayerStack.subscribe`: a
         view that subscribes must :meth:`unsubscribe` when it closes.
+
+        :param listener: Callable receiving the identifier of the panel that
+            changed; it is retained by strong reference.
         """
         if not callable(listener):
             raise LayerError(f"a listener must be callable, got {listener!r}")
@@ -1336,7 +1544,10 @@ class CanvasLink:
         return listener
 
     def unsubscribe(self, listener: Callable[[str], None]) -> bool:
-        """Stop being told. ``True`` if this call is what removed it."""
+        """Stop being told. ``True`` if this call is what removed it.
+
+        :param listener: Previously subscribed callback to remove.
+        """
         try:
             self._listeners.remove(listener)
         except ValueError:
@@ -1344,6 +1555,11 @@ class CanvasLink:
         return True
 
     def _emit(self, key: str) -> None:
+        """Tell every listener that one panel moved.
+
+        Iterates a COPY, so a listener that adds or removes another during the
+        call does not change the list being walked.
+        """
         for listener in list(self._listeners):
             listener(key)
 
@@ -1393,6 +1609,7 @@ class FieldKey:
     object_type: Optional[str] = None
 
     def __post_init__(self) -> None:
+        """Coerce the field's parts to strings and freeze them."""
         values = {str(k): v for k, v in dict(self.values).items()}
         needed = list(type(self).columns(timelapse=bool(self.timelapse)))
         missing = [c for c in needed if c not in values]
@@ -1430,6 +1647,9 @@ class FieldKey:
         Anything else on the row is dropped — a field key is an identity, and
         carrying a measurement along with it would make two keys for the same
         field compare unequal.
+
+        :param row: Measurement-row mapping from which the required identity
+            columns are extracted.
         """
         wanted = cls.columns(timelapse=timelapse)
         if object_type is None:
@@ -1441,7 +1661,11 @@ class FieldKey:
                    timelapse=timelapse, object_type=object_type)
 
     def frame(self, labels: Iterable[int]):
-        """A one-column-per-key-column frame for ``labels``, in their order."""
+        """A one-column-per-key-column frame for ``labels``, in their order.
+
+        :param labels: Iterable of integer-like object labels to attach to this
+            field identity.
+        """
         import pandas as pd
         ids = [int(v) for v in labels]
         data = {c: [self.values[c]] * len(ids) for c in self.values}
@@ -1450,13 +1674,19 @@ class FieldKey:
         return pd.DataFrame(data)
 
     def object_keys(self, labels: Iterable[int]):
-        """:class:`pandas.Index` of object keys for ``labels``, in order."""
+        """:class:`pandas.Index` of object keys for ``labels``, in order.
+
+        :param labels: Iterable of integer-like object labels to encode.
+        """
         from .selection import object_keys
         return object_keys(self.frame(labels), timelapse=self.timelapse,
                            object_type=self.object_type)
 
     def object_key(self, label: int) -> str:
-        """The one object key for ``label``."""
+        """The one object key for ``label``.
+
+        :param label: Integer-like object label to encode for this field.
+        """
         return str(self.object_keys([int(label)])[0])
 
 
@@ -1496,6 +1726,22 @@ class Layer:
     Display properties are plain attributes with setters that notify the
     stack, so a view repaints because the model changed rather than because
     the widget that changed it remembered to ask.
+
+    :param name: Non-blank layer identifier; names are uniquified when the
+        layer enters a :class:`LayerStack`.
+    :param spacing: physical size of one pixel along each spatial axis.
+        Defaults to isotropic. It is what makes a measurement in microns mean
+        the same thing on two microscopes, so it must have exactly
+        :attr:`ndim` axes.
+    :param visible: whether the layer draws at all. Default ``True``.
+    :param opacity: 0.0 transparent to 1.0 opaque. Default ``1.0``.
+    :param blending: how the layer combines with what is under it, from
+        :class:`Blending`. Default translucent.
+    :param metadata: arbitrary values carried with the layer. Copied, so the
+        caller's mapping is not held; spaCR itself reads nothing from it.
+    :raises LayerError: when the name is blank, the opacity is not a finite
+        number, the blending is unknown, or ``spacing`` has the wrong number
+        of axes for this layer.
     """
 
     #: What kind of layer this is, for a view choosing an icon or an editor.
@@ -1505,6 +1751,7 @@ class Layer:
                  visible: bool = True, opacity: float = 1.0,
                  blending: str = Blending.TRANSLUCENT,
                  metadata: Optional[Mapping[str, Any]] = None):
+        """Set the layer's name, opacity and visibility, validated."""
         self._name = self._check_name(name)
         self._visible = bool(visible)
         self._opacity = self._check_opacity(opacity)
@@ -1521,6 +1768,11 @@ class Layer:
     # -- identity -------------------------------------------------------
     @staticmethod
     def _check_name(name: str) -> str:
+        """A non-blank name, stripped. Blank is refused.
+
+        A layer is addressed by name, so an empty one is a layer nothing can
+        refer to.
+        """
         text = str(name).strip()
         if not text:
             raise LayerError("a layer needs a non-blank name")
@@ -1528,6 +1780,11 @@ class Layer:
 
     @staticmethod
     def _check_opacity(value: float) -> float:
+        """A finite number in range. Anything else is refused.
+
+        Not clamped: a caller passing 5.0 has misunderstood the scale, and
+        silently making it 1.0 hides that.
+        """
         try:
             v = float(value)
         except (TypeError, ValueError):
@@ -1540,10 +1797,22 @@ class Layer:
 
     @property
     def name(self) -> str:
+        """This layer's name, unique within its stack.
+
+        :returns: the name.
+        """
         return self._name
 
     @name.setter
     def name(self, value: str) -> None:
+        """Rename this layer, THROUGH THE STACK when it is in one.
+
+        The stack is what enforces uniqueness, so renaming behind its back
+        would let two layers share a name and make the second unreachable by
+        the only handle anything else has on it.
+
+        :param value: the new name.
+        """
         text = self._check_name(value)
         if text == self._name:
             return
@@ -1555,10 +1824,18 @@ class Layer:
 
     @property
     def visible(self) -> bool:
+        """Whether this layer is drawn.
+
+        :returns: True when visible.
+        """
         return self._visible
 
     @visible.setter
     def visible(self, value: bool) -> None:
+        """Show or hide this layer, notifying only on a real change.
+
+        :param value: True to draw it.
+        """
         value = bool(value)
         if value != self._visible:
             self._visible = value
@@ -1566,10 +1843,23 @@ class Layer:
 
     @property
     def opacity(self) -> float:
+        """How opaque this layer is drawn, from 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity
 
     @opacity.setter
     def opacity(self, value: float) -> None:
+        """Set the opacity, notifying only on a real change.
+
+        NOTIFYING ONLY ON A CHANGE is the point of the guard: an opacity
+        slider emits continuously while it is dragged, and a redraw per emit
+        rather than per change is the difference between a smooth drag and a
+        stuttering one.
+
+        :param value: 0 to 1; validated before it is stored.
+        """
         value = self._check_opacity(value)
         if value != self._opacity:
             self._opacity = value
@@ -1577,10 +1867,18 @@ class Layer:
 
     @property
     def blending(self) -> str:
+        """How this layer's pixels combine with what is under it.
+
+        :returns: the blending mode's name.
+        """
         return self._blending
 
     @blending.setter
     def blending(self, value: str) -> None:
+        """Set the blending mode, notifying only on a real change.
+
+        :param value: the mode's name; validated before it is stored.
+        """
         value = Blending.check(value)
         if value != self._blending:
             self._blending = value
@@ -1588,10 +1886,18 @@ class Layer:
 
     @property
     def spacing(self) -> Spacing:
+        """Where this layer's elements sit in the world.
+
+        :returns: the :class:`Spacing`.
+        """
         return self._spacing
 
     @spacing.setter
     def spacing(self, value: Spacing) -> None:
+        """Move or rescale this layer in the world.
+
+        :param value: the new :class:`Spacing`.
+        """
         if not isinstance(value, Spacing):
             raise LayerError(f"spacing must be a Spacing, got {value!r}")
         if value.ndim != self.ndim:
@@ -1624,6 +1930,14 @@ class Layer:
 
     @property
     def axes(self) -> Tuple[str, ...]:
+        """The world axes this layer's data is indexed by, outermost first.
+
+        NAMED, NOT POSITIONAL, so two layers with different dimensionality
+        can still agree on what "z" means -- which is what lets a 2D mask sit
+        over a 3D stack without either of them guessing.
+
+        :returns: the axis names.
+        """
         return self._spacing.axes
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
@@ -1631,11 +1945,19 @@ class Layer:
         raise NotImplementedError
 
     def to_world(self, index: Sequence[float]) -> Dict[str, float]:
-        """Data index → ``{axis: world}``."""
+        """Data index → ``{axis: world}``.
+
+        :param index: Fractional data coordinate in this layer's spacing-axis
+            order.
+        """
         return self._spacing.world_map(index)
 
     def to_data(self, world: Mapping[str, float]) -> Tuple[float, ...]:
-        """``{axis: world}`` → fractional data index."""
+        """``{axis: world}`` → fractional data index.
+
+        :param world: Mapping from world-axis names to coordinates; omitted
+            spacing axes are evaluated at world coordinate zero.
+        """
         return self._spacing.data_from_map(world)
 
     # -- rendering ------------------------------------------------------
@@ -1646,15 +1968,26 @@ class Layer:
         float32 in 0–1 saying where this layer has anything to say. Opacity and
         blending are NOT applied here — the stack applies them, so a layer's
         own render is the same whatever it is composited with.
+
+        :param canvas: World window and output grid on which to draw the layer.
         """
         rgb, coverage = self._draw(canvas)
         return (np.asarray(rgb, dtype=np.float32),
                 np.asarray(coverage, dtype=np.float32))
 
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Render this layer onto ``canvas``. Subclasses implement it.
+
+        :returns: ``(rgb, alpha)`` at the canvas's shape.
+        """
         raise NotImplementedError
 
     def _blank(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Fully transparent RGB and alpha at the canvas's shape.
+
+        What a layer with nothing to draw returns, so a caller never has to
+        branch on "no output".
+        """
         h, w = canvas.shape
         return (np.zeros((h, w, 3), dtype=np.float32),
                 np.zeros((h, w), dtype=np.float32))
@@ -1689,6 +2022,11 @@ class Layer:
 
     # -- plumbing -------------------------------------------------------
     def _notify(self, detail: str, kind: str = "changed") -> None:
+        """Tell the stack this layer changed, if it is in one.
+
+        Silent when the layer is not in a stack: a layer edited before it is
+        added is not an error, it just has nobody to tell.
+        """
         if self._stack is not None:
             self._stack._emit(LayerEvent(kind=kind, layer=self,
                                          index=self._stack.index(self),
@@ -1700,12 +2038,18 @@ class Layer:
         return (f"{self._name} ({self.kind}) · {self._blending} · "
                 f"{self._opacity:.0%}{vis}")
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
+        """The layer's class, name and visibility."""
         return f"<{type(self).__name__} {self._name!r} {self.shape}>"
 
 
 class ImageLayer(Layer):
     """Intensity data — one channel or many, each with its own LUT.
+
+    :param name: layer name. Default ``"image"``.
+    :param channel_names: a label per channel, for a channel list or a
+        legend. Defaults to positional names -- and naming them is what lets
+        a reader tell which channel is the nucleus without counting.
 
     Channels are composited *additively within the layer*, which is what makes
     a two-channel field read as one picture: a green nucleus channel and a
@@ -1736,6 +2080,11 @@ class ImageLayer(Layer):
                  channel_names: Optional[Sequence[str]] = None,
                  channel_visible: Optional[Sequence[bool]] = None,
                  **kwargs: Any):
+        """Build an image layer.
+
+        :param data: the pixel array, channels included.
+        :param kwargs: name, spacing, colormaps and the rest of the layer contract.
+        """
         array = np.asarray(data)
         if array.ndim == 0:
             raise LayerError("an image layer needs at least a 1-D array")
@@ -1777,6 +2126,16 @@ class ImageLayer(Layer):
     @staticmethod
     def _resolve_colormaps(spec: Optional[Sequence[Any]],
                            n: int) -> List[Colormap]:
+        """One colormap per channel, whatever the caller supplied.
+
+        A SINGLE CHANNEL GETS GREY, several get the distinguishable defaults:
+        an image with three channels drawn in one colormap is three pictures
+        of the same colour, which is what a naive default produces.
+
+        :param spec: colormaps, names, or None for the defaults.
+        :param n: how many channels there are.
+        :returns: one colormap per channel.
+        """
         if spec is None:
             if n == 1:
                 return [colormap("gray")]
@@ -1791,6 +2150,12 @@ class ImageLayer(Layer):
 
     @staticmethod
     def _resolve_limits(spec: Any, n: int) -> List[Optional[Tuple[float, float]]]:
+        """One contrast range per channel, or None to auto-scale it.
+
+        :param spec: the limits, or None.
+        :param n: how many channels there are.
+        :returns: one range per channel.
+        """
         if spec is None:
             return [None] * n
         pairs = list(spec)
@@ -1813,38 +2178,83 @@ class ImageLayer(Layer):
     # -- data -----------------------------------------------------------
     @property
     def data(self) -> np.ndarray:
+        """The pixel array, channels included.
+
+        :returns: the array as given; not a copy.
+        """
         return self._data
 
     @property
     def ndim(self) -> int:
+        """How many SPATIAL axes this image has, excluding channels.
+
+        A channel is not a dimension you can navigate, so counting it here
+        would put a slider on the viewer for something that is not a place.
+
+        :returns: the spatial axis count.
+        """
         return len(self._spatial)
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """The spatial shape, excluding channels.
+
+        :returns: the spatial extent per axis.
+        """
         return self._spatial
 
     @property
     def n_channels(self) -> int:
+        """How many channels this image carries.
+
+        :returns: the channel count.
+        """
         return len(self._planes)
 
     @property
     def channel_names(self) -> Tuple[str, ...]:
+        """What each channel is called, in channel order.
+
+        :returns: one name per channel.
+        """
         return self._channel_names
 
     def channel_data(self, channel: int) -> np.ndarray:
-        """The spatial array for one channel (a view, not a copy)."""
+        """The spatial array for one channel (a view, not a copy).
+
+        :param channel: Zero-based channel index accepted by normal sequence
+            indexing.
+        """
         return self._planes[int(channel)]
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box this layer occupies, per named axis.
+
+        What lets the viewer frame a stack whose layers have different
+        shapes and spacings without any of them knowing about the others.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         return self._spacing.extent(self._spatial)
 
     # -- display --------------------------------------------------------
     @property
     def colormaps(self) -> Tuple[Colormap, ...]:
+        """One colormap per channel, in channel order.
+
+        A TUPLE COPY, so a caller cannot reorder this layer's colormaps by
+        mutating what it was handed.
+
+        :returns: the colormaps.
+        """
         return tuple(self._colormaps)
 
     def set_colormap(self, value: Any, channel: int = 0) -> None:
-        """Give one channel a new LUT."""
+        """Give one channel a new LUT.
+
+        :param value: Colormap or colour specification accepted by
+            :func:`colormap`.
+        """
         cm = colormap(value)
         if self._colormaps[int(channel)] != cm:
             self._colormaps[int(channel)] = cm
@@ -1857,6 +2267,14 @@ class ImageLayer(Layer):
 
     @colormap.setter
     def colormap(self, value: Any) -> None:
+        """Set the FIRST channel's colormap.
+
+        The convenience spelling for the single-channel case, which is most
+        of them; :meth:`set_colormap` names the channel when there is more
+        than one.
+
+        :param value: a colormap, or a name to look one up by.
+        """
         self.set_colormap(value, 0)
 
     def contrast_limits(self, channel: int = 0) -> Tuple[float, float]:
@@ -1881,6 +2299,9 @@ class ImageLayer(Layer):
                             channel: int = 0) -> None:
         """Set one channel's limits.
 
+        :param low: Lower intensity bound in the channel's data units.
+        :param high: Upper intensity bound in the channel's data units; it
+            must be greater than ``low``.
         :raises LayerError: if they do not increase — an inverted pair renders
             a black image, which reads as "no signal" rather than as a bad
             setting.
@@ -1907,9 +2328,20 @@ class ImageLayer(Layer):
         self._notify("contrast_limits")
 
     def channel_is_visible(self, channel: int) -> bool:
+        """Whether one channel participates in rendering.
+
+        :param channel: Zero-based channel index accepted by normal sequence
+            indexing.
+        """
         return self._channel_visible[int(channel)]
 
     def set_channel_visible(self, channel: int, visible: bool) -> None:
+        """Set whether one channel participates in rendering.
+
+        :param channel: Zero-based channel index accepted by normal sequence
+            indexing.
+        :param visible: Truth value for the channel's new visibility state.
+        """
         channel = int(channel)
         if self._channel_visible[channel] != bool(visible):
             self._channel_visible[channel] = bool(visible)
@@ -1917,6 +2349,11 @@ class ImageLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         index, valid = self._sample_index(canvas)
         h, w = canvas.shape
         rgb = np.zeros((h, w, 3), dtype=np.float32)
@@ -1935,9 +2372,16 @@ class ImageLayer(Layer):
 class LabelsLayer(Layer):
     """An integer segmentation mask. 0 is background and draws as nothing.
 
+    :param name: layer name. Default ``"labels"``.
+    :param seed: seeds the label-to-colour mapping. The same seed gives the
+        same object the same colour across sessions and across figures, which
+        is what makes two screenshots of one field comparable.
+
     Colours come from :func:`label_color`, so an object keeps its colour
     between sessions and between this viewer and the live preview.
 
+    :param data: Two- or three-dimensional array-like segmentation labels;
+        values must be integers or exactly integral numbers.
     :param field: the :class:`FieldKey` this mask segments. Optional, but
         without it a click can only say "label 17" — with it, the click can
         publish ``plate1_A_1_1_17`` to every other view.
@@ -1948,6 +2392,11 @@ class LabelsLayer(Layer):
     def __init__(self, data: Any, *, name: str = "labels",
                  field: Optional[FieldKey] = None, seed: int = 0,
                  **kwargs: Any):
+        """Build a labels layer.
+
+        :param data: the label array; 0 is background.
+        :param kwargs: name, spacing, field and the rest of the layer contract.
+        """
         array = np.asarray(data)
         if array.ndim not in (2, 3):
             raise LayerError(
@@ -1966,10 +2415,23 @@ class LabelsLayer(Layer):
 
     @property
     def data(self) -> np.ndarray:
+        """The label array: one integer per pixel, 0 for background.
+
+        :returns: the array as given; not a copy.
+        """
         return self._data
 
     @data.setter
     def data(self, value: Any) -> None:
+        """Replace the labels, keeping the same shape.
+
+        SHAPE IS ENFORCED. A labels layer is registered against an image, so
+        accepting a differently shaped array would silently break that
+        correspondence and mislabel every pixel rather than fail.
+
+        :param value: the new label array.
+        :raises LayerError: when the shape differs.
+        """
         array = np.asarray(value)
         if array.shape != self._data.shape:
             raise LayerError(
@@ -1977,23 +2439,50 @@ class LabelsLayer(Layer):
                 f"array is {array.shape}. Replace the layer rather than its "
                 f"data if the grid really changed — the spacing describes the "
                 f"old grid.")
+        if not np.issubdtype(array.dtype, np.integer):
+            if not np.all(np.equal(np.mod(array, 1), 0)):
+                raise LayerError(
+                    f"a labels layer needs integer labels, got dtype "
+                    f"{array.dtype} with fractional values")
+            array = array.astype(np.int64)
         self._data = array
         self._notify("data", kind="data")
 
     @property
     def ndim(self) -> int:
+        """How many axes the label array has.
+
+        :returns: the axis count.
+        """
         return self._data.ndim
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """The label array's shape.
+
+        :returns: the extent per axis.
+        """
         return tuple(self._data.shape)
 
     @property
     def field(self) -> Optional[FieldKey]:
+        """Which imaging field these labels belong to, if any.
+
+        :returns: the :class:`FieldKey`, or None when unattached.
+        """
         return self._field
 
     @field.setter
     def field(self, value: Optional[FieldKey]) -> None:
+        """Attach these labels to an imaging field.
+
+        Typed rather than free text, because the field key is what joins a
+        mask back to its measurements and a near-miss string would join to
+        nothing without saying so.
+
+        :param value: the field, or None to detach.
+        :raises LayerError: when ``value`` is not a FieldKey.
+        """
         if value is not None and not isinstance(value, FieldKey):
             raise LayerError(f"field must be a FieldKey, got {value!r}")
         self._field = value
@@ -2006,12 +2495,23 @@ class LabelsLayer(Layer):
 
     @selected_label.setter
     def selected_label(self, value: int) -> None:
+        """Highlight one label, notifying only on a real change.
+
+        :param value: the label's integer id; 0 selects nothing.
+        """
         value = int(value)
         if value != self._selected_label:
             self._selected_label = value
             self._notify("selected_label")
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box this layer occupies, per named axis.
+
+        What lets the viewer frame a stack whose layers have different
+        shapes and spacings without any of them knowing about the others.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         return self._spacing.extent(self._data.shape)
 
     def labels(self) -> np.ndarray:
@@ -2021,7 +2521,10 @@ class LabelsLayer(Layer):
 
     # -- picking --------------------------------------------------------
     def label_at_world(self, world: Mapping[str, float]) -> int:
-        """The label under a world point, or 0 for background / outside."""
+        """The label under a world point, or 0 for background / outside.
+
+        :param world: Mapping from axis names to a point in world coordinates.
+        """
         frac = self._spacing.data_from_map(world)
         idx = []
         for value, size in zip(frac, self._data.shape):
@@ -2040,6 +2543,8 @@ class LabelsLayer(Layer):
         UMAP, the plate view and the annotation grid use, so publishing it
         through :mod:`spacr.qt.linked_selection` highlights the same cell
         everywhere.
+
+        :param world: Mapping from axis names to the world point to identify.
         """
         label = self.label_at_world(world)
         if label == 0 or self._field is None:
@@ -2072,6 +2577,8 @@ class LabelsLayer(Layer):
         of re-deriving the anisotropy rule and getting it subtly different.
         There is one ball, and it is defined here.
 
+        :param world: Mapping from axis names to the brush centre in world
+            coordinates; omitted spacing axes are evaluated at zero.
         :returns: one integer array per axis, ready to index :attr:`data`
             with. Empty arrays when the brush falls entirely off the grid,
             which indexes to nothing rather than raising.
@@ -2110,6 +2617,10 @@ class LabelsLayer(Layer):
         A caller doing its own arithmetic on :attr:`data` would mutate the
         array without telling the canvas, and the picture would come right
         only at the next unrelated repaint.
+
+        :param index: One integer index array per data axis, suitable for
+            NumPy advanced indexing.
+        :param label: Integer-like label to write at the selected elements.
         """
         index = tuple(index)
         if not index or not len(index[0]):
@@ -2127,6 +2638,9 @@ class LabelsLayer(Layer):
 
         :meth:`brush_index` owns the ball; this is that plus the write.
 
+        :param world: Mapping from axis names to the brush centre in world
+            coordinates.
+        :param label: Integer-like label to paint.
         :returns: how many elements changed.
         """
         return self.set_labels_at(
@@ -2134,6 +2648,11 @@ class LabelsLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         index, valid = self._sample_index(canvas)
         values = self._data[index]
         present = valid & (values != 0)
@@ -2144,6 +2663,16 @@ class LabelsLayer(Layer):
 
 class PointsLayer(Layer):
     """Points in the world — centroids, counted objects, clicked markers.
+
+    :param name: layer name. Default ``"points"``.
+    :param ndim: how many axes a point has. Used only when ``data`` is empty;
+        otherwise the data decides, so an explicit ``ndim`` cannot contradict
+        the points that were passed.
+    :param face_color: fill colour, as any :func:`to_rgba` specification.
+    :param border_color: outline colour.
+    :param border_width: outline width in world units. ``0`` draws no
+        outline, which is the default because an outline on a centroid marker
+        costs more than it says.
 
     Coordinates are stored in DATA units with the layer's own spacing, exactly
     like an image, so a points layer built from a centroid table in pixel
@@ -2168,6 +2697,11 @@ class PointsLayer(Layer):
                  border_width: float = 0.0,
                  properties: Optional[Mapping[str, Any]] = None,
                  **kwargs: Any):
+        """Build a points layer.
+
+        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param kwargs: name, spacing, colours and the rest of the layer contract.
+        """
         array = self._as_points(data, ndim)
         self._ndim = array.shape[1]
         self._data = array
@@ -2192,6 +2726,16 @@ class PointsLayer(Layer):
 
     @staticmethod
     def _as_points(data: Any, ndim: int) -> np.ndarray:
+        """Coerce whatever was given into an ``(n, ndim)`` float array.
+
+        NONE BECOMES AN EMPTY ARRAY OF THE RIGHT WIDTH rather than a zero-
+        column one, so an empty layer still has a dimensionality and can be
+        appended to without deciding it later.
+
+        :param data: the points, or None.
+        :param ndim: how many world axes each point has.
+        :returns: the coordinates.
+        """
         if data is None:
             return np.zeros((0, int(ndim)), dtype=np.float64)
         array = np.asarray(data, dtype=np.float64)
@@ -2206,6 +2750,12 @@ class PointsLayer(Layer):
 
     @staticmethod
     def _as_sizes(size: Any, n: int) -> np.ndarray:
+        """One size per point, broadcasting a scalar.
+
+        :param size: one size for all, or one per point.
+        :param n: how many points there are.
+        :returns: the sizes.
+        """
         if np.isscalar(size):
             return np.full(n, float(size), dtype=np.float64)
         array = np.asarray(size, dtype=np.float64).reshape(-1)
@@ -2221,6 +2771,15 @@ class PointsLayer(Layer):
 
     @data.setter
     def data(self, value: Any) -> None:
+        """Replace the points, keeping the same dimensionality.
+
+        DIMENSIONALITY IS ENFORCED. A points layer sits in a world whose
+        axes are already named, so accepting a differently shaped array
+        would put every point at a coordinate that means something else.
+
+        :param value: an ``(n, ndim)`` array of world coordinates.
+        :raises LayerError: when the dimensionality differs.
+        """
         array = self._as_points(value, self._ndim)
         if array.shape[1] != self._ndim:
             raise LayerError(
@@ -2247,6 +2806,10 @@ class PointsLayer(Layer):
 
     @property
     def ndim(self) -> int:
+        """How many world axes each point is placed on.
+
+        :returns: the axis count.
+        """
         return self._ndim
 
     @property
@@ -2255,7 +2818,11 @@ class PointsLayer(Layer):
         return self._size
 
     def set_size(self, value: Any) -> None:
-        """Set every point's diameter, or one per point."""
+        """Set every point's diameter, or one per point.
+
+        :param value: Scalar diameter applied to every point, or an array-like
+            sequence with one world-unit diameter per point.
+        """
         self._size = self._as_sizes(value, len(self._data))
         if np.isscalar(value):
             self._default_size = float(value)
@@ -2263,19 +2830,35 @@ class PointsLayer(Layer):
 
     @property
     def face_color(self) -> Tuple[float, float, float, float]:
+        """The fill colour every point is drawn with.
+
+        :returns: RGBA, each component 0 to 1.
+        """
         return self._face
 
     @face_color.setter
     def face_color(self, value: Any) -> None:
+        """Set the fill colour, accepting any spelling `to_rgba` understands.
+
+        :param value: a colour name, hex string, or RGB(A) sequence.
+        """
         self._face = to_rgba(value)
         self._notify("face_color")
 
     @property
     def border_color(self) -> Tuple[float, float, float, float]:
+        """The outline colour every point is drawn with.
+
+        :returns: RGBA, each component 0 to 1.
+        """
         return self._border
 
     @border_color.setter
     def border_color(self, value: Any) -> None:
+        """Set the outline colour, accepting any spelling `to_rgba` understands.
+
+        :param value: a colour name, hex string, or RGB(A) sequence.
+        """
         self._border = to_rgba(value)
         self._notify("border_color")
 
@@ -2286,12 +2869,22 @@ class PointsLayer(Layer):
 
     @border_width.setter
     def border_width(self, value: float) -> None:
+        """Set the outline width, clamped at zero.
+
+        CLAMPED RATHER THAN REFUSED: a negative width has no meaning to draw
+        and no meaning to complain about either, so it becomes no outline.
+
+        :param value: the width; negatives become 0.
+        """
         self._border_width = max(0.0, float(value))
         self._notify("border_width")
 
     def add(self, point: Sequence[float], *, size: Optional[float] = None,
             **properties: Any) -> int:
-        """Append one point in DATA coordinates; returns its index."""
+        """Append one point in DATA coordinates; returns its index.
+
+        :param point: Data-coordinate sequence with one value per layer axis.
+        """
         row = np.asarray(point, dtype=np.float64).reshape(-1)
         if row.size != self._ndim:
             raise LayerError(
@@ -2311,11 +2904,19 @@ class PointsLayer(Layer):
         return len(self._data) - 1
 
     def add_world(self, world: Mapping[str, float], **kwargs: Any) -> int:
-        """Append one point given as ``{axis: world}``."""
+        """Append one point given as ``{axis: world}``.
+
+        :param world: Mapping from axis names to world coordinates; omitted
+            layer axes are evaluated at world coordinate zero.
+        """
         return self.add(self._spacing.data_from_map(world), **kwargs)
 
     def remove(self, index: int) -> None:
-        """Drop one point."""
+        """Drop one point.
+
+        :param index: Zero-based index of the point to remove; negative
+            indices are rejected.
+        """
         i = int(index)
         if i < 0 or i >= len(self._data):
             raise LayerError(
@@ -2327,6 +2928,16 @@ class PointsLayer(Layer):
         self._notify("remove", kind="data")
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box these points occupy, INCLUDING their drawn size.
+
+        Half a point's size is added on each side, because a point centred
+        on the edge of the data is still drawn past it -- and a viewer that
+        framed the centres would clip every point on the boundary.
+
+        An empty layer reports a zero box rather than an infinite one.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         world = self.world
         if len(world) == 0:
             return {a: (0.0, 0.0) for a in self._spacing.axes}
@@ -2336,7 +2947,11 @@ class PointsLayer(Layer):
                 for i, a in enumerate(self._spacing.axes)}
 
     def nearest(self, world: Mapping[str, float]) -> Optional[int]:
-        """Index of the point whose disc contains ``world``, nearest first."""
+        """Index of the point whose disc contains ``world``, nearest first.
+
+        :param world: Mapping from axis names to the query point in world
+            coordinates; omitted layer axes are evaluated at zero.
+        """
         if len(self._data) == 0:
             return None
         target = np.array([float(world.get(a, 0.0))
@@ -2347,6 +2962,11 @@ class PointsLayer(Layer):
 
     # -- rendering ------------------------------------------------------
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         rgb, coverage = self._blank(canvas)
         if len(self._data) == 0:
             return rgb, coverage
@@ -2440,6 +3060,12 @@ class Shape:
                                         "line", "path")
 
     def __post_init__(self) -> None:
+        """Normalise the kind and refuse one this layer cannot draw.
+
+        REFUSED AT CONSTRUCTION rather than at paint time, because a shape
+        with an unknown kind draws nothing and the reader would look for the
+        fault in the renderer.
+        """
         self.kind = str(self.kind).strip().lower()
         if self.kind not in self.KINDS:
             raise LayerError(
@@ -2478,15 +3104,34 @@ class Shape:
 
     @property
     def ndim(self) -> int:
+        """How many world axes this shape's vertices are placed on.
+
+        :returns: the axis count.
+        """
         return int(self.data.shape[1])
 
     @property
     def is_closed(self) -> bool:
+        """Whether the outline joins back to its first vertex.
+
+        A closed shape can be filled and can be asked what is inside it; an
+        open one is a path and can only be drawn.
+
+        :returns: True when closed.
+        """
         return self.kind in self.CLOSED
 
 
 class ShapesLayer(Layer):
     """Drawn regions of interest — the layer Measure will later read.
+
+    :param shapes: the :class:`Shape` objects to start with. Every one must
+        have the same number of axes -- a layer holding a 2-D and a 3-D shape
+        could not be rasterised into one mask.
+    :param name: layer name. Default ``"shapes"``.
+    :param ndim: axes per shape, used only when ``shapes`` is empty; the
+        shapes decide otherwise.
+    :raises LayerError: when the shapes disagree about how many axes they have.
 
     Shapes are geometry, not pixels: they are stored as vertices in data
     coordinates and rasterised on demand, so the same ROI can be turned into a
@@ -2498,6 +3143,11 @@ class ShapesLayer(Layer):
 
     def __init__(self, shapes: Optional[Iterable[Shape]] = None, *,
                  name: str = "shapes", ndim: int = 2, **kwargs: Any):
+        """Build a shapes layer.
+
+        :param shapes: the shapes to start with, or None for an empty layer.
+        :param kwargs: name, spacing and the rest of the layer contract.
+        """
         self._shapes: List[Shape] = list(shapes or [])
         dims = {s.ndim for s in self._shapes}
         if len(dims) > 1:
@@ -2509,17 +3159,36 @@ class ShapesLayer(Layer):
 
     @property
     def ndim(self) -> int:
+        """How many world axes this layer's shapes are placed on.
+
+        :returns: the axis count.
+        """
         return self._ndim
 
     @property
     def shapes(self) -> Tuple[Shape, ...]:
+        """The shapes this layer holds.
+
+        A TUPLE COPY, so a caller cannot add or reorder the layer's shapes
+        by mutating what it was handed.
+
+        :returns: the shapes, in draw order.
+        """
         return tuple(self._shapes)
 
     def __len__(self) -> int:
+        """How many shapes this layer holds.
+
+        :returns: the shape count.
+        """
         return len(self._shapes)
 
     def add(self, shape: Shape) -> int:
-        """Append a shape; returns its index."""
+        """Append a shape; returns its index.
+
+        :param shape: :class:`Shape` with the same dimensionality as this
+            layer.
+        """
         if not isinstance(shape, Shape):
             raise LayerError(f"expected a Shape, got {shape!r}")
         if shape.ndim != self._ndim:
@@ -2531,21 +3200,48 @@ class ShapesLayer(Layer):
         return len(self._shapes) - 1
 
     def add_polygon(self, vertices: Any, **kwargs: Any) -> int:
+        """Append a closed polygon.
+
+        :param vertices: Array-like vertices in data coordinates, shaped
+            ``(M, ndim)`` with at least three rows.
+        """
         return self.add(Shape("polygon", vertices, **kwargs))
 
     def add_rectangle(self, corner_a: Any, corner_b: Any, **kwargs: Any) -> int:
+        """Append an axis-aligned rectangle from opposite corners.
+
+        :param corner_a: First corner in data coordinates, one value per axis.
+        :param corner_b: Opposite corner in data coordinates, one value per
+            axis.
+        """
         return self.add(Shape("rectangle", np.asarray([corner_a, corner_b]),
                               **kwargs))
 
     def add_ellipse(self, corner_a: Any, corner_b: Any, **kwargs: Any) -> int:
+        """Append an axis-aligned ellipse inside an opposite-corner box.
+
+        :param corner_a: First bounding-box corner in data coordinates, one
+            value per axis.
+        :param corner_b: Opposite bounding-box corner in data coordinates, one
+            value per axis.
+        """
         return self.add(Shape("ellipse", np.asarray([corner_a, corner_b]),
                               **kwargs))
 
     def add_path(self, vertices: Any, **kwargs: Any) -> int:
+        """Append an open path.
+
+        :param vertices: Array-like vertices in data coordinates, shaped
+            ``(M, ndim)`` with at least two rows.
+        """
         return self.add(Shape("path", vertices, **kwargs))
 
     def remove(self, index: int) -> Shape:
-        """Drop a shape and return it."""
+        """Drop a shape and return it.
+
+        :param index: Integer index of the shape to remove; normal Python
+            negative indexing is accepted.
+        """
         try:
             shape = self._shapes.pop(int(index))
         except IndexError:
@@ -2555,6 +3251,14 @@ class ShapesLayer(Layer):
         return shape
 
     def world_extent(self) -> Dict[str, Tuple[float, float]]:
+        """The world box every shape's vertices fall within.
+
+        An empty layer reports a zero box rather than an infinite one, so a
+        viewer framing the stack is not dragged to infinity by a layer that
+        has nothing in it yet.
+
+        :returns: ``{axis: (low, high)}``.
+        """
         axes = self._spacing.axes
         if not self._shapes:
             return {a: (0.0, 0.0) for a in axes}
@@ -2613,6 +3317,16 @@ class ShapesLayer(Layer):
     @staticmethod
     def _inside_ellipse(rows: np.ndarray, cols: np.ndarray,
                         vertices: np.ndarray) -> np.ndarray:
+        """Which of the given pixels fall inside an ellipse.
+
+        The ellipse is given by its bounding vertices, so a rotated one is
+        handled by the same test as an axis-aligned one.
+
+        :param rows: pixel row indices.
+        :param cols: pixel column indices.
+        :param vertices: the ellipse's bounding box.
+        :returns: a boolean mask over the pixels.
+        """
         lo = vertices.min(axis=0)
         hi = vertices.max(axis=0)
         centre = (lo + hi) / 2.0
@@ -2660,6 +3374,9 @@ class ShapesLayer(Layer):
         both claiming the seam, so an object on the boundary is counted once.
 
         Open shapes (lines, paths) enclose nothing and contribute nothing.
+
+        :param canvas: World plane and pixel grid on which to rasterise the
+            closed shapes.
         """
         rows = canvas.row_world()
         cols = canvas.column_world()
@@ -2679,6 +3396,11 @@ class ShapesLayer(Layer):
         return out
 
     def _draw(self, canvas: Canvas) -> Tuple[np.ndarray, np.ndarray]:
+        """Paint this layer into the canvas.
+
+        :param canvas: the world window being drawn.
+        :returns: the rendered RGBA array.
+        """
         rgb, coverage = self._blank(canvas)
         rows = canvas.row_world()
         cols = canvas.column_world()
@@ -2716,6 +3438,14 @@ Listener = Callable[[LayerEvent], None]
 class LayerStack:
     """An ordered list of layers sharing one world.
 
+    :param layers: the layers to start with, bottom first. Added through
+        :meth:`add`, so each is renamed to be unique and adopted as it
+        arrives.
+    :param units: the name of the world unit -- ``"um"``, ``"px"`` -- shown
+        on scale bars and axis labels. It LABELS the spacing rather than
+        converting it: it is what the numbers in :class:`Spacing` already
+        mean, so setting it does not rescale anything.
+
     ``stack[0]`` is the bottom and is drawn first. Everything a viewer does to
     the list — add, remove, reorder, rename, select — happens here and is
     announced through :meth:`subscribe`, so the widget is a view over this
@@ -2733,6 +3463,10 @@ class LayerStack:
 
     def __init__(self, layers: Optional[Iterable[Layer]] = None, *,
                  units: Optional[str] = None):
+        """Build a stack, optionally seeded with layers.
+
+        :param layers: the layers to start with.
+        """
         self._layers: List[Layer] = []
         self._units = None if units is None else str(units)
         self._selected: Optional[Layer] = None
@@ -2742,17 +3476,35 @@ class LayerStack:
 
     # -- sequence -------------------------------------------------------
     def __len__(self) -> int:
+        """How many layers the stack holds.
+
+        :returns: the layer count.
+        """
         return len(self._layers)
 
     def __iter__(self):
+        """Iterate the layers, bottom to top.
+
+        :returns: an iterator over the layers.
+        """
         return iter(self._layers)
 
     def __contains__(self, item: Any) -> bool:
+        """Whether a layer or a layer name is in the stack.
+
+        :param item: a layer, or its name.
+        :returns: True when present.
+        """
         if isinstance(item, Layer):
             return any(l is item for l in self._layers)
         return any(l.name == str(item) for l in self._layers)
 
     def __getitem__(self, key: Any) -> Any:
+        """One layer, by name or by position.
+
+        :param key: the layer's name, or its index.
+        :returns: the layer.
+        """
         if isinstance(key, slice):
             return self._layers[key]
         if isinstance(key, str):
@@ -2771,6 +3523,8 @@ class LayerStack:
     def index(self, layer: LayerLike) -> int:
         """Where ``layer`` sits, by object, name or index.
 
+        :param layer: Layer object, unique layer name or integer stack index
+            to resolve.
         :raises LayerError: if it is not in this stack. ``-1`` would be a
             valid index from the top and would silently affect the wrong layer.
         """
@@ -2794,7 +3548,11 @@ class LayerStack:
         return i
 
     def get(self, layer: LayerLike) -> Layer:
-        """The layer named by an object, a name or an index."""
+        """The layer named by an object, a name or an index.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to resolve.
+        """
         return self._layers[self.index(layer)]
 
     # -- units ----------------------------------------------------------
@@ -2804,6 +3562,14 @@ class LayerStack:
         return self._units or "px"
 
     def _check_units(self, layer: Layer) -> None:
+        """Refuse a layer whose world axes disagree with the stack's.
+
+        TWO LAYERS IN DIFFERENT UNITS CANNOT BE OVERLAID, and the failure is
+        silent if it is not caught here: they simply draw in the wrong places
+        relative to each other.
+
+        :param layer: the layer being added.
+        """
         units = layer.spacing.units
         if self._units is None:
             self._units = units
@@ -2817,6 +3583,14 @@ class LayerStack:
 
     # -- mutation -------------------------------------------------------
     def _unique_name(self, name: str, exclude: Optional[Layer] = None) -> str:
+        """A name not already in the stack, suffixing if needed.
+
+        Names are the handle everything else has on a layer, so a duplicate
+        would make the second one unreachable.
+
+        :param name: the wanted name.
+        :returns: a free name.
+        """
         taken = {l.name for l in self._layers if l is not exclude}
         if name not in taken:
             return name
@@ -2826,11 +3600,19 @@ class LayerStack:
         return f"{name} [{i}]"
 
     def append(self, layer: Layer) -> Layer:
-        """Put ``layer`` on top."""
+        """Put ``layer`` on top.
+
+        :param layer: Layer instance to attach to this stack.
+        """
         return self.insert(len(self._layers), layer)
 
     def insert(self, index: int, layer: Layer) -> Layer:
-        """Put ``layer`` at ``index`` (0 is the bottom)."""
+        """Put ``layer`` at ``index`` (0 is the bottom).
+
+        :param index: Requested insertion position, clamped between zero and
+            the current stack length.
+        :param layer: Layer instance to attach to this stack.
+        """
         if not isinstance(layer, Layer):
             raise LayerError(f"expected a Layer, got {layer!r}")
         if any(l is layer for l in self._layers):
@@ -2847,7 +3629,11 @@ class LayerStack:
         return layer
 
     def remove(self, layer: LayerLike) -> Layer:
-        """Take a layer out and return it."""
+        """Take a layer out and return it.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to remove.
+        """
         i = self.index(layer)
         removed = self._layers.pop(i)
         removed._stack = None
@@ -2867,6 +3653,11 @@ class LayerStack:
 
         The z-order control. ``destination`` is clamped, so "move to the top"
         can be spelled with any large number.
+
+        :param source: Layer object, unique layer name or integer stack index
+            to move.
+        :param destination: Requested destination index, clamped to the stack
+            after the source has been removed.
         """
         i = self.index(source)
         layer = self._layers.pop(i)
@@ -2877,23 +3668,47 @@ class LayerStack:
         return j
 
     def raise_layer(self, layer: LayerLike) -> int:
-        """One step towards the front."""
+        """One step towards the front.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to raise.
+        """
         i = self.index(layer)
         return self.move(i, min(i + 1, len(self._layers) - 1))
 
     def lower_layer(self, layer: LayerLike) -> int:
-        """One step towards the back."""
+        """One step towards the back.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to lower.
+        """
         i = self.index(layer)
         return self.move(i, max(i - 1, 0))
 
     def to_top(self, layer: LayerLike) -> int:
+        """Move one layer to the front of the stack.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to move.
+        """
         return self.move(layer, len(self._layers) - 1)
 
     def to_bottom(self, layer: LayerLike) -> int:
+        """Move one layer to the back of the stack.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to move.
+        """
         return self.move(layer, 0)
 
     def rename(self, layer: LayerLike, name: str) -> str:
-        """Rename a layer, uniquifying if needed; returns the name it got."""
+        """Rename a layer, uniquifying if needed; returns the name it got.
+
+        :param layer: Layer object, unique layer name or integer stack index
+            to rename.
+        :param name: Requested non-blank name; a numeric suffix is added if it
+            collides with another layer.
+        """
         target = self.get(layer)
         wanted = Layer._check_name(name)
         final = self._unique_name(wanted, exclude=target)
@@ -2906,16 +3721,37 @@ class LayerStack:
 
     # -- convenience constructors ---------------------------------------
     def add_image(self, data: Any, **kwargs: Any) -> ImageLayer:
+        """Construct and append an image layer.
+
+        :param data: Array-like intensity data passed to :class:`ImageLayer`.
+        """
         return self.append(ImageLayer(data, **kwargs))  # type: ignore[return-value]
 
     def add_labels(self, data: Any, **kwargs: Any) -> LabelsLayer:
+        """Construct and append a labels layer.
+
+        :param data: Array-like segmentation labels passed to
+            :class:`LabelsLayer`.
+        """
         return self.append(LabelsLayer(data, **kwargs))  # type: ignore[return-value]
 
     def add_points(self, data: Any = None, **kwargs: Any) -> PointsLayer:
+        """Build a points layer and append it to this stack.
+
+        :param data: an ``(n, ndim)`` array of world coordinates, or None.
+        :param kwargs: passed to :class:`PointsLayer`.
+        :returns: the layer that was added.
+        """
         return self.append(PointsLayer(data, **kwargs))  # type: ignore[return-value]
 
     def add_shapes(self, shapes: Optional[Iterable[Shape]] = None,
                    **kwargs: Any) -> ShapesLayer:
+        """Build a shapes layer and append it to this stack.
+
+        :param shapes: the shapes to start with, or None for an empty layer.
+        :param kwargs: passed to :class:`ShapesLayer`.
+        :returns: the layer that was added.
+        """
         return self.append(ShapesLayer(shapes, **kwargs))  # type: ignore[return-value]
 
     # -- selection ------------------------------------------------------
@@ -2930,7 +3766,11 @@ class LayerStack:
         return -1 if self._selected is None else self.index(self._selected)
 
     def select(self, layer: Optional[LayerLike]) -> Optional[Layer]:
-        """Select a layer (or ``None``); returns it."""
+        """Select a layer (or ``None``); returns it.
+
+        :param layer: Layer object, unique layer name, integer stack index or
+            ``None`` to clear selection.
+        """
         target = None if layer is None else self.get(layer)
         if target is not self._selected:
             self._selected = target
@@ -2966,7 +3806,11 @@ class LayerStack:
 
     # -- rendering ------------------------------------------------------
     def render(self, canvas: Canvas) -> np.ndarray:
-        """Composite every visible layer; ``(H, W, 3)`` float32 in 0–1."""
+        """Composite every visible layer; ``(H, W, 3)`` float32 in 0–1.
+
+        :param canvas: World window and output grid on which to composite the
+            stack.
+        """
         return self.render_rgba(canvas)[..., :3]
 
     def render_rgba(self, canvas: Canvas) -> np.ndarray:
@@ -2975,6 +3819,9 @@ class LayerStack:
         The alpha channel is accumulated source-over whatever the layers'
         blending modes were: it records where the stack drew *anything*, which
         is what a caller compositing this onto a page background needs.
+
+        :param canvas: World window and output grid on which to composite the
+            stack.
         """
         h, w = canvas.shape
         rgb = np.zeros((h, w, 3), dtype=np.float32)
@@ -2989,7 +3836,11 @@ class LayerStack:
         return np.concatenate([rgb, alpha[..., None]], axis=-1)
 
     def render_uint8(self, canvas: Canvas) -> np.ndarray:
-        """:meth:`render` as ``(H, W, 3)`` uint8 — what a QImage wants."""
+        """:meth:`render` as ``(H, W, 3)`` uint8 — what a QImage wants.
+
+        :param canvas: World window and output grid on which to composite the
+            stack.
+        """
         return np.clip(self.render(canvas) * 255.0 + 0.5, 0, 255).astype(np.uint8)
 
     # -- picking --------------------------------------------------------
@@ -3001,6 +3852,10 @@ class LayerStack:
         something there, which is what a click means — the thing you can see.
         ``value`` is the label for a labels layer, the point index for a points
         layer, the shape index for a shapes layer, and ``None`` otherwise.
+
+        :param canvas: Canvas whose displayed stack is being queried.
+        :param row: Fractional canvas-row coordinate of the query pixel.
+        :param column: Fractional canvas-column coordinate of the query pixel.
         """
         world = canvas.world_at(row, column)
         for layer in reversed(self._layers):
@@ -3031,6 +3886,9 @@ class LayerStack:
         Listeners are held by strong reference and are NOT weak: a view that
         subscribes must :meth:`unsubscribe` when it closes, exactly as
         :class:`spacr.qt.linked_selection.LinkedView` must unlink.
+
+        :param listener: Callable receiving each :class:`LayerEvent`; it is
+            retained by strong reference.
         """
         if not callable(listener):
             raise LayerError(f"a listener must be callable, got {listener!r}")
@@ -3039,7 +3897,10 @@ class LayerStack:
         return listener
 
     def unsubscribe(self, listener: Listener) -> bool:
-        """Stop being told. ``True`` if this call is what removed it."""
+        """Stop being told. ``True`` if this call is what removed it.
+
+        :param listener: Previously subscribed event callback to remove.
+        """
         try:
             self._listeners.remove(listener)
         except ValueError:
@@ -3047,6 +3908,10 @@ class LayerStack:
         return True
 
     def _emit(self, event: LayerEvent) -> None:
+        """Tell every subscriber the stack has changed.
+
+        :param event: which change it was.
+        """
         for listener in list(self._listeners):
             listener(event)
 

@@ -89,6 +89,7 @@ class _LinkedCanvas(LayerCanvas):
     """
 
     def _ensure_canvas(self) -> Optional[Canvas]:
+        """The canvas at this widget's size, rebuilt only when the size changed."""
         height = max(1, self.height() - 2)
         width = max(1, self.width() - 2)
         if self._canvas is not None and self._canvas.shape != (height, width):
@@ -104,6 +105,11 @@ class ComparisonPanel(QWidget):
     :param stack: what this panel shows. Each panel has its OWN stack — that
         is the whole point, since they hold different channels, timepoints or
         conditions.
+    :param parent: parent widget; ownership only.
+    :param title: the caption over the panel. Empty falls back to ``key``,
+        which is a name the code chose, not one a reader picked -- fine
+        while the keys are the conditions, worth overriding once they are
+        not.
     """
 
     #: This panel's view moved. Carries ``(key, canvas)``.
@@ -115,6 +121,14 @@ class ComparisonPanel(QWidget):
 
     def __init__(self, key: str, stack: LayerStack, parent=None, *,
                  title: str = ""):
+        """Build one panel of the comparison grid.
+
+        :param key: identifies this panel in the grid and in every signal it
+            emits.
+        :param stack: the layers this panel draws.
+        :param parent: parent widget, or ``None``.
+        :param title: caption; an empty one falls back to ``key``.
+        """
         super().__init__(parent)
         self._key = str(key)
         layout = QVBoxLayout(self)
@@ -151,12 +165,23 @@ class ComparisonPanel(QWidget):
         return self.canvas.stack
 
     def _on_view_changed(self) -> None:
+        """Re-emit this panel's view change with its key attached."""
         self.view_changed.emit(self._key, self.canvas.canvas)
 
     def _on_picked(self, layer, world, value) -> None:
+        """Re-emit a pick with this panel's key attached.
+
+        :param layer: the layer picked from.
+        :param world: the picked point in world coordinates.
+        :param value: the value at that point.
+        """
         self.picked.emit(self._key, layer, world, value)
 
     def _on_lock_toggled(self, checked: bool) -> None:
+        """Announce that this panel joined or left the linked view.
+
+        :param checked: the new state of the link toggle.
+        """
         self.lock_changed.emit(self._key, bool(checked))
 
     def detach(self) -> None:
@@ -176,6 +201,7 @@ class ComparisonGrid(LinkedView, QWidget):
     :param columns: how many panels per row; the default is the squarest grid
         that fits them.
     :param titles: per-panel captions, defaulting to the keys.
+    :param parent: parent widget; ownership only.
     """
 
     #: The shared world window moved. Carries the driving panel's key.
@@ -186,6 +212,20 @@ class ComparisonGrid(LinkedView, QWidget):
     def __init__(self, panels: Any = None, parent=None, *,
                  columns: Optional[int] = None,
                  titles: Optional[Dict[str, str]] = None):
+        """Build the grid and add a panel per stack.
+
+        The canvas link is held as ``_canvas_link`` rather than ``_link``: the
+        latter name belongs to ``LinkedView`` and carries the process-wide
+        selection bus, so shadowing it would leave the grid publishing
+        selections into its own canvas link and hearing nothing from the app.
+
+        :param panels: the panels to build, as a ``{key: stack}`` mapping or an
+            iterable of ``(key, stack)`` pairs; ``None`` starts empty.
+        :param parent: parent widget, or ``None``.
+        :param columns: how many columns to lay out; ``None`` picks a roughly
+            square grid for whatever is added.
+        :param titles: captions by key, for panels that want more than their key.
+        """
         super().__init__(parent)
         self.setObjectName("ComparisonGrid")
         # NOT `_link`: that name belongs to LinkedView, which keeps the
@@ -205,6 +245,11 @@ class ComparisonGrid(LinkedView, QWidget):
 
     @staticmethod
     def _as_pairs(panels: Any) -> List[Tuple[str, LayerStack]]:
+        """Normalise the panel argument to ``(key, stack)`` pairs.
+
+        :param panels: a mapping, an iterable of pairs, or ``None``.
+        :returns: the pairs, with every key coerced to :class:`str`.
+        """
         if panels is None:
             return []
         items = (list(panels.items()) if isinstance(panels, dict)
@@ -213,6 +258,7 @@ class ComparisonGrid(LinkedView, QWidget):
 
     # -- construction ------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the panel grid, the view buttons and the status line."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(12, 12, 12, 12)
         outer.setSpacing(8)
@@ -296,6 +342,11 @@ class ComparisonGrid(LinkedView, QWidget):
         return panel
 
     def _relayout(self) -> None:
+        """Re-place every panel in the grid.
+
+        The column count is the one given at construction, or the nearest square
+        for however many panels there now are.
+        """
         while self.grid.count():
             self.grid.takeAt(0)
         n = len(self._panels)
@@ -345,6 +396,14 @@ class ComparisonGrid(LinkedView, QWidget):
         self._push_to_panels()
 
     def _on_lock_changed(self, key: str, locked: bool) -> None:
+        """Join a panel to the linked view, or let it go free.
+
+        A panel joining is brought to the shared view straight away, so linking
+        is a visible act rather than one that takes effect on the next pan.
+
+        :param key: which panel changed.
+        :param locked: whether it is now linked.
+        """
         if key not in self._canvas_link:
             return
         if locked:
@@ -427,15 +486,29 @@ class ComparisonGrid(LinkedView, QWidget):
 
     # -- status ------------------------------------------------------------
     def _refresh_status(self) -> None:
+        """Say how many panels there are and which are not following the shared view.
+
+        Free panels and unlinked ones are counted separately: a panel the user
+        unlinked deliberately and a panel that never joined the link are
+        different states, and only one of them is a mistake.
+        """
         if not self._panels:
             self.status.setText("No panels")
             return
         free = [key for key in self._panels
                 if key in self._canvas_link
                 and not self._canvas_link.is_locked(key)]
-        note = (f" · {len(free)} free ({', '.join(free)})" if free
-                else " · all linked")
-        self.status.setText(f"{len(self._panels)} panel(s){note}")
+        unlinked = [key for key in self._panels
+                    if key not in self._canvas_link]
+        notes = []
+        if free:
+            notes.append(f"{len(free)} free ({', '.join(free)})")
+        if unlinked:
+            notes.append(
+                f"{len(unlinked)} not linked ({', '.join(unlinked)})")
+        self.status.setText(
+            f"{len(self._panels)} panel(s) · "
+            + (" · ".join(notes) if notes else "all linked"))
 
     def closeEvent(self, event) -> None:
         """Leave the shared selection and let go of every panel's model."""

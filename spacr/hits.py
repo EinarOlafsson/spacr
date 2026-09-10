@@ -1,44 +1,23 @@
-"""The hit list: the ranked, annotated, filterable deliverable of a screen.
+"""Build ranked, annotated hit lists from regression results.
 
-A regression run leaves a folder of plots and four CSVs. None of them is the
-thing the experiment was for. ``results.csv`` is one row per model term
-including the intercept; ``results_significant.csv`` is that filtered at
-``p <= 0.05`` with no multiple-testing correction, no gene annotation and no
-indication of whether a gene's own guides agree with each other. What a user
-wants at the end of a screen is a single table they can sort, filter, act on
-and send to a collaborator, where each row is a GENE and carries:
+A regression run writes full, level-specific, and selected coefficient tables
+to a uniquely named ``results/<kind>[_n]`` directory. This module combines the
+available tables into one sortable row per gene, adds effect estimates and
+uncertainty when the backend provides them, calculates guide-direction
+agreement, and joins optional gene metadata.
 
-* **the effect size** — the fitted coefficient, with its standard error and a
-  95% interval when the backend reports one, because "significant" without a
-  magnitude is not a result;
-* **the significance** — the p-value AND a Benjamini-Hochberg q-value across
-  the genes actually tested, because a screen tests thousands of hypotheses
-  and an uncorrected 0.05 on 2000 genes is 100 expected false hits;
-* **gRNA agreement** — how many of the gene's own guides push the same way.
-  A gene called by one guide out of six is the single most common way a
-  pooled screen produces a confident artefact, and it is invisible in every
-  table spaCR wrote before this one;
-* **the metadata join** — gene name, product, location, whatever the curated
-  annotation file carries.
+Metadata joins are validated as many-to-one. Repeated transcript records are
+collapsed before the join so they cannot duplicate a gene in the hit list.
+Backends without frequentist p-values are ranked by bootstrap selection
+frequency; other supported backends are ranked by q-value.
 
-**One row per gene. Enforced, not assumed.** The bundled
-``toxoplasma_metadata.csv`` lists a gene once per transcript: 30 Gene IDs
-repeat between 2 and 32 times. Joined as-is, those genes came back two to
-thirty-two times and every consumer counted each copy as an independent hit.
-:func:`load_gene_metadata` collapses the annotation to one row per gene
-*before* the join and says how many rows it dropped, and :func:`join_metadata`
-asks pandas to ``validate="many_to_one"`` so a future annotation file that
-breaks the assumption fails loudly instead of silently multiplying the hits.
-:func:`build_hit_list` asserts the same invariant on its own output.
-
-The module is headless and imports neither Qt nor :mod:`spacr.ml` (which
-pulls torch). It reads the CSVs a regression run already wrote.
+The module is headless and reads files already written by a regression run.
 
 Public API::
 
     from spacr.hits import build_hit_list, load_results
 
-    hits = build_hit_list("/data/plate7/results/pred/ols/list")
+    hits = build_hit_list("/data/plate7/results/ols_2")
     strong = hits.filter(max_q=0.05, min_agreement=0.66, min_guides=2)
     strong.write_csv("/tmp/hits.csv")
     print(strong.to_markdown(limit=20))
@@ -56,6 +35,8 @@ from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
 import numpy as np
 import pandas as pd
 
+from . import tabular
+
 __all__ = [
     "DEFAULT_ALPHA",
     "Hit",
@@ -64,11 +45,15 @@ __all__ = [
     "RESULT_FILES",
     "benjamini_hochberg",
     "build_hit_list",
+    "coefficient_levels",
+    "family_labels",
     "gene_of",
     "grna_agreement",
+    "guide_of",
     "join_metadata",
     "load_gene_metadata",
     "load_results",
+    "tested_family",
 ]
 
 #: The files :func:`spacr.ml.perform_regression` writes into its results
@@ -84,7 +69,12 @@ RESULT_FILES: Dict[str, str] = {
 #: q-value would be a correction applied to a number that is not a p-value.
 #: Mirrors :data:`spacr.ml.NO_P_VALUE_TYPES`; kept as a literal so importing
 #: this module does not drag torch in, and asserted equal in the test suite.
-NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet")
+NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet", "group_lasso")
+
+#: The coefficient families a run can fit, in the order a reader is offered
+#: them: the guide is the unit the screen measures, the gene is what the
+#: guides are evidence about. ``level='both'`` fits one of each.
+COEFFICIENT_LEVELS: Tuple[str, ...] = ("grna", "gene")
 
 #: The FDR a hit list defaults to calling a hit at.
 DEFAULT_ALPHA = 0.05
@@ -117,25 +107,172 @@ FLAG_MEANING: Dict[str, str] = {
 
 _BRACKET = re.compile(r"\[(.*?)\]")
 
+#: Design-matrix terms that are covariates rather than hypotheses: the
+#: intercept and the explicit plate, row, column, and screen effects fitted
+#: to soak up layout and experiment artefacts. Match term prefixes so a real
+#: guide whose identifier contains ``row`` or ``column`` remains testable.
+NUISANCE_TERMS = re.compile(
+    r"^(?:Intercept$|C\(.+\)\[[^]]+\]$|"
+    r"(?:plateID|rowID|columnID|screenID)(?:\[|$))",
+    re.IGNORECASE,
+)
+
 
 # ---------------------------------------------------------------------------
 # Parsing and statistics
 # ---------------------------------------------------------------------------
 
+
+def tested_family(features: Iterable[Any]) -> np.ndarray:
+    """Identify coefficient terms included in multiple testing.
+
+    Parameters
+    ----------
+    features : iterable of Any
+        Design-matrix term names.
+
+    Returns
+    -------
+    numpy.ndarray of bool
+        Boolean mask aligned with ``features``. Guide and gene terms are
+        ``True``; intercept and layout nuisance terms are ``False``.
+
+    Notes
+    -----
+    The mask follows the family corrected by
+    :func:`spacr.ml.perform_regression`. Nuisance terms are fitted as
+    covariates but are excluded from hit plots and multiple-testing
+    correction.
+
+    Examples
+    --------
+    >>> tested_family(["Intercept", "fraction:grna[233460_1]"]).tolist()
+    [False, True]
+    """
+    series = pd.Series(list(features), dtype=object).astype(str)
+    if series.empty:
+        return np.zeros(0, dtype=bool)
+    return ~series.str.contains(NUISANCE_TERMS, regex=True).to_numpy(dtype=bool)
+
+def family_labels(features: Iterable[Any]) -> np.ndarray:
+    """Label the multiple-testing family of each coefficient term.
+
+    Parameters
+    ----------
+    features : iterable of Any
+        Design-matrix term names.
+
+    Returns
+    -------
+    numpy.ndarray of object
+        Labels aligned with ``features``. Values are ``'grna'`` for guide
+        terms, ``'gene'`` for gene terms, and ``''`` for nuisance terms.
+
+    Notes
+    -----
+    Runs with ``level='both'`` contain separate guide and gene testing
+    families. Corrections should be applied within each non-empty label rather
+    than across the pooled coefficient table. Explicit ``:gene[...]`` and
+    ``:grna[...]`` labels take precedence over identifier shape.
+
+    Examples
+    --------
+    >>> family_labels(["Intercept", "fraction:grna[233460_1]",
+    ...                "gene_fraction:gene[233460]"]).tolist()
+    ['', 'grna', 'gene']
+    """
+    series = pd.Series(list(features), dtype=object).astype(str)
+    if series.empty:
+        return np.zeros(0, dtype=object)
+    tested = tested_family(series)
+    # Keep this vectorized for interactive plot restyling. Explicit term labels
+    # take precedence over the identifier suffix, matching ``guide_of``.
+    token = series.str.extract(_BRACKET.pattern, expand=False)
+    token = token.str.replace(r"^T\.", "", regex=True)
+    explicit_gene = series.str.contains(
+        r":gene\[", case=False, regex=True, na=False
+    ).to_numpy()
+    explicit_guide = series.str.contains(
+        r":grna\[", case=False, regex=True, na=False
+    ).to_numpy()
+    suffix_guide = token.fillna("").map(_is_guide_token).to_numpy(dtype=bool)
+    guide = np.where(explicit_gene, False,
+                     np.where(explicit_guide, True, suffix_guide))
+    return np.where(tested, np.where(guide, "grna", "gene"),
+                    "").astype(object)
+
+
+def coefficient_levels(frame: Optional[pd.DataFrame]) -> pd.Series:
+    """Identify the model level associated with each coefficient row.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame or None
+        Coefficient table. ``None`` returns an empty series. If neither
+        ``level`` nor ``feature`` is present, every row is assigned ``''``.
+
+    Returns
+    -------
+    pandas.Series
+        ``'grna'``, ``'gene'``, or ``''`` for each row, indexed like
+        ``frame``. An empty value denotes a nuisance term or a term whose
+        level cannot be inferred.
+
+    Notes
+    -----
+    The explicit ``level`` column is preferred. Feature-name inference
+    supports tables written before that column was introduced. This
+    distinction matters for ``level='both'`` fits because both models contain
+    an ``Intercept`` whose name alone does not identify its model.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> coefficient_levels(pd.DataFrame(
+    ...     {"feature": ["Intercept", "fraction:grna[233460_1]"],
+    ...      "level": ["grna", "grna"]})).tolist()
+    ['grna', 'grna']
+    >>> coefficient_levels(pd.DataFrame(
+    ...     {"feature": ["Intercept", "gene_fraction:gene[233460]"]})).tolist()
+    ['', 'gene']
+    """
+    if frame is None:
+        return pd.Series([], dtype=object)
+    columns = getattr(frame, "columns", ())
+    if "feature" in columns:
+        levels = pd.Series(family_labels(frame["feature"]), index=frame.index,
+                           dtype=object)
+    else:
+        levels = pd.Series([""] * len(frame), index=frame.index, dtype=object)
+    if "level" in columns:
+        recorded = frame["level"].astype(object).map(
+            lambda value: str(value).strip().lower()
+            if value is not None and value == value else "")
+        known = recorded.isin(COEFFICIENT_LEVELS)
+        levels = levels.where(~known, recorded)
+    return levels
+
+
 def gene_of(feature: Any) -> Optional[str]:
-    """Return the gene id a model term names, or ``None``.
+    """Extract the gene identifier from a model term.
 
-    The rule is the one :func:`spacr.utils.merge_regression_res_with_metadata`
-    applies, deliberately: the bracketed token, ``T.`` stripped, truncated at
-    the first underscore. It maps BOTH sides of the pair to the same key —
-    ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` are both
-    gene ``233460`` — which is what makes per-guide agreement computable at
-    all, and it is the same key the metadata join uses so the two cannot
-    disagree.
+    Parameters
+    ----------
+    feature : Any
+        Design-matrix term containing an identifier in square brackets.
 
-    :param feature: a design-matrix term name.
-    :returns: the gene id, or ``None`` for a term that names no gene
-        (``Intercept``, a row or column nuisance term).
+    Returns
+    -------
+    str or None
+        Gene identifier, or ``None`` when the term contains no bracketed
+        identifier. Guide suffixes are removed, while the strain prefix and
+        numeric portion of a VEuPathDB accession are retained.
+
+    Examples
+    --------
+    ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` both map
+    to ``233460``. ``fraction:grna[TGGT1_231640_3]`` maps to
+    ``TGGT1_231640``.
     """
     if feature is None or (isinstance(feature, float) and math.isnan(feature)):
         return None
@@ -143,8 +280,73 @@ def gene_of(feature: Any) -> Optional[str]:
     if not match:
         return None
     token = re.sub(r"^T\.", "", match.group(1))
-    gene = token.split("_")[0]
-    return gene or None
+    return _gene_id_of(token)
+
+
+# Known VEuPathDB prefixes whose underscore is part of the gene accession.
+_GENE_ID_PREFIXES = ("TGGT1", "TGME49", "TGVEG", "TGRH88", "TGARI",
+                     "TGCAST", "TGP89", "TGCOUG", "TGMAS", "TGFOU",
+                     "PF3D7", "PBANKA", "PY17X", "PCHAS", "PKNH", "PVP01",
+                     "CPATCC", "CHUDEA", "CPBGF", "NCLIV", "BBOV", "TA",
+                     "ETH", "EHXH", "CSUI")
+
+
+def _gene_id_of(token: Any) -> Optional[str]:
+    """Normalize a bracketed gene or guide token to its gene identifier.
+
+    Numeric guide tokens lose their trailing guide suffix. VEuPathDB
+    accessions retain the ``prefix_number`` gene identifier and lose only an
+    optional suffix after that identifier.
+
+    Examples
+    --------
+    ``233460_1`` becomes ``233460`` and ``TGGT1_231640_3`` becomes
+    ``TGGT1_231640``.
+    """
+    text = str(token or "").strip()
+    if not text:
+        return None
+    parts = text.split("_")
+    if len(parts) > 1 and parts[0].upper() in _GENE_ID_PREFIXES:
+        return "_".join(parts[:2])
+    return parts[0] or None
+
+
+def _is_guide_token(token: Any) -> bool:
+    """Whether ``token`` adds a guide suffix to its normalized gene id."""
+    text = str(token or "").strip()
+    gene = _gene_id_of(text)
+    return bool(text and gene and gene != text)
+
+
+def guide_of(feature: Any) -> Optional[str]:
+    """Extract the guide identifier from a model term.
+
+    Parameters
+    ----------
+    feature : Any
+        Design-matrix term containing an identifier in square brackets.
+
+    Returns
+    -------
+    str or None
+        Complete guide identifier, or ``None`` for gene and nuisance terms.
+        Explicit ``:gene[...]`` and ``:grna[...]`` labels take precedence
+        over identifier shape, so an underscore within a VEuPathDB gene
+        accession is not mistaken for a guide suffix.
+    """
+    if feature is None or (isinstance(feature, float) and math.isnan(feature)):
+        return None
+    feature_text = str(feature)
+    match = _BRACKET.search(feature_text)
+    if not match:
+        return None
+    token = re.sub(r"^T\.", "", match.group(1))
+    if re.search(r":gene\[", feature_text, flags=re.IGNORECASE):
+        return None
+    if re.search(r":grna\[", feature_text, flags=re.IGNORECASE):
+        return token
+    return token if _is_guide_token(token) else None
 
 
 def benjamini_hochberg(p_values: Sequence[Any]) -> np.ndarray:
@@ -237,8 +439,8 @@ def grna_agreement(gene_effects: Mapping[str, float],
 def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
     """Read the coefficient tables a regression results folder holds.
 
-    :param folder: the ``results/<score>/<type>[/list]`` folder
-        :func:`spacr.ml.perform_regression` writes into.
+    :param folder: A ``results/<kind>[_n]`` directory written by
+        :func:`spacr.ml.perform_regression`.
     :returns: ``{role: DataFrame}`` for whichever of :data:`RESULT_FILES`
         exist. A folder with none of them yields an empty dict rather than an
         exception — "that is not a results folder" is something the caller
@@ -253,7 +455,10 @@ def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
         path = os.path.join(root, name)
         if os.path.isfile(path):
             try:
-                found[role] = pd.read_csv(path)
+                # ONE READER, so a results CSV whose header says `column` is
+                # offered to the caller as `columnID` -- the name the joins
+                # in this module key on.
+                found[role] = tabular.read_table(path, report=None)
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
                 continue
     return found
@@ -262,33 +467,47 @@ def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
 def load_gene_metadata(path: Union[str, os.PathLike], *,
                        key: str = "Gene ID"
                        ) -> Tuple[pd.DataFrame, List[str]]:
-    """Read one annotation CSV as EXACTLY one row per gene.
+    """Read an annotation CSV with at most one row per gene.
 
-    A curated export lists a gene once per transcript. The bundled
-    ``toxoplasma_metadata.csv`` repeats 30 Gene IDs between 2 and 32 times,
-    each copy carrying a different protein length and GO-term set. Joined
-    as-is, every one of those genes multiplies in the results — which is a
-    hit list that counts the same gene as up to 32 independent findings.
+    Parameters
+    ----------
+    path : path-like
+        Annotation CSV to read.
+    key : str, default='Gene ID'
+        Column containing accessions such as ``TGME49_233460``. The component
+        after the first underscore is stored in a new ``gene`` column.
 
-    So the collapse happens HERE, before anything is joined, and it is
-    reported: the returned notes name how many rows were dropped and for how
-    many genes, and the annotations of the dropped rows are not carried over.
+    Returns
+    -------
+    frame : pandas.DataFrame
+        Annotation rows with a ``gene`` column and no duplicate gene values.
+        When several transcript rows map to one gene, the first row is kept.
+    notes : list of str
+        User-facing descriptions of unparsable rows and duplicate-gene rows
+        removed during normalization.
 
-    :param path: the metadata CSV.
-    :param key: the column holding the gene identifier; ``Gene ID`` in
-        spaCR's own files, where the value is ``TGME49_233460`` and the gene
-        is the part after the underscore.
-    :returns: ``(frame, notes)``. The frame carries a ``gene`` column and at
-        most one row per value in it.
-    :raises FileNotFoundError: when the file is not there.
-    :raises KeyError: when the key column is absent — a metadata file with no
-        gene identifier cannot be joined, and guessing which column meant to
-        be one is how the wrong annotation gets attached to a hit.
+    Raises
+    ------
+    FileNotFoundError
+        If ``path`` is not an existing file.
+    KeyError
+        If ``key`` is absent from the CSV.
+
+    Notes
+    -----
+    Duplicate transcript annotations are collapsed before metadata is joined
+    to results, preventing one gene from becoming several hit-list rows.
+    Annotations from discarded duplicate rows are not merged into the row
+    that is retained.
     """
     target = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(target):
         raise FileNotFoundError(f"no metadata file at {target}")
-    frame = pd.read_csv(target)
+    # canonicalise=False: `key` is the caller's column name in a curated
+    # third-party export ('Gene ID'), not spaCR metadata, and a header the
+    # vocabulary renamed out from under the caller would raise the KeyError
+    # below on a file that was fine.
+    frame = tabular.read_table(target, canonicalise=False, report=None)
     if key not in frame.columns:
         raise KeyError(
             f"{os.path.basename(target)} has no {key!r} column, so its rows "
@@ -349,7 +568,7 @@ def join_metadata(frame: pd.DataFrame,
         joined = joined.merge(
             annotation, on="gene", how="left", validate="many_to_one",
             suffixes=("", f"_meta{index + 1}"))
-        if len(joined) != before:  # pragma: no cover - validate already raises
+        if len(joined) != before:  # validate="many_to_one" already raises
             raise ValueError(
                 f"joining {os.path.basename(str(path))} changed the row count "
                 f"from {before} to {len(joined)}; the annotation is not one "
@@ -479,7 +698,10 @@ class HitList:
         return self.hits[index]
 
     def gene(self, gene: str) -> Optional[Hit]:
-        """The row for one gene id, or ``None``."""
+        """The row for one gene id, or ``None``.
+
+        :param gene: exact gene identifier to look up.
+        """
         for hit in self.hits:
             if hit.gene == gene:
                 return hit
@@ -493,7 +715,10 @@ class HitList:
         return self.filter(max_q=cut)
 
     def top(self, n: int) -> "HitList":
-        """The first ``n`` rows, still ranked."""
+        """The first ``n`` rows, still ranked.
+
+        :param n: maximum number of ranked rows to retain.
+        """
         return self._with(self.hits[:max(0, int(n))],
                           dict(self.filters, top=int(n)))
 
@@ -539,12 +764,13 @@ class HitList:
         needle = query.strip().casefold()
 
         def _ok(hit: Hit) -> bool:
+            """Return whether ``hit`` satisfies every supplied filter."""
             if max_q is not None and not _at_most(hit.q_value, max_q):
                 return False
             if max_p is not None and not _at_most(hit.p_value, max_p):
                 return False
-            if min_effect is not None and not _at_least(abs(hit.effect),
-                                                        min_effect):
+            if min_effect is not None and not _at_least(hit.effect, min_effect,
+                                                        absolute=True):
                 return False
             if min_agreement is not None and not _at_least(hit.agreement,
                                                            min_agreement):
@@ -614,11 +840,15 @@ class HitList:
         return frame
 
     def write_csv(self, path: Union[str, os.PathLike]) -> str:
-        """Write the table as CSV and return the path written."""
+        """Write the table as CSV and return the path written.
+
+        :param path: destination CSV path.
+
+        Through :func:`spacr.tabular.write_table`, so a hit list is written
+        with the same column spellings every spaCR reader expects to find.
+        """
         target = os.path.abspath(os.path.expanduser(os.fspath(path)))
-        os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
-        self.to_frame().to_csv(target, index=False)
-        return target
+        return tabular.write_table(self.to_frame(), target)
 
     def summary(self) -> Dict[str, Any]:
         """Counts and settings, for a header line or a run digest.
@@ -742,7 +972,10 @@ class HitList:
             + "".join(rows) + "</table>")
 
     def write_html(self, path: Union[str, os.PathLike]) -> str:
-        """Write :meth:`to_html` to a file and return the path."""
+        """Write :meth:`to_html` to a file and return the path.
+
+        :param path: destination HTML path.
+        """
         target = os.path.abspath(os.path.expanduser(os.fspath(path)))
         os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
         with open(target, "w", encoding="utf-8") as handle:
@@ -759,12 +992,21 @@ def _at_most(value: Any, limit: float) -> bool:
     return math.isfinite(number) and number <= float(limit)
 
 
-def _at_least(value: Any, limit: float) -> bool:
-    """True when ``value`` is a real number no smaller than ``limit``."""
+def _at_least(value: Any, limit: float, *, absolute: bool = False) -> bool:
+    """True when ``value`` is a real number no smaller than ``limit``.
+
+    ``absolute`` compares the magnitude instead, for a criterion such as
+    ``min_effect`` that is about how far a gene moved and not which way. The
+    absolute value is taken HERE, on the far side of the conversion, so a
+    field holding something that is not a number is excluded like every other
+    unreadable one rather than raising out of the filter.
+    """
     try:
         number = float(value)
     except (TypeError, ValueError):
         return False
+    if absolute:
+        number = abs(number)
     return math.isfinite(number) and number >= float(limit)
 
 
@@ -796,6 +1038,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
                    *,
                    metadata_files: Sequence[Union[str, os.PathLike]] = (),
                    metadata_key: str = "Gene ID",
+                   toxoplasma: bool = False,
                    regression_type: str = "",
                    alpha: float = DEFAULT_ALPHA,
                    include_controls: bool = True,
@@ -808,6 +1051,11 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     :param metadata_files: annotation CSVs to join, each collapsed to one row
         per gene first. See :func:`load_gene_metadata`.
     :param metadata_key: the gene identifier column in those files.
+    :param toxoplasma: also join the bundled *Toxoplasma* annotation — gene
+        name, signal peptide and transmembrane, hyperLOPIT compartment, the
+        published CRISPR fitness scores, and tachyzoite / tissue-cyst /
+        EES1-5 expression. Applied AFTER ``metadata_files`` so a column the
+        user's own file supplies is never replaced by the bundle's.
     :param regression_type: the backend, if known. Only affects how the list
         is ranked: the penalised backends have no p-value, so they rank by
         bootstrap selection frequency and carry no q-value.
@@ -880,7 +1128,23 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     joined, join_notes = join_metadata(table, metadata_files,
                                        key=metadata_key)
     notes.extend(join_notes)
-    if len(joined) != len(table):  # pragma: no cover - validate already raises
+    if toxoplasma:
+        # AFTER the user's files, deliberately. `annotate` leaves a column
+        # that is already there alone, so this order means a name the user
+        # supplied always wins over the bundle's -- which is the precedence
+        # anybody would expect from a file they passed by hand.
+        from .annotation import annotate
+        before, had = len(joined), set(joined.columns)
+        joined = annotate(joined, key_column="gene", quiet=True)
+        if len(joined) != before:  # annotate's many_to_one join raises
+            raise ValueError(
+                f"the Toxoplasma annotation changed the row count from "
+                f"{before} to {len(joined)}.")
+        gained = [c for c in joined.columns if c not in had]
+        notes.append(
+            f"Bundled Toxoplasma annotation joined by gene number: "
+            f"{len(gained)} column(s).")
+    if len(joined) != len(table):  # validate="many_to_one" already raises
         raise ValueError(
             f"the metadata join changed the row count from {len(table)} to "
             f"{len(joined)}; the annotation is not one row per gene.")
@@ -903,8 +1167,12 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
 def _gene_level(frames: Mapping[str, pd.DataFrame]) -> Optional[pd.DataFrame]:
     """The gene-level coefficient table, however this run spelled it.
 
-    ``results_gene.csv`` when it exists; otherwise the gene terms filtered out
-    of ``results.csv``, which is what a run that predates the split wrote.
+    ``results_gene.csv`` when it exists; otherwise the gene rows of
+    ``results.csv``, which is what a run that predates the split wrote.
+
+    Which rows those are is :func:`coefficient_levels`' answer rather than a
+    second pattern match, so the hit list and the results panel cannot come
+    to disagree about what a gene row is.
     """
     gene = frames.get("gene")
     if gene is not None and not gene.empty and "feature" in gene.columns:
@@ -914,9 +1182,7 @@ def _gene_level(frames: Mapping[str, pd.DataFrame]) -> Optional[pd.DataFrame]:
         return None
     if "feature" not in everything.columns:
         return None
-    mask = everything["feature"].astype(str).str.contains(r"gene\[",
-                                                          regex=True)
-    return everything[mask]
+    return everything[coefficient_levels(everything) == "gene"]
 
 
 def _finite(value: Any) -> bool:
@@ -991,12 +1257,14 @@ def _rank(hits: Sequence[Hit], ranking: str) -> List[Hit]:
     """
     if ranking == "selection-frequency":
         def key(hit: Hit):
+            """Rank finite selection and effect magnitude high, then gene."""
             selection = (hit.selection_frequency
                          if math.isfinite(hit.selection_frequency) else -1.0)
             magnitude = abs(hit.effect) if math.isfinite(hit.effect) else -1.0
             return (-selection, -magnitude, hit.gene)
     else:
         def key(hit: Hit):
+            """Rank finite q low, effect magnitude high, then gene."""
             q = hit.q_value if math.isfinite(hit.q_value) else float("inf")
             magnitude = abs(hit.effect) if math.isfinite(hit.effect) else -1.0
             return (q, -magnitude, hit.gene)

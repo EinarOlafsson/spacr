@@ -1,0 +1,183 @@
+{
+  "id": "60_pca",
+  "number": 60,
+  "slug": "pca",
+  "series": 5,
+  "app_key": "pca",
+  "host_app_key": "umap",
+  "section": "Explore",
+  "title": "PCA: real measurements, live refits and missing values",
+  "description": "Explore the PCA submodule inside Image UMAP using genuine downloaded cells, checked component scores, reversible filters, explicit missing-value policies and three real CSV exports.",
+  "objectives": [
+    "Find PCA inside Image UMAP and choose an explicit measurement feature set.",
+    "Read component variance and correlation arrows without claiming biological separation.",
+    "Compare standardisation, live population refits and four missing-value policies.",
+    "Export object scores, feature loadings and component variance while preserving the source."
+  ],
+  "prerequisite": "Reuse a private byte-identical copy of the downloadable Annotate example: 2,341 cell rows, 276 source columns and four wells. This lesson fits cell_area, cell_channel_1_mean_intensity and cell_perimeter, then adds cell_channel_0_homogeneity_distance_32, which has seven genuinely missing values. The missingness mechanism and treatment identities are not established. Independent covariance eigendecomposition checks the application's small-table SVD, retained row positions, scores, loadings, correlations and variances; actual plotted coordinates and every exported source cell are checked. This is bounded to these full-rank, nondegenerate three- and four-feature fits, not a validation of all automatic features, arrow pixel geometry, rank-deficient inputs, image-linked brushing or biological conclusions. CPU NumPy PCA is separate from UMAP fitting and its GPU options. PCA has no dedicated test-data downloader, image preview, AI console or Run-level Plot switch. The three CSVs are not a fitted-model bundle, saved settings or exported figure. API: spacr.qt.widgets.pca_model.pca and PCASpec; PCAResult.scores_frame, loadings_frame and variance_frame.",
+  "scenes": [
+    {
+      "visual": "01_image_umap_host",
+      "narration": "Open Image UMAP from Home, then choose its nested PCA button. PCA is a linear summary of measurements, not another UMAP embedding. We reuse the downloadable Annotate example on a private copy. The Annotate tutorial shows where to obtain that real dataset.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "03_real_measurement_picker",
+      "narration": "Use Load table beside the PCA heading and choose the copied measurements database, then cell. There are two thousand three hundred forty-one objects across four wells. This screen can also read a measurement CSV. A previously loaded host path is not proof that the intended table is open.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_three_features_before_run",
+      "narration": "Clear the feature search before choosing None, because that button unticks only the features currently shown. Search and tick cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, and choose Run PCA. Searching narrows the feature list, not the cell population.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "62_feature_dictionary"
+      ],
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "05_standardised_three_features",
+      "narration": "Keep Standardise and read the scree plot. The first component explains about sixty-five point seven percent of these three features' standardised variance; the second explains thirty-one point seven percent. The points are individual measured cells, not independent experimental replicates. Explained variance is not classification accuracy.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "07_pc3_against_pc1",
+      "narration": "Choose rowID in Colour, then PC three on X and PC one on Y. These controls redraw the existing decomposition without fitting again. The colours identify spatial rows, not established treatments. A separated-looking cloud is a prompt to investigate measurements and confounding, not proof of a biological effect.",
+      "hold_after": 0.7,
+      "focus": [
+        1420,
+        335,
+        2220,
+        1600
+      ]
+    },
+    {
+      "visual": "09_biplot_restored",
+      "narration": "Return to PC one and PC two. Toggle Loadings biplot off and back on. The arrows show feature correlations with these two components; their absolute length is scaled for display, with the dashed circle as a ruler. Nearby arrow directions do not establish causation.",
+      "hold_after": 0.7,
+      "focus": [
+        1600,
+        500,
+        1660,
+        1070
+      ]
+    },
+    {
+      "visual": "11_raw_units_pca",
+      "narration": "Change Scale to Centre only. The first component now explains about ninety point one percent, because the raw measurement scales change the analysis. That higher percentage does not make the model better. Restore Standardise before continuing; it centres each feature and divides by its sample standard deviation.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "13_live_filter_refits_basis",
+      "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The fit now uses one thousand one hundred seventy-one cells. This is a live refit: the population mean, scale and component directions change. It is not merely hiding points on the old axes.",
+      "hold_after": 0.7,
+      "focus": [
+        3360,
+        325,
+        470,
+        620
+      ]
+    },
+    {
+      "visual": "14_clear_restores_full_basis",
+      "narration": "Choose Clear all in the filter. All two thousand three hundred forty-one cells return, and the original decomposition is restored. Filtering never deletes database rows. Compare the population and report after every change; scores from separately fitted populations do not automatically share a common coordinate system.",
+      "hold_after": 0.7,
+      "focus": [
+        1410,
+        1890,
+        2400,
+        225
+      ]
+    },
+    {
+      "visual": "15_missing_feature_ticked_not_run",
+      "narration": "Now search for cell_channel_0_homogeneity_distance_32 and tick it. The existing result still contains three features until you choose Run PCA. This texture feature has seven genuinely missing values. We do not know why they are missing, so we must not call these cells uninfected or replace missing measurements with zero.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "16_auto_seven_rows_removed",
+      "narration": "Run with Auto. All four features remain, but seven cells are removed, leaving two thousand three hundred thirty-four. Auto drops features missing in more than two percent of rows, then drops remaining incomplete rows. The three requested components capture about ninety-eight point six percent; a fourth direction still exists.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "18_drop_feature_keeps_objects",
+      "narration": "Choose Drop features in NaN. All two thousand three hundred forty-one cells remain, but the texture feature is excluded from this fit. Four checkboxes can remain ticked while only three features are actually analysed. Read the result and dropped-feature notice, not just the requested selections.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "19_mean_imputes_seven_values",
+      "narration": "Choose Mean-impute. All cells and all four features remain, with seven values replaced by that feature's mean for the calculation. These are invented values, not recovered measurements. The report states the replacement count. Disclose imputation whenever you present this result; the source database has not been rewritten.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "20_complete_cases",
+      "narration": "Choose Complete cases. It keeps the four selected features and removes the same seven incomplete cells in this example. That agreement with Auto is specific to these data. Return to Auto, untick the texture feature, clear the search, choose Run PCA, and set Colour back to none.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "22_actual_three_file_export",
+      "narration": "Choose Export and save a base name such as pca_example. The screen writes three CSV files: scores for each analysed object, loadings and correlations for each feature, and variance for each component. The scores file also retains the original measurement columns; it is not just three coordinate columns.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_export_confirmation",
+      "narration": "These exports preserve two thousand three hundred forty-one object rows and leave both databases unchanged. Record your feature list, filters, scaling and missing-value policy separately: this button does not save settings or a fitted-model bundle. For code, use pca and PCASpec in spaCR's Qt pca_model module. This CPU table view is separate from image previews, GPU analysis and spaCR AI.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "15_image_umap"
+      ]
+    }
+  ]
+}

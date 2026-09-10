@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "08_measure",
+    "scene_count": 10,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete current Measure workflow, exact interface labels and file identifiers, object-level measurement terminology, and restoration of every source sentence."
+  },
+  "languages": {
+    "es": {
+      "description": "Extraiga características a nivel de objeto de las imágenes y las máscaras; después, examine la galería de recortes resultante y la base de datos generada.",
+      "prerequisite": "Complete Mask y confirme que el proyecto fusionado contiene planos de imagen y de etiquetas utilizables.",
+      "objectives": [
+        "Verificar la correspondencia entre los canales de imagen y los planos de máscara.",
+        "Seleccionar únicamente las familias de características, los filtros y los recortes que requiera el análisis.",
+        "Validar una ejecución de prueba en Live Preview antes de guardar todos los resultados de medición."
+      ],
+      "narrations": [
+        "Measure muestra los ajustes a la izquierda y la consola de ejecución a la derecha. La consola informa sobre la validación del origen, el progreso, las advertencias y los resultados de medición guardados.",
+        "Seleccione la carpeta del proyecto fusionado que produjo Mask. Measure lee directamente las imágenes, las máscaras y los metadatos del proyecto almacenados.",
+        "Comience con Essentials. Utilice All para acceder a los controles avanzados, Modified para revisar los valores modificados y Recipes cuando vaya a reutilizar la misma configuración de medición.",
+        "En Mask and Channel Mapping, verifique los canales de imagen y los planos de etiquetas correspondientes a células, núcleos, patógenos, orgánulos y cualquier compartimento derivado.",
+        "Measurement Features permite seleccionar los resúmenes de intensidad, morfología, textura, colocalización y distribución espacial que necesita el análisis. Mantenga desactivadas las familias de características que no vaya a utilizar.",
+        "Object Filtering elimina artefactos conocidos, mientras que Crop Output determina si se guardan recortes representativos de objetos para anotación o clasificación. Defina los filtros y la escala de los recortes a partir del experimento, en lugar de copiar valores fijos.",
+        "Preview and Diagnostics define una pequeña muestra de prueba. Utilícela antes de medir el experimento completo.",
+        "Active Live Preview y cargue una matriz fusionada completa. La galería agrupa recortes de objetos reales para que pueda comprobar la asignación de máscaras, el contenido de los canales y el encuadre de los recortes.",
+        "Cambie los canales de la galería para examinar cada señal biológica. Esta opción de visualización facilita el control de calidad y no limita los canales configurados que se medirán.",
+        "Cuando la prueba finalice correctamente, procese todo el conjunto de origen. Measure guarda filas de objetos trazables en measurements.db y los recortes solicitados junto a los demás resultados del proyecto."
+      ]
+    },
+    "fr": {
+      "description": "Extrayez des caractéristiques au niveau de chaque objet à partir des images et des masques, puis examinez la galerie de vignettes et la base de données produites.",
+      "prerequisite": "Terminez Mask et vérifiez que le projet fusionné contient des plans d’image et d’étiquettes exploitables.",
+      "objectives": [
+        "Vérifier la correspondance entre les canaux d’image et les plans de masque.",
+        "Sélectionner uniquement les familles de caractéristiques, les filtres et les vignettes nécessaires à l’analyse.",
+        "Valider une exécution d’essai dans Live Preview avant d’enregistrer l’ensemble des résultats de mesure."
+      ],
+      "narrations": [
+        "Measure affiche les paramètres à gauche et la console d’exécution à droite. La console indique la validation de la source, la progression, les avertissements et les résultats de mesure enregistrés.",
+        "Sélectionnez le dossier du projet fusionné produit par Mask. Measure lit directement les images, les masques et les métadonnées du projet qui y sont enregistrés.",
+        "Commencez par Essentials. Utilisez All pour accéder aux commandes avancées, Modified pour contrôler les valeurs modifiées et Recipes lorsque la même configuration de mesure doit être réutilisée.",
+        "Dans Mask and Channel Mapping, vérifiez les canaux d’image et les plans d’étiquettes correspondant aux cellules, aux noyaux, aux agents pathogènes, aux organites et à tout compartiment dérivé.",
+        "Measurement Features permet de sélectionner les résumés d’intensité, de morphologie, de texture, de colocalisation et de distribution spatiale nécessaires à l’analyse. Laissez désactivées les familles de caractéristiques inutiles.",
+        "Object Filtering élimine les artefacts connus, tandis que Crop Output détermine si des vignettes représentatives des objets sont enregistrées pour l’annotation ou la classification. Définissez les filtres et l’échelle des vignettes à partir de l’expérience au lieu de recopier des valeurs fixes.",
+        "Preview and Diagnostics définit un petit échantillon d’essai. Utilisez-le avant de mesurer l’ensemble de l’expérience.",
+        "Activez Live Preview et chargez une matrice fusionnée complète. La galerie regroupe des vignettes d’objets réels afin de vérifier l’attribution des masques, le contenu des canaux et le cadrage des vignettes.",
+        "Changez de canal dans la galerie pour examiner chaque signal biologique. Ce choix d’affichage facilite le contrôle qualité et ne limite pas les canaux configurés qui seront mesurés.",
+        "Une fois l’essai validé, traitez l’ensemble de la source. Measure enregistre des lignes d’objets traçables dans measurements.db et place les vignettes demandées à côté des autres résultats du projet."
+      ]
+    },
+    "it": {
+      "description": "Estrai dalle immagini e dalle maschere le caratteristiche di ciascun oggetto, quindi esamina la galleria dei ritagli e il database prodotti.",
+      "prerequisite": "Completa Mask e verifica che il progetto unito contenga piani di immagine e di etichette utilizzabili.",
+      "objectives": [
+        "Verificare la corrispondenza tra i canali delle immagini e i piani delle maschere.",
+        "Selezionare soltanto le famiglie di caratteristiche, i filtri e i ritagli necessari all’analisi.",
+        "Convalidare un’esecuzione di prova in Live Preview prima di salvare tutti i risultati delle misurazioni."
+      ],
+      "narrations": [
+        "Measure mostra le impostazioni a sinistra e la console di esecuzione a destra. La console riporta la convalida dell’origine, l’avanzamento, gli avvisi e i risultati delle misurazioni salvati.",
+        "Seleziona la cartella del progetto unito prodotta da Mask. Measure legge direttamente le immagini, le maschere e i metadati del progetto memorizzati.",
+        "Inizia da Essentials. Usa All per accedere ai controlli avanzati, Modified per verificare i valori modificati e Recipes quando intendi riutilizzare la stessa configurazione di misurazione.",
+        "In Mask and Channel Mapping, verifica i canali delle immagini e i piani delle etichette per cellule, nuclei, patogeni, organelli ed eventuali compartimenti derivati.",
+        "Measurement Features consente di selezionare i riepiloghi di intensità, morfologia, texture, colocalizzazione e distribuzione spaziale necessari all’analisi. Lascia disattivate le famiglie di caratteristiche non utilizzate.",
+        "Object Filtering rimuove gli artefatti noti, mentre Crop Output stabilisce se salvare ritagli rappresentativi degli oggetti per l’annotazione o la classificazione. Definisci i filtri e la scala dei ritagli in base all’esperimento, anziché copiare valori fissi.",
+        "Preview and Diagnostics definisce un piccolo campione di prova. Usalo prima di misurare l’intero esperimento.",
+        "Attiva Live Preview e carica una matrice unita completa. La galleria raggruppa ritagli di oggetti reali, così puoi controllare l’assegnazione delle maschere, il contenuto dei canali e l’inquadratura dei ritagli.",
+        "Cambia i canali della galleria per esaminare ogni segnale biologico. Questa scelta di visualizzazione facilita il controllo qualità e non limita i canali configurati che verranno misurati.",
+        "Dopo che la prova è riuscita, elabora l’intera sorgente. Measure salva righe di oggetti tracciabili in measurements.db e i ritagli richiesti accanto agli altri risultati del progetto."
+      ]
+    },
+    "pt-BR": {
+      "description": "Extraia características em nível de objeto a partir de imagens e máscaras e, em seguida, examine a galeria de recortes e o banco de dados produzidos.",
+      "prerequisite": "Conclua Mask e confirme que o projeto combinado contém planos de imagem e de rótulos utilizáveis.",
+      "objectives": [
+        "Verificar os canais das imagens e o mapeamento dos planos de máscaras.",
+        "Selecionar somente as famílias de características, os filtros e os recortes necessários para a análise.",
+        "Validar uma amostra em Live Preview antes de gerar todas as saídas de medição."
+      ],
+      "narrations": [
+        "Measure apresenta as configurações à esquerda e o console de execução à direita. O console informa a validação da origem, o progresso, os avisos e as saídas de medição salvas.",
+        "Selecione a pasta do projeto combinado produzida por Mask. Measure lê diretamente as imagens, as máscaras e os metadados armazenados no projeto.",
+        "Comece por Essentials. Use All para os controles avançados, Modified para revisar os valores alterados e Recipes quando a mesma configuração de medição for reutilizada.",
+        "Em Mask and Channel Mapping, verifique os canais das imagens e os planos de rótulos de células, núcleos, patógenos, organelas e demais compartimentos derivados.",
+        "Measurement Features seleciona os resumos de intensidade, morfologia, textura, colocalização e relações espaciais necessários para a análise. Mantenha desativadas as famílias de características que não serão usadas.",
+        "Object Filtering remove artefatos conhecidos, enquanto Crop Output determina se imagens representativas dos objetos serão salvas para anotação ou classificação. Defina os filtros e a escala dos recortes a partir do experimento, em vez de copiar valores fixos.",
+        "Preview and Diagnostics define uma pequena amostra de teste. Use-a antes de medir o experimento completo.",
+        "Ative Live Preview e carregue uma matriz combinada concluída. A galeria reúne recortes reais dos objetos para que você possa verificar as atribuições das máscaras, o conteúdo dos canais e o enquadramento dos recortes.",
+        "Alterne os canais da galeria para inspecionar cada sinal biológico. Essa opção de visualização auxilia o controle de qualidade e não restringe os canais configurados para medição.",
+        "Depois que o teste for aprovado, processe toda a origem. Measure salva linhas de objetos rastreáveis em measurements.db e os recortes solicitados junto às demais saídas do projeto."
+      ]
+    }
+  }
+}

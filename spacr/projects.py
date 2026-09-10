@@ -404,6 +404,9 @@ def module_states(root: Any, *, modules: Sequence[str] = (),
 def looks_like_project(root: Any) -> bool:
     """Whether a folder is a spaCR project, judged without the registry.
 
+    :param root: folder to inspect for registry, artifact, input, or output
+        evidence of a spaCR project.
+
     True when a registry file sits in it, or when any declared *output* of any
     producing module is on disk, or when the mask pipeline's declared *input*
     finds raw images there. That last clause is what makes a plate folder
@@ -428,7 +431,9 @@ def looks_like_project(root: Any) -> bool:
     # it? The mask pipeline's own input declaration answers that.
     try:
         inputs = _ports.declared_inputs("mask", root=project)
-    except _ports.UnknownModule:            # pragma: no cover - always declared
+    # 'mask' is declared by spaCR itself; a build that dropped it, or a
+    # plugin registry that replaced PORTS, is what this guards against.
+    except _ports.UnknownModule:
         return False
     return any(resolved.exists for resolved in inputs)
 
@@ -453,6 +458,14 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
     seen: set = set()
 
     def _walk(path: str, level: int) -> None:
+        """Traverse one directory within the captured discovery limits.
+
+        :param path: directory to inspect for a project or descend through.
+        :param level: distance below the current caller-supplied root.
+        :returns: ``None``; discovered project paths are appended to ``found``
+            and resolved directories are recorded in ``seen``. Traversal stops
+            at a project, the depth or result limit, or an unreadable folder.
+        """
         if len(found) >= limit:
             return
         real = os.path.realpath(path)
@@ -478,7 +491,7 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
             try:
                 if not entry.is_dir(follow_symlinks=False):
                     continue
-            except OSError:                  # pragma: no cover - race
+            except OSError:                  # a mount that went away
                 continue
             _walk(entry.path, level + 1)
 
@@ -607,7 +620,7 @@ class ProjectSummary:
             if state.module == self.stage:
                 return (self.stage if state.state == STATE_DONE
                         else f"{self.stage} (partial)")
-        return self.stage                    # pragma: no cover - unreachable
+        return self.stage                    # a summary with no states
 
     @property
     def ran(self) -> Tuple[str, ...]:
@@ -669,6 +682,10 @@ class ProjectSummary:
         return format_project(self)
 
     def __str__(self) -> str:
+        """Return the complete human-readable project report.
+
+        :returns: Text produced by :func:`format_project` for this summary.
+        """
         return format_project(self)
 
 
@@ -693,7 +710,7 @@ def _stale_of(registry: Registry, records: Sequence[Artifact]
     for record in records:
         try:
             verdict: Staleness = registry.is_stale(record)
-        except Exception as exc:             # pragma: no cover - corrupt row
+        except Exception as exc:             # corrupt row
             LOG.debug("staleness check failed for %s: %s",
                       record.artifact_id, exc)
             continue
@@ -758,20 +775,35 @@ def scan(root: Any, *, registry: Optional[Registry] = None,
     if usage is None:
         try:
             usage = _dm.scan_project(project, registry=registry)
-        except _dm.DataManagerError as exc:  # pragma: no cover - raced delete
+        except _dm.DataManagerError as exc:  # raced delete
             LOG.debug("cannot measure %s: %s", project, exc)
             return ProjectSummary(root=project, name=name, exists=False,
                                   scanned_utc=scanned)
+        except Exception as exc:
+            # The walk reconciles against the registry, so a corrupt or
+            # half-written ``artifacts.db`` breaks the measurement rather
+            # than the folder. The project is still there and still worth
+            # listing: its bytes go unmeasured, with the reason recorded,
+            # instead of the whole row -- or the whole browse -- vanishing.
+            LOG.debug("cannot measure %s: %s", project, exc)
+            usage = ProjectUsage(root=project, errors=(f"{project}: {exc}",),
+                                 scanned_utc=scanned)
 
     # The registry first: it is the authority on what ran, and
     # `module_states` takes it into account rather than guessing from files
     # alone wherever it has an answer.
-    store = _registry_for(project, registry)
+    try:
+        store = _registry_for(project, registry)
+    except Exception as exc:
+        # Opening it is as fallible as reading it, and a browser that raises
+        # here shows no list at all.
+        LOG.debug("cannot open the registry for %s: %s", project, exc)
+        store = None
     records: List[Artifact] = []
     if store is not None:
         try:
             records = list(store.by_project(project))
-        except Exception as exc:             # pragma: no cover - locked db
+        except Exception as exc:             # locked db
             LOG.debug("cannot read the registry for %s: %s", project, exc)
 
     states = module_states(project, records=records)
@@ -840,7 +872,7 @@ def browse(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
         if on_progress is not None:
             try:
                 on_progress(index, len(projects), project)
-            except Exception:                # pragma: no cover - caller's bug
+            except Exception:                # caller's bug
                 LOG.debug("progress callback raised", exc_info=True)
     summaries.sort(key=lambda s: (-s.last_run_ns, s.name.lower()))
     return tuple(summaries)
@@ -891,7 +923,10 @@ def format_project(summary: ProjectSummary, *, limit: int = 6) -> str:
 
 
 def format_projects(summaries: Sequence[ProjectSummary]) -> str:
-    """Render a whole browse as a table, one row per project."""
+    """Render a whole browse as a table, one row per project.
+
+    :param summaries: project summaries to render in their existing order.
+    """
     if not summaries:
         return "No projects found."
     rows = [("Project", "Stage", "Size", "Last run", "State", "Note")]

@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Image Scatter : mesures réelles et image derrière chaque point",
+  "description": "Explorez Image Scatter dans Image UMAP avec des mesures cellulaires téléchargées, des aperçus vérifiés et le transfert exact d'une cellule vers Annotate.",
+  "objectives": [
+    "Trouver Image Scatter dans Image UMAP et charger la bonne table cell.",
+    "Examiner des paires de mesures brutes et comprendre les coordonnées absentes ou constantes.",
+    "Relier une cellule tracée à son image sans modifier les annotations ni les données."
+  ],
+  "prerequisite": "Réutilisez l'exemple téléchargeable d'Annotate avec sa base de mesures, ses images cellulaires et leurs marqueurs de format. Une copie privée identique comprend 2 341 cellules et leurs 2 341 PNG. Les contrôles SQLite indépendants portent sur chaque valeur source, identité cellulaire complète et chemin; les coordonnées affichées et les pixels RGB des vignettes sont aussi vérifiés. Seules les images de cellules sont validées, pas celles des noyaux ou pathogènes. Un point inhabituel ne démontre ni phénotype, infection, traitement ni exactitude de segmentation. Aucun ajustement UMAP, entraînement, calcul GPU, export ou changement d'étiquette. Pas de téléchargement propre, choix de colonne d'image, réglage de couleur ou groupe, transformation d'axe, export ni console IA. Plot charge la table; les axes la redessinent. La limite de 200 000 lignes n'est ni un échantillonnage aléatoire ni une garantie de conserver toute l'information. Le filtrage partagé n'est pas validé ici. API : spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame et ScatterCanvas.point_position.",
+  "scenes": [
+    "Ouvrez Image UMAP depuis Home, puis choisissez Image Scatter. Cette vue imbriquée représente deux mesures existantes; elle ne calcule pas de projection UMAP. Nous réutilisons l'exemple réel téléchargeable d'Annotate, en gardant ensemble la base de mesures et les images cellulaires. Le tutoriel Annotate explique comment l'obtenir.",
+    "Choisissez Browse et ouvrez la copie de la base de mesures. Quand vous déplacez un projet, conservez le dossier data et les marqueurs de format des images, car une table seule ne contient pas les images. Cet exemple utilise des copies privées; les mesures et les pixels originaux restent intacts.",
+    "Choisissez cell dans le sélecteur de tables, puis Plot. Plot lit cette table; ce n'est ni une segmentation ni un entraînement. L'exemple comprend deux mille trois cent quarante et une cellules avec leurs images correspondantes. Une autre table nécessite de nouveau Plot; changer seulement le sélecteur ne charge pas ses lignes.",
+    "Choisissez cell_area pour x et cell_channel_1_mean_intensity pour y. Changer les axes redessine immédiatement les lignes chargées. Ce sont des mesures brutes, pas des coordonnées transformées de projection. Les points décrivent des cellules individuelles, pas des répétitions expérimentales indépendantes, et un motif visuel n'est pas un test statistique.",
+    "Laissez le pointeur sur la cellule tout à droite. Son image apparaît à côté du nuage, avec l'identité complète de plaque, ligne, colonne, champ et cellule. C'est une image recadrée enregistrée, pas le champ microscopique complet ni une nouvelle segmentation. Un aspect inhabituel ne démontre pas à lui seul un phénotype.",
+    "Sortez le pointeur du graphique : l'aperçu temporaire disparaît. Revenez au même point et l'image en cache réapparaît sans nouveau décodage. Le survol est une inspection temporaire, pas une annotation ni une sélection persistante. Aucune étiquette source n'est modifiée.",
+    "Échangez les deux mesures entre x et y. La cellule conserve son identité et son image malgré sa nouvelle position. Choisissez des axes pertinents plutôt que les premières colonnes numériques proposées automatiquement; ces sélecteurs offrent aussi des identifiants numériques et des métadonnées d'acquisition.",
+    "Restaurez cell_area sur x et choisissez cell_channel_0_homogeneity_distance_32 sur y. Sept cellules n'ont pas cette mesure : seuls deux mille trois cent trente-quatre couples de coordonnées sont traçables. Le nombre de lignes chargées reste deux mille trois cent quarante et une. Une valeur absente n'est pas zéro, et masquer des coordonnées ne renumérote pas les identités.",
+    "Choisissez measurement_ndim sur y. Toutes les lignes valent deux, donc les points forment une ligne horizontale. C'est une métadonnée constante, pas une concordance biologique. Restaurez cell_channel_1_mean_intensity avant d'examiner une autre cellule.",
+    "Pour examiner une image cliquée dans Annotate, ouvrez d'abord Annotate et chargez ce même projet copié. Revenez par Home, Image UMAP et son onglet Image Scatter existant. La page d'annotation doit connaître le bon projet; un graphique et un jeu de données sans rapport ne constituent pas un transfert valide.",
+    "Cliquez sur le point lui-même, puis passez à Annotate. Le survol seul ne fait qu'afficher l'aperçu. Le clic transmet la clé exacte de la cellule et les noms des deux axes à la vue d'annotation. Il ne change pas automatiquement de page, n'attribue pas d'étiquette et ne prouve pas que l'objet soit aberrant.",
+    "Annotate montre maintenant exactement la cellule cliquée, avec la même image enregistrée. Examinez-la avant de décider de l'annoter; cette démonstration ne change aucune étiquette. Image Scatter n'a pas d'export dédié du graphique ou de la sélection. Utilisez Database Browser pour exporter des tables, ou le tutoriel PCA pour l'analyse en composantes et ses CSV documentés."
+  ]
+}

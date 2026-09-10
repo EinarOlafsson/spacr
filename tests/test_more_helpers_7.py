@@ -54,7 +54,11 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
     assert labels[0].startswith("plate 1 (Gini: ")
     assert labels[1].startswith("plate 2 (Gini: ")
     assert labels[2].startswith("Combined (Gini: ")
-    assert [t.get_text() for t in ax.get_legend().get_texts()] == labels
+    # The house style uses coloured in-panel text instead of a framed
+    # Matplotlib legend.  Verify the visible labels without requiring the
+    # legacy legend object that the plot intentionally no longer creates.
+    assert ax.get_legend() is None
+    assert [text.get_text() for text in ax.texts] == labels
 
     areas, ginis = [], []
     for line, label in zip(ax.lines, labels):
@@ -65,7 +69,8 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
         assert (x[-1], y[-1]) == pytest.approx((1.0, 1.0))
         assert np.all(np.diff(y) >= -1e-12)
         assert np.all(y <= x + 1e-12)          # bows below the diagonal
-        areas.append(float(np.trapz(y, x)))
+        trapezoid = getattr(np, "trapezoid", None) or np.trapz
+        areas.append(float(trapezoid(y, x)))
         ginis.append(float(label.split("Gini: ")[1].rstrip(")")))
 
     # The whole point of the fixture: plate 2 is the unequal one.

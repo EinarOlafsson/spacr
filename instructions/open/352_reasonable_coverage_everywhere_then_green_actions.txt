@@ -1,0 +1,206 @@
+================================================================================
+EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
+================================================================================
+
+Status:    not started, filed 2026-09-02. THE STANDING GOAL AFTER THE LIST.
+Requested: 2026-09-02, verbatim -- "When you are done with all the items on
+           your instructions list, work on gettings all modules to the highest
+           reasonable test coverage (not 100% jut everything that makeses sese
+           to test should have a test) , and after that make sure github tests
+           are clean."
+Owner:     unassigned; this is what to pick up when `open/` is otherwise empty.
+
+--------------------------------------------------------------------------------
+THIS IS A CHANGE OF TARGET FROM 288, AND THAT IS THE POINT
+--------------------------------------------------------------------------------
+
+288 asks for 100% per module. This asks for "the highest REASONABLE coverage
+-- not 100%, just everything that makes sense to test". Those are different
+goals and the second is the maintainer's current one.
+
+WHAT THE DIFFERENCE BUYS, in this repository's own measured experience:
+
+  * 288's own file records that chasing the last items produced FOUR TESTS
+    THAT PASSED WHILE EXERCISING NOTHING -- every one asserted an absence,
+    which is what a function returns when it did not run. Those raise a
+    number and find nothing.
+  * `deep_spacr`'s remaining six arcs need a model, a data loader and a real
+    epoch. That is an integration test worth having for its own sake and a
+    terrible way to buy six items.
+  * The 2026-08-31 audit wrongly recorded 307 sites as "unreachable by
+    construction". The correction is real and useful -- an `except ImportError`
+    arm is ALWAYS drivable -- but the effort went into re-deriving reachability
+    rather than into finding defects.
+
+AGAINST THAT: the coverage sweep is also what FOUND the defects in instruction
+310, ninety-seven of them, because code behind a pragma has by construction
+never run. So the sweep pays for itself in bugs, not in percentage.
+
+THE READING TO WORK TO: cover what a reader would call a behaviour. Stop at
+what only a line counter would call one.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Last complete measurement (batched11, 2026-08-31, now stale): 99.87% lines,
+355 items across 108 of 510 modules. `spacr/sequencing.py` reached 100.00% on
+current source on 2026-09-02 and its 9 items should come off that list.
+
+    25 ml.py    24 io.py    23 plot.py    19 timelapse.py
+    13 qt/preferences.py    10 qt/screens/app_screen.py
+     8 measure.py    8 guide_attribution.py    7 utils.py
+     7 regression_annotation.py    6 spacrops.py    6 hyperparam.py
+     6 qt/widgets/cell_montage_view.py    6 deep_spacr.py
+
+THE MEASUREMENT IS THE HARD PART, NOT THE TESTS. Every trap is recorded in
+288 and in 288_coverage_state: run BATCHED not under xdist, measure a FROZEN
+tree, clear `/tmp/pytest-of-olafsson` first, and check the statement and file
+counts against the previous run rather than believing the combine step's log
+line. And do it in the `spacr` conda env -- `spacr12` lacks pytest-cov and
+exits 4 per batch while the wrapper reports success.
+
+--------------------------------------------------------------------------------
+AND THEN: GREEN ACTIONS
+--------------------------------------------------------------------------------
+
+Second, and only after the above: `tests.yml`, `compat-matrix.yml` and
+`docs.yml` green on one pushed nightly SHA. That is 288's and 05's gate as
+well, so this item does not duplicate them -- it says which order the
+maintainer wants them in.
+
+TWO THINGS IN THE WAY THAT ARE ALREADY KNOWN, and neither is a coverage
+problem: 345 (three annotate tests) and 346 (twenty-one measure tests) both
+fail ONLY IN COMPANY. A suite that is red only when run whole cannot be made
+green by adding tests to it.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A fresh complete batched measurement, with its statement and file counts
+  matching the previous run, recorded with its date and commit.
+* Every module either at a coverage the reader agrees is reasonable, or named
+  here with the reason it stops short -- a decision not to test is a result
+  and is recorded like one.
+* No test added under this item asserts only an absence.
+* The three required workflows green on one pushed nightly SHA.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- ITEM 60 IS RETIRED INTO THIS ONE, AND PROGRESS.md IS GONE
+--------------------------------------------------------------------------------
+
+`instructions/PROGRESS.md` was retired today on the maintainer's decision. It
+was hand-maintained, it had gone stale, and a second ledger disagreeing with
+the folder is the exact failure `tools/build_instruction_index.py` was written
+to prevent. `instructions/00_INDEX.txt` is now the only ledger.
+
+HOW STALE IT WAS, measured before deleting it rather than asserted: its
+"Unfinished" table listed about 34 items, several at 0%, and every one of them
+is closed in `done/`. Six were opened and checked:
+
+    122  regress across screens        PROGRESS said 0%   file says "122 IS CLOSED", 2026-08-20
+    142  force restart                 PROGRESS said 0%   "DONE, A THROUGH C", 21 tests
+    137  drag images in                PROGRESS said 0%   "DONE 2026-08-20", 50 tests
+    126  the theme must not lag        PROGRESS said 0%   fixed at the cause, 8 tests
+    114  parameter search              PROGRESS said 0%   all five points built
+    174  beta transform                PROGRESS said 0%   "DONE. A, B AND C", 20 tests
+
+ITEM 60 WAS A GHOST. PROGRESS.md carried a row -- "60 Every module at 100%
+test coverage -- IN PROGRESS, 42,851 tests" -- for an instruction that HAS NO
+FILE, in `open/` or `done/`, and never did. Its only other trace is
+`instructions/data/60_coverage_baseline.json`. So the number was being carried
+forward in a ledger nobody could act on, for an item nobody could read.
+
+RETIRED INTO 288 AND THIS ITEM, which is where that goal actually lives now:
+288 is the 100%-per-module gate with its own measured state, and 352 is the
+"highest reasonable coverage, then green Actions" goal the maintainer set on
+2026-09-02 as what to pick up when `open/` is otherwise empty. No new file is
+created for 60; a third home for the same goal is how this drifted in the
+first place. The baseline JSON stays where it is -- it is data, and data with
+no owning instruction is still evidence.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- guide_attribution: 8 ITEMS ON THE LIST, 2 IN THE TREE, 0 WORTH A TEST
+--------------------------------------------------------------------------------
+
+Taken as the first module of this item because it is small, in one lane, and
+carries 8 items on the stale list above. Measured on the current tree with
+every test file that imports it -- seventeen of them, not the five whose
+names say "guide_attribution":
+
+    with the five obviously-named files    87.39 %   27 missing
+    with all seventeen                     98.83 %    2 missing
+
+THE FIRST NUMBER IS THE TRAP THIS ITEM WARNS ABOUT, from the other side. A
+module measured against "its own" tests looks twenty-five items worse than it
+is, and twenty-five tests written against that reading would duplicate cover
+that already exists in `test_option_c_reads_every_measurement`,
+`test_a_guide_and_a_probability_for_every_cell` and a dozen others. The unit
+of measurement is the SUITE, not the file whose name matches.
+
+THE TWO THAT ARE LEFT ARE BOTH UNREACHABLE DEFENSIVE GUARDS, and neither
+should be driven:
+
+  * `attributable`, line 343, `if total <= 0: return False, 0.0`. Three
+    things must hold together for it: `p < 1` (or the function has already
+    returned `(True, 1.0)`), every competitor filtered out, and the fallback
+    competitor's weight `1 - p` also zero -- which contradicts the first. The
+    one way it used to happen is named in the comment above it: a weight
+    whose conversion is not pure could pass the positivity filter as one
+    number and be stored as another. READING IT ONCE CLOSED THAT, and
+    `test_a_weight_is_read_once_in_attributable.py` keeps it closed.
+
+  * `posterior_multivariate`, line 761, the `dead` row fallback. The line
+    above it re-centres each row on its own maximum, so at least one entry
+    is exactly zero, `exp` gives that column 1.0, and the row sum is never
+    zero. An all-NaN row does not reach it either -- `NaN <= 0` is False.
+
+WHAT WAS WRITTEN INSTEAD OF TWO TESTS THAT REACH THEM. Two classes that
+assert the INVARIANT making each guard unnecessary, and say so in their
+docstrings -- including the three inputs most likely to break the second
+one (a zero measurement, whose log is -inf; a negative one; NaN), all three
+measured and all three finite. Reaching either arm would mean weakening the
+invariant to make the guard reachable, which is the wrong way round, and is
+exactly the shape of the four tests 288 records as "passing while exercising
+nothing".
+
+SO guide_attribution IS DONE for this item at 98.83 %, and the two remaining
+statements are recorded here as deliberate rather than left to look like
+debt. THE LIST ABOVE IS STALE IN BOTH DIRECTIONS -- it says 8 -- and the
+next module should be re-measured the same way before any test is written
+for it.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- regression_annotation: 7 ITEMS ON THE LIST, 99.06 % -> 99.57 %
+--------------------------------------------------------------------------------
+
+Second module, same method, and it went the other way from the first --
+three of the four remaining statements WERE behaviours and now have tests:
+
+  * `Strategy.describe()` when a strategy is declared and not built. Every
+    shipped strategy is implemented, so the sentence has never been produced
+    by the real menu -- but the field exists so a strategy can be OFFERED
+    for discussion before it is built, and a menu entry that reads like a
+    working feature is the failure it prevents.
+  * `strategy()` handed an entry where a key is expected. The caller that
+    matters passes a resolved entry through a second layer, and looking it
+    up again would fail for a strategy that is not on the menu at all --
+    which is exactly the case a caller holding the object is in.
+  * `LeakageReport.summary()` when the INCLUSIVE fit is itself at chance.
+    Survival is the fraction of that fit's lift retained after removing the
+    score's own inputs; with no lift there is nothing to retain, so the
+    report says so in words instead of printing a ratio nobody can read.
+
+THE FOURTH IS AN UNREACHABLE GUARD, and it is left alone.
+`_run_self_training` raises `NotEnoughLabels` when `best is None`, and the
+loop is `range(max(1, int(request.rounds)))` -- it runs at least once
+whatever the request asks for, and the first pass assigns `best`. Reaching
+it would mean removing that floor, which trades an unreachable line for a
+real way to get no fit at all.
+
+TWO MODULES IN, THE PATTERN IS THE SAME BOTH TIMES: the stale list's number
+is wrong, the per-file measurement is wrong in the pessimistic direction,
+and what is left at the end is defensive guards over invariants asserted
+elsewhere. The work is the measurement and the reading; the tests are
+small.

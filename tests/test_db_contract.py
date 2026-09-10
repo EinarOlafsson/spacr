@@ -67,6 +67,35 @@ from spacr.database_schema import (CURRENT_SCHEMA_VERSION,
 #: in a particular run does not mean optional in the database contract.
 BUILT_OBJECT_TABLES = schema.CANONICAL_OBJECT_TABLES
 
+#: What `build_project` actually WRITES, which is not the same question.
+#:
+#: THIS FIXTURE TOOK 32 SECONDS PER FIELD AND HUNG THE SUITE. `_MAX_ORGANELLES`
+#: is 702, deliberately, so `CANONICAL_OBJECT_TABLES` is 706 names -- and
+#: `measure_field` wrote a three-row frame to every one of them, each through
+#: `_append_to_measurements_db`, which opens its own connection, migrates it,
+#: creates the table with `to_sql` and closes it again. 706 x ~45 ms x two
+#: fields is over a minute before the first test in this file runs, and the
+#: chunk carrying it hit a 90-minute timeout with no output at all.
+#:
+#: WHAT THE FIXTURE IS FOR is the shared project every test here reads: the
+#: bookkeeping tables, the crop index, the parent/child links. It is not the
+#: place that proves 702 slots exist -- the parametrised sweeps below still
+#: walk `BUILT_OBJECT_TABLES` in full, and `test_the_object_key_round_trips
+#: _for_every_slot` walks every slot on the schema side.
+#:
+#: The sample keeps one of each SHAPE rather than a prefix: the four named
+#: tables, the unsuffixed first slot, a one-letter suffix, a two-letter
+#: suffix, and the last slot -- because the suffix scheme changes at 26 and
+#: an off-by-one there is exactly what a prefix sample would miss.
+BUILT_SAMPLE_OBJECT_TABLES = (
+    'cell', 'cytoplasm', 'nucleus', 'pathogen',
+    schema.ORGANELLE_ROLES[0],      # organelle
+    schema.ORGANELLE_ROLES[1],      # organelleb
+    schema.ORGANELLE_ROLES[25],     # organellez, last single letter
+    schema.ORGANELLE_ROLES[26],     # organelleaa, first double
+    schema.ORGANELLE_ROLES[-1],     # organellezz
+)
+
 N_OBJECTS = 3
 
 
@@ -109,12 +138,19 @@ def db_of(root):
 
 
 def build_project(root, fields=('plate1_A01_1', 'plate1_A01_2'),
-                  bookkeeping=True):
-    """A project database with every writer that touches ``measurements.db``."""
+                  bookkeeping=True, tables=BUILT_OBJECT_TABLES):
+    """A project database with every writer that touches ``measurements.db``.
+
+    :param tables: which object tables to write. The default is the whole
+        canonical contract, which the module-scoped `project` needs because
+        the sweeps below are parametrised over every one of its 706 names.
+        `fresh_project` passes the sample instead -- see
+        `BUILT_SAMPLE_OBJECT_TABLES` for why that matters.
+    """
     os.makedirs(os.path.join(root, 'measurements'), exist_ok=True)
     os.makedirs(os.path.join(root, 'data'), exist_ok=True)
     for stem in fields:
-        measure_field(root, stem)
+        measure_field(root, stem, tables=tables)
         write_crops(root, stem)
     db = db_of(root)
     if bookkeeping:
@@ -141,9 +177,21 @@ def project(tmp_path_factory):
 
 @pytest.fixture()
 def fresh_project(tmp_path):
-    """A private project for tests that write to or delete from it."""
+    """A private project for tests that write to or delete from it.
+
+    THE SAMPLE, NOT THE FULL CONTRACT, and the difference is 25 rebuilds.
+    This fixture is function-scoped because its tests mutate what they are
+    given, so it is built once per test -- and writing all 706 canonical
+    object tables took 60 seconds each time, which is why this file
+    produced no output at all inside a 90-minute chunk timeout.
+
+    The module-scoped `project` above still writes the full 706, once, and
+    every sweep parametrised over `CANONICAL_OBJECT_TABLES` reads THAT one.
+    Nothing here needs 702 organelle slots to prove a delete destroys a
+    table.
+    """
     root = str(tmp_path / 'project')
-    return build_project(root)
+    return build_project(root, tables=BUILT_SAMPLE_OBJECT_TABLES)
 
 
 # ---------------------------------------------------------------------------
@@ -944,7 +992,17 @@ def test_the_declared_row_key_is_not_unique_so_a_keyed_delete_is_not_safe(
         f'declared key does not identify a row')
 
 
-@pytest.mark.parametrize('table', BUILT_OBJECT_TABLES)
+# THE SAMPLE, AND THIS ONE IS WHY THE FILE HUNG. Parametrised over all 706
+# canonical tables AND taking the function-scoped `fresh_project`, this asked
+# for 706 full project rebuilds -- 706 x 60 s, about twelve hours, with no
+# output because pytest prints nothing until a test finishes. The chunk
+# carrying this file hit a 90-minute timeout having produced an empty log.
+#
+# The property is about a table's SHAPE -- that count-then-delete on one
+# predicate is the identity that holds, where rowid and a keyed delete both
+# fail -- and every shape is in the sample. Slot 341 tells you nothing slot 2
+# does not.
+@pytest.mark.parametrize('table', BUILT_SAMPLE_OBJECT_TABLES)
 def test_count_then_delete_on_one_predicate_is_the_pattern_that_holds(
         fresh_project, table):
     """The property that *is* true, stated for every object table.
@@ -1025,7 +1083,11 @@ def test_clearing_a_field_removes_only_that_fields_rows(fresh_project):
     clear_field_rows(fresh_project, tables, 'plate1_A01_1')
 
     after = {t: row_count(fresh_project, t) for t in table_names(fresh_project)}
-    for table in BUILT_OBJECT_TABLES + ('png_list',):
+    # THE TABLES THIS PROJECT ACTUALLY HAS. `fresh_project` writes the
+    # sample rather than all 706 canonical names -- see
+    # `BUILT_SAMPLE_OBJECT_TABLES` -- so asking about a slot nobody wrote
+    # is a KeyError about the fixture, not a finding about clearing.
+    for table in BUILT_SAMPLE_OBJECT_TABLES + ('png_list',):
         assert after[table] == before[table] // 2, (
             f'{table}: cleared one of two fields, {before[table]} -> '
             f'{after[table]}')

@@ -11,9 +11,24 @@ from IPython.display import display
 # Aliased: this module also defines its own `save_figure(fig, src, figure_number)`
 # helper below, which would otherwise shadow this import for every call site
 # after it. Every kept figure still goes through the format/DPI preference.
+from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
+                            reference_line, resolve_ink, theme_target)
 from .plot import save_figure as save_figure_to_path
+
+#: THE TWO CONDITIONS EVERY TIMELAPSE PANEL COMPARES, coloured once and never
+#: re-mapped: a reader who has learned that blue is infected in the intensity
+#: histogram must not find it means something else in the motility plot.
+#:
+#: They were "red" and "green" at equal weight in eleven figures. That is two
+#: full-strength hues where the house style asks for one -- the condition is
+#: the claim, the control is the ground -- and it is the one pair a
+#: red-green-colour-blind reader cannot separate at all. Infected takes the
+#: highlight; uninfected takes the dark grey every control in the published
+#: figures takes.
+INFECTED_COLOUR = ROLES['highlight']
+UNINFECTED_COLOUR = Palette.GREY_DARK
+from .openmp_guard import single_threaded_openmp  # duplicate libomp is fatal — see that module
 from IPython.display import Image as ipyimage
-import trackpy as tp
 from skimage.measure import regionprops_table
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit, linear_sum_assignment
@@ -29,7 +44,14 @@ except ImportError:                     # numpy < 2.0
     
 from spacr import schema
 from spacr.image_colors import read_image_rgb, rgb_to_cv2
-from spacr.utils import debug
+from spacr.utils import _LazyModule, debug
+
+# Trackpy imports Numba at module import time.  Besides making every caller
+# pay for a tracking backend it may never use, that import can fail when a
+# checkout-local ``tools/coverage`` package shadows coverage.py's public
+# module.  Keep the existing ``tp.link_df`` / ``tp.filter_stubs`` call sites,
+# but load the optional backend only when the Trackpy path is actually used.
+tp = _LazyModule("trackpy")
 
 
 def _npz_to_movie(arrays, filenames, save_path, fps=10):
@@ -68,7 +90,7 @@ def _npz_to_movie(arrays, filenames, save_path, fps=10):
         if frame.ndim == 2 or (frame.ndim == 3 and frame.shape[2] in [1, 2]):
             if frame.ndim == 2 or frame.shape[2] == 1:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
-            elif frame.shape[2] == 2:
+            else:
                 # Create an RGB image with the first channel as red, second as green, blue set to zero
                 rgb_frame = np.zeros((height, width, 3), dtype=np.uint8)
                 rgb_frame[..., 0] = frame[..., 0]  # Red channel
@@ -180,6 +202,7 @@ def _masks_to_gif(masks, gif_folder, name, filenames, object_type):
     from .io import _save_mask_timelapse_as_gif
 
     def _display_gif(path):
+        """Read ``path`` into an IPython image, display it, and return ``None``."""
         with open(path, 'rb') as file:
             display(ipyimage(file.read()))
 
@@ -327,6 +350,13 @@ def _require_2d_frames(masks, caller):
 
 
 def _prepare_for_tracking(mask_array):
+    """Convert 2-D label frames into the region table used by trackers.
+
+    :param mask_array: label masks ordered by frame; every frame must be 2-D.
+    :returns: one row per labelled region with frame, centroid, mass, source
+        label, bounding box, and eccentricity.
+    :raises ValueError: if any frame is not two-dimensional.
+    """
     _require_2d_frames(mask_array, '_prepare_for_tracking')
     frames = []
     for t, frame in enumerate(mask_array):
@@ -369,8 +399,9 @@ def link_by_iou(mask_prev, mask_next, iou_threshold=0.1):
             m2 = bool_next[L2]
             inter = np.logical_and(m1, m2).sum()
             union = np.logical_or(m1, m2).sum()
-            if union > 0:
-                cost[i, j] = 1 - inter/union
+            # Both labels came from np.unique on their masks, so each owns at
+            # least one pixel and their union cannot be empty.
+            cost[i, j] = 1 - inter/union
     # Solve assignment
     row_ind, col_ind = linear_sum_assignment(cost)
     matches = []
@@ -1579,7 +1610,16 @@ def preprocess_pathogen_data(pathogen_df):
     parasite_counts = pathogen_df.groupby(group_keys).size().reset_index(name='parasite_count')
 
     # Aggregate numerical columns and take the first of object columns
-    agg_funcs = {col: 'mean' if np.issubdtype(pathogen_df[col].dtype, np.number) else 'first' for col in pathogen_df.columns if col not in group_keys + ['parasite_count']}
+    value_columns = [
+        col for col in pathogen_df.columns
+        if col not in group_keys + ['parasite_count']
+    ]
+    agg_funcs = {}
+    for col in value_columns:
+        dtype = pathogen_df[col].dtype
+        numeric = (pd.api.types.is_numeric_dtype(dtype)
+                   and not pd.api.types.is_bool_dtype(dtype))
+        agg_funcs[col] = 'mean' if numeric else 'first'
     pathogen_agg = pathogen_df.groupby(group_keys).agg(agg_funcs).reset_index()
 
     # Merge the counts back into the aggregated data. one_to_one: both sides
@@ -1626,7 +1666,8 @@ def infected_vs_noninfected(result_df, measurement):
     uninfected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]
 
     # Plotting
-    fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
 
     # Plot for cells that were infected at some time
     for group_id in infected_cells_df['plate_row_column_field_object'].unique():
@@ -2134,7 +2175,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     save_results_dataframe(df=summary_df_inf_non_inf, src=db_loc, results_name='well_results_inf_non_inf')
 
     # Plotting
-    fig, ax = plt.subplots(figsize=(10, 8))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 8))
     sampled_groups = result_df['plate_row_column_field_object'].unique()
     if num_lines is not None and 0 < num_lines < len(sampled_groups):
         sampled_groups = np.random.choice(sampled_groups, size=num_lines, replace=False)
@@ -2207,12 +2249,16 @@ def create_results_figure():
 
     :returns: tuple ``(fig, ax_pca, ax_xgb, ax_hist)``.
     """
-    fig = Figure(figsize=(7, 6), dpi=100)
-    gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
+    # The context has to be open when the AXES are created, not only the
+    # Figure: rcParams reach an artist at construction, so the spines, the
+    # ticks and the label colour are decided by these four lines.
+    with figure_style(theme_target()):
+        fig = Figure(figsize=(7, 6), dpi=100)
+        gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
 
-    ax_pca = fig.add_subplot(gs[0, 0])
-    ax_xgb = fig.add_subplot(gs[0, 1])
-    ax_hist = fig.add_subplot(gs[1, :])
+        ax_pca = fig.add_subplot(gs[0, 0])
+        ax_xgb = fig.add_subplot(gs[0, 1])
+        ax_hist = fig.add_subplot(gs[1, :])
 
     return fig, ax_pca, ax_xgb, ax_hist
 
@@ -2392,10 +2438,10 @@ def _make_intensity_motility_panel(
                 intens_inf = cell_level.loc[mask_inf, intensity_col].to_numpy()
                 intens_uninf = cell_level.loc[~mask_inf, intensity_col].to_numpy()
 
-                if intens_inf.size == 0 and intens_uninf.size == 0:
-                    ax.set_visible(False)
-                    return
-
+                # No "both sides empty" skip: `mask_inf` and `~mask_inf`
+                # partition `cell_level`, which the `cell_level.empty` guard
+                # above has already established is non-empty, so the two
+                # arrays cannot both have size 0.
                 all_vals = np.concatenate(
                     [arr for arr in (intens_inf, intens_uninf) if arr.size]
                 )
@@ -2413,28 +2459,30 @@ def _make_intensity_motility_panel(
                 intens_uninf,
                 bins=bin_edges,
                 alpha=0.5,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label="Uninfected",
             )
             ax.hist(
                 intens_inf,
                 bins=bin_edges,
                 alpha=0.5,
-                color="red",
+                color=INFECTED_COLOUR,
                 label="Infected",
             )
             if np.isfinite(thr_val):
-                ax.axvline(thr_val, color="black", linestyle="--", linewidth=1)
+                # A threshold is a reference, not a result: thin, dashed, grey.
+                reference_line(ax, x=thr_val)
 
             ax.set_xlabel(intensity_col)
             ax.set_ylabel("Count")
             ax.set_title("Pathogen-channel intensity\n(adjusted labels)")
-            ax.legend(fontsize=7)
+            ax.legend(fontsize=TYPE_SCALE["legend"], frameon=False)
         except Exception as e:
             print(f"[_make_intensity_motility_panel] Histogram payload invalid: {e}")
             ax.set_visible(False)
 
     def _plot_pca_qc(ax, pdata):
+        """Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``."""
         import numpy as np
     
         try:
@@ -2460,7 +2508,7 @@ def _make_intensity_motility_panel(
             y[~labels],
             s=5,
             alpha=0.4,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected",
         )
         ax.scatter(
@@ -2468,7 +2516,7 @@ def _make_intensity_motility_panel(
             y[labels],
             s=5,
             alpha=0.4,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected",
         )
     
@@ -2482,6 +2530,7 @@ def _make_intensity_motility_panel(
         ax.legend(fontsize=7)
 
     def _plot_xgb_importance_qc(ax, xdata):
+        """Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``."""
         try:
             feat_names = xdata["feature_names"]
             feat_vals = xdata["feature_importances"]
@@ -2557,7 +2606,7 @@ def _make_intensity_motility_panel(
                 probs_uninf,
                 bins=bins,
                 alpha=0.5,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label="Uninfected",
             )
         if probs_inf.size:
@@ -2565,22 +2614,23 @@ def _make_intensity_motility_panel(
                 probs_inf,
                 bins=bins,
                 alpha=0.5,
-                color="red",
+                color=INFECTED_COLOUR,
                 label="Infected",
             )
         ax.set_xlabel("XGBoost infection probability")
         ax.set_ylabel("Cells")
         ax.set_title("Probability separation (adjusted labels)")
-        ax.legend(fontsize=7)
+        ax.legend(fontsize=TYPE_SCALE["legend"], frameon=False)
 
     def _plot_inf_uninf_bar(ax, df_vals, value_col, title, ylabel):
         """
         Helper to plot infected vs uninfected distributions for the given column,
         using violin plots (with mean markers) instead of barplots.
         """
-        if value_col not in df_vals.columns:
-            ax.set_visible(False)
-            return
+        # No "column missing" skip: all three call sites below name a column
+        # they have just found in the frame they pass -- the per-channel one
+        # comes from `available_channels`, the p75 one from `has_p75_path`, and
+        # `rel_intensity` is computed on the frame one line before the call.
 
         # Collapse to one value per cell-track
         cell_level = (
@@ -2609,18 +2659,18 @@ def _make_intensity_motility_panel(
         if vals_inf.size:
             data.append(vals_inf)
             positions.append(pos)
-            colors.append("red")
+            colors.append(INFECTED_COLOUR)
             labels_xtick.append("Inf")
             pos += 1
         if vals_uninf.size:
             data.append(vals_uninf)
             positions.append(pos)
-            colors.append("green")
+            colors.append(UNINFECTED_COLOUR)
             labels_xtick.append("Uninf")
 
-        if not data:
-            ax.set_visible(False)
-            return
+        # No "nothing to draw" skip: `mask_inf` and `~mask_inf` partition
+        # `cell_level`, non-empty by the guard above, so at least one of
+        # `vals_inf` / `vals_uninf` has a size and `data` always gets a member.
 
         # Violin plots
         vp = ax.violinplot(
@@ -2632,15 +2682,17 @@ def _make_intensity_motility_panel(
             showextrema=False,
         )
 
-        # Color each violin (Inf = red, Uninf = green)
+        # Infected takes the highlight, uninfected the control grey.
+        ink = resolve_ink(theme_target())
         for body, color in zip(vp["bodies"], colors):
             body.set_facecolor(color)
-            body.set_edgecolor("black")
+            body.set_edgecolor(ink)
             body.set_alpha(0.6)
 
-        # Overlay means as black points
+        # Overlay means, in the ink rather than a hard-coded black that
+        # disappears into spaCR's dark ground.
         means = [float(np.nanmean(d)) for d in data]
-        ax.scatter(positions, means, color="black", s=10, zorder=3)
+        ax.scatter(positions, means, color=ink, s=10, zorder=3)
 
         ax.set_xticks(positions)
         ax.set_xticklabels(labels_xtick)
@@ -2726,11 +2778,13 @@ def _make_intensity_motility_panel(
         # +qc_axes_count for adjusted panel QC subplots
         n_cols = n_int_plots + 3 + (1 if qc_panel_needed_mask else 0) + qc_axes_count
 
-        fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
-        if n_cols == 1:
-            axes = np.array([axes])
-        else:
-            axes = np.array(axes).ravel()
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
+        # `plt.subplots` returns a bare Axes only for a 1x1 grid, and n_cols
+        # cannot be 1: `available_channels` is non-empty by the guard above and
+        # the sum adds a fixed 3 on top of it, so the smallest panel is four
+        # columns wide and `axes` is always an array.
+        axes = np.array(axes).ravel()
 
         axis_idx = 0
 
@@ -2781,10 +2835,11 @@ def _make_intensity_motility_panel(
 
         # ----- all-tracks FOV plot (absolute coordinates) -----
         def _plot_all_tracks(ax):
-            if not well_tracks:
-                ax.set_visible(False)
-                return
-
+            """Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``."""
+            # `well_tracks` is non-empty: the per-well guard above skips the
+            # whole well -- and never reaches this figure -- when it is not.
+            # A track too short to draw is a different case, and the
+            # `xs_all` check below still handles it.
             xs_all = []
             ys_all = []
             n_inf_tr = 0
@@ -2798,7 +2853,7 @@ def _make_intensity_motility_panel(
                 x = x_px * coord_scale
                 y = y_px * coord_scale
                 infected_tr = bool(tr.get("infected", False))
-                color = "red" if infected_tr else "green"
+                color = INFECTED_COLOUR if infected_tr else UNINFECTED_COLOUR
                 ax.plot(x, y, color=color, alpha=0.15, linewidth=0.5)
                 ax.scatter(x[-1], y[-1], color=color, s=5)
                 xs_all.append(x)
@@ -2845,8 +2900,11 @@ def _make_intensity_motility_panel(
                 transform=ax.transAxes,
                 ha="right",
                 va="bottom",
-                fontsize=8,
-                bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.8),
+                fontsize=TYPE_SCALE["annotation"],
+                color=resolve_ink(theme_target()),
+                # NO BOX. A rounded white panel is furniture the style has no
+                # other boxes to match, and on the dark theme it is a white
+                # rectangle over the data.
             )
 
         ax_all = axes[axis_idx]
@@ -2855,8 +2913,9 @@ def _make_intensity_motility_panel(
 
         # ----- motility origin plots (infected vs uninfected) for this well -----
         def _plot_origin(ax, want_infected: bool):
+            """Plot the selected group on ``ax`` relative to its origins; return ``None``."""
             n_tr = 0
-            color = "red" if want_infected else "green"
+            color = INFECTED_COLOUR if want_infected else UNINFECTED_COLOUR
 
             for tr in well_tracks:
                 if bool(tr.get("infected", False)) != want_infected:
@@ -2936,14 +2995,13 @@ def _make_intensity_motility_panel(
                 _plot_pca_qc(ax_pca, pca_data)
 
             elif qc_strategy == "xgboost" and has_xgb:
-                if axis_idx < len(axes):
-                    ax_prob = axes[axis_idx]
-                    axis_idx += 1
-                    _plot_xgb_prob_qc(ax_prob, df_well)
-                if axis_idx < len(axes):
-                    ax_xgb = axes[axis_idx]
-                    axis_idx += 1
-                    _plot_xgb_importance_qc(ax_xgb, xgb_data)
+                # qc_axes_count reserves exactly these two slots.
+                ax_prob = axes[axis_idx]
+                axis_idx += 1
+                _plot_xgb_prob_qc(ax_prob, df_well)
+                ax_xgb = axes[axis_idx]
+                axis_idx += 1
+                _plot_xgb_importance_qc(ax_xgb, xgb_data)
 
         # Plate/well tag for title & filename
         meta_tag = f"{plate_id}_{well_id}"
@@ -3267,12 +3325,13 @@ def _summarise_child_features_per_parent(
         c
         for c in df.columns
         if c not in group_cols + [child_label_col]
-        and np.issubdtype(df[c].dtype, np.number)
+        and pd.api.types.is_numeric_dtype(df[c])
     ]
     if not numeric_cols:
         return counts
 
     def _agg_for_feature(col_name: str) -> str:
+        """Return sum for area, minimum for distance, otherwise mean."""
         name = col_name.lower()
         if "area" in name:
             return "sum"
@@ -4074,9 +4133,6 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
             # interpolate centroid + scalar features at glitch frames
             for i_local in glitch_frames:
-                if i_local <= 0 or i_local >= n - 1:
-                    continue
-
                 n_glitches_fixed += 1
 
                 y_new = 0.5 * (y[i_local - 1] + y[i_local + 1])
@@ -4086,8 +4142,6 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
                 for col in cell_feature_cols:
                     s = g[col].to_numpy(dtype=float)
-                    if len(s) < 3:
-                        continue
                     s_new = 0.5 * (s[i_local - 1] + s[i_local + 1])
                     updates.setdefault(col, {})[idx[i_local]] = s_new
 
@@ -4243,8 +4297,8 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
 
     # Build RGB merge of intensity channels (up to 3)
     merged_rgb = np.zeros((H, W, 3), dtype=float)
-    if n_channels >= 1:
-        merged_rgb[..., 0] = norm_intensity[0]  # red
+    # The empty-channel case returned above before norm_intensity[0] was read.
+    merged_rgb[..., 0] = norm_intensity[0]  # red
     if n_channels >= 2:
         merged_rgb[..., 1] = norm_intensity[1]  # green
     if n_channels >= 3:
@@ -4269,13 +4323,14 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
     extra = 1 if combined_mask is not None else 0
     n_cols = n_channels + n_masks + extra
 
-    fig, axes = plt.subplots(
-        1,
-        n_cols,
-        figsize=(3 * n_cols, 3),
-        dpi=150,
-        squeeze=False,
-    )
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(
+            1,
+            n_cols,
+            figsize=(3 * n_cols, 3),
+            dpi=150,
+            squeeze=False,
+        )
     axes = axes[0]
 
     col_idx = 0
@@ -4444,6 +4499,12 @@ def _infection_qc_pca_clustering(
     except Exception:  # optional
         umap = None
 
+    # Keep the caller's measurements frame as the durable record.  Feature
+    # coercion below is deliberately limited to a candidate-only view, and the
+    # merge near the end writes to a shallow working copy before changing key
+    # dtypes or adding the adjusted call.
+    source_all_df = all_df
+
     # ------------------------------------------------------------------
     # Helper: evaluate an embedding + clustering
     # ------------------------------------------------------------------
@@ -4520,9 +4581,7 @@ def _infection_qc_pca_clustering(
     # Helper: UMAP with hyperparameter search
     # ------------------------------------------------------------------
     def _search_umap(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
-        if umap is None:
-            raise RuntimeError("umap-learn is not installed.")
-
+        """Return coordinates, labels, statistics, and parameters from UMAP."""
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_umap_search", True))
 
@@ -4593,9 +4652,7 @@ def _infection_qc_pca_clustering(
     # Helper: t-SNE with hyperparameter search
     # ------------------------------------------------------------------
     def _search_tsne(X_scaled, y_orig, gt_uninf, gt_inf, settings_local):
-        if TSNE is None:
-            raise RuntimeError("sklearn.manifold.TSNE is not available.")
-
+        """Return coordinates, labels, statistics, and parameters from t-SNE."""
         random_state = int(settings_local.get("infection_pca_random_state", 0))
         do_search = bool(settings_local.get("infection_pca_tsne_search", True))
         n_samples = X_scaled.shape[0]
@@ -4603,6 +4660,7 @@ def _infection_qc_pca_clustering(
 
         # Utility: run one t-SNE
         def _run_tsne(perplexity, learning_rate):
+            """Return coordinates, labels, and statistics for one t-SNE pair."""
             tsne = TSNE(
                 n_components=2,
                 random_state=random_state,
@@ -4701,8 +4759,10 @@ def _infection_qc_pca_clustering(
     # keep settings in sync so downstream code can use this if needed
     settings["infection_pca_method"] = embed_method
 
-    if embed_method not in {"pca", "umap", "tsne"}:
-        embed_method = "pca"
+    # A second `if embed_method not in {"pca", "umap", "tsne"}: embed_method =
+    # "pca"` stood here and could not run: the branch above assigns either
+    # `strategy`, which is in that set, or the literal "pca". It was removed
+    # rather than excluded from coverage.
 
     key_cols = ["plateID", "wellID", "fieldID", "cellID"]
     for col in key_cols:
@@ -4720,15 +4780,50 @@ def _infection_qc_pca_clustering(
     if cols_to_drop:
         all_df = all_df.drop(columns=cols_to_drop)
 
-    # ------------------------------------------------------------------
-    # Build per-cell feature table
-    # ------------------------------------------------------------------
-    numeric_cols = [
+    # The infection call cannot also be a grouping key or a feature. Both make
+    # the aggregation frame name one column twice.  Check the name-based
+    # candidate set before coercion so even a text-backed feature cannot evade
+    # this guard merely because pandas typed it ``object``.
+    pathogen_token = f"ch{pathogen_chan}".lower()
+    feature_candidates = [
         c
         for c in all_df.columns
         if c.startswith("cell_")
-        and c not in {"cellID"}
-        and pd.api.types.is_numeric_dtype(all_df[c])
+        and c != "cellID"
+        and (
+            "ch" not in c.lower()
+            or pathogen_token in c.lower()
+        )
+    ]
+    if infection_col in key_cols or infection_col in feature_candidates:
+        role = (
+            "a grouping key"
+            if infection_col in key_cols
+            else "a cell_* feature"
+        )
+        print(
+            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} is also "
+            f"{role}; it cannot be both the call and what the call is made from. "
+            "Skipping embedding QC."
+        )
+        return all_df, infection_col
+
+    # ------------------------------------------------------------------
+    # Build per-cell feature table
+    # ------------------------------------------------------------------
+    # SQLite/pandas represents both numeric text and an all-NULL REAL column
+    # as object dtype.  Filtering on dtype first silently discarded the former
+    # and made the advertised PCA/UMAP/t-SNE QC a no-op.  Coerce only columns
+    # this model can actually use: unrelated metadata and other fluorescence
+    # channels must neither be converted nor turn into schema errors.
+    candidate_frame = schema.coerce_model_feature_types(
+        all_df.loc[:, feature_candidates],
+        extra_features=feature_candidates,
+    )
+    numeric_cols = [
+        c
+        for c in feature_candidates
+        if pd.api.types.is_numeric_dtype(candidate_frame[c])
     ]
     if not numeric_cols:
         print(
@@ -4737,8 +4832,12 @@ def _infection_qc_pca_clustering(
         )
         return all_df, infection_col
 
-    cols_for_group = key_cols + numeric_cols + [infection_col]
-    tmp = all_df[cols_for_group].copy()
+    # Start from the durable columns and attach the coerced candidate values to
+    # this disposable aggregation frame.  The returned frame therefore keeps
+    # the database's original dtypes and metadata exactly as supplied.
+    tmp = all_df[key_cols + [infection_col]].copy()
+    for column in numeric_cols:
+        tmp[column] = candidate_frame[column]
     tmp.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     group = tmp.groupby(key_cols, observed=True)
@@ -4751,19 +4850,16 @@ def _infection_qc_pca_clustering(
     # below assumes cell_level is row-aligned with the arrays it builds from it.
     cell_level = cell_level.merge(inf_any, on=key_cols, how="left", suffixes=("", "_y"), validate="one_to_one")
 
-    if infection_col not in cell_level.columns:
-        for cand in (f"{infection_col}_y", f"{infection_col}_x"):
-            if cand in cell_level.columns:
-                cell_level[infection_col] = cell_level[cand]
-                break
-
-    if infection_col not in cell_level.columns:
-        print(
-            f"[infection_intensity_qc:PCA] Could not recover infection_col={infection_col!r} "
-            "after aggregation; skipping embedding QC."
-        )
-        return all_df, infection_col
-
+    # A recovery block stood here -- `if infection_col not in
+    # cell_level.columns:` followed by a hunt through `<col>_y` and `<col>_x`
+    # and a second skip -- and no input could reach it. `inf_any` is
+    # `group[infection_col].max()`, so it always carries the column; the guard
+    # above has already refused the two cases where the left side could carry
+    # it as well and the suffix could move it; and `suffixes=("", "_y")` can
+    # never mint an `_x` at all. It was removed rather than excluded from
+    # coverage. `test_the_infection_call_cannot_be_a_feature_as_well` and its
+    # sibling assert the guard that makes it dead, so if the invariant stops
+    # holding a test says so.
     cell_level[infection_col] = cell_level[infection_col].fillna(0).astype(bool)
 
     # ------------------------------------------------------------------
@@ -4836,7 +4932,10 @@ def _infection_qc_pca_clustering(
         for c in feature_cols:
             cl = c.lower()
             if ("intensity" in cl) or ("p75" in cl) or ("p95" in cl) or ("max" in cl):
-                vals = cell_for_X[c].to_numpy(dtype=float)
+                # pandas 3 may expose an already-float column through a
+                # read-only view.  The log transform is deliberately local,
+                # so own the buffer before changing its finite entries.
+                vals = cell_for_X[c].to_numpy(dtype=float, copy=True)
                 finite = np.isfinite(vals)
                 if finite.any() and np.nanmin(vals[finite]) >= 0:
                     vals[finite] = np.log1p(vals[finite])
@@ -4845,15 +4944,19 @@ def _infection_qc_pca_clustering(
     X = cell_for_X[feature_cols].to_numpy(dtype=float)
     y_orig = cell_level[infection_col].astype(bool).to_numpy()
 
-    # Remove rows with all NaNs
+    # Remove rows with all NaNs.
+    #
+    # Three skips stood here -- "no rows with finite features", "an all
+    # non-finite column is imputed as 0.0", and "fewer than 10 cells after
+    # filtering" -- and no input could reach any of them. `tmp.replace` above
+    # turned every infinity into NaN before the groupby, so in this table
+    # notna and isfinite are the same test; the degenerate-feature filter kept
+    # only columns with at least ten notna values, hence at least ten finite
+    # ones; and a row holding one of those has a positive finite count, so
+    # `mask_rows` keeps it. Every surviving column therefore still has ten
+    # finite values and the matrix still has ten rows.
     finite_counts = np.isfinite(X).sum(axis=1)
     mask_rows = finite_counts > 0
-    if not mask_rows.any():
-        print(
-            "[infection_intensity_qc:PCA] No rows with finite features; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
 
     X = X[mask_rows]
     cell_level = cell_level.loc[mask_rows].reset_index(drop=True)
@@ -4863,19 +4966,9 @@ def _infection_qc_pca_clustering(
     for j in range(X.shape[1]):
         col = X[:, j]
         m = np.isfinite(col)
-        if not m.any():
-            X[:, j] = 0.0
-        else:
-            med = np.nanmedian(col[m])
-            col[~m] = med
-            X[:, j] = col
-
-    if X.shape[0] < 10:
-        print(
-            "[infection_intensity_qc:PCA] Fewer than 10 cells after filtering; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
+        med = np.nanmedian(col[m])
+        col[~m] = med
+        X[:, j] = col
 
     # Optional subsampling for speed
     max_cells = int(settings.get("infection_pca_max_cells", 50000))
@@ -4902,15 +4995,11 @@ def _infection_qc_pca_clustering(
         )
         return all_df, infection_col
 
+    # `inf_vals.size` is `np.sum(y_int)` and `uninf_vals.size` is
+    # `np.sum(~y_int)`, both of which the guard above has already refused
+    # below 10, so no second per-class size check is possible here.
     inf_vals = intens[y_int]
     uninf_vals = intens[~y_int]
-
-    if inf_vals.size < 10 or uninf_vals.size < 10:
-        print(
-            "[infection_intensity_qc:PCA] Too few intensity values per class; "
-            "skipping embedding QC."
-        )
-        return all_df, infection_col
 
     thr_uninf = float(np.nanpercentile(uninf_vals, 25.0))
     thr_inf = float(np.nanpercentile(inf_vals, 75.0))
@@ -5068,6 +5157,8 @@ def _infection_qc_pca_clustering(
     # Map adjusted infection back to all_df (frame level)
     # ------------------------------------------------------------------
     # Ensure key dtypes match
+    if all_df is source_all_df:
+        all_df = all_df.copy(deep=False)
     for col in key_cols:
         all_df[col] = all_df[col].astype(cell_level[col].dtype)
 
@@ -5125,7 +5216,8 @@ def _infection_qc_pca_clustering(
             import matplotlib.pyplot as plt
 
             os.makedirs(motility_dir, exist_ok=True)
-            fig, ax = plt.subplots(figsize=(4, 4))
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(4, 4))
 
             # Masks for remaining cells
             mask_uninf_cluster_plot = cluster_labels == uninfected_cluster
@@ -5137,7 +5229,7 @@ def _infection_qc_pca_clustering(
                 coords[mask_uninf_cluster_plot, 1],
                 s=2,
                 alpha=0.6,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label=(
                     f"Uninfected cluster "
                     f"({frac_inf_uninfected_cluster*100:.1f}% infected at start)"
@@ -5148,7 +5240,7 @@ def _infection_qc_pca_clustering(
                 coords[mask_inf_cluster_plot, 1],
                 s=2,
                 alpha=0.6,
-                color="red",
+                color=INFECTED_COLOUR,
                 label=(
                     f"Infected cluster "
                     f"({frac_inf_infected_cluster*100:.1f}% infected at start)"
@@ -5427,16 +5519,15 @@ def _apply_infection_intensity_qc(
     all_df_qc = pd.concat(parts, axis=0, ignore_index=True)
 
     # Use QC payloads (histogram/PCA/XGB) from the first processed group
-    if first_payload_settings is not None:
-        settings["infection_hist_data"] = first_payload_settings.get("infection_hist_data")
-        settings["infection_pca_data"] = first_payload_settings.get("infection_pca_data")
-        settings["infection_xgb_importance"] = first_payload_settings.get("infection_xgb_importance")
-        settings["infection_intensity_qc_panel_type"] = first_payload_settings.get(
-            "infection_intensity_qc_panel_type"
-        )
-        settings["infection_intensity_qc_panel_path"] = first_payload_settings.get(
-            "infection_intensity_qc_panel_path"
-        )
+    settings["infection_hist_data"] = first_payload_settings.get("infection_hist_data")
+    settings["infection_pca_data"] = first_payload_settings.get("infection_pca_data")
+    settings["infection_xgb_importance"] = first_payload_settings.get("infection_xgb_importance")
+    settings["infection_intensity_qc_panel_type"] = first_payload_settings.get(
+        "infection_intensity_qc_panel_type"
+    )
+    settings["infection_intensity_qc_panel_path"] = first_payload_settings.get(
+        "infection_intensity_qc_panel_path"
+    )
 
     if any_adjusted and "adjusted_infected" in all_df_qc.columns:
         if all_df_qc["adjusted_infected"].isna().any():
@@ -5569,58 +5660,58 @@ def _compute_velocities_and_well_summary(
     track_df["velocity_unit"] = vel_unit
 
     # Straightness-based artifact detection / filtering
-    if "straightness" in track_df.columns:
-        straightness_threshold = float(
-            settings.get("straightness_threshold", 0.95)
+    # Every track record above writes straightness before this frame is built.
+    straightness_threshold = float(
+        settings.get("straightness_threshold", 0.95)
+    )
+    straightness_filter = bool(settings.get("straightness_filter", False))
+    n_tracks_before = track_df.shape[0]
+    n_high = int((track_df["straightness"] >= straightness_threshold).sum())
+    print(
+        "[summarise_tracks_from_merged] Straightness metric: "
+        f"{n_high} of {n_tracks_before} tracks have straightness "
+        f">= {straightness_threshold:.2f} "
+        "(net displacement / path length)."
+    )
+
+    if straightness_filter and n_high > 0:
+        drop_mask = track_df["straightness"] >= straightness_threshold
+        dropped = track_df.loc[
+            drop_mask, ["plateID", "wellID", "fieldID", "cellID"]
+        ].copy()
+        drop_keys = set(
+            zip(
+                dropped["plateID"],
+                dropped["wellID"],
+                dropped["fieldID"],
+                dropped["cellID"],
+            )
         )
-        straightness_filter = bool(settings.get("straightness_filter", False))
-        n_tracks_before = track_df.shape[0]
-        n_high = int((track_df["straightness"] >= straightness_threshold).sum())
+
+        track_df = track_df.loc[~drop_mask].reset_index(drop=True)
         print(
-            "[summarise_tracks_from_merged] Straightness metric: "
-            f"{n_high} of {n_tracks_before} tracks have straightness "
-            f">= {straightness_threshold:.2f} "
-            "(net displacement / path length)."
+            "[summarise_tracks_from_merged] Straightness filter "
+            f"removed {n_high} overly straight tracks "
+            f"(threshold={straightness_threshold:.2f})."
         )
 
-        if straightness_filter and n_high > 0:
-            drop_mask = track_df["straightness"] >= straightness_threshold
-            dropped = track_df.loc[
-                drop_mask, ["plateID", "wellID", "fieldID", "cellID"]
-            ].copy()
-            drop_keys = set(
-                zip(
-                    dropped["plateID"],
-                    dropped["wellID"],
-                    dropped["fieldID"],
-                    dropped["cellID"],
+        # Filter per_well_tracks accordingly
+        for well_key, track_list in list(per_well_tracks.items()):
+            filtered_list = [
+                tr
+                for tr in track_list
+                if (
+                    tr["plateID"],
+                    tr["wellID"],
+                    tr["fieldID"],
+                    tr["cellID"],
                 )
-            )
-
-            track_df = track_df.loc[~drop_mask].reset_index(drop=True)
-            print(
-                "[summarise_tracks_from_merged] Straightness filter "
-                f"removed {n_high} overly straight tracks "
-                f"(threshold={straightness_threshold:.2f})."
-            )
-
-            # Filter per_well_tracks accordingly
-            for well_key, track_list in list(per_well_tracks.items()):
-                filtered_list = [
-                    tr
-                    for tr in track_list
-                    if (
-                        tr["plateID"],
-                        tr["wellID"],
-                        tr["fieldID"],
-                        tr["cellID"],
-                    )
-                    not in drop_keys
-                ]
-                if filtered_list:
-                    per_well_tracks[well_key] = filtered_list
-                else:
-                    del per_well_tracks[well_key]
+                not in drop_keys
+            ]
+            if filtered_list:
+                per_well_tracks[well_key] = filtered_list
+            else:
+                del per_well_tracks[well_key]
 
     if track_df.empty:
         print(
@@ -5661,8 +5752,8 @@ def _compute_velocities_and_well_summary(
             )
         )
 
-    if well_records:
-        well_summary_df = pd.DataFrame(well_records)
+    # A non-empty track_df groups into at least one well record.
+    well_summary_df = pd.DataFrame(well_records)
 
     print(
         "[summarise_tracks_from_merged] Computed per-track velocities "
@@ -5820,6 +5911,7 @@ def _feature_velocity_correlations(all_df, track_df, measurements_dir):
             return
 
         def _corr_subset(mask, label):
+            """Return correlations for at least five finite-velocity rows, else ``None``."""
             sub = track_features.loc[mask, candidate_cols + ["velocity"]].copy()
             sub = sub[np.isfinite(sub["velocity"])]
             if sub.shape[0] < 5:
@@ -5938,13 +6030,14 @@ def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir
         heights = [mean_inf, mean_uninf]
         errors = [std_inf, std_uninf]
 
-        fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
+        with figure_style(theme_target()):
+            fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
         ax_ch.bar(
             x_pos,
             heights,
             yerr=errors,
             capsize=5,
-            color=["red", "green"],
+            color=[INFECTED_COLOUR, UNINFECTED_COLOUR],
             alpha=0.7,
         )
         ax_ch.set_xticks(x_pos)
@@ -5994,9 +6087,11 @@ def _make_motility_plots(
         return
 
     def _fmt_vel(val):
+        """Return finite ``val`` to two decimals, or ``n/a`` when non-finite."""
         return "n/a" if not np.isfinite(val) else f"{val:.2f}"
 
     def _apply_axis_limits(ax, xlim, ylim):
+        """Apply valid two-value limits to ``ax`` and return ``None``."""
         if xlim is not None and len(xlim) == 2:
             ax.set_xlim(float(xlim[0]), float(xlim[1]))
         if ylim is not None and len(ylim) == 2:
@@ -6036,14 +6131,15 @@ def _make_motility_plots(
     os.makedirs(motility_dir, exist_ok=True)
 
     # Combined plot over all wells
-    fig_all, ax_all = plt.subplots(figsize=(6, 6))
+    with figure_style(theme_target()):
+        fig_all, ax_all = plt.subplots(figsize=(6, 6))
 
     for tracks in per_well_tracks.values():
         for tr in tracks:
             x = tr["x_px"] * coord_scale
             y = tr["y_px"] * coord_scale
             infected_track = tr["infected"]
-            color = "red" if infected_track else "green"
+            color = INFECTED_COLOUR if infected_track else UNINFECTED_COLOUR
             ax_all.plot(x, y, color=color, alpha=0.2, linewidth=0.5)
             ax_all.scatter(x[-1], y[-1], color=color, s=5)
 
@@ -6073,10 +6169,15 @@ def _make_motility_plots(
         box_width,
         box_height,
         transform=ax_all.transAxes,
-        facecolor="white",
-        edgecolor="black",
+        # NO PANEL BEHIND THE NOTE: a rounded white box with a black edge is
+        # furniture the style has no other boxes to match, and on the dark
+        # theme it is a white rectangle laid over the tracks. The patch itself
+        # stays as an invisible spacer -- the four text lines below are
+        # positioned against its corner.
+        facecolor="none",
+        edgecolor="none",
         boxstyle="round,pad=0.02",
-        alpha=0.8,
+        alpha=0.0,
     )
     ax_all.add_patch(bbox_all)
 
@@ -6084,7 +6185,7 @@ def _make_motility_plots(
         text_x,
         y_top,
         f"Infected ({_fmt_vel(mean_vel_inf)} {vel_unit})",
-        color="red",
+        color=INFECTED_COLOUR,
         transform=ax_all.transAxes,
         fontsize=fontsize_main,
         va="top",
@@ -6093,7 +6194,7 @@ def _make_motility_plots(
         text_x,
         y_top - line_spacing,
         f"Uninfected ({_fmt_vel(mean_vel_uninf)} {vel_unit})",
-        color="green",
+        color=UNINFECTED_COLOUR,
         transform=ax_all.transAxes,
         fontsize=fontsize_main,
         va="top",
@@ -6102,7 +6203,7 @@ def _make_motility_plots(
         text_x,
         y_top - 2 * line_spacing,
         unit_line1,
-        color="black",
+        color=resolve_ink(theme_target()),
         transform=ax_all.transAxes,
         fontsize=fontsize_units,
         va="top",
@@ -6111,7 +6212,7 @@ def _make_motility_plots(
         text_x,
         y_top - 3 * line_spacing,
         unit_line2,
-        color="black",
+        color=resolve_ink(theme_target()),
         transform=ax_all.transAxes,
         fontsize=fontsize_units,
         va="top",
@@ -6133,7 +6234,8 @@ def _make_motility_plots(
             well_summary_map[(row["plateID"], row["wellID"])] = row
 
     for (plateID, wellID), tracks in per_well_tracks.items():
-        fig_w, ax_w = plt.subplots(figsize=(6, 6))
+        with figure_style(theme_target()):
+            fig_w, ax_w = plt.subplots(figsize=(6, 6))
         has_infected = False
         has_uninfected = False
 
@@ -6141,7 +6243,7 @@ def _make_motility_plots(
             x = tr["x_px"] * coord_scale
             y = tr["y_px"] * coord_scale
             infected_track = tr["infected"]
-            color = "red" if infected_track else "green"
+            color = INFECTED_COLOUR if infected_track else UNINFECTED_COLOUR
             if infected_track:
                 has_infected = True
             else:
@@ -6166,10 +6268,10 @@ def _make_motility_plots(
             box_width,
             box_height,
             transform=ax_w.transAxes,
-            facecolor="white",
-            edgecolor="black",
+            facecolor="none",
+            edgecolor="none",
             boxstyle="round,pad=0.02",
-            alpha=0.8,
+            alpha=0.0,
         )
         ax_w.add_patch(bbox_w)
 
@@ -6177,7 +6279,7 @@ def _make_motility_plots(
             text_x,
             y_top,
             f"Infected ({_fmt_vel(mean_inf_w)} {vel_unit})",
-            color="red",
+            color=INFECTED_COLOUR,
             transform=ax_w.transAxes,
             fontsize=fontsize_main,
             va="top",
@@ -6186,7 +6288,7 @@ def _make_motility_plots(
             text_x,
             y_top - line_spacing,
             f"Uninfected ({_fmt_vel(mean_uninf_w)} {vel_unit})",
-            color="green",
+            color=UNINFECTED_COLOUR,
             transform=ax_w.transAxes,
             fontsize=fontsize_main,
             va="top",
@@ -6195,7 +6297,7 @@ def _make_motility_plots(
             text_x,
             y_top - 2 * line_spacing,
             unit_line1,
-            color="black",
+            color=resolve_ink(theme_target()),
             transform=ax_w.transAxes,
             fontsize=fontsize_units,
             va="top",
@@ -6204,7 +6306,7 @@ def _make_motility_plots(
             text_x,
             y_top - 3 * line_spacing,
             unit_line2,
-            color="black",
+            color=resolve_ink(theme_target()),
             transform=ax_w.transAxes,
             fontsize=fontsize_units,
             va="top",
@@ -6223,14 +6325,15 @@ def _make_motility_plots(
 
         # infected-only, re-centred to (0,0)
         if has_infected:
-            fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
+            with figure_style(theme_target()):
+                fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
             for tr in tracks:
                 if not tr["infected"]:
                     continue
                 x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
                 y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
-                ax_inf.plot(x, y, color="red", alpha=0.2, linewidth=0.5)
-                ax_inf.scatter(x[-1], y[-1], color="red", s=5)
+                ax_inf.plot(x, y, color=INFECTED_COLOUR, alpha=0.2, linewidth=0.5)
+                ax_inf.scatter(x[-1], y[-1], color=INFECTED_COLOUR, s=5)
             ax_inf.set_aspect("equal", "box")
             ax_inf.set_xlabel(coord_label_x)
             ax_inf.set_ylabel(coord_label_y)
@@ -6248,14 +6351,15 @@ def _make_motility_plots(
 
         # uninfected-only, re-centred to (0,0)
         if has_uninfected:
-            fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
+            with figure_style(theme_target()):
+                fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
             for tr in tracks:
                 if tr["infected"]:
                     continue
                 x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
                 y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
-                ax_uninf.plot(x, y, color="green", alpha=0.2, linewidth=0.5)
-                ax_uninf.scatter(x[-1], y[-1], color="green", s=5)
+                ax_uninf.plot(x, y, color=UNINFECTED_COLOUR, alpha=0.2, linewidth=0.5)
+                ax_uninf.scatter(x[-1], y[-1], color=UNINFECTED_COLOUR, s=5)
             ax_uninf.set_aspect("equal", "box")
             ax_uninf.set_xlabel(coord_label_x)
             ax_uninf.set_ylabel(coord_label_y)
@@ -6322,9 +6426,11 @@ def _select_infection_feature_columns(all_df, pathogen_chan):
         return []
 
     key_cols = ["plateID", "wellID", "fieldID", "cellID"]
-    agg_cols = [c for c in feature_cols if c in all_df.columns]
-    if not agg_cols:
-        return []
+    # `numeric_cols` is a selection *from* `all_df.columns`, so every feature
+    # that survives the exclusions above is still a column of `all_df`: a
+    # membership filter here could not drop one, and could not empty a list
+    # the guard above has just refused when empty.
+    agg_cols = list(feature_cols)
 
     # Build per-cell table to filter out useless columns
     cell_level = (
@@ -6478,22 +6584,25 @@ def _make_adjusted_qc_panel(
             vals_uninf,
             bins=bin_edges,
             alpha=0.5,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected",
         )
         ax_hist.hist(
             vals_inf,
             bins=bin_edges,
             alpha=0.5,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected",
         )
         if thr_val is not None:
+            # Thin, dashed and grey. It was 2 pt solid black -- heavier than
+            # either distribution it separates, and a reference is not a
+            # result.
             ax_hist.axvline(
                 thr_val,
-                linestyle="--",
-                linewidth=2,
-                color="black",
+                linestyle=(0, (4, 3)),
+                linewidth=0.6,
+                color=ROLES["reference"],
                 label=f"thr={thr_val:.2f}",
             )
         if pathogen_chan is not None:
@@ -6505,7 +6614,7 @@ def _make_adjusted_qc_panel(
             ax_hist.set_xlabel("Intensity")
         ax_hist.set_ylabel("Cell count")
         ax_hist.set_title("Pathogen-channel intensity histogram")
-        ax_hist.legend(loc="best")
+        ax_hist.legend(loc="best", frameon=False)
     else:
         ax_hist.text(
             0.5,
@@ -6535,7 +6644,7 @@ def _make_adjusted_qc_panel(
                 x[~labels],
                 y[~labels],
                 s=8,
-                c="green",
+                c=UNINFECTED_COLOUR,
                 alpha=0.5,
                 label="Uninfected",
             )
@@ -6543,14 +6652,14 @@ def _make_adjusted_qc_panel(
                 x[labels],
                 y[labels],
                 s=8,
-                c="red",
+                c=INFECTED_COLOUR,
                 alpha=0.5,
                 label="Infected",
             )
             ax_pca.set_xlabel("component 1")
             ax_pca.set_ylabel("component 2")
             ax_pca.set_title(f"{method_label} embedding")
-            ax_pca.legend(loc="best")
+            ax_pca.legend(loc="best", frameon=False)
         else:
             ax_pca.text(
                 0.5,
@@ -6663,6 +6772,12 @@ def _infection_qc_histogram(
     pathogen_chan,
     motility_dir,
 ):
+    """Refine mask infection labels from pathogen-channel intensity.
+
+    The mutable ``settings`` mapping receives the histogram payload, panel
+    type, and optional panel path.  The returned pair is the updated frame
+    and infection-column name; insufficient data preserves the input pair.
+    """
     import matplotlib.pyplot as plt
     import os
     import numpy as np
@@ -6690,14 +6805,9 @@ def _infection_qc_histogram(
         settings["infection_intensity_qc_panel_path"] = None
         return all_df, infection_col
 
-    if intensity_col not in all_df.columns:
-        print(
-            f"[infection_intensity_qc] Column {intensity_col!r} not found; "
-            f"skipping intensity-based relabelling."
-        )
-        settings["infection_intensity_qc_panel_type"] = "histogram"
-        settings["infection_intensity_qc_panel_path"] = None
-        return all_df, infection_col
+    # No second "column not found" skip: the loop above only assigns
+    # `intensity_col` from a candidate it has just found in `all_df.columns`,
+    # and the guard above has already returned for the one other outcome.
 
     # --- IMPORTANT: drop any existing adjusted_infected when reusing DB ---
     # This prevents merge from creating adjusted_infected_x / adjusted_infected_y
@@ -6874,26 +6984,27 @@ def _infection_qc_histogram(
         # Plot histogram
         os.makedirs(motility_dir, exist_ok=True)
 
-        fig_h, ax_h = plt.subplots(figsize=(6, 4))
+        with figure_style(theme_target()):
+            fig_h, ax_h = plt.subplots(figsize=(6, 4))
         ax_h.hist(
             vals_uninf,
             bins=bin_edges,
             alpha=0.5,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected (mask-based)",
         )
         ax_h.hist(
             vals_inf,
             bins=bin_edges,
             alpha=0.5,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected (mask-based)",
         )
         ax_h.axvline(
             thr_val,
-            linestyle="--",
-            linewidth=2,
-            color="black",
+            linestyle=(0, (4, 3)),
+            linewidth=0.6,
+            color=ROLES["reference"],
             label=f"Threshold = {thr_val:.1f}",
         )
         if do_log:
@@ -6905,7 +7016,7 @@ def _infection_qc_histogram(
             f"Pathogen-channel intensity histogram (thr={thr_val:.1f}, "
             f"{hist_pct:.1f}th pct fallback)"
         )
-        ax_h.legend(loc="best")
+        ax_h.legend(loc="best", frameon=False)
 
         hist_filename = f"infection_intensity_histogram_{meta_tag}.png"
         hist_path = os.path.join(motility_dir, hist_filename)
@@ -6933,6 +7044,7 @@ def _infection_qc_histogram(
 
     return all_df, infection_col
 
+@single_threaded_openmp('XGBoost infection QC')
 def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motility_dir):
     """
     Use an XGBoost classifier to refine infection calling based on per-object features.
@@ -6999,6 +7111,8 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     settings["infection_pca_data"] = None
     settings["infection_xgb_importance"] = None
 
+    source_all_df = all_df
+
     # IMPORTANT: drop any existing adjusted_* / infection_prob* from DB reuse
     cols_to_drop = [
         c
@@ -7010,6 +7124,10 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     ]
     if cols_to_drop:
         all_df = all_df.drop(columns=cols_to_drop)
+    if all_df is source_all_df:
+        # Assignments below repair labels and key dtypes on this run's working
+        # frame; the database-shaped frame supplied by the caller is immutable.
+        all_df = all_df.copy(deep=False)
 
     orig_infection_col = infection_col
 
@@ -7063,19 +7181,58 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             raise KeyError(f"[_infection_qc_xgboost] Required column {col!r} not in all_df.")
 
     # ------------------------------------------------------------------
+    # Decide which object type's features to use (tracked_object)
+    # ------------------------------------------------------------------
+    tracked_object = str(settings.get("tracked_object", "cell")).strip().lower()
+    if tracked_object not in {"cell", "nucleus", "pathogen"}:
+        print(
+            f"[_infection_qc_xgboost] Unknown tracked_object={tracked_object!r}; "
+            "falling back to 'cell'."
+        )
+        tracked_object = "cell"
+    obj_prefix = f"{tracked_object}_"
+
+    # Name the real XGBoost candidates before aggregation.  Numeric text was
+    # previously discarded by ``median(numeric_only=True)`` and could never
+    # reach the schema validator below.  Restricting coercion to the chosen
+    # object, pathogen channel and non-centroid inputs also means an unrelated
+    # metadata column cannot abort a model that would never consume it.
+    pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
+    pattern_ch = re.compile(r"ch(\d+)\b")
+    feature_candidates = []
+    for column in all_df.columns:
+        if column == orig_infection_col or not pattern_obj.match(column):
+            continue
+        if "centroid" in column.lower():
+            continue
+        channel_match = pattern_ch.search(column)
+        if channel_match and channel_match.group(1) != str(pathogen_chan):
+            continue
+        feature_candidates.append(column)
+
+    candidate_frame = schema.coerce_model_feature_types(
+        all_df.loc[:, feature_candidates],
+        extra_features=feature_candidates,
+    )
+
+    # ------------------------------------------------------------------
     # Aggregate to per-object level (median across frames)
     # ------------------------------------------------------------------
+    aggregation_df = all_df.copy(deep=False)
+    for column in feature_candidates:
+        aggregation_df[column] = candidate_frame[column]
+
     agg_cols = [
         c
-        for c in all_df.columns
+        for c in aggregation_df.columns
         if c not in (key_cols + ["frame", "timeID", orig_infection_col])
     ]
 
-    group = all_df.groupby(key_cols, observed=True)
+    group = aggregation_df.groupby(key_cols, observed=True)
     cell_level = group[agg_cols].median(numeric_only=True).reset_index()
 
     infection_any = (
-        all_df.groupby(key_cols, observed=True)[orig_infection_col]
+        aggregation_df.groupby(key_cols, observed=True)[orig_infection_col]
         .max()
         .reset_index()
     )
@@ -7088,18 +7245,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         validate="one_to_one",
     )
 
-    if orig_infection_col not in cell_level.columns:
-        for cand in (f"{orig_infection_col}_y", f"{orig_infection_col}_x"):
-            if cand in cell_level.columns:
-                cell_level[orig_infection_col] = cell_level[cand]
-                break
-
-    if orig_infection_col not in cell_level.columns:
-        raise KeyError(
-            f"[_infection_qc_xgboost] Infection column {orig_infection_col!r} "
-            "missing from per-cell table after aggregation/merge."
-        )
-
+    # A recovery block stood here -- a hunt through `<col>_y` and `<col>_x`
+    # followed by a KeyError -- and no input could reach it. `agg_cols`
+    # excludes `orig_infection_col`, so the left side of the merge cannot
+    # carry it and the suffix cannot fire; `infection_any` is
+    # `groupby(key_cols)[orig_infection_col].max()`, so the right side always
+    # does; and `suffixes=("", "_y")` can never mint an `_x` at all. It was
+    # removed rather than excluded from coverage.
     cell_level[orig_infection_col] = (
         cell_level[orig_infection_col]
         .fillna(0)
@@ -7108,18 +7260,6 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
 
     if "n_pathogens" in cell_level.columns:
         cell_level["n_pathogens"] = cell_level["n_pathogens"].fillna(0)
-
-    # ------------------------------------------------------------------
-    # Decide which object type's features to use (tracked_object)
-    # ------------------------------------------------------------------
-    tracked_object = str(settings.get("tracked_object", "cell")).strip().lower()
-    if tracked_object not in {"cell", "nucleus", "pathogen"}:
-        print(
-            f"[_infection_qc_xgboost] Unknown tracked_object={tracked_object!r}; "
-            "falling back to 'cell'."
-        )
-        tracked_object = "cell"
-    obj_prefix = f"{tracked_object}_"
 
     # ------------------------------------------------------------------
     # Decide pathogen-channel intensity column for this tracked_object
@@ -7156,14 +7296,14 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     numeric_cols = schema.model_feature_columns(cell_level)
 
     feature_cols = []
-    pattern_obj = re.compile(rf"^{re.escape(obj_prefix)}")
-    pattern_ch = re.compile(r"ch(\d+)\b")
 
+    # `numeric_cols` cannot contain `orig_infection_col`, 'frame' or 'timeID':
+    # `agg_cols` above already excludes all three from the per-cell table, and
+    # `schema.model_feature_columns` would drop them anyway -- 'timeID' is
+    # provenance, 'frame' is not a declared measurement, and the infection call
+    # is cast to bool one block up, which that selector omits. So no skip for
+    # them is reachable here.
     for c in numeric_cols:
-        if c == orig_infection_col:
-            continue
-        if c in {"frame", "timeID"}:
-            continue
         if "centroid" in c.lower():
             continue
         if not pattern_obj.match(c):
@@ -7249,21 +7389,13 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     high_thr_inf = np.nanpercentile(inf_int, 75.0)
     low_thr_uninf = np.nanpercentile(uninf_int, 25.0)
 
+    # Neither quartile subset can come out empty: `inf_int` and `uninf_int` are
+    # the finite values of the same columns and the guard above has refused
+    # both when empty, so a percentile of them lies between their own min and
+    # max. The row holding the maximum therefore satisfies `>= high_thr_inf`
+    # and the row holding the minimum satisfies `<= low_thr_uninf`.
     hi_inf = infected_cells[infected_cells[intensity_col] >= high_thr_inf].copy()
     lo_uninf = uninfected_cells[uninfected_cells[intensity_col] <= low_thr_uninf].copy()
-
-    if hi_inf.empty or lo_uninf.empty:
-        print(
-            "[_infection_qc_xgboost] Could not define confident high/low quartiles; "
-            "using histogram QC."
-        )
-        return _infection_qc_histogram(
-            all_df=all_df,
-            settings=settings,
-            infection_col=infection_col,
-            pathogen_chan=pathogen_chan,
-            motility_dir=motility_dir,
-        )
 
     print(
         "[_infection_qc_xgboost] Extreme-intensity candidates: "
@@ -7304,8 +7436,10 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             wells_single_class.append((plate_id, well_id))
             continue
 
-        pos_idx = pos_df.index.to_numpy()
-        neg_idx = neg_df.index.to_numpy()
+        # ``Generator.choice`` may shuffle its input while sampling.  pandas 3
+        # exposes Index storage as read-only, so pass NumPy-owned buffers.
+        pos_idx = pos_df.index.to_numpy(copy=True)
+        neg_idx = neg_df.index.to_numpy(copy=True)
 
         if n_pos >= min_per_class and n_neg >= min_per_class:
             # wells with enough data per class → balanced sampling within well
@@ -7323,10 +7457,9 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
             pos_sel = pos_idx
             neg_sel = neg_idx
 
-        if pos_sel.size == 0 or neg_sel.size == 0:
-            wells_single_class.append((plate_id, well_id))
-            continue
-
+        # No second single-class skip: `n_pos` and `n_neg` are both non-zero by
+        # the guard above, so `pos_idx`/`neg_idx` are non-empty and
+        # `rng.choice` is asked for `min(n_pos, n_neg) >= 1` of them.
         train_idx_list.extend(pos_sel.tolist())
         y_train_list.extend([1] * pos_sel.size)
         train_idx_list.extend(neg_sel.tolist())
@@ -7365,7 +7498,11 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     # ------------------------------------------------------------------
     # Build feature matrix + median imputation
     # ------------------------------------------------------------------
-    X_all = cell_level[feature_cols].to_numpy(dtype=float)
+    # Pandas 3 may expose an Arrow-backed, read-only ndarray here.  Median
+    # imputation below is deliberately in-place, so own the working buffer
+    # instead of depending on a writable view from a particular dataframe
+    # backend.
+    X_all = cell_level[feature_cols].to_numpy(dtype=float, copy=True)
     for j in range(X_all.shape[1]):
         col = X_all[:, j]
         mask = np.isfinite(col)
@@ -7393,36 +7530,23 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
                 if keep[j] and abs(corr[i, j]) >= corr_thr:
                     keep[j] = False
 
-        if not keep.any():
+        # `keep[0]` is never cleared -- the inner loop only writes `keep[j]`
+        # for `j > i >= 0` -- so the filter always keeps at least the first
+        # feature and there is no "everything was correlated away" case.
+        removed = [f for f, k in zip(feature_cols, keep) if not k]
+        if removed:
             print(
-                "[_infection_qc_xgboost] All features flagged as highly correlated; "
-                "keeping original feature set."
+                "[_infection_qc_xgboost] Removing highly correlated features "
+                f"(>|{corr_thr:.2f}|): " + ", ".join(removed)
             )
-        else:
-            removed = [f for f, k in zip(feature_cols, keep) if not k]
-            if removed:
-                print(
-                    "[_infection_qc_xgboost] Removing highly correlated features "
-                    f"(>|{corr_thr:.2f}|): " + ", ".join(removed)
-                )
-            feature_cols = [f for f, k in zip(feature_cols, keep) if k]
-            X_all = X_all[:, keep]
-            X_train = X_train[:, keep]
+        feature_cols = [f for f, k in zip(feature_cols, keep) if k]
+        X_all = X_all[:, keep]
+        X_train = X_train[:, keep]
 
     used_feature_cols = feature_cols
 
-    if X_train.shape[1] == 0:
-        print(
-            "[_infection_qc_xgboost] No usable feature columns after correlation "
-            "filtering; using histogram QC."
-        )
-        return _infection_qc_histogram(
-            all_df=all_df,
-            settings=settings,
-            infection_col=infection_col,
-            pathogen_chan=pathogen_chan,
-            motility_dir=motility_dir,
-        )
+    # The feature matrix always has a column here: `feature_cols` is non-empty
+    # by the guard above, and the correlation filter keeps `keep[0]`.
 
     print(
         f"[_infection_qc_xgboost] Using {len(used_feature_cols)} "
@@ -7604,63 +7728,79 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
     # ------------------------------------------------------------------
     try:
         # --- histogram payload ---
-        if intensity_col in cell_level.columns:
-            intens = cell_level[intensity_col].to_numpy(dtype=float)
-            labels_adj = cell_level["adjusted_infected"].astype(bool).to_numpy()
-            mask_fin = np.isfinite(intens)
-            intens = intens[mask_fin]
-            labels_adj = labels_adj[mask_fin]
-            vals_inf = intens[labels_adj]
-            vals_uninf = intens[~labels_adj]
-            if intens.size >= 10:
-                n_bins = int(settings.get("infection_intensity_n_bins", 64))
-                n_bins = max(10, min(n_bins, 256))
-                _, bin_edges = np.histogram(intens, bins=n_bins)
-                # Use midpoint between training thresholds as a visual threshold
-                thr_val = float(0.5 * (low_thr_uninf + high_thr_inf))
-                hist_payload = {
-                    "intensities_inf": vals_inf,
-                    "intensities_uninf": vals_uninf,
-                    "bin_edges": bin_edges,
-                    "thr_val": thr_val,
-                    "pathogen_chan": pathogen_chan,
-                    "log_transform": False,
-                    "intensity_col": intensity_col,
-                    "tracked_object": tracked_object,
-                }
-                settings["infection_hist_data"] = hist_payload
+        # intensity_col was selected from cell_level.columns above.
+        intens = cell_level[intensity_col].to_numpy(dtype=float)
+        labels_adj = cell_level["adjusted_infected"].astype(bool).to_numpy()
+        mask_fin = np.isfinite(intens)
+        intens = intens[mask_fin]
+        labels_adj = labels_adj[mask_fin]
+        vals_inf = intens[labels_adj]
+        vals_uninf = intens[~labels_adj]
+        if intens.size >= 10:
+            n_bins = int(settings.get("infection_intensity_n_bins", 64))
+            n_bins = max(10, min(n_bins, 256))
+            _, bin_edges = np.histogram(intens, bins=n_bins)
+            # Use midpoint between training thresholds as a visual threshold
+            thr_val = float(0.5 * (low_thr_uninf + high_thr_inf))
+            hist_payload = {
+                "intensities_inf": vals_inf,
+                "intensities_uninf": vals_uninf,
+                "bin_edges": bin_edges,
+                "thr_val": thr_val,
+                "pathogen_chan": pathogen_chan,
+                "log_transform": False,
+                "intensity_col": intensity_col,
+                "tracked_object": tracked_object,
+            }
+            settings["infection_hist_data"] = hist_payload
 
         # --- PCA payload ---
         from sklearn.decomposition import PCA
         from sklearn.preprocessing import StandardScaler
 
-        if used_feature_cols:
-            X_panel = cell_level[used_feature_cols].to_numpy(dtype=float)
-            for j in range(X_panel.shape[1]):
-                col = X_panel[:, j]
-                m = np.isfinite(col)
-                if not m.any():
-                    X_panel[:, j] = 0.0
-                else:
-                    med = np.nanmedian(col[m])
-                    col[~m] = med
-                    X_panel[:, j] = col
+        # feature_cols is non-empty before training, and the correlation
+        # filter always retains its first entry.
+        # The imputation below is display-only.  Own the matrix because
+        # pandas 3 can return a read-only view for homogeneous columns.
+        X_panel = cell_level[used_feature_cols].to_numpy(
+            dtype=float, copy=True
+        )
+        for j in range(X_panel.shape[1]):
+            col = X_panel[:, j]
+            m = np.isfinite(col)
+            if not m.any():
+                X_panel[:, j] = 0.0
+            else:
+                med = np.nanmedian(col[m])
+                col[~m] = med
+                X_panel[:, j] = col
 
-            scaler = StandardScaler()
-            X_scaled_panel = scaler.fit_transform(X_panel)
-            pca = PCA(
-                n_components=2,
-                random_state=int(settings.get("infection_pca_random_state", 0)),
+        scaler = StandardScaler()
+        X_scaled_panel = scaler.fit_transform(X_panel)
+        # XGBoost can legitimately train on one surviving feature.  PCA
+        # cannot request two components from that matrix, but the panel
+        # contract is always a pair of plotting coordinates.  Fit the one
+        # available component and pad only the display coordinate with a
+        # zero axis; the fitted classifier and its feature set are
+        # unchanged.
+        panel_components = min(2, X_scaled_panel.shape[1])
+        pca = PCA(
+            n_components=panel_components,
+            random_state=int(settings.get("infection_pca_random_state", 0)),
+        )
+        coords = pca.fit_transform(X_scaled_panel)
+        if panel_components == 1:
+            coords = np.column_stack(
+                [coords[:, 0], np.zeros(coords.shape[0], dtype=float)]
             )
-            coords = pca.fit_transform(X_scaled_panel)
-            labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
-            pca_payload = {
-                "coords": coords,
-                "labels": labels_adj_panel,
-                "method_label": "PCA",
-                "tracked_object": tracked_object,
-            }
-            settings["infection_pca_data"] = pca_payload
+        labels_adj_panel = cell_level["adjusted_infected"].astype(bool).to_numpy()
+        pca_payload = {
+            "coords": coords,
+            "labels": labels_adj_panel,
+            "method_label": "PCA",
+            "tracked_object": tracked_object,
+        }
+        settings["infection_pca_data"] = pca_payload
     except Exception as e:
         print(f"[_infection_qc_xgboost] Could not compute histogram/PCA payloads: {e}")
 

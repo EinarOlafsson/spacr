@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "de",
+  "title": "Control Charts: eine Versuchsserie mit klaren Kontrollen und Grenzen prüfen",
+  "description": "Öffnen Sie das Werkzeug in QC, laden Sie eine ausdrücklich synthetische Serie mit dreißig Platten, prüfen Sie Kontrolle und Referenzbereich und exportieren Sie unabhängig überprüfte Datenpunkte.",
+  "objectives": [
+    "Control Charts in QC finden und die mitgelieferte synthetische CSV laden.",
+    "Eingabezeilen auf Well-Ebene von Plattenmittelwerten unterscheiden und genau eine Kontrolle auswählen.",
+    "Regelsätze vergleichen, Kontrolle und Referenzbereich ändern und wiederherstellen sowie Warnungen lesen.",
+    "Die tatsächliche Punktetabelle exportieren, ohne einen Bildexport oder eine biologische Validierung zu behaupten."
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv ist vollständig synthetisch und aus einem App-Test mit festem Seed abgeleitet: dreißig fiktive Platten, drei Wells je Kontrolltyp und Platte sowie eine programmierte Aufwärtsdrift nach Platte zwanzig. Die Datumswerte sind beispielhafte Reihenfolgelabels, keine Aufnahmeprotokolle. Dieses Spezialpanel hat derzeit keine Schaltfläche Load test data; Mikroskopiedownloads, Modelle, GPU-Analysen und AI-Anfragen werden nicht verwendet. Die alte Aufnahme mit zwei Platten wurde verworfen, weil die App keine Grenzen schätzen konnte. Die schmale Einstellungsspalte schneidet lange geschlossene Auswahltexte ab; die geöffneten Menüs zeigen die vollständigen Namen. Z-prime und Neuschätzung werden hier nicht ausgeführt.",
+  "scenes": [
+    "Öffnen Sie QC und darin Control Charts. Dieses Spezialwerkzeug stellt wiederholte Kontrollen über eine Versuchsserie dar. Die mitgelieferte CSV ist einschließlich der Drift ausdrücklich synthetisch. Sie demonstriert die Software, kein tatsächlich aufgenommenes Experiment und keinen validierten Assay.",
+    "Wählen Sie Load table und öffnen Sie die Beispiel-CSV. Sie enthält zweihundertsiebzig Well-Zeilen: dreißig Platten mit jeweils drei Negativkontroll-, drei Positivkontroll- und drei Proben-Wells. Das Diagramm zeigt einen Mittelwert der gewählten Kontrolle je Platte, nicht einen Punkt je Zelle.",
+    "Prüfen Sie Plate, Run order, Measurement und Control column anhand der angezeigten Namen. Wählen Sie in Control is nur neg. Die Liste erlaubt Mehrfachauswahl; ohne ausgewähltes Niveau werden alle Zeilen verwendet. Nehmen Sie nicht an, dass das Laden bereits die gewünschte Kontrolle ausgewählt hat.",
+    "Öffnen Sie Sigma from, um die vollständigen Optionen zu lesen. Auto wählt hier den Untergruppenschätzer, da jede Platte drei ausgewählte Wells hat. Die Grenzen verwenden die Variation innerhalb der Referenzplatten, angepasst an die Stichprobengröße des Mittelwerts, statt der Standardabweichung der gesamten driftenden Serie.",
+    "Rules bietet die üblichen vier Regeln, alle acht oder Limits only. Mehr Regeln schaffen auch mehr Gelegenheiten für Fehlalarme. Wir wählen Limits only, um die Drei-Sigma-Regel isoliert zu betrachten. Ein Wechsel berechnet das Diagramm neu, ohne separate Run-Schaltfläche.",
+    "Baseline plates steht auf zwanzig: P null eins bis P zwanzig bestimmen die Grenzen für die übrigen Platten. Neun Punkte, P zweiundzwanzig bis P dreißig, überschreiten die obere Grenze. Bericht und Regeltabelle benennen sie. Diese programmierten Signale sind keine biologischen Entdeckungen.",
+    "Wählen Sie neg ab und nur pos aus. Das Diagramm zeigt nun die Mittelwerte der anderen Kontrolle und deren eigene Referenzgrenzen, hier ohne Verletzungen von Regel eins. Ein unauffälliges Diagramm allein beweist keinen gültigen Assay. Stellen Sie vor dem nächsten Schritt neg wieder her.",
+    "Ändern Sie Baseline plates auf zwölf, beobachten Sie Zentrum und Grenzen und stellen Sie dann zwanzig wieder her. Die App verlangt mindestens acht Referenzplatten; dieses Minimum ist keine Empfehlung. Planen und begründen Sie den Referenzbereich, statt ihn nur zum Entfernen unerwünschter Warnungen anzupassen.",
+    "Nach Wiederherstellung der ursprünglichen Kontrolle und der zwanzig Referenzplatten wählen Sie Export points und speichern eine separate CSV. Ihre dreißig Zeilen enthalten Plattenkennung, Reihenfolge, Mittelwert, Untergruppengröße und Streuung, Grenzen, standardisierten Abstand, Referenzzugehörigkeit und ausgelöste Regeln. Das ist kein Diagrammbild und kein vollständiger Konfigurationsexport.",
+    "Jede exportierte Kennung und jedes Zahlenfeld wurde mit der Quell-CSV verglichen, einschließlich der Markierungen für Regel eins. Die Eingabe blieb unverändert. Für Skripte stellt das Kontrollkarten-Widgetmodul ControlChartSpec und control_chart bereit; das Ergebnis bietet points_frame. Bewahren Sie Eingaben, Einstellungen und Aufnahmeprotokolle zusammen auf, wenn Sie echte Warnungen untersuchen."
+  ]
+}

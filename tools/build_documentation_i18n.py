@@ -11,31 +11,31 @@ from __future__ import annotations
 
 import argparse
 import ast
-from collections import Counter
-from difflib import SequenceMatcher
+import fnmatch
 import hashlib
 import inspect
 import json
-from pathlib import Path
 import re
 import stat
 import sys
 import tempfile
+import unicodedata
+from collections import Counter
+from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
 from build_i18n_catalogs import (
-    MODEL_SPECS,
-    SECONDARY_LICENSE,
-    SECONDARY_MODEL,
+    NATIVE_LANGUAGE_NAMES,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
     _CONTEXT_HARD_PROTECT_RE,
     _DATA_GATE_SOURCE,
     _DICTIONARY_SOURCE,
+    _HUMAN_READABLE_SOURCE,
     _IMAGE_CROP_SOURCE,
     _IMAGING_CHANNEL_SOURCE,
     _IMAGING_FIELD_SOURCE,
-    _HUMAN_READABLE_SOURCE,
     _MAPPING_KEY_SOURCE,
     _PIPELINE_SOURCE,
     _PLANE_SOURCE,
@@ -46,6 +46,9 @@ from build_i18n_catalogs import (
     _SOFTWARE_CLASSIFIER_SOURCE,
     _SOFTWARE_QUEUE_SOURCE,
     _TOKEN_RE,
+    MODEL_SPECS,
+    SECONDARY_LICENSE,
+    SECONDARY_MODEL,
     _context_prose,
     _contextualize,
     _english_well_sense_counts,
@@ -59,7 +62,11 @@ from build_i18n_catalogs import (
     _translate_batches,
     _translation_chunks,
 )
-
+from readme_i18n import (
+    WORKFLOW_MODULE_ALT_TEMPLATES,
+    localize_internal_references,
+    localize_workflow_markup,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "docs" / "i18n"
@@ -67,13 +74,15 @@ README_DIR = SOURCE_DIR / "readme"
 STATIC_API_DIR = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
 API_DIR = STATIC_API_DIR
 REVIEWED_API_DIR = ROOT / "docs" / "i18n" / "reviewed" / "api"
+REVIEWED_README_DIR = ROOT / "docs" / "i18n" / "reviewed" / "readme"
 README_SOURCE = ROOT / "README.rst"
 
 # A cache entry is meaningful only for the exact English text sent to the
-# model.  v7 adds structural RST detachment and target-neutral sense context;
-# v6 checkpoints can contain English fallbacks or translations generated from
-# an ambiguous word and must never be promoted under the new source hash.
-API_BLOCK_CACHE_NAMESPACE = "api-block-v7"
+# model. v8 retains v7's structural RST detachment and target-neutral sense
+# context while invalidating hard-tail checkpoints produced by the former 3B
+# secondary model. A value is never relabelled as 7B output merely because it
+# still passes today's gates.
+API_BLOCK_CACHE_NAMESPACE = "api-block-v8-madlad7b"
 
 LANGUAGE_PICKER_LABELS = {
     "sv": "Språk",
@@ -94,9 +103,30 @@ API_EXACT_TEXT_ALLOWLIST = frozenset({
     "spacr.hits.HitList.flag_counts",
     "spacr.macro.MacroStep.entry",
     "spacr.qt.widgets.plate_layout.PlateDesign.shape",
-    "spacr.resources.home.versions._generators.common.app_map",
     "spacr.run_compare.HitList.by_key",
     "spacr.schema.field_index",
+})
+
+# Keep this byte-for-byte aligned with ``docs/source/conf.py:autoapi_ignore``.
+# These trees never produce rendered AutoAPI pages, so admitting their prose
+# into the translation inventory creates source hashes no reader can reach.
+AUTOAPI_IGNORE = (
+    "*/tests/*",
+    "*/qt/tutorial/*",
+    "*/resources/*/_generators/*",
+    "*/qt/i18n_catalogs/*",
+)
+
+# AutoAPI also omits the Qt launcher and leading-underscore compatibility
+# module. ``run_without_setup`` is a console target intentionally absent from
+# the package's rendered members even though it lives in an otherwise-rendered
+# module. Together these account for six formerly extracted entries.
+AUTOAPI_NON_RENDERED_MODULES = frozenset({
+    "spacr.qt.__main__",
+    "spacr._v1_v2_bridge",
+})
+AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
+    "spacr.qt.run_without_setup",
 })
 
 # AutoAPI renders the value of these documented public string constants behind
@@ -119,252 +149,29 @@ API_VALUE_DOC_ASSIGNMENTS = frozenset({
 # matching that previously made imported or stdlib members unsafe.  In
 # particular, ``spacr.logging_util.LevelSetFilter.filter`` is intentionally
 # absent: its documentation comes from external ``logging.Filter.filter``.
-API_DOC_ALIASES: Mapping[str, str] = {
-    "spacr.layers.ImageLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.ImageLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.ImageLayer.shape":
-        "spacr.layers.Layer.shape",
-    "spacr.layers.LabelsLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.LabelsLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.LabelsLayer.shape":
-        "spacr.layers.Layer.shape",
-    "spacr.layers.PointsLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.PointsLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.layers.ShapesLayer.world_extent":
-        "spacr.layers.Layer.world_extent",
-    "spacr.layers.ShapesLayer.ndim":
-        "spacr.layers.Layer.ndim",
-    "spacr.qt.dnd_handlers.AlignDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.AlignDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.AlignDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.AnnotateDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.BatchDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.BatchDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.BatchDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.BatchDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ClassifyDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.CoefficientsDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ConvertDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.DataManagerDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.DatabaseDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.EvaluationBundleDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ExternalMasksDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ForeignProjectDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ImageFieldsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.LabelMaskDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.LayerStackDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.LayerStackDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.LayoutDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.LineageDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MakeMasksDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MapBarcodesDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MaskDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.MaskDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MaskDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MaskDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MaskDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MeasureDropHandler.suggest_alternatives":
-        "spacr.qt.dnd.DropHandler.suggest_alternatives",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.MeasurementsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ModelZooDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.PlateQueueDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ProjectFolderDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ProjectFolderDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ProjectRootsDropHandler.accepts_multiple":
-        "spacr.qt.dnd.DropHandler.accepts_multiple",
-    "spacr.qt.dnd_handlers.ProjectRootsDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.ReportDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ReportDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ReportDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.ResultsDatabaseDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.ResultsFolderDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.RunHistoryDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.ScatterTableDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.SourceDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.SourceDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.SourceDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.SubmissionSettingsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.dnd_handlers.TableDropHandler.deliver":
-        "spacr.qt.dnd_handlers.LayoutDropHandler.deliver",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.apply":
-        "spacr.qt.dnd.DropHandler.apply",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.can_accept":
-        "spacr.qt.dnd.DropHandler.can_accept",
-    "spacr.qt.dnd_handlers.TrainingRunsDropHandler.error_message":
-        "spacr.qt.dnd.DropHandler.error_message",
-    "spacr.qt.screens.db_browser.DbBrowserScreen.on_linked_filter_changed":
-        "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
-    "spacr.qt.widgets.gate_spec.PolygonGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.PolygonGate.translated":
-        "spacr.qt.widgets.gate_spec.Gate.translated",
-    "spacr.qt.widgets.gate_spec.PolygonGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
-    "spacr.qt.widgets.gate_spec.RectGate.centre":
-        "spacr.qt.widgets.gate_spec.Gate.centre",
-    "spacr.qt.widgets.gate_spec.RectGate.range_filters":
-        "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.gate_spec.RectGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.RectGate.translated":
-        "spacr.qt.widgets.gate_spec.Gate.translated",
-    "spacr.qt.widgets.gate_spec.RectGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.centre":
-        "spacr.qt.widgets.gate_spec.Gate.centre",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.range_filters":
-        "spacr.qt.widgets.gate_spec.Gate.range_filters",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.scaled":
-        "spacr.qt.widgets.gate_spec.Gate.scaled",
-    "spacr.qt.widgets.gate_spec.ThresholdGate.with_handle":
-        "spacr.qt.widgets.gate_spec.Gate.with_handle",
-    "spacr.qt.widgets.pca_view.PCAScoresCanvas.render_now":
-        "spacr.qt.widgets.graph_builder.GraphCanvas.render_now",
-    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.on_linked_filter_changed":
-        "spacr.qt.linked_selection.LinkedView.on_linked_filter_changed",
-}
+#:
+#: EMPTY SINCE 2026-09-04, and that is the end state rather than a gap. An
+#: alias existed so an UNDOCUMENTED override could borrow its base class's
+#: text. 368's public half documented every public method in the package, so
+#: every one of the 113 entries this held became a lie: the borrowed generic
+#: text would now hide the specific answer the override carries.
+#:
+#: A NEW ENTRY IS A SIGNAL, not routine maintenance. It means a public
+#: override has been added without a docstring, and the fix is the docstring
+#: rather than the alias.
+API_DOC_ALIASES: Mapping[str, str] = {}
 
 # Hashes, rather than symbol names, make the exception as narrow as possible:
 # moving an unrelated English paragraph into one of these symbols cannot make
 # it pass. Each allowed block is an API literal/example with no translatable
 # prose. New exceptions require reviewing and hashing the exact source block.
 API_EXACT_BLOCK_SHA256_ALLOWLIST = frozenset({
+    # Mathematical definitions are executable notation, not prose.  Keeping
+    # them byte-identical across languages also makes the surrounding
+    # translated explanation and the implementation use the same symbols.
+    "d2c60798869c42cd6d8ac21d4dd19eaaec6e29916ab569285c98f37d8759a37c",
+    "b5df51fec23b51c3460223ba0081f0cdd9667a74d11071d3341b2c58ed8d723f",
+    "bbb37555815f2dd2dee9f3e1d1c9fa2013673d3200b9cef40e76c1c8e6fba1c6",
     "fc1a080cac9c8a69250235e646f7d54c59232e73c664a392b6813e5abf088937",
     "a8356398b7efb4933388f52627f8426e5131037bde864f92cf70702d8febf0d8",
     "52e945ac179782227292ff5d8bd6ee111fee7c9d4af2507fbb4df88274f0530a",
@@ -374,6 +181,7 @@ API_EXACT_BLOCK_SHA256_ALLOWLIST = frozenset({
     "429f6345c1f6b0d30acf6ff8aaed026ebbbf5df506280a11b662699d1b2e8f33",
     "dad752c61526a8407fc3793497731f5c989b6cfb1eb05d4177c317ee7fdfbfca",
     "a1b0b118e72f9ab34aedf8a8f00d1da31f02e6843e02de8f5ff7568f6c62ea2c",
+    "fe5b5050fded2d8cd1e1223089652833a23996c8061fd983069b170a9298da7e",
 })
 
 # Some terse API fragments are ambiguous noun labels, and general translation
@@ -1342,6 +1150,41 @@ def _initial_case(match: re.Match[str], replacement: str) -> str:
     return replacement
 
 
+def _keep_status_literal(match: re.Match[str], expand) -> str:
+    """Leave an ALL-CAPS job-status literal alone; expand ordinary prose.
+
+    ``RUNNING`` is in :data:`_PROTECTED_TERMS` alongside ``QUEUED``,
+    ``FAILED``, ``SKIPPED`` and ``SUCCESS`` because it is a value the API
+    actually reports, not a description of one. The sense transforms run
+    case-insensitively -- they have to, since "running" is ordinary English
+    in almost every docstring that uses it -- so without this guard the
+    expansion to "executing" ate the literal, and ``_syntax_preserved`` then
+    refused the whole document. That is what took the docs workflow down:
+
+        ValueError: API sense context changed a protected literal:
+        "... so a RUNNING item goes too ..." ->
+        "... so an executing item goes too ..."
+
+    The rule is the case, because the case IS the distinction. Lowercase
+    "running" is prose and gets its sense expansion; ``RUNNING`` is the
+    status value and is left exactly as written.
+
+    NOT SOLVED BY PROTECTING EVERY TERM, which was the first idea and would
+    have been wrong: ``_CONTEXT_HARD_PROTECT_RE`` deliberately leaves product
+    names visible so a phrase can repair the grammar around them, and one of
+    the ``run`` transforms lists ``GUI`` among its own alternatives. Masking
+    them would silently stop that transform matching.
+
+    :param match: the sense-transform match.
+    :param expand: callable returning the expansion when it is safe to use.
+    :returns: the original text for a status literal, else the expansion.
+    """
+    if any(word.isupper() and len(word) > 1
+           for word in re.findall(r"[A-Za-z]+", match.group(0))):
+        return match.group(0)
+    return expand()
+
+
 def _first_unprotected_ascii_letter(text: str) -> int | None:
     """Return the first English prose-letter offset outside hard literals."""
     source = str(text)
@@ -1581,7 +1424,83 @@ API_TRANSLATION_CONTEXT.update({
         "``-EDT`` separates the fused foreground before measuring equivalent "
         "diameters the same way."
     ),
+    "Regression screen receiving the resolved input.":
+        "Regression application view receiving the resolved input.",
 })
+
+
+# A TILE IS A FIELD OF VIEW HERE, AND A MOSAIC IS A GRID OF THEM. Both words
+# have a stronger everyday sense that the models reach for first: zh_CN
+# returned 瓷砖 (a ceramic floor tile) for the microscope field and 马赛克
+# (mosaic art) for the assembled image, which is fluent Chinese about the
+# wrong subject. Measured 2026-09-09, that class is about a sixth of the
+# blocks the gates refuse.
+#
+# spaCR ALSO HAS TILES THAT REALLY ARE TILES -- the Home screen's module
+# tiles -- so the rewrite is gated on imaging context and refused outright
+# when the block is about the interface. This is the same shape as
+# `_SCIENTIFIC_PLATE_SOURCE`, which exists because a plate is a dish and not
+# a plate.
+_IMAGE_TILE_SOURCE = (
+    r"(?is)\A(?=.*\b(?:tiles?|mosaics?)\b)"
+    r"(?=.*\b(?:mosaics?|stitch(?:ed|es|ing)?|site|sites|"
+    r"overlap(?:s|ped|ping)?|"
+    r"field of view|fields|well|wells|microscope|acquisition|canvas|"
+    r"registration|transform)\b)"
+    r"(?!.*\b(?:home screen|dashboard|launcher|button|toolbar|card|"
+    r"masthead|menu)\b)"
+)
+
+
+# SHOUTED EMPHASIS IS PROSE, AND EVERY MODEL READS IT AS A NAME. spaCR's
+# docstrings put their strongest claim in capitals -- "A WORKER OUTLIVING ITS
+# PANEL writes results into a widget whose C++ half is gone" -- and MADLAD
+# returns that clause in English, sometimes corrupted ("A WORKER OVERLIVING
+# ITS PANEL"), while translating the rest of the sentence perfectly. The gates
+# are right to refuse it: a Spanish reader gets an English claim. Measured
+# 2026-09-09, this is 100 of the 401 failing API blocks across nine locales.
+#
+# TWO WORDS MINIMUM, and one of them at least four letters. A single capital
+# word is as likely to be a literal the docstring means byte-for-byte --
+# ``DEFAULT`` as a policy value, ``KEPT``, ``MIT``, ``RST`` -- and a run of
+# short capitals is usually acronyms. The rule takes only what is
+# unambiguously a shouted English clause.
+_SHOUTED_PROSE_RE = re.compile(
+    r"(?<![\w`])[A-Z][A-Z0-9'+-]*(?:\s+[A-Z][A-Z0-9'+-]*)+(?![\w`])"
+)
+
+
+def _lower_shouted_emphasis(text: str) -> str:
+    """Lower a shouted English clause so the model translates it as prose.
+
+    The emphasis is lost in the target and that is the intended trade: a
+    lower-case Spanish sentence carries the claim, and an upper-case English
+    one does not carry it at all. ``_preserve_initial_prose_case`` puts the
+    block's opening capital back afterwards.
+    """
+    def lower(match: "re.Match[str]") -> str:
+        run = match.group(0)
+        words = [word for word in run.split() if word]
+        if len(words) < 2:
+            return run
+        # A PRODUCT NAME IN A SHOUTED RUN IS STILL A PRODUCT NAME.
+        # "Is this genuinely NVIDIA CUDA." is two capital words and neither
+        # is emphasis; `_PROTECT_RE` already knows both, and lowering them
+        # changed a protected literal and stopped the whole build. Each word
+        # is judged on its own and only the unprotected ones are lowered.
+        def is_prose(word: str) -> bool:
+            return _PROTECT_RE.sub(" ", word).strip() == word
+
+        prose = [word for word in words if is_prose(word)]
+        if len(prose) < 2:
+            return run
+        if not any(sum(c.isalpha() for c in word) >= 4 for word in prose):
+            return run
+        return " ".join(
+            word.lower() if is_prose(word) else word for word in words
+        )
+
+    return _SHOUTED_PROSE_RE.sub(lower, str(text))
 
 
 def _api_translation_source(block: str) -> str:
@@ -1634,7 +1553,8 @@ def _api_translation_source(block: str) -> str:
     if re.search(_COMPUTE_RUN_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
             (r"\blong[- ]running\b", "long-running"),
-            (r"\b(a|an)\s+running\b", lambda m: _initial_case(m, "an executing")),
+            (r"\b(a|an)\s+running\b", lambda m: _keep_status_literal(
+                m, lambda: _initial_case(m, "an executing"))),
             (r"\b(has|have|had)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 executed \2 again"),
             (r"\b(had)\s+([^,.;:]+?)\s+re[- ]run\s+([^,.;:]+?)(?=\s+(?:and|but|so)\b|[,.;:]|$)", r"\1 \2 executed again \3"),
             (r"\b(do|does|did)\s+not\s+run\b", r"\1 not execute"),
@@ -1672,7 +1592,8 @@ def _api_translation_source(block: str) -> str:
             (r"\b(pipelines?|workflows?)\s+(?:that\s+)?run\b", r"\1 execute"),
             (r"\b(\d+)\s+runs\b", r"\1 executions"),
             (r"\bruns\s+(?=(?:again|inline|sequentially|successfully|unchanged|on|inside|under|through|against|before|after|when|if|unless|without)\b)", lambda m: _initial_case(m, "executes ")),
-            (r"\brunning\b", lambda m: _initial_case(m, "executing")),
+            (r"\brunning\b", lambda m: _keep_status_literal(
+                m, lambda: _initial_case(m, "executing"))),
             (r"\bper[- ]run\b", "per processing session"),
             (r"\bcross[- ]run\b", "cross-session"),
             (r"\bmulti[- ]run\b", "multi-session"),
@@ -1824,6 +1745,17 @@ def _api_translation_source(block: str) -> str:
             (r"\b(?-i:raises)(?=\s*$)", "throws"),
             (r"\b(?-i:Raise)(?=\s*$)", "Throw"),
             (r"\b(?-i:raise)(?=\s*$)", "throw"),
+        ))
+    if re.search(_IMAGE_TILE_SOURCE, prose, re.IGNORECASE):
+        transforms.extend((
+            (r"\bmosaics\b", lambda m: _initial_case(
+                m, "stitched image grids")),
+            (r"\bmosaic\b", lambda m: _initial_case(
+                m, "stitched image grid")),
+            (r"\btiles\b", lambda m: _initial_case(
+                m, "microscope image fields")),
+            (r"\btile\b", lambda m: _initial_case(
+                m, "microscope image field")),
         ))
     if re.search(_SCIENTIFIC_PLATE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
@@ -2044,20 +1976,38 @@ def _api_translation_source(block: str) -> str:
             (r"\bhuman\s+reference\b", "user-facing reference"),
         ))
 
-    if not transforms:
-        return source
-
     def rewrite(fragment: str) -> str:
         return _replace_alternatives_once(fragment, transforms)
 
-    contextual = _rewrite_unprotected_prose(source, rewrite)
-    contextual = _preserve_initial_prose_case(source, contextual)
-    if not _syntax_preserved(source, contextual):
-        raise ValueError(
-            "API sense context changed a protected literal: "
-            f"{source!r} -> {contextual!r}"
-        )
-    return contextual
+    # BEFORE the sense transforms, not after. A shouted clause is ordinary
+    # prose in capitals, and a sense rule that meets it there produces
+    # "THE Stitched image grid IS OPT-IN" -- the replacement's own initial
+    # case dropped into the middle of a shouted line. Lowering first lets
+    # every later rule see a normal sentence, and the initial-case restore
+    # at the end puts the block's opening capital back.
+    # THE LOWERING IS AN OPTIMISATION, NOT A CONTRACT, so it is offered and
+    # withdrawn rather than asserted. A shouted run can hold a literal the
+    # protection view does not recognise in capitals -- `TORCH` where the
+    # pattern knows `torch`, `NONE` where it knows `None` -- and there is no
+    # list of those worth maintaining. The shouted form is tried first and
+    # the plain one is the fallback; a block that cannot take it keeps its
+    # capitals, which leaves a block not yet translated rather than a build
+    # that will not run.
+    lowered = _rewrite_unprotected_prose(source, _lower_shouted_emphasis)
+    plain = (_rewrite_unprotected_prose(source, rewrite) if transforms
+             else source)
+    shouted = (_rewrite_unprotected_prose(lowered, rewrite) if transforms
+               else lowered)
+    for candidate in ((shouted, plain) if shouted != plain else (plain,)):
+        if candidate == source:
+            return source
+        cased = _preserve_initial_prose_case(source, candidate)
+        if _syntax_preserved(source, cased):
+            return cased
+    raise ValueError(
+        "API sense context changed a protected literal: "
+        f"{source!r} -> {plain!r}"
+    )
 
 # Shorter English model inputs for prose that OPUS repeatedly decoded only in
 # part. These retain the complete semantic contract and every protected API
@@ -2963,18 +2913,21 @@ API_TRANSLATION_CONTEXT.update({
 # the scientific meaning from a short sentence.
 _SUMMARY_SOURCE = (
     "spaCR segments and measures single cells in high-content microscopy "
-    "images, links each cell to the gRNA it received, and reports which genes "
-    "changed the phenotype. Plate images and FASTQ reads go in; per-object "
-    "measurements, trained classifiers, per-guide and per-gene effect sizes, "
-    "and a ranked hit list come out."
+    "images, integrates per-object phenotypes with sequencing-derived guide "
+    "abundance, and estimates which genes are associated with phenotypic "
+    "changes. Starting from plate images and FASTQ reads, it produces "
+    "per-object measurements, trained classifiers, per-guide and per-gene "
+    "effect estimates, and a ranked hit list."
 )
 _SCOPE_SOURCE = (
-    "If you run image-based pooled CRISPR screens, that is the whole path. If "
-    "you have high-content microscopy and no screen, the segmentation, "
-    "measurement, annotation and classification half runs on its own."
+    "For image-based pooled CRISPR screens, spaCR provides the workflow from "
+    "image segmentation through hit prioritization. For high-content "
+    "microscopy studies without sequencing-based screens, the segmentation, "
+    "measurement, annotation and classification modules can be used "
+    "independently."
 )
 _TAGLINE_SOURCE = "**Spatial phenotype analysis of CRISPR screens.**"
-_ATTRIBUTION_SOURCE = "Translation model attribution"
+_ATTRIBUTION_SOURCE = "translation model attribution"
 _STORAGE_SOURCE = (
     "Images, masks, crops, measurements, annotations, predictions, barcodes "
     "and well identifiers live in one SQLite project, so a number in a "
@@ -2985,35 +2938,28 @@ _EXECUTION_SOURCE = (
     "server or cluster. Both drive the same modules, and CUDA is used "
     "automatically where a module supports it."
 )
-_WORKFLOW_SOURCE = (
-    "Microscopy images (TIFF, OME-TIFF, LIF, CZI, ND2) and sequencing reads "
-    "(FASTQ) enter complementary image-analysis and barcode-mapping "
-    "pipelines. Object tables, crops, annotations, predictions, guide "
-    "identities, QC results and well-level summaries are then analyzed "
-    "together."
-)
 REVIEWED_README_BLOCKS = {
     _SUMMARY_SOURCE: {
-        "sv": "spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, kopplar varje cell till den gRNA den fick och rapporterar vilka gener som förändrade fenotypen. Plattbilder och FASTQ-läsningar matas in; ut kommer mätningar per objekt, tränade klassificerare, effektstorlekar per guide och gen samt en rangordnad träfflista.",
-        "de": "spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebildern, verknüpft jede Zelle mit der erhaltenen gRNA und berichtet, welche Gene den Phänotyp verändert haben. Plattenbilder und FASTQ-Reads dienen als Eingabe; ausgegeben werden Messungen pro Objekt, trainierte Klassifikatoren, Effektgrößen pro Guide und Gen sowie eine Rangliste der Treffer.",
-        "es": "spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, vincula cada célula con el gRNA que recibió e indica qué genes modificaron el fenotipo. Las imágenes de placas y las lecturas FASTQ son la entrada; las mediciones por objeto, los clasificadores entrenados, los tamaños del efecto por guía y por gen y una lista ordenada de resultados son la salida.",
-        "zh_CN": "spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将每个细胞与其获得的 gRNA 关联，并报告哪些基因改变了表型。输入为孔板图像和 FASTQ 读段；输出包括逐对象测量、训练后的分类器、逐向导 RNA 和逐基因效应量，以及按优先级排序的候选结果列表。",
-        "pt": "O spaCR segmenta e mede células individuais em imagens de microscopia de alto conteúdo, associa cada célula ao gRNA que ela recebeu e informa quais genes alteraram o fenótipo. As entradas são imagens de placas e leituras FASTQ; as saídas incluem medições por objeto, classificadores treinados, tamanhos de efeito por guia e por gene e uma lista classificada de resultados.",
-        "hi": "spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रत्येक कोशिका को मिले gRNA से जोड़ता है और बताता है कि किन जीनों ने फीनोटाइप बदला। इनपुट के रूप में प्लेट छवियाँ और FASTQ रीड आती हैं; आउटपुट में प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव आकार तथा प्राथमिकता के अनुसार परिणामों की सूची मिलती है।",
-        "ko": "spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 각 세포를 전달받은 gRNA와 연결하고 어떤 유전자가 표현형을 바꾸었는지 보고합니다. 플레이트 영상과 FASTQ 리드를 입력하면 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 크기와 우선순위가 지정된 후보 목록이 출력됩니다.",
-        "is": "spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, tengir hverja frumu við gRNA-ið sem hún fékk og greinir frá því hvaða gen breyttu svipgerðinni. Plötumyndir og FASTQ-raðir eru inntak; mælingar fyrir hvert viðfang, þjálfaðir flokkarar, áhrifastærðir fyrir hverja leiðarsameind og hvert gen og forgangsraðaður niðurstöðulisti eru úttak.",
-        "fr": "spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, associe chaque cellule au gRNA qu’elle a reçu et indique quels gènes ont modifié le phénotype. Les images de plaques et les lectures FASTQ constituent les entrées ; les mesures par objet, les classificateurs entraînés, les tailles d’effet par guide et par gène et une liste de résultats classés constituent les sorties.",
+        "sv": "spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt innehåll, integrerar fenotyper per objekt med sekvenseringshärledd guideförekomst och uppskattar vilka gener som är associerade med fenotypiska förändringar. Med plattbilder och FASTQ-läsningar som utgångspunkt producerar programmet mätningar per objekt, tränade klassificerare, effektskattningar per guide och gen samt en rangordnad träfflista.",
+        "de": "spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebildern, integriert Phänotypen einzelner Objekte mit sequenzierungsbasierten Guide-Häufigkeiten und schätzt, welche Gene mit phänotypischen Veränderungen assoziiert sind. Ausgehend von Plattenbildern und FASTQ-Reads erzeugt es Messungen pro Objekt, trainierte Klassifikatoren, Effektschätzungen pro Guide und Gen sowie eine Rangliste der Treffer.",
+        "es": "spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados.",
+        "zh_CN": "spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐对象表型与测序得到的向导 RNA 丰度整合，并估计哪些基因与表型变化相关。以孔板图像和 FASTQ 读段为输入，它生成逐对象测量值、训练后的分类器、逐向导 RNA 和逐基因效应估计值，以及按优先级排序的命中结果列表。",
+        "pt": "O spaCR segmenta e mede células individuais em imagens de microscopia de alto conteúdo, integra fenótipos por objeto à abundância de guias derivada do sequenciamento e estima quais genes estão associados a alterações fenotípicas. A partir de imagens de placas e leituras FASTQ, ele produz medições por objeto, classificadores treinados, estimativas de efeito por guia e por gene e uma lista de resultados classificada.",
+        "hi": "spaCR उच्च-सामग्री माइक्रोस्कोपी छवियों में एकल कोशिकाओं का विभाजन और मापन करता है, प्रति-वस्तु फीनोटाइप को अनुक्रमण से प्राप्त गाइड प्रचुरता के साथ एकीकृत करता है और अनुमान लगाता है कि कौन-से जीन फीनोटाइपिक परिवर्तनों से जुड़े हैं। प्लेट छवियों और FASTQ रीड से शुरू करके, यह प्रति-वस्तु मापन, प्रशिक्षित वर्गीकारक, प्रति-गाइड और प्रति-जीन प्रभाव अनुमान तथा प्राथमिकता के अनुसार क्रमित हिट सूची बनाता है।",
+        "ko": "spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 객체별 표현형을 시퀀싱에서 산출한 가이드 풍부도와 통합하고, 어떤 유전자가 표현형 변화와 연관되는지 추정합니다. 플레이트 영상과 FASTQ 리드에서 시작하여 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 추정치, 우선순위가 지정된 히트 목록을 생성합니다.",
+        "is": "spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.",
+        "fr": "spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.",
     },
     _SCOPE_SOURCE: {
-        "sv": "För bildbaserade poolade CRISPR-screeningar täcker detta hela arbetsflödet. Om du har mikroskopi med högt innehåll men ingen screening kan delarna för segmentering, mätning, annotering och klassificering köras fristående.",
-        "de": "Für bildbasierte gepoolte CRISPR-Screens deckt dies den gesamten Arbeitsablauf ab. Bei High-Content-Mikroskopie ohne Screen können Segmentierung, Messung, Annotation und Klassifizierung eigenständig ausgeführt werden.",
-        "es": "Para los cribados CRISPR agrupados y basados en imágenes, este es el flujo de trabajo completo. Si dispone de microscopía de alto contenido sin cribado, las etapas de segmentación, medición, anotación y clasificación pueden ejecutarse por separado.",
-        "zh_CN": "对于基于图像的混合 CRISPR 筛选，这涵盖了完整工作流程。如果只有高内涵显微镜数据而没有筛选实验，也可以单独运行分割、测量、标注和分类部分。",
-        "pt": "Para triagens CRISPR agrupadas e baseadas em imagens, esse é o fluxo de trabalho completo. Se você tiver microscopia de alto conteúdo sem uma triagem, as etapas de segmentação, medição, anotação e classificação poderão ser executadas de forma independente.",
-        "hi": "छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए यह पूरा कार्यप्रवाह है। यदि आपके पास उच्च-सामग्री माइक्रोस्कोपी है लेकिन कोई स्क्रीनिंग नहीं है, तो विभाजन, मापन, एनोटेशन और वर्गीकरण वाले भाग स्वतंत्र रूप से चलाए जा सकते हैं।",
-        "ko": "영상 기반 풀드 CRISPR 스크리닝에서는 이것이 전체 작업 흐름입니다. 고함량 현미경 데이터만 있고 스크리닝 실험은 없는 경우에도 분할, 측정, 주석 및 분류 단계를 독립적으로 실행할 수 있습니다.",
-        "is": "Fyrir myndgreindar samsettar CRISPR-skimanir nær þetta yfir allt verkflæðið. Ef þú ert með afkastamiklar smásjármyndir en enga skimun er hægt að keyra aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.",
-        "fr": "Pour les criblages CRISPR groupés fondés sur l’imagerie, ce flux couvre l’ensemble du parcours. Avec des images de microscopie à haut contenu mais sans criblage, les étapes de segmentation, de mesure, d’annotation et de classification peuvent être exécutées indépendamment.",
+        "sv": "För bildbaserade poolade CRISPR-screeningar tillhandahåller spaCR arbetsflödet från bildsegmentering till prioritering av träffar. För studier med mikroskopi med högt innehåll utan sekvenseringsbaserade screeningar kan modulerna för segmentering, mätning, annotering och klassificering användas oberoende av varandra.",
+        "de": "Für bildbasierte gepoolte CRISPR-Screens stellt spaCR den Arbeitsablauf von der Bildsegmentierung bis zur Priorisierung von Treffern bereit. Bei High-Content-Mikroskopiestudien ohne sequenzierungsbasierte Screens können die Module für Segmentierung, Messung, Annotation und Klassifizierung unabhängig voneinander verwendet werden.",
+        "es": "Para los cribados CRISPR agrupados y basados en imágenes, spaCR proporciona el flujo de trabajo desde la segmentación de imágenes hasta la priorización de resultados. Para estudios de microscopía de alto contenido sin cribados basados en secuenciación, los módulos de segmentación, medición, anotación y clasificación pueden utilizarse de forma independiente.",
+        "zh_CN": "对于基于图像的混合 CRISPR 筛选，spaCR 提供从图像分割到命中结果优先级排序的工作流程。对于不包含测序筛选的高内涵显微镜研究，分割、测量、标注和分类模块可独立使用。",
+        "pt": "Para triagens CRISPR agrupadas e baseadas em imagens, o spaCR fornece o fluxo de trabalho desde a segmentação de imagens até a priorização de resultados. Em estudos de microscopia de alto conteúdo sem triagens baseadas em sequenciamento, os módulos de segmentação, medição, anotação e classificação podem ser usados de forma independente.",
+        "hi": "छवि-आधारित पूल्ड CRISPR स्क्रीनिंग के लिए spaCR छवि विभाजन से हिट प्राथमिकता तक का कार्यप्रवाह प्रदान करता है। अनुक्रमण-आधारित स्क्रीनिंग के बिना उच्च-सामग्री माइक्रोस्कोपी अध्ययनों में विभाजन, मापन, एनोटेशन और वर्गीकरण मॉड्यूल स्वतंत्र रूप से उपयोग किए जा सकते हैं।",
+        "ko": "영상 기반 풀드 CRISPR 스크리닝에서 spaCR는 영상 분할부터 히트 우선순위 지정까지의 작업 흐름을 제공합니다. 시퀀싱 기반 스크리닝이 없는 고함량 현미경 연구에서는 분할, 측정, 주석, 분류 모듈을 독립적으로 사용할 수 있습니다.",
+        "is": "Fyrir myndgreindar samsettar CRISPR-skimanir býður spaCR upp á verkflæði frá myndaðgreiningu til forgangsröðunar niðurstaðna. Í afkastamiklum smásjárrannsóknum án raðgreiningarmiðaðra skimunar er hægt að nota einingarnar fyrir aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.",
+        "fr": "Pour les criblages CRISPR groupés fondés sur l’imagerie, spaCR fournit le flux de travail depuis la segmentation des images jusqu’à la hiérarchisation des résultats. Pour les études de microscopie à haut contenu sans criblage fondé sur le séquençage, les modules de segmentation, de mesure, d’annotation et de classification peuvent être utilisés indépendamment.",
     },
     _TAGLINE_SOURCE: {
         "sv": "**Rumslig fenotypanalys av CRISPR-screeningar.**",
@@ -3059,20 +3005,282 @@ REVIEWED_README_BLOCKS = {
         "is": "Keyrðu spaCR sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa. Báðar leiðir nota sömu einingar og CUDA er virkjað sjálfkrafa þegar einingin styður það.",
         "fr": "Exécutez spaCR comme application de bureau ou sans interface graphique sur une station de travail, un serveur ou un cluster. Les deux modes utilisent les mêmes modules et CUDA est activé automatiquement lorsqu’un module le prend en charge.",
     },
-    _WORKFLOW_SOURCE: {
-        "sv": "Mikroskopibilder (TIFF, OME-TIFF, LIF, CZI, ND2) och sekvenseringsläsningar (FASTQ) matas in i kompletterande arbetsflöden för bildanalys och streckkodsmappning. Objekttabeller, bildutsnitt, annoteringar, prediktioner, guideidentiteter, QC-resultat och sammanfattningar per brunn analyseras sedan tillsammans.",
-        "de": "Mikroskopiebilder (TIFF, OME-TIFF, LIF, CZI, ND2) und Sequenzierungs-Reads (FASTQ) durchlaufen einander ergänzende Pipelines für Bildanalyse und Barcode-Zuordnung. Objekttabellen, Bildausschnitte, Annotationen, Vorhersagen, Guide-Identitäten, QC-Ergebnisse und Zusammenfassungen auf Well-Ebene werden anschließend gemeinsam analysiert.",
-        "es": "Las imágenes de microscopía (TIFF, OME-TIFF, LIF, CZI, ND2) y las lecturas de secuenciación (FASTQ) pasan por flujos complementarios de análisis de imágenes y asignación de códigos de barras. Después se analizan conjuntamente las tablas de objetos, los recortes, las anotaciones, las predicciones, las identidades de guía, los resultados de QC y los resúmenes por pocillo.",
-        "zh_CN": "显微镜图像（TIFF、OME-TIFF、LIF、CZI、ND2）和测序读段（FASTQ）分别进入互补的图像分析与条形码映射流程。随后对对象表、图像裁剪、标注、预测、向导 RNA 身份、QC 结果和孔位级汇总进行联合分析。",
-        "pt": "Imagens de microscopia (TIFF, OME-TIFF, LIF, CZI, ND2) e leituras de sequenciamento (FASTQ) entram em fluxos complementares de análise de imagens e mapeamento de códigos de barras. Em seguida, tabelas de objetos, recortes, anotações, previsões, identidades de guia, resultados de QC e resumos por poço são analisados em conjunto.",
-        "hi": "माइक्रोस्कोपी छवियाँ (TIFF, OME-TIFF, LIF, CZI, ND2) और सीक्वेंसिंग रीड (FASTQ) पूरक इमेज-विश्लेषण तथा बारकोड-मैपिंग कार्यप्रवाह में जाती हैं। इसके बाद ऑब्जेक्ट तालिकाएँ, इमेज क्रॉप, एनोटेशन, पूर्वानुमान, गाइड पहचान, QC परिणाम और प्रति-वेल सारांश एक साथ विश्लेषित किए जाते हैं।",
-        "ko": "현미경 영상(TIFF, OME-TIFF, LIF, CZI, ND2)과 시퀀싱 리드(FASTQ)는 서로 보완적인 영상 분석 및 바코드 매핑 작업 흐름으로 들어갑니다. 그런 다음 객체 테이블, 이미지 크롭, 주석, 예측, 가이드 식별 정보, QC 결과 및 웰 단위 요약을 함께 분석합니다.",
-        "is": "Smásjármyndir (TIFF, OME-TIFF, LIF, CZI, ND2) og raðgreiningarlestur (FASTQ) fara í samverkandi ferli fyrir myndgreiningu og strikamerkjavörpun. Síðan eru viðfangstöflur, myndúrklippur, merkingar, spár, auðkenni leiðarsameinda, QC-niðurstöður og samantektir fyrir hvern brunn greind saman.",
-        "fr": "Les images de microscopie (TIFF, OME-TIFF, LIF, CZI, ND2) et les lectures de séquençage (FASTQ) alimentent des flux complémentaires d’analyse d’images et d’association des codes-barres. Les tables d’objets, recadrages, annotations, prédictions, identités des guides, résultats de QC et résumés par puits sont ensuite analysés ensemble.",
-    },
 }
 
-REVIEWED_README_HEADINGS = {
+_LANGUAGE_SUPPORT_SOURCE = (
+    "The interface supports ten languages across navigation and Preferences. "
+    "AI and LIVE controls, module descriptions and reviewed contextual help "
+    "are also translated. Change the language under **spaCR → Preferences → "
+    "Language** without restarting. Logs, paths, database values and "
+    "measurements are never translated; scientific output remains canonical "
+    "English. See the `contextual-help policy "
+    "<docs/source/localization.rst#contextual-help>`_."
+)
+_ACKNOWLEDGMENTS_SOURCE = (
+    "spaCR builds on open scientific software including NumPy, pandas, "
+    "scikit-image, scikit-learn, Cellpose, PyTorch and Qt. See the `translation "
+    "model attribution <docs/i18n/TRANSLATION_MODELS.md>`_ for the models used "
+    "to prepare the multilingual documentation and interface catalogs."
+)
+_ANIMATION_SOURCE = (
+    "Settings with a visual explanation offer an **Animation** control in "
+    "their tooltip. Browse the `setting animation gallery "
+    "<https://einarolafsson.github.io/spacr/setting_animations.html>`_ or the "
+    "`Setting animation registry "
+    "<https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_."
+)
+REVIEWED_README_BLOCKS.update({
+    _LANGUAGE_SUPPORT_SOURCE: {
+        "de": "Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <docs/source/localization.rst#contextual-help>`_.",
+        "es": "La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.",
+        "fr": "L’interface prend en charge dix langues dans la navigation et les préférences. Les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée sont également traduites. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <docs/source/localization.rst#contextual-help>`_.",
+        "hi": "इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <docs/source/localization.rst#contextual-help>`_ देखें।",
+        "is": "Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.",
+        "ko": "인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <docs/source/localization.rst#contextual-help>`_ 문서를 참조하세요.",
+        "pt": "A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <docs/source/localization.rst#contextual-help>`_.",
+        "sv": "Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.",
+        "zh_CN": "界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。",
+    },
+    _ANIMATION_SOURCE: {
+        "de": "Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche **Animation**. Durchsuchen Sie die `Galerie der Einstellungsanimationen <https://einarolafsson.github.io/spacr/setting_animations.html>`_ oder das `Register der Einstellungsanimationen <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "es": "Los ajustes con una explicación visual incluyen un control **Animación** en su información emergente. Consulte la `galería de animaciones de ajustes <https://einarolafsson.github.io/spacr/setting_animations.html>`_ o el `registro de animaciones de ajustes <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "fr": "Les paramètres accompagnés d’une explication visuelle proposent une commande **Animation** dans leur infobulle. Parcourez la `galerie des animations de paramètres <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou le `registre des animations de paramètres <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "hi": "दृश्य व्याख्या वाली सेटिंग के टूलटिप में **Animation** नियंत्रण मिलता है। `सेटिंग एनिमेशन गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ या `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ देखें।",
+        "is": "Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "ko": "시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. 다음 리소스를 살펴보세요: `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 및 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "pt": "As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "sv": "Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "zh_CN": "带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。",
+    },
+    _ACKNOWLEDGMENTS_SOURCE: {
+        "de": "spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <docs/i18n/TRANSLATION_MODELS.md>`_ aufgeführt.",
+        "es": "spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.",
+        "fr": "spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution des modèles de traduction <docs/i18n/TRANSLATION_MODELS.md>`_ pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.",
+        "hi": "spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए `अनुवाद मॉडल श्रेय <docs/i18n/TRANSLATION_MODELS.md>`_ देखें।",
+        "is": "spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.",
+        "ko": "spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.",
+        "pt": "O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.",
+        "sv": "spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.",
+        "zh_CN": "spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。",
+    },
+})
+
+# These compact, frequently read blocks need domain-aware translations.  The
+# general models repeatedly left whole clauses in English or chose literal
+# false friends (for example, translating "maps" as the noun "maps" and
+# "held-out" as physical restraint).  Keep the canonical module names so the
+# prose matches the GUI and API navigation, but review the surrounding text in
+# every supported language.
+_MAIN_PATH_SOURCE = (
+    "Select a workflow module to open its API page. The grid contains every "
+    "other application in the same categories and order used on the spaCR "
+    "home screen."
+)
+_LINUX_INSTALLER_SOURCE = (
+    "On Linux, make the downloaded file executable and run it:"
+)
+_PYTHON_SUPPORT_SOURCE = (
+    "spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which "
+    "torchvision excludes. Linux is recommended for CUDA workflows; macOS "
+    "and Windows are also supported."
+)
+_HEADLESS_INSTALL_SOURCE = (
+    "For a server, cluster or CI runner, omit Qt:"
+)
+_CORE_MODULE_SOURCES = (
+    "**Mask** segments cells, nuclei, pathogens and organelles with Cellpose.",
+    "**Measure** writes morphology, intensity, texture, spatial and "
+    "colocalization features, together with object crops, to SQLite.",
+    "**Annotate** labels crops in a keyboard-driven grid and supports "
+    "active-learning queues.",
+    "**Classify** trains image or measurement-based models and records "
+    "held-out performance with each checkpoint.",
+    "**Map Barcodes** maps FASTQ reads to wells and gRNAs, with abundance, "
+    "collision and coverage QC.",
+    "**Regression** estimates guide, gene, condition and control effects with "
+    "model families suited to continuous, fractional and count responses.",
+)
+_LICENSE_SOURCE = (
+    "spaCR is open source under the `BSD 3-Clause License "
+    "<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same "
+    "licence as CellProfiler, napari and Cellpose. Use it for any purpose, "
+    "including commercially. Releases from 1.5.0.0 through 1.5.0.4 carried "
+    "the PolyForm Noncommercial License 1.0.0 and versions through 1.4.9.9 "
+    "carried the MIT License; those releases remain available under the "
+    "licence that accompanied them."
+)
+_TUTORIAL_LIBRARY_SOURCE = (
+    "The `interactive spaCR tutorial library "
+    "<https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated, "
+    "captioned walkthroughs of installation and of each application workflow, "
+    "in 73 lessons with 50 voices across eight languages."
+)
+_CITATION_PROMPT_SOURCE = "If spaCR contributes to your research, cite:"
+
+REVIEWED_README_BLOCKS.update({
+    _MAIN_PATH_SOURCE: {
+        "sv": "Välj en arbetsflödesmodul för att öppna dess API-sida. Rutnätet innehåller alla övriga program i samma kategorier och ordning som på spaCR:s startsida.",
+        "de": "Wählen Sie ein Workflow-Modul aus, um dessen API-Seite zu öffnen. Das Raster enthält alle weiteren Anwendungen in denselben Kategorien und in derselben Reihenfolge wie auf der spaCR-Startseite.",
+        "es": "Seleccione un módulo del flujo de trabajo para abrir su página de API. La cuadrícula contiene las demás aplicaciones, organizadas en las mismas categorías y en el mismo orden que en la pantalla de inicio de spaCR.",
+        "zh_CN": "选择一个工作流程模块以打开其 API 页面。网格包含其余所有应用，其分类和顺序与 spaCR 主屏幕一致。",
+        "pt": "Selecione um módulo do fluxo de trabalho para abrir sua página da API. A grade contém todos os outros aplicativos, organizados nas mesmas categorias e na mesma ordem da tela inicial do spaCR.",
+        "hi": "किसी कार्यप्रवाह मॉड्यूल का API पृष्ठ खोलने के लिए उसे चुनें। ग्रिड में अन्य सभी ऐप उसी श्रेणी और क्रम में हैं जैसा spaCR की होम स्क्रीन पर है।",
+        "ko": "작업 흐름 모듈을 선택하면 해당 API 페이지가 열립니다. 격자에는 나머지 모든 애플리케이션이 spaCR 홈 화면과 동일한 범주와 순서로 배치되어 있습니다.",
+        "is": "Veldu verkflæðiseiningu til að opna API-síðu hennar. Taflan sýnir öll önnur forrit í sömu flokkum og röð og á upphafssíðu spaCR.",
+        "fr": "Sélectionnez un module du flux de travail pour ouvrir sa page d’API. La grille contient toutes les autres applications, classées dans les mêmes catégories et dans le même ordre que sur l’écran d’accueil de spaCR.",
+    },
+    _LINUX_INSTALLER_SOURCE: {
+        "sv": "Gör den hämtade filen körbar i Linux och kör den:",
+        "de": "Machen Sie die heruntergeladene Datei unter Linux ausführbar und führen Sie sie aus:",
+        "es": "En Linux, marque el archivo descargado como ejecutable y ejecútelo:",
+        "zh_CN": "在 Linux 上，将下载的文件设为可执行文件并运行：",
+        "pt": "No Linux, torne o arquivo baixado executável e execute-o:",
+        "hi": "Linux पर डाउनलोड की गई फ़ाइल को निष्पादन योग्य बनाएँ और चलाएँ:",
+        "ko": "Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행합니다:",
+        "is": "Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:",
+        "fr": "Sous Linux, rendez le fichier téléchargé exécutable, puis exécutez-le :",
+    },
+    _PYTHON_SUPPORT_SOURCE: {
+        "sv": "spaCR stöder Python **3.9 till 3.14**, med undantag för Python 3.14.1 som inte stöds av torchvision. Linux rekommenderas för CUDA-arbetsflöden; macOS och Windows stöds också.",
+        "de": "spaCR unterstützt Python **3.9 bis 3.14** mit Ausnahme von Python 3.14.1, das von torchvision ausgeschlossen wird. Für CUDA-Workflows wird Linux empfohlen; macOS und Windows werden ebenfalls unterstützt.",
+        "es": "spaCR admite Python **3.9 a 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo con CUDA; macOS y Windows también son compatibles.",
+        "zh_CN": "spaCR 支持 Python **3.9 至 3.14**，但不支持 torchvision 排除的 Python 3.14.1。建议在 Linux 上运行 CUDA 工作流程；同时也支持 macOS 和 Windows。",
+        "pt": "O spaCR oferece suporte ao Python **3.9 a 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para fluxos de trabalho com CUDA; macOS e Windows também são compatíveis.",
+        "hi": "spaCR Python **3.9 से 3.14** तक समर्थित है, लेकिन Python 3.14.1 समर्थित नहीं है क्योंकि torchvision उसे बाहर रखता है। CUDA कार्यप्रवाहों के लिए Linux अनुशंसित है; macOS और Windows भी समर्थित हैं।",
+        "ko": "spaCR는 Python **3.9~3.14** 버전을 지원하지만 torchvision이 제외하는 Python 3.14.1은 지원하지 않습니다. CUDA 워크플로에는 Linux를 권장하며 macOS와 Windows도 지원합니다.",
+        "is": "spaCR styður Python **3.9 til 3.14**, að undanskildu Python 3.14.1 sem torchvision styður ekki. Mælt er með Linux fyrir CUDA-verkflæði; macOS og Windows eru einnig studd.",
+        "fr": "spaCR prend en charge Python **3.9 à 3.14**, à l’exception de Python 3.14.1, exclu par torchvision. Linux est recommandé pour les flux CUDA ; macOS et Windows sont également pris en charge.",
+    },
+    _HEADLESS_INSTALL_SOURCE: {
+        "sv": "Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:",
+        "de": "Lassen Sie Qt auf einem Server, Cluster oder CI-Runner weg:",
+        "es": "En un servidor, clúster o ejecutor de CI, omita Qt:",
+        "zh_CN": "在服务器、集群或 CI 运行器上安装时，请省略 Qt：",
+        "pt": "Em um servidor, cluster ou executor de CI, omita o Qt:",
+        "hi": "सर्वर, क्लस्टर या CI रनर पर Qt को छोड़ दें:",
+        "ko": "서버, 클러스터 또는 CI 실행 환경에서는 Qt를 제외합니다:",
+        "is": "Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:",
+        "fr": "Sur un serveur, un cluster ou un exécuteur CI, omettez Qt :",
+    },
+    _CORE_MODULE_SOURCES[0]: {
+        "sv": "**Mask** segmenterar celler, cellkärnor, patogener och organeller med Cellpose.",
+        "de": "**Mask** segmentiert Zellen, Zellkerne, Pathogene und Organellen mit Cellpose.",
+        "es": "**Mask** segmenta células, núcleos, patógenos y orgánulos con Cellpose.",
+        "zh_CN": "**Mask** 使用 Cellpose 分割细胞、细胞核、病原体和细胞器。",
+        "pt": "**Mask** segmenta células, núcleos, patógenos e organelas com Cellpose.",
+        "hi": "**Mask** Cellpose से कोशिकाओं, नाभिकों, रोगजनकों और कोशिकांगों का विभाजन करता है।",
+        "ko": "**Mask** Cellpose로 세포, 핵, 병원체 및 세포소기관을 분할합니다.",
+        "is": "**Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.",
+        "fr": "**Mask** segmente les cellules, les noyaux, les agents pathogènes et les organites avec Cellpose.",
+    },
+    _CORE_MODULE_SOURCES[1]: {
+        "sv": "**Measure** skriver morfologiska, intensitets-, textur-, rumsliga och kolokaliseringsmått samt objektutsnitt till SQLite.",
+        "de": "**Measure** schreibt Morphologie-, Intensitäts-, Textur-, räumliche und Kolokalisationsmerkmale sowie Objektausschnitte nach SQLite.",
+        "es": "**Measure** guarda en SQLite características morfológicas, de intensidad, textura, espaciales y de colocalización, junto con recortes de objetos.",
+        "zh_CN": "**Measure** 将形态、强度、纹理、空间和共定位特征以及对象图像裁剪写入 SQLite。",
+        "pt": "**Measure** grava no SQLite características de morfologia, intensidade, textura, espaciais e de colocalização, além de recortes dos objetos.",
+        "hi": "**Measure** आकृति-विज्ञान, तीव्रता, टेक्सचर, स्थानिक और सह-स्थानीकरण विशेषताओं के साथ ऑब्जेक्ट क्रॉप को SQLite में लिखता है।",
+        "ko": "**Measure** 형태, 강도, 텍스처, 공간 및 공위치 특성과 객체 크롭을 SQLite에 저장합니다.",
+        "is": "**Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.",
+        "fr": "**Measure** enregistre dans SQLite les caractéristiques morphologiques, d’intensité, de texture, spatiales et de colocalisation, ainsi que les vignettes des objets.",
+    },
+    _CORE_MODULE_SOURCES[2]: {
+        "sv": "**Annotate** märker objektutsnitt i ett tangentbordsstyrt rutnät och stöder köer för aktiv inlärning.",
+        "de": "**Annotate** beschriftet Objektausschnitte in einem tastaturgesteuerten Raster und unterstützt Active-Learning-Warteschlangen.",
+        "es": "**Annotate** etiqueta recortes en una cuadrícula controlada con el teclado y admite colas de aprendizaje activo.",
+        "zh_CN": "**Annotate** 在键盘驱动的网格中标注图像裁剪，并支持主动学习队列。",
+        "pt": "**Annotate** rotula recortes em uma grade controlada pelo teclado e oferece suporte a filas de aprendizado ativo.",
+        "hi": "**Annotate** कीबोर्ड से संचालित ग्रिड में क्रॉप को लेबल करता है और सक्रिय-अधिगम कतारों का समर्थन करता है।",
+        "ko": "**Annotate** 키보드로 조작하는 격자에서 크롭에 라벨을 지정하고 능동 학습 대기열을 지원합니다.",
+        "is": "**Annotate** merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms.",
+        "fr": "**Annotate** annote les vignettes dans une grille pilotée au clavier et prend en charge les files d’apprentissage actif.",
+    },
+    _CORE_MODULE_SOURCES[3]: {
+        "sv": "**Classify** tränar bild- eller mätningsbaserade modeller och sparar prestandan på undanhållna data med varje kontrollpunkt.",
+        "de": "**Classify** trainiert bild- oder messwertbasierte Modelle und speichert mit jedem Checkpoint die Leistung auf zurückgehaltenen Daten.",
+        "es": "**Classify** entrena modelos basados en imágenes o mediciones y registra con cada punto de control el rendimiento en los datos reservados.",
+        "zh_CN": "**Classify** 训练基于图像或测量值的模型，并在每个检查点记录留出数据上的性能。",
+        "pt": "**Classify** treina modelos baseados em imagens ou medições e registra, em cada checkpoint, o desempenho nos dados de validação reservados.",
+        "hi": "**Classify** छवि- या मापन-आधारित मॉडल प्रशिक्षित करता है और प्रत्येक चेकपॉइंट के साथ होल्ड-आउट डेटा पर प्रदर्शन दर्ज करता है।",
+        "ko": "**Classify** 이미지 또는 측정값 기반 모델을 학습하고 각 체크포인트에 홀드아웃 데이터 성능을 기록합니다.",
+        "is": "**Classify** þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti.",
+        "fr": "**Classify** entraîne des modèles fondés sur les images ou les mesures et enregistre, avec chaque checkpoint, les performances sur les données réservées.",
+    },
+    _CORE_MODULE_SOURCES[4]: {
+        "sv": "**Map Barcodes** kopplar FASTQ-läsningar till brunnar och gRNA:er och rapporterar QC för förekomst, kollisioner och täckning.",
+        "de": "**Map Barcodes** ordnet FASTQ-Reads Wells und gRNAs zu und liefert QC für Häufigkeit, Kollisionen und Abdeckung.",
+        "es": "**Map Barcodes** asigna las lecturas FASTQ a los pocillos y los gRNA, con controles de calidad de abundancia, colisiones y cobertura.",
+        "zh_CN": "**Map Barcodes** 将 FASTQ 读段映射到孔位和 gRNA，并提供丰度、碰撞和覆盖度质控。",
+        "pt": "**Map Barcodes** associa as leituras FASTQ aos poços e gRNAs, com controle de qualidade de abundância, colisões e cobertura.",
+        "hi": "**Map Barcodes** FASTQ रीड को वेल और gRNA से मैप करता है तथा प्रचुरता, टकराव और कवरेज का QC प्रदान करता है।",
+        "ko": "**Map Barcodes** FASTQ 리드를 웰과 gRNA에 매핑하고 풍부도, 충돌 및 커버리지 QC를 제공합니다.",
+        "is": "**Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.",
+        "fr": "**Map Barcodes** associe les lectures FASTQ aux puits et aux gRNA, avec un contrôle qualité de l’abondance, des collisions et de la couverture.",
+    },
+    _CORE_MODULE_SOURCES[5]: {
+        "sv": "**Regression** skattar effekter för guider, gener, betingelser och kontroller med modellfamiljer för kontinuerliga data, andelar och antal.",
+        "de": "**Regression** schätzt Guide-, Gen-, Bedingungs- und Kontrolleffekte mit Modellfamilien für kontinuierliche Werte, Anteile und Zähldaten.",
+        "es": "**Regression** estima los efectos de guías, genes, condiciones y controles con familias de modelos adecuadas para respuestas continuas, fraccionarias y de recuento.",
+        "zh_CN": "**Regression** 使用适合连续值、比例和计数响应的模型族估计向导 RNA、基因、条件和对照效应。",
+        "pt": "**Regression** estima efeitos de guias, genes, condições e controles com famílias de modelos adequadas a respostas contínuas, fracionárias e de contagem.",
+        "hi": "**Regression** सतत, भिन्नात्मक और गणना प्रतिक्रियाओं के अनुकूल मॉडल परिवारों से गाइड, जीन, स्थिति और नियंत्रण प्रभावों का अनुमान लगाता है।",
+        "ko": "**Regression** 연속형, 비율형 및 계수형 반응에 적합한 모델 계열로 가이드, 유전자, 조건 및 대조군 효과를 추정합니다.",
+        "is": "**Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.",
+        "fr": "**Regression** estime les effets des guides, des gènes, des conditions et des contrôles avec des familles de modèles adaptées aux réponses continues, fractionnelles et de comptage.",
+    },
+    _LICENSE_SOURCE: {
+        "sv": "spaCR är öppen källkod under `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, samma licens som CellProfiler, napari och Cellpose. Använd programmet för valfritt ändamål, även kommersiellt. Utgåvorna 1.5.0.0 till och med 1.5.0.4 hade PolyForm Noncommercial License 1.0.0 och versioner till och med 1.4.9.9 hade MIT-licensen; de utgåvorna är fortsatt tillgängliga under den licens som medföljde dem.",
+        "de": "spaCR ist Open Source unter der `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, derselben Lizenz wie CellProfiler, napari und Cellpose. Die Nutzung ist für jeden Zweck erlaubt, auch kommerziell. Die Releases 1.5.0.0 bis 1.5.0.4 standen unter der PolyForm Noncommercial License 1.0.0 und Versionen bis 1.4.9.9 unter der MIT-Lizenz; diese Releases bleiben unter der jeweils mitgelieferten Lizenz verfügbar.",
+        "es": "spaCR es de código abierto bajo la `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, la misma licencia que CellProfiler, napari y Cellpose. Puede usarse con cualquier finalidad, incluida la comercial. Las versiones 1.5.0.0 a 1.5.0.4 se publicaron bajo la PolyForm Noncommercial License 1.0.0 y las versiones hasta 1.4.9.9 bajo la licencia MIT; esas versiones siguen disponibles bajo la licencia que las acompañaba.",
+        "zh_CN": "spaCR 是依据 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 发布的开源软件，与 CellProfiler、napari 和 Cellpose 使用相同的许可证。可用于任何用途，包括商业用途。1.5.0.0 至 1.5.0.4 的发行版曾采用 PolyForm Noncommercial License 1.0.0，1.4.9.9 及更早版本采用 MIT License；这些发行版仍适用其发布时附带的许可证。",
+        "pt": "O spaCR é de código aberto sob a `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, a mesma licença do CellProfiler, do napari e do Cellpose. Pode ser usado para qualquer finalidade, inclusive comercial. As versões 1.5.0.0 a 1.5.0.4 usaram a PolyForm Noncommercial License 1.0.0 e as versões até 1.4.9.9 usaram a licença MIT; essas versões continuam disponíveis sob a licença que as acompanhava.",
+        "hi": "spaCR `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ के अंतर्गत ओपन सोर्स है — वही लाइसेंस जो CellProfiler, napari और Cellpose उपयोग करते हैं। इसे किसी भी उद्देश्य के लिए, व्यावसायिक रूप से भी, उपयोग किया जा सकता है। संस्करण 1.5.0.0 से 1.5.0.4 तक PolyForm Noncommercial License 1.0.0 के अंतर्गत और 1.4.9.9 तक के संस्करण MIT License के अंतर्गत जारी हुए थे; वे संस्करण उनके साथ जारी लाइसेंस के अंतर्गत उपलब्ध रहेंगे।",
+        "ko": "spaCR는 `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_ 에 따른 오픈 소스이며, CellProfiler·napari·Cellpose와 같은 라이선스입니다. 상업적 용도를 포함해 어떤 목적으로도 사용할 수 있습니다. 1.5.0.0부터 1.5.0.4까지의 릴리스는 PolyForm Noncommercial License 1.0.0을, 1.4.9.9까지의 버전은 MIT License를 따랐으며, 해당 릴리스는 함께 제공된 라이선스에 따라 계속 사용할 수 있습니다.",
+        "is": "spaCR er opinn hugbúnaður samkvæmt `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, sama leyfi og CellProfiler, napari og Cellpose nota. Nota má hann í hvaða tilgangi sem er, þar með talið í atvinnuskyni. Útgáfur 1.5.0.0 til 1.5.0.4 báru PolyForm Noncommercial License 1.0.0 og útgáfur til og með 1.4.9.9 báru MIT-leyfið; þær útgáfur eru áfram tiltækar samkvæmt því leyfi sem fylgdi þeim.",
+        "fr": "spaCR est un logiciel libre sous `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, la même licence que CellProfiler, napari et Cellpose. Il peut être utilisé à toutes fins, y compris commerciales. Les versions 1.5.0.0 à 1.5.0.4 étaient publiées sous la PolyForm Noncommercial License 1.0.0 et les versions jusqu’à 1.4.9.9 sous la licence MIT ; ces versions restent disponibles sous la licence qui les accompagnait.",
+    },
+    _TUTORIAL_LIBRARY_SOURCE: {
+        "sv": "Det `interaktiva biblioteket med spaCR-handledningar <https://einarolafsson.github.io/spacr/tutorials/>`_ innehåller berättade och textade genomgångar av installationen och varje programflöde: 73 lektioner med 50 röster på åtta språk.",
+        "de": "Die `interaktive spaCR-Tutorialsammlung <https://einarolafsson.github.io/spacr/tutorials/>`_ enthält vertonte und untertitelte Anleitungen zur Installation und zu jedem Anwendungsablauf: 73 Lektionen mit 50 Stimmen in acht Sprachen.",
+        "es": "La `biblioteca interactiva de tutoriales de spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contiene recorridos narrados y subtitulados de la instalación y de cada flujo de trabajo: 73 lecciones con 50 voces en ocho idiomas.",
+        "zh_CN": "`spaCR 交互式教程库 <https://einarolafsson.github.io/spacr/tutorials/>`_ 提供安装和各应用工作流程的配音、字幕教程，共有 73 节课程、50 种语音，涵盖八种语言。",
+        "pt": "A `biblioteca interativa de tutoriais do spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ contém demonstrações narradas e legendadas da instalação e de cada fluxo de trabalho: 73 lições, com 50 vozes em oito idiomas.",
+        "hi": "`इंटरैक्टिव spaCR ट्यूटोरियल लाइब्रेरी <https://einarolafsson.github.io/spacr/tutorials/>`_ में स्थापना और प्रत्येक ऐप कार्यप्रवाह के वर्णित तथा कैप्शनयुक्त मार्गदर्शन हैं: आठ भाषाओं में 50 आवाज़ों के साथ 73 पाठ।",
+        "ko": "`대화형 spaCR 튜토리얼 라이브러리 <https://einarolafsson.github.io/spacr/tutorials/>`_\\ 에는 설치 및 각 애플리케이션 워크플로를 설명하는 음성·자막 안내가 있으며, 8개 언어의 50개 음성으로 제작된 73개 강의가 포함되어 있습니다.",
+        "is": "`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ inniheldur talsettar og textaðar leiðbeiningar um uppsetningu og hvert verkflæði: 73 kennslustundir með 50 röddum á átta tungumálum.",
+        "fr": "La `bibliothèque interactive de tutoriels spaCR <https://einarolafsson.github.io/spacr/tutorials/>`_ propose des parcours commentés et sous-titrés sur l’installation et chaque flux d’application : 73 leçons avec 50 voix dans huit langues.",
+    },
+    _CITATION_PROMPT_SOURCE: {
+        "sv": "Om spaCR bidrar till din forskning, citera:",
+        "de": "Wenn spaCR zu Ihrer Forschung beiträgt, zitieren Sie:",
+        "es": "Si spaCR contribuye a su investigación, cite:",
+        "zh_CN": "如果 spaCR 对您的研究有所帮助，请引用：",
+        "pt": "Se o spaCR contribuir para sua pesquisa, cite:",
+        "hi": "यदि spaCR आपके शोध में योगदान देता है, तो इसका उद्धरण दें:",
+        "ko": "spaCR가 연구에 기여했다면 다음을 인용해 주세요:",
+        "is": "Ef spaCR nýtist við rannsóknina skaltu vitna í:",
+        "fr": "Si spaCR contribue à vos recherches, citez:",
+    },
+})
+
+_REVIEWED_README_HEADINGS_ARCHIVE = {
+    # Replaced "Workflow at a glance" on 2026-09-02, when the arrow-joined
+    # pipeline strip and the three named bands under it became one grid of
+    # every module. The old heading described a diagram of the workflow;
+    # the section is now a list of what spaCR ships.
+    #
+    # "spaCR" IS NOT TRANSLATED in any of the nine -- it is the product
+    # name -- so each locale renders only "modules", in whatever form its
+    # grammar attaches to a foreign proper noun: a hyphenated compound in
+    # Swedish, German and Icelandic, a preposition in Spanish and
+    # Portuguese, bare apposition in French, Hindi, Korean and Chinese.
+    "spaCR modules": {
+        "sv": "spaCR-moduler", "de": "spaCR-Module",
+        "es": "Módulos de spaCR", "zh_CN": "spaCR 模块",
+        "pt": "Módulos do spaCR", "hi": "spaCR मॉड्यूल",
+        "ko": "spaCR 모듈", "is": "spaCR-einingar",
+        "fr": "Modules spaCR",
+    },
     "Workflow at a glance": {
         "sv": "Arbetsflödet i korthet", "de": "Workflow auf einen Blick",
         "es": "Flujo de trabajo de un vistazo", "zh_CN": "工作流程概览",
@@ -3175,6 +3383,13 @@ REVIEWED_README_HEADINGS = {
         "ko": "다국어 데스크톱 인터페이스", "is": "Fjöltyngt skjáborðsviðmót",
         "fr": "Interface de bureau multilingue",
     },
+    "Language & translation": {
+        "sv": "Språk och översättning", "de": "Sprache und Übersetzung",
+        "es": "Idioma y traducción", "zh_CN": "语言与翻译",
+        "pt": "Idioma e tradução", "hi": "भाषा और अनुवाद",
+        "ko": "언어 및 번역", "is": "Tungumál og þýðingar",
+        "fr": "Langue et traduction",
+    },
     "Animated setting guidance": {
         "sv": "Animerad hjälp för inställningar", "de": "Animierte Einstellungshilfe",
         "es": "Guía animada de ajustes", "zh_CN": "动画设置指南",
@@ -3219,6 +3434,343 @@ REVIEWED_README_HEADINGS = {
         "sv": "Citera spaCR", "de": "spaCR zitieren", "es": "Citar spaCR",
         "zh_CN": "引用 spaCR", "pt": "Como citar o spaCR", "hi": "spaCR का संदर्भ",
         "ko": "spaCR 인용", "is": "Tilvísun í spaCR", "fr": "Citer spaCR",
+    },
+    "Acknowledgments": {
+        "sv": "Tack", "de": "Danksagung", "es": "Agradecimientos",
+        "zh_CN": "致谢", "pt": "Agradecimentos", "hi": "आभार",
+        "ko": "감사의 말", "is": "Þakkir", "fr": "Remerciements",
+    },
+}
+
+# Keep the active registry aligned with headings that occur exactly once in
+# the canonical README.  The archive above retains reviewed wording for older
+# releases without making removed headings part of the current contract.
+REVIEWED_README_HEADINGS = {
+    heading: _REVIEWED_README_HEADINGS_ARCHIVE[heading]
+    for heading in (
+        "spaCR modules",
+        "Command-line entry points",
+        "Language & translation",
+        "Animated setting guidance",
+        "Data",
+        "Reference datasets",
+        "Contributing and support",
+        "Licensing",
+        "Tutorials",
+        "Citing spaCR",
+        "Acknowledgments",
+    )
+}
+REVIEWED_README_HEADINGS.update({
+    "Install spaCR": {
+        "sv": "Installera spaCR", "de": "spaCR installieren",
+        "es": "Instalar spaCR", "zh_CN": "安装 spaCR",
+        "pt": "Instalar o spaCR", "hi": "spaCR इंस्टॉल करें",
+        "ko": "spaCR 설치", "is": "Setja upp spaCR", "fr": "Installer spaCR",
+    },
+    "Desktop application": {
+        "sv": "Skrivbordsprogram", "de": "Desktopanwendung",
+        "es": "Aplicación de escritorio", "zh_CN": "桌面应用程序",
+        "pt": "Aplicativo para desktop", "hi": "डेस्कटॉप एप्लिकेशन",
+        "ko": "데스크톱 애플리케이션", "is": "Skjáborðsforrit",
+        "fr": "Application de bureau",
+    },
+    "Conda-forge installation": {
+        "sv": "Installation med conda-forge",
+        "de": "Installation mit conda-forge",
+        "es": "Instalación con conda-forge",
+        "zh_CN": "使用 conda-forge 安装",
+        "pt": "Instalação com conda-forge",
+        "hi": "conda-forge से इंस्टॉलेशन",
+        "ko": "conda-forge 설치",
+        "is": "Uppsetning með conda-forge",
+        "fr": "Installation avec conda-forge",
+    },
+    "PyPI installation": {
+        "sv": "Installation från PyPI", "de": "Installation über PyPI",
+        "es": "Instalación desde PyPI", "zh_CN": "使用 PyPI 安装",
+        "pt": "Instalação pelo PyPI", "hi": "PyPI से इंस्टॉलेशन",
+        "ko": "PyPI 설치", "is": "Uppsetning frá PyPI",
+        "fr": "Installation depuis PyPI",
+    },
+    "Core workflow": {
+        "sv": "Kärnarbetsflöde", "de": "Kern-Workflow", "es": "Flujo de trabajo principal", "zh_CN": "核心工作流程", "pt": "Fluxo de trabalho principal", "hi": "मुख्य वर्कफ़्लो", "ko": "핵심 워크플로", "is": "Kjarnaverkflæði", "fr": "Flux de travail principal",
+    },
+})
+
+
+def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
+    """Load source-bound human review for post-release README blocks."""
+    reviewed: dict[str, dict[str, str]] = {}
+    for path in sorted(REVIEWED_README_DIR.glob("*/*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("schema") != 1:
+            raise ValueError(f"unsupported reviewed README schema: {path}")
+        language = str(payload.get("language", ""))
+        if language not in MODEL_SPECS:
+            raise ValueError(f"invalid reviewed README language in {path}")
+        records = payload.get("records")
+        if not isinstance(records, list):
+            raise ValueError(f"reviewed README records must be a list: {path}")
+        for record in records:
+            source = str(record.get("source", ""))
+            translation = str(record.get("translation", ""))
+            source_sha256 = str(record.get("source_sha256", ""))
+            if not source or not translation:
+                raise ValueError(f"empty reviewed README record in {path}")
+            if hashlib.sha256(source.encode("utf-8")).hexdigest() != source_sha256:
+                raise ValueError(f"stale reviewed README source hash in {path}")
+            previous = reviewed.setdefault(source, {}).get(language)
+            if previous is not None and previous != translation:
+                raise ValueError(
+                    f"conflicting reviewed README translation for "
+                    f"{language}: {source!r}"
+                )
+            reviewed[source][language] = translation
+    return reviewed
+
+
+REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
+for _source, _translations in REVIEWED_README_EVIDENCE_BLOCKS.items():
+    REVIEWED_README_BLOCKS.setdefault(_source, {}).update(_translations)
+
+REVIEWED_README_ALT_TEXT = {
+    "de": (
+        "spaCR-Arbeitsablauf und Ausgabeorganisation",
+        "Windows 10/11: spaCR {version} herunterladen",
+        "macOS 11+ (Intel und Apple Silicon): spaCR {version} herunterladen",
+        "64-Bit-Linux: spaCR {version} herunterladen",
+        "Ältere spaCR-Installationsprogramme",
+    ),
+    "es": (
+        "Flujo de trabajo y organización de resultados de spaCR",
+        "Windows 10/11: descargar spaCR {version}",
+        "macOS 11+ (Intel y Apple silicon): descargar spaCR {version}",
+        "Linux de 64 bits: descargar spaCR {version}",
+        "Instaladores anteriores de spaCR",
+    ),
+    "fr": (
+        "Flux de travail spaCR et organisation des sorties",
+        "Windows 10/11 : télécharger spaCR {version}",
+        "macOS 11+ (Intel et Apple Silicon) : télécharger spaCR {version}",
+        "Linux 64 bits : télécharger spaCR {version}",
+        "Anciens programmes d’installation de spaCR",
+    ),
+    "hi": (
+        "spaCR कार्यप्रवाह और आउटपुट संगठन",
+        "Windows 10/11 के लिए spaCR {version} डाउनलोड करें",
+        "macOS 11+ (Intel और Apple Silicon) के लिए spaCR {version} डाउनलोड करें",
+        "64-बिट Linux के लिए spaCR {version} डाउनलोड करें",
+        "spaCR के पुराने इंस्टॉलर",
+    ),
+    "is": (
+        "Verkflæði spaCR og skipulag úttaks",
+        "Sækja spaCR {version} fyrir Windows 10/11",
+        "Sækja spaCR {version} fyrir macOS 11+ (Intel og Apple Silicon)",
+        "Sækja spaCR {version} fyrir 64-bita Linux",
+        "Eldri spaCR-uppsetningarforrit",
+    ),
+    "ko": (
+        "spaCR 작업 흐름 및 출력 구성",
+        "Windows 10/11용 spaCR {version} 다운로드",
+        "macOS 11+ (Intel 및 Apple Silicon)용 spaCR {version} 다운로드",
+        "64비트 Linux용 spaCR {version} 다운로드",
+        "이전 spaCR 설치 프로그램",
+    ),
+    "pt": (
+        "Fluxo de trabalho e organização das saídas do spaCR",
+        "Baixar o spaCR {version} para Windows 10/11",
+        "Baixar o spaCR {version} para macOS 11+ (Intel e Apple Silicon)",
+        "Baixar o spaCR {version} para Linux de 64 bits",
+        "Instaladores anteriores do spaCR",
+    ),
+    "sv": (
+        "spaCR:s arbetsflöde och struktur för utdata",
+        "Hämta spaCR {version} för Windows 10/11",
+        "Hämta spaCR {version} för macOS 11+ (Intel och Apple Silicon)",
+        "Hämta spaCR {version} för 64-bitars Linux",
+        "Äldre spaCR-installationsprogram",
+    ),
+    "zh_CN": (
+        "spaCR 工作流程及输出结构",
+        "下载适用于 Windows 10/11 的 spaCR {version}",
+        "下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR {version}",
+        "下载适用于 64 位 Linux 的 spaCR {version}",
+        "旧版 spaCR 安装程序",
+    ),
+}
+
+REVIEWED_README_RESOURCE_ALT_TEXT = {
+    "de": (
+        "Mikroskopiedatensatz in BioStudies öffnen",
+        "Testdatensatz auf Hugging Face öffnen",
+        "Sequenzierungsdatensatz bei NCBI öffnen",
+        "spaCRPower öffnen",
+        "bioRxiv-Preprint öffnen",
+    ),
+    "es": (
+        "Abrir el conjunto de microscopía en BioStudies",
+        "Abrir el conjunto de prueba en Hugging Face",
+        "Abrir el conjunto de secuenciación en NCBI",
+        "Abrir spaCRPower",
+        "Abrir la prepublicación de bioRxiv",
+    ),
+    "fr": (
+        "Ouvrir le jeu de microscopie dans BioStudies",
+        "Ouvrir le jeu de test sur Hugging Face",
+        "Ouvrir le jeu de séquençage dans NCBI",
+        "Ouvrir spaCRPower",
+        "Ouvrir la prépublication bioRxiv",
+    ),
+    "hi": (
+        "BioStudies माइक्रोस्कोपी डेटासेट खोलें",
+        "Hugging Face परीक्षण डेटासेट खोलें",
+        "NCBI अनुक्रमण डेटासेट खोलें",
+        "spaCRPower खोलें",
+        "bioRxiv प्रीप्रिंट खोलें",
+    ),
+    "is": (
+        "Opna smásjárgagnasafnið í BioStudies",
+        "Opna prófunargagnasafnið á Hugging Face",
+        "Opna raðgreiningargagnasafnið hjá NCBI",
+        "Opna spaCRPower",
+        "Opna bioRxiv-forprentið",
+    ),
+    "ko": (
+        "BioStudies 현미경 데이터세트 열기",
+        "Hugging Face 테스트 데이터세트 열기",
+        "NCBI 시퀀싱 데이터세트 열기",
+        "spaCRPower 열기",
+        "bioRxiv 사전 인쇄본 열기",
+    ),
+    "pt": (
+        "Abrir o conjunto de microscopia no BioStudies",
+        "Abrir o conjunto de teste no Hugging Face",
+        "Abrir o conjunto de sequenciamento no NCBI",
+        "Abrir o spaCRPower",
+        "Abrir a pré-publicação no bioRxiv",
+    ),
+    "sv": (
+        "Öppna mikroskopidatamängden i BioStudies",
+        "Öppna testdatamängden på Hugging Face",
+        "Öppna sekvenseringsdatamängden hos NCBI",
+        "Öppna spaCRPower",
+        "Öppna bioRxiv-förhandsversionen",
+    ),
+    "zh_CN": (
+        "打开 BioStudies 显微镜数据集",
+        "打开 Hugging Face 测试数据集",
+        "打开 NCBI 测序数据集",
+        "打开 spaCRPower",
+        "打开 bioRxiv 预印本",
+    ),
+}
+
+REVIEWED_README_BADGE_ALT_TEXT = {
+    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "spaCR"),
+    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "spaCR"),
+    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "spaCR"),
+    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "spaCR"),
+    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "spaCR"),
+    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "spaCR"),
+    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "spaCR"),
+    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "spaCR"),
+    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "spaCR"),
+}
+
+# Workflow tiles keep their canonical module names so visual navigation, GUI
+# names and API paths agree.  The surrounding action is accessibility text,
+# however, and must be in the reader's selected language.
+REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
+
+README_BADGE_SUBSTITUTIONS = (
+    "Docs", "Tutorials", "PyPI", "Python", "Tests", "Qt", "Source",
+    "Issues", "License", "Preprint", "DOI", "Release", "Conda",
+)
+README_INSTALLER_SUBSTITUTIONS = (
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+)
+README_RESOURCE_SUBSTITUTIONS = (
+    "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
+    "DataBioRxiv",
+)
+README_WORKFLOW_BEGIN = ".. spacr-workflow-begin"
+README_WORKFLOW_END = ".. spacr-workflow-end"
+
+
+def _readme_substitution_alt_text(text: str, names: Iterable[str]) -> list[str]:
+    """Return image alternative text in explicit substitution-name order."""
+    alternatives = []
+    for name in names:
+        directive = re.search(
+            rf"(?ms)^\.\. \|{re.escape(name)}\| image::[^\n]*\n"
+            r"(?P<body>(?:   [^\n]*(?:\n|$))*)",
+            text,
+        )
+        if directive is None:
+            raise ValueError(f"README is missing the |{name}| image definition")
+        alt = re.search(r"(?m)^   :alt: (.+)$", directive.group("body"))
+        if alt is None:
+            raise ValueError(f"README image |{name}| is missing alternative text")
+        alternatives.append(alt.group(1))
+    return alternatives
+
+
+def _readme_logo_alt_text(text: str) -> str:
+    """Return the alternative text for the unlabelled README logo image."""
+    directive = re.search(
+        r"(?ms)^\.\. image:: [^\n]*logo_spacr_readme\.png\n"
+        r"(?P<body>(?:   [^\n]*(?:\n|$))*)",
+        text,
+    )
+    if directive is None:
+        raise ValueError("README is missing the spaCR logo image definition")
+    alt = re.search(r"(?m)^   :alt: (.+)$", directive.group("body"))
+    if alt is None:
+        raise ValueError("README spaCR logo is missing alternative text")
+    return alt.group(1)
+
+
+def _is_rst_substitution_row(line: str) -> bool:
+    """Return whether a line contains only linked-image substitutions."""
+    values = line.replace(r"\ ", " ").split()
+    return bool(values) and all(
+        re.fullmatch(r"\|[^|\n]+\|", value) is not None
+        for value in values
+    )
+
+
+def _localize_workflow_alt_text(text: str, language: str) -> str:
+    """Localize generated workflow headings and linked-tile actions."""
+    return localize_workflow_markup(text, language)
+
+REVIEWED_README_LANGUAGE_OVERRIDES = {
+    "es": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "En macOS, abra el archivo ``.pkg``. La beta actual no está notarizada; si Gatekeeper la bloquea, seleccione **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.",
+    },
+    "ko": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "macOS에서는 ``.pkg``를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 선택하세요.",
+        "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.":
+            "같은 프로젝트에서 플레이트를 설계하고, 검정력을 추정하고, 배치 효과를 보정하고, 분할 품질을 검사하고, 연결된 플롯과 이미지 크롭을 탐색하고, AnnData를 내보내고, 중단된 작업을 재개하고, 각 결과에 사용된 설정을 기록할 수도 있습니다.",
+        "Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies EAF1 as a *T. gondii* modulator of ESCRT subversion.":
+            "Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.",
+        "Olafsson EB, *et al.* 합성 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii* ESCRT 하위 변형의 모듈로 식별합니다.":
+            "Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.",
+        "전체 미생물 데이터 세트": "전체 스크린 데이터셋",
+    },
+    "pt": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "No macOS, abra o arquivo ``.pkg``. A versão beta atual não é notarizada; se o Gatekeeper a bloquear, selecione **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.",
+    },
+    "zh_CN": {
+        "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.":
+            "同一项目还可以设计孔板、估算统计功效、校正批次效应、检查分割质量、探索相互关联的图表和图像裁剪、导出 AnnData、恢复中断的工作，并记录每项结果所使用的设置。",
+        "Feature guide": "功能指南",
+        "Language & translation guide": "语言与翻译指南",
+        "界面语言,背景援助和科学出口政策。":
+            "界面语言、上下文帮助和科学输出政策。",
     },
 }
 
@@ -3351,6 +3903,68 @@ def _clean_doc(node: ast.AST) -> str:
     return inspect.cleandoc(value).strip()
 
 
+def _module_scope_nodes(statements):
+    """Yield definitions in every executable module/class-level branch."""
+    for node in statements:
+        yield node
+        if isinstance(node, ast.If):
+            yield from _module_scope_nodes(node.body)
+            yield from _module_scope_nodes(node.orelse)
+        elif isinstance(node, (ast.Try, getattr(ast, "TryStar", ast.Try))):
+            yield from _module_scope_nodes(node.body)
+            for handler in node.handlers:
+                yield from _module_scope_nodes(handler.body)
+            yield from _module_scope_nodes(node.orelse)
+            yield from _module_scope_nodes(node.finalbody)
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            yield from _module_scope_nodes(node.body)
+        elif hasattr(ast, "Match") and isinstance(node, ast.Match):
+            for case in node.cases:
+                yield from _module_scope_nodes(case.body)
+
+
+def _merge_source_doc(docs: dict[str, str], key: str, text: str) -> None:
+    """Merge mutually exclusive source definitions without losing either."""
+    if not text:
+        return
+    current = docs.get(key, "")
+    if not current:
+        docs[key] = text
+    elif text != current:
+        docs[key] = f"{current}\n{text}"
+
+
+def _autoapi_class_doc(node: ast.ClassDef) -> str:
+    """Class prose exactly as AutoAPI's ``class_content='both'`` emits it."""
+    doc = _clean_doc(node)
+    children = tuple(_module_scope_nodes(node.body))
+    constructors = [
+        child for child in children
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and child.name == "__init__"
+    ]
+    constructor_docs: list[str] = []
+    for constructor in constructors:
+        constructor_doc = _clean_doc(constructor)
+        if constructor_doc and constructor_doc not in constructor_docs:
+            constructor_docs.append(constructor_doc)
+    # PythonClass.constructor_docstring falls back to __new__ when __init__
+    # exists but carries no prose, not only when __init__ is absent.
+    if not constructor_docs:
+        for constructor in children:
+            if not isinstance(
+                constructor, (ast.FunctionDef, ast.AsyncFunctionDef),
+            ) or constructor.name != "__new__":
+                continue
+            constructor_doc = _clean_doc(constructor)
+            if constructor_doc and constructor_doc not in constructor_docs:
+                constructor_docs.append(constructor_doc)
+    for constructor_doc in constructor_docs:
+        # This is AutoAPI's exact separator in PythonClass.docstring.
+        doc = f"{doc}\n{constructor_doc}"
+    return doc
+
+
 def _is_visible_function_name(name: str, *, module_is_package: bool) -> bool:
     """Return whether AutoAPI emits this documented function/member name."""
     if not name.startswith("_"):
@@ -3421,30 +4035,42 @@ def _additional_assignment_docs(
     return docs
 
 
+def _is_rendered_autoapi_entry(
+    path: Path,
+    module: str,
+    key: str | None = None,
+) -> bool:
+    """Whether ``path``/``key`` can appear in the rendered AutoAPI pages."""
+    source_path = path.as_posix()
+    if any(fnmatch.fnmatch(source_path, pattern) for pattern in AUTOAPI_IGNORE):
+        return False
+    if module in AUTOAPI_NON_RENDERED_MODULES:
+        return False
+    return key not in AUTOAPI_NON_RENDERED_SYMBOLS
+
+
 def public_docstrings() -> dict[str, str]:
     """Extract every canonical or exact-alias body visible in AutoAPI."""
     docs: dict[str, str] = {}
     for path in sorted((ROOT / "spacr").rglob("*.py")):
-        if any(
-            part in {"tests", "__pycache__", "backup_icons"}
-            for part in path.parts
-        ):
-            continue
-        # These are generated translation payloads, not Python API.  Including
-        # their module headers makes every locale regeneration stale every API
-        # locale and needlessly exposes generator metadata in the API picker.
-        if "i18n_catalogs" in path.parts:
+        module = _module_name(path)
+        if not _is_rendered_autoapi_entry(path, module):
             continue
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except (SyntaxError, UnicodeDecodeError):
             continue
-        module = _module_name(path)
         module_doc = _clean_doc(tree)
         if module_doc:
             docs[module] = module_doc
-        docs.update(_additional_assignment_docs(tree.body, module))
-        for node in tree.body:
+        docs.update({
+            key: text
+            for key, text in _additional_assignment_docs(
+                tree.body, module,
+            ).items()
+            if _is_rendered_autoapi_entry(path, module, key)
+        })
+        for node in _module_scope_nodes(tree.body):
             if not isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -3456,12 +4082,23 @@ def public_docstrings() -> dict[str, str]:
             if not visible:
                 continue
             key = f"{module}.{node.name}"
-            doc = _clean_doc(node)
-            if doc:
-                docs[key] = doc
+            if not _is_rendered_autoapi_entry(path, module, key):
+                continue
+            doc = _autoapi_class_doc(node) if isinstance(
+                node, ast.ClassDef,
+            ) else _clean_doc(node)
+            _merge_source_doc(docs, key, doc)
             if isinstance(node, ast.ClassDef):
-                docs.update(_additional_assignment_docs(node.body, key))
-                for child in node.body:
+                docs.update({
+                    child_key: text
+                    for child_key, text in _additional_assignment_docs(
+                        node.body, key,
+                    ).items()
+                    if _is_rendered_autoapi_entry(
+                        path, module, child_key,
+                    )
+                })
+                for child in _module_scope_nodes(node.body):
                     if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         continue
                     if not _is_visible_function_name(
@@ -3469,8 +4106,11 @@ def public_docstrings() -> dict[str, str]:
                     ):
                         continue
                     child_doc = _clean_doc(child)
-                    if child_doc:
-                        docs[f"{key}.{child.name}"] = child_doc
+                    child_key = f"{key}.{child.name}"
+                    if _is_rendered_autoapi_entry(
+                        path, module, child_key,
+                    ):
+                        _merge_source_doc(docs, child_key, child_doc)
     for alias, canonical in API_DOC_ALIASES.items():
         if alias in docs:
             raise ValueError(
@@ -3564,6 +4204,32 @@ def translatable_blocks(
                 literal.append(lines[index])
                 index += 1
             layout.append(("raw_lines", literal))
+            continue
+        # The workflow block is generated from the live Home registry. Its
+        # headings and accessibility actions are localized deterministically
+        # after prose reconstruction; sending rows or substitutions through a
+        # model can corrupt their RST delimiters and links.
+        if line.strip() == README_WORKFLOW_BEGIN:
+            literal = [line]
+            index += 1
+            while (
+                index < len(lines)
+                and lines[index].strip() != README_WORKFLOW_END
+            ):
+                literal.append(lines[index])
+                index += 1
+            if index >= len(lines):
+                raise ValueError("README workflow block has no end marker")
+            literal.append(lines[index])
+            index += 1
+            layout.append(("raw_lines", literal))
+            continue
+        # Linked-image rows contain navigation structure but no prose. Their
+        # individual ``:alt:`` fields remain inside raw image directives and
+        # are localized later by reviewed identity-specific replacements.
+        if _is_rst_substitution_row(line):
+            layout.append(("raw", line))
+            index += 1
             continue
         simple_match = _SIMPLE_TABLE_BORDER_RE.match(line)
         if simple_match:
@@ -4203,9 +4869,19 @@ def rebuild_document(layout: Iterable[tuple[str, object]], translated: list[str]
         ):
             character = underline[0]
             lines[index] = character * max(
-                len(underline), len(lines[index - 1].strip())
+                len(underline), _rst_display_width(lines[index - 1].strip())
             )
     return "\n".join(lines).strip()
+
+
+def _rst_display_width(value: str) -> int:
+    """Return the terminal-column width used for an rST heading."""
+    return sum(
+        0 if unicodedata.combining(character)
+        else 2 if unicodedata.east_asian_width(character) in {"F", "W"}
+        else 1
+        for character in value
+    )
 
 
 def _source_hash(text: str) -> str:
@@ -4260,6 +4936,48 @@ _TARGET_SCRIPT_PATTERN = {
     "ko": re.compile(r"[\uac00-\ud7af]"),
 }
 
+
+def _model_artifact_reasons(
+    source: str, value: str, language: str,
+) -> tuple[str, ...]:
+    """Return known translation-model control tokens in visible prose.
+
+    The checks are source-conditioned where a token could be legitimate. A
+    source that actually discusses a vacuum may retain that word; unrelated
+    Korean output may not acquire it as a sentence filler. Khmer script is
+    never expected in any supported target language.
+    """
+    prose = _PROTECT_RE.sub(" ", str(value))
+    reasons: list[str] = []
+    if re.search(r"[\u1780-\u17ff]", prose):
+        reasons.append("Khmer control token")
+    if (
+        language == "ko"
+        and not re.search(
+            r"\b(?:vacuum|vacancy|vac)\b", str(source), re.IGNORECASE,
+        )
+        and re.search(
+            r"(?<![A-Za-z])(?:Vacuum|Vacancy|Vac)"
+            r"(?:[A-Za-z0-9_()-]+|-[A-Za-z0-9_-]+)?"
+            r"(?:은|는|이|가|을|를|의|과|와|도|만|이란)?"
+            r"(?=\s|[.,:;!?…)]|$)",
+            prose,
+            re.IGNORECASE,
+        )
+    ):
+        reasons.append("vacuum filler")
+    if (
+        language == "is"
+        and not re.search(r"\bvysi", str(source), re.IGNORECASE)
+        and re.search(
+            r"(?<![A-Za-zÀ-ÖØ-öø-ÿ])vysi(?:ð|đ|t|r|o|e|d|n|s|a)?",
+            prose,
+            re.IGNORECASE,
+        )
+    ):
+        reasons.append("vysi control token")
+    return tuple(reasons)
+
 # These ordinary English words are not scientific identifiers or accepted UI
 # loanwords.  If one survives verbatim from the English model input into a
 # Latin-script target block, the decode is partial even when the rest of the
@@ -4302,6 +5020,15 @@ _ENGLISH_RESIDUE_BY_LANGUAGE = {
     }),
 }
 _ENGLISH_RESIDUE_ALLOWLIST = {
+    # These are established German software terms, normally capitalized as
+    # nouns but compared case-insensitively here. Their presence is not an
+    # untranslated fragment; surrounding English grammar and copied phrases
+    # remain subject to the ordinary strict gates.
+    "de": frozenset({
+        "default", "defaults", "event", "events", "idempotent",
+        "loop", "loops", "match", "matches", "string", "strings",
+        "thread", "threads",
+    }),
     # ``thread`` is the standard technical term in Portuguese software prose;
     # forcing a literal expansion produced broken agreement and less useful
     # API documentation.  This exception applies only to the residue detector,
@@ -4368,6 +5095,83 @@ API_SHARED_PHRASE_ALLOWLIST = frozenset({
     "k means discovery",
 })
 
+# Some English-origin software terms have conventional localized spellings.
+# Keep these exceptions language-specific so they cannot hide untranslated
+# prose in unrelated targets. Lexical normalization removes punctuation, so
+# German ``Event-Loop`` is compared here as ``event loop``.
+API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
+    "de": frozenset({
+        "absolute string",
+        "belsley kuh welsch definition",
+        "benjamini hochberg fdr q",
+        "classifier evaluation run history",
+        "copyright c matthew o meara maom orcid",
+        "d agostino pearson test",
+        "denial of service",
+        "distributed jobs classifier evaluation",
+        "drag and drop",
+        "event loop",
+        "essentials all",
+        "evaluation run history",
+        "fuzzy match",
+        "image mask i o",
+        "mann whitney u test",
+        "mask measure timelapse motility",
+        "nasa esa download in",
+        "one shot",
+        "out of fold",
+        "prepare run review",
+        "pre run hook",
+        "pro chatgpt plus pro team google",
+        "run history",
+        "run id",
+        "string hashing",
+        "sigma max min h w",
+        "t h w label stack",
+        "vs code slack linear",
+        "warm page cache ms",
+        "zarr format zarr format",
+    }),
+    # These are exact quoted UI/schema literals in the canonical prose.  The
+    # syntax contract deliberately keeps the quoted bytes unchanged, so the
+    # copied-English audit must recognize the same three reviewed literals.
+    "ko": frozenset({
+        "and what did it do to the curves",
+        "c matthew o meara",
+        "cp cp cp cp",
+        "drain before closing",
+        "geometric mean of well reads",
+        "max min h w",
+        "sigma max min h w",
+        "the run is deterministic",
+        "this fit crashed",
+        "this field has an and it encloses nothing",
+        "unknown and therefore probably a cell",
+        "total reads",
+        "what changed",
+        "what is this",
+    }),
+    "sv": frozenset({
+        "cp cp cp cp",
+        "information houlsby et al",
+        "pro chatgpt plus pro team google",
+        "sigma max min h w",
+        "test t test mann whitney anova kruskal",
+        "urllib botocore tensorflow asyncio",
+        "zarr format zarr format",
+    }),
+    "fr": frozenset({
+        "align batch convert report",
+        "cp cp cp cp",
+        "extension csv tsv tab xls xlsx",
+        "genes plates fold change",
+        "mann whitney anova kruskal",
+        "prepare run review",
+        "sigma max min h w",
+        "urllib botocore tensorflow asyncio",
+    }),
+}
+
 _COPIED_ENGLISH_GRAMMAR_WORDS = frozenset({
     "an", "the", "is", "are", "was", "were", "been", "being", "this",
     "that", "these", "those", "what", "which", "who", "whose", "when",
@@ -4403,6 +5207,31 @@ _PT_COPIED_CONTENT_BIGRAMS = frozenset({
 })
 
 
+# A bare URL is provenance, not prose -- the same argument `_ORCID_RE` is
+# written on. It is NOT in the shared `_PROTECT_RE`, because runtime captions
+# do not carry citations, and the API docstrings do: an attribution line like
+# ``github.com/cheeseman-lab/brieflow, MIT, Copyright 2025`` contributed
+# `cheeseman`, `lab` and `brieflow` to the lexical comparison as though they
+# were English words, and joined them into a copied run that no correct
+# translation could avoid. Scoped to the two API lexical gates below rather
+# than added to `_PROTECT_RE`, which would move every runtime catalog hash
+# for a problem runtime prose does not have.
+_API_URL_RE = re.compile(
+    r"(?:(?:https?|ftp)://|www\.)\S+"
+    r"|(?<![\w.])[A-Za-z0-9][\w-]*(?:\.[\w-]+)+/\S*"
+)
+
+
+def _api_lexical_words(text: str) -> list[str]:
+    """Words that count as prose when comparing an API block to its source.
+
+    Protected spans and bare URLs are removed first: what remains is the
+    text a translator is answerable for.
+    """
+    stripped = _API_URL_RE.sub(" ", str(text))
+    return re.findall(r"[^\W\d_]+", _PROTECT_RE.sub(" ", stripped).casefold())
+
+
 def _copied_english_phrases(
     source: str, value: str, language: str, *, minimum_words: int = 2,
 ) -> tuple[str, ...]:
@@ -4410,22 +5239,28 @@ def _copied_english_phrases(
     if language not in MODEL_SPECS:
         return ()
 
-    def lexical_words(text: str) -> list[str]:
-        return re.findall(
-            r"[^\W\d_]+",
-            _PROTECT_RE.sub(" ", str(text)).casefold(),
-        )
-
-    source_words = lexical_words(source)
-    value_words = lexical_words(value)
+    source_words = _api_lexical_words(source)
+    value_words = _api_lexical_words(value)
     copied: list[str] = []
     for match in SequenceMatcher(
         None, source_words, value_words, autojunk=False,
     ).get_matching_blocks():
         if match.size < minimum_words:
             continue
-        phrase = " ".join(source_words[match.a:match.a + match.size])
-        if phrase in API_SHARED_PHRASE_ALLOWLIST:
+        run = source_words[match.a:match.a + match.size]
+        # NOTATION IS NOT PROSE. `t, z, y, x` is an axis list and `a b c d`
+        # is a slot enumeration; a run made only of single characters says
+        # nothing about whether the sentence around it was translated, and
+        # a translation that renamed those letters would be wrong.
+        if all(len(word) == 1 for word in run):
+            continue
+        phrase = " ".join(run)
+        if (
+            phrase in API_SHARED_PHRASE_ALLOWLIST
+            or phrase in API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE.get(
+                language, ()
+            )
+        ):
             continue
         if (
             match.size < 4
@@ -4455,8 +5290,10 @@ def _copied_english_phrases(
 def _has_english_residue(source: str, value: str, language: str) -> bool:
     if language not in _LATIN_TARGET_LANGUAGES:
         return False
-    source_prose = _PROTECT_RE.sub(" ", str(source)).casefold()
-    value_prose = _PROTECT_RE.sub(" ", str(value)).casefold()
+    source_prose = _PROTECT_RE.sub(
+        " ", _API_URL_RE.sub(" ", str(source))).casefold()
+    value_prose = _PROTECT_RE.sub(
+        " ", _API_URL_RE.sub(" ", str(value))).casefold()
     # Match complete Unicode words.  ASCII-only tokenization split Portuguese
     # ``notícia`` at ``í`` and falsely reported the prefix ``not`` as retained
     # English prose (with analogous risks in every accented Latin language).
@@ -4485,6 +5322,8 @@ def _api_block_valid(source: str, value: str, language: str) -> bool:
     if _looks_degenerate(source, value, language):
         return False
     if _semantic_false_friends(source, value, language):
+        return False
+    if _model_artifact_reasons(source, value, language):
         return False
     if language == "zh_CN" and _has_traditional_chinese_prose(value):
         return False
@@ -4666,19 +5505,59 @@ def _translate_documents(
         blocks, layout = translatable_blocks(value)
         block_map[key] = (blocks, layout)
         unique.update(blocks)
-    translations = _translate_blocks(
-        sorted(unique), language, model_root, args,
-    )
     reviewed_blocks = {**REVIEWED_README_BLOCKS, **REVIEWED_README_HEADINGS}
-    for source, reviewed in reviewed_blocks.items():
-        if source in translations:
-            translations[source] = reviewed[language]
+    reviewed = {
+        source: targets[language]
+        for source, targets in reviewed_blocks.items()
+        if source in unique and language in targets
+    }
+    translations = _translate_blocks(
+        sorted(unique - set(reviewed)), language, model_root, args,
+    )
+    translations.update(reviewed)
     result: dict[str, str] = {}
     for key, (blocks, layout) in block_map.items():
         result[key] = rebuild_document(
             layout, [translations[block] for block in blocks],
         )
     return result
+
+
+def _localize_readme_link_labels(
+    text: str,
+    language: str,
+    links: list[tuple[str, str, str]],
+    translations: Mapping[str, str],
+) -> str:
+    """Localize independent link labels without mutating reviewed prose.
+
+    Reviewed README blocks include their intended visible link labels. Hide
+    those exact targets while applying the independent label translations so
+    product and service names such as ``GitHub Issues`` and
+    ``PolyForm Noncommercial License 1.0.0`` remain byte-for-byte reviewed.
+    """
+    protected: dict[str, str] = {}
+    targets = {
+        localized[language]
+        for localized in REVIEWED_README_BLOCKS.values()
+        if localized.get(language)
+    }
+    for index, target in enumerate(sorted(targets, key=len, reverse=True)):
+        if target not in text:
+            continue
+        token = f"\ue100SPACR_REVIEWED_README_{index}\ue101"
+        if token in text:
+            raise ValueError(f"reviewed README sentinel collision: {token}")
+        text = text.replace(target, token)
+        protected[token] = target
+    for key, label, target in links:
+        text = text.replace(
+            f"`{label} <{target}>`_",
+            f"`{translations[key]} <{target}>`_",
+        )
+    for token, target in protected.items():
+        text = text.replace(token, target)
+    return text
 
 
 def _translate_api_documents(
@@ -4832,6 +5711,21 @@ def reviewed_api_block_translations(
             if not isinstance(record, Mapping):
                 raise ValueError(f"invalid reviewed API record: {path}")
             label = str(record.get("label", ""))
+            # RETIRED RECORDS ARE KEPT AND NOT CHECKED, the mechanism the
+            # maintainer chose on 2026-09-03 for the README gap ledger when
+            # asked the same question about the same situation: a human
+            # review bound to source text that has since been rewritten.
+            #
+            # Deleting it is the obvious fix and the wrong one. Instruction
+            # 357's guideline 4 forbids CLAIMING a review nobody gave; its
+            # mirror is that a review somebody DID give is not ours to
+            # discard because the sentence it covered changed. The record
+            # keeps its reviewer, its locale and its translation, and is
+            # simply no longer compared against a docstring that no longer
+            # contains it. `retired_reason` says why, so the next reader can
+            # tell a deliberate retirement from a record that quietly broke.
+            if record.get("retired"):
+                continue
             symbol, separator, raw_index = label.rpartition("#")
             if not separator:
                 raise ValueError(f"invalid reviewed API label {label!r}: {path}")
@@ -4858,9 +5752,8 @@ def reviewed_api_block_translations(
             if _api_translation_source(source) != context:
                 raise ValueError(f"stale reviewed API context {label!r}: {path}")
             if not (
-                _syntax_preserved(source, target)
-                and _api_block_valid(source, target, language)
-                and _api_block_valid(context, target, language)
+                _reviewed_api_block_valid(source, target, language)
+                and _reviewed_api_block_valid(context, target, language)
             ):
                 raise ValueError(f"rejected reviewed API target {label!r}: {path}")
             previous = reviewed.setdefault(source, target)
@@ -4871,14 +5764,119 @@ def reviewed_api_block_translations(
     return reviewed
 
 
+def _reviewed_api_block_valid(
+    source: str, value: str, language: str,
+) -> bool:
+    """Validate a source-bound API translation after language review.
+
+    Reviewed evidence may retain a cited name, an equation token or a
+    domain-standard English term that the generic copied-prose heuristic
+    cannot distinguish from an untranslated sentence.  The exemption is
+    deliberately limited to exact evidence records: syntax, semantics,
+    source context, target script and degeneracy checks remain mandatory.
+    """
+    if not str(value).strip() or not _syntax_preserved(source, value):
+        return False
+    if _looks_degenerate(source, value, language):
+        return False
+    if _semantic_false_friends(source, value, language):
+        return False
+    if _model_artifact_reasons(source, value, language):
+        return False
+    if language == "zh_CN" and _has_traditional_chinese_prose(value):
+        return False
+    if not _api_block_requires_translation(source):
+        return _normalized_block(source) == _normalized_block(value)
+    if _normalized_block(source) == _normalized_block(value):
+        return False
+    pattern = _TARGET_SCRIPT_PATTERN.get(language)
+    return pattern is None or bool(pattern.search(str(value)))
+
+
+def _api_contextual_repair_required(
+    source: str,
+    value: str,
+    language: str,
+    reviewed_value: str = "",
+) -> bool:
+    """Return whether an unreviewed API block needs lexical repair.
+
+    The shared contextualizer is intentionally broad because it repairs model
+    false friends across runtime captions and API prose. Exact source-bound
+    API review is stronger evidence and may retain a term that a broad rule
+    would otherwise rewrite. Only the exact reviewed target receives this
+    exemption.
+    """
+    if reviewed_value and value == reviewed_value:
+        return False
+    return _contextualize(value, language, source) != value
+
+
+def _historical_api_block_translations(
+    english_record: Mapping[str, object],
+    translated_record: Mapping[str, object],
+    language: str,
+) -> dict[str, str]:
+    """Return exact old source blocks whose target provenance still verifies.
+
+    This is deliberately stricter than positional catalog reuse.  A changed
+    docstring may retain one or more complete paragraphs, but those paragraphs
+    are reusable only when the old English manifest and translated catalog
+    independently describe the same canonical source, block layout and model
+    context.  Duplicate old paragraphs are admitted only when every occurrence
+    has the same valid target.
+    """
+    old_source = str(english_record.get("text", ""))
+    old_target = str(translated_record.get("text", ""))
+    if not old_source.strip() or not old_target.strip():
+        return {}
+    old_source_hash = _source_hash(old_source)
+    old_block_hashes = _source_block_hashes(old_source)
+    old_context_hashes = _translation_source_block_hashes(old_source)
+    if not (
+        english_record.get("source_sha256") == old_source_hash
+        and english_record.get("source_blocks_sha256") == old_block_hashes
+        and translated_record.get("source_sha256") == old_source_hash
+        and translated_record.get("source_blocks_sha256") == old_block_hashes
+        and translated_record.get("translation_source_blocks_sha256")
+            == old_context_hashes
+    ):
+        return {}
+
+    source_blocks, _source_layout = translatable_blocks(old_source)
+    target_blocks, _target_layout = translatable_blocks(old_target)
+    if len(source_blocks) != len(target_blocks):
+        return {}
+
+    candidates: dict[str, str] = {}
+    conflicts: set[str] = set()
+    for source_block, target_block in zip(source_blocks, target_blocks):
+        if not _api_block_requires_translation(source_block):
+            continue
+        contextual_source = _api_translation_source(source_block)
+        candidate = _contextualize(target_block, language, source_block)
+        if not (
+            _api_block_valid(source_block, candidate, language)
+            and _api_block_valid(contextual_source, candidate, language)
+        ):
+            continue
+        previous = candidates.setdefault(source_block, candidate)
+        if previous != candidate:
+            conflicts.add(source_block)
+    for source_block in conflicts:
+        candidates.pop(source_block, None)
+    return candidates
+
+
 def repair_api_translations(
     docs: Mapping[str, str], language: str, model_root: Path, args,
 ) -> dict[str, str]:
     """Repair stale/untranslated API blocks while retaining valid blocks.
 
-    Reuse is positional only when the translated document has exactly the
-    canonical block count. A layout mismatch causes that symbol's prose to be
-    regenerated from its English blocks; executable/type/code-only blocks are
+    Current documents are reused positionally.  For changed documents, an
+    unchanged paragraph may also be reused by exact source text, but only when
+    the old English and target manifests still prove the same source, block
+    layout and translation context. Executable/type/code-only blocks are
     always copied from the canonical source.
     """
     try:
@@ -4888,6 +5886,14 @@ def repair_api_translations(
         current_symbols = payload.get("symbols", {})
     except (FileNotFoundError, json.JSONDecodeError, AttributeError):
         current_symbols = {}
+    try:
+        english_payload = json.loads(
+            (API_DIR / "en.json").read_text(encoding="utf-8")
+        )
+        old_english_symbols = english_payload.get("symbols", {})
+    except (FileNotFoundError, json.JSONDecodeError, AttributeError):
+        old_english_symbols = {}
+    reviewed_blocks = reviewed_api_block_translations(docs, language)
 
     plans: dict[
         str,
@@ -4895,12 +5901,17 @@ def repair_api_translations(
     ] = {}
     pending_sources: set[str] = set()
     reused_blocks = 0
+    historical_reused_blocks = 0
     relaid_symbols = 0
 
     for key, source in docs.items():
         source_blocks, source_layout = translatable_blocks(source)
-        record = current_symbols.get(
-            API_DOC_ALIASES.get(key, key), {}
+        canonical_key = API_DOC_ALIASES.get(key, key)
+        record = current_symbols.get(canonical_key, {})
+        historical = _historical_api_block_translations(
+            old_english_symbols.get(canonical_key, {}),
+            record,
+            language,
         )
         current_text = str(record.get("text", ""))
         current_ok = record.get("source_sha256") == _source_hash(source)
@@ -4937,7 +5948,7 @@ def repair_api_translations(
             candidate = (
                 current_blocks[index]
                 if positional and context_is_current
-                else ""
+                else historical.get(source_block, "")
             )
             candidate = _contextualize(candidate, language, source_block)
             if (
@@ -4948,6 +5959,8 @@ def repair_api_translations(
             ):
                 selected.append(candidate)
                 reused_blocks += 1
+                if not (positional and context_is_current):
+                    historical_reused_blocks += 1
             else:
                 selected.append(None)
                 pending_indexes.append(index)
@@ -4956,12 +5969,19 @@ def repair_api_translations(
             source_blocks, source_layout, selected, pending_indexes,
         )
 
+    reviewed_sources = set(reviewed_blocks)
+    recovered_review = len(pending_sources & reviewed_sources)
+    for source_blocks, _layout, selected, _pending_indexes in plans.values():
+        for index, source_block in enumerate(source_blocks):
+            reviewed_target = reviewed_blocks.get(source_block, "")
+            if reviewed_target:
+                selected[index] = reviewed_target
+    pending_sources.difference_update(reviewed_sources)
+
     generated: dict[str, str] = {}
     translation_input: dict[str, str] = {}
     recovered_cache = 0
-    recovered_review = 0
     if pending_sources:
-        reviewed_blocks = reviewed_api_block_translations(docs, language)
         # A stricter audit can reject a catalog entry after its model output
         # was already checkpointed. If a later review narrows that audit (for
         # example by recognizing the Python type name ``dict`` as code), reuse
@@ -4979,11 +5999,6 @@ def repair_api_translations(
             api_cache = {}
         for source in pending_sources:
             contextual_source = _api_translation_source(source)
-            reviewed_target = reviewed_blocks.get(source, "")
-            if reviewed_target:
-                generated[source] = reviewed_target
-                recovered_review += 1
-                continue
             candidate = ""
             # Before API contexts were namespaced, the shared decoder stored
             # accepted output under its model input itself. Reuse that exact
@@ -5043,9 +6058,9 @@ def repair_api_translations(
                 args,
                 force=True,
                 repair_protected=True,
-                # v7 keeps structural RST outside the model input and retains
-                # emphasis in its grammatical context during hard-literal
-                # fallback. Never promote an older ambiguous checkpoint.
+                # The current namespace keeps structural RST outside the model
+                # input, retains emphasis in grammatical context, and binds
+                # hard-tail output to the admitted secondary-model identity.
                 cache_namespace=API_BLOCK_CACHE_NAMESPACE,
                 candidate_validator=api_repair_candidate_valid,
             )
@@ -5061,7 +6076,10 @@ def repair_api_translations(
             source_block = source_blocks[index]
             contextual_source = _api_translation_source(source_block)
             candidate = _contextualize(
-                generated.get(source_block, source_block),
+                reviewed_blocks.get(
+                    source_block,
+                    generated.get(source_block, source_block),
+                ),
                 language,
                 source_block,
             )
@@ -5070,11 +6088,14 @@ def repair_api_translations(
             # the original wording.  Validate both semantic contracts: the
             # target must translate the rewritten model input and preserve
             # every literal required by the canonical source.
+            validator = (
+                _reviewed_api_block_valid
+                if source_block in reviewed_sources
+                else _api_block_valid
+            )
             if (
-                not _api_block_valid(
-                    contextual_source, candidate, language,
-                )
-                or not _api_block_valid(source_block, candidate, language)
+                not validator(contextual_source, candidate, language)
+                or not validator(source_block, candidate, language)
             ):
                 candidate = source_block
                 unresolved += 1
@@ -5089,6 +6110,7 @@ def repair_api_translations(
 
     print(
         f"{language}: API blocks reused={reused_blocks} "
+        f"historical_reused={historical_reused_blocks} "
         f"generated={len(pending_sources)} unresolved={unresolved} "
         f"review_recovered={recovered_review} "
         f"cache_recovered={recovered_cache} "
@@ -5243,6 +6265,8 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         english_residue_errors: list[str] = []
         copied_english_errors: list[str] = []
         semantic_false_friend_errors: list[str] = []
+        model_artifact_errors: list[str] = []
+        reviewed_blocks = reviewed_api_block_translations(docs, language)
         for key, source in docs.items():
             record = symbols.get(key, {})
             canonical = API_DOC_ALIASES.get(key)
@@ -5294,12 +6318,21 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                         zip(source_blocks, translated_blocks)
                     ):
                         label = f"{key}#{index}"
+                        is_reviewed = (
+                            reviewed_blocks.get(source_block)
+                            == translated_block
+                        )
                         if not _syntax_preserved(source_block, translated_block):
                             protected_block_errors.append(label)
                         contextualized = _contextualize(
                             translated_block, language, source_block
                         )
-                        if contextualized != translated_block:
+                        if _api_contextual_repair_required(
+                            source_block,
+                            translated_block,
+                            language,
+                            reviewed_blocks.get(source_block, ""),
+                        ):
                             contextual_errors.append(label)
                         semantic_failures = _semantic_false_friends(
                             source_block, translated_block, language,
@@ -5325,6 +6358,7 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             )
                             if (
                                 contextual_source != source_block
+                                and not is_reviewed
                                 and not _api_block_valid(
                                     contextual_source,
                                     translated_block,
@@ -5332,11 +6366,11 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                                 )
                             ):
                                 contextual_translation_errors.append(label)
-                            if _has_english_residue(
+                            if not is_reviewed and _has_english_residue(
                                 source_block, translated_block, language,
                             ):
                                 english_residue_errors.append(label)
-                            if _copied_english_phrases(
+                            if not is_reviewed and _copied_english_phrases(
                                 source_block, translated_block, language,
                             ):
                                 copied_english_errors.append(label)
@@ -5353,6 +6387,10 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             failures.append(
                                 f"{language}/{label}: degenerate block"
                             )
+                        if _model_artifact_reasons(
+                            source_block, translated_block, language,
+                        ):
+                            model_artifact_errors.append(label)
                 if _looks_degenerate(source, translated_text, language):
                     failures.append(f"{language}/{key}: degenerate translation")
                 # Compare whole-document literals in the canonical parser
@@ -5421,6 +6459,12 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 "retain reviewed semantic false friends "
                 f"({', '.join(semantic_false_friend_errors[:5])})"
             )
+        if model_artifact_errors:
+            failures.append(
+                f"{language}: {len(model_artifact_errors)} API blocks retain "
+                "translation-model control tokens "
+                f"({', '.join(model_artifact_errors[:5])})"
+            )
         readme_path = README_DIR / f"README.{language}.rst"
         if not readme_path.is_file():
             failures.append(f"{language}: translated README is missing")
@@ -5433,11 +6477,27 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
             ).replace(
                 "<../TRANSLATION_MODELS.md>",
                 "<docs/i18n/TRANSLATION_MODELS.md>",
+            ).replace(
+                " image:: ../../../spacr/resources/",
+                " image:: spacr/resources/",
+            ).replace(
+                "<../../source/", "<docs/source/",
+            ).replace(
+                ":target: ../../source/", ":target: docs/source/",
             )
             contract_readme = re.sub(
                 r"<README\.([A-Za-z_]+)\.rst>",
                 r"<docs/i18n/readme/README.\1.rst>",
                 contract_readme,
+            )
+            # AND THE LANGUAGE INDEX, which the regex above cannot reach
+            # because it is Markdown rather than RST. 361 turned the picker
+            # into a dropdown pointing at that index, and the reverse
+            # rewrite was not told: every localized README then read as a
+            # link the English source does not have, which is what made
+            # "RST link targets changed" fire for all nine locales at once.
+            contract_readme = contract_readme.replace(
+                "<README.md>", "<docs/i18n/readme/README.md>"
             )
             syntax_contract(
                 readme_source,
@@ -5445,8 +6505,25 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 f"{language}/README",
                 readme_protected_pattern,
             )
-            if "../../../README.rst" not in readme:
-                failures.append(f"{language}: English README link is broken")
+            # THE WAY BACK TO ENGLISH, AS 361 LEFT IT. This gate used to
+            # require the localized README to name ../../../README.rst
+            # directly. 361 replaced the row of per-language links with a
+            # dropdown, so a localized README now names the language INDEX
+            # and the index names English -- the way back is two hops, not
+            # one, and the gate was checking for a link the design had
+            # deliberately removed. It checks the hop that exists, and that
+            # the index still completes it, because a picker that leads
+            # nowhere is the failure this was written to catch.
+            index_path = README_DIR / "README.md"
+            index = (index_path.read_text(encoding="utf-8")
+                     if index_path.is_file() else "")
+            if "<README.md>" not in readme:
+                failures.append(
+                    f"{language}: the language picker link is broken")
+            elif "../../../README.rst" not in index:
+                failures.append(
+                    f"{language}: the language index no longer reaches the "
+                    "English README")
     if failures:
         print("\n".join(failures[:200]), file=sys.stderr)
         return 1
@@ -5475,6 +6552,13 @@ def main() -> int:
         "--force", action="store_true",
         help="retranslate current API entries and README instead of reusing them",
     )
+    parser.add_argument(
+        "--rebuild-readme", action="store_true",
+        help=(
+            "rebuild localized READMEs while continuing to reuse current API "
+            "translations"
+        ),
+    )
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--beams", type=int, default=4)
@@ -5485,17 +6569,26 @@ def main() -> int:
     if args.audit:
         return audit(docs, args.languages)
 
-    _write_json(API_DIR / "en.json", _english_manifest(docs))
-    print(f"wrote English API manifest: symbols={len(docs)}")
     if args.sources_only:
+        if not args.rebuild_readme:
+            _write_json(API_DIR / "en.json", _english_manifest(docs))
+            print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
+        # Keep the previous English manifest available until every locale has
+        # repaired its exact unchanged blocks from the same historical source.
         for language in args.languages:
             translated = repair_api_translations(
                 docs, language, args.model_root, args
             )
             write_language(docs, language, translated)
+        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
+
+    if not args.rebuild_readme:
+        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        print(f"wrote English API manifest: symbols={len(docs)}")
 
     readme = README_SOURCE.read_text(encoding="utf-8")
     readme_links: list[tuple[str, str, str]] = []
@@ -5513,21 +6606,28 @@ def main() -> int:
         key = f"__readme_link_{index}__"
         readme_links.append((key, label, target))
     for language in args.languages:
-        reusable = {} if args.force else reusable_api_translations(
-            docs, language,
-        )
-        pending = {key: source for key, source in docs.items() if key not in reusable}
-        translated = dict(reusable)
-        if pending:
-            translated.update(
-                _translate_api_documents(
-                    pending, language, args.model_root, args,
-                )
+        pending = {}
+        if not args.rebuild_readme:
+            reusable = {} if args.force else reusable_api_translations(
+                docs, language,
             )
-        write_language(docs, language, translated)
+            pending = {
+                key: source for key, source in docs.items()
+                if key not in reusable
+            }
+            translated = dict(reusable)
+            if pending:
+                translated.update(
+                    _translate_api_documents(
+                        pending, language, args.model_root, args,
+                    )
+                )
+            write_language(docs, language, translated)
 
         readme_path = README_DIR / f"README.{language}.rst"
-        rebuild_readme = args.force or not readme_path.is_file()
+        rebuild_readme = (
+            args.force or args.rebuild_readme or not readme_path.is_file()
+        )
         if rebuild_readme:
             documents = {"__readme__": readme}
             documents.update({key: label for key, label, _target in readme_links})
@@ -5539,25 +6639,249 @@ def main() -> int:
             localized_readme = localized_readme.replace(
                 "Languages:", f"{LANGUAGE_PICKER_LABELS[language]}:", 1
             )
-            for key, label, target in readme_links:
-                localized_readme = localized_readme.replace(
-                    f"`{label} <{target}>`_",
-                    f"`{readme_translation[key]} <{target}>`_",
-                )
+            # AND THE LANGUAGE'S OWN NAME BESIDE THE GLOBE, which is a
+            # separate substitution from the word "Languages" and was
+            # missing until 2026-09-02. The English source reads
+            # "Languages: (globe) English (caret)"; the label above was
+            # localized and the NAME was not, so every rebuild quietly put
+            # "English" in the picker of all nine translated READMEs -- a
+            # Hindi reader arriving at README.hi.rst was told they were
+            # reading English. The endonyms had been correct since
+            # 2026-08-11 and no rebuild had been run against them since.
+            #
+            # `NATIVE_LANGUAGE_NAMES` is the same table the installers use,
+            # imported rather than restated: a second copy is a second thing
+            # to keep in step, which is the fault the `LANGUAGE_PICKER_LABELS`
+            # mirror already documents a few lines up.
+            localized_readme = re.sub(
+                r"\U0001F310\s*[^\u25BE<`]*\u25BE",
+                f"\U0001F310 {NATIVE_LANGUAGE_NAMES[language]} \u25BE",
+                localized_readme, count=1,
+            )
+            localized_readme = _localize_readme_link_labels(
+                localized_readme,
+                language,
+                readme_links,
+                readme_translation,
+            )
             localized_readme = localized_readme.replace(
                 "docs/i18n/readme/README.", "README."
             ).replace(
                 "docs/i18n/TRANSLATION_MODELS.md", "../TRANSLATION_MODELS.md"
             ).replace(
                 "<README.rst>", "<../../../README.rst>"
+            ).replace(
+                " image:: spacr/resources/",
+                " image:: ../../../spacr/resources/",
+            ).replace(
+                "<docs/source/", "<../../source/",
+            ).replace(
+                ":target: docs/source/", ":target: ../../source/",
             )
+            localized_readme = _localize_workflow_alt_text(
+                localized_readme, language,
+            )
+            # AFTER the band headings are localized, not before: the
+            # workflow pass renames four of them, and a reference has to
+            # be aimed at the heading as it finally reads.
+            localized_readme = localize_internal_references(
+                readme, localized_readme,
+            )
+            for source_text, target_text in (
+                REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()
+            ):
+                localized_readme = localized_readme.replace(
+                    source_text, target_text
+                )
+            module_names = (
+                "Mask", "Measure", "Annotate", "Classify",
+                "Map Barcodes", "Regression",
+            )
+            module_name_iter = iter(module_names)
+            localized_readme = re.sub(
+                r"(?m)^- \*\*[^*\n]+\*\*\s*",
+                lambda _match, names=module_name_iter: (
+                    f"- **{next(names)}** "
+                ),
+                localized_readme,
+                count=len(module_names),
+            )
+            version_match = re.search(
+                r"Download spaCR ([^ ]+) for Windows", readme
+            )
+            if version_match:
+                canonical_badge_alt = [
+                    *_readme_substitution_alt_text(
+                        readme, README_BADGE_SUBSTITUTIONS,
+                    ),
+                    _readme_logo_alt_text(readme),
+                ]
+                for source_alt, target_alt in zip(
+                    canonical_badge_alt,
+                    REVIEWED_README_BADGE_ALT_TEXT[language],
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
+                # Workflow tiles are localized above by marker-delimited
+                # generated markup, so additions to the Home registry cannot
+                # shift these named installer and resource definitions.
+                canonical_installer_alt = _readme_substitution_alt_text(
+                    readme, README_INSTALLER_SUBSTITUTIONS,
+                )
+                localized_alt = [
+                    value.format(version=version_match.group(1))
+                    for value in REVIEWED_README_ALT_TEXT[language][1:]
+                ]
+                for source_alt, target_alt in zip(
+                    canonical_installer_alt, localized_alt,
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
+                for source_alt, target_alt in zip(
+                    _readme_substitution_alt_text(
+                        readme, README_RESOURCE_SUBSTITUTIONS,
+                    ),
+                    REVIEWED_README_RESOURCE_ALT_TEXT[language],
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
             readme_path.write_text(localized_readme + "\n", encoding="utf-8")
         print(
             f"wrote {language}: API={len(docs)} "
             f"translated={len(pending)} README={int(rebuild_readme)}"
         )
+    if args.rebuild_readme:
+        return 0
     return audit(docs, args.languages)
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# ============================================================================
+# RETIRED 2026-09-04, ON THE MAINTAINER'S ANSWER TO INSTRUCTION 316.
+#
+# Asked whether the orphaned reviewed blocks should be retired, he answered
+# "Yes, retire the 16." MEASURED against the gate's own criterion -- a block
+# appears once in `translatable_blocks(README.rst)` or once in the normalized
+# text -- the number is 15, not 16, and the difference is recorded rather than
+# rounded: an earlier count used "has no close match in the README", which is a
+# different question and gave 16.
+#
+# RETIRED IN PLACE, NOT DELETED, which is the shape he approved twice before --
+# for the eleven README records and the Icelandic API record. The reviewed
+# wording stays in this file, keyed and readable, and only leaves the ACTIVE
+# registry. `_REVIEWED_README_HEADINGS_ARCHIVE` above is the same pattern for
+# headings, so this is the file's own convention rather than a new one.
+#
+# WHY THEY ARE RETIRED AND NOT RE-BOUND: none of the fifteen has any
+# counterpart in the current README. They describe a module grid, a hardware
+# report, an objects-and-settings section and a licence sentence that the
+# README rework removed outright. A review of text that no longer exists
+# cannot be repaired, only retired.
+#
+# NOT RETIRED, AND DELIBERATELY: the three whose English CHANGED MEANING rather
+# than disappearing. Two dropped a load-bearing clause the translations still
+# assert, and the third is instruction 316's own "the nine READMEs still say
+# CUDA-only" item. Those need RE-TRANSLATION bound to the new English plus a
+# documentation rebuild in the same pass, because this registry's gate also
+# requires the reviewed target to be present in the localized README. Retiring
+# them would throw away nine reviewed sentences that are merely out of date;
+# re-binding them without re-translating would certify nine sentences that tell
+# an Intel-Mac owner their card is unsupported.
+# ============================================================================
+_RETIRED_README_BLOCKS_2026_09_04 = (
+    'For image-based pooled CRISPR screens, spaCR provides the workflow from image segmentation through hit prioritization. For high-content microscopy studies without sequencing-based screens, the segmentation, measurement, annotation and classification modules can be used independently.',
+    'Select a workflow module to open its API page. The grid contains every other application in the same categories and order used on the spaCR home screen.',
+    'spaCR is open source under the `BSD 3-Clause License <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_, the same licence as CellProfiler, napari and Cellpose. Use it for any purpose, including commercially. Releases from 1.5.0.0 through 1.5.0.4 carried the PolyForm Noncommercial License 1.0.0 and versions through 1.4.9.9 carried the MIT License; those releases remain available under the licence that accompanied them.',
+    'Modules available from host screens',
+    "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+    'Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.',
+    'Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.',
+    'Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.',
+    'Objects and settings',
+    'spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.',
+    'The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.',
+    'The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.',
+    'The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.',
+    'It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.',
+    'The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.',
+)
+
+#: Retired reviewed wording, kept for the record. Popped from the active
+#: registry so the gate stops asserting that text which no longer exists must
+#: still be found in the README.
+REVIEWED_README_BLOCKS_ARCHIVE = {
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _RETIRED_README_BLOCKS_2026_09_04
+    if source in REVIEWED_README_BLOCKS
+}
+
+
+# ============================================================================
+# RE-KEYED 2026-09-04, INSTRUCTION 316. Three reviewed blocks whose ENGLISH was
+# REWRITTEN rather than removed. Retiring them would have discarded a reviewed
+# sentence that only needed to follow its source; re-binding them without
+# retranslating would have certified nine translations of text the README no
+# longer carries.
+#
+# THE THIRD IS THIS INSTRUCTION'S OWN "THE NINE READMEs STILL SAY CUDA-ONLY"
+# ITEM. The previous wording told a reader CUDA was the only route to a GPU.
+# The new English names Metal for macOS -- covering BOTH Apple Silicon AND the
+# AMD cards in Intel Macs -- and CUDA or DirectML for Windows. On the machine
+# that prompted the finding the difference is 444.5 s against 3.2 s.
+#
+# Drafted by Claude and accepted by the maintainer under the 2026-09-04
+# decision recorded in instruction 316; not a native-speaker review.
+# ============================================================================
+REVIEWED_README_BLOCKS.update({
+    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.': {
+        'sv': 'Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.',
+        'de': 'Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.',
+        'es': 'Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.',
+        'zh_CN': '图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。',
+        'pt': 'Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.',
+        'hi': 'छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।',
+        'ko': '이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.',
+        'is': 'Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.',
+        'fr': 'Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.',
+    },
+    'Runs as a desktop application or headlessly on a workstation, server or cluster.': {
+        'sv': 'Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.',
+        'de': 'Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.',
+        'es': 'Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.',
+        'zh_CN': '可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。',
+        'pt': 'É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.',
+        'hi': 'यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।',
+        'ko': '데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.',
+        'is': 'Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.',
+        'fr': 'Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.',
+    },
+    'spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for the heaviest CUDA and ROCm workflows; macOS and Windows are also supported, and both use their GPUs — macOS through Metal, which covers Apple Silicon and the AMD cards in Intel Macs, and Windows through CUDA or DirectML.': {
+        'sv': 'spaCR stöder Python **3.9 through 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML.',
+        'de': 'spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.',
+        'es': 'spaCR admite Python **3.9 through 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML.',
+        'zh_CN': 'spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。',
+        'pt': 'O spaCR oferece suporte ao Python **3.9 through 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para os fluxos de trabalho mais pesados com CUDA e ROCm; macOS e Windows também são compatíveis, e ambos utilizam suas GPUs — macOS por meio do Metal, que abrange o Apple Silicon e as placas gráficas AMD dos Macs Intel, e Windows por meio de CUDA ou DirectML.',
+        'hi': 'spaCR, Python **3.9 through 3.14** का समर्थन करता है, Python 3.14.1 को छोड़कर, जिसे torchvision बाहर रखता है। सबसे भारी CUDA और ROCm कार्यप्रवाहों के लिए Linux की अनुशंसा की जाती है; macOS और Windows भी समर्थित हैं, और दोनों अपने GPU का उपयोग करते हैं — macOS, Metal के माध्यम से, जो Apple Silicon और Intel Mac में लगे AMD कार्डों को कवर करता है, और Windows, CUDA या DirectML के माध्यम से।',
+        'ko': 'spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다.',
+        'is': 'spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.',
+        'fr': "spaCR prend en charge Python **3.9 à 3.14**, à l'exception de Python 3.14.1, que torchvision exclut. Linux est recommandé pour les flux de travail CUDA et ROCm les plus lourds; macOS et Windows sont également pris en charge, et tous deux utilisent leurs GPUs — macOS via Metal, qui couvre Apple Silicon et les cartes AMD des Mac Intel, et Windows via CUDA ou DirectML.",
+    },
+})
+
+_SUPERSEDED_README_BLOCKS_2026_09_04 = (
+    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project, so a number in a result can be traced back to the object it came from.',
+    'Run spaCR as a desktop application or headlessly on a workstation, server or cluster. Both drive the same modules, and CUDA is used automatically where a module supports it.',
+    'spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which torchvision excludes. Linux is recommended for CUDA workflows; macOS and Windows are also supported.',
+)
+
+REVIEWED_README_BLOCKS_ARCHIVE.update({
+    source: REVIEWED_README_BLOCKS.pop(source)
+    for source in _SUPERSEDED_README_BLOCKS_2026_09_04
+    if source in REVIEWED_README_BLOCKS
+})

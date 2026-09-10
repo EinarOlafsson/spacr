@@ -1,57 +1,25 @@
-"""
-ConsolePanel — merged pipeline console + AI chat panel.
+"""Combine pipeline output, errors, and AI chat in one console panel.
 
-One vertical scrolling area shows both pipeline stdout AND AI chat
-messages, separated by dark-gray "topic" bars ("Mask", "Measure",
-"spaCR AI", …). Below the scroll sits an input row where the user
-can type at any time; a switch on the left decides whether the
-message goes to the AI or is ignored.
+Topic bars separate pipeline stages and AI conversations in a shared scrolling
+view. The input area and transcript form a vertical ``QSplitter``; when a
+``persist_key`` is supplied, its state is stored under ``console/split/<key>``
+and restored per screen.
 
-Resizing
---------
-The scrolling console box and the AI chat box below it are the two halves
-of a vertical ``QSplitter``, so the handle between them can be dragged to
-trade height: a taller chat box is a shorter console, pixel for pixel. The
-default seats the handle exactly where the old fixed-height layout drew it,
-so nothing moves for a user who never drags. When the panel is built with a
-``persist_key`` the position is saved per screen (``QSplitter.saveState``,
-under ``console/split/<key>``) and restored the next time that screen opens.
+:class:`ConsolePanel` can start a topic, append ordinary or error output,
+launch the AI error-explanation flow, and clear the transcript. It owns its AI
+worker so streamed state remains coherent while the active pipeline screen
+changes.
 
-Public API
-----------
-* begin_topic(label)          — insert a dark-gray divider bar
-                                (used at the start of every pipeline
-                                run and every time we switch to/from
-                                the AI)
-* append_stdout(text)         — append pipeline output; if the last
-                                entry isn't already a stdout block it
-                                starts a new one
-* append_error(traceback)     — same as stdout but red-tinted
-* open_error_flow(tb, app)    — inject the AI-explainer prompt for a
-                                traceback and stream the reply into
-                                a fresh spaCR-AI section
-* clear()                     — wipe every entry
-
-Streaming state
----------------
-The panel owns the AI thread+worker itself so state stays coherent
-even as the user switches between pipeline apps.
-
-Threading
----------
-Every entry in this console is a QWidget, so every method that appends
-one has to run on the GUI thread. Log records do not: Python's logging
-module calls handlers inline on whatever thread logged, and a pipeline
-worker logging a warning used to reach :meth:`ConsolePanel.append_stdout`
-directly. :meth:`ConsolePanel.append_stdout` and
-:meth:`ConsolePanel.append_error` therefore bounce off-thread calls back
-through a queued signal instead of building the widget where they stand.
+Widget creation always occurs on the GUI thread. Calls to
+:meth:`ConsolePanel.append_stdout` and :meth:`ConsolePanel.append_error` from
+logging or pipeline workers are relayed through queued Qt signals before they
+modify the transcript.
 """
 from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer,
+from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer, Slot,
                             Signal)
 from PySide6.QtGui import (
     QColor,
@@ -63,6 +31,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QAbstractButton,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -83,6 +52,19 @@ from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
+from .flash import Flash
+
+
+#: Soft budget for pipeline scrollback attached to one AI turn. A complete
+#: traceback is never cut to satisfy it; ordinary stdout yields first.
+AI_CONSOLE_CONTEXT_CHARS = 24_000
+
+#: A deliberately small, visible heuristic for the Auto context mode. The
+#: adjacent dropdown is the override when wording falls outside this set.
+_CONSOLE_QUESTION_TERMS = (
+    "console", "traceback", "error", "exception", "failed", "failure",
+    "went wrong", "what happened", "why did", "debug", "log output",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +105,16 @@ def color_user() -> str:
 def color_error() -> str:
     """Error colour for the theme on screen right now."""
     return active_palette()["error"]
+
+
+def color_warning() -> str:
+    """Warning colour for the theme on screen right now.
+
+    Distinct from :func:`color_error` on purpose -- see
+    :meth:`ConsolePanel.append_warning`. Every theme already defines the
+    ``warning`` role; nothing here needed inventing.
+    """
+    return active_palette()["warning"]
 
 
 def __getattr__(name: str) -> str:
@@ -256,6 +248,8 @@ class _CopyGlyphButton(QAbstractButton):
     An icon file would need a light and a dark variant and would have to be
     kept in step with the theme; two rounded rectangles in the current
     foreground colour follow it for free, at any DPI.
+
+    :param parent: parent widget; ownership only.
     """
 
     #: Side of the front square, in px. The back one is drawn behind it,
@@ -264,35 +258,40 @@ class _CopyGlyphButton(QAbstractButton):
     _OFFSET = 3
 
     def __init__(self, parent=None):
+        """Build the copy mark, drawn rather than shipped as an icon."""
         super().__init__(parent)
         self.setObjectName("ConsoleCopyGlyph")
         self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.NoFocus)
         edge = self._SIDE + self._OFFSET + 5
         self.setFixedSize(edge, edge)
-        self._flash = 0
+        # The timing is shared with the figure queue's clear control; see
+        # spacr.qt.widgets.flash for why it lives in one place.
+        self._flash = Flash(self)
 
     def flash_copied(self) -> None:
         """Briefly mark the glyph, so a silent clipboard write is visible."""
-        self._flash = 1
-        self.update()
-        QTimer.singleShot(650, self._end_flash)
-
-    def _end_flash(self) -> None:
-        self._flash = 0
-        self.update()
+        self._flash.trigger()
 
     def paintEvent(self, _event) -> None:      # noqa: N802 (Qt naming)
+        """Draw the two offset squares that read as one sheet over another.
+
+        The accent colour while the copy flash is active, the dim foreground
+        otherwise, and lighter under the pointer -- so the button says it is
+        hoverable before it is pressed and says it worked after.
+
+        :param _event: the paint event; unused.
+        """
         from PySide6.QtGui import QPainter, QPen
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         try:
             palette = active_palette()
-            colour = QColor(palette["button_accent"] if self._flash
+            colour = QColor(palette["button_accent"] if self._flash.active
                             else palette["fg_dim"])
         except Exception:
             colour = QColor("#888888")
-        if self.underMouse() and not self._flash:
+        if self.underMouse() and not self._flash.active:
             colour = colour.lighter(150)
         pen = QPen(colour)
         pen.setWidth(1)
@@ -316,11 +315,38 @@ class _TopicBar(QFrame):
 
     def __init__(self, label: str, parent=None, accent: Optional[str] = None,
                  trailing: Optional[QWidget] = None):
+        """Build one console section heading.
+
+        :param label: the heading text.
+        :param parent: parent widget.
+        :param accent: colour for the heading, or ``None`` for the theme's.
+        :param trailing: an optional widget pinned to the right of the
+            heading, for a count or a control belonging to the section.
+
+        The heading is a CONTROL, not a caption: clicking it brings its
+        section to the top and expands it, so it takes a pointing hand and
+        strong focus. A control only a mouse can reach is one some users
+        cannot reach at all.
+        """
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
+        # The heading is a control now (instruction 110): click it to bring
+        # its section to the top and expand it. A pointing hand says so
+        # without a border, and StrongFocus keeps it reachable from the
+        # keyboard -- a control only a mouse can reach is one some users
+        # cannot reach at all.
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self._expanded = True
         lay = QHBoxLayout(self)
         lay.setContentsMargins(SPACING["md"], SPACING["xs"],
                                 SPACING["md"], SPACING["xs"])
+        # A disclosure chevron, because a toggle with no indicator is a
+        # control users find by accident.
+        self._chevron = QLabel("▾")
+        self._chevron.setObjectName("ConsoleTopicChevron")
+        self._chevron.setProperty("i18nSkipText", True)
+        lay.addWidget(self._chevron)
         self._label = QLabel(label)
         self._label.setObjectName("ConsoleTopicLabel")
         # Topic history is presentation generated in the language active when
@@ -339,7 +365,13 @@ class _TopicBar(QFrame):
         # a reader points at, and hand-selecting a section out of a long
         # console is exactly the chore this removes.
         self._copy_btn = _CopyGlyphButton(self)
-        self._copy_btn.setToolTip("Copy this section, header and all")
+        # Topic bars are built as output arrives, long after the panel's own
+        # translation pass, so this tooltip is translated here. The English
+        # source is kept on the widget so a later language switch can
+        # retranslate it from the original rather than from Swedish.
+        copy_tip = "Copy this section, header and all"
+        self._copy_btn.setProperty("_spacr_i18n_tooltip", copy_tip)
+        self._copy_btn.setToolTip(tr(copy_tip))
         self._copy_btn.clicked.connect(self._copy_section)
         lay.addWidget(self._copy_btn)
         lay.addStretch(1)
@@ -347,6 +379,57 @@ class _TopicBar(QFrame):
     def text(self) -> str:
         """The header text, for the plain-text export."""
         return self._label.text()
+
+    def is_expanded(self) -> bool:
+        """Whether this section's body is showing."""
+        return self._expanded
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Record the state and turn the chevron to match."""
+        self._expanded = bool(expanded)
+        self._chevron.setText("▾" if self._expanded else "▸")
+
+    def _panel(self):
+        """The owning :class:`ConsolePanel`, or None."""
+        node = self.parentWidget()
+        while node is not None and not hasattr(node, "toggle_section"):
+            node = node.parentWidget()
+        return node
+
+    def _activate(self) -> None:
+        """Fold or unfold this section, if the panel is still there."""
+        panel = self._panel()
+        if panel is not None:
+            panel.toggle_section(self)
+
+    def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
+        # The copy button and any trailing widget are children with their own
+        # handlers, so a click on them never reaches here -- which is what
+        # keeps "copy this section" from also moving the viewport. Release
+        # rather than press, so dragging off cancels.
+        """Raise this section on a click inside the bar.
+
+        On RELEASE rather than press, so dragging off cancels. The copy button
+        and any trailing widget are children with their own handlers, so a click
+        on them never reaches here -- which is what keeps "copy this section"
+        from also moving the viewport.
+
+        :param event: the mouse event.
+        """
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.pos())):
+            self._activate()
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        """Raise this section on Return, Enter or Space.
+
+        :param event: the key event.
+        """
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self._activate()
+            return
+        super().keyPressEvent(event)
 
     def _copy_section(self) -> None:
         """Put this section on the clipboard, asking the panel for its span."""
@@ -377,9 +460,16 @@ class _TopicBar(QFrame):
 # ---------------------------------------------------------------------------
 
 class _WorkingDots(QLabel):
-    """Three dots that cycle (. → .. → ...) to show work is in progress."""
+    """Three dots that cycle (. → .. → ...) to show work is in progress.
+
+    :param color: the dots' colour, as a CSS string. Baked into a stylesheet
+        at construction, so a theme change needs a new widget rather than a
+        setter.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, color: str = AI_COLOR_DEFAULT, parent=None):
+        """Build the dots at the AI colour, baked into a stylesheet."""
         super().__init__(parent)
         self.setObjectName("ConsoleWorkingDots")
         self.setProperty("i18nSkipText", True)
@@ -396,6 +486,11 @@ class _WorkingDots(QLabel):
         self._render()
 
     def set_color(self, color: str) -> None:
+        """Re-ink the working dots.
+
+        :param color: the provider's colour, so the indicator matches the reply
+            it belongs to.
+        """
         self._color = color
         self.setStyleSheet(
             f"QLabel#ConsoleWorkingDots {{ color: {color}; "
@@ -404,21 +499,59 @@ class _WorkingDots(QLabel):
 
     def _render(self) -> None:
         # Fixed-width so the row doesn't jitter as the count changes.
+        """Draw the current dot count, padded to a fixed width.
+
+        Padded so the row does not JITTER as the count cycles: three glyph-slots
+        either way, and the text beside it stays where it is.
+        """
         dots = "●" * (self._n + 1)
         pad = " " * (2 - self._n)   # keep three glyph-slots wide
         self.setText(dots + pad)
 
     def _tick(self) -> None:
+        """Advance one step through . / .. / ... and redraw."""
         self._n = (self._n + 1) % 3
         self._render()
 
+    @Slot()
+    def _noop_slot(self) -> None:                # pragma: no cover - anchor
+        """Present so the Slot import is used even if the others change."""
+
+    def _on_gui_thread(self) -> bool:
+        """Whether the caller is the thread this widget lives on."""
+        from PySide6.QtCore import QThread
+
+        return QThread.currentThread() is self.thread()
+
+    @Slot()
     def start(self) -> None:
+        """Start the activity animation on the widget's Qt thread.
+
+        This method may be called from any thread. Calls from a worker are
+        queued onto the widget's owning thread before the timer is started.
+        """
+        if not self._on_gui_thread():
+            from PySide6.QtCore import QMetaObject, Qt
+
+            QMetaObject.invokeMethod(self, "start", Qt.QueuedConnection)
+            return
         self._n = 0
         self._render()
         self._timer.start()
         self.show()
 
+    @Slot()
     def stop(self) -> None:
+        """Stop the animation and hide the dots.
+
+        Marshalled onto the GUI thread when called from another: a stream
+        finishes on a worker, and touching a widget from there is undefined.
+        """
+        if not self._on_gui_thread():
+            from PySide6.QtCore import QMetaObject, Qt
+
+            QMetaObject.invokeMethod(self, "stop", Qt.QueuedConnection)
+            return
         self._timer.stop()
         self.hide()
 
@@ -444,6 +577,19 @@ class _StdoutBlock(QPlainTextEdit):
 
     def __init__(self, text: str = "", error: bool = False, parent=None,
                  text_color: Optional[str] = None):
+        """Build the block one stdout run grows into.
+
+        :param text: the initial contents.
+        :param error: whether this is the error stream. Chooses the object
+            name, so the theme colours it without this class deciding what
+            "error" looks like.
+        :param parent: parent widget.
+        :param text_color: an explicit colour, or ``None`` for the theme's.
+
+        The block is reused for a whole run rather than made per line: a
+        widget per line fragments the console, and :data:`MAX_CHARS` drops
+        text from the HEAD so a long run cannot grow without bound.
+        """
         super().__init__(parent)
         self.setObjectName("ConsoleStdoutBlockError"
                             if error else "ConsoleStdoutBlock")
@@ -604,6 +750,10 @@ class _StdoutBlock(QPlainTextEdit):
         return QSize(max(120, super().sizeHint().width()), self._size_value)
 
     def resizeEvent(self, event) -> None:
+        """Re-wrap the text and keep the drag handle pinned to the bottom edge.
+
+        :param event: the resize event.
+        """
         super().resizeEvent(event)
         self.document().setTextWidth(max(1, self.viewport().width()))
         handle_height = self._height_handle.sizeHint().height()
@@ -629,11 +779,17 @@ class _StdoutBlock(QPlainTextEdit):
 
 
 class _BlockHeightHandle(QFrame):
-    """Thin drag handle along a console section's lower edge."""
+    """Thin drag handle along a console section's lower edge.
+
+    :param block: the section this handle resizes. ALSO ITS QWIDGET PARENT,
+        so the handle is laid out inside the block it drags and cannot
+        outlive it; there is no separate ``parent``.
+    """
 
     HEIGHT = 7
 
     def __init__(self, block: _StdoutBlock):
+        """Build the handle with a vertical-resize cursor and its tooltip."""
         super().__init__(block)
         self._block = block
         self._press_y: Optional[float] = None
@@ -648,9 +804,22 @@ class _BlockHeightHandle(QFrame):
         self.setToolTip(tr(source))
 
     def sizeHint(self) -> QSize:
+        """Return the handle's preferred size.
+
+        :returns: a strip as tall as the handle and nominally 80 wide -- the
+            width comes from the block it spans, not from this hint.
+        """
         return QSize(80, self.HEIGHT)
 
     def mousePressEvent(self, event) -> None:
+        """Begin a drag, recording where it started and how tall the block was.
+
+        Both are needed: the new height is the starting height plus the total
+        movement, so a drag that reverses returns to where it began rather than
+        accumulating.
+
+        :param event: the mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self._press_y = event.globalPosition().y()
             self._start_height = self._block.height()
@@ -659,6 +828,10 @@ class _BlockHeightHandle(QFrame):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:
+        """Resize the block to follow the drag.
+
+        :param event: the mouse event.
+        """
         if self._press_y is not None and event.buttons() & Qt.LeftButton:
             delta = event.globalPosition().y() - self._press_y
             self._block.set_user_height(self._start_height + int(delta))
@@ -667,10 +840,21 @@ class _BlockHeightHandle(QFrame):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
+        """End the drag.
+
+        :param event: the mouse event.
+        """
         self._press_y = None
         super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:
+        """Return the block to its automatic height.
+
+        A double click is the undo for the drag: without it a block dragged
+        short can only be restored by guessing its original size.
+
+        :param event: the mouse event.
+        """
         if event.button() == Qt.LeftButton:
             self._block.reset_user_height()
             event.accept()
@@ -690,12 +874,20 @@ class _Bubble(QFrame):
     height from QFontMetrics.boundingRect for that wrap width. The
     frame's height is set to match. Simple, works reliably even
     inside a QScrollArea.
+
+    :param role: ``"user"`` or anything else, which is read as the AI. It
+        picks the object name and so the whole appearance -- there is no
+        third style, and an unrecognised role is drawn as the AI rather
+        than refused.
+    :param text: the initial message; may be set later instead.
+    :param parent: parent widget; ownership only.
     """
 
     _H_PAD = 24     # inner horizontal padding
     _V_PAD = 12     # inner vertical padding
 
     def __init__(self, role: str, text: str = "", parent=None):
+        """Build the bubble, styled by role, sized to its text."""
         super().__init__(parent)
         self.role = role
         self.setObjectName(
@@ -778,11 +970,15 @@ class _Bubble(QFrame):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
-    """Multi-line chat input: Enter sends, Shift+Enter inserts a newline."""
+    """Multi-line chat input: Enter sends, Shift+Enter inserts a newline.
+
+    :param parent: parent widget; ownership only.
+    """
 
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, floored at one line and capped so it cannot take the pane."""
         super().__init__(parent)
         # The floor stays: one line of text plus the field's own padding. It
         # doubles as the stop the splitter honours when the user drags the
@@ -816,6 +1012,14 @@ class _ChatInput(QTextEdit):
         return super().canInsertFromMimeData(source)
 
     def insertFromMimeData(self, source) -> None:
+        """Paste text, ignoring dropped files.
+
+        A file dropped on the chat box is never read here: the console is a
+        place to type a question, and silently pasting a path -- or worse, a
+        file's contents -- is not what the gesture meant.
+
+        :param source: the mime data being inserted.
+        """
         if source.hasUrls():
             return                       # ignore dropped files; never read them in here
         super().insertFromMimeData(source)
@@ -879,11 +1083,23 @@ class ConsolePanel(QWidget):
         self._run_function: str = ""
         self._last_entry_kind: str = ""   # "stdout" | "ai" | "user" | ""
         self._current_stdout: Optional[_StdoutBlock] = None
+        #: Label of the topic bar currently showing, so an
+        #: identical one is not drawn again. See begin_topic.
+        self._current_topic_label: Optional[str] = None
         self._working_dots: Optional[_WorkingDots] = None
+        #: The traceback the AI is currently explaining, and its answer once
+        #: the stream finishes. Read by the bug reporter -- see
+        #: :meth:`ai_explanation_of`.
+        self._ai_error_traceback: str = ""
+        self._ai_error_explanation: str = ""
         self._ai_messages: List[Dict] = []
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
         self._ai_worker: Optional[StreamWorker] = None
+        # Per rendered pipeline block, how much has already accompanied an AI
+        # turn. The blocks themselves remain the only history store: context
+        # is read from their QTextDocuments at ask time.
+        self._console_sent_lengths: Dict[int, int] = {}
         # Retired stream (thread, worker) pairs — we hold these until
         # thread.finished actually emits so Python doesn't GC the
         # QThread while its OS thread is still winding down (which is
@@ -910,6 +1126,13 @@ class ConsolePanel(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        """Lay out the console box and the chat row as the two halves of a splitter.
+
+        The handle between them trades height: drag it up and the chat grows
+        while the console shrinks by the same amount. Only the console carries a
+        stretch factor, so a taller window grows the scrollback and leaves the
+        chat box at whatever height the user gave it.
+        """
         outer = QVBoxLayout(self)
         # The panel itself is transparent (see theme QSS) — the rounded box is
         # the ConsoleBox frame below, so the AI chat input can sit UNDER it as
@@ -1007,7 +1230,39 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._entries.setSpacing(SPACING["xs"])
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
+        #: Whether the view follows new output. Cleared by raising a section
+        #: and restored by scrolling back to the bottom.
+        self._follow_output = True
+        self._scroll.verticalScrollBar().valueChanged.connect(
+            self._on_console_scrolled)
+        self._scroll.verticalScrollBar().valueChanged.connect(
+            self._refresh_jump_button)
         box_lay.addWidget(self._scroll, 1)
+
+        # A VISIBLE AFFORDANCE FOR THE PEOPLE WHO DO NOT KNOW THE SHORTCUT
+        # (instruction 232). A long run writes thousands of lines and the
+        # one that matters is the last; getting to it must not be a scroll
+        # through everything above it.
+        #
+        # SHOWN ONLY WHEN IT WOULD DO SOMETHING. A button that is always
+        # there and usually inert is furniture, and the user stops seeing
+        # it -- which is the state it is most needed in.
+        from PySide6.QtGui import QKeySequence, QShortcut
+        from PySide6.QtWidgets import QPushButton
+
+        self._jump = QPushButton("↓ jump to the end", self._console_box)
+        self._jump.setToolTip(
+            "Go to the newest line. Ctrl+End does the same from anywhere in "
+            "the scrollback.")
+        self._jump.clicked.connect(self.jump_to_the_end)
+        self._jump.setVisible(False)
+        box_lay.addWidget(self._jump)
+
+        # HELD, like every other shortcut and filter in this codebase: Qt
+        # keeps a bare pointer, and one only the constructor referenced
+        # stops working as soon as the call returns.
+        self._end_shortcut = QShortcut(QKeySequence("Ctrl+End"), self)
+        self._end_shortcut.activated.connect(self.jump_to_the_end)
         self._split.addWidget(self._console_box)
 
         # AI chat input — a separate row UNDER the console box (not inside it),
@@ -1028,6 +1283,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
+        # NO console-context control here. This row is the input and nothing
+        # else. It used to carry a three-mode combo (Auto / Include / Off) and
+        # a permanent status label; "should the AI see my console" has the
+        # same answer for every question a user ever asks, which makes it a
+        # preference rather than a mode selector belonging on the screen where
+        # the questions are typed. It is now one yes/no in the AI settings --
+        # ai.settings.get_console_aware, default on. What was actually
+        # attached is reported on the message it went with, which is where it
+        # is legible, rather than as furniture that is stale between asks.
         self._split.addWidget(input_row)
 
         # Only the console stretches when the WINDOW resizes. Giving both
@@ -1176,10 +1440,73 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._scroll_to_bottom()
 
     def _scroll_to_bottom(self) -> None:
+        # Only while following. Raising a section (clicking its heading) is a
+        # statement that the user is reading there, and a log that scrolls
+        # away from what you are reading cannot be read at all.
+        """Follow the newest line, unless the user has scrolled away.
+
+        Raising a section is a statement that the user is reading there, and a
+        log that scrolls away from what is being read cannot be read at all.
+        """
+        if not getattr(self, "_follow_output", True):
+            return
         sb = self._scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
 
+    def _on_console_scrolled(self, value: int) -> None:
+        """Follow the tail while the view is at the bottom, and only then.
+
+        The convention every log viewer uses: scrolling up means "let me
+        read", scrolling back down means "keep going". A few pixels of
+        tolerance because a scrollbar dragged to the end does not always land
+        exactly on maximum().
+
+        BOTH DIRECTIONS, because only one of them was ever wired. Raising a
+        section cleared the follow, so a reader who got to the middle of the
+        log by clicking a heading stayed there; a reader who got to the same
+        place by dragging the scrollbar was thrown back to the bottom by the
+        next line written, which is the thing that makes a live log
+        unreadable. Where the viewport is answers that question, and it
+        answers it the same way whichever gesture put it there.
+        """
+        scrollbar = self._scroll.verticalScrollBar()
+        self._follow_output = value >= scrollbar.maximum() - 4
+
+    def jump_to_the_end(self) -> None:
+        """Show the newest line, and follow the tail again.
+
+        BOTH HALVES, because they are one decision. A console that jumped
+        without resuming the follow would slide back off the end on the very
+        next line written, and the user would press it again.
+        """
+        bar = self._scroll.verticalScrollBar()
+        bar.setValue(bar.maximum())
+        self._follow_output = True
+        self._refresh_jump_button()
+
+    def at_the_end(self) -> bool:
+        """Whether the view is showing the newest line.
+
+        A few pixels of tolerance, because a scrollbar dragged to the end
+        does not always land exactly on maximum() -- the same tolerance
+        `_on_console_scrolled` uses, and for the same reason.
+        """
+        bar = self._scroll.verticalScrollBar()
+        return bar.value() >= bar.maximum() - 4
+
+    def _refresh_jump_button(self, *_args) -> None:
+        """Show the control only when it would do something."""
+        button = getattr(self, "_jump", None)
+        if button is not None:
+            button.setVisible(not self.at_the_end())
+
     def _needs_topic(self, kind: str) -> bool:
+        """Report whether a new banner is needed before writing this kind of entry.
+
+        :param kind: the entry kind about to be written.
+        :returns: ``True`` when it differs from the last one written, so
+            consecutive entries of one kind share a single banner.
+        """
         return self._last_entry_kind != kind
 
     def _on_gui_thread(self) -> bool:
@@ -1215,15 +1542,44 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         parts = [tr(head)]
         mod = self._run_module or self._active_app_label
         if mod:
-            parts.append(str(mod))
+            parts.append(tr(str(mod)))
         if self._run_function:
             parts.append(str(self._run_function))
         return "  —  ".join(parts)
 
     def begin_topic(self, label: str, accent: Optional[str] = None,
                     trailing: Optional[QWidget] = None) -> None:
-        """Insert a divider bar labeled `label` (e.g. 'spaCR output — …')."""
+        """Insert a divider bar labeled `label` (e.g. 'spaCR output — …').
+
+        A BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now
+        write under the "spaCR output" heading -- stdout, warnings, and the
+        notice path -- and each opens its topic. A run that alternates between
+        them therefore drew the identical banner before EVERY line:
+
+            === spaCR output — Mask Generation ===
+            Source directory (src): ...
+            === spaCR output — Mask Generation ===
+            12:09:37 [WARNING] cellpose.vit: Could not import CPDINO...
+            === spaCR output — Mask Generation ===
+            12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...
+
+        which is what the console looked like when this was reported. The
+        divider exists to say the subject CHANGED; repeating it says nothing
+        and costs three lines of a panel people read during a run.
+
+        The accent is deliberately not part of the comparison. It rides on the
+        TEXT below the bar -- amber for a warning, blue for output -- so a
+        warning still reads differently without a second identical heading
+        above it.
+        """
+        if label and label == getattr(self, "_current_topic_label", None):
+            # Same subject: keep the bar, but still break the block so the
+            # next append opens one in its own colour.
+            self._last_entry_kind = ""
+            self._current_stdout = None
+            return
         self._insert_entry(_TopicBar(label, accent=accent, trailing=trailing))
+        self._current_topic_label = label
         self._last_entry_kind = ""    # force next append to open a block
         self._current_stdout = None
 
@@ -1254,7 +1610,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         if console_write_in_progress():
             return
         with console_write():
-            if self._current_stdout is None:
+            if (self._current_stdout is None
+                    or self._needs_topic("stdout")
+                    or self._current_stdout.property(
+                        "consoleContextKind") != "stdout"):
                 # Open a "spaCR output — <module> — <function>" banner + a
                 # fresh blue-text block. Reused until a different entry type
                 # breaks it.
@@ -1262,6 +1621,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 self.begin_topic(self._output_banner("spaCR output"),
                                  accent=accent)
                 self._current_stdout = _StdoutBlock(text_color=accent)
+                self._current_stdout.setProperty(
+                    "consoleContextKind", "stdout")
                 self._insert_entry(self._current_stdout)
                 self._last_entry_kind = "stdout"
             self._current_stdout.append(text)
@@ -1285,6 +1646,17 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     def _append_notice_on_gui_thread(
         self, source: str, values: object = None,
     ) -> None:
+        """Translate a notice and append it, keeping its surrounding whitespace.
+
+        Call sites add line breaks for console layout, but translation keys omit
+        incidental leading and trailing whitespace -- so the framing is stripped
+        off, the core translated, and the framing put back.
+
+        :param source: the untranslated notice, with whatever framing it
+            carries; a blank one is dropped.
+        :param values: substitutions for the translated template; anything that
+            is not a mapping is treated as none.
+        """
         mapping = values if isinstance(values, dict) else {}
         # Call sites may add line breaks for console layout. Translation keys
         # deliberately omit incidental leading/trailing whitespace, so retain
@@ -1297,13 +1669,49 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self.append_stdout(leading + tr(core, **mapping) + trailing)
 
     def _on_log_record(self, text: str, level: int) -> None:
-        """Slot for QtLogHandler.record_ready. WARNING/ERROR/CRITICAL
-        records go through append_error so they're visually distinct."""
+        """Slot for QtLogHandler.record_ready, routed by level.
+
+        A WARNING IS NOT AN ERROR. This used to send everything at or above
+        WARNING through :meth:`append_error`, which draws the red "spaCR
+        ERROR" banner -- so a routine Qt warning ("libpyside: addMetaMethod
+        ...") was presented to the user as a failure, a dozen times, on
+        merely opening a module. The cost is not the wrong colour:
+        it is that a pane which cries error over routine noise is a pane
+        people stop reading, and the next line in it might be the one that
+        matters.
+
+        Three bands now, not two.
+        """
         import logging as _logging
-        if level >= _logging.WARNING:
+        if level >= _logging.ERROR:
             self.append_error(text)
+        elif level >= _logging.WARNING:
+            self.append_warning(text)
         else:
             self.append_stdout(text)
+
+    def append_warning(self, text: str) -> None:
+        """Append warning text in the theme's amber, under the output banner.
+
+        DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one
+        rather than a design one: a "spaCR warning" heading would need a new
+        row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the
+        COMPACT caption ratchet. Amber under the existing translated "spaCR
+        output" heading already achieves the point -- warnings out of the
+        ERROR pane, errors still in it -- without reaching into that
+        machinery. A dedicated banner would be the nicer end state.
+
+        :param text: the formatted record; empty strings are ignored.
+        """
+        if not text:
+            return
+        with console_write():
+            amber = color_warning()
+            self.begin_topic(self._output_banner("spaCR output"), accent=amber)
+            block = _StdoutBlock(text, text_color=amber)
+            block.setProperty("consoleContextKind", "warning")
+            self._insert_entry(block)
+            self._last_entry_kind = "stdout"
 
     def append_error(self, tb: str) -> None:
         """Append red error text under a 'spaCR ERROR — <module> — <function>'
@@ -1326,6 +1734,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             red = color_error()
             self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
             block = _StdoutBlock(tb, error=True, text_color=red)
+            block.setProperty("consoleContextKind", "traceback")
             self._insert_entry(block)
             self._last_entry_kind = "stdout"
 
@@ -1356,12 +1765,18 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                     parts.append(text)
         return "\n".join(parts).strip() + "\n"
 
-    def section_text(self, bar: "_TopicBar") -> str:
-        """One section: its header and everything under it.
+    def _section_span(self, bar: "_TopicBar"):
+        """Entry indices ``(start, stop)`` spanning ``bar`` and its content.
 
-        A section runs from its own topic bar to the next one, which is what
-        a reader means by "this bit" — the header alone identifies nothing
-        and the whole console is more than was asked for.
+        ``stop`` is exclusive and may be ``None``, meaning "to the end".
+        ONE definition of where a section ends, so copying, raising and
+        collapsing cannot disagree about it.
+
+        The span runs to the next header that actually has something under
+        it. ``append_stdout`` inserts its own "spaCR output" bar, so a module
+        banner is followed immediately by another banner: stopping at the
+        first boundary copies a title and nothing else, and folds a section
+        that hides nothing.
         """
         start = None
         last = self._entries.count() - 1
@@ -1375,17 +1790,117 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             if start is not None and isinstance(widget, _TopicBar):
                 boundaries.append(index)
         if start is None:
-            return ""
-        # Run to the next header that actually has something under it.
-        # append_stdout inserts its own "spaCR output" bar, so a module
-        # banner is followed immediately by another banner: stopping at the
-        # first boundary copied a title and nothing else, which is not what
-        # anyone means by "copy this section".
+            return None, None
         for boundary in boundaries:
             text = self.as_text(start, boundary)
             if len(text.strip().splitlines()) > 1:
-                return text
-        return self.as_text(start)
+                return start, boundary
+        return start, None
+
+    def section_text(self, bar: "_TopicBar") -> str:
+        """Return a topic bar and its content up to the next topic bar."""
+        start, stop = self._section_span(bar)
+        if start is None:
+            return ""
+        return self.as_text(start, stop)
+
+    def section_body(self, bar: "_TopicBar"):
+        """The widgets under ``bar``, up to the next topic bar.
+
+        The same span :meth:`section_text` copies, as widgets rather than as
+        text, so raising, collapsing and copying a section cannot disagree
+        about where it ends. A nested heading inside the span is part of the
+        body: folding a module banner folds the "spaCR output" banner under
+        it too, because that banner is the section's own content.
+        """
+        start, stop = self._section_span(bar)
+        if start is None:
+            return []
+        end = self._entries.count() - 1 if stop is None else stop
+        body = []
+        for index in range(start + 1, end):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            if widget is not None:
+                body.append(widget)
+        return body
+
+    def raise_section(self, bar: "_TopicBar") -> None:
+        """Bring ``bar``'s section to the top of the view and expand it.
+
+        The console is a transcript, so the order of its sections is the one
+        property a log has: this SCROLLS, it does not reorder.
+
+        Raising a section also stops the view following new output. A user
+        who clicked a heading is reading THERE, and appending output that
+        yanks the viewport away is what makes a live log unreadable.
+        Following resumes when they scroll back to the bottom, which is the
+        convention every log viewer uses.
+        """
+        bar.set_expanded(True)
+        # A nested heading the user folded stays folded: expanding the
+        # section above it is not a request to unfold what is inside it.
+        folded = False
+        for widget in self.section_body(bar):
+            if isinstance(widget, _TopicBar):
+                folded = not widget.is_expanded()
+                widget.setVisible(True)
+                continue
+            widget.setVisible(not folded)
+        self._follow_output = False
+        # After layout, not during: the geometry this scroll needs does not
+        # exist until the widgets just shown have been laid out.
+        QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
+
+    def _scroll_widget_to_top(self, bar) -> None:
+        """Scroll the console so a widget sits at the top of the viewport.
+
+        :param bar: the widget to bring to the top -- typically a section
+            heading that was just clicked. A section torn down between the click
+            and the layout is ignored rather than raising.
+        """
+        try:
+            top = bar.mapTo(self._holder, bar.rect().topLeft()).y()
+        except RuntimeError:
+            return          # section torn down between click and layout
+        scrollbar = self._scroll.verticalScrollBar()
+        scrollbar.setValue(min(top, scrollbar.maximum()))
+
+    def collapse_section(self, bar: "_TopicBar") -> None:
+        """Hide ``bar``'s body, leaving its heading in place."""
+        bar.set_expanded(False)
+        for widget in self.section_body(bar):
+            widget.setVisible(False)
+
+    def _is_raised(self, bar: "_TopicBar") -> bool:
+        """Whether ``bar`` is already sitting at the top of the viewport."""
+        try:
+            top = bar.mapTo(self._holder, bar.rect().topLeft()).y()
+        except RuntimeError:
+            return False        # section torn down between click and query
+        scrollbar = self._scroll.verticalScrollBar()
+        # The same 4 px tolerance the follow-output check uses: a scrollbar
+        # dragged by hand does not always land on an exact value.
+        return abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4
+
+    def toggle_section(self, bar: "_TopicBar") -> None:
+        """Reach the section first; fold it away second.
+
+        Sections are created EXPANDED, so a plain expanded/collapsed toggle
+        spent the user's first click hiding the very section they were
+        reaching for, and the viewport never moved -- the opposite of "click
+        a console section heading to bring it to the top of the console".
+
+        A heading that is not already at the top of the viewport is therefore
+        a request to GO THERE, whatever its state. Only a heading already
+        sitting at the top has nowhere left to navigate to, and there
+        collapsing is the one thing the gesture can still mean -- reachable
+        on a second click, exactly where the user's hand already is.
+        """
+        if bar.is_expanded() and self._is_raised(bar):
+            self.collapse_section(bar)
+        else:
+            self.raise_section(bar)
 
     def copy_all(self) -> str:
         """Put the whole console on the clipboard; return what was copied."""
@@ -1408,7 +1923,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 w.deleteLater()
         self._last_entry_kind = ""
         self._current_stdout = None
+        # FORGET THE TOPIC MEMO. Without this the first banner after a clear
+        # matches the last one before it, is skipped as a repeat, and the
+        # output that follows sits under no heading at all.
+        self._current_topic_label = None
         self._ai_messages.clear()
+        self._console_sent_lengths.clear()
 
     # ------------------------------------------------------------------
     # AI toggle + provider — external setters called by AppScreen.
@@ -1422,6 +1942,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._current_provider_name = provider_name
 
     def _current_provider(self) -> Optional[ChatProvider]:
+        """Resolve the selected AI provider.
+
+        :returns: the provider, or ``None`` when none is selected.
+        """
         if not self._current_provider_name:
             return None
         return ai_module.get_provider(self._current_provider_name)
@@ -1430,6 +1954,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     # Submit — Enter in the input
     # ------------------------------------------------------------------
     def _on_submit(self) -> None:
+        """Send the chat box's contents, to the AI or to the console.
+
+        An empty box does nothing. With AI off the text is written as a local
+        note under its own banner rather than dropped, so a typed thought stays
+        in the transcript beside the run it was about.
+        """
         text = self._input.toPlainText().strip()
         if not text:
             return
@@ -1450,6 +1980,18 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = "user"
 
     def _send_to_ai(self, text: str) -> None:
+        """Send one question to the provider and open a reply block for it.
+
+        Console context is attached according to the AI preference and reported
+        on the message it went with, rather than as furniture that goes stale
+        between asks. Asking a question of the user's own also ends the error
+        pairing: whatever comes back answers this, not the crash, so it must not
+        later be filed as an analysis of the crash.
+
+        :param text: the user's question. With no provider configured this says
+            so; with a stream already running it is silently dropped, since the
+            Cancel button lives on the actions row rather than here.
+        """
         provider = self._current_provider()
         if provider is None:
             self.append_notice(
@@ -1460,9 +2002,20 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             # Silent no-op: another stream is running. The AppScreen
             # actions row exposes the Cancel button, not us.
             return
-        self._ai_messages.append({"role": "user", "content": text})
+        context, status = self._console_context_for_question(text)
+        prompt = text
+        if context:
+            prompt += (
+                "\n\n<spacr_console_context>\n" + context
+                + "\n</spacr_console_context>")
+        self._ai_messages.append({"role": "user", "content": prompt})
+        # A QUESTION OF THE USER'S OWN ENDS THE ERROR PAIRING. Whatever comes
+        # back next answers this, not the crash -- and attaching it to a bug
+        # report as an analysis of the crash would put a confident, unrelated
+        # explanation in front of a maintainer.
+        self._ai_error_traceback = ""
         # User message — green "spaCR user" text.
-        self._append_user(text)
+        self._append_user(text + f"\n\n[{status}]")
         # AI reply — a "spaCR AI" banner tinted in the provider colour, with a
         # three-dot working indicator that cycles until the stream finishes,
         # followed by the reply text in the same provider colour.
@@ -1476,6 +2029,80 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = "ai"
         self._start_stream(system=ai_settings.get_system_prompt())
 
+    def _pipeline_console_blocks(self):
+        """Yield rendered pipeline blocks that are eligible as AI context."""
+        last = self._entries.count() - 1
+        for index in range(last):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            kind = widget.property("consoleContextKind") if widget else None
+            if kind in {"stdout", "traceback"} and hasattr(
+                    widget, "toPlainText"):
+                yield widget, str(kind), widget.toPlainText()
+
+    def _console_context_for_question(self, question: str):
+        """Package unsent console context when an AI question is submitted.
+
+        Return ``(context, visible_status)``. Complete traceback blocks take
+        priority over ordinary output and may exceed the soft context budget.
+        When the default-on console-aware preference is disabled, no context
+        is attached. Text is marked sent only after it is included.
+        """
+        from ..ai import settings as ai_settings
+
+        if not ai_settings.get_console_aware():
+            label = tr("Console context off")
+            return "", label
+
+        pieces = []
+        current_lengths = {}
+        for block, kind, full_text in self._pipeline_console_blocks():
+            key = id(block)
+            sent = min(self._console_sent_lengths.get(key, 0), len(full_text))
+            fresh = full_text[sent:]
+            if not fresh:
+                continue
+            anchor = ""
+            if kind == "stdout" and sent:
+                anchor = full_text[max(0, sent - 400):sent]
+            pieces.append((kind, anchor + fresh, len(fresh)))
+            current_lengths[key] = len(full_text)
+
+        if not pieces:
+            label = tr("Console context: no new output")
+            return "", label
+
+        tracebacks = [text for kind, text, _fresh in pieces
+                      if kind == "traceback"]
+        stdout = "\n".join(text for kind, text, _fresh in pieces
+                           if kind == "stdout")
+        traceback_text = "\n\n".join(
+            f"--- complete traceback ---\n{text}" for text in tracebacks)
+        remaining = max(0, AI_CONSOLE_CONTEXT_CHARS - len(traceback_text))
+        kept_stdout = stdout[-remaining:] if remaining else ""
+        dropped = max(0, len(stdout) - len(kept_stdout))
+        sections = []
+        if dropped:
+            sections.append(
+                f"[Console tail; {dropped:,} earlier characters dropped]")
+        elif stdout:
+            sections.append("[New console output]")
+        if kept_stdout:
+            sections.append(kept_stdout)
+        if traceback_text:
+            sections.append(traceback_text)
+        context = "\n".join(sections)
+        self._console_sent_lengths.update(current_lengths)
+        # The counts are interpolated after translation so the catalog keys
+        # stay free of digits and a translator can move the number.
+        label = tr("Console context: {n} chars sent", n=f"{len(context):,}")
+        if dropped:
+            label += tr(", {n} dropped", n=f"{dropped:,}")
+        # Returned, not written to a persistent label: the caller stamps it on
+        # the message this context went with, where it stays true. A shared
+        # label is stale from the moment the next question is typed.
+        return context, label
+
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""
         if self._current_stdout is None or self._needs_topic("stdout"):
@@ -1485,6 +2112,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self._last_entry_kind = "stdout"
 
     def _start_stream(self, system: str) -> None:
+        """Start the streaming worker for the pending conversation.
+
+        The thread is parented to the panel so its C++ lifetime is tied to the
+        panel rather than to a Python refcount -- an unparented ``QThread`` can
+        be collected between the worker returning and ``finished`` firing, which
+        aborts Qt.
+
+        :param system: system prompt for the request.
+        """
         provider = self._current_provider()
         if provider is None:
             return
@@ -1584,9 +2220,21 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
     def _on_stage(self, _stage: str) -> None:
         # Could show a spinner; keeping this quiet for now.
+        """Ignore a stage change from the streaming worker.
+
+        :param _stage: the stage name. Nothing is shown for it yet -- this is
+            where a spinner would go.
+        """
         pass
 
     def _on_chunk(self, chunk: str) -> None:
+        """Append one streamed chunk to the AI reply block.
+
+        The block is recreated if it went away -- the error flow writes through
+        its own path and can clear it mid-stream.
+
+        :param chunk: the text just received.
+        """
         self._ai_buf.append(chunk)
         # Stream into the provider-coloured AI block created in _send_to_ai.
         # Guard in case it was cleared (open_error_flow uses its own path).
@@ -1604,6 +2252,17 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         # thread has fully exited AND Qt's deleteLater has run.
         # Prune already-dead entries on the way in so the list can't
         # grow unbounded across a long session.
+        """Close the reply block and retire the streaming thread.
+
+        The finished ``(thread, worker)`` pair is held in a list rather than
+        dropped, so Python cannot collect the ``QThread`` before its OS thread
+        has exited and Qt's ``deleteLater`` has run; already-dead entries are
+        pruned on the way in so the list cannot grow across a long session.
+
+        :param ok: whether the stream completed.
+        :param final_text: the assembled reply, or the error detail when
+            ``ok`` is ``False``.
+        """
         self._prune_retired()
         # Stop the cycling working dots — the stream is done.
         if self._working_dots is not None:
@@ -1618,6 +2277,13 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self._ai_messages.append(
                 {"role": "assistant", "content": final_text}
             )
+            # Kept for the bug report. Only a reply to an error the console
+            # itself raised counts: `_ai_error_traceback` is set by
+            # `open_error_flow` and cleared by any ordinary question, so an
+            # answer about something else cannot be filed as an analysis of
+            # the crash.
+            if getattr(self, "_ai_error_traceback", ""):
+                self._ai_error_explanation = final_text or ""
             if not self._ai_buf:
                 self.append_notice(
                     "(empty response — try again or switch provider)\n"
@@ -1636,6 +2302,28 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     # ------------------------------------------------------------------
     # Public: Explain-error entry point (called from AppScreen)
     # ------------------------------------------------------------------
+    def ai_explanation_of(self, traceback_text: str) -> str:
+        """spaCR AI's answer about ``traceback_text``, or ``""``.
+
+        Used by the bug reporter: when the AI is switched on it has usually
+        already diagnosed the crash by the time the user files, and that
+        analysis is the most useful thing in the report -- it is what whoever
+        picks the report up would otherwise spend the first hour
+        reproducing.
+
+        Empty unless there IS an answer AND it is an answer to THIS error.
+        The console holds one conversation across a whole session, so without
+        the second condition a report about one crash would carry an
+        explanation of an earlier one, stated with equal confidence.
+        """
+        mine = getattr(self, "_ai_error_traceback", "") or ""
+        answer = getattr(self, "_ai_error_explanation", "") or ""
+        if not mine or not answer:
+            return ""
+        # Compared on the traceback's own text rather than on identity: the
+        # reporter is handed the text again by the screen, not the object.
+        return answer if mine.strip() == (traceback_text or "").strip() else ""
+
     def open_error_flow(self, traceback_text: str, active_app: str = "",
                         show_raw: bool = True) -> None:
         """Send a traceback to the AI explainer and stream the reply inline.
@@ -1655,6 +2343,13 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         prompt = wrap_error_for_prompt(
             traceback_text, active_app or self._active_app_label
         )
+        # REMEMBER WHAT THIS TURN IS ABOUT, so the answer can be attached to
+        # the bug report for this error and no other. A console can hold
+        # several explanations across a session; pairing the reply with the
+        # traceback that prompted it is what stops an issue about one crash
+        # carrying an analysis of a different one.
+        self._ai_error_traceback = traceback_text
+        self._ai_error_explanation = ""
         # The AI always receives the full error; the console only echoes the
         # raw traceback when show_raw is True.
         self._ai_messages.append({"role": "user", "content": prompt})

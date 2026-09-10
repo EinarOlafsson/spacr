@@ -27,21 +27,26 @@ from PySide6.QtWidgets import (QComboBox, QDialogButtonBox, QLabel,
 #: a name, because a name is what the rest of the suite finds it by.
 CONTROLS = {
     "LanguagePreference": "General",
-    "AmbientTheme": "Appearance",
-    "AmbientPalette": "Appearance",
-    "AmbientDriftDirection": "Appearance",
-    "AmbientResolution": "Appearance",
-    "AmbientBlur": "Appearance",
-    "AmbientSpeed": "Appearance",
-    "AmbientSize": "Appearance",
-    "AmbientDensity": "Appearance",
-    "SettingAnimationsEnabled": "Appearance",
+    # APPEARANCE WAS SPLIT INTO THREE on 2026-09-03 and this map was not
+    # moved with it, so eighteen of these have been failing since -- the
+    # inventory said Appearance and the controls were on Theme and Animation.
+    # Corrected by MEASURING where each one actually is rather than by
+    # reasoning about where it ought to be.
+    "AmbientTheme": "Animation",
+    "AmbientPalette": "Animation",
+    "AmbientDriftDirection": "Animation",
+    "AmbientResolution": "Animation",
+    "AmbientBlur": "Animation",
+    "AmbientSpeed": "Animation",
+    "AmbientSize": "Animation",
+    "AmbientDensity": "Animation",
+    "SettingAnimationsEnabled": "Animation",
     "SpinnerDelay": "Appearance",
-    "PaneOpacity": "Appearance",
-    "FieldFadeEnabled": "Appearance",
+    "PaneOpacity": "Theme",
+    "FieldFadeEnabled": "Theme",
     "FontScale": "General",
-    "SpacrMode": "Performance",
-    "SpacrModeNote": "Performance",
+    "PerformanceLevel": "Performance",
+    "SpacrModeNote": "Performance",  # the note under the level selector
     "ClearRamButton": "Performance",
     "ClearVramButton": "Performance",
     "ClearCpuButton": "Performance",
@@ -69,13 +74,22 @@ CONTROLS = {
     "LogConsoleLevelWarning": "Logging",
     "LogConsoleLevelError": "Logging",
     "LogConsoleLevelCritical": "Logging",
+    # The AI tab arrived on 2026-09-04. It replaced a "▾" chevron beside the
+    # AI switch on the actions row of EVERY module -- which put a preference
+    # where per-run choices are made, repeated it per screen, and did not
+    # persist: `get_preferred_provider` existed and was read by nothing.
+    # The Providers button opens the dialog that carries the rest of the AI
+    # settings (response speed, system prompt, console-awareness), so those
+    # moved with it rather than being left unreachable.
+    "AiProvider": "AI",
+    "AiProvidersButton": "AI",
 }
 
 #: Tab order, not just tab membership: General must stay first (see below),
 #: and the rest are ordered by how often a user goes looking for them.
 #: "Logging" was appended on 2026-08-05 by f1183805.
-EXPECTED_TABS = ("General", "Appearance", "Performance", "Modules", "Figures",
-                 "Logging")
+EXPECTED_TABS = ("General", "Appearance", "Theme", "Animation", "Performance",
+                 "Modules", "Figures", "Logging", "AI")
 
 
 @pytest.fixture(autouse=True)
@@ -215,7 +229,7 @@ def test_the_performance_tab_reads_as_one_subject(dialog):
     button_box = dialog.findChild(QDialogButtonBox)
     assert not button_box.isAncestorOf(quit_button), (
         "force quit was moved in with Save/Cancel")
-    assert page.findChild(QComboBox, "SpacrMode") is not None
+    assert page.findChild(QComboBox, "PerformanceLevel") is not None
     note = page.findChild(QLabel, "SpacrModeNote")
     assert note is not None and note.wordWrap()
 

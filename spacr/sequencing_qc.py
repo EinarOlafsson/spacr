@@ -54,13 +54,18 @@ See Also:
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 from . import schema
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import ROLES, figure_style, theme_target
 
 #: The app key this module registers its settings under.
 APP_KEY = "barcode_qc"
@@ -166,7 +171,15 @@ def load_count_table(count_data, plate: Optional[str] = None) -> pd.DataFrame:
             df = source.copy()
             label = f"count_data[{index}]"
         else:
-            df = pd.read_csv(source)
+            # THROUGH THE FUNNEL (145). These are the COUNT CSVs, and they are
+            # the case that instruction measured: `row_name`, `column_name`,
+            # `grna_name` and NO plate column at all, so four plates' r1/c1
+            # pooled into one well -- 384 wells instead of 1,536 -- with the
+            # fractions still summing to 1, so nothing downstream could
+            # notice.
+            from .tabular import read_table
+
+            df = read_table(source, report=None)
             label = str(source)
 
         renames = {}
@@ -465,7 +478,10 @@ def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
     else:
         sources = list(qc_data)
 
-    frames = [src if isinstance(src, pd.DataFrame) else pd.read_csv(src)
+    from .tabular import read_table
+
+    frames = [src if isinstance(src, pd.DataFrame)
+              else read_table(src, report=None)
               for src in sources]
     qc = pd.concat(frames, axis=0, ignore_index=True)
     if "total_reads" not in qc.columns:
@@ -526,6 +542,10 @@ def _read_reference(reference) -> Dict[str, str]:
         if name is not None:
             table[name] = "".join(chunks).upper()
         return table
+    # RAW, DELIBERATELY. This is a barcode table -- `name` and `sequence` --
+    # and carries no plate, row, column, field or well. Canonicalising it
+    # would be a no-op with an import behind it, and 145's rule is about
+    # readers of METADATA-bearing tables.
     df = pd.read_csv(path)
     missing = {"name", "sequence"}.difference(df.columns)
     if missing:
@@ -679,7 +699,7 @@ def collision_summary(references: Mapping[str, Any],
             at_risk = set(subset["name_a"]).union(subset["name_b"])
         n = len(table)
         reads_at_risk = None
-        if counts is not None and n:
+        if counts is not None and n and label == "grna":
             total = float(counts["count"].sum())
             if total > 0:
                 hit = counts[counts["grna"].astype(str).isin(at_risk)]
@@ -720,6 +740,7 @@ class WellFractions:
 
     def __init__(self, counts: pd.DataFrame,
                  wells: Optional[Iterable[str]] = None):
+        """Prepare a nonempty, optionally restricted well population."""
         if wells is not None:
             keep = set(str(w) for w in wells)
             counts = counts[counts["prc"].astype(str).isin(keep)]
@@ -753,7 +774,10 @@ class WellFractions:
         return out
 
     def reads_retained_at(self, thresholds) -> np.ndarray:
-        """Share of all mapped reads surviving each threshold."""
+        """Share of all mapped reads surviving each threshold.
+
+        :param thresholds: one or more minimum guide-fraction thresholds.
+        """
         thresholds = np.atleast_1d(np.asarray(thresholds, dtype=float))
         frame = self._reads_sorted_by_fraction
         fractions = frame["fraction"].to_numpy(float)
@@ -889,6 +913,12 @@ def derive_threshold(counts: pd.DataFrame, target_grnas_per_well: float,
     target = float(target_grnas_per_well)
 
     def stat(value: float) -> float:
+        """Evaluate the captured well-fraction statistic at one threshold.
+
+        :param value: abundance-fraction threshold to evaluate.
+        :returns: the selected mean or median gRNAs-per-well value as a float;
+            the retained-well details returned alongside it are discarded.
+        """
         return float(fractions.statistic_at(value, statistic)[0])
 
     def choice_at(index: int, achieved: float, attainable: bool
@@ -1208,8 +1238,10 @@ def _save_figure(fig, dst: Optional[str], name: str) -> Optional[str]:
         return None
     os.makedirs(dst, exist_ok=True)
     path = os.path.join(dst, f"{name}.pdf")
-    fig.savefig(path, format="pdf", dpi=300, bbox_inches="tight")
-    return path
+    # 108 point 6: the format and the DPI are the user's, not this line's.
+    from .plot import save_figure
+
+    return save_figure(fig, path, bbox_inches="tight")
 
 
 def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
@@ -1242,51 +1274,57 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
     amber = (200 / 255, 130 / 255, 0 / 255)
     red = (180 / 255, 40 / 255, 60 / 255)
 
-    fig, (top, bottom) = plt.subplots(
-        2, 1, figsize=(9, 7), sharex=True,
-        gridspec_kw={"height_ratios": [3, 2], "hspace": 0.12})
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, (top, bottom) = plt.subplots(
+            2, 1, figsize=(9, 7), sharex=True,
+            gridspec_kw={"height_ratios": [3, 2], "hspace": 0.12})
 
-    top.plot(sweep["threshold"], sweep["grnas_per_well"], color=teal, lw=2,
-             label=f"gRNAs per well ({choice.statistic}, all wells)")
-    top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
-             color=teal, lw=1.2, ls=":",
-             label="gRNAs per well (retained wells only)")
-    top.axhline(choice.target, color="black", ls="--", lw=1,
-                label=f"target ({choice.target:g})")
-    # linscale keeps the 0-1 linear band from eating a third of the panel;
-    # "no guides left" needs to be visible, not prominent.
-    top.set_yscale("symlog", linthresh=1, linscale=0.35)
-    top.set_ylim(bottom=0)
-    top.set_ylabel("gRNAs per well")
-    top.legend(loc="upper right", fontsize=8)
-    top.set_title(
-        f"Threshold sweep around the target of {choice.target:g} gRNAs/well")
+        top.plot(sweep["threshold"], sweep["grnas_per_well"], color=teal, lw=2,
+                 label=f"gRNAs per well ({choice.statistic}, all wells)")
+        top.plot(sweep["threshold"], sweep["grnas_per_well_retained"],
+                 color=teal, lw=1.2, ls=":",
+                 label="gRNAs per well (retained wells only)")
+        # 178 A: the reference role, so the line is visible in both themes.
+        top.axhline(choice.target, color=ROLES["reference"], ls="--", lw=1,
+                    label=f"target ({choice.target:g})")
+        # linscale keeps the 0-1 linear band from eating a third of the panel;
+        # "no guides left" needs to be visible, not prominent.
+        top.set_yscale("symlog", linthresh=1, linscale=0.35)
+        top.set_ylim(bottom=0)
+        top.set_ylabel("gRNAs per well")
+        top.legend(loc="upper right", fontsize=8)
+        top.set_title(
+            f"Threshold sweep around the target of {choice.target:g} gRNAs/well")
 
-    bottom.plot(sweep["threshold"], 100 * sweep["well_retention"],
-                color=amber, lw=1.8, label="wells retained (%)")
-    bottom.plot(sweep["threshold"], 100 * sweep["collision_rate"],
-                color=red, lw=1.8,
-                label=f"wells over {choice.target:g} gRNAs (%)")
-    bottom.set_ylim(-2, 102)
-    bottom.set_ylabel("% of wells")
-    bottom.set_xscale("log")
-    bottom.set_xlabel("abundance threshold (gRNA share of a well's reads)")
-    bottom.legend(loc="center left", fontsize=8)
+        bottom.plot(sweep["threshold"], 100 * sweep["well_retention"],
+                    color=amber, lw=1.8, label="wells retained (%)")
+        bottom.plot(sweep["threshold"], 100 * sweep["collision_rate"],
+                    color=red, lw=1.8,
+                    label=f"wells over {choice.target:g} gRNAs (%)")
+        bottom.set_ylim(-2, 102)
+        bottom.set_ylabel("% of wells")
+        bottom.set_xscale("log")
+        bottom.set_xlabel("abundance threshold (gRNA share of a well's reads)")
+        bottom.legend(loc="center left", fontsize=8)
 
-    for axis in (top, bottom):
-        axis.axvline(choice.threshold, color="black", lw=1.2)
-    # Anchored in axes coordinates on the y and data coordinates on the x,
-    # so the label rides the line at a fixed height whatever the symlog
-    # axis does with its limits.
-    top.annotate(f"derived: {choice.threshold:.4f}",
-                 xy=(choice.threshold, 0.02),
-                 xycoords=top.get_xaxis_transform(),
-                 xytext=(5, 0), textcoords="offset points",
-                 rotation=90, va="bottom", ha="left", fontsize=9,
-                 bbox={"boxstyle": "round,pad=0.25", "fc": "white",
-                       "ec": "none", "alpha": 0.75})
-    _save_figure(fig, dst, "threshold_sweep")
-    return fig
+        for axis in (top, bottom):
+            axis.axvline(choice.threshold, color=ROLES["reference"], lw=1.2)
+        # Anchored in axes coordinates on the y and data coordinates on the x,
+        # so the label rides the line at a fixed height whatever the symlog
+        # axis does with its limits.
+        top.annotate(f"derived: {choice.threshold:.4f}",
+                     xy=(choice.threshold, 0.02),
+                     xycoords=top.get_xaxis_transform(),
+                     xytext=(5, 0), textcoords="offset points",
+                     rotation=90, va="bottom", ha="left", fontsize=9,
+                     bbox={"boxstyle": "round,pad=0.25", "fc": "white",
+                           "ec": "none", "alpha": 0.75})
+        _save_figure(fig, dst, "threshold_sweep")
+        return fig
 
 
 def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
@@ -1313,97 +1351,109 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
     """
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(2, 2, figsize=(13, 9))
 
-    # 1 — reads per well.
-    ax = axes[0][0]
-    reads = per_well["reads"].to_numpy(float)
-    bins = min(40, max(5, int(np.sqrt(max(reads.size, 1)))))
-    ax.hist(reads, bins=bins, color=(0 / 255, 155 / 255, 155 / 255),
-            alpha=0.85)
-    cutoff = starved.attrs.get("cutoff")
-    if cutoff:
-        ax.axvline(cutoff, color="black", ls="--", lw=1.2,
-                   label=f"starved below {cutoff:,.0f} reads "
-                         f"({len(starved)} well(s))")
-        ax.legend(fontsize=8)
-    ax.set_xlabel("reads per well")
-    ax.set_ylabel("wells")
-    ax.set_title(f"Read depth across {len(per_well)} wells "
-                 f"({counts['count'].sum():,.0f} mapped reads)")
+        # 1 — reads per well.
+        ax = axes[0][0]
+        reads = per_well["reads"].to_numpy(float)
+        bins = min(40, max(5, int(np.sqrt(max(reads.size, 1)))))
+        ax.hist(reads, bins=bins, color=(0 / 255, 155 / 255, 155 / 255),
+                alpha=0.85)
+        cutoff = starved.attrs.get("cutoff")
+        if cutoff:
+            ax.axvline(cutoff, color=ROLES["reference"], ls="--", lw=1.2,
+                       label=f"starved below {cutoff:,.0f} reads "
+                             f"({len(starved)} well(s))")
+            ax.legend(fontsize=8)
+        ax.set_xlabel("reads per well")
+        ax.set_ylabel("wells")
+        ax.set_title(f"Read depth across {len(per_well)} wells "
+                     f"({counts['count'].sum():,.0f} mapped reads)")
 
-    # 2 — position effects.
-    ax = axes[0][1]
-    if positions.empty:
-        ax.set_axis_off()
-    else:
-        # Natural order, so c2 sits between c1 and c10 rather than after
-        # c12 — a position-effect panel whose columns are out of plate
-        # order cannot be read against the plate.
-        def _natural(value):
-            text = str(value)
-            digits = "".join(ch for ch in text if ch.isdigit())
-            return ("".join(ch for ch in text if not ch.isdigit()),
-                    int(digits) if digits else 0)
+        # 2 — position effects.
+        ax = axes[0][1]
+        if positions.empty:
+            ax.set_axis_off()
+        else:
+            # Natural order, so c2 sits between c1 and c10 rather than after
+            # c12 — a position-effect panel whose columns are out of plate
+            # order cannot be read against the plate.
+            def _natural(value):
+                """Split a position label into text and numeric sort parts.
 
-        ordered = positions.assign(
-            _sort=[(a, *_natural(b))
-                   for a, b in zip(positions["axis"], positions["label"])]
-        ).sort_values("_sort").drop(columns="_sort")
-        colors = [(180 / 255, 40 / 255, 60 / 255) if flag
-                  else (120 / 255, 120 / 255, 120 / 255)
-                  for flag in ordered["flagged"]]
-        # The axis initial is only worth a prefix when the label does not
-        # already carry it.
-        labels = [str(b) if str(b).lower().startswith(a[0])
-                  else f"{a[0]}:{b}"
-                  for a, b in zip(ordered["axis"], ordered["label"])]
-        ax.bar(range(len(ordered)), ordered["ratio_to_plate"], color=colors)
-        ax.axhline(1.0, color="black", lw=1)
-        ax.set_xticks(range(len(ordered)))
-        ax.set_xticklabels(labels, rotation=90, fontsize=7)
-        ax.set_ylabel("median reads / plate median")
-        ax.set_title(
-            f"Row and column position effects "
-            f"({int(ordered['flagged'].sum())} flagged)")
+                :param value: row or column position label to stringify.
+                :returns: all non-digits followed by the concatenated digits as
+                    an integer, or zero when none are present, so labels such as
+                    ``c1``, ``c2``, and ``c10`` follow physical plate order.
+                """
+                text = str(value)
+                digits = "".join(ch for ch in text if ch.isdigit())
+                return ("".join(ch for ch in text if not ch.isdigit()),
+                        int(digits) if digits else 0)
 
-    # 3 — library coverage, as a Lorenz curve.
-    ax = axes[1][0]
-    values = np.sort(depth["reads_per_grna"].to_numpy(float))
-    if values.size and values.sum() > 0:
-        share = np.concatenate([[0.0], np.cumsum(values) / values.sum()])
-        x = np.linspace(0, 1, share.size)
-        ax.plot(x, share, color=(0 / 255, 155 / 255, 155 / 255), lw=2)
-        ax.plot([0, 1], [0, 1], color="black", ls="--", lw=1)
-        ax.set_xlabel("gRNAs, least abundant first")
-        ax.set_ylabel("cumulative share of reads")
-        dropout = depth.get("dropout_fraction")
-        title = (f"Library coverage — Gini {depth['gini']:.2f}, "
-                 f"skew {depth['skew_ratio']:.1f}x")
-        if dropout is not None:
-            title += f", {100 * dropout:.1f}% never seen"
-        ax.set_title(title, fontsize=10)
+            ordered = positions.assign(
+                _sort=[(a, *_natural(b))
+                       for a, b in zip(positions["axis"], positions["label"])]
+            ).sort_values("_sort").drop(columns="_sort")
+            colors = [(180 / 255, 40 / 255, 60 / 255) if flag
+                      else (120 / 255, 120 / 255, 120 / 255)
+                      for flag in ordered["flagged"]]
+            # The axis initial is only worth a prefix when the label does not
+            # already carry it.
+            labels = [str(b) if str(b).lower().startswith(a[0])
+                      else f"{a[0]}:{b}"
+                      for a, b in zip(ordered["axis"], ordered["label"])]
+            ax.bar(range(len(ordered)), ordered["ratio_to_plate"], color=colors)
+            ax.axhline(1.0, color=ROLES["reference"], lw=1)
+            ax.set_xticks(range(len(ordered)))
+            ax.set_xticklabels(labels, rotation=90, fontsize=7)
+            ax.set_ylabel("median reads / plate median")
+            ax.set_title(
+                f"Row and column position effects "
+                f"({int(ordered['flagged'].sum())} flagged)")
 
-    # 4 — read fate.
-    ax = axes[1][1]
-    if unmapped:
-        names = list(unmapped["per_field"])
-        values = [100 * unmapped["per_field"][n] for n in names]
-        if "unmapped_fraction" in unmapped:
-            names = names + ["any field"]
-            values = values + [100 * unmapped["unmapped_fraction"]]
-        ax.bar(names, values, color=(180 / 255, 40 / 255, 60 / 255))
-        ax.set_ylabel("% of regex-matched reads unmapped")
-        ax.set_title(
-            f"Unmapped reads (of {unmapped['total_reads']:,.0f} matched)",
-            fontsize=10)
-        ax.tick_params(axis="x", labelrotation=20)
-    else:
-        ax.set_axis_off()
+        # 3 — library coverage, as a Lorenz curve.
+        ax = axes[1][0]
+        values = np.sort(depth["reads_per_grna"].to_numpy(float))
+        if values.size and values.sum() > 0:
+            share = np.concatenate([[0.0], np.cumsum(values) / values.sum()])
+            x = np.linspace(0, 1, share.size)
+            ax.plot(x, share, color=(0 / 255, 155 / 255, 155 / 255), lw=2)
+            ax.plot([0, 1], [0, 1], color=ROLES["reference"], ls="--", lw=1)
+            ax.set_xlabel("gRNAs, least abundant first")
+            ax.set_ylabel("cumulative share of reads")
+            dropout = depth.get("dropout_fraction")
+            title = (f"Library coverage — Gini {depth['gini']:.2f}, "
+                     f"skew {depth['skew_ratio']:.1f}x")
+            if dropout is not None:
+                title += f", {100 * dropout:.1f}% never seen"
+            ax.set_title(title, fontsize=10)
 
-    fig.tight_layout()
-    _save_figure(fig, dst, "barcode_qc")
-    return fig
+        # 4 — read fate.
+        ax = axes[1][1]
+        if unmapped:
+            names = list(unmapped["per_field"])
+            values = [100 * unmapped["per_field"][n] for n in names]
+            if "unmapped_fraction" in unmapped:
+                names = names + ["any field"]
+                values = values + [100 * unmapped["unmapped_fraction"]]
+            ax.bar(names, values, color=(180 / 255, 40 / 255, 60 / 255))
+            ax.set_ylabel("% of regex-matched reads unmapped")
+            ax.set_title(
+                f"Unmapped reads (of {unmapped['total_reads']:,.0f} matched)",
+                fontsize=10)
+            ax.tick_params(axis="x", labelrotation=20)
+        else:
+            ax.set_axis_off()
+
+        fig.tight_layout()
+        _save_figure(fig, dst, "barcode_qc")
+        return fig
 
 
 # ---------------------------------------------------------------------------
@@ -1535,12 +1585,14 @@ def _register() -> None:
     would be a different module, and that still raises.
     """
     from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
 
     if has_registered_defaults(APP_KEY):
         return
     register_defaults(APP_KEY, barcode_qc_defaults,
                       expected_types=_EXPECTED_TYPES,
-                      tooltips=_TOOLTIPS,
+                      tooltips={key: value for key, value in _TOOLTIPS.items()
+                                if key not in shared_tooltips},
                       description=_DESCRIPTION)
 
 
@@ -1660,7 +1712,7 @@ def barcode_qc(settings: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         flagged = positions[positions["flagged"]] if not positions.empty \
             else positions
         if not flagged.empty:
-            print(f"Position effects flagged: "
+            print("Position effects flagged: "
                   + ", ".join(f"{r.plateID} {r.axis} {r.label} "
                               f"({r.ratio_to_plate:.2f}x)"
                               for r in flagged.itertuples()))

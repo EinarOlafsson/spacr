@@ -2,7 +2,9 @@
 ONE "ORGANELLE TYPE" CHOICE SHOULD DRIVE THE REST OF THE ORGANELLE SETTINGS
 ================================================================================
 
-Status:    not started, 2026-08-10.
+Status:    done. All six items, including the measure side, which needed
+           instruction 76's per-slot types and now has them, and including
+           the run journal that item 6 left open.
 Requested: 2026-08-10 — "add to instructions to work do a sweep of organelle in measure and mask. the point of this settings class and object class is to generate measurements and capture organelle objects. this is the most diverse set of objects. Best would be if there were the options organelle type with the following categories: Vesicular (vacuoles, autophagosomes, transport vesicles, secretory vesicles, early endosomes, lysosomes), Filamentous (microtubules, F-actin filaments, intermediate filaments), Punctate (peroxisomes, lipid droplets, ribosomes, PML nuclear bodies, vaults), Tubular (smooth endoplasmic reticulum, healthy mitochondrial networks, sorting endosomes, trans-Golgi network), Cisternal (rough endoplasmic reticulum sheets, Golgi stacks, nuclear envelope), Reticular (endoplasmic reticulum meshwork, interconnected mitochondrial reticula), Spherical (nucleus, nucleolus, chloroplasts, swollen mitochondria, macromolecular condensates), Toroidal (condensing/stressed mitochondria, midbodies, nuclear pore complexes), Crescent (phagophores/early autophagosomes, specialized yeast nucleoli) and then set up settings and detection modals for each type with the others not visible or grayed out that do not apply to the chosen organelle. as it is now there are too many options for organelle and to many settings for organelle in mask, so if organelle type is Vesicular then organelle morphology will always be spots (for example make sure this is true dont just take my word for it) and not network. so essentially i want to bundle a bunch of current (and potentially new settings into the categories specified above to make it easier for the user. all settings should still be modifiable by the user but they should be in an organelle advanced settings category, and only the minimum relevant settings in the organelle category."
 
 --------------------------------------------------------------------------------
@@ -217,3 +219,103 @@ Reticular network filling the cell) is instruction 71 item 3, and it needs
 the per-instance types of instruction 76 to be worth wiring.
 
 STATUS: DONE except item 6, which is tracked under 71/76.
+
+--------------------------------------------------------------------------------
+ITEM 6: WHICH MEASUREMENTS MEAN SOMETHING FOR WHICH TYPE
+--------------------------------------------------------------------------------
+
+It was deferred because it needed per-instance types. Instruction 76 shipped
+four independent slots, each with its own type preset, so it is wireable and
+is wired.
+
+THE ANSWER, in `spacr.settings.ORGANELLE_OBJECTS_PER_CELL`. What decides it
+is not the measurement, it is how many objects of that kind a cell holds:
+
+    many      punctate, vesicular, crescent
+    one       filamentous, tubular, reticular, cisternal
+    depends   spherical, toroidal
+    unknown   custom
+
+`spatial_measurements` counts an object's neighbours and measures how far
+apart they are; the within-type half of `object_distances` measures the same
+thing pairwise. Both answer "how many, and how clustered", which is the
+phenotype for a punctate organelle and is not a question at all for a
+reticular one: an ER meshwork is ONE connected object filling the cell, so
+its neighbour count is zero, its nearest-neighbour distance is undefined,
+and a screen regressing on either would be regressing on whether the
+segmentation happened to break the network in two that day.
+
+TWO ROWS SPLIT, and they are named rather than forced -- the same finding as
+the type-to-morphology table, where two of nine rows split on size.
+"Spherical" holds the nucleus (one per cell) and macromolecular condensates
+(dozens); "Toroidal" holds midbodies (one per dividing cell) and nuclear
+pores (thousands). The structure decides, not the category, and the caveat
+says so.
+
+NOTHING IS SWITCHED OFF. A family the type makes doubtful is still measured
+and still written. A number that vanished without being asked to is worse
+than one that comes with a caveat, and this project already carries eleven
+phantom settings from values nobody could see. What the type buys is that
+the run SAYS SO, in the same voice the preset already uses to say what it
+set and what is weak about it.
+
+MEASURE NOW OFFERS THE TYPE. It could not answer the question without being
+told what it is measuring, and the mask module's copy never reaches a
+measure run -- the same gap that silenced `summarize_organelles_by` and with
+it every organelle table. Each slot's type defaults to 'custom', which makes
+no claim, so a settings file written before this still means exactly what it
+meant. It sits beside the mask dimensions in the Measure panel, because the
+two answer one question: which plane, and what is on it.
+
+AND THE RUN JOURNAL CARRIES IT NOW, NOT ONLY THE CONSOLE.
+`explain_organelle_measurements` printed the sentence and stopped there, so a
+measurements.db opened a week later held the count-dependent columns with
+nothing beside them saying what they mean for a one-object-per-cell
+organelle -- and a batch is only ever read back, never watched.
+
+`measure._record_organelle_caveats(settings, run)` is called inside
+`measure_crop`, beside the `RunLedger` the tables about to be written are
+accounted on. It asks
+`spacr.settings.organelle_measurement_caveats(settings)` and puts each caveat
+on `run.log`, so it is stamped with the same run id as the database and comes
+back from `spacr.runctx.read_run_log(run_id)` beside it. Once per source
+folder, in the parent -- not per field in a worker, which would repeat one
+sentence a thousand times in processes whose records are not joined to the
+run.
+
+NOTHING IS SWITCHED OFF, which is this instruction's own rule: the doubtful
+family is still measured and still written, and it is still silent when there
+is nothing to say. What changed is that the sentence outlives the terminal.
+
+STATUS: DONE, item 6 included.
+
+--------------------------------------------------------------------------------
+ITEM 5 FOLDED INTO 73
+--------------------------------------------------------------------------------
+
+"Organelle" and "Organelle advanced" are still the split this instruction
+shipped, and the shared families are now one structure with the other object
+classes rather than a second parallel scheme: an organelle's size filters
+sit under "Advanced settings / Object filtration / Organelle 1", beside the
+same decision taken for cells and nuclei.
+
+--------------------------------------------------------------------------------
+THE RECORDED COUNT, RE-MEASURED AFTER ITEM 5 MOVED INTO 73
+--------------------------------------------------------------------------------
+
+"53 -> 6" above is the number as this instruction shipped it. Folding item 5
+into instruction 73 moved three of those six out of the Organelle heading and
+into the shared families, so the count measured from `spacr.settings.categories`
+today is lower again, PER ORGANELLE SLOT:
+
+    Organelle            organelle_type, organelle_diameter,
+                         organelle_mask_within_cells        3
+    General              organelle_channel                  1
+    Object filtration    organelle_min_size, organelle_max_size,
+                         organelle_remove_border            3
+    Organelle advanced   the rest                          ~30
+
+plus the single `number_of_organelles` that decides how many slots exist at
+all. Nothing was removed and nothing was hidden: every one of those keys is
+still in a panel and still editable, which the category tests assert by
+requiring that no `organelle_*` key falls out of every heading.

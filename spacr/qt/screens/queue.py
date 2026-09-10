@@ -36,6 +36,7 @@ from spacr.cancellation import (
 from ..plate_queue import (
     PlateQueue, QueueItem, Status, import_plates_from_csv,
 )
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.queue_screen")
 
@@ -49,12 +50,18 @@ class _QueueRunner(QThread):
 
     Emits :attr:`item_state_changed` on every status transition so
     the table can refresh a single row without a full rebuild.
+
+    :param queue: the plate queue to run. Held, not copied, and read as the
+        run proceeds -- so items may be added to it after the runner starts.
+    :param parent: parent object; ownership only. It does NOT stop the
+        thread: see :meth:`abort`, which is what teardown must call.
     """
 
     item_state_changed = Signal(str)   # item id
     queue_finished     = Signal()
 
     def __init__(self, queue: PlateQueue, parent=None):
+        """Hold the queue and start not stopped."""
         super().__init__(parent)
         self._queue = queue
         self._stop = False
@@ -82,14 +89,36 @@ class _QueueRunner(QThread):
         self._token.cancel(reason)
 
     def run(self) -> None:
-        from ..bridge import resolve_pipeline_entry
+        # EVERY EMIT GOES THROUGH `emit_safely`. A queue run outlives the
+        # screen that started it -- closing the window mid-run leaves this
+        # thread emitting at a destroyed C++ object, which raises
+        # `RuntimeError: Internal C++ object already deleted` out of a
+        # QThread::run override, and an exception out of a virtual override
+        # aborts the process rather than failing the run.
+        #
+        # The database updates stay unguarded on purpose: a queue item that
+        # finished must be recorded as finished whether or not anyone is
+        # watching, and sqlite does not care that the window closed.
+        """Run each queued plate in turn until the queue empties or is stopped.
+
+        EVERY EMIT GOES THROUGH ``emit_safely``. A queue run outlives the screen
+        that started it -- closing the window mid-run leaves this thread
+        emitting at a destroyed C++ object, which raises out of a ``QThread.run``
+        override, and an exception out of a virtual override ABORTS the process
+        rather than failing the run.
+
+        The database updates stay unguarded on purpose: a queue item that
+        finished must be recorded as finished whether or not anyone is watching,
+        and sqlite does not care that the window closed.
+        """
+        from ..bridge import emit_safely, resolve_pipeline_entry
         while not self._stop:
             item = self._queue.next_queued()
             if item is None:
                 break
             self._queue.update(item.id, status=Status.RUNNING,
                                   start_ts=time.time())
-            self.item_state_changed.emit(item.id)
+            emit_safely(self.item_state_changed, item.id)
             try:
                 fn = resolve_pipeline_entry(item.app_key)
                 if fn is None:
@@ -102,19 +131,19 @@ class _QueueRunner(QThread):
                 self._queue.update(item.id, status=Status.QUEUED,
                                       end_ts=None, error="")
                 LOG.info("queue item %s cancelled: %s", item.id, e)
-                self.item_state_changed.emit(item.id)
+                emit_safely(self.item_state_changed, item.id)
                 break
             except Exception as e:
                 LOG.warning("queue item %s failed: %s", item.id, e,
                               exc_info=True)
                 self._queue.update(item.id, status=Status.FAILED,
                                       end_ts=time.time(), error=str(e))
-                self.item_state_changed.emit(item.id)
+                emit_safely(self.item_state_changed, item.id)
                 continue
             self._queue.update(item.id, status=Status.SUCCESS,
                                   end_ts=time.time())
-            self.item_state_changed.emit(item.id)
-        self.queue_finished.emit()
+            emit_safely(self.item_state_changed, item.id)
+        emit_safely(self.queue_finished)
 
 
 # ---------------------------------------------------------------------------
@@ -125,13 +154,24 @@ _COLUMNS = ("ID", "App", "Label", "Status", "Elapsed", "")
 
 
 class QueueScreen(QWidget):
-    """Main widget rendering the plate queue."""
+    """Main widget rendering the plate queue.
+
+    :param queue: the queue to render. ``None`` loads spaCR's own, which is
+        the ordinary case; a test passes one built on a temporary path so it
+        does not disturb the user's real queue.
+    :param parent: parent widget.
+    """
 
     # Emitted whenever the queue changes size (add / remove / clear).
     # MainWindow can use this to update the Home-tile badge count.
     queue_size_changed = Signal(int)
 
     def __init__(self, queue: Optional[PlateQueue] = None, parent=None):
+        """Build the queue screen and start its elapsed-time tick.
+
+        :param queue: the queue to show; ``None`` builds an empty one.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._queue = queue if queue is not None else PlateQueue()
         self._runner: Optional[_QueueRunner] = None
@@ -151,6 +191,12 @@ class QueueScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the toolbar and the plate table.
+
+        ``Add current plate`` is deliberately left unwired here: the settings it
+        adds belong to whichever app screen is active, so ``MainWindow`` connects
+        it -- see ``wire_add_current``.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(24, 24, 24, 24)
         outer.setSpacing(12)
@@ -189,6 +235,7 @@ class QueueScreen(QWidget):
 
         # Table
         self._table = QTableWidget(self)
+        install_sorting(self._table)
         self._table.setColumnCount(len(_COLUMNS))
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.horizontalHeader().setStretchLastSection(True)
@@ -210,6 +257,7 @@ class QueueScreen(QWidget):
         :meth:`add_item` with that pair.
         """
         def _on_click():
+            """Add the current screen's settings to the queue."""
             try:
                 app_key, settings = callback()
             except Exception as e:
@@ -224,6 +272,12 @@ class QueueScreen(QWidget):
         self._btn_add.clicked.connect(_on_click)
 
     def add_item(self, app_key: str, settings: dict) -> QueueItem:
+        """Build a queue item from settings and add it.
+
+        :param app_key: which module the item runs.
+        :param settings: the settings that run uses.
+        :returns: the queued item.
+        """
         item = QueueItem.build(app_key, settings)
         self._queue.add(item)
         self._refresh_table()
@@ -231,11 +285,20 @@ class QueueScreen(QWidget):
         return item
 
     def queue(self) -> PlateQueue:
+        """The plate queue this screen shows.
+
+        :returns: the queue.
+        """
         return self._queue
 
     # -- runner control ----------------------------------------------------
 
     def start_runner(self):
+        """Start working through the queue, unless it is already running.
+
+        IDEMPOTENT ON PURPOSE. The button can be pressed twice, and a second
+        runner over one queue would run every item twice.
+        """
         if self._runner is not None and self._runner.isRunning():
             return
         if self._queue.next_queued() is None:
@@ -250,10 +313,16 @@ class QueueScreen(QWidget):
         self._runner.start()
 
     def stop_runner(self):
+        """Ask the runner to stop after the item it is on.
+
+        AFTER, not during: a half-written plate is worse than a queue that
+        takes another minute to come to rest.
+        """
         if self._runner is not None and self._runner.isRunning():
             self._runner.stop()
 
     def _on_runner_done(self):
+        """Swap Run back for Stop and redraw the table once the runner stops."""
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         self._refresh_table()
@@ -282,11 +351,21 @@ class QueueScreen(QWidget):
         super().closeEvent(event)
 
     def _on_item_changed(self, item_id: str):
+        """Redraw the table after one item changed.
+
+        :param item_id: which item changed; the whole table is re-read either
+            way, so it is not used to narrow the redraw.
+        """
         self._refresh_table()
 
     # -- toolbar handlers --------------------------------------------------
 
     def _on_import(self):
+        """Import plates from a CSV and add them to the queue.
+
+        A file that cannot be read is reported in a dialog rather than raised:
+        picking the wrong CSV is a normal mistake, not a crash.
+        """
         path, _ = QFileDialog.getOpenFileName(
             self, "Import plates from CSV", "", "CSV files (*.csv)")
         if not path:
@@ -306,6 +385,7 @@ class QueueScreen(QWidget):
                                   f"Added {len(items)} plate(s) from {path}.")
 
     def _on_clear_finished(self):
+        """Drop every finished plate from the queue."""
         n = self._queue.clear_finished()
         self._refresh_table()
         self.queue_size_changed.emit(len(self._queue))
@@ -315,17 +395,22 @@ class QueueScreen(QWidget):
     # -- table plumbing ----------------------------------------------------
 
     def _refresh_table(self):
+        """Rebuild the plate table, one row per queued item.
+
+        Each row carries its own Remove button, disabled while that plate is
+        running.
+        """
         items = self._queue.items()
         self._table.setRowCount(len(items))
         for row, item in enumerate(items):
-            self._table.setItem(row, 0, QTableWidgetItem(item.id))
-            self._table.setItem(row, 1, QTableWidgetItem(item.app_key))
-            self._table.setItem(row, 2, QTableWidgetItem(item.label))
-            status_item = QTableWidgetItem(item.status.value)
+            self._table.setItem(row, 0, table_item(item.id))
+            self._table.setItem(row, 1, table_item(item.app_key))
+            self._table.setItem(row, 2, table_item(item.label))
+            status_item = table_item(item.status.value)
             self._set_status_color(status_item, item.status)
             self._table.setItem(row, 3, status_item)
             elapsed = item.elapsed_s
-            self._table.setItem(row, 4, QTableWidgetItem(
+            self._table.setItem(row, 4, table_item(
                 "" if elapsed is None else f"{elapsed:.1f} s"))
             btn = QPushButton("Remove", self)
             btn.setEnabled(item.status != Status.RUNNING)
@@ -336,15 +421,27 @@ class QueueScreen(QWidget):
     def _refresh_elapsed_only(self):
         # Only touch the elapsed column so we don't churn the whole
         # table (and lose selection state) every second.
+        """Tick the elapsed column of the running plates, and only that column.
+
+        Driven by a one-second timer. Rebuilding the whole table every second
+        would churn it and lose the user's selection with it.
+        """
         items = self._queue.items()
         for row, item in enumerate(items):
             if item.status != Status.RUNNING or row >= self._table.rowCount():
                 continue
             e = item.elapsed_s
             if e is not None:
-                self._table.setItem(row, 4, QTableWidgetItem(f"{e:.1f} s"))
+                self._table.setItem(row, 4, table_item(f"{e:.1f} s"))
 
     def _on_remove(self, item_id: str):
+        """Remove one plate from the queue.
+
+        A running plate is refused with a dialog: removing the row would leave
+        the runner working on an item the queue no longer knows about.
+
+        :param item_id: the plate to remove.
+        """
         item = self._queue.find(item_id)
         if item is not None and item.status == Status.RUNNING:
             QMessageBox.warning(self, "Queue",
@@ -356,6 +453,12 @@ class QueueScreen(QWidget):
 
     @staticmethod
     def _set_status_color(item: QTableWidgetItem, status: Status):
+        """Colour a status cell by its status.
+
+        :param item: the cell to colour.
+        :param status: the item's status; an unrecognised one falls back to
+            black rather than leaving the previous colour in place.
+        """
         colors = {
             Status.QUEUED:  Qt.darkGray,
             Status.RUNNING: Qt.blue,

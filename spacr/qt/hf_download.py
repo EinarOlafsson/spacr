@@ -18,22 +18,44 @@ a Tk mainloop just to see download progress.
 from __future__ import annotations
 
 import logging
-import os
-import socket
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtWidgets import QProgressDialog
+from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
+                               QProgressBar, QProgressDialog,
+                               QPushButton, QVBoxLayout, QWidget)
+
+# THE DATA HALF OF THIS MODULE NOW LIVES IN `spacr.example_archives`, and is
+# imported back here so nothing that already calls one of these names has to
+# change -- including the tests that patch `hf_download._download_one` and
+# `hf_download._list_files` to keep the demo flow off the network. Those still
+# name real attributes of this module, and they are still what the workers
+# below resolve.
+#
+# It moved because `spacr-download` fetches the same datasets from a cluster
+# login node, and importing this module to reach them would demand PySide6 on
+# a machine with no display to give it. What is left here is Qt: the dialog,
+# the threads, the signals. What left was only ever about the data.
+from ..example_archives import (                              # noqa: F401
+    ANNOTATE_EXAMPLE_REPO, DATASET_PLACEHOLDER, DATASET_REPO, DATASET_SUB,
+    EXAMPLE_ARCHIVES, MEASURE_EXAMPLE_REPO, SETTINGS_REPO, _content_length,
+    _download_one, _list_files, example_plate_folder, expand_measure_arrays,
+    explain_download_failure, extract_example_archive,
+    make_the_example_paths_absolute)
 
 LOG = logging.getLogger("spacr.qt.hf_download")
 
-# Match the classic Tk GUI's demo endpoints so users see the same
-# dataset here they'd have seen in the Tk build.
-DATASET_REPO  = "einarolafsson/toxo_mito"
-DATASET_SUB   = "plate1"
-SETTINGS_REPO = "einarolafsson/spacr_settings"
+#: The longest caption the progress dialog shows, used to size it once at
+#: construction. Not a guess: the download reports one HuggingFace file at
+#: a time and this is a real name from the toxo_mito pack, which is the
+#: dataset the "load example data" button fetches.
+_WIDEST_CAPTION = "Downloading plate1_A01_T0001F001L01A01Z01C01.tif"
+
+#: Room for the dialog's frame, its margins and the progress bar's own
+#: padding, on top of the caption itself.
+_CAPTION_MARGIN = 96
 
 
 @dataclass
@@ -63,14 +85,30 @@ class _HFDownloadWorker(QObject):
     finished = Signal(bool, str, str, str)
 
     def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
         super().__init__()
         self._dest = Path(dest_dir)
         self._cancel = False
 
     def cancel(self) -> None:
+        """Ask the download to stop at the next file boundary."""
         self._cancel = True
 
     def run(self) -> None:
+        """Download the demo dataset and its settings, reporting progress.
+
+        Cancellation is checked between files rather than during one, so a stop
+        takes effect within a file instead of leaving a half-written one behind.
+        Failures are reported through ``finished`` rather than raised: this runs
+        on a worker thread, where an exception has nobody to catch it.
+        """
         try:
             self.info.emit("Listing files on Hugging Face…")
             dataset_files = _list_files(DATASET_REPO, DATASET_SUB)
@@ -114,167 +152,159 @@ class _HFDownloadWorker(QObject):
             self.finished.emit(False, "", "", explain_download_failure(e))
 
 
-def explain_download_failure(exc: BaseException) -> str:
-    """Turn a download exception into something a user can act on.
-
-    This is the only demo in the Demos menu that needs the network — the six
-    synthetic generators are entirely offline — so it is the only one that can
-    fail for a reason outside spaCR. What the user saw before was
-    ``str(exc)``, which for the ordinary offline case is a nested urllib3
-    dump::
-
-        (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443):
-        Max retries exceeded with url: /api/datasets/... (Caused by
-        NewConnectionError('<urllib3.connection.HTTPSConnection object at
-        0x7e8d...>: Failed to establish a new connection: [Errno 101] Network
-        is unreachable'))"), '(Request ID: 73ac20ed-...)')
-
-    — 300 characters that never say "you are offline" and never say what to do
-    instead. The three conditions this actually fails on are: no network, the
-    ``huggingface_hub`` extra not installed, and a truncated transfer. Each
-    gets a sentence naming the cause and the way out; anything else keeps its
-    own message with the same closing advice attached.
-
-    :param exc: the exception raised inside the download worker.
-    :returns: a multi-line message for the failure dialog.
-    """
-    offline_hint = (
-        "Every other entry in the Demos menu is synthetic and runs with no "
-        "network at all — use one of those to try the pipelines offline.")
-
-    if isinstance(exc, (ImportError, ModuleNotFoundError)):
-        return (
-            "The real-dataset demo needs the 'huggingface_hub' package to "
-            "list the demo repository, and it is not installed in this "
-            f"environment ({exc}).\n\n"
-            "Install it with:  pip install huggingface_hub\n\n"
-            + offline_hint)
-
-    # The truncation check comes first: `IOError` IS `OSError`, and the
-    # builtin ConnectionError below is an OSError subclass, so ordering these
-    # the other way round would let a half-finished transfer be reported as
-    # "check your internet connection" — true but useless, because the
-    # connection was fine right up to the point it was not.
-    if isinstance(exc, OSError) and "Truncated download" in str(exc):
-        return (
-            f"{exc}\n\n"
-            "The connection dropped part-way through. Nothing partial was "
-            "kept, so re-running the demo starts the file again.\n\n"
-            + offline_hint)
-
-    # requests is an install-time dependency of huggingface_hub, but the
-    # import is kept local so a broken environment reports the missing
-    # package above rather than dying here. The builtins are in the tuple
-    # too: `requests.exceptions.ConnectionError` descends from OSError, not
-    # from the builtin ConnectionError, and a DNS failure raised by anything
-    # other than requests (urllib, socket, huggingface_hub's own client)
-    # arrives as one of these instead.
-    network_errors: tuple = (ConnectionError, TimeoutError, socket.gaierror)
-    try:
-        import requests
-        network_errors += (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout,
-        )
-    except Exception:
-        pass
-
-    if isinstance(exc, network_errors):
-        return (
-            "Could not reach huggingface.co, so the real demo dataset could "
-            "not be downloaded. Check your internet connection (or your "
-            "proxy settings) and try again.\n\n"
-            + offline_hint)
-
-    return f"{exc}\n\n{offline_hint}"
-
-
-def _list_files(repo_id: str, subfolder: str) -> List[str]:
-    """Return every file path in ``repo_id`` matching ``subfolder``.
-
-    Empty subfolder means "top-level CSVs only" (mirrors the Tk
-    downloader's behaviour for the settings pack).
-
-    :raises ImportError: when ``huggingface_hub`` is not installed. Re-raised
-        with the package named rather than letting the bare
-        ``ModuleNotFoundError`` text stand on its own, because
-        :func:`explain_download_failure` turns it into install instructions
-        and the message is what the user reads.
-    """
-    try:
-        from huggingface_hub import list_repo_files
-    except ImportError as exc:
-        raise ImportError(f"huggingface_hub is not installed: {exc}") from exc
-    files = list_repo_files(repo_id, repo_type="dataset")
-    if subfolder:
-        return [f for f in files if f.startswith(subfolder)]
-    return [f for f in files if f.endswith(".csv")]
-
-
-def _content_length(resp) -> Optional[int]:
-    """Declared body size from the response, or None when unusable.
-
-    Hugging Face always sends ``Content-Length`` for a resolved LFS
-    object, so this doubles as the integrity check for
-    :func:`_download_one`: fewer bytes on disk than advertised means the
-    stream was cut short.
-    """
-    headers = getattr(resp, "headers", None) or {}
-    raw = headers.get("Content-Length")
-    if raw is None:
-        return None
-    try:
-        return int(raw)
-    except (TypeError, ValueError):
-        return None
-
-
-def _download_one(repo_id: str, file_name: str, dest_dir: Path) -> Path:
-    """Stream one file from the HF repo to ``dest_dir/basename``.
-
-    Uses plain HTTP + streaming so we don't need the full ``hf_hub``
-    download machinery (and its cache dir) for a one-shot demo pull.
-
-    The body lands in a sibling ``.part`` file and is only moved onto
-    the final path once every advertised byte has arrived. Writing
-    straight to the destination meant a dropped connection left a
-    truncated image behind that was indistinguishable from a good
-    download — the next pipeline run then failed deep inside the mask
-    stage instead of at the download.
-    """
-    import requests
-    url = (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
-             f"{file_name}?download=true")
-    dst = dest_dir / Path(file_name).name
-    part = dst.with_name(dst.name + ".part")
-    resp = requests.get(url, stream=True, timeout=30)
-    resp.raise_for_status()
-    expected = _content_length(resp)
-    written = 0
-    try:
-        with part.open("wb") as fh:
-            for chunk in resp.iter_content(chunk_size=1 << 15):
-                if chunk:
-                    fh.write(chunk)
-                    written += len(chunk)
-        if expected is not None and written != expected:
-            raise IOError(
-                f"Truncated download for {file_name}: wrote {written} "
-                f"bytes but the server declared {expected}."
-            )
-        os.replace(part, dst)
-    except BaseException:
-        try:
-            part.unlink()
-        except OSError:
-            pass
-        raise
-    return dst
-
-
 # ---------------------------------------------------------------------------
 # GUI-thread receiver
 # ---------------------------------------------------------------------------
+
+class _DownloadDialog(QDialog):
+    """The download window: bar on top, status centred, Cancel beside it.
+
+    A QProgressDialog was used here and its layout is not arrangeable: it puts
+    the label ABOVE the bar and sizes the window from whatever caption it was
+    constructed with. That caption is "Preparing…" and the window then spends
+    the download showing "Downloading <filename> (3/6 files)" and a
+    percentage -- so the text was clipped at the window edge, twice reported
+    as "the % text is cut off". Widening it for the longest expected caption
+    helped and did not fix it, because the longest caption is a FILE NAME and
+    there is no longest file name.
+
+    So the text WRAPS and is centred in the window, with the bar above it and
+    Cancel to its right:
+
+        [============ blue bar ============]
+        [ spacer ][  centred status  ][Cancel]
+
+    The left spacer is the width of the button, which is what makes the label
+    centre on the WINDOW rather than on the space left over beside the button.
+
+    Presents the parts of QProgressDialog's API the download flow uses, so the
+    worker wiring did not have to change with it.
+    """
+
+    canceled = Signal()
+
+    def __init__(self, title: str, parent=None):
+        """Build the progress dialog.
+
+        :param title: the window title -- the only thing distinguishing one
+            of these dialogs from another, since the body is written by
+            whichever worker is driving it.
+        :param parent: parent widget; ownership only.
+        """
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setModal(True)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
+        outer = QVBoxLayout(self)
+
+        self._bar = QProgressBar(self)
+        self._bar.setRange(0, 1)
+        self._bar.setValue(0)
+        self._bar.setTextVisible(False)      # the caption below says it all
+        outer.addWidget(self._bar)
+
+        row = QHBoxLayout()
+        self._cancel = QPushButton("Cancel", self)
+        self._cancel.clicked.connect(self._on_cancel)
+
+        # The spacer matches the button, so the caption is centred on the
+        # window and not on the gap beside the button.
+        spacer = QWidget(self)
+        spacer.setFixedWidth(self._cancel.sizeHint().width())
+        row.addWidget(spacer)
+
+        self.spacr_caption = QLabel("Preparing…", self)
+        self.spacr_caption.setWordWrap(True)
+        self.spacr_caption.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row.addWidget(self.spacr_caption, 1)
+
+        row.addWidget(self._cancel)
+        outer.addLayout(row)
+
+        self._auto_close = True
+        self._cancelled = False
+
+    # -- the QProgressDialog surface the download flow uses -----------------
+
+    def _on_cancel(self) -> None:
+        """Mark the download cancelled and tell the worker.
+
+        The flag is set as well as the signal emitted: the worker checks it
+        between chunks, and a signal alone would be missed by a worker that is
+        mid-chunk when the button is pressed.
+        """
+        self._cancelled = True
+        self.canceled.emit()
+
+    def wasCanceled(self) -> bool:               # noqa: N802 (Qt naming)
+        """Report whether the user pressed Cancel.
+
+        Named for ``QProgressDialog``'s own API so this can stand in for one.
+
+        :returns: ``True`` once Cancel has been pressed.
+        """
+        return self._cancelled
+
+    def setLabelText(self, text: str) -> None:   # noqa: N802
+        """Set the caption above the bar.
+
+        :param text: what the download is currently doing.
+        """
+        self.spacr_caption.setText(str(text))
+
+    def setLabel(self, label) -> None:           # noqa: N802
+        """Accepted for compatibility; this dialog owns its own label.
+
+        Swapping the label out would drop the wrapping and the centring that
+        are the whole point of this class, so the text is taken and the
+        widget is not.
+        """
+        try:
+            self.spacr_caption.setText(label.text())
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    def setMaximum(self, value: int) -> None:    # noqa: N802
+        """Set how many steps the bar counts to.
+
+        :param value: the total; floored at 1, since a bar whose maximum is zero
+            cannot show a proportion.
+        """
+        self._bar.setMaximum(max(1, int(value)))
+
+    def setValue(self, value: int) -> None:      # noqa: N802
+        """Advance the bar, closing the dialog when it is full and set to auto-close.
+
+        :param value: steps completed.
+        """
+        self._bar.setValue(int(value))
+        if self._auto_close and self._bar.maximum() and \
+                int(value) >= self._bar.maximum():
+            self.close()
+
+    def maximum(self) -> int:
+        """Return the bar's current maximum."""
+        return self._bar.maximum()
+
+    def setAutoClose(self, on: bool) -> None:    # noqa: N802
+        """Choose whether reaching the maximum closes the dialog.
+
+        :param on: close automatically when full.
+        """
+        self._auto_close = bool(on)
+
+    def setAutoReset(self, on: bool) -> None:    # noqa: N802
+        """Accepted for compatibility. The bar is not reused after a run."""
+
+    def setMinimumDuration(self, ms: int) -> None:   # noqa: N802
+        """Accepted for compatibility. This dialog is shown when it is made."""
+
+    def reset(self) -> None:
+        """Return the bar to zero."""
+        self._bar.reset()
+
 
 class _HFDownloadUI(QObject):
     """Receives the worker's signals **on the GUI thread**.
@@ -298,6 +328,19 @@ class _HFDownloadUI(QObject):
     def __init__(self, dlg: QProgressDialog, thread: QThread,
                  worker: "_HFDownloadWorker", parent,
                  on_done: Callable[[Optional[DownloadResult], str], None]):
+        """Hold the four objects one download needs kept alive together.
+
+        :param dlg: the progress dialog this updates and closes.
+        :param thread: the worker's thread. HELD, NOT JUST USED: a QThread
+            that goes out of scope while running takes the download with it.
+        :param worker: the object doing the fetching, held for the same
+            reason.
+        :param parent: the owning widget, also kept as ``_owner`` so the
+            callback can reach the screen that asked for the download.
+        :param on_done: called with the result and a message when the
+            download finishes, whether it succeeded or not -- the result is
+            ``None`` on failure and the message says why.
+        """
         super().__init__(parent)
         self._dlg = dlg
         self._thread = thread
@@ -307,12 +350,30 @@ class _HFDownloadUI(QObject):
 
     @Slot(str, int, int)
     def on_progress(self, name: str, done: int, total: int) -> None:
-        self._dlg.setMaximum(max(1, total))
+        """Say what is being fetched, how far along, and as what percentage.
+
+        The bar carries no text of its own -- this line is the only place a
+        percentage appears, which is why it has to be here rather than left to
+        `QProgressBar`'s own label. `name` is a file for the per-file workers
+        and an archive for the tar ones; `done`/`total` are files in the first
+        case and megabytes in the second, so the unit is not stated and the
+        percentage is what both have in common.
+        """
+        total = max(1, int(total))
+        done = max(0, min(int(done), total))
+        self._dlg.setMaximum(total)
         self._dlg.setValue(done)
-        self._dlg.setLabelText(f"Downloading {name}\n({done}/{total} files)")
+        percent = round(done * 100 / total)
+        # The name last: it is the part that can be long, so a window too
+        # narrow for all of it still shows the percentage.
+        self._dlg.setLabelText(f"{percent}%  ({done}/{total})  {name}")
 
     @Slot(str)
     def on_info(self, msg: str) -> None:
+        """Show what the worker is currently doing.
+
+        :param msg: the worker's status line.
+        """
         self._dlg.setLabelText(msg)
 
     @Slot(bool, str, str, str)
@@ -321,6 +382,24 @@ class _HFDownloadUI(QObject):
         # callback may open its own modals (Continue/Stop prompts, etc.),
         # and stacking one modal on top of another confuses Qt into the
         # "app not responding" state on Linux.
+        """Tear the download down and hand the result to the caller.
+
+        The dialog is closed BEFORE the callback runs: the callback may open its
+        own modals, and stacking one modal on another puts Qt into the
+        "application not responding" state on Linux. For the same reason the
+        callback itself is deferred by a zero-millisecond timer, so the close and
+        the pending ``deleteLater`` are processed before any chained dialog
+        appears -- which is the specific fix for the force-quit prompt after a
+        download.
+
+        The retained references on the owner are dropped so the thread and the
+        dialog can be collected once the flow ends.
+
+        :param ok: whether the download succeeded.
+        :param ds: where the dataset landed.
+        :param st: where the settings landed.
+        :param err: the failure text when ``ok`` is ``False``.
+        """
         dlg = self._dlg
         try:
             dlg.setValue(dlg.maximum())
@@ -360,10 +439,407 @@ class _HFDownloadUI(QObject):
 # Public entry point
 # ---------------------------------------------------------------------------
 
+class _MeasureExampleWorker(QObject):
+    """Fetch Measure's example plate and leave it in the shape Measure reads.
+
+    Signals match :class:`_HFDownloadWorker` so the same progress dialog
+    drives both.
+    """
+
+    progress = Signal(str, int, int)
+    info     = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
+        super().__init__()
+        self._dest = Path(dest_dir)
+        self._cancel = False
+
+    def cancel(self) -> None:
+        """Ask the download to stop at the next file boundary."""
+        self._cancel = True
+
+    def run(self) -> None:
+        """Download the Measure example dataset, reporting progress.
+
+        A missing ``huggingface_hub`` is raised as an ``ImportError`` naming the
+        package, and reported through ``finished`` like any other failure --
+        this runs on a worker thread, where raising has nobody to catch it.
+        """
+        try:
+            self.info.emit("Listing files on Hugging Face…")
+            try:
+                from huggingface_hub import list_repo_files
+            except ImportError as exc:
+                raise ImportError(
+                    f"huggingface_hub is not installed: {exc}") from exc
+            names = [f for f in list_repo_files(MEASURE_EXAMPLE_REPO,
+                                                repo_type="dataset")
+                     if not f.startswith(".")]
+            if not names:
+                self.finished.emit(False, "", "",
+                                   "No files to download from "
+                                   f"{MEASURE_EXAMPLE_REPO}.")
+                return
+            self.info.emit(f"Found {len(names)} files to download.")
+            root = self._dest
+            root.mkdir(parents=True, exist_ok=True)
+
+            total = len(names)
+            for done, name in enumerate(names):
+                if self._cancel:
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return
+                self.progress.emit(name, done, total)
+                # Sub-paths are preserved: `merged/` is where Measure looks,
+                # and flattening the repo would put the arrays where nothing
+                # reads them.
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                _download_one(MEASURE_EXAMPLE_REPO, name, target.parent)
+
+            self.info.emit("Unpacking the arrays…")
+            expand_measure_arrays(root / "merged")
+            self.progress.emit("done", total, total)
+            self.finished.emit(True, str(root),
+                               str(root / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("measure example download failed: %s", e,
+                        exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+    def _expand_arrays(self, merged: Path) -> None:
+        """Deprecated shim: call :func:`expand_measure_arrays`.
+
+        Kept because it is a method on a worker that other code may still hold,
+        but it does no work of its own -- see the module function for why this
+        stopped being a method at all.
+        """
+        expand_measure_arrays(merged)
+
+
+class _TarExampleWorker(QObject):
+    """Fetch one example dataset as a single archive and unpack it.
+
+    Subclasses name the repo. Everything else -- the streaming download, the
+    cancel checks, the safe extraction and the path rewrite -- is shared,
+    because every example set needs all four and a second copy of any of them
+    is a second place to get the extraction filter wrong.
+    """
+
+    progress = Signal(str, int, int)
+    info     = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    #: Set by each subclass.
+    repo: str = ""
+
+    def after_extract(self, dest) -> None:
+        """Hook for whatever one set needs after unpacking. Nothing by default."""
+
+    def dataset_root(self, dest) -> Path:
+        """What the caller is handed as "the data".
+
+        The whole unpacked folder for most sets. The Mask demo overrides it,
+        because its callers have always been given the plate directory rather
+        than the folder holding it -- and changing that would move the `src`
+        the example fills in.
+        """
+        return Path(dest)
+
+    def __init__(self, dest_dir: Path):
+        """Prepare the worker.
+
+        :param dest_dir: where the download is written. Read on the worker
+            thread, not in the constructor -- so a caller may hand over a
+            folder that does not exist yet, and a failure to create it is
+            reported through ``finished`` like every other failure rather
+            than raised into the caller's event handler.
+        """
+        super().__init__()
+        self._dest = Path(dest_dir)
+        self._cancel = False
+
+    def cancel(self) -> None:
+        """Ask the download to stop at the next chunk boundary."""
+        self._cancel = True
+
+    def run(self) -> None:
+        """Stream one example archive to disk and unpack it.
+
+        Written to a ``.part`` file and renamed on completion, so an interrupted
+        download cannot be mistaken for a finished one. Cancellation is checked
+        between chunks, so a stop -- or an application shutdown -- takes effect
+        within a megabyte rather than at the end of a multi-gigabyte file.
+        """
+        try:
+            import requests
+
+            archive_name = EXAMPLE_ARCHIVES[self.repo]
+            self.info.emit("Downloading the example dataset…")
+            url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+                   f"{archive_name}?download=true")
+            target = self._dest / archive_name
+            self._dest.mkdir(parents=True, exist_ok=True)
+            part = target.with_name(target.name + ".part")
+
+            response = requests.get(url, stream=True, timeout=30)
+            response.raise_for_status()
+            expected = _content_length(response)
+            written = 0
+            with part.open("wb") as handle:
+                for chunk in response.iter_content(chunk_size=1 << 20):
+                    if self._cancel:
+                        # BETWEEN CHUNKS, so Cancel and application shutdown
+                        # both take effect within a megabyte rather than after
+                        # the whole set has arrived.
+                        part.unlink(missing_ok=True)
+                        self.finished.emit(False, "", "", "Cancelled by user.")
+                        return
+                    if not chunk:
+                        continue
+                    handle.write(chunk)
+                    written += len(chunk)
+                    if expected:
+                        self.progress.emit(
+                            archive_name, written // (1 << 20),
+                            max(1, expected // (1 << 20)))
+            if expected is not None and written != expected:
+                part.unlink(missing_ok=True)
+                raise IOError(
+                    f"the download stopped early: {written} bytes of "
+                    f"{expected}. Nothing was unpacked.")
+            part.replace(target)
+
+            self.info.emit("Unpacking…")
+            extract_example_archive(target, self._dest)
+            # The archive is not kept: it is a second copy of everything that
+            # was just written, and these sets are hundreds of megabytes.
+            target.unlink(missing_ok=True)
+
+            self.info.emit("Preparing the files…")
+            # Whatever this particular set needs doing to it after unpacking.
+            self.after_extract(self._dest)
+            make_the_example_paths_absolute(self._dest)
+            self.progress.emit("done", 1, 1)
+            self.finished.emit(True, str(self.dataset_root(self._dest)),
+                               str(self._dest / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("example download failed: %s", e, exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+
+class _ChosenArchivesWorker(_TarExampleWorker):
+    """Fetch a chosen LIST of archives, one after another.
+
+    The screen is published as eight separate pieces so a user can take the
+    two-gigabyte databases without the thirty gigabytes of crops. This is the
+    worker behind that choice: same streaming, same cancel-between-chunks, same
+    filtered extraction, run once per selected piece.
+    """
+
+    repo = ""
+
+    def __init__(self, dest_dir, archives=(), repo: str = ""):
+        """Prepare a worker for the selected archives only.
+
+        :param dest_dir: where the archives are written; see the base worker.
+        :param archives: the pieces to fetch. EMPTY IS REFUSED rather than
+            treated as "all" -- this worker exists so a user can take the
+            2 GB databases without the 30 GB of crops, and a default of
+            everything would silently undo that choice.
+        :param repo: the Hugging Face repo to pull from. Empty keeps the
+            class attribute, which is what every caller uses; it is a
+            parameter so a test can point the same worker at a fixture.
+        """
+        super().__init__(dest_dir)
+        self._archives = list(archives)
+        self.repo = repo or self.repo
+
+    def run(self) -> None:
+        """Download each selected archive in turn, then make the paths absolute.
+
+        A failing archive stops the run without emitting again: the fetch has
+        already reported its own outcome, and a second message would contradict
+        the first.
+        """
+        try:
+            if not self._archives:
+                self.finished.emit(False, "", "", "Nothing was selected.")
+                return
+            done = []
+            for position, archive in enumerate(self._archives, start=1):
+                if self._cancel:
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return
+                self.info.emit(
+                    f"Downloading {archive} ({position} of "
+                    f"{len(self._archives)})…")
+                if not self._fetch_one(archive):
+                    return                      # it emitted its own outcome
+                done.append(archive)
+            self.info.emit("Preparing the files…")
+            make_the_example_paths_absolute(self._dest)
+            self.progress.emit("done", 1, 1)
+            self.finished.emit(True, str(self._dest),
+                               str(self._dest / "settings"), "")
+        except Exception as e:                               # noqa: BLE001
+            LOG.warning("screen download failed: %s", e, exc_info=True)
+            self.finished.emit(False, "", "", explain_download_failure(e))
+
+    def _fetch_one(self, archive: str) -> bool:
+        """Stream and unpack one archive. False when it ended the run."""
+        import requests
+
+        url = (f"https://huggingface.co/datasets/{self.repo}/resolve/main/"
+               f"{archive}?download=true")
+        target = self._dest / archive
+        self._dest.mkdir(parents=True, exist_ok=True)
+        part = target.with_name(target.name + ".part")
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
+        expected = _content_length(response)
+        written = 0
+        with part.open("wb") as handle:
+            for chunk in response.iter_content(chunk_size=1 << 20):
+                if self._cancel:
+                    part.unlink(missing_ok=True)
+                    self.finished.emit(False, "", "", "Cancelled by user.")
+                    return False
+                if not chunk:
+                    continue
+                handle.write(chunk)
+                written += len(chunk)
+                if expected:
+                    self.progress.emit(archive, written // (1 << 20),
+                                       max(1, expected // (1 << 20)))
+        if expected is not None and written != expected:
+            part.unlink(missing_ok=True)
+            raise IOError(
+                f"{archive} stopped early: {written} bytes of {expected}. "
+                f"Nothing was unpacked.")
+        part.replace(target)
+        extract_example_archive(target, self._dest)
+        target.unlink(missing_ok=True)
+        return True
+
+
+def download_chosen_screen_data(parent, dest: Path, archives, repo: str,
+                                on_done) -> None:
+    """Fetch the chosen pieces of the published screen."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+
+    def _factory(where):
+        """Build the worker for the chosen archives."""
+        return _ChosenArchivesWorker(where, archives=archives, repo=repo)
+
+    download_toxo_mito_demo(parent, dest, on_done, worker_factory=_factory,
+                            title="Downloading screen data")
+
+
+class _MeasureTarWorker(_TarExampleWorker):
+    """Fetches the Measure example, then expands its compressed arrays.
+
+    The only example set that needs work after extraction: it ships as
+    `.npz` to keep the download near 390 MB, and Measure reads `.npy`.
+    See :meth:`after_extract`.
+    """
+
+    repo = MEASURE_EXAMPLE_REPO
+
+    def after_extract(self, dest) -> None:
+        """Write the compressed arrays back out as the ``.npy`` Measure reads.
+
+        The compression is a TRANSPORT detail -- it halves the download -- and
+        Measure loads `.npy`. Converting here keeps the second format entirely
+        inside the downloader rather than teaching every reader about it.
+        """
+        # No worker is constructed: see expand_measure_arrays.
+        expand_measure_arrays(Path(dest) / "merged")
+
+
+class _AnnotateTarWorker(_TarExampleWorker):
+    """Fetches the Annotate/Classify example: crops, database and labels.
+
+    Nothing to do after extraction -- the archive already contains the
+    measurements database that indexes the crops -- so this is the repo
+    name and the shared machinery.
+    """
+
+    repo = ANNOTATE_EXAMPLE_REPO
+
+
+class _MaskTarWorker(_TarExampleWorker):
+    """The Mask demo, which is 210 files across two repos.
+
+    The archive carries the settings pack under `settings/` as well, so the
+    demo arrives in one request instead of 210 plus 2 -- and the two halves
+    can no longer arrive out of step with each other, which they could when
+    they were fetched from separate repos in separate loops.
+    """
+
+    repo = DATASET_REPO
+
+    def dataset_root(self, dest) -> Path:
+        """The plate folder itself.
+
+        The archive's members are the plate's CONTENTS now -- the tifs at the
+        top, `settings/` beside them -- so the destination is already the
+        plate directory `src` should name. It used to carry a `plate1/`
+        prefix, which put the images one level deeper than the other sets.
+        """
+        return Path(dest)
+
+
+def download_annotate_example(parent, dest: Path,
+                              on_done: Callable[
+                                  [Optional[DownloadResult], str],
+                                  None]) -> None:
+    """Fetch the Annotate/Classify example set, with the shared dialog."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    download_toxo_mito_demo(
+        parent, dest, on_done,
+        worker_factory=_AnnotateTarWorker,
+        title="Downloading spaCR annotation example data")
+
+
+def download_measure_example(parent, dest: Path,
+                             on_done: Callable[
+                                 [Optional[DownloadResult], str],
+                                 None]) -> None:
+    """Fetch Measure's example plate, with the same dialog as the Mask demo.
+
+    :param parent: any QWidget — the progress dialog parents to this.
+    :param dest: local directory that will hold ``merged/`` and ``settings/``.
+    :param on_done: called with ``(result, error_message)``; ``result`` is
+        ``None`` on failure or cancellation.
+    """
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    download_toxo_mito_demo(
+        parent, dest, on_done,
+        worker_factory=_MeasureTarWorker,
+        title="Downloading spaCR Measure example data")
+
+
 def download_toxo_mito_demo(parent,
                                 dest: Path,
                                 on_done: Callable[
-                                    [Optional[DownloadResult], str], None]) -> None:
+                                    [Optional[DownloadResult], str], None],
+                                *,
+                                worker_factory=None,
+                                title: str = "Downloading spaCR demo dataset"
+                                ) -> None:
     """Kick off the demo download with a modal progress dialog.
 
     :param parent: any QWidget — the progress dialog parents to this.
@@ -380,8 +856,15 @@ def download_toxo_mito_demo(parent,
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
-    dlg = QProgressDialog("Preparing…", "Cancel", 0, 1, parent)
-    dlg.setWindowTitle("Downloading spaCR demo dataset")
+    dlg = _DownloadDialog(title, parent)
+    # WIDE ENOUGH FOR WHAT IT WILL SAY, on top of the wrapping the dialog
+    # already does. Widening alone never fixed this -- the longest caption is
+    # a FILE NAME and there is no longest file name -- but a window sized from
+    # "Preparing…" starts absurdly narrow and jumps on the first update.
+    dlg.setMinimumWidth(max(
+        dlg.minimumWidth(),
+        dlg.spacr_caption.fontMetrics().horizontalAdvance(_WIDEST_CAPTION)
+        + _CAPTION_MARGIN))
     dlg.setMinimumDuration(0)
     dlg.setValue(0)
     # AutoClose True so hitting max value closes the dialog and returns
@@ -389,9 +872,24 @@ def download_toxo_mito_demo(parent,
     # main thread and Qt shows the "Application not responding" prompt.
     dlg.setAutoClose(True)
     dlg.setAutoReset(True)
+    dlg.show()
 
     thread = QThread(parent)
-    worker = _HFDownloadWorker(dest)
+    # WHICH worker, so a second dataset reuses this function's wiring rather
+    # than copying it. The thread affinity, the direct-connected cancel and
+    # the deliberate absence of a `deleteLater` below are all load-bearing and
+    # were each arrived at from a measured crash; a second copy of them would
+    # be a second place for one of them to be dropped.
+    # THE DEFAULT STAYS THE PER-FILE WORKER, and the Mask demo asks for the
+    # tar at its call site instead.
+    #
+    # Switching the default here looked tidier and broke
+    # `tests/qt/test_console_thread_safety.py`, which patches `_list_files`
+    # and drives this function to prove the offline failure path stays on the
+    # GUI thread. The tar worker does not call `_list_files`, so the patched
+    # test went to the network for real and aborted. A shared entry point's
+    # default is part of its contract with everything already calling it.
+    worker = (worker_factory or _HFDownloadWorker)(dest)
     worker.moveToThread(thread)
 
     # ``ui`` is constructed here, on the GUI thread, so every connection
@@ -407,6 +905,44 @@ def download_toxo_mito_demo(parent,
     # already finished. cancel() only flips a bool, which is safe to do
     # from the GUI thread.
     dlg.canceled.connect(worker.cancel, Qt.DirectConnection)
+    # AND QUITTING THE APPLICATION CANCELS IT TOO.
+    #
+    # Nothing did. A download still running when the window closed left a
+    # QThread to be destroyed with its thread alive -- "QThread: Destroyed
+    # while thread '' is still running", then abort -- because the finished
+    # handler that quits and waits for the thread only runs if the worker
+    # EMITS finished, and a worker that is still downloading never does.
+    #
+    # DirectConnection for the same reason the cancel above uses it: the
+    # worker's event loop is blocked for the whole of run(), so a queued call
+    # would be delivered after the shutdown it was meant to survive. cancel()
+    # only flips a bool.
+    #
+    # The wait is bounded and then given up on: a shutdown that hangs on a
+    # slow socket is a worse failure than the one being prevented, and the
+    # loop checks its flag between files.
+    try:
+        from PySide6.QtCore import QCoreApplication
+
+        application = QCoreApplication.instance()
+        if application is not None:
+            def _stop_before_quitting(_w=worker, _t=thread):
+                """Cancel and join the download before the application exits.
+
+                The worker and thread are bound as default arguments so this still
+                refers to THIS download if another starts before the quit.
+                """
+                try:
+                    _w.cancel()
+                    _t.quit()
+                    _t.wait(5000)
+                except Exception:                            # noqa: BLE001
+                    pass
+
+            application.aboutToQuit.connect(_stop_before_quitting,
+                                            Qt.DirectConnection)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not arm the shutdown cancel", exc_info=True)
     thread.started.connect(worker.run)
     # NOTE the absence of `thread.finished.connect(worker.deleteLater)`.
     # `spacr.qt.bridge.make_thread` documents why, from a measured crash:

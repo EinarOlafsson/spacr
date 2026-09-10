@@ -1,74 +1,17 @@
-"""The database contract: what a spaCR key is called, and what it means.
+"""Canonical database keys, filename identities, and table schemas.
 
-Why this module exists
-----------------------
-Every table spaCR writes is keyed on the same four strings — ``plateID``,
-``rowID``, ``columnID``, ``fieldID`` — plus ``timeID`` for a timelapse, and
-they are joined on the composed forms ``prc``, ``prcf`` and ``prcfo``. Those
-keys were derived by hand in at least five places, and **the copies disagreed
-about malformed wells**. One measured example, both halves written by the real
-writers into one database (see ``tests/test_schema.py``)::
+spaCR measurement tables share the ``plateID``, ``rowID``, ``columnID``, and
+``fieldID`` columns, with ``timeID`` added for time-lapse data. This module
+defines those names, their composed ``prc``/``prcf``/``prcfo`` forms, and the
+parsers used by database, image, and GUI code.
 
-    field 'plate1_AA01_1'          # AA is a real 1536-plate row
+Numeric tokens may include common vendor prefixes such as ``s3`` or ``T0003``.
+Unparseable but non-empty tokens remain distinct in permissive mode and raise
+:class:`KeyParseError` in strict mode; missing identity components always
+raise. Legacy helpers are retained for reading and testing older data.
 
-    utils._merge_and_save_to_database -> cell     : ('error','error','error','error')
-    utils.filepaths_to_database       -> png_list : ('plate1','r1','c0','f1')
-
-    png_list.merge(cell, on=[plateID,rowID,columnID,fieldID]) -> 0 rows
-
-Two rows describing the same objects, given two different identities by two
-functions in the same file, and the join between them silently returns
-nothing. That class of bug is not fixable one call site at a time — it is
-fixable only by there being one definition. This module is that definition.
-
-It is deliberately **declarative and additive**. Nothing here rewrites the
-existing call sites; :func:`legacy_map_wells` and :func:`legacy_well_ids`
-reproduce today's behaviour bit for bit so a migration can be done one call
-site at a time with a test pinning exactly what changed.
-
-The ``f0`` problem
-------------------
-``utils._safe_int_convert`` returns ``0`` when a token will not parse. That is
-the single most destructive line in the metadata path, because it is *silent*
-and it *collides*: three ImageXpress sites ``s1``/``s2``/``s3`` all become
-``f0`` and therefore one ``prcf``, and object 1 of each becomes the same
-``prcfo``. Three fields go in, one comes out, and nothing anywhere says so.
-
-This module never invents a number it did not read. :func:`parse_int_token`
-returns ``None``, not ``0``. Above it, key construction is graded:
-
-* **Parseable** — ``'3'``, ``'003'``, ``'s3'``, ``'T0003'``, ``'F003'`` all
-  mean field 3. A vendor prefix is a spelling, not a different field.
-* **Present but not a number** — ``'xy'`` becomes ``'fxy'``. Not a number, so
-  it cannot be mistaken for one and shows up immediately in QC; still
-  distinct per token, so three bad fields stay three fields; still a valid
-  join key, so the run continues and every table agrees on it.
-* **Absent** — ``''`` or ``None`` raises :class:`KeyParseError`. An empty
-  field id is not an identity, it is the absence of one, and every row so
-  keyed would merge with every other.
-
-``strict=True`` promotes the middle tier to an exception, which is what a
-preflight or QC pass wants. The default is the long-run path: a ten-hour
-``measure_crop`` must not die on field 8000 because one file was named
-badly, but it must not lie about it either. Both requirements are met by
-making the failure *representable in the data* instead of choosing between
-silence and death.
-
-Dependencies
-------------
-The standard library. Nothing else — not even pandas at module scope, let
-alone torch, cellpose or Qt, and no ``spacr`` import. Everything wants this
-module, including GUI paths and CLI preflights that must not pay for a torch
-import, so ``tests/test_schema.py`` asserts it imports clean in a subprocess
-(the same guard ``spacr.crops`` carries).
-
-``spacr.resume`` is the reason the last dependency went too. It runs at the
-top of ``measure_crop``, in a process that may never load a model, and
-``tests/test_resume.py`` asserts that importing it pulls in **no numpy and no
-pandas** — so a module-scope ``import pandas`` here would have made the one
-call site this module was written for the one call site that could not use
-it. The two frame helpers at the bottom import pandas themselves; everything
-above them is strings and integers and needs nothing.
+The module has no third-party import-time dependencies. Data-frame helpers
+import pandas only when called.
 """
 
 from __future__ import annotations
@@ -84,16 +27,20 @@ __all__ = [
     'SchemaError', 'WellParseError', 'KeyParseError',
     'ObjectTableSchemaError',
     # key names
-    'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
+    'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'OBJECT_KEY',
+    'TIME_KEY',
     'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
+    'SCREEN_KEY', 'DEFAULT_SCREEN',
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
+    'SCREENED_WELL_KEY_COLUMNS', 'SCREENED_FIELD_KEY_COLUMNS',
+    'screen_id', 'add_screen_column',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
     'ORGANELLE_ROLES', 'SEGMENTED_ROLES', 'DERIVED_ROLES', 'CHILD_ROLES',
     'ALL_ROLES', 'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
     'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
-    'canonical_column_name',
+    'canonical_column_name', 'canonical_rename_plan',
     # scalars
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
     'row_id', 'column_id', 'field_id', 'time_id', 'object_id',
@@ -104,7 +51,7 @@ __all__ = [
     'is_row_column_pair',
     # identities
     'FieldID', 'ObjectID',
-    'compose_prc', 'compose_prcf', 'compose_prcfo',
+    'compose_prc', 'compose_prcf', 'compose_prcfo', 'compose_prc_column',
     'parse_prcf', 'parse_prcfo',
     'parse_field_stem', 'parse_object_stem',
     # plate formats
@@ -117,6 +64,10 @@ __all__ = [
     'CANONICAL_OBJECT_TABLES', 'OBJECT_TABLE_REQUIRED_COLUMNS',
     'OBJECT_TABLE_OPTIONAL_COLUMNS', 'ObjectTableSchema',
     'OBJECT_TABLE_SCHEMAS', 'object_table_schema',
+    'WELL_KEY', 'METADATA_KEYS', 'fold_column_name',
+    'canonical_plate_id', 'normalise_plate_columns', 'PLATE_BEARING_COLUMNS',
+    'ColumnCollision', 'comparable_key_value', 'comparable_key_values',
+    'resolve_metadata_collisions', 'canonicalise_frame',
     # pandas
     'add_identity_columns', 'canonicalise_columns',
     'validate_object_table_frame', 'coerce_model_feature_types',
@@ -165,6 +116,14 @@ PLATE_KEY = 'plateID'
 ROW_KEY = 'rowID'
 #: The plate column, 1-based, rendered ``'c<N>'``. Column ``01`` is ``'c1'``.
 COLUMN_KEY = 'columnID'
+#: The well as the plate reader spells it: ``'C07'``. See :func:`well_id`.
+#:
+#: spaCR keys on (:data:`ROW_KEY`, :data:`COLUMN_KEY`) and never on this, so
+#: it is not part of any composed key and not in
+#: :data:`WELL_KEY_COLUMNS` -- but user metadata routinely arrives with a
+#: ``Well`` / ``well_name`` column instead of a row and a column. A canonical
+#: spelling ensures repeated imports produce the same column name.
+WELL_KEY = 'wellID'
 #: The imaging site within the well, rendered ``'f<N>'``.
 FIELD_KEY = 'fieldID'
 #: The timepoint, rendered ``'t<N>'``. Absent outside a timelapse.
@@ -175,6 +134,8 @@ CHANNEL_KEY = 'chanID'
 SLICE_KEY = 'sliceID'
 #: The integer label of an object inside its field's mask.
 OBJECT_LABEL_KEY = 'object_label'
+#: The object identifier within a field, normalized during import.
+OBJECT_KEY = 'objectID'
 
 #: ``plate_row_column`` — the well. Identifies a well across every field.
 PRC_KEY = 'prc'
@@ -192,6 +153,54 @@ TIMEPOINT_KEY_COLUMNS: Tuple[str, ...] = FIELD_KEY_COLUMNS + (TIME_KEY,)
 
 #: The three columns that identify a well, ignoring which field it came from.
 WELL_KEY_COLUMNS: Tuple[str, ...] = (PLATE_KEY, ROW_KEY, COLUMN_KEY)
+
+#: The screen — one experiment, one guide library, its own plate1..plate4.
+#:
+#: Two screens that share a guide library can be stacked into one frame and
+#: analysed together. Each may contain a ``plate1``; ``screenID`` preserves
+#: those as distinct identities rather than treating them as a name clash.
+#:
+#: **This key rides ALONGSIDE the existing ones and the ``prc`` grammar is
+#: untouched.** Three reasons, in descending order of how expensive they are
+#: to ignore:
+#:
+#: 1. ``prcf`` is a **stored column** (:data:`OBJECT_TABLE_REQUIRED_COLUMNS`)
+#:    on every object row spaCR has ever written, and
+#:    :func:`validate_object_table_frame` asserts it matches the component
+#:    columns exactly. Growing the grammar re-keys every measurement on disk.
+#: 2. It could not be parsed back. :func:`parse_prcf` and ``ml._split_prc``
+#:    read right to left precisely because the **leftmost** component is the
+#:    one allowed to contain :data:`KEY_SEPARATOR` — extra leading components
+#:    are absorbed *into the plate*. A screen component in front of the plate
+#:    is therefore indistinguishable from a plate named ``screenA_plate1``,
+#:    and no guard can tell them apart: both are "text, then r<N>, c<N>".
+#: 3. A qualified plate id (``kd-plate1``) is not a dimension. You cannot
+#:    block on it, test for a screen effect, or colour by it without parsing
+#:    a string back apart — which is the whole reason this column exists
+#:    rather than reusing ``on_collision='qualify'``.
+#:
+#: Free-form text, like :data:`PLATE_KEY`, because it is the experiment's
+#: name. Unlike the plate it is **not** part of any composed key, so it may
+#: contain the separator without breaking anything.
+SCREEN_KEY = 'screenID'
+
+#: The screen a row belongs to when it does not say.
+#:
+#: A row with no screen is a **single-screen project**, which is every project
+#: that exists today. Defaulting rather than demanding is what keeps them
+#: opening: the dimension is always present, so downstream code never branches
+#: on its absence, and it holds one value, so nothing about the analysis
+#: changes.
+DEFAULT_SCREEN = 'screen1'
+
+#: The well identity **with** the screen: what two stacked screens are keyed
+#: on. Separate tuples rather than a widened :data:`WELL_KEY_COLUMNS`, because
+#: 40-odd call sites join, group and resume-delete on the narrow ones and a
+#: silently widened key changes what every one of them means.
+SCREENED_WELL_KEY_COLUMNS: Tuple[str, ...] = (SCREEN_KEY,) + WELL_KEY_COLUMNS
+
+#: :data:`FIELD_KEY_COLUMNS` with the screen in front.
+SCREENED_FIELD_KEY_COLUMNS: Tuple[str, ...] = (SCREEN_KEY,) + FIELD_KEY_COLUMNS
 
 #: The single-letter prefix each numeric key is rendered with.
 KEY_PREFIXES: Dict[str, str] = {
@@ -230,8 +239,69 @@ OBJECT_TYPE_KEY = 'object_type'
 #: children are exactly the objects most likely to collide, which is where
 #: object linking is most useful, so four objects opened as three and which
 #: one you got depended on the row order of ``png_list``.
-ORGANELLE_ROLES: Tuple[str, ...] = (
-    'organelle', 'organelleb', 'organellec', 'organelled')
+#: SCHEMA IMPORTS NOTHING FROM spacr, and that is load-bearing: everything
+#: wants this module, so it must cost nothing to import, and
+#: `test_module_imports_with_only_the_stdlib_and_pandas` loads it by path
+#: with every spacr import banned. So the lettering rule is restated here
+#: rather than imported from `organelle_types`.
+#:
+#: TWO STATEMENTS OF ONE RULE IS THE THING THIS FILE'S OWN `KEY_ESCAPES`
+#: COMMENT WARNS ABOUT -- "exactly the kind of pair that drifts apart later"
+#: -- so they are pinned equal by
+#: `test_the_object_key_round_trips_for_every_slot.py`, which walks every
+#: slot and requires the two to agree. That is the trade: a dependency this
+#: module cannot afford, exchanged for a test that fails the moment either
+#: side moves.
+_MAX_ORGANELLES = 702
+
+
+def _organelle_role(number: int) -> str:
+    """Slot ``number``'s key prefix. Mirrors `organelle_types.organelle_role`.
+
+    Slot 1 is the bare word, 2..26 take a single letter, and 27 up carry
+    into two -- ``organelleaa`` onward.
+    """
+    if number == 1:
+        return 'organelle'
+    if number <= 26:
+        return f'organelle{chr(ord("a") + number - 1)}'
+    offset = number - 27
+    length = 2
+    while offset >= 26 ** length:
+        offset -= 26 ** length
+        length += 1
+    letters = []
+    for _ in range(length):
+        offset, remainder = divmod(offset, 26)
+        letters.append(chr(ord('a') + remainder))
+    return 'organelle' + ''.join(reversed(letters))
+
+
+def _organelle_roles(count: int) -> Tuple[str, ...]:
+    """The first ``count`` slots' prefixes, in slot order."""
+    return tuple(_organelle_role(index) for index in range(1, int(count) + 1))
+
+
+#: The bare stem every organelle role starts with.
+_ORGANELLE_STEM = 'organelle'
+
+#: GENERATED FROM THE SAME RULE THAT MINTS THE SETTINGS PREFIX, not written
+#: out here. This tuple used to hold four names by hand while
+#: ``organelle_types.organelle_role`` minted twenty-six, and now 702 -- so
+#: slots five and up produced a valid settings prefix that could NOT be
+#: written into an object key. ``is_object_type`` answered False, the frame
+#: was left untyped, and that is precisely the collision the paragraph above
+#: describes: a nucleus labelled 1 and a pathogen labelled 1 in the same
+#: field being the same key.
+#:
+#: One rule, one place. Two hand-kept lists of the same vocabulary are what
+#: this file's own `KEY_ESCAPES` comment calls "exactly the kind of pair that
+#: drifts apart later", and this pair had already drifted by 698 entries.
+ORGANELLE_ROLES: Tuple[str, ...] = _organelle_roles(_MAX_ORGANELLES)
+#: Membership is asked per object id, so it is a set rather than a scan of
+#: 702 names.
+_ORGANELLE_ROLE_SET = frozenset(ORGANELLE_ROLES)
+
 SEGMENTED_ROLES: Tuple[str, ...] = (
     'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 DERIVED_ROLES: Tuple[str, ...] = ('cytoplasm',)
@@ -241,30 +311,69 @@ ALL_ROLES: Tuple[str, ...] = SEGMENTED_ROLES + DERIVED_ROLES
 OBJECT_TYPES: Tuple[str, ...] = (
     'cell', 'cytoplasm', 'nucleus', 'pathogen', *ORGANELLE_ROLES)
 
-#: :data:`OBJECT_TYPES`, longest first. The match must be longest-first
-#: because ``'organelle'`` starts with ``'o'``, which is the untyped prefix:
-#: shortest-first would read ``'organelle7'`` as an untyped object labelled
-#: ``'rganelle7'``.
-_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
-    sorted(OBJECT_TYPES, key=len, reverse=True))
+#: The same vocabulary as a set. `is_object_type` is asked once per table
+#: read and once per frame stamped; a tuple scan of 706 names is a linear
+#: search for a question that is a hash lookup.
+_OBJECT_TYPE_SET = frozenset(OBJECT_TYPES)
+
+#: The NON-organelle types, longest first. The match must be longest-first
+#: because ``'cell'`` and ``'cytoplasm'`` share no prefix but the untyped
+#: ``'o'`` is a prefix of ``'organelle'``: shortest-first would read
+#: ``'organelle7'`` as an untyped object labelled ``'rganelle7'``.
+#:
+#: THE ORGANELLE ROLES ARE NOT IN HERE, and that is a performance decision
+#: with a measurement behind it. There are 702 of them; scanning all 706
+#: types per object id made `split_object_id` about 88x slower on the untyped
+#: path, which runs once per row of a measurement table. They are matched
+#: algorithmically instead -- see :func:`_split_organelle_id` -- which is
+#: bounded by the LABEL's length rather than by the vocabulary's size and
+#: gives the same longest-first answer.
+_OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(sorted(
+    (kind for kind in OBJECT_TYPES if kind not in _ORGANELLE_ROLE_SET),
+    key=len, reverse=True))
+
+
+def _split_organelle_id(text: str, lowered: str):
+    """Split an ``organelle...`` object id, longest role first.
+
+    :returns: ``(role, label)``, or ``None`` when ``text`` does not begin
+        with a real organelle role.
+
+    Tries the longest run of lower-case letters after ``organelle`` and works
+    downward, which is the same answer a longest-first scan of every role
+    would give -- ``organelled`` + ``x`` beats ``organelle`` + ``dx`` -- but
+    costs the length of the label rather than the size of the vocabulary.
+    """
+    if not lowered.startswith(_ORGANELLE_STEM):
+        return None
+    rest = text[len(_ORGANELLE_STEM):]
+    letters = 0
+    while letters < len(rest) and rest[letters].isalpha():
+        letters += 1
+    for cut in range(letters, -1, -1):
+        role = _ORGANELLE_STEM + rest[:cut].lower()
+        if role in _ORGANELLE_ROLE_SET and len(text) > len(role):
+            return (role, text[len(role):])
+    return None
 
 #: What ``prc`` / ``prcf`` / ``prcfo`` are joined on. A plate name containing
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
 KEY_SEPARATOR = '_'
 
-# Validate the registry where it is declared. Typed object ids concatenate
-# role and numeric label without a separator, so a digit in a role is
-# ambiguous (``cell1`` + 7 versus ``cell`` + 17), while an underscore would
-# split the surrounding prcfo key. Failing import is preferable to writing
-# identities that cannot round-trip.
-for _registered_role in OBJECT_TYPES:
-    if (not _registered_role or KEY_SEPARATOR in _registered_role
-            or any(character.isdigit() for character in _registered_role)):
-        raise RuntimeError(
-            f'invalid object role {_registered_role!r}: roles must be '
-            f'non-empty, digit-free and contain no {KEY_SEPARATOR!r}')
-del _registered_role
-
+#: How a key component that *does* contain the separator is made safe, in
+#: application order. ``%`` first, or the escape can be forged: without it a
+#: plate literally named ``p%5Fx`` would decode to the same thing as a plate
+#: named ``p_x``.
+#:
+#: One table, because there are two callers who must agree — ``selection``
+#: escapes whole components when composing an object key, and
+#: :func:`_sanitise_token` escapes a single unparseable token. They were
+#: written separately, reached the same answer for the same reason, and are
+#: exactly the kind of pair that drifts apart later.
+KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
+    ('%', '%25'),
+    (KEY_SEPARATOR, '%5F'),
+)
 
 #: Every legacy spelling spaCR has written, and the canonical name it means.
 #:
@@ -301,7 +410,34 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'channel_name': CHANNEL_KEY,
     'chan_id':      CHANNEL_KEY,
     'slice_id':     SLICE_KEY,
+    'screen':       SCREEN_KEY,
+    'screen_name':  SCREEN_KEY,
+    'screen_id':    SCREEN_KEY,
+    'well':         WELL_KEY,
+    'well_name':    WELL_KEY,
+    'well_id':      WELL_KEY,
+    # Only unambiguous object-identifier spellings are accepted. A bare
+    # `object` column is not included because in a measurement
+    # table it as often means the object TYPE -- cell, nucleus, pathogen --
+    # as the object's number, and renaming that into an identifier would
+    # corrupt the join it lands in rather than merely mislabel a column.
+    # That is the same trap the docstring above records for `c`.
+    'object_id':     OBJECT_KEY,
+    'objectid':      OBJECT_KEY,
+    'object_number': OBJECT_KEY,
 }
+
+#: Every canonical metadata key -- the closed vocabulary that
+#: :func:`resolve_metadata_collisions` is allowed to collapse.
+#:
+#: Closed on purpose. Two columns that both mean ``wellID`` are two opinions
+#: about one fact and one of them has to go; two *feature* columns that
+#: happen to normalise alike are data, and dropping one to tidy a name is
+#: never the right trade (see :func:`canonicalise_columns`).
+METADATA_KEYS: Tuple[str, ...] = (
+    PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, WELL_KEY, SCREEN_KEY,
+    TIME_KEY, CHANNEL_KEY, SLICE_KEY,
+)
 
 #: Both spellings of the time column that exist in databases on disk.
 #: ``png_list`` was written with ``time_id`` while every object table got
@@ -349,13 +485,70 @@ LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
 )
 
 
+#: Everything that is not a letter or a digit, for :func:`fold_column_name`.
+_NON_ALPHANUMERIC = re.compile(r'[^0-9a-z]+')
+
+
+def fold_column_name(name: Any) -> str:
+    """The form a column name is looked up by: lower case, no punctuation.
+
+    ``'Plate_ID'``, ``'plate id'``, ``'plate.id'`` and ``'plateID'`` all fold
+    to ``'plateid'``. Folding is what keeps :data:`LEGACY_COLUMN_NAMES` a
+    short list of *words* rather than a combinatorial table of every
+    separator a plate reader has ever emitted. The supported aliases include
+    ``Plate``, ``PLATE``, ``plate``, ``plateid``, ``plate_id``,
+    ``plate_name`` and ``plateName`` and this is five entries, not seven.
+
+    :param name: a column name.
+    :returns: the folded form.
+    """
+    return _NON_ALPHANUMERIC.sub('', str(name).lower())
+
+
+def _build_folded_aliases() -> Dict[str, str]:
+    """``{folded spelling: canonical name}``, checked for contradictions.
+
+    Built once at import. A folded key that two different canonical names
+    claim is a bug in the vocabulary rather than something to resolve at
+    runtime, so it raises here -- at import, in every process, instead of
+    renaming a column one way on Tuesday.
+    """
+    folded: Dict[str, str] = {}
+    for canonical in METADATA_KEYS:
+        folded[fold_column_name(canonical)] = canonical
+    for alias, canonical in LEGACY_COLUMN_NAMES.items():
+        key = fold_column_name(alias)
+        existing = folded.get(key)
+        if existing is not None and existing != canonical:
+            raise RuntimeError(
+                f'column alias {alias!r} folds to {key!r}, which already '
+                f'means {existing!r}; it cannot also mean {canonical!r}')
+        folded[key] = canonical
+    return folded
+
+
+#: :data:`LEGACY_COLUMN_NAMES` and :data:`METADATA_KEYS`, keyed by
+#: :func:`fold_column_name`. The lookup :func:`canonical_column_name` uses.
+_FOLDED_ALIASES: Dict[str, str] = _build_folded_aliases()
+
+
 def canonical_column_name(name: Any) -> str:
     """Return the canonical spelling of a metadata or feature column name.
 
-    Metadata lookup is **case-insensitive**, so ``'RowID'``, ``'rowid'`` and
-    ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
+    Metadata lookup folds **case and punctuation**
+    (:func:`fold_column_name`), so ``'RowID'``, ``'rowid'``, ``'Row Name'``
+    and ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
     (:data:`LEGACY_COLUMN_PATTERNS`) are case-sensitive. A name matching
     neither is returned unchanged.
+
+    .. note:: What is deliberately **not** in the vocabulary
+
+       Aliases are whole words. ``col`` is here because spaCR itself wrote
+       it; a one-letter ``c`` is not, and never will be, because it would
+       capture a measurement column called ``c`` and rename a real variable
+       into a plate key. A name that is not normalised is visible the moment
+       a user looks at the picker; a measurement silently renamed to
+       ``columnID`` is not, and it corrupts the join it lands in.
 
     This is the *only* implementation. ``spacr.database_schema`` and
     ``spacr.utils`` re-export this function rather than defining their own.
@@ -395,17 +588,12 @@ def canonical_column_name(name: Any) -> str:
             'cell_area'
     """
     text = str(name)
-    lowered = text.lower()
-    for canonical in (PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, TIME_KEY,
-                      CHANNEL_KEY, SLICE_KEY):
-        if lowered == canonical.lower():
-            return canonical
     # Metadata before features: the alias table is a closed vocabulary of
     # short names, none of which can also match a feature pattern (both
     # patterns are anchored and require a trailing '_<digits>_percentile' or
     # a leading 'organelle_summary_'), so the order is a cost decision, not a
-    # precedence one — a metadata column is answered without touching a regex.
-    alias = LEGACY_COLUMN_NAMES.get(lowered)
+    # precedence one -- a metadata column is answered without touching a regex.
+    alias = _FOLDED_ALIASES.get(fold_column_name(text))
     if alias is not None:
         return alias
     for pattern, replacement in LEGACY_COLUMN_PATTERNS:
@@ -558,12 +746,62 @@ def letters_from_row_index(index: int) -> str:
 def _sanitise_token(token: Any) -> str:
     """Make an unparseable token safe to embed in a separator-joined key.
 
-    Whitespace is stripped and the separator is replaced, because a token
+    Whitespace is stripped and the separator is escaped, because a token
     containing ``'_'`` would silently add a component to ``prcf`` and make
     the key unsplittable.
+
+    **The escape is reversible.** It used to replace the separator with
+    ``'-'``, which mapped field ``a_b`` and field ``a-b`` onto the single id
+    ``fa-b`` — two fields in, one out, which is the exact failure this module
+    exists to end, reached through the escape hatch instead of through
+    ``_safe_int_convert``. The tier-2 contract in :func:`_prefixed_id`
+    promises a token that is "distinct per input", and a lossy substitution
+    cannot keep that promise.
+
+    ``%`` is escaped before the separator so the escape cannot be forged: a
+    literal ``a%5Fb`` becomes ``a%255Fb`` and stays distinct from ``a_b``,
+    which becomes ``a%5Fb``. Nothing in spaCR matches key columns with SQL
+    ``LIKE``, so a ``%`` in a stored id is an ordinary character.
+
+    The table is :data:`KEY_ESCAPES`, shared with
+    :mod:`spacr.selection`, which reached the same answer for the same reason
+    when ``object_keys`` was found merging two objects onto one key.
     """
     text = str(token).strip()
-    return text.replace(KEY_SEPARATOR, '-')
+    for character, escape in KEY_ESCAPES:
+        text = text.replace(character, escape)
+    return text
+
+
+def _desanitise_token(token: str) -> str:
+    """Invert :func:`_sanitise_token`.
+
+    The reason the escape above is worth its awkwardness: a tier-2 id can be
+    read back to the token the instrument actually produced, which a lossy
+    ``'-'`` substitution made impossible.
+    """
+    text = str(token)
+    for character, escape in reversed(KEY_ESCAPES):
+        text = text.replace(escape, character)
+    return text
+
+
+def escape_filename_component(token: Any) -> str:
+    """Escape one free-text component for a separator-delimited filename.
+
+    This uses the same reversible table as join keys.  In particular,
+    ``'my_plate'`` becomes ``'my%5Fplate'`` and a literal percent is escaped
+    first, so parsing cannot merge it with an encoded separator.
+    """
+    text = '' if token is None else str(token).strip()
+    if not text:
+        raise KeyParseError('cannot encode an empty filename component.')
+    return _sanitise_token(text)
+
+
+def unescape_filename_component(token: Any) -> str:
+    """Invert :func:`escape_filename_component`."""
+    return _desanitise_token(str(token))
 
 
 def _prefixed_id(kind: str, token: Any, *, strict: bool) -> str:
@@ -608,9 +846,8 @@ def row_id(row: Any, *, strict: bool = False) -> str:
     if isinstance(row, str):
         letters = row.strip()
         if _ROW_ONLY.match(letters) and not _PREFIXED_INT.match(letters):
-            index = row_index_from_letters(letters)
-            if index is not None:
-                return f'r{index}'
+            # _ROW_ONLY admits precisely the strings the decoder accepts.
+            return f'r{row_index_from_letters(letters)}'
     return _prefixed_id(ROW_KEY, row, strict=strict)
 
 
@@ -650,6 +887,44 @@ def time_id(time: Any, *, strict: bool = False) -> str:
     :returns: ``'t<N>'``.
     """
     return _prefixed_id(TIME_KEY, time, strict=strict)
+
+
+def screen_id(screen: Any = None) -> str:
+    """Return the canonical screen id, defaulting an absent one.
+
+    Free-form text, like the plate id, because it is the name a user gave an
+    experiment. It is **not** prefixed and **not** parsed back apart: the
+    whole point of :data:`SCREEN_KEY` is that it is a dimension you block on,
+    facet by and colour with as it stands.
+
+    Absence is the case that matters. ``None``, ``''`` and whitespace all mean
+    "this project has one screen", and they become :data:`DEFAULT_SCREEN`
+    rather than raising — every project that exists today has no screen
+    anywhere in its settings, and demanding one would stop all of them from
+    opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate
+    is a broken key, but an empty screen is an ordinary single-screen
+    run.
+
+    An empty value is never left empty inside a frame either, because a blank
+    screen groups with every other blank screen — which is exactly the silent
+    pooling :mod:`spacr.multi_database` exists to refuse.
+
+    :param screen: the screen label, or ``None``.
+    :returns: the label, stripped, or :data:`DEFAULT_SCREEN`.
+
+    Example:
+        .. code-block:: python
+
+            >>> screen_id('tsg101'), screen_id(None)
+            ('tsg101', 'screen1')
+    """
+    if screen is None:
+        return DEFAULT_SCREEN
+    if isinstance(screen, float) and screen != screen:
+        # NaN — what pandas puts in a column a source did not fill in.
+        return DEFAULT_SCREEN
+    text = str(screen).strip()
+    return text or DEFAULT_SCREEN
 
 
 def object_type_prefix(object_type: Any) -> str:
@@ -711,10 +986,12 @@ def is_object_type(object_type: Any) -> bool:
     :data:`OBJECT_TYPE_KEY` on the frame. ``png_list``, a summary table or a
     user's own table answer False, and the frame stays untyped — which is the
     key spaCR has always written, so nothing regresses.
+
+    :param object_type: candidate table or object-type name.
     """
     if object_type is None:
         return False
-    return str(object_type).strip().lower() in OBJECT_TYPES
+    return str(object_type).strip().lower() in _OBJECT_TYPE_SET
 
 
 def split_object_id(token: Any, *, require_prefix: bool = True
@@ -745,6 +1022,9 @@ def split_object_id(token: Any, *, require_prefix: bool = True
     if not text:
         return (None, '')
     lowered = text.lower()
+    organelle = _split_organelle_id(text, lowered)
+    if organelle is not None:
+        return organelle
     for kind in _OBJECT_TYPE_MATCH:
         if lowered.startswith(kind) and len(text) > len(kind):
             return (kind, text[len(kind):])
@@ -840,13 +1120,17 @@ def strip_prefix(value: Any, prefix: str) -> str:
 
 
 def _index_of(value: Any, prefix: str) -> Optional[int]:
+    """Strip an optional prefix and parse an integer index, preserving ``None``."""
     if value is None:
         return None
     return parse_int_token(strip_prefix(value, prefix), allow_prefix=False)
 
 
 def row_index(value: Any) -> Optional[int]:
-    """``'r3'`` → ``3``; ``'C'`` → ``3``; an unparseable id → ``None``."""
+    """``'r3'`` → ``3``; ``'C'`` → ``3``; an unparseable id → ``None``.
+
+    :param value: prefixed row id, row letters, or numeric row token.
+    """
     if isinstance(value, str):
         text = value.strip()
         if _ROW_ONLY.match(text) and not _PREFIXED_INT.match(text):
@@ -855,17 +1139,26 @@ def row_index(value: Any) -> Optional[int]:
 
 
 def column_index(value: Any) -> Optional[int]:
-    """``'c12'`` → ``12``; an unparseable id → ``None``."""
+    """``'c12'`` → ``12``; an unparseable id → ``None``.
+
+    :param value: prefixed column id or numeric column token.
+    """
     return _index_of(value, KEY_PREFIXES[COLUMN_KEY])
 
 
 def field_index(value: Any) -> Optional[int]:
-    """``'f2'`` → ``2``; ``'fxy'`` → ``None``."""
+    """``'f2'`` → ``2``; ``'fxy'`` → ``None``.
+
+    :param value: prefixed field id or numeric field token.
+    """
     return _index_of(value, KEY_PREFIXES[FIELD_KEY])
 
 
 def time_index(value: Any) -> Optional[int]:
-    """``'t7'`` → ``7``; an unparseable id → ``None``."""
+    """``'t7'`` → ``7``; an unparseable id → ``None``.
+
+    :param value: prefixed timepoint id or numeric time token.
+    """
     return _index_of(value, KEY_PREFIXES[TIME_KEY])
 
 
@@ -874,6 +1167,8 @@ def object_index(value: Any) -> Optional[int]:
 
     Split through :func:`split_object_id` rather than by stripping ``'o'``, so
     a typed id reads back as the number it is instead of as ``None``.
+
+    :param value: typed, untyped, or bare object-label token.
     """
     _kind, label = split_object_id(value, require_prefix=False)
     if not label:
@@ -1116,15 +1411,11 @@ def is_within_plate_format(row: Any, column: Any, n_wells: int) -> bool:
 # ---------------------------------------------------------------------------
 
 def _check_plate(plate: Any) -> str:
+    """Return a normalized non-empty plate identifier or raise by name."""
     text = '' if plate is None else str(plate).strip()
     if not text:
         raise KeyParseError(
             'cannot build a key from an empty plate id.')
-    if KEY_SEPARATOR in text:
-        raise KeyParseError(
-            f'plate id {plate!r} contains {KEY_SEPARATOR!r}, which is the '
-            f'key separator. "{text}_r1_c1_f1" could not be split back into '
-            f'its parts, so the plate must not contain one.')
     return text
 
 
@@ -1136,8 +1427,9 @@ def compose_prc(plate: Any, row: Any, column: Any) -> str:
     :param column: column index or ``'c<N>'``.
     :returns: the composed key.
     """
-    return KEY_SEPARATOR.join(
-        [_check_plate(plate), row_id(row), column_id(column)])
+    return KEY_SEPARATOR.join([
+        escape_filename_component(_check_plate(plate)),
+        row_id(row), column_id(column)])
 
 
 def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
@@ -1155,8 +1447,8 @@ def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
     :param time: timepoint token, or ``None`` outside a timelapse.
     :returns: the composed key.
     """
-    parts = [_check_plate(plate), row_id(row), column_id(column),
-             field_id(field)]
+    parts = [escape_filename_component(_check_plate(plate)), row_id(row),
+             column_id(column), field_id(field)]
     if time is not None and str(time).strip() != '':
         parts.append(time_id(time))
     return KEY_SEPARATOR.join(parts)
@@ -1196,11 +1488,14 @@ def compose_prcfo(plate: Any, row: Any, column: Any, field: Any,
 class FieldID:
     """One imaging field's identity — the key of every measurement row.
 
-    :ivar plateID: plate id.
-    :ivar rowID: ``'r<N>'``.
-    :ivar columnID: ``'c<N>'``.
-    :ivar fieldID: ``'f<N>'``.
-    :ivar timeID: ``'t<N>'``, or ``None`` outside a timelapse.
+    :param plateID: plate identifier, escaped when composed into a field key.
+    :param rowID: stored row component, normally ``r<N>`` but potentially a
+        legacy positional-well passthrough.
+    :param columnID: stored column component, normally ``c<N>`` but potentially
+        a legacy positional-well passthrough.
+    :param fieldID: canonical ``f<label>`` imaging-field component.
+    :param timeID: canonical ``t<label>`` timepoint component inserted after
+        the field, or ``None`` outside a timelapse.
     """
 
     plateID: str
@@ -1212,12 +1507,15 @@ class FieldID:
     @property
     def prc(self) -> str:
         """The ``prc`` well key."""
-        return KEY_SEPARATOR.join([self.plateID, self.rowID, self.columnID])
+        return KEY_SEPARATOR.join([
+            escape_filename_component(self.plateID),
+            self.rowID, self.columnID])
 
     @property
     def prcf(self) -> str:
         """The ``prcf`` field key, with the timepoint when there is one."""
-        parts = [self.plateID, self.rowID, self.columnID, self.fieldID]
+        parts = [escape_filename_component(self.plateID), self.rowID,
+                 self.columnID, self.fieldID]
         if self.timeID:
             parts.append(self.timeID)
         return KEY_SEPARATOR.join(parts)
@@ -1301,12 +1599,21 @@ class FieldID:
 class ObjectID:
     """One segmented object's identity — the ``prcfo`` a merged row is keyed on.
 
-    :ivar objectID: ``'o<N>'`` when the object's type is not stated, or
-        ``'<type><N>'`` when it is. The type lives *inside* this field rather
+    :param plateID: plate identifier carried by the containing field and
+        escaped when composed into a field or object key.
+    :param rowID: stored row component, normally ``r<N>`` but potentially a
+        legacy positional-well passthrough.
+    :param columnID: stored column component, normally ``c<N>`` but potentially
+        a legacy positional-well passthrough.
+    :param fieldID: canonical ``f<label>`` imaging-field component.
+    :param objectID: ``o<label>`` when the object's type is not stated, or
+        ``<type><label>`` when it is. The type lives *inside* this field rather
         than beside it so that two :class:`ObjectID` values compare equal
         exactly when they name the same object — a separate ``objectType``
         field would let ``('o7', 'nucleus')`` and ``('nucleus7', None)``
         describe one object and compare unequal.
+    :param timeID: canonical ``t<label>`` timepoint component inserted between
+        field and object, or ``None`` outside a timelapse.
     """
 
     plateID: str
@@ -1398,7 +1705,14 @@ def parse_prcf(text: Any) -> FieldID:
             f'{text!r} is not a prcf: expected at least '
             f'plate_row_column_field, got {len(parts)} part(s).')
     time_key = None
-    if parts[-1][:1].lower() == 't' and time_index(parts[-1]) is not None:
+    # The composer deliberately preserves a non-numeric time token (``xy``
+    # becomes ``txy``) so an imperfect instrument export still has a stable
+    # join key. Detect the optional time component by grammar, not by whether
+    # its payload happens to be numeric: a trailing t-component immediately
+    # after an f-component can only be the timepoint in
+    # plate_row_column_field[_time].
+    if (parts[-2][:1].lower() == 'f'
+            and parts[-1][:1].lower() == 't'):
         time_key = parts.pop()
     field_key = parts.pop()
     column_key = parts.pop()
@@ -1426,7 +1740,7 @@ def parse_prcf(text: Any) -> FieldID:
             f'{KEY_SEPARATOR!r}, its row and column must be written the way '
             f'spaCR writes them (r<N>/letters and c<N>/digits) for the plate '
             f'to be separable from them.')
-    return FieldID(plateID=plate_key, rowID=row_key,
+    return FieldID(plateID=unescape_filename_component(plate_key), rowID=row_key,
                    columnID=column_key, fieldID=field_key, timeID=time_key)
 
 
@@ -1473,51 +1787,97 @@ def parse_prcfo(text: Any) -> ObjectID:
 # Filenames
 # ---------------------------------------------------------------------------
 
+def escape_field_stem_plate(name: Any, *, timelapse: bool = False) -> str:
+    """Escape the plate component of a merged-stack field stem.
+
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in ``plate_well_field[_time]`` form.
+    timelapse : bool, default=False
+        Treat the final component as a timepoint. A numeric trailing
+        timepoint is also recognized in non-time-lapse merged-stack names.
+
+    Returns
+    -------
+    str
+        The stem with only its plate component filename-escaped.
+
+    Raises
+    ------
+    KeyParseError
+        If the stem does not contain a plate and the required tail fields.
+
+    Notes
+    -----
+    Escaping at write time preserves plate names that contain underscores.
+    The tail rules match :func:`parse_field_stem`.
+    """
+    stem = os.path.splitext(os.path.basename(str(name)))[0]
+    parts = stem.split(KEY_SEPARATOR)
+    tail_size = 3 if timelapse else 2
+    if (not timelapse and len(parts) >= 4
+            and parse_int_token(parts[-1]) is not None):
+        tail_size = 3
+    if len(parts) <= tail_size:
+        raise KeyParseError(
+            f'cannot encode plate component in {stem!r}: expected '
+            f'plate_well_field{"_time" if timelapse else ""}.')
+    plate = KEY_SEPARATOR.join(parts[:-tail_size])
+    return KEY_SEPARATOR.join([
+        escape_filename_component(plate), *parts[-tail_size:]])
+
 def parse_field_stem(name: Any, *, timelapse: bool = False,
                      strict: bool = False) -> FieldID:
     """Parse a merged-stack file name into a :class:`FieldID`.
 
-    The canonical replacement for ``utils._map_wells``. The name is
-    ``<plate>_<well>_<field>`` (``_<time>`` when ``timelapse``), with or
-    without a directory and an extension.
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in ``plate_well_field[_time]`` form.
+    timelapse : bool, default=False
+        Parse a required trailing timepoint and include it in the identity.
+    strict : bool, default=False
+        Reject non-numeric field/time tokens and nonstandard wells.
 
-    Differences from ``_map_wells``, every one of them a case ``_map_wells``
-    gets wrong rather than a change of contract:
+    Returns
+    -------
+    FieldID
+        Parsed plate, well, field, and optional timepoint identity.
 
-    * ``'AA01'`` gives ``r27``; ``_map_wells`` raises and returns the
-      five-tuple ``('error',) * 5`` — losing the *plate* as well as the well.
-    * a lowercase well parses; ``_map_wells`` raises on it.
-    * a whitespace-padded well parses; ``_map_wells`` treats it as a
-      positional well and puts the padded text in both slots.
-    * a non-numeric field is preserved (``'s3'`` → ``f3``, ``'xy'`` →
-      ``'fxy'``); ``_map_wells`` returns ``f0`` for both.
-    * too few parts raises instead of returning ``'error'`` strings that
-      then get written into the database as if they were an identity.
+    Raises
+    ------
+    KeyParseError
+        If the stem has the wrong number of components.
+    WellParseError
+        If the well component cannot be parsed.
 
-    :param name: file name, path, or stem.
-    :param timelapse: expect and parse a trailing timepoint.
-    :param strict: reject unparseable field/time tokens and odd wells.
-    :returns: the :class:`FieldID`.
-    :raises KeyParseError: when the name has too few components.
-    :raises WellParseError: when the well cannot be parsed.
+    Notes
+    -----
+    A non-time-lapse call accepts one extra numeric timepoint emitted by the
+    merged-stack writer, but omits it from the returned identity. Other extra
+    components are rejected.
 
-    Example:
-        .. code-block:: python
-
-            >>> parse_field_stem('plate1_A01_3').prcf
-            'plate1_r1_c1_f3'
+    Examples
+    --------
+    >>> parse_field_stem('plate1_A01_3').prcf
+    'plate1_r1_c1_f3'
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
     needed = 4 if timelapse else 3
-    if len(parts) < needed:
+    surplus_is_a_timepoint = (
+        not timelapse and len(parts) == needed + 1
+        and parse_int_token(parts[needed]) is not None)
+    if len(parts) != needed and not surplus_is_a_timepoint:
+        shape = 'plate_well_field_time' if timelapse else 'plate_well_field'
+        allowance = '' if timelapse else (
+            ', or that plus the timepoint spacr.io names every stack with')
         raise KeyParseError(
-            f'cannot identify a field from {stem!r}: expected at least '
-            f'{"plate_well_field_time" if timelapse else "plate_well_field"} '
-            f'({needed} parts), got {len(parts)}. _map_wells returned the '
-            f'string "error" in every slot here, and those strings were then '
-            f'written into the database as an identity.')
-    return FieldID.build(parts[0], well=parts[1], field=parts[2],
+            f'cannot identify a field from {stem!r}: expected {shape} '
+            f'({needed} parts{allowance}), got {len(parts)}.')
+    return FieldID.build(unescape_filename_component(parts[0]),
+                         well=parts[1], field=parts[2],
                          time=parts[3] if timelapse else None, strict=strict)
 
 
@@ -1525,31 +1885,27 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
                       strict: bool = False) -> ObjectID:
     """Parse a crop-PNG file name into an :class:`ObjectID`.
 
-    The canonical replacement for ``utils._map_wells_png``. The name is
-    ``<plate>_<well>_<field>[_<time>]_<object>``, with the object label
-    always last.
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in
+        ``plate_well_field[_time]_object`` form.
+    timelapse : bool, default=False
+        Parse a timepoint between the field and object components.
+    strict : bool, default=False
+        Reject non-numeric identity tokens and nonstandard wells.
 
-    Differences from ``_map_wells_png``:
+    Returns
+    -------
+    ObjectID
+        Parsed field identity with the final object label attached.
 
-    * ``'AA01'`` gives ``('r27', 'c1')``; ``_map_wells_png`` gives
-      ``('r1', 'c0')`` — silently dropping the second row letter *and*
-      inventing column 0.
-    * a well with no column (``'A'``) raises; ``_map_wells_png`` gives
-      ``'c0'``.
-    * a lowercase well parses; ``_map_wells_png`` raises into
-      ``('error',) * 6``.
-    * a non-numeric field or object is preserved rather than collapsed to
-      ``f0`` / ``o0``.
-    * ``_map_wells_png`` reads the object from ``parts[-1]`` and the field
-      from ``parts[2]``, which are the same token in a three-part name —
-      ``'plate1_A01_5.png'`` becomes field 5 *and* object 5. Here a name
-      that short raises.
-
-    :param name: file name, path, or stem.
-    :param timelapse: expect a timepoint between field and object.
-    :param strict: reject unparseable tokens and odd wells.
-    :returns: the :class:`ObjectID`.
-    :raises KeyParseError: when the name has too few components.
+    Raises
+    ------
+    KeyParseError
+        If the stem has too few components.
+    WellParseError
+        If the well component cannot be parsed.
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
@@ -1559,7 +1915,8 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
             f'cannot identify an object from {stem!r}: expected at least '
             f'{"plate_well_field_time_object" if timelapse else "plate_well_field_object"} '
             f'({needed} parts), got {len(parts)}.')
-    field = FieldID.build(parts[0], well=parts[1], field=parts[2],
+    field = FieldID.build(unescape_filename_component(parts[0]),
+                          well=parts[1], field=parts[2],
                           time=parts[3] if timelapse else None, strict=strict)
     return field.with_object(parts[-1])
 
@@ -1725,11 +2082,17 @@ class ObjectTableSchema:
         return base + (OBJECT_LABEL_KEY,)
 
     def feature_column(self, name: Any) -> bool:
-        """Return whether ``name`` belongs to this table's feature namespace."""
+        """Return whether ``name`` belongs to this table's feature namespace.
+
+        :param name: candidate column name.
+        """
         return str(name).startswith(f'{self.object_type}_')
 
     def validate(self, frame, *, timelapse: Optional[bool] = None):
-        """Validate and return a canonical-column copy of ``frame``."""
+        """Validate and return a canonical-column copy of ``frame``.
+
+        :param frame: pandas frame to validate against this table contract.
+        """
         return validate_object_table_frame(
             frame, self.table, timelapse=timelapse)
 
@@ -1759,6 +2122,7 @@ DERIVED_MODEL_FEATURES = frozenset({
 def object_table_schema(table: str) -> ObjectTableSchema:
     """Return the canonical schema for ``table``.
 
+    :param table: canonical object measurement table name.
     :raises ObjectTableSchemaError: when no canonical contract exists.
     """
     try:
@@ -1843,7 +2207,25 @@ def _non_numeric_feature_error(problems) -> 'ModelFeatureSchemaError':
     run that has already read and merged a 400k-row measurements database
     before it fails is not a cheap thing to repeat.
     """
-    lines = [f'  - {name} ({dtype}): {reason}' for name, dtype, reason in problems]
+    import pandas as pd
+
+    # pandas 3 infers ordinary Python text as StringDtype (displayed as
+    # ``str``) where earlier versions inferred ``object``.  The diagnostic is
+    # a user-facing description of the same text-storage problem, so keep its
+    # established wording stable without flattening categorical or other
+    # extension dtypes that carry materially different information.
+    def diagnostic_dtype(dtype) -> str:
+        """Return stable user-facing text for a pandas feature dtype.
+
+        Pandas ``StringDtype`` is reported as the established ``object``
+        wording; other extension and NumPy dtypes retain their own names.
+        """
+        return 'object' if isinstance(dtype, pd.StringDtype) else str(dtype)
+
+    lines = [
+        f'  - {name} ({diagnostic_dtype(dtype)}): {reason}'
+        for name, dtype, reason in problems
+    ]
     count = len(problems)
     head = (f'{count} declared model feature{"s" if count != 1 else ""} '
             f'{"are" if count != 1 else "is"} not numeric, so '
@@ -2071,6 +2453,8 @@ def model_feature_frame(frame, **kwargs):
     it repairs what is losslessly repairable first
     (:func:`coerce_model_feature_types`) instead of refusing a frame whose
     only fault is that pandas typed an all-NULL measurement ``object``.
+
+    :param frame: pandas frame to coerce and restrict to model features.
     """
     frame = coerce_model_feature_types(frame, **kwargs)
     return frame.loc[:, model_feature_columns(frame, **kwargs)].copy()
@@ -2108,6 +2492,94 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # pandas
 # ---------------------------------------------------------------------------
 
+def canonical_rename_plan(columns, requested=None):
+    """``{old: canonical}`` for the columns that can safely be renamed.
+
+    The one definition of the "target already exists, keep both" rule for
+    frames, shared by :func:`canonicalise_columns` and
+    ``utils.canonicalize_measurement_columns`` so the two cannot drift apart
+    again — they have already disagreed once about which spellings they fix.
+
+    **The test folds case**, because SQLite compares identifiers
+    case-insensitively and these frames are written with ``to_sql``. A frame
+    holding ``row`` and ``rowid`` already has the canonical column: renaming
+    ``row`` to ``rowID`` produced ``['rowID', 'rowid']``, which looks fine in
+    pandas and makes ``to_sql`` raise ``duplicate column name: rowid``. This
+    is the same rule, and the same reasoning, as the database-level rename in
+    :mod:`spacr.database_schema` — see the comment there about a plate whose
+    database could not be opened at all.
+
+    A column is excluded from its own comparison, so a pure respelling
+    (``rowid`` -> ``rowID``, one column, one identifier as far as SQLite is
+    concerned) is still made rather than being read as a collision with
+    itself.
+
+    :param columns: the frame's column names, in order.
+    :param requested: optional explicit ``{source: canonical_target}`` choices
+        supplied by the metadata resolver. They pass through the same
+        case-folded collision guard as built-in aliases.
+    :returns: ``dict`` mapping each renameable name to its canonical form;
+        empty when there is nothing to do.
+    """
+    have = list(columns)
+    requested = dict(requested or {})
+    taken = set(have)
+    mapping = {}
+    for name in have:
+        canonical = requested.get(name, canonical_column_name(name))
+        if canonical == name:
+            continue
+        others = {str(other).casefold() for other in taken if other != name}
+        if str(canonical).casefold() in others:
+            continue
+        mapping[name] = canonical
+        taken.add(canonical)
+    return mapping
+
+
+def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
+    """Return ``df`` carrying a filled-in :data:`SCREEN_KEY` column.
+
+    The three cases, and why each behaves as it does:
+
+    * **The frame has no screen column.** It gains one, holding ``screen`` or
+      :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
+      project written before and it must keep working.
+    * **The frame has one, and ``screen`` is ``None``.** Its labels are kept.
+      Relabelling a frame that already knows which experiment it came from
+      would move rows between screens with nothing on screen to say so.
+    * **The frame has one and ``screen`` was given.** The caller is looking at
+      the files and has said which screen this is, so it wins — but only
+      because they said so. ``overwrite=False`` (the default) still fills
+      *blank* values only; pass ``overwrite=True`` to restamp every row.
+
+    Blanks are never left blank: ``None``, ``NaN`` and ``''`` become
+    :data:`DEFAULT_SCREEN`, because an empty screen id is not an identity and
+    every row carrying one would group with every other.
+
+    :param df: :class:`pandas.DataFrame`.
+    :param screen: the screen label for rows that do not have one.
+    :param overwrite: replace existing labels instead of filling blanks.
+    :returns: a new frame; ``df`` is not modified.
+    """
+    frame = df.copy()
+    if SCREEN_KEY not in frame.columns or overwrite:
+        frame[SCREEN_KEY] = screen_id(screen)
+        return frame
+    frame[SCREEN_KEY] = [screen_id(value if _is_present(value) else screen)
+                         for value in frame[SCREEN_KEY]]
+    return frame
+
+
+def _is_present(value: Any) -> bool:
+    """Whether a stored screen label says anything at all."""
+    if value is None:
+        return False
+    if isinstance(value, float) and value != value:
+        return False
+    return bool(str(value).strip())
+
+
 def canonicalise_columns(df):
     """Return ``df`` with every legacy column name renamed canonically.
 
@@ -2125,21 +2597,336 @@ def canonicalise_columns(df):
     trade — a human can decide which column is authoritative, and until then
     both stay reachable.
 
+    "Already present" is decided case-insensitively by
+    :func:`canonical_rename_plan`, because these frames get written with
+    ``to_sql`` and SQLite compares identifiers case-insensitively.
+
     :param df: :class:`pandas.DataFrame` whose columns may use legacy names.
     :returns: a new frame with canonical column names.
     """
-    have = set(df.columns)
-    mapping = {}
-    for name in df.columns:
-        canonical = canonical_column_name(name)
-        if canonical != name and canonical not in have:
-            mapping[name] = canonical
-            have.add(canonical)
+    mapping = canonical_rename_plan(df.columns)
     return df.rename(columns=mapping) if mapping else df.copy()
 
 
+def compose_prc_column(df, columns=None):
+    """Compose escaped plate-row-column identifiers for a frame.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Frame containing the well-key columns.
+    columns : sequence of str, optional
+        Plate, row, and column field names. Defaults to
+        :data:`WELL_KEY_COLUMNS`.
+
+    Returns
+    -------
+    pandas.Series
+        Canonical ``prc`` identifiers aligned to ``df``.
+
+    Raises
+    ------
+    KeyError
+        If any required key column is absent.
+
+    Notes
+    -----
+    Plate values are escaped with the same rules as :func:`compose_prc`, so
+    separators and percent characters cannot create ambiguous keys. Legacy
+    unescaped identifiers remain readable through :func:`parse_prcf`.
+    """
+    plate, row, column = tuple(columns or WELL_KEY_COLUMNS)
+    missing = [name for name in (plate, row, column) if name not in df.columns]
+    if missing:
+        raise KeyError(
+            f'cannot compose {PRC_KEY!r}: {missing} not in the frame. '
+            f'Columns: {list(df.columns)}')
+    return (df[plate].astype(str).map(escape_filename_component)
+            + KEY_SEPARATOR + df[row].astype(str)
+            + KEY_SEPARATOR + df[column].astype(str))
+
+
+# ---------------------------------------------------------------------------
+# One vocabulary: the collision rule, and the plate-value repair
+# ---------------------------------------------------------------------------
+
+#: A doubled plate prefix, the one *value* repair every reader owes a frame.
+_DOUBLED_PLATE_PREFIX = re.compile(r'^pp')
+
+#: The columns a doubled plate prefix reaches. ``plateID`` is the plate
+#: itself; the composed keys carry it as their FIRST component, which is why
+#: repairing the plate column alone leaves every join still broken.
+PLATE_BEARING_COLUMNS: Tuple[str, ...] = (PLATE_KEY, PRC_KEY, PRCF_KEY,
+                                          PRCFO_KEY)
+
+
+def canonical_plate_id(plate: Any) -> str:
+    """The plate id in the form the rest of spaCR keys on.
+
+    A legacy score CSV stamps its plate ``pplate1`` while the sequencing
+    counts stamp it ``plate1``. The two then do not join, the merge returns
+    zero rows, and the run dies several steps later inside a plot with
+    ``KeyError: 0`` -- nowhere near the mismatch and with nothing on screen
+    naming a plate.
+
+    This lives here, and not in :mod:`spacr.multi_database` where it was
+    written, because there must be **one** normaliser:
+    ``utils.correct_metadata`` had the rule for frames, ``multi_database``
+    had it for scalars and for database reads, and the pair had to be pinned
+    against each other by test precisely because they were two. Both now call
+    this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.
+
+    :param plate: a plate id, from anywhere.
+    :returns: the id with a doubled ``p`` prefix collapsed; everything else
+        unchanged.
+    """
+    text = str(plate)
+    return 'p' + text[2:] if text.startswith('pp') else text
+
+
+def normalise_plate_columns(frame):
+    """Collapse a doubled ``p`` prefix in every column that carries a plate.
+
+    Applied on READ, so nothing on disk is rewritten and an old database
+    keeps working. Modifies ``frame`` in place and returns it, which is what
+    the two callers that predate this function both did.
+
+    :param frame: any frame read from a database or a CSV.
+    :returns: the same frame.
+    """
+    import pandas as pd
+    from pandas.api.types import is_object_dtype
+
+    for column in PLATE_BEARING_COLUMNS:
+        if column not in frame.columns:
+            continue
+        values = frame[column]
+        # A plate id stored as a number cannot carry a "pp" prefix, so there
+        # is nothing to do. pandas 3 infers ordinary Python text as
+        # StringDtype rather than object; both are text-bearing inputs, while
+        # categorical and other extension dtypes retain their old no-op
+        # behaviour.
+        dtype = getattr(values, 'dtype', None)
+        if not (
+                is_object_dtype(dtype)
+                or isinstance(dtype, pd.StringDtype)):
+            continue
+        frame[column] = values.map(
+            lambda v: canonical_plate_id(v) if isinstance(v, str) else v)
+    return frame
+
+
+def comparable_key_value(value: Any) -> str:
+    """One metadata value, reduced to the form two spellings are compared in.
+
+    ``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype
+    difference is **not** a disagreement, and this is the whole reason the
+    comparison is not ``Series.equals``: a naive equality warns on every file
+    that stored one copy of the well as text and the other as a number, and a
+    warning that fires every time teaches the user to ignore the one that
+    matters.
+
+    Missing is its own value: ``None``, ``NaN`` and ``''`` all reduce to
+    ``''``, so two columns that are both blank on a row agree there.
+
+    :param value: a single cell.
+    :returns: the comparison string.
+    """
+    if value is None:
+        return ''
+    if isinstance(value, float) and value != value:
+        return ''
+    text = str(value).strip()
+    if not text:
+        return ''
+    try:
+        number = float(text)
+    except (TypeError, ValueError):
+        return text
+    if number != number:
+        return ''
+    if number == int(number):
+        return str(int(number))
+    return str(number)
+
+
+def comparable_key_values(values) -> Tuple[str, ...]:
+    """:func:`comparable_key_value` over a column.
+
+    :param values: iterable of metadata cells to reduce for comparison.
+    """
+    return tuple(comparable_key_value(value) for value in values)
+
+
+@dataclass(frozen=True)
+class ColumnCollision:
+    """What happened when several columns claimed one metadata key.
+
+    :param canonical: canonical metadata key claimed by all source columns.
+    :param sources: source columns in their original frame order.
+    :param chosen: source column retained under the canonical name.
+    :param dropped: redundant source columns removed from the frame.
+    :param disagreeing_rows: number of rows whose source values disagreed.
+    :param rows: total number of rows compared.
+    """
+
+    #: the canonical key they all meant, e.g. ``'wellID'``.
+    canonical: str
+    #: every source column, in the order the frame carried them.
+    sources: Tuple[str, ...]
+    #: the one that was kept and renamed to :attr:`canonical`.
+    chosen: str
+    #: the ones that were dropped.
+    dropped: Tuple[str, ...]
+    #: how many rows the sources did not all agree on.
+    disagreeing_rows: int
+    #: how many rows there were.
+    rows: int
+
+    @property
+    def agreed(self) -> bool:
+        """Whether every row said the same thing."""
+        return self.disagreeing_rows == 0
+
+    @property
+    def message(self) -> str:
+        """The sentence a user is shown -- printed, or warned."""
+        listed = ', '.join(self.sources)
+        if self.agreed:
+            return (f'{self.canonical} metadata columns {listed} agree; '
+                    f'{self.chosen} is being used and the rest are dropped')
+        return (f'{self.canonical} metadata columns {listed} do not agree '
+                f'({self.disagreeing_rows} of {self.rows} rows differ); '
+                f'{self.chosen} is being used and the rest are dropped')
+
+
+def _choose_source(canonical: str, names: Tuple[str, ...]) -> str:
+    """Which spelling wins: the canonical one, else the leftmost."""
+    for name in names:
+        if name == canonical:
+            return name
+    return names[0]
+
+
+def resolve_metadata_collisions(frame, *, report=None, warn=None):
+    """Collapse every group of columns that mean the same metadata key.
+
+    Several columns can normalise to one
+    key -- a file carrying ``well``, ``wellID`` and ``well_name`` has three
+    opinions about which well a row came from, and every join downstream is
+    silently picking one of them. What happens is decided by whether they
+    **agree row by row** (:func:`comparable_key_value`):
+
+    * **they agree** -- keep one, drop the rest, and *print*. Nothing is
+      wrong, so nothing warns.
+    * **they disagree** -- the same action, and a **warning** naming the
+      columns, the choice, and *how many rows differ*. That count is the
+      point: "they disagree" is not actionable, "3 of 40 000 rows disagree"
+      is a typo and "40 000 of 40 000" is the wrong file.
+
+    Only :data:`METADATA_KEYS` are collapsed. Two feature columns that
+    normalise alike keep both spellings, because a measurement is data and
+    dropping one to tidy a name is not this function's call to make.
+
+    Duplicate column *labels* are handled positionally, so a frame that
+    already carries two columns both literally named ``rowID`` -- which
+    ``pandas`` allows and ``to_sql`` refuses -- is repaired rather than
+    raising.
+
+    :param frame: :class:`pandas.DataFrame`.
+    :param report: called with each agreeing collision's message. Pass
+        ``print`` to show them; ``None`` is silent.
+    :param warn: called with each disagreeing collision's message. ``None``
+        routes to :func:`warnings.warn`; pass a callable to capture them.
+    :returns: ``(frame, collisions)``. The frame is new when anything
+        changed and ``frame`` itself when nothing did.
+    """
+    import warnings
+
+    groups: Dict[str, list] = {}
+    for position, name in enumerate(frame.columns):
+        canonical = canonical_column_name(name)
+        if canonical in METADATA_KEYS:
+            groups.setdefault(canonical, []).append((position, str(name)))
+
+    collisions = []
+    dropped_positions = set()
+    for canonical, entries in groups.items():
+        if len(entries) < 2:
+            continue
+        names = tuple(name for _, name in entries)
+        chosen = _choose_source(canonical, names)
+        chosen_position = next(position for position, name in entries
+                               if name == chosen)
+        columns = [comparable_key_values(frame.iloc[:, position])
+                   for position, _ in entries]
+        first = columns[0]
+        differing = sum(1 for row in zip(*columns)
+                        if any(value != row[0] for value in row[1:]))
+        collision = ColumnCollision(
+            canonical=canonical, sources=names, chosen=chosen,
+            dropped=tuple(name for position, name in entries
+                          if position != chosen_position),
+            disagreeing_rows=differing, rows=len(first))
+        collisions.append(collision)
+        dropped_positions.update(position for position, _ in entries
+                                 if position != chosen_position)
+        if collision.agreed:
+            if report is not None:
+                report(collision.message)
+        elif warn is None:
+            warnings.warn(collision.message, stacklevel=2)
+        else:
+            warn(collision.message)
+
+    if dropped_positions:
+        keep = [position for position in range(len(frame.columns))
+                if position not in dropped_positions]
+        frame = frame.iloc[:, keep]
+    return frame, tuple(collisions)
+
+
+def canonicalise_frame(frame, *, report=None, warn=None,
+                       repair_plate_ids: bool = True):
+    """The whole vocabulary applied to one frame: the reader's normaliser.
+
+    Three steps, in this order and for this reason:
+
+    1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions
+       *before* renaming, because renaming first is what produces two columns
+       called ``rowID`` and a ``to_sql`` that refuses the table.
+    2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus
+       the legacy *feature* spellings, renamed.
+    3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on
+       every column that carries a plate.
+
+    Every collision is recorded on ``frame.attrs['column_collisions']`` as
+    well as reported, so a GUI can show what a read decided without having
+    intercepted the callbacks.
+
+    :param frame: :class:`pandas.DataFrame`.
+    :param report: see :func:`resolve_metadata_collisions`.
+    :param warn: see :func:`resolve_metadata_collisions`.
+    :param repair_plate_ids: apply step 3. Off for a caller that must see the
+        stored plate id exactly as written.
+    :returns: a new frame.
+    """
+    frame, collisions = resolve_metadata_collisions(
+        frame, report=report, warn=warn)
+    mapping = canonical_rename_plan(frame.columns)
+    frame = frame.rename(columns=mapping) if mapping else frame.copy()
+    if repair_plate_ids:
+        normalise_plate_columns(frame)
+    frame.attrs['column_collisions'] = collisions
+    return frame
+
+
 def validate_object_table_frame(
-        frame, table: str, *, timelapse: Optional[bool] = None):
+        frame, table: str, *, timelapse: Optional[bool] = None,
+        metadata_column_map=None, metadata_well_column=None,
+        metadata_pseudo_source=None, allow_pseudo_metadata: bool = False,
+        metadata_prompt=None, metadata_cache_key=None,
+        metadata_mapping_path=None):
     """Validate an object-table frame against its canonical contract.
 
     Validation is deliberately strict at the writer boundary and
@@ -2177,6 +2964,37 @@ def validate_object_table_frame(
 
     contract = object_table_schema(table)
     out = canonicalise_columns(frame)
+
+    # Every object-table writer crosses this boundary.  Resolve unfamiliar
+    # metadata here so modules do not each grow a slightly different rename
+    # prompt.  The import stays lazy to preserve schema's lightweight import
+    # contract and the headless default raises immediately rather than
+    # opening a dialog.
+    unresolved = [
+        column for column in contract.required_columns
+        if column not in out.columns
+    ]
+    if unresolved:
+        from .metadata_resolution import (
+            MetadataResolutionRequired,
+            resolve_metadata_columns,
+        )
+        try:
+            out = resolve_metadata_columns(
+                out,
+                contract.required_columns,
+                column_map=metadata_column_map,
+                well_column=metadata_well_column,
+                pseudo_source=metadata_pseudo_source,
+                allow_pseudo=allow_pseudo_metadata,
+                prompt=metadata_prompt,
+                cache_key=metadata_cache_key,
+                save_path=metadata_mapping_path,
+            ).frame
+        except MetadataResolutionRequired as exc:
+            raise ObjectTableSchemaError(
+                f'{table} is missing required canonical column(s) '
+                f'{list(exc.missing)}; {exc}') from exc
 
     duplicated_columns = out.columns[out.columns.duplicated()].tolist()
     if duplicated_columns:
@@ -2232,6 +3050,11 @@ def validate_object_table_frame(
                 f'row indexes: {examples}.')
 
     def _validate_positive_integer(column: str, *, nullable: bool = False):
+        """Require positive integral values in one canonical key column.
+
+        When ``nullable`` is true, nulls are ignored while every populated
+        value is still checked; failures name the table, column, and examples.
+        """
         values = out[column]
         check = values.dropna() if nullable else values
         if not nullable and values.isna().any():
@@ -2468,3 +3291,51 @@ def legacy_map_wells(file_name: Any, timelapse: bool = False) -> Tuple[str, ...]
     if timelapse:
         return plate, row, column, field, timeid, prcf
     return plate, row, column, field, prcf
+
+
+# ---------------------------------------------------------------------------
+# Moved here from spacr.utils on 2026-08-19.
+#
+# THE FUNCTION NEVER NEEDED ANYTHING utils IMPORTS. It delegates to
+# `canonicalise_frame` below and touches pandas, and that is all -- but
+# `spacr/utils.py` imports torch, torchvision and cv2 on its line 3, so
+# `from .utils import correct_metadata_column_names` cost 4,336 modules and
+# 6.7 SECONDS. The Cells tab paid it to show nine PNGs, which is why the
+# montage felt slow beside the annotation app: "in the annotation app images
+# load almost instintaniously while in the regression cell montage it takes
+# way longer".
+#
+# `spacr.utils` re-exports it, so every existing caller is unchanged.
+# ---------------------------------------------------------------------------
+
+
+def correct_metadata_column_names(df):
+    """Rename legacy metadata columns to the canonical spaCR names.
+
+    A thin name over :func:`spacr.schema.canonicalise_frame`, which is the
+    one vocabulary: case- and punctuation-insensitive, so ``Plate``,
+    ``PLATE``, ``plate_id`` and ``plateName`` all become ``plateID``. This
+    function used to carry its own list of six spellings, matched
+    case-sensitively, and that list is why a CSV whose header said ``Column``
+    reached a fit with no ``columnID`` in it.
+
+    Two things it does that the shared vocabulary deliberately does not:
+
+    * ``grna_name`` -> ``grna``. Not in the shared vocabulary because the
+      sequencing CSVs are still read with ``grna_name`` by name in
+      ``spacr.submodules`` and ``spacr.plot``; renaming it at the database
+      migration would break those reads, and a rename nobody can see is
+      worse than a spelling.
+    * ``plate_row`` split into ``plateID`` and ``rowID``. That is a *value*
+      split rather than a rename, so it has no place in a name table.
+
+    :param df: DataFrame whose columns may use legacy names.
+    :returns: A DataFrame carrying the canonical names. The renames are not
+        applied in place, so the caller must use the returned frame.
+    """
+    df = canonicalise_frame(df, report=print, repair_plate_ids=False)
+    if 'grna_name' in df.columns and 'grna' not in df.columns:
+        df = df.rename(columns={'grna_name': 'grna'})
+    if 'plate_row' in df.columns:
+        df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
+    return df

@@ -6,18 +6,21 @@ Kept in its own module so :mod:`spacr.core` doesn't grow another 200
 lines and so unit tests can hit the translation code without spinning
 up Cellpose.
 
-Two responsibilities:
+Three responsibilities:
 
 * :func:`v2_channels_from_settings` — extract ``(channels,
   channel_names)`` in a stable order from the mask/cell/nucleus/
   pathogen/organelle settings keys.
 * :func:`report_disk_savings` — after a v2 run, log an estimate of
-  how much disk v1 would have used vs. what v2 actually used, so
-  users can see the payoff.
+  how much disk v1 would have used versus the supplied stack files plus
+  the three known sidecars, so users can see the payoff.
+* :func:`v2_mask_source` — expose mask planes embedded in v2 stacks through
+  the lazy reader interface used by segmentation quality control.
 """
 from __future__ import annotations
 
 import logging
+import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
@@ -41,8 +44,14 @@ def v2_channels_from_settings(settings: Dict[str, Any]
                                 ) -> Tuple[List[int], List[str]]:
     """Pick out ``(channel_indices, channel_names)`` from a v1 settings dict.
 
-    Order is fixed: nucleus, cell, pathogen, organelle (drops any that
-    are None or absent). Uses the same C-axis convention that
+    :param settings: v1 settings carrying object-channel assignments.
+
+    Order is fixed: nucleus, cell, pathogen, organelle. Missing,
+    ``None``, and non-integer assignments are skipped. The top-level
+    ``channels`` sequence is used only when none of those named assignments
+    survives; its generated names preserve each value's original position.
+    With neither usable form, the four-channel default is ``[0, 1, 2, 3]``.
+    Uses the same C-axis convention that
     ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows
     end-to-end through v2 unchanged.
 
@@ -96,8 +105,10 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
 
     :param src: plate root.
     :param stacks: the list of :class:`StackFile` produced by the run.
-    :returns: dict of ``{"v2_bytes", "v1_estimated_bytes",
-        "saved_pct"}``; also logged at INFO.
+    :returns: Dict containing ``v2_bytes``, ``v1_estimated_bytes``,
+        ``saved_bytes``, and ``saved_pct``; also logged at INFO. Stack entries
+        without a readable ``path`` and missing or unreadable sidecars are
+        omitted from the byte total.
     """
     src = Path(src)
     v2_bytes = 0
@@ -135,9 +146,100 @@ def report_disk_savings(src: Path, stacks: Sequence[Any]) -> Dict[str, Any]:
 
 
 def _human(n_bytes: int) -> str:
-    """Render byte count in a human-friendly unit."""
+    """Render a byte count in a human-friendly unit.
+
+    :param n_bytes: Byte count to format.
+    :returns: Decimal-unit text from bytes through terabytes.
+    """
     for unit, div in (("TB", 1e12), ("GB", 1e9), ("MB", 1e6),
                        ("KB", 1e3)):
         if n_bytes >= div:
             return f"{n_bytes / div:.2f} {unit}"
     return f"{n_bytes} B"
+
+
+def v2_mask_source(merged_dir, object_type: str = "cell"):
+    """A lazy mask source for :func:`spacr.seg_qc.run_segmentation_qc`.
+
+    v1 writes one ``.npy`` per field into a ``<object_type>_mask_stack``
+    folder, which the scorecard globs directly. v2 has no such folder: the
+    mask is a CHANNEL of ``merged/stack_<field>.npy``, shape
+    ``(H, W, C_image + C_mask)``. This reads ``channel_order.json`` to learn
+    which plane that is and hands back ``{field: thunk}``, so the same QC
+    scores both layouts and neither has to know about the other.
+
+    :param merged_dir: the ``merged/`` folder ``run_v2`` wrote.
+    :param object_type: which mask channel to score, matched by name against
+        ``channel_order.json``'s ``mask_channels``.
+    :returns: ``{field_id: callable}`` -- one thunk per field, each loading
+        its own stack and slicing one plane. An unreadable or syntactically
+        invalid JSON sidecar returns an empty mapping. A sole mask whose name
+        does not match ``object_type`` is deliberately selected; multiple
+        unmatched masks return an empty mapping rather than guessing.
+
+    Loaded through ``mmap_mode='r'`` and sliced plane-first, so a 1536-field
+    plate is scored one field at a time rather than read whole.
+    """
+    import json
+    import os
+
+    merged = os.fspath(merged_dir)
+    sidecar = os.path.join(merged, "channel_order.json")
+    try:
+        with open(sidecar) as handle:
+            meta = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+
+    image_channels = list(meta.get("image_channels") or [])
+    mask_channels = list(meta.get("mask_channels") or [])
+    if not mask_channels:
+        return {}
+
+    wanted = str(object_type)
+    if wanted in mask_channels:
+        offset = mask_channels.index(wanted)
+    elif len(mask_channels) == 1:
+        # One mask and a name that does not match: score it anyway. The
+        # channel was written by the run being scored, and refusing over a
+        # naming difference would report "no masks" about a plate that has
+        # them.
+        offset = 0
+    else:
+        return {}
+    plane = len(image_channels) + offset
+
+    def _reader(path):
+        """Return a lazy zero-argument reader for one captured stack path.
+
+        :param path: Stack path captured by the returned closure.
+        :returns: A zero-argument callable that reads the selected mask plane.
+        """
+        def read():
+            """Memory-map the stack and return its selected 2-D mask plane.
+
+            :returns: The selected mask plane as an array.
+            :raises IndexError: If the deferred stack lacks the sidecar's
+                selected plane.
+
+            A stale sidecar whose selected plane is absent raises an
+            ``IndexError`` that names the stack, plane, and observed shape.
+            """
+            stack = np.load(path, mmap_mode="r")
+            if stack.ndim < 3 or plane >= stack.shape[2]:
+                raise IndexError(
+                    f"{os.path.basename(path)} has no plane {plane}: its "
+                    f"shape is {getattr(stack, 'shape', None)}, so "
+                    f"channel_order.json does not describe this stack")
+            return np.asarray(stack[:, :, plane])
+        return read
+
+    out = {}
+    for name in sorted(os.listdir(merged)):
+        if not name.lower().endswith(".npy"):
+            continue
+        field = name[:-4]
+        if field.startswith("stack_"):
+            field = field[len("stack_"):]
+        out[field] = _reader(os.path.join(merged, name))
+    return out

@@ -1,0 +1,161 @@
+================================================================================
+364 -- MASK AND MEASURE SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+Mask (get_timelapse_settings)     203 settings
+Measure (get_measure_crop_settings) 65 settings
+
+--------------------------------------------------------------------------------
+FINDING 0 -- NOTHING IS DEAD. "Unnecessary" is not the axis here.
+--------------------------------------------------------------------------------
+
+Every one of the 268 settings is read somewhere in the package. A scan for
+keys that are never read as a settings key AND barely named anywhere else
+returned ZERO in both modules.
+
+  So there is no list of settings to simply delete, and an audit that set out
+  to find one would report "nothing to do" and miss everything below. The
+  problems are REDUNDANCY and NAMING, not dead weight.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- THE SAME QUESTION ASKED TWICE, AND THE ANSWERS CAN DISAGREE
+--------------------------------------------------------------------------------
+
+PROPOSE: COMBINE. This is the most important item in this file, because it is
+not untidiness -- it is a way for the live preview and the batch run to
+produce different masks from the same settings file.
+
+    organelle_min_size / organelle_max_size   read by the BATCH organelle
+                                              mask writer, spacr/object.py
+    organelle_min_area / organelle_max_area   read by the SHARED object
+                                              filter, which is what the Qt
+                                              LIVE PREVIEW uses
+
+Both mean "how small an organelle do I keep". Which one takes effect depends
+on whether the user is looking at the preview or has pressed run. A user who
+tunes the preview until it looks right and then runs the batch gets a
+different filter, silently.
+
+  THE TOOLTIPS ALREADY ADMIT IT, which is how this was found. organelle_min_area
+  says "Note this is the shared object filter (used by the Qt live preview);
+  the batch organelle mask writer does its own size filtering with
+  organelle_min_size." A tooltip that has to explain which of two settings
+  applies to you is the tooltip of a setting that should not exist twice.
+
+  ASYMMETRY CONFIRMS IT: cell, nucleus and pathogen have ONLY the `_area`
+  pair. Organelle alone carries both. There is no reason organelles should
+  answer a question the other three do not.
+
+  PROPOSAL: keep `_min_area` / `_max_area` -- the name the other three objects
+  already use, and the one whose units (pixels^2) the value actually is --
+  and retire `organelle_min_size` / `organelle_max_size` into
+  RETIRED_SETTINGS, pointing the batch writer at the shared filter.
+
+  DO NOT ALSO MERGE `_min_object_area`. It looks like a third member of the
+  family and is NOT: it is the floor below which an object is never SPLIT,
+  not the floor below which it is deleted. Checked against all four objects'
+  tooltips. Its name is the problem, not its existence -- see Finding 3.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- 78 OF MASK'S 203 SETTINGS ARE 20 QUESTIONS ASKED FIVE TIMES
+--------------------------------------------------------------------------------
+
+20 shapes repeat across cell / nucleus / pathogen / organelle / cytoplasm:
+
+    CP_prob x4      FT x4         Signal_to_noise x3   area_multiplier x4
+    background x3   channel x4    diameter x4          intensity_merge x4
+    ... and 12 more
+
+PROPOSE: NOT a removal -- a user genuinely may want a different diameter for
+a nucleus than for a cell. This is a PRESENTATION problem being solved by
+multiplying the vocabulary, and it is unbounded: instruction 326 makes the
+object count arbitrary, so 20 shapes x N objects grows without limit.
+
+  PROPOSAL: one question per shape, answered per object in a small table or
+  per-object tab. A presentation change with a settings-file migration behind
+  it. Coordinate with 326 -- these are one problem.
+
+AND 37 ASYMMETRIC SETTINGS, all `organelle_*`: adaptive_block_size,
+adaptive_offset, clahe, clahe_clip_limit, dog_sigma_high/low, fill_holes,
+hysteresis_high/low, log_max_sigma and 27 more. These are the classical
+(non-Cellpose) segmenter's controls, which only organelles use.
+
+  PROPOSAL: leave them, but GROUP them under the method that owns them. They
+  are not redundant; they are 37 settings that are irrelevant unless
+  organelle_method is a classical one, and showing them otherwise is what
+  makes the module look like it asks 203 questions.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- ELEVEN NAMES THAT DO NOT SAY WHAT THEY ARE
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME. In every case the tooltip has to translate the name before
+it can explain the setting, which is the test for a name being wrong.
+
+  <object>_FT          -> <object>_flow_threshold
+      Tooltip: "Cellpose flow_threshold: the maximum allowed error between a
+      candidate mask's recomputed flows and the network's predicted flows."
+      FT is an abbreviation of the Cellpose parameter it sets. A user reading
+      the Cellpose documentation searches for "flow_threshold" and finds
+      nothing in spaCR.  (4 settings)
+
+  <object>_CP_prob     -> <object>_cellprob_threshold
+      Tooltip: "Cellpose cellprob_threshold: only pixels whose predicted cell
+      probability exceeds it are assigned to a mask." Same argument, and
+      "CP_prob" additionally reads as "Cellpose probability" rather than as a
+      threshold.  (4 settings)
+
+  <object>_Signal_to_noise -> <object>_signal_to_noise
+      Casing only. It is the sole family mixing snake_case with a
+      capitalised term mid-name.  (3 settings)
+
+  <object>_min_object_area -> <object>_min_split_area
+      Not a rename for style: the current name is actively misleading beside
+      `_min_area`, which it is not a variant of. It is the floor below which
+      an object is never SPLIT. See Finding 1.  (4 settings)
+
+--------------------------------------------------------------------------------
+FINDING 4 -- FOUND WHILE AUDITING: 59 SETTINGS LINK TO THE WRONG FUNCTION
+--------------------------------------------------------------------------------
+
+Not a settings problem, but it is a problem this audit walked into and it
+undermines instruction 368 before that work starts.
+
+`spacr/qt/screens/setting_api_targets.py` -- generated by
+`tools/build_setting_consumer_map.py` -- maps 706 settings to the function
+that READS each one, and is what a setting's API link points at.
+
+    466  the claimed function does read the key literally
+     81  the function touches `settings`, so a dynamic read is plausible
+    100  the module or function could not be resolved
+     59  THE CLAIMED FUNCTION READS NO SETTINGS AT ALL
+
+The 59 are certainly wrong -- the check is conservative and does not count a
+function that touches `settings` in any way. 30 of them point at
+`spacr.guide_permutation.save_guide_permutation_results`, which takes a
+DataFrame and a destination path and reads no settings of any kind. Among
+them are `nucleus_min_area`, `organelle_min_area` and `pathogen_min_area`.
+
+  So a user clicking `nucleus_min_area` to learn where it is used is taken to
+  a guide-permutation CSV writer. Instruction 368 proposes building a
+  settings-flow TREE on this map; the map has to be right first, and this is
+  the ground truth its analyser must be tested against.
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED OF THE MAINTAINER
+--------------------------------------------------------------------------------
+
+1. Finding 1 -- approve retiring organelle_min_size / organelle_max_size in
+   favour of the _area pair? This changes batch behaviour for anyone whose
+   settings file sets the _size pair, so it needs RETIRED_SETTINGS handling
+   and a note in the release.
+2. Finding 3 -- approve the four renames? Each stales the notebooks' generated
+   setting docs, the reviewed translation records pinned to the old tooltip,
+   and any saved settings file.
+3. Finding 2 -- is the per-object table the shape you want, or should the
+   flat names stay?
+
+Measure's 65 settings show the same shapes at smaller scale (3 families, 12
+settings) and no `_size`/`_area` duplication. Its audit follows once the
+Mask decisions are made, so both are renamed under one convention.

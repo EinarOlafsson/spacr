@@ -1,83 +1,38 @@
-"""Which of the four hundred features actually separates the classes.
+"""Rank per-object measurements by class-separation performance.
 
-spaCR measures hundreds of features per object. Plotting them one at a time
-until something looks different is not analysis, it is a lottery with a
-publication bias, so **the ranking is the feature** and the plotting is the
-easy half.
+The default statistic is the area under the receiver-operating-characteristic
+curve (AUC), computed from the Mann–Whitney U statistic. Results are reported
+as the unit-free separation ``|2·AUC − 1|`` in ``[0, 1]`` together with the
+direction of the class difference. AUC is rank based and therefore invariant
+under monotonic transformations; it does not require normality, equal variance
+or symmetry. These properties allow measurements with different units and
+distributions to be compared in one ranking.
 
-The statistic, and why it is this one
--------------------------------------
+AUC represents the probability that a randomly selected object from one class
+has a higher value than a randomly selected object from the other class. It
+detects stochastic ordering but can miss distribution-shape differences. For
+example, classes with the same centre but different spread can have an AUC of
+0.5 despite differing distributions. The Kolmogorov–Smirnov (KS) statistic is
+therefore computed for every feature. A high KS statistic combined with AUC
+near 0.5 sets :attr:`FeatureScore.is_shape_not_shift`.
 
-The default is **AUC** — the area under the ROC curve of that one feature,
-computed from the Mann–Whitney U statistic via ranks and reported as a
-*separation* ``|2·AUC − 1|`` in ``[0, 1]``, plus the direction (which class
-sits higher).
+Alternative ranking statistics are available through :data:`STATISTICS`:
 
-Three reasons, all of them about this table specifically:
+* :data:`COHEN_D` measures a standardized mean difference but is sensitive to
+  skew, extreme observations and unequal group spread.
+* :data:`KS` measures the largest difference between empirical cumulative
+  distributions and detects spread changes, but does not provide direction.
+* :data:`MUTUAL_INFO` detects non-monotonic associations but depends on binning
+  and is biased upward for small samples.
 
-1. **It is rank-based**, so it is invariant under any monotone transform of the
-   feature. Half a spaCR measurement table is log-normal-ish — areas,
-   integrated intensities, ratios spanning three orders of magnitude — and
-   whether ``cell_area`` or ``log(cell_area)`` was measured must not change
-   which feature comes top. It does change Cohen's d.
-2. **It assumes nothing about the distributions**: not normality, not equal
-   variance, not even symmetry. The alternatives assume at least one of those,
-   and a segmented-object feature satisfies none of them.
-3. **It is bounded and unit-free**, so four hundred features measured in px²,
-   in counts and in dimensionless ratios are comparable on one axis. That is
-   what ranking *requires*, and it is exactly why an effect size in the
-   feature's own units cannot do the job.
+:attr:`ExplorerSpec.n_permutations` enables a family-wise permutation
+calibration. Class labels are permuted, the complete ranking is recomputed and
+the maximum score from each permutation is retained. The 95th percentile of
+these maxima is returned as :attr:`ExplorerResult.null_threshold`. Calibration
+uses a seeded subsample of at most :data:`NULL_MAX_ROWS` rows and is disabled
+by default because computation scales with the number of permutations.
 
-And it means something a biologist can check: AUC is the probability that a
-randomly chosen object of one class scores above a randomly chosen object of
-the other. 0.5 is a coin flip; 0.9 is a feature you could nearly gate on.
-
-**Its failure mode, stated rather than discovered later.** AUC only sees
-*stochastic ordering*. A feature where one class is bimodal around the other's
-median — same centre, wider spread — scores exactly 0.5 while being obviously
-informative. That is not hypothetical in this data: a knockdown that makes some
-cells bigger and some smaller is a variance effect, and AUC is blind to it.
-
-So the **KS statistic is computed for every feature, always, whatever the
-ranking statistic is**, and a feature with a high KS and an AUC near 0.5 is
-flagged :attr:`FeatureScore.is_shape_not_shift`. KS is the largest gap between
-the two empirical CDFs, which a variance difference moves and a rank test does
-not. The blind spot is not fixed — it is *reported*, on every row it applies to.
-
-The other three, and their failure modes
------------------------------------------
-
-Offered because different questions want different answers, each with the
-sentence a user needs before choosing it (:data:`STATISTIC_FAILURE_MODES`):
-
-* :data:`COHEN_D` — a standardised mean difference. Fails on skew: one object
-  three orders of magnitude out moves it, and it assumes the two groups have
-  comparable spread, which is precisely the case AUC is blind to.
-* :data:`KS` — the largest CDF gap. Sees any difference in distribution
-  including variance, but says nothing about *direction*, and is dominated by
-  wherever the two curves happen to cross.
-* :data:`MUTUAL_INFO` — binned mutual information, normalised by the class
-  entropy. Sees non-monotone relationships that AUC cannot, but depends on the
-  binning and is **biased upward at small n**: it never reports zero for a
-  finite sample, so a table with fifty objects per class produces a tidy
-  ranking of pure noise.
-
-The multiple-comparisons problem, out loud
--------------------------------------------
-
-Ranking four hundred features by separation and reading the top one is four
-hundred comparisons with one reported. :attr:`ExplorerSpec.n_permutations`
-turns on a **label-shuffling null**: the class labels are permuted, the whole
-ranking is recomputed, and the *best* score in each shuffle is kept. The 95th
-percentile of that is :attr:`ExplorerResult.null_threshold` — the separation
-the best of your features reaches by chance alone. A feature below it is not
-news, however confidently it is drawn.
-
-It is off by default because it costs a pass per shuffle, and it is computed on
-a seeded subsample of at most :data:`NULL_MAX_ROWS` rows, which
-:attr:`ExplorerResult.notice` says.
-
-No Qt in here — pure numpy and pandas, like :mod:`spacr.qt.widgets.pca_model`.
+The implementation uses NumPy and pandas and does not require Qt.
 """
 from __future__ import annotations
 
@@ -375,6 +330,13 @@ class ExplorerSpec:
     seed: int = 0
 
     def __post_init__(self) -> None:
+        """Normalise the label and features, and validate the ranking settings.
+
+        :raises ExplorerError: if the separation statistic is not one this
+            module offers, or if ``top`` is below 1. ``bins`` is floored at 2
+            and the permutation count at 0 rather than refused -- neither can
+            make a ranking wrong, only less informative.
+        """
         object.__setattr__(self, "label", str(self.label or "").strip())
         object.__setattr__(self, "features",
                            tuple(str(f) for f in self.features if f))
@@ -391,15 +353,37 @@ class ExplorerSpec:
         object.__setattr__(self, "seed", int(self.seed))
 
     def with_statistic(self, statistic: str) -> "ExplorerSpec":
+        """A copy ranked by a different statistic.
+
+        A COPY: a spec is a value, so the one a panel is already showing is
+        never edited underneath it.
+
+        :param statistic: the statistic's name.
+        :returns: the new spec.
+        """
         return replace(self, statistic=statistic)
 
     def with_label(self, label: str) -> "ExplorerSpec":
+        """A copy split by a different label column.
+
+        :param label: the column holding the class of each object.
+        :returns: the new spec.
+        """
         return replace(self, label=label)
 
     def with_features(self, features: Sequence[str]) -> "ExplorerSpec":
+        """A copy ranking a different set of features.
+
+        :param features: the columns to rank; empty means every continuous one.
+        :returns: the new spec.
+        """
         return replace(self, features=tuple(features))
 
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"label": self.label, "features": list(self.features),
                 "statistic": self.statistic, "top": self.top,
                 "bins": self.bins, "n_permutations": self.n_permutations,
@@ -407,6 +391,14 @@ class ExplorerSpec:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "ExplorerSpec":
+        """Rebuild a spec from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt spec.
+        """
         fields = {"label", "features", "statistic", "top", "bins",
                   "n_permutations", "seed"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
@@ -415,13 +407,26 @@ class ExplorerSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "ExplorerSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The ranking in one line: what against what, by which statistic.
+
+        :returns: a one-line description.
+        """
         what = (f"{len(self.features)} features" if self.features
                 else "every continuous column")
         return (f"{what} split by {self.label or '(no class column)'}, "
@@ -446,9 +451,21 @@ class ClassSummary:
 
     @property
     def is_low_n(self) -> bool:
+        """Whether this class has too few objects to read as a distribution.
+
+        ZERO IS NOT LOW-N, it is empty: a class with no objects is a
+        different problem from one with four, and marking it "low n" would
+        suggest the number could be trusted a little.
+
+        :returns: True when sparse but not empty.
+        """
         return 0 < self.n <= LOW_N
 
     def describe(self) -> str:
+        """This class's count, median and interquartile range.
+
+        :returns: a one-line description.
+        """
         return (f"{self.level}: n={self.n:,}, median {self.median:.4g} "
                 f"[{self.q25:.4g}, {self.q75:.4g}]")
 
@@ -480,19 +497,44 @@ class FeatureScore:
 
     @property
     def is_shape_not_shift(self) -> bool:
+        """Whether the classes differ in SHAPE rather than in location.
+
+        AUC near 0.5 with a large KS means the two distributions overlap as
+        much as chance would predict while still being different -- so a
+        feature that looks useless by AUC alone is separating on spread or
+        modality. Worth marking, because ranking by AUC would bury it.
+
+        :returns: True when the pattern holds and both statistics are finite.
+        """
         return (np.isfinite(self.auc) and np.isfinite(self.ks)
                 and abs(self.auc - 0.5) <= SHAPE_NOT_SHIFT_AUC
                 and self.ks >= SHAPE_NOT_SHIFT_KS)
 
     @property
     def smallest_class(self) -> int:
+        """The count of the least-populated class this feature was scored on.
+
+        The binding constraint on whether the score means anything: a
+        separation computed against a class of four is four objects' worth
+        of evidence however many the other class has.
+
+        :returns: the smallest class count, or 0 when there are none.
+        """
         return min(self.n_by_class.values()) if self.n_by_class else 0
 
     @property
     def is_low_n(self) -> bool:
+        """Whether the smallest class is too small to trust this score.
+
+        :returns: True when sparse but not empty.
+        """
         return 0 < self.smallest_class <= LOW_N
 
     def describe(self) -> str:
+        """The feature, its score, and whichever statistics are finite.
+
+        :returns: a one-line description.
+        """
         parts = [f"{self.feature}: {self.score:.3f}"]
         if np.isfinite(self.auc):
             parts.append(f"AUC {self.auc:.3f}, higher in {self.higher_in}")
@@ -501,8 +543,8 @@ class FeatureScore:
         if np.isfinite(self.ks):
             parts.append(f"KS {self.ks:.3f}")
         if self.is_shape_not_shift:
-            parts.append("SHAPE, NOT SHIFT — the classes differ in spread, "
-                         "not in level; a rank statistic cannot see it")
+            parts.append("distributional shape differs without a location "
+                         "shift; a rank statistic does not detect this pattern")
         if self.is_low_n:
             parts.append(f"n={self.smallest_class} in the smaller class")
         return " · ".join(parts)
@@ -534,12 +576,23 @@ class ExplorerResult:
     notice: str = ""
 
     def __len__(self) -> int:
+        """Return how many features were ranked."""
         return len(self.scores)
 
     def top(self, count: Optional[int] = None) -> Tuple[FeatureScore, ...]:
+        """The best-scoring features, already ordered.
+
+        :param count: how many to take; None or 0 takes them all.
+        :returns: the top scores.
+        """
         return self.scores[:count] if count else self.scores
 
     def score_for(self, feature: str) -> FeatureScore:
+        """One feature's score.
+
+        :param feature: the column name.
+        :returns: its score.
+        """
         for score in self.scores:
             if score.feature == feature:
                 return score
@@ -560,6 +613,14 @@ class ExplorerResult:
         return tuple(s for s in self.scores if s.score > self.null_threshold)
 
     def summary(self) -> str:
+        """What was ranked, over how much, and what was skipped.
+
+        NAMES THE SKIPPED ONES. A ranking that quietly dropped constant or
+        all-null columns would read as a complete answer over a set of
+        features the user did not choose.
+
+        :returns: a one-line summary.
+        """
         parts = [f"{self.n_considered:,} features over {self.n_rows:,} objects, "
                  f"split by {self.label} into {len(self.classes)} classes"]
         if self.skipped:
@@ -596,6 +657,20 @@ def _labelled(keys: np.ndarray) -> np.ndarray:
 
 def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
                                                             Tuple[str, ...]]:
+    """Split a table into class labels and their level names.
+
+    Rows and level names are converted through EXACTLY the same path.
+    Pandas' vectorised datetime ``astype`` omits midnight while
+    ``str(Timestamp)`` includes it, so a date column otherwise fails to
+    match its own advertised levels.
+
+    :param frame: the table.
+    :param label: the column saying which class each row is in.
+    :returns: the per-row labels and the sorted level names.
+    :raises ExplorerError: if the column is absent, if fewer than two
+        classes are present -- there is then nothing to separate -- or if
+        there are more than this screen ranks against.
+    """
     if label not in frame.columns:
         raise ExplorerError(
             f"there is no column called {label!r} to split by; this table has "
@@ -623,6 +698,15 @@ def _class_levels(frame: pd.DataFrame, label: str) -> Tuple[np.ndarray,
 
 def _summaries(values: np.ndarray, keys: np.ndarray,
                levels: Sequence[str]) -> Tuple[ClassSummary, ...]:
+    """Summarise one feature per class.
+
+    :param values: the feature's values.
+    :param keys: each row's class.
+    :param levels: the classes to summarise, in order.
+    :returns: one summary per level; a level with no rows comes back with a
+        count of zero and NaN statistics rather than being omitted, so the
+        table still has a row for it.
+    """
     out = []
     for level in levels:
         picked = values[keys == level]
@@ -679,9 +763,9 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
                     notices: List[str]) -> Optional[float]:
     """The 95th percentile of the best-of-all-features score under shuffling.
 
-    The *maximum* per shuffle, not the mean: the question is "how big does the
-    winner of four hundred features get by chance", and the mean of a null
-    answers a question nobody asked.
+    The maximum score from each shuffle calibrates selection of the best
+    feature across all tested columns; using the mean would not control that
+    family-wise selection step.
     """
     if not spec.n_permutations or not columns:
         return None
@@ -700,9 +784,19 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
     sampled = {name: values[take] for name, values in columns.items()}
     labels = keys[take]
     best: List[float] = []
+    # A SHUFFLE THAT MEASURED NOTHING IS NOT A SHUFFLE THAT MEASURED ZERO.
+    # `top` used to start at 0.0 and only ever be raised by a finite score, so
+    # a permutation in which every _separation came back NaN -- each candidate
+    # class empty once the finite mask was applied -- contributed a literal
+    # "chance reached zero" to the null distribution. On a sparsely measured
+    # table a sizeable fraction of the null could be those spurious zeros,
+    # which deflates the 95th percentile and makes above_null() list features
+    # that never beat chance. Starting at None and appending only a real
+    # measurement drops such a shuffle instead of scoring it.
+    unmeasured = 0
     for _ in range(spec.n_permutations):
         shuffled = rng.permutation(labels)
-        top = 0.0
+        top: Optional[float] = None
         for values in sampled.values():
             finite = np.isfinite(values)
             here = values[finite]
@@ -711,8 +805,16 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
                 score = _separation(spec.statistic, here[group != level],
                                     here[group == level], spec.bins)
                 if np.isfinite(score):
-                    top = max(top, float(score))
-        best.append(top)
+                    top = float(score) if top is None else max(top, float(score))
+        if top is None:
+            unmeasured += 1
+        else:
+            best.append(top)
+    if unmeasured:
+        # Say what the number cannot say: the null is thinner than asked for.
+        notices.append(
+            f"{unmeasured:,} of {spec.n_permutations:,} null shuffles measured "
+            "no feature and were dropped rather than scored as zero")
     return float(np.quantile(best, 0.95)) if best else None
 
 

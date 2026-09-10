@@ -1,6 +1,9 @@
 """PyTorch dataset generation, classification, inference, and attribution."""
 
+import contextlib
+import functools
 import os, torch, time, gc, datetime, logging
+import sys
 torch.backends.cudnn.benchmark = True
 import numpy as np
 import pandas as pd
@@ -32,6 +35,87 @@ from .torch_artifacts import (
     restore_training_state,
     save_model_artifact,
 )
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at
+# import time.
+from .figures.style import figure_style, theme_target
+
+
+_FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
+
+
+def _flowview_event(action, *args):
+    """Reach optional Classify tracing only when it is already enabled.
+
+    The ordinary direct-call path performs no FlowView import.  The
+    environment opt-in mirrors :func:`spacr.classify.classify`, while a live
+    panel or the merged Classify entry point has already loaded and enabled
+    ``spacr.flowview.trace`` before this function is reached.
+    """
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in _FLOWVIEW_TRUE_VALUES:
+            return False
+        try:
+            from .flowview import trace as trace_module
+        except BaseException:
+            return False
+    try:
+        if not trace_module.is_enabled():
+            return False
+        from .flowview import _classify_stages
+
+        return bool(getattr(_classify_stages, f"_{action}")(*args))
+    except BaseException:
+        return False
+
+
+def _flowview_pipeline(family):
+    """Finish or fail the active graph without changing pipeline semantics."""
+
+    def decorate(function):
+        """Return a wrapper that reports ``function`` lifecycle for ``family``."""
+        @functools.wraps(function)
+        def observed(*args, **kwargs):
+            """Call the pipeline, preserving its result or error while tracing lifecycle."""
+            settings = args[0] if args else kwargs.get("settings")
+            active = _flowview_event("begin", settings, family)
+            try:
+                result = function(*args, **kwargs)
+            except BaseException as scientific_error:
+                if active:
+                    _flowview_event("fail", scientific_error)
+                raise
+            if active:
+                _flowview_event("finish")
+            return result
+
+        return observed
+
+    return decorate
+
+
+def _flowview_advance(node_id):
+    """Record one real operation boundary, or do nothing when disabled."""
+
+    _flowview_event("advance", node_id)
+
+
+def _flowview_metric(name, value):
+    """Record one scalar on the active stage, or do nothing when disabled."""
+
+    _flowview_event("metric", name, value)
+
+
+def _loader_object_count(loader):
+    """Return a loader's object count when its dataset exposes one."""
+
+    try:
+        return len(loader.dataset)
+    except BaseException:
+        return None
 
 
 def _class_folder_names(settings):
@@ -49,6 +133,134 @@ def _class_folder_names(settings):
     """
     from .classify_classes import folder_names
     return folder_names(settings)
+
+
+#: How much of the card a run needs before it is worth starting there, in
+#: MiB. A batch of 224x224 crops through a small backbone fits in far less;
+#: this is the room to hold weights, optimiser state and one batch without
+#: immediately fragmenting.
+GPU_ROOM_MB = 1024
+
+
+def resolve_mixed_precision(asked, device):
+    """(on, note). Whether to train in half precision on THIS machine.
+
+    WHY IT IS WORTH HAVING. The forward pass and the loss run in float16
+    while the weights and the optimiser stay in float32. Measured on an
+    RTX 3090 over 30 training steps after 5 warm-up, at 224 px
+    (`bench_amp.py` in the GPU queue folder reproduces it):
+
+    ==================  =======  =============
+    model               speedup  peak memory
+    ==================  =======  =============
+    resnet50, batch 32  1.77x    0.58x
+    resnet50, batch 64  1.78x    0.55x
+    maxvit_t, batch 16  1.62x    0.60x
+    vit_b_16, batch 32  2.46x    0.67x
+    ==================  =======  =============
+
+    Half the memory is not a nicety on a screen: it is the difference
+    between a batch of 32 and a batch of 64 at the same crop size.
+
+    CUDA ONLY, AND SAID SO. `torch.autocast` accepts a CPU device type and
+    bfloat16, but on the CPUs spaCR runs on it is slower rather than
+    faster, so asking for it there is answered rather than obeyed.
+
+    :param asked: what the `amp` setting says.
+    :param device: the device training will actually run on.
+    :returns: ``(on, note)`` -- the note is '' when nothing needs saying.
+    """
+    if not asked:
+        return False, ""
+    if device.type != "cuda":
+        return False, (
+            "amp=True asks for half precision, which needs a CUDA device "
+            f"with tensor cores; this run is on {device.type!r}, so it is "
+            "training in full precision instead.")
+    return True, (
+        "amp=True: the forward pass and the loss run in float16 and the "
+        "weights stay in float32. Faster and about half the activation "
+        "memory on this card. Numerics differ slightly from a full-"
+        "precision run, so do not compare scores across the two.")
+
+
+@contextlib.contextmanager
+def autocasting(on, device):
+    """Half precision for the block, or nothing at all.
+
+    A context manager either way, so the training loop has ONE shape
+    rather than a branch around every forward pass.
+    """
+    if not on:
+        yield
+        return
+    # CPU autocast accepted float16 only in newer Torch releases.  The
+    # supported 2.1 floor accepts bfloat16 there; CUDA uses float16 in every
+    # supported release. Production enables AMP only for CUDA, but keeping
+    # this helper valid for either device makes its context-manager contract
+    # independently testable on CPU-only hosts.
+    dtype = torch.bfloat16 if device.type == "cpu" else torch.float16
+    with torch.autocast(device_type=device.type, dtype=dtype):
+        yield
+
+
+def _gradient_scaler(device, enabled):
+    """Build a no-op or CUDA gradient scaler across supported Torch 2.x.
+
+    ``torch.amp.GradScaler(device, ...)`` was added after the supported 2.1
+    floor. Torch 2.1 exposes the same CUDA scaler under ``torch.cuda.amp``.
+    Mixed precision is enabled only for CUDA, so the legacy implementation is
+    equivalent rather than a reduced-precision fallback.
+    """
+    scaler = getattr(getattr(torch, "amp", None), "GradScaler", None)
+    if scaler is not None:
+        return scaler(device.type, enabled=enabled)
+    return torch.cuda.amp.GradScaler(enabled=enabled)
+
+
+def pick_device(room_mb: int = GPU_ROOM_MB, what: str = "this run"):
+    """Select CUDA when sufficient memory is available, otherwise select CPU.
+
+    Availability alone does not ensure that a shared GPU has enough free
+    memory for a new workload. When CUDA reports less than ``room_mb`` free,
+    this function selects CPU and returns a user-facing note describing the
+    available and required memory. If CUDA memory information is unavailable,
+    CUDA is retained and allocation errors are allowed to surface from the
+    workload.
+
+    :param room_mb: Minimum free GPU memory, in MiB, required to select CUDA.
+    :param what: Workload name included in the CPU-fallback note.
+    :returns: ``(torch.device, note)``. ``note`` is empty unless low free GPU
+        memory causes a CPU fallback.
+    """
+    from .accelerator import resolve
+
+    found = resolve()
+    if not found.is_gpu:
+        return torch.device("cpu"), ""
+    if not found.is_cuda:
+        # ANY OTHER ACCELERATOR IS TAKEN AT FACE VALUE. The free-memory
+        # check below is `torch.cuda.mem_get_info`, which exists only on
+        # CUDA -- Metal shares memory with the system and has no
+        # equivalent, and asking ROCm costs a context for a number spaCR
+        # would only use to print. A real OOM stays a real failure, which
+        # is the same bargain the missing-mem_get_info branch already
+        # strikes for old CUDA drivers.
+        return found.torch_device, ""
+    try:
+        free, total = torch.cuda.mem_get_info()
+    except Exception:                                        # noqa: BLE001
+        # An older driver with no mem_get_info. Use the card and let a real
+        # OOM be a real failure; guessing would be worse.
+        return torch.device("cuda"), ""
+    free_mb, total_mb = free / (1024 * 1024), total / (1024 * 1024)
+    if free_mb >= room_mb:
+        return torch.device("cuda"), ""
+    return torch.device("cpu"), (
+        f"The GPU has {free_mb:.0f} MiB free of {total_mb:.0f} and {what} "
+        f"needs about {room_mb} MiB, so it is running on the CPU instead. "
+        f"That is much slower. Something else is using the card -- "
+        f"`nvidia-smi` names it -- so free it and re-run for GPU speed.")
 
 
 def _empty_device_cache() -> None:
@@ -97,8 +309,8 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     The function loads a saved model, builds a dataset from the input images,
     runs batched inference, and saves prediction scores to a CSV file.
 
-    :param src: Path to the input image directory or collection of image paths.
-    :type src: str or sequence
+    :param src: Path to the directory containing the input images.
+    :type src: str or os.PathLike
     :param model_path: Path to the saved PyTorch model.
     :type model_path: str
     :param image_size: Final square crop size used before inference.
@@ -125,7 +337,9 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     from .io import NoClassDataset
     from .utils import print_progress
     
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="inference")
+    if note:
+        print(note)
     
     if normalize:
         # WHICH statistics is now a setting. spaCR has always used 0.5/0.5,
@@ -150,13 +364,28 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
 
     print(model)
     
-    print(f'Loading dataset in {src} with {len(src)} images')
+    # `len(dataset)`, NOT `len(src)`. Both of these counted the CHARACTERS
+    # IN THE PATH: a run over a folder whose name happened to be 98
+    # characters long announced "Loading dataset ... with 98 images" and
+    # then "Loaded 98 images", and returned an empty frame. The number was
+    # plausible, it was printed twice, and it had nothing to do with the
+    # data (236 B5).
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=False,
                              load_to_memory=False)
+    print(f'Loading dataset in {src} with {len(dataset)} images')
+    if not len(dataset):
+        # AND AN EMPTY FOLDER IS NOT A RESULT. It returned a frame with the
+        # right columns and no rows, which reads downstream as "the model
+        # scored nothing" rather than "there was nothing to score".
+        raise ValueError(
+            f"No images to score in {src!r}. `apply_model` reads the "
+            f"pictures lying DIRECTLY in that folder -- it does not walk "
+            f"class subfolders, because inference has no classes to walk. "
+            f"Point it at one folder of crops, or at each class folder in "
+            f"turn.")
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                              num_workers=n_jobs,
                              pin_memory=(device.type == "cuda"))
-    print(f'Loaded {len(src)} images')
     
     result_loc = os.path.splitext(model_path)[0]+datetime.date.today().strftime('%y%m%d')+'_'+os.path.splitext(model_path)[1]+'_test_result.csv'
     print(f'Results wil be saved in: {result_loc}')
@@ -227,7 +456,9 @@ def apply_model_to_tar(settings=None):
     tar_path = settings['tar_path']
     model_path = settings['model_path']
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="inference")
+    if note:
+        print(note)
 
     if settings['normalize']:
         # See the note on the other transform: which statistics is a setting
@@ -435,7 +666,7 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
         }
 
     preds = prob_mat.argmax(axis=1)
-    acc = (preds == y_true).mean() if len(y_true) else np.nan
+    acc = (preds == y_true).mean()
 
     # Per-class (diagonal / row sum)
     cm = confusion_matrix(y_true, preds, labels=np.arange(prob_mat.shape[1]))
@@ -450,8 +681,7 @@ def _multiclass_metrics(y_true: np.ndarray, prob_mat: np.ndarray) -> dict:
     # Average precision macro (one-vs-rest)
     # Build one-hot y_true
     y_true_oh = np.zeros((len(y_true), C), dtype=int)
-    if len(y_true):
-        y_true_oh[np.arange(len(y_true)), y_true] = 1
+    y_true_oh[np.arange(len(y_true)), y_true] = 1
     try:
         ap_macro = average_precision_score(y_true_oh, prob_mat, average="macro")
     except Exception as e:
@@ -611,7 +841,9 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     """
     from .utils import build_loss
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="this stage")
+    if note:
+        print(note)
     model.eval().to(device)
 
     total_loss, total_samples = 0.0, 0
@@ -729,7 +961,9 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     """
     from .utils import calculate_loss
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device, note = pick_device(what="this stage")
+    if note:
+        print(note)
     model.eval().to(device)
 
     total_loss = 0.0
@@ -830,7 +1064,31 @@ def test_model_performance(loaders, model, loader_name_list, epoch, loss_type):
 #: Scalar metrics worth aggregating across folds. ``Accuracy`` is a duplicate
 #: of ``accuracy`` and ``epoch``/``num_classes`` are bookkeeping, so neither
 #: belongs in a spread statistic.
-CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'neg_accuracy', 'pos_accuracy')
+#:
+#: ``f1_macro`` IS HERE BECAUSE THE OTHER FIVE ARE BINARY-SHAPED.
+#: ``neg_accuracy``, ``pos_accuracy`` and ``optimal_threshold`` are NaN by
+#: construction on a three-class run, so a cross-validation over three
+#: classes would otherwise summarise accuracy, loss and prauc and nothing
+#: about the classes at all. Anything NaN is dropped from the spread, so
+#: the binary names cost nothing where they do not apply.
+# Driven on a three-class dataset built from plate1 of the tsg101 screen.
+CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
+                  'neg_accuracy', 'pos_accuracy')
+
+def cv_metric_keys(metrics) -> list:
+    """Which metric columns to carry across folds, for THIS class count.
+
+    :data:`CV_METRIC_KEYS` plus every ``acc_class_<name>`` the epoch
+    metrics carry -- named by :data:`PER_CLASS_ACC_PREFIX`, which is
+    already the one spelling of that prefix in this module. Two classes get
+    what they always got; three or more get their per-class accuracies as
+    well, which is the only part of the summary that says anything about
+    the classes.
+    """
+    present = [key for key in CV_METRIC_KEYS if key in metrics]
+    per_class = sorted(key for key in metrics
+                       if str(key).startswith(PER_CLASS_ACC_PREFIX))
+    return present + per_class
 
 
 def resolve_class_balance_loss(loss_type, class_balance, num_classes):
@@ -886,7 +1144,7 @@ def summarize_cv_metrics(fold_df, metric_keys=None):
         ``min``, ``max``, ``range`` and ``cv_percent`` columns.
     """
     if metric_keys is None:
-        metric_keys = [k for k in CV_METRIC_KEYS if k in fold_df.columns]
+        metric_keys = cv_metric_keys(fold_df.columns)
     rows = []
     for key in metric_keys:
         vals = pd.to_numeric(fold_df[key], errors='coerce').dropna()
@@ -1039,7 +1297,12 @@ def _cross_validate_model(settings, num_classes):
             focal_gamma=settings.get('focal_gamma', 2.0),
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
-            gradient_accumulation=settings['gradient_accumulation'],
+            # DERIVED, NOT STORED. `steps = 1` is the off state, so the
+            # step count alone says whether to accumulate -- see
+            # `settings._fold_gradient_accumulation` for why the boolean
+            # that used to sit beside it was folded in.
+            gradient_accumulation=int(
+                settings['gradient_accumulation_steps']) > 1,
             gradient_accumulation_steps=settings[
                 'gradient_accumulation_steps'],
             channels=settings['train_channels'],
@@ -1254,9 +1517,15 @@ def _cross_validate_model(settings, num_classes):
                'n_val': len(val_loader.dataset)}
         if fold_model_path:
             row['model_path'] = str(fold_model_path)
-        for key in CV_METRIC_KEYS:
-            if key in metrics:
-                row[key] = metrics[key]
+        # FLATTENED FIRST. The per-class accuracies live in `metrics` as a
+        # LIST under 'per_class_accuracy', which no spread statistic can
+        # aggregate; `attach_per_class_columns` is what turns them into one
+        # scalar column per class, and it had only ever been called on the
+        # way to the epoch CSVs. So a cross-validation over three classes
+        # reported accuracy, loss and prauc and nothing per class.
+        attach_per_class_columns(metrics, settings.get('classes'))
+        for key in cv_metric_keys(metrics):
+            row[key] = metrics[key]
         rows.append(row)
         oof_probabilities.append(fold_probabilities)
         oof_labels.extend(fold_labels.tolist())
@@ -1269,6 +1538,7 @@ def _cross_validate_model(settings, num_classes):
         print("Cross-validation produced no fold results.")
         return None
 
+    _flowview_advance("evaluation")
     fold_df = pd.DataFrame(rows)
     summary_df = summarize_cv_metrics(fold_df)
     _print_cv_report(fold_df, summary_df, k)
@@ -1398,6 +1668,7 @@ def train_test_model(settings):
     from .io import generate_loaders, CLASS_BALANCE_MODES
     from .settings import get_train_test_model_settings
 
+    _flowview_advance("dataset")
     settings = get_train_test_model_settings(settings)
 
     # random_seed used to reach the split helpers below and nothing else:
@@ -1510,6 +1781,9 @@ def train_test_model(settings):
     model_path = None
     cv_result_loc = None
 
+    if settings['train']:
+        _flowview_advance("split")
+
     if settings['train'] and cv_folds >= 2:
         # k-fold replaces the single split entirely: every crop is validated
         # once, and the reported number is a mean with its fold-to-fold spread
@@ -1534,6 +1808,13 @@ def train_test_model(settings):
             seed=settings.get('random_seed', 42),
             group_by=settings.get('cv_group_by', 'well'),
         )
+
+        train_objects = _loader_object_count(train)
+        validation_objects = _loader_object_count(val)
+        if train_objects is not None:
+            _flowview_metric("train_objects", train_objects)
+        if validation_objects is not None:
+            _flowview_metric("validation_objects", validation_objects)
 
         if hasattr(train, 'dataset') and hasattr(val, 'dataset'):
             from .classifier_evaluation import (
@@ -1587,7 +1868,8 @@ def train_test_model(settings):
             focal_gamma=settings.get('focal_gamma', 2.0),
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
-            gradient_accumulation=settings['gradient_accumulation'],
+            gradient_accumulation=int(
+                settings['gradient_accumulation_steps']) > 1,
             gradient_accumulation_steps=settings['gradient_accumulation_steps'],
             channels=settings['train_channels'],
             num_classes=num_classes,
@@ -1623,6 +1905,7 @@ def train_test_model(settings):
             return None
 
     if settings['test']:
+        _flowview_advance("evaluation")
         test, _, _ = generate_loaders(
             src,
             mode='test',
@@ -1659,6 +1942,7 @@ def train_test_model(settings):
                                                   loader_name_list='test',
                                                   epoch=1,
                                                   loss_type=settings['loss_type'])
+        _flowview_metric("objects", len(result))
 
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
@@ -1677,8 +1961,8 @@ def train_test_model(settings):
 #: Colours the per-class accuracy panel cycles through. Deliberately not the
 #: train/val blue and red used by the two aggregate panels, so a class line is
 #: never mistaken for a split.
-#: Curve colours: teal, blue, purple, grey first, as asked for, then a tail
-#: for runs with more classes than that. Chosen to read on BOTH a light and a
+#: The first four colours are teal, blue, purple, and grey, followed by a tail
+#: for runs with more classes. Chosen to read on both a light and a
 #: dark background, because the figure itself is transparent now and spaCR
 #: does not know which one is behind it -- a palette tuned for dark alone
 #: disappears on the light theme.
@@ -1759,14 +2043,19 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     cls_ep, cls_series = _per_class_series(class_hist, classes)
 
     if figure is None:
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
-        fig._spacr_live_update = True
-        # Transparent from the start, so the container shows through and the
-        # page opacity reaches the plot. The GUI restyles text and spines for
-        # the active theme when it renders (figure_queue._style_figure_colors);
-        # what matters here is that no opaque page is baked in, because a
-        # white or black rectangle cannot be undone by restyling.
-        fig.patch.set_alpha(0.0)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 4))
+            fig._spacr_live_update = True
+            # Transparent from the start, so the container shows through and the
+            # page opacity reaches the plot. The GUI restyles text and spines for
+            # the active theme when it renders (figure_queue._style_figure_colors);
+            # what matters here is that no opaque page is baked in, because a
+            # white or black rectangle cannot be undone by restyling.
+            fig.patch.set_alpha(0.0)
     else:
         fig = figure
         fig.clear()
@@ -2375,7 +2664,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         ``resume_checkpoint`` does not exist.
     """
 
-
+    _flowview_advance("model")
     if channels is None:
         channels = ['r', 'g', 'b']
     from .io import _save_model, _save_progress
@@ -2385,8 +2674,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     if test_loaders is not None:
         print(f'Test batches:{len(test_loaders)}')
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
     print(f'Using {device} for Torch')
 
     head_dim = max(1, int(num_classes))
@@ -2425,12 +2716,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                          dropout_rate,
                          use_checkpoint, verbose=verbose, num_classes=head_dim,
                          height=image_size, width=image_size)
-    if model is None:
-        print(f'Model {model_type} not found')
-        # Match the 2-tuple arity of the success path below. A bare `return` made
-        # the caller's `model, model_path = train_model(...)` raise
-        # "cannot unpack non-iterable NoneType object", burying this message.
-        return None, None
+    # NO `if model is None` BRANCH. `choose_model` raises now, naming the
+    # setting, the value it was given and the nearest spellings -- which is
+    # what "Model X not found" followed by (None, None) and a failure three
+    # frames later never managed to say. See instruction 236 B4.
 
     resume_payload = None
     if initialization_path:
@@ -2555,6 +2844,21 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     _curve_ledger = RunLedger('train_model:live_curves')
     tensorboard_writer, _ = _open_tensorboard_writer(dst, tensorboard)
 
+    # MIXED PRECISION, asked for by `amp` and only ever taken on a card
+    # that has tensor cores. `mixed_precision` is the answer for THIS
+    # machine, so everything below is one code path rather than two.
+    mixed_precision, amp_note = resolve_mixed_precision(
+        settings.get('mixed_precision', False) if isinstance(settings, dict) else False,
+        device)
+    if amp_note:
+        print(amp_note)
+    scaler = _gradient_scaler(device, enabled=mixed_precision)
+
+    _flowview_metric("classes", head_dim)
+    train_objects = _loader_object_count(train_loaders)
+    if train_objects is not None:
+        _flowview_metric("train_objects", train_objects)
+    _flowview_advance("training")
     print('Training ...')
     for epoch in range(start_epoch, epochs + 1):
         model.train()
@@ -2568,34 +2872,44 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
             data = data.to(device)
-            logits = model(data)
+            # HALF PRECISION FOR THE FORWARD AND THE LOSS, full precision
+            # for the weights. See `autocasting`: on a card with tensor
+            # cores this is most of the speed and half the activation
+            # memory, and outside one it is a no-op context.
+            with autocasting(mixed_precision, device):
+                logits = model(data)
 
-            is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
+                is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
 
-            if is_multiclass:
-                if target.ndim == 2:
-                    target = target.argmax(dim=1)
-                target = target.to(device).long()
-                if not (logits.ndim == 2 and logits.size(1) == head_dim):
-                    raise RuntimeError(
-                        f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
-            else:
-                target = target.to(device).float()
+                if is_multiclass:
+                    if target.ndim == 2:
+                        target = target.argmax(dim=1)
+                    target = target.to(device).long()
+                    if not (logits.ndim == 2 and logits.size(1) == head_dim):
+                        raise RuntimeError(
+                            f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
+                else:
+                    target = target.to(device).float()
 
-            loss = loss_fn(logits, target)
+                loss = loss_fn(logits, target)
 
             if gradient_accumulation:
                 loss = loss / gradient_accumulation_steps
 
-            loss.backward()
+            # SCALED, or float16 gradients underflow to zero and the model
+            # simply does not learn. The scaler is a no-op when it is
+            # disabled, so this is one code path rather than two.
+            scaler.scale(loss).backward()
 
             if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
-                optimizer.step()
+                scaler.step(optimizer)
+                scaler.update()
                 optimizer.zero_grad(set_to_none=True)
 
         # flush leftover accumulated gradients at the end of the epoch
         if gradient_accumulation and (n_batches % gradient_accumulation_steps != 0):
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             optimizer.zero_grad(set_to_none=True)
 
         # Epoch end: evaluate
@@ -2709,13 +3023,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             scheduler.step()
 
         # Save rolling CSVs
-        if accumulated_train_dicts and accumulated_val_dicts:
+        if accumulated_val_dicts:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts),
                            pd.DataFrame(accumulated_val_dicts))
-            accumulated_train_dicts, accumulated_val_dicts = [], []
-        elif accumulated_train_dicts:
+        else:
             _save_progress(dst, pd.DataFrame(accumulated_train_dicts), None)
-            accumulated_train_dicts = []
+        accumulated_train_dicts, accumulated_val_dicts = [], []
         # pass val_dict to _save_model so checkpoint decisions use validation accuracy
         will_stop = (
             early_stopping_patience > 0
@@ -2812,6 +3125,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             print(f"Could not write the model card for {final_path} "
                   f"({type(exc).__name__}: {exc}). The weights are unaffected.")
 
+    if train_objects is not None:
+        _flowview_metric("objects", train_objects)
     return model, final_path
 
 def generate_activation_map(settings):
@@ -2839,8 +3154,10 @@ def generate_activation_map(settings):
     gc.collect()
     
     plt.clf()
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
     
     source_folder = os.path.dirname(os.path.dirname(settings['dataset']))
     settings['src'] = source_folder
@@ -2941,7 +3258,7 @@ def generate_activation_map(settings):
             smoothgrad_sigma=settings['smoothgrad_sigma'])
     elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
         cam_generator = GradCAMGenerator(model, target_layer=settings['target_layer'], cam_type=settings['cam_type'])
-    elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
+    else:
         cam_generator = SaliencyMapGenerator(model)
 
     time_ls = []
@@ -2955,7 +3272,7 @@ def generate_activation_map(settings):
             activation_maps, predicted_classes = cam_generator.compute_maps_and_predictions(inputs)
         elif settings['cam_type'] in ['gradcam', 'gradcam_pp']:
             activation_maps, predicted_classes = cam_generator.compute_gradcam_and_predictions(inputs)
-        elif settings['cam_type'] in ['saliency_image', 'saliency_channel']:
+        else:
             activation_maps, predicted_classes = cam_generator.compute_saliency_and_predictions(inputs)
 
         # Move activation maps to CPU
@@ -3002,7 +3319,7 @@ def generate_activation_map(settings):
                 activation_map = (activation_map * 255).astype(np.uint8)
                 activation_image = Image.fromarray(activation_map, mode='L')
 
-            elif settings['cam_type'] == 'saliency_channel':
+            else:
                 # Handle each channel separately and save as RGB
                 rgb_activation_map = np.zeros((activation_map.shape[1], activation_map.shape[2], 3), dtype=np.uint8)
                 for c in range(min(activation_map.shape[0], 3)):  # Limit to 3 channels for RGB
@@ -3050,41 +3367,42 @@ def analyze_activation_maps(model, images, methods=None, *, masks=None,
                             target=None, target_layer=None, model_type=None,
                             n_steps=12, baseline='blur', sanity_check=True,
                             sanity_threshold=0.5, verbose=True):
-    """Attribute images several ways and report whether any of it is trustworthy.
+    """Compute and evaluate attribution maps for one or more images.
 
-    Grad-CAM and a saliency map always render. Nothing about the picture says
-    whether it describes what the model uses, so this runs the four checks that
-    do (see :mod:`spacr.attribution` for why each is limited):
+    By default, the analysis evaluates ``gradcam``, ``saliency``,
+    ``integrated_gradients``, and ``occlusion``. For each successful
+    attribution it computes deletion and insertion AUC; when an object mask is
+    supplied it also evaluates the pointing game. Rank correlation summarizes
+    agreement between non-flat methods for the first image.
 
-    * **deletion / insertion AUC** — remove, or add, the pixels each map ranks
-      highest and track the class probability. A flat deletion curve means the
-      map ranked pixels the model does not use.
-    * **pointing game** — does the map's peak land inside the object mask?
-      Scored only when ``masks`` is given; spaCR's ``merged/*.npy`` carries the
-      label planes.
-    * **model-randomisation sanity check** (Adebayo et al. 2018) — randomise the
-      weights layer by layer and attribute again. A method whose map survives
-      that is an edge detector, and this is the one check that catches it.
-    * **agreement** — rank correlation between the methods. Disagreement is
-      strong evidence that no single map should be quoted alone.
+    When ``sanity_check`` is enabled, the first image is re-attributed while
+    model parameters are randomized layer by layer. A map that remains too
+    similar after randomization has insufficient sensitivity to the learned
+    parameters and should not be interpreted as a model-specific explanation.
 
-    :param model: the trained classifier.
-    :param images: one image tensor, or a sequence of them, ``(C, H, W)``.
-    :param methods: method names from
-        :data:`spacr.attribution.ATTRIBUTION_METHODS`; defaults to one
-        representative of each family.
-    :param masks: optional per-image boolean object masks for the pointing game.
-    :param target: class index to explain; defaults to each image's prediction.
-    :param target_layer: CAM target layer, or None for the last convolution.
-    :param model_type: architecture name, used to make errors readable.
-    :param n_steps: steps in the deletion / insertion curves.
-    :param baseline: what removed pixels become — ``'blur'``, ``'zero'``,
-        ``'mean'`` or ``'uniform'``.
-    :param sanity_check: run the randomisation check (on the first image).
-    :param sanity_threshold: rank correlation below which a method passes.
-    :param verbose: print the per-method verdicts.
-    :returns: dict with ``table`` (a DataFrame, one row per method × image),
-        ``attributions``, ``agreement``, ``sanity`` and ``notes``.
+    :param model: Trained classifier.
+    :param images: Image tensor or iterable of tensors with shape ``(C, H, W)``.
+    :param methods: Attribution methods from
+        :data:`spacr.attribution.ATTRIBUTION_METHODS`. ``None`` uses
+        ``gradcam``, ``saliency``, ``integrated_gradients``, and ``occlusion``.
+    :param masks: Optional per-image boolean object masks used by the pointing
+        game.
+    :param target: Class index to explain. ``None`` uses each image's predicted
+        class.
+    :param target_layer: CAM target layer. ``None`` selects the final
+        convolutional layer.
+    :param model_type: Optional architecture name used in diagnostic messages.
+    :param n_steps: Number of perturbation steps for deletion and insertion
+        curves.
+    :param baseline: Replacement used for removed pixels: ``"blur"``,
+        ``"zero"``, ``"mean"``, or ``"uniform"``.
+    :param sanity_check: Whether to run parameter-randomization analysis on the
+        first image.
+    :param sanity_threshold: Maximum rank correlation at which a randomized map
+        is considered sufficiently different.
+    :param verbose: Whether to print per-method validation results.
+    :returns: Mapping with ``table``, ``attributions``, ``agreement``,
+        ``sanity``, and ``notes``.
     """
     import pandas as pd
 
@@ -3144,9 +3462,8 @@ def analyze_activation_maps(model, images, methods=None, *, masks=None,
                 sanity[name] = f"{type(exc).__name__}: {exc}"
 
     table = pd.DataFrame(rows)
-    if not table.empty and 'deletion_auc' in table.columns:
-        table = table.sort_values(['image', 'deletion_auc'],
-                                  na_position='last').reset_index(drop=True)
+    table = table.sort_values(['image', 'deletion_auc'],
+                              na_position='last').reset_index(drop=True)
 
     notes = [NOT_AN_EXPLANATION]
     if masks is None:
@@ -3214,8 +3531,10 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         channels = [1,2,3]
     from .utils import IntegratedGradients, preprocess_image
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
 
     model, _ = _load_inference_model(model_path, device)
     model.to(device)
@@ -3238,29 +3557,34 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
         integrated_grads = integrated_gradients.generate_integrated_gradients(input_tensor, target_label_idx)
         integrated_grads = np.mean(integrated_grads, axis=1).squeeze()
 
-        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-        ax[0].imshow(image)
-        ax[0].axis('off')
-        ax[0].set_title("Original Image")
-        ax[1].imshow(integrated_grads, cmap='hot')
-        ax[1].axis('off')
-        ax[1].set_title("Integrated Gradients")
-        # Same trap as in visualize_smooth_grad: `image` is the unresized original
-        # while the attribution map is image_size square, so the blend below only
-        # broadcast when the source PNG happened to be image_size square.
-        overlay = np.array(image.resize((image_size, image_size)))
-        overlay = overlay / overlay.max()
-        integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
-        overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
-        ax[2].imshow(overlay)
-        ax[2].axis('off')
-        ax[2].set_title("Overlay")
-        plt.show()
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            ax[0].imshow(image)
+            ax[0].axis('off')
+            ax[0].set_title("Original Image")
+            ax[1].imshow(integrated_grads, cmap='hot')
+            ax[1].axis('off')
+            ax[1].set_title("Integrated Gradients")
+            # Same trap as in visualize_smooth_grad: `image` is the unresized original
+            # while the attribution map is image_size square, so the blend below only
+            # broadcast when the source PNG happened to be image_size square.
+            overlay = np.array(image.resize((image_size, image_size)))
+            overlay = overlay / overlay.max()
+            integrated_grads_rgb = np.stack([integrated_grads] * 3, axis=-1)  # Convert saliency map to RGB
+            overlay = (overlay * 0.5 + integrated_grads_rgb * 0.5).clip(0, 1)
+            ax[2].imshow(overlay)
+            ax[2].axis('off')
+            ax[2].set_title("Overlay")
+            plt.show()
 
-        if save_integrated_grads:
-            os.makedirs(save_dir, exist_ok=True)
-            integrated_grads_image = Image.fromarray((integrated_grads * 255).astype(np.uint8))
-            integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
+            if save_integrated_grads:
+                os.makedirs(save_dir, exist_ok=True)
+                integrated_grads_image = Image.fromarray((integrated_grads * 255).astype(np.uint8))
+                integrated_grads_image.save(os.path.join(save_dir, f'integrated_grads_{file}'))
 
 class SmoothGrad:
     """SmoothGrad attribution: average gradients over noisy copies of the input.
@@ -3322,8 +3646,10 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         channels = [1,2,3]
     from .utils import preprocess_image
 
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device, note = pick_device(what="training")
+    if note:
+        print(note)
+    use_cuda = device.type == "cuda"
 
     model, _ = _load_inference_model(model_path, device)
     model.to(device)
@@ -3346,31 +3672,36 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
         smooth_grad_map = smooth_grad.compute_smooth_grad(input_tensor, target_label_idx)
         smooth_grad_map = np.mean(smooth_grad_map.cpu().data.numpy(), axis=1).squeeze()
 
-        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-        ax[0].imshow(image)
-        ax[0].axis('off')
-        ax[0].set_title("Original Image")
-        ax[1].imshow(smooth_grad_map, cmap='hot')
-        ax[1].axis('off')
-        ax[1].set_title("SmoothGrad")
-        # preprocess_image returns the UNRESIZED PIL image next to the resized
-        # tensor, so blending np.array(image) with the image_size-sized map raised
-        # a broadcast ValueError for any source PNG that is not image_size square.
-        # Blend at the resolution the model actually saw (a no-op copy when they
-        # already match); ax[0] still shows the full-resolution original.
-        overlay = np.array(image.resize((image_size, image_size)))
-        overlay = overlay / overlay.max()
-        smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
-        overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
-        ax[2].imshow(overlay)
-        ax[2].axis('off')
-        ax[2].set_title("Overlay")
-        plt.show()
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            ax[0].imshow(image)
+            ax[0].axis('off')
+            ax[0].set_title("Original Image")
+            ax[1].imshow(smooth_grad_map, cmap='hot')
+            ax[1].axis('off')
+            ax[1].set_title("SmoothGrad")
+            # preprocess_image returns the UNRESIZED PIL image next to the resized
+            # tensor, so blending np.array(image) with the image_size-sized map raised
+            # a broadcast ValueError for any source PNG that is not image_size square.
+            # Blend at the resolution the model actually saw (a no-op copy when they
+            # already match); ax[0] still shows the full-resolution original.
+            overlay = np.array(image.resize((image_size, image_size)))
+            overlay = overlay / overlay.max()
+            smooth_grad_map_rgb = np.stack([smooth_grad_map] * 3, axis=-1)  # Convert smooth grad map to RGB
+            overlay = (overlay * 0.5 + smooth_grad_map_rgb * 0.5).clip(0, 1)
+            ax[2].imshow(overlay)
+            ax[2].axis('off')
+            ax[2].set_title("Overlay")
+            plt.show()
 
-        if save_smooth_grad:
-            os.makedirs(save_dir, exist_ok=True)
-            smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
-            smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
+            if save_smooth_grad:
+                os.makedirs(save_dir, exist_ok=True)
+                smooth_grad_image = Image.fromarray((smooth_grad_map * 255).astype(np.uint8))
+                smooth_grad_image.save(os.path.join(save_dir, f'smooth_grad_{file}'))
             
 def save_top_class_examples(df, tar_path, dst, n=20, classes=None):
     """Extract the ``n`` most confident images per class from a tar into class-labelled folders.
@@ -3503,6 +3834,7 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
     return report.matched_rows
 
 
+@_flowview_pipeline("cv")
 def deep_spacr(settings=None):
     """Run the full spacr deep-learning pipeline: build dataset, train, apply model, merge predictions into the measurements DB.
 
@@ -3569,16 +3901,18 @@ def deep_spacr(settings=None):
     from .io import generate_training_dataset, generate_dataset
     from .utils import save_settings
 
-    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, measurement_rules, etc.)
+    # 1) expand defaults (now supports things like metadata_rules, annotation_columns, etc.)
     settings = deep_spacr_defaults(settings)
     src_before = settings.get('src')
 
     # persist a snapshot of the config for reproducibility
     save_settings(settings, name='DL_model')
+    _flowview_advance("tables")
 
     # 2) dataset generation (train/test)
     if settings.get('train') or settings.get('test'):
         if settings.get('generate_training_dataset'):
+            _flowview_advance("dataset")
             print("Generating train and test datasets ...")
             train_path, test_path = generate_training_dataset(settings)
             print(f'Generated Train set: {train_path}')
@@ -3624,6 +3958,7 @@ def deep_spacr(settings=None):
     if needs_tar and (
             not tar_path or not os.path.isabs(tar_path)
             or not os.path.exists(tar_path)):
+        _flowview_advance("dataset")
         print("Generating full dataset tar ...")
         tar_path = generate_dataset(settings)
         if not tar_path or not os.path.isfile(tar_path):
@@ -3637,7 +3972,9 @@ def deep_spacr(settings=None):
         model_path = settings.get('model_path')
         if model_path and os.path.exists(model_path):
             # -- run inference and get the results DataFrame --
+            _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)
+            _flowview_metric("objects", len(df))
 
             # -- NEW: save the top-N most confident images per class --
             # dst sits next to the tar file, in a subfolder called 'top_examples'
@@ -3649,10 +3986,17 @@ def deep_spacr(settings=None):
 
             # -- NEW: merge predictions back into the measurements database --
             # settings['src'] can be a string or list; use the first entry
+            _flowview_advance("scores")
             src_list = settings['src'] if isinstance(settings['src'], list) else [settings['src']]
+            matched_objects = 0
             for src in src_list:
                 db_path = os.path.join(src, 'measurements', 'measurements.db')
-                merge_predictions_into_db(df, db_path)
+                matched = merge_predictions_into_db(df, db_path)
+                if matched is not None:
+                    matched_objects += matched
+            _flowview_metric("objects", len(df))
+            _flowview_metric("matched_objects", matched_objects)
+            _flowview_metric("databases", len(src_list))
 
         else:
             print(f"Model path {model_path} not found; skipping model application.")

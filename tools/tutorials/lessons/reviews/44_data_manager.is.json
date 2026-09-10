@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Data Manager: skoða, hreinsa og flytja raunverulegt dæmi í safn á öruggan hátt",
+  "description": "Skoðaðu skráðar og óskráðar skrár, hættu við og staðfestu nákvæma eyðingu myndútskurða og flyttu einkaeintak af verkefni með varðveisluskrám.",
+  "objectives": [
+    "Opna Data manager í Help og skoða raunverulega diskanotkun.",
+    "Lesa eyðingaráætlunina, ástæður varðveislu og allan staðfestingarlistann.",
+    "Greina á milli óafturkræfrar eyðingar og flutnings og prófa Cancel.",
+    "Skanna áfangastaðinn aftur og varðveita skráayfirlit, upprunaskrá og sjálfstætt öryggisafrit."
+  ],
+  "prerequisite": "Notaðu raunverulega External Masks-dæmið með tveimur myndsviðum, 103 mældum hlutum og vistuðum myndritum. Upptakan notar einangrað afrit sem hefur verið sannreynt bæti fyrir bæti; aðeins innan upptökuferlisins vísa upphaflegar algildar slóðir skrásetningarinnar á þetta tímabundna afrit. Allar 131 upprunaskrár eru óbreyttar. Data Manager hefur ekkert eigið gagnaniðurhal, lifandi myndforskoðun, Plot-stýringu eða AI-spjald. Stærðir mæla bæti, ekki vísindaleg gæði. Aðeins úr afritinu er eytt 103 PNG-útskurðum og JSON-sniðskrá þeirra; mælingagagnagrunnurinn og skráð vinnsluuppskrift haldast. Endurgerð er ekki sýnd. Safnflutningur flytur afgang verkefnisins; hann býr ekki til öryggisafrit og tryggir ekki uppfærslu allra eldri algildra slóða. Ytri auðlindaskrár flytjast ekki með.",
+  "scenes": [
+    "Opnaðu Help og síðan Data manager. Þetta sameiginlega verkfæri sér um verkefnaskrár; það keyrir ekki myndgreiningu. Við notum tímabundið afrit af raunverulega External Masks-dæminu með mælingum og vistuðum myndritum. Varðveittu sjálfstætt öryggisafrit áður en þú prófar hreinsun sjálf.",
+    "Choose project velur rótarmöppu verkefnisins. Eftir skönnun sýnir Usage um níutíu og eitt megabæti í hundrað tuttugu og níu skrám. Registered og Unregistered eru ólík: skrá getur verið til án færslu í skrásetningunni. Flokkar áætlaðir út frá möppum sanna ekki vísindalegt innihald skránna.",
+    "Veldu í Prune hvaða tegundir eigi að skoða. Kveiktur rofi heimilar ekki einn og sér eyðingu. Láttu mælingagagnagrunna og líkanavægi vera óvalin hér og veldu Show what can be deleted. Lestu bæði fyrirhugaðar skrár og ástæður þess að aðrar niðurstöður haldast.",
+    "Þessi áætlun tekur aðeins til útskurðarmöppunnar data: hundrað og þriggja hlutamynda og einnar sniðskrár, ekki hundrað og fjögurra frumna. Hún leggur til að losa um þrjú komma fjögur megabæti. Get it back by tilgreinir Measure, en endurgerð þarf enn upprunaleg inntaksgögn, stillingar og viðeigandi hugbúnað.",
+    "Delete opnar aðra staðfestingu með raunverulegum skráalista. Ekki er hægt að afturkalla eyðinguna. Stækkaðu gluggann og flettu í gegnum slóðirnar áður en þú samþykkir þær. Loka-Delete-hnappurinn er fyrst óvirkur; samþykki og eyðing eru aðskildar aðgerðir.",
+    "Samþykkið virkjar Delete. Ef þú tekur það af verður Delete aftur óvirkt. Í fyrstu sýnikennslunni veljum við Cancel og allar verkefnaskrár haldast óbreyttar. Hættu við ef slóðir, skráafjöldi eða aðferð við endurgerð eru óljós.",
+    "Við opnum sömu sannreyndu áætlun aftur og staðfestum eyðingu aðeins á tímabundna afritinu. Niðurstaðan sýnir þrjú komma fjögur megabæti losuð úr hundrað og fjórum skrám. Hinar tuttugu og fjórar skrárnar utan skrásetningarinnar eru eins bæti fyrir bæti, þar á meðal mælingagagnagrunnurinn og vistuðu myndritin.",
+    "Sjálfvirk endurskönnun sýnir nú eina skráða niðurstöðu sem vantar á diskinn: útskurðarmöppuna sem var eytt af ásetningi. Uppskriftin helst í skrásetningunni með lýsigögnum hreinsunarinnar. Færslan geymir ekki afturköllun og við höfum ekki keyrt Measure aftur til að endurgera útskurðina.",
+    "Archive er annað: það flytur afgang verkefnisins. Veldu tóman áfangastað utan upprunamöppunnar og síðan Show what would move. Eftir hreinsun tekur áætlunin til tuttugu og fimm skráa, um áttatíu og átta megabæta. Lestu uppruna og áfangastað vandlega; þessi skjár áætlar flutning alls verkefnisins.",
+    "Move biður um staðfestingu og No er sjálfgefið val. Fyrst veljum við No og sannreynum að uppruninn sé óbreyttur og áfangastaðurinn tómur. Áætlun og afturkölluð staðfesting flytja ekkert. Ekki líta á áfangastað safnsins sem aukaöryggisafrit.",
+    "Við staðfestum Yes aðeins fyrir þetta einkadæmi. Skrárnar sem eftir eru flytjast á áfangastaðinn. Þar er skrifað skráayfirlit og safnflutningsskrá verður eftir við upprunann. Upprunalega verkefnið sem tímabundna afritið var búið til úr helst alveg óbreytt.",
+    "Veldu áfangastaðinn sem verkefni og skannaðu aftur. Mælingagagnagrunnurinn í safninu er skráður á nýju slóðinni og hver skrá utan skrásetningarinnar er bæti fyrir bæti eins og fyrir flutning. Viðbætt skráayfirlit skýrir nýjan skráafjölda. Eldri færslur og ytri annálar eru ekki sjálfkrafa endurskrifaðir eða fluttir.",
+    "Fyrir sjálfvirkni í Python býður spacr.data_manager upp á scan_project, plan_prune, prune, plan_archive og archive. Skoðaðu áætlunina áður en þú afhendir staðfestingartáknið. Notaðu Database Browser til að skoða mælingar og Report fyrir læsilegt verkefnisyfirlit. Geymdu sjálfstæða öryggisafritið og safnflutningsskrárnar með rannsóknargögnunum."
+  ]
+}

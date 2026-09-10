@@ -16,13 +16,12 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = "20260815-73-lessons"
+EXPECTED_CACHE_KEY = "20260827-conda-live"
 EXPECTED_VOICE_KEY = "20260811-50-voices"
-EXPECTED_APP_KEY = "20260811-audio-end-park-captions"
+EXPECTED_APP_KEY = "20260909-main-submodules"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
 
 
@@ -88,7 +87,7 @@ def static_audit(url: str, *, timeout: int, compare_local: bool = True) -> dict:
         result["local_sha256"] = local_hashes
         result["hashes_match_local"] = result["sha256"] == local_hashes
     assert result["lessons"] == 73, result
-    assert result["scenes"] == 507, result
+    assert result["scenes"] == 508, result
     assert result["languages"] == 8, result
     assert result["voices"] == 50, result
     assert result["cache_key"] == EXPECTED_CACHE_KEY, result

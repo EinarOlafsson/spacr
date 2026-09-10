@@ -40,12 +40,19 @@ APP_KEY = "curate"
 
 
 class CurateScreen(QWidget):
-    """Correct a mask by hand and curate its tracks, on the record."""
+    """Correct a mask by hand and curate its tracks, on the record.
+
+    :param parent: parent widget.
+    """
 
     #: A mask was opened. Carries the path.
     mask_opened = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the curation screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("CurateScreen")
         self._mask_path = ""
@@ -55,9 +62,15 @@ class CurateScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "curate")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the mask and track source rows, the viewer and the tool tabs."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -134,6 +147,7 @@ class CurateScreen(QWidget):
 
     # -- the mask ------------------------------------------------------------
     def _choose_mask(self) -> None:
+        """Ask for a label mask and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a label mask", self._mask_edit.text().strip(),
             "Masks (*.tif *.tiff *.png *.npy);;All files (*)")
@@ -171,6 +185,7 @@ class CurateScreen(QWidget):
 
     # -- the tracks ----------------------------------------------------------
     def _choose_tracks(self) -> None:
+        """Ask for a tracks table and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a tracks table", self._tracks_edit.text().strip(),
             "CSV (*.csv);;All files (*)")
@@ -209,6 +224,10 @@ class CurateScreen(QWidget):
             self.status.setStyleSheet("")
 
     def closeEvent(self, event) -> None:
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         if self.brush is not None:
             self.brush.stop_painting()
         super().closeEvent(event)
@@ -219,7 +238,10 @@ class CurateScreen(QWidget):
 # ---------------------------------------------------------------------------
 
 APP_NAME = "Curate"
-APP_DESCRIPTION = "Paint a mask right, and fix tracks by hand — on the record"
+APP_DESCRIPTION = (
+    "Correct segmentation masks and tracking assignments manually while "
+    "recording each edit in the curation log."
+)
 APP_INTRO = (
     "Cellpose merges two touching cells; btrack breaks a track when a cell "
     "leaves focus for a frame. Both are obvious to look at and, until now, "
@@ -245,11 +267,19 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
 
     :returns: the registry row, or ``None`` when the key was already there.
     """
-    from ..app import APPS, SECTION_CORE, STAGE_ALPHA, register_app
+    from ..app import APPS, SECTION_TOOLS, STAGE_ALPHA, register_app
     if any(row[0] == key for row in APPS):
         return None
     return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_CORE,
+        # TOOLS, not Core. Curate fixes a mask by hand; Core is the pipeline
+        # you run, and a section that lists everything sorts nothing.
+        #
+        # It asked for SECTION_MODELS until 2026-09-03, which is still
+        # DEFINED and still described but was dropped from SECTION_ORDER when
+        # Home was restructured to Core / Data / Tools / Assays. So every
+        # call to this function raised "app 'curate' has unknown section
+        # 'Segmentation models'" and the screen could not register at all.
+        key, APP_NAME, APP_DESCRIPTION, section or SECTION_TOOLS,
         factory=make_curate_screen,
         stage=STAGE_ALPHA if stage is None else stage,
         intro=APP_INTRO, cli_note=APP_CLI_NOTE,

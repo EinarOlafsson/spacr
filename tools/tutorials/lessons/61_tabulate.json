@@ -1,0 +1,177 @@
+{
+  "id": "61_tabulate",
+  "number": 61,
+  "slug": "tabulate",
+  "series": 5,
+  "app_key": "tabulate",
+  "section": "Explore",
+  "title": "Tabulate: group real measurements, inspect counts and refresh the summary plot",
+  "description": "Open Tabulate inside Database Browser, pivot downloaded measurements by well and field, inspect real missing values, export checked statistics and distinguish a live pivot from a stale or categorical chart.",
+  "objectives": [
+    "Find the nested Tabulate route and build well and field summaries with actual column drags.",
+    "Read counts, missing combinations, sample standard deviations and quantiles without inventing independent replicates.",
+    "Apply a live measurement filter, explicitly refresh its summary chart and distinguish categorical from numeric axes.",
+    "Export the full checked pivot and keep a reproducible record of its grouping, statistics and filter."
+  ],
+  "prerequisite": "Use the downloadable Annotate example on a byte-identical private copy of its measurements.db. The cell table contains 2,341 measured objects across four wells and 51 observed well/field combinations. These are not 2,341 independent experiments, and rowID is a spatial label, not an established treatment assignment. This lesson independently checks every demonstrated pivot statistic and CSV cell, plus all 51 final scatter-point ordinates. It does not validate biological effects, arbitrary missing axis labels, infinite values or capped large grids. Tabulate has no dedicated test-data downloader, image preview, GPU pipeline, AI console or run-level Plot switch; it summarizes existing data. Use its own Load table and Export CSV controls, not the surrounding Database Browser controls.",
+  "scenes": [
+    {
+      "visual": "02_database_host",
+      "narration": "Open Help, then Database browser, and choose the nested Tabulate button. This is a submodule of Database Browser, not a separate Home tile. We use the real downloadable Annotate example on a private copy. The earlier Annotate lesson shows how to obtain that dataset.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "34_database"
+      ]
+    },
+    {
+      "visual": "03_choose_real_measurements",
+      "narration": "Inside Tabulate, choose Load table, open the private measurements database and select cell. The full table contains two thousand three hundred forty-one objects. The surrounding Database Browser has its own controls; those are not this pivot's input or export. Loading alone does not choose your grouping.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_well_count_preset",
+      "narration": "Choose Plate slash row slash column. The three keys appear in Rows in hierarchy order. Leave Values empty to count source rows: four wells contain six hundred fifteen, five hundred twenty-five, seven hundred and five hundred one objects. These counts are cells, not independent experimental replicates.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06b_blank_not_zero_tooltip",
+      "narration": "Search for fieldID and drag it into Columns. Four wells by thirteen field labels gives fifty-two possible combinations, but only fifty-one contain measurements. Hover over the blank at row five, column two, field twenty. It means no source rows for that combination, not a measured value of zero.",
+      "hold_after": 0.7,
+      "focus": [
+        985,
+        405,
+        2300,
+        260
+      ]
+    },
+    {
+      "visual": "08_area_mean_sample_sd",
+      "narration": "Clear the Columns well, then search for cell_area and drag it into Values. The default statistics are count, mean and sample standard deviation. The table recomputes as you change the axes or statistics. The search box filters column names, not the cell population.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08b_read_full_cell_statistics",
+      "narration": "In this build, the short table rows can hide the later lines, including n. Hover over a result cell to read its complete statistics and contributing count. Standard deviation describes variation among those objects; it is not uncertainty across independent wells. The popup rounds numbers for display.",
+      "hold_after": 0.7,
+      "focus": [
+        985,
+        405,
+        1190,
+        450
+      ]
+    },
+    {
+      "visual": "09b_full_median_sem_quantile",
+      "narration": "Turn on median, sem and quantile. At zero point seven five, quantile is the upper quartile, using linear interpolation. SEM is sample standard deviation divided by the square root of the available count. It does not correct for objects sharing a field or well, so do not treat it as independent biological uncertainty.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        410,
+        2050,
+        890
+      ]
+    },
+    {
+      "visual": "10b_half_quantile_tooltip",
+      "narration": "Change Quantile at to zero point five. The quantile now matches the median: twenty-two thousand four hundred in the first well. The other statistics remain unchanged. Restore zero point seven five and turn the extra statistics off before returning to the simpler summary.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        410,
+        2050,
+        890
+      ]
+    },
+    {
+      "visual": "11b_source_count_vs_feature_n",
+      "narration": "Replace area with the channel-zero homogeneity feature at distance thirty-two. It has seven genuinely missing values, leaving two thousand three hundred thirty-four available measurements. In this well, five hundred one source rows contribute only four hundred ninety-eight values. Count depends on the selected feature; missing measurements are not zeros.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        410,
+        1760,
+        890
+      ]
+    },
+    {
+      "visual": "13_all_well_statistics_picker",
+      "narration": "Restore cell_area and choose Tabulate's Export CSV with a new filename. This well summary has four rows and six columns: three grouping keys, n, mean and standard deviation. We checked every exported value against the source. Keep the grouping, statistic and filter choices separately; the CSV is not a saved live specification.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_four_group_means_not_2341_objects",
+      "narration": "Choose Plot this table, then drag columnID onto X, mean onto Y and rowID onto Colour. The chart receives four summary rows, not thousands of individual cells. There is a trap: Automatic treats these four distinct means as categories and draws a heatmap. This is not a continuous-scale plot of their magnitudes.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "58_graph_builder"
+      ],
+      "focus": [
+        295,
+        1300,
+        3340,
+        690
+      ]
+    },
+    {
+      "visual": "15_live_pivot_old_plot",
+      "narration": "Use the right-hand filter to add cell_area and set its minimum to twenty-one thousand nine hundred twenty-five. The pivot immediately summarizes one thousand one hundred seventy-one remaining objects. The chart still contains the old summary until you press Plot this table again. A visible chart is not proof that it reflects the current filter.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_plot_this_table_refreshes_summary",
+      "narration": "Press Plot this table again to transfer the newly computed means. The chart now holds the four filtered groups, though Automatic still treats those means categorically. A note says the original area filter cannot apply directly to this summary table: it has mean, not cell_area. That does not mean the upstream pivot ignored the filter.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        1300,
+        3340,
+        690
+      ]
+    },
+    {
+      "visual": "19_replot_restores_original_summary",
+      "narration": "Choose Clear all in the right-hand filter, then Plot this table again. The original two thousand three hundred forty-one objects and well means return. Filtering here does not delete source measurements. Export the filtered and unfiltered summaries under different names if both are needed.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        1300,
+        3340,
+        690
+      ]
+    },
+    {
+      "visual": "20_field_level_is_a_different_unit",
+      "narration": "For a separate field-level view, drag fieldID into Rows after the well keys. There are fifty-two grid rows and fifty-one observed groups. The statistic now describes a field within a well, not the whole well. Fifteen to eighty-eight objects contribute to each observed group; adding groups does not create independent experiments.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_actual_plot_choices",
+      "narration": "Press Plot this table, put fieldID on X, keep mean on Y and rowID on Colour, then choose Scatter from Plot. With these fifty-one distinct field means, the actual column list identifies mean as continuous. Check the role and axis labels rather than assuming that a number is always treated numerically.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_fifty_one_actual_field_means",
+      "narration": "The chart now displays fifty-one real field means on a continuous vertical scale. Each plotted height was checked against the independently computed summary. Repeated field labels belong to different wells; colours show spatial row labels, not verified treatments. This grouped table has no object keys, so brushing cannot select individual images.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "58_graph_builder",
+        "09_annotate"
+      ],
+      "focus": [
+        295,
+        1300,
+        3340,
+        690
+      ]
+    },
+    {
+      "visual": "23_field_level_statistics_complete",
+      "narration": "Export the field summary: fifty-two rows and seven columns, with one genuinely empty combination kept blank. The plotting hand-off omits that empty group, leaving fifty-one points. For reproducible code, pivot and PivotSpec in spacr's Qt pivot_spec module consume these choices, and to_csv writes the result. Preserve your source and record the exact grouping and filter.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ]
+    }
+  ]
+}

@@ -81,6 +81,7 @@ from ..bridge import make_thread
 from ..theme import (SPACING, active_palette, make_transparent,
                      paint_panel, palette_for)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -97,11 +98,19 @@ APP_NAME = "Training Runs"
 #: is a separate axis and lives in ``spacr.qt.app.APP_STAGE`` — it is
 #: alpha, and the Home tile says so in colour rather than by filing it
 #: somewhere else.
-APP_SECTION = "Results & QC"
+#: TOOLS SINCE 2026-09-08, on the maintainer's instruction, with Prediction
+#: Profiler and Investigate Hit. Core is the pipeline and its order IS the
+#: pipeline; Training Runs compares FINISHED runs, which is a result rather
+#: than a step, and it is also a folded child of Classify, so it was on Home
+#: twice. `spacr.qt.app` was moved and this constant was not, so the two
+#: declarations of one fact disagreed --
+#: `test_registration_matches_the_app_registry_when_it_is_wired_up` exists
+#: for exactly that and is what caught it.
+APP_SECTION = "Tools"
 APP_INTRO = (
-    "Overlay the loss and accuracy curves of several training runs on one "
-    "axis and see, beside them, exactly which settings differed — with "
-    "environment drift bucketed away from the knobs you actually turned.")
+    "Compare loss and accuracy curves from multiple training runs on shared "
+    "axes. The adjacent settings comparison separates model and training "
+    "changes from differences in the software environment.")
 
 #: Combo label -> ``spacr.train_compare.compare_runs(folds=…)`` value.
 FOLD_MODE_LABELS = (
@@ -115,7 +124,7 @@ _DIFF_BUCKETS = ("changed", "env", "drift")
 
 def _cell(text: str) -> QTableWidgetItem:
     """A read-only table cell."""
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -148,9 +157,15 @@ def panel_canvas_class():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     class PanelCanvas(FigureCanvasQTAgg):
-        """A matplotlib canvas drawn on a rounded translucent panel."""
+        """A matplotlib canvas drawn on a rounded translucent panel.
+
+        :param figure: the matplotlib figure to draw. The canvas is made
+            translucent so the rounded panel below it is the visible surface,
+            which is why the figure's own patch is not the background.
+        """
 
         def __init__(self, figure):
+            """Build the canvas non-opaque, so the panel shows through it."""
             super().__init__(figure)
             self.setAttribute(Qt.WA_OpaquePaintEvent, False)
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -204,6 +219,7 @@ class TrainCompareScreen(QWidget):
 
     :param threaded: discover and load runs on a worker thread (the default).
         Tests pass ``False`` for deterministic, synchronous behaviour.
+    :param parent: parent widget; ownership only.
     :ivar last_error: text of the most recent failure, ``""`` when the last
         operation succeeded. Errors are only ever reported here and in the
         inline status label — never in a modal dialog.
@@ -217,6 +233,11 @@ class TrainCompareScreen(QWidget):
     job_finished = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the run list, the curve plot and the settings diff.
+
+        :param parent: parent widget.
+        :param threaded: whether the scan runs on a worker.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._root: str = ""
@@ -238,10 +259,16 @@ class TrainCompareScreen(QWidget):
             "Choose the folder your models were trained into (a dataset's "
             "model/ folder, or anything above it), then Scan.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the run list beside the plot, with the diff underneath."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -344,6 +371,7 @@ class TrainCompareScreen(QWidget):
         self._diff_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
         diff_layout.addWidget(self._diff_summary)
         self._diff_table = QTableWidget(0, 0, diff_panel)
+        install_sorting(self._diff_table)
         self._diff_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._diff_table.setAlternatingRowColors(True)
         self._diff_table.verticalHeader().setVisible(False)
@@ -389,6 +417,10 @@ class TrainCompareScreen(QWidget):
         self._status.setText(text)
 
     def status_text(self) -> str:
+        """Whatever the status line is telling the user.
+
+        :returns: the status text.
+        """
         return self._status.text()
 
     def summary_text(self) -> str:
@@ -406,12 +438,14 @@ class TrainCompareScreen(QWidget):
     # -- scanning ----------------------------------------------------------
 
     def _pick_folder(self) -> None:
+        """Ask for the folder the runs were written to."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder to scan for training runs", "")
         if path:
             self.scan(path)
 
     def _on_scan_typed_path(self) -> None:
+        """Scan whatever path the user typed."""
         self.scan(self._path_edit.text().strip())
 
     def scan(self, root: Any) -> bool:
@@ -437,17 +471,27 @@ class TrainCompareScreen(QWidget):
         self._set_status(f"Scanning {path} …")
 
         def _job():
+            """Find the training runs under a folder. Off the GUI thread."""
             return tc.find_runs(path)
 
         return self._run_job(_job, self._apply_runs)
 
     def _apply_runs(self, runs: Any) -> None:
-        self._runs = list(runs or [])
+        """Show the runs a finished scan found.
+
+        :param runs: the runs it returned.
+        """
+        next_runs = list(runs or [])
+        # Clear the old tree's curves before any visible state starts naming
+        # the new tree. If Qt rejects the redraw because its canvas has been
+        # deleted, no new run state has been installed and no old curve
+        # mapping survives behind it.
+        self._clear_plot()
+        self._runs = next_runs
         self._comparison = None
         self._fill_runs_list()
         self._fill_problems()
         self._clear_diff()
-        self._clear_plot()
         n = len(self._runs)
         if n == 0:
             self._set_status(
@@ -464,6 +508,7 @@ class TrainCompareScreen(QWidget):
         self.runs_discovered.emit(n)
 
     def _fill_runs_list(self) -> None:
+        """Rebuild the run list, keeping whatever was ticked."""
         self._runs_list.blockSignals(True)
         self._runs_list.clear()
         for run in self._runs:
@@ -483,6 +528,13 @@ class TrainCompareScreen(QWidget):
         self._update_controls()
 
     def _fill_metric_combo(self, metrics: Sequence[str]) -> None:
+        """Offer only the metrics the loaded runs actually recorded.
+
+        OFFERING ALL OF THEM would let a user pick one that plots nothing, and
+        an empty axes reads as a broken screen rather than a missing metric.
+
+        :param metrics: the metrics present across the runs.
+        """
         previous = self._metric_combo.currentText()
         self._metric_combo.blockSignals(True)
         self._metric_combo.clear()
@@ -492,6 +544,7 @@ class TrainCompareScreen(QWidget):
         self._metric_combo.blockSignals(False)
 
     def _fill_problems(self) -> None:
+        """List anything wrong with the scanned runs."""
         lines = [f"! {r.run_id}: {n}" for r in self._runs for n in r.notes]
         if lines:
             self._problems.setStyleSheet(
@@ -504,19 +557,45 @@ class TrainCompareScreen(QWidget):
     # -- introspection helpers (used by tests and by callers) -------------
 
     def root(self) -> str:
+        """The folder being scanned for training runs.
+
+        :returns: the root path, as text.
+        """
         return self._root
 
     def runs(self) -> List[tc.TrainingRun]:
+        """Every run the last scan found.
+
+        A LIST COPY, so a caller cannot reorder this screen's runs by
+        mutating what it was handed.
+
+        :returns: the runs.
+        """
         return list(self._runs)
 
     def run_ids(self) -> List[str]:
+        """The identifiers of every run found.
+
+        :returns: the run ids, in scan order.
+        """
         return [r.run_id for r in self._runs]
 
     def run_rows(self) -> List[str]:
+        """The run list exactly as it reads on screen.
+
+        Read off the WIDGET rather than rebuilt from the runs, so a test
+        checks what the user sees rather than what the data says.
+
+        :returns: one string per visible row.
+        """
         return [self._runs_list.item(i).text()
                 for i in range(self._runs_list.count())]
 
     def available_metrics(self) -> List[str]:
+        """Which metrics the picker is currently offering.
+
+        :returns: the metric names, in picker order.
+        """
         return [self._metric_combo.itemText(i)
                 for i in range(self._metric_combo.count())]
 
@@ -539,10 +618,19 @@ class TrainCompareScreen(QWidget):
         return True
 
     def fold_mode(self) -> str:
+        """How the cross-validation folds are being combined.
+
+        :returns: the mode's value.
+        """
         idx = max(0, self._fold_combo.currentIndex())
         return FOLD_MODE_LABELS[idx][1]
 
     def set_fold_mode(self, mode: str) -> bool:
+        """Choose how folds are combined.
+
+        :param mode: the mode's value.
+        :returns: True when the mode exists and was selected.
+        """
         for i, (_label, value) in enumerate(FOLD_MODE_LABELS):
             if value == mode:
                 self._fold_combo.setCurrentIndex(i)
@@ -551,6 +639,10 @@ class TrainCompareScreen(QWidget):
         return False
 
     def selected_run_ids(self) -> List[str]:
+        """The runs the user has ticked for comparison.
+
+        :returns: the selected run ids.
+        """
         out = []
         for i in range(self._runs_list.count()):
             item = self._runs_list.item(i)
@@ -577,6 +669,10 @@ class TrainCompareScreen(QWidget):
         return True
 
     def comparison(self) -> Optional[tc.Comparison]:
+        """The last comparison computed, if any.
+
+        :returns: the comparison, or None before one has been run.
+        """
         return self._comparison
 
     def figure(self):
@@ -591,10 +687,12 @@ class TrainCompareScreen(QWidget):
     # -- overlay -----------------------------------------------------------
 
     def _on_metric_changed(self, *_a) -> None:
+        """Redraw the curves for a different metric."""
         if self._comparison is not None:
             self._draw()
 
     def _on_fold_changed(self, *_a) -> None:
+        """Redraw for a different way of combining the folds."""
         if self._comparison is not None:
             self.overlay()
 
@@ -636,14 +734,15 @@ class TrainCompareScreen(QWidget):
         return True
 
     def _clear_plot(self) -> None:
+        """Empty the curve plot."""
         self._figure.clear()
         # `clear()` restores the rc facecolor AND its alpha, so the
         # transparency `PanelCanvas` set has to be re-asserted or the
         # first redraw paints the opaque rectangle straight back.
         self._figure.patch.set_alpha(0.0)
         self._figure.spacr_series_by_label = {}
-        self._canvas.draw_idle()
         self._picked.setText("")
+        self._canvas.draw_idle()
 
     def _draw(self) -> None:
         """Redraw the curves for the current metric into the shared figure."""
@@ -688,12 +787,17 @@ class TrainCompareScreen(QWidget):
     # -- diff table --------------------------------------------------------
 
     def _clear_diff(self) -> None:
+        """Empty the settings diff, so a stale one is not read as current."""
         self._diff_table.clear()
         self._diff_table.setRowCount(0)
         self._diff_table.setColumnCount(0)
         self._diff_summary.setText("")
 
     def _fill_diff(self, comparison: tc.Comparison) -> None:
+        """Show which settings differ between the compared runs.
+
+        :param comparison: the finished comparison.
+        """
         diff = comparison.settings_diff
         ids = list(diff.get("run_ids") or [])
         changed = list(diff.get("changed") or [])
@@ -747,6 +851,11 @@ class TrainCompareScreen(QWidget):
 
     def _set_table(self, headers: Sequence[str],
                    rows: Sequence[Sequence[str]]) -> None:
+        """Fill one table with headers and rows.
+
+        :param headers: the column headings.
+        :param rows: the rows.
+        """
         self._diff_table.clear()
         self._diff_table.setColumnCount(len(headers))
         self._diff_table.setHorizontalHeaderLabels(list(headers))
@@ -757,11 +866,19 @@ class TrainCompareScreen(QWidget):
         self._diff_table.resizeColumnsToContents()
 
     def diff_headers(self) -> List[str]:
+        """The settings-diff table's column headers.
+
+        :returns: the headers, in column order.
+        """
         return [self._diff_table.horizontalHeaderItem(c).text()
                 if self._diff_table.horizontalHeaderItem(c) else ""
                 for c in range(self._diff_table.columnCount())]
 
     def diff_rows(self) -> List[List[str]]:
+        """The settings-diff table as it reads on screen.
+
+        :returns: one row per differing setting.
+        """
         out = []
         for r in range(self._diff_table.rowCount()):
             row = []
@@ -774,6 +891,10 @@ class TrainCompareScreen(QWidget):
     # -- picking -----------------------------------------------------------
 
     def _on_pick(self, event) -> None:
+        """Report which curve point the user clicked.
+
+        :param event: the matplotlib pick event.
+        """
         artist = getattr(event, "artist", None)
         getter = getattr(artist, "get_label", None)
         label = getter() if callable(getter) else ""
@@ -832,6 +953,7 @@ class TrainCompareScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
@@ -890,31 +1012,59 @@ class TrainCompareScreen(QWidget):
                 self._retire_job(thread)
 
     def _retire_job(self, thread) -> None:
+        """Forget a finished worker thread.
+
+        HELD UNTIL IT FINISHES and dropped after, because a QThread garbage
+        collected while running takes the process with it.
+
+        :param thread: the thread that finished.
+        """
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return len(self._jobs)
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param tb: the traceback text.
+        """
         LOG.error("Training Runs worker failed:\n%s", tb)
         last = [ln for ln in str(tb).strip().splitlines() if ln.strip()]
         self._set_status(last[-1] if last else "Scan failed.", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed scan.
+
+        :param exc: what went wrong.
+        """
         LOG.error("Training Runs operation failed: %s: %s",
                   type(exc).__name__, exc)
         self._set_status(f"{type(exc).__name__}: {exc}", error=True)
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         has_root = bool(self._path_edit.text().strip())
         self._btn_scan.setEnabled(has_root and not self._busy)
         self._btn_overlay.setEnabled(
             bool(self.selected_run_ids()) and not self._busy)
 
     def closeEvent(self, event):  # noqa: N802 — Qt naming
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         for thread, _worker in list(self._jobs):
             try:
                 thread.quit()

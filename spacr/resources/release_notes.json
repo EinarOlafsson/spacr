@@ -1,0 +1,92 @@
+{
+  "repo": "EinarOlafsson/spacr",
+  "releases": [
+    {
+      "tag": "example-data",
+      "name": "spaCR example screen (TSG101)",
+      "published": "2026-08-20",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/example-data",
+      "body": "The example screen spaCR's \"Load example data\" button fetches: four plates of per-well gRNA read counts and four plates of per-cell classification scores.\n\nNot committed to the repository and not shipped in the wheel — 33 MB has no business in a pip install. `spacr.example_data` downloads these on demand, verifies each against a recorded SHA-256, and caches them under the user's cache directory so a second press costs nothing.\n\nA dedicated tag rather than a version tag, so re-releasing spaCR does not orphan the data and the URL stays valid across versions.",
+      "links": [],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.5.0.4",
+      "name": "SpaCR 1.5.0.4",
+      "published": "2026-08-10",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.0.4",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.5.0.1...v1.5.0.4",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/compare/v1.5.0.1...v1.5.0.4"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.5.0.1",
+      "name": "SpaCR 1.5.0.1",
+      "published": "2026-08-05",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.0.1",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.4.9.9...v1.5.0.1",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/compare/v1.4.9.9...v1.5.0.1"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.4.9.9",
+      "name": "SpaCR 1.4.9.9",
+      "published": "2026-07-30",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.4.9.9",
+      "body": "## What's Changed\n* Add arrow key navigation in Annotation app by @jak18015 in https://github.com/EinarOlafsson/spacr/pull/3\n* \"Skip to last annotated\" button by @jak18015 in https://github.com/EinarOlafsson/spacr/pull/16\n* Fix button contrast on MacOS devices by @jak18015 in https://github.com/EinarOlafsson/spacr/pull/18\n* Remove duplicate spacrFont class. by @jak18015 in https://github.com/EinarOlafsson/spacr/pull/17\n\n## New Contributors\n* @jak18015 made their first contribution in https://github.com/EinarOlafsson/spacr/pull/3\n\n**Full Changelog**: https://github.com/EinarOlafsson/spacr/compare/v1.4.9.8...v1.4.9.9",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/pull/3",
+        "https://github.com/EinarOlafsson/spacr/pull/16",
+        "https://github.com/EinarOlafsson/spacr/pull/18",
+        "https://github.com/EinarOlafsson/spacr/pull/17",
+        "https://github.com/EinarOlafsson/spacr/compare/v1.4.9.8...v1.4.9.9"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.4.9.8",
+      "name": "SpaCR 1.4.9.8",
+      "published": "2026-07-30",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.4.9.8",
+      "body": "**Full Changelog**: https://github.com/EinarOlafsson/spacr/commits/v1.4.9.8",
+      "links": [
+        "https://github.com/EinarOlafsson/spacr/commits/v1.4.9.8"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.3.6",
+      "name": "spaCR Nature Communications submission",
+      "published": "2026-07-13",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.3.6",
+      "body": "## spaCR v1.3.6\r\n\r\nRelease accompanying the manuscript *\"A pooled image-based CRISPR screen\r\nidentifies EAF1 as a T. gondii modulator of ESCRT subversion\"*\r\n(Olafsson et al.). This is the archived version of the code used to\r\nproduce the analyses reported in that work.\r\n\r\nspaCR (**spa**tial phenotype analysis of **CR**ISPR-Cas9 screens) is an\r\nopen-source Python framework that links pooled CRISPR-Cas9 perturbations\r\nto single-cell spatial phenotypes. Rather than decoding barcodes inside\r\nimaged cells, spaCR reads phenotypes from images and genotypes from\r\nmatched sequencing plates, then recovers gene-level effects by multiple\r\nlinear regression on well-level data.\r\n\r\n### Pipeline\r\n- **Mask** — object segmentation (cells, nuclei, pathogens, cytoplasm) via Cellpose\r\n- **Measure** — object-level feature extraction and single-cell image cropping to a SQLite database\r\n- **Classify** — spatial phenotype classification with XGBoost (engineered features) or MaxViT (deep learning), including a manual annotation module for building training sets\r\n- **Map Barcodes** — row, column and gRNA barcode mapping from sequencing reads\r\n- **Regression** — gene-level effect size estimation by multiple linear regression\r\n\r\nAll five modules are available from the command line and through a graphical user interface.\r\n\r\n### Links\r\n- Documentation: https://einarolafsson.github.io/spacr/\r\n- Tutorial: https://einarolafsson.github.io/spacr/tutorial/\r\n- PyPI: https://pypi.org/project/spacr/\r\n- Screen design and power analysis (R): https://github.com/maomlab/spaCRPower\r\n- Preprint: https://doi.org/10.64898/2026.07.08.737057\r\n\r\nLicensed under the MIT License. If you use spaCR, please cite the\r\nmanuscript above; see `CITATION.cff` for software citation metadata.",
+      "links": [
+        "https://einarolafsson.github.io/spacr/",
+        "https://einarolafsson.github.io/spacr/tutorial/",
+        "https://pypi.org/project/spacr/",
+        "https://github.com/maomlab/spaCRPower",
+        "https://doi.org/10.64898/2026.07.08.737057"
+      ],
+      "prerelease": false
+    },
+    {
+      "tag": "v1.3.5",
+      "name": "spaCR Nature Communications submission",
+      "published": "2026-07-13",
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.3.5",
+      "body": "## spaCR v1.3.5\r\n\r\nRelease accompanying the manuscript *\"A pooled image-based CRISPR screen\r\nidentifies EAF1 as a T. gondii modulator of ESCRT subversion\"*\r\n(Olafsson et al.). This is the archived version of the code used to\r\nproduce the analyses reported in that work.\r\n\r\nspaCR (**spa**tial phenotype analysis of **CR**ISPR-Cas9 screens) is an\r\nopen-source Python framework that links pooled CRISPR-Cas9 perturbations\r\nto single-cell spatial phenotypes. Rather than decoding barcodes inside\r\nimaged cells, spaCR reads phenotypes from images and genotypes from\r\nmatched sequencing plates, then recovers gene-level effects by multiple\r\nlinear regression on well-level data.\r\n\r\n### Pipeline\r\n- **Mask** — object segmentation (cells, nuclei, pathogens, cytoplasm) via Cellpose\r\n- **Measure** — object-level feature extraction and single-cell image cropping to a SQLite database\r\n- **Classify** — spatial phenotype classification with XGBoost (engineered features) or MaxViT (deep learning), including a manual annotation module for building training sets\r\n- **Map Barcodes** — row, column and gRNA barcode mapping from sequencing reads\r\n- **Regression** — gene-level effect size estimation by multiple linear regression\r\n\r\nAll five modules are available from the command line and through a graphical user interface.\r\n\r\n### Links\r\n- Documentation: https://einarolafsson.github.io/spacr/\r\n- Tutorial: https://einarolafsson.github.io/spacr/tutorial/\r\n- PyPI: https://pypi.org/project/spacr/\r\n- Screen design and power analysis (R): https://github.com/maomlab/spaCRPower\r\n- Preprint: https://doi.org/10.64898/2026.07.08.737057\r\n\r\nLicensed under the MIT License. If you use spaCR, please cite the\r\nmanuscript above; see `CITATION.cff` for software citation metadata.",
+      "links": [
+        "https://einarolafsson.github.io/spacr/",
+        "https://einarolafsson.github.io/spacr/tutorial/",
+        "https://pypi.org/project/spacr/",
+        "https://github.com/maomlab/spaCRPower",
+        "https://doi.org/10.64898/2026.07.08.737057"
+      ],
+      "prerelease": false
+    }
+  ]
+}

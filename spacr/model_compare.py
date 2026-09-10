@@ -302,6 +302,11 @@ class ModelConfig:
     extra: Dict[str, Any] = _dc_field(default_factory=dict)
 
     def __post_init__(self):
+        """Give the model a name if the caller did not.
+
+        The checkpoint's file name is used, falling back to the path itself --
+        a comparison report that says "Model A" twice is unreadable.
+        """
         if not self.name:
             self.name = os.path.basename(str(self.model)) or str(self.model)
 
@@ -537,6 +542,7 @@ class SegComparison:
         return self.n_objects_a == 0 and self.n_objects_b == 0
 
     def __str__(self) -> str:
+        """Return the one-line summary: the field, both counts, the delta and the ARI."""
         return (f"{self.field}: A {self.n_objects_a} vs B {self.n_objects_b} "
                 f"objects ({self.object_count_delta:+d}), ARI {self.ari:.3f}")
 
@@ -580,14 +586,26 @@ class ComparisonReport:
 
     @property
     def n_fields(self) -> int:
+        """How many fields the two models were compared over.
+
+        :returns: the field count.
+        """
         return len(self.comparisons)
 
     @property
     def total_objects_a(self) -> int:
+        """Every object model A found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(c.n_objects_a for c in self.comparisons)
 
     @property
     def total_objects_b(self) -> int:
+        """Every object model B found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(c.n_objects_b for c in self.comparisons)
 
     @property
@@ -614,14 +632,33 @@ class ComparisonReport:
 
     @property
     def mean_matched_fraction(self) -> float:
+        """The mean fraction of A's objects that B also found.
+
+        NAN-SAFE: a field where neither model found anything contributes no
+        fraction rather than a zero, which would drag the mean down for a
+        field that says nothing about either model.
+
+        :returns: the mean, or NaN when no field had objects.
+        """
         return _nanmean([c.iou_matched_fraction for c in self.comparisons])
 
     @property
     def total_splits(self) -> int:
+        """How many of A's objects B broke into several.
+
+        DIRECTIONAL. A split and a merge are the same event seen from the two
+        sides, so the pair only means anything if you know which model is A.
+
+        :returns: the split count.
+        """
         return sum(c.split_events for c in self.comparisons)
 
     @property
     def total_merges(self) -> int:
+        """How many of A's objects B joined together.
+
+        :returns: the merge count.
+        """
         return sum(c.merge_events for c in self.comparisons)
 
     @property
@@ -631,14 +668,30 @@ class ComparisonReport:
 
     @property
     def total_merged_away(self) -> int:
+        """How many of A's objects disappeared into a merge.
+
+        Distinct from the merge COUNT: one merge can swallow several
+        objects, and the number of objects lost is what changes a per-object
+        measurement downstream.
+
+        :returns: the object count.
+        """
         return sum(c.merged_away for c in self.comparisons)
 
     @property
     def total_new_objects_b(self) -> int:
+        """Objects B found that A did not.
+
+        :returns: the object count.
+        """
         return sum(c.new_objects_b for c in self.comparisons)
 
     @property
     def total_missing_objects_a(self) -> int:
+        """Objects A found that B did not.
+
+        :returns: the object count.
+        """
         return sum(c.missing_objects_a for c in self.comparisons)
 
     @property
@@ -677,6 +730,12 @@ class ComparisonReport:
 
 
 def _threshold_of(comparisons: Sequence[SegComparison]) -> float:
+    """The IoU threshold a set of comparisons was matched at.
+
+    :param comparisons: the per-field comparisons.
+    :returns: the first one's threshold, or the default for an empty set --
+        every comparison in a run shares it, so the first is the run's.
+    """
     return comparisons[0].iou_threshold if comparisons else DEFAULT_IOU_THRESHOLD
 
 
@@ -1056,7 +1115,9 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
     import torch
     from cellpose import models as cp_models
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    from .accelerator import torch_device
+
+    device = torch_device()
     model = cp_models.CellposeModel(
         gpu=torch.cuda.is_available(),
         device=device,
@@ -1247,6 +1308,7 @@ def compare_models(images: Sequence[np.ndarray],
     total_steps = 3
 
     def _tick(message: str, done: int) -> None:
+        """Forward ``message`` and ``done`` with the fixed total; return ``None``."""
         if progress is not None:
             progress(message, done, total_steps)
 

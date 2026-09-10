@@ -1,0 +1,20 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "The constructor for a caller that has no run to point it at. Regression seeds one instead — see :func:`spacr.qt.screens.regression.build_methods_export`, which fills in the project and the results folder that screen is already reading.",
+      "label": "spacr.qt.screens.methods_export.make_methods_export_screen#1",
+      "source": "The constructor for a caller that has no run to point it at. Regression seeds one instead — see :func:`spacr.qt.screens.regression.build_methods_export`, which fills in the project and the results folder that screen is already reading.",
+      "source_sha256": "42a9ee4c14090f252ed522c285984bf0ccfc470496f5683551735dd512109265",
+      "translation": "Constructeur destiné à un appelant auquel aucune exécution ne peut être associée. Regression en initialise une à la place — voir :func:`spacr.qt.screens.regression.build_methods_export`, qui renseigne le projet et le dossier de résultats que ce composant consulte déjà."
+    },
+    {
+      "context": "Fraction of the inclusive fit's lift over chance retained after score inputs are removed. ``None`` if either fit is absent or the inclusive fit is at chance.",
+      "label": "spacr.regression_annotation.LeakageReport#5",
+      "source": "Fraction of the inclusive fit's lift over chance retained after score inputs are removed. ``None`` if either fit is absent or the inclusive fit is at chance.",
+      "source_sha256": "b9f71691cc82c6eb2516832c15251a46cead5bb1eba3c96c062b4a51e68c93b0",
+      "translation": "Fraction du gain par rapport au hasard de l’ajustement inclusif qui subsiste après suppression des variables d’entrée du score. ``None`` si l’un des ajustements est absent ou si l’ajustement inclusif ne dépasse pas le hasard."
+    }
+  ],
+  "schema": 1
+}

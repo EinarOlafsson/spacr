@@ -97,7 +97,16 @@ def test_load_image_rejects_mismatched_mask_shape(tmp_path: Path):
         engine.load_image_and_mask(str(folder), "field.tif")
 
 
-def test_save_mask_writes_labeled_tif(synth_mask_folder: Path):
+def test_save_mask_numbers_a_brush_painted_mask_from_one(synth_mask_folder: Path):
+    """A mask whose whole foreground is one value has no ids to keep.
+
+    Renamed and re-worded because ``save_mask`` no longer renumbers
+    unconditionally: it preserves object ids, and numbering the components
+    1..N is now the *documented exception* for a mask that carries none —
+    which is exactly what the brush produces, since every stroke writes the
+    same 255. The assertion is unchanged because that case is unchanged;
+    :func:`test_save_mask_keeps_existing_object_ids` covers the other side.
+    """
     mask = np.zeros((80, 100), dtype=np.uint8)
     mask[10:20, 10:20] = 255
     mask[40:50, 60:70] = 255
@@ -106,6 +115,24 @@ def test_save_mask_writes_labeled_tif(synth_mask_folder: Path):
     written = imageio.imread(save_path)
     # Two connected components → labels 1 and 2
     assert set(np.unique(written)) == {0, 1, 2}
+
+
+def test_save_mask_keeps_existing_object_ids(synth_mask_folder: Path):
+    """The other half of the rule above: a real label image is left alone.
+
+    Added when ``save_mask`` stopped doing ``label(mask > 0)``. Renumbering
+    the components of an edited segmentation re-keys it against every
+    measurement, crop and track derived from it, so a mask that already
+    distinguishes its objects keeps every id it has — gaps included.
+    """
+    mask = np.zeros((80, 100), dtype=np.uint16)
+    mask[10:20, 10:20] = 4
+    mask[40:50, 60:70] = 9
+    save_path = engine.save_mask(str(synth_mask_folder), "img_01.tif", mask)
+    written = imageio.imread(save_path)
+    assert set(np.unique(written)) == {0, 4, 9}
+    assert int((written == 4).sum()) == 100
+    assert int((written == 9).sum()) == 100
 
 
 def test_paint_disk_and_line():

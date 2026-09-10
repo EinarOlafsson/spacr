@@ -1,0 +1,1389 @@
+================================================================================
+A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
+================================================================================
+
+Status:    GREEN IN EVERY COMBINATION IT RUNS, and a SIXTH defect class
+           found 2026-09-10 that the sweep structurally cannot see: seven
+           settings columns capped in DEVICE PIXELS, so they cannot grow
+           with the font. All seven go through `scaled_px` now and a
+           source-level test refuses an eighth. See the 2026-09-10 note at
+           the foot of this file, and read it before adding to the sweep --
+           the instrument it describes is a different one.
+
+           PREVIOUS STATUS FOLLOWS.
+
+Status:    GREEN IN EVERY COMBINATION IT RUNS, 2026-09-09. Four locales at
+           two font scales over 26 screens and the dialogs added so far:
+           208 cases, no clipped caption anywhere, and `KNOWN_OFFENDERS` is
+           empty -- every entry it ever held was CLOSED rather than
+           forgiven. Five defects found and fixed. Filed 2026-09-02.
+
+           WHAT REMAINS IS COVERAGE, NOT DEBT: 18 dialogs that need
+           invented fixtures, the six locales dropped from the matrix
+           because they found nothing (run by hand when one is suspected;
+           the matrix is one line), and the remaining raw geometry
+           constants. Nothing currently measured is failing.
+
+           SCREEN COVERAGE IS NOW COMPLETE. The sweep sampled eight screens
+           while the method was being proven; on 2026-09-05 the other sixteen
+           declared apps were added and all sixteen came up clean on the
+           first run -- 96 new combinations, zero clipped captions. 24
+           screens x 3 locales x 2 scales = 147 cases, 4m21s, RAM flat at
+           5 GB.
+
+           THE DIALOGS ARE PART-COVERED AND THE SWEEP FOUND REAL DEFECTS.
+           2026-09-06: five dialogs whose one argument can be supplied
+           GENUINELY were added -- three of them Annotate's, which is where
+           the original report came from -- and they turned up two clipping
+           bugs and a whole class behind them. See the 2026-09-06 entry.
+           2026-09-07: SIX MORE DIALOGS, and they found two real defects
+           plus a fault in the instrument. The remainder is 18 dialogs
+           needing invented fixtures, more locales than three, and the
+           remaining raw geometry constants.
+Requested: 2026-09-02, verbatim -- "do a sweep of the entire package and make
+           user that all tesxt fits within its button, box or container, and
+           is not cut off at all." Reported alongside a concrete instance:
+           "in annotation the loade test data tooltips do not fit in the popup
+           window."
+Owner:     spacr/qt -- every screen, dialog and widget.
+
+--------------------------------------------------------------------------------
+THE KNOWN INSTANCE, WHICH IS THE PLACE TO START
+--------------------------------------------------------------------------------
+
+Annotate's "Load test data" tooltips overflow their popup. That is a concrete,
+reproducible case and it should be fixed and TURNED INTO THE MEASUREMENT the
+rest of the sweep uses -- one instance fixed by hand teaches nothing; one
+instance fixed with a check that then runs over every widget finds the others.
+
+--------------------------------------------------------------------------------
+WHY A SWEEP AND NOT A LIST
+--------------------------------------------------------------------------------
+
+Text is cut off for four different reasons and they need four different fixes,
+so an audit that only records "this one is clipped" produces a list nobody can
+act on:
+
+  * the string is too long for a fixed-width control  -> the string, or a
+    wrapping/eliding policy;
+  * the control has a fixed size that a longer TRANSLATION overflows -> the
+    layout, and it will only reproduce in one of the nine locales;
+  * a font scale other than 1.0 -> instruction 04 records that the tests
+    measured a font scale no user has, so a check that runs at one scale
+    proves nothing about the others;
+  * the container does not grow -> a layout stretch or size policy.
+
+THE TRANSLATION CASE IS THE ONE MOST LIKELY TO BE MISSED and the most likely
+to be wrong in the shipped product: German and Portuguese run materially
+longer than English for the same caption, and nobody reads those screens.
+Any sweep that runs only in English is a partial sweep and should say so.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Write the check first, against the Annotate instance, so it is known to
+   catch a real failure before it is trusted on anything else. For a rendered
+   widget, `QFontMetrics.boundingRect` of the text against the widget's
+   contents rect answers this without a screenshot.
+2. Run it over every screen and dialog, at more than one font scale, in
+   English AND in the longest locale.
+3. Fix by category, not one control at a time, and record which of the four
+   causes each fix addressed.
+
+--------------------------------------------------------------------------------
+WATCH
+--------------------------------------------------------------------------------
+
+* ELIDING IS NOT ALWAYS THE FIX. A tooltip that elides has lost the sentence
+  it existed to say. Prefer wrapping or a wider container for prose; elide
+  only identifiers and paths, where the head or tail is enough.
+* A control that grows can push its neighbour off the screen. Assert the
+  CONTAINER still fits too, or the sweep trades one clipped string for
+  another.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The Annotate "Load test data" tooltip fits, asserted rather than eyeballed.
+* A committed check walks every screen and dialog and reports zero clipped
+  strings, at the default font scale and at the largest one preferences
+  offers, in English and in the longest-rendering locale.
+* Each fix names which of the four causes it was.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE ANNOTATE INSTANCE, DIAGNOSED. IT IS A HARD-CODED HEIGHT.
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/test_data_chooser.py`. The dialog has a description pane
+under the route buttons that fills in as you hover, and it is built with
+
+    self._description.setMinimumHeight(110)
+
+with this comment above it:
+
+    # A FIXED HEIGHT, so the dialog does not resize under the pointer as
+    # the text changes length -- the buttons would move away from the
+    # cursor that is hovering them.
+
+THE INTENT IS RIGHT AND THE IMPLEMENTATION IS A GUESS. 110 is a number, not a
+measurement: it was presumably enough for the descriptions that existed when
+it was written. A longer route description -- or the same one at a larger font
+scale, or in German -- needs more, and the pane does not grow because growing
+is precisely what the comment set out to prevent.
+
+THE FIX THAT SATISFIES BOTH GOALS is to size the pane to the LONGEST text it
+can ever hold, rather than to a constant: walk `ROUTES`, take
+`QFontMetrics.boundingRect` of each description wrapped to the pane's width,
+and use the tallest. The dialog is then stable under the pointer AND cannot
+clip, and it stays correct when a route is added or a caption is translated,
+which a constant cannot.
+
+`RESTING_TEXT` must be in that measurement too -- it is what the pane shows
+before anything is hovered.
+
+THIS IS THE MEASUREMENT THE REST OF THE SWEEP WANTS. The same
+"boundingRect against the contents rect" comparison is what item 1 of WHAT TO
+DO asks for, so fixing this one correctly produces the tool for the others
+rather than just one fixed dialog.
+
+AND IT IS AN INSTANCE OF CAUSE 2 AND CAUSE 3 AT ONCE, from the four listed
+above: a fixed size that a longer string overflows, and a size that only holds
+at one font scale. Worth noting because it means the sweep cannot be a single
+pass at 1.0 in English -- the very first case found needs two of the four
+dimensions to reproduce reliably.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE REPORTED CASE IS FIXED, AND THE MEASUREMENT EXISTS
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, so the size of the problem is on the record: at the dialog's
+own width of 260 px the three strings the pane can show need
+
+    resting text     51 px
+    Load route      153 px
+    Stream route    170 px
+
+against a pane of 110. The Stream description was losing 60 px -- most of its
+second paragraph.
+
+THE FIX REPLACES THE CONSTANT WITH A MEASUREMENT, and keeps the reason the
+constant existed. `_size_the_description_pane` asks `QFontMetrics` how tall
+the TALLEST of `every_description()` is at the pane's own width and sets BOTH
+bounds to it: a minimum so nothing clips, and a maximum so a short description
+replacing a long one cannot shrink the pane and move the buttons out from
+under the pointer hovering them. It re-runs on `resizeEvent`, because a height
+measured at one width clips at another and this dialog can be resized.
+
+One line of `lineSpacing()` slack is added: `boundingRect` measures the ink,
+and a descender on the last line sits below the box it reports.
+
+THE CHECK IS THE DELIVERABLE, not the fixed dialog.
+`tests/qt/test_no_caption_is_clipped.py` carries `wrapped_height(widget, text,
+width)`, which is what any "is this clipped" question compares against, plus
+three tests: every description fits, every description produces the SAME
+height, and -- the one that stops this passing by luck -- a manufactured
+overlong string IS caught. 288 records four tests that passed while exercising
+nothing; that third test is what keeps this out of that set.
+
+VERIFIED BOTH WAYS. Against current code: 3 passed. Against the pre-fix widget
+with everything else identical: 2 failed, 1 passed -- so the check catches the
+reported bug rather than merely agreeing with the repair. The three chooser
+suites are green alongside it, 31 passed.
+
+WHAT REMAINS IN 350, and it is the sweep rather than the tool:
+
+  * point `wrapped_height` at every screen and dialog, not just this one;
+  * run it at more than one font scale -- instruction 04 records that the
+    tests once measured a font scale no user has;
+  * and in the longest-rendering locale, because German and Portuguese run
+    materially longer than English and nobody reads those screens.
+
+This first case was cause 2 AND cause 3 from the list above at once -- a fixed
+size a longer string overflows, and a size that only holds at one font scale.
+That is the argument for the sweep being more than one pass.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE SWEEP, RUN. ENGLISH IS FINE AND GERMAN IS TEN TIMES WORSE.
+--------------------------------------------------------------------------------
+
+THE NUMBER THIS ITEM EXISTS FOR. Eight module screens, same widgets, same
+window, only the language changed:
+
+    window 1100x800     en      3 clipped
+                        de     38 clipped
+                        pt     33 clipped
+
+At 1400x950 in English the count is ZERO across twelve screens. So a sweep run
+the obvious way -- one language, one generous window -- would have reported
+this package clean, and the WATCH section above predicted exactly that. The
+locale is not a refinement of this item; it is the item.
+
+WHICH CAPTIONS, measured on three screens in German and ordered by how far
+they overrun. Each repeats on every module screen, so the fix is one control
+each rather than one per screen:
+
+    QPushButton  'Einstellungen importieren…'          short by 45 px
+    QLabel       'Einstellungen konfigurieren, dann…'  short by 52 px
+    QLabel       'Herunterladen'                       short by 25 px
+    QPushButton  'Remote übermitteln…'                 short by 15 px
+    QPushButton  'Konsole kopieren'                    short by  9 px
+
+THE BUTTONS ARE CERTAIN. A QPushButton does not wrap, so a caption needing
+more than the button's width is clipped, full stop.
+
+THE THREE LARGEST HITS ARE PROBABLY FALSE POSITIVES AND ARE LISTED SEPARATELY
+FOR THAT REASON. `_WrappedLabel` "short by 579 px" is a WRAPPING label
+measured with `horizontalAdvance`, which asks for its width on ONE line. My
+probe only took the wrap-aware path for a `QLabel` whose `wordWrap()` is set,
+and that subclass wraps by another route. Anyone extending the check must fix
+that first, or the sweep will chase three phantoms on every screen.
+
+'Herunterladen' IS THE ROW LABEL MOVED TONIGHT BY INSTRUCTION 353. Moving the
+Download row to the top of Input Tables did not cause the clipping -- the
+label is the same width wherever it sits -- but the two items now touch the
+same control, and whoever widens it should read 353 first.
+
+WHAT THIS CHANGES ABOUT THE PLAN. The four causes listed at the top of this
+file are still the four causes, but their WEIGHT is now measured: cause 2, a
+fixed size a longer translation overflows, is the dominant one by an order of
+magnitude. The Annotate pane fixed earlier tonight was cause 2 and 3 together.
+Start with the five captions above, in German, and re-measure in Portuguese
+before calling any of them done.
+
+STILL NOT RUN: a larger font scale. Instruction 04 records that the tests once
+measured a font scale no user has, so that dimension is untested here and the
+counts above are for the default scale only.
+
+ONE MORE THING SEEN IN PASSING. Building eight screens in one process and
+letting them go ended in `QThread: Destroyed while thread '' is still running`
+and a core dump. That is the widget-teardown family instructions 288, 345 and
+346 are about, reproduced here from a plain script with no pytest involved --
+which is worth knowing, because it means the mechanism is not a test-harness
+artefact.
+
+--------------------------------------------------------------------------------
+2026-09-02 — CORRECTION. THE NOTE ABOVE IS WRONG. I MEASURED BEFORE THE LAYOUT
+             SETTLED, AND GERMAN IS THE CLEANEST LOCALE, NOT THE WORST.
+--------------------------------------------------------------------------------
+
+The previous note's headline -- "3 clipped in English, 38 in German, 33 in
+Portuguese" -- IS AN ARTEFACT AND MUST NOT BE PLANNED AGAINST. Retracted in
+full, including the five named captions and the claim that cause 2 dominates
+by an order of magnitude.
+
+WHAT WENT WRONG. The probe called `app.processEvents()` ONCE after `show()`
+and then read `widget.width()`. That is too early: Qt had not finished the
+layout pass, so most widgets still carried a pre-layout default width and
+every caption looked too big for its control. Measured directly on one
+button, in German:
+
+    after  1 processEvents:  width=111   sizeHint=171   text=156   -> "clipped"
+    after  5 processEvents:  width=171   sizeHint=171   text=156   -> fits
+    after 20 processEvents:  width=171   sizeHint=171   text=156   -> fits
+
+Every "clipped" button in that list was a 111 measured against a 156 that
+would have been a 171. The button row was never even close to overflowing --
+715 px of buttons in an 845 px row in German -- and checking THAT is what
+exposed the contradiction. Two measurements disagreeing is what caught this;
+one measurement on its own looked entirely plausible.
+
+THE REAL NUMBERS, same screens, same 1100x800 window, layout allowed to
+settle over twelve event-loop turns:
+
+    en   2 clipped        de   0 clipped        pt   3 clipped
+
+German is the CLEANEST of the three. The opposite of what I reported.
+
+AND THE REAL LIST IS ONE WIDGET CLASS:
+
+    en  mask, measure         AiToggleLabel  'Time'                  +7 px
+    pt  mask, measure         AiToggleLabel  'Tempo'                 +19 px
+    pt  regression            AiToggleLabel  'Varredura de parâmetros' +40 px
+
+`AiToggleLabel` is the only control that clips anywhere in four screens and
+three languages, and it clips in ENGLISH too -- so this is not a translation
+problem at all, it is one control whose width does not follow its caption.
+That is a small, sharp fix and it is the whole of what this sweep found.
+
+WHAT SURVIVES FROM THE RETRACTED NOTE:
+
+  * the `_WrappedLabel` false-positive warning -- a wrapping label measured
+    with `horizontalAdvance` still asks for its width on one line;
+  * the observation that a plain script building screens ends in the
+    `QThread: Destroyed while thread is still running` core dump, with no
+    pytest involved (288/345/346);
+  * that a larger font scale is still untested.
+
+THE LESSON FOR THE SWEEP ITSELF, and it belongs in the method above: PUMP THE
+EVENT LOOP UNTIL THE GEOMETRY STOPS CHANGING BEFORE MEASURING ANYTHING. A
+clipping check that reads a width too early does not report a few extra
+findings -- it reports a completely different package, confidently.
+
+--------------------------------------------------------------------------------
+2026-09-02 — SECOND CORRECTION. THE FIVE SURVIVORS WERE DELIBERATE ELISION.
+--------------------------------------------------------------------------------
+
+The corrected note above named `AiToggleLabel` as "the only control that clips
+anywhere" and called it a small sharp fix. IT IS NOT A DEFECT EITHER.
+
+`AiToggleLabel` elides ON PURPOSE. `ELIDE_ABOVE_PX = 120` caps its
+`minimumSizeHint` so a long secondary caption cannot force the whole row
+wider -- the comment cites INVARIANTS 10, "a secondary control must not be
+able to starve the primary one" -- and `sizeHint` still asks for the full text
+so a roomy layout shows all of it. The behaviour is designed, documented and
+correct.
+
+AND THE CLASS OFFERS THE ANSWER MY CHECK SHOULD HAVE ASKED FOR:
+
+    text()            the full logical caption
+    displayed_text()  what it is actually painting, elided or not
+
+with a docstring saying tests need both "to tell 'the toggle says X' from
+'the toggle currently fits this much of X'". I compared `text()` against the
+width, which for an eliding widget reports clipping BY CONSTRUCTION.
+
+THE SWEEP'S ACTUAL RESULT, with the layout settled AND the check asking for
+painted text:
+
+    en 2      de 0      pt 2
+
+and the survivors are wrapped labels, i.e. the `_WrappedLabel` false-positive
+class already recorded above and still unaddressed. So the honest finding is
+that FOUR SCREENS IN THREE LANGUAGES SHOW NO PROVEN CLIPPING AT ALL, and the
+check is not yet sharp enough to say more than that.
+
+`painted_text()` is now in `tests/qt/test_no_caption_is_clipped.py` so the
+next use of this measurement starts with the rule rather than rediscovering
+it.
+
+THREE FALSE-POSITIVE CLASSES ARE NOW KNOWN, and any sweep must handle all
+three before its numbers mean anything:
+
+    1. measuring before the layout settles      (pump the event loop)
+    2. a wrapping label measured on one line    (use the wrap-aware path)
+    3. a control that elides by design          (ask for painted text)
+
+TWO WRONG HEADLINES IN ONE NIGHT, on the same item, both confident and both
+retracted within the hour. That is the honest character of this work: a
+clipping check is easy to write and hard to make true, and every number it
+produces should be doubted until a second, differently-shaped measurement
+agrees with it. The button-row width check is what caught the first; reading
+the widget's own class is what caught the second.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE SWEEP RUNS, IN THREE LOCALES, AND FINDS THREE REAL THINGS
+--------------------------------------------------------------------------------
+
+`tests/qt/test_the_text_fits_sweep.py` -- eight screens x three locales, all
+twenty-five combinations judged by the rules this file records. English is the
+source, German makes the longest compounds in the set, and Icelandic is the
+maintainer's own, so a defect there is one he meets rather than one he is told
+about.
+
+A FOURTH FALSE-POSITIVE CLASS, found by running it: A CONTROL THAT HAS CHOSEN
+TO PAINT CLIPPED. `AiToggleLabel` deliberately draws the FULL text slightly
+cut off when its width cannot fit even an ellipsis, and says why in its own
+code -- "the full text drawn slightly clipped is strictly better: it still
+says which control this is". Reporting that is a finding against a decision.
+The rule is now: a widget that owns its own elision has already decided what
+to paint, so the sweep does not second-guess it.
+
+AND THE FIRST RUN FAILED ALL TWENTY-FIVE COMBINATIONS WITHOUT MEASURING
+ANYTHING -- `findChildren` takes a type and not a tuple in PySide6, and hands
+back a TypeError rather than an empty list. That is a third confident wrong
+headline on this item, caught before it was reported this time, and it is why
+the sweep now carries a test that a real clip still fails it.
+
+FIXED HERE: THE DOWNLOAD LABEL, and it is the shape this instruction predicts
+exactly. Measured on Regression:
+
+    en   "Download"        needs 57 px, the column grants 58   fits exactly
+    de   "Herunterladen"   needs 83 px, the column grants 58   CUT OFF
+
+Every settings label in that column elides, so the column is capped by their
+hints; a plain QLabel wider than the cap is cut mid-glyph. `add_prose_row`
+builds an `ElidingLabel` now, whose `sizeHint` still asks for the full width
+-- so where the column can afford it nothing is elided at all -- with the
+whole word as its tooltip for when it cannot.
+
+RECORDED AS A RATCHET, NOT FIXED, because both remaining findings are layout
+decisions rather than captions:
+
+    measure / de           6 captions cut off
+    measure / is           5
+    classify_merged / de   1
+
+  * Measure's action row is a QHBoxLayout of buttons with `policy=Minimum`.
+    In English the row fits at 1200 px; in German it does not, so Qt
+    compresses every button below its own hint -- "Ausführen" is given 60 px
+    and wants 103, "Einstellungen importieren…" 127 against 192. The row has
+    to WRAP, SCROLL or ELIDE; squeezing is the one option that loses text.
+    This is the same question as the flow layout the other session has been
+    working on, and is worth doing with it rather than beside it.
+  * Classify's subtitle is one unwrapped `ApiHelpLabel`, 73 px too long for
+    its line in German. Wrapping it is the obvious fix and it changes the
+    header's height, which is why it is measured rather than done in passing.
+
+THE THEME IS WHAT TIPS BOTH, and anyone reproducing this by hand needs to
+know: built WITHOUT the application stylesheet the same screen reports every
+button at exactly its hint and nothing is clipped at all. The sweep runs with
+`qt_theme_applied` because that is the font the user has.
+
+--------------------------------------------------------------------------------
+2026-09-02, LATER: THE SUBTITLE ELIDES, SO ONE OF THE THREE IS CLOSED
+--------------------------------------------------------------------------------
+
+    measure / de           6   (open -- the action row's layout)
+    measure / is           5   (open -- same cause)
+    classify_merged / de   1 -> 0
+
+`ApiHelpLabel` is the module masthead's blurb and the only user of that
+class. The masthead has always MEANT it to be cut short -- its own docstring
+says the label "may shrink below its ideal width rather than force the window
+wider" and is "repeated in its own hover help so a truncated one is
+readable". What it did instead was CLIP: a `wordWrap(False)` QLabel paints as
+many characters as fit and stops, with no ellipsis and no hint that there is
+more, so the hover help was the answer to a question the reader had no way of
+knowing to ask.
+
+It elides now, which is the behaviour the docstring already described, and
+`full_text()` returns the whole sentence for anything that needs it. Measured
+on Classify in German: 1,354 px of text on a 1,281 px line, six characters
+gone without a mark -- and English fits, which is why nobody had seen it.
+
+THE RATCHET DID ITS OWN JOB HERE, which is worth recording as evidence that
+this shape of test earns its keep: the fix made the sweep FAIL, because the
+combination was recorded as having one offender and now has none, and the
+test refuses to let a closed entry sit in the table pretending to be debt.
+
+--------------------------------------------------------------------------------
+MEASURE'S ACTION ROW: TRIED, REVERTED, AND WHAT IT ACTUALLY NEEDS
+--------------------------------------------------------------------------------
+
+`FlowLayout` looked like the answer and is not, quite. It exists for exactly
+this failure -- its own module docstring says "Qt's answer to a box it cannot
+satisfy is to let the children overlap" -- and swapping the action row's
+QHBoxLayout for it took one line.
+
+IT FAILED IMMEDIATELY, on `AttributeError: 'FlowLayout' object has no
+attribute 'addStretch'`, and the error is the useful part: THE ACTION ROW IS
+NOT A ROW OF BUTTONS. It is eight buttons, then a stretch, then the progress
+bar and six more widgets -- the preview, GPU, sweep, hyperparameter,
+interactive and AI switches. The stretch is load-bearing: it is what holds
+the switches against the right edge while the buttons stay left.
+
+So the fix is not a layout swap but a SPLIT: the buttons into their own
+wrapping container, and that container plus the stretch, the progress bar and
+the switches in the horizontal row they are in now. That is a structural
+change to the busiest screen in the application, in a file six test files
+reach into by attribute, and it is worth doing deliberately rather than in
+the same pass as the measurement.
+
+The revert is complete -- the sweep is green at its recorded counts -- and
+the two entries stay in `KNOWN_OFFENDERS` where they can be seen.
+
+  WHILE IT IS UNFIXED, the failure a user meets is: on Measure in German or
+  Icelandic, every caption in the action row loses its ending, including
+  "Run". Widening the window fixes it, which is why it has survived -- the
+  developers' windows are wide.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE ACTION ROW WRAPS. THE LAST OF THE THREE IS CLOSED, AND THE
+            COUNTS 6 AND 5 WERE THEMSELVES MEASURED ONE EVENT TOO EARLY.
+--------------------------------------------------------------------------------
+
+    measure / de           6 -> 0
+    measure / is           5 -> 0
+
+`KNOWN_OFFENDERS` IS NOW EMPTY. All twenty-five combinations of the sweep are
+clean and no entry is being carried as debt.
+
+FIRST, THE CORRECTION, because the numbers this item has been planning against
+were not what they looked like. The sweep read every screen after a flat
+`qtbot.wait(30)`, and `QTest.qWait` ENDS ITS LOOP WITH A SLEEP, not with a pass
+of `processEvents`: it processes events, sleeps 10 ms, checks the clock, and
+breaks when the time is up. Whatever was posted during that last sleep is still
+in the queue when the call returns, and on a module screen the thing sitting
+there is the layout request raised by the language pass -- which runs a turn
+after the screen is built. So the row was read carrying GERMAN captions inside
+buttons still sized for the ENGLISH ones they had been constructed with, and
+every one of them looked clipped. In one test, in one run:
+
+    after qtbot.wait(30):  6 clipped, `_btn_run` 60 px wide, hint 103
+    after one more wait(1): 0 clipped, `_btn_run` 103 px wide, hint 103
+
+Nothing changed in that millisecond except that Qt was finally allowed to
+deliver an event it had been holding. That is the FOURTH confident wrong
+headline on this item and the second of the "measure before the layout settles"
+family -- rule 1 was written down after the first one and then implemented as a
+constant, which is not an implementation of it. `settle()` in the sweep is now a
+loop with a stopping CONDITION: two readings of every measured widget's
+geometry, 10 ms apart, that agree.
+
+SECOND, THE DEFECT UNDERNEATH IS REAL, AND WORSE THAN THE COUNT SUGGESTED. With
+the layout settled, the old row's MINIMUM width on Measure was
+
+    en   908 px      de   1092 px      is   1068 px
+
+and a minimum that large does damage two ways:
+
+  * AT 1200x850 IT TOOK THE WIDTH FROM ITS NEIGHBOUR. The screen asks its body
+    splitter for `setSizes([400, 800])`. What it got was a settings column of
+    251 px in English, 91 in Icelandic and 67 in GERMAN, because the runtime
+    side could not be narrower than the row. Nothing was clipped; the settings
+    form was simply crushed to a sliver. That is the WATCH section's own
+    warning -- "a control that grows can push its neighbour off the screen" --
+    landing exactly where it said it would.
+  * AND IN A WINDOW THAT CANNOT GROW, THE CAPTIONS WENT. Shown as a top-level
+    widget the screen escapes the problem, because `QLayout::activate` raises a
+    WINDOW's minimum to its layout's total minimum: asked for 1000x850 it came
+    up 1193x850 in German, 1169 in Icelandic and 1009 in English, and reported
+    nothing clipped. That is not how a screen lives. It is a page in a
+    `QStackedWidget`, and a page gets whatever the window has, its own minimum
+    included. Measured at 1000x850 in a container that would not grow:
+
+        en   1 caption cut off   'Submit remote…'              134 px / 143
+        de   4                   'Einstellungen importieren…'  106 px / 192
+                                 'Remote übermitteln…'         105 px / 178
+                                 'Konsole leeren'              106 px / 115
+                                 'Konsole kopieren'            105 px / 130
+        is   4                   'Flytja inn stillingar…'       96 px / 144
+                                 'Senda fjarvinnslu…'           96 px / 158
+                                 'Hreinsa stjórnborð'           95 px / 139
+                                 'Kopið konsól'                 96 px / 103
+
+    English loses one too, so this was never purely a translation defect --
+    German and Icelandic only reach the cliff sooner.
+
+THE FIX IS THE SPLIT THE PREVIOUS NOTE ASKED FOR, WITH ONE CHANGE OF SHAPE.
+`_WrappingButtonStrip` in `spacr/qt/screens/app_screen.py` is a `FlowLayout`
+subclass used as a SUB-LAYOUT of the row's `QHBoxLayout`, not as a `FlowHost`
+widget inside it. That distinction is the whole reason this was safe to do:
+
+  * a widget added to a sub-layout is parented to the widget that owns the
+    TOP-level layout, so every button is still a Qt child of `_actions_row`.
+    `test_chaining_gui.py` asserts `screen._btn_run.parent() is
+    screen._actions_row`; `_clear_page_surfaces` still has ONE widget to tag,
+    so no new opaque strip appears over the backdrop; `findChildren` from the
+    screen still reaches every button. A nested `FlowHost` breaks the first,
+    complicates the second and was rejected on that.
+  * `FlowLayout`'s own `sizeHint` is its `minimumSize` -- the widest single
+    chip -- which is right for a chip strip in a column and wrong in a
+    horizontal box, where a 192 px hint would let the stretch swallow the rest
+    and wrap eight buttons onto five lines in a row with room for one. The
+    subclass overrides `sizeHint` to ask for the whole line. THAT IS THE ONLY
+    THING FLOWLAYOUT LACKED; `spacr/qt/widgets/flow.py` is UNCHANGED, so the
+    three screens that use it are untouched.
+
+TWO THINGS THE SPLIT BROKE ON THE WAY, both found by running the suites and
+both worth knowing before anyone rearranges this row again:
+
+  * THE ACTIVITY SPINNER STOPPED BEING INSTALLED, silently, in the application
+    only. `attach_activity_spinner` finds its slot with
+    `_btn_clear.parentWidget().layout().indexOf(_btn_clear)` and inserts at
+    index + 1, and `QLayout.indexOf` DOES NOT DESCEND INTO A SUB-LAYOUT -- so
+    it answered -1 and the helper returned None. Every test of that helper
+    builds its own flat row, so all of them went on passing. The row now builds
+    its own spinner in the strip immediately right of Clear console and
+    publishes it as `_activity_spinner`, which is the attribute the helper
+    checks before it touches any layout, so the lazy path finds this one.
+  * THE PREFERENCES GEAR WAS ORPHANED BY THE WRAP. It was asked for by
+    position, "to the right of Copy console", and `test_preferences_gear.py`
+    checks that as `gear.x() > copy.x()`. It is a 46 px icon at the end of a
+    605 px run of captions, so it is always the item the wrap reaches first: on
+    Mask at 1400x900 the strip has 678 px and one line wants 699, and the gear
+    went to line two with x=0 against Copy console's 548. The two now enter the
+    strip as ONE item (an anonymous QWidget the surface sweep already tags), so
+    a wrap moves them together. Taking the gear out of the strip entirely also
+    passes, and was rejected on measurement: it left the gear floating at
+    mid-height beside a two-line stack, and its 46 px came off the strip at
+    every size -- Measure in German at 1000 px went to FOUR lines of buttons
+    and the console under it from 208 px to 180.
+
+AFTER, MEASURED THE SAME WAY (settled, in a container that will not grow):
+
+    1200x850   row 770 px wide, 86-88 tall (two lines), settings column 389 px
+               in ALL THREE locales, console 254-256 px, 0 captions clipped,
+               every button at its full hint.
+    1000x850   row 637 px wide, 86 (en) / 134 (de, is) tall, settings 322 px,
+               console 208-256 px, 0 clipped, and the screen is 1000 px wide
+               rather than refusing at 1193.
+
+TWO CONSEQUENCES WORTH SAYING OUT LOUD RATHER THAN LETTING SOMEONE FIND THEM:
+
+  * THE ROW IS TWO LINES AT 1200x850 IN ENGLISH TOO, where it used to be one.
+    That is not the wrap being greedy, it is the splitter finally getting the
+    split the screen asks for: the runtime panel is 770 px instead of 908,
+    because the row no longer overrules `setSizes([400, 800])`. The settings
+    column gains 138 px for it. The trade was made deliberately and is worth
+    revisiting only with a measurement, not a preference.
+  * A HIDDEN CHILD STILL COSTS ITS GAP IN A `FlowLayout`, unlike a
+    `QBoxLayout`, which skips empty items entirely. The strip therefore carries
+    16 px of dead space for the hidden `_btn_file_issue` and the idle spinner.
+    Left alone on purpose: fixing it means changing `_do_layout` in
+    `spacr/qt/widgets/flow.py`, which three other screens use, for 16 px that
+    changed no wrap point in any locale measured here.
+
+THE CHECK, and it is the deliverable rather than the fixed row.
+`tests/qt/test_the_action_row_wraps_instead_of_squeezing.py`, 13 tests: no
+caption cut off at 1000 px in three locales; the screen is the width it was
+given (a second, differently-shaped measurement of the same cause, since a row
+whose minimum exceeds the window shows up as a window that will not shrink);
+the settings column keeps at least a quarter of the screen; the strip WRAPS
+rather than eliding or shrinking; every name the rest of the package reaches
+into the row by still resolves; the spinner is still beside Clear console; and
+-- because this item has produced four wrong headlines -- a manufactured
+squeezed row that the same check still reports.
+
+VERIFIED BOTH WAYS. Against the fixed code: 13 passed. Against the pre-fix
+`app_screen.py` with everything else identical: 11 of the 13 FAILED, with the
+numbers quoted above coming straight out of the assertion messages. The sweep
+is 25 passed with `KNOWN_OFFENDERS` empty, and refused to pass with the two
+entries still in it -- the ratchet did its own job again.
+
+ALSO GREEN: `test_cov_r4_app_screen.py`, `test_the_dock_behaves_like_a_dock.py`,
+`test_chaining_gui.py`, `test_prerun.py`, `test_preview_registry.py`,
+`test_category_tooltips.py`, `test_activity_spinner.py`,
+`test_cov_5_button_roles.py`, `test_preferences_gear.py`,
+`test_preferences_gear_visible.py`, `test_app_screen.py`, `test_polish.py`,
+`test_gui_run_and_console.py` and the rest of the suites that reach into this
+row. Run in four batches against the final code: 145, 452, 345 and 321 passed
+(one file, `test_cov_r4_app_screen.py`, is in two of them).
+
+FIVE FAILURES SEEN AND NOT MINE, each reproduced against the pre-fix file:
+`test_cov_app_screen.py::...::test_propagate_live_settings_writes_into_the_panel`,
+`test_the_language_reaches_what_a_handler_writes.py::test_the_example_button_comes_back_in_the_chosen_language`,
+two in `test_the_folded_rows_left_the_registry.py`, and
+`test_cov_r6_qt_core_tail.py::...::test_the_declared_speed_range_brackets_the_default`.
+
+WHAT IS STILL OPEN IN 350, and it is the one dimension nobody has measured:
+A LARGER FONT SCALE. Instruction 04 records that the tests once measured a font
+scale no user has; every number in this file, tonight's included, is the default
+scale. A row that wraps to two lines at 1.0 wraps to four at 1.5, and the
+container check -- "assert the CONTAINER still fits too" -- has never been run
+there. That is where this sweep should go next.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE FONT SCALE, RUN AT LAST — AND IT FOUND THE TWO THINGS EVERY
+            LOCALE PASS HAD MISSED. THE SWEEP IS NOW 51 GREEN AT 100 % AND 200 %.
+--------------------------------------------------------------------------------
+
+THE SCALE TESTED IS `FONT_SCALE_MAX`, 2.00 — the largest the preferences
+slider offers — alongside the 1.00 default, which is what this file's own HOW
+IT WILL BE CHECKED section asked for. Named rather than hard-coded, so the
+sweep follows the slider if its range ever moves.
+
+Applied the way the application applies it, which is the part that decides
+whether the measurement describes anything a user can reach. The preference is
+ONE number with TWO consumers: `theme.stylesheet(font_scale=...)` sets every
+FONT SIZE from it, and `preferences.scaled_px` scales every WIDGET SIZE set
+from Python by it. `apply_preferences_to_app` writes the preference and then
+rebuilds the sheet from it; the `at_font_scale` fixture does exactly that pair.
+Set only the sheet and the glyphs grow while the boxes do not, and the sweep
+"finds" clipping in every control the package sizes correctly. Set only the
+preference and it finds none. THE SCALE ALSO HAS TO BE IN PLACE BEFORE THE
+SCREEN IS BUILT, because `scaled_px` is read at construction.
+
+WHY NOT 1.5 AS WELL. Measured, before choosing: at 150 % the whole package
+showed ONE clipped caption, and it was the same 40 px box that loses 22 px at
+200 %. Everything 1.5 can find, 2.0 finds further out, so the two ends are the
+measurement and a middle point is a third of the runtime for nothing.
+
+    caged, 1200x850, 8 screens x 3 locales      1.0   1.5   2.0
+    ------------------------------------------------------------
+    before                                        0     1    ~5 per screen
+    after                                         0     -     0
+
+FINDING 1 — `UsageBar`, AND IT IS CAUSE 3 IN ITS PUREST FORM: A FIXED SIZE
+THAT ONLY HOLDS AT ONE FONT SCALE. `spacr/qt/widgets/usage_bar.py` set
+
+    self._label.setFixedWidth(48)      # the caption column: RAM / GPU / VRAM
+    self._pct.setFixedWidth(40)        # the percent readout
+
+so at 200 % the glyphs doubled and the boxes did not. Measured:
+
+    'VRAM'   66 px of text in 48 px of column
+    'RAM'    52                48
+    '100%'   62                40          (and 46 px at 150 %)
+
+This is the System card on EVERY module screen in EVERY locale, which is why
+it read as five separate offenders per screen rather than as one widget — and
+why it was invisible to a sweep that only ever varied the language. Both
+widths now take the LARGER of `scaled_px(base)` and the widest string the
+control can ever hold, re-measured on a font change and on show. The floor
+keeps the four bars aligned; the metrics keep the text whole. `scaled_px`
+alone would have been enough for the scale, and its own docstring says so —
+"any control tuned to match a text width goes wrong at large font scales" —
+but a scale is not the only way a glyph gets wider, and the readout is sized
+to "100%" rather than to the live number, which also makes the width
+deterministic instead of a function of current RAM.
+
+FINDING 2 — `ApiHelpLabel`, AND IT IS THE WATCH SECTION'S OWN WARNING LANDING
+EXACTLY WHERE IT SAID IT WOULD. With the meters fixed, one caption was left:
+
+    power / is / 2.0   QLabel 'Tölfræðilegt afl / hönnun'   577 px, needs 683
+
+THE MODULE TITLE, cut mid-word. The masthead needed 1274 px and had 1168, and
+every one of those 106 px came off the TITLE while the blurb beside it sat at
+its full width — a module name losing its ending next to a sentence that has a
+hover copy of itself and is documented as the thing that should give way.
+
+THE MASTHEAD ALREADY SAID SO AND QT WAS NOT LISTENING. It builds the blurb
+with `setSizePolicy(QSizePolicy.Maximum, ...)` and `setMinimumWidth(0)` and
+its docstring says the label "may shrink below its ideal width rather than
+force the window wider". Neither call achieves it: `qSmartMinSize` takes a
+shrinkable widget's minimum from `minimumSizeHint()`, which for a
+`wordWrap(False)` QLabel is the width of the WHOLE sentence, and it only lets
+an explicit `minimumWidth` override that when the value is GREATER THAN ZERO.
+Zero is the one value that does nothing. So the single control on the masthead
+that can lose text harmlessly was the single control that refused to give up
+any width at all.
+
+`ApiHelpLabel.minimumSizeHint` now asks for ONE WORD PLUS THE ELLIPSIS,
+measured in its own font so it tracks the scale without being told, and never
+more than the sentence itself. AND THE SECOND CONSEQUENCE IS LARGER THAN THE
+FIRST — this label was the floor under every module screen's width:
+
+                     screen minimumSizeHint().width()
+                          before      after
+    power / en / 1.0        1198        408
+    power / de / 1.0        1196        424
+    power / is / 1.0        1199        449
+    power / en / 2.0        1193        591
+    power / de / 2.0        1195        702
+    power / is / 2.0        1306        859
+
+The masthead's own minimum went from 1166 px to 285 in English at 100 %. A
+module page could not be shown under about 1200 px, in any locale, at the
+DEFAULT scale, and the reason was one blurb's size hint. That is the same
+defect the action row had — a control whose minimum overrules the window — in
+the one place nobody had looked, and it was reachable at 100 % all along; the
+font scale is only what made it clip loudly enough to be seen.
+
+THE CONTAINER CHECK, WHICH THIS FILE HAS ASKED FOR SINCE THE DAY IT WAS FILED,
+IS NOW HOW THE SWEEP IS BUILT rather than an extra assertion. Every screen goes
+into a `QStackedWidget` with an explicit 1x1 minimum — `screen_in_a_container`
+— because a top-level widget answers "does this fit?" BY GROWING: `QLayout::
+activate` raises a window's minimum to its layout's total minimum, so Measure
+in English at 200 % came up 1529 px wide when asked for 1200 and reported
+nothing clipped. A page in a `QStackedWidget` gets whatever the window has, its
+own minimum included, and a squeezed caption is then a caption `_fits` reports.
+
+AND THE ACTION ROW HOLDS AT 200 %, measured the same way, on Measure in a
+1000 px page that will not grow:
+
+                    100 %                        200 %
+    en   0 clipped, 2 lines, 322 px column   0 clipped, 4 lines, 322 px
+    de   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 299 px
+    is   0 clipped, 2 lines, 322 px          0 clipped, 4 lines, 322 px
+
+The strip answers a doubled font the way it answers a long translation: two
+more lines rather than a shrunken caption. The screen is still the 1000 px it
+was given (its minimum is 660–761 px at 200 %), and the settings column keeps
+its quarter. THE HEIGHT IS THE PRICE, paid by the console, which is the pane on
+that screen that can afford it.
+
+VERIFIED BOTH WAYS, because this item has four wrong headlines on its record
+and a new axis that cannot fail would be the fifth.
+`test_the_scale_axis_can_actually_fail` is the pre-fix `UsageBar` column
+exactly — a 48 px box holding "VRAM" — and it asserts that the SAME widget
+fits at 1.0 and is reported at 2.0. A green run at 200 % is therefore evidence
+that the boxes moved with the glyphs, not evidence that nothing was looked at.
+
+GREEN: `test_the_text_fits_sweep.py` 51 passed (8 screens x 3 locales x 2
+scales, `KNOWN_OFFENDERS` still EMPTY, plus the two teeth tests);
+`test_the_action_row_wraps_instead_of_squeezing.py` 23 passed (was 13; the
+container assertions are parametrised by scale now). Also green:
+`test_cov_r8_api_help_label.py`, `test_screen_headers.py`,
+`test_no_information_dots.py`, `test_widgets.py`, `test_app_screen.py`,
+`test_no_caption_is_clipped.py`, `test_cov_r4_app_screen.py`,
+`test_chaining_gui.py`, `test_preferences_gear.py`,
+`test_preferences_gear_visible.py`, `test_activity_spinner.py`,
+`test_polish.py`, `test_prerun.py`, `test_preview_registry.py`,
+`test_category_tooltips.py`, `test_cov_5_button_roles.py`,
+`test_gui_run_and_console.py`, `test_the_dock_behaves_like_a_dock.py`,
+`test_cellpose_workbench.py`, `test_cov_r5_train_cellpose.py`,
+`test_the_make_masks_segmentation_workbench.py`, `test_home_variants.py`,
+`test_zoom_reaches_text.py` — 148, 311, 349, 268 and 157 passed in five
+batches.
+
+SEVEN FAILURES SEEN AND NOT MINE, each reproduced with `usage_bar.py` and
+`api_help_label.py` restored from HEAD and everything else identical:
+`test_cov_app_screen.py::TestRuntimePanels::test_propagate_live_settings_writes_into_the_panel`
+(already on this file's own not-mine list), five in `test_cov_qt_app.py` about
+`_ICON_OVERRIDES` and the app sections, and
+`test_settings_search.py::test_a_narrowing_search_opens_the_sections_it_kept`.
+
+AND A LEAK CHECK, because the scale is persisted state and `conftest` has a
+long note about what that costs: the sweep, the action-row file and the two
+files conftest names as previous victims of a leaked 1.5 —
+`test_settings_search.py` and `test_zoom_reaches_text.py` — were run TOGETHER
+IN ONE PROCESS, and nothing moved. `at_font_scale` restores the 100 % sheet on
+the way out and `conftest._restore_font_scale` puts the preference back.
+
+WHAT IS LEFT IN 350, and it is narrower than what it replaces:
+
+  * THE SWEEP IS EIGHT SCREENS OF THE REGISTRY AND THREE LOCALES OF NINE.
+    Both were chosen for shape rather than coverage and both are one constant
+    away from being wider; the cost is linear and the runtime is already 3m49s
+    for 51 combinations, so widening it wants a faster screen build or a
+    subset marker rather than just a longer tuple.
+  * DIALOGS ARE STILL OUTSIDE IT. The Annotate chooser has its own file
+    (`test_no_caption_is_clipped.py`) and nothing else does; the sweep walks
+    screens, and a dialog is exactly where a fixed height was found first.
+  * THE `_WrappedLabel` FALSE POSITIVE, recorded twice above, is handled here
+    only for `QLabel` subclasses that set `wordWrap()`. Anything that wraps by
+    another route is still measured on one line.
+  * THE TEARDOWN CORE DUMP (288 / 345 / 346) is unchanged and still the thing
+    that makes a run of this size feel risky.
+
+--------------------------------------------------------------------------------
+2026-09-03: THE SWEEP RUN OVER EVERYTHING. 209 OF 210 CLEAN, AND THE ONE THAT
+IS NOT IS A CONFLICT BETWEEN TWO INSTRUCTIONS
+--------------------------------------------------------------------------------
+
+The committed sweep covers 8 screens of 21 and 3 locales of 9, which is a
+METHOD rather than a proof of "anywhere in the package". So it was run once
+over everything, as a probe rather than as a committed test:
+
+    21 tiled screens x 10 locales, at 200 % font scale
+    209 passed, 1 failed, 23 minutes 47 seconds
+
+THAT IS THE PROOF THIS ITEM WANTED, and it is close to clean. The two fixes
+made earlier today -- `UsageBar`'s fixed column widths and `ApiHelpLabel`'s
+minimum size hint -- account for most of it: they were on every module screen
+in every locale, which is why the 8x3 sample found them.
+
+THE ONE OFFENDER, measured:
+
+    regression, pt, 2x   QPushButton 'Contagem': 144 px wide, wants 151
+
+It is 7 px, and it is not a bug in either place. The button lives in a
+`ColumnAlignedRow` -- instruction 353's download strip, which centres each
+button in its table column "clamped to its width" and reads the header
+without ever writing it, so the user's own column widths stay the only
+source of truth. At 200 % the Portuguese caption is wider than the column it
+must sit over.
+
+SO TWO INSTRUCTIONS DISAGREE AND NEITHER IS WRONG:
+
+    353    the button is aligned over its column, and the alignment IS the
+           meaning -- that is what the strip is for
+    350    no caption is cut off
+
+THREE WAYS OUT, and the choice is the maintainer's:
+
+  (a) THE CAPTION GIVES WAY. Make the clamped buttons `ElidingPushButton`,
+      which elides the PAINTING and leaves `text()` intact -- 348 established
+      that pattern precisely because three pieces of code read a button's
+      text back. Alignment kept, caption shortened, tooltip carries the rest.
+      RECOMMENDED: the column is the meaning and the word is recoverable.
+  (b) THE ALIGNMENT GIVES WAY. Let the button exceed its column. Cheapest,
+      and it undoes what 353 was asked for.
+  (c) THE COLUMN WIDENS. `ColumnAlignedRow` refuses to call `resizeSection`
+      on purpose, so this means overriding the user's own column widths.
+
+NOT DONE TONIGHT, deliberately. It is a design decision between two things
+the maintainer asked for, it is seven pixels in one locale at the largest
+font scale the slider offers, and choosing between them unattended at half
+past four is the trade this file has already been burned by once.
+
+THE PROBE IS NOT COMMITTED. 210 combinations take 24 minutes against the
+committed sweep's 51 in under four, which is the wrong shape for a test that
+runs on every change. The coverage question stays as recorded above; what
+has changed is that the answer is now MEASURED rather than open.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE SWEEP NOW COVERS THE DIALOGS, AND FOUND FOUR
+--------------------------------------------------------------------------------
+
+"Point `wrapped_height` at every screen and dialog, not just this one" was the
+first of the three things this file said remained. The screens were covered;
+the dialogs were not covered at all -- which is where the report that opened
+this instruction actually was, "in annotation the loade test data tooltips do
+not fit in the popup window".
+
+`tests/qt/test_the_text_fits_sweep_dialogs.py` sweeps them with the SAME
+checker, imported rather than rewritten: a second implementation of "does this
+fit" would be a second set of rules to keep in step with these three.
+
+SEVENTEEN OF FORTY-ONE, and the number is in the file so the coverage is
+legible rather than implied. 24 QDialog subclasses require constructor
+arguments -- a frame, a run, a settings dict -- and building those from
+nothing would be testing a fixture rather than the dialog a user sees. They
+are reachable through their screens and belong to whoever writes the fixture.
+
+TWO LOCALES AND TWO SCALES, not more, for the reason this file already
+measured: 210 combinations took 24 minutes against 51 in under four. English
+is the source, German runs materially longer, and the two ends of the slider
+are where the scale axis can fail. 61 tests in 9 seconds.
+
+FOUND: 8 clipped combinations in 4 dialogs, EVERY ONE OF THEM AT 2.0x AND
+NONE AT 1.0x. Thirteen of the seventeen are clean at both ends. That is
+instruction 04's warning landing again -- a check at one font scale proves
+nothing about the others -- and it is the argument for the scale axis rather
+than a caption count.
+
+    PlateMapPicker            en 15   de 15
+    InstallerConsentDialog    en  1   de  2
+    BarcodeRegexDialog        en  1   de  1
+    FormulaDialog             en  1   de  1
+
+RECORDED IN THE RATCHET RATHER THAN FIXED TONIGHT, with both causes named so
+the fix is small rather than a search:
+
+  * PlateMapPicker is `WELL_SIDE = 22` used as a raw pixel constant, so at
+    2.0x a column number needs 30 px in a 22 px cell. The square has to stay
+    -- a plate map is a picture of a physical object -- but its size should
+    follow the font. NOT ONE LINE: `_WELL_SHEET` is a module-level dict built
+    at import from `_locked_square(WELL_RIM)`, so scaling inside it would bake
+    whichever scale was active at import. The sheets have to be rebuilt on a
+    scale change and cached by side, because a 1536-well plate repaints every
+    well on every selection change, which is why they are constants at all.
+
+  * The other three are one wrapping prose QLabel each, whose height does not
+    follow its text at 2.0x -- exactly the `wrapped_height` case this file
+    already built the tool for. German clips twice where English clips once
+    because the consent text is longer.
+
+WHAT REMAINS in 350 is now smaller and different: those four fixes, the 24
+dialogs that need fixtures, and the seven locales this sweep does not run.
+The design decision recorded above -- 353's alignment against 350's captions,
+seven pixels in Portuguese at 200% -- is still the maintainer's and is
+untouched.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE THREE "ONE LABEL EACH" DIALOGS ARE NOT ONE LABEL EACH.
+--------------------------------------------------------------------------------
+
+The note above says InstallerConsentDialog, BarcodeRegexDialog and
+FormulaDialog are "a wrapping prose QLabel whose height does not follow its
+text at 2.0x ... each is one label". I applied the house fix for exactly that
+-- `prerun._label`'s `(Preferred, Minimum)` size policy, which five wrapped
+labels in those three files were missing -- and IT DID NOT FIX THEM.
+
+    FormulaDialog en 2.0x, after the fix:
+        QLabel 'Operators: + - * / // % **, ...': wrapped to 180 px of
+        height in 120
+
+The policy stops a PARENT from handing a label less than its heightForWidth.
+It cannot make a container grow that has no room to give, and that is what is
+happening here: the label asks for 180 and the space above it is 120.
+
+HOW I KNOW, AND THE METHOD IS THE POINT. `KNOWN_OFFENDERS` is compared with
+`<=`, so the suite stayed green after my change and I nearly recorded it as
+fixed. Setting the three dialogs' entries to 0 and re-running is what showed
+six still failing. A `<=` ratchet cannot tell "fixed" from "unchanged" -- only
+tightening it can, and tightening it is therefore part of claiming a fix here,
+not an optional follow-up.
+
+WHAT IS ACTUALLY LEFT for those three: the dialog LAYOUT, not the label. Each
+needs its prose row given a stretch, or the dialog a minimum height derived
+from its content rather than its widgets' defaults. That is per-dialog work
+and bigger than the note above estimated.
+
+The size-policy change is KEPT -- it is the documented house rule and those
+five labels should have had it -- and its comments now say plainly that it is
+necessary and not sufficient, so the next reader does not assume the case is
+closed. The ratchet is unchanged at its recorded values.
+
+
+--------------------------------------------------------------------------------
+2026-09-04 (later) — ALL FOUR DIALOG OFFENDERS ARE FIXED. THE RATCHET IS EMPTY.
+--------------------------------------------------------------------------------
+
+`KNOWN_OFFENDERS` in test_the_text_fits_sweep_dialogs.py is now `{}`. All 17
+dialogs are clean in both languages at both ends of the font slider, and the
+entries were DELETED rather than set to 0, which is this file's own rule.
+
+ONE CAUSE, NOT TWO. The note above said "two causes"; there was one, and
+naming it wrongly is what sent the first attempt at the three dialogs into the
+label instead of the window:
+
+    A SIZE SET FROM PYTHON DOES NOT FOLLOW THE FONT SCALE.
+
+The stylesheet's font sizes are built from the preference, so glyphs grow. A
+`resize`, a `setMinimumSize`, a `setMinimumWidth` or a pinned square written
+in raw pixels does not, so the glyphs outgrow the box. `preferences.scaled_px`
+is the house mechanism for exactly this, and all four fixes were one line
+through it.
+
+    FormulaDialog             self.resize(560, 460)
+    BarcodeRegexDialog        self.setMinimumSize(760, 430)
+    InstallerConsentDialog    self.setMinimumWidth(640)
+    PlateMapPicker            WELL_SIDE = 22
+
+THE LABEL WAS A RED HERRING, and the note above is what made it one. It read
+the three dialogs as "a wrapping prose QLabel whose height does not follow its
+text", so the house size-policy fix was applied to the label -- and did not
+work, because a policy stops a PARENT handing a label less than it asks for
+and cannot make a WINDOW grow that has no room to give. The label asked for
+180 px and the window had 120. Scaling the window cleared all three at once.
+The size-policy change is kept: those five labels should have had it.
+
+PLATEMAPPICKER NEEDED THE SECOND HALF THE NOTE PREDICTED. `well_side()` routes
+the side through `scaled_px`, which fixed the 15 clipped column numbers -- and
+introduced a worse fault that no existing test could see. `_WELL_SHEET` was a
+module-level dict built at import from `_locked_square(WELL_RIM)`, so it baked
+whichever font scale was active when the module first loaded:
+
+    at 200%, before:  headers 44 x 44,  wells 22 x 22
+    at 200%, after:   headers 44 x 44,  wells 44 x 44
+
+Every column number riding clear of the column it names -- the exact drift the
+two "one geometry, shared" test classes exist to prevent, reached by a road
+they did not cover: not two copies of the constant, but ONE copy read at two
+different times. It is now `_well_sheet(chosen, side)` with an `lru_cache`
+keyed by side, which keeps the repaint cheap (a 1536-well plate rebuilds every
+well's sheet on every selection change) and lets the answer change when the
+preference does.
+
+WHY THE PLATE TESTS MISSED IT, which is the transferable part: all 55 of them
+run at the DEFAULT font scale, where the side is 22 whichever way it is
+computed. They passed throughout. `TestThePlateStaysSquareAtEveryFontScale` is
+added to close that: wells and headers must agree at 2.0x, and `well_side()`
+must track the preference. A geometry invariant checked at one scale is not
+checked.
+
+WHAT REMAINS ON 350: the 24 dialogs that still need fixtures, and the seven
+locales this sweep does not run. The maintainer's decision recorded above --
+353's alignment against 350's captions, seven pixels in Portuguese at 200% --
+is still untouched.
+
+
+--------------------------------------------------------------------------------
+2026-09-06 — THE ARGUMENTED DIALOGS, AND WHAT THEY EXPOSED
+--------------------------------------------------------------------------------
+
+The dialog sweep covered 17 of 47 QDialog subclasses; the rest "require
+constructor arguments -- a frame, a run, a settings dict -- and building those
+from nothing would be building a fixture, not the dialog the user sees".
+
+THAT IS RIGHT FOR A FRAME OR A RUN AND WRONG FOR FIVE OF THEM. A default
+`AnnotateSettings()` is the object Annotate itself constructs before opening
+its dialogs, and a window title is a string. Supplying those shows the dialog
+as the user gets it. Added: `_SettingsDialog`,
+`_GenerateAnnotationDatabaseDialog`, `_AutoAnnotateDialog` (all Annotate's,
+which is where "in annotation the loade test data tooltips do not fit in the
+popup window" came from), `RefitDialog` and `_DownloadDialog`.
+`GateSettingsDialog` is deliberately still out: it wants an object with a
+`sample_fraction` attribute, and inventing one WOULD be a fixture.
+
+SIX FAILURES ON THE FIRST RUN, and they were two real bugs:
+
+  1. `RefitDialog`'s opening sentence did not wrap. 828 px of room for 875 px
+     of text at scale 1; 1656 for 1752 at scale 2. The dialog's own `_notice`
+     label wraps, so this was an oversight rather than a decision. It is
+     prose, so it wraps -- eliding would have lost the half that says the
+     current run is untouched, which is the reassurance it exists to give.
+
+  2. `_AutoAnnotateDialog` clipped a button at scale 2: 194 px of room for
+     202 px of text. THE BUTTON WAS NOT THE BUG. `self.setMinimumWidth(520)`
+     was a raw constant, so the dialog's floor stayed at 520 while everything
+     inside it doubled.
+
+  THE SECOND IS A CLASS, NOT AN INSTANCE. Fourteen dialogs pin their minimum
+  width with a raw number, each one gating everything inside it. All fourteen
+  now go through `scaled_px`. That is the "container does not grow" cause this
+  instruction lists, and it is the one that cannot be found by reading -- it
+  only appears at a scale nobody tests at by default.
+
+STILL OWED: 24 dialogs that need an invented fixture; locales beyond three;
+and 84 more raw geometry constants (`setMinimumWidth`, `setFixedWidth`,
+`setMinimumSize`) elsewhere in the package. The 14 fixed here were chosen
+because a dialog-level minimum squeezes every widget inside it; the rest want
+the same treatment with a measurement behind each one rather than a sweep.
+
+
+--------------------------------------------------------------------------------
+2026-09-07 — SIX MORE DIALOGS, TWO DEFECTS, AND A FIFTH FALSE POSITIVE
+--------------------------------------------------------------------------------
+
+SIX OF THE TWENTY-FOUR DID NOT NEED AN INVENTED FIXTURE. The 2026-09-06 entry
+drew the line at arguments that can be supplied GENUINELY, and re-reading the
+remaining constructors against that line moved six across it: they take
+strings, a directory path, lists of filenames and well names, a report
+mapping, and one `AxisCutoff` -- which is a two-field dataclass out of
+`gate_canvas` and the same object the gate editor itself passes.
+
+    _TextReportDialog        (title, body)
+    _AxisCutoffDialog        (title, column, AxisCutoff)
+    SraPicker                (destination)
+    RegexEditorDialog        (sample_filenames)
+    _WellChoice              (offered)
+    IssuePreviewDialog       (report mapping)
+
+The values are REALISTIC rather than minimal, because the defect being looked
+for is text that does not fit: a one-character body proves nothing about a
+dialog whose job is showing prose.
+
+TWO REAL DEFECTS, both the "fixed size a longer translation or scale
+overflows" category:
+
+  * `SraPicker.DIALOG_WIDTH = 520` is a width measured at font scale 1.0 and
+    never scaled. At 2x, "Reads from each file:" needed 253 px in 177, and the
+    German estimate line needed 522 in 511. Now `scaled_px`.
+  * `RegexEditorDialog`'s two word-wrapped labels were squeezed below their
+    own text. THREE THINGS WERE NEEDED and each alone was insufficient, which
+    is worth carrying because the next wrapped label will need all three:
+      1. `(Preferred, Minimum)` -- the house rule `prerun._label` documents;
+      2. `policy.setHeightForWidth(True)` -- without it the layout never ASKS
+         for the height at that width, so (1) is applied to a one-line hint;
+      3. a real `setMinimumHeight` from `resizeEvent` -- a layout holding an
+         EXPANDING neighbour (here the preview pane) takes height back from a
+         `Minimum` one, and only a minimum stops it.
+    Its `setMinimumSize(760, 520)` was also unscaled.
+
+AND A FIFTH FALSE-POSITIVE CLASS, WHICH IS THE MORE USEFUL FINDING. The
+checker measured wrapped labels with `QFontMetrics`, which lays out the string
+it is handed as PLAIN text -- and a rich-text label's string is its markup.
+`<span style='color:gray;'>` was measured as thirty visible characters.
+`RegexEditorDialog`'s intro was reported as needing 54 px inside 36 while Qt's
+own `heightForWidth` said 34 and the label had 34: the label was right and the
+instrument was wrong.
+
+Rich text is now measured with `QTextDocument` at the label's own width and
+font, with `setDocumentMargin(0)` because QLabel uses none.
+
+  AND THE FIX HAD TO BE NARROWED ONCE, which is the transferable part.
+  Routing anything `Qt.mightBeRichText` accepted through `QTextDocument`
+  reported EIGHTY false offences: that predicate answers True for any prose
+  containing an angle bracket. Only an explicit `Qt.RichText` textFormat --
+  a decision the widget's author made -- selects the rich measurement now.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- TEN LOCALES RUN. ONE DEFECT, AND IT IS NOT WHERE IT LOOKS.
+--------------------------------------------------------------------------------
+
+The WATCH list has asked for more than three locales since this was filed. All
+ten were run: 482 cases, 22m33s, and exactly ONE new defect.
+
+    test_no_caption_is_cut_off[regression-pt-2.0]
+    QPushButton 'Contagem': 144 px wide, wants 151
+
+PORTUGUESE JOINS THE MATRIX AND THE OTHER SIX DO NOT. en/de/is/pt is four
+locales at about 9 minutes; ten is 22. Six of the seven added nothing, and the
+one that did is now permanent -- which is the trade this file has made before
+with the font scale: keep the axis that finds things, drop the ones that only
+cost time. If a later locale is suspected, run it by hand; the matrix is one
+line.
+
+WHERE THE DEFECT ACTUALLY IS, because three plausible fixes are wrong and each
+took a measurement to reject:
+
+  * NOT the button's own sizing. `setMinimumWidth(sizeHint().width())` at
+    construction changes nothing: the interface scale reaches widgets through
+    the APPLICATION STYLESHEET, and an unparented button has not been given it
+    yet, so a hint read there is the 100 % width whatever the preference says.
+    The same applies to `fontMetrics()` in the constructor.
+
+  * NOT the row it is built in. The example-fetch buttons are built into a
+    QHBoxLayout that shares the section's width; stacking them vertically left
+    the measurement at exactly 144 px, unchanged, which is what said the row
+    was not the thing deciding the width.
+
+  * The parent layout is `ColumnAlignedRow`, and it is behaving as designed.
+    `setGeometry` does `drawn = min(hint.width(), width)`: a widget is centred
+    in its header column and CLAMPED to it. The class docstring says so, and
+    says why -- the header is read and never written, so the user's own column
+    widths stay the only source of truth for what a column is.
+
+SO THE FIX IS NOT IN THE LAYOUT. A widget clamped to a column the user has
+narrowed is the contract. What is wrong here is the DEFAULT column width: the
+user has resized nothing, and the default does not fit a translated caption at
+200 %. That belongs wherever the header's initial widths are set, which can
+size to content without the row ever writing to the header.
+
+NOT DONE, and deliberately left rather than half-fixed. Two of the three
+rejected fixes would have passed this one case while leaving every other
+column-aligned caption exposed, which is the shape of fix this file exists to
+refuse.
+
+FOURTH REJECTED FIX, and it narrows the search usefully for whoever takes it.
+
+`PairedFileTableWidget._widen_columns_for` exists for exactly this defect --
+its docstring says so, "aligning a button to a column NARROWER than the
+button leaves two bad choices, overlap the neighbour or clip the caption" --
+and it reads `button.sizeHint().width()` on a widget that may not be polished
+yet, which is the same 100 %-measurement trap as the other three. Adding
+`ensurePolished()` before the measurement is correct on its own terms and
+was still REVERTED, because it does not touch this case:
+
+    screen._example_counts_button is None on the regression screen
+
+so `_install_example_buttons` returns False and the widening path never runs
+there at all. The regression screen's header sections measure
+[133, 249, 152, 164, 204, 133, 100] and none of them is 144.
+
+SO THE 144 COMES FROM SOMEWHERE ELSE, and the next person should start by
+finding out where rather than by reading `file_list.py`. What is known:
+
+  * the widget is a QPushButton whose text is the pt rendering of "Count",
+  * its parent's layout IS a `ColumnAlignedRow`, measured,
+  * it is NOT `_example_counts_button`, and NOT reached by
+    `PairedFileTableWidget.DOWNLOAD_BUTTONS`,
+  * no header section on that screen is 144 px wide.
+
+Four fixes have now been tried and measured away: the button's own sizing,
+the row it is built in, the layout that clamps it, and the widener that
+exists to prevent exactly this. Each was plausible and each is recorded so
+the fifth attempt does not repeat one.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE LAST DEFECT IS CLOSED. IT WAS A MATTER OF ORDER.
+--------------------------------------------------------------------------------
+
+    test_no_caption_is_cut_off[regression-pt-2.0]
+    QPushButton 'Contagem': 144 px wide, wants 151
+
+FOUND BY LOOKING, WHICH IS WHAT THE PREVIOUS NOTE ASKED FOR. Four fixes had
+been tried and measured away and the note said to start by finding the
+widget rather than by reading `file_list.py`. Doing that took one
+instrumented run of the failing case:
+
+    QPushButton 'Contagem'  w=144  hint=151
+      ^1 QWidget  layout=ColumnAlignedRow
+      ^2 SectionBody (QFormLayout)  ...
+      header sections [209, 138, 144, 269, 133]
+      items: 'Score' col 1 hint 94 span (210,138)
+             'Contagem' col 2 hint 151 span (348,144)
+             'Medições (.db)' col 3 hint 203 span (492,269)
+
+So it IS the Download row, it IS `PairedFileTableWidget`, and the earlier
+note's "`_example_counts_button` is None on the regression screen" was
+wrong -- the alignment demonstrably ran and put three buttons over three
+columns. That claim came from a probe on a screen built differently.
+
+THE CAUSE IS THE ORDER OF TWO EVENTS, AND NEITHER IS WRONG ON ITS OWN.
+
+    1. the row is built with its ENGLISH captions
+    2. `_widen_columns_for` fits each column to its button -- ONCE
+    3. the language pass replaces the captions
+
+"Count" is 100 px. "Contagem" is 151. Column 2 was 144 -- from
+`_fit_columns_to_their_headers`, fitting the HEADING -- so English fitted
+and Portuguese did not, and the once-only guard meant the column was never
+looked at again. Measured directly:
+
+    ENGLISH  text='Count'     hint=100   sections [209,138,144,269,133]
+    PT       text='Contagem'  hint=151   sections [209,138,144,269,133]
+
+THE FIX IS IN TWO PARTS, and the second is what makes the first safe.
+
+  * `ColumnAlignedRow.invalidate` now passes the event on. Qt already
+    reports it -- `setText` calls `updateGeometry`, which invalidates the
+    parent layout -- and the row cannot act on it itself: the header is
+    read and never written there, and a layout writing back to the
+    geometry it reads would re-enter itself on the resize it caused. So it
+    calls a callback the header's OWNER supplied.
+  * `_widen_columns_for` stopped being once-only and started REMEMBERING.
+    A flag answers "have we ever done this" when the question is "has the
+    user moved it since". The width this widget set is recorded, a column
+    that already fits records its width as a baseline, and a column found
+    at any other width is the USER'S -- permanently, not until the next
+    caption grows.
+
+    THE BASELINE IS THE HALF THAT IS EASY TO MISS. Without it, "we have
+    never touched this one" and "the user has not touched it either" are
+    the same state, so a column dragged narrow before any caption grew
+    would be dragged back the moment one did. It failed exactly that way
+    once before the sentinel was added.
+
+    AND THE ONE-WAY DOOR IS THE OTHER HALF. Recording the width on every
+    pass looks equivalent and is not: the refit triggered BY the user's own
+    drag records the dragged width as ours, and the next pass then widens
+    it back. Also failed exactly that way, once.
+
+MEASURED AFTER: column 2 goes 144 -> 151 when the caption is translated,
+the button is no longer clipped, and the four-locale sweep at both font
+scales passes -- 208 cases, no offenders anywhere.
+
+THREE TESTS HOLD IT, in `test_the_download_buttons_sit_over_their_columns`:
+a caption that grows after the fit takes its column with it; a column the
+user narrowed is not widened back; and the two rules meeting, where the
+user wins. The first is written against the MECHANISM rather than against
+Portuguese -- any caption that changes after the fit must re-fit, and a
+test keyed on one locale would go green the day that string changed.
+
+  THE SWEEP IS NOW GREEN IN EVERY COMBINATION IT RUNS: 4 locales x 2 font
+  scales x 26 screens, and `KNOWN_OFFENDERS` is still empty.
+
+AND THE FIX COSTS NOTHING ON THE HOT PATH, measured rather than assumed --
+`invalidate` runs on every layout change, so adding work there could have
+bought a readable caption with a choppy resize. 2,000 calls on the
+Regression screen: 5.3 microseconds per refit and 5.5 per invalidate, which
+is 0.03 % of a 60 Hz frame. Instruction 380's rule cuts both ways: a change
+that makes something better by making something else slower has to say so,
+and this one does not.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- SEVEN SETTINGS COLUMNS CAPPED IN DEVICE PIXELS. THE SWEEP CANNOT
+SEE THIS CLASS AND THAT IS THE FINDING.
+--------------------------------------------------------------------------------
+
+Codex filed a nonblocking observation while recording the Control Charts
+tutorial: "Control Charts' settings panel maximum width 330 clips long closed
+choices and toggle labels even at 125% font in a 4K window." The sweep covers
+`control_chart` at both font scales and reports nothing. Both are right, and
+the gap between them is worth more than either.
+
+FIRST, WHAT IT IS NOT -- and this is a SIXTH false-positive class for the
+list at the top of this file.
+
+  A CLOSED QCOMBOBOX ELIDES; IT DOES NOT CLIP. Asked what the style would
+  actually paint at the width it has:
+
+      item text            528 px
+      edit field rect      528 px
+      would paint          'moving_range — individuals / moving ran…'
+
+  And the popup is not bound by the box. Opened against a combo capped at
+  300 px, the view came up 572 px wide -- wider than the control -- so the
+  full choice is one click away and never unreachable.
+
+  So the sweep is correct to stay silent: rule 4 forgives a control that owns
+  its own elision, and there is nowhere the user cannot read the whole
+  string.
+
+WHAT IS REAL IS THE CAP ITSELF. It is a device-pixel constant, and the text
+inside it is not. Measured on Control Charts -- the column's own sizeHint
+against its maximumWidth:
+
+    font scale 1.00    wants  586 px    cap 330
+    font scale 1.25    wants  707 px    cap 330
+    font scale 2.00    wants 1107 px    cap 330
+
+    (identical in en, de, is and pt: the chart-type strings are not
+     translated, so this is not a locale defect and never was)
+
+That is the same defect this instruction already fixed on `UsageBar`, which
+put `setFixedWidth(48)` on a caption column that needs 66 px of text at
+200 %: the glyphs double and the box does not.
+
+AND IT IS SEVEN SCREENS, not one. Every settings column in the package
+carried a bare number:
+
+    control_chart    330      outliers        360
+    pca              320      trellis         360
+    feature_explorer 340      graph_builder   320
+    tabulate         320
+
+All seven now go through `scaled_px`, which is the helper that exists for
+exactly this -- "widget sizes set from Python don't grow when the
+stylesheet's font size grows".
+
+THE SWEEP'S BLIND SPOT IS THE LESSON. It asks "is any painted caption cut
+off". A container that cannot grow answers no, because everything inside it
+elides politely. A second, cheaper instrument was needed and it is a source
+sweep, not a rendered one: `tests/qt/test_a_settings_column_grows_with_the_font.py`
+fails on any `setMaximumWidth(<number>)` of 300 px or more anywhere under
+`spacr/qt/screens/`. Three hundred is the line between a COLUMN OF TEXT and a
+field sized to its own content -- `dose_response`'s 70 px unit box and
+`data_manager`'s 140 px progress bar carry no prose and are left alone.
+
+The table of seven is written down in that file rather than discovered, and a
+third test asserts the table has not drifted from the code in either
+direction.

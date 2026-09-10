@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Feature Explorer: ordenar medidas reais e manter a comparação explícita",
+  "description": "Abra o submódulo do Classify, compare medidas reais por linha da placa, examine distribuições, filtre ao vivo, adicione uma coluna calculada e exporte a classificação desejada sem treinar um classificador.",
+  "objectives": [
+    "Encontrar Feature Explorer dentro de Classify e carregar medidas celulares existentes.",
+    "Distinguir AUC de separação e examinar contagens e distribuições das classes.",
+    "Filtrar ao vivo sem ignorar uma mudança automática da coluna de comparação.",
+    "Usar Top deliberadamente, verificar uma coluna reescalada e exportar a classificação real."
+  ],
+  "prerequisite": "Use o exemplo baixado do Annotate, não medidas inventadas. A gravação abre uma cópia privada idêntica byte a byte do banco com 2.341 células e 276 colunas. Os grupos rowID são as linhas espaciais r12 e r5, não tratamentos estabelecidos; as células compartilham campos e poços e não são experimentos independentes. Os dados originais permanecem intactos. AUC, KS, ordem e contagens de valores finitos são verificados independentemente nas comparações previstas entre duas classes. A comparação automática de oito classes é um alerta, não uma inferência validada independentemente. Shuffle test fica desligado. Não há treinamento, nova análise de imagens, download dedicado, operação de GPU ou solicitação à IA; os histogramas são os gráficos do próprio módulo.",
+  "scenes": [
+    "Abra Classify e depois o botão Feature Explorer. Essa ferramenta aninhada ordena medidas existentes; abri-la não treina um classificador. Usamos o exemplo real disponível para download no Annotate, em uma cópia privada do banco. Siga a aula de Annotate para obtê-lo e mantenha sua fonte experimental intacta.",
+    "Escolha Load table, selecione o banco de medidas e sua tabela cell, depois ajuste Split by para rowID. Há duas mil trezentas e quarenta e uma células e duzentas e setenta e seis colunas. Nossos grupos são linhas registradas da placa, não tratamentos estabelecidos; essas células não são experimentos independentes.",
+    "Ordene por AUC e leia ambas as colunas numéricas. Separation é o valor absoluto de duas vezes a AUC menos um: cerca de zero vírgula trinta e quatro de separação não é uma AUC de zero vírgula trinta e quatro. Higher in indica a direção; min n conta medidas finitas na menor classe, não réplicas experimentais.",
+    "Defina Top como quatro para examinar quatro histogramas sobrepostos. Dentro de cada variável, as classes compartilham os mesmos limites dos intervalos, e a altura das barras representa contagens. A variável mais bem colocada não é automaticamente um biomarcador útil. Leia o alerta: AUC pode não detectar diferenças de dispersão, mesmo com distribuições distintas.",
+    "Export ranking com Top quatro grava quatro linhas de variáveis. Nesta versão, a exportação segue Top, apesar do texto sugerir a classificação inteira. Ela não exporta as células subjacentes nem salva um modelo treinado. Comparamos cada valor exportado à classificação real exibida.",
+    "Defina Top como quinhentos antes de exportar todas as variáveis avaliadas neste exemplo. Duzentas e sessenta e uma podem ser avaliadas; duas candidatas numéricas não podem. A exportação contém todas as duzentas e sessenta e uma linhas, enquanto a tela desenha no máximo oito distribuições. Contagem de variáveis, linhas da tabela e painéis gráficos são quantidades distintas.",
+    "Mude Rank by para KS para comparar a maior distância entre distribuições acumuladas e depois volte a AUC. KS pode revelar diferenças que AUC não detecta, mas não fornece direção por si só. As outras estatísticas têm suas próprias limitações; leia o alerta em vez de tratar uma classificação como teste de significância.",
+    "Em Filter, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. A população visível passa a mil cento e setenta e uma células, com duzentas e cinquenta e cinco variáveis avaliáveis. Esse limiar demonstrativo baseado na mediana não é um corte biológico de qualidade. Classificações e distribuições mudam sem medir as imagens novamente.",
+    "Clear all remove os filtros de visualização, não os dados. As duas mil trezentas e quarenta e uma células e a classificação original voltam. Confira novamente a população e Split by ao mudar filtros. Uma diferença que muda com a filtragem descreve outra população selecionada, não um novo experimento.",
+    "Há uma armadilha importante nesta versão. Filtrar rowID para r12 remove a outra linha, mas a tela muda silenciosamente Split by para cell_channel_0_maxima_count. Agora compara oito grupos, com apenas um objeto no menor. Esses resultados impressionantes não são a comparação original entre linhas nem evidência de uma descoberta biológica.",
+    "Limpe o filtro e escolha rowID explicitamente de novo. Apenas limpar não restaura necessariamente a comparação original. Confira a coluna de classe e a população antes de exportar. Shuffle test oferece cinquenta embaralhamentos dos rótulos, mas o deixamos desligado: embaralhar livremente essas células correlacionadas não estabeleceria evidência no nível dos poços ou dos tratamentos.",
+    "Abra Columns e nomeie uma nova coluna area_k. Insira cell_area dividido por um e três, ou seja, mil, e escolha Add column com a substituição desligada. Isso reescala a área; não calibra unidades físicas nem acrescenta uma nova medida. Preview verifica as primeiras duas mil linhas; a adição aplica a fórmula à tabela inteira.",
+    "A coluna reescalada entra na classificação e na exportação, totalizando duzentas e sessenta e duas variáveis avaliadas. Sua AUC e seu KS igualam os de cell_area porque uma reescala positiva preserva a ordem. Verificamos cada valor calculado. Remova a fórmula para voltar às duzentas e sessenta e uma variáveis originais; o banco de medidas continua intacto.",
+    "Use essas classificações para exploração descritiva, não para validar independentemente uma variável selecionada ou um classificador treinado. Em Python, spacr.qt.widgets.feature_rank fornece rank_features e ExplorerSpec. Para examinar tabelas brutas ou outras comparações, siga para Database Browser e Graph Builder. Não houve nova análise de imagens nem solicitação à IA."
+  ]
+}

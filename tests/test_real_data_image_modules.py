@@ -214,7 +214,10 @@ def test_module_preprocess_generate_masks_writes_cell_masks(
             arr = arr[0]
         # We don't demand a specific count — synthetic data is noisy —
         # just that segmentation returned SOMETHING.
-        assert int(arr.max()) >= 0
+        # >= 1, NOT >= 0. A label array's max is never negative, so `>= 0`
+        # is true of an ALL-ZERO mask -- a segmentation that found nothing
+        # passed this. At least one object must have been labelled.
+        assert int(arr.max()) >= 1
 
 
 @pytest.mark.slow
@@ -300,15 +303,37 @@ def test_module_measure_crop_writes_measurements_db(tmp_path):
     plate = _make_stub_dataset(tmp_path / "measure_full")
     mask_settings = _mask_settings_for(plate)
     preprocess_generate_masks(mask_settings)
-    # Measure uses many of the same settings; borrow the dict.
+    # Measure uses many of the same layout settings, so borrow the dict, but
+    # not ``normalize``: Mask uses that name for a boolean preprocessing
+    # switch, whereas Measure accepts False or a [low, high] crop-percentile
+    # pair.  Removing the Mask-only value selects Measure's shipped False
+    # default without inventing crop-normalization semantics.
     measure_settings = dict(mask_settings)
+    measure_settings.pop("normalize", None)
     measure_settings["src"] = str(plate)
-    # Unguarded: preprocess_generate_masks has just run over this same plate
-    # with these same settings, so measure_crop is being handed the layout it
-    # was designed to consume. Failing here is the finding.
+    # Unguarded: preprocess_generate_masks has just run over this same plate,
+    # so measure_crop is being handed the layout it was designed to consume.
+    # Failing here is the finding.
     measure_crop(measure_settings)
     dbs = list(plate.rglob("measurements.db"))
     assert dbs, "measure_crop wrote no measurements.db under plate"
+    # AND IT HAS OBJECTS IN IT. A database file on disk is not evidence:
+    # `_measure_crop_core` runs its whole body inside `except Exception`, so
+    # a measurement that raised still leaves the file, with no measurement
+    # table in it at all, and a file-exists assertion cannot tell the two
+    # apart.
+    import sqlite3
+
+    con = sqlite3.connect(str(dbs[0]))
+    try:
+        tables = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        assert "cell" in tables, (
+            f"measurements.db has no cell table; it holds {sorted(tables)}")
+        cells = con.execute("SELECT COUNT(*) FROM cell").fetchone()[0]
+    finally:
+        con.close()
+    assert cells >= 1, "the cell table is empty, so nothing was measured"
 
 
 # ---------------------------------------------------------------------------

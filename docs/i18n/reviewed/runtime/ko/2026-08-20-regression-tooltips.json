@@ -1,0 +1,63 @@
+{
+ "schema": 1,
+ "language": "ko",
+ "records": [
+  {
+   "table": "setting_tooltips",
+   "key": "alpha",
+   "source_sha256": "7b8ca0fd26338073720314a7e8a27a1f81ef5f02bb1d4815fa97c7bf42c57d58",
+   "source": "Regularisation strength for penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet', and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero. Set it to 'auto' or None to select the value by five-fold cross-validation; the default 1 may over-regularise fraction-scale designs. Other model families reject a non-default alpha rather than ignoring it. Default 1. Read by regression_type 'elasticnet', 'hinge', 'lasso', 'ridge'.",
+   "translation": "벌점 모델에만 적용되는 정규화 강도입니다. 'lasso' 에서는 L1 벌점, 'ridge' 에서는 L2 벌점, 'elasticnet' 에서는 두 벌점의 결합, 'hinge' 에서는 역마진으로 사용합니다. 값이 클수록 더 많은 계수가 0에 가까워집니다. 'auto' 또는 None 으로 설정하면 5-fold 교차 검증으로 값을 선택합니다. 기본값 1은 분수 척도 설계를 과도하게 정규화할 수 있습니다. 다른 모델 계열은 기본값이 아닌 alpha를 무시하지 않고 거부합니다. 기본값 1. regression_type 이 'elasticnet', 'hinge', 'lasso', 'ridge' 일 때 사용됩니다."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "count_grna_column",
+   "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+   "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+   "translation": "가이드 식별자가 들어 있는 카운트 CSV 열의 이름입니다. 이전 버전은 'grna' 라는 이름을 요구했으며 'sgRNA' 또는 'guide' 같은 다른 이름을 사용한 파일을 거부했습니다. 시퀀싱 파이프라인이 생성한 열 이름으로 설정하십시오. 기본값 'grna'."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "cov_type",
+   "source_sha256": "ea1e9ed358e48ded075e43970ade273ba0b9fb5b3ed16b7ec1c672fcbc559feb",
+   "source": "Heteroscedasticity-robust covariance estimator passed to likelihood fits: 'HC0', 'HC1', 'HC2', 'HC3', or None for classical non-robust errors. It changes standard errors and P-values, not coefficients. Use 'HC3' when residual variance increases with well cell count. Penalized, robust and quantile fits do not support this estimator and raise an error rather than reporting ordinary errors under a robust label. Default None. Read by regression_type 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'spline', 'wls'.",
+      "translation": "우도 기반 적합에 전달되는 이분산성 강건 공분산 추정량입니다. 'HC0', 'HC1', 'HC2', 'HC3' 중 하나를 사용하거나, 고전적 비강건 오차를 쓰려면 None 을 사용합니다. 계수는 바꾸지 않고 표준 오차와 P값만 바꿉니다. 잔차 분산이 웰 세포 수와 함께 증가할 때는 'HC3' 를 사용합니다. 벌점, 강건 및 분위수 적합은 이 추정량을 지원하지 않으며 강건한 레이블 아래 일반 오차를 보고하는 대신 오류를 발생시킵니다. 기본값 None. regression_type 이 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'spline', 'wls' 일 때 사용됩니다."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "p_threshold_alpha",
+   "source_sha256": "5d104a3b1eb941f1148c733764bafc64712df0f82f56d67097fd8fba7794b147",
+   "source": "P-value threshold used to call a coefficient a hit and to draw the volcano-plot reference line. It applies to the P-value type selected by p_threshold_kind, keeping results_significant.csv and the corresponding figure consistent. Supply a fraction strictly between 0 and 1; 5 is rejected as an invalid representation of 5%. Default 0.05.",
+   "translation": "계수를 히트로 판정하고 볼케이노 플롯의 기준선을 그리는 데 사용하는 P값 임계값입니다. p_threshold_kind 가 선택한 P값 유형에 적용되어 results_significant.csv 와 해당 그림의 기준을 일치시킵니다. 0과 1 사이의 분수를 입력해야 하며, 5%를 나타내기 위해 5를 입력하면 잘못된 값으로 거부됩니다. 기본값 0.05."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "p_threshold_kind",
+   "source_sha256": "50f77fc5a0b896e38527f03555e8925b982db0fd4d8928a59a85c1e8e5759bb4",
+   "source": "Whether p_threshold_alpha is applied to the multiple-testing-adjusted p-value ('adjusted') or the raw per-coefficient p-value ('raw'). The analysis run and volcano plot use the same choice, so exported hits and plotted calls remain consistent. 'raw' generally calls more genes in screens with thousands of guides. Other values are rejected. Default 'adjusted'.",
+   "translation": "p_threshold_alpha 가 다중검정 보정 p-value('adjusted')에 적용될지 계수별 원시 p-value('raw')에 적용될지 지정합니다. 분석 실행과 볼케이노 플롯은 같은 선택을 사용하므로 내보낸 히트와 플롯의 판정이 일치합니다. 'raw' 는 일반적으로 수천 개 가이드로 구성된 실험에서 더 많은 유전자를 히트로 판정합니다. 다른 값은 거부됩니다. 기본값 'adjusted'."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "regression_qc",
+   "source_sha256": "95e9e6c3c8ae783db6a9395f32b3fd320174cb9b18f06f9418f00cb7a85c8262",
+   "source": "Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
+   "translation": "분산 동질성, 잔차, 설계, 영향력 및 보정 진단을 <res_folder>/regression_qc/ 에 그림, 통합 PDF 및 텍스트 보고서로 저장합니다. 적합 한 번에는 약 5.8초가 걸리고 19개 파일이 생성되므로 개별 분석에서는 활성화되지만, 수천 개의 진단 파일 생성을 피하기 위해 파라미터 스윕 중에는 자동으로 비활성화됩니다. 선택한 시행을 다시 열어 해당 진단을 생성할 수 있습니다. 모든 regression_type 에 적용됩니다. 기본값 True."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "regression_type",
+   "source_sha256": "5fe2413ffa89d6b027255c9d2d301961c73ad44f51317d509346937569d866b1",
+   "source": "Model family. Default 'mixed' nests guides inside genes as random effects, so guides disagreeing widens that gene's interval; it answers both levels at once, which is why 'level' greys out. Otherwise: 'ols', 'wls', 'rlm', 'huber' or 'quantile' for a continuous response; 'logit', 'probit', 'beta' or 'quasi_binomial' for fractions; 'poisson' for counts; 'lasso', 'ridge', 'elasticnet' or 'horseshoe' when the predictors outnumber the wells. Note regression_type 'beta' fits a beta GLM, while transform 'beta' only transforms the response.",
+   "translation": "모델 계열입니다. 기본값 'mixed' 는 가이드를 유전자 안에 임의 효과로 중첩하므로, 가이드 결과가 다르면 해당 유전자의 구간이 넓어집니다. 두 수준을 동시에 분석하므로 'level' 은 비활성화됩니다. 그 밖에는 연속형 반응에 'ols', 'wls', 'rlm', 'huber', 'quantile' 을, 분수에 'logit', 'probit', 'beta', 'quasi_binomial' 을, 카운트에 'poisson' 을 사용합니다. 예측변수가 웰보다 많을 때는 'lasso', 'ridge', 'elasticnet', 'horseshoe' 를 사용합니다. regression_type 'beta' 는 베타 GLM을 적합하지만 transform 'beta' 는 반응값만 변환합니다."
+  },
+  {
+   "table": "setting_tooltips",
+   "key": "threshold_method",
+   "source_sha256": "461adae28e70e634ca843e042c16ff9b70eeb358f4ee75f79c144a76f5b27486",
+   "source": "Select the spread estimator for the control-based effect-size cutoff: 'std', legacy 'var' (squared units), 'mad', 'iqr', 'percentile' (the 95th percentile of absolute coefficients), or 'range'. 'none' disables the effect-size cutoff. Historical aliases such as 'standard_deveation', 'variance', and 'quantile' are accepted. Used only when controls are set. Default 'std'.",
+   "translation": "대조군 기반 효과크기 임계값에 사용할 산포 추정량을 선택합니다. 'std', 제곱 단위를 쓰는 기존 'var', 'mad', 'iqr', 'percentile'(계수 절댓값의 95번째 백분위수), 'range' 중 하나입니다. 'none' 은 효과크기 임계값을 끕니다. 'standard_deveation', 'variance', 'quantile' 같은 이전 별칭도 허용됩니다. controls 가 설정된 경우에만 사용됩니다. 기본값 'std'."
+  }
+ ],
+ "review_notes": "min_cell_count's record was removed on 2026-08-23. The reviewer approved Korean for a tooltip that described the regression filter only; `minimum_cell_count` was merged into this key that day, so the tooltip now describes the machine-learning plate heatmap as well and the reviewed source no longer exists. Keeping the record would have attached a reviewer's approval to text they never saw. The key falls back to the generated translation until it is reviewed again."
+}

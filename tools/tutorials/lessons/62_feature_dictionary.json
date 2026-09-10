@@ -1,0 +1,75 @@
+{
+  "id": "62_feature_dictionary",
+  "number": 62,
+  "slug": "feature_dictionary",
+  "series": 5,
+  "app_key": "feature_dict",
+  "section": "Help",
+  "title": "Feature Dictionary: look up meanings, units and computing functions",
+  "description": "Use the actual Help dictionary to find feature definitions, narrow them by concept and object, and distinguish general documentation from measurements available in a project.",
+  "objectives": [
+    "Find the dictionary under Help and search by idea or measurement name.",
+    "Use the actual concept and object filters without changing project data.",
+    "Read units, computing functions and caveats, including area versus volume.",
+    "Copy definition text and distinguish this lookup panel from a project-specific Python export."
+  ],
+  "prerequisite": "No project, download or model is required: this lesson browses the built-in definitions. No measurements, plots, AI requests, GPU jobs or file exports are performed. The example column names are present in the real measurements database used by Database Browser, but the dictionary does not load that database here. The actual panel currently lists hundreds of organelle role names; native scrolling exposes the computing functions and notes below them. Text is copied only inside the recording's private desktop clipboard.",
+  "scenes": [
+    {
+      "visual": "01_help_dictionary",
+      "narration": "Open Help, then Feature Dictionary. This is a lookup window for built-in measurement definitions, not a separate Home workflow or a pipeline to run. No dataset or model needs to be downloaded.",
+      "hold_after": 0.7,
+      "related_lessons": ["34_database"]
+    },
+    {
+      "visual": "03_search_by_idea",
+      "narration": "Type an idea such as size. Results update as you type, and selecting Area displays its definition. The count describes matching definitions, not measured cells or columns confirmed to exist in your project.",
+      "hold_after": 0.7,
+      "focus": [420, 150, 3020, 550]
+    },
+    {
+      "visual": "04_actual_concept_object_filters",
+      "narration": "The actual dropdowns filter by concept and object type. Here, intensity and cell return thirteen definitions. These filters narrow the dictionary, not your image data or analysis settings. Reset both to Any concept and Any object before another lookup.",
+      "hold_after": 0.7,
+      "focus": [420, 150, 3020, 450]
+    },
+    {
+      "visual": "05_measurement_name",
+      "narration": "Search for cell channel one mean intensity, using the exact column name shown. The selected Mean intensity entry explains the pixel statistic and its units. Searching a name retrieves documentation; it does not inspect that column's values or prove it is available in the current project.",
+      "hold_after": 0.7,
+      "focus": [1620, 265, 1780, 355]
+    },
+    {
+      "visual": "06_computing_function",
+      "narration": "Scroll down to Channel, Module and Computed by. The displayed reference identifies the measurement implementation, including the extended region-properties function. The dictionary looks up that definition; it does not recompute the measurement. The Python lookup APIs are in the feature dictionary module.",
+      "hold_after": 0.7,
+      "focus": [1630, 1650, 1760, 225],
+      "related_lessons": ["06_api"]
+    },
+    {
+      "visual": "07_conditional_area_units",
+      "narration": "Now look up cell area. Read the conditional Unit text: a two-dimensional run reports pixel area, while this same name represents volume in three dimensions. The row's measurement units determine whether that volume uses cubic image-pixel units or cubic micrometres. Do not infer physical units from the column name alone.",
+      "hold_after": 0.7,
+      "focus": [1620, 265, 1780, 380]
+    },
+    {
+      "visual": "08_area_caveats",
+      "narration": "Read the Note as well as the headline definition. A three-dimensional value already expressed in physical units must not be converted a second time. For project-specific documentation, the Python describe database and export dictionary functions inspect the database and resolve its recorded measurement units; they are not buttons in this panel.",
+      "hold_after": 0.7,
+      "focus": [1630, 1520, 1760, 355],
+      "related_lessons": ["06_api", "34_database"]
+    },
+    {
+      "visual": "09_unknown_search",
+      "narration": "An unmatched query shows no definition. That means the dictionary found no match, not that your data cannot contain a custom feature. Return to a known name or a broader idea; do not treat missing documentation as a scientific result.",
+      "hold_after": 0.7,
+      "focus": [420, 150, 3020, 450]
+    },
+    {
+      "visual": "11_actual_text_copy",
+      "narration": "Restore the Area entry, select its detail text and copy it. This recording verifies the actual copied selection. The GUI has no Run or Export action: copying text is different from creating a project-specific dictionary file through Python. Close the window when you are done; no analysis has been changed.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api", "34_database"]
+    }
+  ]
+}

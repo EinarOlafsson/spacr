@@ -381,9 +381,44 @@ def test_a_missing_database_says_so_rather_than_plotting_nothing(tmp_path):
         isc.load_scatter_frame(str(tmp_path / "nope.db"), "cell")
 
 
-def test_the_screen_registers_itself_into_the_app_registry():
+def test_the_screen_has_no_registry_row():
+    """Image Scatter is a fold now, so it must NOT be a tile as well.
+
+    This used to assert the opposite -- that ``register()`` put the row
+    in. The screen is a button on Image UMAP's masthead now, and a
+    second front door on Home is the redundancy the fold was for, so the
+    direction that is true is the one asserted.
+    """
     from spacr.qt.app import APPS
 
-    isc.register()
-    assert any(row[0] == isc.APP_KEY for row in APPS)
-    assert isc.register() is None      # idempotent
+    assert not any(row[0] == isc.APP_KEY for row in APPS), (
+        "image_scatter is back in APPS; it is folded onto Image UMAP and "
+        "rides in on nothing")
+    assert not hasattr(isc, "register"), (
+        "a register() nobody calls is a tile waiting to come back")
+
+
+def test_the_way_in_is_the_fold_on_image_umap(qtbot):
+    """With no row, the masthead button is the only front door."""
+    from spacr.qt.screens import image_umap
+
+    assert isc.APP_KEY in image_umap.FOLDED_APPS
+    built = image_umap.BUILDERS[isc.APP_KEY]()
+    qtbot.addWidget(built)
+    assert isinstance(built, isc.ImageScatterScreen)
+
+
+def test_the_gui_only_sentence_is_written_where_the_cli_reads_it():
+    """The sentence survived the row, in both of its copies.
+
+    It travelled into ``cli.INTERACTIVE_ONLY`` as the row's ``cli_note=``
+    and ``unregister_app`` takes a pushed entry back out with the row, so
+    without a hand-written copy ``spacr-run image_scatter`` would stop
+    saying "run it in the GUI" and start guessing at a typo. ``spacr.cli``
+    answers ``--list`` where PySide6 is not installed, so it cannot read
+    the sentence from here; the two copies are pinned equal instead.
+    """
+    from spacr import cli
+
+    assert cli.INTERACTIVE_ONLY[isc.APP_KEY] == isc.APP_CLI_NOTE
+    assert isc.APP_KEY not in cli.MODULES

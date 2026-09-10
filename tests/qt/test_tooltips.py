@@ -21,7 +21,8 @@ def test_every_app_api_link_targets_an_existing_module():
     assert not missing, "\n".join(missing)
 
 
-def test_pipeline_app_api_links_follow_the_actual_backend():
+def _pipeline_api_link_mismatches() -> list[str]:
+    """Registry rows whose help link and executable backend disagree."""
     from spacr.cli import INTERACTIVE_ONLY
     from spacr.qt.app import APPS
     from spacr.qt.bridge import resolve_pipeline_entry
@@ -37,14 +38,41 @@ def test_pipeline_app_api_links_follow_the_actual_backend():
         linked = _APP_API_MODULE[app_key].replace("/", ".")
         if linked != expected:
             mismatches.append(f"{app_key}: links {linked}, runs {expected}")
+    return mismatches
+
+
+def test_pipeline_app_api_links_follow_the_actual_backend():
+    mismatches = _pipeline_api_link_mismatches()
     assert not mismatches, "\n".join(mismatches)
+
+
+def test_a_self_registered_browser_does_not_become_a_pipeline_app():
+    """Order regression: Feature Dictionary used to pollute this inventory."""
+    from spacr.qt import app as app_mod
+    from spacr.qt import theme as theme_mod
+    from spacr.qt.widgets import feature_dictionary as fd
+
+    existed = any(row[0] == fd.APP_KEY for row in app_mod.APPS)
+    qss_existed = fd.OBJECT_NAME in theme_mod.widget_qss_names()
+    fd.register()
+    try:
+        assert not _pipeline_api_link_mismatches()
+    finally:
+        if not existed:
+            app_mod.unregister_app(fd.APP_KEY)
+        if not qss_existed:
+            theme_mod.unregister_widget_qss(fd.OBJECT_NAME)
 
 
 def test_type_hint_from_expected_types():
     from spacr.qt.screens.settings_model import _type_hint
     assert _type_hint("cell_min_area") == "integer"
     assert _type_hint("plot") == "boolean"
-    assert _type_hint("compression") == "string"
+    # `compression` was the string example and was deleted as an inert
+    # setting -- one nothing read -- so the hint correctly came back empty
+    # and this asserted a type for a setting that no longer exists.
+    assert _type_hint("dst") == "string"
+    assert _type_hint("custom_model") == "string (optional)"
     # union / optional types render readably
     h = _type_hint("cell_background")
     assert "integer" in h or "float" in h
@@ -62,9 +90,14 @@ def test_format_tooltip_shows_name_type_and_strips_old_prefix():
 
 
 def test_undescribed_setting_still_typed():
+    """A setting with no prose still says what kind of value it takes.
+
+    The example was `compression`, deleted as an inert setting, so the
+    type came back empty and the test proved nothing about the fallback.
+    """
     from spacr.qt.screens.settings_model import format_tooltip
-    tip = format_tooltip("", "mask", "compression")
-    assert "<b>Compression</b>" in tip and "(string)" in tip
+    tip = format_tooltip("", "mask", "dst")
+    assert "<b>Dst</b>" in tip and "(string)" in tip
 
 
 def test_plain_tooltip_typed():

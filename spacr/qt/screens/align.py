@@ -29,7 +29,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Dict, List, Tuple
 
-from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtCore import QRectF, Qt, Signal, Slot
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PySide6.QtWidgets import (
     QComboBox,
@@ -60,6 +60,19 @@ __all__ = [
 ]
 
 #: Padding around the drawn layout, in pixels.
+#: The registry key this screen answers to; the fold reader looks for it.
+HOST_KEY = "align"
+
+# NOTHING IS FOLDED ONTO THIS MASTHEAD ANY MORE. Optical pooled screening
+# was: OPS is stitching, which is this screen's job, so it was reached from
+# here. It is reached from MASK GENERATION instead, as asked on 2026-09-09 --
+# "i think the OPS button should be in Mask generation instead of align" --
+# and it is a switch in that screen's actions row beside Live rather than an
+# icon on a masthead. Its declaration, its name, its sentence and its
+# maturity moved with it: see `spacr.qt.screens.mask.PAGE_FOLDS` and
+# `mask.FOLD_FALLBACK`. This screen is consequently no longer a fold host,
+# which is why it is no longer in `fold_strip.FOLD_HOST_MODULES`.
+
 _PAD = 10
 
 
@@ -93,12 +106,15 @@ class TileLayoutWidget(QWidget):
     the layout of a 700 MB stitch costs nothing. Hovering is not wired;
     the per-tile detail lives in the report pane beside it, where it can
     be read and copied.
+
+    :param parent: parent widget.
     """
 
     #: emitted with the tile index when a tile is clicked, -1 for the void
     tile_clicked = Signal(int)
 
     def __init__(self, parent=None):
+        """Build an empty layout view, sized to expand with its pane."""
         super().__init__(parent)
         self._plan = None
         self.setMinimumHeight(240)
@@ -223,6 +239,7 @@ class AlignScreen(QWidget):
     _job_settled = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the Align screen with nothing planned or written yet."""
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan = None
@@ -244,10 +261,16 @@ class AlignScreen(QWidget):
             "Planning reads headers and overlap strips only — nothing is "
             "written and no canvas is allocated.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source and destination rows, the preview and the actions."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -490,9 +513,22 @@ class AlignScreen(QWidget):
 
     def active_jobs(self) -> int:
         """How many worker threads are still winding down."""
+        # A queued ``QThread.finished`` signal can outlive its sender's C++
+        # object: ``make_thread`` schedules deferred thread deletion before
+        # this screen installs its retirement slot. In that ordering ``sender()``
+        # intermittently returned None and the dead tuple stayed here for
+        # ever. Polling is also a safe recovery path for a queued retirement
+        # event: a finished QThread may release its last references now.
+        self._retire_finished_jobs()
         return len(self._jobs)
 
     def _update_controls(self) -> None:
+        """Enable each action only when what it needs is present.
+
+        The single source of truth for button state: Plan needs a source, Write
+        needs a plan, and NOTHING is enabled while a job is in flight -- so a
+        second press cannot start a second run over the same folder.
+        """
         ready = not self._busy
         self._btn_plan.setEnabled(ready and bool(self._src_edit.text().strip()))
         self._btn_write.setEnabled(
@@ -557,6 +593,7 @@ class AlignScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_source(self) -> None:
+        """Ask for the folder of tiles, starting where the field points."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose the folder of tiles",
             self._src_edit.text() or os.path.expanduser("~"))
@@ -564,6 +601,11 @@ class AlignScreen(QWidget):
             self._src_edit.setText(path)
 
     def _pick_destination(self) -> None:
+        """Ask where to write the stitched stack.
+
+        Falls back to the SOURCE folder when no destination is set yet, because
+        that is nearly always the right neighbourhood to start browsing from.
+        """
         path = QFileDialog.getExistingDirectory(
             self, "Choose where to write the stitched stack",
             self._dst_edit.text() or self._src_edit.text()
@@ -588,6 +630,7 @@ class AlignScreen(QWidget):
                          "strips…")
 
         def _work():
+            """Scan the tiles and build the stitch plan. Off the GUI thread."""
             tiles = align_mod.scan_tiles(
                 src,
                 grid=settings.get('grid'),
@@ -664,6 +707,7 @@ class AlignScreen(QWidget):
         self._set_status("Writing — the canvas is filled one band at a time…")
 
         def _work():
+            """Write the stitched stack. Off the GUI thread."""
             result = align_mod.write_stack(
                 plan, dst,
                 blend=str(settings['blend']),
@@ -725,6 +769,11 @@ class AlignScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
@@ -740,7 +789,7 @@ class AlignScreen(QWidget):
         # bound QObject slot so Qt queues retirement onto this widget's GUI
         # thread; otherwise active_jobs() can race the thread's final signal
         # under a loaded full suite.
-        thread.finished.connect(self._retire_finished_job)
+        thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
@@ -767,17 +816,43 @@ class AlignScreen(QWidget):
             self._thread = None
             self._worker = None
 
-    def _retire_finished_job(self) -> None:
-        """Retire the emitting QThread on this widget's GUI thread."""
-        thread = self.sender()
-        if thread is not None:
+    @Slot()
+    def _retire_finished_jobs(self) -> None:
+        """Retire every completed QThread without consulting ``sender()``.
+
+        ``thread.finished`` is queued onto this GUI-thread slot, but the
+        thread also schedules deferred deletion in :func:`make_thread`.
+        Under load the deferred deletion can win, leaving ``self.sender()``
+        as ``None`` even though the signal arrived. The QThread wrappers are
+        already held in ``_jobs``; their finished state is the durable fact.
+
+        A wrapper whose C++ object has already gone raises ``RuntimeError``
+        on ``isFinished()`` and is finished by definition. ``active_jobs``
+        calls this method too, so even a retirement event lost during Qt
+        teardown cannot leave a permanently active job behind.
+        """
+        finished = []
+        for thread, _worker in self._jobs:
+            try:
+                done = bool(thread.isFinished())
+            except RuntimeError:
+                done = True
+            if done:
+                finished.append(thread)
+        for thread in finished:
             self._retire_job(thread)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed job and release the controls."""
         self._busy = False
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Report a worker's failure, showing only its LAST line.
+
+        A traceback's final line is the message; the frames above it are noise in
+        a status bar, and the full text is already in the log.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"Align failed: {line}", error=True)

@@ -63,6 +63,7 @@ from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.pivot_builder import PivotPanel
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.tabulate")
 
@@ -87,9 +88,22 @@ class TabulateScreen(QWidget):
     :param link: a private
         :class:`~spacr.qt.linked_selection.LinkedSelection` for tests. ``None``
         joins the process-wide one.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
+        CALL; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the pivot builder beside the shared filter.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("TabulateScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -148,7 +162,16 @@ class TabulateScreen(QWidget):
         body.addWidget(stack)
 
         self.filters = DataFilterPanel(self, link=link)
-        self.filters.setMaximumWidth(320)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 320 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        self.filters.setMaximumWidth(scaled_px(320))
         body.addWidget(self.filters)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
@@ -167,6 +190,11 @@ class TabulateScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "tabulate")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
@@ -178,6 +206,12 @@ class TabulateScreen(QWidget):
             label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
     def _filtered(self) -> Optional[pd.DataFrame]:
+        """Narrow the loaded frame to the rows the shared filter allows.
+
+        :returns: the visible rows, ``None`` when nothing is loaded, and the
+            whole frame when the filter does not apply here -- a filter written
+            against another table should not empty this screen.
+        """
         if self._frame is None:
             return None
         try:
@@ -187,6 +221,7 @@ class TabulateScreen(QWidget):
             return self._frame
 
     def choose_table(self) -> None:
+        """Ask which table in the project to use."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -264,11 +299,21 @@ class TabulateScreen(QWidget):
         return self._jobs.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     # -- filter -----------------------------------------------------------
     def _on_filter_changed(self) -> None:
+        """Queue a re-aggregation after the shared filter changed.
+
+        Debounced, so dragging a filter handle re-aggregates once rather than
+        per step.
+        """
         if self._frame is not None:
             self._refilter.start()
 
@@ -284,6 +329,10 @@ class TabulateScreen(QWidget):
 
     # -- results ----------------------------------------------------------
     def _on_computed(self, result) -> None:
+        """Say how many source rows became how large a table.
+
+        :param result: the computed pivot.
+        """
         rows, cols = result.shape
         self._source.setText(
             f"{result.n_source_rows:,} rows → {rows:,} × {cols:,} table")
@@ -313,6 +362,10 @@ class TabulateScreen(QWidget):
         # screen: Qt aborts the process if a running QThread is
         # destroyed, and a worker that delivers into a closed widget
         # is a use-after-free.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         try:
             self._link.filter_changed.disconnect(self._on_filter_changed)
@@ -329,20 +382,16 @@ def make_tabulate_screen(app_key: Optional[str] = None) -> QWidget:
     return TabulateScreen()
 
 
-APP_NAME = "Tabulate"
-APP_DESCRIPTION = ("Pivot the measurement table — rows, columns, "
-                   "aggregations, and the n behind each one")
-APP_INTRO = (
-    "Drag columns onto Rows and Columns to group by them, a measurement onto "
-    "Values to summarise it, and tick the statistics you want. plateID / "
-    "rowID / columnID down the rows is a plate summary. Every cell prints its "
-    "n, because a mean over four objects and a mean over four thousand look "
-    "the same otherwise, and a combination with no objects is blank rather "
-    "than zero. Export the table, or hand it to the Graph Builder below.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive pivot table; "
-                "spacr.qt.widgets.pivot_spec.pivot() is the headless "
-                "equivalent.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 
 
 def register() -> bool:
@@ -366,15 +415,4 @@ def register() -> bool:
     flight, and because a new ``APPS`` row currently reddens the per-app
     inventory tests for reasons this screen cannot fix.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_tabulate_screen, stage=STAGE_ALPHA,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/tabulate",
-        translations=("Tabellera", "Tabellieren", "Tabular", "汇总表",
-                      "Tabular", "सारणीबद्ध", "표 만들기", "Taflugerð",
-                      "Tabuler"))
-    return True
+    return register_declared(__name__) is not None

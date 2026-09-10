@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "classes",
+      "source_sha256": "a4c339cac867e72eb0c819222e2f8ee338aa18531a083cb6c5ac5c85c9cf5329",
+      "source": "Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
+      "translation": "Definiciones de clase con el formato nombre de clase -> {column, value}; por ejemplo, 'pc' podría ser {'column': 'columnID', 'value': 'c3'}. En el editor Clases, seleccione una columna y asigne nombres a sus distintos valores; las definiciones pueden abarcar varias columnas. Una fila puede definir en su lugar un complemento aleatorio que contenga los objetos no asignados a ninguna otra clase, muestreado para igualar la clase más grande. Este ajuste define qué objetos pertenecen a cada clase; class_folder_names define las subcarpetas de entrenamiento. Un archivo de ajustes previamente dividido contiene una lista simple y se convierte al leerlo. Valor predeterminado: {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "Abundancia relativa mínima, entre 0 y 1, que debe alcanzar un gRNA dentro del recuento total de lecturas de un pocillo para conservarse. Un valor mayor elimina gRNAs de baja abundancia y derivados de contaminación cruzada, y reduce el número medio de gRNAs por pocillo; si se establece demasiado alto, se eliminan todas las filas y la ejecución genera un error. Use None para seleccionar automáticamente el umbral que produce target_unique_count gRNAs por pocillo. Valor predeterminado: None. La regresión comienza con el umbral fijo reproducible 0.02; introduzca None solo cuando se pretenda realizar el barrido automático."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "Control de calidad de la segmentación realizado al escribir las máscaras, antes de la medición. 'off' omite la puntuación; 'report' puntúa cada campo, escribe qc/segmentation_qc_<object>.csv y muestra los problemas de calidad detectados; 'flag' también escribe un archivo JSON por campo para el procesamiento posterior; 'stop' genera un error cuando el veredicto de la placa es 'fail', después de escribir el informe. Ningún modo elimina u omite un campo, y 'stop' no genera un error para un veredicto 'warn'. Valor predeterminado: 'report'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_wells",
+      "source_sha256": "c2973f1861aec26da18854b73c62efeb1b764afbda87f3489a8737d342588dd7",
+      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+      "translation": "Estos pocillos establecen la distribución negativa empírica de la tinción previa a la permeabilización y se excluyen de los cálculos de eficiencia. Indique una columna ('c12'), fila ('r1'), pocillo ('r1_c12') o clave de placa completa cuyos parásitos no recibieron tinción; None utiliza el método automático por campo. La regresión de cribado reutiliza esta clave para una lista que corresponde a filter_value. La regresión la inicializa a partir de filter_value más cualquier bloque de control declarado (el valor predeterminado incluido es ['c1', 'c2', 'c3']). Valor predeterminado: None."
+    }
+  ]
+}

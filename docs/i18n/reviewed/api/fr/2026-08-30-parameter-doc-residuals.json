@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.pipeline_v2.FilenameMapper#2",
+      "source": "parsed filename records in file-system order.",
+      "context": "parsed filename records in file-system order.",
+      "source_sha256": "6df3042d43695215314dc25e6d3265baf11af063671ce96aedc5cbef18f2106f",
+      "translation": "enregistrements résultant de l’analyse des noms de fichiers, dans l’ordre du système de fichiers."
+    }
+  ]
+}

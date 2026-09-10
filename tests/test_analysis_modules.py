@@ -63,9 +63,20 @@ def test_ml_select_glm_family_gaussian():
 
 
 def test_ml_prepare_formula_with_random_effects():
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): one level per fit.
+    # This used to assert "gene" was in the DEFAULT formula, because the
+    # default put fraction:grna and gene_fraction:gene in the same design --
+    # the collinear model that instruction removed. The default is now the
+    # guide level, and the gene level is asked for by name.
     f = ML.prepare_formula("score", random_row_column_effects=True)
     assert "rowID" not in f  # random effects hidden in re_formula
-    assert "gene" in f
+    assert f == "score ~ fraction:grna"
+
+    g = ML.prepare_formula("score", random_row_column_effects=True,
+                           level="gene")
+    assert g == "score ~ gene_fraction:gene"
+    # Never both in one design.
+    assert "fraction:grna" not in g.replace("gene_fraction:gene", "")
 
 
 def test_ml_prepare_formula_without_random_effects():
@@ -206,6 +217,13 @@ def test_deep_spacr_binary_metrics_shape():
     assert isinstance(m, dict)
     # Common keys expected in a binary-metrics dict.
     assert any(k in m for k in ("auc", "accuracy", "f1"))
+    # THIS FIXTURE IS PERFECTLY SEPARABLE -- every positive scores above
+    # every negative -- so a working metric returns exactly 1.0. Asserting
+    # only the KEYS let a sign inversion through, which is the one mistake
+    # this function can make and the one that matters most.
+    for key in ("auc", "accuracy", "f1"):
+        if key in m:
+            assert float(m[key]) == pytest.approx(1.0), (key, m[key])
 
 
 def test_deep_spacr_multiclass_metrics_shape():
@@ -216,6 +234,10 @@ def test_deep_spacr_multiclass_metrics_shape():
     ])
     m = DS._multiclass_metrics(y_true, prob)
     assert isinstance(m, dict) and len(m) > 0
+    # Every row's argmax IS its true class, so accuracy is exactly 1.0.
+    for key in ("accuracy", "acc"):
+        if key in m:
+            assert float(m[key]) == pytest.approx(1.0), (key, m[key])
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,110 @@
+324 — THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
+=======================================================
+
+ASKED FOR (2026-08-31)
+----------------------
+"the setup spacr first page now describes the capabilities of the computer
+more granularly but instead of the way you show it in lines do a table
+instead."
+
+WHAT IS THERE NOW
+-----------------
+`spacr/qt/widgets/setup_slides.py::_what_this_machine_can_do` renders one
+`<div>` per task, each a tick or a bullet, the task name, and a dash
+followed by a detail sentence. Four rows of prose in a column. The
+CONTENT is right -- it comes from `accelerator.capabilities()`, which
+reports per task rather than one verdict, for the reason its own
+docstring gives. The SHAPE is the problem: four sentences read as four
+separate remarks rather than as one answer with an axis.
+
+THE LAYOUT ASKED FOR
+--------------------
+Three parts, in this order.
+
+1. ONE PARAGRAPH, plain white text:
+
+     "spaCR tasks are GPU accelerated and are compatible with NVIDIA,
+     AMD, Apple, and Intel GPUs. GPU acceleration is orders of magnitude
+     faster than CPU for matrix multiplication tasks."
+
+   This replaces `GPU_REQUIREMENT`, whose current wording names only
+   segmentation and classification and predates the table below saying
+   so per task. "Orders of magnitude" is not a flourish: 444.5 s against
+   3.2 s for one 256x256 Cellpose image, measured on an Intel iMac's
+   Radeon.
+
+2. ONE LINE naming the device and the library that drives it:
+
+     GPU: NVIDIA RTX 3090: CUDA
+
+   The GPU NAME is the coloured part -- GPU_YES_INK when spaCR will use
+   it, GPU_NO_INK when it will not. The word "GPU:" and the library name
+   stay in the body colour, so the eye lands on the thing that varies.
+
+   The library is the backend, not the vendor: CUDA, ROCm, Metal, XPU,
+   DirectML. `accelerator.resolve()` already knows both -- `name` and the
+   backend it chose -- and `Accelerator.usable` is what decides the
+   colour. A card that is DETECTED and NOT USABLE is red, and the
+   existing `GPU_DOCTOR_HINT` line still follows it; that distinction is
+   319's and must not be lost in the redesign.
+
+3. THE TABLE, three columns, no header row needed if the columns are
+   self-evident from their contents:
+
+     Cellpose 4           GPU or CPU     Segmentation
+     Torch models         GPU or CPU     Classification
+     Lava backdrop        GPU or CPU     Visualization
+     UMAP / t-SNE / Cluster   GPU or CPU     Machine learning
+
+   Column 2 is the only one that varies by machine, and it is GPU or CPU
+   per row -- not one verdict for the table. That is the whole point:
+   on Metal, Cellpose and the Torch models are on the GPU while the cuML
+   reductions are not, and a single tick would be a lie about the last
+   row.
+
+   Colour column 2 the same way: green for GPU, red for CPU.
+
+DERIVE COLUMN 2, DO NOT WRITE IT
+--------------------------------
+`accelerator.capabilities()` already returns `(task, accelerated,
+detail)`. The table's rows must come from it, so the slide cannot
+disagree with `spacr-doctor`, which renders the same function. If a row
+in the layout above has no counterpart in `capabilities()`, ADD IT THERE
+rather than special-casing it in the widget -- the backdrop is the likely
+one, and the doctor should report it too.
+
+NAMING, and check these against the source before writing them:
+  * "Lava backdrop" is the user's name for it. Find what the code calls
+    that renderer and use ONE name in both places -- if the code says
+    something else, rename the code or the label, but do not leave the
+    setup screen naming a thing no other surface uses.
+  * "Cellpose 4" is a version claim. `spacr_cellpose` knows which is
+    installed; take it from there rather than hardcoding a 4 that a
+    future Cellpose falsifies.
+
+KEEP
+----
+* The neural-engine rows. An engine that is detected and not used is
+  still reported, in as many words, because silence reads as "spaCR did
+  not look".
+* The failure swallowing. This is decoration on a setup slide, and a
+  machine with a strange accelerator must still reach the button at the
+  bottom of it.
+* The band position (`GPU_NOTE_BAND`) and the clamp that keeps the note
+  inside the card. A table is taller than four lines and this is the
+  thing that will break first -- the note was 169 px off the card bottom
+  once already.
+
+DONE MEANS
+----------
+* The three parts above, in that order, on the first setup slide.
+* Column 2 derived from `capabilities()`, not typed, and asserted equal
+  to what `spacr-doctor` reports for the same machine.
+* A test that FAKES two backends -- one CUDA, one Metal -- and asserts
+  the table differs in the UMAP row and agrees in the Cellpose row. That
+  difference is the entire reason the table exists, so it is the thing to
+  pin.
+* Nothing claims acceleration for a device the resolver reports as
+  detected-but-not-usable.
+* The new strings go into the pending translation list in instruction
+  316. They are user-facing prose and must not be machine-drafted.

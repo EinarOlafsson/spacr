@@ -22,7 +22,6 @@ import threading
 import types
 
 import pytest
-
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QFontMetrics, QIcon
 from PySide6.QtWidgets import (
@@ -41,30 +40,30 @@ from PySide6.QtWidgets import (
 
 from spacr.qt import app as app_mod
 from spacr.qt.app import (
+    _FORCE_GLYPH,
+    _ICON_OVERRIDES,
     APPS,
     MAX_APPS_PER_SECTION,
+    SECTION_ASSAYS,
     SECTION_CORE,
     SECTION_DATA,
     SECTION_DESIGN,
     SECTION_EXPLORE,
     SECTION_MODELS,
     SECTION_RESULTS,
-    SECTION_TOXO,
     SECTIONS,
     MainWindow,
     Sidebar,
-    _FORCE_GLYPH,
-    _ICON_OVERRIDES,
-    _PipelinePreloader,
     _icon_for_app,
     _load_bundled_fonts,
+    _PipelinePreloader,
     app_stage,
     home_bands,
     make_home_page,
     section_members,
+    tiled_apps,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
-
 
 # ---------------------------------------------------------------------------
 # helpers / fixtures
@@ -74,8 +73,60 @@ from spacr.qt.widgets.home import AppTile, HomePage
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
     w = MainWindow()
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     return w
+
+
+def _close_owned_screens(window):
+    """Retire screens before their MainWindow loses ownership of them.
+
+    Several pyqtgraph views create parentless context-menu windows. Closing
+    only the outer MainWindow leaves those menus reachable through Python
+    signal cycles even after Qt deletes the parent screen, so a test process
+    that opens many windows accumulates hundreds of live top-level widgets.
+    The window's own screen registry is the exact ownership boundary; close
+    only those children and let pytest-qt delete the window normally.
+    """
+    for screen in list(getattr(window, "_screens", {}).values()):
+        # pyqtgraph's ViewBox menus are deliberately parentless top-level
+        # windows and ViewBox.close() does not retire them. Find only the
+        # ViewBoxes in graphics scenes owned by this screen; never sweep the
+        # QApplication or touch another test's widgets.
+        try:
+            from PySide6.QtWidgets import QGraphicsView, QMenu
+            from pyqtgraph import PlotItem, ViewBox
+
+            def _retire_menu(menu):
+                if menu is None:
+                    return
+                for child in reversed(menu.findChildren(QMenu)):
+                    child.close()
+                    child.deleteLater()
+                menu.close()
+                menu.deleteLater()
+
+            seen = set()
+            for graphics_view in screen.findChildren(QGraphicsView):
+                scene = graphics_view.scene()
+                items = list(scene.items()) if scene is not None else []
+                for item in items:
+                    if isinstance(item, PlotItem):
+                        _retire_menu(getattr(item, "ctrlMenu", None))
+                for item in items:
+                    if not isinstance(item, ViewBox) or id(item) in seen:
+                        continue
+                    seen.add(id(item))
+                    menu = getattr(item, "menu", None)
+                    item.close()
+                    _retire_menu(menu)
+                    item.menu = None
+        except (ImportError, RuntimeError):
+            pass
+        try:
+            screen.close()
+            screen.deleteLater()
+        except RuntimeError:
+            pass
 
 
 class _ModalRecorder:
@@ -207,101 +258,75 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
-    # Both were finished and tested but deliberately unregistered while
-    # Explore sat at the old cap; `baa704fc` switched them on once it did
-    # not, and this ledger was the last thing still describing them as
-    # absent.
-    "pca":             SECTION_EXPLORE,
-    "tabulate":        SECTION_EXPLORE,
-    "mask":            SECTION_CORE,
-    "timelapse":       SECTION_CORE,
-    "motility":        SECTION_CORE,
-    "measure":         SECTION_CORE,
-    "annotate":        SECTION_CORE,
-    "classify_merged": SECTION_CORE,
-    "classify":        SECTION_CORE,
-    "ml_analyze":      SECTION_CORE,
-    "map_barcodes":    SECTION_CORE,
-    "regression":      SECTION_CORE,
-    # Correcting a mask and its tracks by hand is part of getting the data,
-    # not a reading of what came out — so Core, beside Mask and Timelapse.
-    "curate":          SECTION_CORE,
-    "align":           SECTION_DATA,
-    "convert":         SECTION_DATA,
-    "foreign":         SECTION_DATA,
-    "external_masks":  SECTION_DATA,
-    "queue":           SECTION_DATA,
-    "batch":           SECTION_DATA,
-    "distributed_jobs": SECTION_DATA,
-    "db_browser":      SECTION_DATA,
-    "make_masks":      SECTION_MODELS,
-    "train_cellpose":  SECTION_MODELS,
-    "cellpose_masks":  SECTION_MODELS,
-    "model_compare":   SECTION_MODELS,
-    "model_zoo":       SECTION_MODELS,
-    # Illumination correction is done TO the images on the way in, like
-    # stitching and conversion -- not a reading of what came out.
-    "illumination":    SECTION_DATA,
-    "data_manager":    SECTION_DATA,
-    "plate_view":      SECTION_RESULTS,
-    "agreement":       SECTION_RESULTS,
-    "umap":            SECTION_RESULTS,
-    "activation":      SECTION_RESULTS,
-    "train_compare":   SECTION_RESULTS,
-    "classifier_evaluation": SECTION_RESULTS,
-    "run_history":     SECTION_RESULTS,
-    "report":          SECTION_RESULTS,
-    "barcode_qc":      SECTION_RESULTS,
-    # Two runs of the same project read against each other is a reading of
-    # what a finished run produced, which is what this section is.
-    "run_compare":     SECTION_RESULTS,
-    # The "hand it on" pair, and Results & QC rather than Explore because
-    # neither asks the data anything new: the Hit List is the ranked table
-    # a screen produced, and Methods & Results is that run written up. Both
-    # read a finished run rather than interrogating it.
-    "hit_list":        SECTION_RESULTS,
-    "methods_export":  SECTION_RESULTS,
-    # Explore's first two. The section was declared and empty until they
-    # registered -- "page through image layers" is the example in its own
-    # definition, and the Graph Builder family is what it was named for.
-    "layer_viewer":    SECTION_EXPLORE,
-    "graph_builder":   SECTION_EXPLORE,
-    # Explore's third, and it is Explore rather than Results & QC for the
-    # same reason as the other two: handing measurements.db to scanpy or
-    # scvi-tools is asking the numbers something spaCR did not plan for.
-    "anndata_export":  SECTION_EXPLORE,
-    # Explore's fourth: a scatter you can hover to see the cell a point
-    # stands for. Asking the measurements a question, not reading a run.
-    "image_scatter":   SECTION_EXPLORE,
-    # Explore's fifth: what is inside what. The cell_id links have been in
-    # the database since the first Measure run and had no view.
-    "lineage":         SECTION_EXPLORE,
-    # Explore's sixth and seventh, and both are Explore for the section's
-    # own reason -- they ask a question of what a run left behind rather
-    # than reporting it. Pipeline Graph asks "does this output still follow
-    # from its inputs"; the Prediction Profiler moves one input of a fitted
-    # model and watches the prediction move. Neither has a report to show
-    # you if you do not ask.
-    "pipeline_graph":  SECTION_EXPLORE,
-    "profiler":        SECTION_EXPLORE,
-    # Explore's eighth. Five verdicts on one screen, none of them
-    # recomputed -- it reads what the QC steps already decided and asks
-    # whether they agree, which is a question about a run rather than a
-    # report of one.
-    "qc_dashboard":    SECTION_EXPLORE,
-    "analyze_plaques": SECTION_TOXO,
-    "recruitment":     SECTION_TOXO,
-    "invasion":        SECTION_TOXO,
-    "replication":     SECTION_TOXO,
-    # Design's first app. The section had been declared and empty since the
-    # sections were named; its note ("Plan the experiment before it runs:
-    # power, sample size, plate layout, controls and replicates") was
-    # written for this.
-    "power":           SECTION_DESIGN,
-    # And its second, which claims the rest of that same note: the plate
-    # layout, the controls and the replicates, decided before an image
-    # exists.
-    "experiment_design": SECTION_DESIGN,
+    # REWRITTEN 2026-08-31, when Home was cut from seven categories to
+    # four. The user wrote out the tiles they wanted, in the order they
+    # wanted them, and this ledger is the record of where every app
+    # landed -- including the ones that no longer draw a tile at all.
+    #
+    # Explore, Results & QC, Design and Segmentation models are gone as
+    # PLACES. Every app that lived in one was re-filed:
+    #
+    #   Explore        -> Tools (Graph Builder, Gate Editor, QC) or Data
+    #                     (Lineage, Tabulate, Pipeline Graph)
+    #   Results & QC   -> Tools (Image UMAP, Plate Viewer) or Data
+    #                     (Report, Run History) or Core (Training Runs,
+    #                     Investigate Hit)
+    #   Design         -> Data (Experiment Design, Power, Dose-Response)
+    #
+    # A folded module keeps a section even with no tile: the section is
+    # what says which host it belongs behind.
+    'align': 'Tools',
+    'analyze_plaques': 'Assays',
+    'annotate': 'Core',
+    'batch': 'Data',
+    'classify_merged': 'Core',
+    'convert': 'Data',
+    'data_manager': 'Data',
+    'db_browser': 'Data',
+    'distributed_jobs': 'Data',
+    # Filed where the two comments above already said they were: an
+    # EC50 is fitted to pick the next experiment's concentration, so
+    # Dose-Response went to Data with Power, and a gate is an
+    # instrument pointed at a finished table, so the Gate Editor went
+    # to Tools. Only their ROWS were missing until 2026-09-05 --
+    # `app._SELF_REGISTERING_APPS` now registers them (and the Project
+    # Browser, which the dock files under Help) at import rather than
+    # only when `run()` walks SELF_REGISTERING_MODULES.
+    'dose_response': 'Data',
+    'experiment_design': 'Data',
+    'external_masks': 'Data',
+    'foreign': 'Data',
+    'gate_editor': 'Tools',
+    'graph_builder': 'Tools',
+    'invasion': 'Assays',
+    # investigate_hit, profiler and train_compare moved Core -> Tools in
+    # 571b6e77c, which split `app_is_visible` from the new `tiled_apps()`
+    # so folding a module stopped DELETING its door in the command
+    # palette. The move was deliberate and the table was not updated in
+    # the same commit, which is the whole reason this table exists.
+    'investigate_hit': 'Tools',
+    'layer_viewer': 'Data',
+    'lineage': 'Data',
+    'make_masks': 'Tools',
+    'map_barcodes': 'Core',
+    'mask': 'Core',
+    'measure': 'Core',
+    'pipeline_graph': 'Data',
+    'plate_view': 'Tools',
+    'power': 'Data',
+    'profiler': 'Tools',
+    'project_browser': 'Data',
+    'qc_dashboard': 'Data',
+    'queue': 'Data',
+    'recruitment': 'Assays',
+    'regression': 'Core',
+    'replication': 'Assays',
+    'report': 'Data',
+    'run_compare': 'Data',
+    'run_history': 'Data',
+    'tabulate': 'Data',
+    'train_compare': 'Tools',
+    'umap': 'Tools',
 }
 
 #: How finished every app is, as a second ledger on the same app keys.
@@ -311,36 +336,65 @@ EXPECTED_STAGES = {
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
     "classify_merged": "alpha",
-    "align": "alpha", "model_zoo": "alpha", "convert": "alpha",
+    "align": "alpha", "convert": "alpha",
     "foreign": "alpha", "external_masks": "alpha",
-    "model_compare": "alpha", "queue": "alpha",
+    "queue": "alpha",
     "batch": "alpha", "distributed_jobs": "alpha",
     "invasion": "alpha", "db_browser": "alpha",
-    "plate_view": "alpha", "agreement": "alpha", "train_compare": "alpha",
-    "classifier_evaluation": "alpha",
+    "plate_view": "alpha", "train_compare": "alpha",
     "run_history": "alpha", "report": "alpha",
-    "illumination": "alpha", "barcode_qc": "alpha",
     "layer_viewer": "alpha", "graph_builder": "alpha",
     "data_manager": "alpha",
-    "power": "alpha", "anndata_export": "alpha", "run_compare": "alpha",
-    "image_scatter": "alpha", "lineage": "alpha", "curate": "alpha",
-    "hit_list": "alpha", "methods_export": "alpha",
+    "power": "alpha", "run_compare": "alpha",
+    "lineage": "alpha",
     "pipeline_graph": "alpha", "profiler": "alpha",
     "experiment_design": "alpha", "qc_dashboard": "alpha",
-    # PCA and Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS
-    # started calling their register(); both arrive alpha, like every screen
-    # that is built and reachable but not yet trusted end to end. Absent from
-    # this table they read as "stable", which is the one claim nobody has
-    # earned yet.
-    "pca": "alpha", "tabulate": "alpha",
-    "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
-    "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
-    "replication": "beta", "umap": "beta", "activation": "beta",
+    # The three that a launched GUI had and a bare `import spacr.qt.app` did
+    # not. Their rows now arrive from `app._SELF_REGISTERING_APPS`; the stage
+    # is the one `app_catalog` has declared for each all along, so nothing was
+    # promoted or demoted here -- this ledger simply covers them now.
+    "dose_response": "alpha", "gate_editor": "alpha",
+    "project_browser": "alpha",
+    # Tabulate joined APPS when app.py's _SELF_REGISTERING_APPS started
+    # calling its register(); it arrived alpha, like every screen that is
+    # built and reachable but not yet trusted end to end. Absent from this
+    # table it would read as "stable", which is the one claim nobody has
+    # earned yet. PCA arrived with it and has since been folded onto Image
+    # UMAP; what its button lights in now is the host fold fallback's to
+    # say.
+    "tabulate": "alpha", "investigate_hit": "alpha",
+    # The Volcano Explorer's entry stood here beside the Parameter Sweep's
+    # until it too stopped being a registry row; a stage is a property of a
+    # tile on Home. What the fold button lights in afterwards is the host
+    # fold fallback's to say, and it is asserted there.
+    # `cellpose_masks` stood beside `train_cellpose` here until the two
+    # became one Cellpose Workbench tile, and `train_cellpose` until that
+    # tile became a button on the Make Masks masthead. A maturity is a
+    # property of a tile on Home, so a key that no longer has one drops out;
+    # `make_masks.FOLD_FALLBACK` says what its button lights in, and
+    # `test_the_fold_fallback_agrees_with_the_registry` asserts it there.
+    # Activation, the Hit List and Methods & Results are not here: each
+    # folded onto a host and lost its registry row, and a maturity is a
+    # property of a tile. What their buttons light up in now comes from
+    # the host's own fold record, checked in the fold tests.
+    "make_masks": "beta",
+    # A stage is a property of a tile on Home, so a key folded out of the
+    # registry drops out of this ledger with its row. What the button
+    # lights in afterwards is recorded in the host's fold fallback, and
+    # `test_the_switch_lights_in_the_stage_the_tile_LIT` holds it there.
+    "analyze_plaques": "beta",
+    "replication": "beta", "umap": "beta",
 }
 
 
 def test_every_app_is_filed_under_the_section_it_belongs_to():
-    """Section assignment for every app, one entry at a time."""
+    """Section assignment for every app, one entry at a time.
+
+    Five keys left this table with their registry rows: the modules they
+    named are folded into a host screen and are reached from there, so
+    they have no section because they have no tile. A section is a
+    property of a TILE.
+    """
     actual = {key: section for key, _n, _d, section in APPS}
     assert actual == EXPECTED_SECTIONS, (
         "an app changed section (or was added/removed). That is allowed — "
@@ -351,7 +405,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Thirty-four alpha, nine beta, eight stable. The alpha column is the
+    Twenty-nine alpha, four beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -375,8 +429,40 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 36 alpha since PCA and Tabulate started registering. The beta and stable
     # columns have still not moved, which is the shape the docstring above
     # describes: alpha is the column that grows, and only use empties it.
-    # 37 alpha since the merged Classify module arrived.
-    assert counts == {"alpha": 37, "beta": 9, "stable": 8}
+    # 39 alpha since the two model-explanation stages arrived.
+    # 39 -> 41 on 2026-08-17: the Volcano Explorer and the Parameter Sweep
+    # were registered without any of this file's three ledgers being updated.
+    # 8 -> 6 stable on 2026-08-23: Classify (CV) and Classify (ML) were
+    # removed from the registry. Both were stable, and the merged Classify
+    # screen that replaces them is the one entry now. Their entry points are
+    # untouched -- see HEADLESS_ONLY in test_app_registry_parity.
+    # 41 -> 40 alpha: the Parameter Sweep gave up its registry row to become
+    # the Regression screen's sweep card. Nothing was signed off; the count
+    # falls because there is one fewer tile, not one more trusted app.
+    # 9 -> 8 beta, for the same kind of reason: Cellpose Masks and Train
+    # Cellpose became the two tabs of one Cellpose Workbench tile. Both keys
+    # still run; only one of them is now a tile, and this counts tiles.
+    # 40 -> 28 alpha and 8 -> 5 beta: the folded modules gave up their
+    # rows, Illumination among them -- its settings had been on Measure's
+    # panel for some time while its tile stayed on Home. Nothing was
+    # signed off and nothing regressed: this counts TILES, and every one
+    # of those modules is now a button or a settings category on the
+    # screen it was folded into.
+    # 28 -> 26 alpha and 5 -> 4 beta: the last three folds gave up their
+    # rows. Activation became a tab on Classify, and the Hit List and
+    # Methods & Results became pages on Regression. All three still run and
+    # all three keep the colour they were assessed in -- a folded module's
+    # maturity lives in its host's fold record now, because the registry
+    # answers for a key it no longer holds exactly as it answers a typo.
+    # 26 -> 29 alpha on 2026-09-05, and NOT because anything was assessed:
+    # Dose-Response, the Gate Editor and the Project Browser registered only
+    # when `run()` walked SELF_REGISTERING_MODULES, so a bare
+    # `import spacr.qt.app` -- which is the registry this file counts -- never
+    # saw the three rows a launched GUI had. `app._SELF_REGISTERING_APPS`
+    # registers them now. Each has declared stage='alpha' in `app_catalog`
+    # since it was written; the column grew by three tiles, not by three
+    # demotions.
+    assert counts == {"alpha": 29, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -399,21 +485,22 @@ def test_no_section_is_used_that_was_never_declared():
 
 
 def test_no_section_holds_more_than_the_cap():
-    """The cap was 9 and is now 13.
+    """Keep every current section within the explicit readability cap.
 
-    Nine was the width of the Core pipeline and nothing more, so it
-    would have fired on the next Core app rather than when a row stopped
-    being readable. #16i raised it to thirteen for a staging section
-    that no longer exists.
-
-    Twenty was set on request once the registry passed fifty apps. The
-    argument for thirteen was that a longer row stops being scannable,
-    and that is still true -- but the sections that actually fill up are
-    the ones doing real work, and splitting Explore into two half-named
-    tabs to satisfy a number would have been worse than the long row it
-    avoided."""
+    The cap is a design constraint rather than a count inferred from Core.
+    Crossing it requires a deliberate, meaningfully named split instead of
+    silently lengthening a row.
+    """
     counts = _counts()
-    assert MAX_APPS_PER_SECTION == 20
+    # 40 since 2026-09-05, raised at the maintainer's instruction. Data hit
+    # exactly twenty -- the old ceiling -- the moment the three
+    # self-registering modules joined the table, so the next registration
+    # there would have tripped the cap rather than caught a mistake.
+    #
+    # The number is pinned here on purpose: it is a design constraint, and
+    # moving it should be a decision somebody makes rather than a number
+    # that drifts to fit whatever the registry has become.
+    assert MAX_APPS_PER_SECTION == 40
     over = {s: n for s, n in counts.items() if n > MAX_APPS_PER_SECTION}
     assert not over, (
         f"sections over the {MAX_APPS_PER_SECTION}-app cap: {over}. Add a "
@@ -424,11 +511,10 @@ def test_no_section_holds_more_than_the_cap():
 def test_the_core_section_leads_the_ctrl_number_slots():
     """Ctrl+1..9 address APPS[0..8]; Core has to lead them.
 
-    Core is nine again — #16i staged Timelapse and Motility Assay out of
-    it and #16j put them back — so the nine slots are exactly the
-    pipeline. The assertion is written not to care either way: what has
-    to stay true is that Core is the first contiguous block, so the low
-    numbers reach the pipeline."""
+    Core now contains the six primary pipeline modules. The first six number
+    shortcuts therefore open that complete block, and Ctrl+7..9 continue into
+    the next apps in sidebar order. The assertion deliberately follows the
+    registry rather than a fixed Core count."""
     core = [k for k, _n, _d, s in APPS if s == SECTION_CORE]
     assert 0 < len(core) <= MAX_APPS_PER_SECTION
     assert [k for k, *_r in APPS[:len(core)]] == core
@@ -465,29 +551,83 @@ def test_sidebar_draws_exactly_one_heading_per_section_in_order(
     qtbot.addWidget(bar)
     headings = [lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"]
-    # The sidebar walks APPS and heads each run, so it shows exactly the
-    # sections apps are filed under — the same list as the Home bands.
-    assert headings == [s for s, _rows in home_bands()]
+    # The sidebar walks `dock_rows()` and heads each run, so it shows the
+    # DOCK's grouping.
+    #
+    # NOT `home_bands()` ANY MORE, and the difference is the point. A section
+    # is Home's categorisation and every Help module is tileless, so Help can
+    # never be a Home band -- `test_no_section_is_empty` says as much. The
+    # dock lists modules whether or not they have a tile, so it gets one more
+    # heading than Home does. Comparing the two was what made this test read
+    # as "the dock is Home", which it is not.
+    from spacr.qt.app import dock_rows
+
+    expected = []
+    for _key, _name, _desc, section in dock_rows():
+        if not expected or expected[-1] != section:
+            expected.append(section)
+    assert headings == expected
+    # And the extra one is Help, last -- asserted so a future change that
+    # quietly drops it fails here rather than in the maintainer's dock.
+    assert headings[-1] == "Help"
+    assert [s for s, _rows in home_bands()] == headings[:-1]
 
 
 def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
         qtbot, qt_theme_applied):
     bar = Sidebar()
     qtbot.addWidget(bar)
-    keys = [b.property("navKey") for b in bar.findChildren(QPushButton)]
-    assert keys == ["__home__"] + [k for k, *_r in APPS]
-    # Each row announces itself to a screen reader with name + description
-    by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)}
+    # TOP-LEVEL ROWS ONLY, in APPS order. Folded modules are nested under
+    # their hosts in the dock now, so the button list also carries their
+    # child rows -- indented, hidden until the host is opened, and not part
+    # of the order this test is about.
+    # IN DOCK ORDER, which is APPS with the Help-menu modules moved to the
+    # end under their own heading -- `dock_rows` is the function that does
+    # it, and comparing against raw APPS asserted an order the dock stopped
+    # drawing.
+    from spacr.qt.app import dock_rows
+
+    keys = [b.property("navKey") for b in bar.findChildren(QPushButton)
+            if not b.property("isFoldChild")]
+    assert keys == ["__home__"] + [k for k, *_r in dock_rows()]
+    # THE DOCK IS FLAT NOW, and that is the change this had to follow. It
+    # once nested a folded module as an indented child row, so every key in
+    # APPS had a row here; the rewrite gives the dock one row per registry
+    # entry it draws and reaches the folded ones through their host's fold
+    # strip instead. `train_compare` is the one that caught it: a real
+    # module, reachable in the running application, with no dock row at all.
+    #
+    # So the question this asks is "does the dock explain the rows it DOES
+    # draw", and reachability is asserted where it belongs --
+    # tests/qt/test_the_dock_mirrors_the_home_tiles.py, which checks every
+    # module is a dock row or a fold child of one.
+    by_key = {b.property("navKey"): b
+              for b in bar.findChildren(QPushButton)}
     for key, name, desc, _s in APPS:
-        btn = by_key[key]
-        assert btn.accessibleName() == name
-        assert btn.accessibleDescription() == desc
-        assert btn.toolTip() == f"{name} — {desc}"
+        btn = by_key.get(key)
+        if btn is None:
+            continue            # folded: reached through its host, not here
+        # Each row announces itself to a screen reader with name AND
+        # description. The summary is drawn nowhere on the row -- it goes to
+        # the strip along the bottom -- so for a screen reader the accessible
+        # description is the only route to it.
+        assert btn.accessibleName().strip() == name
+        assert btn.accessibleDescription() == desc, (
+            f"the dock row for {key} describes itself to nobody")
+        # AND NO TOOLTIP. The module popup came off on 2026-09-03 ("remove
+        # the popup window tooltip on the moduals"); the sentence is in the
+        # accessible description above and in the hint strip at the foot of
+        # the page, with its API and Tutorial links.
+        assert btn.toolTip() == "", "the module popup is back"
         # "&&" is how Qt is told to DRAW an ampersand: a lone "&" is a
         # mnemonic, and "Align & Stitch" was rendering as "Align _Stitch"
-        # in this column. The accessible name and the tooltip above
-        # carry the real string.
-        assert btn.full_text() == f"  {name}".replace("&", "&&")
+        # in this column. The accessible name above carries the real
+        # string.
+        # NO LEADING SPACES ANY MORE. The old dock padded a row's label with
+        # two spaces to leave room for the icon it painted itself; the
+        # rewritten dock gives the icon its own slot, so the text starts at
+        # the text.
+        assert btn.full_text() == name.replace("&", "&&")
 
 
 def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
@@ -633,7 +773,11 @@ def test_sidebar_caps_its_width_and_elides_a_pathological_name(
     clipped = bar.clipped_items()
     assert [b.full_text().strip() for b in clipped] == [huge]
     assert clipped[0].text() != huge and "…" in clipped[0].text()
-    assert huge in clipped[0].toolTip()
+    # THE FULL NAME IS IN THE ACCESSIBLE NAME, not in a tooltip. The row's
+    # popup came off on 2026-09-03, so what carries a name too long to draw
+    # is the text a screen reader reads -- and it is the same string, not a
+    # truncation of it.
+    assert clipped[0].accessibleName().strip() == huge
 
 
 def test_the_sidebar_re_inks_its_icons_when_the_theme_changes(
@@ -693,7 +837,8 @@ def home_page(qapp, qt_theme_applied):
 
 
 def test_home_renders_one_tile_per_app_under_every_section_heading(home_page):
-    assert set(_tiles(home_page)) == {n for _k, n, *_r in APPS}
+    # TILED apps -- a folded module draws no tile by design.
+    assert set(_tiles(home_page)) == {n for _k, n, *_r in tiled_apps()}
     headings = {lbl.text() for lbl in home_page.findChildren(QLabel)}
     for section in SECTIONS:
         assert section.upper() in headings
@@ -731,13 +876,20 @@ def test_a_tile_is_wide_enough_for_the_longest_name(home_page):
     every tile sized itself to its own name. Every tile is the same size
     now, so the contract is that the ONE size fits the longest name; a
     tile that were wider than its neighbour would be the bug.
+
+    Which tile that is comes from the page rather than being named here:
+    it was "Annotator Agreement" until that module folded onto Annotate
+    and lost its tile, and a hard-coded name turns "the longest tile is
+    now a different one" into a KeyError that says nothing about width.
     """
     from spacr.qt.preferences import scaled_px
     tiles = _tiles(home_page)
-    longest = tiles["Annotator Agreement"]
+    assert tiles, "the home page drew no tiles"
+    name = max(tiles, key=len)
+    longest = tiles[name]
     label = longest.name_label
     assert QFontMetrics(label.font()).horizontalAdvance(
-        "Annotator Agreement") <= label.available_text_width()
+        name) <= label.available_text_width()
     assert not label.is_elided()
     assert longest.width() <= scaled_px(HomePage.TILE_MAX_W)
 
@@ -783,15 +935,46 @@ def test_icon_overrides_all_point_at_files_that_exist():
 
 @pytest.mark.parametrize("key,twin", [
     ("train_cellpose", "cellpose_masks"),   # shares the Cellpose glyph
-    ("agreement",      "annotate"),         # scores annotation columns
-    ("plate_view",     "map_barcodes"),     # ruled bars read as a well grid
-        ("model_compare",  "mask"),             # one field, segmented two ways
+    # FOUR PAIRS BECAME ONE ON 2026-09-02, and the three that left are the
+    # point rather than the loss. `agreement`, `plate_view`,
+    # `model_compare`, `analyze_plaques` and `model_zoo` were each drawn
+    # their OWN artwork, and it is better than what they were borrowing --
+    # two overlapping circles for annotator agreement, a plate for the plate
+    # viewer, a grid of model cards for the zoo. The table's own rule is
+    # that an override is for an app that BORROWS another app's picture and
+    # "is not the place to record 'this app has an icon'".
+    #
+    # They were invisible until then: three surfaces resolved icons WITHOUT
+    # consulting the table, so the fold buttons already drew the artwork
+    # while the tiles drew the borrow. See
+    # `tests/qt/test_a_folded_module_wears_its_own_picture.py`.
+    #
+    # `train_cellpose` is the one real borrow left: its own file is a
+    # DUMBBELL, the training glyph, and the Cellpose Workbench must not wear
+    # it -- which is exactly what was reported.
 ])
 def test_an_override_makes_two_keys_share_one_glyph(key, twin):
     """The override table is the only reason these render alike; a typo in
     it would send one of the pair to the fallback glyph instead."""
     assert _ICON_OVERRIDES[key].endswith(".png")
     assert _img(_icon_for_app(key)) == _img(_icon_for_app(twin))
+
+
+@pytest.mark.parametrize("key", ["agreement", "plate_view", "model_compare",
+                                 "analyze_plaques", "model_zoo"])
+def test_a_module_with_its_own_art_no_longer_borrows(key):
+    """The other half of the change above, asserted rather than assumed.
+
+    Each of these has a `<key>.png` and must now draw it. Without this a
+    later "tidy-up" could put the override back and nothing would notice:
+    the borrow renders a perfectly good icon, just the wrong one.
+    """
+    from spacr.qt import iconset
+
+    assert key not in _ICON_OVERRIDES, (
+        f"{key} has artwork of its own; an override would hide it")
+    own = iconset.bundled_icon_path(key)
+    assert own is not None and own.endswith(f"{key}.png")
 
 
 def test_apps_without_a_shared_source_do_not_render_alike():
@@ -922,7 +1105,29 @@ def test_every_other_key_builds_a_generic_app_screen(win):
                  "graph_builder", "hit_list", "image_scatter", "layer_viewer",
                  "lineage", "methods_export", "pca", "pipeline_graph",
                  "power", "profiler", "qc_dashboard", "run_compare",
-                 "tabulate"}
+                 "tabulate", "explain_cv", "investigate_hit",
+                 # Two more, registered without this set being updated. The
+                 # Volcano Explorer redraws a finished regression's
+                 # coefficient table and the Parameter Sweep reads the trials
+                 # of a search that already ran; both are screens built for
+                 # their own job, not settings forms over a pipeline entry.
+                 "volcano_explorer", "parameter_sweep",
+                 # `train_cellpose` was a settings form over an entry point
+                 # until it absorbed Cellpose Masks. The Workbench is a
+                 # screen of its own: fine-tuning on one tab, segmenting a
+                 # folder on the other, sharing one model between them.
+                 "train_cellpose",
+                 # Three that were only ever SELF-REGISTERING, and so were
+                 # invisible to a bare `import spacr.qt.app` even though a
+                 # running application drew all three. They joined APPS on
+                 # 2026-09-05, when the maintainer reported the dock and Home
+                 # showing 6/6/5/4 with Help 9 while the imported registry
+                 # answered 6/5/4/4 with Help 8 -- the gap WAS these.
+                 #
+                 # All three build their own screen rather than a settings
+                 # form, so they belong here; this ledger is the one the
+                 # registry change had to update and did not.
+                 "dose_response", "gate_editor", "project_browser"}
 
     built_generic, built_dedicated = set(), set()
     for key, *_r in APPS:
@@ -958,20 +1163,42 @@ def test_clicking_a_sidebar_row_navigates(win):
 
 
 def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
+    # The apps sit one level down since 2026-08-23: the spaCR menu opens
+    # onto a submenu per section rather than onto sixty-five flat rows.
     seen = {}
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                seen[act.text()] = act.statusTip()
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                seen[act.text()] = act.statusTip()
+        collect(top.menu())
         break
     for _key, name, desc, _s in APPS:
         assert seen.get(name) == desc, f"{name} missing/mislabelled in menu"
+    # Triggered through the section submenu it now lives in.
+    def find(menu, label):
+        for act in menu.actions():
+            if act.menu() is not None:
+                hit = find(act.menu(), label)
+                if hit is not None:
+                    return hit
+            elif act.text() == label:
+                return act
+        return None
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        act = next(a for a in top.menu().actions() if a.text() == "Image UMAP")
+        act = find(top.menu(), "Image UMAP")
+        assert act is not None, "Image UMAP is not on the spaCR menu"
         act.trigger()
         break
     assert win._status_app_label.text() == "Image UMAP"
@@ -994,26 +1221,29 @@ def test_the_command_palette_filters_by_name_and_navigates(win, qtbot):
     palette = CommandPalette(win)
     qtbot.addWidget(palette)
 
-    palette._on_filter("annotator agree")
+    # Was "annotator agree" until Annotator Agreement folded onto Annotate
+    # and lost its row; the palette lists tiles, so the filter has to name
+    # one that still is one. Two words, one app, and nothing else close.
+    palette._on_filter("plate viewer")
     rows = [palette._list.item(i).text()
             for i in range(palette._list.count())]
-    assert any("Annotator Agreement" in r for r in rows)
+    assert any("Plate Viewer" in r for r in rows)
     assert not any("Mask" in r for r in rows), (
         f"filter let unrelated commands through: {rows}")
 
     palette._on_activate()
-    assert win._status_app_label.text() == "Annotator Agreement"
-    assert win._stack.currentWidget() is win._screens["agreement"]
+    assert win._status_app_label.text() == "Plate Viewer"
+    assert win._stack.currentWidget() is win._screens["plate_view"]
 
 
 def test_the_command_palette_filters_by_section_name(win, qtbot):
     from spacr.qt.command_palette import CommandPalette
     palette = CommandPalette(win)
     qtbot.addWidget(palette)
-    palette._on_filter(SECTION_TOXO)
+    palette._on_filter(SECTION_ASSAYS)
     rows = [palette._list.item(i).text()
             for i in range(palette._list.count())]
-    for name in (n for _k, n, _d, s in APPS if s == SECTION_TOXO):
+    for name in (n for _k, n, _d, s in APPS if s == SECTION_ASSAYS):
         assert any(name in r for r in rows), f"{name} not found by section"
 
 
@@ -1077,11 +1307,12 @@ def test_help_menu_urls_open_in_a_browser(win, monkeypatch):
     import webbrowser
     opened = []
     monkeypatch.setattr(webbrowser, "open", opened.append)
+    wanted = {"Tutorial", "Documentation"}
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "Help":
             continue
         for act in top.menu().actions():
-            if act.text().endswith("(web)"):
+            if act.text().replace("&", "") in wanted:
                 act.trigger()
         break
     # Asserted against the module's own constants rather than literals. This
@@ -1111,6 +1342,7 @@ def test_a_failing_browser_open_reports_in_the_status_bar(win, monkeypatch):
 
 def test_open_log_folder_points_at_the_real_log_directory(win, monkeypatch):
     import webbrowser
+
     from spacr.qt.verbose_logger import log_dir
     opened = []
     monkeypatch.setattr(webbrowser, "open", opened.append)
@@ -1458,15 +1690,16 @@ def test_a_successful_download_starts_the_chain(win, modals, pick_dir,
         callback(_Result(), None)
 
     monkeypatch.setattr(hf_download, "download_toxo_mito_demo", _fake)
-    # Yes to the demo, then No at the first pipeline stage.
-    modals.answers = [QMessageBox.Yes, QMessageBox.No]
+    # ONE question: whether to download at all. There is no second prompt
+    # since 2026-08-31 -- the import opens Mask Generation with the
+    # settings filled and stops, so there is no stage to consent to.
+    modals.answers = [QMessageBox.Yes]
     pick_dir[0] = str(tmp_path)
     win._on_e2e_demo()
 
-    assert [t for t, _x in modals.questions] == ["End-to-end demo",
-                                                 "Mask generation"]
-    assert win.statusBar().currentMessage() == (
-        "E2E chain stopped at 'mask' stage.")
+    assert [t for t, _x in modals.questions] == ["End-to-end demo"]
+    assert "Live Preview" in win.statusBar().currentMessage(), (
+        "the status bar does not tell the user what to press next")
 
 
 def test_the_chain_runs_mask_then_measure_then_opens_annotate(
@@ -1495,14 +1728,21 @@ def test_the_chain_runs_mask_then_measure_then_opens_annotate(
     ])
     _write_settings_pack(pack, "measure", [["save_measurements", "true"]])
 
-    modals.answers = [QMessageBox.Yes, QMessageBox.Yes, QMessageBox.Yes]
+    _write_settings_pack(pack, "mask", [
+        ["gone_in_this_version", "7"],
+    ] + [list(row) for row in (
+        ["  nucleus_channel  ", "2"], ["cell_diameter", "37.5"],
+        ["save", "TRUE"], ["verbose", "false"],
+        ["custom_model", "/models/cyto3"],
+        ["# a comment row", "ignored"], ["orphan_row_with_one_column"],
+    )])
     win._run_e2e_chain(data, pack)
 
-    assert [t for t, _x in modals.questions] == [
-        "Mask generation", "Measurement", "Annotation"]
-    # mask + measure auto-run; annotate is interactive and must not.
-    assert no_pipeline_runs == ["mask", "measure"]
-    assert set(win._screens) >= {"mask", "measure", "annotate"}
+    # NOTHING IS ASKED AND NOTHING IS RUN. The import opens one screen
+    # with its settings filled; the user presses Live Preview or Run.
+    assert modals.questions == []
+    assert no_pipeline_runs == []
+    assert set(win._screens) == {"mask"}
 
     mask_settings = dict(applied)["mask"]
     assert mask_settings["src"] == str(data)
@@ -1510,13 +1750,20 @@ def test_the_chain_runs_mask_then_measure_then_opens_annotate(
     assert mask_settings["cell_diameter"] == 37.5
     assert mask_settings["save"] is True
     assert mask_settings["verbose"] is False
-    assert mask_settings["custom_model"] == "/models/cyto3"
+    # DROPPED, and this assertion used to be its opposite.
+    # `custom_model` is not a Mask setting in this build -- the old
+    # loader wrote every row of the pack straight over the defaults, so
+    # it arrived in the settings dict and travelled into the pipeline to
+    # be ignored there. The test pinned that. Migration drops it.
+    assert "custom_model" not in mask_settings
     assert "# a comment row" not in mask_settings
     assert "orphan_row_with_one_column" not in mask_settings
+    # MIGRATED, not merged: a key this build has no setting for is
+    # dropped rather than carried into the pipeline to be ignored there.
+    assert "gone_in_this_version" not in mask_settings
     # Defaults survive alongside the overrides
     assert len(mask_settings) > 8
-    assert dict(applied)["measure"]["save_measurements"] is True
-    assert win.statusBar().currentMessage().startswith("E2E chain launched")
+    assert "Live Preview" in win.statusBar().currentMessage()
 
 
 def test_the_chain_without_a_settings_pack_uses_plain_defaults(
@@ -1527,7 +1774,6 @@ def test_the_chain_without_a_settings_pack_uses_plain_defaults(
     monkeypatch.setattr(AppScreen, "apply_settings_dict",
                         lambda self, s: applied.append((self.app_key, dict(s))))
 
-    modals.answers = [QMessageBox.Yes, QMessageBox.No]
     win._run_e2e_chain(tmp_path / "imgs", tmp_path / "missing-pack")
 
     key, settings = applied[0]
@@ -1544,9 +1790,14 @@ def test_the_chain_reports_a_screen_that_will_not_open(win, modals,
             return None if key == "mask" else super().get(key, default)
 
     win._screens = _NoMask(win._screens)
-    modals.answers = [QMessageBox.Yes]
     win._run_e2e_chain(tmp_path, tmp_path)
-    assert modals.warning == [("E2E", "Couldn't open the 'mask' screen.")]
+    assert len(modals.warning) == 1
+    title, body = modals.warning[0]
+    assert title == "Demo dataset"
+    # NAMES THE FOLDER. The dataset downloaded successfully; the only
+    # thing that failed is opening a screen, so the useful thing to say
+    # is where the data is so the user can point at it themselves.
+    assert str(tmp_path) in body
 
 
 def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
@@ -1557,11 +1808,18 @@ def test_the_chain_reports_a_stage_that_blows_up(win, modals, tmp_path,
         raise RuntimeError("settings rejected")
 
     monkeypatch.setattr(AppScreen, "apply_settings_dict", _boom)
-    modals.answers = [QMessageBox.Yes, QMessageBox.Yes]
     win._run_e2e_chain(tmp_path, tmp_path)
-    assert modals.warning == [("E2E: mask failed", "settings rejected")]
-    # It stopped: the measure stage was never offered.
-    assert [t for t, _x in modals.questions] == ["Mask generation"]
+
+    assert len(modals.warning) == 1
+    title, body = modals.warning[0]
+    assert title == "Demo settings"
+    # SAYS THE SCREEN IS STILL OPEN. The dataset downloaded and Mask
+    # Generation opened; only filling the form failed, so the user can
+    # still fill it themselves -- and a warning that does not say so
+    # reads as though the whole import failed.
+    assert "Mask Generation is open" in body
+    assert "settings rejected" in body
+    assert modals.questions == []
 
 
 # ===========================================================================
@@ -1701,6 +1959,7 @@ def test_closing_the_window_waits_for_a_running_update_check(
     """Quitting mid-update destroyed a live QThread — the exact abort
     ``closeEvent`` drains the consoles to avoid."""
     import time
+
     import spacr.updater as updater
 
     def _slow_check():
@@ -1857,27 +2116,40 @@ def test_the_legacy_explain_error_hook_is_inert(win):
 # 12. Train hand-off + seed values
 # ===========================================================================
 
-def test_train_requested_navigates_and_seeds_the_target(win):
+# The Train buttons emit ``classify``, and every run journal ever written
+# names the key that ran. Neither is a screen any more: Classify (CV) and
+# Classify (ML) became one merged Classify, so the hand-off is resolved
+# through ``chaining._SUCCEEDED_BY`` before it navigates. It used to
+# navigate to the raw key, which BUILT a screen for it -- a page with no
+# sidebar row, no tile and no way back to it -- and seeded that instead of
+# the screen the user can actually reach.
+
+def test_train_requested_navigates_to_the_screen_that_carries_the_key(win):
+    """The seed lands on the merged Classify, not on an orphan page."""
     win._on_train_requested("classify", {"src": "/data/plate1",
                                          "epochs": 7})
-    screen = win._screens["classify"]
+
+    assert "classify" not in win._screens, "an orphan screen was built"
+    screen = win._screens["classify_merged"]
     assert win._stack.currentWidget() is screen
+    # `src` is a list on the merged screen, so the value is read back
+    # through `collect()` rather than off a line edit.
+    assert screen._settings_model.collect()["src"] == ["/data/plate1"]
     widgets = screen._settings_model._widgets
-    assert widgets["src"].text() == "/data/plate1"
     if "epochs" in widgets:
         assert widgets["epochs"].value() == 7
 
 
 def test_train_requested_ignores_keys_the_target_does_not_have(win):
     win._on_train_requested("classify", {"no_such_setting_at_all": 1})
-    assert win._stack.currentWidget() is win._screens["classify"]
+    assert win._stack.currentWidget() is win._screens["classify_merged"]
 
 
 def test_train_requested_survives_a_value_the_widget_rejects(win):
     """A bad seed must not take the navigation down with it."""
     win._on_train_requested("classify", {"src": "/ok", "epochs": "not-a-number"})
-    widgets = win._screens["classify"]._settings_model._widgets
-    assert widgets["src"].text() == "/ok"
+    screen = win._screens["classify_merged"]
+    assert screen._settings_model.collect()["src"] == ["/ok"]
 
 
 def test_train_requested_to_home_is_a_no_op(win):
@@ -1893,21 +2165,27 @@ def test_train_requested_to_a_screen_without_settings_is_a_no_op(win):
 def test_seed_values_are_applied_per_widget_type(qtbot):
     apply = MainWindow._apply_seed_value
 
-    box = QCheckBox(); qtbot.addWidget(box)
+    box = QCheckBox()
+    qtbot.addWidget(box)
     apply(box, 1)
     assert box.isChecked() is True
     apply(box, 0)
     assert box.isChecked() is False
 
-    spin = QSpinBox(); qtbot.addWidget(spin); spin.setRange(0, 100)
+    spin = QSpinBox()
+    qtbot.addWidget(spin)
+    spin.setRange(0, 100)
     apply(spin, "42.9")
     assert spin.value() == 42
 
-    dspin = QDoubleSpinBox(); qtbot.addWidget(dspin); dspin.setRange(0, 100)
+    dspin = QDoubleSpinBox()
+    qtbot.addWidget(dspin)
+    dspin.setRange(0, 100)
     apply(dspin, "3.5")
     assert dspin.value() == pytest.approx(3.5)
 
-    combo = QComboBox(); qtbot.addWidget(combo)
+    combo = QComboBox()
+    qtbot.addWidget(combo)
     combo.addItem("Alpha", "a")
     combo.addItem("Beta", "b")
     apply(combo, "b")
@@ -1915,19 +2193,22 @@ def test_seed_values_are_applied_per_widget_type(qtbot):
     apply(combo, "Alpha")
     assert combo.currentIndex() == 0
 
-    edit = QLineEdit(); qtbot.addWidget(edit)
+    edit = QLineEdit()
+    qtbot.addWidget(edit)
     apply(edit, None)
     assert edit.text() == ""
     apply(edit, 12)
     assert edit.text() == "12"
 
-    label = QLabel("untouched"); qtbot.addWidget(label)
+    label = QLabel("untouched")
+    qtbot.addWidget(label)
     apply(label, "ignored")           # unknown widget type: no-op
     assert label.text() == "untouched"
 
 
 def test_a_combo_seed_that_matches_nothing_leaves_the_index_alone(qtbot):
-    combo = QComboBox(); qtbot.addWidget(combo)
+    combo = QComboBox()
+    qtbot.addWidget(combo)
     combo.addItem("Alpha", "a")
     combo.addItem("Beta", "b")
     combo.setCurrentIndex(1)
@@ -1946,11 +2227,24 @@ def test_every_preloaded_module_actually_exists():
     assert not missing, f"preloader points at modules that don't exist: {missing}"
 
 
-def test_the_preloader_walks_its_module_list_one_tick_at_a_time(monkeypatch):
-    from PySide6.QtCore import QTimer
-    scheduled: list = []
+def test_the_preloader_imports_on_its_worker_and_reports_on_the_poll(
+        monkeypatch):
     imported: list = []
+    steps: list = []
+    done: list = []
     real_import = importlib.import_module
+
+    class _HeldThread:
+        """Record ``start`` without running the target concurrently."""
+
+        def __init__(self, target=None, name=None, daemon=None):
+            self.target = target
+            self.name = name
+            self.daemon = daemon
+            self.started = False
+
+        def start(self):
+            self.started = True
 
     def _fake_import(name):
         imported.append(name)
@@ -1958,36 +2252,49 @@ def test_the_preloader_walks_its_module_list_one_tick_at_a_time(monkeypatch):
             raise ImportError("nope")
         return real_import(name)
 
-    monkeypatch.setattr(QTimer, "singleShot",
-                        lambda ms, cb: scheduled.append((ms, cb)))
     monkeypatch.setattr(importlib, "import_module", _fake_import)
+    # Patch the module reference, not ``threading.Thread`` itself. The latter
+    # is the process-wide threading module and turns a focused test double
+    # into ambient state for every importer in the process.
+    monkeypatch.setattr(
+        app_mod, "threading",
+        types.SimpleNamespace(Thread=_HeldThread, Event=threading.Event),
+    )
 
-    pre = _PipelinePreloader()
+    pre = _PipelinePreloader(
+        on_step=lambda i, n: steps.append((i, n)),
+        on_done=lambda: done.append(1),
+    )
     monkeypatch.setattr(pre, "_MODULES", ("spacr.no_such_module", "json"))
     pre.start()
 
-    # A failing import is swallowed and the chain continues.
-    assert imported == ["spacr.no_such_module"]
-    assert [ms for ms, _cb in scheduled] == [50]
+    assert pre._thread.started is True
+    assert pre._thread.name == "spacr-preload"
+    assert pre._thread.daemon is True
+    assert imported == [], "start() ran imports on the caller thread"
 
-    pre.start()          # already started: must not restart the chain
-    assert imported == ["spacr.no_such_module"]
-    assert len(scheduled) == 1
+    worker = pre._thread
+    pre.start()                         # already started: no second worker
+    assert pre._thread is worker
 
-    scheduled.pop()[1]()
+    # Run the captured worker body deterministically. A failing import is
+    # swallowed and the chain continues, but callbacks remain pending until
+    # the GUI-side poll drains them.
+    worker.target()
     assert imported == ["spacr.no_such_module", "json"]
-    assert len(scheduled) == 1
-
-    scheduled.pop()[1]()          # past the end: stops, imports nothing more
-    assert imported == ["spacr.no_such_module", "json"]
-    assert scheduled == []
+    assert steps == [] and done == []
+    pre._drain()
+    assert steps == [(1, 2), (2, 2)]
+    assert done == [1]
+    pre._drain()                         # completion is delivered only once
+    assert done == [1]
     assert pre._i == 2
 
 
 def test_the_window_can_open_straight_into_an_app(qtbot, qt_theme_applied):
     """``spacr-qt mask`` opens on Mask, not on Home."""
     w = MainWindow(initial_app="mask")
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     assert w._stack.currentWidget() is w._screens["mask"]
     assert w._status_app_label.text() == "Mask"
 
@@ -2001,7 +2308,7 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
     monkeypatch.delattr(spacr.qt, "shortcuts", raising=False)
     monkeypatch.delattr(spacr.qt, "first_run", raising=False)
     w = MainWindow()
-    qtbot.addWidget(w)
+    qtbot.addWidget(w, before_close_func=_close_owned_screens)
     assert w._stack.currentWidget() is w._startup
     from PySide6.QtGui import QShortcut
     assert not w.findChildren(QShortcut), (
@@ -2009,16 +2316,36 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
 
 
 def test_shortcuts_are_installed_when_the_module_is_available(win):
-    from PySide6.QtGui import QShortcut
+    # BOTH HOLDERS, because a key can legitimately live on either. The menu
+    # builds Home and Preferences as QActions carrying Ctrl+H and Ctrl+P so
+    # it can print the accelerator beside the item -- which binds them -- and
+    # `shortcuts.BOUND_ELSEWHERE` keeps `install` from binding a QShortcut
+    # for the same sequence. Qt answers a key with two holders by firing
+    # neither and logging "QAction::event: Ambiguous shortcut overload", so
+    # before that both keys were DEAD. Looking only at QShortcut made the
+    # fix read as a missing binding.
+    from PySide6.QtGui import QAction, QShortcut
     bound = {sc.key().toString() for sc in win.findChildren(QShortcut)}
+    bound |= {seq.toString() for act in win.findChildren(QAction)
+              for seq in act.shortcuts()}
     for keys in ("Ctrl+H", "Ctrl+K", "Ctrl+1", "Ctrl+9", "F1"):
         assert keys in bound, f"{keys} was never bound"
+    # And exactly one holder each, or they are ambiguous again.
+    from spacr.qt import shortcuts as _sc
+    shortcut_keys = [s.key().toString() for s in win.findChildren(QShortcut)]
+    for keys in _sc.BOUND_ELSEWHERE:
+        assert keys not in shortcut_keys, (
+            f"{keys} has a QShortcut as well as its action; Qt will fire "
+            "neither and log an ambiguous shortcut overload")
 
 
-def test_the_main_window_schedules_the_preloader_but_not_immediately(win):
-    assert isinstance(win._preloader, _PipelinePreloader)
-    assert win._preloader._started is False, (
-        "the preloader must not import torch/cellpose during __init__")
+def test_the_main_window_does_not_preload_pipelines_by_default(win):
+    # The default is intentionally loaded-on-call: eager startup spent twenty
+    # seconds importing torch/compiler/distributed stacks on the maintainer's
+    # machine. The eager path remains covered in
+    # test_libraries_load_when_called.py.
+    assert win._preloader is None
+    assert win._loading_screen is None
 
 
 # ===========================================================================
@@ -2160,17 +2487,42 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
     monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
     made: list = []
 
+    # THE STUB HAS TO CARRY `setAttribute`, and carrying it is not a
+    # formality. `launch` sets AA_DontUseNativeDialogs BEFORE constructing
+    # the QApplication, because Qt ignores that attribute afterwards --
+    # silently, which looks exactly like it worked. A bare function has no
+    # such attribute, so the call raised and every test through this fixture
+    # failed on `'function' object has no attribute 'setAttribute'`.
+    #
+    # Recorded rather than swallowed, so the ordering can be asserted: the
+    # attribute must be set while nothing has been constructed yet.
+    attributes: list = []
+
     def _factory(argv):
         shim = _AppShim(qapp, argv)
         made.append(shim)
         return shim
 
+    def _set_attribute(*args):
+        attributes.append((args, len(made)))
+
+    _factory.setAttribute = _set_attribute
+    _factory.instance = lambda: made[-1] if made else qapp
+
     _ThreadShim.instances = []
     monkeypatch.setattr(app_mod, "QApplication", _factory)
-    monkeypatch.setattr(app_mod, "threading",
-                        types.SimpleNamespace(Thread=_ThreadShim))
+    # ``app_mod`` also uses Event for the optional pipeline preloader. A
+    # Thread-only namespace made every MainWindow constructor fail before the
+    # launch test reached the pre-warm it meant to record. Keep the real
+    # threading surface and replace only Thread on an isolated proxy.
+    threading_proxy = types.SimpleNamespace(
+        **{name: getattr(threading, name) for name in dir(threading)}
+    )
+    threading_proxy.Thread = _ThreadShim
+    monkeypatch.setattr(app_mod, "threading", threading_proxy)
 
     state = {"shims": made, "threads": _ThreadShim.instances,
+             "attributes": attributes,
              "before": set(qapp.topLevelWidgets())}
 
     def _window():
@@ -2189,12 +2541,14 @@ def test_launch_opens_the_requested_app(launched, qtbot):
 
     shim = launched["shims"][0]
     assert shim.exec_calls == 1
-    assert shim.app_name == "spaCR"
-    assert shim.org_name == "Olafsson Lab"
+    assert shim.app_name is None
+    assert shim.org_name is None
+    assert shim.applicationName() == "spaCR"
+    assert shim.organizationName() == "Olafsson Lab"
     assert "QWidget" in (shim.stylesheet or ""), "theme was never applied"
 
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     assert win.isVisible()
     assert win._status_app_label.text() == "Measure"
     assert "measure" in win._screens
@@ -2209,18 +2563,99 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
     assert launched["shims"][0].argv == ["spacr-qt"]
 
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     assert win._screens == {}
     assert win._stack.currentWidget() is win._startup
     assert win._status_app_label.text() == "Home"
     win.close()
 
 
+#: What the background pre-warm is expected to import, written out rather
+#: than read back out of the code it guards.
+#:
+#: The pre-warm exists for one moment: the first time the user opens a
+#: module, the settings form for it is built, and building it reaches
+#: ``spacr.settings`` -- about a second of import that would otherwise land
+#: on the GUI thread exactly when the window is supposed to snap open.
+#: Importing it on a daemon thread while the user is still looking at Home
+#: is the whole feature, so what the list holds is the thing worth asserting.
+#:
+#: ``spacr.gui_utils`` was the other name here, and by far the heavier one:
+#: it pulled torch and cv2 in behind it. The Qt settings form no longer
+#: reaches it -- the one function it wanted is in ``spacr.settings_spec``,
+#: which imports nothing -- and the module itself went with the rest of the
+#: Tk interface. Asserting a deleted module is warmed cannot pass; asserting
+#: it is *absent* would pass for the wrong reason, since a name nothing can
+#: import can only ever be missing. So the list is asserted for what it
+#: holds. Adding a name here is a claim that a screen pays for that import
+#: on its first open; record it in this table in the same change.
+#:
+#: ``spacr.qt.screens.settings_model`` and ``spacr.qt.imagery`` were added
+#: 2026-09-09, and the moment they are for is PREFERENCES rather than a
+#: module screen. The first ``PreferencesDialog(...)`` of a session was
+#: measured at 902 ms against 30 ms for the second -- all of the difference
+#: import work, on the GUI thread, with the animated backdrop stopped for
+#: the whole of it -- and settings_model was 474 ms of that 902, imagery 83.
+#: Warmed off-thread the first open costs 139 ms. Nobody can reach
+#: Preferences before the home screen exists, so this thread always wins
+#: the race it has to win.
+PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
+                     "spacr.qt.imagery")
+
+
+def _prewarmed_module_names():
+    """The module names ``launch``'s background pre-warm imports.
+
+    Read out of the source of ``launch`` so that the two tests below compare
+    the code against :data:`PREWARMED_MODULES` rather than against each
+    other.
+    """
+    import inspect
+    import re
+
+    source = inspect.getsource(app_mod.launch)
+    match = re.search(r"for mod in \(([^)]*)\):", source)
+    assert match, "launch no longer pre-warms a tuple of module names"
+    return [name.strip().strip("\"'")
+            for name in match.group(1).split(",") if name.strip()]
+
+
+def test_the_prewarm_list_holds_what_a_first_module_open_pays_for():
+    """The list is the feature; a silent change to it is a silent regression.
+
+    Dropping a name here costs the user a frozen window on the first module
+    open, and nothing anywhere says so -- the pre-warm swallows its failures
+    and a warm that never happened looks exactly like one that did.
+    """
+    assert _prewarmed_module_names() == list(PREWARMED_MODULES), (
+        "the pre-warm list moved. That is allowed -- update "
+        "PREWARMED_MODULES in the same change, so what a first module open "
+        "is expected to pay for stays written down")
+
+
+def test_the_prewarm_list_names_modules_that_exist():
+    """The pre-warm swallows every failure, because it is an optimisation and
+    a slow first open is better than a crash on start. That silence has to be
+    paid for here: a name that no longer imports warms nothing, and the module
+    screen goes back to freezing on its first import with nothing said.
+    """
+    import importlib.util
+
+    names = _prewarmed_module_names()
+    assert names, "the pre-warm list is empty; nothing is warmed"
+    missing = [name for name in names
+               if importlib.util.find_spec(name) is None]
+    assert not missing, (
+        f"launch pre-warms {missing}, which no longer exist -- the import "
+        "fails into the debug log and the screen it was warming for is slow "
+        "again")
+
+
 def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
                                                       monkeypatch):
     app_mod.launch([])
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
 
     assert len(launched["threads"]) == 1
     thread = launched["threads"][0]
@@ -2228,9 +2663,23 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
     assert thread.daemon is True
     assert thread.started is True
 
-    thread.target()
-    assert "spacr.settings" in sys.modules
-    assert "spacr.gui_utils" in sys.modules
+    # WHAT THE BODY ASKS FOR, not what happens to be in `sys.modules`
+    # afterwards. By the time this test runs the suite has imported most of
+    # spaCR, so membership alone would pass on a thread body that imports
+    # nothing at all.
+    requested: list = []
+    real_import = importlib.import_module
+
+    def _record(name):
+        requested.append(name)
+        return real_import(name)
+
+    with monkeypatch.context() as m:
+        m.setattr(importlib, "import_module", _record)
+        thread.target()
+    assert requested == list(PREWARMED_MODULES)
+    for name in PREWARMED_MODULES:
+        assert name in sys.modules, f"{name} was not pre-warmed"
 
     # A prewarm import that fails must stay silent — it is an optimisation.
     with monkeypatch.context() as m:
@@ -2245,7 +2694,7 @@ def test_launch_drains_the_ai_consoles_on_quit(launched, qtbot, monkeypatch):
     from spacr.qt.widgets.console_panel import ConsolePanel
     app_mod.launch(["mask"])
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
 
     shim = launched["shims"][0]
     assert len(shim.aboutToQuit.callbacks) == 1
@@ -2295,5 +2744,25 @@ def test_launch_survives_a_qimagereader_without_an_allocation_limit(
     monkeypatch.setattr(qtgui, "QImageReader", _OldQImageReader)
     assert app_mod.launch([]) == 0
     win = launched["window"]()
-    qtbot.addWidget(win)
+    qtbot.addWidget(win, before_close_func=_close_owned_screens)
     win.close()
+
+
+def test_native_dialogs_are_turned_off_before_the_app_exists(launched):
+    """Qt IGNORES AA_DontUseNativeDialogs once a QApplication exists.
+
+    Silently, which looks exactly like it worked -- and the consequence is
+    the native file chooser, which on the maintainer's desktop takes the
+    better part of a minute to open. So the ordering is the whole of this
+    setting, and asserting the call without asserting WHEN would pass on the
+    broken version.
+    """
+    app_mod.launch(["measure"])
+
+    calls = launched["attributes"]
+    assert calls, "AA_DontUseNativeDialogs was never set"
+    args, apps_made_so_far = calls[0]
+    assert apps_made_so_far == 0, (
+        "the attribute was set after a QApplication had been constructed, "
+        "where Qt ignores it")
+    assert args[-1] is True

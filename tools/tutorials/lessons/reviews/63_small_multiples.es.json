@@ -1,0 +1,38 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "es",
+  "title": "Small Multiples: grupos reales, filtros en vivo y escalas honestas",
+  "description": "Abra Small Multiples dentro de Graph Builder, compare mediciones descargadas con escalas comunes o independientes, examine grupos vacíos y el límite de facetas, y cree una columna derivada reversible.",
+  "objectives": [
+    "Encontrar el submódulo y construir una cuadrícula de dispersión con objetos reales.",
+    "Comparar escalas compartidas, libres, por fila y por columna sin confundirlas con cambios en los datos.",
+    "Filtrar en vivo, distinguir grupos vacíos de espacios de relleno y contabilizar niveles no mostrados.",
+    "Crear y eliminar un reescalado en memoria, conservando la fuente y las decisiones del gráfico."
+  ],
+  "prerequisite": "Use una copia privada idéntica de measurements.db del ejemplo descargable de Annotate: 2.341 objetos, cuatro pozos, 13 etiquetas de campo y 51 combinaciones pozo/campo observadas. Los objetos no son réplicas experimentales independientes y las etiquetas espaciales no identifican tratamientos establecidos. Se comprobaron independientemente las coordenadas, pertenencia a grupos, límites, títulos y visibilidad de todos los paneles demostrados. La prueba se limita a ejes continuos finitos no degenerados y este conjunto sin muestreo; no valida gráficos arbitrarios, selección entre vistas, efectos biológicos ni calibración física. Small Multiples es un submódulo tabular de Graph Builder, sin descarga propia, vista previa de imágenes, pipeline GPU, consola de IA, interruptor general Plot ni botón de exportación. Reutilice el ejemplo de Annotate y el botón Load table del submódulo.",
+  "scenes": [
+    "Abra Graph Builder desde Home y elija el botón anidado Small Multiples. Esta es la ruta actual del submódulo, no una tarjeta independiente de Home. Reutilizamos mediciones reales del ejemplo descargable de Annotate mediante una copia privada; el tutorial de Annotate explica cómo obtenerlo.",
+    "Use Load table dentro de Small Multiples, seleccione la copia de la base de mediciones y después cell. Contiene dos mil trescientos cuarenta y un objetos medidos en cuatro pozos. Graph Builder tiene otro botón Load table. Para este flujo use el situado junto al encabezado Small Multiples.",
+    "Busque cell_area y arrástrelo a X; coloque cell_channel_1_mean_intensity en Y. Elija Scatter en Plot. Arrastre rowID a Facet down y columnID a Facet across. La búsqueda reduce la lista de columnas, no la población celular. Cada punto corresponde aquí a un objeto ya medido.",
+    "Con ambas escalas en shared, los cuatro paneles usan los mismos límites horizontales y verticales. Sus títulos indican seiscientos quince, quinientos veinticinco, setecientos y quinientos un objetos. Las etiquetas de fila y columna describen posiciones, no tratamientos verificados. Estas células no son réplicas experimentales independientes.",
+    "Seleccione free tanto en X scale como en Y scale. Cada panel usa ahora su propio rango. Esto revela la forma interna del grupo, pero nubes igual de anchas pueden abarcar valores distintos. Lea las marcas de los ejes antes de comparar. Cambiar las escalas no modifica las mediciones originales.",
+    "Seleccione per row en ambas escalas. Los paneles de una misma fila de la cuadrícula comparten límites; las distintas filas pueden diferir. Es una agrupación de escalas basada en el diseño, no una corrección estadística. Aquí las dos columnas de cada fila se comparan sobre ejes coincidentes.",
+    "Seleccione per column en ambas escalas. Los paneles de la misma columna comparten límites. X e Y también se pueden configurar por separado; aquí cambiamos ambos. Restaure shared en los dos antes de comparar los cuatro pozos. Compartido significa común dentro de la cuadrícula actual, no fijo tras cualquier filtro posterior.",
+    "En Filter, añada cell_area y establezca el límite inferior en veintiún mil novecientos veinticinco. La cuadrícula se actualiza inmediatamente a mil ciento setenta y un objetos. Cambian tanto los puntos como los recuentos de cada panel. Es un filtro de mediciones en vivo, no segmentación de imágenes ni una nueva ejecución de análisis.",
+    "Elija Clear all en Filter. Vuelven los dos mil trescientos cuarenta y un objetos, con sus posiciones y límites compartidos originales. Este botón elimina el filtro; Clear all channels, a la izquierda, elimina las asignaciones del gráfico. Ninguna acción borra filas de la base de datos.",
+    "Para ver un grupo realmente ausente, filtre columnID a c dos y fieldID a f veinte y f veintiuno; desplácese por las categorías si hace falta. Ponga fieldID en Facet across y conserve rowID en Facet down. Quedan ciento setenta y cuatro células. El panel de la fila cinco, campo veinte, muestra n igual a cero: no hay objetos fuente, no una intensidad medida de cero.",
+    "Quite los filtros y restaure columnID en Facet across. Ponga Wrap at en cinco con ambos canales de facetas asignados. La cuadrícula sigue siendo de dos por dos y el aviso dice que se ignora el ajuste. Wrap solo actúa con un canal de facetas; no reorganiza una cuadrícula de dos dimensiones.",
+    "Vacíe Facet down, ponga fieldID en Facet across y mantenga Wrap at en cinco. Los campos retenidos forman tres filas de cinco posiciones. Solo se dibujan doce niveles, aunque la fuente tiene trece. Las tres posiciones sin usar son relleno oculto, no un grupo real que se muestra con n igual a cero.",
+    "Lea el aviso bajo la cuadrícula. El campo veintiuno queda fuera de los doce niveles mostrados y excluye doscientos sesenta y cuatro objetos de los paneles. Se dibujan dos mil setenta y siete puntos, aunque la tabla cargada sigue teniendo dos mil trescientas cuarenta y una filas. El recuento cargado no demuestra que todas sean visibles.",
+    "Desactive Wrap y restaure rowID y columnID como facetas. En Columns, escriba area_k como nombre y cell_area dividido entre mil como expresión, exactamente como se ve. La vista previa comprueba las primeras dos mil filas. Elija Add column para calcular los valores derivados de toda la tabla, sin reescribir la base.",
+    "Arrastre area_k a X. Cada coordenada horizontal es ahora el área original dividida entre mil; Y y la pertenencia a grupos no cambian. Es un reescalado numérico, no una calibración a micrómetros cuadrados, una nueva medición ni una prueba de efecto biológico. Se comprobaron los dos mil trescientos cuarenta y un valores derivados.",
+    "Devuelva cell_area a X antes de seleccionar area_k en Columns y elegir Remove. Se restaura el gráfico original de cuatro paneles y desaparece la columna derivada. Tanto la base privada como los datos descargados originales siguen intactos. Registre variables, agrupaciones, filtros y escalas para que otra persona pueda reproducir la vista.",
+    "En código, trellis y TrellisSpec del módulo Qt trellis_spec de spaCR definen agrupación, escalas y Wrap; GraphSpec define los canales del gráfico. Esta pantalla no tiene botón de exportación ni conjunto descargable propios. Use Tabulate para exportar resúmenes CSV verificados. Las vistas previas de imágenes, los pipelines GPU y spaCR AI pertenecen a los tutoriales de análisis correspondientes, no a esta vista tabular."
+  ]
+}

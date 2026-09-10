@@ -60,11 +60,13 @@ from PySide6.QtWidgets import (
 
 from ...selection import Selection, object_keys
 from ..linked_selection import LinkedView
-from ..theme import (RADIUS, SPACING, active_palette, font_px,
-                     make_transparent, paint_panel, register_widget_qss)
+from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
+                     font_px, make_transparent, paint_panel,
+                     register_widget_qss)
 from .graph_spec import (
-    BAR, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL, FACET_ROW, HEATMAP,
-    HISTOGRAM, LINE, MISSING_LEVEL, PLOT_KINDS, SCATTER, SIZE, VIOLIN, X, Y,
+    BAR, BAR_JITTER, BINNED, BOX, CHANNELS, COLOUR, EMPTY, FACET_COL,
+    FACET_ROW, HEATMAP, HISTOGRAM, JITTER, LINE, MISSING_LEVEL, PLOT_KINDS,
+    SCATTER, SIZE, VIOLIN, X, Y,
     GraphSpec, RenderData, brush_mask, facet_grid, plottable_columns,
     prepare_data, scales_for, value_axes,
 )
@@ -156,6 +158,11 @@ def sequential_colours() -> Tuple[str, ...]:
 
 
 def _colormap():
+    """Build the sequential colour map graphs are drawn with.
+
+    :returns: the map, from spaCR's own sequential colours rather than a
+        matplotlib default, so a figure matches the application around it.
+    """
     from matplotlib.colors import LinearSegmentedColormap
     return LinearSegmentedColormap.from_list(
         "spacr_graph_seq", list(sequential_colours()))
@@ -174,7 +181,11 @@ def _orientation(vertical: bool) -> dict:
     parts = matplotlib.__version__.split(".")
     try:
         modern = (int(parts[0]), int(parts[1])) >= (3, 10)
-    except (IndexError, ValueError):  # pragma: no cover - odd version string
+    except (IndexError, ValueError):
+        # AN UNPARSEABLE VERSION MEANS MODERN. Guessing old on a new
+        # matplotlib brings back the per-panel, per-render warning this
+        # function exists to silence; guessing modern on an old one is a
+        # TypeError the caller sees immediately. Fail toward the loud one.
         modern = True
     if modern:
         return {"orientation": "vertical" if vertical else "horizontal"}
@@ -192,9 +203,15 @@ class ColumnWell(QWidget):
     offers — the same rule the Local Data Filter uses to decide what is worth
     a control. A measurement table has hundreds of columns and listing all of
     them is the same as listing none.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
+        """Build the well of draggable columns.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphColumnWell")
         self._columns: Tuple[str, ...] = ()
@@ -220,6 +237,13 @@ class ColumnWell(QWidget):
         outer.addWidget(self._count)
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Re-list the plottable columns for a new table.
+
+        ``None`` empties the well rather than leaving the previous table's
+        columns on screen, which would offer drags that cannot land.
+
+        :param frame: the table to read columns from, or None.
+        """
         if frame is None:
             self._columns = ()
             self._kinds = {}
@@ -234,10 +258,18 @@ class ColumnWell(QWidget):
         return self._columns
 
     def visible_columns(self) -> List[str]:
+        """The columns the search box is currently letting through.
+
+        Read off the LIST rather than refiltered, so it is what the user can
+        actually see and drag.
+
+        :returns: the visible column names, in list order.
+        """
         return [self._list.item(i).data(Qt.UserRole)
                 for i in range(self._list.count())]
 
     def _refilter(self) -> None:
+        """Re-list the columns matching the search box."""
         needle = self._search.text().strip().lower()
         self._list.clear()
         for name in self._columns:
@@ -257,9 +289,13 @@ class ColumnWell(QWidget):
 
 
 class _DraggableList(QListWidget):
-    """A list whose items leave as :data:`COLUMN_MIME` payloads."""
+    """A list whose items leave as :data:`COLUMN_MIME` payloads.
+
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, parent=None):
+        """Build the list as a drag SOURCE that takes no drops."""
         super().__init__(parent)
         self.setDragEnabled(True)
         self.setDragDropMode(QAbstractItemView.DragOnly)
@@ -267,6 +303,14 @@ class _DraggableList(QListWidget):
         self.setAlternatingRowColors(False)
 
     def mimeData(self, items) -> QMimeData:  # noqa: N802 - Qt name
+        """Build the drag payload for a dragged column.
+
+        A plain-text copy rides alongside the typed payload, so dropping a
+        column into a text field elsewhere pastes its NAME rather than nothing.
+
+        :param items: the dragged items.
+        :returns: the payload; empty when the items carry no column name.
+        """
         payload = QMimeData()
         names = [i.data(Qt.UserRole) for i in items if i.data(Qt.UserRole)]
         if names:
@@ -283,11 +327,21 @@ class DropZone(QFrame):
     Emits :attr:`column_changed` with ``(channel, column_or_empty)``. The
     empty string rather than ``None`` so the signal can be typed ``str, str``
     and connected across a queued connection without a custom metatype.
+
+    :param channel: which channel this zone accepts. It is carried in every
+        :attr:`column_changed`, so the host does not have to remember which
+        zone it connected.
+    :param parent: parent widget.
     """
 
     column_changed = Signal(str, str)
 
     def __init__(self, channel: str, parent=None):
+        """Build one channel's drop target.
+
+        :param channel: the channel this zone binds.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         if channel not in CHANNELS:
             raise ValueError(f"unknown channel {channel!r}")
@@ -313,10 +367,12 @@ class DropZone(QFrame):
         self._value.setWordWrap(False)
         row.addWidget(self._value, 1)
 
-        self._clear = QPushButton("×", self)
+        self._clear = QPushButton(self)
         self._clear.setObjectName("GraphDropZoneClear")
-        self._clear.setFixedWidth(20)
-        self._clear.setToolTip(f"Take the column off {CHANNEL_LABELS[channel]}")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(
+            self._clear,
+            tooltip=f"Take the column off {CHANNEL_LABELS[channel]}")
         self._clear.setVisible(False)
         self._clear.clicked.connect(lambda: self.set_column(None))
         row.addWidget(self._clear)
@@ -324,6 +380,10 @@ class DropZone(QFrame):
     # -- state ---------------------------------------------------------
     @property
     def column(self) -> Optional[str]:
+        """The column bound to this channel, if any.
+
+        :returns: the column name, or None when the zone is empty.
+        """
         return self._column
 
     def set_column(self, column: Optional[str]) -> None:
@@ -348,10 +408,19 @@ class DropZone(QFrame):
 
     # -- drag and drop --------------------------------------------------
     def _accepts(self, event) -> bool:
+        """Whether this drag carries a column this zone can take.
+
+        :param event: the Qt drag event.
+        :returns: True when droppable.
+        """
         return event.mimeData() is not None and \
             event.mimeData().hasFormat(COLUMN_MIME)
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Light up when a droppable column arrives over the zone.
+
+        :param event: the Qt drag event.
+        """
         if self._accepts(event):
             self.setProperty("hovered", True)
             self.style().unpolish(self)
@@ -361,18 +430,30 @@ class DropZone(QFrame):
             event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        """Keep accepting while a droppable column stays over the zone.
+
+        :param event: the Qt drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragLeaveEvent(self, event):  # noqa: N802 - Qt name
+        """Drop the highlight when the pointer leaves.
+
+        :param event: the Qt drag event.
+        """
         self.setProperty("hovered", False)
         self.style().unpolish(self)
         self.style().polish(self)
         super().dragLeaveEvent(event)
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Bind the dropped column to this channel.
+
+        :param event: the Qt drop event.
+        """
         if not self._accepts(event):
             event.ignore()
             return
@@ -456,9 +537,28 @@ def _canvas_class():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     class OwnedTimerFigureCanvas(FigureCanvasQTAgg):
+        """A Matplotlib canvas whose redraw timer dies with the widget.
+
+        Matplotlib's own canvas schedules redraws on a timer it does not
+        parent to the widget, so a queued redraw can fire after the C++
+        object behind the Python wrapper is gone -- which is a hard crash
+        rather than an exception. Parenting the timer to the canvas makes
+        Qt destroy them together.
+
+        Defined inside the guard that imported Matplotlib's Qt backend, so
+        the name does not exist when that backend is unavailable rather
+        than raising at import for the whole module.
+        """
 
         def __init__(self, figure, *, panel: bool = True):
-            """:param panel: draw the page surface under the figure.
+            """Wrap a figure in a canvas that owns its own redraw timer.
+
+            :param figure: the Matplotlib ``Figure`` to draw. Held by the
+                canvas, which is what "owned" means here -- the timer is a
+                child of the canvas, so the figure and the redraw it
+                schedules are destroyed together and a queued redraw cannot
+                outlive the widget it would paint.
+            :param panel: draw the page surface under the figure.
 
             ``False`` for a canvas that is already sitting ON a panel — the
             scree plot inside the PCA shelf, say. Two surfaces stacked read
@@ -486,11 +586,28 @@ def _canvas_class():
             super().paintEvent(event)
 
         def draw_idle(self):
+            """Ask for a redraw on the OWNED timer rather than a static one.
+
+            Matplotlib's Qt canvas uses static ``QTimer.singleShot``, whose callback
+            is not owned by the canvas and can run after Qt has deleted it. The
+            timer here is a child of the canvas, so it dies with what it would draw.
+            """
             self._draw_pending = True
-            if not self._spacr_draw_timer.isActive():
-                self._spacr_draw_timer.start(0)
+            try:
+                if not self._spacr_draw_timer.isActive():
+                    self._spacr_draw_timer.start(0)
+            except RuntimeError:
+                # A queued host redraw may arrive after Qt has destroyed the
+                # canvas-owned timer during window teardown. There is no live
+                # surface left to update, so discard the pending draw.
+                self._draw_pending = False
 
         def _spacr_draw(self):
+            """Draw once, if a draw is still pending.
+
+            The flag is cleared FIRST so a draw that schedules another does not lose
+            it.
+            """
             if not self._draw_pending:
                 return
             self._draw_pending = False
@@ -500,7 +617,11 @@ def _canvas_class():
                 return
 
         def cancel_pending_draw(self):
-            self._spacr_draw_timer.stop()
+            """Drop any queued redraw. Safe on a canvas Qt has already deleted."""
+            try:
+                self._spacr_draw_timer.stop()
+            except RuntimeError:
+                pass
             self._draw_pending = False
 
     _CANVAS_CLASS = OwnedTimerFigureCanvas
@@ -512,6 +633,15 @@ class GraphCanvas(LinkedView, QWidget):
 
     A :class:`LinkedView`, so a selection made here propagates to the other
     views sharing its model, and the base class for :class:`GateCanvas`.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Whether the axes follow a filter.
@@ -528,19 +658,15 @@ class GraphCanvas(LinkedView, QWidget):
     #: becomes impossible because the ground moves with every apply.
     RESCALE_ON_FILTER = True
 
-    """The chart itself: a spec in, a faceted figure out, brushing back.
-
-    Linked to the shared selection as ``source`` (``"graph_builder"`` by
-    default). Pass ``link`` a private
-    :class:`~spacr.qt.linked_selection.LinkedSelection` in tests so a run does
-    not narrow every other open view.
-    """
-
     #: Emitted after every render with the :class:`RenderData` that was drawn,
     #: so a host can put the large-data notice in its own status bar.
     rendered = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "graph_builder"):
+        """Build the canvas and link it to the shared selection.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphCanvas")
         self._frame: Optional[pd.DataFrame] = None
@@ -573,6 +699,7 @@ class GraphCanvas(LinkedView, QWidget):
         self.link_selection(source, link=link)
 
     def _build_ui(self) -> None:
+        """Lay out the figure and its toolbar."""
         from matplotlib.figure import Figure
 
         outer = QVBoxLayout(self)
@@ -637,6 +764,10 @@ class GraphCanvas(LinkedView, QWidget):
 
     @property
     def spec(self) -> GraphSpec:
+        """The graph this canvas is drawing.
+
+        :returns: the spec.
+        """
         return self._spec
 
     @property
@@ -660,19 +791,39 @@ class GraphCanvas(LinkedView, QWidget):
             self._debounce.start()
 
     def set_channel(self, channel: str, column: Optional[str]) -> None:
+        """Rebind one channel and redraw.
+
+        :param channel: the channel's name, such as ``x`` or ``colour``.
+        :param column: the column to bind, or None to clear it.
+        """
         self.set_spec(self._spec.with_channel(channel, column))
 
     # -- what the last render produced -----------------------------------
     @property
     def render_data(self) -> Optional[RenderData]:
+        """What the last draw actually plotted, or None before the first.
+
+        The rendered data rather than the source table: a large frame is
+        sampled or binned before it is drawn, and this is what is on screen.
+
+        :returns: the render data, or None.
+        """
         return self._render_data
 
     @property
     def grid(self):
+        """The facet grid the last draw laid out, or None when unfaceted.
+
+        :returns: the grid.
+        """
         return self._grid
 
     @property
     def scales(self):
+        """The axis limits the last draw used.
+
+        :returns: the scales.
+        """
         return self._scales
 
     def panel_axes(self) -> Dict[Tuple[int, int], object]:
@@ -680,6 +831,12 @@ class GraphCanvas(LinkedView, QWidget):
         return dict(self._axes)
 
     def axes_at(self, row: int = 0, col: int = 0):
+        """The matplotlib axes at one facet position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the axes, or None when that position was not drawn.
+        """
         return self._axes.get((row, col))
 
     def notice(self) -> str:
@@ -766,6 +923,14 @@ class GraphCanvas(LinkedView, QWidget):
         self.rendered.emit(data)
 
     def _render_message(self, text: str) -> None:
+        """Draw a sentence in place of a chart.
+
+        FOR THE STATES A CHART CANNOT SHOW: no columns bound yet, a column
+        that is all null, a filter that left nothing. An empty axes would look
+        like a bug rather than an answer.
+
+        :param text: what to say.
+        """
         palette = active_palette()
         ax = self._figure.add_subplot(111)
         _page_surface_axes(ax, palette)
@@ -827,6 +992,11 @@ class GraphCanvas(LinkedView, QWidget):
         ax.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
 
     def _series_colour(self, index: int) -> str:
+        """The colour one series is drawn in.
+
+        :param index: the series' position.
+        :returns: the colour.
+        """
         order = categorical_colours()
         return order[index] if index < len(order) else OTHER_COLOUR
 
@@ -857,6 +1027,11 @@ class GraphCanvas(LinkedView, QWidget):
                           linewidths=0.0, alpha=self.POINT_ALPHA)
 
     def _sizes(self, rows: pd.DataFrame) -> np.ndarray:
+        """One marker size per point, from the size channel if bound.
+
+        :param rows: the rows being plotted.
+        :returns: the sizes.
+        """
         spec = self._spec
         base = np.full(len(rows), float(self.POINT_SIZE_BASE))
         limits = getattr(self._scales, "size_limits", None)
@@ -903,8 +1078,13 @@ class GraphCanvas(LinkedView, QWidget):
         if kind == HISTOGRAM:
             self._draw_histogram(ax, rows, mask, palette)
             return None
-        if kind == BAR:
+        if kind in (BAR, BAR_JITTER):
             self._draw_bar(ax, rows, mask, palette)
+            if kind == BAR_JITTER:
+                self._draw_jitter(ax, rows, palette, over_bars=True)
+            return None
+        if kind == JITTER:
+            self._draw_jitter(ax, rows, palette, over_bars=False)
             return None
         if kind in (BOX, VIOLIN):
             self._draw_distribution(ax, rows, kind, palette)
@@ -912,11 +1092,20 @@ class GraphCanvas(LinkedView, QWidget):
         if kind == HEATMAP:
             self._draw_heatmap(ax, rows, palette)
             return None
-        return None  # pragma: no cover - every kind is handled above
+        # A KIND THE CHAIN DOES NOT KNOW. The return value is an
+        # updater for a cheap highlight repaint, so None is the honest
+        # answer for a kind that drew nothing.
+        return None
 
     def _xy(self, rows: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        """The x and y arrays for the bound channels.
+
+        :param rows: the rows being plotted.
+        :returns: the two arrays.
+        """
         spec, scales = self._spec, self._scales
         def axis(column, levels):
+            """One axis's values and its level order, or empty when unset."""
             if not column or column not in rows.columns:
                 return np.zeros(len(rows))
             if levels:
@@ -949,6 +1138,14 @@ class GraphCanvas(LinkedView, QWidget):
         """
 
     def _draw_points(self, ax, rows, mask, kind, palette) -> Callable:
+        """Draw the data as a scatter.
+
+        :param ax: the axes to draw into.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param kind: the chart kind.
+        :param palette: the colours to use.
+        """
         spec = self._spec
         x, y = self._xy(rows)
         if kind == LINE:
@@ -973,6 +1170,7 @@ class GraphCanvas(LinkedView, QWidget):
                           edgecolors=palette["fg"], linewidths=1.4, zorder=5)
 
         def update(new_mask) -> None:
+            """Redraw the points for a new selection mask."""
             if new_mask is None:
                 # The configured opacity, not a literal: this runs on every
                 # selection change, so a hard-coded value here quietly undoes
@@ -1031,6 +1229,13 @@ class GraphCanvas(LinkedView, QWidget):
                   interpolation="nearest")
 
     def _draw_histogram(self, ax, rows, mask, palette) -> None:
+        """Draw the data as a histogram.
+
+        :param ax: the axes to draw into.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param palette: the colours to use.
+        """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
         values = pd.to_numeric(rows[column], errors="coerce").to_numpy(float)
@@ -1061,10 +1266,33 @@ class GraphCanvas(LinkedView, QWidget):
                    label="selected")
 
     def _draw_bar(self, ax, rows, mask, palette) -> None:
+        """Draw the data as bars.
+
+        :param ax: the axes to draw into.
+        :param rows: the rows to plot.
+        :param mask: which of them survive the filter.
+        :param palette: the colours to use.
+        """
         spec, scales = self._spec, self._scales
         column = spec.x or spec.y
         levels = list(scales.x_levels or scales.y_levels or ())
         text = rows[column].astype(str).mask(rows[column].isna(), MISSING_LEVEL)
+
+        # A MEAN BAR WHEN THERE IS SOMETHING TO AVERAGE (204). The other
+        # channel is numeric only when the user put a measurement there; with
+        # one categorical column alone this is a COUNT bar, and a count has
+        # nothing to be spread about -- an error bar on it would be a
+        # statement about a number that is exact.
+        other = spec.y if column == spec.x else spec.x
+        numeric = None
+        if other and other in rows.columns:
+            candidate = pd.to_numeric(rows[other], errors="coerce")
+            if candidate.notna().any():
+                numeric = candidate
+        if numeric is not None:
+            self._draw_mean_bar(ax, text, numeric, levels, palette, other)
+            return
+
         counts = text.value_counts()
         heights = [float(counts.get(level, 0)) for level in levels]
         ax.bar(range(len(levels)), heights, width=0.78,
@@ -1076,7 +1304,96 @@ class GraphCanvas(LinkedView, QWidget):
                    width=0.42, color=palette["fg"], alpha=0.85, linewidth=0.0,
                    label="selected")
 
+    def _draw_mean_bar(self, ax, text, numeric, levels, palette,
+                       column) -> None:
+        """A bar per level at the mean, with the whisker the user chose.
+
+        THE AXIS SAYS WHICH WHISKER IT IS. SD and SEM differ by sqrt(n) --
+        fifty-five-fold at n=3000 -- so a reader who assumes the wrong one
+        reads a real effect as noise or noise as a real effect. Putting the
+        answer only in the settings dialog leaves it where the reader is
+        not.
+        """
+        from ...figures.spread import (SPREAD_NONE, spread_label, summarise)
+
+        kind = str(getattr(self._spec, "spread", SPREAD_NONE) or SPREAD_NONE)
+        groups = {level: numeric[(text == level).to_numpy()].dropna()
+                  for level in levels}
+        summary = summarise(groups, kind)
+
+        heights = [summary.get(level, {}).get("mean", float("nan"))
+                   for level in levels]
+        ax.bar(range(len(levels)), heights, width=0.78,
+               color=self._series_colour(0), linewidth=0.0)
+
+        if kind != SPREAD_NONE:
+            errors = [summary.get(level, {}).get("spread", float("nan"))
+                      for level in levels]
+            # `np.nan` in `yerr` draws nothing for that bar, which is the
+            # right answer for a level with one observation -- a
+            # zero-length whisker would say "no variation measured" where
+            # the truth is "not measurable".
+            ax.errorbar(range(len(levels)), heights, yerr=errors,
+                        fmt="none", ecolor=palette["fg"], elinewidth=1.2,
+                        capsize=4, capthick=1.2)
+            ax.set_ylabel(spread_label(kind, unit=str(column or "")))
+        elif column:
+            ax.set_ylabel(str(column))
+
+    def _draw_jitter(self, ax, rows, palette, *, over_bars: bool) -> None:
+        """Every observation, displaced sideways so they can be told apart.
+
+        THE DISPLACEMENT CARRIES NO INFORMATION. A scatter puts a point at
+        its own x; this puts every point of a category at that category's
+        position and spreads it only so the points are distinguishable. A
+        reader must not be able to read the x offset as a measurement, which
+        is why the spread is uniform and narrow rather than, say,
+        proportional to anything.
+
+        SEEDED. The offsets come from the spec's own seed, so the same data
+        redraws identically -- a plot whose points move every time it is
+        repainted cannot be compared with the one in a slide from last week.
+        """
+        spec, scales = self._spec, self._scales
+        categorical_on_x = bool(scales.x_levels)
+        cat_column = spec.x if categorical_on_x else spec.y
+        num_column = spec.y if categorical_on_x else spec.x
+        if not cat_column or not num_column or num_column not in rows.columns:
+            return
+        levels = list((scales.x_levels if categorical_on_x
+                       else scales.y_levels) or ())
+        if not levels:
+            return
+        text = rows[cat_column].astype(str).mask(
+            rows[cat_column].isna(), MISSING_LEVEL)
+        values = pd.to_numeric(rows[num_column], errors="coerce")
+        rng = np.random.default_rng(int(getattr(spec, "seed", 0)))
+
+        for index, level in enumerate(levels):
+            picked = values[(text == level).to_numpy()].dropna().to_numpy(
+                float)
+            if not picked.size:
+                continue
+            offsets = index + rng.uniform(-0.22, 0.22, picked.size)
+            # OVER A BAR, THE POINTS MUST READ AS POINTS. On their own they
+            # are the whole plot and can be solid; on top of a bar they are
+            # an annotation of it, so they lighten and shrink rather than
+            # competing with the shape underneath.
+            colour = palette["fg"] if over_bars else self._series_colour(0)
+            ax.scatter(offsets if categorical_on_x else picked,
+                       picked if categorical_on_x else offsets,
+                       s=6.0 if over_bars else 10.0,
+                       c=colour, alpha=0.55 if over_bars else 0.75,
+                       linewidths=0.0, zorder=3)
+
     def _draw_distribution(self, ax, rows, kind, palette) -> None:
+        """Draw the data as a distribution.
+
+        :param ax: the axes to draw into.
+        :param rows: the rows to plot.
+        :param kind: the chart kind.
+        :param palette: the colours to use.
+        """
         spec, scales = self._spec, self._scales
         categorical_on_x = bool(scales.x_levels)
         cat_column = spec.x if categorical_on_x else spec.y
@@ -1122,6 +1439,12 @@ class GraphCanvas(LinkedView, QWidget):
                     line.set_linewidth(0.9)
 
     def _draw_heatmap(self, ax, rows, palette) -> None:
+        """Draw the data as a heatmap.
+
+        :param ax: the axes to draw into.
+        :param rows: the rows to plot.
+        :param palette: the colours to use.
+        """
         spec, scales = self._spec, self._scales
         x_levels = list(scales.x_levels or ())
         y_levels = list(scales.y_levels or ())
@@ -1148,7 +1471,7 @@ class GraphCanvas(LinkedView, QWidget):
         bound every panel.
         """
         spec = self._spec
-        counts_on_y = kind in (HISTOGRAM, BAR)
+        counts_on_y = kind in (HISTOGRAM, BAR, BAR_JITTER)
         if scales.x_levels is not None:
             ax.set_xticks(range(len(scales.x_levels)))
             ax.set_xticklabels(scales.x_levels, rotation=30, ha="right",
@@ -1180,12 +1503,24 @@ class GraphCanvas(LinkedView, QWidget):
         spec = self._spec
         kind = spec.resolved_kind(self._kinds)
         x_column, y_column = value_axes(spec, self._kinds)
-        counts_on_y = kind in (HISTOGRAM, BAR)
+        counts_on_y = kind in (HISTOGRAM, BAR, BAR_JITTER)
+        # A BAR IS ONLY A COUNT WHEN THERE IS NOTHING TO AVERAGE (204). With
+        # a numeric channel the bar is a MEAN, and if it carries a whisker
+        # the label has to say which one -- SD and SEM differ by sqrt(n),
+        # fifty-five-fold at n=3000, so a reader who assumes the wrong one
+        # reads a real effect as noise or the reverse. This label is drawn
+        # AFTER `_draw_bar`, so setting it there was not enough.
+        y_label = "count" if counts_on_y else (y_column or "")
+        if kind in (BAR, BAR_JITTER) and y_column:
+            from ...figures.spread import SPREAD_NONE, spread_label
+
+            spread = str(getattr(spec, "spread", SPREAD_NONE) or SPREAD_NONE)
+            y_label = (spread_label(spread, unit=str(y_column))
+                       if spread != SPREAD_NONE else str(y_column))
         if panel.row == nrows - 1:
             ax.set_xlabel(x_column or "", color=palette["fg_dim"], fontsize=9)
         if panel.col == 0:
-            ax.set_ylabel("count" if counts_on_y else (y_column or ""),
-                          color=palette["fg_dim"], fontsize=9)
+            ax.set_ylabel(y_label, color=palette["fg_dim"], fontsize=9)
         if grid.is_faceted:
             title = panel.title()
             if title:
@@ -1221,6 +1556,13 @@ class GraphCanvas(LinkedView, QWidget):
             legend.get_title().set_color(palette["fg_muted"])
 
     def _notice_text(self, data: RenderData, grid) -> str:
+        """The sentence explaining why the chart looks the way it does.
+
+        SAYS WHAT WAS DONE TO THE DATA -- sampled, binned, or clipped -- so a
+        reader does not take a thinned scatter for the whole set.
+
+        :returns: the notice, or ``""`` when nothing was done.
+        """
         parts = [data.notice]
         if grid.notice:
             parts.append(grid.notice)
@@ -1289,12 +1631,20 @@ class GraphCanvas(LinkedView, QWidget):
         return self.publish_selection(picked)
 
     def _on_press(self, event) -> None:
+        """Begin a rubber-band selection.
+
+        :param event: the matplotlib press event.
+        """
         if event.inaxes is None or event.xdata is None:
             return
         self._drag_origin = (event.inaxes, float(event.xdata),
                              float(event.ydata))
 
     def _on_motion(self, event) -> None:
+        """Grow the rubber band.
+
+        :param event: the matplotlib motion event.
+        """
         if self._drag_origin is None or event.inaxes is not self._drag_origin[0]:
             return
         if event.xdata is None or event.ydata is None:
@@ -1313,6 +1663,10 @@ class GraphCanvas(LinkedView, QWidget):
     # wrong thing about what they are about to make.
 
     def _drag_patch_style(self) -> dict:
+        """How the rubber band is drawn.
+
+        :returns: the patch keyword arguments.
+        """
         palette = active_palette()
         return {"facecolor": palette["accent"], "alpha": 0.18,
                 "edgecolor": palette["accent"], "linewidth": 1.0,
@@ -1331,6 +1685,10 @@ class GraphCanvas(LinkedView, QWidget):
                          abs(x1 - x0), abs(y1 - y0))
 
     def _on_release(self, event) -> None:
+        """Finish the selection and broadcast it to the linked views.
+
+        :param event: the matplotlib release event.
+        """
         origin, self._drag_origin = self._drag_origin, None
         if self._drag_patch is not None:
             try:
@@ -1360,6 +1718,13 @@ class GraphCanvas(LinkedView, QWidget):
 
     # -- teardown ----------------------------------------------------------
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Unlink from the shared selection before going away.
+
+        A LINKED VIEW THAT OUTLIVES ITS WINDOW is a selection broadcast to a
+        widget whose C++ half is gone, which is a crash rather than a leak.
+
+        :param event: the Qt close event.
+        """
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):
@@ -1376,12 +1741,26 @@ class GraphCanvas(LinkedView, QWidget):
 # ---------------------------------------------------------------------------
 
 class GraphBuilderPanel(QWidget):
-    """The well, the six zones, the plot-type override and the canvas."""
+    """The well, the six zones, the plot-type override and the canvas.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
+    """
 
     spec_changed = Signal(object)
 
     def __init__(self, parent=None, *, link=None,
                  source: str = "graph_builder"):
+        """Build the well, the drop zones and the canvas.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("GraphBuilderPanel")
         self._zones: Dict[str, DropZone] = {}
@@ -1463,15 +1842,28 @@ class GraphBuilderPanel(QWidget):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setSizes([300, 900])
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -----------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the whole panel at a new table: the well and the canvas both.
+
+        :param frame: the table to plot, or None to clear.
+        """
         self.well.set_frame(frame)
         self.canvas.set_frame(frame)
         self._sync_zones()
 
     @property
     def spec(self) -> GraphSpec:
+        """The graph the canvas is drawing.
+
+        :returns: the spec.
+        """
         return self.canvas.spec
 
     def set_spec(self, spec: GraphSpec) -> None:
@@ -1480,10 +1872,16 @@ class GraphBuilderPanel(QWidget):
         self._sync_zones()
 
     def clear_channels(self) -> None:
+        """Empty every drop zone, leaving the table loaded."""
         for zone in self._zones.values():
             zone.set_column(None)
 
     def zone(self, channel: str) -> DropZone:
+        """One channel's drop zone, for a caller that needs to drive it.
+
+        :param channel: the channel's name.
+        :returns: the zone widget, or None when there is no such channel.
+        """
         return self._zones[channel]
 
     # -- wiring ----------------------------------------------------------
@@ -1504,12 +1902,18 @@ class GraphBuilderPanel(QWidget):
             self._building = False
 
     def _on_zone_changed(self, channel: str, column: str) -> None:
+        """Rebind a channel and redraw.
+
+        :param channel: the channel that changed.
+        :param column: the column now bound, or ``""`` to clear it.
+        """
         if self._building:
             return
         self.canvas.set_channel(channel, column or None)
         self.spec_changed.emit(self.canvas.spec)
 
     def _on_controls_changed(self, *_args) -> None:
+        """Redraw after a plot-type or scale control moved."""
         if self._building:
             return
         from dataclasses import replace as _replace
@@ -1523,6 +1927,10 @@ class GraphBuilderPanel(QWidget):
         self.spec_changed.emit(spec)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)
 
@@ -1532,6 +1940,17 @@ class GraphBuilderPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _graph_builder_qss(palette, opacity) -> str:
+    """Build the graph builder's stylesheet.
+
+    The panel and canvas objects are made transparent explicitly: they hold
+    a splitter edge to edge and the canvas paints the page surface itself,
+    so without a rule they take the blanket ``QWidget`` background -- the
+    WINDOW colour, not a surface, which no page-opacity setting can reach.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the shelf's surface.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
@@ -1570,11 +1989,6 @@ QLabel#GraphDropZoneValue {{
 QFrame#GraphDropZone[filled="false"] QLabel#GraphDropZoneValue {{
     color: {palette["fg_muted"]};
     font-style: italic;
-}}
-QPushButton#GraphDropZoneClear {{
-    border: none;
-    background: transparent;
-    color: {palette["fg_muted"]};
 }}
 QLabel#GraphNotice, QLabel#GraphColumnCount {{
     color: {palette["fg_muted"]};

@@ -1,848 +1,1004 @@
-[
- {
-  "name": "adjust_cells",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6219
- },
- {
-  "name": "blend",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 2883
- },
- {
-  "name": "cell_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.3,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 592
- },
- {
-  "name": "cell_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4098
- },
- {
-  "name": "cell_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.6,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1058
- },
- {
-  "name": "cell_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 178
- },
- {
-  "name": "cell_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6589
- },
- {
-  "name": "cell_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6528
- },
- {
-  "name": "cell_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3491
- },
- {
-  "name": "cell_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3534
- },
- {
-  "name": "cell_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 760
- },
- {
-  "name": "cell_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 682
- },
- {
-  "name": "cell_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6623
- },
- {
-  "name": "cell_remove_border_objects",
-  "frames": 20,
-  "after": 6,
-  "pct_changed": 14.2,
-  "border": 1,
-  "interior": 3,
-  "biggest_interior": 5284
- },
- {
-  "name": "crop_mode",
-  "frames": 9,
-  "after": 1,
-  "pct_changed": 0.8,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 422
- },
- {
-  "name": "cytoplasm",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 13.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 17527
- },
- {
-  "name": "dialate_pngs",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 9288
- },
- {
-  "name": "dot_size",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 0.7,
-  "border": 0,
-  "interior": 15,
-  "biggest_interior": 67
- },
- {
-  "name": "eps",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 1.1,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 192
- },
- {
-  "name": "fill_in",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 426
- },
- {
-  "name": "img_zoom",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.0,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 146
- },
- {
-  "name": "merge_edge_pathogen_cells",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 8.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 10325
- },
- {
-  "name": "min_dist",
-  "frames": 18,
-  "after": 3,
-  "pct_changed": 0.3,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "n_neighbors",
-  "frames": 7,
-  "after": 3,
-  "pct_changed": 1.6,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 793
- },
- {
-  "name": "normalization_percentiles",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 2583
- },
- {
-  "name": "nucleus_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 519
- },
- {
-  "name": "nucleus_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4789
- },
- {
-  "name": "nucleus_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 619
- },
- {
-  "name": "nucleus_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 92
- },
- {
-  "name": "nucleus_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4392
- },
- {
-  "name": "nucleus_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4561
- },
- {
-  "name": "nucleus_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3614
- },
- {
-  "name": "nucleus_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3644
- },
- {
-  "name": "nucleus_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 627
- },
- {
-  "name": "nucleus_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 132
- },
- {
-  "name": "nucleus_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4442
- },
- {
-  "name": "nucleus_remove_border_objects",
-  "frames": 20,
-  "after": 7,
-  "pct_changed": 12.0,
-  "border": 1,
-  "interior": 4,
-  "biggest_interior": 3627
- },
- {
-  "name": "organelle_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.5,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 669
- },
- {
-  "name": "organelle_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.4,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 3702
- },
- {
-  "name": "organelle_clahe",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.0,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 686
- },
- {
-  "name": "organelle_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 80
- },
- {
-  "name": "organelle_fill_holes",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 207
- },
- {
-  "name": "organelle_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.8,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 7600
- },
- {
-  "name": "organelle_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.9,
-  "border": 0,
-  "interior": 8,
-  "biggest_interior": 8835
- },
- {
-  "name": "organelle_log_threshold",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.3,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 603
- },
- {
-  "name": "organelle_mask_within_cells",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 393
- },
- {
-  "name": "organelle_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.9,
-  "border": 0,
-  "interior": 10,
-  "biggest_interior": 845
- },
- {
-  "name": "organelle_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 1576
- },
- {
-  "name": "organelle_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 773
- },
- {
-  "name": "organelle_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 706
- },
- {
-  "name": "organelle_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.8,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 7607
- },
- {
-  "name": "organelle_remove_border_objects",
-  "frames": 20,
-  "after": 7,
-  "pct_changed": 11.9,
-  "border": 1,
-  "interior": 18,
-  "biggest_interior": 1298
- },
- {
-  "name": "organelle_rolling_ball",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 253
- },
- {
-  "name": "organelle_skeletonize",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.6,
-  "border": 0,
-  "interior": 10,
-  "biggest_interior": 4465
- },
- {
-  "name": "organelle_watershed_spots",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.3,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 6418
- },
- {
-  "name": "outline_thickness",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1355
- },
- {
-  "name": "overlap",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.1,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2378
- },
- {
-  "name": "pathogen_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 2.2,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 964
- },
- {
-  "name": "pathogen_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 6.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 7883
- },
- {
-  "name": "pathogen_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.7,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 1148
- },
- {
-  "name": "pathogen_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.0,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "pathogen_intensity_merge",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 10.5,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 13501
- },
- {
-  "name": "pathogen_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 11.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 14163
- },
- {
-  "name": "pathogen_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2799
- },
- {
-  "name": "pathogen_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2799
- },
- {
-  "name": "pathogen_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 1156
- },
- {
-  "name": "pathogen_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.8,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 640
- },
- {
-  "name": "pathogen_perimeter_fraction",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 10.5,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 13530
- },
- {
-  "name": "pathogen_remove_border_objects",
-  "frames": 20,
-  "after": 6,
-  "pct_changed": 17.8,
-  "border": 1,
-  "interior": 6,
-  "biggest_interior": 2802
- },
- {
-  "name": "plot_by_cluster",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 92
- },
- {
-  "name": "plot_images",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "plot_outlines",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 543
- },
- {
-  "name": "plot_points",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "png_size",
-  "frames": 18,
-  "after": 6,
-  "pct_changed": 2.0,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1524
- },
- {
-  "name": "radial_dist",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 1.9,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 404
- },
- {
-  "name": "remove_background_cell",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.5,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 1041
- },
- {
-  "name": "remove_background_nucleus",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 480
- },
- {
-  "name": "remove_background_pathogen",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.4,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 944
- },
- {
-  "name": "remove_cluster_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "remove_image_canvas",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.7,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 100
- },
- {
-  "name": "smooth_lines",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 4.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6067
- },
- {
-  "name": "stitch_threshold",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2972
- },
- {
-  "name": "straightness_filter",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2727
- },
- {
-  "name": "t_link_threshold",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4287
- },
- {
-  "name": "t_project_for_tracking",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 4.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 5202
- },
- {
-  "name": "timelapse_displacement",
-  "frames": 18,
-  "after": 6,
-  "pct_changed": 1.4,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 937
- },
- {
-  "name": "timelapse_memory",
-  "frames": 17,
-  "after": 8,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 523
- },
- {
-  "name": "timelapse_remove_transient",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 1609
- },
- {
-  "name": "ultrack_contour_sigma",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2953
- },
- {
-  "name": "ultrack_division_weight",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 773
- },
- {
-  "name": "uninfected",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4256
- },
- {
-  "name": "use_bounding_box",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3326
- },
- {
-  "name": "z_projection",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3622
- },
- {
-  "name": "zscore_thresh",
-  "frames": 18,
-  "after": 13,
-  "pct_changed": 1.0,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 712
- }
-]
+{
+  "audited": "2026-08-20",
+  "audited_against": "fce4ef86",
+  "animations_total": 94,
+  "counts": {
+    "GOOD": 94,
+    "WEAK": 0
+  },
+  "verdicts": {
+    "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
+    "WEAK": "on the right subject but ambiguous, undirected, or too faint to read -- or, for the two marked SHOWS THE WRONG THING, not on the subject at all"
+  },
+  "method": [
+    "Every animation was WATCHED: all stored frames of the SHIPPED GIF rendered as a contact sheet and read against that setting's own text in spacr/settings.py. A machine cannot make these 94 judgements; it can only keep the record honest.",
+    "The pixel metric is a floor, never a verdict. It is blind in both directions: cytoplasm scores 13.5%, 13th highest of 94, and shows nothing of its setting, while crop_mode scores 1.8% and is one of the clearest in the set.",
+    "The four border animations are measured, not judged by eye, with spacr.setting_animations.measure_border_object_removal: it reads the well edge off the DRAWN rule rather than the generator's own touches flag, and compares two frames at the same zoom rather than frame 0, which is zoomed out. All four report crossing=2 interior=0.",
+    "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak.",
+    "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF.",
+    "2026-09-08: eleven slugs were renamed in 0d384115b -- the four *_CP_prob to *_cellprob_threshold, the four *_FT to *_flow_threshold and the three *_Signal_to_noise to *_signal_to_noise. git records all eleven as R100, byte-identical, so the artefact each verdict was watched against on 2026-08-20 is the same file under a new name and the judgement carries with its evidence. Nothing here was re-judged; an animation whose PIXELS changed would have to be re-watched. The same commit b7ae412af renamed <object>_min_object_area to <object>_min_split_area across the four intensity-split animations and retired organelle_min_size / organelle_max_size, which the two organelle area entries had listed beside their live key; those settings lists are migrated here by the same reasoning."
+  ],
+  "animations": [
+    {
+      "slug": "use_bounding_box",
+      "scene": "crop",
+      "settings": [
+        "use_bounding_box"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.2107,
+      "note": "REDRAWN 2026-08-20. The contrast the setting actually makes -- mask-shaped crop versus rectangular crop -- is now drawn: the box fills with a lifted ground as it is switched on, so the pixels the box keeps are visible as kept, and the neighbouring cell arrives inside that ground. No longer reads as png_size, which grows a box for an unrelated reason."
+    },
+    {
+      "slug": "cytoplasm",
+      "scene": "cytoplasm",
+      "settings": [
+        "cytoplasm"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1353,
+      "note": "FIXED 2026-08-20. The root cause recorded below was exact: painter.line(..., fill_closed=True) was the LAST call and painted an opaque polygon over all three compartments (1988 blue / 1028 teal / 300 magenta before it, 0 / 0 / 0 after). Passing fill_closed=False alone would have left three compartments floating on a fill, which is a picture of a cell rather than of this setting -- so the ORDER is the fix: the cytoplasm region is filled FIRST and the compartments are drawn on top, where they read as punched out of it, which is what the setting does. The fill was also dimmed from 0.35..0.90 to 0.18..0.48 -- a near-white slab is not something a half-width outline can be seen against -- and the compartments are drawn at width 1.1 because here they are the subject rather than context. Measured on the regenerated GIF: at least 89 nucleus pixels in EVERY one of the 18 frames, against 0 before."
+    },
+    {
+      "slug": "organelle_diameter",
+      "scene": "diameter",
+      "settings": [
+        "organelle_diameter"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.024,
+      "note": "REDRAWN 2026-08-20. The old frame showed an organelle growing, which the code does not do: the Cellpose-SAM path is called with diameter=None. The value is still read by OrganelleType.morphology_for, which flips the recommended morphology from spot to ring at RING_RESOLVABLE_PX, so the masks now hold still, the caliper sweeps, and the objects flip from filled spots to rings as it crosses the marked threshold. The animation and settings.py now say the same thing."
+    },
+    {
+      "slug": "cell_max_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "cell_max_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0531,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "cell_min_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "cell_min_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0523,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "nucleus_max_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "nucleus_max_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0497,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "nucleus_min_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "nucleus_min_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0482,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "organelle_max_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "organelle_max_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0541,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "organelle_min_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "organelle_min_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0533,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "pathogen_max_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "pathogen_max_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0862,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "pathogen_min_intensity_percentile",
+      "scene": "filter",
+      "settings": [
+        "pathogen_min_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0851,
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+    },
+    {
+      "slug": "cell_flow_threshold",
+      "scene": "flow",
+      "settings": [
+        "cell_flow_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0316,
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
+    },
+    {
+      "slug": "nucleus_flow_threshold",
+      "scene": "flow",
+      "settings": [
+        "nucleus_flow_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.037,
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
+    },
+    {
+      "slug": "organelle_flow_threshold",
+      "scene": "flow",
+      "settings": [
+        "organelle_flow_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0342,
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
+    },
+    {
+      "slug": "pathogen_flow_threshold",
+      "scene": "flow",
+      "settings": [
+        "pathogen_flow_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0611,
+      "note": "FIXED 2026-08-20. The subject was already right -- a poorly-fitting doubled mask beside a clean one is discarded -- and the DIRECTION was backwards by implication, which is worse than a faint animation. flow_threshold is counter-intuitive (LOWERING it discards more masks) while every animation in this set runs off -> on, so the frame where the ragged mask vanishes was also the frame a viewer reads as 'the setting went up'. Nothing in the drawing said which way the value moved, so the viewer supplied the only reading available and it was the wrong one. A track below the masks now EMPTIES as the discard happens -- measured: the fill reaches x=274 at action 0 and x=169 at action 1 -- so the value and the consequence move in the same direction instead of opposite ones."
+    },
+    {
+      "slug": "organelle_skeletonize",
+      "scene": "organelle",
+      "settings": [
+        "organelle_skeletonize"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0313,
+      "note": "REDRAWN 2026-08-20. The network is built from an explicit branch graph and the skeleton is drawn along the SAME paths, so the only thing that changes is thickness. It now reads as a medial axis rather than as the object being erased and an unrelated zigzag drawn."
+    },
+    {
+      "slug": "organelle_watershed_spots",
+      "scene": "organelle",
+      "settings": [
+        "organelle_watershed_spots"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0529,
+      "note": "FIXED 2026-08-20. Three changes, each about the same thing -- a split is only a split if you can see the gap. (1) THE HALVES MOVE APART instead of appearing where they will end up: they start at the original's centre and separate as the action runs, which is what a watershed DOES. (2) THEY END 100 px APART rather than 60, so two 32-wide glyphs have clear ground between them. (3) THE CROSSFADE RAMPS OVERLAP -- out over 0..0.6, in over 0.4..1.0 -- because a clean hand-off at 0.5 left a frame with NOTHING on it (measured: left 0, centre 0, right 0), and a blank frame reads as a broken animation rather than an unclear one. Plus the watershed LINE is drawn: a watershed is a boundary, and drawing it is the difference between 'two things now' and 'here is where one became two'. Measured on the regenerated GIF: 18 frames, none near-blank, and 4 separate ink groups in the final frame where the mush was one."
+    },
+    {
+      "slug": "cell_signal_to_noise",
+      "scene": "signal",
+      "settings": [
+        "cell_signal_to_noise"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0496,
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
+    },
+    {
+      "slug": "nucleus_signal_to_noise",
+      "scene": "signal",
+      "settings": [
+        "nucleus_signal_to_noise"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0563,
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
+    },
+    {
+      "slug": "pathogen_signal_to_noise",
+      "scene": "signal",
+      "settings": [
+        "pathogen_signal_to_noise"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1121,
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
+    },
+    {
+      "slug": "cell_intensity_split",
+      "scene": "split",
+      "settings": [
+        "cell_intensity_split",
+        "cell_area_multiplier",
+        "cell_min_distance",
+        "cell_min_split_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0504,
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+    },
+    {
+      "slug": "nucleus_intensity_split",
+      "scene": "split",
+      "settings": [
+        "nucleus_intensity_split",
+        "nucleus_area_multiplier",
+        "nucleus_min_distance",
+        "nucleus_min_split_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0376,
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+    },
+    {
+      "slug": "organelle_intensity_split",
+      "scene": "split",
+      "settings": [
+        "organelle_intensity_split",
+        "organelle_area_multiplier",
+        "organelle_min_distance",
+        "organelle_min_split_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0788,
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+    },
+    {
+      "slug": "pathogen_intensity_split",
+      "scene": "split",
+      "settings": [
+        "pathogen_intensity_split",
+        "pathogen_area_multiplier",
+        "pathogen_min_distance",
+        "pathogen_min_split_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1097,
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+    },
+    {
+      "slug": "stitch_threshold",
+      "scene": "tracking",
+      "settings": [
+        "stitch_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.021,
+      "note": "REDRAWN 2026-08-20. Two z-slices are drawn as a stack seen at an angle, so the join being tested is plainly vertical and no longer looks like the watershed split. The link is a solid band whose thickness is the overlap; it narrows and snaps rather than a hairline changing brightness."
+    },
+    {
+      "slug": "t_link_threshold",
+      "scene": "tracking",
+      "settings": [
+        "t_link_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0307,
+      "note": "REDRAWN 2026-08-20. Each detection now sits in its own panel with the earlier one dimmer, so 'one timepoint then the next' is drawn rather than inferred, and the link is a band that narrows and breaks instead of a faint dashed line."
+    },
+    {
+      "slug": "n_neighbors",
+      "scene": "umap",
+      "settings": [
+        "n_neighbors"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0236,
+      "note": "FIXED 2026-08-20. The neighbour edges are drawn at 0.85 width and 0.34..0.82 opacity instead of 0.35 and 0.12..0.36. The graph thickening inside each cluster is now legible at tooltip size; the subject was already right."
+    },
+    {
+      "slug": "plot_by_cluster",
+      "scene": "umap",
+      "settings": [
+        "plot_by_cluster"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0402,
+      "note": "FIXED 2026-08-20. Off puts every thumbnail in the densest cluster and on puts four in each, at 14 px instead of 9.5 -- so the pile-versus-spread reading survives at tooltip size. Previously six scattered against six per-cluster looked like the same picture rearranged."
+    },
+    {
+      "slug": "remove_image_canvas",
+      "scene": "umap",
+      "settings": [
+        "remove_image_canvas"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0516,
+      "note": "FIXED 2026-08-20. The canvas is drawn as a filled rectangle, which is what a canvas is, so its removal is a change anyone can see. Painter.rectangle gained a fill argument for this."
+    },
+    {
+      "slug": "adjust_cells",
+      "scene": "adjust_cells",
+      "settings": [
+        "adjust_cells"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.048,
+      "note": "Two fragments of one cell fuse and the nucleus-less fragment goes. Both halves of the setting."
+    },
+    {
+      "slug": "blend",
+      "scene": "alignment",
+      "settings": [
+        "blend"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0231,
+      "note": "The tile seam fades and the two halves become one continuous cell."
+    },
+    {
+      "slug": "overlap",
+      "scene": "alignment",
+      "settings": [
+        "overlap"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0313,
+      "note": "The overlap band widens from a sliver to a wide rectangle."
+    },
+    {
+      "slug": "remove_background_cell",
+      "scene": "background",
+      "settings": [
+        "remove_background_cell",
+        "cell_background"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0355,
+      "note": "Faint diffuse haze is removed; the three cells stay."
+    },
+    {
+      "slug": "remove_background_nucleus",
+      "scene": "background",
+      "settings": [
+        "remove_background_nucleus",
+        "nucleus_background"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0233,
+      "note": "A faint diffuse haze over the field is subtracted while the three nuclei stay at full brightness -- the documented 'zero every pixel below nucleus_background before normalising'."
+    },
+    {
+      "slug": "remove_background_pathogen",
+      "scene": "background",
+      "settings": [
+        "remove_background_pathogen",
+        "pathogen_background"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0338,
+      "note": "The diffuse background glow is zeroed and the three vacuoles are unaffected, which is what hard-zeroing below pathogen_background does to autofluorescence."
+    },
+    {
+      "slug": "cell_remove_border_objects",
+      "scene": "border",
+      "settings": [
+        "cell_remove_border_objects"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1642,
+      "note": "Two objects crossing the well edge go, two clear of it stay. Verified from pixels: crossing=2 interior=0."
+    },
+    {
+      "slug": "nucleus_remove_border_objects",
+      "scene": "border",
+      "settings": [
+        "nucleus_remove_border_objects"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1353,
+      "note": "Measured from the shipped pixels at constant zoom: two objects crossing the drawn well edge are removed, crossing=2 interior=0, nothing in the middle of the well changes."
+    },
+    {
+      "slug": "organelle_remove_border_objects",
+      "scene": "border",
+      "settings": [
+        "organelle_remove_border_objects",
+        "organelle_remove_border"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.1354,
+      "note": "Measured from the shipped pixels at constant zoom: crossing=2 interior=0. The Golgi glyph fragments into ~30 components, so the mask must be closed before any object is counted."
+    },
+    {
+      "slug": "pathogen_remove_border_objects",
+      "scene": "border",
+      "settings": [
+        "pathogen_remove_border_objects"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.2108,
+      "note": "Measured from the shipped pixels at constant zoom: crossing=2 interior=0, with the well's own bright rule splitting each vacuole into two fragments that close back into one."
+    },
+    {
+      "slug": "crop_mode",
+      "scene": "crop",
+      "settings": [
+        "crop_mode"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0179,
+      "note": "The crop box hops between cell, nucleus, pathogen and organelle -- the list of choices. Only 1.8% of the frame changes because just the box moves; low score, right picture."
+    },
+    {
+      "slug": "dialate_pngs",
+      "scene": "crop",
+      "settings": [
+        "dialate_pngs",
+        "dialate_png_ratios"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0717,
+      "note": "The mask grows so the crop keeps a rim."
+    },
+    {
+      "slug": "png_size",
+      "scene": "crop",
+      "settings": [
+        "png_size"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0204,
+      "note": "The crop box grows around an object that does not change size."
+    },
+    {
+      "slug": "cell_diameter",
+      "scene": "diameter",
+      "settings": [
+        "cell_diameter"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0275,
+      "note": "The outline scales with the setting; the caliper annotates it."
+    },
+    {
+      "slug": "nucleus_diameter",
+      "scene": "diameter",
+      "settings": [
+        "nucleus_diameter"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0256,
+      "note": "The nucleus outline scales with the setting while the caliper annotates it, so the viewer sees the expected object SIZE change rather than a measurement being taken."
+    },
+    {
+      "slug": "pathogen_diameter",
+      "scene": "diameter",
+      "settings": [
+        "pathogen_diameter"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0415,
+      "note": "The vacuole scales with the setting and the caliper annotates it; the subject is the expected size, not the act of measuring."
+    },
+    {
+      "slug": "fill_in",
+      "scene": "fill_holes",
+      "settings": [
+        "fill_in"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0192,
+      "note": "Three holes in the mask close over."
+    },
+    {
+      "slug": "organelle_fill_holes",
+      "scene": "fill_holes",
+      "settings": [
+        "organelle_fill_holes"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.014,
+      "note": "Three dark holes are punched through the organelle and close over as the fill area rises, which is the setting filling interior holes up to a given size."
+    },
+    {
+      "slug": "cell_max_area",
+      "scene": "filter",
+      "settings": [
+        "cell_max_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0556,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "cell_min_area",
+      "scene": "filter",
+      "settings": [
+        "cell_min_area",
+        "cell_min_size"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0346,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "nucleus_max_area",
+      "scene": "filter",
+      "settings": [
+        "nucleus_max_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0538,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "nucleus_min_area",
+      "scene": "filter",
+      "settings": [
+        "nucleus_min_area",
+        "nucleus_min_size"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0307,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "organelle_max_area",
+      "scene": "filter",
+      "settings": [
+        "organelle_max_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0585,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "organelle_min_area",
+      "scene": "filter",
+      "settings": [
+        "organelle_min_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0353,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "pathogen_max_area",
+      "scene": "filter",
+      "settings": [
+        "pathogen_max_area"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0933,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "pathogen_min_area",
+      "scene": "filter",
+      "settings": [
+        "pathogen_min_area",
+        "pathogen_min_size"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0547,
+      "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+    },
+    {
+      "slug": "cell_intensity_merge",
+      "scene": "merge",
+      "settings": [
+        "cell_intensity_merge",
+        "cell_intensity_threshold_method",
+        "cell_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0451,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "cell_perimeter_fraction",
+      "scene": "merge",
+      "settings": [
+        "cell_perimeter_fraction"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0451,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "nucleus_intensity_merge",
+      "scene": "merge",
+      "settings": [
+        "nucleus_intensity_merge",
+        "nucleus_intensity_threshold_method",
+        "nucleus_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0397,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "nucleus_perimeter_fraction",
+      "scene": "merge",
+      "settings": [
+        "nucleus_perimeter_fraction"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0396,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "organelle_intensity_merge",
+      "scene": "merge",
+      "settings": [
+        "organelle_intensity_merge",
+        "organelle_intensity_threshold_method",
+        "organelle_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0361,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "organelle_perimeter_fraction",
+      "scene": "merge",
+      "settings": [
+        "organelle_perimeter_fraction"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0364,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "pathogen_intensity_merge",
+      "scene": "merge",
+      "settings": [
+        "pathogen_intensity_merge",
+        "pathogen_intensity_threshold_method",
+        "pathogen_intensity_percentile"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0426,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "pathogen_perimeter_fraction",
+      "scene": "merge",
+      "settings": [
+        "pathogen_perimeter_fraction"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0425,
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+    },
+    {
+      "slug": "merge_edge_pathogen_cells",
+      "scene": "merge_edge_pathogen_cells",
+      "settings": [
+        "merge_edge_pathogen_cells"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0797,
+      "note": "A vacuole straddles two host cells and the two cell labels fuse into one. That is the documented second branch: 'otherwise the overlapping cell labels are fused into a single cell'. Checked against settings.py rather than assumed."
+    },
+    {
+      "slug": "normalization_percentiles",
+      "scene": "normalization",
+      "settings": [
+        "normalization_percentiles",
+        "normalize",
+        "normalize_plots"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0316,
+      "note": "Three objects gain contrast as the percentile stretch is applied."
+    },
+    {
+      "slug": "organelle_clahe",
+      "scene": "organelle",
+      "settings": [
+        "organelle_clahe",
+        "organelle_clahe_clip_limit"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0201,
+      "note": "Four organelles at different brightnesses are pulled up to a common contrast."
+    },
+    {
+      "slug": "organelle_log_threshold",
+      "scene": "organelle",
+      "settings": [
+        "organelle_log_threshold",
+        "organelle_unet_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0134,
+      "note": "Dim blobs drop out as the response threshold rises; the brightest survives."
+    },
+    {
+      "slug": "organelle_mask_within_cells",
+      "scene": "organelle",
+      "settings": [
+        "organelle_mask_within_cells"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0655,
+      "note": "Organelles outside the cell go; the ones inside stay."
+    },
+    {
+      "slug": "organelle_rolling_ball",
+      "scene": "organelle",
+      "settings": [
+        "organelle_rolling_ball",
+        "organelle_rolling_ball_radius"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0394,
+      "note": "A wavy illumination background is subtracted; the objects stay."
+    },
+    {
+      "slug": "outline_thickness",
+      "scene": "outline_thickness",
+      "settings": [
+        "outline_thickness"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0121,
+      "note": "The cell, nucleus and pathogen outlines all thicken together while nothing else moves, so the only variable on screen is the one the setting names."
+    },
+    {
+      "slug": "cell_cellprob_threshold",
+      "scene": "probability",
+      "settings": [
+        "cell_cellprob_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0331,
+      "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+    },
+    {
+      "slug": "nucleus_cellprob_threshold",
+      "scene": "probability",
+      "settings": [
+        "nucleus_cellprob_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0361,
+      "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+    },
+    {
+      "slug": "organelle_cellprob_threshold",
+      "scene": "probability",
+      "settings": [
+        "organelle_cellprob_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0524,
+      "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+    },
+    {
+      "slug": "pathogen_cellprob_threshold",
+      "scene": "probability",
+      "settings": [
+        "pathogen_cellprob_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0842,
+      "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+    },
+    {
+      "slug": "radial_dist",
+      "scene": "radial",
+      "settings": [
+        "radial_dist",
+        "distance_gaussian_sigma"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0188,
+      "note": "Concentric shells expand from the pathogen inside the cell -- the binned distance measurement."
+    },
+    {
+      "slug": "straightness_filter",
+      "scene": "tracking",
+      "settings": [
+        "straightness_filter",
+        "straightness_threshold"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.021,
+      "note": "Of two tracks, the overly STRAIGHT one is removed and the meandering one survives -- the right way round."
+    },
+    {
+      "slug": "t_project_for_tracking",
+      "scene": "tracking",
+      "settings": [
+        "t_project_for_tracking"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0401,
+      "note": "Several plane outlines collapse into one before linking."
+    },
+    {
+      "slug": "timelapse_displacement",
+      "scene": "tracking",
+      "settings": [
+        "timelapse_displacement",
+        "ultrack_max_distance",
+        "t_max_displacement_px",
+        "t_max_displacement_um"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0136,
+      "note": "A search radius grows until a farther detection comes inside it and links. The clearest animation in the set."
+    },
+    {
+      "slug": "timelapse_memory",
+      "scene": "tracking",
+      "settings": [
+        "timelapse_memory"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0326,
+      "note": "A run of detections is missed and the track survives across the gap."
+    },
+    {
+      "slug": "timelapse_remove_transient",
+      "scene": "tracking",
+      "settings": [
+        "timelapse_remove_transient",
+        "timelapse_frame_limits"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0124,
+      "note": "The short track that is not present in every frame is dropped; the full-length one stays."
+    },
+    {
+      "slug": "ultrack_contour_sigma",
+      "scene": "tracking",
+      "settings": [
+        "ultrack_contour_sigma"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0228,
+      "note": "A ragged contour smooths as the blur grows."
+    },
+    {
+      "slug": "ultrack_division_weight",
+      "scene": "tracking",
+      "settings": [
+        "ultrack_division_weight"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0121,
+      "note": "A track splits into two daughters as division gets cheaper."
+    },
+    {
+      "slug": "z_projection",
+      "scene": "tracking",
+      "settings": [
+        "z_projection"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0283,
+      "note": "Plane outlines collapse into a single projected object."
+    },
+    {
+      "slug": "zscore_thresh",
+      "scene": "tracking",
+      "settings": [
+        "zscore_thresh"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0105,
+      "note": "An outlier point in a track is pulled back onto the trend."
+    },
+    {
+      "slug": "dot_size",
+      "scene": "umap",
+      "settings": [
+        "dot_size"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0627,
+      "note": "Every embedding marker grows and the layout is otherwise untouched, which is exactly what a marker-area setting does."
+    },
+    {
+      "slug": "eps",
+      "scene": "umap",
+      "settings": [
+        "eps",
+        "min_samples",
+        "clustering"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0116,
+      "note": "A neighbourhood radius grows around each cluster."
+    },
+    {
+      "slug": "img_zoom",
+      "scene": "umap",
+      "settings": [
+        "img_zoom"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.027,
+      "note": "The thumbnails pasted on the embedding scale up around their own points; positions do not move, so zoom is the only thing shown."
+    },
+    {
+      "slug": "min_dist",
+      "scene": "umap",
+      "settings": [
+        "min_dist"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0396,
+      "note": "Tight clusters relax outward as the minimum spacing rises."
+    },
+    {
+      "slug": "plot_images",
+      "scene": "umap",
+      "settings": [
+        "plot_images"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0258,
+      "note": "The bare scatter markers are replaced by the object crops themselves, which is the choice the setting offers."
+    },
+    {
+      "slug": "plot_outlines",
+      "scene": "umap",
+      "settings": [
+        "plot_outlines"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0126,
+      "note": "A boundary is drawn around each cluster and nothing else changes, which is the whole of what the setting adds."
+    },
+    {
+      "slug": "plot_points",
+      "scene": "umap",
+      "settings": [
+        "plot_points"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0231,
+      "note": "Outlines alone gain their scatter markers."
+    },
+    {
+      "slug": "remove_cluster_noise",
+      "scene": "umap",
+      "settings": [
+        "remove_cluster_noise"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0132,
+      "note": "The scattered white noise points fade; the clusters remain."
+    },
+    {
+      "slug": "smooth_lines",
+      "scene": "umap",
+      "settings": [
+        "smooth_lines"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0413,
+      "note": "A raw hull becomes a smooth spline."
+    },
+    {
+      "slug": "uninfected",
+      "scene": "uninfected",
+      "settings": [
+        "uninfected"
+      ],
+      "verdict": "GOOD",
+      "visible_change": 0.0329,
+      "note": "Of two cells the one with no pathogen is removed."
+    }
+  ]
+}

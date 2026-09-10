@@ -209,6 +209,17 @@ class PivotSpec:
     quantile: float = 0.75
 
     def __post_init__(self) -> None:
+        """Normalise the axes and validate the aggregations.
+
+        ``n`` is always present and always first: a table where the user could
+        turn it off is a table where a mean over four objects looks like a mean
+        over four thousand.
+
+        :raises PivotError: if a column is on both the row and the column axis
+            -- one column cannot nest inside itself, and every cell off the
+            diagonal would be empty by construction; if an aggregation is
+            unknown; or if ``quantile`` is not a fraction in ``[0, 1]``.
+        """
         for name in ("rows", "cols", "values"):
             object.__setattr__(self, name, _clean(getattr(self, name)))
         clash = set(self.rows) & set(self.cols)
@@ -235,15 +246,38 @@ class PivotSpec:
 
     # -- edits -----------------------------------------------------------
     def with_rows(self, rows: Sequence[str]) -> "PivotSpec":
+        """A copy with a different set of row groupings.
+
+        A COPY: a spec is a value, so the one a view is already showing is
+        never edited underneath it.
+
+        :param rows: the columns to group down the rows.
+        :returns: the new spec.
+        """
         return replace(self, rows=tuple(rows))
 
     def with_cols(self, cols: Sequence[str]) -> "PivotSpec":
+        """A copy with a different set of column groupings.
+
+        :param cols: the columns to group across the columns.
+        :returns: the new spec.
+        """
         return replace(self, cols=tuple(cols))
 
     def with_values(self, values: Sequence[str]) -> "PivotSpec":
+        """A copy aggregating different columns into the cells.
+
+        :param values: the columns to aggregate.
+        :returns: the new spec.
+        """
         return replace(self, values=tuple(values))
 
     def with_aggs(self, aggs: Sequence[str]) -> "PivotSpec":
+        """A copy using different aggregations.
+
+        :param aggs: the aggregation names, such as ``mean`` or ``median``.
+        :returns: the new spec.
+        """
         return replace(self, aggs=tuple(aggs))
 
     @property
@@ -264,16 +298,36 @@ class PivotSpec:
                      for value in self.values for agg in self.aggs)
 
     def used_columns(self) -> Tuple[str, ...]:
+        """Every column this pivot reads, deduplicated and in order.
+
+        What lets a spec be validated against a table before it is computed,
+        so a pivot saved on one experiment says which columns are missing
+        here rather than failing part-way through the aggregation.
+
+        :returns: the column names.
+        """
         return _clean(tuple(self.rows) + tuple(self.cols) + tuple(self.values))
 
     # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"rows": list(self.rows), "cols": list(self.cols),
                 "values": list(self.values), "aggs": list(self.aggs),
                 "quantile": self.quantile}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "PivotSpec":
+        """Rebuild a spec from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt spec.
+        """
         fields = {"rows", "cols", "values", "aggs", "quantile"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
         for key in ("rows", "cols", "values", "aggs"):
@@ -282,13 +336,26 @@ class PivotSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "PivotSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The pivot in one line: what goes down, across, and into the cells.
+
+        :returns: a one-line description.
+        """
         parts = []
         if self.rows:
             parts.append("rows: " + " / ".join(self.rows))
@@ -337,14 +404,29 @@ class PivotResult:
     # -- shape ------------------------------------------------------------
     @property
     def shape(self) -> Tuple[int, int]:
+        """The table's size as ``(rows, columns)`` of DISPLAYED levels.
+
+        Not the source frame's shape: a pivot's rows are groups, so this is
+        how big the answer is rather than how much went into it.
+
+        :returns: the row and column counts.
+        """
         return len(self.row_levels), len(self.col_levels)
 
     @property
     def n_cells(self) -> int:
+        """How many cells the table has, across all layers.
+
+        :returns: rows times columns.
+        """
         return len(self.row_levels) * len(self.col_levels)
 
     @property
     def layer_keys(self) -> Tuple[Tuple[str, str], ...]:
+        """The ``(value, agg)`` pairs this result holds one array for.
+
+        :returns: the layer keys, in the spec's order.
+        """
         return self.spec.layers
 
     # -- reading a cell ---------------------------------------------------
@@ -376,9 +458,21 @@ class PivotResult:
         return None if not np.isfinite(count) else int(count)
 
     def row_label(self, row: int, sep: str = " · ") -> str:
+        """One row's grouping levels, joined for display.
+
+        :param row: the row's position.
+        :param sep: what to join the levels with.
+        :returns: the label.
+        """
         return sep.join(self.row_levels[row])
 
     def col_label(self, col: int, sep: str = " · ") -> str:
+        """One column's grouping levels, joined for display.
+
+        :param col: the column's position.
+        :param sep: what to join the levels with.
+        :returns: the label.
+        """
         return sep.join(self.col_levels[col])
 
     def low_n_cells(self, threshold: int = LOW_N) -> int:
@@ -492,11 +586,29 @@ class PivotResult:
 # The computation
 # ---------------------------------------------------------------------------
 
-def _levels_of(frame: pd.DataFrame, key: str) -> Tuple[str, ...]:
+def _require_axis_column(frame: pd.DataFrame, key: str) -> None:
+    """Refuse an axis key the frame does not carry, by name.
+
+    A spec saved against another table is the commonest way a pivot goes
+    wrong, so it has to arrive as a :class:`PivotError` the panel can show
+    rather than as a bare ``KeyError`` out of pandas.
+    """
     if key not in frame.columns:
         raise PivotError(
             f"{key!r} is not a column of this table; it has "
             f"{len(frame.columns)} columns and none of them is that one")
+
+
+def _levels_of(frame: pd.DataFrame, key: str) -> Tuple[str, ...]:
+    """Return a pivot axis column's distinct values, sorted.
+
+    :param frame: the table.
+    :param key: the axis column.
+    :returns: the levels, in the natural order the sort key defines -- so
+        ``well 2`` comes before ``well 10`` rather than after it.
+    :raises PivotError: if the table has no such column.
+    """
+    _require_axis_column(frame, key)
     labels = _level_series(frame, key)
     return tuple(sorted({str(v) for v in labels.unique()}, key=_sort_key))
 
@@ -558,6 +670,10 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
 
     keys = tuple(spec.rows) + tuple(spec.cols)
     n_rows_keys = len(spec.rows)
+    for key in keys:
+        # Before the label frame is built, not after: reading a missing key
+        # out of the frame is what turns a stale spec into a bare KeyError.
+        _require_axis_column(frame, key)
     if keys:
         labels = pd.DataFrame(
             {f"__k{i}": _level_series(frame, key).astype(str).to_numpy()
@@ -622,8 +738,14 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     for value in spec.values:
         wanted = [_PANDAS_NAMES[a] for a in spec.aggs if a in _PANDAS_NAMES]
         table = grouped[value].agg(wanted)
-        if isinstance(table, pd.Series):  # pragma: no cover - `n` is always in
-            table = table.to_frame(name=wanted[0])
+        # NO Series BRANCH. `SeriesGroupBy.agg` returns a DataFrame for a
+        # LIST of function names however short the list is, and `wanted`
+        # is never empty: `PivotSpec.__post_init__` starts its agg list
+        # with `n` and appends the rest, so `n` survives even
+        # `aggs=()` and `with_aggs(())`, and `n` maps to pandas' `count`.
+        #
+        # Checked exhaustively -- all 256 subsets of the eight
+        # aggregations -- and `agg` returned a Series for none of them.
         if QUANTILE in spec.aggs:
             table = table.assign(
                 **{"__q": grouped[value].quantile(spec.quantile)})

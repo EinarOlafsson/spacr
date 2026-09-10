@@ -21,8 +21,7 @@ what "busy" reads as          "Preview     "Preview     n/a          "Preview
                               running."    running."                 running."
 worker freed on ``finished``  yes          no —         n/a          no —
                                            deleteLater               deleteLater
-announces its result          preview_     preview_     NO — none    preview_
-                              ready        ready                     ready
+announces its result          ready        ready        NO — none    ready
 work runs off the GUI thread  QThread      QThread      JobRunner    QThread
 what a knob change costs      nothing —    a re-link,   a re-crop,   a rescore
                               explicit     cached       superseded   from the
@@ -88,6 +87,8 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+from ..i18n import tr
+
 __all__ = [
     "PREVIEW_RUN_TEXT",
     "PREVIEW_CANCEL_TEXT",
@@ -136,7 +137,7 @@ def preview_failure_message(error: Any) -> str:
     :param error: the exception, or the error string a worker emitted.
     :returns: the sentence for the panel's status line.
     """
-    return f"Preview failed: {error}"
+    return tr("Preview failed: {error}", error=error)
 
 
 def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
@@ -159,18 +160,21 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     :returns: a ``cellpose.models.CellposeModel``.
     """
     from cellpose import models as cp_models
+
     from spacr.utils import _resolve_cellpose_pretrained
 
-    if gpu is None:
-        try:
-            import torch
-            gpu = bool(torch.cuda.is_available())
-        except Exception:
-            gpu = False
+    try:
+        from spacr.accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    except Exception:
+        kwargs = {"gpu": False}
+    kwargs.pop("device", None)
+    if gpu is not None:                     # an explicit caller still wins
+        kwargs["gpu"] = bool(gpu)
     return cp_models.CellposeModel(
-        gpu=bool(gpu),
         pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
-        device=None)
+        device=None, **kwargs)
 
 
 class LivePreviewContract:
@@ -262,7 +266,9 @@ class LivePreviewContract:
         mode = self.display_primaries()
         if mode == "rgb":
             return ""
-        return PRIMARY_NOTES.get(mode, f"Channels drawn in {mode} primaries.")
+        if mode in PRIMARY_NOTES:
+            return tr(PRIMARY_NOTES[mode])
+        return tr("Channels drawn in {mode} primaries.", mode=mode)
 
     def set_preview_status(self, text: Any) -> None:
         """Put one sentence on the panel's status line.
@@ -275,7 +281,7 @@ class LivePreviewContract:
         label = getattr(self, "_status", None)
         if label is None:
             return
-        sentence = str(text)
+        sentence = tr(str(text))
         note = self.display_primaries_note()
         if note and note not in sentence:
             sentence = f"{sentence}  ·  {note}" if sentence else note

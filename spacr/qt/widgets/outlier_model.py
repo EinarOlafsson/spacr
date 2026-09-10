@@ -558,6 +558,16 @@ class OutlierSpec:
     seed: int = 0
 
     def __post_init__(self) -> None:
+        """De-duplicate the features and well keys, and validate the detector.
+
+        :raises OutlierError: if the method or transform is not one this module
+            offers; if ``k`` or ``c`` is not positive -- they are how many
+            robust SDs and how many IQRs place the fence; if ``alpha`` is not a
+            per-object false-positive rate in ``(0, 1)``; if
+            ``min_well_objects`` is below 1, since a well with no objects has no
+            median; or if ``support_fraction`` is given and is not in ``(0, 1]``
+            -- ``None`` picks sklearn's maximum-breakdown default.
+        """
         seen: Dict[str, None] = {}
         for name in self.features or ():
             if name:
@@ -1221,7 +1231,10 @@ def _reasons_per_feature(scores: np.ndarray, matrix: np.ndarray,
     reasons = [""] * scores.shape[0]
     for row in np.flatnonzero(flags):
         offending = np.flatnonzero(scores[row] > spec.threshold())
-        if offending.size == 0:  # pragma: no cover - flags come from scores
+        # A scan's own flags come from these scores, so this only trips
+        # for a caller that supplied its own. Such a row gets no
+        # sentence rather than an invented one.
+        if offending.size == 0:
             continue
         order = offending[np.argsort(scores[row][offending])[::-1]][:3]
         bits = []

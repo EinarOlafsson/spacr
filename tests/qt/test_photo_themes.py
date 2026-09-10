@@ -680,9 +680,12 @@ class TestNoDecodeOnResizeOrRepaint:
         because some earlier test was greedy.
         """
         _installed("deep_field")
-        monkeypatch.setattr(preferences, "get_theme", lambda: "space")
-        monkeypatch.setattr(preferences, "get_space_variant",
-                            lambda: "deep_field")
+        # THE DECODE IS `imagery`'S, not the retired space preference's. The
+        # space accessors went on 2026-09-09 (instruction 364) because
+        # nothing could select that theme; the MASTER and its size cap are
+        # untouched, and they are what this budget is about. Driven straight
+        # through `imagery.background_path`, which is what the cap protects.
+        monkeypatch.setattr(preferences, "get_theme", lambda: "cell")
         before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         path = imagery.background_path("deep_field", 3840, 2400)
         preferences.apply_preferences_to_app(qapp)
@@ -781,9 +784,20 @@ class TestDegradesWithoutMasters:
         """A source checkout with the JPEGs stripped, or a user who
         deleted them: Space must still get a sky, offline, with no
         error."""
-        monkeypatch.setattr(preferences, "get_space_variant",
-                            lambda: "deep_field")
-        path = preferences.space_background_path(1920, 1200)
+        # THROUGH `space`, not through the retired preference. The chain was
+        # `space_background_path` -> photo master, and on a miss ->
+        # `space.background_path`, the procedural generator. The wrapper went
+        # on 2026-09-09 with the theme nothing could select (instruction
+        # 364); the GENERATOR did not, because spaceout still draws it.
+        #
+        # `imagery.background_path` alone is not the subject: it answers None
+        # without a master, which is exactly the case the fallback existed
+        # for.
+        from spacr.qt import space
+
+        assert imagery.background_path("deep_field", 1920, 1200) is None, (
+            "the master is supposed to be stripped in this fixture")
+        path = space.background_path(1920, 1200, variant="deep_field", seed=0)
         assert path is not None
         assert path.name.startswith("space-")     # the procedural one
 
@@ -848,14 +862,28 @@ class TestPreferences:
         monkeypatch.setattr(preferences, "_settings", Rubbish)
         assert preferences.get_cell_variant() == DEFAULT_CELL_VARIANT
 
-    def test_the_photo_variant_joins_the_space_list(self, qapp):
+    def test_the_space_variant_accessors_are_retired(self, qapp):
+        """They existed for a theme nothing could select.
+
+        Was `test_the_photo_variant_joins_the_space_list`, which asserted
+        that the photo variant reached `preferences.space_variants()`. That
+        list, and the four accessors around it, were retired on 2026-09-09
+        under instruction 364: `space_background_path` had one caller, the
+        `theme == "space"` branch of `theme_background_path`, and "space" is
+        not in VALID_THEMES.
+
+        The procedural variants in `spacr.qt.space` are UNTOUCHED -- the
+        artwork still exists and spaceout still draws it. What went is the
+        preference pair for choosing between them by a theme name nothing
+        offers.
+        """
         from spacr.qt.space import VARIANTS
-        choices = preferences.space_variants()
-        assert set(VARIANTS).issubset(choices)
-        assert "deep_field" in choices
-        preferences.set_space_variant("deep_field")
-        assert preferences.get_space_variant() == "deep_field"
-        preferences.set_space_variant("galaxy")
+
+        assert VARIANTS, "the artwork list itself must not have been retired"
+        for gone in ("space_variants", "get_space_variant",
+                     "set_space_variant", "get_space_seed",
+                     "set_space_seed", "space_background_path"):
+            assert not hasattr(preferences, gone), gone
 
     def test_the_procedural_variant_list_is_left_alone(self):
         """`space.VARIANTS` indexes `_VARIANT_MIX`; the photo key must
@@ -914,11 +942,14 @@ class TestPreferences:
         assert preferences.theme_background_path("light") is None
         cell = preferences.theme_background_path("cell", 1920, 1200)
         assert cell is not None and cell.name.startswith("photo-microtubules")
-        monkeypatch.setattr(preferences, "get_space_variant",
-                            lambda: "deep_field")
-        space_bg = preferences.theme_background_path("space", 1920, 1200)
-        assert space_bg is not None
-        assert space_bg.name.startswith("photo-deep_field")
+        # SPACE ROUTES NOWHERE, since 2026-09-09 and instruction 364. It was
+        # never selectable -- "space" is not in VALID_THEMES, `set_theme`
+        # refuses it and `theme_choices()` offers no space token -- so the
+        # branch could not be entered by any route and was retired with the
+        # five accessors that only called each other.
+        assert preferences.theme_background_path("space", 1920, 1200) is None
+        assert not hasattr(preferences, "get_space_variant")
+        assert not hasattr(preferences, "space_background_path")
 
     def test_cell_background_path_never_raises(self, monkeypatch):
         def boom(*args, **kwargs):
@@ -1020,6 +1051,14 @@ class TestStylesheet:
                 theme.css_color(theme.rim_colour(name), 0.35),
                 theme.css_color(palette["button_accent"], 0.18),
                 theme.css_color(palette["error"], 0.18),
+                # The menu bar, and the window chrome in its corner. This
+                # bar is the frameless window's TITLE bar, so it sits over
+                # the animated backdrop; a fully opaque one reads as a
+                # slab pasted on top. Asked for on 2026-08-31 as "just
+                # make it a little transparent", after a fully
+                # transparent one showed the backdrop as a moving
+                # gradient behind the only two words on it.
+                theme.menu_bar_background(name),
             }
             for hue in theme.STAGE_HOVER.values():
                 allowed.add(theme.css_color(hue, 0.22))
@@ -1127,6 +1166,7 @@ class TestStylesheet:
         monkeypatch.setattr(preferences, "get_theme", lambda: "cell")
         window = MainWindow()
         qtbot.addWidget(window)
+        preferences.apply_preferences_to_app(qapp)
         window.refresh_theme()          # must not raise
         assert qapp.styleSheet()
 

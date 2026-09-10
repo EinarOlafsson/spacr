@@ -122,7 +122,7 @@ def _patch_check_masks_empty(monkeypatch, n_channels=2):
 
 _CLASSICAL_KEYS = (
     "organelle_morphology", "organelle_method",
-    "organelle_min_size", "organelle_max_size",
+    "organelle_min_area", "organelle_max_area",
     "organelle_tophat_radius", "organelle_watershed_spots",
     "organelle_log_min_sigma", "organelle_log_max_sigma",
     "organelle_log_num_sigma", "organelle_log_threshold",
@@ -141,7 +141,7 @@ def _full_organelle_settings():
     """Every classical key plus a pile of keys that must NOT survive."""
     s = {
         "organelle_morphology": "ring", "organelle_method": "dog",
-        "organelle_min_size": 7, "organelle_max_size": 900,
+        "organelle_min_area": 7, "organelle_max_area": 900,
         "organelle_tophat_radius": 4, "organelle_watershed_spots": True,
         "organelle_log_min_sigma": 1.0, "organelle_log_max_sigma": 4.0,
         "organelle_log_num_sigma": 6, "organelle_log_threshold": 0.02,
@@ -423,8 +423,8 @@ def _cp_settings(**over):
         "plot": True,                       # skips _check_masks by default
         "batch_size": 2,
         "organelle_diameter": 17,
-        "organelle_FT": 0.35,
-        "organelle_CP_prob": -1.5,
+        "organelle_flow_threshold": 0.35,
+        "organelle_cellprob_threshold": -1.5,
         "organelle_resample": True,
     }
     s.update(over)
@@ -458,7 +458,7 @@ def test_segment_cellpose_forwards_eval_kwargs(tmp_path):
     batch = np.zeros((1, 16, 16, 1), dtype=np.float32)
     batch[0, 4:9, 4:9, 0] = 200.0
     settings = _cp_settings(batch_size=5, organelle_diameter=23,
-                            organelle_FT=0.9, organelle_CP_prob=0.75,
+                            organelle_flow_threshold=0.9, organelle_cellprob_threshold=0.75,
                             organelle_resample=False)
     model = _RecordingCP()
 
@@ -473,19 +473,9 @@ def test_segment_cellpose_forwards_eval_kwargs(tmp_path):
     assert kw["resample"] is False
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert kw["channels"] == [0, 1]     # what it passes; see the xfail below
     assert kw["rescale"] is None
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/object.py:1853 passes channels=[0, 1] to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads it, so the pair configures nothing -- the network takes the first "
-    "three planes of whatever array it is handed. spacr/object.py:1913, the "
-    "SAM sibling of this same function, already omits it. Fix: delete the "
-    "channels=[0, 1] argument; spacr.model_compare.IGNORED_ARGUMENTS already "
-    "documents 'channels' as this no-op."))
 def test_segment_cellpose_does_not_pass_a_dead_channels_argument(tmp_path):
     """The hard-coded ``[0, 1]`` reaches nothing and must not be sent.
 
@@ -601,8 +591,8 @@ def _sam_settings(object_type, **over):
         "nucleus_channel": None, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": None,
         "plot": True,
-        f"{object_type}_FT": 0.45,
-        f"{object_type}_CP_prob": -0.25,
+        f"{object_type}_flow_threshold": 0.45,
+        f"{object_type}_cellprob_threshold": -0.25,
     }
     s.update(over)
     return s
@@ -656,7 +646,7 @@ def test_segment_cellpose_sam_forwards_object_type_scoped_kwargs(tmp_path):
     batch = np.zeros((3, 8, 8, 1), dtype=np.float32)
     batch[:, 2:6, 2:6, 0] = 90.0
     settings = _sam_settings("pathogen", pathogen_channel=0,
-                             pathogen_FT=0.62, pathogen_CP_prob=1.25,
+                             pathogen_flow_threshold=0.62, pathogen_cellprob_threshold=1.25,
                              pathogen_resample=False)
     model = _RecordingCP()
 

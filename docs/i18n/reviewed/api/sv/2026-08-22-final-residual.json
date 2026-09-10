@@ -1,0 +1,13 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "A confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.",
+      "label": "spacr.classifier_quality#1",
+      "source": "A confusion matrix requires labelled outcomes; an unlabelled score column cannot establish sensitivity or specificity by itself. Use a labelled test split or out-of-fold predictions when available. When labels are unavailable, :func:`deconvolve` estimates two score distributions and reports whether their separation is sufficient to support the estimate.",
+      "source_sha256": "3b528fc58946ff54785dcbac45932dc4659d32290d22b6b5a07450e9e307aed7",
+      "translation": "En förväxlingsmatris kräver märkta utfall; en omärkt poängkolumn kan inte ensam fastställa sensitivitet eller specificitet. Använd en märkt testuppdelning eller prediktioner utanför folden när sådana finns. När etiketter saknas uppskattar :func:`deconvolve` två poängfördelningar och rapporterar om separationen mellan dem är tillräcklig för att stödja skattningen."
+    }
+  ],
+  "schema": 1
+}

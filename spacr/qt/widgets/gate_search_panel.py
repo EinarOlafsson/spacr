@@ -1,30 +1,11 @@
-"""The hyperparameter search, beside the filter instead of behind a modal.
+"""Inline hyperparameter search controls for interactive gate exploration.
 
-The last item of instruction 31:
-
-    "Filter and Hyperparameter-search become TABS, the active one blue like
-     the app's buttons, sitting above the console."
-
-WHY IT WAS WORTH MOVING, and not just rearranging. A search is a thing you
-ITERATE on -- change a parameter, look at the plot, change it again. It lived
-in ``_ClusterSettingsDialog``, a modal, so *looking* meant closing the dialog
-and reopening it to change anything. Every loop cost two clicks and the loss
-of the previous view. Beside the filter it is one click away and the scatter
-stays on screen while the numbers move.
-
-ONE SOURCE OF TRUTH. Every control here reads and writes
-:class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`, which is what the
-modal already does. That is deliberate: the modal's own docstring records the
-bug from when it did NOT -- it opened on hardcoded 0.30/10 while Gate Settings
-offered 0.5/20, so values the user set were discarded and the two disagreed
-about the defaults as well. A second editor of the same numbers is only safe
-when both edit the same object.
-
-WHAT IS AND IS NOT HERE. DBSCAN's parameters and the Walk are, because they
-are the search. The xD projection's hyperparameters are NOT: they live in the
-settings dialog's xD tab beside the column picker they depend on, and a
-reduction is chosen once per table rather than iterated on per gate. Splitting
-them across two places would be the "two editors" mistake again.
+Controls read and write
+:class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`, keeping the
+inline panel and modal settings dialog synchronized. The panel contains
+DBSCAN parameters and walk controls used during gate search. Projection
+hyperparameters remain in the settings dialog's xD tab, where they are
+configured once per table beside their column picker.
 """
 from __future__ import annotations
 
@@ -46,7 +27,10 @@ __all__ = ["GateSearchPanel"]
 
 
 class GateSearchPanel(QWidget):
-    """DBSCAN's parameters and the Walk toggle, live beside the plot."""
+    """DBSCAN's parameters and the Walk toggle, live beside the plot.
+
+    :param parent: parent widget.
+    """
 
     #: A parameter changed. Carries ``{field: value}`` for the caller to
     #: fold into its settings -- the panel does not own them.
@@ -55,6 +39,10 @@ class GateSearchPanel(QWidget):
     run_requested = Signal()
 
     def __init__(self, parent=None):
+        """Build the clustering search controls.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("GateSearchPanel")
         self._settings = None
@@ -131,6 +119,11 @@ class GateSearchPanel(QWidget):
         outer.addWidget(self._note)
         outer.addStretch(1)
         self._refresh_gating()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- settings ---------------------------------------------------------
     def apply_settings(self, settings) -> None:
@@ -156,11 +149,25 @@ class GateSearchPanel(QWidget):
         self._refresh_gating()
 
     def _emit(self, **changed) -> None:
+        """Announce the settings that changed.
+
+        Suppressed while the panel is filling its own controls from a settings
+        record, which would otherwise read as the user changing every one.
+
+        :param changed: the fields that moved, emitted as a mapping.
+        """
         if self._loading:
             return
         self.settings_changed.emit(dict(changed))
 
     def _on_walk_toggled(self, on: bool) -> None:
+        """Switch between the two numbers and a walk over them, and re-gate the form.
+
+        The two numbers are the walk's starting point rather than ignored, which
+        is why they are greyed rather than removed.
+
+        :param on: whether the walk is now on.
+        """
         self._emit(cluster_walk=bool(on))
         self._refresh_gating()
 

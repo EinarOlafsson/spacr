@@ -241,7 +241,8 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
         'boolean': pd.Series([True, None], dtype='boolean'),
         'text': ['alpha', None],
         'timestamp': [pd.Timestamp('2026-08-14T12:30:00'), pd.NaT],
-        'duration': [pd.Timedelta(seconds=2), pd.NaT],
+        'duration': pd.Series(
+            [pd.Timedelta(seconds=2), pd.NaT], dtype='timedelta64[us]'),
     })
     direct = sqlite3.connect(path)
     reference = sqlite3.connect(':memory:')
@@ -254,6 +255,52 @@ def test_direct_insert_matches_pandas_scalar_and_null_encoding(tmp_path):
         ).fetchall()
         reference_rows = reference.execute(
             'SELECT * FROM values_table ORDER BY integer IS NULL'
+        ).fetchall()
+    finally:
+        direct.close()
+        reference.close()
+
+    assert direct_rows == reference_rows
+
+
+@pytest.mark.filterwarnings(
+    "ignore:The 'generic' unit for NumPy timedelta is deprecated:"
+    "DeprecationWarning")
+def test_direct_insert_matches_pandas_arrow_timedelta_encoding(tmp_path):
+    """Arrow durations retain pandas' nanosecond-normalisation rule.
+
+    THE FILTER IS FOR AN UPSTREAM DEPRECATION, NOT FOR A spaCR CHOICE, and
+    the evidence is in the traceback: the same warning is raised by the
+    `pd.Series([...], dtype='duration[us][pyarrow]')` two lines below, before
+    any spaCR code runs at all. `_insert_frame` already asks for an explicit
+    `dtype='timedelta64[ns]'`; pandas' own
+    `ArrowExtensionArray.to_numpy` builds its NA sentinel with a generic
+    timedelta unit on the way, and numpy 2.5 deprecates that.
+
+    `pytest.ini` turns warnings into errors, so this surfaced as a failure
+    with nothing wrong in it -- one of the 21 in instruction 346.
+
+    REMOVE THIS FILTER when pandas stops using a generic unit there; the test
+    will keep passing and the filter will simply do nothing, so the way to
+    notice is to try it rather than to wait for a signal.
+    """
+    pytest.importorskip('pyarrow')
+    path = _fresh_db(tmp_path)
+    frame = pd.DataFrame({
+        'duration': pd.Series(
+            [pd.Timedelta(seconds=2), pd.NaT],
+            dtype='duration[us][pyarrow]',
+        ),
+    })
+    direct = sqlite3.connect(path)
+    reference = sqlite3.connect(':memory:')
+    try:
+        frame.iloc[:0].to_sql('values_table', direct, index=False)
+        _insert_frame(direct, 'values_table', frame)
+        frame.to_sql('values_table', reference, index=False)
+        direct_rows = direct.execute('SELECT * FROM values_table').fetchall()
+        reference_rows = reference.execute(
+            'SELECT * FROM values_table'
         ).fetchall()
     finally:
         direct.close()
@@ -329,6 +376,7 @@ def _write_one_field(args):
     _append_to_measurements_db(db_path, 'cell', frame)
 
 
+@pytest.mark.slow
 def test_four_processes_writing_a_fresh_db_lose_no_fields(tmp_path):
     """End-to-end at the layer that broke: four writers, none of them silent.
 
@@ -336,6 +384,12 @@ def test_four_processes_writing_a_fresh_db_lose_no_fields(tmp_path):
     SQLite file, all of them arriving at an empty table at once. The barrier is
     what makes the create-table race near-certain rather than one-run-in-four:
     before the fix this lost rows in 30 of 30 trials.
+
+    Keep this in the serial slow shard. Running its manager and four-worker
+    pool inside every four-worker xdist cell creates a nested process fan-out;
+    Python 3.14's POSIX ``forkserver`` default makes every child a fresh,
+    import-heavy interpreter and can exhaust a hosted runner before the test
+    reports a result.
     """
     path = _fresh_db(tmp_path)
     fields = [1, 2, 3, 4]

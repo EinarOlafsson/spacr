@@ -72,6 +72,67 @@ from spacr.qt.theme import (PAGE_MIN_LSTAR, PAGE_MIN_RATIO, THEMES,
 #: Black. The colour this whole file exists to keep off the page.
 BLACK = (0, 0, 0)
 
+#: The palette roles that ARE a panel, so a sample of one is not a sample
+#: of the page.
+#:
+#: Written down because the positive test below used to ask a different
+#: question and got away with it. It asserted the commonest colour down
+#: the whole column was the page, which is only the same question while
+#: the cards cover less than half the column -- a fact about how many
+#: settings a module happens to have, not about whether the page is
+#: painted. `mask` and `regression` crossed that line as settings were
+#: added (surface 8,652 samples to page 8,206 on mask: 51%), and the file
+#: started reporting a black page on two modules whose page was a correct
+#: `#23252a`. Excluding the panels asks what the docstring always said it
+#: was asking: of the pixels that are NOT a card, is what shows between
+#: them the page colour, or `bg`?
+PANEL_ROLES = ("surface", "surface_alt", "surface_hi", "border",
+               "border_soft")
+
+
+def _rgb(value: str) -> tuple:
+    """``"#0d0e10"`` as an ``(r, g, b)`` triple."""
+    return QColor(value).getRgb()[:3]
+
+
+def _panel_samples(opacity: float) -> tuple:
+    """Every colour a panel can put on screen at ``opacity``.
+
+    A panel at 60 % is not its palette colour: it composites
+    ``opacity*panel + (1-opacity)*page``, which is the whole point of
+    :data:`OPACITIES`. So a set of the raw palette values excludes
+    nothing at 0.6 — `mask` reported ``#16171b``, which is `surface` over
+    `page` at 60 % and not a palette entry at all. Both forms are listed.
+    """
+    page = _rgb(page_colour("dark"))
+    out = []
+    for role in PANEL_ROLES:
+        panel = _rgb(palette_for("dark")[role])
+        out.append(panel)
+        out.append(tuple(round(opacity * p + (1.0 - opacity) * q)
+                         for p, q in zip(panel, page)))
+    return tuple(out)
+
+
+#: How far off a composited panel a sample may be and still be one.
+#:
+#: Compositing is done by the style, in a colour space and with a
+#: rounding rule this file does not get to choose; `mask` at 60 % shows
+#: both ``#16171a`` and ``#16171b`` for what is arithmetically ``26.4``
+#: blue. Two counts, which is half the distance from the page to the
+#: nearest panel it could ever be confused with -- `surface_hi` at 60 %
+#: composites to ``#212326``, four steps of blue off the page -- so the
+#: tolerance cannot swallow the page itself. `test_the_tolerance_cannot
+#: _swallow_the_page` holds that margin.
+PANEL_TOLERANCE = 2
+
+
+def _is_panel(rgb: tuple, opacity: float) -> bool:
+    """Is this sample a panel surface rather than the page behind them?"""
+    return any(
+        all(abs(a - b) <= PANEL_TOLERANCE for a, b in zip(rgb, panel))
+        for panel in _panel_samples(opacity))
+
 #: The four modules the user named, by registry key. Every one is a plain
 #: ``AppScreen``, which is why one fix covers all four — and why a
 #: regression in ``AppScreen`` would take all four with it.
@@ -342,17 +403,29 @@ def test_the_page_is_the_page_colour(app_key, mode, opacity, qtbot,
 
     "Not black" is satisfied by any accident — a stray panel that happens
     to span the column, a scroll viewport left opaque. The positive
-    assertion is that the *most common* colour down the column is exactly
+    assertion is that of the pixels down the column that are NOT a panel
+    surface, the commonest is exactly
     :func:`spacr.qt.theme.page_colour`, which is only true if the page is
     genuinely showing between the cards.
+
+    The panels are excluded rather than counted; see
+    :func:`_panel_samples` for why counting them measured the
+    module's settings count instead of the page.
     """
     _window, screen = _show(qtbot, app_key, mode, opacity)
     counts = _column_histogram(screen)
-    dominant, seen = counts.most_common(1)[0]
+    behind = collections.Counter({
+        rgb: n for rgb, n in counts.items() if not _is_panel(rgb, opacity)})
+    assert behind, (
+        f"{app_key} at {mode}, {opacity:.0%}: every sampled pixel down the "
+        "settings column is a panel surface, so there is no page to check")
+    dominant, seen = behind.most_common(1)[0]
     assert _hex(dominant) == page_colour("dark"), (
-        f"{app_key} at {mode}, {opacity:.0%}: the commonest colour down the "
-        f"settings column is {_hex(dominant)} ({seen} samples), not the "
-        f"page colour {page_colour('dark')}")
+        f"{app_key} at {mode}, {opacity:.0%}: the commonest colour BEHIND "
+        f"the cards down the settings column is {_hex(dominant)} ({seen} "
+        f"samples), not the page colour {page_colour('dark')}. "
+        f"Most common: "
+        + ", ".join(f"{_hex(c)}x{n}" for c, n in behind.most_common(4)))
 
 
 @pytest.mark.parametrize("opacity", OPACITIES)
@@ -480,3 +553,25 @@ def test_the_report_names_the_roles_it_measured():
     for row in rows:
         assert row["page"] == page_colour("dark")
         assert row["ratio"] > 1.0 and row["delta_lstar"] > 0.0
+
+
+def test_the_tolerance_cannot_swallow_the_page():
+    """:data:`PANEL_TOLERANCE` must never reach the page colour itself.
+
+    The exclusion above is the only thing standing between "the page is
+    showing" and "the page is a panel and nobody noticed". If a retheme
+    moved a panel role to within :data:`PANEL_TOLERANCE` of the page,
+    :func:`_is_panel` would drop every page pixel from the histogram and
+    the positive test would assert on whatever was left -- passing or
+    failing for a reason unrelated to the page. So the margin is checked
+    rather than assumed, at both opacities the file samples.
+    """
+    page = _rgb(page_colour("dark"))
+    for opacity in OPACITIES:
+        for panel in _panel_samples(opacity):
+            gap = max(abs(a - b) for a, b in zip(page, panel))
+            assert gap > PANEL_TOLERANCE, (
+                f"at {opacity:.0%} a panel composites to "
+                f"{_hex(panel)}, within {gap} of the page "
+                f"{_hex(page)}; PANEL_TOLERANCE is {PANEL_TOLERANCE}, so "
+                "the page would be excluded as a panel")

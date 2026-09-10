@@ -1,0 +1,41 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "a key-value mapping in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "label": "spacr.columns.headers#2",
+      "source": "a dict in the order given. A path that does not exist or cannot be parsed is ABSENT from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "source_sha256": "33aa3b37dc8945d16cb30f8c08e0b09ff36e39854650ecb74a9b866551bf12e2",
+      "translation": "en nyckel-värde-mappning i angiven ordning. En sökväg som inte finns eller inte kan analyseras saknas i resultatet snarare än mappas till en tom lista -- se regel 2. Använd :func:`missing` för att fråga vilka de var."
+    },
+    {
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "source_sha256": "9d23203bbb2c3d7976475e2fbf8605a8600d574db31031b02d35de7a65524774",
+      "translation": "Befintliga formler **behålls** och tillämpas på nytt. Det är motsatsen till vad det lokala datafiltret gör med sina klausuler, med avsikt: en filtersats som namnger en saknad kolumn minskar med mindre än den hävdar och är farlig att behålla, medan en formel som namnger en saknad kolumn misslyckas, säger vilken kolumn och är exakt vad användaren vill ha tillbaka när de laddar om samma tabell."
+    },
+    {
+      "context": "The first tab displays every registered app grouped into the same sections as the category-filter tabs. :class:`AppTile` supplies one consistent icon-and- name tile in every view; tooltips and the hint bar provide descriptions. ``categories`` and ``bands`` remain separate inputs so navigation and the all-app layout can evolve independently while both derive from :data:`spacr.qt.app.APPS`.",
+      "label": "spacr.qt.widgets.home#1",
+      "source": "The first tab displays every registered app grouped into the same sections as the category-filter tabs. :class:`AppTile` supplies one consistent icon-and- name tile in every view; tooltips and the hint bar provide descriptions. ``categories`` and ``bands`` remain separate inputs so navigation and the all-app layout can evolve independently while both derive from :data:`spacr.qt.app.APPS`.",
+      "source_sha256": "d1e411dfb2ed895f6b15cf2dde027f888a3ba4c1881325b96ffd89da1dd0bc0d",
+      "translation": "Den första fliken visar alla registrerade appar grupperade i samma sektioner som kategorifilterflikarna. :class:`AppTile` tillhandahåller en konsekvent ikon- och namnbricka i varje vy; verktygstips och tipsfältet ger beskrivningar. ``categories`` och ``bands`` förblir separata ingångar så navigering och layouten för alla appar kan utvecklas oberoende medan båda härrör från :data:`spacr.qt.app.APPS`."
+    },
+    {
+      "context": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
+      "label": "spacr.schema.comparable_key_value#1",
+      "source": "``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype difference is **not** a disagreement, and this is the whole reason the comparison is not ``Series.equals``: a naive equality warns on every file that stored one copy of the well as text and the other as a number, and a warning that fires every time teaches the user to ignore the one that matters.",
+      "source_sha256": "0dc3c87f1cb054d045e7d21cd0ed4d21af7d67a1569ac8045e774707b9ec6a1d",
+      "translation": "``1``, ``1.0``, ``'01'`` och ``' 1 '`` är samma brunn. En skillnad i dtype är **inte** en oenighet, och detta är hela anledningen till att jämförelsen inte är ``Series.equals``: en naiv likhetsvarning på varje fil som lagrade en kopia av brunnen som text och den andra som ett nummer, och en varning som avfyras varje gång lär användaren att ignorera den som betyder något."
+    },
+    {
+      "context": "Free-form text, like the laboratory microplate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
+      "label": "spacr.schema.screen_id#1",
+      "source": "Free-form text, like the plate id, because it is the name a user gave an experiment. It is **not** prefixed and **not** parsed back apart: the whole point of :data:`SCREEN_KEY` is that it is a dimension you block on, facet by and colour with as it stands.",
+      "source_sha256": "6eec9e99214021448d283e517364a11f18d8c9a5db1616423e52cef9dffd71ac",
+      "translation": "Text i fritt format, som laboratoriets mikroplatta-id, eftersom det är namnet som en användare gav ett experiment. Den har **inte** prefix och **inte** tolkas isär: hela poängen med :data:`SCREEN_KEY` är att det är en dimension man blockerar på, facetterar av och färgar med som den står."
+    }
+  ],
+  "schema": 1
+}

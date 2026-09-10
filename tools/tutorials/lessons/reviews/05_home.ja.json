@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "ja",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Retain English UI names instead of translating Home as family or host as parents.", "Correct image crops, screening, assay and machine-learning terminology.", "Remove the machine draft's unrelated Hindi fragment and restore every source instruction."]},
+  "title": "Home画面とナビゲーション",
+  "description": "Coreの6つの工程とHomeの現在のカテゴリを確認し、関連ツールを親モジュールの中から見つけます。",
+  "objectives": ["画像から回帰分析の結果まで、Coreの分析の流れを理解する。", "Data、Tools、Assaysを見つけ、モジュール内に統合された機能を、なくなったモジュールと混同しない。", "ダウンロードする実データと生成されたデモを区別し、対応する専門チュートリアルを見つける。"],
+  "prerequisite": "spaCRをインストールし、デスクトップアプリを開いてください。録画ではダークテーマと拡大したインターフェース文字を使用しています。",
+  "scenes": [
+    "Homeでは、spaCRがCore、Data、Tools、Assaysに分かれています。これらは作業の流れに応じたカテゴリです。関連ツールが親モジュールの中にある場合もあるため、Homeのボタンがすべての機能を表しているわけではありません。",
+    "Coreはスクリーニングの分析工程に沿って、Mask、Measure、Annotate、Classify、Map Barcodes、Regressionと並んでいます。手元の入力データに合った工程から始めてください。対応する測定データや切り出し画像がすでにある場合、セグメンテーションをやり直す必要はありません。",
+    "DataにはImport、Run Compare、Experiment Design、Power and Design、Dose Response、品質管理がまとまっています。Importは、Import Images、Format Converter、External Masksへの入り口でもあります。これらの機能を使うときは、まず親モジュールを開いてください。",
+    "ToolsにはMake Masks、Align and Stitch、Image UMAP、Gate Editor、Graph Builderがあります。それぞれに関連する操作がまとまっています。例えば、Make Masksにはモデルの学習と比較があり、Graph BuilderにはPlate ViewerとSmall Multiplesがあります。",
+    "AssaysにはPlaque Assay、Recruitment、Invasion Assay、Replication Assayがあります。実験内容と必要な入力データに合ったワークフローを選んでください。モジュールの成熟度を示す色はカテゴリとは別です。実験的な機能を利用する前に、ツールチップを確認してください。",
+    "Classifyは1つのモジュールです。Classifier familyという設定で、画像を使うコンピュータビジョンか、測定した特徴量を使う機械学習かを選びます。従来のコンピュータビジョンと機械学習のチュートリアルは、この2つの方法を詳しく説明するものです。Homeに別々のボタンがあるという意味ではありません。",
+    "Classifyの上部のアイコンから、Classifier Evaluation、Explain CV Model、Activation、Training Runs、Feature Explorerを開けます。アイコンにポインタを合わせると、名前と説明が表示されます。学習済みモデルやその結果を確認するときは、リンク先の専門チュートリアルを参照してください。",
+    "Coreのチュートリアルでは、Load test dataから入手できる実データを使います。ダウンロードすると、必要な入力と対応する設定が読み込まれます。Helpで生成するデモは、それとは別の選択肢です。MaskのTimeと3Dスイッチは時系列と立体データのワークフローを表示し、Liveはプレビューを開きます。",
+    "操作ガイドやチュートリアルに戻るにはHelpを使います。使用中のモジュールのチュートリアルをアプリと並べて開き、データ、設定、出力結果の確認に従ってください。次のレッスンでは、同じワークフローをPython APIやコマンドラインから利用する方法を紹介します。"
+  ]
+}

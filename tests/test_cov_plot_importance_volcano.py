@@ -18,6 +18,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from spacr.figures.style import ROLES
+
 import matplotlib
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
@@ -118,7 +120,11 @@ def test_overlay_masks_on_images_saves_resized_rgb_overlays(tmp_path):
     masks = {name: _square_mask((128, 128)) for name in imgs}
     img_dir = _overlay_dirs(tmp_path, imgs, masks)
 
-    assert overlay_masks_on_images(str(img_dir), save=True, plot=False) is None
+    # Returns a report rather than None: the per-image loop now survives a
+    # field it cannot read, so the caller has to be able to tell which
+    # ones are missing. Nothing is missing here.
+    report = overlay_masks_on_images(str(img_dir), save=True, plot=False)
+    assert report == {"written": 2, "failed": []}
 
     out_dir = img_dir / "overlay"
     assert out_dir.is_dir()
@@ -220,13 +226,13 @@ def test_graph_importance_concatenates_csvs_and_saves(tmp_path, no_show):
     assert settings["src"] == str(tmp_path)
     assert settings["grouping_column"] == "compartment"
     assert settings["data_column"] == "compartment_importance_sum"
-    assert settings["graph_type"] == "jitter_bar"
+    assert settings["graph_type"] == "jitter_box"
 
     # settings snapshot written by save_settings
     saved = pd.read_csv(tmp_path / "settings" / "graph_importance.csv")
     assert set(saved["Key"]) >= {"csvs", "grouping_column", "data_column"}
 
-    stem = "compartment_compartment_importance_sum_compartment_jitter_bar"
+    stem = "compartment_compartment_importance_sum_compartment_jitter_box"
     assert (tmp_path / f"{stem}.pdf").is_file()
     data_csv = pd.read_csv(tmp_path / f"{stem}_data.csv")
     # concat of both inputs -> 48 rows
@@ -272,7 +278,7 @@ def test_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no
     graph_importance(settings)
 
     assert settings["csvs"] == [str(tmp_path / "imp0.csv")]
-    stem = "compartment_compartment_importance_sum_compartment_jitter_bar"
+    stem = "compartment_compartment_importance_sum_compartment_jitter_box"
     assert (tmp_path / f"{stem}.pdf").is_file()
 
 
@@ -630,9 +636,9 @@ def test_volcano_plot_thresholds_none_transform_draws_lines_and_colors():
 
     # A (fc=+2) is crimson, B (fc=-3) royalblue, the rest lightgray.
     fc_colors = ax.collections[0].get_facecolors()[:, :3]
-    assert np.allclose(fc_colors[0], to_rgb("crimson"))
-    assert np.allclose(fc_colors[1], to_rgb("royalblue"))
-    assert np.allclose(fc_colors[2], to_rgb("lightgray"))
+    assert np.allclose(fc_colors[0], to_rgb(ROLES["up"]))
+    assert np.allclose(fc_colors[1], to_rgb(ROLES["down"]))
+    assert np.allclose(fc_colors[2], to_rgb(ROLES["data"]))
 
 
 @pytest.mark.parametrize(
@@ -734,7 +740,7 @@ def test_volcano_plot_uses_supplied_axes_and_style_kwargs(tmp_path):
                            else to_rgb(l.get_color()), 3)) for l in ax.lines[:3]] == \
         [tuple(np.round(to_rgb("green"), 3))] * 3
     assert ax.lines[0].get_linestyle() == ":"
-    assert to_rgb(ax.lines[3].get_color()) == to_rgb("black")
+    assert to_rgb(ax.lines[3].get_color()) == to_rgb(ROLES["reference"])
     # text kwargs reached the annotations
     assert [t.get_text() for t in ax.texts] == hits == ["A", "B"]
     assert all(t.get_fontsize() == 14 for t in ax.texts)
@@ -761,7 +767,7 @@ def test_volcano_plot_without_thresholds_is_all_gray():
     )
     colors = ax.collections[0].get_facecolors()
     assert colors.shape == (1, 4)                       # scalar colour spec
-    assert np.allclose(colors[0, :3], to_rgb("lightgray"))
+    assert np.allclose(colors[0, :3], to_rgb(ROLES["data"]))
     assert len(ax.lines) == 1                            # only the x=0 line
 
 

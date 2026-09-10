@@ -37,13 +37,16 @@ What each button can honestly do
 --------------------------------
 
 ``clear RAM``
-    ``gc.collect()``, plus dropping spaCR's own caches: the merged-field LRU
+    Drops spaCR's own caches: the merged-field LRU
     (:func:`spacr.crops.clear_field_cache` — by far the largest, whole image
     stacks), the file-format and DB-format caches, the zoomed-animation
     cache, the icon and preview ``lru_cache``s, the filter-kind cache, every
     live :class:`~spacr.qt.crop_thumbs.CropThumbnails` thumbnail LRU, and
-    Qt's own ``QPixmapCache``. It cannot return memory the allocator has
-    decided to keep, and it says so when the measured RSS does not move.
+    Qt's own ``QPixmapCache``. A process with no live Qt application also
+    runs ``gc.collect()``. The GUI deliberately does not: walking a heap of
+    live Qt wrappers can enter already-retired C++ objects and crash the
+    process. It cannot return memory the allocator has decided to keep, and
+    it says so when the measured RSS does not move.
 
 ``clear VRAM``
     ``torch.cuda.empty_cache()``, which hands the CUDA driver back the
@@ -79,31 +82,31 @@ import gc
 import logging
 import os
 import shutil
-from dataclasses import dataclass, field
+import sys
+import threading
+import time
+from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.qt.resource_cleanup")
 
 __all__ = [
-    "Reclaim", "DiskEntry", "DiskReport",
+    "Reclaim", "DiskEntry", "DiskReport", "BudgetSweep",
     "clear_ram", "clear_vram", "clear_cpu", "disk_report",
     "confirmation_title", "confirmation_text", "ACTIONS",
     "MODEL_RELEASERS", "process_rss", "cuda_reserved",
     "run_launch_cleanup", "run_pre_run_cleanup", "install_run_hook",
-    "register",
+    "register", "sweep_memory_budget", "install_budget_sweep",
 ]
 
 #: The four buttons, in the order Preferences shows them.
 ACTIONS: Tuple[str, ...] = ("ram", "vram", "cpu", "disk")
 
 #: Callables that release a model reference spaCR itself is holding, each
-#: returning how many it released. Empty, and the emptiness is a finding:
-#: spaCR builds its Cellpose and torch models *inside* the run function and
-#: drops them when the run ends, so between runs there is no long-lived
-#: model to release and ``empty_cache()`` is the whole of the reclaim. The
-#: hook exists so that a screen which starts caching a warm model has one
-#: obvious place to say so, rather than this module growing a list of
-#: attribute names to go rummaging for.
+#: returning how many it released.  Most pipeline models are run-scoped.  A
+#: screen that deliberately keeps another warm model registers it here; the
+#: built-in Annotate outline model is also discovered from its already-loaded
+#: module so cleanup never imports Cellpose merely to ask whether it is warm.
 MODEL_RELEASERS: List[Callable[[], int]] = []
 
 #: Modules whose ``functools.lru_cache``-decorated functions are spaCR's own
@@ -120,7 +123,15 @@ _DICT_CACHES: Tuple[Tuple[str, str], ...] = (
     ("spacr.crops", "_FORMAT_CACHE"),
     ("spacr.crops", "_DB_FORMAT_CACHE"),
     ("spacr.qt.widgets.data_filter_panel", "_KINDS_CACHE"),
+    ("spacr.qt.annotate_engine", "_MASK_CACHE"),
+    ("spacr.qt.annotate_engine", "_EDGE_CACHE"),
 )
+
+# A sweep does bounded work on the GUI thread.  If more is required, the next
+# five-second tick continues it; no single pass can pickle/spill hundreds of
+# figures and turn a memory safeguard into the event-loop freeze it prevents.
+BUDGET_SWEEP_INTERVAL_MS = 5000
+BUDGET_SWEEP_MAX_ENTRIES = 64
 
 
 # ---------------------------------------------------------------------------
@@ -195,9 +206,21 @@ class DiskEntry:
 
     @property
     def percent_used(self) -> float:
+        """How full this volume is.
+
+        Zero for a volume reporting no total, rather than a division error:
+        some network mounts do that, and a resource panel should say nothing
+        rather than fail to draw.
+
+        :returns: the percentage used.
+        """
         return (100.0 * self.used / self.total) if self.total else 0.0
 
     def summary(self) -> str:
+        """This volume's free and total space, in human units.
+
+        :returns: a one-line summary.
+        """
         return (f"{self.path}: {human_bytes(self.free)} free of "
                 f"{human_bytes(self.total)} ({self.percent_used:.0f}% used)")
 
@@ -210,6 +233,14 @@ class DiskReport:
     note: str = ""
 
     def summary(self) -> str:
+        """Every volume, or why there are none to report.
+
+        SAYS WHY WHEN EMPTY. "No project folder is known yet" is a different
+        situation from a disk check that found nothing, and a blank panel
+        cannot tell them apart.
+
+        :returns: a one-line summary.
+        """
         if not self.entries:
             return self.note or "No project folder is known yet."
         lines = [entry.summary() for entry in self.entries]
@@ -221,6 +252,55 @@ class DiskReport:
     def tightest(self) -> Optional[DiskEntry]:
         """The drive with the least room, which is the one worth reading."""
         return min(self.entries, key=lambda e: e.free, default=None)
+
+
+@dataclass(frozen=True)
+class BudgetSweep:
+    """Observable result of applying the user's live-cache policy.
+
+    ``before_mb``/``after_mb`` are sums of the cache owners' measured entry
+    sizes, not process RSS.  That makes the accounting stable and attributable:
+    shared pages and Python's allocator cannot make an evicted entry appear to
+    have grown.  RSS remains the measurement reported by :class:`Reclaim` for
+    the explicit Clear RAM action.
+    """
+
+    before_mb: float = 0.0
+    after_mb: float = 0.0
+    dropped: Tuple[str, ...] = ()
+    retained_in_use: Tuple[str, ...] = ()
+    pressure: bool = False
+    complete: bool = True
+    models_released: int = 0
+    vram_freed: int = 0
+    errors: Tuple[str, ...] = ()
+
+    @property
+    def freed_mb(self) -> float:
+        """Measured cache bytes removed by this sweep, in MiB."""
+        return max(0.0, float(self.before_mb) - float(self.after_mb))
+
+
+@dataclass(frozen=True)
+class _BudgetEntry:
+    """One registered consumer of the interface's memory budget.
+
+    `last_used` is what makes the budget an LRU rather than a quota: when
+    the total is over, the least recently touched entries are released
+    first, which is almost always the screen the user navigated away from.
+    A quota alone would refuse the screen they are looking at.
+
+    `token` is the identity the owner releases by, and `label` is the one
+    a person reads in the diagnostics -- separate because the token has to
+    be stable and unique, and the label has to be legible.
+    """
+
+    token: str
+    label: str
+    megabytes: float
+    last_used: float
+    in_use: bool
+    drop: Callable[[], bool]
 
 
 def human_bytes(count: int) -> str:
@@ -271,6 +351,24 @@ def _torch_if_loaded():
     return sys.modules.get("torch")
 
 
+def _cuda_stat(torch, name: str) -> int:
+    """Sum one allocator statistic across already-available CUDA devices."""
+    getter = getattr(torch.cuda, name)
+    try:
+        count = max(1, int(torch.cuda.device_count()))
+    except Exception:                                       # noqa: BLE001
+        count = 1
+    if count == 1:
+        return int(getter())
+    try:
+        return sum(int(getter(device)) for device in range(count))
+    except TypeError:
+        # Small test doubles and old compatible torch builds may expose only
+        # the no-argument form.  It still measures the current device rather
+        # than turning a cleanup into an import or context initialisation.
+        return int(getter())
+
+
 def cuda_reserved() -> Optional[int]:
     """Bytes the CUDA caching allocator holds for this process, or ``None``.
 
@@ -285,9 +383,32 @@ def cuda_reserved() -> Optional[int]:
     try:
         if not torch.cuda.is_available() or not torch.cuda.is_initialized():
             return None
-        return int(torch.cuda.memory_reserved())
+        return _cuda_stat(torch, "memory_reserved")
     except Exception:
         LOG.debug("could not read CUDA reserved memory", exc_info=True)
+        return None
+
+
+def _cuda_cached() -> Optional[int]:
+    """Bytes in torch's loaded CUDA allocator that no tensor is using.
+
+    This is the part :func:`torch.cuda.empty_cache` can honestly return.
+    ``memory_reserved - memory_allocated`` deliberately excludes live tensor
+    storage, so the budget never calls an allocation "cache" merely because
+    torch owns it.  Like :func:`cuda_reserved`, this imports nothing and does
+    not initialise a CUDA context.
+    """
+    torch = _torch_if_loaded()
+    if torch is None:
+        return None
+    try:
+        if not torch.cuda.is_available() or not torch.cuda.is_initialized():
+            return None
+        reserved = _cuda_stat(torch, "memory_reserved")
+        allocated = _cuda_stat(torch, "memory_allocated")
+        return max(0, reserved - allocated)
+    except Exception:
+        LOG.debug("could not read CUDA cached memory", exc_info=True)
         return None
 
 
@@ -301,6 +422,357 @@ def _thread_count() -> int:
     """
     import threading
     return int(threading.active_count())
+
+
+# ---------------------------------------------------------------------------
+# The live-cache budget
+# ---------------------------------------------------------------------------
+
+def _loaded_cache_owners():
+    """Return cache owners already present in this process; import nothing.
+
+    A cleanup whose purpose is to release memory must never import the screen
+    or pipeline that owns it.  Module caches expose the same two-method
+    protocol as object caches; widget-owned caches publish weak snapshots, so
+    observing them cannot extend their lifetime.
+    """
+    owners = []
+    for module_name in ("spacr.crops", "spacr.qt.annotate_engine"):
+        module = sys.modules.get(module_name)
+        if (module is not None
+                and callable(getattr(module, "cache_budget_entries", None))
+                and callable(getattr(module, "drop_cache_budget_entry", None))):
+            owners.append(module)
+    for module_name, accessor_name in (
+            ("spacr.qt.crop_thumbs", "live_thumbnail_caches"),
+            ("spacr.qt.widgets.figure_queue", "live_figure_queues"),
+            ("spacr.qt.widgets.timelapse_preview", "_live_cache_owners"),
+            ("spacr.qt.widgets.timelapse_movie", "_live_cache_owners")):
+        module = sys.modules.get(module_name)
+        accessor = getattr(module, accessor_name, None)
+        if not callable(accessor):
+            continue
+        try:
+            owners.extend(accessor())
+        except Exception:                                      # noqa: BLE001
+            LOG.debug("could not enumerate %s", module_name, exc_info=True)
+    # A buggy screen must not make the same owner count twice.
+    return tuple({id(owner): owner for owner in owners}.values())
+
+
+def _owner_label(owner) -> str:
+    """Name a cache owner for a report.
+
+    :param owner: a module or an object holding a cache.
+    :returns: the module's name, or the object's fully qualified class name
+        -- either way something a reader can find in the source.
+    """
+    return str(getattr(owner, "__name__", "")
+               or f"{type(owner).__module__}.{type(owner).__name__}")
+
+
+def _collect_budget_entries(owners=None):
+    """Inventory every registered cache, entry by entry.
+
+    An owner that does not implement both halves of the protocol is reported
+    rather than skipped: a cache that can be measured but not dropped is a
+    cache the sweep can never reclaim, and silence about it would look like
+    there was nothing to reclaim.
+
+    The drop callable binds its key as a DEFAULT ARGUMENT rather than
+    closing over the loop variable -- closed over, every entry would carry
+    the LAST key, so one eviction would drop the wrong value and report
+    success.
+
+    :param owners: the owners to inventory; ``None`` uses every loaded one.
+    :returns: ``(entries, errors)`` -- what can be dropped, and what could
+        not be asked.
+    """
+    records: List[_BudgetEntry] = []
+    errors: List[str] = []
+    for owner in tuple(_loaded_cache_owners() if owners is None else owners):
+        label = _owner_label(owner)
+        inventory = (getattr(owner, "cache_budget_entries", None)
+                     or getattr(owner, "_cache_budget_entries", None))
+        dropper = (getattr(owner, "drop_cache_budget_entry", None)
+                   or getattr(owner, "_drop_cache_budget_entry", None))
+        if not callable(inventory) or not callable(dropper):
+            errors.append(f"{label}: cache-budget protocol is incomplete")
+            continue
+        try:
+            rows = inventory()
+        except Exception as exc:                               # noqa: BLE001
+            errors.append(f"{label}: inventory failed ({exc})")
+            LOG.debug("could not inventory %s", label, exc_info=True)
+            continue
+        for ordinal, row in enumerate(rows):
+            try:
+                key, byte_count, last_used, in_use = row
+                token = f"cache-{len(records):08d}"
+                key_label = repr(key)
+                if len(key_label) > 160:
+                    key_label = key_label[:157] + "..."
+
+                def _drop(dropper=dropper, key=key):
+                    """Drop this entry's cached value. Key bound as a default argument.
+
+                    Bound rather than closed over: closing over the loop variable would give
+                    every entry the LAST key, so one eviction would drop the wrong thing and
+                    report success.
+                    """
+                    return bool(dropper(key))
+
+                records.append(_BudgetEntry(
+                    token=token,
+                    label=f"{label}[{key_label}]",
+                    megabytes=max(0, int(byte_count)) / (1024.0 * 1024.0),
+                    last_used=float(last_used),
+                    in_use=bool(in_use),
+                    drop=_drop,
+                ))
+            except Exception as exc:                           # noqa: BLE001
+                errors.append(f"{label} entry {ordinal}: invalid ({exc})")
+                LOG.debug("invalid cache entry from %s", label, exc_info=True)
+    return records, errors
+
+
+def _budget_values(idle_minutes, ceiling_mb):
+    """Resolve the idle timeout and cache ceiling, falling back to the defaults.
+
+    :param idle_minutes: the caller's value, or ``None`` to read the
+        preference.
+    :param ceiling_mb: the caller's value, or ``None`` to read the
+        preference.
+    :returns: both, as non-negative floats. An unreadable preference falls
+        back to the shipped default rather than failing the sweep:
+        housekeeping must not be what takes the application down.
+    """
+    from .memory_budget import (
+        DEFAULT_CACHE_CEILING_MB,
+        DEFAULT_IDLE_MINUTES,
+    )
+
+    if idle_minutes is None or ceiling_mb is None:
+        try:
+            from .preferences import get_cache_ceiling_mb, get_idle_minutes
+
+            if idle_minutes is None:
+                idle_minutes = get_idle_minutes()
+            if ceiling_mb is None:
+                ceiling_mb = get_cache_ceiling_mb()
+        except Exception:                                    # noqa: BLE001
+            idle_minutes = (DEFAULT_IDLE_MINUTES
+                            if idle_minutes is None else idle_minutes)
+            ceiling_mb = (DEFAULT_CACHE_CEILING_MB
+                          if ceiling_mb is None else ceiling_mb)
+    return max(0.0, float(idle_minutes)), max(0.0, float(ceiling_mb))
+
+
+def _a_run_is_active() -> bool:
+    """Read the already-loaded registry without importing the Qt bridge."""
+    bridge = sys.modules.get("spacr.qt.bridge")
+    registry = bridge.registry if bridge is not None else None
+    if not callable(registry):
+        return False
+    try:
+        return bool(registry().active())
+    except Exception:                                        # noqa: BLE001
+        return True
+
+
+# The allocator exposes no "last kernel finished" timestamp.  Observing its
+# reclaimable byte count on the existing five-second sweep is the honest
+# substitute: a change, or any registered run in flight, is activity; an
+# unchanged cache after the run is idle.  These two scalars retain no tensor
+# and therefore cannot become another cache themselves.
+_CUDA_CACHE_BYTES: Optional[int] = None
+_CUDA_CACHE_LAST_USED = 0.0
+
+
+def _observe_cuda_cache(now: float, *, run_active: bool
+                        ) -> Tuple[Optional[int], float]:
+    """Return ``(reclaimable bytes, last activity)`` without importing torch."""
+    global _CUDA_CACHE_BYTES, _CUDA_CACHE_LAST_USED
+    cached = _cuda_cached()
+    if cached is None or cached <= 0:
+        _CUDA_CACHE_BYTES = cached
+        _CUDA_CACHE_LAST_USED = 0.0
+        return cached, 0.0
+    if (run_active or _CUDA_CACHE_BYTES != cached
+            or _CUDA_CACHE_LAST_USED <= 0.0):
+        _CUDA_CACHE_LAST_USED = float(now)
+    _CUDA_CACHE_BYTES = int(cached)
+    return int(cached), float(_CUDA_CACHE_LAST_USED)
+
+
+def _record_cuda_cleanup(now: float) -> None:
+    """Refresh allocator accounting after an attempted policy cleanup."""
+    global _CUDA_CACHE_BYTES, _CUDA_CACHE_LAST_USED
+    cached = _cuda_cached()
+    _CUDA_CACHE_BYTES = cached
+    _CUDA_CACHE_LAST_USED = float(now) if cached else 0.0
+
+
+def _release_models_under_pressure() -> int:
+    """Drop registered warm models only when no run can be using them."""
+    if _a_run_is_active():
+        return 0
+    released = 0
+    for releaser in _loaded_model_releasers():
+        try:
+            released += max(0, int(releaser() or 0))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a model releaser failed", exc_info=True)
+    return released
+
+
+def _loaded_model_releasers():
+    """Known releasers from loaded modules, with no imports or duplicates."""
+    releasers = list(MODEL_RELEASERS)
+    for module_name in ("spacr.qt.annotate_engine",):
+        module = sys.modules.get(module_name)
+        candidate = getattr(module, "_release_cached_models", None)
+        if callable(candidate) and candidate not in releasers:
+            releasers.append(candidate)
+    return tuple(releasers)
+
+
+def sweep_memory_budget(*, now: Optional[float] = None,
+                        idle_minutes: Optional[float] = None,
+                        ceiling_mb: Optional[float] = None,
+                        headroom_short: Optional[bool] = None,
+                        max_entries: int = BUDGET_SWEEP_MAX_ENTRIES,
+                        owners=None) -> BudgetSweep:
+    """Apply idle age, one global byte ceiling, and the free-memory floor.
+
+    :param now: epoch seconds; explicit so a controlled-clock test can drive
+        real cache entries.
+    :param idle_minutes: override for tests; otherwise the live preference.
+    :param ceiling_mb: global RAM-cache ceiling; otherwise the preference.
+    :param headroom_short: controlled pressure state for tests.  When omitted,
+        :func:`spacr.qt.memory_budget.headroom_is_short` is measured before
+        and after each pressure eviction, stopping as soon as the floor is
+        restored.
+    :param max_entries: hard bound on evictions in this call.
+    :param owners: optional owner sequence for an isolated test; production
+        discovers all already-loaded registered caches.
+    :returns: measured, attributable accounting for the pass.
+
+    In-use entries are excluded before either policy is evaluated.  Their
+    bytes still count against the one process-wide ceiling, so a pinned 100 MB
+    Figure leaves 100 MB less room for evictable thumbnails; applying a full
+    ceiling independently to every cache would multiply the user's setting by
+    the number of open screens.
+    """
+    from . import memory_budget
+
+    instant = time.time() if now is None else float(now)
+    idle, ceiling = _budget_values(idle_minutes, ceiling_mb)
+    run_active = _a_run_is_active()
+    cuda_bytes, cuda_last_used = _observe_cuda_cache(
+        instant, run_active=run_active)
+    cuda_due = bool(
+        not run_active
+        and cuda_bytes
+        and ((float(cuda_bytes) / (1024.0 * 1024.0)) > ceiling
+             or instant - cuda_last_used >= idle * 60.0)
+    )
+    entries, errors = _collect_budget_entries(owners)
+    before = sum(row.megabytes for row in entries)
+    pinned = [row for row in entries if row.in_use]
+    candidates = [row for row in entries if not row.in_use]
+    pinned_mb = sum(row.megabytes for row in pinned)
+    available_ceiling = max(0.0, ceiling - pinned_mb)
+    policy_tokens = memory_budget.what_to_drop(
+        [(row.token, row.megabytes, row.last_used) for row in candidates],
+        instant, idle_minutes=idle, ceiling_mb=available_ceiling)
+    by_token = {row.token: row for row in candidates}
+    normal = [by_token[token] for token in policy_tokens if token in by_token]
+
+    explicit_pressure = headroom_short is not None
+    pressure = (bool(headroom_short) if explicit_pressure
+                else memory_budget.headroom_is_short())
+    limit = max(0, int(max_entries))
+    attempted = set()
+    dropped: List[str] = []
+    freed = 0.0
+
+    def _evict(row: _BudgetEntry) -> bool:
+        """Evict one entry, counting what it freed. Failures are tolerated.
+
+        A cache that refuses to drop is not a reason to abandon the sweep -- the
+        rest of the budget still needs reclaiming.
+        """
+        nonlocal freed
+        attempted.add(row.token)
+        try:
+            removed = bool(row.drop())
+        except Exception as exc:                              # noqa: BLE001
+            errors.append(f"{row.label}: eviction failed ({exc})")
+            LOG.debug("could not evict %s", row.label, exc_info=True)
+            return False
+        if removed:
+            dropped.append(row.label)
+            freed += row.megabytes
+        return removed
+
+    for row in normal:
+        if len(attempted) >= limit:
+            break
+        _evict(row)
+
+    # Headroom is a hard floor, not another per-cache size.  Once ordinary
+    # idle/ceiling evictions have run, release the coldest remaining entries
+    # until the measured floor is restored or this bounded pass is exhausted.
+    remaining = sorted((row for row in candidates
+                        if row.token not in attempted),
+                       key=lambda row: row.last_used)
+    pressure_remaining = pressure
+    if pressure_remaining and not explicit_pressure:
+        pressure_remaining = memory_budget.headroom_is_short()
+    while pressure_remaining and remaining and len(attempted) < limit:
+        row = remaining.pop(0)
+        _evict(row)
+        pressure_remaining = (True if explicit_pressure
+                              else memory_budget.headroom_is_short())
+
+    models_released = 0
+    vram_freed = 0
+    allocator_attempted = False
+    if (pressure_remaining or cuda_due) and len(attempted) < limit \
+            and not run_active:
+        allocator_attempted = True
+    if pressure_remaining and len(attempted) < limit and not run_active:
+        models_released = _release_models_under_pressure()
+        # CUDA allocator blocks are reclaimable state too.  This never imports
+        # torch or initialises a CUDA context; clear_vram has both guards.
+        result = clear_vram(release_models=False)
+        vram_freed = result.freed
+        _record_cuda_cleanup(instant)
+    elif cuda_due and len(attempted) < limit and not run_active:
+        # A stable allocator cache obeys the same idle timeout and byte
+        # ceiling as the RAM caches.  Live allocations are excluded by
+        # ``_cuda_cached`` and a registered run pins the allocator wholesale.
+        result = clear_vram(release_models=False)
+        vram_freed = result.freed
+        _record_cuda_cleanup(instant)
+
+    pending_normal = any(row.token not in attempted for row in normal)
+    pending_pressure = bool(pressure_remaining and remaining)
+    pending_cuda = bool(cuda_due and not allocator_attempted)
+    complete = not pending_normal and not pending_pressure and not pending_cuda
+    after = max(0.0, before - freed)
+    return BudgetSweep(
+        before_mb=before,
+        after_mb=after,
+        dropped=tuple(dropped),
+        retained_in_use=tuple(row.label for row in pinned),
+        pressure=pressure,
+        complete=complete,
+        models_released=models_released,
+        vram_freed=vram_freed,
+        errors=tuple(errors),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -322,8 +794,13 @@ def _clear_lru_caches() -> List[str]:
                 value = getattr(module, attr)
             except Exception:
                 continue
-            clear = getattr(value, "cache_clear", None)
-            info = getattr(value, "cache_info", None)
+            try:
+                clear = getattr(value, "cache_clear", None)
+                info = getattr(value, "cache_info", None)
+            except Exception:
+                LOG.debug("could not inspect %s.%s", name, attr,
+                          exc_info=True)
+                continue
             if not callable(clear) or not callable(info):
                 continue
             try:
@@ -338,6 +815,15 @@ def _clear_lru_caches() -> List[str]:
 
 
 def _clear_dict_caches() -> List[str]:
+    """Empty the registered plain-dict caches and their use-time maps.
+
+    A module that is not imported is skipped rather than imported to be
+    cleared -- importing something in order to free memory is the opposite
+    of the point.
+
+    :returns: one line per cache cleared, naming it and how many entries it
+        held.
+    """
     import sys
     done: List[str] = []
     for module_name, attribute in _DICT_CACHES:
@@ -350,6 +836,9 @@ def _clear_dict_caches() -> List[str]:
         held = len(cache)
         try:
             cache.clear()
+            metadata = getattr(module, f"{attribute}_USED", None)
+            if isinstance(metadata, dict):
+                metadata.clear()
             done.append(f"{module_name}.{attribute} ({held} entries)")
         except Exception:
             LOG.debug("could not clear %s.%s", module_name, attribute,
@@ -371,7 +860,7 @@ def _clear_thumbnail_caches() -> List[str]:
     if thumbs_module is None or widgets_module is None:
         return done
     cls = getattr(thumbs_module, "CropThumbnails", None)
-    app = getattr(widgets_module, "QApplication").instance()
+    app = widgets_module.QApplication.instance()
     if cls is None or app is None:
         return done
     cleared = 0
@@ -399,18 +888,41 @@ def _clear_pixmap_cache() -> List[str]:
     """Qt's own pixmap cache — spaCR's process, spaCR's memory."""
     try:
         from PySide6.QtGui import QPixmapCache
-        held = int(QPixmapCache.totalUsed())
-        if not held:
-            return []
+
+        # Qt 6 removed ``totalUsed`` from the Python API. Absence of an
+        # accounting reading must not turn into absence of the cleanup: clear
+        # the cache either way, and report a byte count only when Qt supplied
+        # one. Inventing a count would violate Reclaim's measured contract.
+        total_used = getattr(QPixmapCache, "totalUsed", None)
+        held = int(total_used()) if callable(total_used) else None
         QPixmapCache.clear()
-        return [f"Qt pixmap cache ({held} KB)"]
+        return [f"Qt pixmap cache ({held} KB)"] if held else []
     except Exception:
         LOG.debug("could not clear the Qt pixmap cache", exc_info=True)
         return []
 
 
+def _qt_application_is_running() -> bool:
+    """Whether a loaded PySide application owns live Qt wrappers.
+
+    Do not import Qt to answer this.  A headless cleanup must stay headless,
+    both for launch cost and so it keeps the ordinary ``gc.collect`` path.
+    """
+    import sys
+
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    application = getattr(widgets, "QApplication", None)
+    if application is None:
+        return False
+    try:
+        instance = application.instance()
+        return isinstance(instance, application)
+    except Exception:
+        return False
+
+
 def clear_ram(*, aggressive: bool = False) -> Reclaim:
-    """Drop spaCR's own caches and collect. Measured RSS before and after.
+    """Drop spaCR's own caches, measured by RSS before and after.
 
     :param aggressive: also drop the caches that are expensive to rebuild
         (thumbnails, icon pixmaps). The mild form keeps them, because a
@@ -427,20 +939,29 @@ def clear_ram(*, aggressive: bool = False) -> Reclaim:
         details.extend(_clear_lru_caches())
         details.extend(_clear_thumbnail_caches())
         details.extend(_clear_pixmap_cache())
-    collected = gc.collect()
-    if collected:
-        details.append(f"{collected} unreachable objects collected")
+    qt_is_live = _qt_application_is_running()
+    if not qt_is_live:
+        collected = gc.collect()
+        if collected:
+            details.append(f"{collected} unreachable objects collected")
     after = process_rss()
-    note = ""
+    notes: List[str] = []
+    if qt_is_live:
+        notes.append(
+            "A full Python garbage collection was skipped while Qt widgets "
+            "were live.")
     if not before or not after:
+        notes.insert(0, "this process's memory use could not be read")
         return Reclaim("ram", before, after, tuple(details), measured=False,
-                       note="this process's memory use could not be read")
+                       note=" ".join(notes))
     if not details:
-        note = ("Nothing was cached, so there was nothing to drop.")
+        notes.insert(0, "Nothing was cached, so there was nothing to drop.")
     elif before <= after:
-        note = ("The caches are gone; the allocator has not handed those "
-                "pages back to the OS, so the process size did not move.")
-    return Reclaim("ram", before, after, tuple(details), note=note)
+        notes.insert(
+            0, "The caches are gone; the allocator has not handed those "
+               "pages back to the OS, so the process size did not move.")
+    return Reclaim("ram", before, after, tuple(details),
+                   note=" ".join(notes))
 
 
 # ---------------------------------------------------------------------------
@@ -475,7 +996,7 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
     details: List[str] = []
     if release_models:
         released = 0
-        for releaser in list(MODEL_RELEASERS):
+        for releaser in _loaded_model_releasers():
             try:
                 released += int(releaser() or 0)
             except Exception:
@@ -484,8 +1005,16 @@ def clear_vram(*, release_models: bool = True) -> Reclaim:
             details.append(f"{released} model reference(s) released")
     torch = _torch_if_loaded()
     try:
-        torch.cuda.empty_cache()
-        details.append("torch.cuda.empty_cache()")
+        # EVERY BACKEND CACHES, not only CUDA. Metal holds freed blocks in
+        # exactly the same way and answers `torch.mps.empty_cache()`; on a
+        # 4 GB card that is the difference between the next screen opening
+        # and an allocation failure. Routed through the resolver so the
+        # right call is made without a vendor branch here. See 319.
+        from ..accelerator import empty_cache as release_device_memory
+
+        made = release_device_memory(torch)
+        if made:
+            details.append(made)
     except Exception:
         LOG.debug("empty_cache failed", exc_info=True)
     after = cuda_reserved()
@@ -604,6 +1133,78 @@ def clear_cpu(*, target_threads: Optional[int] = None) -> Reclaim:
 # Disk
 # ---------------------------------------------------------------------------
 
+def _the_gui_thread_is_asking() -> bool:
+    """Whether this call is running on the thread that paints the window.
+
+    COMPARED WITH ``==``, NOT ``is``: ``QThread.currentThread()`` hands back
+    a fresh Python wrapper around the same underlying thread on every call,
+    so an identity test calls the GUI thread a worker and quietly undoes the
+    protection below. :mod:`spacr.qt.thread_guard` was written the other way
+    round first and documents the same trap.
+
+    False when there is no Qt application at all -- the CLI, and most of the
+    test suite. Nothing is being painted there, so there is no event loop to
+    freeze and the ordinary blocking stat is the correct call.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication, QThread
+    except Exception:                                          # noqa: BLE001
+        return False
+    app = QCoreApplication.instance()
+    if app is None:
+        return False
+    try:
+        return QThread.currentThread() == app.thread()
+    except Exception:                                          # noqa: BLE001
+        return False
+
+
+def _is_a_folder(path: str) -> bool:
+    """``os.path.isdir(path)``, except where answering would freeze spaCR.
+
+    THE PATHS THIS IS ASKED ABOUT ARE THE USER'S. They are the folders the
+    user last pointed each module at, read back out of QSettings, and one of
+    one such root is under ``/nas_mnt`` -- an ``autofs`` mount with
+    ``timeout=600``. Measured on that machine 2026-09-04: one ``os.path``
+    stat on such a path had NOT RETURNED AFTER TWENTY SECONDS, because the
+    stat is what wakes the automount and the share was asleep. On the GUI
+    thread that is the entire application stopped with no traceback, which
+    is how the freeze was reported: "opening map barcodes crashes spacr".
+
+    OFF the GUI thread this stays the real stat, deliberately. A disk report
+    exists to read the disk; a cached guess is not a reading, and a worker
+    is allowed to wait for a mount to wake up -- that is what workers are
+    for, and :func:`disk_report` is meant to run on one.
+
+    ON the GUI thread nothing may touch a user path at all, so the answer
+    comes from :mod:`spacr.qt.path_probe`'s cache and an unseen folder is
+    reported absent while a bounded background stat runs. It is left out of
+    this report and is in the next one: a table one refresh behind, rather
+    than an application that has stopped. The pessimistic direction is the
+    right one here for the same reason it is in
+    :meth:`spacr.qt.chaining.ChainingBar.search_roots` — skipping a folder
+    costs one refresh, and the probe's answer brings it back.
+
+    NOTHING HERE SUBSCRIBES TO ``path_probe.probes.answered``, deliberately.
+    A widget that gates on the cache must, or its first paint is its last;
+    this module owns no widget and cannot re-open the message box the report
+    is shown in. The recovery is the report itself: the caller that matters
+    runs on a worker, where the branch above stats for real and nothing is
+    ever missing, and a GUI-thread caller gets the folder on the next press
+    of the button, by which time the probe has answered.
+    """
+    if not _the_gui_thread_is_asking():
+        return os.path.isdir(path)
+    try:
+        from . import path_probe
+    except Exception:                                          # noqa: BLE001
+        # No probe available and no licence to stat: say no rather than
+        # freeze. The folder returns to the report as soon as the disk
+        # check runs where it belongs.
+        return False
+    return path_probe.isdir(path)
+
+
 def project_paths() -> List[str]:
     """Folders the current project actually touches, most relevant first.
 
@@ -611,11 +1212,23 @@ def project_paths() -> List[str]:
     places spaCR writes regardless of where the data lives: the home
     directory (settings, logs, model downloads) and the temp directory.
     Only paths that exist are returned.
+
+    Called on a worker this is exact. Called on the GUI thread it answers
+    from cache for the remembered folders rather than stat-ing them; see
+    :func:`_is_a_folder` for the twenty seconds that bought.
     """
     import tempfile
     paths: List[str] = []
 
-    def _add(value) -> None:
+    def _add(value, *, remembered: bool = True) -> None:
+        """Add one path, ignoring blanks and duplicates.
+
+        ``remembered`` is what makes a path dangerous: it means the user
+        chose it and it can therefore be on a sleeping mount. The home and
+        temp directories are not remembered -- spaCR reads them from the
+        environment and every start-up has already stat-ed them -- so they
+        keep the direct check and are never missing from a first report.
+        """
         text = str(value or "").strip()
         if not text:
             return
@@ -623,7 +1236,9 @@ def project_paths() -> List[str]:
             resolved = os.path.abspath(os.path.expanduser(text))
         except Exception:
             return
-        if os.path.isdir(resolved) and resolved not in paths:
+        found = _is_a_folder(resolved) if remembered else os.path.isdir(
+            resolved)
+        if found and resolved not in paths:
             paths.append(resolved)
 
     try:
@@ -635,12 +1250,88 @@ def project_paths() -> List[str]:
                 _add(recent)
     except Exception:
         LOG.debug("could not read the recent project folders", exc_info=True)
-    _add(os.path.expanduser("~"))
+    _add(os.path.expanduser("~"), remembered=False)
     try:
-        _add(tempfile.gettempdir())
+        _add(tempfile.gettempdir(), remembered=False)
     except Exception:
         pass
     return paths
+
+
+#: How long the GUI thread may spend on a WHOLE disk reading before it stops
+#: waiting for the folders that have not answered yet.
+#:
+#: A BACKSTOP, NOT THE DESIGN. :func:`disk_report` belongs on a worker and the
+#: caller in spaCR puts it there
+#: (:func:`spacr.qt.preferences._start_disk_report`); this is what happens
+#: when a later caller forgets. A second is already a bad stall — it is a
+#: twentieth of the twenty seconds measured on the sleeping mount, and unlike
+#: those twenty it ends.
+_GUI_DISK_BUDGET_S = 1.0
+
+
+def _read_one_drive(path: str):
+    """Which drive ``path`` is on, and how full it is.
+
+    :param path: the folder to measure.
+    :returns: ``(device_id, usage)``; ``(device_id, None)`` when the folder
+        was there and its free space could not be read; ``None`` when the
+        folder could not be read at all. The three are kept apart because a
+        second folder on a drive already listed is neither a line nor a
+        failure — it is dropped, whichever way its own ``disk_usage`` went.
+    """
+    try:
+        device = os.stat(path).st_dev
+    except OSError:
+        return None
+    try:
+        usage = shutil.disk_usage(path)
+    except OSError:
+        return device, None
+    return device, usage
+
+
+def _readings_within_the_budget(paths: Sequence[str]) -> Dict[str, object]:
+    """Read every folder at once, and stop waiting after the budget.
+
+    THE BOUND IS ON WAITING, NOT ON THE STAT, because a stat cannot be
+    cancelled — the same shape as
+    :func:`spacr.qt.path_probe._stat_with_timeout`. A helper thread that has
+    walked into a sleeping automount stays parked until the kernel lets go
+    of it; this one stops waiting. A parked daemon thread costs a stack. A
+    parked GUI thread costs the application.
+
+    Started together rather than one after another, so that one dozing mount
+    spends the budget ONCE and starves nobody: the local folders answer in
+    microseconds while the wait is happening, and they keep their lines.
+
+    :param paths: the folders to measure. Duplicates are read once.
+    :returns: ``{path: reading}`` in :func:`_read_one_drive`'s terms. A
+        folder that did not answer in time is simply absent, and the caller
+        counts it unreadable — which, in the time it had, it was.
+    """
+    answers: Dict[str, object] = {}
+
+    def measure(path: str) -> None:
+        """Read one folder on this helper thread and record the answer.
+
+        :param path: the folder to measure. Nothing is returned: the answer
+            goes into ``answers``, which the waiting thread reads.
+        """
+        answers[path] = _read_one_drive(path)
+
+    helpers = []
+    for path in dict.fromkeys(str(p) for p in paths):
+        helper = threading.Thread(target=measure, args=(path,), daemon=True,
+                                  name=f"spacr-disk-read:{path[:40]}")
+        helper.start()
+        helpers.append(helper)
+    deadline = time.monotonic() + _GUI_DISK_BUDGET_S
+    for helper in helpers:
+        helper.join(max(0.0, deadline - time.monotonic()))
+    # A copy, so a late answer cannot appear halfway through the report and
+    # give one folder a line the one above it was denied.
+    return dict(answers)
 
 
 def disk_report(paths: Optional[Sequence[str]] = None) -> DiskReport:
@@ -649,22 +1340,37 @@ def disk_report(paths: Optional[Sequence[str]] = None) -> DiskReport:
     Deduplicated by device id, so a project folder and a home directory on
     the same disk are one line rather than two identical ones — that
     duplication is what makes a disk readout stop being read.
+
+    RUN THIS ON A WORKER. ``os.stat`` and ``shutil.disk_usage`` are the calls
+    that wake a sleeping automount, and no cache can answer them without
+    inventing the numbers, so the Qt caller hands this whole function to a
+    :class:`~spacr.qt.job_runner.JobRunner`
+    (:func:`spacr.qt.preferences._start_disk_report`). There the wait is
+    unbounded on purpose: a worker is allowed to wait for a mount to wake up,
+    and the drive table is complete.
+
+    CALLED ON THE GUI THREAD ANYWAY, it will not freeze it. The whole reading
+    is then bounded by :data:`_GUI_DISK_BUDGET_S`, and a folder that misses
+    the budget is counted in the note exactly like one that could not be read
+    — because within the time the interface had, it could not be. That is a
+    line missing from a report, against an application that has stopped.
     """
     wanted = list(project_paths() if paths is None else paths)
     entries: List[DiskEntry] = []
     seen_devices = set()
     unreadable = 0
+    readings = (_readings_within_the_budget(wanted)
+                if _the_gui_thread_is_asking() else None)
     for path in wanted:
-        try:
-            device = os.stat(path).st_dev
-        except OSError:
+        reading = (_read_one_drive(path) if readings is None
+                   else readings.get(str(path)))
+        if reading is None:
             unreadable += 1
             continue
+        device, usage = reading
         if device in seen_devices:
             continue
-        try:
-            usage = shutil.disk_usage(path)
-        except OSError:
+        if usage is None:
             unreadable += 1
             continue
         seen_devices.add(device)
@@ -691,8 +1397,10 @@ _CONFIRMATIONS: Dict[str, Tuple[str, str]] = {
         "Clear RAM",
         "spaCR will:\n"
         "  • drop its own caches — merged image fields, file-format lookups, "
-        "thumbnails, icon and preview pixmaps;\n"
-        "  • run a full garbage collection.\n\n"
+        "thumbnails, icon and preview pixmaps.\n\n"
+        "It will not force a full Python garbage collection while Qt "
+        "widgets are live: collecting those wrappers can crash the "
+        "application.\n\n"
         "It will not touch any other program, and it will not drop the "
         "operating system's page cache. Cached images are read from disk "
         "again the next time a screen needs them, so the next preview will "
@@ -740,8 +1448,57 @@ def confirmation_title(action: str) -> str:
 
 
 def confirmation_text(action: str) -> str:
-    """What ``action`` will actually do, in words, before it does it."""
+    """What ``action`` will actually do, in words, before it does it.
+
+    The long form, for the confirmation the user is asked to agree to. A
+    bulleted list is right there: they are about to authorise it, and the
+    bullets are what they are authorising.
+    """
     return _CONFIRMATIONS[action][1]
+
+
+#: The same promise as :data:`_CONFIRMATIONS`, as one sentence.
+#:
+#: A HINT BAR IS NOT A CONFIRMATION DIALOG. The long forms are four to eight
+#: lines of bulleted text, and the strip under the Preferences tabs grew to
+#: fit whichever one the pointer was over -- so moving between two buttons
+#: made the dialog jump. The compact form keeps the hint to one paragraph.
+#:
+#: What is dropped is the enumeration, never the limit: each of these still
+#: says what the action will NOT do, because that is the part a user is
+#: uneasy about on a shared machine.
+_SUMMARIES: Dict[str, str] = {
+    "ram": (
+        "Drops spaCR's own caches without forcing Python garbage collection "
+        "over live Qt widgets. No other program is touched, and the next "
+        "preview is slower because its images are read again. You are told "
+        "how much was actually freed."
+    ),
+    "vram": (
+        "Releases any model still held and returns the GPU blocks torch has "
+        "reserved but is not using. VRAM held by another process cannot be "
+        "reclaimed, and memory a running spaCR job is using is left alone."
+    ),
+    "cpu": (
+        "Retires spaCR's finished worker threads and lowers its torch and "
+        "OpenCV thread counts. No process is killed and no running or queued "
+        "job is stopped; threads still doing work are left alone."
+    ),
+    "disk": (
+        "Reads the free space on every drive this project touches and "
+        "reports it. Nothing is written, moved or deleted."
+    ),
+}
+
+
+def summary_text(action: str) -> str:
+    """One paragraph saying what ``action`` does.
+
+    :param action: ``'ram'``, ``'vram'``, ``'cpu'`` or ``'disk'``.
+    :returns: the short form for a hover, falling back to the long form so a
+        new action is never left with no help at all.
+    """
+    return _SUMMARIES.get(action) or _CONFIRMATIONS[action][1]
 
 
 # ---------------------------------------------------------------------------
@@ -749,6 +1506,10 @@ def confirmation_text(action: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _mode() -> str:
+    """Return the configured spaCR resource mode.
+
+    :returns: the preference, or ``"balanced"`` when it cannot be read.
+    """
     try:
         from .preferences import get_spacr_mode
         return get_spacr_mode()
@@ -776,6 +1537,13 @@ def _report(result, prefix: str = "") -> None:
 
 
 def _cleanup(*, aggressive: bool, release_models: bool) -> List[Reclaim]:
+    """Run the reclaim passes and report each one.
+
+    :param aggressive: also clear the CPU-side caches, not only host RAM
+        and VRAM.
+    :param release_models: drop cached model weights as well.
+    :returns: one result per pass.
+    """
     results = [clear_ram(aggressive=aggressive),
                clear_vram(release_models=release_models)]
     if aggressive:
@@ -843,6 +1611,8 @@ def run_pre_run_cleanup(app_key: str = "") -> List[Reclaim]:
 _INSTALLED = False
 _LAUNCH_DONE = False
 _SEEN_RUNS: set = set()
+_BUDGET_TIMER = None
+_BUDGET_SWEEP_PENDING = False
 
 
 def _on_registry_changed() -> None:
@@ -862,12 +1632,101 @@ def _on_registry_changed() -> None:
     _SEEN_RUNS.intersection_update(live)
     fresh = [handle for handle in handles if id(handle) not in _SEEN_RUNS]
     if not fresh:
+        # A run just finished (or the registry only shed a handle).  Its
+        # caches are no longer in use; let the event loop settle, then apply
+        # the same global policy the periodic sweep uses.
+        _request_budget_sweep()
         return
     _SEEN_RUNS.update(id(handle) for handle in fresh)
     try:
         run_pre_run_cleanup(getattr(fresh[0], "app_key", ""))
     except Exception:
         LOG.debug("the pre-run cleanup failed", exc_info=True)
+
+
+def _budget_tick() -> None:
+    """Run one scheduled memory-budget sweep and log what it reclaimed.
+
+    Logged at DEBUG rather than INFO: this is housekeeping the user did not
+    ask for and cannot act on, and it fired on every module open. The line
+    was also unreadable when it did fire -- ``before_mb``/``after_mb`` are
+    HOST RSS while ``vram_freed`` is device memory, so "0.0 -> 0.0 MiB and
+    2.6 GB VRAM released" is two accountings in one sentence, both correct.
+    Kept rather than deleted, because it is what you want when chasing a
+    leak.
+    """
+    global _BUDGET_SWEEP_PENDING
+    _BUDGET_SWEEP_PENDING = False
+    try:
+        result = sweep_memory_budget()
+        if result.dropped or result.models_released or result.vram_freed:
+            # DEBUG, NOT INFO. This is housekeeping the user did not ask for
+            # and cannot act on, and it fired on EVERY module open -- reported
+            # against Mask, Measure and Map Barcodes alike. It also read as
+            # nonsense when it did: "memory budget: 0.0 -> 0.0 MiB ... and 2.6
+            # GB VRAM released" is two different accountings in one sentence,
+            # because before_mb/after_mb are HOST RSS and vram_freed is device
+            # memory. Host RSS legitimately does not move when VRAM is
+            # released, so the line was correct and unreadable at once.
+            #
+            # Kept rather than deleted: it is genuinely useful when chasing a
+            # leak, which is what the debug level is for.
+            LOG.debug(
+                "memory budget: host RSS %.1f -> %.1f MiB; %d cache entries, "
+                "%d model references and %s device VRAM released",
+                result.before_mb, result.after_mb, len(result.dropped),
+                result.models_released, human_bytes(result.vram_freed))
+        elif result.errors:
+            LOG.debug("memory budget sweep: %s", "; ".join(result.errors))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the live-cache budget sweep failed", exc_info=True)
+
+
+def _request_budget_sweep() -> None:
+    """Queue a sweep after the current Qt signal/paint has returned."""
+    global _BUDGET_SWEEP_PENDING
+    if _BUDGET_SWEEP_PENDING:
+        return
+    _BUDGET_SWEEP_PENDING = True
+    try:
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(0, _budget_tick)
+    except Exception:                                        # noqa: BLE001
+        _BUDGET_SWEEP_PENDING = False
+        # No event loop means the periodic integration is inapplicable.  The
+        # explicit ``sweep_memory_budget`` API remains usable by headless code.
+        LOG.debug("could not queue the live-cache sweep", exc_info=True)
+
+
+def install_budget_sweep() -> bool:
+    """Install the bounded periodic policy sweep on the live QApplication."""
+    global _BUDGET_TIMER
+    if _BUDGET_TIMER is not None:
+        try:
+            if _BUDGET_TIMER.isActive():
+                return True
+        except RuntimeError:
+            _BUDGET_TIMER = None
+    try:
+        from PySide6.QtCore import QTimer
+        from PySide6.QtWidgets import QApplication
+
+        app = QApplication.instance()
+        if app is None:
+            return False
+        timer = QTimer(app)
+        timer.setObjectName("LiveCacheBudgetSweep")
+        timer.setInterval(BUDGET_SWEEP_INTERVAL_MS)
+        timer.setSingleShot(False)
+        timer.timeout.connect(_budget_tick)
+        timer.start()
+        _BUDGET_TIMER = timer
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not install the live-cache budget sweep",
+                  exc_info=True)
+        return False
 
 
 def install_run_hook() -> bool:
@@ -899,6 +1758,7 @@ def register() -> bool:
     """
     global _LAUNCH_DONE
     install_run_hook()
+    install_budget_sweep()
     if not _LAUNCH_DONE:
         _LAUNCH_DONE = True
         try:

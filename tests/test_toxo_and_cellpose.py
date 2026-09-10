@@ -219,8 +219,11 @@ def test_parse_cellpose4_output_rejects_unrecognized_flows_type():
 
 @pytest.mark.parametrize("name", [
     "identify_masks_finetune", "generate_masks_from_imgs",
-    "check_cellpose_models", "save_results_and_figure",
-    "compare_mask", "compare_cellpose_masks",
+    "check_cellpose_models",
 ])
 def test_spacr_cellpose_entry_points_callable(name):
+    """The mask-comparison trio dropped out of this list because the module no
+    longer defines it: ``compare_cellpose_masks``, ``compare_mask`` and
+    ``save_results_and_figure`` had no caller, and the directory layout they
+    compared can no longer hold two condition folders to compare."""
     assert callable(getattr(SC, name, None)), f"spacr_cellpose.{name} should be callable"

@@ -523,7 +523,7 @@ def disagreement(prob_sets: Any, method: str = "variance") -> np.ndarray:
         * ``'bald'`` — mutual information ``H(mean p) − mean H(p)``
           (Houlsby et al., 2011). 0 when the members agree, regardless
           of how uncertain they jointly are — so unlike ``entropy`` it
-          does not fire on crops that are simply ambiguous.
+          does not fire on crops that are ambiguous.
 
     :returns: ``(N,)`` scores; NaN where any member is unusable for that
         crop.
@@ -687,7 +687,7 @@ def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
 
     torch is imported inside this function, and only to get
     ``no_grad``/``device`` handling; if it is not importable the batches
-    are simply iterated and the model called directly. Nothing else in
+    are iterated and the model is called directly. Nothing else in
     this module touches torch.
 
     :param model: any callable mapping a batch to raw head outputs. A
@@ -715,6 +715,11 @@ def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
     outputs: List[np.ndarray] = []
 
     def _run() -> None:
+        """Score captured batches in order and append normalized matrices.
+
+        Loader tuples contribute their input element, and movable inputs are
+        transferred to the selected device before the model is called.
+        """
         for batch in batches:
             inputs = batch[0] if isinstance(batch, (tuple, list)) else batch
             if (torch is not None and device is not None
@@ -1353,14 +1358,13 @@ def _concentration(counts: "pd.Series") -> Dict[str, Any]:
 def annotation_coverage(db_path: str, annotation_column: str = "annotate",
                         table: str = PNG_TABLE, key: str = PNG_KEY,
                         image_type: Optional[str] = None) -> pd.DataFrame:
-    """Where the annotations actually came from: per class, per well, per plate.
+    """Summarize annotation coverage by class, well, plate and acquisition.
 
-    "I labelled 200 cells" is not a description of a training set. *Which*
-    200 decides what the classifier learns, and the failure this function
-    exists to make visible is the one that never announces itself: 190 of the
-    200 came from a single well, so the model learned that well's staining,
-    focus and confluency rather than the biology, and every held-out number
-    drawn from a random split of those objects is optimistic.
+    The distribution of labels across experimental units determines whether
+    a classifier can generalize beyond acquisition-specific staining, focus
+    and confluency. A label set concentrated within one well can therefore
+    yield optimistic performance under an object-level random split. This
+    function exposes such concentration before model training or evaluation.
 
     Reads ``png_list`` read-only, plus :data:`ROUND_TABLE` when it is there,
     so labels can also be attributed to the active-learning round that
@@ -1606,29 +1610,20 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     display, and so a second consumer does not have to reimplement the
     ``'o5'``-versus-``5`` trap in :func:`_object_label`.
 
-    Order is preserved because it is the whole point of a routed request:
-    "worst errors first" survives the trip only if this does not re-sort into
-    table order. Keys with no crop are dropped — a request may name objects a
-    crop table does not carry, and that is a shorter result, not an error.
+    Input order is preserved so priority rankings such as ``worst errors
+    first`` remain unchanged. Keys without a corresponding crop are omitted.
 
-    **A typed key resolves to that object's own crop.** ``png_list`` records
-    which object type a crop is by which of its ``<type>_id`` columns holds
-    the label (:data:`PNG_ID_COLUMN_TYPES`), so a nucleus 1 and a pathogen 1
-    in the same field are two crops. They used to be one: both keyed on
-    ``plate_r1_c1_f1_1``, this function kept the first, and which of the two
-    you opened depended on the row order of the table. An *untyped* key still
-    keeps the first — it names an object without saying which, which is what
-    it has always meant — and a typed key against a crop table that cannot say
-    what its rows are falls back to the untyped one rather than resolving
-    nothing.
+    Typed keys distinguish objects with the same numeric label in one field.
+    ``png_list`` identifies the object type through the populated
+    ``<type>_id`` column (:data:`PNG_ID_COLUMN_TYPES`), so nucleus 1 and
+    pathogen 1 resolve independently. An untyped key selects the first matching
+    crop. If the table does not expose object-type columns, typed lookup falls
+    back to the corresponding untyped key.
 
-    **A key whose metadata needed escaping still resolves.**
-    :func:`spacr.selection.object_keys` percent-escapes a component carrying
-    the separator, so a ``fieldID`` of ``'f_1'`` arrives as ``'f%5F1'``. The
-    lookup carries both that spelling and the raw one, because a bare join
-    over the crop table's own columns produces the raw one and the two used
-    to miss each other — silently, so a routed selection opened fewer crops
-    than the user picked and said nothing about the ones it dropped.
+    Escaped metadata components are resolved in both encoded and raw form.
+    For example, :func:`spacr.selection.object_keys` represents a ``fieldID``
+    of ``'f_1'`` as ``'f%5F1'``, while a key assembled from crop-table columns
+    contains the raw underscore.
 
     :param db_path: path to ``measurements.db``.
     :param keys: object keys, typed or not. A ``png_path``, a ``prcfo`` or a
@@ -1690,6 +1685,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     def _register(target: Dict[str, Tuple[str, Optional[int]]],
                   composed: List[str], label: str, object_type: Optional[str],
                   entry: Tuple[str, Optional[int]]) -> None:
+        """Register first-wins untyped and, when known, typed object keys."""
         # Both spellings, so a caller working from either side resolves. The
         # untyped one is first-wins on purpose: it is an under-specified
         # name, and it named one of these crops before the type existed.
@@ -1882,6 +1878,8 @@ def _write_connection(db_path: str) -> sqlite3.Connection:
 def ensure_round_tables(db_path: str) -> None:
     """Create :data:`ROUND_TABLE` and :data:`ROUND_LOG_TABLE` if absent.
 
+    :param db_path: existing ``measurements.db`` in which to create the tables.
+
     Two tables, not one. Per-label provenance and per-round metrics have
     different cardinalities and different lifetimes: a label keeps its round
     forever, a round's held-out accuracy is rewritten if the round is re-fit.
@@ -1993,7 +1991,10 @@ def record_labels(db_path: str, annotation_column: str,
 
 def label_rounds(db_path: str,
                  annotation_column: str = "annotate") -> pd.DataFrame:
-    """Per-label round provenance as a frame (empty when never recorded)."""
+    """Per-label round provenance as a frame (empty when never recorded).
+
+    :param db_path: path to the ``measurements.db`` to read.
+    """
     con = _connect(db_path)
     try:
         return _read_rounds(con, annotation_column)
@@ -2003,6 +2004,8 @@ def label_rounds(db_path: str,
 
 def next_round(db_path: str, annotation_column: str = "annotate") -> int:
     """The round number the next batch of labels belongs to.
+
+    :param db_path: path to the ``measurements.db`` whose round log is queried.
 
     Round 0 is "before any model was retrained from inside Annotate" — the
     labels that seeded the loop. The first retrain produces round 1.
@@ -2158,6 +2161,7 @@ class StoppingVerdict:
                  labels_in_window: int = 0, window_from: Optional[int] = None,
                  confident: bool = False, noise: Optional[float] = None,
                  trend: str = "unknown"):
+        """Normalize and store the recommendation and its measured evidence."""
         self.stop = bool(stop)
         self.reason = str(reason)
         self.gain = gain
@@ -2172,6 +2176,7 @@ class StoppingVerdict:
         return self.stop
 
     def __repr__(self) -> str:
+        """Return stop, trend, gain, and labels-in-window for diagnostics."""
         return (f"StoppingVerdict(stop={self.stop!r}, trend={self.trend!r}, "
                 f"gain={self.gain!r}, labels_in_window="
                 f"{self.labels_in_window!r})")
@@ -2300,7 +2305,10 @@ def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
 
 def format_learning_curve(curve: pd.DataFrame,
                           verdict: Optional[StoppingVerdict] = None) -> str:
-    """Render the round-by-round curve and the stopping verdict as text."""
+    """Render the round-by-round curve and the stopping verdict as text.
+
+    :param curve: round-by-round metrics frame from :func:`learning_curve`.
+    """
     lines = ["Active-learning rounds"]
     if curve is None or not len(curve):
         lines.append("")
@@ -2348,7 +2356,7 @@ def holdout_report(y_true: Any, probs: Any,
 
     **``n`` is the number of rows the matrix actually contains**, and the
     supports sum to it. A row whose true class the head has no column for is
-    counted as an error rather than dropped: the matrix simply grows to hold
+    counted as an error rather than dropped: the matrix grows to hold
     it, and the missing column stays empty because the head can never predict
     that class. Reporting ``n`` over one population and ``accuracy`` over
     another is the one thing a model card must not do — a three-class
@@ -2452,13 +2460,6 @@ def holdout_report(y_true: Any, probs: Any,
     }
 
 
-from .classifier_evaluation import (
-    SPLIT_LEVELS,
-    grouped_split as _shared_grouped_split,
-    split_group_values as _shared_split_group_values,
-)
-
-
 def round_features(db_path: str, table: str = PNG_TABLE,
                    key: str = PNG_KEY,
                    tables: Sequence[str] = ("cell", "nucleus", "pathogen",
@@ -2521,6 +2522,8 @@ def round_features(db_path: str, table: str = PNG_TABLE,
 class RoundResult:
     """What one retrain round produced.
 
+    :param fields: named values for the round fields below; omitted list and
+        mapping fields are normalized to empty containers.
     :param round_index: the round number recorded.
     :param n_labels: labels the model was fitted on.
     :param n_new_labels: labels added since the previous round.
@@ -2539,6 +2542,7 @@ class RoundResult:
                  "card_path", "verdict", "notes", "classes", "model_type")
 
     def __init__(self, **fields: Any):
+        """Populate supported fields and normalize missing containers."""
         for name in self.__slots__:
             setattr(self, name, fields.get(name))
         self.notes = list(self.notes or [])
@@ -2559,6 +2563,7 @@ class RoundResult:
                 for i, a in enumerate(accs)}
 
     def __repr__(self) -> str:
+        """Return the round, label count, and four-decimal held-out accuracy."""
         return (f"RoundResult(round={self.round_index!r}, "
                 f"n_labels={self.n_labels!r}, accuracy={self.accuracy:.4f})")
 
@@ -2604,7 +2609,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   label_window: int = 50,
                   min_gain: float = 0.003,
                   measure: Any = DEFAULT_MEASURE,
-                  diversity: Any = "well") -> RoundResult:
+                  diversity: Any = "well",
+                  balance: str = "none",
+                  synthetic_negatives: Optional[int] = None) -> RoundResult:
     """Fit a model on the labels so far, score every crop, close the loop.
 
     This is the half of active learning that has been missing: the queue put
@@ -2655,6 +2662,26 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     :param min_gain: passed to :func:`should_stop`.
     :param measure: recorded with the round, for the queue that follows.
     :param diversity: likewise.
+    :param balance: ``'none'`` (default) leaves imbalance to the estimator's
+        own ``class_weight='balanced'``; ``'downsample'`` cuts every class to
+        the size of the smallest BEFORE the grouped split.
+
+        THE TWO ARE NOT THE SAME ANSWER. Reweighting and downsampling produce
+        different probabilities from the same crops, and
+        :func:`spacr.suggest.suggest_from_scores` sorts on those
+        probabilities -- so the round records which was in force, in
+        ``notes`` and on the model card. The smaller
+        class ("if there is class imbalance use the class with fewer").
+    :param synthetic_negatives: how many unannotated crops to draw at random
+        and fit as the ABSENT class when only one class has been annotated.
+        ``None`` (default) refuses instead, as before.
+
+        THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from
+        the unannotated pool is mostly-negative, not negative, so what comes
+        back is a ranking rather than a verdict; the count reaches the model
+        card, because a card that does not say the negatives were invented
+        describes a model that does not exist. Defined for the binary classes
+        1 and 2 only -- see :func:`_absent_binary_class`.
     :returns: a :class:`RoundResult`.
     :raises ValueError: below ``min_labels`` labels, with fewer than two
         classes annotated — neither is something to paper over with a model
@@ -2703,7 +2730,18 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     crops = crops.loc[shared]
     matrix = features.loc[shared]
 
-    labelled_mask = crops[annotation_column].notna()
+    # HUMAN ANSWERS ONLY, NOT THE MACHINE'S OWN GUESSES. `spacr.suggest`
+    # marks a proposal by adding `SUGGESTION_OFFSET` to the class it
+    # proposes, so a suggested 1 is stored as 11 in this very column. A bare
+    # `notna()` reads those as classes 11 and 12 and fits them as if a person
+    # had written them -- a model trained on its own previous output, whose
+    # card would not say so. The GUI guards both buttons; anything calling
+    # this function directly was not guarded at all, which is why the filter
+    # belongs HERE and not at each caller.
+    labelled_mask = (
+        crops[annotation_column].notna()
+        & ~crops[annotation_column].map(_is_suggestion)
+    )
     n_labels = int(labelled_mask.sum())
     if n_labels < int(min_labels):
         raise ValueError(
@@ -2711,22 +2749,102 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
             f"{int(min_labels)}). A model fitted on fewer will still emit a "
             f"confident-looking ranking, and it will be noise.")
 
-    raw_labels = crops.loc[labelled_mask, annotation_column].to_numpy()
+    # INDEX-BASED FROM HERE, not mask-based, because `synthetic_negatives`
+    # ADDS rows that carry no label in the column and `balance` DROPS rows
+    # that do. A boolean mask over `crops` can express neither.
+    train_index = crops.index[labelled_mask.to_numpy()]
+    raw_labels = list(crops.loc[train_index, annotation_column].to_numpy())
     class_values = sorted({_class_value(v) for v in raw_labels})
+
+    synthetic_index: List[Any] = []
+    if len(class_values) == 1 and synthetic_negatives:
+        # THE DELIBERATE LIE, ASKED FOR IN SO MANY WORDS: "if only one class
+        # randomly choose the same number of images as is annotated for the
+        # other class". A random draw from the unannotated pool is
+        # MOSTLY-negative, not negative, so what comes back is a RANKING and
+        # not a verdict -- and every caller is told so, in `notes` and on the
+        # model card, because a card that does not say the negatives were
+        # invented describes a model that does not exist.
+        present = class_values[0]
+        absent = _absent_binary_class(present)
+        if absent is None:
+            raise ValueError(
+                f"Only class {present!r} is annotated in "
+                f"{annotation_column!r}, and synthetic negatives are defined "
+                f"for the binary classes 1 and 2 only. Annotate an example "
+                f"of the other class instead.")
+        pool = [i for i in crops.index[crops[annotation_column].isna()]
+                if i in matrix.index]
+        if len(pool) < int(synthetic_negatives):
+            raise ValueError(
+                f"Asked for {int(synthetic_negatives)} synthetic negatives "
+                f"and only {len(pool)} unannotated crops carry features. "
+                f"Annotate less, or ask for fewer.")
+        drawn = np.random.default_rng(int(seed)).choice(
+            np.asarray(pool, dtype=object), size=int(synthetic_negatives),
+            replace=False)
+        synthetic_index = list(drawn)
+        train_index = train_index.append(pd.Index(synthetic_index))
+        raw_labels = raw_labels + [absent] * len(synthetic_index)
+        class_values = sorted({_class_value(v) for v in raw_labels})
+        notes.append(
+            f"{len(synthetic_index)} negatives were INVENTED: drawn at "
+            f"random from the unannotated pool and fitted as class "
+            f"{absent}, because only class {present} had been annotated. "
+            f"They are mostly-negative, not negative, so this round is a "
+            f"RANKING and not a verdict.")
+
     if len(class_values) < 2:
         raise ValueError(
             f"Every label in {annotation_column!r} is class "
             f"{class_values[0] if class_values else 'none'}. A classifier "
             f"needs at least two classes; keep annotating until the other "
             f"one appears.")
+
+    if str(balance).lower() == "downsample":
+        # DOWNSAMPLED, NOT WEIGHTED, AND THAT CHANGES THE ANSWER RATHER THAN
+        # THE COST. The default estimators already pass
+        # `class_weight="balanced"`, so "balanced" alone describes two
+        # different models -- which is why `notes` and the card say WHICH.
+        # The maintainer asked for the smaller class ("use the class with
+        # fewer"), and downsampling is also what leaves the returned
+        # probability directly readable as the confidence a suggestion sort
+        # depends on: a reweighted fit's probability is not.
+        train_index, raw_labels, dropped = _downsample_to_smallest(
+            train_index, raw_labels, int(seed))
+        if dropped:
+            notes.append(
+                f"balance=downsample: {dropped} rows of the larger class "
+                f"were dropped so both classes are the size of the smaller. "
+                f"The estimator's own `class_weight='balanced'` is therefore "
+                f"acting on an already-even set.")
+        else:
+            notes.append(
+                "balance=downsample: the classes were already even, so "
+                "nothing was dropped.")
+    else:
+        notes.append(
+            "balance=none: class imbalance is handled by the estimator's "
+            "`class_weight='balanced'`, which reweights rather than drops.")
+
+    n_labels = len(raw_labels)
     class_index = {value: i for i, value in enumerate(class_values)}
     y = np.array([class_index[_class_value(v)] for v in raw_labels], dtype=int)
 
-    train_matrix = matrix.loc[labelled_mask.to_numpy()]
+    train_matrix = matrix.loc[train_index]
     x = np.nan_to_num(train_matrix.to_numpy(dtype=float), nan=0.0,
                       posinf=0.0, neginf=0.0)
 
-    labelled_crops = crops.loc[labelled_mask]
+    labelled_crops = crops.loc[train_index]
+    # Keep sklearn/scipy off the import-only queue-ranking path. Recent SciPy
+    # probes optional array backends while importing sklearn; that path must
+    # not run merely to rank an existing score column (and breaks a legitimate
+    # no-torch process where ``sys.modules['torch']`` is explicitly blocked).
+    from .classifier_evaluation import (
+        grouped_split as _shared_grouped_split,
+        split_group_values as _shared_split_group_values,
+    )
+
     group_name, groups = _shared_split_group_values(
         group_by=group_by, frame=labelled_crops, table=table)
     train_idx, test_idx, split_provenance = _shared_grouped_split(
@@ -2779,6 +2897,9 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                 model_path, report, split_rule, round_index,
                 annotation_column, db_path, class_values, matrix.columns,
                 model_type, n_labels, n_new, notes,
+                {"balance": str(balance),
+                 "synthetic_negatives": len(synthetic_index),
+                 "class_weight_balanced": _model_reweights(model_type)},
                 table=table, key=key, image_type=image_type)
 
     per_class = {str(name): float(acc) for name, acc in
@@ -2805,6 +2926,26 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                        model_type=model_type)
 
 
+def _is_suggestion(value: Any) -> bool:
+    """Whether a stored annotation is a SUGGESTION rather than a human answer.
+
+    :func:`spacr.suggest.write_suggestions` records a proposal in the same
+    column as the answers, offset by :data:`spacr.suggest.SUGGESTION_OFFSET`
+    so the two cannot collide: a suggested 1 is stored as 11. Anything at or
+    above the offset is therefore the model's own previous output.
+
+    Imported inside the call because `spacr.suggest` imports this module for
+    its estimator, and the dependency is one-way by design.
+
+    :param value: a raw value from the annotation column.
+    :returns: whether it is a suggestion and must not be fitted as a label.
+    """
+    from .suggest import SUGGESTION_OFFSET
+
+    normalised = _class_value(value)
+    return isinstance(normalised, int) and normalised >= SUGGESTION_OFFSET
+
+
 def _class_value(value: Any) -> Any:
     """``1.0`` and ``1`` are one class; normalise to int where possible."""
     if isinstance(value, float) and float(value).is_integer():
@@ -2812,6 +2953,76 @@ def _class_value(value: Any) -> Any:
     if isinstance(value, (int, np.integer)):
         return int(value)
     return value
+
+
+def _model_reweights(model_type: str) -> bool:
+    """Whether this estimator applies ``class_weight="balanced"`` itself.
+
+    The card records it beside ``balance`` because the two compose: a
+    downsampled set fitted by a reweighting estimator is a third thing
+    again, and "balanced" on its own does not say which of the three was
+    run.
+
+    :param model_type: the estimator name `_build_round_model` resolves.
+    :returns: True when the built estimator reweights its classes.
+    """
+    name = str(model_type).lower().replace("-", "_")
+    return name in ("logistic_regression", "logistic", "lr",
+                    "random_forest", "rf")
+
+
+def _absent_binary_class(present: Any) -> Optional[int]:
+    """The other of the two binary annotation classes, or ``None``.
+
+    spaCR's annotation column holds small integers and the binary case the
+    request was written for is 1 against 2. Anything else -- class 3, a
+    string, a float that is not 1 or 2 -- has no defensible "other class"
+    to invent, and guessing one would fit a model against a class the
+    caller never named.
+
+    :param present: the single class that has been annotated.
+    :returns: 2 for 1, 1 for 2, and ``None`` for everything else.
+    """
+    value = _class_value(present)
+    if value == 1:
+        return 2
+    if value == 2:
+        return 1
+    return None
+
+
+def _downsample_to_smallest(index, labels: List[Any], seed: int):
+    """Cut every class to the size of the smallest, deterministically.
+
+    :param index: the training rows, aligned with ``labels``.
+    :param labels: one raw class value per row.
+    :param seed: seeds the draw, so a round is reproducible.
+    :returns: ``(index, labels, dropped)`` -- the kept rows, their labels,
+        and how many rows were dropped.
+
+    DROPPED RATHER THAN REWEIGHTED, which is the instruction
+    ("if there is class imbalance use the class with fewer") and also what
+    keeps the fitted probability readable as a confidence: a reweighted
+    fit's probability is a function of the weights as much as of the crop,
+    and `spacr.suggest` sorts on it.
+    """
+    by_class: Dict[Any, List[int]] = {}
+    for position, value in enumerate(labels):
+        by_class.setdefault(_class_value(value), []).append(position)
+    if len(by_class) < 2:
+        return index, labels, 0
+    smallest = min(len(rows) for rows in by_class.values())
+    rng = np.random.default_rng(int(seed))
+    keep: List[int] = []
+    for value in sorted(by_class, key=str):
+        rows = by_class[value]
+        if len(rows) > smallest:
+            rows = list(rng.choice(np.asarray(rows), size=smallest,
+                                   replace=False))
+        keep.extend(int(r) for r in rows)
+    keep.sort()
+    dropped = len(labels) - len(keep)
+    return index[keep], [labels[i] for i in keep], dropped
 
 
 def _build_round_model(model_type: str, seed: int, n_classes: int):
@@ -2836,9 +3047,44 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
     if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(random_state=seed)
+    if name in ("xgboost", "xgb"):
+        # OFFERED, NOT DEFAULTED, and it is an OPTIONAL dependency.
+        #
+        # The Suggest request named XGBoost, and `gradient_boosting` above
+        # is sklearn's implementation of the same gradient-boosted-trees
+        # method -- already installed, already understood by the round
+        # machinery. The maintainer asked for both: this one for anyone who
+        # wants XGBoost's own implementation or its hyperparameters, that
+        # one so the path still runs on a machine that has not installed a
+        # second boosting library.
+        #
+        # THE REFUSAL NAMES THE ALTERNATIVE, because "no module named
+        # xgboost" from inside a retrain round tells a user nothing about
+        # what to do next, and the honest answer is that they already have
+        # a gradient booster.
+        try:
+            from xgboost import XGBClassifier
+        except ImportError as exc:
+            raise ValueError(
+                "model_type 'xgboost' needs the xgboost package, which "
+                "spaCR does not install: `pip install xgboost`. The same "
+                "algorithm is available now as "
+                "model_type='gradient_boosting', which is scikit-learn's "
+                "HistGradientBoostingClassifier and needs nothing extra."
+            ) from exc
+        return XGBClassifier(
+            random_state=seed,
+            # The round encodes classes to 0..n-1 before fitting, so the
+            # objective follows the class count rather than being guessed.
+            objective=("binary:logistic" if n_classes <= 2
+                       else "multi:softprob"),
+            eval_metric="logloss",
+            # NOT `use_label_encoder`, which xgboost removed; passing it
+            # warns on 1.x and raises on 2.x.
+        )
     raise ValueError(
         f"Unknown model_type {model_type!r}; use 'logistic_regression', "
-        f"'random_forest' or 'gradient_boosting'.")
+        f"'random_forest', 'gradient_boosting' or 'xgboost'.")
 
 
 def _predict_proba(model: Any, x: np.ndarray, n_classes: int) -> np.ndarray:
@@ -2891,7 +3137,8 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                       annotation_column: str, db_path: str,
                       class_values: Sequence[Any], feature_columns: Any,
                       model_type: str, n_labels: int, n_new: int,
-                      notes: List[str], table: str = PNG_TABLE,
+                      notes: List[str], balancing: Dict[str, Any],
+                      table: str = PNG_TABLE,
                       key: str = PNG_KEY,
                       image_type: Optional[str] = None) -> str:
     """Write the model card for one round's model. Never fatal.
@@ -2927,6 +3174,17 @@ def _write_round_card(model_path: str, report: Dict[str, Any],
                     k: coverage_meta.get(k) for k in
                     ("by_class", "by_plate", "by_well", "by_round",
                      "concentration", "wells_annotated", "plates_annotated")},
+                # WHICH BALANCING, NOT MERELY THAT THERE WAS SOME. The
+                # default estimators already pass `class_weight="balanced"`,
+                # so a card saying "balanced" without saying how describes
+                # two different models -- a reweighted fit and a downsampled
+                # one do not have the same probabilities, and
+                # `spacr.suggest` sorts on those probabilities.
+                #
+                # `synthetic_negatives` is the more serious of the two: a
+                # card that does not say the negatives were invented
+                # describes a model that does not exist.
+                "balancing": dict(balancing),
             },
         )
         return card_path

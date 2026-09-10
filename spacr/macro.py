@@ -195,6 +195,8 @@ def macros_dir() -> str:
 def macro_path(run_dir: Any) -> str:
     """Return the macro script path inside a run journal folder.
 
+    :param run_dir: run journal directory that will contain the script.
+
     Deliberately beside ``manifest.json`` and ``settings.json``: the
     journal folder is already what ``spacr-repro`` and
     :func:`spacr.notebook_export.export_run` are pointed at, so the script
@@ -508,6 +510,8 @@ class Macro:
     :param macro_id: twelve hex characters, the same shape as a run id.
     :param steps: the recorded steps, in the order they ran.
     :param created_utc: when the chain started.
+    :param touched: wall-clock timestamp of the most recent step, used to
+        decide when an idle chain must be closed.
     """
 
     macro_id: str = field(default_factory=lambda: uuid.uuid4().hex[:12])
@@ -547,6 +551,8 @@ class Macro:
     def write(self, path: Any) -> str:
         """Write the script to ``path`` and return the path.
 
+        :param path: destination Python-script path.
+
         Written to a neighbouring temporary file and renamed, so a reader
         that opens it while a later step is being appended never sees half
         a script.
@@ -556,15 +562,18 @@ class Macro:
         if parent:
             os.makedirs(parent, exist_ok=True)
         temporary = f"{target}.{os.getpid()}.tmp"
+        rendered = self.source()
         with open(temporary, "w", encoding="utf-8") as handle:
-            handle.write(self.source())
+            handle.write(rendered)
         os.replace(temporary, target)
         return target
 
     def __len__(self) -> int:
+        """Return the number of recorded steps in this chain."""
         return len(self.steps)
 
     def __str__(self) -> str:
+        """Return the macro id followed by its ordered module chain."""
         return (f"macro {self.macro_id}: "
                 f"{' -> '.join(self.modules) or '(empty)'}")
 
@@ -614,6 +623,16 @@ class _RunIdCapture(logging.Handler):
     """
 
     def __init__(self, thread_id: int) -> None:
+        """Initialize empty id buckets for the recording thread and others.
+
+        :param thread_id: the recording thread's identity, as
+            :func:`threading.get_ident` gives it. Ids logged from this
+            thread go in ``mine`` and everything else in ``other``, because
+            a second run on another thread is stamping its own id onto its
+            own records at the same time. PASS THE WRONG THREAD and nothing
+            fails -- the capture just fills ``other`` and the recorded run
+            ends up with no id of its own.
+        """
         super().__init__(level=logging.NOTSET)
         self.thread_id = int(thread_id)
         self.mine: List[str] = []
@@ -656,7 +675,22 @@ class _RunIdCapture(logging.Handler):
 
 @dataclass
 class Recording:
-    """One run being recorded. Created by :func:`begin_recording`."""
+    """One run being recorded. Created by :func:`begin_recording`.
+
+    :param module: normalized application key used to resolve the recorded
+        entry point, defaults, project root, outputs, and step module.
+    :param settings: copied launch settings used when
+        :func:`finish_recording` receives no override; copying protects them
+        from pipeline mutation.
+    :param run_dir: run-journal directory copied to the recorded step and used
+        to recover a fallback run id when no log record exposes one.
+    :param started: :func:`time.time` value captured at start and subtracted at
+        finish to produce a nonnegative elapsed duration.
+    :param started_utc: UTC start timestamp copied into the reproducibility
+        step.
+    :param capture: optional root-log handler that collects run ids during the
+        invocation; finishing removes and closes it before recording its ids.
+    """
 
     module: str
     settings: Dict[str, Any]
@@ -991,6 +1025,14 @@ class _Threader:
     """
 
     def __init__(self, projects: Sequence[Tuple[str, str]]) -> None:
+        """Normalize project roots longest-first for unambiguous rewriting.
+
+        :param projects: ``(name, path)`` per project constant, where the
+            name is what a rewritten path becomes (``PROJECT_1``) and the
+            path is the root it stands for. Sorted LONGEST PATH FIRST here,
+            so a project nested inside another is matched before its parent
+            and does not lose its own constant to it.
+        """
         # Longest first, so a nested project does not lose to its parent.
         self.roots = sorted(
             ((os.path.normpath(path), name) for name, path in projects),
@@ -1377,6 +1419,8 @@ def _is_path_join(node: ast.AST) -> bool:
 def summarise(record: Mapping[str, Any]) -> str:
     """Return a one-block human summary of a record from :func:`read_macro`.
 
+    :param record: decoded macro metadata record to summarize.
+
     What a methods section starts from: the version, the chain, and per
     step the entry point, the run id and how many settings were the user's
     rather than defaults.
@@ -1407,6 +1451,8 @@ def summarise(record: Mapping[str, Any]) -> str:
 
 def to_json(record: Mapping[str, Any], **kwargs: Any) -> str:
     """Return a record from :func:`read_macro` as JSON.
+
+    :param record: decoded macro metadata record to serialize.
 
     For a consumer that would rather have JSON than a Python dict — the
     methods exporter prompt, a web view, a diff. ``default=str`` so a value

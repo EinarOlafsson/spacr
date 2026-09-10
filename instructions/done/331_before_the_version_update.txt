@@ -1,0 +1,480 @@
+331 — WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
+=================================================
+
+Status:    OPEN, filed 2026-09-01. A CHECKLIST, not new work: every item
+           already has its own instruction. This exists because the
+           maintainer asked for the list to be split into before and
+           after, and a split kept only in a chat log is a split nobody
+           can act on next week.
+
+BEFORE THE UPDATE
+-----------------
+
+  I18N  REBUILD THE NINE API CATALOGS, THEN RE-RUN
+        `tests/test_documentation_i18n.py::
+        test_documentation_api_catalog_inventory_and_hashes_are_current`.
+        Added 2026-09-08, and it is a NAMED STEP on purpose.
+
+            python tools/build_documentation_i18n.py \
+                --repair-api-blocks --device cuda --languages <one locale>
+
+        one locale per process -- the translation model accumulates GPU
+        memory across locales and a single nine-locale process dies of a
+        CUDA OOM partway -- then `--sources-only` for the English manifest.
+
+        WHY IT IS HERE RATHER THAN DONE CONTINUOUSLY. The repair path only
+        writes WHOLE LOCALES, so one changed docstring costs exactly what
+        ten cost: a full nine-locale rebuild. Every rebuild before the last
+        one is therefore speculative, and between 2026-09-08's rebuilds a
+        single symbol changed twice and cost two of them. Both sessions
+        agreed to rebuild ONCE, last, at the ship boundary, and to let the
+        catalogs be stale until then -- see 325.
+
+        THE RULE ONLY HOLDS IF THIS LINE EXISTS, which is the work
+        session's condition for agreeing to it and is worth restating
+        rather than assuming: "a known-red test that is allowed to stay red
+        is exactly the artefact that keeps looking like it is doing its
+        job". Without a checklist line, "rebuild at the boundary" quietly
+        becomes "this test is red forever". The test is xfailed with a
+        reason naming this step, so a reader who hits it is told where to
+        look instead of asking.
+
+        DURATION IS NOT RECORDED HERE ON PURPOSE. Both sessions spent the
+        day quoting unmeasured durations at each other -- an 80-minute
+        Sphinx build that is 3m45s, and my own "about forty minutes" for
+        this rebuild, carried from the first one I watched and never
+        re-timed after the work moved to the GPU. Time the next one and
+        write the number in; do not inherit mine.
+
+  PKG  THE BUILD ITSELF, and it was never on this list. Added 2026-09-07.
+       Every cell of the compat matrix on `main` failed -- sdist, wheel, and
+       `pip install spacr` on 3.9 through 3.14 -- with
+
+           configuration error: `project.license` must be string
+
+       `license = { file = "LICENSE" }` is PEP 621's table form, and
+       setuptools >= 77 rejects it under PEP 639. The rejection happens while
+       READING pyproject.toml, before any build step runs, which is why every
+       cell failed identically and none gave a more specific error. Fixed on
+       nightly in 38724e353: `license = "BSD-3-Clause"` with
+       `license-files = ["LICENSE"]`, the build floor raised 64 -> 77, and the
+       superseded `License :: OSI Approved :: BSD License` classifier removed.
+       Nothing about the licence changed -- still BSD 3-Clause, still the same
+       file, stated in the form current tools read.
+
+       WHY IT BELONGS ON THIS SIDE OF THE LINE: 1.5.0.5 COULD NOT HAVE BEEN
+       BUILT. The release would have failed at its first step with an error
+       naming a licence field and not a cause, and 01 -- desktop installs that
+       cannot update themselves -- is blocked on publishing exactly that
+       version. main stays broken until nightly reaches it.
+
+       WHY NOBODY SAW IT SOONER, which is the transferable part: the home
+       workstation has setuptools 69.5.1, below the 77 that rejects the table
+       form, so a build there succeeds and always would have. It reproduces
+       only where setuptools is current. A green build on one machine was
+       never evidence about the matrix.
+
+       VERIFIED 2026-09-07, and this is the first time the fix was actually
+       tested rather than reasoned about. The same objection applies to the
+       FIX as to the bug: a build passing on setuptools 69 says nothing. So
+       a throwaway venv was given setuptools 84.0.0 -- seven majors past the
+       77 that rejects the table form -- and asked to build nightly:
+
+         python -m build --no-isolation      sdist AND wheel, both built
+         twine check dist/*                  PASSED, PASSED
+         pip install <wheel>                 installs, 8 entry points resolve
+
+       And the metadata is right, not merely present:
+
+         Metadata-Version: 2.4
+         License-Expression: BSD-3-Clause          <- the PEP 639 form
+         License-File: LICENSE                     <- and the file travels
+         Requires-Python: !=3.14.1,<3.16,>=3.9     <- NOT dropped
+
+       That last line is the one the pyproject comment warns about: raising
+       the floor without the SPDX string would have silently dropped
+       `requires-python` from the built metadata, which is worse than the
+       failure it replaced -- pip would then offer this wheel to 3.8. It is
+       present and exact. `Classifier: License :: OSI Approved :: BSD
+       License` is gone, as PEP 639 requires alongside the expression.
+
+       WHAT THIS DOES AND DOES NOT PROVE. It proves 1.5.0.5 can be BUILT and
+       uploaded, which is what "the release would have failed at its first
+       step" was about, and it proves it on a setuptools newer than any CI
+       cell is likely to have. It does NOT prove the compat matrix green: it
+       ran on one interpreter, not 3.9 through 3.14, and it did not resolve
+       dependencies (`--no-deps`). Those remain CI's job, and CI is 288's.
+
+  288  GREEN CI. The stated gate, and the only ENGINEERING item still on
+       this side of the line. Qt pragmas are 88 -> 33, the assertion-free
+       ratchet is green, and a crash that stopped seven folded modules
+       opening is fixed. NOT MET: tests/qt still dies partway through a
+       single process, so there is no clean full-suite signal.
+
+       WHERE IT HAS TO BE DONE, and this is now the practical blocker
+       rather than the diagnosis: the home workstation cannot run the
+       suite. Full-suite and coverage runs there have crashed VS Code and
+       logged the maintainer out repeatedly, so that session works under a
+       hard RAM ceiling and is instructed not to attempt it. Assigned to
+       the work session on 2026-09-06 (see 325) WITH GPU AND RAM GUARDS --
+       that machine is running an AlphaFold screen, 86 spaCR tests are
+       `@pytest.mark.gpu`, and their guard only skips them when the card
+       has 1500 MiB free, which a shared 24 GB card usually does.
+
+  314  THE REGRESSION HANG. CLOSED 2026-09-04 BY THE MAINTAINER -- the
+       symptom is gone. It is struck from this list rather than deleted,
+       because the tension at the bottom of this file was written around
+       it and no longer applies.
+
+  01   WINDOWS SELF-UPDATE. CODE COMPLETE and verified 2026-09-01.
+       Nothing further is reachable from a checkout.
+
+  05   VERSION BUMP AND ACTIONS. The release mechanism itself.
+  304  RELEASE 1.5.0.5 AND ZENODO. The update.
+       Both require maintainer confirmation: publishing is public and
+       irreversible.
+
+  316  TRANSLATIONS -- STRUCK FROM THIS LIST 2026-09-07 BY THE MAINTAINER.
+       Put to Einar by the work session and ruled on directly: ship on the
+       qualified claim the README already carries -- the nine non-English
+       catalogs are machine-drafted and technically reviewed, not read end
+       to end by a native speaker. An English fallback is readable and a
+       wrong translation is not, so a translation defect is not worth
+       holding a release that Windows users need in order to update at all.
+
+       This resolves a contradiction this file carried for six days: 331
+       listed 316 as gating while 316's OWN header said it was
+       "RELEASE-BLOCKING for any claim that spaCR is translated, though NOT
+       for the release itself". 316's header was right. It stays open
+       against a later release.
+
+AFTER THE UPDATE
+----------------
+
+  326 arbitrary organelle count      315 the force-quit dialog
+  330 nested dock and menu           306 API and tooltip currency
+  305 load time within resources     319 accelerator polish
+  58  contributor listing
+
+THE TENSION WORTH STATING -- RESOLVED 2026-09-06
+------------------------------------------------
+This section used to weigh holding the release to finish 314 against the
+cost of leaving Windows users unable to take any later fix. 314 WAS
+CLOSED on 2026-09-04, so that trade no longer exists and the argument is
+kept only so the record reads straight.
+
+WHAT IS ACTUALLY LEFT BEFORE THE UPDATE -- REVISED 2026-09-07
+------------------------------------------------------------
+
+  288  GREEN CI. THE ONLY ENGINEERING ITEM LEFT, and the work session has
+       narrowed what it means. CHUNKED, IT IS NOT REPRODUCIBLE: 35 serial
+       chunks of 30 files, every chunk completed, 20,075 passed and 124
+       failed across 50 files, 99.4% -- no OOM, no segfault, nothing
+       wedged. So "dies partway through a single process" was never a
+       property of the suite, only of running it as one process. The
+       single-process run of 2026-09-07 was at 3.01 GB RSS by 7% against
+       the 4 GB `SPACR_TEST_MEMORY_GB` watchdog, which if the trend holds
+       means the death is THE WATCHDOG -- not a test, not a leak, and not
+       anything a CI shard would hit. If confirmed, the fix is CI's shard
+       count and this item is far closer to done than this file has said.
+
+       AND FIFTEEN OF THOSE 124 FAILURES WERE ALREADY FIXED before anyone
+       triaged them: they were reading the `ambient_enabled=false` that a
+       test of mine leaked into the REAL QSettings, plus the latched
+       black-page flag. Re-running the six affected files after 498606c38
+       and 41e7f1f9e took 33 failures to 18. The transferable rule is now
+       first in the work session's plan rather than a footnote: CHECK THE
+       PERSISTED VALUE BEFORE THE CODE.
+
+  379  ADDED TO THIS SIDE by Einar on 2026-09-07: the 11/12 bug.
+       `retrain_round` reads every non-null value in the annotation column
+       as a class label, so any fit run with suggestions outstanding trains
+       classes no human labelled and the model card does not say so. The
+       Annotate screen guards both its buttons, but a script calling
+       `retrain_round` directly is still exposed, so it is being fixed at
+       the source -- filtering where the labels are read -- by the work
+       session, which owns that file.
+
+  05   the bump, and 304 the publication. BOTH HELD BY THE MAINTAINER.
+
+  PKG  CLOSED FROM BOTH DIRECTIONS on 2026-09-07 -- see the entry at the
+       top of this file. A local build on setuptools 84.0.0 AND the full
+       compat matrix green on all six blocking interpreters (3.9 to 3.14)
+       for sdist, wheel and `pip install spacr` from wheels only. The one
+       red cell is 3.15, `continue-on-error: true` by design until PySide6
+       admits that interpreter.
+
+SO THE GATE IS FOUR THINGS: 288, the 11/12 fix, and the maintainer's two
+held items. None of them is a design question.
+
+--------------------------------------------------------------------------------
+THE 2026-09-06 LIST, KEPT SO THE RECORD READS STRAIGHT
+--------------------------------------------------------------------------------
+
+WHAT WAS THOUGHT TO BE LEFT BEFORE THE UPDATE, as of 2026-09-06:
+
+  288  green CI. Engineering, unmet, and assigned to the machine that can
+       run a suite.
+  316  translations. Nine catalogs, 23 red tests. Text work, no GPU,
+       negligible memory -- the safest thing either session can do.
+  05   the bump, and 304 the publication. BOTH HELD BY THE MAINTAINER, who
+       said on 2026-09-06: "don't increment to 1.5.0.5 until I say to".
+       Everything short of the version number can be staged.
+
+  01 is ready either way and has been since 2026-09-01.
+
+So the gate is three items -- the packaging fix landed on nightly and
+needs only to reach main -- and none of them is a design question. That is a smaller and more tractable list than this file
+described for five days.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE LIST AFTER THE AUDIT AND ONE NIGHT'S WORK
+--------------------------------------------------------------------------------
+
+The AFTER list above is stale in three places and the BEFORE list in two.
+Regenerated here rather than edited in place, so the original stays readable.
+
+BEFORE THE UPDATE, still
+
+  288  GREEN CI. Still the gate and still unmet. Coverage last measured
+       99.87%, 355 items in 108 modules (2026-08-31, now stale); sequencing
+       reached 100.00% on current source on 2026-09-02. CI is red on docs
+       and compat-matrix. Two NEW order-dependent families were found on
+       2026-09-02 and filed as 345 (three annotate tests) and 346
+       (twenty-one measure tests) -- both are exactly the "green means
+       something" problem this gate exists for, and neither was visible to
+       anyone running one file.
+
+  314  THE REGRESSION HANG. Unchanged, and the count is now ELEVEN causes
+       measured and rejected, not seven. Still reproduces only through
+       `spacr.qt.run()`.
+
+  01   WINDOWS SELF-UPDATE. Re-verified in the code on 2026-09-02:
+       `updater.py:161` checks `uv.exe` before `uv` on Windows. Nothing
+       further is reachable from a checkout.
+
+  05 / 304  THE MECHANISM AND THE RELEASE. Unchanged; both need the
+       maintainer, and 304 also needs the Zenodo toggle switched on BEFORE
+       the release is cut.
+
+  316  TRANSLATIONS. Unchanged as an item, but the number moved: six of the
+       failures it shares with 306 were measured on 2026-09-02, and Codex
+       confirmed all six sit inside 316's 23. The acceptance boundary is
+       still split -- 306 owns the six mechanical ones, 316 stays open for
+       the five semantic defects and the nine-locale human review.
+
+AFTER THE UPDATE, corrected
+
+  CLOSED since this list was written, and no longer on either side:
+       319  accelerator polish        (the nine READMEs were regenerated)
+       330  nested dock and menu      (shipped in 940542f5b)
+       336  the API link              (shipped in 05b7301b0)
+
+  STILL AFTER
+       326  arbitrary organelle count   315  the force-quit dialog
+       306  API and tooltip currency    305  load time within resources
+       327  backdrop camera             58   contributor listing
+       337  measure defaults
+       345  three annotate tests        346  twenty-one measure tests
+       347  the tooltip strip and the API dot
+       348  the dock behaves like a dock
+       343  regression panel packages   (Codex)
+
+  MOVED, and it is worth saying why: 306 was on the AFTER side as "API and
+  tooltip currency". Half of it is now BEFORE-shaped -- the catalogs are 125
+  rows behind the sources, and shipping nine locales that are 125 rows stale
+  is a translation claim the release makes in public. It is left on the AFTER
+  side only because an English fallback is readable, which is 316's own
+  argument. If that argument is ever withdrawn, 306 moves.
+
+THE TENSION, RESTATED AND NOW WORSE IN ONE DIRECTION
+----------------------------------------------------
+Nothing has changed about 01 being the escape hatch. What HAS changed is that
+two more order-dependent test families surfaced in a single day, both
+invisible to a single-file run. That is evidence about 288's gate rather than
+about the release: the suite has been less green than it looked for at least a
+day, and probably longer. It makes "wait for green CI" a longer wait than it
+appeared on 2026-09-01, which pushes the balance further toward shipping
+1.5.0.5 with 314 open rather than further from it.
+
+Still a maintainer's call. Engineering's position is unchanged and better
+evidenced.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE LIST AFTER A LONG SESSION. ONE ITEM CLOSES, ONE GATE MOVES.
+--------------------------------------------------------------------------------
+
+Regenerated again rather than edited in place. Two rows changed materially and
+one leaves the list entirely.
+
+BEFORE THE UPDATE, still
+
+  288  GREEN CI. Still the gate, still unmet, but it moved in a way worth
+       recording because "red" hid three different things.
+
+       The REPO-WIDE FATAL LINT GATE is now green. `ruff check spacr tests
+       --select E9,F63,F7,F82` had 21 F821 undefined names and has none: four
+       bare `label()` calls in mask_engine that bypassed the module's own
+       deferred scipy import, `FoldStrip` and `pd` named only in quoted
+       annotations, and three typing names simply absent.
+
+       The DOCS JOB failed on every push, and all three causes were in the
+       AUDIT rather than in what it audits: a protected status literal eaten
+       by its own case-insensitive disambiguator, an emphasis check that
+       rejected text for having been reflowed, and seven stale reviewed
+       records that both audits abort on the first of. It now RUNS TO
+       COMPLETION and reports findings instead of dying with a traceback,
+       which is the difference between a broken gate and a working one.
+
+       What it reports is the real remaining distance, and it is larger than
+       the old number: the English API manifest was 8,943 symbols against
+       9,405 in source. Ratcheted on the maintainer's instruction, which
+       deliberately opens a translation debt of 205 missing symbols in six
+       locales and 472 in three -- 2,646 in total. A repair pass over them is
+       running as this is written.
+
+       compat-matrix is green. tests is long and is not what these three
+       fixes were about.
+
+  314  THE REGRESSION HANG. The `_already_current` re-entry guard the standing
+       handoff asked to be restored WAS ALREADY IN, at walkthrough.py:266 with
+       both guard tests committed and seven passing. Nothing was rebuilt. The
+       item is otherwise unchanged and the maintainer deferred the remaining
+       measurement on 2026-09-04: it wants a real screen, and every previous
+       round of it found its causes only on real data.
+
+  01 / 05 / 304  UNCHANGED. All three still need the maintainer, and 304 still
+       needs the Zenodo toggle switched on before the release is cut.
+
+  316  TRANSLATIONS. Unchanged as an item. 306's mechanical half moved: one of
+       its eight failing catalog tests was not a translation problem at all
+       but two tests asserting opposite things about the README language
+       picker, which instruction 361 had already decided. The other seven are
+       one blocker wearing seven hats -- four short pieces of prose in
+       Chinese, Korean, Swedish and the nine-locale `foreign` summary -- and
+       306 now records the exact strings rather than "needs a reviewer".
+
+CLOSED, AND OFF BOTH LISTS
+
+  58   CONTRIBUTOR LISTING. origin/nightly carried 70 `Co-Authored-By: Claude`
+       trailers, all added 2026-09-02/03 AFTER the history had been cleaned
+       once; main was clean and stayed clean. Now zero on both, verified four
+       ways: trailers gone, zero files differing from the pre-rewrite backup
+       because a message-only rewrite must not alter a byte of content, 6,304
+       commits before and after, and no Claude author or committer anywhere.
+
+       THE RECURRENCE IS WHAT MATTERED. Instruction 58 recorded a commit-msg
+       guard as installed and there was none in this checkout: `.git/hooks`
+       does not clone, sync or travel, so the sentence described one machine
+       and read like a repository. The guard is now TRACKED in the tree, and
+       behind it a test that fails on a trailer reaching the branch -- because
+       CI runs whatever any developer's .git contains and a hook does not.
+
+       What remains of 58 is GitHub's own cached contributor widget, which is
+       server-owned and covered by support ticket #4711257. Nothing in this
+       repository can force it, so the item is closed on the repository's side.
+
+ALSO MOVED, none of it release-blocking
+
+  310  Every one of its 57 entries now carries a verdict and none is live.
+       Four were real and are fixed with mutation-checked guards; five were
+       already fixed and are recorded as stale rather than re-derived.
+  350  The clipping sweep now covers the dialogs -- 17 of 41, the rest needing
+       fixtures -- and found eight clipped combinations in four dialogs, every
+       one at 200% font scale and none at 100%.
+  375  Step 1 is done and says stop. On the maintainer's own acquisitions the
+       new Import matches the old regex file-for-file on the four cellvoyager
+       ones and places 43 of 150 on mitoscreen, deriving no field and no
+       channel. Steps 2 and 3 stay unstarted, which is what its own ordering
+       demands.
+  115  The macOS form-width report is fixed: the settings QFormLayout named
+       its field-growth policy instead of inheriting the platform's answer.
+
+THE TENSION, UNCHANGED
+----------------------
+Nothing here changes the shape of it. 01 is still the escape hatch, 314 is
+still characterised rather than fixed, and 288's gate is still genuinely
+unmet. What is different is that the docs half of that gate is now failing on
+a MEASUREMENT rather than on a crash, and the measurement names its own
+remaining work.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- 314 IS CLOSED, AND THE BEFORE LIST IS ONE SHORTER
+--------------------------------------------------------------------------------
+
+The maintainer closed 314 today: "cloase 314, i never get that problem any
+more!" It is in done/ with a closing note recording what the closure does and
+does not claim -- chiefly that nothing was ever fixed for it, and that the
+2026-09-03 measurement of a 6,252 ms stall stands unretracted and simply no
+longer describes what he meets.
+
+SO THE TENSION ABOVE IS RESOLVED, AND NOT THE WAY EITHER SIDE OF IT EXPECTED.
+Three rounds of this file weighed shipping 1.5.0.5 with 314 open against
+holding the release to finish it. Neither is now needed: the symptom is gone
+from the only machine that ever showed it, so 314 stops being an argument
+about the release date at all.
+
+BEFORE THE UPDATE, as it now stands: 288 (green CI, genuinely unmet), 05 and
+304 (the bump and Zenodo, both maintainer decisions), 316 (translations), and
+01 (code complete, waiting only on publication). 314 is off this list.
+
+WHAT DOES NOT MOVE. Nothing in this note is evidence about 288, which is the
+one gate that was always measured rather than reported.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE GENERATED ARTEFACTS, AND THE COMMAND THAT REGENERATES EACH
+--------------------------------------------------------------------------------
+
+Four generated files can go stale independently of the code they describe, and
+every one of them cost somebody a red test today. A test that only says "this
+drifted" is not enough: the reader still has to work out which command puts it
+right, and that is where the afternoon goes.
+
+BEFORE THE UPDATE, run these in this order and commit what they change:
+
+    tools/build_setting_consumer_map.py      spacr/qt/screens/setting_api_targets.py
+    tools/settings_flow.py --rst             docs/source/_generated/settings_flow.rst
+                                             spacr/qt/screens/settings_flow_index.py
+    tools/build_documentation_i18n.py        docs/source/_static/i18n/api/*.json
+    tools/build_instruction_index.py         instructions/00_INDEX.txt
+
+`settings_flow.py --rst` writes TWO files and they must be written together.
+The index is a frozenset of the keys the page drew a section for, counted from
+the page in the same run, and 185 of the settings panel's API links now aim at
+those anchors. An index that names a section the page does not carry sends the
+reader to a fragment the browser ignores in silence -- 383's item 3, which was
+closed for the API links and could be reintroduced here by regenerating one of
+the pair alone. Nothing else in the tree calls `rst_for`, so the only way to
+break it is by hand.
+
+`settings_flow_index.py` is in the PACKAGE rather than in docs/, because the
+settings panel imports it at runtime. It ships in the wheel; the RST does not.
+
+THE CONSUMER MAP AND THE FLOW PAGE READ THE SAME ANALYSIS but are written by
+different programs, so a package change that moves a setting's reader can leave
+them disagreeing. Neither has a test that compares them to each other. Running
+both, in the order above, is what keeps that from mattering.
+
+WHY THIS IS A CHECKLIST LINE AND NOT A TEST. Suggested by the other session
+against the pattern that has worked all day: a named command in the before-list
+tells the reader what to do, where a test tells them only that something is
+wrong. Both exist for the catalogs and it is the checklist line that gets used.
+
+--------------------------------------------------------------------------------
+2026-09-08 — OFF THE LIST BY THE MAINTAINER'S INSTRUCTION
+--------------------------------------------------------------------------------
+
+Moved to done/ on 2026-09-08 at the maintainer's request: "take these of the
+list". The engineering here is finished; what is left is his to do and not a
+work item either session can pick up.
+
+  05   the bump and the Actions run. Mechanism verified at 1.5.0.4. Needs one
+       green SHA and his approval, both of which are actions rather than
+       code.
+  304  Zenodo. Metadata is in place; needs the Zenodo toggle and the bump.
+  331  the before-the-update checklist. It is a view over the other items
+       rather than work of its own, and it was regenerated 2026-09-02.
+
+NOT A CLAIM THAT 1.5.0.5 IS RELEASED. It is a claim that nothing is waiting
+on an agent. If any of these is reopened, reopen it as work rather than
+inheriting this note.

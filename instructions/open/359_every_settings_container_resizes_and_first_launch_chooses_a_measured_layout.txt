@@ -1,0 +1,306 @@
+================================================================================
+EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
+================================================================================
+
+Status:    OPEN, filed 2026-09-02. AFTER the version update unless the
+           maintainer explicitly promotes it; recording it does not change the
+           current pre-update gate.
+Requested: 2026-09-02 — in Regression's Measurements section, nested sections
+           become illegible because their containers are too small; every
+           container, subsection and sub-subsection must be height-resizable
+           and collapsible. On an M4 Mac laptop, widening some settings
+           containers did not widen their fields; fields must expand with the
+           container, and every module must initially open wide enough that
+           the right side of its settings is not cut off.
+           Also requested: simulate screen/window/font sizes, measure cutoff,
+           ship the resulting display map, and use first-run display metrics
+           to select spaCR's best defaults.
+Owner:     Qt layout/settings infrastructure, Regression's Measurements page,
+           display-policy generation and packaged assets.
+
+IS IT POSSIBLE, AND IS IT A GOOD IDEA?
+--------------------------------------
+
+YES, with one correction: screen resolution alone is not a sufficient key.
+The same pixel dimensions can describe a low-DPI external monitor, a Retina
+panel at 2x scaling, or an accessibility-scaled desktop. A static
+``resolution -> font size`` table would choose incorrectly on exactly the M4
+Mac that motivated this item.
+
+The useful design is a GENERATED, SHIPPED BREAKPOINT POLICY derived from the
+simulation matrix, combined at runtime with Qt's actual measurements:
+
+* available screen geometry, not total geometry hidden behind a dock/menu;
+* logical DPI, device-pixel ratio and operating-system scale;
+* current application font and ``QFontMetrics``;
+* widget ``minimumSizeHint``/``sizeHint`` and the real settings schema;
+* window width/height, locale and platform chrome.
+
+The policy may recommend an initial window size, settings-panel width, density
+mode and a bounded starting font size. It must not defeat an OS accessibility
+font or a user's saved choice merely to make text fit. When space is tight,
+wrap, reflow, collapse and scroll before shrinking below the readable floor.
+
+All detection and selection are local. This item does not authorise telemetry;
+"capture" means reading Qt screen metrics into local preferences/evidence, not
+sending hardware details anywhere.
+
+PART 1 — EVERY NESTED CONTAINER CAN BE READ
+-------------------------------------------
+
+1. Inventory Regression -> Measurements through every subsection and
+   sub-subsection. Replace fixed-height nesting with visible splitter handles
+   or another accessible height-resize affordance at every level.
+2. Give every section an explicit collapse/expand control with keyboard access,
+   focus state and translated accessible name. Collapsing one section must
+   release its space to siblings rather than leave a blank fixed-height box.
+3. Preserve useful splitter heights and collapsed state while navigating the
+   module. Reset/default layout must remain available so a dragged section can
+   never be made permanently unreachable.
+4. Size expensive previews/tables independently from their section header and
+   controls. A nested scroll area must not consume wheel/keyboard events in a
+   way that makes its parent impossible to reach.
+
+PART 2 — SETTINGS FIELDS FOLLOW THEIR CONTAINER
+------------------------------------------------
+
+1. Audit the shared settings renderer used by EVERY module, not only
+   Regression. Remove accidental fixed widths and maximum widths from ordinary
+   fields; use expanding horizontal size policies and layout stretch factors.
+2. When the settings panel grows by a measured amount, every field type that
+   can use the space—line edit, combo, path picker, list/table, spin box and
+   compound editor—must grow or deliberately allocate that space to its
+   associated action button. Labels wrap or reflow without covering fields.
+3. Initial module layout must derive a preferred settings width from real
+   content size hints and font metrics, then clamp it to the available screen.
+   The right edge of a field or action button must never begin off-screen.
+4. If a form truly cannot fit the available width, use a visible, accessible
+   fallback (reflow or scroll) rather than silently clipping it. A hidden
+   horizontal scrollbar is not a passing result.
+5. Recompute the responsive layout after a font, locale, theme, display scale,
+   screen or window change. Moving a live window between monitors is part of
+   the contract; first launch is not the only time the geometry can change.
+
+PART 3 — MEASURE THE PARAMETER SPACE AND SHIP THE POLICY
+--------------------------------------------------------
+
+Build a deterministic offscreen layout harness that launches every module and
+Regression's three nesting depths over at least:
+
+* available geometries 1280x720, 1366x768, 1440x900, 1920x1080, 2560x1440,
+  and current Apple-laptop Retina geometries including the reported M4 class;
+* device-pixel ratios 1.0, 1.25, 1.5 and 2.0, with representative logical DPI;
+* application font scales from the supported readable minimum through 200%;
+* compact, default and expanded window widths/heights;
+* English plus the locales with the widest measured labels, and at least one
+  non-Latin locale.
+
+Measure actual allocated/content rectangles after Qt finishes layout. Record
+clipped text, truncated controls, overlap, off-window geometry, unusably small
+nested panels, scrollbar visibility, and whether a field expands when its
+parent expands. Do not infer success only from a screenshot or from the absence
+of a Qt warning.
+
+Generate a compact versioned policy artifact from those results—for example a
+JSON breakpoint table in spaCR's packaged assets—and include the generator,
+schema, source matrix and deterministic test. The artifact must be installed
+in both wheel and sdist and loaded without importing heavy scientific or GPU
+libraries.
+
+FIRST-RUN AND ONGOING SELECTION
+-------------------------------
+
+On first run, read Qt's local screen/font metrics and choose the nearest safe
+policy row. Store the resolved layout/density/font recommendation locally with
+the metrics that justified it, while keeping the user's later changes
+authoritative. On a materially different monitor or scale, recompute the safe
+layout; do not overwrite a deliberate accessibility or font override.
+
+The OS/app font is the primary accessibility signal. The generated map may
+choose a starting font within tested bounds, but must prefer layout changes to
+making the text smaller and must expose an immediate preview/reset in
+Preferences.
+
+HOW TO KNOW IT WORKED
+---------------------
+
+* Regression's Measurements page has automated and manual tests at all three
+  nesting levels proving each container expands, contracts, collapses,
+  reopens, reallocates space and remains keyboard reachable.
+* On the reported M4-Mac profile, widening the settings container measurably
+  widens every eligible field; fresh module windows show the complete right
+  edge of settings and action buttons.
+* Every registered module passes the generated geometry/font/DPI/locale matrix
+  with no clipped text, overlaps, off-screen controls or unusable subsection.
+  The registry drives the test so a new module cannot escape it.
+* The same tests include positive controls that deliberately impose a fixed
+  field width or too-narrow nested container and go red; an absence-only test
+  that also passes broken layout proves nothing.
+* First launch selects the expected versioned policy for measured profiles,
+  window movement across different-DPI monitors triggers safe recalculation,
+  and a user font/accessibility override survives both.
+* Wheel and sdist installation tests prove the generated policy is present,
+  schema-valid and usable from a neutral working directory.
+* A real M4 Mac smoke test confirms the simulation before this item closes;
+  simulated Retina metrics are necessary for the matrix but not sufficient
+  evidence for the originally reported machine.
+
+PROGRESS — PART 1, 2026-09-05
+-----------------------------
+
+Done, in the tree, uncommitted:
+
+* THE MEASUREMENT FIRST. Regression -> Measurements has three nesting levels.
+  The outer one (three panels in a vertical splitter, each folding) was
+  already there from 169/186/187. Underneath it the four numbered workflow
+  steps were bold labels with their controls loose in the panel's column, and
+  every tall box in them was pinned by a literal ``setMaximumHeight``. Built
+  offscreen at 9 pt and again at 18 pt:
+
+      box                     cap       @100 %      @200 %
+      attached databases      170 px    4 rows      3 rows
+      join list                72 px    4 rows      2 rows
+      merge report            190 px    11 lines    5 lines
+      merge evidence          220 px    12 lines    6 lines
+      column picker           180 px    10 rows     5 rows
+      outcomes                120 px    7 lines     3 lines
+
+  Doubling the font halved the content of every nested container on the tab
+  and no drag could get it back, because a maximum height is a maximum. That
+  is the whole of "nested sections become illegible because their containers
+  are too small", and it is why the report came from a font_scale=2 machine.
+
+* ``spacr/qt/widgets/height_grip.py`` — Home's ``_HeightGrip`` moved out of
+  ``home.py`` and made shared, as this file's context asked (reuse, do not
+  invent a second one). ``home._HeightGrip`` is now an alias, so Home is
+  byte-for-byte the same handle it had. What was added on the way: a
+  per-instance accessible name, keyboard resizing (arrows/PageUp/PageDown/
+  Home/End, StrongFocus), bounds held in BASE px and re-scaled through
+  ``scaled_px``, a right-click "Reset height", and a ``changeEvent`` that
+  follows a live font change.
+
+* ``WorkflowStep`` in ``measurement_scan_panel.py`` — the sub-subsection
+  level. Each numbered step is now a fold: a focusable checkable arrow with a
+  translated accessible name, the ``WorkflowStep`` QLabel still beside it and
+  now clickable, and a body that hides. One step per panel carries the
+  stretch, so folding a sibling hands its height over instead of leaving a
+  gap (measured: step 3 goes 474 -> 680 px when step 1 folds).
+
+* ``resizable_box`` — every capped box now opens at ``scaled_px(default)``
+  with a grip under it. Re-measured at 200 %: 8 rows, 4 rows, 11 lines, 13
+  lines, 10 rows, 7 lines — every box at least as legible as at 100 %.
+  ``grep setMaximumHeight`` over the module is empty and a test keeps it so.
+
+* The arrangement persists. ``set_section_layout`` gained ``steps`` and
+  ``boxes``; box heights are stored UNSCALED, so a height dragged at 100 % is
+  the same number of lines when it is restored at 200 %.
+
+* ``tests/qt/test_every_measurements_container_resizes.py`` — 25 tests,
+  including the positive control this file asks for: it rebuilds a box with a
+  hard ``setMaximumHeight`` and asserts it LOSES lines when the font grows.
+  Mutation-checked: dropping ``scaled_px`` from ``resizable_box`` reds four
+  tests, putting a literal cap back reds three.
+
+STILL OPEN: part 2 beyond the field-growth policy already shipped for issue
+115 (the width audit across every module, and the initial settings width
+derived from content hints); the whole of part 3 (the offscreen geometry/DPI/
+locale matrix, the generated policy artifact, wheel/sdist installation of it);
+first-run policy selection; and the real M4 smoke test, which no simulation
+closes.
+
+BOUNDARY
+--------
+
+This item owns responsive sizing and display-policy selection. It does not
+replace instruction 350's package-wide text-fit audit; 350 consumes this
+item's matrix and should stop carrying ad-hoc per-screen geometry once the
+shared policy exists.
+
+PROGRESS — PART 3, 2026-09-10: THE HARNESS, AND WHAT IT FOUND
+-------------------------------------------------------------
+
+THE HARNESS IS `tests/qt/test_the_layout_matrix.py`, SKIPPED UNLESS ASKED,
+and `tools/measure_the_layout_matrix.py` is the driver that asks. It walks
+every declared module x locale x font scale, over a LADDER of container
+widths from 400 to 2560 px, and records the narrowest rung at which the
+module is whole.
+
+IT LIVES IN A TEST FILE ON PURPOSE, and that is a finding rather than a
+style choice. It was written first as a standalone script with a
+hand-rolled qtbot, and it DISAGREED WITH THE SWEEP: it reported two clipped
+captions on every module -- including modules that do not contain the
+button it named -- where `test_the_text_fits_sweep.py` reports none. The
+difference was the fixtures. `tests/qt/conftest.py` carries fifteen autouse
+fixtures plus a session one that fills `theme._WIDGET_QSS`, and a harness
+that reproduces some of them measures a screen no user has. A GENERATOR
+THAT DISAGREES WITH THE SUITE PRODUCES A POLICY THE SUITE CANNOT DEFEND,
+and the disagreement is invisible until a user meets it.
+
+AND THE FIRST HONEST RUN CHANGED THE QUESTION. Asked with clipped captions
+alone -- instruction 350's rule -- every module came up clean at the
+narrowest rung tried, 700 px. A settings form does not clip its captions
+when it runs out of room. It puts the right-hand side past the edge and
+offers a horizontal scrollbar, which is the report word for word:
+"widening some settings containers did not widen their fields". So the
+harness asks a second question, which 359's own part 3 lists -- "off-window
+geometry ... scrollbar visibility" -- and asks it as CONTENT AGAINST
+VIEWPORT rather than as `horizontalScrollBar().isVisible()`, because a
+scrollbar with an always-off policy hides the symptom without fixing it.
+
+Of ONE named scroll area, not every scroll area on the screen. A table or a
+plot canvas has an enormous horizontal size hint BY DESIGN and scrolling it
+sideways is correct; counting those reports every module as needing a
+display nobody sells. The settings column carries `SETTINGS_PANEL_NAME`
+precisely so it can be addressed.
+
+WHAT IT FOUND, and it is worse than the report suggested:
+
+    most modules          need 2100 px of WINDOW before the settings
+                          column stops holding more than it can show
+    annotate               500
+    power                  900
+    investigate_hit       1000
+    regression            NO RUNG UP TO 2560 SHOWS IT WHOLE
+
+Measured at 2560 px of window, English, 100 %: the settings column's
+viewport is 832 px. Measure's content wants 632 and fits. REGRESSION'S
+WANTS 970 AND CANNOT, at any window width, because the splitter gives the
+column a fraction rather than a share that keeps growing -- which is
+exactly part 2's "widening some settings containers did not widen their
+fields", now with a number. The widest single contributor inside it is
+`PairedFileTableWidget` at a 750 px minimum.
+
+AND THE WINDOW OPENS AT 1200. `app.py`'s comment above `win.show()` records
+why it does not maximise -- a remote session's "available geometry" is
+frequently a stub -- so the opening size has been the window's own 1200 px
+minimum. Against 2100, that is the whole of "every module must initially
+open wide enough that the right side of its settings is not cut off".
+
+SHIPPED WITH THIS
+  * `spacr/qt/layout_policy.py` -- the reader. Imports `json` and
+    `importlib.resources` and nothing else; the Qt metrics arrive as
+    ARGUMENTS, so the policy can be read and tested with no display, which
+    is what part 3 requires of it. Refuses a schema from the future,
+    survives a wheel that does not carry the file, and falls back to
+    1200x850 -- the one width the package already has evidence for, since
+    350's sweep builds every screen at it.
+  * `app.open_at_the_measured_width` -- called just before `win.show()`.
+    IT ONLY EVER GROWS, and that is the safety property: growing on a bad
+    number is bounded by the clamp to available geometry, and shrinking on
+    one is bounded by nothing. Without the artifact it is a no-op.
+  * `MANIFEST.in` and `setup.py` both list the artifact, with a test that
+    asserts both -- listing one is the failure mode, because a wheel
+    install would work and a source install would fall back silently.
+
+STILL OPEN AFTER THIS
+  * REGRESSION CANNOT BE FIXED BY A WINDOW SIZE. It needs part 2's work:
+    the settings column has to be able to take the width, and
+    `PairedFileTableWidget`'s 750 px minimum has to come down or move out
+    of the column.
+  * The DPI/device-pixel-ratio axis. The harness varies width, locale and
+    font scale; `devicePixelRatio` is not something an offscreen platform
+    lets a test set per case, and faking it would measure the fake.
+  * First-run selection stores nothing yet: the width is recomputed each
+    launch rather than resolved once and recorded with the metrics that
+    justified it.
+  * The real M4 smoke test, which no simulation closes.

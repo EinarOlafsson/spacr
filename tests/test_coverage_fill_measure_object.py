@@ -177,6 +177,18 @@ def test_calculate_homogeneity():
     assert len(df) == 2
 
 
+def test_calculate_homogeneity_marks_an_empty_glcm_missing():
+    """An offset wider than a region has no pixel pairs, not zero texture."""
+    m = np.zeros((12, 12), dtype=np.int32)
+    m[2:8, 3:9] = 1
+    ch = np.arange(m.size, dtype=np.uint8).reshape(m.shape)
+
+    df = M._calculate_homogeneity(m, ch, distances=[2, 6])
+
+    assert np.isfinite(df.loc[0, "homogeneity_distance_2"])
+    assert np.isnan(df.loc[0, "homogeneity_distance_6"])
+
+
 def test_estimate_blur():
     img = np.random.default_rng(3).random((32, 32)).astype(np.float64)
     val = M._estimate_blur(img)          # already-float64 path
@@ -198,14 +210,51 @@ def test_calculate_radial_distribution():
 
 
 def test_calculate_correlation_object_level():
+    """One Manders definition, and it is the standards-compliant one.
+
+    The `M1_correlation_<t>` / `M2_correlation_<t>` pair was removed on
+    2026-09-02 (instruction 337): it was never Manders' coefficient, it was
+    ~99% self-redundant, and it shipped ON by default beside the correct
+    columns under names that did not say which definition produced them.
+
+    `manders_thresholds` is still passed here on purpose -- a settings dict
+    from before the change still carries it, and the function must ignore it
+    rather than fail on it.
+    """
     m = _two_object_mask()
     c1 = np.random.default_rng(5).random((32, 32)).astype(np.float32)
     c2 = np.random.default_rng(6).random((32, 32)).astype(np.float32)
     df = M._calculate_correlation_object_level(
         c1, c2, m, {"manders_thresholds": [15, 85]})
     assert "Pearson_correlation" in df.columns
-    assert "M1_correlation_15" in df.columns
     assert len(df) == 2
+
+    for column in ("manders_m1", "manders_m2", "manders_overlap_coefficient"):
+        assert column in df.columns, column
+    assert not [c for c in df.columns if c.startswith(("M1_correlation",
+                                                       "M2_correlation"))]
+
+
+def test_the_manders_coefficients_need_no_setting_at_all():
+    """The trio is unconditional: an empty settings dict still produces it.
+
+    `corrected_manders` used to gate these and is retired. Driving the
+    function with NOTHING in the dict is what proves the gate is gone rather
+    than defaulted to True somewhere.
+    """
+    m = _two_object_mask()
+    c1 = np.random.default_rng(5).random((32, 32)).astype(np.float32)
+    c2 = np.random.default_rng(6).random((32, 32)).astype(np.float32)
+    df = M._calculate_correlation_object_level(c1, c2, m, {})
+    assert "manders_overlap_coefficient" in df.columns
+
+
+def test_the_retired_manders_switch_is_reported_as_retired():
+    """A settings CSV naming `corrected_manders` says so, not "unknown"."""
+    from spacr.validate import RETIRED_SETTINGS
+
+    assert "corrected_manders" in RETIRED_SETTINGS
+    assert RETIRED_SETTINGS["corrected_manders"] == ""
 
 
 def test_create_dataframe():
@@ -337,7 +386,7 @@ def _spot_img(size=64):
 def _obj_settings(**over):
     s = {
         "organelle_morphology": "spots", "organelle_method": "otsu",
-        "organelle_min_size": 4, "organelle_max_size": 10000,
+        "organelle_min_area": 4, "organelle_max_area": 10000,
         "organelle_tophat_radius": 5, "organelle_watershed_spots": False,
         "organelle_log_min_sigma": 1, "organelle_log_max_sigma": 4,
         "organelle_log_num_sigma": 3, "organelle_log_threshold": 0.05,
@@ -380,7 +429,7 @@ def test_validate_organelle_settings_bad_method():
 def test_build_object_settings():
     s = {
         "organelle_model_name": "cyto", "organelle_diameter": 30,
-        "organelle_min_size": 5, "organelle_max_size": 500,
+        "organelle_min_area": 5, "organelle_max_area": 500,
         "organelle_resample": True, "organelle_remove_border": True,
     }
     out = OBJ._build_object_settings(s)
@@ -630,8 +679,15 @@ def test_process_meassure_crop_results(tmp_path):
     ]
     settings = {"src": str(tmp_path / "run" / "data")}
     (tmp_path / "run").mkdir()
-    M.process_meassure_crop_results(partial, settings)
+    with pytest.deprecated_call(match="process_measure_crop_results"):
+        M.process_meassure_crop_results(partial, settings)
     assert list((tmp_path / "run" / "results").rglob("*.pdf"))
+
+
+def test_process_measure_crop_results(tmp_path):
+    settings = {"src": str(tmp_path / "merged")}
+    M.process_measure_crop_results([None], settings)
+    assert not (tmp_path / "results").exists()
 
 
 # ---------------------------------------------------------------------------
@@ -681,7 +737,7 @@ def _tiny_unet():
 def test_segment_unet():
     model = _tiny_unet()
     batch = np.random.default_rng(0).random((2, 16, 16)).astype(np.float32)
-    out = OBJ._segment_unet(batch, model, {"organelle_min_size": 2})
+    out = OBJ._segment_unet(batch, model, {"organelle_min_area": 2})
     assert len(out) == 2 and out[0].shape == (16, 16)
 
 
@@ -691,7 +747,7 @@ def test_segment_unet_skeletonize_and_flat():
     batch = np.stack([np.random.default_rng(1).random((16, 16)).astype(np.float32),
                       np.zeros((16, 16), dtype=np.float32)])
     out = OBJ._segment_unet(
-        batch, model, {"organelle_min_size": 2, "organelle_skeletonize": True})
+        batch, model, {"organelle_min_area": 2, "organelle_skeletonize": True})
     assert len(out) == 2
 
 
@@ -737,7 +793,7 @@ def test_segment_cellpose_ndim4(tmp_path):
         "nucleus_channel": 1, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": 0,
         "plot": False, "batch_size": 2, "organelle_diameter": 15,
-        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_flow_threshold": 0.4, "organelle_cellprob_threshold": 0.0,
         "organelle_resample": True,
     }
     out = OBJ._segment_cellpose(
@@ -752,7 +808,7 @@ def test_segment_cellpose_ndim3(tmp_path):
         "nucleus_channel": None, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": None,
         "plot": True, "batch_size": 1, "organelle_diameter": 15,
-        "organelle_FT": 0.4, "organelle_CP_prob": 0.0,
+        "organelle_flow_threshold": 0.4, "organelle_cellprob_threshold": 0.0,
         "organelle_resample": False,
     }
     out = OBJ._segment_cellpose(
@@ -772,7 +828,7 @@ def test_segment_cellpose_sam(tmp_path, object_type, chan):
         "nucleus_channel": None, "cell_channel": None,
         "pathogen_channel": None, "organelle_channel": None,
         "plot": False,
-        f"{object_type}_FT": 0.4, f"{object_type}_CP_prob": 0.0,
+        f"{object_type}_flow_threshold": 0.4, f"{object_type}_cellprob_threshold": 0.0,
         f"{object_type}_resample": True,
     }
     settings.update(chan)

@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "21_model_compare",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Controlled two-model segmentation comparison, resolved-parameter provenance, exact interface labels, complementary mask metrics, and explicit absence of assumed ground truth."
+  },
+  "languages": {
+    "es": {
+      "description": "Ejecute dos configuraciones de Cellpose en los mismos campos representativos y compare sus máscaras sin suponer que ninguna de ellas sea la referencia verdadera.",
+      "prerequisite": "Seleccione dos modelos o configuraciones compatibles y un conjunto acotado de imágenes representativas.",
+      "objectives": [
+        "Construir una comparación controlada entre dos modelos.",
+        "Verificar qué parámetros llegaron realmente a cada modelo.",
+        "Interpretar las métricas de concordancia junto con las máscaras mostradas en paralelo."
+      ],
+      "narrations": [
+        "Model Compare combina recuentos de objetos, concordancia del primer plano, emparejamiento, fragmentación y superposiciones en paralelo para evaluar dos candidatos de segmentación en los mismos campos.",
+        "Seleccione una carpeta de imágenes pequeña pero representativa y limite el número de campos para la comparación interactiva. Incluya ejemplos sencillos y difíciles, no solo campos sin problemas.",
+        "Configure Model A y Model B. Mantenga iguales los canales, la escala, el preprocesamiento y los umbrales compartidos, salvo cuando uno de estos ajustes sea precisamente la diferencia que desea evaluar.",
+        "Compare segmenta cada campo seleccionado con las dos configuraciones resueltas. Los argumentos avanzados quedan registrados y los parámetros no compatibles se notifican, en lugar de tratarlos silenciosamente como si hubieran surtido efecto.",
+        "Parameters that reached each model distingue los valores aplicados de los controles obsoletos o ignorados. Confirme que la comparación difiera realmente de la forma prevista.",
+        "La tabla de campos informa de los recuentos, la concordancia del primer plano, el solapamiento emparejado, las divisiones, las fusiones, los objetos sin correspondencia y comprobaciones independientes de la calidad de las máscaras. Ninguna métrica aislada representa todos los tipos de fallo.",
+        "Seleccione una fila para examinar ambas vistas previas. Busque nuevas detecciones, omisiones, cambios de límites, divisiones y fusiones; después, repita la revisión en campos representativos.",
+        "Elija un modelo únicamente cuando las diferencias visuales y las métricas mejoren los errores relevantes para el análisis posterior. Los resultados iguales también son informativos y no demuestran una mejora."
+      ]
+    },
+    "fr": {
+      "description": "Exécutez deux configurations de Cellpose sur les mêmes champs représentatifs et comparez leurs masques sans supposer que l’une d’elles constitue la vérité de référence.",
+      "prerequisite": "Sélectionnez deux modèles ou configurations compatibles et un ensemble limité d’images représentatives.",
+      "objectives": [
+        "Construire une comparaison contrôlée entre deux modèles.",
+        "Vérifier quels paramètres ont réellement atteint chaque modèle.",
+        "Interpréter les métriques d’accord conjointement avec les masques affichés côte à côte."
+      ],
+      "narrations": [
+        "Model Compare associe les comptages d’objets, l’accord du premier plan, l’appariement, la fragmentation et les superpositions côte à côte afin d’évaluer deux candidats de segmentation sur les mêmes champs.",
+        "Sélectionnez un dossier d’images petit mais représentatif et limitez le nombre de champs pour la comparaison interactive. Incluez des exemples faciles et difficiles, et pas uniquement des champs sans défaut.",
+        "Configurez Model A et Model B. Conservez les mêmes canaux, échelle, prétraitement et seuils communs, sauf si l’un de ces paramètres constitue précisément la différence à évaluer.",
+        "Compare segmente chaque champ sélectionné avec les deux configurations résolues. Les arguments avancés sont consignés et les paramètres non pris en charge sont signalés au lieu d’être considérés silencieusement comme actifs.",
+        "Parameters that reached each model distingue les valeurs appliquées des commandes obsolètes ou ignorées. Vérifiez que la comparaison diffère réellement de la manière prévue.",
+        "Le tableau des champs indique les comptages, l’accord du premier plan, le chevauchement apparié, les divisions, les fusions, les objets non appariés et des contrôles indépendants de la qualité des masques. Aucune métrique isolée ne représente tous les modes d’échec.",
+        "Sélectionnez une ligne pour examiner les deux aperçus. Recherchez les nouvelles détections, les omissions, les changements de limites, les divisions et les fusions, puis répétez l’examen sur des champs représentatifs.",
+        "Ne choisissez un modèle que si les différences visuelles et les métriques améliorent les erreurs pertinentes pour l’analyse ultérieure. Des résultats identiques sont également informatifs et ne démontrent aucune amélioration."
+      ]
+    },
+    "it": {
+      "description": "Esegui due configurazioni di Cellpose sugli stessi campi rappresentativi e confronta le relative maschere senza presumere che una delle due sia il riferimento corretto.",
+      "prerequisite": "Seleziona due modelli o configurazioni compatibili e un insieme limitato di immagini rappresentative.",
+      "objectives": [
+        "Costruire un confronto controllato tra due modelli.",
+        "Verificare quali parametri hanno effettivamente raggiunto ciascun modello.",
+        "Interpretare le metriche di concordanza insieme alle maschere affiancate."
+      ],
+      "narrations": [
+        "Model Compare combina conteggi degli oggetti, concordanza del primo piano, corrispondenze, frammentazione e sovrapposizioni affiancate per valutare due candidati di segmentazione sugli stessi campi.",
+        "Seleziona una cartella di immagini piccola ma rappresentativa e limita il numero di campi per il confronto interattivo. Includi esempi facili e difficili, non soltanto campi privi di problemi.",
+        "Configura Model A e Model B. Mantieni uguali i canali, la scala, la pre-elaborazione e le soglie condivise, tranne quando una di queste impostazioni è proprio la differenza da valutare.",
+        "Compare segmenta ogni campo selezionato con entrambe le configurazioni risolte. Gli argomenti avanzati vengono registrati e i parametri non supportati vengono segnalati anziché essere considerati silenziosamente come attivi.",
+        "Parameters that reached each model distingue i valori applicati dai controlli obsoleti o ignorati. Verifica che il confronto differisca realmente nel modo previsto.",
+        "La tabella dei campi riporta conteggi, concordanza del primo piano, sovrapposizione delle corrispondenze, divisioni, fusioni, oggetti senza corrispondenza e controlli indipendenti della qualità delle maschere. Nessuna singola metrica descrive tutte le modalità di errore.",
+        "Seleziona una riga per esaminare entrambe le anteprime. Cerca nuove rilevazioni, omissioni, modifiche dei limiti, divisioni e fusioni, quindi ripeti l’esame su campi rappresentativi.",
+        "Scegli un modello solo quando le differenze visive e le metriche migliorano gli errori importanti per l’analisi successiva. Risultati identici sono comunque informativi e non dimostrano un miglioramento."
+      ]
+    }
+  }
+}

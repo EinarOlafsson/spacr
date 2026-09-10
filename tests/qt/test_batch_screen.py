@@ -23,12 +23,11 @@ import os
 from pathlib import Path
 
 import pytest
-
 from PySide6.QtCore import QThread
 
+import spacr.qt.screens.batch as batch_mod
 from spacr import batch as bt
 from spacr.qt.screens.batch import COLUMNS, BatchScreen
-
 
 # ---------------------------------------------------------------------------
 # fixtures
@@ -147,6 +146,21 @@ def test_add_a_job_and_see_it_in_the_table(screen, mask_settings):
     assert row[COLUMNS.index("Label")] == "plate 1 mask"
     assert row[COLUMNS.index("Status")] == bt.STATUS_PENDING
     assert screen.queue().ids == ["mask-1"]
+
+
+@pytest.mark.parametrize("argument", ["", " \t "])
+def test_add_job_uses_the_settings_box_for_a_blank_argument(
+        screen, mask_settings, argument):
+    """The public method keeps the same fallback as the Add button.
+
+    Whitespace is not a settings path: integrations may forward an empty text
+    field without stripping it first, and the documented settings-box fallback
+    still has to apply.
+    """
+    screen._settings_edit.setText(mask_settings)
+
+    assert screen.add_job(module="mask", settings=argument) is True
+    assert screen.queue().jobs[0].settings_path == mask_settings
 
 
 def test_adding_emits_queue_changed(qtbot, screen, mask_settings):
@@ -340,6 +354,36 @@ def test_the_run_selects_and_shows_the_running_jobs_log(screen, mask_settings):
     screen.add_job("mask", mask_settings)
     screen.run()
     assert "log for mask-1" in screen.log_text()
+
+
+def test_the_log_pane_reads_the_last_bytes_not_the_first(
+        screen, mask_settings, tmp_path, monkeypatch):
+    """A long job exposes its latest progress and traceback in the pane.
+
+    The byte window deliberately starts inside a UTF-8 character. That pins
+    the old text-mode reader's replacement behavior while proving the limit is
+    applied to bytes rather than decoded characters.
+    """
+    screen.add_job("mask", mask_settings)
+    job = screen.queue().jobs[0]
+    log = tmp_path / "long.log"
+    tail = b"latest failure\r\n"
+    payload = b"stale beginning\n" + "\N{EURO SIGN}".encode() + tail
+    window = len(tail) + 2
+    log.write_bytes(payload)
+    job.log_path = str(log)
+    monkeypatch.setattr(batch_mod, "_LOG_TAIL_BYTES", window)
+
+    screen._load_log(job)
+
+    expected = payload[-window:].decode("utf-8", errors="replace")
+    expected = expected.replace("\r\n", "\n").replace("\r", "\n")
+    assert screen.log_text() == expected
+    assert "stale beginning" not in screen.log_text()
+
+    log.write_bytes(b"short log\n")
+    screen._load_log(job)
+    assert screen.log_text() == "short log\n"
 
 
 def test_progress_bar_tracks_the_queue(screen, tmp_path, mask_settings):

@@ -185,7 +185,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.special import gamma as _gamma_fn, ndtri as _ndtri
+from statistics import NormalDist as _NormalDist
 
 from .graph_spec import CATEGORICAL, CONTINUOUS, column_kinds
 
@@ -233,7 +233,14 @@ D2_MOVING_RANGE = 1.128
 
 #: ``Φ⁻¹(0.75)`` = 0.67449. The quartile of the standard normal, and the root
 #: of both robust constants below. Computed rather than typed.
-_NORMAL_QUARTILE = float(_ndtri(0.75))
+#:
+#: From the standard library rather than from ``scipy.special.ndtri``, which
+#: is where it used to come from. The two agree to the last bit — the test
+#: beside this asserts it — and reading one number at import time was pulling
+#: the whole of ``scipy`` into every launch, because the screen that draws
+#: these charts is one of ``theme.WIDGET_QSS_MODULES`` and is imported for its
+#: stylesheet block whether or not anybody opens it.
+_NORMAL_QUARTILE = _NormalDist().inv_cdf(0.75)
 
 #: ``sqrt(2)·Φ⁻¹(0.75)`` = 0.95387 — the median of the moving range of a
 #: normal series, in units of its sigma. Divide a median moving range by this
@@ -296,6 +303,14 @@ def c4(n: int) -> float:
     if size > 342:
         # Γ(171) overflows a float; c4 is within 1e-3 of 1 long before then.
         return 1.0 - 0.75 / size
+    # Imported here, not at the top: this is the module's only remaining use
+    # of scipy, and it is reached when a subgroup chart is actually computed.
+    # `math.lgamma` would remove the dependency altogether and is NOT used —
+    # it disagrees with this ratio in the last one or two bits, and a
+    # published constant that changes in its fifteenth digit because a launch
+    # got faster is not a trade worth making.
+    from scipy.special import gamma as _gamma_fn
+
     return math.sqrt(2.0 / (size - 1)) * float(
         _gamma_fn(size / 2.0) / _gamma_fn((size - 1) / 2.0))
 
@@ -648,6 +663,16 @@ class ControlChartSpec:
     reestimate: bool = False
 
     def __post_init__(self) -> None:
+        """Normalise the columns and levels, and validate the chart settings.
+
+        :raises ControlChartError: if the estimator is unknown; if a rule is not
+            a number, or not one of rules 1-8; if the baseline is shorter than
+            the module's minimum -- MR-bar over fewer moving ranges is already
+            an opinion about one or two plates rather than an estimate; or if
+            ``control_column`` and ``control_levels`` are given without each
+            other, which says where to look without saying what for, or the
+            reverse.
+        """
         for name in ("value", "plate"):
             object.__setattr__(self, name, str(getattr(self, name) or ""))
         for name in ("order", "control_column", "baseline_before"):
@@ -851,7 +876,7 @@ class Violation:
 
     def where(self) -> str:
         """The plates in words — ``"plate P17"`` or ``"plates P22-P30"``."""
-        if not self.plates:  # pragma: no cover - a violation always has points
+        if not self.plates:
             return "no plates"
         if len(self.plates) == 1:
             return f"plate {self.plates[0]}"
@@ -1043,8 +1068,15 @@ class ControlChartResult:
                 f"there is no point {index}; this chart has {len(self)} "
                 f"plate(s)")
         magnitude = abs(float(self.z[int(index)]))
-        if not np.isfinite(magnitude):  # pragma: no cover - guarded upstream
-            return 0
+        if not np.isfinite(magnitude):
+            # ``value - centre`` overflows to infinity when a plate sits at the
+            # far end of the float range from the centre line — rare, but a raw
+            # intensity column reaches it. Such a point is further outside the
+            # limits than any finite one, so the outermost band is the honest
+            # answer: ``int(inf)`` raises, and calling it zone 0 would paint the
+            # worst plate of the campaign the colour of one that never left one
+            # sigma, while rule 1 flags it in the same breath.
+            return 3
         return min(3, int(magnitude))
 
     # -- frames ----------------------------------------------------------
@@ -1095,7 +1127,7 @@ class ControlChartResult:
 
     def headline(self) -> str:
         """One sentence about the campaign, including the bad news."""
-        if not len(self):  # pragma: no cover - refused before a result exists
+        if not len(self):
             return "no plates."
         if self.degenerate:
             return (f"every one of the {len(self)} plates reported the same "
@@ -1478,7 +1510,7 @@ def _estimate(values: np.ndarray, sizes: np.ndarray, sds: np.ndarray,
         mad = float(np.median(np.abs(values - centre)))
         return centre, MAD_SCALE * mad
 
-    raise ControlChartError(  # pragma: no cover - the spec validates first
+    raise ControlChartError(
         f"unknown estimator {estimator!r}")
 
 
@@ -1708,6 +1740,12 @@ def control_chart(frame: pd.DataFrame,
 
     def _finish(centre: float, sigma_within: float, baseline: np.ndarray,
                 excluded: Tuple[str, ...]) -> ControlChartResult:
+        """Assemble the result, flagging a degenerate spread.
+
+        A sigma at or below the tolerance means every point is a violation, so
+        it is reported as DEGENERATE rather than charted -- limits drawn from
+        no spread say nothing about the process.
+        """
         degenerate = sigma_within <= max(abs(centre), 1.0) * SIGMA_TOLERANCE
         if degenerate:
             sigma_at = np.zeros(total)

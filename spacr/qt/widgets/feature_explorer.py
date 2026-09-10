@@ -49,6 +49,7 @@ from .feature_rank import (
 from .toggle import Toggle
 from .graph_builder import (_canvas_class, _page_surface_axes,
                             categorical_colours)
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.feature_explorer")
 
@@ -63,7 +64,10 @@ DEBOUNCE_MS = 150
 
 
 class FeatureExplorerPanel(QWidget):
-    """Rank features by how well they separate the classes, and draw the top."""
+    """Rank features by how well they separate the classes, and draw the top.
+
+    :param parent: parent widget.
+    """
 
     #: Emitted after every ranking with the :class:`ExplorerResult`.
     ranked = Signal(object)
@@ -71,6 +75,14 @@ class FeatureExplorerPanel(QWidget):
     feature_selected = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the feature ranking table beside its distribution plot.
+
+        Each statistic's blind spot is on the picker's tooltip rather than in a
+        manual: which differences it cannot see is the thing a reader needs
+        before trusting a ranking made with it.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("FeatureExplorerPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -132,6 +144,7 @@ class FeatureExplorerPanel(QWidget):
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(False)
         self.table = QTableWidget(self)
+        install_sorting(self.table)
         self.table.setObjectName("ExplorerTable")
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
@@ -171,6 +184,11 @@ class FeatureExplorerPanel(QWidget):
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(DEBOUNCE_MS)
         self._debounce.timeout.connect(self.rank_now)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
@@ -190,10 +208,18 @@ class FeatureExplorerPanel(QWidget):
 
     @property
     def spec(self) -> ExplorerSpec:
+        """What the panel is currently set to rank.
+
+        :returns: the explorer spec.
+        """
         return self._spec
 
     @property
     def result(self) -> Optional[ExplorerResult]:
+        """The last ranking computed, if any.
+
+        :returns: the result, or None before a run.
+        """
         return self._result
 
     def set_spec(self, spec: ExplorerSpec) -> None:
@@ -218,6 +244,15 @@ class FeatureExplorerPanel(QWidget):
         self.rank_now()
 
     def current_spec(self) -> ExplorerSpec:
+        """The spec as the controls read RIGHT NOW.
+
+        Distinct from :attr:`spec`, which is what the last run used: the two
+        differ while the user is changing the controls, and a panel that
+        conflated them would report a ranking against settings it did not
+        use.
+
+        :returns: the spec the controls describe.
+        """
         return ExplorerSpec(
             label=self._label.currentText(),
             features=self._spec.features,
@@ -228,10 +263,20 @@ class FeatureExplorerPanel(QWidget):
             seed=self._spec.seed)
 
     def summary(self) -> str:
+        """What was ranked, over how much, and what was skipped.
+
+        :returns: a one-line summary, empty before a run.
+        """
         return self._summary.text()
 
     # -- ranking ----------------------------------------------------------
     def _schedule(self, *_args) -> None:
+        """Queue a re-rank after a control changed.
+
+        Debounced, so nudging the top-N spinner ranks once rather than per step.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         self._debounce.start()
 
     def rank_now(self) -> Optional[ExplorerResult]:
@@ -242,17 +287,14 @@ class FeatureExplorerPanel(QWidget):
             f"{STATISTIC_LABELS[statistic]} — cannot see: "
             f"{STATISTIC_FAILURE_MODES[statistic]}")
         if self._frame is None:
+            self._clear_result()
             self._summary.setText("no table loaded")
             return None
         self._spec = self.current_spec()
         try:
             result = rank_features(self._frame, self._spec)
         except ExplorerError as exc:
-            self._result = None
-            self.table.setRowCount(0)
-            self._figure.clear()
-            self._figure.patch.set_alpha(0.0)
-            self._canvas.draw_idle()
+            self._clear_result()
             self._summary.setText(str(exc))
             return None
         self._result = result
@@ -262,30 +304,61 @@ class FeatureExplorerPanel(QWidget):
         self.ranked.emit(result)
         return result
 
+    def _clear_result(self) -> None:
+        """Forget every visual and selected part of the previous ranking."""
+        self._result = None
+        self.table.clearSelection()
+        self.table.setRowCount(0)
+        self._figure.clear()
+        self._figure.patch.set_alpha(0.0)
+        self._canvas.draw_idle()
+
     def _fill_table(self, result: ExplorerResult) -> None:
+        """Fill the ranking table and select its first row.
+
+        Two kinds of row are marked rather than dropped: one whose difference is
+        a change of shape rather than of location, and one scoring at or below
+        the shuffle threshold -- a feature no better than chance is worth
+        seeing, greyed, rather than silently omitted.
+
+        Signals are blocked while filling, and the selection change is announced
+        afterwards only if it actually moved.
+
+        :param result: the computed ranking.
+        """
+        previous_feature = self.selected_feature()
         palette = active_palette()
-        self.table.setRowCount(len(result.scores))
-        for row, score in enumerate(result.scores):
-            cells = [
-                score.feature,
-                f"{score.score:.3f}",
-                f"{score.auc:.3f}" if np.isfinite(score.auc) else "",
-                f"{score.ks:.3f}" if np.isfinite(score.ks) else "",
-                score.higher_in,
-                f"{score.smallest_class:,}",
-            ]
-            for column, text in enumerate(cells):
-                item = QTableWidgetItem(text)
-                item.setData(Qt.UserRole, score.feature)
-                item.setToolTip(score.describe())
-                if score.is_shape_not_shift:
-                    item.setForeground(_brush(palette["warning"]))
-                elif (result.null_threshold is not None
-                      and score.score <= result.null_threshold):
-                    item.setForeground(_brush(palette["fg_muted"]))
-                self.table.setItem(row, column, item)
-        if len(result.scores):
-            self.table.selectRow(0)
+        signals_were_blocked = self.table.blockSignals(True)
+        try:
+            self.table.setRowCount(len(result.scores))
+            for row, score in enumerate(result.scores):
+                cells = [
+                    score.feature,
+                    f"{score.score:.3f}",
+                    f"{score.auc:.3f}" if np.isfinite(score.auc) else "",
+                    f"{score.ks:.3f}" if np.isfinite(score.ks) else "",
+                    score.higher_in,
+                    f"{score.smallest_class:,}",
+                ]
+                for column, text in enumerate(cells):
+                    item = table_item(text)
+                    item.setData(Qt.UserRole, score.feature)
+                    item.setToolTip(score.describe())
+                    if score.is_shape_not_shift:
+                        item.setForeground(_brush(palette["warning"]))
+                    elif (result.null_threshold is not None
+                          and score.score <= result.null_threshold):
+                        item.setForeground(_brush(palette["fg_muted"]))
+                    self.table.setItem(row, column, item)
+            if len(result.scores):
+                self.table.selectRow(0)
+        finally:
+            self.table.blockSignals(signals_were_blocked)
+
+        selected_feature = self.selected_feature()
+        if (not signals_were_blocked and selected_feature
+                and selected_feature != previous_feature):
+            self.feature_selected.emit(selected_feature)
 
     def _draw(self, result: ExplorerResult) -> None:
         """A strip per feature, the classes overlaid on shared bin edges."""
@@ -332,15 +405,29 @@ class FeatureExplorerPanel(QWidget):
         self._canvas.draw_idle()
 
     def _on_row_changed(self, row: int, *_args) -> None:
+        """Announce the feature on the newly selected row.
+
+        :param row: the new row.
+        :param _args: the remaining cell-change arguments; unused, since the row
+            is what identifies the feature.
+        """
         item = self.table.item(row, 0)
         if item is not None:
             self.feature_selected.emit(item.data(Qt.UserRole))
 
     def selected_feature(self) -> str:
+        """Which feature the user has selected, if any.
+
+        :returns: the feature name, or ``""``.
+        """
         item = self.table.item(self.table.currentRow(), 0)
         return item.data(Qt.UserRole) if item is not None else ""
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._debounce.stop()
         if hasattr(self._canvas, "cancel_pending_draw"):
             self._canvas.cancel_pending_draw()
@@ -348,5 +435,12 @@ class FeatureExplorerPanel(QWidget):
 
 
 def _brush(colour: str):
+    """Build a ``QBrush`` from a colour string.
+
+    Imported inside the call so this module stays importable headlessly.
+
+    :param colour: the colour.
+    :returns: the brush.
+    """
     from PySide6.QtGui import QBrush, QColor
     return QBrush(QColor(colour))

@@ -10,6 +10,17 @@ about something that cannot be repaired after acquisition: controls sitting
 only on the plate edge, a control confined to one column, a condition with a
 single replicate. All of them are free to fix the day before and impossible to
 fix the day after.
+
+ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is
+pitched at and the row/column headers come from
+:mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second
+time here; the two plates had already drifted apart once. What cannot be
+shared is the well itself, and the difference is real rather than
+historical: the picker's well is a checkable ``QPushButton`` whose checked
+state IS the selection and which paints itself from a fixed pair of colours,
+while this one is a ``QLabel`` carrying a role, an edge mark, a name and a
+condition, painted by the theme through the properties below -- a plate map
+that says what each well holds rather than only whether it is chosen.
 """
 
 from __future__ import annotations
@@ -33,6 +44,17 @@ from ..widgets.plate_layout import (
     assign_wells, check_design, plate_shape, to_settings_fragment,
     write_design,
 )
+# THE OTHER PLATE'S GEOMETRY, IMPORTED RATHER THAN REPEATED. `well_side` is
+# the side both plates are pitched at -- a FUNCTION, because the side follows
+# the font scale and a constant read at import would freeze it at whatever
+# the scale was when this module loaded -- `_locked_square` states that side in
+# the one language that survives being polished under the application
+# stylesheet, and `_Header` is the row letter and the column number locked to
+# a cell of it. All three were written for the picker and are not specific to
+# it; a second copy here is what let the two plates drift.
+from ..widgets.plate_map_picker import _Header, _locked_square, well_side
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 __all__ = [
     "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
@@ -43,31 +65,201 @@ __all__ = [
 #: Stable app id. Chosen once; saved user state and the registry key off it.
 APP_KEY = "experiment_design"
 
-APP_NAME = "Experiment Design"
-APP_DESCRIPTION = (
-    "Lay out conditions, controls and replicates on a plate, check the "
-    "layout, and export it for the pipeline to read later."
-)
-APP_INTRO = (
-    "Everything on this screen is a decision that cannot be undone after "
-    "acquisition. Where the controls sit, whether a condition is confounded "
-    "with a row, whether the plate edge is used at all -- no analysis "
-    "repairs any of them, and all of them are free to change today. Export "
-    "writes a plate_map.csv keyed the way spaCR keys measurements, so the "
-    "layout is typed once instead of twice."
-)
-APP_CLI_NOTE = (
-    "Experiment Design is a GUI screen: it exists to draw a plate and warn "
-    "about its layout before acquisition. For a headless design, build a "
-    "spacr.qt.widgets.plate_layout.PlateDesign and call write_design() "
-    "instead -- that is the same code this screen runs."
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
 APP_TRANSLATIONS: Tuple[str, ...] = (
     "Experimentdesign", "Experimentdesign", "Diseño de experimento",
     "实验设计", "Desenho do experimento", "प्रयोग डिज़ाइन", "실험 설계",
     "Tilraunahönnun", "Conception d'expérience",
 )
+
+#: How thick a rim a well draws, in pixels per side, in each of the two
+#: states that draw one: an outline for a well that holds nothing, and a
+#: mark for one on the plate edge or under the selection. A well filled with
+#: its role draws no rim at all.
+#:
+#: ONE TABLE READ TWICE. :func:`_design_qss` draws the border from it and
+#: :func:`_well_sheet` subtracts it from :func:`well_side` to reach the
+#: content box the square is stated in -- Qt adds the border back on. Read
+#: apart, the two disagree by the width of a rim and the well changes size
+#: the moment it is selected, shoving every well to the right of it along.
+OUTLINE_RIM = 1
+MARK_RIM = 2
+
+#: The roles drawn as an outline rather than as a fill.
+OUTLINED_ROLES = ("blank", "empty")
+
+
+def _well_rim(role, edge: bool, chosen: bool) -> int:
+    """The border width the sheet ends up drawing on one well.
+
+    The last matching rule in :func:`_design_qss` wins, and the order there is
+    role, then edge, then selection -- so a chosen edge well is marked once,
+    at :data:`MARK_RIM`.
+    """
+    if chosen or edge:
+        return MARK_RIM
+    return OUTLINE_RIM if role in OUTLINED_ROLES else 0
+
+
+def _well_sheet(rim: int) -> str:
+    """The sheet ONE well wears: its square, stated on the well itself.
+
+    A widget's own sheet outranks the application's, and that is the whole
+    point of this rather than :meth:`~PySide6.QtWidgets.QWidget.setFixedSize`.
+    ``QStyleSheetStyle`` does not merely draw a geometry rule -- it polishes
+    it into a real ``setMinimumHeight`` on the widget, which OVERWRITES the
+    minimum ``setFixedSize`` wrote while leaving the maximum in place, and Qt
+    resolves a minimum taller than its maximum in favour of the minimum. One
+    blanket ``QLabel { min-height: ... ; padding: ... }`` anywhere in the
+    application sheet is enough to turn every well of this plate into an
+    oblong, silently. The neighbouring plate lost its square to exactly that,
+    through ``QPushButton``; nothing but the absence of such a rule for
+    ``QLabel`` was keeping this one.
+
+    ``border-width`` is stated here for the same reason, and only the width:
+    the style and the colour still come from :func:`_design_qss`, so the
+    outline the map is read by is unchanged, while the space it takes is the
+    plate's own arithmetic rather than whatever a blanket rule asks for.
+    """
+    rim = int(rim)
+    return "QLabel { border-width: %dpx; %s }" % (rim, _locked_square(rim))
+
+
+def _plate_header(text: str, parent) -> _Header:
+    """One header cell: the picker's ``_Header``, with the rim pinned too.
+
+    The class comes from the other plate rather than being written again --
+    the row letters and the column numbers are cells of the grid, pitched to
+    the same square as a well, and both plates want exactly that. What it
+    does not pin is the border width, so a blanket ``QLabel { border: ... }``
+    still inflates a header by twice that border while the wells beside it
+    hold their square. This plate's headers draw no rim of their own, so
+    saying so costs nothing and closes the gap for them; the durable fix is
+    for ``_locked_square`` to state the width it is already subtracting.
+    """
+    cell = _Header(text, parent)
+    cell.setStyleSheet(_well_sheet(0))
+    return cell
+
+
+class _Well(QLabel):
+    """One well of the plate map, which knows where it is and reports clicks.
+
+    A `QLabel` still -- the map is a picture, not a form -- with the two
+    facts a selection needs: its coordinate, and a press that reaches the
+    screen. Drawing 1,536 checkable buttons to get a click is a heavier
+    answer to a lighter question.
+
+    :param row: the well's row index, counting from zero.
+    :param column: its column index.
+    :param parent: parent widget; ownership only.
+
+    The pair is the well's IDENTITY, not merely its position -- the screen
+    addresses wells by it, and it is what a press reports back.
+    """
+
+    def __init__(self, row: int, column: int, parent=None):
+        """Build one well, centred and locked to a square."""
+        super().__init__("", parent)
+        self.row, self.column = int(row), int(column)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # The hint. The floor and the ceiling are in the sheet below, which
+        # is the half of this that survives being polished.
+        self.setFixedSize(well_side(), well_side())
+        self._rim = None
+        self.lock_square()
+
+    def lock_square(self) -> None:
+        """Re-state the square for the state the well is now in.
+
+        Called whenever a property the sheet reads changes, because both
+        halves of the drawing hang off it. THE STYLE IS RE-POLISHED, not
+        merely restated: the well's colour comes from the sheet's
+        ``spacrWellRole``, and Qt does not re-evaluate a selector when a
+        property changes unless it is asked to. And the square is re-stated
+        with it, because the rim a state draws is part of the widget's
+        height: a chosen well marked 2 px where it was outlined at 1 would
+        grow by two pixels if the content box were left where it was.
+        """
+        rim = _well_rim(self.property("spacrWellRole"),
+                        self.property("spacrWellEdge") == "true",
+                        self.property("spacrWellChosen") == "true")
+        if rim != self._rim:
+            self._rim = rim
+            # Setting a sheet repolishes the widget on its own.
+            self.setStyleSheet(_well_sheet(rim))
+            return
+        style = self.style()
+        if style is not None:
+            style.unpolish(self)
+            style.polish(self)
+
+    def _screen(self):
+        """Walk up to the screen that handles well drags, or ``None``.
+
+        Found by CAPABILITY rather than by type -- the first ancestor that has
+        ``begin_well_drag`` -- so the well works under any host that offers the
+        same handle, including a test double.
+        """
+        widget = self.parent()
+        while widget is not None and not hasattr(widget, "begin_well_drag"):
+            widget = widget.parent()
+        return widget
+
+    def mousePressEvent(self, event):                # noqa: N802 - Qt
+        """Begin a drag-select from this well.
+
+        :param event: the mouse event; its modifiers decide whether the drag
+            adds to the selection or replaces it.
+        """
+        screen = self._screen()
+        if screen is not None:
+            screen.begin_well_drag(self.row, self.column, event.modifiers())
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):                 # noqa: N802 - Qt
+        # THE PRESSED WIDGET KEEPS THE GRAB, so the well under the pointer
+        # has to be found by asking rather than by waiting to be entered.
+        """Extend the drag-select to the well under the pointer.
+
+        Reported in global coordinates, because the pointer is usually over a
+        different well by now and this one cannot say which.
+
+        :param event: the mouse event.
+        """
+        screen = self._screen()
+        if screen is not None:
+            screen.drag_wells_to(
+                self.mapToGlobal(event.position().toPoint()))
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):              # noqa: N802 - Qt
+        """End a drag-select, or let a plain click through to the toggle.
+
+        The drag is finished before the base class runs, which is what emits
+        ``clicked``: a drag that has already painted the rectangle must not then
+        have its anchor flipped a second time.
+
+        :param event: the mouse event.
+        """
+        screen = self._screen()
+        if screen is not None:
+            screen.finish_well_drag()
+        super().mouseReleaseEvent(event)
+
+#: The grid row and column that absorb everything the window has spare. Far
+#: past any real plate -- 1536 is 32 x 48 -- so it is never a well's own.
+_SLACK = 200
 
 PLATE_OBJECT = "spacrPlateMap"
 FINDINGS_OBJECT = "spacrDesignFindings"
@@ -89,6 +281,10 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """
     from ..theme import block_surface
     findings_bg = block_surface("surface_alt", palette.get("theme"), opacity)
+    # THE RIM WIDTHS BELOW COME FROM THE TABLE, not from a number typed
+    # here: a well states its own square in content-box pixels, and Qt adds
+    # the border back on, so a border this sheet draws wider than the well
+    # allowed for is a well two pixels bigger than its neighbours.
     return f"""
 #{FINDINGS_OBJECT} {{
     background: {findings_bg};
@@ -118,17 +314,25 @@ def _design_qss(palette: dict, opacity: Optional[float] = None) -> str:
 #{PLATE_OBJECT} QLabel[spacrWellRole="blank"] {{
     background: {palette['surface']};
     color: {palette['fg_muted']};
-    border: 1px dashed {palette['border']};
+    border: {OUTLINE_RIM}px dashed {palette['border']};
     border-radius: 3px;
 }}
 #{PLATE_OBJECT} QLabel[spacrWellRole="empty"] {{
     background: transparent;
     color: {palette['fg_muted']};
-    border: 1px solid {palette['border']};
+    border: {OUTLINE_RIM}px solid {palette['border']};
     border-radius: 3px;
 }}
 #{PLATE_OBJECT} QLabel[spacrWellEdge="true"] {{
-    border: 2px solid {palette['warning']};
+    border: {MARK_RIM}px solid {palette['warning']};
+}}
+/* THE SELECTION IS AN OUTLINE, NOT A FILL (194 A). The fill already says
+   what the well IS -- control, treatment, blank -- and replacing it would
+   trade the information the map exists for against the one thing the user
+   can see for themselves, which is where they just dragged. LAST in the
+   sheet so it wins over the role and the edge rules above. */
+#{PLATE_OBJECT} QLabel[spacrWellChosen="true"] {{
+    border: {MARK_RIM}px solid {palette['accent']};
 }}
 #{FINDINGS_OBJECT} QLabel[spacrFindingSeverity="error"] {{
     color: {palette['error']};
@@ -156,22 +360,40 @@ class ExperimentDesignScreen(QWidget):
     :param threaded: ``False`` runs the export inline, emitting the same
         signals in the same order, so a test can drive the screen
         synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  threaded: bool = True) -> None:
+        """Build the screen and seed it with a three-condition starting plate.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the export on a worker thread. Set ``False`` in
+            tests so ``export_to`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ExperimentDesignScreen")
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
-        self._well_labels: List[QLabel] = []
+        self._well_labels: List["_Well"] = []
+        # 194 A: the drag's state. `None` anchor means no gesture is live.
+        self._well_anchor = None
+        self._well_last = None
+        self._wells_before: set = set()
+        self._well_adding = False
         self._findings_labels: List[QLabel] = []
         self._build()
         self.refresh()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction -----------------------------------------------------
 
     def _build(self) -> None:
+        """Lay out the plate form, the condition table, the plate map and the findings."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
@@ -241,6 +463,7 @@ class ExperimentDesignScreen(QWidget):
 
         # -- conditions ---------------------------------------------------
         self._table = QTableWidget(0, 3)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(["Condition", "Replicates",
                                                "Role"])
         self._table.horizontalHeader().setSectionResizeMode(
@@ -267,6 +490,14 @@ class ExperimentDesignScreen(QWidget):
         self._plate_panel.setObjectName(PLATE_OBJECT)
         self._plate_grid = QGridLayout(self._plate_panel)
         self._plate_grid.setSpacing(2)
+        # THE SLACK GOES OUTSIDE THE PLATE, NOT BETWEEN ITS WELLS. The grid
+        # is inside a resizable scroll area, so the panel grows with the
+        # window; without somewhere for that extra space to go, a
+        # QGridLayout hands it to the cells and the map spreads. One
+        # trailing row and column take all of it, which keeps every well
+        # the same distance from its neighbour at every window size.
+        self._plate_grid.setRowStretch(_SLACK, 1)
+        self._plate_grid.setColumnStretch(_SLACK, 1)
         self._plate_grid.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                             SPACING["sm"], SPACING["sm"])
         scroll = QScrollArea()
@@ -307,6 +538,13 @@ class ExperimentDesignScreen(QWidget):
     # -- the design -------------------------------------------------------
 
     def _set_conditions(self, conditions) -> None:
+        """Replace every row of the condition table.
+
+        Signals are blocked for the duration, so filling *n* rows costs one
+        refresh rather than *n*.
+
+        :param conditions: the ``Condition`` records to show, in order.
+        """
         self._table.blockSignals(True)
         self._table.setRowCount(0)
         for condition in conditions:
@@ -314,11 +552,16 @@ class ExperimentDesignScreen(QWidget):
         self._table.blockSignals(False)
 
     def _append_row(self, condition: Condition) -> None:
+        """Add one condition to the bottom of the table.
+
+        :param condition: the record to append; its role becomes a combo box in
+            the third column rather than typed text.
+        """
         row = self._table.rowCount()
         self._table.insertRow(row)
-        self._table.setItem(row, 0, QTableWidgetItem(condition.name))
+        self._table.setItem(row, 0, table_item(condition.name))
         self._table.setItem(
-            row, 1, QTableWidgetItem(str(int(condition.replicates))))
+            row, 1, table_item(str(int(condition.replicates))))
         box = QComboBox()
         box.addItems(ROLES)
         box.setCurrentText(condition.role)
@@ -326,11 +569,17 @@ class ExperimentDesignScreen(QWidget):
         self._table.setCellWidget(row, 2, box)
 
     def _add_row(self) -> None:
+        """Append a placeholder treatment condition and redraw the plate."""
         self._append_row(Condition(f"condition_{self._table.rowCount() + 1}",
                                    3, ROLE_TREATMENT))
         self.refresh()
 
     def _remove_row(self) -> None:
+        """Delete every selected condition and redraw the plate.
+
+        Rows are removed bottom-up so that removing one does not shift the index
+        of another still to be removed.
+        """
         rows = sorted({index.row() for index in
                        self._table.selectedIndexes()}, reverse=True)
         for row in rows:
@@ -377,6 +626,11 @@ class ExperimentDesignScreen(QWidget):
     # -- drawing ----------------------------------------------------------
 
     def _on_changed(self, *_args) -> None:
+        """Redraw the plate after any form or table edit.
+
+        :param _args: whatever the emitting signal passes; ignored, since the
+            whole design is re-read from the widgets either way.
+        """
         self.refresh()
 
     def refresh(self) -> None:
@@ -404,7 +658,106 @@ class ExperimentDesignScreen(QWidget):
                     f"{len(table)} of {design.wells_available} usable wells "
                     "assigned. " + fragment["reason"])
 
+    # ------------------------------------------------------------- 194 A
+    #
+    # "the plate map should be made up of squares that are clickable nad the
+    # user should be able to drag and select."
+    #
+    # PRESS ANCHORS, MOVE PREVIEWS, RELEASE COMMITS -- and the preview is
+    # visible while dragging, because a selection you cannot see until you
+    # let go is one you have to undo to correct. Ctrl adds a second
+    # rectangle; a plain drag replaces, which is what every other grid in
+    # this application does.
+
+    def begin_well_drag(self, row: int, column: int, modifiers=None) -> None:
+        """Anchor a selection on one well."""
+        self._well_anchor = (int(row), int(column))
+        self._well_adding = bool(
+            modifiers is not None and (modifiers & Qt.ControlModifier))
+        # REDRAWN FROM THE STATE AT THE PRESS, not from the last frame, so
+        # growing and then shrinking the rectangle leaves nothing behind.
+        self._wells_before = set(self.selected_wells())
+        self._select_wells(self._rectangle(self._well_anchor,
+                                           self._well_anchor))
+
+    def well_at(self, position):
+        """The ``(row, column)`` under a GLOBAL point, or ``None``."""
+        for label in self._well_labels:
+            if label.rect().contains(label.mapFromGlobal(position)):
+                return (label.row, label.column)
+        return None
+
+    def drag_wells_to(self, position) -> None:
+        """Preview the rectangle from the anchor to the well under a point."""
+        anchor = getattr(self, "_well_anchor", None)
+        if anchor is None:
+            return
+        cell = self.well_at(position)
+        if cell is None or cell == getattr(self, "_well_last", None):
+            return
+        self._well_last = cell
+        self._select_wells(self._rectangle(anchor, cell))
+
+    def finish_well_drag(self) -> None:
+        """End the gesture. The selection is already what the preview showed."""
+        self._well_anchor = None
+        self._well_last = None
+
+    def selected_wells(self) -> set:
+        """Every ``(row, column)`` currently chosen on the map."""
+        return {(label.row, label.column) for label in self._well_labels
+                if label.property("spacrWellChosen") == "true"}
+
+    def selected_well_names(self) -> list:
+        """The chosen wells as names, in reading order."""
+        return [str(label.property("wellName") or "")
+                for label in self._well_labels
+                if label.property("spacrWellChosen") == "true"
+                and label.property("wellName")]
+
+    def _rectangle(self, start, end) -> set:
+        """Every cell in the block between two coordinates, inclusive."""
+        top, bottom = sorted((int(start[0]), int(end[0])))
+        left, right = sorted((int(start[1]), int(end[1])))
+        block = {(r, c) for r in range(top, bottom + 1)
+                 for c in range(left, right + 1)}
+        if getattr(self, "_well_adding", False):
+            block |= set(getattr(self, "_wells_before", set()))
+        return block
+
+    def _select_wells(self, cells) -> None:
+        """Mark exactly ``cells`` as chosen and restyle what changed."""
+        wanted = {(int(r), int(c)) for r, c in cells}
+        for label in self._well_labels:
+            chosen = "true" if (label.row, label.column) in wanted else "false"
+            if label.property("spacrWellChosen") != chosen:
+                label.setProperty("spacrWellChosen", chosen)
+                # Repaints AND re-squares: the selection is drawn as a rim,
+                # and a rim is part of the widget's size. See
+                # `_Well.lock_square`.
+                label.lock_square()
+
     def _draw_plate(self, design: PlateDesign, table) -> None:
+        # WHAT THE USER CHOSE OUTLIVES THE REDRAW. Every well on this plate
+        # is destroyed and rebuilt on every `refresh`, and `refresh` runs on
+        # ONE KEYSTROKE in the plate name, on a nudge of the seed spinner and
+        # on every edit of the condition table -- so a selection read off the
+        # widgets alone was wiped by typing, not by anything the user did to
+        # the selection. Carried across as coordinates, which is the one form
+        # of it that survives the widgets being thrown away.
+        """Rebuild the plate map, one square well per position.
+
+        The selection is carried across as coordinates rather than read off the
+        widgets: every well is destroyed and rebuilt on each redraw, and a redraw
+        runs on a single keystroke in the plate name. Coordinates that fall
+        outside a newly chosen smaller format are dropped, so switching 384 down
+        to 96 forgets H13 instead of resurrecting it on the way back.
+
+        :param design: the design to draw -- only its plate format is read here.
+        :param table: the assignment table, or ``None``/empty for a blank plate;
+            wells absent from it are drawn unassigned.
+        """
+        chosen = self.selected_wells()
         while self._plate_grid.count():
             item = self._plate_grid.takeAt(0)
             widget = item.widget()
@@ -412,24 +765,49 @@ class ExperimentDesignScreen(QWidget):
                 widget.setParent(None)
         self._well_labels = []
         rows, columns = plate_shape(design.plate_format)
+        # A SMALLER PLATE DROPS WHAT IS NO LONGER ON IT rather than keeping a
+        # coordinate that names nothing: 384 down to 96 has to forget H13,
+        # or a later switch back would resurrect a well the user cannot see.
+        chosen = {(row, column) for row, column in chosen
+                  if 1 <= row <= rows and 1 <= column <= columns}
         assigned = {}
         if table is not None and len(table):
             for record in table.to_dict("records"):
                 assigned[(record["row_index"], record["column_index"])] = record
 
+        # THE HEADERS ARE CELLS OF THE PLATE, not captions beside it, and
+        # `_Header` is the same one the picker's plate uses: locked to the
+        # well's square, so the header row is exactly one cell tall and the
+        # header column exactly one cell wide however tall the theme's font
+        # makes a label. Left to size themselves they answer to a blanket
+        # QLabel rule like anything else.
         for column in range(1, columns + 1):
-            header = QLabel(str(column))
-            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._plate_grid.addWidget(header, 0, column)
+            self._plate_grid.addWidget(
+                _plate_header(str(column), self._plate_panel), 0, column)
         for row in range(1, rows + 1):
-            header = QLabel(letters_from_row_index(row))
-            header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._plate_grid.addWidget(header, row, 0)
+            self._plate_grid.addWidget(
+                _plate_header(letters_from_row_index(row),
+                              self._plate_panel), row, 0)
             for column in range(1, columns + 1):
                 record = assigned.get((row, column))
-                label = QLabel("")
-                label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                label.setMinimumSize(22, 18)
+                # SQUARE, AND FIXED TO ITS NEIGHBOURS (194). This was a
+                # `QLabel` with `setMinimumSize(22, 18)` and no maximum, so
+                # every well stretched with the window -- measured at 900,
+                # 1500 and 1900 px wide, one went 65 -> 111 -> 141 px across
+                # while staying 18 tall. A plate map is a picture of a
+                # physical object, and the point of the picture is that its
+                # proportions are the object's: at 141 x 18 it is not a
+                # plate any more, and "the elements drift appart" is what a
+                # reader sees.
+                label = _Well(row, column, self._plate_panel)
+                # EVERY WELL KNOWS ITS NAME, assigned or not. A name is a
+                # COORDINATE -- `letters_from_row_index(row)` and the column
+                # -- and it was being set only on the assigned branch, so a
+                # user who selected an empty block got a selection that
+                # could not say which wells it held.
+                label.setProperty("wellName",
+                                  f"{letters_from_row_index(row)}"
+                                  f"{column:02d}")
                 if record is None:
                     label.setProperty("spacrWellRole", "empty")
                     label.setToolTip("unassigned")
@@ -446,10 +824,27 @@ class ExperimentDesignScreen(QWidget):
                     "spacrWellEdge",
                     "true" if (record is not None and record["is_edge"])
                     else "false")
+                # SET BEFORE THE SQUARE IS LOCKED, not restored afterwards:
+                # the selection is drawn as a rim, a rim is part of the
+                # widget's size, and stating it here settles the well at its
+                # final size in one pass rather than resizing a plate's worth
+                # of wells the moment the selection is put back on them.
+                label.setProperty(
+                    "spacrWellChosen",
+                    "true" if (row, column) in chosen else "false")
+                # The role, the edge mark and the selection are what decide
+                # the rim, so the square is settled once they are on the
+                # widget.
+                label.lock_square()
                 self._plate_grid.addWidget(label, row, column)
                 self._well_labels.append(label)
 
     def _draw_findings(self, findings) -> None:
+        """Rebuild the findings strip under the plate.
+
+        :param findings: the design checks to show; each carries a severity that
+            selects its mark and its style.
+        """
         while self._findings_layout.count():
             item = self._findings_layout.takeAt(0)
             widget = item.widget()
@@ -470,6 +865,11 @@ class ExperimentDesignScreen(QWidget):
         return "\n".join(label.text() for label in self._findings_labels)
 
     def _set_status(self, text: str, *, is_error: bool = False) -> None:
+        """Write the status line and repolish it so the error style takes effect.
+
+        :param text: message to show.
+        :param is_error: style the line as an error.
+        """
         self._status.setText(text)
         self._status.setProperty("spacrError", "true" if is_error else "false")
         style = self._status.style()
@@ -484,6 +884,7 @@ class ExperimentDesignScreen(QWidget):
     # -- export -----------------------------------------------------------
 
     def _on_export(self) -> None:
+        """Ask for a folder and write the plate map into it."""
         folder = QFileDialog.getExistingDirectory(
             self, "Write the plate map into")
         if folder:
@@ -505,6 +906,11 @@ class ExperimentDesignScreen(QWidget):
             self._on_exported)
 
     def _on_exported(self, paths) -> None:
+        """Report which files were written, and how the map joins to measurements.
+
+        :param paths: the exported files by kind, as returned by the export job;
+            an empty mapping is ignored rather than reported as a success.
+        """
         if not paths:
             return
         self._set_status(
@@ -513,6 +919,10 @@ class ExperimentDesignScreen(QWidget):
               "measurements table on (plateID, rowID, columnID).")
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed export on the status line.
+
+        :param message: the failure text from the job runner.
+        """
         self._set_status(f"Export failed: {message}", is_error=True)
 
     # -- lifecycle --------------------------------------------------------
@@ -526,6 +936,10 @@ class ExperimentDesignScreen(QWidget):
         return self._jobs.is_busy()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 
@@ -537,17 +951,7 @@ def make_experiment_design_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add Experiment Design to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DESIGN,
-        factory=make_experiment_design_screen, stage=STAGE_ALPHA,
-        title=APP_NAME, intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/experiment_design",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

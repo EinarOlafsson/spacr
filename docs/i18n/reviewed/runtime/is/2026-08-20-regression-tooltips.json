@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "p_threshold_kind",
+      "source_sha256": "50f77fc5a0b896e38527f03555e8925b982db0fd4d8928a59a85c1e8e5759bb4",
+      "source": "Whether p_threshold_alpha is applied to the multiple-testing-adjusted p-value ('adjusted') or the raw per-coefficient p-value ('raw'). The analysis run and volcano plot use the same choice, so exported hits and plotted calls remain consistent. 'raw' generally calls more genes in screens with thousands of guides. Other values are rejected. Default 'adjusted'.",
+      "translation": "Hvort p_threshold_alpha er beitt á P-gildi leiðrétt fyrir fjölprófun ('adjusted') eða hrátt P-gildi hvers stuðuls ('raw'). Greiningarkeyrslan og eldfjallaritið nota sama valið, svo útflutt marktæk gen og merkingar í ritinu haldast samræmd. 'raw' skilgreinir almennt fleiri gen sem marktæk í skimunum með þúsundum leiðsagna. Öðrum gildum er hafnað. Sjálfgefið 'adjusted'."
+    }
+  ]
+}

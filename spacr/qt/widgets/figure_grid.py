@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..hidpi import scaled_for
 from ..preferences import get_figure_format, get_figure_png_dpi
 from ..theme import active_palette, css_color, make_transparent
 
@@ -154,6 +155,7 @@ def axis_layout(coordinates: Sequence[Mapping[str, Any]],
         return [], [], [(0, i) for i in range(len(coordinates))]
 
     def distinct(name: str) -> List[Any]:
+        """The distinct values of a column, in first-seen order."""
         seen: List[Any] = []
         for coord in coordinates:
             value = coord.get(name)
@@ -236,6 +238,12 @@ class SearchFigureGrid(QWidget):
     def __init__(self,
                  parameters: Optional[Sequence[str]] = None,
                  parent: Optional[QWidget] = None):
+        """Build the grid that lays a search's figures out by parameter.
+
+        :param parameters: the parameters the search varied, which become the
+            grid's captions.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("SearchFigureGrid")
         self._parameters: List[str] = list(parameters or [])
@@ -412,9 +420,9 @@ class SearchFigureGrid(QWidget):
         label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         label.setToolTip(cell.caption or cell.source_path)
         if cell.pixmap is not None and not cell.pixmap.isNull():
-            label.setPixmap(cell.pixmap.scaled(
-                QSize(cell_w, int(cell_w / DEFAULT_CELL_ASPECT)),
-                Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            label.setPixmap(scaled_for(
+                cell.pixmap, label,
+                QSize(cell_w, int(cell_w / DEFAULT_CELL_ASPECT))))
         else:
             # A figure that failed to render is a missing result, not a
             # missing widget: the cell stays so the grid keeps its shape and
@@ -437,7 +445,7 @@ class SearchFigureGrid(QWidget):
     def figure_format() -> str:
         """The figure format from Preferences, not from a second setting.
 
-        Instruction 35 is explicit that this must not grow its own control:
+        The design is explicit that this must not grow its own control:
         a user who sets PDF once should get PDF everywhere.
         """
         return get_figure_format()

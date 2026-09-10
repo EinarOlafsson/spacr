@@ -327,7 +327,7 @@ def _import(root, destination, *, wells, cells_per_well, extra):
         # filtered by area: a min_size default that moved would otherwise
         # silently change which objects the goldens are about.
         "cell_min_size": 0, "nucleus_min_size": 0, "pathogen_min_size": 0,
-        "cytoplasm_min_size": 0, "organelle_min_size": 0,
+        "cytoplasm_min_size": 0, "organelle_min_area": 0,
     }
     settings.update(extra)
     plan = em.plan_external_masks(settings)
@@ -671,19 +671,35 @@ class TestStage2Measure:
         assert set(nuclei["nucleus_channel_0_periphery_mean"]) == {float(NUC0)}
         assert set(nuclei["nucleus_channel_1_periphery_mean"]) == {float(NUC1)}
 
-    def test_no_measurement_column_is_entirely_missing(self, tables):
-        """A NaN column is a measurement that silently did not happen.
+    def test_only_unobservable_measurements_are_missing(self, tables):
+        """Only a texture distance wider than its object may be missing.
 
-        Not a golden - a floor. Every numeric column of every object table
-        has to hold a number for every object, because every object here is
-        a well-formed solid square with a positive area in both channels.
+        Every ordinary numeric measurement still has to hold a value for
+        every well-formed object.  The four eight-pixel-wide cells are the
+        deliberate exception: no horizontal pixel pair exists at distance
+        eight, so reporting homogeneity there as a number would invent an
+        observation.  Cytoplasm inherits the same bounding box.
         """
+        expected = {
+            "cell": {
+                "cell_channel_0_homogeneity_distance_8",
+                "cell_channel_1_homogeneity_distance_8",
+            },
+            "cytoplasm": {
+                "cytoplasm_channel_0_homogeneity_distance_8",
+                "cytoplasm_channel_1_homogeneity_distance_8",
+            },
+        }
         for name in ("cell", "nucleus", "pathogen", "cytoplasm", "organelle",
                      "cell_organelle_summary"):
             frame = tables[name].select_dtypes(include=[np.number])
-            empty = [column for column in frame.columns
-                     if frame[column].isna().any()]
-            assert not empty, f"{name} has NaN in {empty}"
+            missing = {column for column in frame.columns
+                       if frame[column].isna().any()}
+            assert missing == expected.get(name, set()), (name, missing)
+            for column in missing:
+                labels = set(frame.loc[frame[column].isna(), "object_label"])
+                assert labels == {4}, (name, column, labels)
+                assert SIDE[4] == 8
 
 
 class TestStage2OrganelleSummaries:
@@ -796,11 +812,14 @@ def scores(project, tables):
 
     Inference is pinned to the CPU with a single BLAS thread. The golden
     scores are meant to be the *probe's* arithmetic and nothing else, and
-    ``apply_model`` picks its device from ``torch.cuda.is_available()``, so
-    without the pin the same assertion would be checking CUDA's summation
-    on a workstation and the CPU's on CI - which differ by more than
-    :data:`SCORE_TOLERANCE`'s margin (4.1e-6 vs 1.6e-7 measured). Pinning
-    also makes "no GPU required" true rather than merely usually true.
+    ``apply_model`` picks its device through the process-wide accelerator
+    resolver.  Patching ``torch.cuda.is_available`` here is too late once
+    that deliberately cached resolver has answered, so pin the production
+    ``pick_device`` seam itself.  Without the pin the same assertion would
+    be checking CUDA's summation on a workstation and the CPU's on CI -
+    which differ by more than :data:`SCORE_TOLERANCE`'s margin (4.1e-6 vs
+    1.6e-7 measured). Pinning also makes "no GPU required" true rather than
+    merely usually true.
     """
     import torch
 
@@ -811,7 +830,10 @@ def scores(project, tables):
                       for path in tables["png_list"]["png_path"]})
     threads = torch.get_num_threads()
     with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(torch.cuda, "is_available", lambda: False)
+        patch.setattr(
+            "spacr.deep_spacr.pick_device",
+            lambda **_kwargs: (torch.device("cpu"), ""),
+        )
         torch.set_num_threads(1)
         try:
             frames = [apply_model(src=folder, model_path=model_path,

@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "04_platform_installers",
+    "scene_count": 9,
+    "source_language": "en",
+    "reviewed_date": "2026-08-28",
+    "review_scope": "Natural platform guidance and exact installer, command, file, and hardware identifiers."
+  },
+  "languages": {
+    "es": {
+      "description": "Instale spaCR en Windows, macOS o Linux sin disponer previamente de Python o Conda.",
+      "prerequisite": "Descargue el instalador para su sistema operativo desde la versión oficial de GitHub.",
+      "objectives": [
+        "Seleccionar el instalador correcto para Windows, macOS o Linux.",
+        "Gestionar las opciones de seguridad y aceleración de cada plataforma.",
+        "Localizar la información de diagnóstico si falla la instalación."
+      ],
+      "narrations": [
+        "Los instaladores nativos ligeros crean un entorno privado con Python 3.12 y después descargan Qt, PyTorch, spaCR y sus dependencias.",
+        "Descargue los instaladores únicamente desde la versión más reciente de spaCR en GitHub. Elija el archivo correspondiente a su sistema operativo y utilice el archivo SHA-256 publicado cuando necesite verificar la descarga.",
+        "En Windows 10 u 11, abra el ejecutable de instalación en línea. La aceleración automática de hardware está seleccionada de forma predeterminada e instala compatibilidad con CUDA cuando hay hardware NVIDIA compatible. Desactive ese componente solo cuando necesite una instalación más pequeña exclusiva para CPU.",
+        "En macOS 11 o una versión posterior, abra el paquete universal para procesadores Intel y Apple silicon. Si Gatekeeper bloquea el paquete sin notarizar, abra Privacidad y seguridad, seleccione Abrir de todos modos y vuelva a ejecutarlo.",
+        "En Linux de 64 bits, conceda permiso de ejecución al archivo .run descargado y ejecútelo desde una terminal. La selección automática del backend es la opción predeterminada e instala compatibilidad con CUDA cuando hay hardware NVIDIA compatible.",
+        "Para exigir una instalación más pequeña exclusiva para CPU en Linux, indique --torch-backend cpu. En caso contrario, mantenga la selección automática predeterminada para usar la aceleración CUDA cuando sea compatible.",
+        "Cada instalador valida el entorno de sustitución antes de cambiar de versión. Si se interrumpe una actualización, el entorno anterior permanece intacto y install.log se conserva en el directorio privado de instalación de spaCR.",
+        "En Preferences hay un único selector Performance level con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil adecuado para este equipo; modifica la caché, los límites de procesos, la limpieza y el detalle de las animaciones, pero no los ajustes ni los resultados científicos.",
+        "Después de la instalación, utilice el iniciador del sistema operativo. No es necesario configurar Python ni Conda por separado."
+      ]
+    },
+    "fr": {
+      "description": "Installez spaCR sous Windows, macOS ou Linux sans installation préalable de Python ou de Conda.",
+      "prerequisite": "Téléchargez le programme d’installation correspondant à votre système d’exploitation depuis la version officielle publiée sur GitHub.",
+      "objectives": [
+        "Sélectionner le programme d’installation approprié pour Windows, macOS ou Linux.",
+        "Gérer les options de sécurité et d’accélération propres à chaque plateforme.",
+        "Trouver les informations de diagnostic en cas d’échec de l’installation."
+      ],
+      "narrations": [
+        "Les programmes d’installation natifs et légers créent un environnement privé avec Python 3.12, puis téléchargent Qt, PyTorch, spaCR et ses dépendances.",
+        "Téléchargez les programmes d’installation uniquement depuis la version la plus récente de spaCR publiée sur GitHub. Choisissez le fichier correspondant à votre système d’exploitation et utilisez le fichier SHA-256 publié lorsque vous devez vérifier le téléchargement.",
+        "Sous Windows 10 ou 11, ouvrez l’exécutable d’installation en ligne. L’accélération matérielle automatique est sélectionnée par défaut et installe la prise en charge de CUDA sur le matériel NVIDIA compatible. Désactivez ce composant uniquement si vous avez besoin d’une installation plus légère limitée au CPU.",
+        "Sous macOS 11 ou une version ultérieure, ouvrez le paquet universel pour les processeurs Intel et Apple silicon. Si Gatekeeper bloque ce paquet non notarié, ouvrez Confidentialité et sécurité, sélectionnez Ouvrir quand même, puis relancez-le.",
+        "Sous Linux 64 bits, rendez le fichier .run téléchargé exécutable, puis lancez-le depuis un terminal. La sélection automatique du backend est utilisée par défaut et installe la prise en charge de CUDA lorsqu’un matériel NVIDIA compatible est disponible.",
+        "Pour imposer une installation plus légère limitée au CPU sous Linux, indiquez --torch-backend cpu. Sinon, conservez la sélection automatique par défaut afin d’utiliser l’accélération CUDA lorsqu’elle est prise en charge.",
+        "Chaque programme d’installation valide l’environnement de remplacement avant de changer de version. Une mise à jour interrompue laisse l’environnement précédent intact et conserve install.log dans le répertoire privé d’installation de spaCR.",
+        "Dans Preferences, un seul sélecteur Performance level propose Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la mise en cache, les limites de processus, le nettoyage et le niveau de détail des animations, mais pas les paramètres ni les résultats scientifiques.",
+        "Après l’installation, utilisez le lanceur du système d’exploitation. Aucune configuration séparée de Python ou de Conda n’est nécessaire."
+      ]
+    },
+    "it": {
+      "description": "Installa spaCR su Windows, macOS o Linux senza una precedente installazione di Python o Conda.",
+      "prerequisite": "Scarica il programma di installazione per il tuo sistema operativo dalla release ufficiale su GitHub.",
+      "objectives": [
+        "Selezionare il programma di installazione corretto per Windows, macOS o Linux.",
+        "Gestire le opzioni di sicurezza e accelerazione della piattaforma.",
+        "Individuare le informazioni diagnostiche se l’installazione non riesce."
+      ],
+      "narrations": [
+        "I programmi di installazione nativi e leggeri creano un ambiente privato con Python 3.12, quindi scaricano Qt, PyTorch, spaCR e le relative dipendenze.",
+        "Scarica i programmi di installazione esclusivamente dalla release più recente di spaCR su GitHub. Scegli il file corrispondente al sistema operativo e utilizza il file SHA-256 pubblicato quando devi verificare il download.",
+        "Su Windows 10 o 11, apri l’eseguibile per l’installazione online. L’accelerazione hardware automatica è selezionata per impostazione predefinita e installa il supporto CUDA su hardware NVIDIA compatibile. Deseleziona questo componente solo se ti serve un’installazione più piccola, limitata alla CPU.",
+        "Su macOS 11 o versioni successive, apri il pacchetto universale per processori Intel e Apple silicon. Se Gatekeeper blocca il pacchetto non autenticato, apri Privacy e sicurezza, seleziona Apri comunque, quindi eseguilo di nuovo.",
+        "Su Linux a 64 bit, rendi eseguibile il file .run scaricato e avvialo da un terminale. La selezione automatica del backend è predefinita e installa il supporto CUDA quando è disponibile hardware NVIDIA compatibile.",
+        "Per richiedere un’installazione Linux più piccola e limitata alla CPU, specifica --torch-backend cpu. In caso contrario, mantieni la selezione automatica predefinita per usare l’accelerazione CUDA quando supportata.",
+        "Ogni programma di installazione convalida l’ambiente sostitutivo prima di cambiare versione. Un aggiornamento interrotto lascia intatto l’ambiente precedente e conserva install.log nella directory privata di installazione di spaCR.",
+        "In Preferences è disponibile un solo selettore Performance level con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di risorse. Scegli il profilo adatto a questo computer; modifica cache, limiti dei processi, pulizia e dettaglio delle animazioni, ma non le impostazioni o i risultati scientifici.",
+        "Dopo l’installazione, utilizza il launcher del sistema operativo. Non è necessario configurare separatamente Python o Conda."
+      ]
+    },
+    "pt-BR": {
+      "description": "Instale o spaCR no Windows, macOS ou Linux sem uma instalação prévia do Python ou do Conda.",
+      "prerequisite": "Baixe, na versão oficial do GitHub, o instalador correspondente ao seu sistema operacional.",
+      "objectives": [
+        "Selecionar o instalador correto para Windows, macOS ou Linux.",
+        "Gerenciar as opções de segurança e aceleração da plataforma.",
+        "Localizar as informações de diagnóstico em caso de falha da instalação."
+      ],
+      "narrations": [
+        "Os instaladores nativos leves criam um ambiente privado de execução com Python 3.12 e, em seguida, baixam o Qt, o PyTorch, o spaCR e suas dependências.",
+        "Baixe os instaladores somente pela versão mais recente do spaCR no GitHub. Escolha o arquivo correspondente ao seu sistema operacional e use o arquivo SHA-256 publicado quando precisar verificar o download.",
+        "No Windows 10 ou 11, abra o executável de instalação online. A aceleração automática de hardware é selecionada por padrão e instala suporte a CUDA em hardware NVIDIA compatível. Desmarque esse componente somente se precisar de uma instalação menor e exclusiva para CPU.",
+        "No macOS 11 ou mais recente, abra o pacote universal para processadores Intel e Apple silicon. Se o Gatekeeper bloquear o pacote não notarizado, acesse Privacy and Security, selecione Open Anyway e execute-o novamente.",
+        "Em Linux de 64 bits, torne o arquivo .run baixado executável e inicie-o em um terminal. A seleção automática do backend é o padrão e instala suporte a CUDA quando há hardware NVIDIA compatível.",
+        "Para exigir uma instalação Linux menor e exclusiva para CPU, use --torch-backend cpu. Caso contrário, mantenha a seleção automática padrão para usar aceleração CUDA quando houver suporte.",
+        "Cada instalador valida o ambiente substituto antes de trocar de versão. Se uma atualização for interrompida, o ambiente anterior permanecerá intacto, e o arquivo install.log continuará no diretório privado de instalação do spaCR.",
+        "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos.",
+        "Após a instalação, use o inicializador do sistema operacional. Não é necessário configurar o Python nem o Conda separadamente."
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source_sha256": "d620019b5e4983171a6c6b25919bb6c2424bb987ae111f6f5c96e6fa8794cdcd",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.",
+      "translation": "Dos percentiles [low, high] usados para reescalar cada canal de cada imagen a 0–1 antes de la segmentación, por ejemplo [2, 98]. Estrechar el intervalo aumenta el contraste de los objetos tenues, pero recorta los brillantes. Use None para derivarlos automáticamente: low se fija en 2 y high es el primero de 98/99/99.9/99.99/99.999 que supera background * Signal_to_noise. El valor predeterminado es None en los pasos de Cellpose."
+    },
+    {
+      "table": "ui",
+      "key": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",
+      "source_sha256": "f9b38d45f7a37cbd0710f53cfb18e82952ec0a06769fbe6c115260bcd6d3a76e",
+      "source": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",
+      "translation": "Resolución de los renderizados ráster de spaCR para el panel Figuras y de cualquier imagen incrustada en una página PDF vectorial. Las figuras muy grandes se renderizan con un DPI menor para la pantalla, de modo que sigan dibujándose con rapidez; la página PDF se escribe con la resolución completa elegida aquí."
+    }
+  ]
+}

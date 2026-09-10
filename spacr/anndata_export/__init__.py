@@ -213,7 +213,6 @@ __all__ = [
     "export_anndata",
     "export_anndata_set",
     "feature_columns",
-    "register_anndata_app",
     "register_anndata_settings",
     "require_anndata",
     "resolve_db_path",
@@ -274,7 +273,7 @@ def require_anndata():
     """
     try:
         import anndata
-    except ImportError as exc:                        # pragma: no cover - env
+    except ImportError as exc:
         module = (getattr(exc, "name", None) or "anndata").split(".", 1)[0]
         raise AnnDataExtraMissing(
             ANNDATA_MISSING_MESSAGE.format(module=module)) from exc
@@ -290,8 +289,9 @@ def require_anndata():
 #: rather than a closed set, so a new kind is a declaration, not a violation.
 ANNDATA_KIND = "anndata"
 
-#: Settings / app key, shared by :func:`register_anndata_settings` and
-#: :func:`register_anndata_app` so the panel and the sidebar row agree.
+#: Settings / app key. The key :func:`register_anndata_settings` files
+#: the defaults under, and the key the folded page on Measure is built
+#: with, so the panel and the export it runs agree.
 APP_KEY = "anndata_export"
 
 #: Tables read for the default, cell-anchored export. Exactly the list
@@ -1574,9 +1574,10 @@ def export_anndata(db_path: Union[str, os.PathLike],
     out_path = os.path.abspath(os.path.expanduser(os.fspath(out_path)))
     adata, result = build_anndata(db_path, settings=settings, **kwargs)
 
-    parent = os.path.dirname(out_path)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    # `out_path` was made absolute just above, so its dirname is never
+    # empty -- at worst it is "/" -- and there is no falsy case for a guard
+    # to catch. `exist_ok` covers the directory already being there.
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     adata.write_h5ad(out_path, compression=compression)
 
@@ -1647,7 +1648,7 @@ def _register(out_path: str, db_path: str,
                 "obsm": list(result.obsm_keys),
             })
         return record.artifact_id
-    except Exception as exc:                       # pragma: no cover - env
+    except Exception as exc:
         warnings.warn(
             f"the AnnData export at {out_path} was written but could not be "
             f"registered with spacr.artifacts ({exc}). Its provenance is "
@@ -1718,7 +1719,7 @@ def _stamp_parent_file(child_path: str, parent_path: str,
         provenance["relationships"] = relationships
         adata.uns["spacr"] = provenance
         adata.write_h5ad(child_path)
-    except Exception as exc:                       # pragma: no cover - env
+    except Exception as exc:
         warnings.warn(
             f"could not record the parent file in {child_path}: {exc}",
             RuntimeWarning, stacklevel=2)
@@ -1886,7 +1887,7 @@ _TOOLTIPS = {
         "(str) - dtype of X. Default 'float32' - the scanpy convention and "
         "half the memory of float64."),
     "anndata_row_limit": (
-        '(int) - Hard cap on exported objects, applied after filtering. 0 means no cap. A cap, not a filter: the objects kept are simply the first N in table order. Default 0.'),
+        '(int) - Maximum number of objects exported after filtering. 0 disables the limit. When a limit is set, the first N objects in table order are retained. Default 0.'),
     "anndata_compute_umap": (
         "(bool) - Compute obsm['X_umap'] during the export, through the "
         "same reducer the UMAP app uses. Off by default: it costs minutes "
@@ -1936,75 +1937,23 @@ def register_anndata_settings(replace: bool = False) -> bool:
     return True
 
 
-#: "AnnData Export" in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English -- sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr. "AnnData" is a file format and a library name, so it
-#: is not translated in any of them; the verb around it is.
-APP_TRANSLATIONS = (
-    "AnnData-export",
-    "AnnData-Export",
-    "Exportar a AnnData",
-    "导出 AnnData",
-    "Exportar para AnnData",
-    "AnnData निर्यात",
-    "AnnData 내보내기",
-    "AnnData-útflutningur",
-    "Export AnnData",
-)
-
-
-def register_anndata_app(replace: bool = False) -> bool:
-    """Register the Qt app row through :func:`spacr.qt.app.register_app`.
-
-    Called at import, but **only when the Qt app module is already
-    imported** -- that is, when there is a GUI in this process to register
-    with. Importing ``spacr.qt.app`` from here would drag PySide6 (and, on
-    some platforms, a display connection) into every headless export, which
-    is the opposite of what an optional GUI is for.
-
-    That guard is also why ``spacr.qt.app`` names this function in its own
-    ``_SELF_REGISTERING_APPS`` table and calls it from the bottom of its
-    import: called only from here, the row existed or not depending on
-    whether something else had already imported the Qt registry, which is
-    an app inventory decided by import order.
-
-    **No screen of its own, and none is wanted.** The app registers no
-    ``factory``, so it gets the generic settings-driven ``AppScreen`` -- and
-    every knob this module has is already a typed, tooltipped key in
-    :func:`register_anndata_settings`, so that generic form IS the export
-    dialog. ``defaults_module`` is what makes it appear: it tells
-    ``settings_model`` to import this module before asking whether the key
-    has defaults. The Run button runs :func:`run_anndata_export`, which is
-    also what ``spacr-run anndata_export`` runs -- an export is a batch step
-    you want on the cluster after Measure, not an interactive tool.
-
-    :param replace: re-register over an existing row.
-    :returns: True if it registered, False otherwise.
-    """
-    module = sys.modules.get("spacr.qt.app")
-    if module is None:
-        return False
-    try:
-        if replace:
-            module.unregister_app(APP_KEY)
-        elif any(row[0] == APP_KEY for row in module.APPS):
-            return False
-        module.register_app(
-            APP_KEY, "AnnData Export",
-            "Write the measurements as .h5ad for scanpy and scvi-tools",
-            module.SECTION_EXPLORE, stage=module.STAGE_ALPHA,
-            title="AnnData Export", intro=_DESCRIPTION,
-            api_module="anndata_export",
-            entry="spacr.anndata_export:run_anndata_export",
-            defaults_module="spacr.anndata_export",
-            translations=APP_TRANSLATIONS)
-        return True
-    except Exception:                              # pragma: no cover - env
-        # A registry that has changed shape, or a section that no longer
-        # exists. A missing sidebar row is cosmetic; an exception here would
-        # break `import spacr.anndata_export` for every headless caller.
-        return False
-
-
+# THE QT ROW IS GONE, AND THAT IS THE FOLD.
+#
+# This module used to register a sidebar tile of its own through
+# `spacr.qt.app.register_app`, with the nine translations of its name,
+# `entry=`, `defaults_module=` and `api_module=` riding along on the same
+# call. An export is the sentence after "measure this plate" rather than a
+# destination, so it is now a button on the Measure masthead
+# (`spacr.qt.screens.measure`) and opens as a page beside the measure
+# settings -- the same generic settings form, drawn from the defaults
+# registered above, with the same Run button running `run_anndata_export`.
+#
+# Nothing the row carried was dropped with it, only moved to a table that
+# outlives the tile: the Run button's entry point to
+# `spacr.qt.bridge.resolve_pipeline_entry`, the defaults module to
+# `settings_model._FOLDED_DEFAULTS_MODULES`, the API link to
+# `settings_model._APP_API_MODULE`, the header and blurb to
+# `app_screen.APP_TITLES` / `APP_INTROS`, and the translated name to
+# `spacr.qt.i18n`. `spacr-run anndata_export` never went through the row
+# at all and is untouched.
 register_anndata_settings()
-register_anndata_app()

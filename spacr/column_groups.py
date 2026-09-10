@@ -1,10 +1,4 @@
-"""Choosing measurement columns by NAME, in groups. Instruction 49.
-
-    "the user should be able to pick the columns that are dimentionally
-     reduced, they should be able to do this through choosing individual
-     columns for dimentional reduction and they should be able to chhose
-     categories based on name lik cell, cor channel_1 or intensity
-     measurements (have channel i thing), or morphology measurements, etc."
+"""Choose measurement columns individually or by named groups.
 
 Three ways of naming the same set, because a measurement table names a column
 three ways at once -- ``cell_channel_1_mean_intensity`` is a CELL measurement,
@@ -42,6 +36,11 @@ NON_FEATURE_FAMILIES: Tuple[str, ...] = ("meta",)
 
 
 def _entry(column: str):
+    """Return the feature-dictionary descriptor for one column when known.
+
+    :param column: Measurement-column name to describe.
+    :returns: Parsed feature descriptor, or ``None`` when parsing fails.
+    """
     from .feature_dict import parse_column
 
     try:
@@ -88,6 +87,8 @@ def group_names(columns: Iterable[str]) -> Dict[str, List[str]]:
 
     Channels sort NUMERICALLY -- ``channel_2`` before ``channel_10`` -- which
     a plain string sort gets wrong the moment a run has more than ten.
+
+    :param columns: available measurement column names to classify.
     """
     grouped = classify(columns)
     names: Dict[str, List[str]] = {}
@@ -107,6 +108,9 @@ def columns_in(columns: Iterable[str], kind: str, name: str) -> List[str]:
     :raises KeyError: an unknown kind, naming the ones there are. A typo here
         would otherwise select nothing and read as "this table has no
         intensity measurements".
+    :param columns: available measurement column names to classify.
+    :param kind: grouping dimension, one of :data:`GROUP_KINDS`.
+    :param name: group name within the selected grouping dimension.
     """
     if kind not in GROUP_KINDS:
         raise KeyError(f"{kind!r} is not a group kind; choose from "
@@ -119,6 +123,8 @@ def resolve(columns: Iterable[str],
             *, explicit: Sequence[str] = ()) -> List[str]:
     """The columns a selection actually means, de-duplicated and in order.
 
+    :param columns: available column names. Their input order is preserved in
+        the resolved result, regardless of group or checkbox order.
     :param selection: ``{kind: [group name, ...]}`` -- the groups ticked.
     :param explicit: individual columns ticked, which are added to whatever
         the groups select. Both halves of the request are the same list in
@@ -128,6 +134,7 @@ def resolve(columns: Iterable[str],
         reduction's input order does not depend on which checkbox was clicked
         first -- a UMAP whose axes depend on click order is not reproducible.
     """
+    columns = tuple(str(column) for column in columns)
     wanted = set()
     grouped = classify(columns)
     for kind, names in dict(selection or {}).items():
@@ -137,7 +144,7 @@ def resolve(columns: Iterable[str],
         for name in names:
             wanted.update(grouped[kind].get(str(name), []))
     wanted.update(str(c) for c in explicit)
-    ordered = [str(c) for c in columns if str(c) in wanted]
+    ordered = [column for column in columns if column in wanted]
     return ordered
 
 
@@ -148,9 +155,12 @@ def summarise(columns: Iterable[str],
 
     A reduction over 400 columns and one over 4 look identical in a dialog
     until something says which it is.
+
+    :param columns: available column names whose selected fraction is reported.
     """
+    columns = tuple(str(column) for column in columns)
     chosen = resolve(columns, selection, explicit=explicit)
-    total = len([c for c in columns])
+    total = len(columns)
     if not chosen:
         return "no columns selected"
     return f"{len(chosen)} of {total} columns selected"

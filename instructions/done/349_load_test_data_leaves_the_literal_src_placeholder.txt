@@ -1,0 +1,262 @@
+================================================================================
+"LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
+================================================================================
+
+Status:    not started, filed 2026-09-02. A LIVE DEFECT the maintainer hit.
+Requested: 2026-09-02, verbatim -- "loade test images dosnt loade the right
+           path into src in mask generation it loads <src>, probably because
+           the module restarts after loading"
+Owner:     spacr/qt -- the test-data chooser and the Mask screen's settings.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+After fetching the example images, Mask generation's path field contains the
+string `<src>` rather than the directory the download landed in. `<src>` is a
+PLACEHOLDER, not a path, so the run either fails or looks at a directory that
+does not exist.
+
+THE REPORTER'S HYPOTHESIS IS WORTH TAKING SERIOUSLY AND CHECKING FIRST:
+"probably because the module restarts after loading". If the screen is rebuilt
+after the download completes, the fetched value is written into the widget the
+download started from and then thrown away with it -- and the rebuilt screen
+draws the placeholder its defaults carry. That shape has bitten this
+repository before: instruction 335 was "live preview loses the image after a
+settings change", the same class of bug on a neighbouring surface.
+
+WHERE `<src>` COMES FROM. `settings_model` has a placeholder path --
+`{"src": "path to images"}` and a bare `{"src": "path"}` around lines 297-298.
+Establish which of those, or which catalog default, produces the literal
+angle-bracket form before changing anything; a `<src>` with brackets is a
+DIFFERENT string from either of those and may come from a settings template
+or an example CSV rather than from the model.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce with the real button, not by calling the handler. Instruction 52
+   closed on 97 passing tests and the controls were unreachable; a test that
+   calls the loader directly cannot see a screen rebuild.
+2. Find whether the screen is rebuilt after the fetch. If it is, the fix is to
+   write the path into the SETTINGS the rebuild reads from, not into the
+   widget.
+3. Check the sibling modules. The same chooser was added to Measure, Classify,
+   Annotate and Map Barcodes in the same week (see done/340), so if Mask is
+   broken the others are suspects, not bystanders.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* Pressing Load test data in Mask leaves an EXISTING directory in the path
+  field, asserted with `os.path.isdir`, not a non-empty string.
+* The value survives whatever rebuild follows the download, driven through the
+  real button.
+* The same assertion passes for every module that offers the chooser.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHERE IT IS NOT, WHICH NARROWS IT A LOT
+--------------------------------------------------------------------------------
+
+Searched before guessing. THE LITERAL `<src>` IS NOT PRODUCED BY THE PACKAGE.
+Every occurrence of the string in `spacr/` is prose -- docstrings in
+`object.py`, `doctor.py` and `report.py` describing output layout -- and there
+is no generic angle-bracket placeholder builder (`f"<{key}>"` and friends
+appear only in `report.py`, `layers.py`, `verbose_logger.py` and `db_browser.py`,
+none of which writes a settings field).
+
+The settings-model placeholders are `{"src": "path to images"}` and
+`{"src": "path"}` at `settings_model.py:297-298`. Neither has brackets. So a
+rebuilt screen falling back to its placeholder would show "path", NOT `<src>`.
+
+THAT WEAKENS THE RESTART HYPOTHESIS AND POINTS AT THE PUBLISHED FILE. The most
+likely source is the example settings CSV itself carrying `src,<src>` as a
+template token. `AppScreen.reanchor_example_paths` re-roots RECORDED ABSOLUTE
+PATHS onto the download directory -- it was written for
+`src,/home/carruthers/datasets/plate1` -- and a placeholder token is not an
+absolute path, has no suffix to match, and does not resolve, so every branch
+of that method correctly leaves it alone. The value then reaches the field
+verbatim.
+
+WHAT TO CHECK FIRST, in this order, and it is cheap:
+
+  1. Download the example pack and read `settings/gen_mask_settings.csv`. If
+     its `src` cell is `<src>`, the fix is in the loader (substitute the
+     destination for the token) or in the published file, and the restart is
+     a red herring.
+  2. Only if the CSV holds a real path, pursue the rebuild.
+
+IF IT IS THE TOKEN: substituting it is a one-line addition to
+`reanchor_example_paths`, but do it as a NAMED TOKEN rather than by treating
+any unresolvable value as a root -- the method's docstring already records why
+substituting the destination outright is wrong, because Measure's `src` points
+at a SUBFOLDER and collapsing it would quietly measure the wrong directory.
+
+`_EXAMPLE_SETTINGS_FILES` (app_screen.py:3808) lists the files tried per
+module, which is where to look for the measure/classify/regression equivalents
+named in the section above.
+
+--------------------------------------------------------------------------------
+2026-09-02 — FOUND AND FIXED. THE ORDER WAS THE BUG.
+--------------------------------------------------------------------------------
+
+The reporter's hypothesis was right in substance and wrong in mechanism:
+nothing restarts, but something DOES re-apply after the path is written.
+
+`_put_the_example_images_in_place` wrote the download directory into the `src`
+widget and THEN called `apply_settings_that_came_with(images)`. That method
+loads the CSV the example shipped and applies EVERY key in it, `src` included.
+So the publisher's value was written second and won.
+
+`reanchor_example_paths` exists to stop exactly this and does its job: it
+re-homes a recorded ABSOLUTE path onto the local folder. But its docstring is
+explicit that a value it cannot resolve is left ALONE by every branch -- and a
+template token has no suffix to match and does not exist, so it survives
+untouched and lands in the field verbatim.
+
+THE PACK IS NOT AT FAULT, which is worth recording because the note above
+guessed it was. The cached settings pack on this machine reads
+
+    experiment,mitoscreen
+    src,/home/carruthers/datasets/plate1
+
+-- a real absolute path from the publisher's machine, not a token. Whatever
+the mask images pack ships, the ORDER made the field show it.
+
+THE FIX: `src` is written LAST, after the shipped settings are applied. The
+folder just unpacked into is ground truth -- it is known to exist, and it
+beats anything a file can say about a machine that is not this one.
+
+ONLY ON THIS ROUTE, and that limit is load-bearing. Measure's shipped `src`
+points at a SUBFOLDER (`merged/`), and `reanchor_example_paths` records that
+collapsing it to the plate root "would quietly measure the wrong directory
+rather than fail". `_put_the_example_images_in_place` is the example-IMAGES
+route only, where `src` is the plate folder by construction, so re-asserting
+it there cannot reach Measure.
+
+TESTS: `tests/qt/test_the_example_images_win_the_src_field.py`. Three shipped
+values are driven through the real method -- `<src>` as reported, a foreign
+absolute path, and an empty cell -- and all three now end with the download
+directory in the field. A fourth test asserts the shipped settings are STILL
+applied, because writing `src` last is only correct while they are applied
+first; the fix must not quietly become "stop configuring the panel".
+
+Verified both ways: 4 passed against the fix, 3 failed against the old order.
+62 of 64 example-settings tests pass; the 2 that fail
+(`test_mask_generation_has_the_button` and
+`test_the_button_comes_back_after_a_failure`) fail identically at HEAD and are
+not this change.
+
+STILL WORTH DOING, and not done here: the sibling modules. The chooser reached
+Measure, Classify, Annotate and Map Barcodes in the same week. Each has its own
+`_put_..._in_place` equivalent, and the same second-write hazard applies
+wherever one writes a path before applying shipped settings.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE SIBLING ROUTE, AND WHY IT GETS A DIFFERENT RULE
+--------------------------------------------------------------------------------
+
+`_put_the_measure_example_in_place` has the SAME shape -- write `src`, then
+apply the shipped settings -- and it is NOT fixed the same way, deliberately.
+
+Measure's example records `src` as the plate's `merged/` SUBFOLDER. That is
+more specific than the folder downloaded into and is the directory Measure
+must actually read; `reanchor_example_paths` states in its own docstring that
+collapsing it to the plate root "would quietly measure the wrong directory
+rather than fail". So on this route the shipped value is RIGHT to win, and
+re-asserting the destination -- the images-route fix -- would be a regression.
+
+What it now refuses is a value that is not a directory at all: a template
+token, or a publisher's path that could not be re-homed. Nothing about that
+failure was specific to Mask; it simply showed up there first. Falling back to
+the folder we downloaded into is strictly better than a path that cannot be
+opened, and the console says it happened rather than doing it silently.
+
+ONE TRAP, FOUND BY THE TEST AND WORTH KEEPING. `Path("")` is `PosixPath(".")`
+and its `is_dir()` is True, because the working directory exists. An empty
+settings cell therefore passed the "is it a directory" check and would have
+pointed the run at the cwd. The guard strips and tests for empty BEFORE
+asking the filesystem.
+
+TESTS, in the same file: the merged/ subfolder WINS when it exists -- the
+opposite of the images rule, asserted so a later reader does not "fix" the
+asymmetry -- and three unopenable values are taken back.
+
+  8 passed in that file; 76 passed across the seven example suites. The two
+  failures there (`test_mask_generation_has_the_button`,
+  `test_the_button_comes_back_after_a_failure`) fail identically at HEAD.
+
+STILL UNCHECKED: Classify, Annotate and Map Barcodes. Their handlers are
+`_apply_the_example_settings` (line 4283) and the sequencing one, and neither
+was read closely here. The question to ask of each is the one this item turned
+on: DOES ANYTHING WRITE A PATH BEFORE `apply_settings_that_came_with` RUNS,
+and if so, is the shipped value more specific (keep it, guard it) or merely a
+different machine's (take it back)?
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE RULE IS NOW STATED ONCE, AND ANNOTATE/CLASSIFY HAD NO GUARD
+--------------------------------------------------------------------------------
+
+`AppScreen.keep_the_src_openable(destination)` holds the whole rule, and both
+routes call it:
+
+  * a shipped `src` that IS a directory is kept, however much it differs from
+    the download folder -- that is Measure's `merged/` subfolder, and taking
+    it back would quietly measure the wrong directory;
+  * anything else -- a template token, an un-rehomed foreign path, an empty
+    cell -- is replaced by the folder we unpacked into, and the console says
+    so.
+
+THE ANNOTATE / CLASSIFY ROUTE WAS WORSE THAN MASK'S AND NOBODY HAD LOOKED.
+`_apply_the_example_settings` never wrote `src` AT ALL: it applied the shipped
+settings and then returned `{"src": str(destination)}` unconditionally. So the
+panel showed whatever the publisher recorded while the caller was told the
+download folder -- two different answers to "where is src", with no guard on
+either. It now goes through the same helper.
+
+TESTS: twelve in
+`tests/qt/test_the_example_images_win_the_src_field.py`, covering all three
+routes. The stub screens BIND THE REAL `keep_the_src_openable` rather than
+stubbing it -- it is the rule under test, and a stand-in would test the
+stand-in.
+
+  12 passed in that file; 97 passed across the eight example suites, with the
+  same two pre-existing failures that fail identically at HEAD.
+
+WHAT IS ACTUALLY LEFT: Map Barcodes. Its handler is the sequencing example
+button and it was not read. Ask it the same question -- does anything write a
+path before `apply_settings_that_came_with` runs, and is the shipped value
+more specific or merely foreign.
+
+--------------------------------------------------------------------------------
+2026-09-02 — MAP BARCODES IS CLEAN. ALL FOUR ROUTES ACCOUNTED FOR. CLOSING.
+--------------------------------------------------------------------------------
+
+`load_the_sequencing_example` writes `src` to the folder the reads land in and
+NEVER CALLS `apply_settings_that_came_with`. No second write, so the hazard
+this item is about cannot arise there. Read rather than assumed, and recorded
+as a negative result so the next audit does not re-derive it.
+
+THE FOUR ROUTES, FINAL STATE:
+
+    mask (images)       FIXED   `src` is written after the shipped settings
+    measure             FIXED   shipped `merged/` kept; unopenable taken back
+    annotate / classify FIXED   had no guard at all, and disagreed with its
+                                own return value
+    map barcodes        CLEAN   applies no shipped settings
+
+WHAT THIS ITEM WAS REALLY ABOUT, worth one line for the next reader: not a
+placeholder string, and not a restart. Two writers to one field, in an order
+nobody had stated, where the second writer's value came from another machine
+and the code that re-homes it is documented to leave alone anything it cannot
+resolve. The fix is that the field has ONE rule now
+(`AppScreen.keep_the_src_openable`) and every route asks it.
+
+THE ORIGINAL GUESS IN THIS FILE WAS WRONG and is left above on purpose. It
+reasoned from "the package never emits `<src>`" to "the published pack must
+contain it". The premise was right and the conclusion did not follow: the pack
+holds a real path, and the literal the maintainer saw came from a file this
+session never downloaded. The step that actually solved it was reading the
+CALLER, not the data.

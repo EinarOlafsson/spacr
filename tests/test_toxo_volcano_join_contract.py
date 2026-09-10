@@ -170,6 +170,47 @@ def test_the_metadata_frame_the_caller_passed_is_not_retyped_underneath_them():
     assert metadata['gene_nr'].tolist() == [220001, 220002]
 
 
+def test_a_volcano_does_not_resize_the_text_of_the_next_plot():
+    """Opening one figure must not restyle the ones opened after it.
+
+    The volcano used to set its own font with a bare ``rcParams.update``,
+    which is process-wide. Every plot the session drew afterwards inherited
+    it: other screens, other modules, and whatever the user had chosen in
+    figure preferences, overridden by whichever figure they happened to open
+    first.
+
+    BOTH HALVES ARE ASSERTED -- the globals are untouched, AND the volcano
+    drew at its own size while it had the chance. A test that only checked
+    the first would pass on a figure that had stopped styling itself at all.
+
+    THE SIZE IS READ FROM THE HOUSE STYLE, not written here. It was a literal
+    18, which is what the volcano hard-coded before the restyle on
+    2026-08-18; it is `TYPE_SCALE["label"]` now, and asking the style means
+    this test cannot fail the next time the scale is tuned -- while still
+    failing if the volcano stops honouring it.
+    """
+    import matplotlib.pyplot as plt
+
+    from spacr.figures.style import TYPE_SCALE
+
+    before = matplotlib.rcParams['font.size']
+    data = _results([(220001, 1), (220002, 1)])
+    metadata = pd.DataFrame({
+        'gene_nr': [220001, 220002],
+        'tagm_location': ['cytosol', 'Golgi'],
+    })
+
+    T.custom_volcano_plot(data, metadata, figsize=4, threshold=0)
+
+    assert matplotlib.rcParams['font.size'] == before, (
+        "the volcano left its font on matplotlib's globals; every figure "
+        "drawn after it in the same session inherits the size")
+    # ...and it did draw at the house size while it had the chance.
+    axis = plt.gcf().axes[0]
+    assert axis.xaxis.label.get_fontsize() == TYPE_SCALE["label"]
+    plt.close('all')
+
+
 def test_the_shipped_lopit_metadata_satisfies_the_contract():
     """The production path must not be the thing the new contract breaks.
 
@@ -186,3 +227,65 @@ def test_the_shipped_lopit_metadata_satisfies_the_contract():
     assert not gene_nr.duplicated().any(), (
         'lopit.csv gained a duplicated gene_nr; custom_volcano_plot will now '
         'refuse it, which is correct but needs the file fixed')
+
+
+def test_the_legend_fits_inside_the_figure():
+    """A legend anchored outside the axes is clipped by the in-app canvas.
+
+    bbox_inches='tight' grows the saved PDF to cover it, so the file on disk
+    looks right while the figure shown in the application loses its right-hand
+    side -- reported as "the volcano plot is always cut off on the right side".
+    The figure has to be correct as drawn, not only after a save-time rescue.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from spacr.toxo import _fit_outside_legend
+
+    figure, axis = plt.subplots(figsize=(20, 20))
+    axis.scatter([0, 1], [0, 1])
+    handles = [
+        plt.Line2D([0], [0], marker="o", color="C0",
+                   label=f"compartment name {index}", linewidth=0)
+        for index in range(27)  # the LOPIT compartment set
+    ]
+    legend = axis.legend(handles=handles, bbox_to_anchor=(1.02, 1),
+                         loc="upper left", ncol=2, frameon=False,
+                         prop={"size": 9})
+    figure.canvas.draw()
+    width = figure.get_figwidth() * figure.dpi
+    assert legend.get_window_extent().x1 > width, "legend did not overflow"
+
+    _fit_outside_legend(figure, legend)
+    figure.canvas.draw()
+
+    assert legend.get_window_extent().x1 <= width, "legend still clipped"
+    # ...and the data did not get squeezed into a strip to achieve it.
+    assert axis.get_position().x1 > 0.7
+    plt.close(figure)
+
+
+def test_a_runaway_legend_cannot_squeeze_the_axes_away():
+    """Clamping matters: a legend wider than the figure would invert the axes."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from spacr.toxo import _fit_outside_legend
+
+    figure, axis = plt.subplots(figsize=(6, 6))
+    axis.scatter([0, 1], [0, 1])
+    handles = [
+        plt.Line2D([0], [0], marker="o", color="C0",
+                   label="an extravagantly long compartment label " * 3,
+                   linewidth=0)
+        for _ in range(40)
+    ]
+    legend = axis.legend(handles=handles, bbox_to_anchor=(1.02, 1),
+                         loc="upper left", frameon=False)
+    _fit_outside_legend(figure, legend)
+
+    assert axis.get_position().x1 >= 0.45
+    assert axis.get_position().width > 0
+    plt.close(figure)

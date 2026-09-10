@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "it",
+  "title": "Control Charts: esaminare una campagna con controlli e limiti espliciti",
+  "description": "Apri lo strumento in QC, carica una campagna dichiaratamente sintetica di trenta piastre, verifica controllo e riferimento selezionati ed esporta punti controllati indipendentemente.",
+  "objectives": [
+    "Trovare Control Charts in QC e caricare il CSV sintetico fornito.",
+    "Distinguere le righe dei pozzetti dalle medie per piastra e selezionare un solo controllo.",
+    "Confrontare le regole, cambiare e ripristinare controllo e riferimento e leggere gli avvisi.",
+    "Esportare la vera tabella dei punti senza dichiarare un’esportazione di immagini o una validazione biologica."
+  ],
+  "prerequisite": "Il CSV tools/tutorials/fixtures/control_chart_campaign.csv è interamente sintetico, adattato da una campagna di test con seme fisso: trenta piastre fittizie, tre pozzetti per tipo di controllo per piastra e una deriva crescente programmata dopo la ventesima piastra. Le date indicano un ordine illustrativo, non acquisizioni. Il pannello non ha attualmente Load test data; non si scaricano immagini né si usano modelli, analisi GPU o richieste AI. La vecchia registrazione di due piastre è stata scartata perché l’applicazione rifiutava di stimare i limiti. La colonna stretta tronca le scelte lunghe quando è chiusa; i menu aperti mostrano i nomi completi. Le modalità Z-prime e ristima non vengono provate.",
+  "scenes": [
+    "Apri QC e poi il pulsante Control Charts. Questo strumento specializzato rappresenta controlli ripetuti lungo una campagna. Il CSV fornito è esplicitamente sintetico, deriva compresa: dimostra il software, non un esperimento acquisito o un saggio validato.",
+    "Scegli Load table e apri il CSV di esempio. Contiene duecentosettanta righe di pozzetti: trenta piastre, ciascuna con tre pozzetti di controllo negativo, tre positivo e tre campione. Il grafico mostrerà una media del controllo selezionato per piastra, non un punto per cellula.",
+    "Controlla Plate, Run order, Measurement e Control column rispetto ai nomi mostrati. Seleziona solo neg in Control is. La lista consente selezioni multiple; se nessun livello è selezionato, vengono rappresentate tutte le righe. Non presumere che il caricamento abbia già selezionato il controllo desiderato.",
+    "Apri Sigma from per leggere le opzioni complete. Auto sceglie qui lo stimatore per sottogruppi perché ogni piastra ha tre pozzetti selezionati. I limiti usano la variazione interna alle piastre di riferimento, corretta per la numerosità della media, non la deviazione standard dell’intera serie con deriva.",
+    "Rules offre le quattro regole abituali, tutte e otto oppure Limits only. Più regole creano anche più occasioni di falsi allarmi. Scegliamo Limits only per isolare la regola dei tre sigma; cambiare il menu ricalcola il grafico senza un pulsante Run separato.",
+    "Baseline plates è venti: da P zero uno a P venti si stimano i limiti applicati alle piastre successive. Nove punti, da P ventidue a P trenta, superano il limite superiore. Il rapporto e la tabella delle regole li identificano; questi segnali programmati non sono scoperte biologiche.",
+    "Deseleziona neg e seleziona solo pos. Il grafico mostra le medie dell’altro controllo e i suoi limiti di riferimento, senza violazioni della regola uno in questo esempio. Un grafico senza allarmi non dimostra da solo la validità di un saggio. Ripristina neg prima di continuare.",
+    "Porta Baseline plates a dodici e osserva come cambiano centro e limiti, poi ripristina venti. L’app richiede almeno otto piastre di riferimento, ma questo minimo non è una raccomandazione. Pianifica e giustifica il riferimento; non modificarlo soltanto per eliminare avvisi indesiderati.",
+    "Ripristinati il controllo originale e il riferimento di venti piastre, scegli Export points e salva un CSV separato. Contiene trenta righe con identità e ordine della piastra, media, dimensione e dispersione del sottogruppo, limiti, distanza standardizzata, appartenenza al riferimento e regole attivate. Non è un’immagine del grafico né una configurazione completa.",
+    "Ogni identità e campo numerico esportato è stato verificato contro il CSV originale, comprese le segnalazioni della regola uno. L’input originale è invariato. Per gli script, il modulo del widget dei grafici di controllo espone ControlChartSpec e control_chart; il risultato fornisce points_frame. Conserva insieme input, impostazioni e note di acquisizione quando esamini allarmi reali."
+  ]
+}

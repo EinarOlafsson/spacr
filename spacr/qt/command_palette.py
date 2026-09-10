@@ -63,13 +63,19 @@ class CommandPalette(QDialog):
     """
 
     def __init__(self, window: QMainWindow):
+        """Build the command palette over the main window.
+
+        :param window: the window every command acts on.
+        """
         from .i18n import tr
         super().__init__(window)
         self._window = window
         self.setWindowTitle(tr("spaCR — Command palette"))
         self.setModal(True)
         # Frameless-ish look — big centred dialog on top of the app.
-        self.setMinimumWidth(560)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(560))
         self.setMinimumHeight(420)
 
         outer = QVBoxLayout(self)
@@ -108,6 +114,12 @@ class CommandPalette(QDialog):
 
     # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
+        """Gather everything the palette can run: modules, recent runs and actions.
+
+        The app registry is imported here rather than at module level and its
+        failure is tolerated: with no registry the app loop simply does not run,
+        and only the visibility check needs a stand-in.
+        """
         from .i18n import tr
         try:
             from .app import app_is_visible, app_stage, visible_apps
@@ -119,6 +131,7 @@ class CommandPalette(QDialog):
             apps = []
 
             def app_is_visible(_key):
+                """Fallback that treats every app as visible."""
                 return True
 
         # Apps
@@ -310,6 +323,14 @@ class CommandPalette(QDialog):
 
     # -- rendering ---------------------------------------------------------
     def _render(self, cmds: List[Command]) -> None:
+        """Fill the list with commands, grouped under section headers.
+
+        The headers are not selectable, and the auto-selection skips past the
+        first one -- otherwise Return on a freshly opened palette would activate
+        a heading.
+
+        :param cmds: the commands to show, in section order.
+        """
         self._list.clear()
         current_section = None
         for cmd in cmds:
@@ -329,6 +350,13 @@ class CommandPalette(QDialog):
                     self._list.setCurrentRow(i); break
 
     def _on_filter(self, needle: str) -> None:
+        """Narrow the list to commands matching the typed text.
+
+        Matched case-insensitively against the label and the keywords, so a
+        command can be found by what it does as well as by what it is called.
+
+        :param needle: the typed text; empty shows everything.
+        """
         needle = (needle or "").strip().lower()
         if not needle:
             self._render(self._commands)
@@ -342,6 +370,13 @@ class CommandPalette(QDialog):
 
     # -- activation --------------------------------------------------------
     def _on_activate(self) -> None:
+        """Run the selected command and close the palette.
+
+        The palette is dismissed before the command runs, so a command that
+        opens a dialog does not open it behind this one. A command that raises
+        is logged rather than propagated -- the palette has already closed, and
+        there is nothing left to show an exception on.
+        """
         item = self._list.currentItem()
         if item is None:
             return
@@ -356,6 +391,10 @@ class CommandPalette(QDialog):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         # Arrow keys → move selection; everything else falls through
+        """Move through the results, or run the highlighted command.
+
+        :param event: the Qt key event.
+        """
         if event.key() == Qt.Key_Down:
             row = self._list.currentRow()
             for i in range(row + 1, self._list.count()):
@@ -372,12 +411,18 @@ class CommandPalette(QDialog):
 
     # -- actions -----------------------------------------------------------
     def _nav(self, key: str) -> None:
+        """Navigate the window to a module.
+
+        :param key: the module to open. A window without the navigation slot --
+            a test, or a bare dialog -- is tolerated.
+        """
         try:
             self._window._on_nav_selected(key)
         except Exception:
             pass
 
     def _open_preferences(self) -> None:
+        """Open the Preferences dialog."""
         try:
             from .preferences import PreferencesDialog
             PreferencesDialog(self._window).exec()
@@ -385,6 +430,7 @@ class CommandPalette(QDialog):
             pass
 
     def _open_providers(self) -> None:
+        """Open the AI providers dialog."""
         try:
             from .widgets.ai_chat_panel import _ProvidersDialog
             _ProvidersDialog(self._window).exec()
@@ -392,6 +438,7 @@ class CommandPalette(QDialog):
             pass
 
     def _open_shortcuts(self) -> None:
+        """Open the keyboard shortcut cheat sheet."""
         try:
             from .shortcuts import show_cheat_sheet
             show_cheat_sheet(self._window)

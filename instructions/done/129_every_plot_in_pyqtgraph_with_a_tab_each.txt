@@ -1,0 +1,177 @@
+================================================================================
+EVERY PLOT IN PYQTGRAPH, A TAB EACH, AND GENE/gRNA AS A RIGHT-CLICK FILTER
+================================================================================
+
+Status:    filed 2026-08-17, in progress.
+Requested: 2026-08-17 --
+
+           "instead of having a gene and a grna mode, id like the option to
+            only show genes and only show grnas in the volcano plot by right
+            clicking on the plot itself"
+
+           "i would like you to generate all plots with the pyqtgraph and have
+            each represented as a tab under results."
+
+           "i would still like to retain the grid to the right"
+
+           "so same information graphed, but graphed with pyqtgraph. same grid
+            overview but pyqtgraph versions and new tabs for each graph."
+
+Related:  128 D/E/F is the same surface and is in flight; this supersedes the
+          scope of E (residual tabs) and enlarges D (the plot on the grid).
+          124 is the house style. 119 is the figure surface index.
+
+--------------------------------------------------------------------------------
+THE ONE ASSUMPTION, STATED RATHER THAN ASKED
+--------------------------------------------------------------------------------
+
+pyqtgraph ON SCREEN, matplotlib ON DISK. The request is about what is
+GRAPHED -- the tabs and the grid the user looks at -- and the saved figures
+are a different product: instruction 124 J requires an exported figure to
+carry its data and its stats, the house style exists so a panel can go into
+a paper, and `plot.save_figure` embeds TrueType fonts precisely so a PDF is
+editable in Illustrator. pyqtgraph's exporters do not do any of that.
+
+So a run keeps writing the matplotlib house-style figures, and the SCREEN
+becomes pyqtgraph throughout. If that is wrong, it is one line to say so and
+a large amount of work to discover late.
+
+--------------------------------------------------------------------------------
+A. GENE / gRNA IS A FILTER ON THE PLOT, NOT A MODE OF THE RUN
+--------------------------------------------------------------------------------
+
+Today `settings['volcano']` is 'gene' | 'grna' | 'all', chosen BEFORE the run
+and baked into which table the volcano was drawn from. The maintainer wants
+it on the plot: right-click, show only genes, or only guides.
+
+This is strictly better and also cheaper: the coefficient table already
+carries both -- `feature` is `gene_fraction:gene[...]` or
+`fraction:grna[...]`, and `spacr.hits.gene_of` / `guide_of` already tell them
+apart. No re-fit, no second table, just a mask.
+
+    * three states: genes, guides, both. "Both" is what a screen is, so it
+      stays the default.
+    * the counts go in the menu, so a user picking "genes only" knows it is
+      400 of 1,213 before they pick it.
+    * the SELECTION must survive the filter, or the ring the user was reading
+      vanishes -- the same rule the colouring and the baseline already follow.
+    * the setting does not disappear. A headless run still needs to know
+      which table to draw, and 125 A gates the legacy volcano on it.
+
+--------------------------------------------------------------------------------
+B. A PYQTGRAPH PANEL FOR EVERY GRAPH, EACH ITS OWN TAB
+--------------------------------------------------------------------------------
+
+What exists in pyqtgraph today (spacr/qt/widgets/fast_plots.py):
+
+    VolcanoPlot   PValueHistogram   QQPlot   ResidualPlot
+    ControlSeparation   GuideAgreementPlot   ResultsTable
+
+What the run draws in the house style (spacr/figures/panels.py REGISTRY):
+
+    volcano   effect_rank   effect_distribution   controls
+    agreement   p_histogram   qq
+
+THE GAP IS TWO: `effect_rank` (every gene ranked by effect, as a dot with its
+interval) and `effect_distribution`. Both need a pyqtgraph twin. ResidualPlot
+exists and is not on the panel at all, which is 128 E.
+
+Beyond the seven there are the plate heatmaps, the well distributions and the
+~19 regression_qc panels. DO NOT PROMISE ALL OF THEM AT ONCE. The order that
+matters is: the seven the sheet already draws, then residuals, then the rest
+by whether anybody reads them.
+
+    * ONE TAB PER GRAPH, named for the graph.
+    * a panel the table cannot support says why, in the tab, rather than
+      being absent -- an absent tab is indistinguishable from a bug.
+    * every one of them is CLICKABLE and joined on the KEY, which is
+      instruction 119 B and is already the rule for the five that exist.
+
+--------------------------------------------------------------------------------
+C. THE GRID STAYS, IN PYQTGRAPH
+--------------------------------------------------------------------------------
+
+"i would still like to retain the grid to the right" and "same grid overview
+but pyqtgraph versions".
+
+Today the grid holds QPixmaps rendered from matplotlib figures. The pyqtgraph
+version holds the live widgets, or thumbnails of them.
+
+THE HARD PART, and it is not the drawing:
+
+  * `_FigureCell.index` is the enumerate index over the pixmap list and
+    `figure_activated` forwards it to `FigureQueue.show_index()`. A grid of
+    live plots has to keep that mapping honest or clicking tile 4 opens
+    figure 7 -- there is a test for it.
+  * N live pyqtgraph widgets is N scenes, N view boxes and N sets of hover
+    hit-boxes. The volcano alone is 1,213 points. Thumbnails via
+    `grabFramebuffer`/`render` may be the answer, with the live widget only
+    when a tile is opened -- MEASURE IT before choosing, the way the 49 ms
+    redraw was measured.
+  * the collapsible run sections (125 C) must keep working.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Right-clicking the volcano offers genes / guides / both with counts, and
+  picking one keeps the current selection ringed.
+* Every graph the sheet draws has a pyqtgraph tab under Results.
+* A tab whose panel has no data says why, in the tab.
+* The grid to the right still shows every figure of the run, still opens the
+  right one when a tile is clicked, and still folds by run section.
+* A run still writes the matplotlib house-style figures to disk.
+* The panel is not slower than it is today -- measured, not asserted.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AUDITED AGAINST THE RUNNING PANEL. A, B AND C ARE DONE.
+--------------------------------------------------------------------------------
+
+A. THE FILTER IS ON THE PLOT, WITH THE COUNTS IN THE MENU, exactly as asked.
+   Driven on a frame of 7 genes and 11 guides, the volcano's right-click menu
+   reads:
+
+       Show > genes and guides (18)
+       Show > genes only (7)
+       Show > guides only (11)
+
+   and the same state drives the "Level:" combo above the axes (147 A), so
+   there is one piece of state and two ways to reach it rather than two
+   answers.
+
+   CORRECTED ON RE-AUDIT: this paragraph used to end "`settings['volcano']`
+   did not disappear: a headless run still needs to know which table to draw,
+   and 125 A gates the legacy volcano on it." Both halves are wrong about the
+   current tree. `settings.py` does `settings.pop('volcano', None)` -- the key
+   is ACCEPTED AND DROPPED so an old settings CSV still loads, and it is
+   absent from the category table with the reason written beside it. What
+   gates the legacy volcano is `legacy_volcano`, a different key (125 A).
+   Nothing headless reads `volcano` any more; which table a run writes is
+   decided by `level`, and which one the panel opens is decided by
+   `RESULT_FILENAMES` and `_default_level`.
+
+B. EVERY PANEL THE SHEET DRAWS HAS A TAB. The registry is
+   {volcano, effect_rank, effect_distribution, controls, agreement,
+   p_histogram, qq}; the panel's tabs are
+
+       Volcano · Effect rank · Effect distribution · p-values · Q-Q ·
+       Controls · Residuals · Scale-location · Influence · Summary ·
+       Guide support · Gene
+
+   The two this file named as THE GAP -- `EffectRankPlot` and
+   `EffectDistribution` -- exist in fast_plots and are mounted. Residuals,
+   which 128 E asked for, is there too, with Scale-location and Influence
+   beside it. Each says why it is empty rather than being absent, because an
+   absent tab is indistinguishable from a bug.
+
+C. THE GRID STAYS AND HOLDS LIVE TILES. `FigureGridView.set_live_tiles` /
+   `live_tile_keys` are the pyqtgraph half, `PINNED_KEY` is the regression
+   graph among them, and the index mapping this file warned about is held by
+   a test. The bound on live tiles is 116's MAX_LIVE_RUNS = 2, carrying the
+   measurement that decided it -- about 75 ms a frame live against 5 ms for a
+   still on a 17 ms budget -- so "measure it before choosing" was done and the
+   answer was "live for the run you are reading, stills for the rest".
+
+The one assumption this file stated rather than asked -- pyqtgraph on screen,
+matplotlib on disk -- still holds, and 178 C.2 has since given the pyqtgraph
+plots a styled save of their own so the two are not a hierarchy.

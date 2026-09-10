@@ -17,23 +17,57 @@ Three separate contracts live here, in this order:
 """
 from __future__ import annotations
 
-
-
 import hashlib
 import json
 import os
 import threading
 
 import pytest
-
 from PySide6.QtCore import QEvent, Qt
 from PySide6.QtGui import QEnterEvent
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt import bridge, iconset
-from spacr.qt.app import (APPS, SECTIONS, _FORCE_GLYPH, _ICON_OVERRIDES,
-                          make_home_page, section_members)
-from spacr.qt.widgets.home import AppTile, HomePage, PAUSE_UNAVAILABLE
+from spacr.qt.app import (
+    _FORCE_GLYPH,
+    _ICON_OVERRIDES,
+    APPS,
+    SECTIONS,
+    TILELESS_APPS,
+    make_home_page,
+    section_members,
+)
+from spacr.qt.widgets.home import PAUSE_UNAVAILABLE, AppTile, HomePage
+
+
+
+def _tiled_apps():
+    """The registry rows Home actually draws.
+
+    NOT every row in APPS. Instruction 318 gave several modules a door of
+    their own -- a button in the module they belong to, or an entry in
+    Help -- and took their tile away, because a tile says "start here"
+    and none of them is a job a user sets out to do.
+
+    They are still REGISTERED: the CLI, the bridge, drag-and-drop,
+    settings resolution and saved session state all key off those
+    strings. What changed is what Home offers.
+    """
+    return [row for row in APPS if row[0] not in TILELESS_APPS]
+
+
+# WHICH SET A TEST WANTS depends on what it is asking:
+#
+#   `_tiled_apps()`  what Home DRAWS. Tab membership, tile counts, the
+#                    "(n)" on the Home tab, drawer reachability.
+#   `APPS`           what EXISTS. Artwork and maturity stage are needed by
+#                    every registered app, tileless or not: a module
+#                    reached from a button still shows its icon on that
+#                    button, and still has a stage the drawer filters on.
+#
+# Getting this backwards is silent: using `_tiled_apps()` for artwork
+# stops checking the icons of the eight modules that moved, which is
+# exactly when their icons would be noticed missing.
 
 @pytest.fixture(autouse=True)
 def _pinned_zoom():
@@ -84,7 +118,6 @@ CHOSEN = {
     "activation":   "activation_01.png",
     "annotate":     "annotate_01.png",
     "cellpose_all": "cellpose_all_01.png",
-    "classify":     "classify_05.png",
     "convert":      "convert_04.png",
     "default":      "default_01.png",
     "download":     "download_05.png",
@@ -246,12 +279,26 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
     assert _FORCE_GLYPH == set()
 
 
-#: The four apps that draw another app's artwork on purpose, each with a
-#: reason written next to its ``_ICON_OVERRIDES`` entry.
+#: The apps that draw another app's artwork on purpose, each with a reason
+#: written next to its ``_ICON_OVERRIDES`` entry.
+#:
+#: A pair is only checked while BOTH halves still have a tile. Model
+#: Compare, Annotator Agreement and Train Cellpose folded into hosts and
+#: lost their rows; each still borrows the same picture for its fold
+#: button, which is why the pair stays written down here rather than being
+#: deleted, but two tiles that cannot be told apart is a Home-page problem
+#: and Home no longer draws them.
+#: Borrowings that were deliberate WHILE THEY LASTED. The test filters this
+#: by what is still registered, so an entry here is history rather than a
+#: requirement -- an app that gains its own artwork simply stops appearing in
+#: `shared`, which is the direction this is all meant to go.
+#:
+#: Map Barcodes / Plate Viewer left on 2026-09-02: `plate_view.png` is
+#: installed, so Plate Viewer draws its own and the override that pointed it
+#: at Map Barcodes was removed with four others.
 DELIBERATE_SHARED_ARTWORK = {
     frozenset({"Mask", "Model Compare"}),
     frozenset({"Annotate", "Annotator Agreement"}),
-    frozenset({"Map Barcodes", "Plate Viewer"}),
     frozenset({"Cellpose Masks", "Train Cellpose"}),
 }
 
@@ -271,6 +318,7 @@ def apps_without_artwork():
     what a "no two apps by ACCIDENT" test is for.
     """
     import os
+
     from spacr.qt import iconset
     from spacr.qt.app import _ICON_OVERRIDES
 
@@ -296,16 +344,29 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
         blob = bytes(icon.pixmap(48, 48).toImage().constBits())
         by_pixels.setdefault(blob, []).append(name)
     shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
-    assert DELIBERATE_SHARED_ARTWORK <= shared, (
-        f"a documented borrowing stopped happening: "
-        f"{DELIBERATE_SHARED_ARTWORK - shared}")
+    # Every REGISTERED app, not just the tiled ones. A module folded into
+    # a host keeps its icon -- the fold button draws it -- so the
+    # borrowing still happens and is still worth documenting. Narrowing
+    # this to `_tiled_apps()` would leave such a pair inside `shared` but
+    # outside `expected`, and the allowance below would then call a
+    # documented borrowing undocumented.
+    #
+    # Still filtered by what is REGISTERED, though: the table above names
+    # pairs for apps that have since left `APPS` entirely (Model Compare,
+    # Train Cellpose, Annotator Agreement). A borrowing between two apps
+    # that no longer exist cannot happen and must not be demanded.
+    registered = {name for _key, name, *_rest in APPS}
+    expected = {pair for pair in DELIBERATE_SHARED_ARTWORK
+                if pair <= registered}
+    assert expected <= shared, (
+        f"a documented borrowing stopped happening: {expected - shared}")
     # Every app now has its own artwork, so the allowance below covers
     # nothing: `placeholders` is empty and any undocumented sharing fails.
     # Kept rather than deleted because a new app registered before its icon
     # is drawn lands on the placeholder again, and that should not fail this
     # test the day it is added.
     placeholders = apps_without_artwork()
-    for group in shared - DELIBERATE_SHARED_ARTWORK:
+    for group in shared - expected:
         assert group <= placeholders, (
             f"{sorted(group)} draw the same picture and nothing says why. "
             f"Either give one of them its own icon, or record the "
@@ -369,6 +430,7 @@ def test_each_new_icon_is_a_flat_mask_painted_in_the_theme_ink(
     """Every chosen icon is monochrome-on-transparent, so re-inking must
     paint it flat rather than inventing shading from exporter noise."""
     import numpy as np
+
     from spacr.qt import theme as theme_mod
 
     path = os.path.join(iconset.RESOURCE_DIR, f"{name}.png")
@@ -409,6 +471,7 @@ def _shaded_mask(bright: bool):
 def test_shaded_monochrome_artwork_is_mapped_onto_the_ink_band(
         bright, theme_name, qapp):
     import numpy as np
+
     from spacr.qt import theme as theme_mod
 
     rgba = _shaded_mask(bright)
@@ -445,10 +508,22 @@ def test_the_1024px_artwork_is_worked_on_downscaled(qapp):
 
 # -- the two aliases that had to move ---------------------------------------
 
-def test_model_compare_no_longer_borrows_the_batch_icon():
-    """cellpose_all is now "a whole batch of frames"; Model Compare is
-    one field segmented twice, which is what mask.png draws."""
-    assert _ICON_OVERRIDES["model_compare"] == "mask.png"
+def test_model_compare_no_longer_borrows_anything():
+    """It has its own artwork now, so there is no borrow left to pin.
+
+    This asserted `_ICON_OVERRIDES["model_compare"] == "mask.png"` -- a
+    borrowing that made sense while `cellpose_all` meant "a whole batch of
+    frames" and Model Compare had no picture of its own. `model_compare.png`
+    is installed, and the override was removed with four others that had also
+    stopped being borrows.
+    """
+    import os
+
+    from spacr.qt import iconset
+
+    assert "model_compare" not in _ICON_OVERRIDES
+    assert os.path.isfile(
+        os.path.join(iconset.RESOURCE_DIR, "model_compare.png"))
     assert "cellpose_all.png" not in _ICON_OVERRIDES.values()
 
 
@@ -533,13 +608,13 @@ def test_the_replication_assay_is_a_first_class_module():
     as a section. #16j put every app back under what it is *about* and
     made maturity a colour, so this is a Toxoplasma assay again — and
     separately a beta one, which is now a lookup in ``APP_STAGE``."""
-    from spacr.qt.app import SECTION_TOXO, app_stage
+    from spacr.qt.app import SECTION_ASSAYS, app_stage
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     row = next((a for a in APPS if a[0] == "replication"), None)
     assert row is not None, "replication is not in the app registry"
-    assert row[3] == SECTION_TOXO
+    assert row[3] == SECTION_ASSAYS
     assert app_stage("replication") == "beta"
     assert row[3] in SECTIONS
     assert row[1] and row[2]
@@ -559,6 +634,7 @@ def test_the_replication_assay_is_a_first_class_module():
 def test_the_replication_screen_opens(qtbot, qt_theme_applied,
                                       _empty_journal):
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.app import MainWindow
     win = MainWindow()
     qtbot.addWidget(win)
@@ -575,11 +651,12 @@ def test_the_replication_screen_opens(qtbot, qt_theme_applied,
 def test_the_categories_are_the_ones_that_were_asked_for():
     """The section vocabulary, recorded so a rename is deliberate.
 
-    Six names and seven tabs counting Home. Explore is the sixth: it was
+    Seven declared names; only non-empty sections receive tabs. Explore was
     declared in ``SECTION_ORDER`` and empty — no tab, nothing drawn —
     until Layer Viewer and Graph Builder registered into it from their
-    own modules, which is exactly what a declared-and-empty section is
-    for. Design is still declared and still empty.
+    own modules, which is exactly what a declared-and-empty section is for.
+    Segmentation-model tools are now reached from Make Masks, leaving that
+    declared section empty and therefore absent from the live tab list.
 
     It briefly asserted seven and eight. #16i added "Alpha modules" and
     "Beta modules" as CATEGORIES, which took every app out of Data,
@@ -594,22 +671,31 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
     assert app_mod.SECTION_EXPLORE == "Explore"
-    assert app_mod.SECTION_TOXO == "Toxoplasma"
+    # RENAMED to Assays on 2026-08-23: nothing in the section is
+    # Toxoplasma-specific except by habit, and Timelapse and the
+    # Motility assay moved into it from Core.
+    assert app_mod.SECTION_ASSAYS == "Assays"
     assert app_mod.SECTION_DESIGN == "Design"
-    assert app_mod.SECTIONS == (
-        "Core", "Data", "Segmentation models", "Results & QC", "Explore",
-        "Toxoplasma", "Design")
-    # Design draws a tab now: Power / Design claimed it, which is the last
-    # of the seven declared sections to be claimed. It was the example of
-    # a declared-but-empty section for as long as it was empty.
-    assert app_mod.SECTION_DESIGN in app_mod.SECTIONS
+    assert app_mod.SECTION_TOOLS == "Tools"
+    # FOUR CATEGORIES since 2026-08-31, written out tile by tile by the
+    # user. The other four names above still EXIST -- screens and saved
+    # state use them -- and simply have no app filed under them, which is
+    # why they no longer draw. That is the same property
+    # `test_sections_are_the_ones_that_have_apps_not_the_ones_declared`
+    # defends, exercised in the direction it never had a subject for.
+    assert app_mod.SECTION_ORDER == ("Core", "Data", "Tools", "Assays")
+    assert app_mod.SECTIONS == ("Core", "Data", "Tools", "Assays")
+    for retired in (app_mod.SECTION_MODELS, app_mod.SECTION_RESULTS,
+                    app_mod.SECTION_EXPLORE, app_mod.SECTION_DESIGN):
+        assert retired not in app_mod.SECTIONS
     # The staging categories are gone as *places*. Named here so that
     # re-adding one has to argue with this line first.
     assert not hasattr(app_mod, "SECTION_ALPHA")
     assert not hasattr(app_mod, "SECTION_BETA")
     assert not hasattr(app_mod, "MATURITY_SECTIONS")
     assert not hasattr(app_mod, "STAGED_FROM")
-    assert len(app_mod.SECTIONS) == 7
+    assert len(app_mod.SECTION_ORDER) == 4
+    assert len(app_mod.SECTIONS) == 4
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
@@ -640,23 +726,22 @@ def test_home_is_the_first_tab_and_holds_everything(home):
     empty": a handful of tiles and a blank half-page, with no view that
     showed what spaCR can do."""
     assert home._tabs.count() == len(SECTIONS) + 1
-    assert home._tabs.tabText(0) == f"Home  ({len(APPS)})"
+    assert home._tabs.tabText(0) == f"Home  ({len(_tiled_apps())})"
     assert home._tabs.currentIndex() == 0
     drawn = {t.text_label for t in home._tabs.widget(0).findChildren(AppTile)}
-    assert drawn == {name for _k, name, *_r in APPS}
+    assert drawn == {name for _k, name, *_r in _tiled_apps()}
 
 
 def test_the_category_tabs_follow_the_workflow_order(home):
     """One tab per live section, and each label counts its own tab.
 
-    Seven now that Design has an app in it; it was six when Explore
-    filled, five before that, and seven for a different reason while
-    Alpha and Beta had tabs of their own — every section declared has
-    now been claimed. ``section_members`` is what the tab draws, so it
-    is what the label has to count.
+    FOUR live sections since 2026-08-31, when Home was cut to Core, Data,
+    Tools and Assays. ``section_members`` is what the tab draws, so it is
+    what the label has to count -- and it excludes folded modules, so a
+    tab that draws three tiles cannot be labelled "(7)".
     """
     labels = [home._tabs.tabText(i) for i in range(1, home._tabs.count())]
-    assert len(labels) == len(SECTIONS) == 7
+    assert len(labels) == len(SECTIONS) == 4
     for label, section in zip(labels, SECTIONS):
         # "&&" is how Qt is told to draw a literal ampersand.
         assert label.startswith(section.replace("&", "&&"))
@@ -674,14 +759,28 @@ def test_a_tab_label_draws_its_ampersand_instead_of_eating_it(home):
     assert _escape_amp("Results & QC") == "Results && QC"
 
     labels = [home._tabs.tabText(i) for i in range(home._tabs.count())]
+    # NO SECTION NAME CARRIES AN AMPERSAND ANY MORE. "Results & QC" was
+    # the only one, and it was retired on 2026-08-31 when Home was cut to
+    # Core / Data / Tools / Assays.
+    #
+    # The test is KEPT rather than deleted, and split in two. The half
+    # that needed a live subject -- "the doubling actually happens" -- is
+    # now driven through the helper directly, so it still fails if the
+    # escaping is removed. The half that needs no subject -- "nothing on
+    # screen shows a lone &" -- is asserted over the real labels, and is
+    # the one that catches a section acquiring an ampersand later without
+    # anyone remembering that Qt eats it.
     ampersanded = [s for s in SECTIONS if "&" in s]
-    assert ampersanded, (
-        "no section name has an ampersand any more — this test is the "
-        "only thing keeping the escaping honest, so say so here")
     for section in ampersanded:
         assert any(section.replace("&", "&&") in label
                    for label in labels)
-    assert not any(label.count("&") == 1 for label in labels)
+    assert not any(label.count("&") == 1 for label in labels), (
+        "a tab label carries a lone & — Qt reads that as a mnemonic and "
+        "draws the character after it underlined instead of the &")
+    # The escaping itself, driven whether or not a shipped section needs
+    # it today. Without this the test would pass vacuously the moment the
+    # last ampersanded section left.
+    assert "Results && QC" == "Results & QC".replace("&", "&&")
 
 
 def test_the_home_tab_bands_are_the_categories_themselves(home):
@@ -713,8 +812,8 @@ def test_the_home_tab_bands_are_the_categories_themselves(home):
 
     # …and every app really does land in exactly one band on screen.
     tiles = page.findChildren(AppTile)
-    assert len(tiles) == len(APPS)
-    assert len({t.text_label for t in tiles}) == len(APPS)
+    assert len(tiles) == len(_tiled_apps())
+    assert len({t.text_label for t in tiles}) == len(_tiled_apps())
 
 
 def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
@@ -729,7 +828,7 @@ def test_every_app_is_on_home_and_on_exactly_one_category_tab(home):
     for index in range(1, home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             placement.setdefault(tile.text_label, []).append(index)
-    expected = {name for _k, name, *_r in APPS}
+    expected = {name for _k, name, *_r in _tiled_apps()}
     assert set(placement) == expected, (
         f"missing: {expected - set(placement)}; "
         f"unexpected: {set(placement) - expected}")
@@ -755,39 +854,49 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 ALPHA_MODULES = {
-    "align", "model_zoo", "convert", "foreign", "external_masks",
-    "model_compare", "queue", "batch", "invasion", "db_browser",
+    # `model_zoo` and `model_compare` stood at the front of this line until
+    # they became buttons on the Make Masks masthead. A stage is a property
+    # of a TILE, so both left with their rows -- the colour their buttons
+    # light in is `make_masks.FOLD_FALLBACK`'s now, and `spacr.qt.maturity`
+    # is still the assessment behind it.
+    "align", "convert", "foreign", "external_masks",
+    "queue", "batch", "invasion", "db_browser",
     "distributed_jobs",
-    "plate_view", "agreement", "train_compare", "classifier_evaluation",
+    "plate_view", "train_compare",
     "run_history", "report",
     # The four features that spent weeks finished, tested and unreachable
     # because a registry row was not enough to make an app. They arrive
     # alpha: built and reachable, not yet trusted end to end.
-    "illumination", "barcode_qc", "layer_viewer", "graph_builder",
+    "layer_viewer", "graph_builder",
     "data_manager",
     # And the three that landed just after the seam that would have made
     # them reachable, and waited the same way for the same reason.
-    "power", "anndata_export", "run_compare",
-    # The five built on the provenance and run-record work: the DAG of
-    # what produced what, the ranked hit list, the profiler that sweeps a
-    # fitted model, the methods-and-results exporter, and the scatter that
-    # shows you the object under the cursor. Same posture as the rest —
-    # built, tested and reachable, not yet trusted end to end.
-    "pipeline_graph", "hit_list", "profiler", "methods_export",
-    "image_scatter",
+    "power", "run_compare",
+    # Four were built on the provenance and run-record work: the DAG of what
+    # produced what, the ranked hit list, the profiler that sweeps a fitted
+    # model, and the methods-and-results exporter. The hit list and exporter
+    # have since been signed off (stable is the absence of an APP_STAGE row),
+    # leaving the DAG and profiler alpha.
+    # Image Scatter was the fifth and is folded onto Image UMAP now; a
+    # stage is a property of a tile, so it left this list with its row.
+    "pipeline_graph", "profiler",
     # And the two that read the links the database has always held rather
     # than adding anything to it: the cell → nucleus → pathogen tree, and
     # correcting a mask and its tracks by hand with every edit journalled.
     # Same posture again — reachable, tested, not yet trusted end to end.
-    "lineage", "curate",
+    # Curate stood beside Lineage here and is folded into Make Masks now:
+    # correcting a mask belongs in the screen that writes masks, which is
+    # also where it got the "Save mask" it never had.
+    "lineage",
     # And the two that claim the ends of the run nothing owned: the plate
     # layout and controls decided before an image exists, and the five QC
     # verdicts read back off a finished one.
     "experiment_design", "qc_dashboard",
-    # And the two that were written, tested and left unregistered: the
-    # component view and the pivot-table builder. Registering them is what
-    # made them alpha; they were not reachable at all before.
-    "pca", "tabulate",
+    # And the pivot-table builder, written, tested and left unregistered
+    # until a row made it alpha. PCA stood beside it here for the same
+    # reason and is folded onto Image UMAP now, so it left this list with
+    # its row.
+    "tabulate",
     # And the merged Classify screen, registered 2026-08-06 (2d4da7df).
     # It arrived alpha ON PURPOSE, and ``APP_STAGE`` says why: "stable" is
     # the ABSENCE of a line there, so omitting it would have claimed a
@@ -795,27 +904,56 @@ ALPHA_MODULES = {
     # trusted, but the merged screen itself has not been run on real data.
     # Signing it off means deleting its line there and here.
     "classify_merged",
+    # Post-classifier interpretation and post-regression cell investigation.
+    # Both are reachable and tested, but have not yet been trusted end to end
+    # on an independent production run, so they arrive alpha on purpose.
+    "investigate_hit",
+    # The Parameter Sweep and the Volcano Explorer were the last two names
+    # in this list. Both are folded now -- the sweep is the Regression
+    # screen's sweep card and the explorer is "Publication figure…" on that
+    # screen's volcano -- and a stage is a property of a TILE, so both left
+    # this list with their rows. The sweep's row had already gone and its
+    # name had stayed, which is the drift the assertion below now catches
+    # in both directions.
+    #
+    # The three that a launched GUI had and `import spacr.qt.app` did not,
+    # until they got rows in `app._SELF_REGISTERING_APPS` on 2026-09-05: the
+    # EC50 fitter and the project table under Data, and the gate editor under
+    # Tools. They declared stage='alpha' in `app_catalog` all along -- this
+    # list was short because the REGISTRY was, not because their stage moved.
+    "dose_response", "project_browser", "gate_editor",
 }
 BETA_MODULES = {
-    "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
-    "motility", "analyze_plaques", "replication", "umap", "activation",
+    "make_masks",
+    # `cellpose_masks` stood here until it became the applying tab of the
+    # Cellpose Workbench rather than a tile of its own, and `train_cellpose`
+    # until that whole workbench became a button on the Make Masks masthead.
+    # Both rows went and both names stayed; this list counts tiles, so they
+    # come out too.
+    "analyze_plaques", "replication", "umap",
 }
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """37 alpha, 9 beta, named one at a time.
+    """Every alpha and every beta module, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
-    being noticed in a screenshot. It read 36 until the merged Classify
-    module was registered alpha on 2026-08-06; the number moves with the
-    list above it, never on its own."""
+    being noticed in a screenshot. The counts are read off the lists
+    instead of typed beside them: folding modules into their hosts is
+    taking keys out of both lists, and a literal count would fail for the
+    list being right rather than for it being wrong."""
     from spacr.qt.app import app_stage
     by_stage: dict = {}
     for key, _name, _desc, _section in APPS:
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 37 and len(BETA_MODULES) == 9
+    # Every alpha and beta key is a tile: a module folded into a host has
+    # no tile and no stage, so it leaves both lists with its row.
+    registry = {key for key, *_rest in APPS}
+    assert (ALPHA_MODULES | BETA_MODULES) <= registry
+    assert len(ALPHA_MODULES) == len(by_stage["alpha"])
+    assert len(BETA_MODULES) == len(by_stage["beta"])
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
@@ -846,12 +984,9 @@ def test_no_category_tab_needs_a_scrollbar_on_a_laptop(window, qapp):
     """1440x900 is the size this layout is dimensioned for.
 
     **The Home tab is exempt, and that is a decision, not an oversight.**
-    Thirty tiles at the size the user asked for — icon over name, packed
-    tight — is eight rows plus five headings, about 1200 px of content.
-    No arrangement of thirty large tiles fits 670 px of pane; the only
-    way to make Home not scroll is to make its tiles small again, which
-    is the thing #16j exists to undo. Every *category* tab still fits,
-    and that is what this checks."""
+    It contains every current tile across every current section and may
+    therefore scroll. Each individual category tab has only its own rows and
+    must still fit; that is what this checks."""
     window.resize(1440, 900)
     window.show()
     qapp.processEvents()
@@ -890,7 +1025,12 @@ def test_every_tab_uses_the_same_large_tile(home):
     # than derived twice so that an app arriving in Core is a line changed
     # here, but the property being tested is the equality on its left: the
     # tab draws its members and nothing else.
-    assert len(core) == len(section_members("Core")) == 11
+    # 11 -> 6 on 2026-08-23. Core is the pipeline in the order you run
+    # it -- mask, measure, annotate, classify, map barcodes,
+    # regression. Timelapse and the Motility assay moved to Assays,
+    # Curate to Segmentation models, and Classify (CV) and (ML) were
+    # removed in favour of the one Classify screen.
+    assert len(core) == len(section_members("Core")) == 6
     for index in range(home._tabs.count()):
         for tile in home._tabs.widget(index).findChildren(AppTile):
             assert tile.sizeHint().height() >= scaled_px(HomePage.TILE_H)
@@ -899,7 +1039,7 @@ def test_every_tab_uses_the_same_large_tile(home):
             # the name. A third would be the description coming back.
             labels = tile.findChildren(QLabel)
             assert len(labels) == 2, (
-                f"{tile.text_label} draws {[l.text() for l in labels]}")
+                f"{tile.text_label} draws {[label.text() for label in labels]}")
             assert sum(1 for lbl in labels if lbl.pixmap()) == 1
             assert tile.name_label.full_text() == tile.text_label
 
@@ -935,43 +1075,64 @@ def test_the_aside_carries_recent_runs_system_and_news(home):
     assert any(h.startswith("NEWS") for h in headers)
 
 
-def test_the_unfinished_aside_panels_say_so(home):
-    """Only provisional News is marked ``(beta)``.
+def test_no_aside_panel_claims_to_be_unfinished(home):
+    """Nothing in the aside is marked ``(beta)`` any more.
 
-    Recent Runs and Totals became complete when every GUI and CLI pipeline
-    began writing an automatic manifest.
+    News carried the mark for as long as its body said "Reserved for
+    featured content": the panel was a slot with nothing in it. It now
+    lists every release with its notes and links, read from
+    ``spacr/resources/release_notes.json``, so the mark came off with the
+    placeholder — and the whole column is finished.
 
-    Lower case on purpose: the header is upper-cased and letter-spaced,
-    so "(BETA)" would read as another word in the heading."""
-    from spacr.qt.widgets.home import BETA_PANEL_TOOLTIP, BETA_SUFFIX, Panel
+    The mark's MACHINERY is still asserted, because the next provisional
+    panel should get it: lower case on purpose, since the header is
+    upper-cased and letter-spaced and "(BETA)" would read as another word
+    in the heading."""
+    from spacr.qt.widgets.home import BETA_SUFFIX, Panel
 
-    marked, plain = {}, {}
-    for panel in home.findChildren(Panel):
-        (marked if panel.is_beta else plain)[panel.header.text()] = panel
-    assert all(h.endswith(BETA_SUFFIX) for h in marked)
-    assert not any(h.endswith(BETA_SUFFIX) for h in plain)
     assert BETA_SUFFIX == " (beta)" and BETA_SUFFIX.islower()
-
-    assert {h.replace(BETA_SUFFIX, "").split(" ·")[0] for h in marked} == {
-        "NEWS"}
-    # MODULE STATE joined the unmarked set with #16j. It is not a panel
-    # of numbers at all — it is the legend for the tile hover colours —
-    # so there is nothing about it that could be provisional.
-    assert set(plain) == {
-        "QUEUED", "SYSTEM", "RECENT RUNS", "TOTALS", "MODULE STATE",
+    headings = {p.header.text(): p for p in home.findChildren(Panel)}
+    marked = {h: p for h, p in headings.items() if p.is_beta}
+    assert not marked, f"these panels still claim to be unfinished: {marked}"
+    assert not any(h.endswith(BETA_SUFFIX) for h in headings)
+    # MODULE STATE is gone from the column (2026-09-03, "you can remove
+    # modual state") and SYSTEM moved to the bottom of it.
+    assert {h.split(" ·")[0] for h in headings} == {
+        "QUEUED", "RECENT RUNS", "NEWS", "TOTALS", "SYSTEM",
     }
-    # The mark explains itself rather than just labelling.
-    for panel in marked.values():
-        assert panel.header.toolTip() == BETA_PANEL_TOOLTIP
 
 
-def test_the_news_surface_is_the_reserved_slot(home):
+def test_the_news_panel_lists_the_bundled_releases(home):
+    """Real notes, not the "reserved" placeholder it used to draw.
+
+    The placeholder is still in the widget tree — it is what a build with
+    no bundled resource shows — but it is hidden whenever there are
+    releases to list, which every shipped build has."""
+    releases = home._news.read_releases()
+    assert releases, ("no bundled release notes: run "
+                      "tools/build_release_notes.py")
+    assert home._news._placeholder.isHidden()
+    labels = [lbl.text() for lbl in home._news.findChildren(QLabel)]
+    newest = releases[0]
+    assert any(newest["name"] in lbl for lbl in labels), (
+        f"the newest release {newest['name']!r} is not drawn")
+    assert any(newest["url"] in lbl for lbl in labels), (
+        "the release title is not a link to its own page")
+
+
+def test_the_news_surface_is_still_the_reserved_slot(home):
+    """``set_reserved_content`` keeps working, and hides the notes.
+
+    The escape hatch predates the feed and outlives it: a caller that drops
+    a widget in gets the surface, and the bundled notes go out of the way
+    rather than being deleted."""
     labels = [lbl.text() for lbl in home.findChildren(QLabel)]
-    assert any("Reserved for featured" in lbl for lbl in labels)
     marker = QLabel("REPLACED")
     home.set_reserved_content(marker)
     assert home._reserved_content is marker
     assert "REPLACED" in [lbl.text() for lbl in home.findChildren(QLabel)]
+    assert home._news.notes_view.isHidden()
+    assert home._news.grip.isHidden()
 
 
 def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
@@ -986,7 +1147,17 @@ def test_hovering_a_tile_explains_it_in_the_hint_bar(home):
     # this test is defending is that hovering EXPLAINS the tile, and it
     # still does.
     assert desc in home._hint_bar.text()
+    # AND IT STAYS AFTER THE POINTER LEAVES. Since 2026-09-03 the strip
+    # carries an API link and a Tutorial link, and it holds the last module
+    # for thirty seconds -- because a link that is removed the moment the
+    # pointer moves toward it is a link that can never be pressed. Clearing
+    # on Leave, which this used to assert, is exactly the behaviour that
+    # made the words unreachable.
     home.eventFilter(tile, QEvent(QEvent.Leave))
+    assert desc in home._hint_bar.text(), (
+        "the strip was cleared on Leave, so its links cannot be reached")
+    assert home._hint_bar.is_holding()
+    home._hint_bar.release()
     assert desc not in home._hint_bar.text()
 
 
@@ -1076,19 +1247,22 @@ def test_a_running_module_is_reflected_on_home(home, qapp):
 def test_concurrent_runs_are_stacked_oldest_first_on_home(home, qapp):
     first, _ = _fake_run("mask")
     second, _ = _fake_run("measure")
-    third, _ = _fake_run("classify")
+    # `classify_merged`, because "classify" -- the CV-only screen --
+    # was removed from the registry on 2026-08-23 and an unknown key
+    # falls back to showing the key itself.
+    third, _ = _fake_run("classify_merged")
     qapp.processEvents()
 
     visible = [banner for banner in home._banners if banner.isVisible()]
     assert len(visible) == 3
-    assert ["Mask", "Measure", "Classify (CV)"] == [
+    assert ["Mask", "Measure", "Classify"] == [
         banner._title.text().split(" ·", 1)[0] for banner in visible
     ]
 
     bridge.registry().unregister(second)
     qapp.processEvents()
     visible = [banner for banner in home._banners if banner.isVisible()]
-    assert ["Mask", "Classify (CV)"] == [
+    assert ["Mask", "Classify"] == [
         banner._title.text().split(" ·", 1)[0] for banner in visible
     ]
     bridge.registry().unregister(first)
@@ -1186,9 +1360,16 @@ def test_a_job_that_polls_the_gate_can_genuinely_be_paused(qtbot):
         assert state["n"] == total
     finally:
         worker.gate.resume()
-        if thread.isRunning():
-            with qtbot.waitSignal(thread.finished, timeout=10000):
-                pass
+        # Poll state rather than attaching a late signal waiter. The thread
+        # can finish between ``isRunning()`` and connecting waitSignal,
+        # especially on a loaded shard, leaving a waiter for a signal that
+        # already happened.
+        def stopped():
+            try:
+                return not thread.isRunning()
+            except RuntimeError:
+                return True
+        qtbot.waitUntil(stopped, timeout=30000)
 
 
 def test_a_paused_job_still_shows_as_paused_on_home(home, qapp):
@@ -1300,26 +1481,6 @@ def test_the_app_list_starts_hidden(window):
     assert drawer._panel is window._sidebar
 
 
-def test_hovering_the_edge_strip_reveals_the_app_list(window, qtbot, qapp):
-    drawer = window._app_drawer
-    _hover(drawer._trigger)
-    assert drawer._open_timer.isActive(), "the dwell timer did not arm"
-    qtbot.waitUntil(drawer.is_open, timeout=2000)
-    assert drawer.isVisible()
-    names = {b.accessibleName() for b in drawer._panel.findChildren(QPushButton)}
-    assert {n for _k, n, *_r in APPS} <= names
-
-
-def test_a_pointer_merely_passing_the_edge_does_not_open_it(window, qapp):
-    """The dwell delay is the whole reason a hot edge is usable: a
-    pointer crossing on its way elsewhere must not summon the panel."""
-    drawer = window._app_drawer
-    _hover(drawer._trigger)
-    assert drawer._open_timer.isActive()
-    _hover(drawer._trigger, enter=False)         # left before it fired
-    assert not drawer._open_timer.isActive()
-    qapp.processEvents()
-    assert not drawer.is_open()
 
 
 def test_leaving_the_panel_closes_it_again(window, qtbot):
@@ -1341,30 +1502,30 @@ def test_a_click_inside_the_panel_pins_it_against_the_close_timer(window):
 
 
 def test_the_app_list_is_reachable_without_a_mouse(window, qapp):
-    """A reveal you can only hover is a reveal a keyboard user does not
-    have — every app but the ones on the open tab would be unreachable."""
-    drawer = window._app_drawer
+    """A column reachable only by tabbing through the page is hard to reach.
+
+    The dock no longer slides, so there is nothing to open -- but the menu
+    action and its shortcut still have to put a keyboard user INSIDE it,
+    which is the whole reason the action survived the reveal being removed.
+    """
+    window.apply_dock_mode("locked")
     window.toggle_app_drawer()
     qapp.processEvents()
-    assert drawer.is_open()
-    assert drawer.is_held(), "keyboard open must pin, or focus races the close"
     focused = qapp.focusWidget()
-    assert focused is not None
-    assert drawer._panel.isAncestorOf(focused), (
+    assert focused is not None, "nothing took focus"
+    assert window._sidebar.isAncestorOf(focused), (
         "focus did not land inside the app list")
-    window.toggle_app_drawer()
-    assert not drawer.is_open()
 
 
-def test_escape_closes_the_drawer(window, qapp):
-    from PySide6.QtGui import QKeyEvent
-    drawer = window._app_drawer
+def test_the_dock_action_does_nothing_when_the_dock_is_hidden(window, qapp):
+    """A shortcut must not overrule the preference that turned the dock off."""
+    window.apply_dock_mode("hidden")
+    before = qapp.focusWidget()
     window.toggle_app_drawer()
     qapp.processEvents()
-    assert drawer.is_open()
-    drawer.keyPressEvent(
-        QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier))
-    assert not drawer.is_open()
+    assert qapp.focusWidget() is before
+    assert not window._dock_slot.isVisible()
+
 
 
 def test_choosing_an_app_from_the_drawer_navigates_and_closes_it(
@@ -1389,7 +1550,7 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     a menu item whose purpose is not obvious from its name costs attention
     every time it is read, and this one named an edge drawer most users
     never knew existed. The ACTION stayed, registered on the window, and
-    Ctrl+B with it, because a panel you can otherwise summon only by
+    Ctrl+Shift+A with it, because a panel you can otherwise summon only by
     hovering a 6 px strip is a panel a keyboard user does not have. So the
     keyboard route is asserted where it now lives, and the menu is
     asserted NOT to carry it — the mistake the change invites is deleting
@@ -1397,23 +1558,51 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
     with it."""
     home_tab = window._startup._tabs.widget(0)
     assert {t.text_label for t in home_tab.findChildren(AppTile)} == {
-        name for _k, name, *_r in APPS}
+        name for _k, name, *_r in _tiled_apps()}
+    # Collected through the section submenus the apps sit in.
     menu_labels = set()
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                menu_labels.add(act.text())
+
     for top in window.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                menu_labels.add(act.text())
+        collect(top.menu())
         break
-    assert {name for _k, name, *_r in APPS} <= menu_labels
+    assert {name for _k, name, *_r in _tiled_apps()} <= menu_labels
+    # AND THE FOLDED MODULES ARE REACHABLE TOO -- just not from the tile
+    # grid or the module menu, which is the whole point of folding them.
+    # Their door is the command palette, plus a button on their host or
+    # an entry in Help. The palette is asserted here because it is the
+    # one route that must cover EVERY module: it is the keyboard user's
+    # navigation, and a module missing from it is a module they cannot
+    # reach at all.
+    #
+    # This caught a real regression. Filtering the folded keys inside
+    # `app_is_visible` -- which reads like the right place until you see
+    # what else calls it -- took nine modules out of Ctrl+K, so the fold
+    # deleted a door instead of moving one.
+    from spacr.qt.command_palette import CommandPalette
+
+    palette = CommandPalette(window)
+    palette_labels = {c.label for c in palette._commands}
+    for _key, name, *_rest in APPS:
+        assert f"Go to  {name}" in palette_labels, (
+            f"{name} cannot be reached from the command palette")
     assert "All apps" not in menu_labels, (
         "the drawer toggle was put back in the menu — see ff28b7eb")
     drawer_action = next(
         (a for a in window.actions() if a.text() == "All apps"), None)
     assert drawer_action is not None, (
-        "the drawer QAction is gone from the window, and Ctrl+B with it")
-    assert drawer_action.shortcut().toString() == "Ctrl+B"
+        "the drawer QAction is gone from the window, and Ctrl+Shift+A with it")
+    assert drawer_action.shortcut().toString() == "Ctrl+Shift+A"
 
 
 def test_the_sidebar_draws_an_ampersand_instead_of_a_mnemonic(window):

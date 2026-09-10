@@ -110,6 +110,12 @@ class MetadataRecord:
     groups:   Dict[str, str]
 
     def get(self, name: str, default: str = "") -> str:
+        """One captured group, or ``default`` when the pattern did not capture it.
+
+        :param name: the group's name.
+        :param default: what to return when it is absent.
+        :returns: the captured text.
+        """
         return self.groups.get(name, default)
 
 
@@ -201,6 +207,20 @@ def validate_records(
 # auto_detect_regex
 # ---------------------------------------------------------------------------
 
+#: The metadata fields the import actually reads, by name. A proposal that
+#: captures none of them says nothing about a file whatever it matches.
+_ROLE_NAMES = frozenset({"plateID", "wellID", "fieldID", "chanID", "timeID",
+                         "sliceID"})
+
+
+def _group_names(pattern: str) -> tuple:
+    """The named groups in ``pattern``, or ``()`` if it does not compile."""
+    try:
+        return tuple(re.compile(str(pattern or "")).groupindex)
+    except re.error:
+        return ()
+
+
 def auto_detect_regex(
     filenames: Sequence[str],
 ) -> Tuple[Optional[str], str, int]:
@@ -242,7 +262,41 @@ def auto_detect_regex(
     if best_hits >= n / 2:
         return best_pattern, best_label, best_hits
 
-    # 3: synthesise
+    # 3: INFER IT FROM THE NAMES (instruction 137 B, `spacr.regex_infer`).
+    #
+    # BEFORE the old synthesiser, and the difference is what it works from:
+    # `_synthesise_regex` builds a template from ONE filename and routinely
+    # fails to match its siblings, which is why the hit count above had to be
+    # corrected. `regex_infer.propose` aligns the whole set -- the slots that
+    # VARY become groups and the parts that never vary are literals -- so on
+    # cellvoyager, cq1 and a microscope spaCR has never met it reaches 100%
+    # coverage with the right group NAMES.
+    #
+    # It is tried against the best built-in rather than instead of it: a
+    # bundled pattern that already matches everything is a known-good answer
+    # and does not need improving.
+    try:
+        from ..regex_infer import propose
+
+        for proposal in propose(filenames):
+            # HIT COUNT ALONE IS NOT A RANKING, and this is what it cost:
+            # given `a.txt`, one cellvoyager image and `zz.txt`, inference
+            # offered `(?P<group0>[A-Za-z]+)\.txt` -- matching the two files
+            # that are not images at all -- and beat the cellvoyager pattern
+            # 2 to 1. A catch-all that captures NO ROLE is not a metadata
+            # regex however many names it happens to match.
+            #
+            # So a proposal has to name at least one of the fields the
+            # import actually reads before its count is even compared.
+            named = {n for n in _group_names(proposal.pattern)
+                     if n in _ROLE_NAMES}
+            if named and proposal.matched > best_hits:
+                return proposal.pattern, "inferred", proposal.matched
+    except Exception:                                # noqa: BLE001
+        # Inference is an improvement on the fallback, never a requirement:
+        # a failure here leaves the old path exactly as it was.
+        pass
+
     synth = _synthesise_regex(filenames)
     if synth is None:
         return best_pattern, best_label, best_hits
@@ -400,6 +454,7 @@ def tabulate_records(
         (len(_render_cell(r, c)) for r in sample), default=len(c)
     )) for c in columns}
     def _row(vals: Sequence[str]) -> str:
+        """One row of the table, padded to the column widths."""
         return "  " + "  ".join(v.ljust(widths[c])
                                   for c, v in zip(columns, vals))
 
@@ -410,6 +465,12 @@ def tabulate_records(
 
 
 def _render_cell(r: MetadataRecord, col: str) -> str:
+    """Render one cell of the metadata preview.
+
+    :param r: the parsed record.
+    :param col: the column to show.
+    :returns: the value, or a dash for an axis this filename does not carry.
+    """
     if col == "filename":
         return r.filename
     return r.get(col, "—")

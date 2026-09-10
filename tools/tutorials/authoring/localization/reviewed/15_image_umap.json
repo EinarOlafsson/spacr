@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "lesson_id": "15_image_umap",
+  "note": "Human-reviewed technical narration. Scene order follows lessons_en.json.",
+  "languages": {
+    "es": [
+      "Image UMAP reduce las mediciones de objetos de alta dimensión a dos coordenadas y coloca recortes de microscopía en el mapa. La consola registra las uniones, el preprocesamiento, la reducción dimensional, el agrupamiento y los archivos de salida.",
+      "Rutas selecciona el proyecto ya medido. Image UMAP localiza measurements.db y utiliza recortes existentes o, cuando es posible, los crea a partir de las matrices combinadas.",
+      "Mediciones selecciona las tablas de objetos combinadas y las familias de características, aplica exclusiones explícitas y puede eliminar variables correlacionadas redundantes. Estas decisiones determinan la geometría del mapa.",
+      "Diseño de placa y controles excluye pozos fallidos, controles o grupos de metadatos que no deben influir en esta proyección exploratoria.",
+      "Fuente de datos de visión por computadora decide si las características extraídas de imágenes complementan las mediciones y de dónde proceden los recortes. Úselas solo cuando la apariencia de las imágenes forme parte de la pregunta.",
+      "Incrustación y agrupamiento selecciona UMAP o t-SNE, el comportamiento del vecindario, la métrica de distancia, el compartimento y el agrupamiento opcional. Compare ajustes reproducibles y no considere una sola distribución como la verdad absoluta.",
+      "Visualización UMAP controla el estilo de los puntos, el número y el tamaño de los recortes, el fondo y las figuras guardadas. Mantenga los recortes apenas más grandes que los puntos para que la distribución siga siendo visible; estos ajustes no cambian las coordenadas calculadas.",
+      "Antes de la ejecución completa, use Búsqueda de hiperparámetros para comparar un conjunto reducido de ajustes UMAP. Los pequeños gráficos comparativos revelan distribuciones inestables o que ocultan estructuras útiles.",
+      "Seleccione un resultado revisado y pulse Propagar ajustes. Así se copian el número de vecinos, la distancia mínima y la métrica al formulario principal de Image UMAP antes de la ejecución completa.",
+      "Ejecutar comprueba la base de datos y el origen de los recortes, combina y filtra las características numéricas, toma una muestra de filas, ajusta el reductor y el agrupamiento opcional, y guarda los resultados alineados.",
+      "El mapa final mantiene visible la nube de puntos UMAP y superpone pequeños recortes de microscopía transparentes en posiciones representativas. Los archivos guardados incluyen coordenadas, etiquetas de grupo, la figura, los ajustes y un manifiesto de reproducibilidad."
+    ],
+    "fr": [
+      "Image UMAP réduit les mesures d’objets de grande dimension à deux coordonnées et place des vignettes de microscopie sur la carte. La console consigne les jointures, le prétraitement, la réduction dimensionnelle, le regroupement et les fichiers de sortie.",
+      "Chemins sélectionne le projet déjà mesuré. Image UMAP repère measurements.db et utilise les vignettes existantes ou, lorsque cela est possible, les crée à partir des tableaux fusionnés.",
+      "Mesures sélectionne les tables d’objets jointes et les familles de caractéristiques, applique les exclusions explicites et peut supprimer les variables corrélées redondantes. Ces choix déterminent la géométrie de la carte.",
+      "Plan de plaque et contrôles exclut les puits en échec, les témoins ou les groupes de métadonnées qui ne doivent pas influencer cette projection exploratoire.",
+      "Source des données de vision par ordinateur détermine si les caractéristiques issues des images complètent les mesures et d’où proviennent les vignettes. Utilisez-les uniquement lorsque l’apparence des images fait partie de la question.",
+      "Projection et regroupement sélectionne UMAP ou t-SNE, le comportement du voisinage, la métrique de distance, le compartiment et le regroupement facultatif. Comparez des réglages reproductibles et ne considérez pas une seule disposition comme une vérité absolue.",
+      "Affichage UMAP contrôle le style des points, le nombre et la taille des vignettes, l’arrière-plan et les figures enregistrées. Gardez les vignettes à peine plus grandes que les points afin que la projection reste visible ; ces réglages ne modifient pas les coordonnées calculées.",
+      "Avant l’exécution complète, utilisez Recherche d’hyperparamètres pour comparer un petit ensemble de réglages UMAP. Les graphiques comparatifs révèlent les dispositions instables ou celles qui masquent une structure utile.",
+      "Sélectionnez un résultat vérifié, puis choisissez Propager les réglages. Le nombre de voisins, la distance minimale et la métrique sont alors copiés dans le formulaire principal d’Image UMAP avant l’exécution complète.",
+      "Exécuter vérifie la base de données et la source des vignettes, joint et filtre les caractéristiques numériques, échantillonne les lignes, ajuste le réducteur et le regroupement facultatif, puis enregistre les résultats alignés.",
+      "La carte finale laisse visible le nuage de points UMAP et superpose de petites vignettes de microscopie transparentes à des positions représentatives. Les fichiers enregistrés comprennent les coordonnées, les étiquettes de groupe, la figure, les réglages et un manifeste de reproductibilité."
+    ],
+    "it": [
+      "Image UMAP riduce le misure ad alta dimensionalità degli oggetti a due coordinate e colloca ritagli di microscopia sulla mappa. La console registra le unioni, la pre-elaborazione, la riduzione dimensionale, il raggruppamento e i file di output.",
+      "Percorsi seleziona il progetto già misurato. Image UMAP individua measurements.db e usa i ritagli esistenti oppure, quando possibile, li crea dagli array uniti.",
+      "Misure seleziona le tabelle degli oggetti unite e le famiglie di caratteristiche, applica le esclusioni esplicite e può rimuovere variabili correlate ridondanti. Queste scelte determinano la geometria della mappa.",
+      "Layout della piastra e controlli esclude pozzetti non validi, controlli o gruppi di metadati che non devono influenzare questa proiezione esplorativa.",
+      "Origine dei dati di visione artificiale decide se le caratteristiche estratte dalle immagini integrano le misure e da dove provengono i ritagli. Usatele solo quando l’aspetto delle immagini fa parte della domanda.",
+      "Proiezione e raggruppamento seleziona UMAP o t-SNE, il comportamento del vicinato, la metrica di distanza, il compartimento e il raggruppamento facoltativo. Confrontate impostazioni riproducibili e non considerate una singola disposizione come verità assoluta.",
+      "Visualizzazione UMAP controlla lo stile dei punti, il numero e la dimensione dei ritagli, lo sfondo e le figure salvate. Mantenete i ritagli appena più grandi dei punti, così la proiezione resta visibile; queste impostazioni non cambiano le coordinate calcolate.",
+      "Prima dell’esecuzione completa, usate Ricerca degli iperparametri per confrontare un insieme ristretto di impostazioni UMAP. I piccoli grafici comparativi mostrano le disposizioni instabili o quelle che nascondono strutture utili.",
+      "Selezionate un risultato verificato e scegliete Propaga impostazioni. Il numero di vicini, la distanza minima e la metrica vengono copiati nel modulo principale di Image UMAP prima dell’esecuzione completa.",
+      "Esegui verifica il database e l’origine dei ritagli, unisce e filtra le caratteristiche numeriche, campiona le righe, adatta il riduttore e il raggruppamento facoltativo, quindi salva i risultati allineati.",
+      "La mappa finale mantiene visibile la nuvola di punti UMAP e sovrappone piccoli ritagli di microscopia trasparenti in posizioni rappresentative. I file salvati includono coordinate, etichette di gruppo, la figura, le impostazioni e un manifesto di riproducibilità."
+    ],
+    "pt-BR": {
+      "description": "Projete objetos medidos em duas dimensões e examine vizinhanças fenotípicas usando seus recortes reais de microscopia.",
+      "prerequisite": "Conclua Measure com características válidas dos objetos e com recortes de imagens ou matrizes combinadas acessíveis.",
+      "objectives": [
+        "Selecionar características e exclusões biologicamente relevantes.",
+        "Pesquisar um intervalo específico de parâmetros e propagar um resultado revisado.",
+        "Interpretar um mapa legível com sobreposição de recortes e suas saídas salvas."
+      ],
+      "narrations": [
+        "Image UMAP reduz medições de objetos de alta dimensionalidade a duas coordenadas e posiciona recortes de microscopia no mapa. O console registra as junções, o pré-processamento, a projeção, o agrupamento e as saídas.",
+        "Paths seleciona o projeto medido. Image UMAP localiza measurements.db e usa os recortes existentes ou, quando há suporte, cria recortes a partir das matrizes combinadas.",
+        "Measurements seleciona as tabelas de objetos combinadas e as famílias de características, aplica as exclusões explícitas e pode remover características correlacionadas redundantes. Essas escolhas definem a geometria do mapa.",
+        "Plate Layout and Controls exclui poços com falha, controles ou grupos de metadados que não devem influenciar esta projeção exploratória.",
+        "Computer Vision Data Source determina se características derivadas das imagens complementarão as medições e de onde virão os recortes. Use essas características somente quando a aparência das imagens fizer parte da pergunta.",
+        "Embedding and Clustering seleciona UMAP ou t-SNE, o comportamento da vizinhança, a métrica de distância, o compartimento e o agrupamento opcional. Compare configurações reproduzíveis e não trate uma única disposição como referência absoluta.",
+        "UMAP Display controla o estilo dos pontos, a quantidade e a ampliação dos recortes, o fundo e as figuras salvas. Mantenha os recortes apenas um pouco maiores que os pontos para preservar a visibilidade da projeção; essas opções de exibição não alteram as coordenadas ajustadas.",
+        "Antes da execução completa, use Hyperparameter Search para comparar um conjunto específico de configurações do UMAP. Os resultados em pequenos múltiplos revelam disposições instáveis ou que ocultam estruturas úteis.",
+        "Selecione um resultado de busca revisado e escolha Propagate settings. Isso copia o número de vizinhos, a distância mínima e a métrica para o formulário principal do Image UMAP antes da execução completa.",
+        "Run valida o banco de dados e a origem dos recortes, combina e filtra as características numéricas, amostra linhas, ajusta o redutor e o agrupamento opcional e grava registros de resultados alinhados.",
+        "O mapa concluído mantém visível a nuvem de pontos do UMAP e sobrepõe pequenos recortes transparentes de microscopia em posições representativas. As saídas salvas incluem coordenadas, rótulos dos grupos, a figura, as configurações e um manifesto de reprodutibilidade."
+      ]
+    },
+    "ja": [
+      "Image UMAP は、高次元のオブジェクト計測値を二次元に縮約し、マップ上に顕微鏡画像の切り抜きを配置します。コンソールには、テーブル結合、前処理、次元削減、クラスタリング、出力の進行状況が記録されます。",
+      "パスでは、計測済みのプロジェクトを選択します。Image UMAP は measurements.db を見つけ、既存の切り抜き画像を使用するか、対応している場合は結合済み配列から切り抜きを作成します。",
+      "計測値では、結合するオブジェクトテーブルと特徴量群を選び、明示的な除外を適用し、重複する相関特徴量を削除できます。これらの選択によってマップの形状が決まります。",
+      "プレートレイアウトとコントロールでは、この探索的な投影に影響させたくない不良ウェル、コントロール、メタデータ群を除外します。",
+      "コンピュータービジョンのデータソースでは、画像由来の特徴量を計測値に加えるかどうかと、切り抜き画像の取得元を選びます。画像の見た目が解析目的に関係する場合だけ使用してください。",
+      "埋め込みとクラスタリングでは、UMAP または t-SNE、近傍の扱い、距離指標、コンパートメント、任意のクラスタリングを選択します。再現可能な設定を比較し、一つの配置だけを正解とみなさないでください。",
+      "UMAP 表示では、点の見た目、切り抜きの数と大きさ、背景、保存する図を調整します。埋め込みが見えるように、切り抜きは点より少し大きい程度にします。これらの表示設定は計算済みの座標を変えません。",
+      "本実行の前に、ハイパーパラメーター検索で少数の UMAP 設定を比較します。並べて表示された小さなグラフから、不安定な配置や有用な構造を隠す配置を見分けられます。",
+      "確認した検索結果を選び、設定を反映を押します。近傍数、最小距離、距離指標が、本実行前に Image UMAP のメインフォームへコピーされます。",
+      "実行すると、データベースと切り抜き画像の取得元を確認し、数値特徴量を結合して絞り込み、行をサンプリングし、次元削減と任意のクラスタリングを実行して、対応の取れた結果を保存します。",
+      "完成したマップでは UMAP の点群が見える状態を保ち、代表的な位置に小さな透過済み顕微鏡画像を重ねます。保存される内容には、座標、クラスターラベル、図、設定、再現性マニフェストが含まれます。"
+    ],
+    "zh-CN": [
+      "图像 UMAP 将高维对象测量值降到二维，并在图中放置显微图像裁剪。控制台会记录数据连接、预处理、降维、聚类和输出过程。",
+      "路径用于选择已经完成测量的项目。图像 UMAP 会找到 measurements.db，并使用现有裁剪图；在支持的情况下，也可以从合并后的图像数组生成裁剪图。",
+      "测量用于选择要连接的对象表和特征类别，应用明确的排除项，并可删除冗余的相关特征。这些选择决定图中点云的形状。",
+      "板布局与对照用于排除失败孔、对照孔或不应影响此次探索性投影的元数据组。",
+      "计算机视觉数据源用于决定是否以图像特征补充测量特征，以及裁剪图来自哪里。只有当图像外观与研究问题有关时才使用这些特征。",
+      "嵌入与聚类用于选择 UMAP 或 t-SNE、邻域行为、距离度量、细胞区室以及可选聚类。请比较可复现的设置，不要把某一种布局当作唯一真相。",
+      "UMAP 显示用于控制点的样式、裁剪图的数量和大小、背景以及保存的图。裁剪图只需略大于点，以免遮住嵌入结构；这些显示设置不会改变计算出的坐标。",
+      "完整运行之前，先用超参数搜索比较一组精简的 UMAP 设置。并排的小图可以帮助识别不稳定或会掩盖有用结构的布局。",
+      "选择经过检查的搜索结果，然后点击应用设置。邻居数量、最小距离和距离度量会在完整运行之前复制到图像 UMAP 主表单。",
+      "点击运行后，程序会检查数据库和裁剪图来源，连接并筛选数值特征，对行进行抽样，拟合降维模型和可选聚类，并保存相互对应的结果记录。",
+      "最终地图会保持 UMAP 点云清晰可见，并在代表性位置叠加小型透明显微图像。保存内容包括坐标、聚类标签、图、设置以及可复现性清单。"
+    ],
+    "hi": [
+      "Image UMAP उच्च आयामी ऑब्जेक्ट मापों को दो निर्देशांकों में घटाता है और मानचित्र पर माइक्रोस्कोपी के छोटे चित्र रखता है। कंसोल डेटा जोड़ने, पूर्व-प्रसंस्करण, आयाम घटाने, क्लस्टरिंग और आउटपुट की प्रक्रिया दर्ज करता है।",
+      "पाथ्स में मापा हुआ प्रोजेक्ट चुना जाता है। Image UMAP measurements.db को खोजता है और उपलब्ध छोटे चित्रों का उपयोग करता है; जहाँ संभव हो, यह संयुक्त इमेज ऐरे से नए चित्र भी बनाता है।",
+      "मेज़रमेंट्स में जोड़ी जाने वाली ऑब्जेक्ट टेबल और फीचर समूह चुने जाते हैं, स्पष्ट बहिष्करण लागू किए जाते हैं, और अनावश्यक सहसंबद्ध फीचर हटाए जा सकते हैं। इन्हीं विकल्पों से मानचित्र की संरचना तय होती है।",
+      "प्लेट लेआउट और कंट्रोल्स उन विफल वेल, कंट्रोल या मेटाडेटा समूहों को हटाता है जिन्हें इस खोजपरक प्रोजेक्शन को प्रभावित नहीं करना चाहिए।",
+      "कंप्यूटर विज़न डेटा सोर्स तय करता है कि इमेज से निकले फीचर मापे गए फीचर में जोड़े जाएँ या नहीं, और छोटे चित्र कहाँ से लिए जाएँ। इनका उपयोग तभी करें जब इमेज का रूप शोध प्रश्न का हिस्सा हो।",
+      "एम्बेडिंग और क्लस्टरिंग में UMAP या t-SNE, पड़ोस का व्यवहार, दूरी मीट्रिक, कम्पार्टमेंट और वैकल्पिक क्लस्टरिंग चुनी जाती है। दोहराए जा सकने वाले सेटिंग्स की तुलना करें और किसी एक लेआउट को अंतिम सत्य न मानें।",
+      "UMAP डिस्प्ले में पॉइंट की शैली, छोटे चित्रों की संख्या और आकार, पृष्ठभूमि और सहेजी जाने वाली आकृतियाँ नियंत्रित होती हैं। चित्रों को पॉइंट से बस थोड़ा बड़ा रखें ताकि एम्बेडिंग दिखाई देती रहे; ये डिस्प्ले सेटिंग्स गणना किए गए निर्देशांक नहीं बदलतीं।",
+      "पूरा रन करने से पहले, हाइपरपैरामीटर सर्च से UMAP सेटिंग्स के एक छोटे समूह की तुलना करें। साथ-साथ दिखने वाले छोटे ग्राफ अस्थिर लेआउट या उपयोगी संरचना छिपाने वाले लेआउट पहचानने में मदद करते हैं।",
+      "जाँचा हुआ खोज परिणाम चुनें और फिर प्रोपेगेट सेटिंग्स दबाएँ। इससे पड़ोस का आकार, न्यूनतम दूरी और मीट्रिक पूरा रन शुरू होने से पहले मुख्य Image UMAP फॉर्म में कॉपी हो जाते हैं।",
+      "रन डेटाबेस और छोटे चित्रों के स्रोत की जाँच करता है, संख्यात्मक फीचर जोड़कर फ़िल्टर करता है, पंक्तियों का नमूना लेता है, आयाम घटाने वाला मॉडल और वैकल्पिक क्लस्टर फिट करता है, फिर परस्पर मेल खाते परिणाम सहेजता है।",
+      "अंतिम मानचित्र UMAP पॉइंट क्लाउड को साफ़ दिखाता है और प्रतिनिधि स्थानों पर छोटे पारदर्शी माइक्रोस्कोपी चित्र चढ़ाता है। सहेजे गए आउटपुट में निर्देशांक, क्लस्टर लेबल, आकृति, सेटिंग्स और पुनरुत्पादन संबंधी मैनिफेस्ट शामिल हैं।"
+    ]
+  }
+}

@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Áður en þú setur upp spaCR skaltu þekkja þrjár opinberar dreifingarleiðir: PyPI fyrir gefið út Python-pakkann, GitHub fyrir kjali og skrifborðsstjóra og conda-forge þegar endurskoðað pakkann er birt."
+          "narration": "Veldu opinbera dreifingarleið áður en spaCR er sett upp. PyPI og conda-forge bjóða útgefna pakka, en GitHub býður frumkóða, uppsetningarforrit fyrir skjáborð og útgáfuskrá."
         },
         {
-          "narration": "spaCR síðan á PyPI sýnir núverandi stöðugan útgáfu og skipanina pip install spacr. Útgáfu skrár innihalda Python hjól og uppspretta skrá."
+          "narration": "Útgáfuhausinn á PyPI sýnir núverandi stöðugu útgáfu og skipunina pip install spacr."
         },
         {
-          "narration": "PyPI tengist einnig heimildum, uppsprettageymslunni og útgáfunni. Skoðaðu þörfin Python útgáfur og útgáfudag áður en þú breytir fyrirliggjandi umhverfi."
+          "narration": "Project links hlutinn opnar skjölin, heimasíðuna, verkbeiðnakerfið og frumkóðasafnið."
         },
         {
           "narration": "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda."
         },
         {
-          "narration": "GitHub Releases veitir Windows, macOS og Linux uppsetningar, útgáfu athugasemdir, Python pakka skrár, og SHA-256 prófsum."
+          "narration": "Í GitHub Release skaltu opna Assets til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða gátsummulistann."
         },
         {
-          "narration": "Uppskriftin á conda-forge er gerð í geymslunni en engin spaCR pakka er birt á conda-forge-miðlinum enn. Til þessa, búa til Conda umhverfi og setja spaCR frá PyPI inni í það."
+          "narration": "Opinberi conda-forge pakkinn setur spaCR og skjáborðsháð þess upp í virka Conda-umhverfinu. Notaðu nákvæmlega skipunina conda install conda-forge::spacr."
         },
         {
-          "narration": "Notaðu PyPI eða pip fyrir Python umhverfi, GitHub Releases fyrir innfædd uppsetningu og nightly grein aðeins fyrir þróun. Næstu námskeiðin sýna hverja uppsetningarleið án þess að forritinu verði sett í gang."
+          "narration": "Notaðu conda-forge eða PyPI fyrir stýrt Python-umhverfi, GitHub Releases fyrir skjáborðsuppsetningarforrit og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarkennsluna fyrir þína leið."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Umhverfi Conda heldur spaCR og vísindalega háðstöðum þess frá ótengdum verkefnum. Python þrír punktur tólf býður upp á víðasta valfrjáls samhæfni á pakkanum."
+          "narration": "Settu spaCR upp úr conda-forge í sérstöku Conda-umhverfi. Pakkinn inniheldur skjáborðsviðmótið og tilgreinir vísindaleg hugbúnaðarhæði spaCR."
         },
         {
-          "narration": "Opnaðu Conda-mögulega endaspyrnu og skapaðu umhverfi sem heitir spacr með Python þremur punktum tólf og pip."
+          "narration": "Opnaðu Conda-virka skipanalínu og búðu til umhverfi sem heitir spacr með Python 3.12."
         },
         {
-          "narration": "Virktu umhverfið. Staðfestir að Python tilheyrir spacr umhverfi áður en þú setur eitthvað."
+          "narration": "Virkjaðu umhverfið. Staðfestu að Python tilheyri spacr-umhverfinu áður en nokkuð er sett upp."
         },
         {
-          "narration": "Uppfæra pip í gegnum virkan Python túlka. Með því að nota python -m pip kemur ekki í veg fyrir að annað framkvæmdastykki fá pakka."
+          "narration": "Settu opinbera pakkann upp með conda install conda-forge::spacr. Skipunin tilgreinir rásina og velur því conda-forge-smíðina sérstaklega."
         },
         {
-          "narration": "Fyrir skrifborðsforritið skaltu setja upp spacr með qt extra. Notaðu hreinn rúmpakka fyrir vinnustað eða netþjón án höfuð."
+          "narration": "Staðfestu að Conda skrái spaCR í umhverfinu; flyttu það síðan inn og birtu uppsettu útgáfuna."
         },
         {
-          "narration": "Keyrðu spaCR-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
+          "narration": "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
         },
         {
-          "narration": "conda-forge pakkinn hefur ekki verið gefinn út enn, svo ekki keyra skipunina conda install -c conda-forge spacr í dag. Þegar pakkinn verður tiltækur verður tengt í opinberu uppskriftina og rásina frá spaCR hugbúnaðarsafninu."
+          "narration": "Þegar spacr-doctor stenst allar athuganir skaltu ræsa spaCR með skipuninni spacr. Hafðu umhverfið virkt í hvert sinn sem þú keyrir spaCR."
         }
       ]
     },
@@ -59,25 +59,25 @@
       "id": "03_pip_install",
       "scenes": [
         {
-          "narration": "Pip leið virkar á Windows, macOS og Linux. Notaðu alltaf einangrað virtulegt umhverfi í stað þess að breyta Python uppsetningu rekstrarkerfisins."
+          "narration": "Uppsetning með pip virkar á Windows, macOS og Linux. Notaðu alltaf einangrað sýndarumhverfi í stað þess að breyta Python-uppsetningu stýrikerfisins."
         },
         {
-          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3 point 12 og svo virkja það úr skránni."
+          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3.12 og virkja það síðan úr bin-möppunni."
         },
         {
-          "narration": "Á Windows skaltu nota Python launcherinn til að búa til umhverfið og virkja það úr skránni Scripts."
+          "narration": "Á Windows skaltu nota Python-ræsiforritið til að búa til umhverfið og virkja það úr Scripts-möppunni."
         },
         {
-          "narration": "Uppfæra pip í virkum umhverfi. Beiðnin python -m pip heldur uppsetningu tengd Python sem þú hefur reynt."
+          "narration": "Uppfærðu pip í virka umhverfinu. Skipunin python -m pip tengir uppsetninguna við Python-útgáfuna sem var virkjuð."
         },
         {
-          "narration": "Settu upp einfaldan spacr-pakka til að nota án höfuð eða spacr með qt extra fyrir skrifborðsvið."
+          "narration": "Settu upp venjulega spacr-pakkann fyrir notkun án grafísks viðmóts eða spacr með qt-viðbótinni fyrir skjáborðsviðmótið."
         },
         {
-          "narration": "Verið innfluttu útgáfu og keyrið spacr-doctor. Ljúka einhverjum misteknum athugunum áður en opnað er tilraunaupplýsingar."
+          "narration": "Staðfestu innfluttu útgáfuna og keyrðu spacr-doctor. Lagfærðu öll próf sem ekki standast áður en tilraunagögn eru opnuð."
         },
         {
-          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt hvenær sem þú notar spaCR og notaðu python -m pip install --upgrade spacr þegar þú uppfærir það viljandi."
+          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt þegar spaCR er notað og notaðu python -m pip install --upgrade spacr þegar þú ætlar sérstaklega að uppfæra forritið."
         }
       ]
     },
@@ -85,28 +85,28 @@
       "id": "04_platform_installers",
       "scenes": [
         {
-          "narration": "Léttvægir innfæddir uppsetjendur búa til einka Python þrjár stig tólf reksturstíma, svo hlaða niður Qt, PyTorch, spaCR, og vísindalega háð."
+          "narration": "Léttu, stýrikerfissértæku uppsetningarforritin búa til einkarekið Python 3.12-keyrsluumhverfi og sækja síðan Qt, PyTorch, spaCR og vísindaleg háðasöfn þess."
         },
         {
-          "narration": "Sækja uppsetningar aðeins úr nýjustu spaCR GitHub útgáfu. Samræma skráina við stýrikerfið þitt og notaðu gefið út SHA-256 skráina þegar þú þarft að staðfesta niðurhal."
+          "narration": "Sæktu uppsetningarforrit aðeins úr nýjustu spaCR-útgáfunni á GitHub. Veldu skrána fyrir þitt stýrikerfi og notaðu útgefnu SHA-256-skrána þegar staðfesta þarf niðurhalið."
         },
         {
-          "narration": "Á Windows tíu eða ellefu opnaðu uppsetningu á netinu. Flutningur CPU uppsetningu er sjálfgefið; NVIDIA hraða er valfrjáls uppsetningarhluti."
+          "narration": "Á Windows 10 eða 11 skaltu opna uppsetningarskrána sem sækir gögn af netinu. Flytjanlega CPU-uppsetningin er sjálfgefin; NVIDIA-hröðun er valfrjáls uppsetningarhluti."
         },
         {
-          "narration": "Á macOS 11 eða nýri opnaðu alþjóðlega pakkann fyrir Intel og Apple silicon. Ef Gatekeeper blokkar ekki staðfest pakkann, notaðu persónuvernd og öryggi, Opna samt og keyra hana aftur."
+          "narration": "Á macOS 11 eða nýrra skaltu opna alhliða pakkann fyrir Intel- og Apple Silicon-vélar. Ef Gatekeeper lokar óstaðfesta pakkanum skaltu velja Privacy & Security, síðan Open Anyway og keyra pakkann aftur."
         },
         {
-          "narration": "Á 64 bitum Linux, gera niðurhlaðaðu .run skrá framkvæmd, svo byrja það frá enda. Varauppsettan uppsetningu notar CPU sambærilegt PyTorch."
+          "narration": "Á 64 bita Linux skaltu gera sóttu .run-skrána keyranlega og ræsa hana síðan úr skipanalínu. Sjálfgefna uppsetningin notar CPU-samhæfa útgáfu af PyTorch."
         },
         {
-          "narration": "Til að fá stuðning við NVIDIA vélbúnað á Linux skaltu fara í gegnum --torch-backend auto. Þetta velur hraðun þegar hún er í boði án þess að CUDA bókasafnið sé þögugt sjálfgefið."
+          "narration": "Á Linux með studdum NVIDIA-vélbúnaði skaltu nota --torch-backend auto. Þá er hröðun valin þegar hún er tiltæk án þess að CUDA-söfn verði ótilgreind sjálfgefin krafa."
         },
         {
-          "narration": "Hver uppsetjandi staðfestir skiptingu áður en breyting á útgáfum. Með truflaðri uppfærslu er fyrri umhverfið óbreytt og install.log er áfram í einkareknu spaCR uppsetningarskrá."
+          "narration": "Hvert uppsetningarforrit staðfestir nýju uppsetninguna áður en skipt er yfir í hana. Ef uppfærsla rofnar helst fyrra umhverfið óbreytt og install.log varðveitist í einkarekinni spaCR-uppsetningarmöppu."
         },
         {
-          "narration": "Eftir uppsetningu skaltu nota rekstrarkerfið. Ekki er þörf á að setja Python eða Conda upp."
+          "narration": "Ræstu spaCR úr ræsivalmynd stýrikerfisins eftir uppsetningu. Ekki þarf að setja Python eða Conda upp sérstaklega."
         }
       ]
     },
@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Hús hópar spaCR hönnun eftir vinnuflokki svo þú getur farið frá myndvinnslu í gegnum greiningu og gæðastjórnun."
+          "narration": "Home flokkar spaCR-einingar eftir verkflæði svo hægt sé að fara frá myndvinnslu yfir í greiningu og gæðaeftirlit."
         },
         {
-          "narration": "Notaðu vinstri hliðarbarinn til að skipta um deildir. Veldu Heim hvenær sem þú vilt snúa aftur til heildarbókasafns modulsins."
+          "narration": "Notaðu vinstri hliðarstikuna til að skipta um hluta. Veldu Home þegar þú vilt fara aftur í heildaryfirlit eininga."
         },
         {
-          "narration": "Fylgdu í greinarkröfum og launum um vinnuflæði til að finna mótun. Hver flís opnar einn vinnuflóð og liturinn gefur til kynna hvort módúlinn sé alfa, beta eða stöðugur."
+          "narration": "Skoðaðu flokkaflipana og verkflæðislínurnar til að finna einingu. Hver reitur opnar eitt verkflæði og liturinn sýnir hvort einingin er alpha, beta eða stable."
         },
         {
-          "narration": "Á hægri skjánum má sjá núverandi notkun kerfisins, fréttafréttir og frásögn um líffræði. Skoðaðu notkun kerfisins áður en þú byrjar dýrt starf."
+          "narration": "Hægri svæðið sýnir núverandi kerfisálag, útgáfufréttir og skýringu á stöðu eininga. Athugaðu kerfisálagið áður en umfangsmikil vinnsla er ræst."
         },
         {
-          "narration": "Veldu flís fyrir stýrið til að opna stillingarskjáinn. Nafnið og lýsingin á modúlunni efst staðfestir hvaða vinnuflóð er virkt."
+          "narration": "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regressi tengir fenotip stig til röðun-stundaðar leiðarar fjöldi. Konsóllin skýrir frá borðstillingu, sía, módelgreiningu, niðurstöðum og endurskránni."
+          "narration": "Regression tengir svipgerðarskor við magn leiðsöguraða sem er leitt af raðgreiningu. Stjórnborðið sýnir samsvörun taflna, síun, valda ályktunaraðferð, greiningar, niðurstöður og gögn um endurgeranleika."
         },
         {
-          "narration": "Input Tables velur kynmyndarmerki, raðfylgjingartal og valfrjáls genmetadata. Staðfest að plötur og brunnur nota samsvarandi auðkenningar áður en módelgun er gerð."
+          "narration": "Input Tables velur svipgerðarskor, talningar úr raðgreiningu, valfrjáls genalýsigögn og áfangastað niðurstaðna. Skildu áfangastaðinn eftir auðan til að skrifa við hlið fyrstu talningatöflunnar; staðfestu samsvarandi auðkenni platna og brunna fyrir greiningu."
         },
         {
-          "narration": "Essentials inniheldur þær stjórnir sem þarf til að hafa fyrsta líkan. Notaðu breytt til að endurskoða tilvitað breytingar, allt fyrir háþróaðar fjölskyldur og uppskriftir til endurtekningarhæfa hönnun."
+          "narration": "Essentials inniheldur þau inntök og ályktunarviðföng sem þarf fyrir fyrstu greiningu. Notaðu Modified til að yfirfara vísvitandi breytingar, All til að skoða ítarleg viðföng og Recipes til að vista endurnýtanlega greiningarhönnun."
         },
         {
-          "narration": "Stjórn og plötun gerðu grein fyrir jákvæðum, neikvæðum og hlutlausum stjórnunum auk þess sem öll brunn eða röð eru útilokað áður en sett er. Þessi valgreiningar skilgreina viðmiðunarhegðunina."
+          "narration": "Controls and Filters tilgreinir jákvæðar, neikvæðar og hlutlausar viðmiðanir, útilokar tilteknar leiðsöguraðir, brunna eða töflulínur og setur sönnunar- og stöðlunarreglur sem ráða hvaða mælingar fara í greininguna."
         },
         {
-          "narration": "Platta og Batch Correction getur fjarlægð tæknilegar afvik með miðlægingu, öflugu mælingar, viðmiðunarstjórn eða batch-módelum. Fylgdu leiðréttingu aðeins þegar hönnuninn styður hana."
+          "narration": "Plate and Batch Correction getur fjarlægt tæknilegar hliðranir með miðjun, þolinni kvörðun, viðmiðunarstýringum eða lotulíkönum. Beittu leiðréttingu aðeins þegar tilraunahönnunin styður hana."
         },
         {
-          "narration": "Model og Covariates velur viðbrögð, samsetning, umbreyting, regressionsfjölskyldu, óvissa áætlun og allar réttlætuðar röður, stöngur eða tilraunalega covariates."
+          "narration": "Response velur svipgerðardálk, greiningareiningu, samantekt, valfrjálsa formerkisbreytingu og umbreytingu. Þessi val skilgreina stærðina sem tengd er magni leiðsöguraða."
         },
         {
-          "narration": "Hit Calling og Outliers setur lágmarksfrumur, vel, og leiđanir sönnun auk valfrjálsa outlier reglur. Veldu þröskulendur af stjórn hegðun og gögn gæða."
+          "narration": "Model and Inference velur óparametrískt próf fyrir leiðsöguraðir, parametríska samtímis aðhvarfsgreiningu eða sjálfvirkt val. Þar eru einnig skilgreind framsetningarstig, líkanafjölskylda þegar við á, leiðrétting fyrir fjölprófun og marktækniregla."
         },
         {
-          "narration": "Regression Plots setur upp greiningar- og eldgosskjöl. Áætlunarríki breytast kynningu, ekki settir samræmi, svo geymdu óþröngur borð til túlkunar."
+          "narration": "Estimator Tuning inniheldur viðföng fyrir samdreifni, reglun, þolna aðlögun, fjórðunga, bootstrap og samantekt raða. Aðeins stillingar sem valdi metillinn notar hafa áhrif á greininguna."
         },
         {
-          "narration": "Run staðfestir skipulag og lykla brunn, beitir útiloka og leiðréttingu, samanstendur stig, passar valdu líkanum og metur sönnun. Horfðu á eftirlit og greiningu áður en þú hringir í slys."
+          "narration": "Permutation Test stillir tölfræði leiðsöguraða, lágmarksstuðning brunna, fjölda umröðunarprófa og slembifræ, skiptanleikablokk, truflandi breytur, viðveruþröskuld og lotustærð sem takmarkast af minni."
         },
         {
-          "narration": "Lögð fram verkefni felur í sér samræmda regressionsupplýsingar, leiðbeiningar- og gen-þyngdar, óvissa eða merkingu töflur, greiningar tölur, sparaðar stillingar og endurtekjanlegt manifest."
+          "narration": "Run sannreynir töfluskemu og brunnalykla, beitir útilokunum og leiðréttingu, tekur saman svörunina og keyrir valda ályktunaraðferð. Sjálfgefna óparametríska aðferðin notar Freedman–Lane-umraðanir sem eru blokkaðar eftir plötu og aðlagar ekki aðhvarfslíkan."
+        },
+        {
+          "narration": "Lokaverkefnið inniheldur samræmd greiningargögn, áhrifamat á stigi leiðsöguraða og gena, reynslu- eða líkanabyggðar marktæknitöflur, greiningarmyndir, vistaðar stillingar og keyranlegt birtingarskjal."
         }
       ]
     },
@@ -1806,6 +1809,273 @@
         },
         {
           "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út bökurparametrar, óvissa, greiningar og heimildatökur saman."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Explain CV Model. Endurskapið spár tölvusjónar út frá mældum eiginleikum og metið hvort skýringarnar sem fást séu áreiðanlegar og án gagnaleka."
+        },
+        {
+          "narration": "Veljið spáskrána fyrir hvern hlut, tengdan mælingagagnagrunn, spáðan flokk eða stig og hópun eftir brunni örplötu eða plötu sem verður að haldast óskipt."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu bakenda staðgengilslíkansins, frátekna sannprófunarhópa, eiginleika sem á að útiloka, fjölda umstokkunarendurtekninga og afmarkað SHAP-útreikningsmagn."
+        },
+        {
+          "narration": "Sannreynið útilokanir gegn gagnaleka og hópaskipta gagnaskiptingu. Aðlagið síðan staðgengilslíkanið og berið samsvörun þess á sannprófunargögnum saman við grunnviðmið meirihlutaflokks áður en mikilvægi eiginleika er túlkað."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir það samsvörun, umstokkunarmikilvægi á sannprófunarsafninu, SHAP-yfirlit, útilokaða dálka, hópun, bakenda og uppruna; lítil samsvörun er tilgreind í stað þess að vera falin."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Investigate Hit. Rekið valda niðurstöðu aðhvarfsgreiningar aftur til mögulegra frumna og megindlegrar stoðar úr brunnnum örplötu án þess að yfirskrifa yfirfarnar merkingar."
+        },
+        {
+          "narration": "Veljið aðhvarfsgreiningarkeyrsluna, valda niðurstöðu á gena- eða stýriraðastigi, stefnu svipgerðar, þröskuld falskra uppgötvana, stuðning stýriraða og samsvarandi mælingagagnagrunn."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir hlutatöfluna, stigadálkinn, hópun eftir brunni örplötu, sönnunarþröskulda, skýribreytur og valfrjálsa þveraðlagaða stigskipta blöndulíkanið."
+        },
+        {
+          "narration": "Forskoðið mögulegar frumur raðaðar eftir stigum og yfirlit brunna örplötu. Keyrið þveraðlagaða líkanið aðeins þegar valda niðurstaðan og skilyrði fyrir stoð eru rétt."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur vistar spaCR raðaðar mögulegar frumur, samanburð óháðra brunna, valfrjálsar líkur á að hver fruma samsvari valinni svipgerð, óvissu og útgáfustýrða flokkun sem kemur aldrei í stað handvirkra merkinga."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Volcano Explorer. Opnið lokið aðhvarfsgreiningarverk, skoðið hvert gagnapunkt, breytið útliti myndarinnar og flytjið út vigurmynd í birtingarstærð án þess að keyra greininguna aftur."
+        },
+        {
+          "narration": "Veljið möppu með lokinni aðhvarfsgreiningu eða CSV-niðurstöðuskrá og staðfestið útkomuna, töfluna á stýriraðastigi, stuðningsfjölskylduna, áhrifadálkinn og dálkinn með leiðréttum P-gildum."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir marktektar- og áhrifaþröskulda, ásabreytingar, merkingar, liti, form, skýringar, ásrof, leturgerðir og stærð úttaks."
+        },
+        {
+          "narration": "Smellið á dæmigerða punkta til að skoða allar upplýsingar í röðum þeirra, sameinið valfrjálsar merkingar og sannreynið að breytingar á útliti varðveiti undirliggjandi gildi og þröskulda."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur eru PDF- og PNG-skrár endurgerðar úr skráðum gögnum og útliti í umbeðinni stærð, en upprunalegar niðurstöður aðhvarfsgreiningarinnar haldast óbreyttar."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Parameter Sweep. Keyrið afmarkaða leit yfir stillingar aðhvarfsgreiningar og berið saman hvaða ályktanir standast verjandi val á greiningaraðferðum."
+        },
+        {
+          "narration": "Parið CSV-skrár með stigum fyrir hvern hlut og fjölda stýriraða fyrir hverja plötu, veljið svardálkinn og tilgreinið sérstaka úttaksmöppu."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu hvaða víddir eru breytilegar, festið öll önnur gildi, veljið grindar- eða slembiúrtak, takmarkið fjölda tilrauna, skráið slembifræið og samþykkið fjölda vinnsluþráða sem er takmarkaður af minni."
+        },
+        {
+          "narration": "Notið fyrst Estimate til að skoða stærð og kostnað leyfilega leitarrýmisins. Hefjið síðan litla, afmarkaða leit og fylgist með heppnuðum, höfnuðum og misheppnuðum tilraunum."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir endurheimtanlega niðurstöðutaflan stillingar, stöðu, fjölda uppgötvana, sæti jákvæðrar viðmiðunar, keyrslutíma, úttaksmöppu og ástæðu bilunar fyrir hverja tilraun."
+        }
+      ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: skoðaðu áætlunina áður en þú flytur inn",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Opnaðu Import Images innan Import, skoðaðu lítið úrval raunverulegra smásjármynda áður en skrár eru skrifaðar og vistaðu endurnýtanlega áætlun. Dæmið greinir á milli upprunalegra nafna sem ekki eru studd og undirbúinna afrita.",
+      "objectives": [
+        "Finna Import Images innan Import og greina það frá innflutningi fyrirliggjandi mælinga og gríma.",
+        "Athuga auðkenni mynda og óleysta hluta skráarheita áður en verkefnið er skrifað.",
+        "Velja afrit eða tengla, vista og endurhlaða áætlun og sannreyna innflutninginn."
+      ],
+      "prerequisite": "Sæktu fyrst raunverulega Mask-dæmið. Upptakan notar afrit af myndsviðunum E01/F001 og L01/F009, með fjórum C-rásum á hvoru sviði. Í undirbúnu afritunum er aðeins A-hlutanum beint á undan Z sleppt; frumritin breytast ekki. Þetta er sérstaklega yfirfarið dæmi, ekki almenn ráðlegging um að eyða óþekktum lýsigögnum.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Opnaðu Import í Data-flokknum á Home og veldu Import Images. Þetta undirverkfæri undirbýr hráar myndskrár. Import Project, Format Converter og External Masks eru tengd verkferli með eigin kennsluefni.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Myndirnar átta eru raunveruleg smásjárgögn úr Mask-dæminu sem hægt er að sækja: eitt myndsvið úr hvorum tveggja brunna, með fjórum rásum á sviði. Við vinnum með sérstök afrit og látum sóttu frumritin vera óbreytt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan finnur óleystan myndtökuhluta í upprunalegu heitunum. Import er áfram óvirkt og ekkert er skrifað. Ekki giska á rásavörpun: Tvær ólíkar rásir deila þessu myndtökugildi og slík vörpun myndi rugla auðkennum þeirra.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "Í þessu yfirfarna dæmi sleppa undirbúnu afritin aðeins óþarfa myndtökuhlutanum. Heiti brunns, myndsviðs og rásar haldast óbreytt. Scan sýnir nú átta línur, tvo brunna, tvö myndsviðsnúmer og fjórar rásir. Það þýðir ekki að upprunalega nafngiftin hafi verið samþykkt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Berðu tillöguna saman við skráarheitin áður en þú flytur inn. Read inside each file kannar innbyggð ásalýsigögn auk heitanna. Sample takmarkar fjölda skoðaðra skráa; gakktu úr skugga um að tillagan nái yfir myndirnar sem þú ætlar að flytja inn. Svaraðu spurningum út frá myndtökuskráningum, ekki ágiskunum.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Veldu áfangastað utan inntaksmöppunnar og stilltu heiti plötunnar. Við slökkvum á Link instead of copy til að búa til sjálfstætt verkefni. Tenglar spara diskpláss, en frumritin þurfa áfram að vera aðgengileg á núverandi stöðum.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Þessar dæmismyndir eru ekki hlutar af myndflísamósaík. Lestu Tiles vandlega við slíka myndtöku: Samsetning endurbyggir myndsvið, að halda flísum aðskildum breytir því hvað myndsvið merkir og að sleppa þeim tapar þessum myndum. Athugaðu skýrsluna og óstaðfest samskeyti áður en þú mælir.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan skrifar uppruna og vörpunarsvör þín í JSON-skrá, ekki öryggisafrit af myndunum. Geymdu hana með myndtökunótunum. Sama áætlun má lesa í gegnum Python-forritaskilin fyrir myndainnflutning.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan les upprunamöppuna aftur og endurnýtir vistuðu svörin. Skoðaðu nýju tillöguna áður en þú flytur inn; vistuð áætlun tryggir ekki að breytt myndtaka sé rétt túlkuð. Hér endurheimtir hún sömu átta yfirförnu myndauðkennin.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Ýttu á Import og lestu samantektina. Þessi keyrsla skrifaði átta sjálfstæð myndafrit án þess að sleppa skrám; innihaldið samsvarar upprunanum. Veldu síðan verkefnið í Mask og skoðaðu lifandi forskoðun áður en myndirnar eru hlutaðar. Innflutningur einn og sér býr hvorki til grímur né mælingar.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: skildu forsendurnar að baki niðurstöðunum",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Opnaðu greiningarskrár úr raunverulegri úrvinnslu skimunar með dæmigögnum, greindu á milli viðvarana um tilraunasniðið og niðurstaðna umröðunarprófa og þekktu takmarkanir stuttrar sýnikeyrslu.",
+      "objectives": [
+        "Opna Diagnostics í Regression og staðfesta hvaða úttaksmappa er skoðuð.",
+        "Túlka auðkennanleika tilraunasniðs, tíðni leiðsöguraða og ályktunarmyndir í samhengi við valda greiningu.",
+        "Þekkja ástæðu þess að leifamyndir vantar og takmarkaða upplausn umröðunarprófa án þess að gera ráð fyrir að líkan hafi verið aðlagað."
+      ],
+      "prerequisite": "Ljúktu Regression-dæminu með fjórum niðurhalanlegum pörum af skor- og talningarskrám. Upptakan skoðar afmarkaða óstikaða keyrslu með 199 umröðunum, að lágmarki tveimur brunnum og niðurstöðum fyrir bæði leiðsöguraðir og gen. Hún sýnir hugbúnaðinn og túlkun greiningarmynda, ekki fullnægjandi lokagreiningu til að staðfesta uppgötvanir.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Haltu bendlinum yfir Diagnostics í Regression og opnaðu það þegar greiningu er lokið. Hnappurinn les vistað úttak; hann aðlagar ekki annað líkan. Hann opnar nýjustu greiningarmöppuna í verkefninu, svo athugaðu slóðina ef margar keyrslur eru til.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Skráastjóri kerfisins sýnir raunverulegar skrár úr greiningu niðurhalaðra skimunardæmigagna. Hér var myndasniðið stillt á PNG. Mappan inniheldur myndir um auðkennanleika tilraunasniðsins, greiningu sniðsins og tölfræðilega ályktun, ásamt yfirlitstöflu og töflu yfir samlínuleg pör leiðsöguraða.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Tilraunasniðið hefur 606 brunna, 793 stika og fylkisröð 599. Ekki er hægt að ákvarða ótvíræðan stuðul fyrir hverja leiðsöguröð samtímis. Viðvörunin skýrir hvers vegna við notuðum umröðunargreiningu; hún þýðir ekki að sameiginlegt líkan hafi verið aðlagað með árangri.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Leiðsöguraðirnar koma misoft fyrir: 355 þeirra eru aðeins í einum brunni í þessu sniði. Fá tilvik takmarka hvað tilraunin getur sýnt. Skoðaðu þekjuna áður en áhrif eru túlkuð og greindu á milli alls sniðsins og síaða hópsins sem var raunverulega prófaður.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Myndin af tilraunasniðinu hjálpar til við að finna litla þekju og háð milli skýribreyta leiðsöguraða. Erfitt er að aðgreina tölfræðilega raðir sem koma alltaf saman fyrir. Skoðaðu tiltekin pör í samlínuleikatöflunni í stað þess að líta á viðvörunartákn sem fullnægjandi skýringu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Ályktunarmyndin tekur saman 434 próf á leiðsöguröðum: dreifingu p-gilda, samanburð við jafna dreifingu undir núlltilgátunni og uppgötvanir við leiðrétt viðmið. Þessi stutta keyrsla hefur engar uppgötvanir við sýnt viðmið. Viðvörun um kvörðun kallar á athugun, en er ekki sönnun fyrir líffræðilegum áhrifum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Við notuðum aðeins 199 umröðanir til að hafa sýnikeyrsluna stutta. Lægsta mögulega reynslubundna p-gildið er því 0,005. Þessi upplausn getur verið ófullnægjandi eftir leiðréttingu fyrir mörgum prófum. Veldu vel skipulagðan fjölda umröðana fyrir raunverulegu greininguna.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Þessi umröðunarkeyrsla hefur enga mynd af leifum aðlagaðs líkans því hún aðlagaði ekki sameiginlega aðhvarfslíkanið. Samanburður p-gildanna sem við sáum var ekki leifagreining. Aðrar greiningaraðferðir geta skrifað leifamyndir þegar þær skila mældum og aðlöguðum gildum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Yfirlitið skráir mat á hverri mynd og versta matið fyrir greininguna í heild. Lestu hvert mat í samhengi í stað þess að túlka heildartáknið sem hugbúnaðarvillu. Python-forritaskilin fyrir aðhvarfsgreiningarmyndir skrifa sams konar myndir út frá gögnunum sem þau fá.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Farðu aftur í Regression til að skoða inntakið eða breyta greiningarvali af ásettu ráði. Breyting krefst nýrrar keyrslu og nýrra greiningarmynda; það uppfærir aldrei eldri niðurstöður að opna möppuna. Regression-leiðbeiningarnar fara yfir allt gagnasafnið, stjórnborðið, gagnvirkar niðurstöður og aðstoðina.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
         }
       ]
     }

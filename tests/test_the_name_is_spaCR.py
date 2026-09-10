@@ -13,14 +13,17 @@ break something if ignored:
 * ``SPACR_`` prefixes an ENVIRONMENT VARIABLE (``SPACR_STRICT_ERRORS`` and
   two dozen more). Upper case is the convention and the reader is
   ``os.environ``.
-* ``Spacr.`` prefixes a TK STYLE NAME (``Spacr.TEntry``,
-  ``Spacr.Vertical.TScrollbar``). It is a registration string matched by
-  exact text between ``style.configure`` and ``style=``; it is invisible to
-  users and renaming it only creates a chance to get the two halves out of
-  step.
 * The Debian package is ``spacr`` and cannot be anything else: Debian policy
   5.6.1 restricts a package name to lower case, and ``dpkg`` refuses the
   rest. Its human-facing fields carry the real name instead.
+
+A FOURTH EXEMPTION IS GONE, and with it the test that guarded it. Tk style
+names were registration strings of the form ``Spacr.TEntry`` --
+capital-S-lower-pacr, matched by exact text between ``style.configure`` and
+``style=`` -- so the pattern below had to let a capitalised ``Spacr``
+through whenever a dot followed it. Tk is deleted, no such string exists
+anywhere in the tree, and the pattern is correspondingly stricter: a
+capitalised ``Spacr`` is now a mis-spelling wherever it appears.
 """
 from __future__ import annotations
 
@@ -42,16 +45,44 @@ SKIP_PARTS = (
 EXTENSIONS = {".py", ".rst", ".md", ".sh", ".ps1", ".yml", ".yaml",
               ".toml", ".cfg", ".desktop", ".spec"}
 
-#: A mis-cased mention: `SpaCR`, `Spacr` not starting a Tk style, or `SPACR`
-#: not starting an environment variable.
-WRONG = re.compile(r"\bSpaCR\b|\bSpacr\b(?!\.)|\bSPACR\b(?!_)")
+#: A mis-cased mention: `SpaCR`, `Spacr`, or `SPACR` not starting an
+#: environment variable.
+WRONG = re.compile(r"\bSpaCR\b|\bSpacr\b|\bSPACR\b(?!_)")
 
 #: Published release assets are named as they were named. README's download
 #: links point at files that exist on GitHub under v1.5.0.4, and renaming
-#: them in the text makes the front page 404. Instruction 82 rebuilds them
-#: under the corrected name; until then the URL keeps the published spelling.
+#: them in the text makes the front page 404. The URL keeps the published
+#: spelling until a release actually builds artifacts under the corrected
+#: name -- the packaging scripts already emit `spaCR-<version>-...`, so the
+#: next tag closes this on its own. Do not "fix" these lines ahead of that
+#: release; the front page 404s the moment they stop matching GitHub.
 ALLOWED_LINES = (
     "releases/download/",
+)
+
+#: The same published assets, named WITHOUT their URL. The installer guide
+#: tells a user to run `SpaCR-<version>-Windows-Online-Setup.exe` and to
+#: `chmod +x SpaCR-*-Linux-x86_64-Online.run` -- those are the filenames
+#: GitHub actually serves, and correcting the spelling in the instructions
+#: would tell people to run a file that does not exist. It is the same
+#: exception as the download links above, reached from the other side.
+#:
+#: DELIBERATELY NARROW: it matches an installer ASSET name, not the word.
+#: `SpaCR is a tool for...` in the same file is still a failure.
+ASSET = re.compile(
+    r"\bSpaCR-[\w.*<>-]+-(?:Windows|macOS|Linux)[\w.*-]*"
+    r"\.(?:exe|pkg|run|dmg|deb|zip|tar\.gz)")
+
+#: The first 1.5.0.x installers created these case-sensitive directories and
+#: one old QSettings namespace. Their recovery and migration code must keep
+#: those bytes even though ordinary prose must spell the project ``spaCR``.
+#: Match only the literal identifiers so ``SpaCR`` elsewhere on the same line
+#: still fails. ``\\+`` also recognizes doubled backslashes inside Python
+#: string literals without widening the Windows path exemption.
+LEGACY_IDENTIFIERS = re.compile(
+    r"Application Support/SpaCR/"
+    r"|\$env:LOCALAPPDATA\\+SpaCR\\+"
+    r'|"Olafsson Lab", "SpaCR"'
 )
 
 
@@ -74,7 +105,30 @@ def _offenders():
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
+        # DOES THIS FILE DEFINE `SPACR` AS A CONSTANT? Computed once per
+        # file, because the exemption belongs to the file that assigns it and
+        # not to every file that happens to write the word.
+        defines_a_constant = bool(
+            path.suffix == ".py"
+            and re.search(r"^SPACR\s*[:=]", text, re.M))
         for number, line in enumerate(text.splitlines(), 1):
+            # The asset name is removed rather than the LINE being skipped,
+            # so a line that names an installer AND mis-cases the project
+            # still fails on the second one.
+            line = ASSET.sub("", line)
+            line = LEGACY_IDENTIFIERS.sub("", line)
+            if defines_a_constant and "SPACR" in line:
+                # `SPACR` IS AN IDENTIFIER IN THIS FILE, not a mention of the
+                # project. Several tests do `SPACR = <path to the package>`
+                # and then walk it -- an ALL-CAPS module constant, which is
+                # what Python spells a constant with. The rule already allows
+                # `SPACR_` for an environment variable; this is the same
+                # thing one line further on.
+                #
+                # PER FILE, and only when the file ASSIGNS it: a file that
+                # merely writes SPACR in prose gets no exemption from one
+                # that does.
+                line = line.replace("SPACR", "")
             if any(token in line for token in ALLOWED_LINES):
                 continue
             for match in WRONG.finditer(line):
@@ -123,10 +177,3 @@ def test_the_environment_variables_keep_their_case():
             continue
         hits.extend(re.findall(r"SPACR_[A-Z0-9_]+", text))
     assert hits, "no SPACR_ environment variables found; the exemption is stale"
-
-
-def test_the_tk_style_names_keep_their_case():
-    """Both halves of a Tk style registration must still agree."""
-    source = (ROOT / "spacr" / "gui_elements.py").read_text(encoding="utf-8")
-    configured = set(re.findall(r"['\"](Spacr\.[A-Za-z.]+)['\"]", source))
-    assert configured, "the Tk style names vanished; the exemption is stale"

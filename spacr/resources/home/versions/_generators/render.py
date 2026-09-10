@@ -29,7 +29,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import common  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Layout audit — a variant with clipped text is a bug, not a variant
 # ---------------------------------------------------------------------------
@@ -44,6 +43,7 @@ def audit(page) -> Dict[str, list]:
       squeezed something to make it fit.
     """
     from PySide6.QtWidgets import QLabel, QScrollBar
+
     from spacr.qt.widgets.eliding import ElidingLabel, ElidingPushButton
 
     out: Dict[str, list] = {"elided": [], "clipped": [], "scrollbars": [],
@@ -145,6 +145,7 @@ def render_all(app, specs: Sequence[dict], themes: Sequence[str]
 
 
 def _audit_path() -> str:
+    """Return the cached render-audit path beside the generator sources."""
     return os.path.join(common.here(), AUDIT_CACHE)
 
 
@@ -209,6 +210,7 @@ def build_sheet(specs: Sequence[dict], theme: str = "dark",
 
 
 def _sheet_font(size: int):
+    """Load the bundled contact-sheet font, falling back to Pillow's default."""
     from PIL import ImageFont
     path = os.path.join(common.repo_root(), "spacr", "qt", "resources",
                         "fonts", "OpenSans-SemiBold.ttf")
@@ -271,7 +273,8 @@ widgets they are assembled from live in `_generators/parts.py`.
 ## Findings that apply to every variant
 
 1. **The sidebar still does not fit at 1440x900 — but it scrolls now.**
-   Its {n_apps} app rows plus five headings ask for roughly {sidebar_h} px
+   Its {n_apps} app rows plus {n_sections} headings ask for roughly
+   {sidebar_h} px
    against the {sidebar_avail} a laptop gives. The `QScrollArea` described
    at the bottom of this file **has since landed** in `spacr/qt/app.py`,
    so the rows scroll and nothing is unreachable; the vertical scrollbar
@@ -290,7 +293,7 @@ widgets they are assembled from live in `_generators/parts.py`.
    get seven; 03, 07, 08, 23 and 28 keep the shipped size and use five or
    fewer. Both are legitimate, but it is a real constraint on any
    tile-grid answer — and it tightens every time a longer app name is
-   registered, which "Classifier Evaluation" duly did.
+   registered.
 
 ---
 
@@ -322,7 +325,7 @@ belonged to another effort at the time. That effort has since made the
 change: `Sidebar` now puts its rows in a `QScrollArea` with the title
 pinned above it. The measurement is re-taken on every render, and it
 still says the same thing about *why* the scroll area has to be there —
-the {n_apps} app rows plus five headings ask for ~{sidebar_h} px against
+the {n_apps} app rows plus {n_sections} headings ask for ~{sidebar_h} px against
 the ~{sidebar_avail} a 1440x900 laptop gives, so without it the last
 three apps ({last_three}) could not be reached at all.
 
@@ -351,19 +354,15 @@ _CLEAN = ("clean — no elided or clipped text, no scrollbar, "
 
 
 def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
-    """``_OUTRO`` with the registry-derived numbers substituted in.
+    """Substitute registry and sidebar values into ``_OUTRO``.
 
-    ``str.replace`` rather than ``str.format``: the outro quotes a QSS
-    rule (``QPushButton { min-height: 22px }``) and a ``format`` call
-    would read those braces as a field and raise. The placeholders are
-    still filled from the live registry, because the version of this
-    text that hardcoded "29 app rows ... the last three apps (Plaque
-    Assay, Recruitment, Invasion Assay)" named the wrong three the
-    moment Replication Assay was registered.
+    Use ``str.replace`` because the generated text contains literal QSS
+    braces that ``str.format`` would interpret as replacement fields.
     """
     last_three = ", ".join(common.name_of(k) for k in common.all_keys()[-3:])
     return (_OUTRO
             .replace("{n_apps}", str(common.n_apps()))
+            .replace("{n_sections}", str(common.n_sections()))
             .replace("{sidebar_h}", str(sidebar_h))
             .replace("{sidebar_avail}", str(sidebar_avail))
             .replace("{last_three}", last_three))
@@ -371,22 +370,13 @@ def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
 
 def _scroll_finding(specs: Sequence[dict],
                     reports: Dict[Tuple[int, str], Dict[str, list]]) -> str:
-    """Finding 2's second sentence, **counted from the audit**.
+    """Summarize scrollbar coverage from the rendered-variant audit.
 
-    This paragraph was rewritten to stop hardcoding the app count and
-    promptly typed a different one — "Twenty-seven of the thirty
-    variants below fit 1440x900 with no scrollbar at all" — into the
-    same breath. The audit is the only thing that knows: a variant
-    starts needing a scrollbar the moment a longer name or one more app
-    pushes it over 900 px, and nobody edits prose when that happens.
-
-    When the audit does not cover every variant it says so, instead of
-    dividing by a total it never looked at. (``--only 7`` normally still
-    has the full picture — :func:`render_all` seeds ``reports`` from the
-    cached ``_audit.json`` and overwrites only the pairs it re-rendered
-    — so that branch is really for a missing or truncated cache.)
-    Quietly reporting "29 of 30 fit" off one rendered variant is exactly
-    the plausible-wrong-number failure this file exists to avoid.
+    Count results from ``reports`` and return a coverage warning when the
+    audit does not include every requested variant. Otherwise, count the
+    variants with scrollbars across the available theme reports and name them
+    in the generated sentence. Partial renders normally retain full coverage
+    because :func:`render_all` seeds ``reports`` from cached audit results.
     """
     import textwrap
 
@@ -397,9 +387,11 @@ def _scroll_finding(specs: Sequence[dict],
                         if flags.get("scrollbars")})
 
     def _listed(ns):
+        """Name variant numbers and titles for the generated finding."""
         return ", ".join(f"{n:02d} ({titles.get(n, '?')})" for n in ns)
 
     def _wrapped(sentence: str) -> str:
+        """Wrap a finding to 72 columns with its continuation indent."""
         # Re-wrapped to the width the surrounding hand-written findings
         # use, continuation lines under the list item's hanging indent.
         # Substituting one very long line into a numbered list turns the
@@ -463,6 +455,7 @@ def write_markdown(specs: Sequence[dict], themes: Sequence[str],
     lines = [_INTRO.format(space_note=space_note, sidebar_h=sidebar_h,
                            sidebar_avail=sidebar_avail,
                            n_apps=common.n_apps(),
+                           n_sections=common.n_sections(),
                            scroll_finding=_scroll_finding(specs, reports))]
     for spec in specs:
         folder = os.path.basename(variant_dir(spec))
@@ -540,6 +533,14 @@ def measure_sidebar(app) -> Tuple[int, int]:
     ctx.apply_theme()
     from spacr.qt.app import Sidebar
     bar = Sidebar()
+    # EVERY SECTION OPEN. The dock now starts with Core open and the rest
+    # collapsed, so its resting height says nothing about whether the
+    # navigation fits -- it fits because most of it is folded away. The
+    # height worth measuring is the one a user sees after opening the
+    # sections they work in, which is the fully expanded dock.
+    for section in list(getattr(bar, "_section_headers", {})):
+        if not bar.section_is_open(section):
+            bar.toggle_section(section)
     bar.resize(bar.width(), 850)
     bar.show()
     app.processEvents()
@@ -563,6 +564,7 @@ def measure_sidebar(app) -> Tuple[int, int]:
 # ---------------------------------------------------------------------------
 
 def main(argv: Optional[List[str]] = None) -> int:
+    """Render selected Home variants or audit the existing generated assets."""
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--only", action="append", type=int, default=None,
                     help="render only these variant numbers (repeatable)")
@@ -626,6 +628,7 @@ def _prune_stale_dirs(specs: Sequence[dict]) -> None:
 
 
 def _report_check(result: dict) -> None:
+    """Print a compact pass/fail summary for a generated-asset self-check."""
     rows = result["rows"]
     bad = [r for r in rows if not r["ok"]]
     stds = [r["std"] for r in rows if r.get("std") is not None]

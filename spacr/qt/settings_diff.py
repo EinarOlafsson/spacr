@@ -35,6 +35,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+from .widgets.sortable_table import install_sorting, table_item
 
 
 #: Heading for keys that appear in no ``spacr.settings.categories`` bucket.
@@ -360,6 +361,19 @@ class SettingsDiffDialog:
 
     def __new__(cls, a, b, parent=None, a_label="A", b_label="B"):
         # Lazy build of the Qt dialog when actually invoked in a GUI.
+        """Build and return the settings-diff dialog.
+
+        Qt is imported inside the call so the module can be used headlessly --
+        :func:`diff_settings` is the part a report needs, and it must not drag a
+        GUI toolkit in with it.
+
+        :param a: the settings on the left.
+        :param b: the settings on the right.
+        :param parent: parent widget, or ``None``.
+        :param a_label: caption for the left side.
+        :param b_label: caption for the right side.
+        :returns: the dialog, ready to ``exec``.
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
             QDialog, QDialogButtonBox, QLabel, QTableWidget,
@@ -383,6 +397,7 @@ class SettingsDiffDialog:
         layout.addWidget(summary)
 
         table = QTableWidget(len(rows), 4, dlg)
+        install_sorting(table)
         table.setHorizontalHeaderLabels(
             ["Key", a_label, b_label, "Change"]
         )
@@ -404,7 +419,7 @@ class SettingsDiffDialog:
                 # Built and coloured in one pass. Setting the four cells
                 # and then reading them back left a `table.item(...) is
                 # None` branch that could not happen and was never tested.
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setBackground(tint)
                 table.setItem(i, col, item)
         table.resizeColumnsToContents()
@@ -418,12 +433,26 @@ class SettingsDiffDialog:
 
 
 def _render(v: Any) -> str:
+    """Render one settings value for the diff table.
+
+    :param v: the value.
+    :returns: its ``repr``, so a string is visibly quoted and cannot be
+        confused with the number or the identifier that prints the same;
+        ``None`` renders as a dash.
+    """
     if v is None:
         return "—"
     return repr(v)
 
 
 def _qcolor(hex_str: str):
+    """Build a ``QColor`` from a hex string.
+
+    Imported inside the call so this module stays usable headlessly.
+
+    :param hex_str: the colour.
+    :returns: the colour object.
+    """
     from PySide6.QtGui import QColor
     return QColor(hex_str)
 

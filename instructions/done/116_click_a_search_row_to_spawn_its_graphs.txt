@@ -1,0 +1,365 @@
+================================================================================
+CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
+================================================================================
+
+Status:    COMPLETE, 2026-08-20. This line read "partly done" until
+           2026-08-25, contradicting the section below it headed
+           "116 IS COMPLETE". The "WHAT IS LEFT OF THIS FILE" list
+           further down is likewise superseded by that section: both
+           entries -- FastPlot.pinned_limits() and painting the still
+           in the Runs tab -- were closed there and are kept only as
+           the record of the order the work landed in.
+Requested: 2026-08-16 — "the search should function simmilarly to the image
+           umap hyperparamiter search wher the user can click a row in the
+           table and spawn the umap, in this case the user should be able to
+           click a row and spawn the set of graphs for the particular run"
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+4f16455f added settings_for_trial() and rerun_trial(), and the Parameter
+Sweep screen re-runs a double-clicked row and puts its live figures in an
+embedded FigureQueue. What it does NOT do is show the SET of graphs the way
+the Image UMAP search does: one grid of small multiples, all of a run's
+diagnostics at once.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Re-running is the expensive half and it is done. Showing one figure at a time
+in a queue means the user still cannot compare a run's residual plot against
+its volcano without clicking between them, which is the comparison that
+decides whether a configuration is any good.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A clicked row opens the full RegressionResultsPanel for that trial -- volcano,
+table, p-values, Q-Q, controls, guide support, residuals, collinearity -- and
+prefers the trial's SAVED outputs over a re-run when they are on disk, because
+a saved run is instant and a re-fit is a minute.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+Clicking a row with saved output shows its graphs without re-fitting; clicking
+one without saved output re-fits and then shows the same set.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: THE RUN TABLE GOES ABOVE THE GRID
+--------------------------------------------------------------------------------
+
+"for the paramiter search there should be a different structure with the run
+table to the top of the figure grid with figures and the figures should
+change when a run row is clicked".
+
+ABOVE, and deliberately unlike the regression screen, whose results table is
+to the LEFT (instruction 119). The search table is a short list of RUNS,
+scanned top to bottom, and picking one replaces the whole grid. The
+regression table is hundreds of FINDINGS read alongside the figure they
+describe. Two layouts, on purpose. Unifying them removes the reason for
+both.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.
+
+
+================================================================================
+2026-08-16 - CORRECTED, SAME DAY. NOT A TABLE ABOVE A GRID: A TAB.
+================================================================================
+
+    "actually the paramiter search should be like the main module setup just
+     an extra tab for the runs."
+
+THIS SUPERSEDES the section directly above it, which was written hours
+earlier from "the run table to the top of the figure grid" and is now wrong.
+Do not build it.
+
+WHAT IT MEANS. The parameter search is NOT a bespoke screen with its own
+layout. It is THE MAIN MODULE SETUP -- the same settings surface, the same
+console, the same figure grid every other module screen has -- plus ONE EXTRA
+TAB holding the runs.
+
+WHY THIS IS THE BETTER ANSWER, and worth stating so it is not "simplified"
+back later:
+
+  * a user who has learned one module screen has learned this one. A second
+    layout is a second thing to learn for no new capability.
+  * every fix to the shared screen -- the figure grid, the console, the
+    settings panel, the drop handling -- lands here for free. A bespoke
+    screen collects its own copies of all of them, and they drift.
+  * this repository already has that drift and is paying for it. 155 field
+    tooltips (instruction 113) existed precisely because 28 hand-built
+    screens each re-implemented a row.
+
+SO THE WORK IS SMALLER THAN THE SUPERSEDED PLAN, not larger: build the runs
+TAB, and take the rest from the module setup that already exists.
+
+Clicking a run row still swaps the figures -- that part of the request is
+unchanged and is the substance of this instruction. Only the furniture around
+it changed.
+
+
+================================================================================
+EVERY RUN HAS ITS OWN INTERACTIVE VOLCANO, NOT ONLY ITS SAVED FIGURES
+================================================================================
+
+Requested: 2026-08-18 -- "every regression run should have its own interactive
+           volcano plot".
+
+Filed here rather than as a new number because this file already owns "click a
+row and spawn the set of graphs for the particular run". It is the same
+surface. What it ADDS is which of those graphs is live.
+
+THE ARCHITECTURE TODAY, AND WHY THE ASK IS NOT ALREADY SATISFIED:
+
+    regression_results.py:459    self.volcano = VolcanoPlot()
+
+ONE instance, for the whole screen. A run's saved figures are per-run -- they
+are files in that run's folder -- but the INTERACTIVE volcano is a single
+widget whose contents are replaced when the selection changes. So a run does
+not have a volcano; the screen has one, and a run gets to borrow it.
+
+THREE THINGS THAT FOLLOW, AND THEY ARE THE REASON THIS IS WORTH DOING:
+
+  * A RUN IS NOT FULLY EVALUABLE FROM ITS ROW. 154 F asks for a selection of
+    columns to produce one run each, "each gets saved as a run that i can
+    evaluate". Evaluating means hovering points, clicking through to cells,
+    re-cutting the effect size -- the interactive things. If those live on a
+    shared widget, evaluating run B destroys the state of run A.
+  * TWO RUNS CANNOT BE COMPARED SIDE BY SIDE, which is the entire point of
+    running several columns. The comparison a user wants is two volcanoes
+    next to each other, not one volcano twice in succession from memory.
+  * THE STATE A USER BUILDS IS LOST ON EVERY SWITCH. A chosen level, a
+    colouring, a typed axis limit, a selected gene: all of it belongs to the
+    run being looked at, and today all of it belongs to the widget.
+
+WHAT "ITS OWN" HAS TO MEAN, and the cost is real so it is stated:
+
+  * EACH RUN OWNS ITS PLOT STATE -- level, colouring, limits, effect cut,
+    selection, correction (149 E) -- and gets it back when returned to,
+    unchanged. That is the minimum, and it is achievable without holding N
+    live widgets: the STATE is small, the WIDGET is not.
+  * WIDGETS ARE NOT FREE AND THE MEASUREMENT ALREADY EXISTS. 129's work
+    measured live pyqtgraph tiles at 74.99 ms per window-drag frame against
+    5.19 ms for photographs, on a 16.7 ms budget. So N live volcanoes for N
+    runs is not the answer; the answer is a live widget for the run(s) on
+    screen and retained STATE for the rest, with a photograph standing in.
+  * SIDE BY SIDE IS A DELIBERATE ACT, not the default. Two runs open at once
+    is what a comparison needs; twelve is what makes the screen unusable.
+    Opening a second is explicit and the count is bounded, with the bound
+    stated rather than discovered by a user whose machine has stopped.
+
+RELATED, so the pieces are not built twice: 154 G decides WHICH run is loaded
+and says a finished run becomes the loaded one. 146 deletes a run, and must
+also drop its retained state. 125 wants every run in the Runs tab. 129 put the
+plots in pyqtgraph with a tab each -- those tabs are per-SCREEN today and this
+makes them per-RUN, which is the same change viewed from the other end.
+
+HOW TO KNOW IT WORKED
+
+* Run three columns, get three runs. Open run A's volcano, colour it by
+  localisation, type an axis limit, select a gene. Open run B. Return to A:
+  the colouring, the limit and the selection are exactly as left.
+* Two runs' volcanoes can be on screen together and each responds to its own
+  hover and click.
+* Deleting a run takes its plot state with it and leaves the others intact.
+* The frame budget is met with the stated number of live plots open, measured
+  the way 129 measured it and not by eye.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE STATE HALF OF "EVERY RUN HAS ITS OWN VOLCANO" IS SHIPPED.
+Commit d4113297. THE SIDE-BY-SIDE HALF IS NOT.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED. `RegressionResultsPanel` keeps a plot state per run, keyed by
+that run's own source path: level, colour-by column, baseline, compartment,
+p-value kind, effect-cut method and multiplier, typed axis limits, and the
+selection. Saved on the way OUT of a run (which is the last moment it is
+true), restored on the way IN, after every default `set_frame` reads off the
+table -- so a FIRST look at a run is still the table's own defaults, which is
+128 J's contract, and only the SECOND look changes.
+
+Driven on the real panel, run A -> run B -> run A:
+
+    A built  {'level': 'gene', 'colour_by': 'condition',
+              'threshold_multiplier': 2.0, 'x_limits': (-1.5, 1.5),
+              'selected_key': 'gene_fraction:gene[200002]'}
+    A back    identical, field for field
+
+THE LEAK IS THE OTHER HALF, AND IT IS THE WORSE ONE. It is not in the
+instruction and it was found by the same drive. Before the fix, "B fresh" read
+
+    {'level': 'grna', 'colour_by': 'condition',
+     'threshold_multiplier': 2.0, 'x_limits': (-1.5, 1.5), ...}
+
+-- run B drawn inside run A's typed x-window with run A's effect cut, a
+picture nobody chose with nothing on screen saying where it came from.
+`set_frame` already reset the baseline, the compartment, the level and the
+selection for exactly this reason; the effect cut, the p-value kind and the
+axis pins were simply missing from that list. They are in it now, and
+`DEFAULT_THRESHOLD_METHOD` / `DEFAULT_THRESHOLD_MULTIPLIER` are named so the
+reset and the constructor cannot drift into two different literals.
+
+THREE DECISIONS WORTH NOT REDISCOVERING
+  * THE COLOUR COLUMN IS STORED BY NAME, not by index. The combo is rebuilt
+    from each table's own columns, so index 3 is a different column next run.
+    There is a test with an extra category column inserted ahead of it.
+  * ONLY LIMITS THE USER TYPED ARE STORED, read from the plot's `_pinned`.
+    Storing the view RANGE would freeze an auto-ranged plot at whatever it
+    happened to show, so a run returned to would stop following its own data.
+  * `apply_plot_state` assigns the fields and redraws ONCE. Nine public
+    setters would redraw nine times per run switch, through combinations the
+    user never chose.
+
+`remembered_runs()` is what has been STORED. The run on screen holds its
+state live in the widgets and joins the store when it is left -- said out
+loud because "what is retained" and "what is being looked at" are different
+questions.
+
+`forget_plot_state(source)` is the hook instruction 146 calls when a run is
+deleted: without it a later run written into the same folder inherits the
+deleted one's level and colouring with nothing saying where they came from.
+146 is not built yet, so nothing calls it; when it is, note that deleting the
+run CURRENTLY ON SCREEN must also clear the panel, or leaving that run
+re-saves the state that was just forgotten.
+
+WHAT REMAINS in this section, and it is the expensive half:
+  * TWO RUNS ON SCREEN AT ONCE. Deliberate, bounded, with the bound stated.
+    The state half above is what makes it cheap when it comes: a second live
+    widget only needs a state to be handed.
+  * A PHOTOGRAPH standing in for the runs that are not live.
+  * A read of `fast_plots.FastPlot._pinned` through `getattr` is the one
+    private coupling here. A public `pinned_limits()` on FastPlot would
+    retire it; that file is another territory, so it is named rather than
+    changed.
+
+--------------------------------------------------------------------------------
+2026-08-18 (later) -- THE STATE WAS FILED UNDER TWO KEYS FOR ONE RUN
+--------------------------------------------------------------------------------
+
+FOUND WHILE WIRING 157, and it made the retained state above unreachable for
+the commonest case in the application. `_plot_states` was keyed by the raw
+`source` a table arrived under, and ONE RUN ARRIVES AS TWO PATHS:
+
+    live, from `_on_pipeline_result`   <results>/ols_3          (a DIRECTORY)
+    picked later in the Runs tab       <results>/ols_3/results.csv
+
+So a user who set a level, a colouring and an effect cut while watching a run
+finish, went to look at another run and came back, got the defaults --
+exactly the reset this section was asked to stop -- and the store quietly
+held two entries for the one run.
+
+FIXED by keying on the RUN FOLDER (`_plot_state_key` -> `_folder_of`), which
+is the object 155 A says every view should be asking about. A path that no
+longer exists is classified by its suffix: `results.csv` is a file and
+`ols_3` is a folder, so a DELETED run's state is still reachable to be
+forgotten (the 146 hook above).
+
+`run_folder()` / `run_name()` on the panel are the public half of the same
+answer, added for 157 and 155 A.
+
+STILL REMAINING: the two paragraphs above this one -- two runs on screen at
+once, the photograph, and `FastPlot.pinned_limits()`.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (later still) -- THE SIDE-BY-SIDE HALF IS SHIPPED. Commit 7486d492.
+--------------------------------------------------------------------------------
+
+TWO RUNS, AND THE NUMBER IS SAID OUT LOUD. `AppScreen.MAX_LIVE_RUNS = 2` and
+`LIVE_RUNS_NOTE` carries 129's measurement into the refusal itself: about 75 ms
+a frame for a live plot against 5 ms for a still on a 17 ms budget. A third run
+is refused WITH that sentence -- a bound discovered by a machine stopping has
+been stated nowhere, and one refused without a reason is indistinguishable from
+a broken button.
+
+DELIBERATE, with its own gesture: "Open beside the loaded run" in the Runs tab's
+row menu, offered only for a SINGLE row that produced results. Nothing opens a
+second run on its own. Opening a run beside itself is refused too: two views of
+one run is not the comparison that was asked for.
+
+WHERE THE SECOND VOLCANO COMES FROM, and it is cheaper than it looks. The loaded
+run's panel is built with `external_volcano=True`, so its plot is placed in the
+figures stack. The run opened beside is an ordinary `RegressionResultsPanel`,
+which KEEPS its own volcano -- so the two are on screen together and each
+answers its own hover and its own click, with no refactor of `_redraw_volcano`
+(which reads eight fields off the panel and would have been the expensive way to
+get here).
+
+ONE STRUCTURAL CHANGE THAT MATTERS BEYOND THIS ITEM: the Results tab PAGE is a
+QSplitter (`_results_page` / `_results_split`) rather than the panel, because a
+tab page cannot gain a sibling. That retired three `setCurrentWidget(panel)`
+calls which would have become SILENT no-ops the moment the panel stopped being
+the page; they go through `_raise_the_results_tab()` now. If a fourth place ever
+wants to raise the Results tab, use it.
+
+THE PHOTOGRAPH is taken in `close_run_beside`, which is the moment the run stops
+being live, and `run_photograph(folder)` hands it back. The state was never in
+the widget, so making that run live again is cheap -- that is what the bound
+BUYS rather than what it costs. Measured here, offscreen, 640x480 over 900
+points: 0.96 ms a frame live against 0.01 ms for the still. Lower absolutes than
+129's compositing measurement and the same direction, which is the property the
+design rests on, so the ratio is what the test holds and not the milliseconds.
+
+A DELETED RUN TAKES BOTH HALVES (146): if it is the run beside, it is closed,
+and its still is dropped along with its plot state. A photograph of a run that
+no longer exists is the same stale answer its state would have been.
+
+WHAT IS LEFT OF THIS FILE:
+  * `FastPlot.pinned_limits()`. `plot_state` still reads `_pinned` through
+    `getattr`; that file is another territory. Named again so it is not lost.
+  * A still is CAPTURED and can be ASKED FOR, and nothing yet PAINTS one in the
+    Runs tab beside the row it belongs to. That is the obvious next use and it
+    needs no new machinery -- `run_photograph(folder)` is the whole of it.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST TWO LINES. 116 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`FastPlot.pinned_limits()` exists and `plot_state` goes through it. The
+`getattr(volcano, "_pinned")` was this file's one private coupling and it was
+reaching into another module for a question that module can answer. It returns
+a COPY, so a caller stashing a run's view cannot reach back through it and
+move the plot. `None` for an unpinned axis is deliberately not the range the
+plot happens to be showing: storing the auto-ranged limits would freeze a run
+at whatever it looked like when the user left it, so returning to it would
+stop it following its own data.
+
+THE STILL IS PAINTED. `SweepRunsPanel` shows the selected run's photograph
+under the table, through a `set_photo_provider` callable rather than a dict --
+a photograph taken after the panel was built is still found.
+
+HIDDEN WHEN THERE IS NONE, which is most rows and is the property worth
+naming: an empty frame under the table would read as a run that failed to draw
+rather than as one nobody has opened beside. A provider that raises costs the
+still and not the panel, and the still SAYS it is a still, because a picture
+of a plot that ignores clicks has to explain why it does.
+
+11 tests in tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.
+
+--------------------------------------------------------------------------------
+2026-08-25 - RE-AUDIT: THE FOUR CRITERIA, CHECKED
+--------------------------------------------------------------------------------
+
+Driven and imported rather than read:
+
+  * `AppScreen.MAX_LIVE_RUNS` is 2 and `LIVE_RUNS_NOTE` still carries 129's
+    numbers into the refusal ("about 75 ms a frame against 5 ms for a still,
+    on a 17 ms budget"), so the frame budget is stated where a user meets it.
+  * `AppScreen.open_run_beside`, `close_run_beside`, `run_photograph` and
+    `_raise_the_results_tab` all resolve.
+  * `FastPlot.pinned_limits` is defined in `spacr/qt/widgets/fast_plots.py`,
+    and `regression_results.py:2151` reaches it by name instead of the old
+    `getattr(volcano, "_pinned")` this file named as its one private coupling.
+  * 56 tests pass across tests/test_a_run_keeps_its_own_plot.py,
+    tests/test_two_runs_on_screen_at_once.py,
+    tests/test_delete_a_run_from_the_runs_tab.py and
+    tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.

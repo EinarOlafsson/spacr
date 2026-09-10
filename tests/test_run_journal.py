@@ -22,6 +22,11 @@ def test_open_run_creates_folder_with_settings(tmp_path):
     from spacr.run_journal import open_run
     with open_run("mask", {"src": "/tmp/x", "n_epochs": 3}) as run:
         pass
+    docs = type(run).__doc__ or ""
+    assert ":ivar stages:" in docs
+    assert ":ivar stdout_path:" in docs
+    assert run.stages == []
+    assert run.stdout_path is None
     assert run.dir.exists()
     assert (run.dir / "settings.json").exists()
     assert (run.dir / "settings.csv").exists()
@@ -43,12 +48,54 @@ def test_manifest_records_env_and_success(tmp_path):
     assert "python" in m["env"]
 
 
+def test_stage_evidence_is_merged_into_manifest_and_log(tmp_path):
+    """One lifecycle clock should produce one consolidated stage record."""
+    from spacr.run_journal import open_run
+
+    with open_run("classify", {"classifier_family": "ml"}) as run:
+        run._record_stage(
+            "tables",
+            label="Measurement tables",
+            state="running",
+            started_at=10.25,
+            metrics={"objects": 48},
+        )
+        run._record_stage(
+            "tables",
+            state="done",
+            ended_at=12.75,
+            metrics={"tables": 4},
+        )
+
+    manifest = json.loads((run.dir / "manifest.json").read_text())
+    assert manifest["schema_version"] == 3
+    assert manifest["stages"] == [
+        {
+            "id": "tables",
+            "label": "Measurement tables",
+            "state": "done",
+            "started_at": 10.25,
+            "ended_at": 12.75,
+            "duration_s": 2.5,
+            "metrics": {"objects": 48, "tables": 4},
+        }
+    ]
+    log_text = (run.dir / "log.txt").read_text(encoding="utf-8")
+    assert (
+        "FlowView stage tables state=done started_at=10.25 "
+        "ended_at=12.75 duration_s=2.5 "
+        'metrics={"objects":48,"tables":4}'
+    ) in log_text
+
+
 def test_failed_run_records_traceback(tmp_path):
     from spacr.run_journal import open_run
     with pytest.raises(RuntimeError):
         with open_run("mask", {}) as run:
             raise RuntimeError("boom")
     m = json.loads((run.dir / "manifest.json").read_text())
+    assert ":ivar error_traceback:" in (type(run).__doc__ or "")
+    assert "RuntimeError" in run.error_traceback
     assert m["status"] == "failed"
     assert "RuntimeError" in (m.get("traceback") or "")
 

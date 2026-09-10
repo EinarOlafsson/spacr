@@ -1,0 +1,22 @@
+{
+  "lesson": "58_graph_builder",
+  "status": "Recording held; no new narration, translated scenes or media staged",
+  "application_commit": "ecec4559e",
+  "package_version": "1.5.0.4",
+  "capture_directory": "refresh_2026-09-09/captures/graph_builder_brush_evidence",
+  "actual_inputs": "The downloaded Annotate example's cell table, 2341 rows",
+  "verified_operations": ["Real file picker", "Native XTest column drags", "Area histogram", "Area/intensity scatter", "Column colour groups", "Row facets", "Live area filter, 2341 to 1171 rows at 21925", "Clear restores all 2341 rows", "Actual Plate Viewer and Small Multiples fold controls"],
+  "unresolved_brush": {
+    "native_press_and_release_inside_current_axes": true,
+    "published_object_keys": 653,
+    "published_source": "graph_builder",
+    "visible_selected_count": 0,
+    "open_selection_in_annotate_enabled": false,
+    "scientific_acceptance": false,
+    "source_observation": "GraphCanvas links with default echo=False and brush publishes without applying its own selection. The own-source echo is suppressed. GraphBuilderScreen also only updates the handoff from rendered. Application owner must assess both update paths."
+  },
+  "chart_or_spec_export_button_present_in_current_screen": false,
+  "app_source_modified": false,
+  "recorded_results_or_chart_spec_injected": false,
+  "published": false
+}

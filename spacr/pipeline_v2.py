@@ -105,6 +105,9 @@ class FilenameMapper:
     root) so users can Excel-open ``filename_map.csv`` and see the
     original path of every image in the run.
 
+    :param records: parsed filename records in file-system order.
+    :param metadata_type: name of the metadata convention used to parse them.
+    :param regex: regular-expression source used for parsing.
     :ivar records: list of :class:`FilenameRecord` in file-system order.
     :ivar metadata_type: which regex was used (``"cellvoyager"`` /
         ``"yokogawa"`` / ``"custom"``).
@@ -113,6 +116,7 @@ class FilenameMapper:
 
     def __init__(self, records: List[FilenameRecord],
                   metadata_type: str, regex: str):
+        """Store parsed filename records and the metadata rule that made them."""
         self.records = records
         self.metadata_type = metadata_type
         self.regex = regex
@@ -185,7 +189,10 @@ class FilenameMapper:
     # -- persistence -------------------------------------------------------
     def save_csv(self, path: Path) -> Path:
         """Write the mapping to ``path`` as a CSV that Excel opens
-        cleanly. One row per (original image, resulting stack slot)."""
+        cleanly. One row per (original image, resulting stack slot).
+
+        :param path: destination CSV path; its parent directory is created.
+        """
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         cols = ["original_path", "plate", "well", "field", "channel",
@@ -205,7 +212,10 @@ class FilenameMapper:
 
     @classmethod
     def load_csv(cls, path: Path) -> "FilenameMapper":
-        """Rehydrate a mapper from a previously-saved CSV."""
+        """Rehydrate a mapper from a previously-saved CSV.
+
+        :param path: mapping CSV previously written by :meth:`save_csv`.
+        """
         path = Path(path)
         recs: List[FilenameRecord] = []
         with open(path) as f:
@@ -303,6 +313,11 @@ class StackFile:
     Populated by :func:`stream_originals_to_stack` before Cellpose
     runs (C = image channels only). After :func:`stream_masks_from_stack`
     the same file has additional mask channels appended.
+
+    :ivar field_id: stable field identifier used in the stack filename.
+    :ivar path: path to the on-disk NumPy stack.
+    :ivar shape: ``(height, width, channels)`` shape at write time.
+    :ivar channels: human-readable channel names in array order.
     """
     field_id:  str
     path:      Path
@@ -478,6 +493,39 @@ def _read_plane(path: str) -> np.ndarray:
 # Pass 2 — stream Cellpose masks back into the same stacks
 # ---------------------------------------------------------------------------
 
+
+def _as_hwc(arr: np.ndarray) -> np.ndarray:
+    """A loaded field as (H, W, C), whatever singleton axes it was saved with.
+
+    A stack written as a bare plane is (H, W) on disk, and both ends of the
+    mask pass need a channel axis: Cellpose is called with
+    ``channel_axis=-1`` and refuses a 2-D image outright, and the write-back
+    concatenates the mask onto this same array, which numpy refuses when the
+    two disagree on rank. Promoting once, at load, keeps one shape convention
+    for the whole pass instead of a squeeze that puts the mismatch off until
+    the batch is already segmented.
+    """
+    arr = np.asarray(arr)
+    if arr.ndim == 3:
+        return arr
+    squeezed = arr.squeeze()
+    if squeezed.ndim == 2:
+        return squeezed[..., np.newaxis]
+    return squeezed
+
+
+def _cellpose_channel_indices(
+        channels_for_cellpose: Sequence[int], n_channels: int
+        ) -> Tuple[int, ...]:
+    """Resolve requested channels into persisted C-axis positions once."""
+    if n_channels <= 0:
+        raise ValueError("a V2 field has no persisted intensity channels")
+    indices = [
+        int(channel) % n_channels for channel in channels_for_cellpose
+    ]
+    return tuple(dict.fromkeys(indices)) or (0,)
+
+
 @timed
 def stream_masks_from_stack(
     stacks: List[StackFile],
@@ -494,6 +542,7 @@ def stream_masks_from_stack(
     resample: bool = True,
     postprocess_settings: Optional[Dict[str, Any]] = None,
     object_type: str = "cell",
+    illumination_session: Optional[Any] = None,
 ) -> List[StackFile]:
     """Batch the field stacks through Cellpose, then append the mask
     channel(s) to the SAME npy files.
@@ -516,6 +565,12 @@ def stream_masks_from_stack(
         whether that file and the scratch folder survive the run.
     :param npz_dir: where to write the (optional) intermediate NPZ
         files. Defaults to a scratch subfolder under the stack folder.
+    :param illumination_session: optional
+        :class:`spacr.illumination.SegmentationIlluminationSession`. Its
+        corrector sees private selected-channel copies immediately before
+        normalisation/Cellpose; persisted intensity planes and scratch NPZs
+        remain raw, and completion is recorded only after the combined stack
+        has been atomically replaced.
     :returns: the same list, with each :class:`StackFile.shape` /
         ``.channels`` updated to reflect the appended mask channel.
     """
@@ -538,8 +593,10 @@ def stream_masks_from_stack(
     import torch
     from .utils import _resolve_cellpose_pretrained
 
-    use_gpu = torch.cuda.is_available()
-    device = torch.device("cuda:0" if use_gpu else "cpu")
+    from .accelerator import is_gpu, torch_device
+
+    use_gpu = is_gpu()
+    device = torch_device()
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type)
     model = cp_models.CellposeModel(
@@ -559,7 +616,7 @@ def stream_masks_from_stack(
             f"v2.batch[{batch_start}:{batch_start + len(batch)}] "
             f"load", logger="spacr.pipeline_v2",
         ):
-            loaded = [np.load(s.path) for s in batch]
+            loaded = [_as_hwc(np.load(s.path)) for s in batch]
 
         # Optionally persist the batch as NPZ for debugging.
         # Deleted after run unless keep_npz=True.
@@ -573,17 +630,20 @@ def stream_masks_from_stack(
         # being faster, keeping the call boundary identical matters for exact
         # V1/V2 reproducibility on CPSAM.
         selected_images: List[np.ndarray] = []
-        for arr in loaded:
-            if arr.ndim == 3:
-                indices = [
-                    int(channel) % arr.shape[-1]
-                    for channel in channels_for_cellpose
-                ]
-                indices = list(dict.fromkeys(indices)) or [0]
-                raw_img = arr[..., indices]
-            else:
-                raw_img = arr.squeeze()
-            selected_images.append(raw_img)
+        for sf, arr in zip(batch, loaded):
+            indices = _cellpose_channel_indices(
+                channels_for_cellpose, arr.shape[-1])
+            selected = arr[..., list(indices)]
+            if illumination_session is not None:
+                from .measure_hooks import PreprocessingContext
+                context = PreprocessingContext(
+                    file_name=sf.path.name,
+                    channels=indices,
+                    settings=postprocess_settings or {},
+                )
+                selected = illumination_session.correct(
+                    sf.field_id, selected, context)
+            selected_images.append(selected)
 
         # V1 segments the percentile-normalised float batch under masks/*.npz,
         # not the raw uint16 planes later retained in merged/.  V2 deliberately
@@ -683,9 +743,12 @@ def stream_masks_from_stack(
             combined = np.concatenate(
                 [arr, mask[..., None]], axis=-1
             ).astype(np.uint16)
-            np.save(sf.path, combined)
+            from .io import _save_array_atomic
+            _save_array_atomic(str(sf.path), combined)
             sf.shape = combined.shape
             sf.channels = sf.channels + [mask_channel_name]
+            if illumination_session is not None:
+                illumination_session.mark_completed(sf.field_id)
 
         if not keep_npz:
             try:
@@ -700,22 +763,25 @@ def stream_masks_from_stack(
         except Exception:
             pass
 
-    # Update the channel-order sidecar
-    if stacks:
-        sidecar = stacks[0].path.parent / "channel_order.json"
-        try:
-            meta = json.loads(sidecar.read_text())
-            meta["mask_channels"] = [mask_channel_name]
-            sidecar.write_text(json.dumps(meta, indent=2))
-        except Exception as exc:
-            # The masks are written either way, so this does not fail the
-            # stage — but channel_order.json is what every later reader uses
-            # to know which plane is a mask, and a sidecar that silently did
-            # not get the entry makes the stack self-describing and wrong.
-            LOG.warning("channel_order.json at %s was not updated with "
-                        "mask_channels=%r (%s); readers of this stack will "
-                        "not know which plane holds the mask.",
-                        sidecar, mask_channel_name, exc)
+    # The empty case returned before Cellpose was loaded, so stacks[0] is
+    # available here without a second, unreachable emptiness check.
+    sidecar = stacks[0].path.parent / "channel_order.json"
+    try:
+        meta = json.loads(sidecar.read_text())
+        meta["mask_channels"] = [mask_channel_name]
+        sidecar.write_text(json.dumps(meta, indent=2))
+    except Exception as exc:
+        # The masks are written either way, so this does not fail the
+        # stage — but channel_order.json is what every later reader uses
+        # to know which plane is a mask, and a sidecar that silently did
+        # not get the entry makes the stack self-describing and wrong.
+        LOG.warning("channel_order.json at %s was not updated with "
+                    "mask_channels=%r (%s); readers of this stack will "
+                    "not know which plane holds the mask.",
+                    sidecar, mask_channel_name, exc)
+
+    if illumination_session is not None:
+        illumination_session.finish(sf.field_id for sf in stacks)
 
     return stacks
 
@@ -741,6 +807,7 @@ def run_v2(
     resample: bool = True,
     postprocess_settings: Optional[Dict[str, Any]] = None,
     object_type: str = "cell",
+    illumination_settings: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Run the entire v2 pipeline against ``src``. Convenience wrapper.
 
@@ -813,6 +880,11 @@ def run_v2(
         is passed to the mask post-processor. An unrecognised value does
         not raise — it adds a dead ``<value>_channel`` key and leaves every
         real role unset.
+    :param illumination_settings: full Mask settings mapping. When it enables
+        ``illumination_correction``, one model is prepared from the raw
+        persisted stacks after pass 1 and its session corrects only the
+        private Cellpose inputs in pass 2; omitted/off preserves the previous
+        byte-level output contract.
     :returns: dict with ``mapper`` (:class:`FilenameMapper`), ``stacks``
         (list of :class:`StackFile`), and ``dst`` (Path to ``merged/``).
     :raises ValueError: from :meth:`FilenameMapper.discover` when ``src``
@@ -825,6 +897,18 @@ def run_v2(
     stacks = stream_originals_to_stack(
         src, mapper, channels=channels, channel_names=channel_names,
     )
+    illumination_session = None
+    if (stacks and illumination_settings and
+            illumination_settings.get('illumination_correction', False)):
+        from .illumination import prepare_segmentation_illumination
+        persisted_positions = _cellpose_channel_indices(
+            channels_for_cellpose, len(stacks[0].channels))
+        illumination_session = prepare_segmentation_illumination(
+            illumination_settings,
+            src=stacks[0].path.parent,
+            channels=persisted_positions,
+            pipeline_style='v2',
+        )
     stream_masks_from_stack(
         stacks, model_name=model_name,
         channels_for_cellpose=channels_for_cellpose,
@@ -836,6 +920,7 @@ def run_v2(
         resample=resample,
         postprocess_settings=postprocess_settings,
         object_type=object_type,
+        illumination_session=illumination_session,
     )
     return {"mapper": mapper, "stacks": stacks,
             "dst": src / "merged"}

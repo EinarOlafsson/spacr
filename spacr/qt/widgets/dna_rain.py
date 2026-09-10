@@ -110,11 +110,12 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QRect, Qt, QTimer,
                             Signal)
 from PySide6.QtGui import (QColor, QFont, QFontDatabase, QFontMetricsF,
                            QImage, QPainter, QPen, QPixmap)
-from PySide6.QtWidgets import (QColorDialog, QGridLayout,
+from PySide6.QtWidgets import (QGridLayout,
                                QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                                QSlider, QWidget)
 
 from ..theme import RADIUS, SPACING, palette_for
+from .colour_picker import pick_colour
 from .toggle import Toggle
 
 # ---------------------------------------------------------------------------
@@ -274,6 +275,7 @@ def derive_head_color(base: QColor, background: QColor) -> QColor:
     gl = background.lightnessF()
 
     def gain(light: float) -> float:
+        """How far a lightness is from both reference lightnesses."""
         return min(abs(light - bl), abs(light - gl))
 
     up = min(1.0, bl + HEAD_LIGHT_STEP)
@@ -390,7 +392,7 @@ class Column:
         whole glyph heights, so a slow column (4 cells/s) sat still for six
         frames and then jumped a whole character — the stepping that reads as
         choppy. Raising the frame rate cannot fix that on its own: the
-        position simply has fewer places it is allowed to be.
+        position has fewer allowed values.
     :ivar hi_start: first cell index of the highlighted run.
     :ivar hi_end: one past the last cell index of the highlighted run.
     :ivar word_index: cell index of the multi-character token, or -1.
@@ -444,6 +446,14 @@ class DnaRainEngine:
                  font_size: int = DEFAULT_FONT_PX,
                  seed: Optional[int] = None,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY):
+        """Roll the falling columns from the seed.
+
+        :param width: the field's width in pixels.
+        :param height: its height.
+        :param font_size: the cell size the columns are pitched on.
+        :param seed: what makes the animation reproducible.
+        :param spacr_probability: how often a column splices in the word.
+        """
         self._rng = random.Random(seed)
         # Its own stream, offset from the seed so it is neither the same
         # sequence nor correlated with it, and still reproducible.
@@ -469,6 +479,10 @@ class DnaRainEngine:
 
     @property
     def font_size(self) -> int:
+        """The cell size the columns are laid out on, in pixels.
+
+        :returns: the font size.
+        """
         return self._font_size
 
     @property
@@ -478,6 +492,10 @@ class DnaRainEngine:
 
     @property
     def n_columns(self) -> int:
+        """How many falling strings the simulation holds.
+
+        :returns: the column count.
+        """
         return len(self.columns)
 
     @property
@@ -556,6 +574,11 @@ class DnaRainEngine:
         return tokens, word_index
 
     def _roll(self, column: Optional[Column], initial: bool) -> Column:
+        """Fill one column with fresh tokens.
+
+        :param column: the column to fill.
+        :param initial: True on the first roll, when columns start mid-fall.
+        """
         rng = self._rng
         length = rng.randint(MIN_STRING_CELLS, self.max_length)
         speed = rng.uniform(MIN_SPEED_CELLS_PER_S, MAX_SPEED_CELLS_PER_S)
@@ -593,9 +616,18 @@ class DnaRainEngine:
         return column
 
     def _spawn(self, initial: bool) -> Column:
+        """Create every column.
+
+        :param initial: True on the first spawn, so the field starts full
+            rather than raining in from the top edge.
+        """
         return self._roll(None, initial)
 
     def _respawn(self, column: Column) -> None:
+        """Send one finished column back to the top with new tokens.
+
+        :param column: the column that fell off the bottom.
+        """
         self._roll(column, initial=False)
         self.respawns += 1
 
@@ -674,6 +706,13 @@ class DnaRainEngine:
 
 
 def _clamp_int(value, low: int, high: int) -> int:
+    """Clamp a value into an integer range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped integer.
+    """
     return max(low, min(high, int(value)))
 
 
@@ -723,6 +762,20 @@ class DnaRainWidget(QWidget):
                  random_colors: bool = False,
                  spacr_probability: float = SPACR_SPLICE_PROBABILITY,
                  theme: Optional[str] = None):
+        """Build the rain widget over its engine.
+
+        :param parent: parent widget.
+        :param seed: what makes the animation reproducible.
+        :param font_size: the cell size.
+        :param fps: the repaint cap.
+        :param color: the column colour.
+        :param background: the colour behind it.
+        :param backdrop: whether it paints as a backdrop.
+        :param opacity: how strongly it is drawn.
+        :param random_colors: whether each column takes its own hue.
+        :param spacr_probability: how often the word is spliced in.
+        :param theme: the palette's name.
+        """
         super().__init__(parent)
         palette = palette_for(theme or _effective_theme())
         self._bg = _as_color(background, QColor(palette["bg"]))
@@ -791,9 +844,20 @@ class DnaRainWidget(QWidget):
         return derive_head_color(self._color, self._bg)
 
     def background_color(self) -> QColor:
+        """The colour painted behind the rain.
+
+        A COPY, so a caller cannot recolour this widget by mutating what it
+        was handed.
+
+        :returns: the background colour.
+        """
         return QColor(self._bg)
 
     def opacity(self) -> float:
+        """How strongly the rain is drawn over its background, 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity
 
     def random_colors(self) -> bool:
@@ -825,6 +889,11 @@ class DnaRainWidget(QWidget):
         return self._column_color(self._engine.columns[index])
 
     def _column_color(self, column: Column) -> QColor:
+        """The colour one column is drawn in.
+
+        :param column: the column.
+        :returns: its colour.
+        """
         if not self._random_colors:
             return QColor(self._color)
         # Quantised exactly as the pen cache quantises it, so this
@@ -950,6 +1019,10 @@ class DnaRainWidget(QWidget):
 
     # -- simulation knobs ----------------------------------------------
     def font_size(self) -> int:
+        """The engine's cell size, in pixels.
+
+        :returns: the font size.
+        """
         return self._engine.font_size
 
     def set_font_size(self, px: int) -> None:
@@ -963,6 +1036,10 @@ class DnaRainWidget(QWidget):
         self.update()
 
     def speed(self) -> float:
+        """How fast the columns fall, as a multiplier of the base rate.
+
+        :returns: the speed multiplier.
+        """
         return self._engine.speed_multiplier
 
     def set_speed(self, factor: float) -> None:
@@ -976,10 +1053,24 @@ class DnaRainWidget(QWidget):
         self._timer.setInterval(max(1, 1000 // self._fps))
 
     def fps(self) -> int:
+        """The cap on repaints per second.
+
+        A CAP, NOT A RATE: this is a backdrop, and it must not take frames
+        from whatever the user is actually doing in front of it.
+
+        :returns: the frame cap.
+        """
         return self._fps
 
     @property
     def engine(self) -> DnaRainEngine:
+        """The simulation behind this widget.
+
+        Exposed so a test can step the animation deterministically without a
+        Qt event loop -- the engine is Qt-free and seeded.
+
+        :returns: the engine.
+        """
         return self._engine
 
     # -- run state -----------------------------------------------------
@@ -998,6 +1089,13 @@ class DnaRainWidget(QWidget):
         self._timer.stop()
 
     def _should_run(self) -> bool:
+        """Whether the animation is worth advancing right now.
+
+        FALSE WHEN HIDDEN: this is a backdrop and must not take frames from
+        whatever the user is doing in front of it.
+
+        :returns: True when the timer should keep firing.
+        """
         if not self.isVisible():
             return False
         window = self.window()
@@ -1014,6 +1112,10 @@ class DnaRainWidget(QWidget):
 
     # -- Qt events -----------------------------------------------------
     def showEvent(self, event):
+        """Start animating, and follow the window this widget belongs to.
+
+        :param event: the Qt show event.
+        """
         super().showEvent(event)
         window = self.window()
         if window is not None and window is not self._watched:
@@ -1025,6 +1127,13 @@ class DnaRainWidget(QWidget):
         self._sync_run_state()
 
     def hideEvent(self, event):
+        """Stop animating.
+
+        A HIDDEN BACKDROP MUST COST NOTHING. Without this the timer keeps
+        firing and the columns keep advancing for a widget nobody can see.
+
+        :param event: the Qt hide event.
+        """
         super().hideEvent(event)
         self.stop()
 
@@ -1047,6 +1156,10 @@ class DnaRainWidget(QWidget):
         self.lower()
 
     def resizeEvent(self, event):
+        """Re-lay the columns for the new size and repaint.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self._sync_size()
         self.update()
@@ -1064,6 +1177,7 @@ class DnaRainWidget(QWidget):
 
     # -- animation -----------------------------------------------------
     def _on_tick(self) -> None:
+        """Advance the columns and repaint."""
         dt = self._clock.restart() / 1000.0
         self.advance_frame(min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps)
 
@@ -1106,6 +1220,7 @@ class DnaRainWidget(QWidget):
         open_run = False
 
         def close():
+            """Close the run being accumulated and emit it."""
             width = (last_col - first_col + 1) * cell + extra
             rects.append(QRect(first_col * cell, top * cell, width,
                                (bottom - top + 1) * cell))
@@ -1133,6 +1248,7 @@ class DnaRainWidget(QWidget):
 
     # -- painting ------------------------------------------------------
     def _rebuild_font(self) -> None:
+        """Rebuild the font and re-pitch the columns after a size change."""
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPixelSize(max(MIN_FONT_PX, self._engine.font_size))
         font.setBold(True)
@@ -1245,6 +1361,10 @@ class DnaRainWidget(QWidget):
         return strip
 
     def paintEvent(self, event):
+        """Draw the current frame.
+
+        :param event: the Qt paint event.
+        """
         self._sync_size()
         painter = QPainter(self)
         engine = self._engine
@@ -1328,6 +1448,25 @@ class DnaRainSettingsBar(QWidget):
                  random_color: bool = False,
                  vertical: bool = False,
                  theme: Optional[str] = None):
+        """Build the controls for the DNA-rain backdrop.
+
+        Every parameter is the STARTING value of a control, not a fixed
+        setting: the bar exists to change them, and each has a widget below.
+
+        :param parent: parent widget.
+        :param color: the glyph colour to start on; anything
+            :func:`_as_color` accepts, defaulting to ``DEFAULT_COLOR``.
+        :param speed: fall speed multiplier.
+        :param font_size: glyph size in pixels.
+        :param opacity: glyph opacity, 0 to 1.
+        :param random_color: start with a colour per column rather than one
+            colour, which makes the swatch inactive until it is turned off.
+        :param vertical: lay the bar out as a column instead of a row.
+        :param theme: which theme to style against, or ``None`` for the
+            active one. The bar needs an opaque surface of its own because
+            the rain is painted behind it and the global background rule
+            does not reach a widget carrying its own stylesheet.
+        """
         super().__init__(parent)
         self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._rain: Optional[DnaRainWidget] = None
@@ -1464,15 +1603,36 @@ class DnaRainSettingsBar(QWidget):
 
     # -- state ---------------------------------------------------------
     def color(self) -> QColor:
+        """The colour currently chosen in the bar.
+
+        A COPY, so the caller cannot edit the bar's own colour in place.
+
+        :returns: the chosen colour.
+        """
         return QColor(self._color)
 
     def speed(self) -> float:
+        """The chosen speed multiplier.
+
+        The slider counts in percent because a QSlider is integer-valued;
+        this is the number the rain actually wants.
+
+        :returns: the multiplier.
+        """
         return self._speed.value() / 100.0
 
     def font_size(self) -> int:
+        """The chosen cell size, in pixels.
+
+        :returns: the font size.
+        """
         return self._font.value()
 
     def opacity(self) -> float:
+        """The chosen opacity, 0 to 1.
+
+        :returns: the opacity.
+        """
         return self._opacity.value() / 100.0
 
     def random_color(self) -> bool:
@@ -1480,6 +1640,7 @@ class DnaRainSettingsBar(QWidget):
         return self._random.isChecked()
 
     def _paint_swatch(self) -> None:
+        """Redraw the colour swatch from the chosen colour."""
         self._swatch.setStyleSheet(
             "QPushButton#DnaRainSwatch {"
             f" background: {self._color.name()};"
@@ -1487,6 +1648,7 @@ class DnaRainSettingsBar(QWidget):
             " border-radius: 3px; }")
 
     def _refresh_readouts(self) -> None:
+        """Update the numbers beside each slider."""
         self._speed_value.setText(f"{self.speed():.1f}x")
         self._font_value.setText(f"{self.font_size()} px")
         self._opacity_value.setText(f"{round(self.opacity() * 100)}%")
@@ -1500,14 +1662,24 @@ class DnaRainSettingsBar(QWidget):
 
     def pick_color(self) -> None:
         """Open the colour picker; keep the current colour on cancel."""
-        chosen = QColorDialog.getColor(self._color, self, "DNA rain colour")
+        # Qt's own dialog, never the platform one -- see
+        # :mod:`spacr.qt.widgets.colour_picker`.
+        chosen = pick_colour(self, self._color, "DNA rain colour")
         if chosen.isValid():
             self.set_color(chosen)
 
     def set_speed(self, factor: float) -> None:
+        """Move the speed slider to ``factor``.
+
+        :param factor: the multiplier; converted to the slider's percent.
+        """
         self._speed.setValue(int(round(float(factor) * 100)))
 
     def set_font_size(self, px: int) -> None:
+        """Move the font slider, clamped to the range the bar offers.
+
+        :param px: the wanted size in pixels.
+        """
         self._font.setValue(_clamp_int(px, MIN_FONT_PX, MAX_FONT_PX))
 
     def set_random_color(self, on: bool) -> None:
@@ -1515,22 +1687,46 @@ class DnaRainSettingsBar(QWidget):
         self._random.setChecked(bool(on))
 
     def _on_random(self, on: bool) -> None:
+        """Turn per-column random colours on or off.
+
+        :param on: True for random colours.
+        """
         self.random_color_changed.emit(bool(on))
 
     def _on_speed(self, _value: int) -> None:
+        """Apply the speed slider.
+
+        :param _value: the slider's position; re-read from the widget.
+        """
         self._refresh_readouts()
         self.speed_changed.emit(self.speed())
 
     def set_opacity(self, value: float) -> None:
+        """Move the opacity slider, clamped to the range the bar offers.
+
+        CLAMPED RATHER THAN REFUSED: this is restored from a saved
+        preference, and a value from an older build with a wider range
+        should land at the nearest legal one rather than stop the restore.
+
+        :param value: the wanted opacity, 0 to 1.
+        """
         self._opacity.setValue(
             _clamp_int(round(float(value) * 100), MIN_OPACITY_PCT,
                        MAX_OPACITY_PCT))
 
     def _on_font(self, value: int) -> None:
+        """Apply the font-size slider.
+
+        :param value: the new size in pixels.
+        """
         self._refresh_readouts()
         self.font_size_changed.emit(int(value))
 
     def _on_opacity(self, _value: int) -> None:
+        """Apply the opacity slider.
+
+        :param _value: the slider's position; re-read from the widget.
+        """
         self._refresh_readouts()
         self.opacity_changed.emit(self.opacity())
 
@@ -1563,6 +1759,11 @@ class DnaRainSettingsBar(QWidget):
 
 
 def _muted_label(text: str) -> QLabel:
+    """Build a label in the muted style.
+
+    :param text: the text.
+    :returns: the label.
+    """
     label = QLabel(text)
     label.setObjectName("Muted")
     return label

@@ -53,11 +53,10 @@ def test_no_tooltip_is_an_archive(tips):
 
 
 def test_no_tooltip_merely_restates_its_own_name(tips):
-    """One known exception remains: organelle_chann_dim at 75 chars, which
-    is genuinely complete and simply short."""
+    """Every tooltip has enough room to explain an actual consequence."""
     too_short = {k: len(v) for k, v in tips.items()
                  if 0 < len(v) < MIN_TOOLTIP_CHARS}
-    assert len(too_short) <= 1, f"tooltips under {MIN_TOOLTIP_CHARS}: {too_short}"
+    assert not too_short, f"tooltips under {MIN_TOOLTIP_CHARS}: {too_short}"
 
 
 def test_no_tooltip_is_empty(tips):

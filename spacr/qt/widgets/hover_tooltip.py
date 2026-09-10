@@ -120,6 +120,31 @@ _UNBOUNDED = 16777215
 #: only teal spaCR already ships as a named constant.
 TEAL = "#009B9B"
 
+#: The purple half. Same reasoning as TEAL: the palette has no purple, and
+#: `accent` is the blue. Chosen to clear WCAG AA large-text contrast on both
+#: the light and dark popup surfaces, which a lighter violet does not.
+PURPLE = "#7C3AED"
+
+#: THE TWO WORDS: an API link and an Animation link, with the dot removed, and again for the bottom strip, "which should
+#: also just say API".
+#:
+#: THIS REVERSES A REQUEST MADE EARLIER THE SAME DAY -- "instead of API just
+#: show a teel dot for api and a purple square for annimation" -- so the
+#: marks are recorded here rather than deleted silently, in case the reasons
+#: matter again:
+#:
+#:   * the words were repeated on every row that had them, so they cost a
+#:     line and carried no information after the first reading;
+#:   * the marks differed in SHAPE as well as colour, because a colourblind mode was added and a teal dot beside a purple square stays
+#:     distinguishable when the colours do not.
+#:
+#: THE SECOND REASON IS SATISFIED BY THIS CHANGE RATHER THAN DROPPED BY IT.
+#: "API" and "Animation" are distinguishable with no colour at all, which is
+#: strictly better on that axis than two shapes. If the marks ever come back,
+#: they must differ in form and not only in hue.
+API_MARK = "API"
+ANIMATION_MARK = "Animation"
+
 _ANCHOR_RE = re.compile(
     r"<a\b[^>]*?href\s*=\s*([\"'])(.*?)\1[^>]*>(.*?)</a>",
     re.IGNORECASE | re.DOTALL,
@@ -197,12 +222,20 @@ class _LinkWord(QLabel):
     Not an ``<a>``: Qt's rich text underlines anchors, and the two words were
     asked for without one. Colour comes from the popup's own stylesheet (see
     :meth:`HoverTooltip._apply_theme`) so both words re-theme together.
+
+    :param text: the word, drawn as PLAIN text -- see above for why it is
+        not an anchor.
+    :param object_name: the QSS handle this word is styled by. Given per
+        word rather than fixed, because the popup's sheet colours each one
+        differently and there is no other way for it to tell them apart.
+    :param parent: parent widget; ownership only.
     """
 
     clicked = Signal()
 
     def __init__(self, text: str, object_name: str,
                  parent: Optional[QWidget] = None):
+        """Build the word: plain text, styled by its object name."""
         super().__init__(text, parent)
         self.setObjectName(object_name)
         self.setTextFormat(Qt.PlainText)
@@ -232,12 +265,18 @@ class _AnimationView(QLabel):
     ``border-radius`` rounds only the background the label paints *under* the
     pixmap, and the pixmap is opaque to its own edges — so the square stayed
     square however the sheet was written.
+
+    :param size: the square's side in px. FIXED at construction, both as the
+        widget's size and as the size frames are scaled to, so a later
+        layout change cannot stretch the square into a rectangle.
+    :param parent: parent widget; ownership only.
     """
 
     #: Corner radius of the square, in pixels.
     CORNER_RADIUS = 10
 
     def __init__(self, size: int, parent: Optional[QWidget] = None):
+        """Build the square, fixed at ``size`` with no frames yet."""
         super().__init__(parent)
         self.setObjectName("SettingTooltipAnimation")
         self._size = int(size)
@@ -260,7 +299,7 @@ class _AnimationView(QLabel):
         """Return ``pixmap`` clipped to this view's rounded rectangle.
 
         The black backing is painted inside the same path, not left to the
-        stylesheet: a square background behind a rounded pixmap would simply
+        stylesheet: a square background behind a rounded pixmap would
         fill the corners back in.
         """
         radius = float(self.CORNER_RADIUS)
@@ -353,12 +392,19 @@ class _AnimationView(QLabel):
     def _schedule(self) -> None:
         # One delay per frame, guaranteed by `read_frames`; a still image has
         # nothing to schedule.
+        """Arm the timer for the current frame's own delay.
+
+        Per-frame rather than one interval for all of them, because a GIF's
+        frames are not evenly spaced. A single still has nothing to schedule and
+        is left alone rather than ticking a timer for one image.
+        """
         if len(self._frames) < 2:
             return
         self._timer.start(
             max(self.MIN_DELAY_MS, int(self._delays[self._index])))
 
     def _advance(self) -> None:
+        """Show the next frame and re-arm. Wraps at the end."""
         if not self._frames:
             return
         self._index = (self._index + 1) % len(self._frames)
@@ -389,6 +435,11 @@ class HoverTooltip(QFrame):
 
     def __init__(self):
         # Popup window with tool-tip semantics but our own paint control.
+        """Build the process-wide hover popup.
+
+        A tool-tip window with our own painting: shown without activating, so it
+        never takes focus from what the pointer is over.
+        """
         super().__init__(
             None,
             Qt.ToolTip | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint,
@@ -417,7 +468,12 @@ class HoverTooltip(QFrame):
         # AlignVCenter would float the prose down to the middle of the square
         # while the widget's top edge stayed put — top-aligned by geometry
         # and centred to the eye, which is not what was asked for.
-        self._label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        # JUSTIFIED. Asked for 2026-08-28. A tooltip is a paragraph of prose
+        # in a narrow fixed-width popup, which is where a ragged right edge
+        # is most visible: every line ends somewhere different and the block
+        # reads as an offcut rather than as a paragraph. Qt justifies rich
+        # text, and the popup is rich text already.
+        self._label.setAlignment(Qt.AlignJustify | Qt.AlignTop)
         column.addWidget(self._label)
 
         self._links = QWidget(self._text_column)
@@ -425,14 +481,32 @@ class HoverTooltip(QFrame):
         links_row = QHBoxLayout(self._links)
         links_row.setContentsMargins(0, 0, 0, 0)
         links_row.setSpacing(SPACING["sm"])
-        self._api_link = _LinkWord("API", "HoverTooltipApiLink", self._links)
+        # The drawn text and the announced text are the same again, which
+        # they were not while the marks were drawn. The accessible names are
+        # set explicitly all the same: they were correct throughout and are
+        # what a screen reader has always said, so leaving them to be
+        # inferred from the label would be trading a guarantee for a
+        # coincidence.
+        #
+        # NO `setToolTip` ON EITHER WORD, reported 2026-09-03: "for some
+        # reason when i hover API links they get a tooltip themeselves upon
+        # hover. remove this." These two words live INSIDE this panel, and
+        # this panel is itself the tooltip -- so hovering one raised a
+        # second, native tooltip on top of the help the reader was already
+        # reading. The strings said nothing the words do not say.
+        #
+        # The `setAccessibleDescription` calls stay. A screen reader reads
+        # those, not the tooltip, so removing the popup costs a sighted
+        # reader nothing and costs a screen-reader user nothing either.
+        self._api_link = _LinkWord(API_MARK, "HoverTooltipApiLink",
+                                   self._links)
         self._api_link.setAccessibleName("API")
         self._api_link.setAccessibleDescription(
             "Open spaCR API documentation for this setting."
         )
         self._api_link.clicked.connect(self.open_api_documentation)
         self._animation_link = _LinkWord(
-            "Animation", "HoverTooltipAnimationLink", self._links)
+            ANIMATION_MARK, "HoverTooltipAnimationLink", self._links)
         self._animation_link.setAccessibleName("Animation")
         self._animation_link.setAccessibleDescription(
             "Show or hide this setting's animation."
@@ -518,13 +592,22 @@ class HoverTooltip(QFrame):
             f"QLabel#SettingTooltipAnimation {{"
             f"  background: transparent;"
             f"}}"
-            # Two words, two colours, no underline anywhere.
+            # Two marks, two colours, no underline anywhere. Teal DOT for
+            # the API, purple SQUARE for the animation -- the colours the
+            # maintainer named, and the shapes carry the same distinction
+            # for a reader who cannot separate the colours.
+            #
+            # A LARGER FONT THAN THE PROSE: these glyphs are drawn at the
+            # label's font size, and at the popup's small size a circle
+            # reduces to a few pixels. They are targets as well as marks.
             f"QLabel#HoverTooltipApiLink {{"
-            f"  color: {palette['accent']};"
+            f"  color: {TEAL};"
+            f"  font-size: {font_px('small') + 4}px;"
             f"  text-decoration: none;"
             f"}}"
             f"QLabel#HoverTooltipAnimationLink {{"
-            f"  color: {TEAL};"
+            f"  color: {PURPLE};"
+            f"  font-size: {font_px('small') + 4}px;"
             f"  text-decoration: none;"
             f"}}"
         )
@@ -573,9 +656,23 @@ class HoverTooltip(QFrame):
         self._position_under(anchor)
         self.show()
 
-    def start_hide(self, delay_ms: int = 250) -> None:
-        """Schedule a hide after ``delay_ms`` unless the cursor re-enters."""
-        self._hide_timer.start(delay_ms)
+    #: How long the popup waits before hiding, in milliseconds.
+    #:
+    #: Long enough for the cursor to cross the gap from a setting label to the
+    #: popup and trigger its cancel-on-enter behavior.
+    #:
+    #: The cost of being generous is a tooltip that lingers a moment after
+    #: the cursor has genuinely left, which is the mistake worth making: the
+    #: other one loses text the user was reading.
+    HIDE_DELAY_MS = 700
+
+    def start_hide(self, delay_ms: int = 0) -> None:
+        """Schedule a hide after ``delay_ms`` unless the cursor re-enters.
+
+        ``0`` means :data:`HIDE_DELAY_MS` -- the default is named rather than
+        written into the signature so every caller moves together.
+        """
+        self._hide_timer.start(int(delay_ms) or self.HIDE_DELAY_MS)
 
     def cancel_hide(self) -> None:
         """Cancel any pending hide timer (called on cursor re-entry)."""
@@ -854,8 +951,53 @@ class HoverTooltip(QFrame):
         QToolTip.hideText()
 
     # ------------------------------------------------------------------
+    def _pointer_is_on_me(self) -> bool:
+        """Is the pointer over this popup, asked in a way every platform
+        answers the same.
+
+        `underMouse()` IS NOT RELIABLE HERE and that is the whole reason this
+        exists. It reports whether Qt has delivered an Enter to the widget,
+        and a `Qt.ToolTip` window is precisely the kind of window a platform
+        may decline to send mouse events to -- so on one desktop the popup
+        knows the pointer is on it and survives, and on another it never
+        learns and hides while being read.
+
+        Reported repeatedly against the picture settings ("the tooltipps ...
+        dissapear when the the mouse is hovering over the tooltip text") and
+        NOT REPRODUCIBLE on the development machine, where `underMouse()`
+        answers True. A behaviour that depends on which window manager is
+        running is not a behaviour; the geometry test does not.
+        """
+        from PySide6.QtGui import QCursor
+
+        # THE GEOMETRY DECIDES, and `underMouse()` is not consulted at all.
+        # It was, as a first answer with the geometry as a fallback, and that
+        # inherited exactly the unreliability it was added to work around:
+        # measured here, `underMouse()` reports True with the cursor
+        # demonstrably outside the popup's rectangle, and elsewhere it
+        # reports False with the pointer on it. A source that is wrong in
+        # both directions cannot improve an answer by being consulted first.
+        #
+        # `frameGeometry`, not `geometry`: the popup is frameless so they
+        # agree, and if a platform ever adds a frame the pointer is still on
+        # the popup when it is over that frame.
+        try:
+            return self.frameGeometry().contains(QCursor.pos())
+        except (RuntimeError, TypeError):
+            return False
+
     def _maybe_hide(self) -> None:
-        if self.underMouse():
+        """Hide the popup, unless the pointer is still on it or on its anchor.
+
+        Checking the anchor for ``None`` is not enough. This popup is a
+        process-wide singleton holding a plain reference to a widget it does not
+        own, and the hide is deferred by a timer -- so hovering a settings label
+        and switching module inside the delay destroys the anchor's C++ object
+        while the timer is still pending. The Python wrapper survives, the
+        ``None`` check passes, and the geometry query then raises inside the Qt
+        event loop, where there is nobody to catch it.
+        """
+        if self._pointer_is_on_me():
             return
         # `self._anchor is not None` is not enough. The tooltip is a
         # process-wide singleton holding a plain reference to a widget it does
@@ -868,7 +1010,10 @@ class HoverTooltip(QFrame):
         anchor = self._anchor
         if anchor is not None:
             try:
-                if anchor.underMouse():
+                from PySide6.QtGui import QCursor
+
+                if anchor.rect().contains(
+                        anchor.mapFromGlobal(QCursor.pos())):
                     return
             except RuntimeError:
                 # The anchored widget is gone; nothing can be hovering it.
@@ -897,8 +1042,13 @@ class HoverTooltip(QFrame):
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        """Restart the hide timer with a short delay when the cursor leaves."""
-        self.start_hide(delay_ms=100)
+        """Restart the hide timer when the cursor leaves the POPUP itself.
+
+        Shorter than the anchor's grace period on purpose: leaving the popup
+        is a deliberate act, where leaving the label may just be the journey
+        towards it.
+        """
+        self.start_hide(delay_ms=250)
         super().leaveEvent(event)
 
 

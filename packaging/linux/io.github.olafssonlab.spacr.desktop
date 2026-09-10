@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=spaCR
+Comment=Spatial phenotype analysis of CRISPR screens
+Exec=spacr
+Icon=io.github.olafssonlab.spacr
+StartupWMClass=spaCR
+Terminal=false
+Categories=Science;Education;
+StartupNotify=true

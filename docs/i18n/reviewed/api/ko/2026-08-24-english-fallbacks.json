@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.legacy_tk.app_annotate.start_annotate_app#0",
+      "source_sha256": "b7f6b3486b269c4f8a792d0e6afc39b846d4ef8af6cdc4d141face5403bac8d8",
+      "source": "Launch the main spacr GUI with the Annotate tab preselected.",
+      "context": "Launch the main spacr GUI with the Annotate tab preselected.",
+      "translation": "Annotate 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_classify.start_classify_app#0",
+      "source_sha256": "4e96bec391afa978f8aa5ae3c041048e770730bba92aa89572fe88652b24443d",
+      "source": "Launch the main spacr GUI with the Classify tab preselected.",
+      "context": "Launch the main spacr GUI with the Classify tab preselected.",
+      "translation": "Classify 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_make_masks.start_make_mask_app#0",
+      "source_sha256": "6cbba8e05b876bd74ef4c590c2e044245cea21870279f179b38077905af9a73b",
+      "source": "Launch the main spacr GUI with the Make Masks tab preselected.",
+      "context": "Launch the main spacr GUI with the Make Masks tab preselected.",
+      "translation": "Make Masks 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_mask.start_mask_app#0",
+      "source_sha256": "9e54bca7775f27af5ea949eb435360a933a354430cd8eb0dadefec83c68c6ddc",
+      "source": "Launch the main spacr GUI with the Mask tab preselected.",
+      "context": "Launch the main spacr GUI with the Mask tab preselected.",
+      "translation": "Mask 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_measure.start_measure_app#0",
+      "source_sha256": "3805ac6318e51f490c1e644963a576ab5de8c9096071d56827d70154adba1b0b",
+      "source": "Launch the main spacr GUI with the Measure tab preselected.",
+      "context": "Launch the main spacr GUI with the Measure tab preselected.",
+      "translation": "Measure 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_sequencing.start_seq_app#0",
+      "source_sha256": "61e3c67664473049b97072efd08b76534ea7769e87a9122037c85366faab3489",
+      "source": "Launch the main spacr GUI with the Sequencing tab preselected.",
+      "context": "Launch the main spacr GUI with the Sequencing tab preselected.",
+      "translation": "Sequencing 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.app_umap.start_umap_app#0",
+      "source_sha256": "1b9d319cdeed6f065843390d8eff033902da280fbf39d06dbf7143f1f4aae5c5",
+      "source": "Launch the main spacr GUI with the Umap tab preselected.",
+      "context": "Launch the main spacr GUI with the Umap tab preselected.",
+      "translation": "Umap 탭이 미리 선택된 상태로 spacr 기본 GUI 를 실행합니다."
+    },
+    {
+      "label": "spacr.legacy_tk.gui#0",
+      "source_sha256": "0671211f893e71d525ca7d341f8f3178f4b046f47c2d4a02403db09d6cdf170d",
+      "source": "Entry point and application shell for spaCR's legacy Tk interface.",
+      "context": "Entry point and application shell for spaCR's legacy Tk interface.",
+      "translation": "spaCR 레거시 Tk 인터페이스의 진입점이자 애플리케이션 셸입니다."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_elements#0",
+      "source_sha256": "9a4a792eeef52ccb54b8654441b44ac9eae924a408f10303bbd555ca4f13406e",
+      "source": "Widgets and interactive tools for spaCR's legacy Tk interface.",
+      "context": "Widgets and interactive tools for spaCR's legacy Tk interface.",
+      "translation": "spaCR 레거시 Tk 인터페이스를 위한 위젯과 대화형 도구입니다."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_elements.ModifyMaskApp.update_dividing_line_preview#0",
+      "source_sha256": "a50128e17fcffeca98514d2c4cd5573a13d8306e730503684bb7a6eb54235d7a",
+      "source": "Extend and redraw the in-progress dividing-line preview stroke.",
+      "context": "Extend and redraw the in-progress dividing-line preview stroke.",
+      "translation": "작업 중인 분할선 미리보기 획을 연장하고 다시 그립니다."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_utils#0",
+      "source_sha256": "802afbdd0d9c58eba492cf6a358051f96b692acd694a3e39df16377528a40105",
+      "source": "Shared helpers for spaCR's legacy Tk graphical interface.",
+      "context": "Shared helpers for spaCR's legacy Tk graphical interface.",
+      "translation": "spaCR 레거시 Tk 그래픽 인터페이스가 공유하는 보조 함수들입니다."
+    },
+    {
+      "label": "spacr.qt.preferences.set_popup_backdrop#0",
+      "source_sha256": "922254b9b0169199375f71b42d3ef71638bc638f992db0834c1dc4b12c9fbc31",
+      "source": "Store the popup backdrop. An unknown name stores the default.",
+      "context": "Store the popup backdrop. An unknown name stores the default.",
+      "translation": "팝업 배경을 저장합니다. 알 수 없는 이름이면 기본값을 저장합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.addItem#0",
+      "source_sha256": "b325b1e45736312aa3eca2e81c66de411aac294ef959ac2113aea861a1a5ee9b",
+      "source": "Append a layout item (Qt calls this for every added widget).",
+      "context": "Append a layout item (Qt calls this for every added widget).",
+      "translation": "레이아웃 항목을 추가합니다. 위젯이 추가될 때마다 Qt 가 이 메서드를 호출합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.itemAt#0",
+      "source_sha256": "d8b4e08fce890a001675e500e83a6890ef22ab63da00c494836b4e08e00a3e06",
+      "source": "Return the item at ``index``, or None when out of range.",
+      "context": "Return the item at ``index``, or None when out of range.",
+      "translation": "``index`` 위치의 항목을 반환하고, 범위를 벗어나면 None 을 반환합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.flow.FlowLayout.takeAt#0",
+      "source_sha256": "cfef4272a36bccd7b95a252faf3f4acd568e9afd2af29d03e314ac2734fce73b",
+      "source": "Remove and return the item at ``index``, or None.",
+      "context": "Remove and return the item at ``index``, or None.",
+      "translation": "``index`` 위치의 항목을 제거하여 반환하고, 없으면 None 을 반환합니다."
+    },
+    {
+      "label": "spacr.qt.widgets.provider_marks.mark_for#0",
+      "source_sha256": "0a740e13308275efc0b04efba25caf9b18fce89690873ca2e3c3d0c48ad8fb33",
+      "source": "The path for ``code`` inside ``box``, or None for an unknown one.",
+      "context": "The path for ``code`` inside ``box``, or None for an unknown one.",
+      "translation": "``code`` 에 해당하는 경로를 ``box`` 안에서 반환하며, 알 수 없으면 None 입니다."
+    }
+  ]
+}

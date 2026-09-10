@@ -186,6 +186,8 @@ class ClassScoreModel(nn.Module):
     A head emitting ``C > 1`` logits is passed through untouched.
 
     :param model: the classifier to wrap.
+    :param n_out: optional raw output width. If omitted, the first forward
+        pass infers it from the wrapped model's output.
     :ivar n_out: the wrapped model's raw output width (1 or C).
     :ivar n_classes: the number of classes the wrapper exposes (2 or C).
     :ivar single_logit: True when the wrapped head emits one logit.
@@ -208,7 +210,10 @@ class ClassScoreModel(nn.Module):
         return raw
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return ``(B, n_classes)`` scores for ``x``."""
+        """Return ``(B, n_classes)`` scores for ``x``.
+
+        :param x: input batch passed to the wrapped classifier.
+        """
         raw = self._note_width(self.model(x))
         if raw.shape[-1] == 1:
             return torch.cat([-raw, raw], dim=-1)
@@ -310,6 +315,8 @@ def conv_layer_names(model: nn.Module) -> List[str]:
 
 def recommended_layer(model: nn.Module) -> Optional[str]:
     """The last convolutional layer — the usual CAM target — or None.
+
+    :param model: model whose convolutional layers are scanned.
 
     Mirrors :func:`spacr.utils.recommend_target_layers`, but returns None for a
     model with no convolutions instead of raising, so the CAM adapters can raise
@@ -471,25 +478,33 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
 class Attribution:
     """One attribution map plus everything needed to judge it.
 
-    :ivar method: registered method name.
-    :ivar map: 2-D ``(H, W)`` float32 array at the input's spatial resolution,
-        guaranteed finite. Larger means "ranked higher by this method"; the
-        scale is arbitrary and differs between methods, which is why every
-        analysis here uses ranks rather than values.
-    :ivar raw: the method's signed, per-channel output where it has one
-        (gradient and perturbation families), else None. The CAM family has no
-        per-channel form.
-    :ivar target: the class index the map explains.
-    :ivar n_classes: how many classes the head exposes (2 for a single logit).
-    :ivar single_logit: whether the underlying head emits one logit.
-    :ivar predicted: the class the model actually predicted for this input.
-    :ivar layer: the layer a CAM hooked, else None.
-    :ivar family: ``'cam'``, ``'gradient'``, ``'perturbation'`` or
-        ``'attention'``.
-    :ivar backend: which library produced it — ``'torchcam'``, ``'captum'`` or
-        ``'spacr'``.
-    :ivar params: the keyword arguments that produced this map.
-    :ivar notes: caveats the caller must surface.
+    :param method: Requested attribution-method name; normally a key of
+        :data:`ATTRIBUTION_METHODS`, and retained verbatim on a skipped-failure
+        placeholder.
+    :param map: Finite 2-D float32 map at input spatial resolution; larger
+        values rank pixels higher, while a skipped failure carries an all-zero
+        placeholder.
+    :param target: Class index this map was requested to explain.
+    :param n_classes: Number of classes exposed by the normalized head,
+        including two for a single-logit binary head.
+    :param single_logit: Whether the underlying model head emitted one binary
+        logit.
+    :param predicted: Class predicted by the model for the attributed input.
+    :param raw: Signed per-channel attribution retained by methods that expose
+        it, or ``None`` when no such representation exists.
+    :param layer: Resolved CAM target-layer name, the caller's requested layer
+        on a skipped failure, or ``None`` when no layer applies.
+    :param family: Registered family (``"cam"``, ``"gradient"``,
+        ``"perturbation"``, or ``"attention"``), or an empty string for an
+        unregistered skipped failure.
+    :param backend: Registered implementation provider (``"torchcam"``,
+        ``"captum"``, or ``"spacr"``), or an empty string for an unregistered
+        skipped failure.
+    :param params: Recorded call options, including the resolved layer and
+        SmoothGrad flag for registry-dispatched methods; this is not a complete
+        expansion of every effective default.
+    :param notes: User-facing caveats, flat-map or single-logit context, or the
+        reason a placeholder method failed.
     """
 
     method: str
@@ -845,6 +860,51 @@ def _sigma_to_stdev(sigma: float, x: torch.Tensor) -> float:
 # Adapter — attention rollout
 # ---------------------------------------------------------------------------
 
+def _ask_for_attention_weights(blocks):
+    """Make each MHA block return its weights. Returns an undo callable.
+
+    The override is by keyword only. `nn.MultiheadAttention.forward` takes
+    `need_weights` as its fifth positional parameter, and a caller that
+    passed it positionally would have its argument silently replaced -- so
+    those are left exactly as they are, and the existing "none returned
+    attention weights" refusal still covers them.
+
+    `average_attn_weights=False` because rollout fuses the heads itself:
+    'mean', 'max' and 'min' are the caller's choice, and a block that has
+    already averaged offers only one of the three.
+    """
+    originals = []
+
+    def _wrap(block):
+        """Install the attention-weight adapter and return the original call."""
+        original = block.forward
+
+        def forward(*args, **kwargs):
+            """Request per-head weights unless a positional request owns them."""
+            if len(args) < 5 and "need_weights" not in kwargs:
+                kwargs = dict(kwargs)
+                kwargs["need_weights"] = True
+                kwargs.setdefault("average_attn_weights", False)
+            elif kwargs.get("need_weights") is False:
+                kwargs = dict(kwargs)
+                kwargs["need_weights"] = True
+                kwargs.setdefault("average_attn_weights", False)
+            return original(*args, **kwargs)
+
+        block.forward = forward
+        return original
+
+    for block in blocks:
+        originals.append((block, _wrap(block)))
+
+    def restore():
+        """Restore every block's exact original bound forward method."""
+        for block, original in originals:
+            block.forward = original
+
+    return restore
+
+
 def attention_rollout(model: nn.Module, image: Any, *,
                       target: Optional[int] = None,
                       head_fusion: str = "mean",
@@ -908,10 +968,25 @@ def attention_rollout(model: nn.Module, image: Any, *,
             captured.append(out[1].detach())
 
     handles = [b.register_forward_hook(_hook) for b in blocks]
+    # THE BLOCKS ARE ASKED FOR THEIR WEIGHTS, not merely watched.
+    #
+    # A hook can only capture what `forward` RETURNS, and torchvision's ViT
+    # calls `self.self_attention(x, x, x, need_weights=False)` -- so nothing
+    # was ever returned to capture, and this method raised on the only
+    # architecture family it exists for. Driven on vit_b_16, which is one of
+    # the ten backbones spaCR offers: "has MultiheadAttention blocks but
+    # none returned attention weights". The docstring described what the
+    # blocks would do if they were asked, which nobody was doing.
+    #
+    # `need_weights=True` also takes PyTorch off its fused kernel, which is
+    # the point: the fused path computes no explicit attention matrix at
+    # all. It is slower and it runs once, under no_grad, for one image.
+    restore = _ask_for_attention_weights(blocks)
     try:
         with torch.no_grad():
             wrapped(x)
     finally:
+        restore()
         for h in handles:
             h.remove()
 
@@ -995,14 +1070,17 @@ def _attention_adapter(spec: "MethodSpec", wrapped: ClassScoreModel,
 class MethodSpec:
     """One registered attribution method.
 
-    :ivar name: the key callers pass as ``method=``.
-    :ivar family: ``'cam'``, ``'gradient'``, ``'perturbation'`` or
-        ``'attention'`` — the families fail in different ways, which is why
-        agreement *across* families is worth more than agreement within one.
-    :ivar backend: ``'torchcam'``, ``'captum'`` or ``'spacr'``.
-    :ivar needs_layer: whether a spatial target layer is required.
-    :ivar smoothed: whether the adapter should wrap itself in SmoothGrad.
-    :ivar description: one line the GUI can show.
+    :param name: registry key callers pass as ``method=``.
+    :param family: method family—``"cam"``, ``"gradient"``,
+        ``"perturbation"``, or ``"attention"``.
+    :param backend: implementation provider—``"torchcam"``, ``"captum"``, or
+        ``"spacr"``.
+    :param fn: adapter callable that computes this method's attribution.
+    :param needs_layer: whether the method requires a spatial target layer.
+    :param smoothed: whether the Captum adapter wraps the base attributor in a
+        SmoothGrad noise tunnel.
+    :param description: concise user-facing explanation suitable for method
+        selectors.
     """
 
     name: str
@@ -1840,12 +1918,15 @@ def randomization_sanity_check(
 class Agreement:
     """Pairwise rank correlation between several methods on the same image.
 
-    :ivar methods: method names, in matrix order.
-    :ivar matrix: symmetric ``(n, n)`` Spearman correlation matrix.
-    :ivar mean: mean of the off-diagonal entries.
-    :ivar minimum: smallest off-diagonal entry.
-    :ivar pairs: every ``(method_a, method_b, rho)``, most disagreeing first.
-    :ivar notes: the verdict in words.
+    :param methods: attribution-method names in matrix row and column order.
+    :param matrix: symmetric Spearman rank-correlation matrix for those
+        methods.
+    :param mean: mean of the finite off-diagonal correlations.
+    :param minimum: smallest finite off-diagonal correlation.
+    :param pairs: ``(method_a, method_b, rho)`` comparisons ordered from
+        greatest disagreement upward.
+    :param notes: verdict and interpretive caveats accompanying the agreement
+        result.
     """
 
     methods: List[str]
@@ -1951,6 +2032,8 @@ class AttributionMapGenerator:
     :param smoothgrad_samples: when above 1, each map is SmoothGrad-averaged.
     :param smoothgrad_sigma: SmoothGrad noise as a fraction of the input range.
     :param kw: forwarded to the method.
+    :raises UnknownMethodError: if ``method`` is not registered in
+        :data:`ATTRIBUTION_METHODS`.
     """
 
     def __init__(self, model, method: str = "gradcam",

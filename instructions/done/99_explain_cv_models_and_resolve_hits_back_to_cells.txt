@@ -1,0 +1,261 @@
+================================================================================
+EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
+================================================================================
+
+Status:    done, 2026-08-15.
+Requested: 2026-08-14 — "there should be a module that can generate suragate
+           xgboost or simmilar models to explain what computer vision models
+           are focusing on, whrough using human interpretable features, and
+           feature importance, shap importance and so on."
+           2026-08-14 — after regression identifies a hit such as EAF1, use
+           each hit-containing well's EAF1 guide-read proportion and its
+           single-cell classifier-score distribution to identify and annotate
+           the cells most likely to carry the EAF1-KO phenotype, compare them
+           with non-hit wells in UMAP, and add evidence that inspires
+           confidence in the method.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+THE SURROGATE BACKEND ALREADY EXISTS. Instruction 17 added
+`spacr/surrogate.py`: it joins CV predictions to measured object features,
+holds wells intact between training and testing, fits a Random Forest
+surrogate, reports held-out fidelity against the majority baseline, and ranks
+features by tree gain, held-out permutation importance, and optional SHAP.
+It deliberately stopped before adding a GUI module. The new request should
+surface and extend that tested implementation, not create a second explainer
+with different join, leakage, or fidelity rules.
+
+THE HIT-TO-CELL BRIDGE DOES NOT EXIST. Regression and guide permutation can
+produce gene/gRNA effects; `spacr.hits` adds FDR, effect, support and agreement
+and the Hit List screen displays them. The database holds per-object
+measurements and classifier scores, while sequencing supplies one guide-read
+fraction per well/guide. Image UMAP can visualize and annotate exact objects.
+Nothing presently combines those pieces into a probabilistic cell attribution
+for a selected hit.
+
+THE CENTRAL LIMIT IS IDENTIFIABILITY. An EAF1 read fraction is observed for a
+whole well. It is not a cell barcode, and it is not automatically the fraction
+of cells infected by an EAF1-KO parasite: amplification efficiency, guide
+abundance, parasite number, mixed infection and selection can separate those
+quantities. Sorting the cells by the same classifier score that created the
+well phenotype and labelling the top EAF1 fraction would be a useful review
+queue, but it would not independently prove which cells are EAF1-KO.
+
+2026-08-15 implementation checkpoint: the tested backend and desktop seams
+now exist. ``Explain CV Model`` offers recorded Random Forest,
+HistGradientBoosting and optional XGBoost backends, grouped well/plate
+holdouts, a fidelity gate, class metrics/confusion, gain/permutation/SHAP,
+signed per-cell SHAP, dependence artifacts, feature-family/correlation
+disclosures and object/activation-map links. ``Investigate Hit`` carries the
+exact Hit List selection, hashes its regression artifacts, performs guarded
+object/well joins, produces an honest directional review ranking, cross-fits a
+hierarchical guide-fraction mixture without forcing read fraction to equal
+cell prevalence, and writes well/guide evidence, a control-fitted embedding
+and blinded gallery/key. Versioned database storage does not touch hand
+annotations; a dedicated screen exposes fresh-column promotion and audited
+Undo. The quantitative report includes well bootstrap/blocked permutation
+evidence plus guide-fraction and well-label nulls that refit cross-fitting
+inside each permutation. A real three-plate file/database pipeline and focused
+core/Qt tests pass. Documentation is drafted; final public-API/runtime catalog
+regeneration, broader tests and closeout remain.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Activation maps answer WHERE a CV model attended. A faithful surrogate answers
+WHAT measurable morphology, intensity or texture reproduces its decisions.
+Returning a gene-level hit to individual images adds the biological question:
+WHAT CELLULAR SUBPOPULATION appears to carry the hit phenotype? Putting all
+three views together can turn a ranked hit into an inspectable mechanism.
+
+This also creates a serious circularity risk. A visually separated UMAP of
+cells selected by the original score demonstrates that the selection is
+coherent; by itself it does not validate either the classifier or the guide
+identity. The feature must distinguish exploratory evidence, internal
+validation and orthogonal validation in both the UI and exported report.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A. MAKE THE EXISTING SURROGATE A FIRST-CLASS MODULE
+
+1. Register one visible `Explain CV Model` module through the normal settings,
+   validation, dispatch, screen, tooltip and documentation seams. It chooses a
+   measurements database and an existing CV prediction output; it must not
+   silently rerun or substitute the CV model.
+2. Keep `build_surrogate_frame` as the one join and keep its one-to-one and
+   leakage guards. Prediction score/probability, class, identifiers, metadata
+   labels and annotations derived from the answer must never enter the
+   explanatory feature matrix.
+3. Offer a fixed dropdown of supported surrogate families. Keep Random Forest
+   for backward compatibility; add XGBoost when installed and a maintained
+   sklearn histogram-gradient-boosting alternative. Record the actual backend
+   and its version. A missing optional XGBoost dependency must disable that
+   choice clearly, not fall back under the same label.
+4. Fidelity comes before importance. Report grouped held-out fidelity, the
+   majority baseline, improvement over baseline, class-wise metrics and a
+   confusion matrix. Default grouping is well; plate-held-out evaluation is
+   offered where enough plates exist. Refuse to present importances as an
+   explanation when the surrogate does not meaningfully reproduce the CV
+   model.
+5. Show global gain, held-out permutation importance and mean absolute SHAP,
+   plus per-cell signed SHAP and dependence plots. Correlated features must be
+   disclosed and optionally grouped by biological family; disagreement among
+   importance methods is shown rather than averaged away.
+6. Link selected importance rows back to their feature distributions and link
+   selected cells to crop/image inspection and activation/occlusion maps. Save
+   the exact feature list, excluded leakage columns, split units, random seed,
+   model parameters, fidelity and sampled SHAP object IDs.
+
+B. ADD `INVESTIGATE HIT` AFTER REGRESSION / HIT LIST
+
+1. A selected hit such as EAF1 opens an investigation screen carrying the
+   exact regression run, phenotype, effect direction, FDR, included guides,
+   guide agreement, well support and guide-read fractions. Never infer the hit
+   again from whichever result file happens to be newest.
+2. Build one cell frame through explicit object/well keys. It contains stable
+   object identity, plate/well, measured features, the existing classifier
+   score, target-guide fractions, other-guide fractions, QC/batch covariates
+   and control status. Assert one cell row and one fraction per well/guide;
+   duplicates or cross-field joins are errors.
+3. Start with an honest review ranking: cells in target-containing wells,
+   ordered in the regression's effect direction by classifier score. Label it
+   `candidate ranking`, not inferred infection, and show the well's target
+   fraction beside every cell.
+4. Add a calibrated weak-supervision model only when the design identifies it.
+   Treat wells as bags and cells as instances. Learn the target-like and
+   background score/feature distributions across MANY wells while guide
+   fraction supplies a noisy well-level covariate or prior. Estimate
+   `P(target-hit phenotype | cell, well, run)` with a hierarchical mixture,
+   multiple-instance-learning, or learning-from-label-proportions model. Do
+   not force the mean cell probability to equal the sequencing fraction unless
+   an explicit calibration experiment establishes that relationship.
+5. Cross-fit the probabilities: every displayed cell is scored by a model that
+   did not train on its well, and preferably not its plate. Fit nuisance/batch
+   effects only on training folds. Multiple guides targeting the same gene are
+   separate evidence streams before a gene-level consensus is formed.
+6. Store results without overwriting hand annotations. Use a provenance table
+   keyed by object identity plus attribution-run ID, with target gene/guide,
+   probability, uncertainty, threshold/call, source regression run, model and
+   feature versions, split fold and timestamps. Provide an explicit, reversible
+   `promote selected calls to annotation column` action for users who want the
+   normal annotation/classification workflow.
+
+C. MAKE THE COMPARISON QUANTITATIVE, NOT ONLY A PERSUASIVE UMAP
+
+1. Fit the reduction on morphology/features that exclude guide identity,
+   target-well status and the classifier output being validated. Learn the
+   embedding without the held-out comparison wells, then transform those wells
+   where the reducer supports it. Clearly mark exploratory embeddings that
+   cannot satisfy that contract.
+2. Overlay high-probability EAF1-like cells, the remaining cells from the same
+   wells, matched non-hit wells, non-targeting controls, and positive controls.
+   Show wells/plates, density contours and sample counts so one large well
+   cannot masquerade as reproducibility.
+3. The useful claim is not merely "a cluster exists." Quantify whether the
+   target-like population is enriched in EAF1 wells and absent or depleted in
+   matched no-hit wells with per-well prevalence, effect size, bootstrap
+   confidence interval and a plate-aware permutation test. Define the region
+   or classifier on training wells and evaluate prevalence on untouched wells.
+4. Export an object gallery spanning high, borderline and low probabilities,
+   including false-looking examples from controls. Let a blinded reviewer
+   annotate that stratified sample and compare review with probability using
+   calibration, precision/recall and inter-annotator agreement.
+
+D. EVIDENCE THAT SHOULD INSPIRE CONFIDENCE
+
+The report should show an evidence ladder rather than one confidence badge:
+
+  * negative/non-targeting controls and positive controls processed identically;
+  * leave-one-well-out and, where possible, leave-one-plate-out performance;
+  * target-guide dose response across wells, without assuming read fraction is
+    an exact infection fraction;
+  * concordant effects and morphology from independent EAF1 guides;
+  * replicate-plate reproducibility and stability to cell/field resampling;
+  * guide-label and well-label permutation nulls, with the whole selection and
+    fitting pipeline repeated inside each permutation;
+  * calibration/reliability plots, threshold sensitivity, bootstrap intervals
+    and the number of independent wells rather than only the number of cells;
+  * a held-out morphology classifier that separates target candidates from
+    matched controls without using the original phenotype score;
+  * agreement between human-interpretable surrogate features, pixel-level
+    attribution/occlusion, and biological expectations, while preserving
+    disagreements as warnings;
+  * blinded manual review of a predeclared sample; and
+  * strongest of all, a small orthogonal experiment that assigns perturbation
+    identity per cell (arrayed EAF1 perturbation, rescue, or direct/in-situ guide
+    barcode readout) and measures the same phenotype.
+
+The last item is the distinction between inference and ground truth. Optical
+pooled screening methods can directly link image phenotype and perturbation
+barcode per cell (Feldman et al., Cell 2019, doi:10.1016/j.cell.2019.09.016;
+CRISPRmap, Nature Biotechnology 2024, doi:10.1038/s41587-024-02386-x). spaCR's
+well-proportion method can prioritize likely cells before such validation, but
+the UI and manuscript export must not describe those probabilities as directly
+observed guide identities.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On a synthetic multi-plate screen with planted guide mixtures, batch effects,
+multiple guides, null wells and known cell identities:
+
+  * the Explain module reproduces the CV decisions only from allowed measured
+    features, holds wells out, reports fidelity before importance, and recovers
+    the planted interpretable drivers with gain/permutation/SHAP;
+  * leakage columns, duplicate joins, missing provenance and unsupported model
+    choices fail clearly;
+  * hit investigation recovers calibrated probabilities on wells and plates
+    excluded from fitting, while shuffled-guide and null-well tests stay null;
+  * independent guides agree at the gene level and a deliberately discordant
+    guide remains visible rather than being averaged away;
+  * the database writes one versioned attribution per exact object without
+    altering existing annotations, and promotion is explicit and reversible;
+  * UMAP and galleries select the exact scored objects, and matched controls
+    report per-well enrichment with uncertainty instead of a visual-only claim;
+  * removing the guide-fraction signal or reversing the phenotype direction
+    destroys recovery, proving the test is exercising the intended evidence;
+  * focused core/database/Qt tests, a real miniature regression-to-hit-to-cell
+    pipeline, documentation/i18n gates and the release selection all pass.
+
+--------------------------------------------------------------------------------
+DO NOT CLAIM
+--------------------------------------------------------------------------------
+
+Do not call a candidate cell "EAF1-KO" merely because it lies in an EAF1 well
+and has an extreme score. Call it `EAF1-hit-like` or `high posterior under the
+well-level model` until a cell-resolved barcode or arrayed perturbation verifies
+identity. Do not use the same CV score to select, embed and validate the cells;
+do not split cells from one well across training and testing; and do not count
+thousands of correlated cells as thousands of independent experimental units.
+
+--------------------------------------------------------------------------------
+2026-08-15 - COMPLETED AND VERIFIED
+--------------------------------------------------------------------------------
+
+The two first-class desktop/headless modules, guarded joins, three recorded
+surrogate families, grouped fidelity gate, global and per-cell explanations,
+exact regression provenance, hierarchical cross-fitted cell attribution,
+versioned/reversible storage, quantitative well/guide evidence, control-fitted
+embedding and blinded review artifacts are implemented. The GUI carries the
+exact selected Hit List row and never labels an inferred cell as a directly
+observed perturbation identity.
+
+Verification on the settled tree:
+
+  * 34 guide-permutation, surrogate, attribution and real file/database tests;
+  * 130 focused Qt application and workbench tests under Xvfb;
+  * the complete notebook drift contract: 95 passed, 2 intentional skips;
+  * exact API source/English inventory: 6,582 symbols and 119 aliases;
+  * API catalogs: 9 languages x 6,582 symbols verified; and
+  * runtime catalogs: 9 languages, 941 settings, 176 categories, 1,456 UI
+    strings and 56 module summaries verified.
+
+The probability name, manifest and report retain the central limitation from
+this instruction: it is a cross-fitted target-hit-like phenotype under a
+well-level mixture, not an observed single-cell guide identity.

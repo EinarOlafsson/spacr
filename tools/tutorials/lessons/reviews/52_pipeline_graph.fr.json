@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Pipeline Graph : examiner la provenance réelle et les artefacts manquants",
+  "description": "Lisez les enregistrements réels, distinguez fichiers absents et provenance non enregistrée, filtrez le graphe et copiez sa représentation Graphviz complète sans relancer l’analyse.",
+  "objectives": [
+    "Ouvrir Pipeline graph depuis Help et choisir un projet existant.",
+    "Comparer la provenance enregistrée aux fichiers présents et reconnaître les dépendances non enregistrées.",
+    "Utiliser Current, Stale et Missing sans confondre nœuds masqués et enregistrements absents.",
+    "Relire avec Redraw, copier le graphe complet et enquêter avec le bon flux de travail."
+  ],
+  "prerequisite": "Utilisez le projet réel d’External Masks et la démonstration de nettoyage achevée dans Data Manager. L’enregistrement lit une copie vérifiée octet par octet de cet instantané archivé après nettoyage, à l’ancien chemin du projet dans un espace isolé ; les données originales et les enregistrements ne sont pas réécrits. Une conversion réelle distincte de Batch Runner illustre une provenance absente, pas une expérience non traitée. Les 131 fichiers originaux, 26 fichiers archivés et sept fichiers de conversion restent inchangés. Trois enregistrements historiques n’ont aucun lien d’entrée enregistré ; le quatrième appartient à un autre chemin de projet. Aucune suppression, analyse, récupération, requête d’IA, téléchargement dédié, prévisualisation d’image ou commande Plot n’est utilisée ici.",
+  "scenes": [
+    "Ouvrez Help, puis Pipeline graph. Cet écran examine les sorties enregistrées et leurs dépendances ; il n’exécute pas le pipeline. Nous utilisons, sur des copies privées, les sorties de données acquises d’External Masks et le véritable exemple de nettoyage de Data Manager. Consultez ces leçons pour produire et gérer les données en sécurité.",
+    "Utilisez d’abord Browse pour choisir le dossier d’images converties. La conversion Batch Runner s’est terminée, mais aucun artefact de sortie n’a été enregistré ici : le graphe est donc vide. Il manque la provenance ; cela ne prouve pas l’absence de traitement. Declared order décrit les dépendances possibles entre modules, pas l’historique des exécutions terminées.",
+    "Choisissez l’instantané du projet mesuré après nettoyage. Trois enregistrements historiques apparaissent : une base de mesures, des images recadrées et un journal de ressources. Deux chemins existent encore ; le dossier des recadrages a réellement été supprimé lors du nettoyage privé précédent. Cet enregistrement ne supprime rien et le projet expérimental original reste intact.",
+    "Cliquez sur le nœud de la base de mesures et élargissez les détails avec le séparateur. Lisez le chemin, le rôle, l’identifiant d’exécution, la date de production, la version de spaCR et l’empreinte des paramètres. Une empreinte n’est ni la liste complète des paramètres ni un bouton de restauration. Current ne garantit ni validité scientifique ni provenance complète.",
+    "Sélectionnez le nœud rouge des recadrages. Missing signifie que son chemin enregistré est absent. La taille enregistrée indique encore environ trois virgule quatre mégaoctets dans cent quatre fichiers : cent trois images recadrées et leur enregistrement de format. C’est une taille historique, pas l’espace occupé aujourd’hui, ni cent quatre cellules.",
+    "Le journal de ressources est un artefact séparé, hors du dossier du projet. Son chemin existe toujours, mais il n’a pas été déplacé dans l’archive. Ce graphe n’a aucun lien d’entrée enregistré. Nothing was derived from this signifie qu’aucune dépendance en aval n’a été enregistrée ici, pas que les sorties scientifiques étaient indépendantes.",
+    "Désactivez Current pour isoler l’artefact des recadrages manquants. Current, Stale et Missing sont des filtres d’affichage, pas des opérations sur les fichiers. Stale avertit d’un problème de provenance enregistrée ; cet exemple ne contient aucun artefact périmé. Cet écran n’a pas de filtres distincts par module, type d’artefact ou branche du flux.",
+    "Désactivez aussi Missing. Aucun nœud ne reste visible, bien que le bandeau indique toujours un artefact manquant sur trois. Dans cette version, le canevas vide affirme à tort que rien n’est enregistré et les détails précédents peuvent rester affichés. Vérifiez les filtres avant d’interpréter ces messages : masqué ne signifie pas supprimé.",
+    "Copy Graphviz place le graphe complet dans le presse-papiers, y compris les nœuds masqués. Nous avons vérifié la présence des trois identifiants réels et l’absence de flèches de dépendance inventées. Il s’agit de texte Graphviz DOT à utiliser ailleurs, pas d’une image enregistrée ni d’un export limité à la sélection visible.",
+    "Réactivez Current, puis Missing : deux nœuds réapparaissent, puis les trois. Cliquez de nouveau sur un nœud pour associer ses détails au graphe visible. Les filtres ne réparent pas les fichiers absents, ne modifient pas la provenance et ne choisissent pas un module à relancer. Examinez le chemin enregistré et le flux en amont avant d’agir.",
+    "Redraw relit le registre et vérifie à nouveau les artefacts. Nos enregistrements et les octets des fichiers restent inchangés. Utilisez Run History pour les paramètres sauvegardés et les journaux, ou Data Manager pour un nettoyage explicite. En Python, spacr.pipeline_graph fournit build_graph et to_dot. Cette inspection n’effectue ni régénération ni validation scientifique."
+  ]
+}

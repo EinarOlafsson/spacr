@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.fractal_travel.create_fractal_widget#1",
+      "source": "a QWidget carrying `backend_name`, `stats_text()`, `pause()`, `resume()` and `shutdown()`. Never raises for a missing GPU: an explicit ``backend='gpu'`` that cannot be built still falls back, because a backdrop is not worth refusing to start the application over.",
+      "context": "a QWidget carrying `backend_name`, `stats_text()`, `pause()`, `resume()` and `shutdown()`. Never throws for a missing GPU: an explicit ``backend='gpu'`` that cannot be built still falls back, because a backdrop is not worth refusing to start the application over.",
+      "source_sha256": "92581c03dc2b13d63dbfd578b5f7ad5822d9d162ed0dcd79d3c0335425b70a66",
+      "translation": "`backend_name`, `stats_text()`, `pause()`, `resume()`, `shutdown()`을 제공하는 QWidget입니다. GPU 장치가 없어도 예외를 발생시키지 않습니다. 명시적인 ``backend='gpu'`` 백엔드를 생성할 수 없는 경우에도 대체 백엔드로 전환됩니다. 배경 화면 효과 때문에 애플리케이션 시작을 거부할 이유가 없기 때문입니다."
+    }
+  ]
+}

@@ -46,9 +46,13 @@ from __future__ import annotations
 import logging
 import os
 import re
+import sys
+import threading
+import time
+import weakref
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -68,6 +72,7 @@ from .preview_contract import (
     preview_cellpose_model, preview_failure_message,
 )
 from .toggle import Toggle
+from .. import path_probe
 from ..job_runner import JobRunner
 
 # Reuse the Mask live preview's rendering + canvas primitives wholesale so
@@ -106,6 +111,33 @@ TRACK_COLOURS: Tuple[Tuple[int, int, int], ...] = (
 )
 
 
+# These weak sets let the process-wide memory policy discover already-loaded
+# preview caches without importing this comparatively heavy module and without
+# keeping a closed preview alive.
+_LIVE_FRAME_SEQUENCES: "weakref.WeakSet[FrameSequence]" = weakref.WeakSet()
+_LIVE_PREVIEW_PANELS: "weakref.WeakSet[TimelapsePreviewPanel]" = \
+    weakref.WeakSet()
+
+
+def _live_cache_owners():
+    """Decoded-frame and derived-mask caches that still have real owners."""
+    return tuple(_LIVE_FRAME_SEQUENCES) + tuple(_LIVE_PREVIEW_PANELS)
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Arm the shared memory-budget sweep, if the cleanup module is loaded.
+
+    Looked up in ``sys.modules`` rather than imported: this runs at widget
+    construction, and importing the cleanup machinery in order to register
+    with it would pull it in on every preview whether or not anything else
+    wanted it.
+    """
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
+
+
 class TrackerUnavailable(RuntimeError):
     """A linking backend cannot run here, with an actionable reason.
 
@@ -141,6 +173,10 @@ class FrameSequence:
     :param n_available: how many frames exist on disk.
     :param indices: the subset of frame indices this sequence exposes, so a
         400-frame movie can be previewed as its first 12 frames.
+    :param label: what to call the sequence in the UI. Empty falls back to
+        ``str(source)``, which for a file list is the list -- fine for one
+        path, unreadable for four hundred, so anything user-facing should
+        pass a name.
     :param cache_size: how many decoded frames to keep in the LRU.
     :ivar read_count: number of decodes actually performed — the instrument
         the tests assert against to prove nothing is read eagerly.
@@ -148,6 +184,15 @@ class FrameSequence:
 
     def __init__(self, kind: str, source, n_available: int,
                  indices: Sequence[int], label: str = "", cache_size: int = 6):
+        """Hold one sequence of frames, read lazily and cached.
+
+        :param kind: what the frames are -- images, masks, or an overlay.
+        :param source: where to read them from.
+        :param n_available: how many frames exist.
+        :param indices: which of them this sequence shows.
+        :param label: the caption for this sequence.
+        :param cache_size: how many decoded frames to keep.
+        """
         self.kind = kind
         self.source = source
         self.n_available = int(n_available)
@@ -155,6 +200,8 @@ class FrameSequence:
         self.label = label or str(source)
         self._cache: "dict[int, np.ndarray]" = {}
         self._cache_order: List[int] = []
+        self._cache_last_used: Dict[int, float] = {}
+        self._cache_lock = threading.RLock()
         self._cache_size = max(1, int(cache_size))
         self._memmap = None
         self.read_count = 0
@@ -237,6 +284,10 @@ class FrameSequence:
     # -- access ------------------------------------------------------------
 
     def __len__(self) -> int:
+        """How many frames this sequence shows.
+
+        :returns: the frame count.
+        """
         return len(self.indices)
 
     @property
@@ -249,18 +300,71 @@ class FrameSequence:
         if not (0 <= i < len(self.indices)):
             raise IndexError(i)
         real = self.indices[i]
-        hit = self._cache.get(real)
-        if hit is not None:
-            return hit
+        with self._cache_lock:
+            hit = self._cache.get(real)
+            if hit is not None:
+                self._cache_last_used[real] = time.time()
+                return hit
         arr = self._read(real)
         self.read_count += 1
-        self._cache[real] = arr
-        self._cache_order.append(real)
-        while len(self._cache_order) > self._cache_size:
-            self._cache.pop(self._cache_order.pop(0), None)
+        with self._cache_lock:
+            self._cache[real] = arr
+            if real in self._cache_order:
+                self._cache_order.remove(real)
+            self._cache_order.append(real)
+            self._cache_last_used[real] = time.time()
+            while len(self._cache_order) > self._cache_size:
+                old = self._cache_order.pop(0)
+                self._cache.pop(old, None)
+                self._cache_last_used.pop(old, None)
         return arr
 
+    def _cache_budget_entries(self):
+        """Measured decoded-frame entries for the process-wide policy."""
+        if not self._cache_lock.acquire(blocking=False):
+            return []
+        now = time.time()
+        try:
+            return [
+                (real, max(0, int(frame.nbytes)),
+                 float(self._cache_last_used.get(real, now)), False)
+                for real, frame in list(self._cache.items())
+            ]
+        finally:
+            self._cache_lock.release()
+
+    def _register_cache_budget(self) -> None:
+        """Publish this sequence after its worker hands it to the GUI thread."""
+        _LIVE_FRAME_SEQUENCES.add(self)
+        _ensure_cache_budget_sweep()
+
+    def _drop_cache_budget_entry(self, real) -> bool:
+        """Forget one decoded frame; the source can reproduce it exactly."""
+        if not self._cache_lock.acquire(blocking=False):
+            return False
+        real = int(real)
+        try:
+            existed = real in self._cache
+            self._cache.pop(real, None)
+            self._cache_last_used.pop(real, None)
+            try:
+                self._cache_order.remove(real)
+            except ValueError:
+                pass
+            return existed
+        finally:
+            self._cache_lock.release()
+
     def _read(self, real: int) -> np.ndarray:
+        """Decode one frame, going to the source only on a cache miss.
+
+        CACHED BECAUSE SCRUBBING RE-READS. A user dragging the scrub bar asks
+        for the same frames repeatedly, and decoding each time makes the drag
+        as slow as the disk.
+
+        :param real: the frame's index in the source.
+        :returns: the decoded frame.
+        """
         if self.kind == "files":
             path = self.source[real]
             if path.suffix.lower() == ".npy":
@@ -716,6 +820,18 @@ def _draw_segment(rgb: np.ndarray, x0, y0, x1, y1, colour) -> None:
 
 
 def _draw_dot(rgb: np.ndarray, x, y, colour, radius: int = 2) -> None:
+    """Paint a small filled square onto an RGB array.
+
+    Clipped to the array, so a track leaving the field draws what is still
+    inside rather than raising.
+
+    :param rgb: the image to draw on, modified in place.
+    :param x: centre column.
+    :param y: centre row.
+    :param colour: the RGB triple to fill with.
+    :param radius: half-width in pixels; at least 1, so a dot is never
+        invisible.
+    """
     h, w = rgb.shape[:2]
     x, y, r = int(x), int(y), max(1, int(radius))
     y0, y1 = max(0, y - r), min(h, y + r + 1)
@@ -784,27 +900,149 @@ class TimelapseRequest:
     sequence: Optional[FrameSequence] = None
     mask_sequence: Optional[FrameSequence] = None
     cached_masks: Optional[np.ndarray] = None
+    cached_images: Optional[np.ndarray] = None
     seg: Dict[str, Any] = field(default_factory=dict)
     track: Dict[str, Any] = field(default_factory=dict)
+    include_images: bool = False
+
+
+class MovieFieldCancelled(RuntimeError):
+    """A queued movie field was abandoned before it retained its arrays."""
+
+
+def movie_worker_interrupted() -> bool:
+    """Whether the JobRunner thread executing this field was cancelled."""
+    try:
+        return bool(QThread.currentThread().isInterruptionRequested())
+    except RuntimeError:
+        return True
+
+
+def _check_movie_cancelled(cancelled: Optional[Callable[[], bool]]) -> None:
+    """Raise if the movie render has been cancelled.
+
+    :param cancelled: called to ask; ``None`` never cancels.
+    :raises MovieFieldCancelled: when it answers ``True``. Raised rather
+        than returned so the unwinding happens wherever the render happens
+        to be, without every step having to check a flag.
+    """
+    if cancelled is not None and cancelled():
+        raise MovieFieldCancelled("movie field cancelled")
+
+
+def _read_sequence_frames(
+        sequence: FrameSequence,
+        cancelled: Optional[Callable[[], bool]] = None) -> np.ndarray:
+    """Read one sequence once, checking cancellation between every frame."""
+    frames = []
+    for index in range(len(sequence)):
+        _check_movie_cancelled(cancelled)
+        frames.append(np.asarray(sequence.frame(index)))
+    _check_movie_cancelled(cancelled)
+    return np.stack(frames, axis=0)
+
+
+def _read_and_segment_sequence(
+        sequence: FrameSequence,
+        params: Dict[str, Any],
+        cancelled: Optional[Callable[[], bool]] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Read and segment each frame once, returning raw images and masks."""
+    frames = []
+    masks = []
+    for index in range(len(sequence)):
+        _check_movie_cancelled(cancelled)
+        image = np.asarray(sequence.frame(index))
+        frames.append(image)
+        masks.append(segment_frame(image, params))
+    _check_movie_cancelled(cancelled)
+    shapes = {mask.shape for mask in masks}
+    if len(shapes) != 1:
+        raise ValueError(
+            f"frames segmented to different shapes {sorted(shapes)}; the "
+            "sequence is not a single field of view.")
+    return (np.stack(frames, axis=0),
+            np.stack(masks, axis=0).astype(np.int32))
 
 
 def run_preview_pass(req: TimelapseRequest) -> Dict[str, Any]:
     """Do the work of one preview: masks (maybe cached), then linking."""
     masks = req.cached_masks
+    images = req.cached_images
     segmented = False
     if masks is None:
         if req.mask_sequence is not None:
             masks = _as_label_stack(req.mask_sequence,
                                     int(req.seg.get("mask_channel", 0)))
         elif req.sequence is not None:
-            masks = segment_sequence(req.sequence, req.seg)
+            if req.include_images:
+                images, masks = _read_and_segment_sequence(
+                    req.sequence, req.seg)
+            else:
+                masks = segment_sequence(req.sequence, req.seg)
             segmented = True
         else:
             raise ValueError("Load a sequence first.")
     masks = np.asarray(masks)
+    if req.include_images and images is None and req.sequence is not None:
+        images = _read_sequence_frames(req.sequence)
     tracks = link_tracks(masks, **req.track)
     return {"masks": masks, "tracks": tracks, "segmented": segmented,
-            "masks_built": req.cached_masks is None}
+            "masks_built": req.cached_masks is None, "images": images}
+
+
+def build_movie_field(
+        path, *, max_frames: int, seg: Dict[str, Any],
+        track: Dict[str, Any], cached_masks: Optional[np.ndarray] = None,
+        cancelled: Optional[Callable[[], bool]] = None,
+) -> Dict[str, Any]:
+    """Open, segment and link one additional field without touching Qt UI.
+
+    Raw frames are retained for the movie, so a cache miss reads each frame
+    exactly once and hands that same array to segmentation.  ``cancelled`` is
+    checked between frames and before linking; the production callback reads
+    the worker QThread's interruption flag, which lets lowering the Fields cap
+    stop an expensive sibling before it retains the rest of the sequence.
+    """
+    source = Path(os.fspath(path))
+    sequence = FrameSequence.open(source, max_frames=max_frames)
+    _check_movie_cancelled(cancelled)
+    if cached_masks is None:
+        images, masks = _read_and_segment_sequence(
+            sequence, seg, cancelled=cancelled)
+        segmented = True
+    else:
+        images = _read_sequence_frames(sequence, cancelled=cancelled)
+        masks = np.asarray(cached_masks)
+        if int(masks.shape[0]) != len(sequence):
+            raise ValueError(
+                f"cached masks have {masks.shape[0]} frames but "
+                f"{source.name} now has {len(sequence)}")
+        segmented = False
+    _check_movie_cancelled(cancelled)
+    tracks = link_tracks(masks, **track)
+    _check_movie_cancelled(cancelled)
+    return {
+        "source": str(source),
+        "title": source.name or str(source),
+        "images": images,
+        "masks": masks,
+        "labels": relabel_by_track(masks, tracks),
+        "tracks": tracks,
+        "channel": int(seg.get("channel", 0)),
+        "segmented": segmented,
+    }
+
+
+def movie_field_payload(**kwargs) -> Dict[str, Any]:
+    """Never let one bad sibling strand the remaining movie-field queue."""
+    try:
+        return build_movie_field(**kwargs)
+    except MovieFieldCancelled:
+        return {"cancelled": True, "source": str(kwargs.get("path", ""))}
+    except Exception as exc:                                      # noqa: BLE001
+        LOG.info("timelapse movie field failed: %s", exc, exc_info=True)
+        return {"error": str(exc), "source": str(kwargs.get("path", ""))}
 
 
 class _TimelapseWorker(QThread):
@@ -818,10 +1056,24 @@ class _TimelapseWorker(QThread):
     finished_result = Signal(object, str)   # (result dict or None, error)
 
     def __init__(self, request: TimelapseRequest, parent=None):
+        """Prepare the worker.
+
+        :param request: everything the pass needs, READ ON THE WORKER THREAD
+            rather than here -- so it must not be mutated after the worker
+            is started; build a new request instead.
+        :param parent: parent object; ownership only. It does NOT keep the
+            thread alive across a parent's destruction, so the panel still
+            has to wait for the thread itself.
+        """
         super().__init__(parent)
         self._request = request
 
     def run(self):
+        """Run one preview pass and emit its result, or the failure text.
+
+        A failure is emitted rather than raised: this runs on a worker thread,
+        where an exception has nobody to catch it.
+        """
         try:
             self.finished_result.emit(run_preview_pass(self._request), "")
         except Exception as e:
@@ -869,9 +1121,14 @@ def open_sequence_payload(path, max_frames: int = 12,
     fill the channel dropdown -- doing it here turns that read into a cache
     hit rather than a second trip to disk.
 
+    :param path: sequence file or frame directory accepted by
+        :meth:`FrameSequence.open`; the same value is returned as text in the
+        payload even when opening fails.
     :param list_siblings: ``False`` reuses the sampler's cached listing; the
         FOV dropdown hands out a path it has already enumerated.
-    :returns: ``{path, sequence, siblings, error}``.
+    :returns: ``{path, sequence, siblings, error}``. When ``list_siblings``
+        is true ``siblings`` is ALWAYS a list, never ``None``, even if the
+        listing failed -- see the fallback below for why that matters.
     """
     out: Dict[str, Any] = {"path": str(path), "sequence": None,
                            "siblings": None, "error": ""}
@@ -886,12 +1143,26 @@ def open_sequence_payload(path, max_frames: int = 12,
         LOG.debug("could not warm the first frame of %s", path, exc_info=True)
     out["sequence"] = seq
     if list_siblings:
+        target = Path(os.fspath(path))
         try:
-            target = Path(os.fspath(path))
+            # `seq.kind` already records the layout: `open` builds "files"
+            # from a directory listing and every other kind from a single
+            # file. Reading it back is free, where `target.is_dir()` is one
+            # more stat on a path that has just been opened.
             out["siblings"] = sibling_sources(
-                target, FRAME_SUFFIXES, directories=target.is_dir())
+                target, FRAME_SUFFIXES,
+                directories=(getattr(seq, "kind", "") == "files"))
         except Exception:
             LOG.exception("Could not list sequences beside %s", path)
+            # AND THE FIELD ITSELF IS STILL AN ANSWER. `siblings=None` means
+            # "nobody listed", which sends `_refresh_source_selectors` off to
+            # list the folder ITSELF -- on the GUI thread, on the very path
+            # whose listing has just failed here. If that failure was a
+            # sleeping /nas_mnt share, that retry is the twenty-second
+            # freeze. One entry is the same thing `sibling_sources` returns
+            # when it cannot read the parent, and it keeps the FOV dropdown
+            # honest: it lists what is known to be there.
+            out["siblings"] = [target]
     return out
 
 
@@ -904,6 +1175,14 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
     run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
     values back into the main settings panel, and a ``build_*_card`` factory.
+
+    :param parent: parent widget.
+    :param threaded: whether the jobs run off the GUI thread. Opening a
+        sequence reads a TIFF header or memory-maps a stack and then lists
+        every sibling field of view, which is not GUI-thread work on a plate.
+        False runs each job inline, emitting the same signals in the same
+        order, so a test can drive this panel synchronously without the
+        behaviour diverging.
     """
 
     preview_ready = Signal(object)   # TrackStats, or None on failure
@@ -911,6 +1190,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     PREVIEW_SOURCE_HINT = "Load a sequence first."
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the preview: its canvases, its scrub bar and its controls.
+
+        :param parent: parent widget.
+        :param threaded: whether work runs on a worker.
+        """
         super().__init__(parent)
         # Opening a sequence reads a TIFF header or memory-maps a stack, and
         # then lists every sibling field of view. On a plate that is not GUI
@@ -919,16 +1203,42 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         # synchronously without the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="timelapse preview")
+        # Additional fields are deliberately serialized through their own
+        # runner.  One Cellpose field at a time keeps the GUI responsive
+        # without multiplying model/GPU memory by the Fields setting, and a
+        # cap change can cancel this queue without disturbing a source open.
+        self._movie_jobs = JobRunner(
+            self, threaded=threaded, app_key="timelapse movie fields")
+        # A worker that raises never reaches its `on_done`, so a "Opening …"
+        # placeholder written before `submit()` would stay on screen for the
+        # life of the panel. This is the other half of `_set_transient_status`.
+        self._jobs.job_failed.connect(self._on_job_failed)
         #: Bumped whenever a newer open supersedes the one in flight.
         self._load_token = 0
+        #: The same, for mask opens. Separate, because loading masks does not
+        #: supersede an image sequence that is still on its way.
+        self._mask_load_token = 0
+        #: The placeholder currently on the status label, or None. Only a
+        #: line this panel wrote and still owns may be replaced by a failure.
+        self._transient_status: Optional[str] = None
         self._sequence: Optional[FrameSequence] = None
         self._mask_sequence: Optional[FrameSequence] = None
         self._masks: Optional[np.ndarray] = None
+        self._movie_images: Optional[np.ndarray] = None
         self._tracked: Optional[np.ndarray] = None
         self._tracks = None
         self._raw_tracks = None
         self._stats: Optional[TrackStats] = None
         self._mask_cache: Dict[tuple, np.ndarray] = {}
+        self._mask_cache_last_used: Dict[tuple, float] = {}
+        self._movie_fields: Dict[str, Dict[str, Any]] = {}
+        self._movie_sources: List[str] = []
+        self._movie_pending_path: Optional[str] = None
+        self._movie_pending_key: Optional[tuple] = None
+        self._movie_generation = 0
+        self._movie_seg_key: Optional[tuple] = None
+        self._movie_track_key: Optional[tuple] = None
+        self._movie_failures: Dict[str, tuple] = {}
         self._worker: Optional[_TimelapseWorker] = None
         # A worker whose result has landed but whose QThread may still be
         # unwinding. Held until ``finished`` so it is never collected mid-run.
@@ -948,16 +1258,24 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         # Bounded, reproducible sample of the folder's sequences — the
         # dropdown never lists a whole plate. See ImageSetSampler.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        _LIVE_PREVIEW_PANELS.add(self)
+        _ensure_cache_budget_sweep()
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
         self.setAcceptDrops(True)
         for v in (self._src_view, self._out_view):
             v.setAcceptDrops(False)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self):
+        """Lay out the canvases over the scrub bar and the control row."""
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
@@ -1206,6 +1524,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- drag & drop -------------------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
+        """The usable path out of a drop, or None.
+
+        :param event: the Qt drop event.
+        :returns: the path, or None.
+        """
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
@@ -1213,23 +1536,67 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             if not url.isLocalFile():
                 continue
             p = Path(url.toLocalFile())
-            if p.is_dir() or p.suffix.lower() in FRAME_SUFFIXES:
+            # The suffix is a pure-string test, so it is free; ask the
+            # filesystem only when it does not already decide. And ask it
+            # through the cache, never with `p.is_dir()`: this runs from
+            # dragEnterEvent/dragMoveEvent/dropEvent on the GUI thread, on a
+            # path the user dragged in, and dragMoveEvent fires on every
+            # mouse-move. Measured 2026-09-04, a stat under /nas_mnt (autofs,
+            # share asleep) had not returned after twenty seconds -- one
+            # hover over the panel with a network folder held would freeze
+            # the whole window with no traceback.
+            #
+            # THE DEFAULT IS THE NAME, because the accept/reject answer is
+            # owed NOW and a probe queued this instant cannot have finished.
+            # `path_probe.isdir` returns the cached answer once there is one
+            # and this guess until then:
+            #
+            #   no extension  -> almost certainly a folder -> accept. This
+            #     is the field of view on the plate share, and accepting it
+            #     wrongly only costs a "Load failed" sentence in
+            #     `self._status`, because the open happens on the JobRunner
+            #     worker inside `load_sequence_async`.
+            #   some other extension -> a file this panel cannot read ->
+            #     refuse, exactly as the old `p.is_dir()` did for
+            #     `notes.txt`. Refusing on the name alone is what keeps the
+            #     "not allowed" drag cursor honest instead of accepting
+            #     every document and reporting the mistake afterwards.
+            #
+            # A folder that really does have a dot in its name is refused
+            # for the first hover only: asking queues the probe, and
+            # `dragMoveEvent` fires again on the next mouse-move, by which
+            # time the cache has the real answer. The drag itself is the
+            # retry, so there is no signal to subscribe to here.
+            if (p.suffix.lower() in FRAME_SUFFIXES
+                    or path_probe.isdir(str(p), default=not p.suffix)):
                 return str(p)
         return None
 
     def dragEnterEvent(self, event):    # noqa: N802 (Qt naming)
+        """Accept a drag carrying a timelapse folder or one of its frames.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_path(event) is not None:
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):     # noqa: N802
+        """Keep accepting while a timelapse folder or one of its frames stays over the panel.
+
+        :param event: the Qt drag event.
+        """
         if self._dropped_path(event) is not None:
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):         # noqa: N802
+        """Take the dropped input and preview it.
+
+        :param event: the Qt drop event.
+        """
         p = self._dropped_path(event)
         if p is None:
             event.ignore()
@@ -1244,6 +1611,49 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         """Outstanding opens, as a list so ``not ...`` reads naturally."""
         runner = getattr(self, "_jobs", None)
         return [] if runner is None else [0] * runner.pending_jobs()
+
+    def _set_transient_status(self, text: str) -> None:
+        """Write a placeholder a worker is expected to replace.
+
+        Remembered as well as shown, so :meth:`_on_job_failed` can tell a
+        line it is allowed to overwrite from one the user has since been
+        given for a different reason.
+        """
+        self._transient_status = text
+        self._status.setText(text)
+
+    def _set_status(self, text: str) -> None:
+        """Write a settled line, retiring whatever placeholder it replaces."""
+        self._transient_status = None
+        self._status.setText(text)
+
+    def _on_job_failed(self, message: str) -> None:
+        """Replace a placeholder whose job died before it could deliver.
+
+        ``JobRunner._on_settled`` runs ``on_done`` only for a job that
+        SUCCEEDED, so without this an open that raised on the worker left
+        "Opening field3…" on screen forever and the panel looked hung
+        rather than broken.
+
+        ``job_failed`` is not generation-guarded -- a superseded job's
+        failure arrives just the same -- so the placeholder itself is the
+        guard: the line is replaced only while it is still the one written
+        before a submit. A failure that arrives after a newer load has
+        already reported something is dropped rather than painted over it.
+        """
+        placeholder = getattr(self, "_transient_status", None)
+        if placeholder is None:
+            return
+        try:
+            if self._status.text() != placeholder:
+                self._transient_status = None
+                return
+            self._transient_status = None
+            self._status.setText(f"Load failed: {message}")
+        except RuntimeError:
+            # The label's C++ half went with the panel while the worker was
+            # still unwinding. Nothing to tell anyone.
+            self._transient_status = None
 
     def load_sequence_async(self, path, *, list_siblings: bool = True) -> bool:
         """Open ``path`` on a worker, then install it on the GUI thread.
@@ -1260,7 +1670,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._load_token += 1
         token = self._load_token
         cap = int(self._max_frames.value())
-        self._status.setText(f"Opening {os.path.basename(text)}…")
+        self._set_transient_status(f"Opening {os.path.basename(text)}…")
         self._jobs.submit(
             lambda: open_sequence_payload(text, cap, list_siblings),
             lambda payload, _t=token: self._on_sequence_loaded(_t, payload))
@@ -1271,7 +1681,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if token != self._load_token or not isinstance(payload, dict):
             return
         if payload.get("error"):
-            self._status.setText(payload["error"])
+            self._set_status(payload["error"])
             return
         seq = payload.get("sequence")
         if seq is None:
@@ -1286,9 +1696,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
     def shutdown(self) -> None:
         """Abandon anything in flight and leave no QThread behind."""
-        runner = getattr(self, "_jobs", None)
-        if runner is not None:
-            runner.shutdown()
+        for name in ("_jobs", "_movie_jobs"):
+            runner = getattr(self, name, None)
+            if runner is not None:
+                runner.shutdown()
 
     def load_sequence(self, path) -> bool:
         """Synchronously open ``path`` as the preview sequence.
@@ -1298,21 +1709,28 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :meth:`load_sequence_async`.
         """
         self._stop_playback()
+        # This install is authoritative, so anything already on its way is
+        # superseded here rather than allowed to land on top of it later.
+        self._load_token += 1
         payload = open_sequence_payload(
             path, int(self._max_frames.value()), list_siblings=False)
         if payload["error"]:
-            self._status.setText(payload["error"])
+            self._set_status(payload["error"])
             return False
         self._install_sequence(path, payload["sequence"])
         return True
 
     def _install_sequence(self, path, seq) -> bool:
         """Adopt an already-opened sequence and redraw."""
+        self._reset_movie_fields(clear_panel=True)
+        seq._register_cache_budget()
         self._sequence = seq
         self._masks = None
+        self._movie_images = None
         self._tracked = None
         self._tracks = None
         self._mask_cache.clear()
+        self._mask_cache_last_used.clear()
         self._path_label.setText(seq.describe())
         self._frame_slider.setMaximum(max(0, len(seq) - 1))
         self._frame_slider.setValue(0)
@@ -1320,7 +1738,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._sequence_path = Path(os.fspath(path))
         self._refresh_source_selectors()
         note = self.sample_note()
-        self._status.setText(
+        self._set_status(
             f"Loaded {seq.describe()} — run the preview to segment + link."
             + (f" ({note})" if note else ""))
         self._refresh_canvases()
@@ -1348,6 +1766,34 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             return int(frame.shape[0])
         return int(frame.shape[-1])
 
+    def _loaded_source_is_a_folder(self, source) -> bool:
+        """Whether the loaded field of view is a folder of frames.
+
+        WITHOUT A STAT, and that is the whole point of the method.
+        ``source.is_dir()`` used to be called here and in
+        :meth:`_movie_source_paths`, both on the GUI thread, both on the path
+        the user chose. Under ``/nas_mnt`` -- an ``autofs`` mount with a
+        sleeping share -- one such stat had not returned after TWENTY SECONDS
+        when this was measured: and
+        :meth:`_on_max_sets_changed` runs this path on every click of the
+        sets spinner. See :mod:`spacr.qt.path_probe`.
+
+        The answer is already in hand: :meth:`FrameSequence.open` ran on a
+        worker and recorded the layout it found, and ``kind == "files"`` is
+        set from the directory branch and from nowhere else. Only when there
+        is no sequence to ask -- nothing installs a path without one, so this
+        is the belt-and-braces arm -- does it fall back to the probe cache,
+        which answers from the name until a background check replaces it.
+
+        :param source: the loaded sequence's path.
+        :returns: True when the field of view is a directory of frames.
+        """
+        kind = getattr(getattr(self, "_sequence", None), "kind", None)
+        if kind is not None:
+            return kind == "files"
+        text = str(source)
+        return path_probe.isdir(text, default=not Path(text).suffix)
+
     def _refresh_source_selectors(self) -> None:
         """Re-fill the sets and channel dropdowns for the loaded sequence.
 
@@ -1356,10 +1802,20 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         them, and the dropdown lists a bounded random sample rather than all
         of them. The listing is cached per folder, so stepping through fields
         re-lists nothing.
+
+        NOTHING HERE TOUCHES THE DISK ON THE GUI THREAD. The layout question
+        goes to :meth:`_loaded_source_is_a_folder`, which reads it off the
+        opened sequence, and the listing lambda is not called at all on the
+        asynchronous path: ``open_sequence_payload`` lists the siblings on
+        the worker and ``_on_sequence_loaded`` adopts that listing (always --
+        even a failed listing yields the field itself) before this runs, so
+        ``enumerate_paths`` finds its cache key already set. The lambda is
+        reached only by the deliberately synchronous :meth:`load_sequence`,
+        whose contract is that it blocks its caller.
         """
         source = getattr(self, "_sequence_path", None)
         if source is not None:
-            directories = source.is_dir()
+            directories = self._loaded_source_is_a_folder(source)
             self._sampler.enumerate_paths(
                 source.parent,
                 lambda: sibling_sources(source, FRAME_SUFFIXES,
@@ -1434,22 +1890,87 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._sync_channel_spin_from_combo()
         self._refresh_canvases()
 
-    def load_masks(self, path) -> bool:
-        """Use ready-made label images instead of segmenting."""
+    def load_masks_async(self, path) -> bool:
+        """Open ``path`` as a mask sequence on a worker, then install it here.
+
+        THE GUI ENTRY POINT, and the reason it exists is that
+        :meth:`load_masks` opens the sequence inline.
+        ``FrameSequence.open`` on a folder of label images is a stat, a
+        listing and one ``is_file()`` per entry -- hundreds of round trips
+        for a plate -- and the folder comes from the user, which on one such
+        workstation means it can be a sleeping ``/nas_mnt`` share
+        where a single stat had not returned after twenty seconds (measured;
+        see :mod:`spacr.qt.path_probe`). Run from
+        :meth:`_pick_masks` that froze the whole window the moment the file
+        dialog closed.
+
+        The same worker function as the image sequence, so the mask
+        sequence's first frame is warmed off the GUI thread too.
+
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
+            return False
         self._stop_playback()
+        self._mask_load_token += 1
+        token = self._mask_load_token
+        cap = int(self._max_frames.value())
+        self._set_transient_status(
+            f"Opening masks from {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: open_sequence_payload(text, cap, list_siblings=False),
+            lambda payload, _t=token: self._on_masks_loaded(_t, payload))
+        return True
+
+    def _on_masks_loaded(self, token: int, payload) -> None:
+        """Install an opened mask sequence. Always on the GUI thread.
+
+        Generation-guarded on ``_mask_load_token``: two mask folders picked
+        in quick succession, or one picked and then abandoned, must not let
+        the slower open paint over the newer one.
+        """
+        if token != self._mask_load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._set_status(f"Mask load failed: {payload['error']}")
+            return
+        seq = payload.get("sequence")
+        if seq is None:
+            return
+        self._install_masks(seq)
+
+    def load_masks(self, path) -> bool:
+        """Synchronously use ready-made label images instead of segmenting.
+
+        For programmatic callers and tests. The GUI uses
+        :meth:`load_masks_async`, because this one opens the folder on the
+        thread that calls it.
+        """
+        self._stop_playback()
+        # A synchronous open supersedes anything the picker started, or the
+        # in-flight job would install its own masks over these on arrival.
+        self._mask_load_token += 1
         try:
             seq = FrameSequence.open(path, max_frames=self._max_frames.value())
         except Exception as e:
-            self._status.setText(f"Mask load failed: {e}")
+            self._set_status(f"Mask load failed: {e}")
             return False
+        self._install_masks(seq)
+        return True
+
+    def _install_masks(self, seq) -> bool:
+        """Adopt an already-opened mask sequence and redraw. GUI thread."""
         self._mask_sequence = seq
+        seq._register_cache_budget()
         self._masks = None
         self._mask_cache.clear()
+        self._mask_cache_last_used.clear()
         if self._sequence is None:
             self._frame_slider.setMaximum(max(0, len(seq) - 1))
             self._frame_slider.setValue(0)
         self._play_btn.setEnabled(len(seq) > 1)
-        self._status.setText(
+        self._set_status(
             f"Masks: {seq.describe()} — segmentation will be skipped.")
         return True
 
@@ -1471,8 +1992,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             "timelapse_frame_limits": [0, int(self._max_frames.value())],
             f"{obj}_channel": int(self._channel.value()),
             f"{obj}_diameter": float(self._diameter.value()),
-            "cell_FT": float(self._flow.value()),
-            "cell_CP_prob": float(self._prob.value()),
+            "cell_flow_threshold": float(self._flow.value()),
+            "cell_cellprob_threshold": float(self._prob.value()),
             "normalize": bool(self._normalise.isChecked()),
         }
 
@@ -1531,6 +2052,34 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
     # -- cache key ---------------------------------------------------------
 
+    def _cache_budget_entries(self):
+        """Derived mask stacks retained for re-linking under new settings.
+
+        The stack currently drawn, and one a worker is currently re-linking,
+        are pinned. Older segmentation signatures are reproducible caches and
+        can be evicted independently.
+        """
+        now = time.time()
+        worker_key = (self._pending_signature
+                      if self._worker is not None else None)
+        return [
+            (key, max(0, int(value.nbytes)),
+             float(self._mask_cache_last_used.get(key, now)),
+             value is self._masks or key == worker_key)
+            for key, value in list(self._mask_cache.items())
+        ]
+
+    def _drop_cache_budget_entry(self, key) -> bool:
+        """Drop one inactive segmentation result chosen by the policy."""
+        value = self._mask_cache.get(key)
+        if value is None or value is self._masks:
+            return False
+        if self._worker is not None and key == self._pending_signature:
+            return False
+        self._mask_cache.pop(key, None)
+        self._mask_cache_last_used.pop(key, None)
+        return True
+
     def _segmentation_signature(self) -> tuple:
         """Everything that can change a *label image*, and nothing else.
 
@@ -1552,6 +2101,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         )
 
     def _seg_params(self) -> Dict[str, Any]:
+        """The segmentation settings the controls currently describe.
+
+        :returns: the parameters.
+        """
         return {
             "model": self._model_box.currentText(),
             "channel": int(self._channel.value()),
@@ -1563,6 +2116,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         }
 
     def _track_params(self) -> Dict[str, Any]:
+        """The tracking settings the controls currently describe.
+
+        :returns: the parameters.
+        """
         return {
             "mode": self._mode_box.currentText(),
             "displacement": float(self._displacement.value()),
@@ -1613,6 +2170,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         return "" if ok else str(why)
 
     def _start(self, allow_segmentation: bool) -> None:
+        """Run the preview, optionally segmenting first.
+
+        :param allow_segmentation: False to preview existing masks only.
+        """
         blocked = self.preview_blocked_reason()
         if not self.begin_preview():
             # A missing tracking backend is a *result* as well as a refusal:
@@ -1623,6 +2184,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         sig = self._segmentation_signature()
         cached = self._mask_cache.get(sig)
+        if cached is not None:
+            self._mask_cache_last_used[sig] = time.time()
         if cached is None and not allow_segmentation:
             self.set_preview_busy(False)
             self._status.setText(
@@ -1635,8 +2198,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             sequence=self._sequence,
             mask_sequence=self._mask_sequence,
             cached_masks=cached,
+            cached_images=self._movie_images,
             seg=self._seg_params(),
             track=self._track_params(),
+            include_images=getattr(self, "_movie_panel", None) is not None,
         )
         self._relink_btn.setEnabled(False)
         if cached is not None:
@@ -1728,9 +2293,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         masks = result["masks"]
         self._masks = masks
+        self._movie_images = result.get("images")
         sig = getattr(self, "_pending_signature", None)
         if sig is not None:
             self._mask_cache[sig] = masks
+            self._mask_cache_last_used[sig] = time.time()
         note = ("Masks built + linked" if result.get("masks_built")
                 else "Re-linked (cached masks)")
         self._apply_tracks(result["tracks"], note=note)
@@ -1767,36 +2334,271 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self.propagate_settings()
         self.preview_ready.emit(self._stats)
 
-    def _push_to_movie(self) -> None:
-        """Hand the finished pass to the movie panel, if one is attached.
+    @staticmethod
+    def _freeze_movie_value(value):
+        """Hash nested setting values without weakening their identity."""
+        if isinstance(value, dict):
+            return tuple(sorted(
+                (str(key), TimelapsePreviewPanel._freeze_movie_value(item))
+                for key, item in value.items()))
+        if isinstance(value, (list, tuple)):
+            return tuple(TimelapsePreviewPanel._freeze_movie_value(item)
+                         for item in value)
+        return value
 
-        `self._tracked` and not `self._masks`: the movie's colours are only
-        meaningful once the labels ARE track ids, which is what
-        `relabel_by_track` produced two lines up. Feeding it the raw masks
-        would give every object a colour that changes whenever the
-        segmentation renumbers, which is the opposite of what the movie is
-        being watched for.
+    def _movie_setting_keys(self) -> Tuple[tuple, tuple]:
+        """Segmentation and linking identities shared by every field."""
+        seg = dict(self._seg_params())
+        seg["max_frames"] = int(self._max_frames.value())
+        return (self._freeze_movie_value(seg),
+                self._freeze_movie_value(self._track_params()))
+
+    def _reset_movie_fields(self, *, clear_panel: bool = False) -> None:
+        """Cancel sibling work and release every retained movie-field array."""
+        self._movie_generation += 1
+        runner = getattr(self, "_movie_jobs", None)
+        if runner is not None:
+            runner.cancel()
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        self._movie_fields.clear()
+        self._movie_sources.clear()
+        self._movie_failures.clear()
+        self._movie_seg_key = None
+        self._movie_track_key = None
+        if clear_panel:
+            movie = getattr(self, "_movie_panel", None)
+            if movie is not None:
+                movie.set_fields([])
+
+    def _movie_source_paths(self) -> List[str]:
+        """Current field first, followed by its cached sibling listing.
+
+        ``open_sequence_payload`` obtains that listing with
+        :func:`sibling_sources` on its worker and ``_on_sequence_loaded``
+        adopts it into ``ImageSetSampler`` -- ALWAYS, since a listing that
+        failed still yields the loaded field. So on every path a user can
+        drive, ``self._sampler.sets`` is non-empty by the time this runs and
+        the fallback below is not reached; it remains for the deliberately
+        synchronous :meth:`load_sequence`, and for a caller that has emptied
+        the sampler by hand, both of which accept a blocking listing.
+
+        The layout question, which used to be ``current_path.is_dir()``
+        here, is answered off the opened sequence instead -- it was a stat on
+        the GUI thread for a path the user chose, and it ran BEFORE the
+        listing whose result decides whether it was needed at all.
+        """
+        current_path = getattr(self, "_sequence_path", None)
+        if current_path is None:
+            return []
+        current = str(current_path)
+        siblings = []
+        for item in self._sampler.sets:
+            try:
+                siblings.append(str(item.path()))
+            except Exception:                                  # noqa: BLE001
+                continue
+        if not siblings:
+            siblings = [str(path) for path in sibling_sources(
+                current_path, FRAME_SUFFIXES,
+                directories=self._loaded_source_is_a_folder(current_path))]
+        # Preserve sibling_sources' deterministic order, but the field the
+        # user chose is unconditionally first.
+        return [current] + [path for path in siblings if path != current]
+
+    def _desired_movie_sources(self) -> List[str]:
+        """Which sequences the current settings say should be shown.
+
+        :returns: the sources.
+        """
+        movie = getattr(self, "_movie_panel", None)
+        if movie is None:
+            return []
+        return list(self._movie_sources[: max(1, int(movie.max_fields()))])
+
+    def _movie_entry_is_current(self, entry: Optional[dict]) -> bool:
+        """Whether a loaded sequence still matches the settings.
+
+        CHECKED BEFORE REUSE, so a movie built under the previous settings is
+        not shown as though it answered the current ones.
+
+        :param entry: the loaded sequence.
+        :returns: True when it is still valid.
+        """
+        return bool(
+            entry
+            and entry.get("_seg_key") == self._movie_seg_key
+            and entry.get("_track_key") == self._movie_track_key
+            and not entry.get("_needs_refresh"))
+
+    def _present_movie_fields(self) -> None:
+        """Publish completed current-generation fields in source order."""
+        movie = getattr(self, "_movie_panel", None)
+        if movie is None:
+            return
+        ready = []
+        for source in self._desired_movie_sources():
+            entry = self._movie_fields.get(source)
+            if self._movie_entry_is_current(entry):
+                ready.append(entry)
+        movie.set_fields(ready)
+
+    def _cancel_pending_movie_field(self) -> None:
+        """Abandon a field whose movie is still being built."""
+        self._movie_generation += 1
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        runner = getattr(self, "_movie_jobs", None)
+        if runner is not None:
+            runner.cancel()
+
+    def _refresh_movie_targets(self) -> None:
+        """Trim to the live cap, then start at most one missing field."""
+        desired = self._desired_movie_sources()
+        desired_set = set(desired)
+        for source in list(self._movie_fields):
+            if source not in desired_set:
+                self._movie_fields.pop(source, None)
+        for source in list(self._movie_failures):
+            if source not in desired_set:
+                self._movie_failures.pop(source, None)
+
+        wanted_key = (self._movie_seg_key, self._movie_track_key)
+        pending = self._movie_pending_path
+        if pending is not None and (
+                pending not in desired_set
+                or self._movie_pending_key != wanted_key):
+            # Jobs are serialized, and build_movie_field checks the QThread's
+            # interruption flag between frames. Lowering the cap therefore
+            # cancels the one surplus field instead of letting a whole queue
+            # segment and then throwing its arrays away.
+            self._cancel_pending_movie_field()
+            pending = None
+
+        self._present_movie_fields()
+        if pending is not None:
+            return
+
+        source = None
+        cached_masks = None
+        for candidate in desired:
+            entry = self._movie_fields.get(candidate)
+            if self._movie_entry_is_current(entry):
+                continue
+            if self._movie_failures.get(candidate) == wanted_key:
+                continue
+            source = candidate
+            if (entry is not None
+                    and entry.get("_seg_key") == self._movie_seg_key):
+                cached_masks = entry.get("masks")
+            break
+        if source is None:
+            return
+
+        generation = self._movie_generation
+        self._movie_pending_path = source
+        self._movie_pending_key = wanted_key
+        kwargs = {
+            "path": source,
+            "max_frames": int(self._max_frames.value()),
+            "seg": dict(self._seg_params()),
+            "track": dict(self._track_params()),
+            "cached_masks": cached_masks,
+            "cancelled": movie_worker_interrupted,
+        }
+        self._status.setText(
+            f"Loading movie field {desired.index(source) + 1} "
+            f"of {len(desired)}…")
+        self._movie_jobs.submit(
+            lambda _kwargs=kwargs: movie_field_payload(**_kwargs),
+            lambda result, _source=source, _generation=generation,
+                   _key=wanted_key: self._on_movie_field_done(
+                       _source, _generation, _key, result))
+
+    def _on_movie_field_done(self, source: str, generation: int,
+                             wanted_key: tuple, result) -> None:
+        """Install one sibling result on the GUI thread, then take the next."""
+        if (generation != self._movie_generation
+                or wanted_key != (self._movie_seg_key,
+                                  self._movie_track_key)):
+            return
+        self._movie_pending_path = None
+        self._movie_pending_key = None
+        if not isinstance(result, dict) or result.get("cancelled"):
+            self._refresh_movie_targets()
+            return
+        if result.get("error"):
+            self._movie_failures[source] = wanted_key
+            self._status.setText(
+                f"Movie field {Path(source).name} failed: {result['error']}")
+            self._refresh_movie_targets()
+            return
+        result["_seg_key"] = self._movie_seg_key
+        result["_track_key"] = self._movie_track_key
+        result["_needs_refresh"] = False
+        self._movie_fields[source] = result
+        self._present_movie_fields()
+        shown = len([
+            path for path in self._desired_movie_sources()
+            if self._movie_entry_is_current(self._movie_fields.get(path))])
+        self._status.setText(f"Movie ready · {shown} field(s)")
+        self._refresh_movie_targets()
+
+    def _on_movie_field_limit_changed(self, _count: int) -> None:
+        """Apply a lower cap immediately; a higher one resumes the queue."""
+        self._refresh_movie_targets()
+
+    def _push_to_movie(self) -> None:
+        """Publish the selected field, then stream sibling fields as ready.
+
+        Every ``labels`` stack is relabelled by track id. Additional fields
+        are opened, segmented and linked on ``_movie_jobs`` one at a time;
+        only the selected field is assembled here, and its raw frames normally
+        arrived with the preview worker result. If the movie was attached
+        after that result, masks are shown briefly while the raw frames are
+        read and re-linked off the GUI thread.
         """
         movie = getattr(self, "_movie_panel", None)
         if movie is None:
             return
-        seq = self._sequence
-        if seq is not None and len(seq):
-            images = np.stack([seq.frame(i) for i in range(len(seq))])
-        elif self._masks is not None:
-            images = self._masks
-        else:
+        if self._masks is None or self._tracked is None:
             movie.set_fields([])
             return
-        title = getattr(self, "_source_label", None)
-        movie.set_fields([{
-            "title": title.text() if hasattr(title, "text") else "Field",
+        source_path = getattr(self, "_sequence_path", None)
+        source = str(source_path) if source_path is not None else "Field"
+        seg_key, track_key = self._movie_setting_keys()
+        if (self._movie_seg_key is not None and seg_key != self._movie_seg_key):
+            self._cancel_pending_movie_field()
+            self._movie_fields.clear()
+            self._movie_failures.clear()
+        elif (self._movie_track_key is not None
+              and track_key != self._movie_track_key):
+            self._cancel_pending_movie_field()
+            self._movie_failures.clear()
+        self._movie_seg_key = seg_key
+        self._movie_track_key = track_key
+        self._movie_sources = self._movie_source_paths() or [source]
+
+        images = self._movie_images
+        needs_refresh = images is None and self._sequence is not None
+        if images is None:
+            # A truthful, immediately available placeholder. It is replaced
+            # by raw source frames on the movie worker before being counted as
+            # a current/ready entry.
+            images = self._masks
+        self._movie_fields[source] = {
+            "source": source,
+            "title": Path(source).name or "Field",
             "images": images,
+            "masks": self._masks,
             "labels": self._tracked,
             "tracks": self._tracks,
-            "channel": int(self._channel.value())
-            if hasattr(self, "_channel") else 0,
-        }])
+            "channel": int(self._channel.value()),
+            "_seg_key": seg_key,
+            "_track_key": track_key,
+            "_needs_refresh": needs_refresh,
+        }
+        self._refresh_movie_targets()
 
     def attach_movie_panel(self, movie) -> None:
         """Wire a :class:`TimelapseMoviePanel` to this preview.
@@ -1805,12 +2607,26 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         optional: the panel is built by two different callers and a screen
         that only wants the stats view should not pay for the frames.
         """
+        previous = getattr(self, "_movie_panel", None)
+        if previous is not None and previous is not movie:
+            try:
+                previous.max_fields_changed.disconnect(
+                    self._on_movie_field_limit_changed)
+            except (RuntimeError, TypeError):
+                pass
         self._movie_panel = movie
+        if previous is not movie:
+            movie.max_fields_changed.connect(
+                self._on_movie_field_limit_changed)
         self._push_to_movie()
 
     # -- rendering ---------------------------------------------------------
 
     def _on_scrub(self, _value: int) -> None:
+        """Show the frame the scrub bar now points at.
+
+        :param _value: the bar's position; re-read from the widget.
+        """
         self._refresh_canvases()
 
     def _toggle_playback(self) -> None:
@@ -1825,11 +2641,13 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._play_btn.setText("Pause")
 
     def _stop_playback(self) -> None:
+        """Stop the playback timer."""
         self._play_timer.stop()
         if hasattr(self, "_play_btn"):
             self._play_btn.setText("Play")
 
     def _update_playback_interval(self, *_args) -> None:
+        """Set the timer from the chosen frame rate."""
         fps = max(1, int(self._play_fps.value()))
         self._play_timer.setInterval(max(1, round(1000 / fps)))
 
@@ -1843,6 +2661,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._frame_slider.setValue(0 if current >= last else current + 1)
 
     def _refresh_canvases(self) -> None:
+        """Redraw every canvas for the current frame."""
         seq = self._sequence
         idx = int(self._frame_slider.value())
         if seq is None:
@@ -1875,20 +2694,28 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     # -- misc --------------------------------------------------------------
 
     def _on_propagate_toggled(self, on: bool) -> None:
+        """Turn settings propagation on or off.
+
+        :param on: True to push settings to the run as they change.
+        """
         if on:
             self.propagate_settings()
 
     def _pick_sequence(self):
+        """Ask for a sequence of frames to preview."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of frames")
         if path:
             self.load_sequence_async(path)
 
     def _pick_masks(self):
+        """Ask for a set of masks to overlay."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of label images")
         if path:
-            self.load_masks(path)
+            # Async, like `_pick_sequence`: the open lists the folder, and
+            # the folder is whatever the user just pointed at.
+            self.load_masks_async(path)
 
     def closeEvent(self, event):
         """Let a running pass finish before the widget is torn down.

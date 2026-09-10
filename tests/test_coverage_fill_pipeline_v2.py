@@ -230,10 +230,10 @@ class TestStreamMasks:
             "Signal_to_noise": 10,
             "remove_background": False,
             "cell_background": 100,
-            "cell_Signal_to_noise": 10,
+            "cell_signal_to_noise": 10,
             "remove_background_cell": False,
             "nucleus_background": 100,
-            "nucleus_Signal_to_noise": 10,
+            "nucleus_signal_to_noise": 10,
             "remove_background_nucleus": False,
         }
 
@@ -290,10 +290,10 @@ class TestStreamMasks:
             "Signal_to_noise": 10,
             "remove_background": False,
             "cell_background": 100,
-            "cell_Signal_to_noise": 10,
+            "cell_signal_to_noise": 10,
             "remove_background_cell": False,
             "nucleus_background": 100,
-            "nucleus_Signal_to_noise": 10,
+            "nucleus_signal_to_noise": 10,
             "remove_background_nucleus": False,
         }
 

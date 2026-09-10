@@ -2,7 +2,10 @@
 A RELATIONSHIPS TABLE, AND FILTERS BUILT ON TOP OF IT
 ================================================================================
 
-Status:    not started
+Status:    COMPLETE 2026-08-07 (f1719e46). Header corrected 2026-08-26:
+           it still said "not started" while this file's own closing
+           section records the work as complete. One cross-object
+           defect found and fixed on 2026-08-26 -- see the last entry.
 Requested: 2026-08-07
 
 Verbatim:
@@ -103,3 +106,48 @@ NOT DONE, and deliberately out of scope here: calling write_relationships FROM
 the mask module. The entry point exists and is tested; hooking it into the
 mask pipeline is a one-line change in that module, best made by whoever is
 next editing it.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE CROSS-OBJECT FILTER WAS MERGING ON A COLLISION
+--------------------------------------------------------------------------------
+
+Four of the five criteria hold and have named tests in tests/test_filters.py:
+the relationships content (`test_relationships_records_which_object_belongs_
+to_which`), `filters` being a copy (`test_the_filters_table_is_a_copy_of_
+relationships`), the build-on-demand path
+(`test_relationships_is_built_on_demand_if_masking_never_wrote_it`) and every
+single-object database including organelle
+(`test_every_single_object_database_builds_relationships`).
+
+THE FIFTH DID NOT. "A filter exported from a gate drawn on NUCLEUS
+measurements can be merged onto the cell table" -- it reached the cell rows,
+but by the wrong route. `export_gate` merged the gate onto `filters` on the
+identity columns plus `object_label`, and `filters` holds cells, nuclei and
+pathogens SIDE BY SIDE. `object_label` is unique within a field for ONE KIND
+of object, so a gate on nucleus 2 also marked CELL 2. Measured on a hand-
+built database where nucleus 2 belongs to cell 1:
+
+    object_type  object_label  parent_label  bright_nucleus
+    cell         2             NaN           1     <- wrong
+    nucleus      2             1.0           1
+
+This is exactly the failure `require_full_identity` was written to prevent
+("merging on anything less than the full identity silently joins one plate's
+object 7 onto another's"), one axis over -- and the existing test drew its
+gate on the anchor table, where the collision cannot show.
+
+FIXED. `export_gate` and `export_annotation` take `object_type=`, and add it
+to the merge keys when the caller knows it and the table has the column. The
+Gate Editor passes the table the gate was drawn on, which it already had in
+hand at both call sites. `None` keeps the old type-blind merge for a caller
+that cannot say, and for a database with no `object_type` column.
+
+The route from a nucleus gate to its cells is then what the criterion says it
+is: `parent_label`, already in the filters table, with no join written by the
+caller.
+
+`tests/test_filters.py ::
+test_a_gate_on_nuclei_does_not_also_mark_the_cell_of_that_LABEL`, confirmed
+RED before the fix. Re-run: tests/test_filters.py, test_cov_w2_1_filters.py,
+test_relationships_after_mask.py, tests/qt/test_gates.py,
+tests/qt/test_cov_gate_editor_screen.py -- 220 passed.

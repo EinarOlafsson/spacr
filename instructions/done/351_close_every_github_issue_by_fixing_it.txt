@@ -1,0 +1,92 @@
+================================================================================
+FIX AND CLOSE EVERY GITHUB ISSUE
+================================================================================
+
+Status:    done, 2026-09-02.
+Requested: 2026-09-02 -- "also now add to your instructions list to fix and
+           close all github issues"
+Owner:     unassigned; whoever is running the session.
+Relates to: 288, whose "zero actionable issues" gate this satisfies, and the
+           standing rule in HANDOFF section 6, which this turns into a
+           tracked item rather than a habit.
+
+--------------------------------------------------------------------------------
+WHY THIS IS FILED EVEN THOUGH THE RULE ALREADY EXISTS
+--------------------------------------------------------------------------------
+
+HANDOFF section 6 already says to check the issues at the start of every
+session and again within it, and deliberately gave it no number because "it is
+not an instruction that can be finished". The maintainer has now asked for it
+on the list, which is a different request: not "keep checking" but "get to
+zero". So this file tracks the BACKLOG reaching zero; the recurring check
+stays in HANDOFF.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS WHEN FILED (2026-09-02)
+--------------------------------------------------------------------------------
+
+    gh issue list --repo EinarOlafsson/spacr --state open
+
+  #115  database access in spacr to SMB servers, appearance issues
+        OPEN, updated 2026-09-01. Codex's note in 325 records the analysis:
+        the exact exception is requested on the issue, to separate a general
+        SMB read problem from an old-schema-on-a-read-only-share problem.
+        Those need OPPOSITE fixes, which is why it is waiting rather than
+        being guessed at.
+
+One issue was open when this item was filed. 25 of 26 had already been closed
+under instruction 81.
+
+--------------------------------------------------------------------------------
+DONE EVIDENCE (2026-09-02)
+--------------------------------------------------------------------------------
+
+    gh issue list --repo EinarOlafsson/spacr --state open
+
+returns no issues. #115 is closed.
+
+The fixing commit is:
+
+    6fccdd9a8d4b82e3dd0b4f2657094d5405a94628
+
+The failure was a read path trying to migrate a legacy schema on a read-only
+SMB source. `_read_db` now skips in-place migration when either the database
+or its directory is not writable and opens SQLite with `mode=ro`; writable
+databases still follow the normal migration path.
+
+`tests/test_a_readonly_database_can_still_be_read.py` pins four parts of the
+fix: a read-only legacy database can be read, returned columns are
+canonicalised without mutating the source, reading creates no side files, and
+a writable legacy database is still migrated. The public closing record now
+names the fixing commit and summarizes the repair:
+
+    https://github.com/EinarOlafsson/spacr/issues/115#issuecomment-5512674945
+
+This closes the finite issue backlog tracked here. The recurring issue check
+in HANDOFF section 6 remains a standing practice and is not closed by this
+file.
+
+--------------------------------------------------------------------------------
+HOW TO WORK ONE, from what instruction 81 learned the hard way
+--------------------------------------------------------------------------------
+
+* READ THE PROSE, NOT JUST THE TRACEBACK. On auto-filed issues the title names
+  the CRASH while the body often reports a DIFFERENT problem the user hit
+  first. #108 was the first one checked and did exactly this.
+* PATHS ARE REDACTED to `<PATH>` / `<DB>`, so the SHAPE of a path is still
+  evidence -- `~<DB>` is a tilde that was never expanded.
+* REPLY ON THE ISSUE saying what was done and in which commit, and close it as
+  the maintainer. An issue that is a duplicate, a question, or a decision for
+  the maintainer gets SAID SO on the issue rather than left open in silence.
+* An auto-filed issue carries the pipeline settings and a traceback
+  fingerprint, so most are reproducible without asking the reporter. #115 was
+  not one of those, which is why its exact read-only failure had to be
+  reconstructed before it could be fixed.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* `gh issue list --state open` returns nothing, or every remaining issue has a
+  comment saying what it is waiting on and who it is waiting for.
+* Every issue closed by a code change names the commit on the issue.

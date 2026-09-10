@@ -52,6 +52,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..theme import apply_close_mark
 from ...row_exclusions import normalize_row_exclusions
 
 #: How long a keystroke in the editable column combo waits before its
@@ -185,9 +186,18 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
 
 
 class _CheckableValueCombo(QComboBox):
-    """A compact dropdown that keeps multiple checked values."""
+    """A compact dropdown that keeps multiple checked values.
+
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, parent=None):
+        """Build the combo: editable for its display line, but read-only.
+
+        The line edit shows the checked values and must not be typed into --
+        the values come from the ticks, and a typed line would be a second,
+        disagreeing source of the same answer.
+        """
         super().__init__(parent)
         self.setEditable(True)
         self.lineEdit().setReadOnly(True)
@@ -196,6 +206,7 @@ class _CheckableValueCombo(QComboBox):
         self.view().pressed.connect(self._toggle_index)
 
     def _toggle_index(self, index) -> None:
+        """Flip one value's tick and refresh the display line."""
         item = self.model().itemFromIndex(index)
         state = item.checkState()
         item.setCheckState(
@@ -203,6 +214,16 @@ class _CheckableValueCombo(QComboBox):
         self._refresh_text()
 
     def set_options(self, options, selected=()) -> None:
+        """Offer these values, ticking the ones already chosen.
+
+        A chosen value the new option list does not contain is APPENDED rather
+        than dropped: a saved exclusion naming a value this database no longer
+        has stays visible and ticked, so the user can see what their filter is
+        doing instead of silently losing it.
+
+        :param options: the values to offer.
+        :param selected: the values to tick.
+        """
         selected_text = {str(value) for value in selected}
         all_values = list(options)
         existing = {str(value) for value in all_values}
@@ -220,6 +241,10 @@ class _CheckableValueCombo(QComboBox):
         self._refresh_text()
 
     def checked_values(self) -> list[Any]:
+        """The values currently ticked.
+
+        :returns: the stored values rather than their captions.
+        """
         model = self.model()
         return [
             model.item(row).data(Qt.UserRole)
@@ -228,17 +253,22 @@ class _CheckableValueCombo(QComboBox):
         ]
 
     def _refresh_text(self) -> None:
+        """Show the checked values, comma-separated, on the closed combo."""
         self.lineEdit().setText(
             ", ".join(str(value) for value in self.checked_values()))
 
 
 class _ExclusionRuleRow(QWidget):
-    """One editable ``column is one of values`` rule."""
+    """One editable ``column is one of values`` rule.
+
+    :param parent: parent widget; ownership only.
+    """
 
     column_changed = Signal(str)
     remove_requested = Signal(object)
 
     def __init__(self, parent=None):
+        """Build one rule: a column, a comparison and its values."""
         super().__init__(parent)
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)
@@ -259,12 +289,16 @@ class _ExclusionRuleRow(QWidget):
         row.addWidget(self.values, 3)
 
         remove = QToolButton(self)
-        remove.setText("×")
-        remove.setToolTip("Remove this exclusion rule")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(remove, tooltip="Remove this exclusion rule")
         remove.clicked.connect(lambda: self.remove_requested.emit(self))
         row.addWidget(remove)
 
     def set_columns(self, columns) -> None:
+        """Offer these columns, keeping whatever this row already names.
+
+        :param columns: the columns to offer.
+        """
         current = self.column.currentText()
         self.column.blockSignals(True)
         self.column.clear()
@@ -305,6 +339,18 @@ class RowExclusionEditor(QWidget):
 
     def __init__(self, value=None, parent=None, *, threaded: bool = True,
                  debounce_ms: int = DEBOUNCE_MS):
+        """Build the row-exclusion editor.
+
+        Two runners, not one: ``cancel`` abandons everything a runner has in
+        flight, and superseding a keystroke's value read must not also abandon
+        the schema read that says which databases the column even lives in.
+
+        :param value: the exclusions to start with.
+        :param parent: parent widget, or ``None``.
+        :param threaded: read on worker threads. Set ``False`` in tests so a
+            read finishes before it returns.
+        :param debounce_ms: how long typing settles before a value read is run.
+        """
         super().__init__(parent)
         from ..job_runner import JobRunner
 
@@ -346,6 +392,10 @@ class RowExclusionEditor(QWidget):
         self.set_value(value)
 
     def get_value(self) -> dict[str, list[Any]] | None:
+        """The exclusions, in the shape the settings dict wants.
+
+        :returns: ``{column: [values]}``, or None when nothing is excluded.
+        """
         rules: dict[str, list[Any]] = {}
         for row in self._rows:
             column = row.column.currentText().strip()
@@ -355,6 +405,10 @@ class RowExclusionEditor(QWidget):
         return normalize_row_exclusions(rules) or None
 
     def set_value(self, value) -> None:
+        """Replace the exclusions from a settings value.
+
+        :param value: ``{column: [values]}``, or None to clear.
+        """
         rules = normalize_row_exclusions(value)
         self._clear_rows()
         if rules:
@@ -392,6 +446,15 @@ class RowExclusionEditor(QWidget):
         self.loaded.emit(True)
 
     def _add_row(self, column: str = "", values=()) -> None:
+        """Add one exclusion rule row.
+
+        A column the loaded schema does not offer is added to the picker anyway,
+        so a saved exclusion naming a column this database lacks is shown rather
+        than silently dropped.
+
+        :param column: the column to preselect.
+        :param values: the values to preselect once they load.
+        """
         row = _ExclusionRuleRow(self)
         row.remove_requested.connect(self._remove_row)
         row.column_changed.connect(
@@ -408,6 +471,13 @@ class RowExclusionEditor(QWidget):
         self._refresh_values(row, selected=values)
 
     def _remove_row(self, row) -> None:
+        """Remove one rule row, adding a fresh one if it was the last.
+
+        The editor is never left with no rows: an empty panel offers no way to
+        add the first one back.
+
+        :param row: the row to remove.
+        """
         if row in self._rows:
             self._rows.remove(row)
         self._pending.pop(row, None)
@@ -417,6 +487,7 @@ class RowExclusionEditor(QWidget):
             self._add_row()
 
     def _clear_rows(self) -> None:
+        """Remove every rule row and forget what they were waiting for."""
         for row in self._rows:
             self._pending.pop(row, None)
             row.setParent(None)

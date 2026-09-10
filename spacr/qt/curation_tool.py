@@ -104,6 +104,10 @@ class BrushTool(CanvasTool):
     cursor = Qt.CrossCursor
 
     def __init__(self, session: MaskCuration):
+        """Bind the brush to one curation session.
+
+        :param session: the session its edits are recorded in.
+        """
         if not isinstance(session, MaskCuration):
             raise LayerError(
                 f"a brush paints into a MaskCuration, got {session!r}")
@@ -171,6 +175,14 @@ class BrushTool(CanvasTool):
             self.session.end_stroke()
 
     def _dab(self, world: Dict[str, float]) -> int:
+        """Paint one dab at a world coordinate.
+
+        ONE DAB PER MOTION EVENT, not per pixel travelled: a fast drag skips
+        pixels, and interpolating them would make the brush behave differently
+        at different pointer speeds.
+
+        :param world: where the pointer is.
+        """
         try:
             if self._erasing:
                 return self.session.erase(world)
@@ -191,16 +203,33 @@ class BrushPanel(QWidget):
     :param layer: the labels layer to edit. Defaults to the first one in the
         canvas's stack, so the ordinary case needs no argument.
     :param artifact: the mask's path, so the ledger is written beside it.
+    :param parent: parent widget; ownership only.
+    :param session: an already-built
+        :class:`~spacr.curation.MaskCuration`. ``None`` builds one from the other
+        arguments, which is the ordinary case; PASSING ONE HANDS THE
+        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished correction,
+        or one a test wrote directly -- so the panel resumes it instead of
+        starting over.
     """
 
     #: The mask changed. Carries how many elements moved.
     painted = Signal(int)
     #: The ledger was written. Carries the path.
     logged = Signal(str)
+    #: The corrected labels were written back. Carries the path.
+    saved = Signal(str)
 
     def __init__(self, canvas: LayerCanvas, parent=None, *,
                  layer: Optional[LabelsLayer] = None, artifact: str = "",
                  session: Optional[MaskCuration] = None):
+        """Build the brush controls over one canvas.
+
+        :param canvas: the canvas being painted.
+        :param parent: parent widget.
+        :param layer: the labels layer being edited.
+        :param artifact: what the edits are written to.
+        :param session: the curation session recording them.
+        """
         super().__init__(parent)
         self.setObjectName("BrushPanel")
         self._canvas = canvas
@@ -225,6 +254,10 @@ class BrushPanel(QWidget):
         self.refresh()
 
     def _first_labels(self) -> Optional[LabelsLayer]:
+        """The first labels layer in the stack, or None.
+
+        :returns: the layer to paint into.
+        """
         for layer in self._canvas.stack:
             if isinstance(layer, LabelsLayer):
                 return layer
@@ -232,6 +265,7 @@ class BrushPanel(QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the paint toggle, the label picker and the radius."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -284,6 +318,17 @@ class BrushPanel(QWidget):
             tooltip="Write the correction ledger beside the mask")
         self.save_button.clicked.connect(self.save_log)
         actions.addWidget(self.save_button)
+        # "Save log" writes the record and not the pixels, and a record on
+        # its own asserts corrections to a file nothing edited -- which is
+        # the state `spacr.curation.is_curated` then reports as hand-edited.
+        # This is the control that makes the claim true, and it sits beside
+        # the one that makes it so the two are never separated.
+        self.save_mask_button = FlatButton(
+            "Save mask", self,
+            tooltip="Write the corrected labels back to the mask file, with "
+                    "the correction ledger beside them")
+        self.save_mask_button.clicked.connect(self.save_mask)
+        actions.addWidget(self.save_mask_button)
         outer.addLayout(actions)
 
         self.badge = QLabel("", self)
@@ -323,6 +368,10 @@ class BrushPanel(QWidget):
         self._tool = None
 
     def _on_paint_toggled(self, checked: bool) -> None:
+        """Arm or disarm painting.
+
+        :param checked: True to paint.
+        """
         if checked:
             self.start_painting()
         else:
@@ -332,6 +381,10 @@ class BrushPanel(QWidget):
         # Derived, not stored: the ledger and the badge follow the model, so
         # a paint made through the tool and one made from a script look the
         # same here.
+        """Re-bind to the labels layer after the stack changed.
+
+        :param event: which change it was.
+        """
         if event.kind == "data":
             self.refresh()
 
@@ -341,9 +394,17 @@ class BrushPanel(QWidget):
 
     # -- actions -------------------------------------------------------------
     def _on_label_changed(self, value: int) -> None:
+        """Paint with a different label from now on.
+
+        :param value: the label's integer id.
+        """
         self._session.label = int(value)
 
     def _on_radius_changed(self, value: float) -> None:
+        """Resize the brush.
+
+        :param value: the new radius in pixels.
+        """
         self._session.radius = float(value)
 
     def use_next_label(self) -> int:
@@ -368,6 +429,32 @@ class BrushPanel(QWidget):
             self.badge.setText(f"Could not write the ledger: {exc}")
             return None
         self.logged.emit(written)
+        self.refresh()
+        return written
+
+    def save_mask(self, path: Optional[str] = None) -> Optional[str]:
+        """Write the corrected labels back to the mask, ledger and all.
+
+        The pixels and the record go in one call
+        (:meth:`spacr.curation.MaskCuration.save_mask`), because either one
+        alone misreports the file: a ledger beside untouched pixels claims
+        corrections that were never applied, and labels with no ledger are a
+        hand-edited mask nobody can tell from a segmented one.
+
+        :param path: where to write; anything falsy means the artefact this
+            panel was opened on. ``clicked`` hands a slot the checked state,
+            so a bool arriving here reads as "no path", not as one.
+        :returns: the path written, or ``None`` when it could not be.
+        """
+        if not isinstance(path, str):
+            path = None
+        try:
+            written = self._session.save_mask(path or self._artifact or None)
+        except (OSError, CurationError) as exc:
+            LOG.info("could not write the curated mask", exc_info=True)
+            self.badge.setText(f"Could not write the mask: {exc}")
+            return None
+        self.saved.emit(written)
         self.refresh()
         return written
 
@@ -409,6 +496,14 @@ class TrackCurationPanel(QWidget):
     a delete takes whatever is selected. Every one of them is refused with a
     sentence rather than silently declined when it would break the table —
     a button that sometimes does nothing is indistinguishable from a bug.
+
+    :param parent: parent widget; ownership only.
+    :param session: an already-built
+        :class:`~spacr.curation.TrackCuration`. ``None`` builds one from the other
+        arguments, which is the ordinary case; PASSING ONE HANDS THE
+        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished curation,
+        or one a test wrote directly -- so the panel resumes it instead of
+        starting over.
     """
 
     #: The table changed. Carries the number of tracks now in it.
@@ -419,6 +514,13 @@ class TrackCurationPanel(QWidget):
     def __init__(self, parent=None, *, tracks: Optional[pd.DataFrame] = None,
                  artifact: str = "",
                  session: Optional[TrackCuration] = None):
+        """Build the track-curation controls.
+
+        :param parent: parent widget.
+        :param tracks: the tracks being curated.
+        :param artifact: what the edits are written to.
+        :param session: the curation session recording them.
+        """
         super().__init__(parent)
         self.setObjectName("TrackCurationPanel")
         self._artifact = str(artifact or "")
@@ -430,6 +532,7 @@ class TrackCurationPanel(QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the track actions and their selection requirements."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(6)
@@ -551,6 +654,15 @@ class TrackCurationPanel(QWidget):
         return self._do(lambda s, ids: s.delete(ids[0]), needs=1)
 
     def _do(self, action, *, needs: int) -> bool:
+        """Run one track action, refusing it without the right selection.
+
+        REFUSED RATHER THAN GUESSED. Merge needs two tracks and split needs
+        one; acting on whatever happens to be selected would silently edit
+        something the user did not choose.
+
+        :param action: the action to run.
+        :param needs: how many tracks it requires.
+        """
         session = self._session
         if session is None:
             self.status.setText("Open a tracks table first.")
@@ -623,6 +735,7 @@ class TrackCurationPanel(QWidget):
         self.tracks_changed.emit(len(session.track_ids))
 
     def _refresh_buttons(self) -> None:
+        """Enable each action only when the selection satisfies it."""
         selected = len(self.selected_tracks())
         self.join_button.setEnabled(selected >= 2)
         self.split_button.setEnabled(selected == 1)

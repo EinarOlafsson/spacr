@@ -1,0 +1,400 @@
+================================================================================
+ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
+THE DEFAULTS
+================================================================================
+
+Status:    not started
+Requested: 2026-09-01 — "remove the corrected manders settings in measure, and
+           remove the depreceated incorrect manders measurements and just keep
+           the new correct measurements. spacial measurements and object
+           distances should be on by default. also the settings i set now for
+           measure and mask should be the new defaults, path should always just
+           say path exp should be experiment"
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+FOUR SEPARATE THINGS, filed together because they were reported together.
+
+1. TWO MANDERS DEFINITIONS SHIP AT ONCE.
+
+   `corrected_manders` (spacr/settings.py:1286, default False) selects between
+   them, and its own description says what the problem is:
+
+       "Add standards-compliant Manders coefficients (manders_m1, manders_m2
+       and manders_overlap_coefficient) alongside the DEPRECATED
+       M1_correlation_* columns, which use a different definition."
+
+   So the default run writes the deprecated columns, and the correct ones are
+   opt-in. Both sets can be present in one database, under names that do not
+   say which definition produced them.
+
+   Touches: `corrected_manders` in settings.py (default, expected_types:3323,
+   description:4506), whatever in spacr/measure.py reads it, and the
+   `M1_correlation_<t>` / `M2_correlation_<t>` writers.
+
+2. SPATIAL MEASUREMENTS ARE OFF BY DEFAULT.
+
+   `spatial_measurements` and `object_distances` both default off. They are
+   the measurements the module is for in a host-pathogen screen, so every
+   default run produces a database missing them and the user finds out after
+   the run.
+
+3. THE DEFAULTS DO NOT MATCH WHAT A REAL RUN USES.
+
+   The settings used for the 2026-09-01 mask run are in the published example
+   dataset at `settings/gen_mask_settings.csv`
+   (huggingface.co/datasets/einarolafsson/spacr-example-measure) — that file
+   IS the requested default set for mask, and the measure equivalent is the
+   one set in the GUI at the same time. NOT YET CAPTURED for measure: whoever
+   picks this up must get the measure settings from the user before starting,
+   because they were never written to a file.
+
+4. TWO LABELS READ AS ABBREVIATIONS.
+
+   `src` shows as something other than "path", and `experiment` shows as
+   "exp". Both should read as the full word.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The Manders one is a CORRECTNESS problem, not a tidiness one. A measurements
+database can hold both definitions under names that do not distinguish them,
+and the DEPRECATED definition is what a default run writes. Anyone comparing
+two runs, or pooling a database made before the flag existed with one made
+after, is comparing two different coefficients without being told. Published
+colocalisation numbers can come out of that.
+
+The other three are each a default that makes a user redo work: a run that
+silently omits the spatial measurements, a settings panel that has to be
+re-tuned to the same values every time, and two labels that make a reader
+guess.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Establish which Manders columns are correct and delete the other WRITER,
+   not just the setting. In spacr/measure.py: keep `manders_m1`, `manders_m2`,
+   `manders_overlap_coefficient`; stop writing `M1_correlation_<t>` /
+   `M2_correlation_<t>`.
+
+2. Remove `corrected_manders` — default (settings.py:1286), type (:3323) and
+   description (:4506) — and add it to the retired-key list so an old settings
+   file naming it is answered rather than rejected. `_check_retired_keys` in
+   spacr/validate.py is where that lives.
+
+3. DECIDE AND STATE what happens to an existing database holding the old
+   columns. They are not rewritten by this change, so a reader must be able to
+   tell the two apart. Either leave them and document it in the release notes,
+   or add a schema-version marker. Not deciding is what produced the problem.
+
+4. Flip `spatial_measurements` and `object_distances` to default True
+   (spacr/settings.py). Check the cost first — `object_distances` is O(n²) in
+   objects per field unless it is already using a KD-tree; if it is not, that
+   is a separate defect and turning it on by default would make every run
+   slower for a reason the user cannot see.
+
+5. Ask the user for the measure settings they had set on 2026-09-01, then move
+   both sets into the defaults factories: `set_default_settings_preprocess_
+   generate_masks` and `get_measure_crop_settings` in spacr/settings.py. The
+   mask half can be read from the published example dataset's
+   `settings/gen_mask_settings.csv`.
+
+6. Relabel `src` to "path" and `experiment` to "experiment" wherever the GUI
+   builds their captions, and re-run the i18n extraction so the nine catalogues
+   carry the new strings rather than silently falling back to English.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A measure run on the example dataset writes `manders_m1` / `manders_m2` /
+  `manders_overlap_coefficient` and NO `M1_correlation_*` column.
+* A settings file naming `corrected_manders` opens, with the key reported as
+  retired rather than unknown.
+* A default measure run writes the spatial and object-distance tables.
+* The defaults factories return the 2026-09-01 values, pinned in a test so a
+  later edit cannot drift them silently.
+* The two labels read "path" and "experiment" on a fresh screen.
+
+--------------------------------------------------------------------------------
+WHAT IS BLOCKED, AND ON WHOM (2026-09-01)
+--------------------------------------------------------------------------------
+
+THREE OF THE FOUR PARTS ARE UNBLOCKED and can be started now: the Manders
+removal, the spatial-measurement defaults, and the two labels.
+
+THE FOURTH CANNOT BE. "the settings i set now for measure and mask should be
+the new defaults" needs the values the maintainer had on screen on
+2026-09-01. The MASK half survives -- it is in the published example dataset
+at `settings/gen_mask_settings.csv` -- but the MEASURE half was never written
+to a file, and the panel has been through several runs since. Ask for it
+before starting that part; guessing it would put someone's approximation into
+the defaults every future run inherits.
+
+ONE CORRECTION TO THE ORIGINAL: the label request was "path should always just
+say path exp should be experiment". The `exp` half has a concrete address --
+`spacr/qt/widgets/measure_preview.py:451` is literally
+`QLineEdit("exp", self)`. The `src` half is a settings CAPTION, not a value,
+and needs finding in the settings-model layout rather than in a widget
+constructor.
+
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED not started, checked in the code rather than the header.
+`settings.py:1275` still has `spatial_measurements` defaulting False and
+`:1283` `object_distances` defaulting False, so the "on by default" half is
+untouched; `corrected_manders` is still live in feature_dict.py and measure.py,
+so the Manders removal is untouched. The fourth part still needs the
+maintainer's 2026-09-01 measure settings, which were never written to a file.
+0%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THREE OF THE FOUR PARTS ARE DONE. THE FOURTH STILL NEEDS THE ASK.
+--------------------------------------------------------------------------------
+
+PART 1, THE MANDERS DEFINITION — DONE.
+
+`_calculate_correlation_object_level` now writes `manders_m1`, `manders_m2`
+and `manders_overlap_coefficient` UNCONDITIONALLY, and no longer writes
+`M1_correlation_<t>` / `M2_correlation_<t>` at all. The `corrected_manders`
+switch is gone.
+
+  WHAT MADE THIS SAFE TO DO IN ONE PASS: the function has exactly ONE caller
+  (`measure.py:1728`). The activation-map report that also mentions Manders
+  uses a DIFFERENT function -- `deep_spacr.calculate_activation_correlations`
+  -- so removing the percentile loop here could not reach it. Checked before
+  editing, because `manders_thresholds` appears in both stories and reads as
+  one shared setting.
+
+  `manders_thresholds` therefore SURVIVES but no longer affects a measure run.
+  It is out of the Measure category and out of the measure defaults, still
+  declared, still defaulted in the deep_spacr path at [15, 50, 75], and its
+  tooltip now says which of the two it belongs to. Leaving it visible in
+  Measure would have been instruction 77's defect exactly: a setting the panel
+  offers and nothing reads.
+
+  `corrected_manders` is in `validate.RETIRED_SETTINGS` with an empty
+  replacement, so a settings CSV naming it is reported as RETIRED rather than
+  unknown -- which is what this file asked for.
+
+  ALSO REMOVED: `total_intensity1` / `total_intensity2`, computed per object
+  and read only by the deleted loop.
+
+PART 2, SPATIAL MEASUREMENTS ON — DONE. `spatial_measurements` and
+`object_distances` both default True. Their comments used to justify the old
+default ("it is real time on a 3-D field"); they now say why the trade went
+the other way, which is that measuring again afterwards costs twenty minutes
+a plate. Both tooltips' "Default False" moved with them.
+
+PART 4, THE TWO LABELS — DONE, and they were two different kinds of thing.
+
+  `src` rendered as "Src" because the humaniser capitalises the key and stops.
+  Fixed at the single label source, `object_roles.EXACT_LABELS`, so every
+  settings surface and every locale catalog gets it from one place.
+  NOT applied to regression, which overrides `src` to "Output directory" in
+  `settings_model._label_for`: that is not an abbreviation, it is a more
+  specific true statement, since regression's `src` is where results are
+  written rather than where images are read. Overrule that in one line if the
+  "always" was meant literally.
+
+  `exp` was not a label at all -- it was the DEFAULT VALUE of the experiment
+  field (`measure_preview.py`, `QLineEdit("exp")`), so it also became the
+  experiment name of every run left untouched. Now "experiment". The pipeline
+  defaults agreed with neither: `settings.py` had 'exp' in one place and
+  'exp.' in another. Both are 'experiment' now. `experiment_1` (barcodes) and
+  `foreign_import` (foreign) are left alone -- they are words, and they are
+  distinguishing.
+
+PART 3, THE RUN'S SETTINGS AS THE DEFAULTS — STILL BLOCKED, unchanged.
+The mask half is in the published example at `settings/gen_mask_settings.csv`.
+The measure half was never written to a file and the panel has been through
+several runs since. ASK BEFORE STARTING IT; guessing would put an
+approximation into the defaults every future run inherits.
+
+TESTS. 124 passed across the measure-object and item-60 measure files, and
+549 passed across the manders/correlation/feature-dict/retired selection.
+Three tests were updated rather than loosened:
+`test_calculate_correlation_object_level` now asserts the trio is present AND
+that no `M1_correlation*`/`M2_correlation*` column survives;
+`test_the_manders_coefficients_need_no_setting_at_all` drives an EMPTY
+settings dict, which is what proves the gate is gone rather than defaulted
+True somewhere; and `test_the_retired_manders_switch_is_reported_as_retired`
+pins the retirement.
+
+A NOTE FOR 306. This change moves setting labels and tooltips, so the English
+manifest and the nine catalogs shift again. That is 306's 125-row debt getting
+slightly larger, not a new problem.
+
+VERIFICATION, against a HEAD BASELINE rather than against zero. The same 113
+settings/measure/validate test files were run twice, once with this work
+stashed:
+
+    HEAD          24 failed, 3086 passed
+    with 337      21 failed, 3091 passed
+    regressions    0   (comm -23 of the two failure lists is empty)
+
+Three of HEAD's failures are closed by this work. Two of those were MINE from
+earlier the same night: instruction 342 added `independent_variable_layout`,
+`model_data_layout` and `wide_predictor_columns` to `settings.categories`
+without registering them in `KEYS_ADDED_BY_REGROUP`, and I did not catch it
+because I ran the layout tests and not the category tests. Registered now.
+
+FOUR THINGS THE FIRST ATTEMPT GOT WRONG, all caught by that baseline run:
+
+  1. Deleting `manders_thresholds` from `categories` left it UNGROUPED rather
+     than gone -- the `activation` panel still offers it. It is now filed
+     under "Activation Maps", which is where it is actually read.
+  2. The `experiment` tooltip used to say "Defaults vary by pipeline", which
+     states no parseable default and so was never compared. Naming a real
+     default made it comparable in two more apps, moving a pinned count from
+     680 to 682.
+  3. That in turn exposed a real variant: `external_masks` names its run
+     after itself rather than taking the generic label. Registered with its
+     reason rather than papered over.
+  4. `test_a_colocalisation_pair_holds_the_values_the_whole_field_gives`
+     compares against a hand-written oracle that still produced the deleted
+     columns. Rewritten to the Manders trio, kept as a SECOND implementation
+     of the arithmetic rather than a call into `spacr.measure` -- an oracle
+     that shares the code it checks would agree with a windowing bug as
+     happily as with correct code, and windowing is what that file is for.
+
+The committed notebooks were regenerated (`build_notebook_settings.py`), which
+closes a failure that pre-dated this work.
+
+THE 21 THAT REMAIN ARE NOT THIS ITEM'S and are not new: they fail identically
+at HEAD, they are all in the measure suite, and each PASSES WHEN RUN ALONE.
+That is the same order-dependent shape as 345 and it is filed as 346.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE RUN FILE WAS FOUND, AND PART 3 IS ALMOST ALREADY DONE
+--------------------------------------------------------------------------------
+
+357's question 337-A is answered and the file located:
+
+    ~/.cache/spacr/example_data/plate1/settings/crop_measure_settings.csv
+    37 keys, written 2026-09-01 15:49 -- the date this instruction names --
+    with src=/home/carruthers/datasets/plate1/merged, so it is the record of
+    the real run rather than a GUI session's leftovers.
+
+THE CONDITIONAL IN THE ANSWER DID NOT FIRE. The maintainer said that if the
+export could not be found, Measure would have to be changed to save its
+settings into the working directory for reproducibility. It was found, in the
+run's own `<src>/settings/` folder, so Measure already has that property and
+no change to it is authorised.
+
+DIFFED AGAINST `get_measure_crop_settings({})`:
+
+    37 keys in the file
+    28 ALREADY MATCH the shipped default
+     6 are not Measure settings at all
+     2 differ
+
+AND NEITHER OF THE TWO SHOULD SIMPLY BE COPIED:
+
+    experiment    shipped 'experiment'   run file 'exp'
+      The run file is the OLDER value. This instruction's own request says
+      "exp should be experiment", so the shipped default is already the
+      wanted one and copying the run file would undo the fix. Part 4 of this
+      file asks for exactly this and it is done.
+
+    png_size      shipped [224, 224]     run file [[224, 224]]
+      A nesting difference rather than a different size. Decide which shape
+      is canonical and normalise the reader, rather than changing a default
+      to a doubly-wrapped list to match a file.
+
+SO PART 3 IS NEARLY FREE, and that is worth knowing before anyone budgets for
+it: "the settings i set now for measure should be the new defaults" turns out
+to be true of 28 of the 29 comparable keys already.
+
+THE SIX THAT ARE NOT MEASURE SETTINGS, recorded because they are a question
+rather than a gap: `png_dims`, `include_uninfected`, `n_job`,
+`manders_thresholds`, `plot_filtration`, `representative_images`. They were
+written by the run, so they meant something to the code that wrote them.
+Before assuming they are dead, check whether each was RENAMED (`n_job` beside
+a possible `n_jobs` is the obvious suspect) or moved to another factory.
+`manders_thresholds` is part 1's territory and should be settled there rather
+than here.
+
+OWNERSHIP, under protocol 325: parts 2, 3 and 4 land in `spacr/settings.py`,
+which is the other session's file. Part 1's reader half is in
+`spacr/measure.py`, which is mine. The measurement above is handed over so it
+does not have to be redone.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE FOUR QUESTIONABLE RUN-FILE KEYS ARE CLASSIFIED
+--------------------------------------------------------------------------------
+
+Each result below was checked with exact dictionary-access searches, not a
+bare-word search:
+
+* `include_uninfected` was RENAMED to `uninfected` in `14f288f49`. That
+  commit changed the Measure default, expected type, category, tooltip,
+  `_exclude_objects` argument and every Measure consumer together. The old
+  run-file key has no current `spacr/` reader.
+* `n_job` is a misspelling of the live `n_jobs` setting, not a second setting
+  or a moved field. Current Measure defaults and consumers use only `n_jobs`;
+  the settings validator/GUI diagnostic explicitly reports `n_job` as an
+  unknown setting and recommends `n_jobs`.
+* `plot_filtration` was FOLDED INTO `plot` in `62291a450`. That commit removed
+  the dedicated default/type/tooltip and changed the before/after-filtration
+  rendering path; current `measure.py` renders both views under
+  `settings['plot']`, with no `plot_filtration` access left.
+* `representative_images` is a RETIRED/DEAD run-file key, not a rename or
+  another factory's setting. `62291a450` removed its default/type/tooltip and
+  its guarded Measure post-processing block together; the lower-level
+  `_generate_representative_images` helper remains in `spacr.utils`, but no
+  current Measure setting or consumer reconnects this key to it.
+
+No setting was deleted by this classification. The old file is therefore a
+useful provenance record containing three historical names and one typo, but
+those four rows are not candidates for new Measure defaults.
+
+--------------------------------------------------------------------------------
+2026-09-02: ALL FOUR PARTS ARE TRUE. CLOSING, WITH EACH ONE CHECKED.
+--------------------------------------------------------------------------------
+
+Checked against the running code rather than against commit messages, because
+this file was written when three of the four were still open and two sessions
+have worked on it since.
+
+PART 1, TWO MANDERS DEFINITIONS. Done. `corrected_manders` is in
+`RETIRED_SETTINGS` and is no longer a live setting; the deprecated
+`M1_correlation_<t>` / `M2_correlation_<t>` writers are gone from the
+measurement path and survive only in `feature_dict.py`, which is where they
+belong -- a plate measured before 2026-09-02 still has those columns and a
+reader still has to be able to look them up. The three correct coefficients
+-- `manders_m1`, `manders_m2` and `manders_overlap_coefficient` -- are
+written unconditionally, and the third had never been computed at all despite
+the tooltips naming it.
+
+PART 2, SPATIAL MEASUREMENTS OFF BY DEFAULT. Done. `spatial_measurements` and
+`object_distances` both default True. They are the measurements the module is
+for in a host-pathogen screen, and every default run used to produce a
+database missing them.
+
+PART 3, THE DEFAULTS DO NOT MATCH A REAL RUN. Done, and it turned out to need
+almost nothing -- see the 2026-09-02 note above. Of the 37 keys in the located
+run file, 28 already match, 6 are not Measure settings, and the 2 that differ
+should NOT be copied: the file's `experiment='exp'` is the older value that
+part 4 exists to replace, and `png_size` differs only by nesting.
+
+PART 4, path AND exp. Done. `experiment` defaults to `'experiment'`, not
+`'exp'`. `src` displays as "Path" everywhere except Regression, which keeps
+"Output directory" -- the maintainer's answer to 357's question 337-B, chosen
+over applying the rule literally, because Regression uses `src` as a
+DESTINATION and a screen that calls a destination "Path" is wrong in the one
+place the distinction matters.
+
+THE ONE THING NOT DONE, and it is not this file's: the six keys the run wrote
+that are not Measure settings (`png_dims`, `include_uninfected`, `n_job`,
+`manders_thresholds`, `plot_filtration`, `representative_images`). Two exist
+elsewhere in `settings.py`; four have no mention at all and may be renames.
+Handed to the other session in 325 rather than guessed at.

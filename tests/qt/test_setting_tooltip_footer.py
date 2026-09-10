@@ -8,14 +8,16 @@ Seven complaints, seven measurements — none of them taken on trust:
 * the square's corners really are round (its corner pixels are background);
 * a word inside the popup reveals the animation and folds it away again, and
   the popup resizes with it;
-* the last line is two words — **API** in the theme accent, **Animation** in
-  teal, neither underlined — and each one does its job;
+* the last line is two MARKS — a teal dot for the API, a purple square for
+  the animation, neither underlined — and each one does its job. They were
+  two words until 2026-09-02; instruction 347 replaced them, because the same
+  two words repeated on every row said nothing after the first reading;
 * and the popup is ONE surface: no black box inside the rounded grey.
 
 Every pixel assertion here carries a control that PROVES it can fail: the
 underline probe is run against a real ``<a href>`` label, the colour probe is
-scored against the *other* word's colour, and the one-tooltip count is taken
-again on a widget the popup has not claimed.
+scored against the *other* word's colour, and the native-tooltip state is
+probed first on a widget the popup has not claimed.
 """
 from __future__ import annotations
 
@@ -175,7 +177,7 @@ def _clear_native_tooltip(qtbot) -> None:
                     timeout=2000)
 
 
-def test_hovering_a_real_setting_shows_exactly_one_tooltip(qtbot):
+def test_hovering_a_real_setting_shows_no_tooltip_box(qtbot):
     """The reported bug: the sticky popup, then Qt's own on top of it.
 
     ``AppScreen.eventFilter`` calls ``refresh_api_tooltips`` on every
@@ -197,38 +199,62 @@ def test_hovering_a_real_setting_shows_exactly_one_tooltip(qtbot):
     hovered, unclaimed = labels[0], labels[1]
     assert _visible_tooltip_windows() == [], "a tooltip was already on screen"
 
-    # The bug, reproduced. `refresh_api_tooltips` is exactly what
-    # `AppScreen.eventFilter` runs on Enter, and it is what plants the native
-    # tooltip; this label simply never gets the sticky popup on top of it.
+    # NON-VACUOUSNESS, and it has to be shown on a widget the screen does not
+    # track. It used to be shown on a second settings label, but those are
+    # exactly what the screen now suppresses, so that check would have proved
+    # the mechanism dead rather than the suppression working.
+    #
+    # `refresh_api_tooltips` is still what plants the text: the property has
+    # to survive, because the accessibility tree reads it.
     refresh_api_tooltips(unclaimed)
     assert unclaimed.toolTip(), "the screen stopped planting a native tooltip"
+
+    from PySide6.QtWidgets import QLabel
+    untracked = QLabel("not a setting")
+    qtbot.addWidget(untracked)
+    untracked.setToolTip("a native tooltip fires for ordinary widgets")
+    _request_tooltip(untracked)
+    assert QToolTip.text() == untracked.toolTip(), (
+        "native tooltips do not fire in this environment at all, so the "
+        "assertions below would pass against the very bug they exist to catch")
+    _clear_native_tooltip(qtbot)
+
+    # And the tracked label is suppressed, which is the change.
     _request_tooltip(unclaimed)
-    assert QToolTip.text() == unclaimed.toolTip(), (
-        "a native tooltip does not fire here at all, so the assertions below "
-        "would pass against the very bug they exist to catch")
-    assert len(_visible_tooltip_windows()) == 1, (
-        "the window count cannot see a native tooltip appear")
+    assert QToolTip.text() == "", (
+        f"a native tooltip fired for a settings label: {QToolTip.text()[:60]!r}")
+    # Qt 6.11 records the requested native tooltip in QToolTip.text() but no
+    # longer exposes a top-level tooltip widget when its synthetic anchor is
+    # hidden.  The public tooltip state above is the cross-version proof that
+    # the control event fired; the visible-window count remains the assertion
+    # for the real, shown sticky popup below.
 
     _clear_native_tooltip(qtbot)
 
-    # The same label, hovered for real: the sticky popup and nothing else.
+    # The same label, hovered for real: NO box at all any more.
+    #
+    # Changed on 2026-09-01 -- "i dont need the popup box if the tooltip is
+    # shown on the bottom of the window". The answer to "how many tooltips"
+    # went from two, to one, to none: the help is in the bottom strip, and
+    # both the sticky popup and Qt's native tooltip are suppressed. The count
+    # is still the thing being asserted, which is why this test kept its name.
     QApplication.sendEvent(hovered, QEvent(QEvent.Type.Enter))
     QApplication.processEvents()
-    popup = HoverTooltip._INSTANCE
-    assert popup is not None and popup.isVisible(), "no tooltip at all"
     assert hovered.toolTip(), "the label lost the text screen readers use"
 
     _request_tooltip(hovered)
     assert QToolTip.text() == "", (
-        "a second, native tooltip appeared for the setting label: "
+        "a native tooltip appeared for the setting label: "
         f"{QToolTip.text()[:60]!r}")
-    assert _visible_tooltip_windows() == [popup], (
-        "more than one tooltip is on screen: "
+    assert _visible_tooltip_windows() == [], (
+        "a tooltip is on screen: "
         f"{[w.objectName() for w in _visible_tooltip_windows()]}")
 
-    popup._hide_timer.stop()
-    popup._anchor = None
-    popup.hide()
+    popup = HoverTooltip._INSTANCE
+    if popup is not None:
+        popup._hide_timer.stop()
+        popup._anchor = None
+        popup.hide()
 
 
 def test_the_anchor_keeps_its_tooltip_text_for_screen_readers(tooltip, qtbot):
@@ -455,7 +481,7 @@ def test_the_reveal_does_not_survive_a_move_to_the_next_setting(
     _reveal(tooltip, _anchor(qtbot))
     assert tooltip.animations_shown()
 
-    tooltip.show_for(_anchor(qtbot, "cell_CP_prob"), HTML)
+    tooltip.show_for(_anchor(qtbot, "cell_cellprob_threshold"), HTML)
     assert not tooltip.animation_view().isVisible(), (
         "the second setting inherited the first one's reveal")
     assert tooltip.animation() is None
@@ -504,10 +530,15 @@ def test_a_setting_without_an_animation_hides_the_word(tooltip, qtbot):
 # 6. Two words, two colours, no underline
 # ---------------------------------------------------------------------------
 
-def test_the_footer_is_two_words_and_not_a_sentence(tooltip, qtbot):
+def test_the_footer_is_two_marks_and_not_a_sentence(tooltip, qtbot):
+    from spacr.qt.widgets.hover_tooltip import ANIMATION_MARK, API_MARK
+
     tooltip.show_for(_anchor(qtbot), HTML)
-    assert tooltip.api_link().text() == "API"
-    assert tooltip.animation_link().text() == "Animation"
+    assert tooltip.api_link().text() == API_MARK
+    assert tooltip.animation_link().text() == ANIMATION_MARK
+    # The words moved to where a reader can still get them.
+    assert tooltip.api_link().accessibleName() == "API"
+    assert tooltip.animation_link().accessibleName() == "Animation"
     assert "Open spaCR API documentation" not in tooltip.text_label().text()
     assert "<a " not in tooltip.text_label().text().lower(), (
         "the old link is still in the prose")
@@ -521,18 +552,24 @@ def test_api_is_left_of_animation(tooltip, qtbot):
     assert api < word, "the words are not in the order 'API Animation'"
 
 
-def test_the_two_words_render_in_the_declared_colours(tooltip, qtbot):
+def test_the_two_marks_render_in_the_declared_colours(tooltip, qtbot):
     """Measured on the rendered ink, and scored against the WRONG colour too.
 
     Without the second score this passes for any pair of colours that are
     merely both non-background.
+
+    THE COLOURS SWAPPED ON 2026-09-02. The API mark is TEAL now and the
+    animation mark is PURPLE -- "a teel dot for api and a purple square for
+    annimation". The API link used to carry the theme accent; both are named
+    constants now, so a theme switch cannot repaint a colour that was chosen.
     """
+    from spacr.qt.widgets.hover_tooltip import PURPLE
+
     tooltip.show_for(_anchor(qtbot), HTML)
     background = _background(_grab(tooltip))
-    accent = active_palette()["accent"]
 
-    for word, declared, other in ((tooltip.api_link(), accent, TEAL),
-                                  (tooltip.animation_link(), TEAL, accent)):
+    for word, declared, other in ((tooltip.api_link(), TEAL, PURPLE),
+                                  (tooltip.animation_link(), PURPLE, TEAL)):
         measured = _ink_direction(_word_patch(tooltip, word), background)
         want = _rgb(declared) - background
         want /= np.linalg.norm(want)
@@ -545,31 +582,43 @@ def test_the_two_words_render_in_the_declared_colours(tooltip, qtbot):
             f"{word.text()} is as close to {other} as it is to {declared}")
 
 
-def test_the_blue_is_the_theme_accent_and_the_teal_is_the_dna_rain_default():
-    """Where the two colours come from, stated once."""
+def test_where_the_two_colours_come_from():
+    """Stated once, because neither is in the palette.
+
+    The palette has no teal and no purple -- `info` is a second name for the
+    blue accent -- so both marks use named constants. That is deliberate
+    since 2026-09-02: the maintainer named the two colours, and a theme
+    switch must not repaint a choice.
+    """
     from spacr.qt.widgets.dna_rain import DEFAULT_COLOR
+    from spacr.qt.widgets.hover_tooltip import PURPLE
 
     assert TEAL == DEFAULT_COLOR == "#009B9B"
-    assert "accent" in active_palette()
-    # The palette has no teal of its own: `info` is a second name for blue.
+    assert PURPLE == "#7C3AED"
     assert active_palette()["info"] == active_palette()["accent"]
+    assert PURPLE not in active_palette().values()
 
 
-def test_neither_word_is_underlined(tooltip, qtbot):
-    """A rendered underline is a near-full-width run of ink on one row.
+def test_neither_mark_is_underlined(tooltip, qtbot):
+    """No underline on either mark, and the probe has changed with them.
 
-    The control below is the same word inside a real ``<a href>``, which Qt
-    underlines — so this probe is known to be able to fail.
+    THE INK-RUN HEURISTIC NO LONGER APPLIES TO THE MARKS, and saying so is
+    more honest than keeping an assertion that cannot fail for the right
+    reason. It read "a near-full-width run of ink on one row is an
+    underline", which was true of a WORD. A filled square is a full-width run
+    of ink on every row it occupies, and a circle is one on its widest; both
+    would trip it while being perfectly un-underlined.
+
+    So the marks are checked on what actually decides it -- the font and the
+    declared style -- and the pixel probe is KEPT BELOW as a control, run
+    against a real ``<a href>`` that Qt does underline. That control is what
+    stops this file quietly losing the ability to detect one.
     """
     tooltip.show_for(_anchor(qtbot), HTML)
-    background = _background(_grab(tooltip))
 
-    for word in (tooltip.api_link(), tooltip.animation_link()):
-        runs = _longest_ink_runs(_word_patch(tooltip, word), background)
-        assert max(runs) < 0.8 * word.width(), (
-            f"{word.text()} has a {max(runs)} px run of ink across a "
-            f"{word.width()} px word — that is an underline")
-        assert not word.font().underline()
+    for mark in (tooltip.api_link(), tooltip.animation_link()):
+        assert not mark.font().underline()
+    assert "text-decoration: none" in tooltip.styleSheet()
 
     control = QLabel()
     qtbot.addWidget(control)
@@ -725,14 +774,21 @@ def test_every_layout_container_inside_the_popup_paints_nothing(
     for name, widget in (("text column", tooltip.text_column()),
                          ("links row", tooltip._links)):
         origin = widget.mapTo(tooltip, QPoint(0, 0))
-        for dx, dy, corner in ((2, 2, "top-left"),
-                               (widget.width() - 3, widget.height() - 3,
-                                "bottom-right")):
-            pixel = image.pixelColor(origin.x() + dx, origin.y() + dy)
-            found = np.array([pixel.red(), pixel.green(), pixel.blue()], float)
-            assert np.abs(found - container).max() <= 2, (
-                f"the {name}'s {corner} is {found.tolist()}, not the "
-                f"container's {container.tolist()}")
+        # A fixed corner can land on a glyph when the runner substitutes a
+        # font with different bearings.  A painted container changes the
+        # commonest colour of its complete rectangle; transparent labels and
+        # links leave the parent's surface as the commonest colour.
+        pixels = []
+        for y in range(widget.height()):
+            for x in range(widget.width()):
+                pixel = image.pixelColor(origin.x() + x, origin.y() + y)
+                pixels.append((pixel.red(), pixel.green(), pixel.blue()))
+        colours, counts = np.unique(np.asarray(pixels), axis=0,
+                                    return_counts=True)
+        found = colours[int(np.argmax(counts))].astype(float)
+        assert np.abs(found - container).max() <= 2, (
+            f"the {name}'s commonest colour is {found.tolist()}, not the "
+            f"container's {container.tolist()}")
 
 
 def test_the_probe_can_see_a_box_that_really_is_there(tooltip, qtbot,

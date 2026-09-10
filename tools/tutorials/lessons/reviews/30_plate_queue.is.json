@@ -1,0 +1,23 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
+  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "language": "is",
+  "title": "Plate Queue: keyra, stöðva milli verka og halda áfram",
+  "description": "Keyrðu staðfesta Recruitment-dæmið tvisvar í aðskildum möppum, athugaðu vistaðar niðurstöður og greindu stýrða stöðvun frá óprófaðri endurheimt eftir hrun.",
+  "objectives": ["Flytja inn staðfestar stillingar og finna Plate queue undir Help.", "Bæta núverandi stillingum og tilbúinni verkefnismöppu við sem aðskildum verkum.", "Fylgjast með raðvinnslu, stöðva milli verka og halda áfram án þess að endurtaka vel heppnað verk.", "Athuga tölulegar niðurstöður og fjarlægja loknar færslur án þess að eyða verkefnum."],
+  "prerequisite": "Ljúktu fyrst Recruitment-leiðbeiningunum. Staðfest undirmengi mælinga úr fjórum myndsviðum er afritað í tvær möppur: sömu raunverulegu mæligögnin, ekki óháðar plötur eða líffræðilegar endurtekningar. Hver mappa inniheldur measurements/measurements.db og settings/recruitment_settings.csv. Fyrri CSV-skráin er flutt inn með raunverulegum skráarvalsglugga; seinni möppunni er sleppt í biðröðina. Engin hermd vinnsla, líkanakeyrsla eða AI-beiðni. Plate Queue hefur hvorki eigin Load test data né lifandi forskoðun. Import CSV er ekki sýnt: það býr nú til Mask-verk, ekki verk fyrir hvaða einingu sem er. Langir merkimiðar geta verið styttir; athugaðu heilar slóðir og stillingar áður en verki er bætt við. Endurheimt eftir hrun og endurkeyrsla misheppnaðra verka eru ekki staðfest hér.",
+  "scenes": [
+    "Byrjaðu á staðfesta Recruitment-dæminu. Við afrituðum mæligagnagrunn fjögurra myndsviða í tvær aðskildar verkefnismöppur, hvora með sinni stillingaskrá. Þetta eru tvær keyrslur á sömu raunverulegu gögnum, ekki óháðar plötur. Veldu Import settings í Recruitment og opnaðu CSV-skrá fyrri möppunnar.",
+    "Úttaksglugginn staðfestir að stillingarnar hafi hlaðist. Athugaðu gagnagjafa og rásavörpun áður en verki er bætt við; öll umbeðin gildi voru borin saman eftir innflutning. Recruitment-leiðbeiningarnar sýna gröf, úttak og forskoðun. Biðröðin metur ekki hvort líffræðilegar ákvarðanir þínar séu viðeigandi.",
+    "Opnaðu Help og síðan Plate queue. Þetta sameiginlega verkfæri er í valmyndinni, ekki á nýjum Home-reit. Núverandi keyrslukerfi vinnur eitt verk í einu; hér eru engir valkostir fyrir fjölda vinnsluþráða eða stefnu um endurupptöku.",
+    "Veldu Add current plate. Fyrsta línan geymir afrit af Recruitment-stillingunum sem voru rétt í þessu hlaðnar. Athugaðu einingu og gagnagjafa fyrir keyrslu. Taflan sýnir auðkenni, einingu, merkimiða, stöðu og liðinn tíma; hún er ekki fullbúinn stillingaritill.",
+    "Dragðu seinni tilbúnu verkefnismöppuna í biðröðina. Vistaðar Recruitment-stillingar auðkenna eininguna og mappan verður gagnagjafinn. Báðar línur sýna queued. Aðskildar möppur halda niðurstöðunum aðskildum; það gerist ekki með því að bæta sömu möppu tvisvar við.",
+    "Veldu Run queue. Fyrra verkið verður running en það síðara er enn queued. Þetta er raunveruleg Recruitment-vinnsla, ekki hermd framvindusýning. Listinn fylgir verkum en sýnir ekki hverja millimynd eða hvert vinnsluskref.",
+    "Ýttu á Stop meðan fyrra verkið keyrir. Kerfið lýkur virka verkinu og stöðvar áður en það næsta hefst. Þetta er ekki tafarlaus afbókun: bíddu eftir að virka verkinu ljúki í stað þess að ætla að úttak þess sé þegar hætt að breytast.",
+    "Fyrri línan sýnir nú success og sú síðari enn queued. Veldu Run queue aftur til að vinna aðeins verkið sem er eftir. Við staðfestum að tímastimplar fyrra verksins breyttust ekki. Þessi stýrða stöðvun sannar ekki endurheimt eftir tölvuhrun.",
+    "Bæði verk sýna success. Hvert verkefni geymir CSV-niðurstöður fyrir frumur og brunna: tvö hundruð tuttugu og þrjár frumur standa eftir í fjórum brunnum. Auðkenni og hlutföll úr Recruitment-greiningunni voru sjálfstætt borin saman við mælingarnar; græn staða ein og sér sannar ekki að tölurnar séu réttar.",
+    "Plot var virkt í vistuðu stillingunum en þetta keyrslukerfi sýnir hvorki né vistar Recruitment-gröfin. Sjá leiðbeiningar einingarinnar um þá myndrænu vinnu. Biðröðin hefur heldur ekkert AI-samtalssvæði; hér þurfti hvorki AI-beiðni né líkanakeyrslu.",
+    "Clear finished fjarlægir loknar færslur úr biðröðinni, ekki verkefnismöppur eða niðurstöður. Við varðveittum skráninguna fyrst og staðfestum að bæði verkefnin væru enn til. Í skriftum sér PlateQueue í Qt-einingunni fyrir plötubiðröð um varanlegar verkskrár; það er ekki sjálft Recruitment-greiningarfallið."
+  ]
+}

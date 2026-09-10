@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "23_agreement",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Categorical annotator agreement, object alignment, abstention and prevalence semantics, kappa interpretation, and image-level review without database mutation."
+  },
+  "languages": {
+    "es": {
+      "description": "Mida la concordancia entre columnas de anotación y examine los objetos responsables de las discrepancias.",
+      "prerequisite": "Cree dos o más columnas categóricas para los mismos objetos.",
+      "objectives": [
+        "Configurar una comparación equitativa de las etiquetas.",
+        "Interpretar conjuntamente la concordancia y el desequilibrio de clases.",
+        "Revisar los objetos que originan las discrepancias."
+      ],
+      "narrations": [
+        "Annotator Agreement compara columnas de etiquetas categóricas sin modificar la base de datos. Utilícelo para comparar revisores, rondas de anotación o las etiquetas de un revisor con las predicciones de un modelo.",
+        "Abra una base de datos de mediciones o una carpeta de ejecución. spaCR detecta las columnas de anotación y predicción que hacen referencia a los mismos objetos.",
+        "Seleccione al menos dos columnas. Las columnas adicionales permiten realizar comparaciones por pares y obtener un resumen de varios evaluadores.",
+        "Compute Agreement alinea las etiquetas por objeto. Las etiquetas ausentes se notifican como abstenciones, en lugar de contarlas silenciosamente como discrepancias.",
+        "Interprete conjuntamente la concordancia bruta, el equilibrio de clases, las abstenciones y kappa. Kappa puede ser indefinido cuando una columna solo contiene una clase; esto advierte sobre la prevalencia y no equivale a una concordancia nula.",
+        "Utilice la matriz de confusión para determinar qué clases se confunden y si el desequilibrio domina el resumen.",
+        "La tabla de discrepancias identifica los objetos exactos que deben revisarse.",
+        "Examine recortes representativos antes de modificar las etiquetas o las definiciones de clase. Las estadísticas agregadas no explican por qué discreparon los revisores."
+      ]
+    },
+    "fr": {
+      "description": "Mesurez l’accord entre des colonnes d’annotation et examinez les objets à l’origine des désaccords.",
+      "prerequisite": "Créez au moins deux colonnes catégorielles pour les mêmes objets.",
+      "objectives": [
+        "Configurer une comparaison équitable des étiquettes.",
+        "Interpréter conjointement l’accord et le déséquilibre des classes.",
+        "Examiner les objets à l’origine des désaccords."
+      ],
+      "narrations": [
+        "Annotator Agreement compare des colonnes d’étiquettes catégorielles sans modifier la base de données. Utilisez-le pour comparer des évaluateurs, des passages d’annotation ou les étiquettes d’un évaluateur aux prédictions d’un modèle.",
+        "Ouvrez une base de données de mesures ou un dossier d’exécution. spaCR détecte les colonnes d’annotation et de prédiction qui se rapportent aux mêmes objets.",
+        "Sélectionnez au moins deux colonnes. Des colonnes supplémentaires permettent des comparaisons par paires et un résumé portant sur plusieurs évaluateurs.",
+        "Compute Agreement aligne les étiquettes par objet. Les étiquettes manquantes sont signalées comme des abstentions au lieu d’être silencieusement comptées comme des désaccords.",
+        "Interprétez conjointement l’accord brut, l’équilibre des classes, les abstentions et kappa. Kappa peut être indéfini lorsqu’une colonne ne contient qu’une seule classe ; il s’agit d’un avertissement relatif à la prévalence, et non d’un accord nul.",
+        "Utilisez la matrice de confusion pour déterminer quelles classes sont confondues et si le déséquilibre domine le résumé.",
+        "Le tableau des désaccords identifie précisément les objets à examiner.",
+        "Examinez des vignettes représentatives avant de modifier les étiquettes ou les définitions des classes. Les statistiques agrégées ne peuvent pas expliquer les raisons du désaccord entre les évaluateurs."
+      ]
+    },
+    "it": {
+      "description": "Misura la concordanza tra le colonne di annotazione ed esamina gli oggetti responsabili dei disaccordi.",
+      "prerequisite": "Crea almeno due colonne categoriche per gli stessi oggetti.",
+      "objectives": [
+        "Configurare un confronto equo delle etichette.",
+        "Interpretare insieme la concordanza e lo squilibrio delle classi.",
+        "Esaminare gli oggetti alla base dei disaccordi."
+      ],
+      "narrations": [
+        "Annotator Agreement confronta colonne di etichette categoriche senza modificare il database. Usalo per confrontare revisori, cicli di annotazione oppure le etichette di un revisore con le previsioni di un modello.",
+        "Apri un database di misurazioni o una cartella di esecuzione. spaCR rileva le colonne di annotazione e previsione che si riferiscono agli stessi oggetti.",
+        "Seleziona almeno due colonne. Le colonne aggiuntive consentono confronti a coppie e un riepilogo con più valutatori.",
+        "Compute Agreement allinea le etichette per oggetto. Le etichette mancanti vengono segnalate come astensioni anziché essere conteggiate silenziosamente come disaccordi.",
+        "Interpreta insieme la concordanza grezza, il bilanciamento delle classi, le astensioni e kappa. Kappa può essere indefinito quando una colonna contiene una sola classe; si tratta di un avviso sulla prevalenza, non di una concordanza nulla.",
+        "Usa la matrice di confusione per determinare quali classi vengono confuse e se lo squilibrio domina il riepilogo.",
+        "La tabella dei disaccordi identifica esattamente gli oggetti da esaminare.",
+        "Esamina ritagli rappresentativi prima di modificare le etichette o le definizioni delle classi. Le statistiche aggregate non possono spiegare perché i revisori abbiano espresso valutazioni diverse."
+      ]
+    }
+  }
+}

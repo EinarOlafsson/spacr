@@ -3,12 +3,72 @@
 import ast
 from pathlib import Path
 
-from tests.conftest import _automatic_ci_markers
+from tests.conftest import _automatic_ci_markers, _ci_file_shard
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "tests.yml"
 REUSABLE = ROOT / ".github" / "workflows" / "_pytest-suite.yml"
 TIMELAPSE = ROOT / "spacr" / "timelapse.py"
+
+PARALLEL_MEMORY_AMPLIFIERS = {
+    "test_no_tensorflow_guard.py": {
+        "test_importing_spacr_does_not_load_tensorflow",
+    },
+    "test_group_lasso_keeps_the_gene_together.py": {
+        "test_lasso_splits_a_gene_where_group_lasso_cannot",
+    },
+    "test_cov_submodules_vision_model.py": {
+        "test_shap_sample_explains_one_percent_of_the_objects",
+    },
+    "test_plate_position_is_a_setting.py": {
+        "test_regression_levels_passes_the_setting_through_to_both_fits",
+    },
+    "test_core_umap_graphs.py": {
+        "test_generate_image_umap_embedding_by_controls",
+    },
+    "test_core_umap_validation.py": {
+        "test_screen_graphs_over_two_sources_writes_three_result_sets",
+    },
+    "test_core_mask_orchestration.py": {
+        "test_test_mode_plots_every_merged_field",
+        "test_missing_merged_folder_reports_and_continues",
+    },
+    "test_all_plotting_functions.py": {
+        "test_plot_image_mask_overlay",
+    },
+    "test_object_tstack_wiring.py": {
+        "test_verbose_reports_what_the_4d_run_actually_did",
+    },
+}
+
+SERIAL_TIMING_NODES = {
+    "test_fast_plots.py": {
+        "test_the_plain_volcano_is_immediate",
+        "test_colouring_does_not_cost_a_brush_per_point",
+    },
+}
+
+
+def _is_heavy_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "heavy"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
+
+
+def _is_slow_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "slow"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
 
 
 def test_qt_modules_are_classified_automatically():
@@ -68,6 +128,94 @@ def test_marker_expressions_partition_resource_and_structural_suites():
         assert expression in workflow
 
 
+def test_the_real_nas_pipeline_is_owned_by_the_gpu_suite():
+    """A mounted NAS must not make hosted CPU CI run Cellpose SAM."""
+    path = ROOT / "tests" / "test_e2e_real_pipeline.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, (ast.List, ast.Tuple))
+    markers = {
+        element.attr
+        for element in assignment.value.elts
+        if isinstance(element, ast.Attribute)
+    }
+
+    assert {"slow", "nas", "gpu"} <= markers
+
+
+def test_the_nas_suite_keeps_a_bounded_non_gpu_availability_node():
+    """The NAS lane must remain non-empty without owning GPU inference."""
+    path = ROOT / "tests" / "test_nas_resource_availability.py"
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, ast.Attribute)
+
+    assert assignment.value.attr == "nas"
+    assert "pytest.mark.gpu" not in source
+    assert "paths_available" in source
+    assert "timeout=5.0" in source
+
+
+def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
+    """Measured high-RSS nodes must not overlap in the parallel fast job."""
+    missing = []
+    for filename, expected_names in PARALLEL_MEMORY_AMPLIFIERS.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_heavy_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "heavy marker missing from: " + ", ".join(missing)
+
+
+def test_fast_suites_fit_on_a_standard_hosted_runner():
+    """Small worker batches release accumulated scientific-library memory."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    assert workflow.count("tools/run_pytest_batches.py") == 2
+    assert workflow.count("--batch-size 32 --workers 2") == 2
+    assert "-n 3 --dist loadfile" not in workflow
+
+
+def test_wall_clock_measurements_run_in_the_serial_suite():
+    """Timing thresholds must not measure contention from xdist siblings."""
+    missing = []
+    for filename, expected_names in SERIAL_TIMING_NODES.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_slow_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "slow marker missing from: " + ", ".join(missing)
+
+
 def test_reusable_suite_auto_detects_resources_and_current_actions():
     workflow = REUSABLE.read_text(encoding="utf-8")
 
@@ -77,6 +225,88 @@ def test_reusable_suite_auto_detects_resources_and_current_actions():
     assert "cuda_available" in workflow
     assert "endpoint_available" in workflow
     assert "NUMBA_CACHE_DIR" in workflow
+    assert "SPACR_HF_E2E_STUB" in workflow
+    # Qt collects the external-catalog fixed-point contract. Chinese source
+    # normalization is deliberately OpenCC-backed, so the reusable runner
+    # must provide the same audited normalizer as docs and release jobs.
+    assert "libopencc1.1" in workflow
+    assert "libopencc-data" in workflow
+
+
+def test_qt_measurement_suites_run_after_xdist_workers_exit():
+    """Cursor, event-loop, frame-time, and RSS measurements need an idle process.
+
+    The offscreen Qt platform exposes one synthetic cursor across workers,
+    and event-loop/RSS budgets become measurements of sibling-worker load
+    when these files run inside xdist.  The reusable suite must exclude each
+    file from the parallel pass and run it explicitly in the serial tail.
+    """
+    workflow = (ROOT / ".github" / "workflows" /
+                "_pytest-suite.yml").read_text(encoding="utf-8")
+    for path in (
+        "tests/test_perf_guard.py",
+        "tests/qt/test_gui_responsiveness.py",
+        "tests/qt/test_home_stage_and_dock.py",
+        "tests/qt/test_figure_queue.py",
+        "tests/qt/test_pca.py",
+        "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
+        # The backdrop's per-frame cost is asserted against the frame
+        # budget while a Python worker runs. Beside three sibling xdist
+        # workers that measures the runner, and it did: the assertion
+        # passes alone and serially in its own batch, and fails under -n 4.
+        "tests/qt/test_the_backdrop_survives_a_run.py",
+    ):
+        assert f"--ignore={path}" in workflow
+        assert workflow.count(path) >= 2
+
+
+def test_qt_suite_has_room_for_its_measured_runtime():
+    """Qt files are split so neither job reaches the runner's hour boundary."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    qt_block = workflow.split("\n  qt:", 1)[1].split("\n  gpu:", 1)[0]
+
+    # A single four-worker job repeatedly reached about 91% before the hosted
+    # runner sent a shutdown signal at one hour. File-level sharding retains
+    # the complete marker-selected suite while bounding each job well below
+    # that service window.
+    assert 'timeout_minutes: 120' in qt_block
+    assert "shard: [0, 1]" in qt_block
+    assert "file_shard_count: 2" in qt_block
+    assert "run_serial_tail: ${{ matrix.shard == 0 }}" in qt_block
+
+
+def test_file_shards_are_stable_disjoint_and_cover_every_test_module():
+    files = sorted((ROOT / "tests").rglob("test_*.py"))
+    first = {path for path in files if _ci_file_shard(path, 2) == 0}
+    second = {path for path in files if _ci_file_shard(path, 2) == 1}
+
+    assert first
+    assert second
+    assert not first & second
+    assert first | second == set(files)
+    assert all(
+        _ci_file_shard(path, 2)
+        == _ci_file_shard(path.relative_to(ROOT), 2)
+        for path in files
+    )
+
+
+def test_reusable_suite_resets_sharding_for_the_serial_qt_tail():
+    workflow = REUSABLE.read_text(encoding="utf-8")
+
+    assert "SPACR_PYTEST_FILE_SHARD_INDEX" in workflow
+    assert "SPACR_PYTEST_FILE_SHARD_COUNT" in workflow
+    assert 'if [ "${{ inputs.run_serial_tail }}" = "true" ]' in workflow
+    assert "SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest" in workflow
+
+
+def test_informational_windows_sweep_cannot_cancel_the_matrix():
+    """Expected Windows failures must finish before the job-level timeout."""
+    workflow = (ROOT / ".github" / "workflows" /
+                "compat-matrix.yml").read_text(encoding="utf-8")
+    assert "Full suite (informational, never decides)" in workflow
+    assert "--maxfail=25" in workflow
+    assert "continue-on-error: true" in workflow
 
 
 def test_timelapse_does_not_download_btrack_data_during_collection():

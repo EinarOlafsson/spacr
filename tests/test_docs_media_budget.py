@@ -211,9 +211,10 @@ def test_narration_is_the_stable_mobile_clock():
     syllables. Narration therefore drives the silent visual master; only an
     explicit seek/load boundary may move the audio clock.
 
-    Pin the current cache key too: the 2026-08-11 player keeps narration in
-    charge through visual EOF and derives caption cues from measured sentence
-    timings, so phones must not reuse the superseded mobile-smooth asset.
+    Pin the current cache key too: the 2026-08-25 player keeps narration in
+    charge through visual EOF, derives caption cues from measured sentence
+    timings, and includes the folded lesson routes. Phones must not reuse a
+    superseded player asset.
     """
     player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
         encoding="utf-8")
@@ -225,7 +226,8 @@ def test_narration_is_the_stable_mobile_clock():
     assert "function syncAudio(" not in player
     assert "elements.audio.playbackRate = userPlaybackRate" not in player
     index = (_LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
-    assert 'app_v2.js?v=20260811-audio-end-park-captions' in index
+    assert 'app_v2.js?v=20260825-folded-routes' in index
+    assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
 
 
@@ -513,12 +515,13 @@ def test_the_budget_module_runs_as_a_script():
 
 
 @requires_library
-def test_the_docs_workflow_publishes_from_main_only():
-    """Nightly stopped republishing production Pages; keep it that way.
+def test_the_docs_workflow_only_auto_publishes_from_main():
+    """Nightly pushes cannot republish Pages; an explicit dispatch can.
 
     The push trigger used to run every step on ``nightly`` too, so each
-    nightly push overwrote the public site with unreviewed docs. The gate is
-    a one-line ``if:`` and deleting it is silent.
+    nightly push overwrote the public site with unreviewed docs. A deliberate
+    workflow dispatch is allowed only because the same run first audits the
+    exact catalogs and builds the site. Deleting either half is silent.
     """
     workflow = (REPO_ROOT / ".github" / "workflows" / "docs.yml")
     if not workflow.is_file():
@@ -526,5 +529,13 @@ def test_the_docs_workflow_publishes_from_main_only():
     text = workflow.read_text()
     assert text.count("github.ref == 'refs/heads/main'") >= 3, (
         "every Pages-touching step (configure, upload, deploy) needs the "
-        "main-only gate")
+        "automatic main gate")
+    manual_nightly = (
+        "github.event_name == 'workflow_dispatch' && "
+        "github.ref == 'refs/heads/nightly'"
+    )
+    assert text.count(manual_nightly) >= 3, (
+        "the configure, upload and deploy exception must require both an "
+        "explicit dispatch and the nightly ref"
+    )
     assert "upload-pages-artifact" in text

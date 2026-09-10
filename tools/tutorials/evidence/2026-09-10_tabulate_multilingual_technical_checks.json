@@ -1,0 +1,162 @@
+{
+  "lesson": "61_tabulate",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_tabulate_current_workflow.json",
+  "canonical_english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+  "scene_count": 18,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "8a1616018fe0c6fb333c7094693b2bfeb2c36986",
+    "version": "1.5.0.4",
+    "module": "tabulate",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "61_tabulate.da.json": "b3e4ba44db8df7d1445e06270de361ba62f39b5c0758410c16ebc818ce1ba8d1",
+    "61_tabulate.de.json": "a688bfc6a23e4bb7e3b480974e157d56aa42c9fa021be0a4914f8b2ebb018247",
+    "61_tabulate.es.json": "b809f5a94eebfecfe4cf8df51c97b0f3d44acfbd7b7b38bb2c122a1d56073a6d",
+    "61_tabulate.fr.json": "687eba0046defec73210d148df02a94348ff08b92eed3d7d26345b7cd9559619",
+    "61_tabulate.hi.json": "9aba0bc38e279732c1da8d97f96433e7c50b5668a58a0f2e57966ead265af816",
+    "61_tabulate.is.json": "6c2de16bd5cc533d9ade35406ad2ba5c6b513853081d834d64e092fd24886dca",
+    "61_tabulate.it.json": "d5c81fb0e590be8ffd1167d470998c167d1eb2ec08f7ac34e162d8884ccfd4f0",
+    "61_tabulate.ja.json": "57dff02317d03c74d1be0fbe399fc3f4942bb0ab3fad3db3714ee955d1388be8",
+    "61_tabulate.ko.json": "60a1f4194d56d5ef86d005729f8e4f0a510dfff21fc10abc6a2e903c883a6d72",
+    "61_tabulate.nb.json": "e7b096c118855163299c6c075f047c7e71d4a5baae8943feca5fd324a5acf994",
+    "61_tabulate.pt-BR.json": "18b4787b4b175776ad7f0a32b96296c5eb5f94ef1406e1aa2ddc2b729e3ffddd",
+    "61_tabulate.sv.json": "68a099442c543d8348c774d616248f50174cb52c522a78c30553749c75b75f58",
+    "61_tabulate.zh-CN.json": "1f777fb196103d6f789893c4daa1ed6ee8c2ef633c61389af69246452a5b9a39"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked genuine pivot, exports and numeric scatter; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "d7129c1c1f77bb5e3d826d1ab5550a49afffafabb08520ad9cb5f49a962c4e13",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "10805"
+        }
+      ],
+      "format": {
+        "duration": "360.166667",
+        "size": "14331216"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 160.283,
+        "content": "Genuine tooltip:501 source rows,498 available homogeneity values; full text visible"
+      },
+      {
+        "seconds": 224.18,
+        "content": "Pivot filtered to1171 objects while old categorical four-group chart remains; no claim of updated or continuous numeric chart"
+      },
+      {
+        "seconds": 323.94,
+        "content": "Actual51-point field-mean Scatter with continuous mean axis; all rendered ordinates independently checked"
+      }
+    ]
+  },
+  "poster_sha256": "ce3ef7cf7b4fd8670c5776db68aec3bb71ec8a2c161819dbf7e805604d9e0a75",
+  "final_artifact_checks_sha256": "17f1f37a33ca7a5111648949b05ad6bfefb58c2ac00c02699506ca6da71c3480",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "50a9d497ad5386725e5a330950a14f666a8d544ec0da04eb1d1eef3d34703347"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "4c15973c61bb651a4539b13f44b9ecd9d8122d5ca7b60f996f3fe3dfe4f3bf1f"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "54675f8a641128b9411199f5d6db5177477ac5b94466bfdf3e51799c69ea73d1"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "3ad27b2b8f8c039fc163f9e2b0e28b60009a62281cbc1080d7f083b84bede65d"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "473c698cd1306206925b9edd6075574ecb61b0f4c6c50aa4dc60b813013f91af"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "9717e7bf60a1b2a6c04de0f52f192d276f256a344e2ab531ba99edefedaea29f"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "5e6dfe43972964c41eb8e371ce50b5efa54ed459cdc4ba7988e221bf02ac16eb"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "103a316fffe83619255d8f24bd2bebad3895cafeb63235185be8423bf1a56981"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "b9005dac03375ef23ba5769e28693b7e790efdf318ab2470716d5bde90e94798"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "412a90bc889c6e0cc5bf5a7634f7774a511ba55f8b9fdcaedcfd433bc7d3537c"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "179ef60e5bc9986c572c91cb410a9798660c024acfb899ae807bf239fc49e03c"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "e7f3fb281e4e32c80aed440ceef6f579ee75ecb7d1d18ead789e2336542323e0"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "681cf95b35dc8f96824def37c903fb2b303b54f484dd29b0517eed7e9262b505"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "d2189875a1fdfb0e17687324b8dc5205611d2ffc59edeb1bda687c4927512244"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "7d8ed6df10c6bc78b10611d61b256e540a9804789ebda0730a8b3ca198353e01"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.040372570987798895,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "09_annotate",
+    "34_database",
+    "58_graph_builder"
+  ],
+  "catalog_preservation_sha256": "bd58525243b710a2649d686f9944d56828fdd29ccc26d94a4a297cddd6236e36",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 746,
+    "selected_refreshed_lessons": 30,
+    "unselected_lessons_unchanged": 45
+  },
+  "scope_limits": [
+    "Actual Help -> Database Browser -> Tabulate fold; private byte-identical copy of downloaded Annotate database.2341 objects,4 wells,51 observed well/field groups. Original DB and sidecars unchanged; private DB unchanged.",
+    "Independent standard-library grouping, counts, means, sample SD/SEM, medians and interpolated quantiles; six guards deliberately bypassed ->22 failing tests and2 positive passes, restored24 green. All six raise lines executed in targeted coverage.",
+    "Four wells count615,525,700,501. Four by13 fields gives52 combinations, one genuinely absent:plate1/r5/c2/f20. Missing group remains blank, not zero. Selected homogeneity feature has7 actual missing values;2334 available, with501 source rows versus498 values in one well.",
+    "Four actual CSV exports independently compared cell-by-cell:4x16 field-count pivot,4x6 original well statistics,4x6 filtered well statistics and52x7 field statistics. CSV is not a persisted live specification.",
+    "Compact pivot rows hide multiline statistics including n; genuine native cell tooltips expose all values. No artificial app resizing, edited screenshot text or invented output.",
+    "Area>=21925 filters2341 to1171; Clear restores2341. The pivot updates automatically; the chart does not until Plot this table. Four means are inferred categorical and Automatic draws a heatmap, not continuous magnitudes.",
+    "Separate field-level summary feeds51 nonempty groups to actual Scatter; mean is continuous and all51 rendered vertical coordinates match independently verified group means. Empty52nd group omitted from chart, preserved in CSV. Horizontal category mapping and all colours not independently reimplemented.",
+    "Counts and SEM are not independent biological replication; rowID is spatial, not a verified treatment. No GPU image analysis, AI request, model training, arbitrary infinite/missing-axis policy or capped-grid validation. No application or global i18n edits."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

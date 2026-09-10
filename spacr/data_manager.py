@@ -99,12 +99,17 @@ import os
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from . import ports
-from .artifacts import (Artifact, Registry, STATUS_COMPLETE, content_fingerprint,
-                        open_registry, registry_path)
+from .artifacts import (
+    STATUS_COMPLETE,
+    Artifact,
+    Registry,
+    content_fingerprint,
+    open_registry,
+    registry_path,
+)
 from .database_concurrency import connect, transaction
 from .version import get_version
 
@@ -324,13 +329,13 @@ def human_bytes(size: float) -> str:
         disk vendor, ``df`` and the user's storage quota all use.
     """
     value = float(size)
-    for unit in ("B", "kB", "MB", "GB", "TB", "PB"):
-        if abs(value) < 1000.0 or unit == "PB":
+    for unit in ("B", "kB", "MB", "GB", "TB"):
+        if abs(value) < 1000.0:
             if unit == "B":
                 return f"{int(value)} B"
             return f"{value:.1f} {unit}"
         value /= 1000.0
-    return f"{value:.1f} PB"          # pragma: no cover - loop always returns
+    return f"{value:.1f} PB"
 
 
 def _absolute(path: Any) -> str:
@@ -342,7 +347,7 @@ def _real(path: str) -> str:
     """Return ``path`` with symlinks resolved, for containment checks."""
     try:
         return os.path.realpath(path)
-    except OSError:                    # pragma: no cover - exotic filesystems
+    except OSError:                    # exotic filesystems that will not resolve
         return path
 
 
@@ -501,7 +506,10 @@ class ProjectUsage:
     scanned_utc: str = ""
 
     def kind(self, kind: str) -> KindUsage:
-        """Return the row for one kind, zeroed when it is absent."""
+        """Return the row for one kind, zeroed when it is absent.
+
+        :param kind: artifact-kind key to look up.
+        """
         for row in self.kinds:
             if row.kind == kind:
                 return row
@@ -513,7 +521,10 @@ class ProjectUsage:
         return sum(row.registered_bytes for row in self.kinds)
 
     def artifact_at(self, path: str) -> Optional[ArtifactUsage]:
-        """Return the entry for one registered path, or None."""
+        """Return the entry for one registered path, or None.
+
+        :param path: registered artifact path to resolve absolutely and look up.
+        """
         target = _absolute(path)
         for entry in self.artifacts:
             if entry.path == target:
@@ -538,6 +549,7 @@ def _walk_project(root: str) -> Tuple[Dict[str, int], List[str], List[str]]:
     errors: List[str] = []
 
     def _note(exc: OSError) -> None:
+        """Record an inaccessible walk entry without stopping the scan."""
         errors.append(f"{getattr(exc, 'filename', '')}: {exc}")
 
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False,
@@ -655,6 +667,7 @@ def scan_project(root: Any, *,
     stats: Dict[str, Dict[str, int]] = {}
 
     def _bucket(kind: str) -> Dict[str, int]:
+        """Return the shared zero-initialized counters for ``kind``."""
         return stats.setdefault(kind, {
             "size": 0, "files": 0, "paths": 0, "artifacts": 0,
             "registered": 0, "unregistered": 0, "recorded": 0, "shared": 0})

@@ -62,7 +62,7 @@ answered would be wrong for three of the axes — a stack whose spacing claims
 thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported
 alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`,
 :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing
-is lost; it is simply not pretending that seconds and micrometers are the same
+is lost; the reader does not treat seconds and micrometers as the same
 kind of number.
 
 **2. Units are translated through an explicit table, and an unknown one is
@@ -158,8 +158,7 @@ import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import (Any, Callable, Dict, List, Mapping, Optional, Sequence,
-                    Tuple, Union)
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -222,8 +221,8 @@ class ZarrExtraMissing(OmeZarrError, ImportError):
 
     Both parents are deliberate. It is an :class:`ImportError` because a caller
     guarding an optional feature writes ``except ImportError``; it is an
-    :class:`OmeZarrError` because from the caller's side this is simply one
-    more file that could not be read, and code that wraps a whole read in
+    :class:`OmeZarrError` because callers experience this as another file
+    that could not be read, and code that wraps a whole read in
     ``except OmeZarrError`` should not miss it.
     """
 
@@ -650,6 +649,14 @@ class Axis:
     translate: float = 0.0
 
     def __post_init__(self) -> None:
+        """Normalise the axis and reject a step that cannot address anything.
+
+        :raises OmeZarrError: if the axis has no name, which NGFF requires; if
+            the scale is zero or non-finite -- a zero step collapses the axis, so
+            every world coordinate on it resolves to element 0 and the image is
+            drawn out of register with nothing to show for it; or if the
+            translation is non-finite.
+        """
         name = str(self.name).strip()
         if not name:
             raise OmeZarrError("an axis needs a name; NGFF requires it")
@@ -933,6 +940,12 @@ class Level:
     compressor: Optional[str] = None
 
     def __post_init__(self) -> None:
+        """Coerce the level's tuples and check every rank against the array's.
+
+        :raises OmeZarrError: if the chunks, the scale, or the translation do
+            not have one entry per array axis. NGFF requires one each, and a
+            mismatch means the transformation cannot be applied at all.
+        """
         object.__setattr__(self, "path", str(self.path))
         object.__setattr__(self, "shape", tuple(int(v) for v in self.shape))
         object.__setattr__(self, "chunks", tuple(int(v) for v in self.chunks))
@@ -1099,6 +1112,12 @@ class _ZarrArray:
 
     @classmethod
     def _from_v2(cls, path: Path, meta: Mapping[str, Any]) -> "_ZarrArray":
+        """Read a v2 ``.zarray`` header.
+
+        The declared format is CHECKED rather than assumed: a v3 header in a
+        ``.zarray`` file is a store built by something that disagrees with its
+        own layout, and reading it as v2 would mis-shape every chunk.
+        """
         fmt = meta.get("zarr_format")
         if fmt != 2:
             raise OmeZarrError(
@@ -1153,6 +1172,7 @@ class _ZarrArray:
 
     @classmethod
     def _from_v3(cls, path: Path, meta: Mapping[str, Any]) -> "_ZarrArray":
+        """Read a v3 ``zarr.json`` header, checking the declared format."""
         fmt = meta.get("zarr_format")
         if fmt != 3:
             raise OmeZarrError(
@@ -1203,6 +1223,12 @@ class _ZarrArray:
 
     def _decode(self, raw: bytes, path: Path,
                 decoders: Sequence[Callable[[bytes], bytes]]) -> np.ndarray:
+        """Decode one chunk through its codec chain, then shape it.
+
+        The decoders run in ORDER and the stored shape accounts for a transpose,
+        so a chunk written by a store that permuted its axes is read back the way
+        it was written rather than transposed twice.
+        """
         for decoder in decoders:
             raw = decoder(raw)
         stored = self.chunks if self.transpose is None else tuple(
@@ -1386,6 +1412,12 @@ class OmeZarrImage:
     multiscale: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Freeze the image's members and check the levels against the axes.
+
+        :raises OmeZarrError: if the multiscales block lists no datasets -- then
+            there is no image here -- or if a level's rank differs from the
+            number of declared axes, which NGFF requires to match.
+        """
         object.__setattr__(self, "path", str(self.path))
         object.__setattr__(self, "axes", tuple(self.axes))
         object.__setattr__(self, "levels", tuple(self.levels))
@@ -1747,6 +1779,17 @@ def _compose(group_transforms: Sequence[Mapping[str, Any]],
     """
     def _pair(transforms: Sequence[Mapping[str, Any]]
               ) -> Tuple[List[float], List[float]]:
+        """Reduce one captured-dimension NGFF transform sequence.
+
+        :param transforms: identity, scale, and translation mappings; a falsey
+            sequence represents the identity transform.
+        :returns: mutable scale and translation lists of captured length
+            ``ndim``. Repeated scales multiply componentwise and repeated
+            translations add componentwise.
+        :raises OmeZarrError: when an entry is not a mapping, a scale or
+            translation has the wrong arity, or the transform type is not
+            supported; messages include the captured source location.
+        """
         scale = [1.0] * ndim
         translation = [0.0] * ndim
         for entry in transforms or ():
@@ -2336,10 +2379,23 @@ def _spacr_version() -> str:
     Never allowed to fail a write: a version string is documentation.
     """
     try:
-        from .version import __version__
-        return str(__version__)
+        from .version import __version__ as installed_version
     except Exception:
         return "unknown"
+    resolved = str(installed_version)
+    if resolved and resolved != "unknown":
+        return resolved
+
+    # A checkout on PYTHONPATH may have no installed distribution metadata,
+    # but it still carries the release helper's synchronized version literal.
+    # Metadata remains authoritative for installed packages; this is only
+    # the source-tree fallback used when that lookup explicitly found none.
+    try:
+        from ._version import __version__ as checkout_version
+        fallback = str(checkout_version)
+    except Exception:
+        return "unknown"
+    return fallback or "unknown"
 
 
 def _validate_ngff_axes(axes: Sequence[Axis], shape: Sequence[int]) -> None:

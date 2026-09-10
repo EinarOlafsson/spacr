@@ -26,6 +26,7 @@ the migration is provably a repair and not a change of contract.
 
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 import sqlite3
 import subprocess
@@ -391,7 +392,7 @@ def test_the_ml_regex_that_only_understood_rows_a_to_p_is_gone():
                            ('PLATE1_Q14_1_1', ('r17', 'c14')),
                            ('PLATE1_AA14_1_1', ('r27', 'c14')),
                            ('exp3_A14_1_1', ('r1', 'c14'))]:
-        parsed = S.parse_field_stem(stem)
+        parsed = S.parse_object_stem(stem)
         assert (parsed.rowID, parsed.columnID) == expected, stem
 
 
@@ -488,7 +489,7 @@ def test_strict_promotes_an_unparseable_token_to_an_error():
 
 def test_a_preserved_token_cannot_break_the_key_separator():
     """A token holding ``_`` would silently add a prcf component."""
-    assert S.field_id('a_b') == 'fa-b'
+    assert S.field_id('a_b') == 'fa%5Fb'
     assert S.compose_prcf('plate1', 'r1', 'c1', 'a_b').count(KEY_SEPARATOR) == 3
 
 
@@ -774,9 +775,10 @@ def test_prcfo_matches_the_composition_io_uses(tmp_path):
     assert S.compose_prcfo('plate1', 'C', 5, 4, 23) == io_style
 
 
-def test_a_plate_containing_the_separator_is_refused():
-    with pytest.raises(KeyParseError, match='key separator'):
-        S.compose_prcf('plate_1', 'r1', 'c1', 'f1')
+def test_a_plate_containing_the_separator_is_escaped_and_round_trips():
+    key = S.compose_prcf('plate_1', 'r1', 'c1', 'f1')
+    assert key == 'plate%5F1_r1_c1_f1'
+    assert S.parse_prcf(key).plateID == 'plate_1'
     with pytest.raises(KeyParseError, match='empty plate'):
         S.compose_prcf('', 'r1', 'c1', 'f1')
 
@@ -1021,6 +1023,14 @@ def test_strict_parsing_is_available_as_a_preflight():
 # ===========================================================================
 # FieldID / ObjectID
 # ===========================================================================
+
+def test_objectid_documents_every_identity_component():
+    """A typed object key's optional timepoint is part of its API contract."""
+    missing = [
+        field.name for field in fields(S.ObjectID)
+        if f":param {field.name}:" not in (S.ObjectID.__doc__ or "")
+    ]
+    assert not missing, f"undocumented ObjectID fields: {missing}"
 
 def test_fieldid_build_from_a_well_or_from_row_and_column():
     a = S.FieldID.build('plate1', well='B03', field=2)

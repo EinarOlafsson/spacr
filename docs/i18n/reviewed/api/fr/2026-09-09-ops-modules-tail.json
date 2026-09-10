@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.ops_cycles.register_cycles#6",
+      "source_sha256": "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd",
+      "source": "cycle number to its :class:`Registration`, including the refused ones -- a caller reporting `n_cycles` needs to know a cycle was tried and refused, not merely that it is absent.",
+      "context": "cycle number to its :class:`Registration`, including the refused ones -- a caller reporting `n_cycles` needs to know a cycle was tried and refused, not merely that it is absent.",
+      "translation": "le numéro du cycle vers sa :class:`Registration`, y compris ceux qui ont été refusés -- quiconque rapporte `n_cycles` doit savoir qu'un cycle a été tenté puis refusé, et non seulement qu'il est absent."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+291 — Open Sans everywhere, including figures
+
+Asked 2026-08-28. The font ships in the repository:
+
+    spacr/resources/font/open_sans/
+
+* Light for body text, Regular for titles. All text in the tool is based on
+  it.
+* FIGURES TOO. DejaVu Sans must not be the matplotlib default -- Open Sans
+  is. Register the bundled faces with the font manager and set the rcParam,
+  so a figure drawn on a machine without Open Sans installed still gets it.
+
+Related: the application font was registered but never applied, so the app
+font was "Sans Serif" while the resource sat loaded. Applying it is not the
+same as registering it.

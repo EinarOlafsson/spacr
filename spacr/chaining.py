@@ -50,15 +50,22 @@ import json
 import os
 import tempfile
 from dataclasses import dataclass, field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 from . import artifacts as _artifacts
 from . import ports as _ports
-from .artifacts import (CAUSE_CYCLE, CAUSE_SETTINGS_CHANGED, CAUSE_UNKNOWN,
-                        CAUSE_UPSTREAM_MISSING, CAUSE_UPSTREAM_NEWER,
-                        CAUSE_UPSTREAM_STALE, CAUSE_UPSTREAM_SUPERSEDED,
-                        Artifact, Registry, Staleness)
+from .artifacts import (
+    CAUSE_CYCLE,
+    CAUSE_SETTINGS_CHANGED,
+    CAUSE_UNKNOWN,
+    CAUSE_UPSTREAM_MISSING,
+    CAUSE_UPSTREAM_NEWER,
+    CAUSE_UPSTREAM_STALE,
+    CAUSE_UPSTREAM_SUPERSEDED,
+    Artifact,
+    Registry,
+    Staleness,
+)
 from .ports import Port, Readiness, ResolvedPort
 from .validate import ALT_SRC_KEYS, APP_ALIASES
 
@@ -149,12 +156,22 @@ def is_empty_path(value: Any) -> bool:
 def same_path(left: Any, right: Any) -> bool:
     """Compare two settings values as paths, list-insensitively.
 
+    :param left: first scalar or nested list or tuple of path values.
+    :param right: second path value or collection to compare.
+
     ``["/plate"]`` and ``"/plate"`` name the same folder; Classify keeps its
     source in a list and every other module keeps it as a string, so a
     comparison that called those different would record a pin every time a
     Classify screen was seeded with its own auto-chained value.
     """
     def flatten(value: Any) -> List[str]:
+        """Flatten one path-like value into normalised path strings.
+
+        :param value: scalar path, nested list or tuple, ``None``, or another
+            value whose stripped string representation names a path.
+        :returns: depth-first path strings with empty values omitted and each
+            retained value normalised with :func:`os.path.normpath`.
+        """
         if value is None:
             return []
         if isinstance(value, (list, tuple)):
@@ -197,14 +214,13 @@ def state_path() -> str:
 
 
 class PinStore:
-    """The paths a user edited by hand, remembered across restarts.
+    """Persist explicitly selected setting paths across application sessions.
 
-    Auto-chaining is only welcome while it is filling in a blank.  The moment
-    a user types a path of their own, that path is theirs: it survives a
-    reopen, a restart, and every subsequent upstream run.  This is the record
-    that makes that true, and it is deliberately *not* the settings dict —
-    a settings dict cannot distinguish "the user chose this" from "we put it
-    there".
+    A pin distinguishes a manually selected value from one populated by
+    automatic chaining. Pinned values survive screen reopening, application
+    restart, and subsequent upstream runs until they are cleared. Pins are
+    stored separately from settings because a settings dictionary does not
+    retain the origin of a value.
 
     Read lazily and written through a temporary file plus :func:`os.replace`,
     so a crash mid-write cannot leave a half-written JSON file that would lose
@@ -214,6 +230,7 @@ class PinStore:
     """
 
     def __init__(self, path: Optional[str] = None) -> None:
+        """Initialize a lazily loaded store at an expanded absolute path."""
         self.path = os.path.abspath(os.path.expanduser(path or state_path()))
         self._data: Optional[Dict[str, Dict[str, Any]]] = None
 
@@ -270,12 +287,10 @@ class PinStore:
     # -- the pins ---------------------------------------------------------
 
     def pin(self, module: str, setting: str, value: Any) -> None:
-        """Record that the user chose ``value`` for ``module``'s ``setting``.
+        """Store an explicitly selected value for a module setting.
 
-        An empty value **removes** the pin rather than storing a blank one:
-        clearing the field is how a user asks for the automatic default back,
-        and a stored empty string would instead mean "the user chose nothing"
-        and suppress chaining forever.
+        An empty path removes the existing pin and re-enables automatic
+        chaining for that setting. Empty values are not persisted.
 
         :param module: module key.
         :param setting: settings key, e.g. ``"src"``.
@@ -809,7 +824,7 @@ def resolve_settings(module: str,
 
     # A pin with nothing to chain against is still held: the interface should
     # say the value is the user's, not that it came from a run.
-    for key, value in pinned_values.items():
+    for key in pinned_values:
         held.setdefault(key, HeldPin(setting=key, value=resolved[key]))
 
     return Resolution(module=spec.key, settings=resolved, filled=filled,
@@ -1317,6 +1332,8 @@ def ports_for_kinds(kinds: Sequence[str]) -> Tuple[Port, ...]:
 def db_candidates(root: str) -> Tuple[str, ...]:
     """Return every SQLite database in a project, the declared one first.
 
+    :param root: candidate project root to search.
+
     The declared location comes from the :data:`spacr.ports.MEASUREMENTS_DB`
     port; the rest is a shallow listing of the root and of the folder that
     port names. Two databases in one project is not an error and not a thing
@@ -1350,6 +1367,8 @@ def db_candidates(root: str) -> Tuple[str, ...]:
 
 def result_tables(root: str) -> Tuple[str, ...]:
     """Return the result tables a project has written, sorted.
+
+    :param root: candidate project root to search.
 
     The folders searched are the ones the result-bearing ports declare —
     ``results/`` and ``settings/`` today — one level deep, so a drop on a
@@ -1468,7 +1487,10 @@ class DropResolution:
         return bool(self.choices)
 
     def target_for(self, kind: str) -> Optional[DropTarget]:
-        """Return the resolved target of ``kind``, or None."""
+        """Return the resolved target of ``kind``, or None.
+
+        :param kind: port or artifact vocabulary kind to find.
+        """
         for target in self.targets:
             if target.kind == kind:
                 return target
@@ -1491,6 +1513,8 @@ class DropResolution:
 def looks_laid_out(folder: str) -> bool:
     """True when ``folder`` holds any of spaCR's declared layout folders.
 
+    :param folder: candidate project directory to inspect.
+
     The cheap structural answer to "is this a project?", nine ``stat`` calls
     against :func:`layout_directories`. :func:`spacr.projects.looks_like_project`
     is the thorough one and reads the registry and every module's outputs;
@@ -1505,6 +1529,10 @@ def looks_laid_out(folder: str) -> bool:
 
 def satisfies(root: str, ports: Sequence[Port]) -> bool:
     """True when ``root`` holds everything ``ports`` requires.
+
+    :param root: candidate project root whose artifacts are checked.
+    :param ports: input port declarations whose required artifacts must
+        resolve beneath ``root``.
 
     With no ports the question is "is this a project at all?", which is what a
     screen that takes a whole project — the pipeline graph, the QC dashboard —

@@ -21,10 +21,14 @@ rather than being guessed.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os
 import re
 import sys
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
+from functools import lru_cache
+from types import MappingProxyType
 from typing import Dict, Iterable, Mapping, Optional
 
 
@@ -83,6 +87,39 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "How much of this machine spaCR keeps between runs: processes, caches and GPU memory. Laptop keeps the least — for 8 GB or on battery; Workstation the most. The same spaCR code runs at every level, and the reproducibility hash records what each run used.": _row(
+        "Hur mycket av den här maskinen spaCR behåller mellan körningar: processer, cacheminne och GPU-minne. Bärbar dator behåller minst — för 8 GB eller på batteri; Arbetsstation mest. Samma spaCR-kod körs på alla nivåer, och reproducerbarhetshashen registrerar vad varje körning använde.",
+        "Wie viel von diesem Rechner spaCR zwischen Läufen behält: Prozesse, Caches und GPU-Speicher. Laptop behält am wenigsten — für 8 GB oder im Akkubetrieb; Arbeitsstation am meisten. Derselbe spaCR-Code läuft auf jeder Stufe, und der Reproduzierbarkeits-Hash hält fest, was jeder Lauf verwendet hat.",
+        "Cuánto de esta máquina conserva spaCR entre ejecuciones: procesos, cachés y memoria de GPU. Portátil conserva lo mínimo — para 8 GB o con batería; Estación de trabajo lo máximo. El mismo código de spaCR se ejecuta en todos los niveles, y el hash de reproducibilidad registra lo que usó cada ejecución.",
+        "spaCR 在两次运行之间保留本机的多少资源：进程、缓存和 GPU 内存。笔记本电脑保留最少——适用于 8 GB 或使用电池时；工作站保留最多。每个级别运行的 spaCR 代码完全相同，可复现性哈希会记录每次运行所使用的资源。",
+        "Quanto desta máquina o spaCR mantém entre execuções: processos, caches e memória da GPU. Portátil mantém o mínimo — para 8 GB ou com bateria; Estação de trabalho o máximo. O mesmo código do spaCR é executado em todos os níveis, e o hash de reprodutibilidade regista o que cada execução usou.",
+        "spaCR इस मशीन का कितना हिस्सा रन के बीच बनाए रखता है: प्रक्रियाएँ, कैश और GPU मेमोरी। लैपटॉप सबसे कम रखता है — 8 GB के लिए या बैटरी पर; वर्कस्टेशन सबसे अधिक। हर स्तर पर वही spaCR कोड चलता है, और पुनरुत्पादन हैश दर्ज करता है कि हर रन ने क्या उपयोग किया।",
+        "spaCR가 실행 사이에 이 컴퓨터의 자원을 얼마나 유지하는지: 프로세스, 캐시, GPU 메모리. 노트북은 가장 적게 유지하며 — 8 GB이거나 배터리 사용 시 — 워크스테이션은 가장 많이 유지합니다. 모든 수준에서 동일한 spaCR 코드가 실행되며, 재현성 해시가 각 실행이 사용한 자원을 기록합니다.",
+        "Hversu mikið af þessari vél spaCR heldur milli keyrslna: ferli, skyndiminni og GPU-minni. Fartölva heldur minnstu — fyrir 8 GB eða á rafhlöðu; Vinnustöð mestu. Sami spaCR-kóði keyrir á öllum stigum og samsvörðunarkennitalan skráir hvað hver keyrsla notaði.",
+        "Quelle part de cette machine spaCR conserve entre les exécutions : processus, caches et mémoire GPU. Ordinateur portable en conserve le moins — pour 8 Go ou sur batterie ; Station de travail le plus. Le même code spaCR s’exécute à chaque niveau, et le hachage de reproductibilité enregistre ce que chaque exécution a utilisé."),
+    "Primary modules are grouped here into Core, Data, Tools and Assays; related workflows are reached from their host module. Click any name to open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar order.": _row(
+        "Primära moduler grupperas här i Core, Data, Tools och Assays; relaterade arbetsflöden nås från sin värdmodul. Klicka på ett namn för att öppna det. Ctrl+1 till Ctrl+9 öppnar de nio första apparna i sidofältets ordning.",
+        "Hauptmodule sind hier in Core, Data, Tools und Assays gruppiert; zugehörige Arbeitsabläufe werden über ihr Hostmodul erreicht. Klicken Sie auf einen Namen, um ihn zu öffnen. Ctrl (Strg)+1 bis Ctrl+9 öffnen die ersten neun Apps in der Reihenfolge der Seitenleiste.",
+        "Los módulos principales se agrupan aquí en Core, Data, Tools y Assays; los flujos de trabajo relacionados se abren desde su módulo anfitrión. Haga clic en cualquier nombre para abrirlo. Ctrl+1 a Ctrl+9 abren las nueve primeras aplicaciones en el orden de la barra lateral.",
+        "主要模块在此分组为 Core、Data、Tools 和 Assays；相关工作流可从其宿主模块打开。点击任意名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
+        "Os módulos principais estão agrupados aqui em Core, Data, Tools e Assays; os fluxos de trabalho relacionados são abertos a partir do seu módulo anfitrião. Clique em qualquer nome para o abrir. Ctrl+1 a Ctrl+9 abrem as nove primeiras aplicações pela ordem da barra lateral.",
+        "मुख्य मॉड्यूल यहाँ Core, Data, Tools और Assays में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
+        "기본 모듈은 여기에서 Core, Data, Tools, Assays로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
+        "Aðaleiningar eru flokkaðar hér í Core, Data, Tools og Assays; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
+        "Les modules principaux sont regroupés ici en Core, Data, Tools et Assays ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
+    # ---- HARDWARE STATUS AND PERFORMANCE LEVELS (instruction 316) ----
+    # Icelandic, Swedish and German REVIEWED BY EINAR on 2026-09-02,
+    # string by string, in VS Code. The other six locales are machine
+    # drafts with English fallback and are NOT claimed as reviewed --
+    # instruction 357 records who reviewed what and why the public claim
+    # has to be per-locale rather than "nine languages".
+    #
+    # CPU and GPU are deliberately absent: 316-A answered that they stay
+    # exact in every locale, as technical identifiers, like QC.
+    "none detected": _row(
+        "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
+    "detected, not used by spaCR": _row(
+        "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
     # Navigation and common actions.
     "Home": _row(
         "Hem", "Startseite", "Inicio", "主页", "Início",
@@ -104,19 +141,389 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Help": _row(
         "Hjälp", "Hilfe", "Ayuda", "帮助", "Ajuda",
         "सहायता", "도움말", "Hjálp", "Aide"),
-    "Tutorial (web)": _row(
-        "Handledning (webb)", "Tutorial (Web)", "Tutorial (web)",
-        "教程（网页）", "Tutorial (web)", "ट्यूटोरियल (वेब)",
-        "튜토리얼(웹)", "Kennsla (vefur)", "Tutoriel (web)"),
-    "Documentation (web)": _row(
-        "Dokumentation (webb)", "Dokumentation (Web)",
-        "Documentación (web)", "文档（网页）", "Documentação (web)",
-        "दस्तावेज़ (वेब)", "문서(웹)", "Skjölun (vefur)",
-        "Documentation (web)"),
+    # The "(web)" was dropped from both labels; the keys move with them or
+    # nine languages lose the row. Each translation loses its own bracket
+    # rather than keeping a parenthesis the English no longer has.
+    "Tutorial": _row(
+        "Handledning", "Tutorial", "Tutorial",
+        "教程", "Tutorial", "ट्यूटोरियल",
+        "튜토리얼", "Kennsla", "Tutoriel"),
+    "Documentation": _row(
+        "Dokumentation", "Dokumentation",
+        "Documentación", "文档", "Documentação",
+        "दस्तावेज़", "문서", "Skjölun",
+        "Documentation"),
     "About spaCR": _row(
         "Om spaCR", "Über spaCR", "Acerca de spaCR", "关于 spaCR",
         "Sobre o spaCR", "spaCR के बारे में", "spaCR 정보", "Um spaCR",
         "À propos de spaCR"),
+    # Keyboard-shortcut map. The bindings themselves remain platform-native
+    # key identifiers; only their labels, categories and scopes are copy.
+    "Background": _row(
+        "Bakgrund", "Hintergrund", "Fondo", "背景", "Plano de fundo",
+        "पृष्ठभूमि", "배경", "Bakgrunnur", "Arrière-plan"),
+    "Blank the background": _row(
+        "Töm bakgrunden", "Hintergrund leeren", "Vaciar el fondo", "清空背景",
+        "Limpar o plano de fundo", "पृष्ठभूमि खाली करें", "배경 비우기",
+        "Tæma bakgrunninn", "Effacer l’arrière-plan"),
+    "Brush": _row(
+        "Pensel", "Pinsel", "Pincel", "画笔", "Pincel",
+        "ब्रश", "브러시", "Pensill", "Pinceau"),
+    "Divide an object": _row(
+        "Dela ett objekt", "Objekt teilen", "Dividir un objeto", "拆分对象",
+        "Dividir um objeto", "ऑब्जेक्ट को विभाजित करें", "객체 나누기",
+        "Skipta hlut", "Diviser un objet"),
+    "Draw an object": _row(
+        "Rita ett objekt", "Objekt zeichnen", "Dibujar un objeto", "绘制对象",
+        "Desenhar um objeto", "ऑब्जेक्ट आरेखित करें", "객체 그리기",
+        "Teikna hlut", "Dessiner un objet"),
+    "Erase": _row(
+        "Suddgummi", "Radierer", "Goma de borrar", "橡皮擦", "Borracha",
+        "इरेज़र", "지우개", "Strokleður", "Gomme"),
+    "Full screen": _row(
+        "Helskärm", "Vollbild", "Pantalla completa", "全屏", "Tela cheia",
+        "पूर्ण स्क्रीन", "전체 화면", "Heilskjár", "Plein écran"),
+    "Go to home": _row(
+        "Gå till startsidan", "Zur Startseite wechseln", "Ir a Inicio",
+        "转到主页", "Ir para Início", "मुखपृष्ठ पर जाएँ", "홈으로 이동",
+        "Fara á heimaskjáinn", "Aller à l’accueil"),
+    "Jump to the newest console line": _row(
+        "Gå till den senaste konsolraden",
+        "Zur neuesten Konsolenzeile springen",
+        "Ir a la línea más reciente de la consola",
+        "跳转到控制台最新一行",
+        "Ir para a linha mais recente do console",
+        "कंसोल की नवीनतम पंक्ति पर जाएँ",
+        "콘솔의 최신 줄로 이동",
+        "Fara í nýjustu línu stjórnborðsins",
+        "Aller à la dernière ligne de la console"),
+    "Magic wand — add": _row(
+        "Trollstav — lägg till", "Zauberstab — hinzufügen",
+        "Varita mágica — añadir", "魔棒 — 添加",
+        "Varinha mágica — adicionar", "मैजिक वैंड — जोड़ें",
+        "자동 선택 도구 — 추가", "Töfrasproti — bæta við",
+        "Baguette magique — ajouter"),
+    "Next image": _row(
+        "Nästa bild", "Nächstes Bild", "Imagen siguiente", "下一张图像",
+        "Próxima imagem", "अगली छवि", "다음 이미지", "Næsta mynd",
+        "Image suivante"),
+    "Open command palette": _row(
+        "Öppna kommandopaletten", "Befehlspalette öffnen",
+        "Abrir la paleta de comandos", "打开命令面板",
+        "Abrir a paleta de comandos", "कमांड पैलेट खोलें", "명령 팔레트 열기",
+        "Opna skipanaspjaldið", "Ouvrir la palette de commandes"),
+    "Open preferences": _row(
+        "Öppna inställningarna", "Einstellungen öffnen",
+        "Abrir las preferencias", "打开首选项", "Abrir as preferências",
+        "प्राथमिकताएँ खोलें", "환경설정 열기", "Opna stillingar",
+        "Ouvrir les préférences"),
+    "Pause or resume the background": _row(
+        "Pausa eller återuppta bakgrunden",
+        "Hintergrund anhalten oder fortsetzen",
+        "Pausar o reanudar el fondo",
+        "暂停或继续背景动画",
+        "Pausar ou retomar o plano de fundo",
+        "पृष्ठभूमि रोकें या जारी रखें",
+        "배경 일시 중지 또는 재개",
+        "Gera hlé á bakgrunninum eða halda honum áfram",
+        "Mettre en pause ou reprendre l’arrière-plan"),
+    "Previous image": _row(
+        "Föregående bild", "Vorheriges Bild", "Imagen anterior", "上一张图像",
+        "Imagem anterior", "पिछली छवि", "이전 이미지", "Fyrri mynd",
+        "Image précédente"),
+    "Recrop an object": _row(
+        "Beskär ett objekt på nytt", "Objekt neu zuschneiden",
+        "Volver a recortar un objeto", "重新裁剪对象",
+        "Recortar novamente um objeto", "ऑब्जेक्ट को फिर से क्रॉप करें",
+        "객체 다시 자르기", "Skera hlut aftur", "Recadrer un objet"),
+    "Redo": _row(
+        "Gör om", "Wiederherstellen", "Rehacer", "重做", "Refazer",
+        "फिर से करें", "다시 실행", "Endurtaka", "Rétablir"),
+    "Reset the zoom": _row(
+        "Återställ zoomningen", "Zoom zurücksetzen", "Restablecer el zoom",
+        "重置缩放", "Redefinir o zoom", "ज़ूम रीसेट करें", "확대/축소 초기화",
+        "Endurstilla aðdrátt", "Réinitialiser le zoom"),
+    # 378's gesture, on the cheat sheet. Order matters here: "Resi" sorts
+    # before "Rest".
+    "Resize the interface text": _row(
+        "Ändra storlek på gränssnittstexten",
+        "Größe des Oberflächentexts ändern",
+        "Cambiar el tamaño del texto de la interfaz",
+        "调整界面文字大小",
+        "Redimensionar o texto da interface",
+        "इंटरफ़ेस के पाठ का आकार बदलें",
+        "인터페이스 텍스트 크기 조절",
+        "Breyta stærð viðmótstexta",
+        "Redimensionner le texte de l’interface"),
+    "Restart the background": _row(
+        "Starta om bakgrunden", "Hintergrund neu starten",
+        "Reiniciar el fondo", "重新启动背景动画", "Reiniciar o plano de fundo",
+        "पृष्ठभूमि फिर से शुरू करें", "배경 다시 시작",
+        "Endurræsa bakgrunninn", "Redémarrer l’arrière-plan"),
+    "Save the mask": _row(
+        "Spara masken", "Maske speichern", "Guardar la máscara", "保存掩膜",
+        "Salvar a máscara", "मास्क सहेजें", "마스크 저장", "Vista grímuna",
+        "Enregistrer le masque"),
+    "Search this module's settings": _row(
+        "Sök i inställningarna för den här modulen",
+        "Einstellungen dieses Moduls durchsuchen",
+        "Buscar en la configuración de este módulo",
+        "搜索此模块的设置",
+        "Pesquisar nas configurações deste módulo",
+        "इस मॉड्यूल की सेटिंग्स में खोजें",
+        "이 모듈의 설정 검색",
+        "Leita í stillingum þessarar einingar",
+        "Rechercher dans les paramètres de ce module"),
+    "Settings recipes": _row(
+        "Inställningsrecept", "Einstellungsrezepte",
+        "Recetas de configuración", "设置方案", "Receitas de configuração",
+        "सेटिंग रेसिपी", "설정 레시피", "Stillingauppskriftir",
+        "Recettes de paramètres"),
+    "Show the background full screen": _row(
+        "Visa bakgrunden i helskärm",
+        "Hintergrund im Vollbild anzeigen",
+        "Mostrar el fondo a pantalla completa",
+        "全屏显示背景",
+        "Mostrar o plano de fundo em tela cheia",
+        "पृष्ठभूमि को पूर्ण स्क्रीन में दिखाएँ",
+        "배경을 전체 화면으로 표시",
+        "Sýna bakgrunninn á öllum skjánum",
+        "Afficher l’arrière-plan en plein écran"),
+    "Show the full app list": _row(
+        "Visa hela listan över appar", "Vollständige App-Liste anzeigen",
+        "Mostrar la lista completa de aplicaciones", "显示完整应用列表",
+        "Mostrar a lista completa de aplicativos", "पूरी ऐप सूची दिखाएँ",
+        "전체 앱 목록 표시", "Sýna allan forritalistann",
+        "Afficher la liste complète des applications"),
+    "Show this cheat sheet": _row(
+        "Visa den här översikten över kortkommandon",
+        "Diese Tastenkürzelübersicht anzeigen",
+        "Mostrar este resumen de atajos de teclado",
+        "显示此快捷键表",
+        "Mostrar este resumo dos atalhos de teclado",
+        "यह त्वरित संदर्भ दिखाएँ",
+        "이 단축키 안내 표시",
+        "Sýna þetta yfirlit yfir flýtilykla",
+        "Afficher cette fiche récapitulative des raccourcis"),
+    "Switch to 1st app": _row(
+        "Växla till den första appen", "Zur ersten App wechseln",
+        "Cambiar a la primera aplicación", "切换到第一个应用",
+        "Mudar para o primeiro aplicativo", "पहले ऐप पर जाएँ",
+        "첫 번째 앱으로 전환", "Skipta yfir í fyrsta forritið",
+        "Passer à la première application"),
+    "Switch to 2nd app": _row(
+        "Växla till den andra appen", "Zur zweiten App wechseln",
+        "Cambiar a la segunda aplicación", "切换到第二个应用",
+        "Mudar para o segundo aplicativo", "दूसरे ऐप पर जाएँ",
+        "두 번째 앱으로 전환", "Skipta yfir í annað forritið",
+        "Passer à la deuxième application"),
+    "Switch to 3rd app": _row(
+        "Växla till den tredje appen", "Zur dritten App wechseln",
+        "Cambiar a la tercera aplicación", "切换到第三个应用",
+        "Mudar para o terceiro aplicativo", "तीसरे ऐप पर जाएँ",
+        "세 번째 앱으로 전환", "Skipta yfir í þriðja forritið",
+        "Passer à la troisième application"),
+    "Switch to 4th app": _row(
+        "Växla till den fjärde appen", "Zur vierten App wechseln",
+        "Cambiar a la cuarta aplicación", "切换到第四个应用",
+        "Mudar para o quarto aplicativo", "चौथे ऐप पर जाएँ",
+        "네 번째 앱으로 전환", "Skipta yfir í fjórða forritið",
+        "Passer à la quatrième application"),
+    "Switch to 5th app": _row(
+        "Växla till den femte appen", "Zur fünften App wechseln",
+        "Cambiar a la quinta aplicación", "切换到第五个应用",
+        "Mudar para o quinto aplicativo", "पाँचवें ऐप पर जाएँ",
+        "다섯 번째 앱으로 전환", "Skipta yfir í fimmta forritið",
+        "Passer à la cinquième application"),
+    "Switch to 6th app": _row(
+        "Växla till den sjätte appen", "Zur sechsten App wechseln",
+        "Cambiar a la sexta aplicación", "切换到第六个应用",
+        "Mudar para o sexto aplicativo", "छठे ऐप पर जाएँ",
+        "여섯 번째 앱으로 전환", "Skipta yfir í sjötta forritið",
+        "Passer à la sixième application"),
+    "Switch to 7th app": _row(
+        "Växla till den sjunde appen", "Zur siebten App wechseln",
+        "Cambiar a la séptima aplicación", "切换到第七个应用",
+        "Mudar para o sétimo aplicativo", "सातवें ऐप पर जाएँ",
+        "일곱 번째 앱으로 전환", "Skipta yfir í sjöunda forritið",
+        "Passer à la septième application"),
+    "Switch to 8th app": _row(
+        "Växla till den åttonde appen", "Zur achten App wechseln",
+        "Cambiar a la octava aplicación", "切换到第八个应用",
+        "Mudar para o oitavo aplicativo", "आठवें ऐप पर जाएँ",
+        "여덟 번째 앱으로 전환", "Skipta yfir í áttunda forritið",
+        "Passer à la huitième application"),
+    "Switch to 9th app": _row(
+        "Växla till den nionde appen", "Zur neunten App wechseln",
+        "Cambiar a la novena aplicación", "切换到第九个应用",
+        "Mudar para o nono aplicativo", "नौवें ऐप पर जाएँ",
+        "아홉 번째 앱으로 전환", "Skipta yfir í níunda forritið",
+        "Passer à la neuvième application"),
+    "Toggle AI Console": _row(
+        "Slå på/av AI-konsolen", "KI-Konsole ein-/ausschalten",
+        "Activar o desactivar la Consola de IA", "启用或停用人工智能控制台",
+        "Ativar/desativar o Console de IA", "एआई कंसोल चालू या बंद करें",
+        "AI 콘솔 켜기/끄기", "Virkja eða óvirkja Gervigreindarstjórnborð",
+        "Activer ou désactiver la Console IA"),
+    "Toggle full screen": _row(
+        "Växla helskärmsläge", "Vollbildmodus ein-/ausschalten",
+        "Activar o desactivar el modo de pantalla completa", "切换全屏模式",
+        "Ativar/desativar o modo de tela cheia", "पूर्ण स्क्रीन मोड टॉगल करें",
+        "전체 화면 전환", "Víxla skjáfylli",
+        "Activer ou désactiver le mode plein écran"),
+    "Undo": _row(
+        "Ångra", "Rückgängig", "Deshacer", "撤销", "Desfazer",
+        "पूर्ववत करें", "실행 취소", "Afturkalla", "Annuler"),
+    "Zoom": _row(
+        "Zooma", "Zoom", "Zoom", "缩放", "Zoom",
+        "ज़ूम", "확대/축소", "Aðdráttur", "Zoom"),
+    "anywhere in spaCR": _row(
+        "var som helst i spaCR", "überall in spaCR",
+        "en cualquier parte de spaCR", "spaCR 中的任意位置",
+        "em qualquer lugar no spaCR", "spaCR में कहीं भी", "spaCR 어디서나",
+        "hvar sem er í spaCR", "partout dans spaCR"),
+    "the Annotate and Make Masks screens and the QC field browser": _row(
+        "skärmarna Annotering och Skapa masker samt QC-fältbläddraren",
+        "die Bildschirme Annotieren und Masken erstellen sowie der "
+        "QC-Feldbrowser",
+        "las pantallas Anotación y Crear máscaras y el Explorador de campos "
+        "de QC",
+        "标注和创建掩膜屏幕以及 QC 视野浏览器",
+        "as telas Anotação e Criar máscaras e o Navegador de campos de QC",
+        "एनोटेशन और मास्क बनाएँ स्क्रीन तथा QC फ़ील्ड ब्राउज़र",
+        "어노테이션 및 마스크 만들기 화면과 QC 필드 브라우저",
+        "skjáirnir Merking og Búa til grímur og QC-reitavafrinn",
+        "les écrans Annotation et Créer des masques et "
+        "l’Explorateur de champs QC"),
+    "the QC field browser": _row(
+        "QC-fältbläddraren", "der QC-Feldbrowser",
+        "el Explorador de campos de QC", "QC 视野浏览器",
+        "o Navegador de campos de QC", "QC फ़ील्ड ब्राउज़र",
+        "QC 필드 브라우저", "QC-reitavafrinn",
+        "l’Explorateur de champs QC"),
+    "Field browser": _row(
+        "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
+        "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
+        "Reitavafri", "Explorateur de champs"),
+    "Quarantine or restore this field": _row(
+        "Sätt detta fält i karantän eller återställ det",
+        "Dieses Feld unter Quarantäne stellen oder wiederherstellen",
+        "Poner en cuarentena o restaurar este campo",
+        "隔离或恢复此视野",
+        "Colocar este campo em quarentena ou restaurá-lo",
+        "इस फ़ील्ड को क्वारंटीन करें या पुनर्स्थापित करें",
+        "이 필드를 격리하거나 복원",
+        "Setja þennan reit í sóttkví eða endurheimta hann",
+        "Mettre ce champ en quarantaine ou le restaurer"),
+    "the Annotate and Make Masks screens": _row(
+        "skärmarna Annotering och Skapa masker",
+        "die Bildschirme Annotieren und Masken erstellen",
+        "las pantallas Anotación y Crear máscaras",
+        "标注和创建掩膜屏幕",
+        "as telas Anotação e Criar máscaras",
+        "एनोटेशन और मास्क बनाएँ स्क्रीन",
+        "어노테이션 및 마스크 만들기 화면",
+        "skjáirnir Merking og Búa til grímur",
+        "les écrans Annotation et Créer des masques"),
+    "the Annotate screen": _row(
+        "skärmen Annotering", "der Bildschirm Annotieren",
+        "la pantalla Anotación", "标注屏幕", "a tela Anotação",
+        "एनोटेशन स्क्रीन", "어노테이션 화면", "skjárinn Merking",
+        "l’écran Annotation"),
+    "the Make Masks screen": _row(
+        "skärmen Skapa masker", "der Bildschirm Masken erstellen",
+        "la pantalla Crear máscaras", "创建掩膜屏幕",
+        "a tela Criar máscaras", "मास्क बनाएँ स्क्रीन", "마스크 만들기 화면",
+        "skjárinn Búa til grímur", "l’écran Créer des masques"),
+    # Terms/setup chrome. The agreement document remains in English because
+    # a translated summary is not the governing licence; every instruction
+    # and control around it is translated exactly.
+    "Terms of use": _row(
+        "Användningsvillkor", "Nutzungsbedingungen", "Condiciones de uso",
+        "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
+        "Notkunarskilmálar", "Conditions d’utilisation"),
+    "Review the terms of use and scroll to the end to enable acceptance. "
+    "Use the license link to read the full BSD 3-Clause "
+    "License.": _row(
+        "Läs igenom användningsvillkoren och rulla till slutet för att "
+        "aktivera godkännandet. Använd licenslänken för att läsa hela "
+        "BSD 3-Clause License.",
+        "Lesen Sie die Nutzungsbedingungen und scrollen Sie bis zum Ende, "
+        "um die Zustimmung zu aktivieren. Über den Lizenzlink können Sie die "
+        "vollständige BSD 3-Clause License lesen.",
+        "Revise las condiciones de uso y desplácese hasta el final para "
+        "habilitar la aceptación. Utilice el enlace de la licencia para leer "
+        "la BSD 3-Clause License completa.",
+        "请查看使用条款并滚动到末尾以启用接受选项。使用许可证链接可阅读完整的 "
+        "BSD 3-Clause License。",
+        "Revise os termos de uso e role até o final para habilitar a "
+        "aceitação. Use o link da licença para ler a BSD 3-Clause "
+        "License completa.",
+        "उपयोग की शर्तों की समीक्षा करें और स्वीकृति सक्षम करने के लिए अंत तक स्क्रॉल करें। "
+        "पूर्ण BSD 3-Clause License पढ़ने के लिए लाइसेंस लिंक का उपयोग करें।",
+        "이용 약관을 검토하고 끝까지 스크롤하여 동의 항목을 활성화하십시오. "
+        "라이선스 링크에서 전체 BSD 3-Clause License을 확인할 수 있습니다.",
+        "Farðu yfir notkunarskilmálana og skrunaðu til enda til að "
+        "virkja samþykki. Notaðu leyfistengilinn til að lesa BSD "
+        "3-Clause License í heild.",
+        "Consultez les conditions d’utilisation et faites défiler jusqu’à la "
+        "fin pour activer l’acceptation. Utilisez le lien de licence pour lire "
+        "l’intégralité de la BSD 3-Clause License."),
+    "I have read and agree to these terms": _row(
+        "Jag har läst och godkänner dessa villkor",
+        "Ich habe diese Bedingungen gelesen und stimme ihnen zu",
+        "He leído y acepto estos términos",
+        "我已阅读并同意这些条款", "Li e aceito estes termos",
+        "मैंने इन शर्तों को पढ़ लिया है और मैं इन्हें स्वीकार करता हूँ",
+        "이 약관을 읽었으며 이에 동의합니다",
+        "Ég hef lesið og samþykki þessa skilmála",
+        "J’ai lu et j’accepte ces conditions"),
+    "Scroll to the end of the terms to enable the acceptance checkbox.": _row(
+        "Rulla till slutet av villkoren för att aktivera kryssrutan för "
+        "godkännande.",
+        "Scrollen Sie bis zum Ende der Nutzungsbedingungen, um das "
+        "Kontrollkästchen zur Zustimmung zu aktivieren.",
+        "Desplácese hasta el final de las condiciones para habilitar la "
+        "casilla de aceptación.",
+        "滚动到条款末尾以启用接受复选框。",
+        "Role até o final dos termos para habilitar a caixa de seleção de "
+        "aceitação.",
+        "स्वीकृति चेकबॉक्स सक्षम करने के लिए शर्तों के अंत तक स्क्रॉल करें।",
+        "약관 끝까지 스크롤하여 동의 확인란을 활성화하십시오.",
+        "Skrunaðu til enda skilmálanna til að virkja samþykkisreitinn.",
+        "Faites défiler jusqu’à la fin des conditions pour activer la case "
+        "d’acceptation."),
+    "Accept the terms of use to complete setup. If you close this window "
+    "without accepting, spaCR will present the terms again at the next "
+    "startup.": _row(
+        "Godkänn användningsvillkoren för att slutföra konfigurationen. Om "
+        "du stänger fönstret utan att godkänna dem visar spaCR villkoren igen "
+        "vid nästa start.",
+        "Akzeptieren Sie die Nutzungsbedingungen, um die Einrichtung "
+        "abzuschließen. Wenn Sie dieses Fenster ohne Zustimmung schließen, "
+        "zeigt spaCR die Bedingungen beim nächsten Start erneut an.",
+        "Acepte las condiciones de uso para completar la configuración. Si "
+        "cierra esta ventana sin aceptarlas, spaCR volverá a mostrar las "
+        "condiciones en el próximo inicio.",
+        "接受使用条款以完成设置。如果未接受就关闭此窗口，spaCR 将在下次启动时再次显示这些条款。",
+        "Aceite os termos de uso para concluir a configuração. Se fechar "
+        "esta janela sem aceitá-los, o spaCR apresentará os termos novamente "
+        "na próxima inicialização.",
+        "सेटअप पूरा करने के लिए उपयोग की शर्तें स्वीकार करें। यदि आप बिना स्वीकार किए यह विंडो "
+        "बंद करते हैं, तो spaCR अगली बार शुरू होने पर शर्तें फिर दिखाएगा।",
+        "설정을 완료하려면 이용 약관에 동의하십시오. 동의하지 않고 이 창을 닫으면 spaCR가 "
+        "다음 시작 시 약관을 다시 표시합니다.",
+        "Samþykktu notkunarskilmálana til að ljúka uppsetningu. Ef þú "
+        "lokar þessum glugga án þess að samþykkja birtir spaCR skilmálana "
+        "aftur við næstu ræsingu.",
+        "Acceptez les conditions d’utilisation pour terminer la configuration. "
+        "Si vous fermez cette fenêtre sans les accepter, spaCR les présentera "
+        "de nouveau au prochain démarrage."),
+    "Illumination Correction": _row(
+        "Belysningskorrigering", "Beleuchtungskorrektur",
+        "Corrección de iluminación", "照明校正",
+        "Correção de iluminação", "प्रदीपन सुधार", "조명 보정",
+        "Lýsingarleiðrétting", "Correction de l’éclairage"),
     # The strap line, one phase per row. Split rather than translated as one
     # sentence because the loading screen lights the phases INDIVIDUALLY, so
     # each has to stand alone -- and a language that reorders the clauses
@@ -322,6 +729,23 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Motilitetsanalys", "Motilitätsassay", "Ensayo de motilidad",
         "运动性分析", "Ensaio de motilidade", "गतिशीलता परीक्षण",
         "운동성 분석", "Hreyfanleikapróf", "Test de motilité"),
+    # The Import module (Format Converter and External Masks fold into it)
+    # and the Tools band. Both are single words with a settled equivalent
+    # in every one of the nine, which is why they are translated here
+    # rather than left for the review pass with the longer captions.
+    "Import": _row(
+        "Importera", "Importieren", "Importar", "导入", "Importar",
+        "आयात", "가져오기", "Flytja inn", "Importer"),
+    # The Import module's own caption, distinct from the bare "Import" band
+    # name above it. Each locale reuses its established "Import" verb so the
+    # two read as one family on the same screen.
+    "Import Images": _row(
+        "Importera bilder", "Bilder importieren", "Importar imágenes",
+        "导入图像", "Importar imagens", "छवियाँ आयात करें",
+        "이미지 가져오기", "Flytja inn myndir", "Importer des images"),
+    "Tools": _row(
+        "Verktyg", "Werkzeuge", "Herramientas", "工具", "Ferramentas",
+        "उपकरण", "도구", "Verkfæri", "Outils"),
     "Measure": _row(
         "Mätning", "Messen", "Medición", "测量", "Medição",
         "मापन", "측정", "Mæling", "Mesure"),
@@ -384,6 +808,13 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Träna Cellpose", "Cellpose trainieren", "Entrenar Cellpose",
         "训练 Cellpose", "Treinar Cellpose", "Cellpose प्रशिक्षित करें",
         "Cellpose 학습", "Þjálfa Cellpose", "Entraîner Cellpose"),
+    # The name `train_cellpose` registers under. "Train Cellpose" above is
+    # what the module used to be called and still appears in older prose,
+    # so both rows stand.
+    "Cellpose Workbench": _row(
+        "Cellpose-verkstad", "Cellpose-Werkbank", "Banco de trabajo Cellpose",
+        "Cellpose 工作台", "Bancada Cellpose", "Cellpose वर्कबेंच",
+        "Cellpose 워크벤치", "Cellpose-vinnuborð", "Atelier Cellpose"),
     "Cellpose Masks": _row(
         "Cellpose-masker", "Cellpose-Masken", "Máscaras Cellpose",
         "Cellpose 掩膜", "Máscaras Cellpose", "Cellpose मास्क",
@@ -421,6 +852,72 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Evaluación del clasificador", "分类器评估",
         "Avaliação do classificador", "वर्गीकारक मूल्यांकन",
         "분류기 평가", "Mat á flokkara", "Évaluation du classificateur"),
+    # NAMES THAT ARRIVED THROUGH `register_app(translations=...)`.
+    # Folding a module into a host screen deletes its registry row, and
+    # with it the only call that put its name in these nine catalogs --
+    # so a Korean window would head the folded page in English. The names
+    # are the module's, not the tile's, and the page still wears them, so
+    # they are written down here where the other module names are.
+    # `add_translation` is a no-op for a source already catalogued, so a
+    # module that still registers is unaffected.
+    "Barcode QC": _row(
+        "Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
+        "条形码质控", "CQ de código de barras", "बारकोड QC",
+        "바코드 QC", "Strikamerkja-QC", "CQ des codes-barres"),
+    "Illumination": _row(
+        "Belysning", "Beleuchtung", "Iluminación", "照明",
+        "Iluminação", "प्रकाश", "조명", "Lýsing", "Éclairage"),
+    "Explain CV Model": _row(
+        "Förklara CV-modell", "CV-Modell erklären", "Explicar modelo CV",
+        "解释 CV 模型", "Explicar modelo de VC", "CV मॉडल समझाएँ",
+        "CV 모델 설명", "Skýra CV-líkan", "Expliquer le modèle CV"),
+    "Feature Dictionary": _row(
+        "Egenskapsordlista", "Merkmalswörterbuch",
+        "Diccionario de características", "特征词典",
+        "Dicionário de características", "विशेषता शब्दकोश", "특성 사전",
+        "Eiginleikaorðabók", "Dictionnaire des caractéristiques"),
+    "AnnData Export": _row(
+        "AnnData-export", "AnnData-Export", "Exportar a AnnData",
+        "导出 AnnData", "Exportar para AnnData", "AnnData निर्यात",
+        "AnnData 내보내기", "AnnData-útflutningur", "Export AnnData"),
+    # Fold buttons no longer have an application-registry row to contribute
+    # their display name.  Keep every current folded name in the compact
+    # catalog: the icon-only button exposes this text through its tooltip and
+    # accessible name, so an English fallback there is still visible UI.
+    "Curate": _row(
+        "Kurera", "Kuratieren", "Curación", "校正", "Curadoria",
+        "क्यूरेट", "큐레이트", "Grisja", "Curation"),
+    "Image Scatter": _row(
+        "Bildspridningsdiagram", "Bild-Streudiagramm",
+        "Dispersión de imágenes", "图像散点图",
+        "Dispersão de imagens", "छवि स्कैटर प्लॉट", "이미지 산점도",
+        "Mynddreifirit", "Nuage d’images"),
+    "Mask the whole folder": _row(
+        "Maskera hela mappen", "Gesamten Ordner maskieren",
+        "Generar máscaras para toda la carpeta", "为整个文件夹生成掩膜",
+        "Gerar máscaras para toda a pasta", "पूरे फ़ोल्डर के लिए मास्क बनाएँ",
+        "전체 폴더의 마스크 생성", "Búa til grímur fyrir alla möppuna",
+        "Générer les masques de tout le dossier"),
+    "Napari Bridge": _row(
+        "Napari-brygga", "Napari-Brücke", "Puente con napari",
+        "napari 桥接", "Ponte para o napari", "नैपारी ब्रिज",
+        "나파리 브리지", "Napari-brú", "Passerelle napari"),
+    "PCA": _row(
+        "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA",
+        "ACP"),
+    # IDENTICAL IN ALL NINE, and that is the translation rather than a gap.
+    # OPS is optical pooled screening, a method named by its acronym in the
+    # literature every one of these locales publishes in; there is no local
+    # expansion for it the way French has ACP for PCA. Translating it would
+    # invent a term a reader could not look up.
+    "OPS": _row(
+        "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS"),
+    "Volcano Explorer": _row(
+        "Utforska vulkandiagram", "Vulkanplot-Explorer",
+        "Explorador de gráficos volcán", "火山图浏览器",
+        "Explorador de gráficos vulcão", "वोल्केनो प्लॉट एक्सप्लोरर",
+        "볼케이노 플롯 탐색기", "Eldfjallaritskönnun",
+        "Explorateur de graphiques volcan"),
     "Run History": _row(
         "Körningshistorik", "Ausführungsverlauf", "Historial de ejecuciones",
         "运行历史", "Histórico de execuções", "रन इतिहास",
@@ -977,7 +1474,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Toggle the interactive image UMAP. When ON (blue), click a point to preview its image, draw around a cluster, and write manual or automatic labels to the database.": _row(
         "Slå på eller av den interaktiva bild-UMAP-vyn. När den är PÅ (blå) kan du klicka på en punkt för att förhandsvisa bilden, rita runt ett kluster och skriva manuella eller automatiska etiketter till databasen.",
         "Schaltet die interaktive Bild-UMAP-Ansicht ein oder aus. Wenn sie EIN (blau) ist, können Sie einen Punkt zur Bildvorschau anklicken, einen Cluster umzeichnen und manuelle oder automatische Beschriftungen in die Datenbank schreiben.",
-        "Activa o desactiva el UMAP interactivo de imágenes. Cuando está ACTIVADO (azul), puede pulsar un punto para previsualizar su imagen, dibujar alrededor de un clúster y guardar etiquetas manuales o automáticas en la base de datos.",
+        "Active o desactive el UMAP interactivo de imágenes. Cuando está ACTIVADO (azul), puede pulsar un punto para previsualizar su imagen, dibujar alrededor de un clúster y guardar etiquetas manuales o automáticas en la base de datos.",
         "打开或关闭交互式图像 UMAP。打开（蓝色）后，可点击点预览图像、圈选聚类，并将手动或自动标签写入数据库。",
         "Ativa ou desativa o UMAP interativo de imagens. Quando ATIVO (azul), você pode clicar em um ponto para pré-visualizar a imagem, contornar um cluster e gravar rótulos manuais ou automáticos no banco de dados.",
         "इंटरैक्टिव इमेज UMAP चालू या बंद करें। चालू (नीला) होने पर किसी बिंदु पर क्लिक करके उसकी छवि देखें, क्लस्टर के चारों ओर रेखा बनाएँ और मैन्युअल या स्वचालित लेबल डेटाबेस में लिखें।",
@@ -1179,7 +1676,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Open a pre-filled GitHub issue with the last traceback + environment. You review before submitting. Toggle on/off in AI Settings → Report errors as GitHub issues.": _row(
         "Öppna ett förifyllt GitHub-ärende med den senaste stackspårningen och miljön. Du granskar det innan det skickas. Slå på eller av i AI-inställningar → Rapportera fel som GitHub-ärenden.",
         "Öffnet ein vorausgefülltes GitHub-Issue mit dem letzten Traceback und der Umgebung. Sie prüfen es vor dem Senden. Ein-/ausschalten unter KI-Einstellungen → Fehler als GitHub-Issues melden.",
-        "Abre una incidencia de GitHub prellenada con el último rastreo y el entorno. Usted la revisa antes de enviarla. Active o desactive esta opción en Ajustes de IA → Informar errores como incidencias de GitHub.",
+        "Abra una incidencia de GitHub prellenada con el último rastreo y el entorno. Revísela antes de enviarla. Active o desactive esta opción en Ajustes de IA → Informar errores como incidencias de GitHub.",
         "打开一个预填的 GitHub 问题，其中包含最近的回溯和环境信息。提交前由您审核。可在人工智能设置 → 将错误报告为 GitHub 问题中开启或关闭。",
         "Abre um problema do GitHub pré-preenchido com o último rastreamento e o ambiente. Você o revisa antes de enviar. Ative ou desative em Configurações de IA → Relatar erros como problemas do GitHub.",
         "अंतिम ट्रेसबैक और एनवायरनमेंट के साथ पहले से भरा GitHub इश्यू खोलता है। सबमिट करने से पहले आप इसकी समीक्षा करते हैं। एआई सेटिंग्स → त्रुटियों को GitHub इश्यू के रूप में रिपोर्ट करें में इसे चालू या बंद करें।",
@@ -1442,6 +1939,1485 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "먼저 제공업체 CLI를 설치하세요(제공업체…).",
         "Settu fyrst upp CLI veitanda (Veitendur…).",
         "Installez d’abord une CLI de fournisseur (Fournisseurs…)."),
+
+    # ---- The first-run setup screen ---------------------------------
+    # Its own captions, which used to be the one screen in the program
+    # that never translated: it asks which language to use and then went
+    # on asking the rest in English.
+    "How it runs": _row("Hur den körs", "Wie es läuft", "Cómo se ejecuta", "运行方式", "Como funciona", "यह कैसे चलता है", "실행 방식", "Hvernig hún keyrir", "Comment il s’exécute"),
+    "The assistant": _row("Assistenten", "Der Assistent", "El asistente", "助手", "O assistente", "सहायक", "어시스턴트", "Aðstoðarmaðurinn", "L’assistant"),
+    "When something breaks": _row("När något går fel", "Wenn etwas schiefgeht", "Cuando algo falla", "出现问题时", "Quando algo falha", "जब कुछ गड़बड़ हो", "문제가 생겼을 때", "Þegar eitthvað bilar", "Quand quelque chose casse"),
+    "Done": _row("Klart", "Fertig", "Listo", "完成", "Concluído", "पूर्ण", "완료", "Lokið", "Terminé"),
+    "spaCR mode": _row("spaCR-läge", "spaCR-Modus", "Modo spaCR", "spaCR 模式", "Modo spaCR", "spaCR मोड", "spaCR 모드", "spaCR-hamur", "Mode spaCR"),
+    "Reproducibility hash": _row("Reproducerbarhetshash", "Reproduzierbarkeits-Hash", "Hash de reproducibilidad", "可复现性哈希", "Hash de reprodutibilidade", "पुनरुत्पादन हैश", "재현성 해시", "Endurgerðarhash", "Empreinte de reproductibilité"),
+    "One-click issue filing": _row("Felrapport med ett klick", "Fehlermeldung mit einem Klick", "Informe de problemas con un clic", "一键提交问题", "Relato de problemas com um clique", "एक-क्लिक समस्या रिपोर्ट", "원클릭 이슈 등록", "Villutilkynning með einum smelli", "Signalement en un clic"),
+    "AI assistant on at launch": _row("AI-assistent på vid start", "KI-Assistent beim Start aktiv", "Asistente de IA activo al iniciar", "启动时开启 AI 助手", "Assistente de IA ativo ao iniciar", "शुरू होते ही AI सहायक चालू", "시작 시 AI 어시스턴트 켜기", "AI-aðstoð virk við ræsingu", "Assistant IA actif au démarrage"),
+    "Include recent logs in a report": _row("Inkludera senaste loggarna i en rapport", "Aktuelle Protokolle in den Bericht aufnehmen", "Incluir registros recientes en el informe", "在报告中附上最近的日志", "Incluir os registos recentes no relatório", "रिपोर्ट में हाल के लॉग शामिल करें", "보고서에 최근 로그 포함", "Hafa nýlegar annálar með í skýrslu", "Inclure les journaux récents dans un rapport"),
+    "AI provider": _row("AI-leverantör", "KI-Anbieter", "Proveedor de IA", "AI 提供方", "Fornecedor de IA", "AI प्रदाता", "AI 제공자", "AI-veita", "Fournisseur d’IA"),
+    "{n} of {total}": _row("{n} av {total}", "{n} von {total}", "{n} de {total}", "第 {n} / {total} 步", "{n} de {total}", "{total} में से {n}", "{total} 중 {n}", "{n} af {total}", "{n} sur {total}"),
+    "Every label, tooltip and message spaCR shows you. You can change it later in Preferences, and nothing about your data depends on it.": _row(
+        "Varje etikett, verktygstips och meddelande som spaCR visar. Du kan ändra det senare i Inställningar, och inget i dina data beror på det.",
+        "Jede Beschriftung, jeder Tooltip und jede Meldung, die spaCR anzeigt. Sie können das später in den Einstellungen ändern; Ihre Daten hängen nicht davon ab.",
+        "Cada etiqueta, descripción emergente y mensaje que muestra spaCR. Puede cambiarlo después en Preferencias, y nada de sus datos depende de ello.",
+        "spaCR 显示的每个标签、提示和消息。之后可以在首选项中更改，你的数据不受影响。",
+        "Cada rótulo, dica e mensagem que o spaCR mostra. Pode alterar depois nas Preferências, e nada nos seus dados depende disso.",
+        "spaCR द्वारा दिखाया जाने वाला हर लेबल, टूलटिप और संदेश। इसे बाद में प्राथमिकताओं में बदला जा सकता है, और आपके डेटा पर कोई असर नहीं पड़ता।",
+        "spaCR가 보여주는 모든 라벨, 툴팁, 메시지에 적용됩니다. 나중에 환경설정에서 바꿀 수 있으며 데이터에는 영향이 없습니다.",
+        "Sérhver merking, ábending og skilaboð sem spaCR sýnir. Þú getur breytt þessu síðar í Stillingum og ekkert í gögnunum þínum veltur á því.",
+        "Chaque libellé, infobulle et message affiché par spaCR. Vous pouvez le changer plus tard dans les Préférences, et rien dans vos données n’en dépend."),
+    "That is everything. All of it is in Preferences if you change your mind.": _row(
+        "Det var allt. Allt finns i Inställningar om du ändrar dig.",
+        "Das war alles. Alles davon steht in den Einstellungen, falls Sie es sich anders überlegen.",
+        "Eso es todo. Todo está en Preferencias si cambia de opinión.",
+        "就是这些。如果改变主意，所有选项都在首选项里。",
+        "É tudo. Está tudo nas Preferências, caso mude de ideias.",
+        "बस इतना ही। मन बदले तो सब कुछ प्राथमिकताओं में मिलेगा।",
+        "이것이 전부입니다. 마음이 바뀌면 모두 환경설정에 있습니다.",
+        "Það var allt. Allt er í Stillingum ef þú skiptir um skoðun.",
+        "C’est tout. Tout se retrouve dans les Préférences si vous changez d’avis."),
+
+    "How spaCR looks, and whether its colours are chosen to stay distinguishable without colour vision. Both take effect as you pick them, so you can see what you are choosing.": _row(
+        "Hur spaCR ser ut, och om färgerna väljs så att de går att skilja åt utan färgseende. Båda träder i kraft medan du väljer, så att du ser vad du väljer.",
+        "Wie spaCR aussieht und ob seine Farben so gewählt werden, dass sie ohne Farbsehen unterscheidbar bleiben. Beides wirkt sofort, sodass Sie sehen, was Sie wählen.",
+        "El aspecto de spaCR y si sus colores se eligen para seguir siendo distinguibles sin visión del color. Ambos se aplican al elegirlos, para que pueda ver lo que está seleccionando.",
+        "spaCR 的外观，以及是否选择在无色觉时仍可区分的配色。两者在选择时即时生效，让你看到自己的选择。",
+        "O aspeto do spaCR e se as suas cores são escolhidas para se manterem distinguíveis sem visão das cores. Ambos entram em vigor à medida que escolhe, para que veja o que está a escolher.",
+        "spaCR कैसा दिखता है, और क्या इसके रंग ऐसे चुने जाएँ जो वर्ण-दृष्टि के बिना भी अलग दिखें। दोनों चुनते ही लागू हो जाते हैं, ताकि आप देख सकें कि क्या चुन रहे हैं।",
+        "spaCR의 모습과, 색각 없이도 구분되도록 색을 고를지 여부입니다. 둘 다 고르는 즉시 적용되므로 무엇을 고르는지 바로 보입니다.",
+        "Hvernig spaCR lítur út og hvort litirnir eru valdir svo þeir greinist án litaskyns. Hvort tveggja tekur gildi um leið og þú velur, svo þú sérð hvað þú ert að velja.",
+        "L’apparence de spaCR, et si ses couleurs sont choisies pour rester distinguables sans vision des couleurs. Les deux s’appliquent au moment du choix, pour que vous voyiez ce que vous choisissez."),
+    "The mode decides how much of this machine spaCR keeps for itself: how many background processes it starts and holds, and whether it hands back its caches and GPU memory between runs. Balanced keeps them, which is fastest; the other two give them up so the rest of your machine has more to work with. The reproducibility hash records what went into a run, so a result can be traced back to the exact inputs that produced it.": _row(
+        "Läget avgör hur mycket av datorn spaCR behåller för sig själv: hur många bakgrundsprocesser den startar och håller kvar, och om den lämnar tillbaka sina cacher och GPU-minne mellan körningar. Balanserat behåller dem, vilket är snabbast; de andra två lämnar dem ifrån sig så att resten av datorn får mer att arbeta med. Reproducerbarhetshashen registrerar vad som gick in i en körning, så att ett resultat kan spåras tillbaka till exakt de indata som gav det.",
+        "Der Modus bestimmt, wie viel dieses Rechners spaCR für sich behält: wie viele Hintergrundprozesse es startet und hält und ob es Caches und GPU-Speicher zwischen Läufen zurückgibt. Ausgewogen behält sie, was am schnellsten ist; die anderen beiden geben sie ab, damit dem übrigen Rechner mehr bleibt. Der Reproduzierbarkeits-Hash hält fest, was in einen Lauf einging, sodass ein Ergebnis auf genau die Eingaben zurückgeführt werden kann, die es erzeugt haben.",
+        "El modo decide cuánto de esta máquina se reserva spaCR: cuántos procesos en segundo plano inicia y mantiene, y si devuelve sus cachés y la memoria de GPU entre ejecuciones. Equilibrado los conserva, que es lo más rápido; los otros dos los ceden para que el resto de la máquina disponga de más. El hash de reproducibilidad registra qué entró en una ejecución, de modo que un resultado pueda rastrearse hasta las entradas exactas que lo produjeron.",
+        "该模式决定 spaCR 为自己保留多少本机资源：启动并保持多少后台进程，以及在两次运行之间是否交还缓存和 GPU 显存。均衡会保留它们，速度最快；另外两种会交还，让机器的其余部分有更多可用资源。可复现性哈希记录一次运行的输入，因此结果可以追溯到产生它的确切输入。",
+        "O modo decide quanto desta máquina o spaCR guarda para si: quantos processos em segundo plano inicia e mantém, e se devolve as suas caches e memória de GPU entre execuções. Equilibrado mantém-nas, o que é mais rápido; os outros dois libertam-nas para que o resto da máquina tenha mais com que trabalhar. O hash de reprodutibilidade regista o que entrou numa execução, para que um resultado possa ser rastreado até às entradas exatas que o produziram.",
+        "मोड तय करता है कि spaCR इस मशीन का कितना हिस्सा अपने पास रखे: वह कितनी पृष्ठभूमि प्रक्रियाएँ शुरू कर के रोके रखता है, और क्या वह रन के बीच अपनी कैश और GPU मेमोरी लौटाता है। संतुलित उन्हें रखे रहता है, जो सबसे तेज़ है; अन्य दो उन्हें छोड़ देते हैं ताकि बाकी मशीन को अधिक मिले। पुनरुत्पादन हैश यह दर्ज करता है कि रन में क्या गया, ताकि परिणाम को ठीक उन्हीं इनपुट तक पहुँचाया जा सके जिन्होंने उसे बनाया।",
+        "이 모드는 spaCR가 이 컴퓨터를 얼마나 차지할지 정합니다: 백그라운드 프로세스를 몇 개나 띄워 두는지, 실행 사이에 캐시와 GPU 메모리를 반납하는지입니다. 균형은 그대로 유지해 가장 빠르고, 나머지 둘은 반납해 컴퓨터의 다른 작업에 여유를 줍니다. 재현성 해시는 실행에 들어간 것을 기록하므로, 결과를 그것을 만든 정확한 입력까지 되짚을 수 있습니다.",
+        "Hamurinn ræður hversu mikið af þessari vél spaCR heldur eftir: hversu mörg bakgrunnsferli það ræsir og heldur, og hvort það skilar skyndiminni og GPU-minni milli keyrslna. Jafnvægi heldur þeim, sem er hraðast; hinir tveir sleppa þeim svo restin af vélinni hafi meira svigrúm. Endurgerðarhashið skráir hvað fór inn í keyrslu, svo rekja megi niðurstöðu til nákvæmlega þeirra gagna sem bjuggu hana til.",
+        "Le mode décide de la part de cette machine que spaCR garde pour lui : combien de processus d’arrière-plan il lance et conserve, et s’il rend ses caches et la mémoire GPU entre les exécutions. Équilibré les conserve, ce qui est le plus rapide ; les deux autres les rendent pour laisser plus de ressources au reste de la machine. L’empreinte de reproductibilité enregistre ce qui est entré dans une exécution, afin qu’un résultat puisse être retracé jusqu’aux entrées exactes qui l’ont produit."),
+    "spaCR can explain an error or a result through a coding assistant you already subscribe to. It uses the vendor's own command-line tool, so nothing is sent anywhere you have not already logged in to.": _row(
+        "spaCR kan förklara ett fel eller ett resultat genom en kodassistent du redan prenumererar på. Den använder leverantörens eget kommandoradsverktyg, så ingenting skickas någonstans du inte redan är inloggad hos.",
+        "spaCR kann einen Fehler oder ein Ergebnis über einen Coding-Assistenten erklären, den Sie bereits abonniert haben. Es nutzt das Kommandozeilenwerkzeug des Anbieters, sodass nichts irgendwohin geht, wo Sie nicht bereits angemeldet sind.",
+        "spaCR puede explicar un error o un resultado mediante un asistente de código al que ya está suscrito. Utiliza la herramienta de línea de comandos del proveedor, así que nada se envía a ningún servicio en el que no haya iniciado sesión.",
+        "spaCR 可以通过你已订阅的编程助手来解释错误或结果。它使用厂商自己的命令行工具，因此不会把任何内容发往你尚未登录的地方。",
+        "O spaCR pode explicar um erro ou um resultado através de um assistente de código que já subscreve. Usa a ferramenta de linha de comandos do próprio fornecedor, pelo que nada é enviado para onde ainda não tenha sessão iniciada.",
+        "spaCR किसी त्रुटि या परिणाम को उस कोडिंग सहायक के जरिए समझा सकता है जिसकी सदस्यता आपके पास पहले से है। यह विक्रेता के अपने कमांड-लाइन टूल का उपयोग करता है, इसलिए कुछ भी वहाँ नहीं भेजा जाता जहाँ आप पहले से लॉग इन न हों।",
+        "spaCR는 이미 구독 중인 코딩 어시스턴트를 통해 오류나 결과를 설명할 수 있습니다. 공급업체의 명령줄 도구를 그대로 사용하므로, 이미 로그인한 곳 외에는 아무것도 전송되지 않습니다.",
+        "spaCR getur útskýrt villu eða niðurstöðu í gegnum kóðunaraðstoð sem þú ert þegar áskrifandi að. Það notar skipanalínutól framleiðandans sjálfs, svo ekkert er sent neitt þangað sem þú ert ekki þegar innskráð(ur).",
+        "spaCR peut expliquer une erreur ou un résultat via un assistant de code auquel vous êtes déjà abonné. Il utilise l’outil en ligne de commande de l’éditeur, donc rien n’est envoyé là où vous n’êtes pas déjà connecté."),
+    "What may leave this machine, and under whose name. Nothing is ever sent without you seeing it first and pressing send yourself.": _row(
+        "Vad som får lämna den här datorn, och i vems namn. Ingenting skickas någonsin utan att du först ser det och själv trycker på skicka.",
+        "Was diesen Rechner verlassen darf und unter wessen Namen. Nichts wird jemals gesendet, ohne dass Sie es zuvor sehen und selbst auf Senden drücken.",
+        "Qué puede salir de esta máquina y a nombre de quién. Nunca se envía nada sin que lo vea primero y pulse personalmente Enviar.",
+        "什么内容可以离开这台机器，以及以谁的名义。任何内容都不会在你先看到并亲自点击发送之前被发送。",
+        "O que pode sair desta máquina, e em nome de quem. Nada é enviado sem que o veja primeiro e carregue em enviar você mesmo.",
+        "इस मशीन से क्या बाहर जा सकता है, और किसके नाम से। कुछ भी तब तक नहीं भेजा जाता जब तक आप उसे देख कर स्वयं भेजें न दबाएँ।",
+        "이 컴퓨터에서 무엇이 나갈 수 있는지, 그리고 누구의 이름으로 나가는지입니다. 먼저 내용을 보고 직접 보내기를 누르기 전에는 아무것도 전송되지 않습니다.",
+        "Hvað má fara af þessari vél og í hvers nafni. Ekkert er nokkurn tímann sent nema þú sjáir það fyrst og ýtir sjálf(ur) á senda.",
+        "Ce qui peut quitter cette machine, et sous quel nom. Rien n’est jamais envoyé sans que vous l’ayez d’abord vu et appuyé vous-même sur envoyer."),
+
+    # ---- What the machine can run, on the first slide ----------------
+    # REPLACED, NOT ADDED, so the row count this catalog is ratcheted on
+    # does not move. Replaced twice now, both times because the sentence
+    # had stopped being true.
+    #
+    # It first said "need an NVIDIA GPU", which stopped being true when
+    # spaCR learned to dispatch to ROCm, Apple Metal and Intel XPU -- and
+    # it was wrong in the worst direction, telling people with a perfectly
+    # good AMD card that they had no GPU. Instruction 319.
+    #
+    # It then named segmentation and classification as THE two steps that
+    # want a card, which the slide now answers far better with a per-task
+    # table. The prose above the table says what the table cannot: which
+    # vendors work, and how much the acceleration is actually worth.
+    "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster than CPU for matrix multiplication tasks.": _row(
+        "spaCR-uppgifter är GPU-accelererade och fungerar med GPU:er från NVIDIA, AMD, Apple och Intel. GPU-acceleration är flera storleksordningar snabbare än CPU för matrismultiplikation.",
+        "spaCR-Aufgaben sind GPU-beschleunigt und mit GPUs von NVIDIA, AMD, Apple und Intel kompatibel. GPU-Beschleunigung ist bei Matrixmultiplikationen um Größenordnungen schneller als die CPU.",
+        "Las tareas de spaCR están aceleradas por GPU y son compatibles con GPU de NVIDIA, AMD, Apple e Intel. La aceleración por GPU es órdenes de magnitud más rápida que la CPU en la multiplicación de matrices.",
+        "spaCR 的任务经过 GPU 加速，兼容 NVIDIA、AMD、Apple 和 Intel 的 GPU。在矩阵乘法任务上，GPU 加速比 CPU 快几个数量级。",
+        "As tarefas do spaCR são aceleradas por GPU e são compatíveis com GPUs da NVIDIA, AMD, Apple e Intel. A aceleração por GPU é ordens de grandeza mais rápida do que a CPU na multiplicação de matrizes.",
+        "spaCR के कार्य GPU-त्वरित हैं और NVIDIA, AMD, Apple तथा Intel के GPU के साथ संगत हैं। मैट्रिक्स गुणन कार्यों में GPU त्वरण CPU की तुलना में कई गुना तेज़ होता है।",
+        "spaCR 작업은 GPU 가속을 사용하며 NVIDIA, AMD, Apple, Intel GPU와 호환됩니다. 행렬 곱셈 작업에서 GPU 가속은 CPU보다 몇 자릿수 더 빠릅니다.",
+        "Verk í spaCR eru hraðað með skjákorti og virka með skjákortum frá NVIDIA, AMD, Apple og Intel. Skjákortshröðun er margfalt hraðari en örgjörvi við fylkjamargföldun.",
+        "Les tâches de spaCR sont accélérées par GPU et compatibles avec les GPU NVIDIA, AMD, Apple et Intel. L’accélération GPU est plusieurs ordres de grandeur plus rapide que le CPU pour la multiplication matricielle."),
+    "The card is there but torch cannot use it. Run spacr-doctor to find out which part of CUDA is missing.": _row(
+        "Kortet finns men torch kan inte använda det. Kör spacr-doctor för att ta reda på vilken del av CUDA som saknas.",
+        "Die Karte ist vorhanden, aber torch kann sie nicht nutzen. Führen Sie spacr-doctor aus, um herauszufinden, welcher Teil von CUDA fehlt.",
+        "La tarjeta está presente pero torch no puede usarla. Ejecute spacr-doctor para averiguar qué parte de CUDA falta.",
+        "显卡在，但 torch 无法使用它。运行 spacr-doctor 查看缺少哪一部分 CUDA。",
+        "A placa existe mas o torch não a consegue usar. Execute spacr-doctor para descobrir que parte do CUDA falta.",
+        "कार्ड मौजूद है पर torch उसे उपयोग नहीं कर पा रहा। यह जानने के लिए कि CUDA का कौन-सा हिस्सा अनुपस्थित है, spacr-doctor चलाएँ।",
+        "카드는 있지만 torch 가 사용할 수 없습니다. CUDA 의 어느 부분이 빠졌는지 확인하려면 spacr-doctor 를 실행하세요.",
+        "Kortið er til staðar en torch getur ekki notað það. Keyrðu spacr-doctor til að sjá hvaða hluta CUDA vantar.",
+        "La carte est présente mais torch ne peut pas l’utiliser. Lancez spacr-doctor pour savoir quelle partie de CUDA manque."),
+    "Compatible GPU": _row(
+        "Kompatibel GPU", "Kompatible GPU", "GPU compatible", "兼容的 GPU",
+        "GPU compatível", "संगत GPU", "호환되는 GPU", "Samhæft skjákort",
+        "GPU compatible"),
+    "No compatible GPU": _row(
+        "Ingen kompatibel GPU", "Keine kompatible GPU", "Sin GPU compatible",
+        "没有兼容的 GPU", "Sem GPU compatível", "कोई संगत GPU नहीं",
+        "호환되는 GPU 없음", "Ekkert samhæft skjákort", "Aucun GPU compatible"),
+    "No compatible GPU — none detected": _row(
+        "Ingen kompatibel GPU — ingen hittades",
+        "Keine kompatible GPU – keine gefunden",
+        "Sin GPU compatible: no se detectó ninguna",
+        "没有兼容的 GPU —— 未检测到",
+        "Sem GPU compatível — nenhuma detetada",
+        "कोई संगत GPU नहीं — कोई नहीं मिला",
+        "호환되는 GPU 없음 — 감지되지 않음",
+        "Ekkert samhæft skjákort — ekkert fannst",
+        "Aucun GPU compatible — aucun détecté"),
+
+    # Compact first-run choices and captions.  These values are assembled
+    # from registries rather than literal widget constructors, so the large
+    # generated Qt catalog cannot discover them from the AST.  Keep them in
+    # the exact, hand-reviewed catalog and let the caption ratchet below the
+    # test suite catch the next choice added without a row.
+    "ask": _row(
+        "Fråga först", "Vorher fragen", "Preguntar antes", "提交前询问",
+        "Perguntar antes", "पहले पूछें", "먼저 묻기", "Spyrja fyrst",
+        "Demander d’abord"),
+    "off": _row(
+        "Av", "Aus", "Desactivado", "关闭", "Desativado",
+        "बंद", "꺼짐", "Slökkt", "Désactivé"),
+    "Dark": _row(
+        "Mörkt", "Dunkel", "Oscuro", "深色", "Escuro",
+        "गहरा", "어두움", "Dökkt", "Sombre"),
+    "Next": _row(
+        "Nästa", "Weiter", "Siguiente", "下一步", "Seguinte",
+        "अगला", "다음", "Áfram", "Suivant"),
+    "None": _row(
+        "Ingen", "Keine", "Ninguna", "无", "Nenhuma",
+        "कोई नहीं", "없음", "Engin", "Aucune"),
+    "Skip": _row(
+        "Hoppa över", "Überspringen", "Omitir", "跳过", "Ignorar",
+        "छोड़ें", "건너뛰기", "Sleppa", "Passer"),
+    "Blobs": _row(
+        "Blobbar", "Blobs", "Formas fluidas", "流动色块",
+        "Formas fluidas", "तरल आकृतियाँ", "블롭", "Klessur",
+        "Formes fluides"),
+    "Bokeh": _row(
+        "Bokeh", "Bokeh", "Bokeh", "散景", "Bokeh",
+        "बोकेह", "보케", "Bokeh", "Bokeh"),
+    "Cells": _row(
+        "Celler", "Zellen", "Células", "细胞", "Células",
+        "कोशिकाएँ", "세포", "Frumur", "Cellules"),
+    "Glass": _row(
+        "Glas", "Glas", "Cristal", "玻璃", "Vidro",
+        "काँच", "유리", "Gler", "Verre"),
+    "Later": _row(
+        "Senare", "Später", "Más tarde", "稍后", "Mais tarde",
+        "बाद में", "나중에", "Síðar", "Plus tard"),
+    "Light": _row(
+        "Ljust", "Hell", "Claro", "浅色", "Claro",
+        "हल्का", "밝음", "Ljóst", "Clair"),
+    "never": _row(
+        "Aldrig", "Nie", "Nunca", "从不", "Nunca",
+        "कभी नहीं", "안 함", "Aldrei", "Jamais"),
+    "Aurora": _row(
+        "Norrsken", "Polarlicht", "Aurora", "极光", "Aurora",
+        "ध्रुवीय ज्योति", "오로라", "Norðurljós", "Aurore"),
+    "Finish": _row(
+        "Slutför", "Fertigstellen", "Finalizar", "完成", "Concluir",
+        "समाप्त करें", "마침", "Ljúka", "Terminer"),
+    "Next ›": _row(
+        "Nästa ›", "Weiter ›", "Siguiente ›", "下一步 ›", "Seguinte ›",
+        "अगला ›", "다음 ›", "Áfram ›", "Suivant ›"),
+    "always": _row(
+        "Alltid", "Immer", "Siempre", "始终", "Sempre",
+        "हमेशा", "항상", "Alltaf", "Toujours"),
+    "‹ Back": _row(
+        "‹ Tillbaka", "‹ Zurück", "‹ Atrás", "‹ 返回", "‹ Voltar",
+        "‹ वापस", "‹ 뒤로", "‹ Til baka", "‹ Retour"),
+    "Ripples": _row(
+        "Krusningar", "Wellen", "Ondas", "涟漪", "Ondulações",
+        "लहरें", "물결", "Gárur", "Ondulations"),
+    "Tubules": _row(
+        "Tubuli", "Tubuli", "Túbulos", "管状结构", "Túbulos",
+        "नलिकाएँ", "세관", "Píplur", "Tubules"),
+    "Balanced": _row(
+        "Balanserat", "Ausgewogen", "Equilibrado", "均衡", "Equilibrado",
+        "संतुलित", "균형", "Jafnvægi", "Équilibré"),
+    # THE OTHER TWO ENDS OF THE SAME SCALE. Laptop and Workstation reached
+    # the setup screen when it was pointed at PERFORMANCE_LEVELS instead of
+    # the three-value SPACR_MODES; the middle three already had rows, which
+    # is why only these two were missing.
+    "Laptop": _row(
+        "Bärbar dator", "Laptop", "Portátil", "笔记本电脑", "Notebook",
+        "लैपटॉप", "노트북", "Fartölva", "Ordinateur portable"),
+    # German REVIEWED BY EINAR 2026-09-02: "Arbeitsstation", not the
+    # English loanword. Icelandic and Swedish were already right.
+    "Workstation": _row(
+        "Arbetsstation", "Arbeitsstation", "Estación de trabajo", "工作站",
+        "Estação de trabalho", "वर्कस्टेशन", "워크스테이션", "Vinnustöð",
+        "Station de travail"),
+    "Starfield": _row(
+        "Stjärnfält", "Sternenfeld", "Campo estelar", "星空",
+        "Campo estelar", "तारों का क्षेत्र", "별빛", "Stjörnusvið",
+        "Champ d’étoiles"),
+    "Demos menu": _row(
+        "Demomeny", "Demo-Menü", "Menú de demostraciones", "演示菜单",
+        "Menu de demonstrações", "डेमो मेनू", "데모 메뉴",
+        "Sýnishornavalmynd", "Menu Démonstrations"),
+    "protanopia": _row(
+        "protanopi", "Protanopie", "protanopía", "红色盲", "protanopia",
+        "प्रोटैनोपिया", "제1색맹", "rauðblinda", "protanopie"),
+    "tritanopia": _row(
+        "tritanopi", "Tritanopie", "tritanopía", "蓝黄色盲", "tritanopia",
+        "ट्राइटैनोपिया", "제3색맹", "blá-gul litblinda", "tritanopie"),
+    "Drag & drop": _row(
+        "Dra och släpp", "Ziehen und ablegen", "Arrastrar y soltar", "拖放",
+        "Arrastar e soltar", "खींचें और छोड़ें", "끌어서 놓기",
+        "Draga og sleppa", "Glisser-déposer"),
+    "Performance": _row(
+        "Prestanda", "Leistung", "Rendimiento", "性能", "Desempenho",
+        "प्रदर्शन", "성능", "Afköst", "Performances"),
+    "Sign in now": _row(
+        "Logga in nu", "Jetzt anmelden", "Iniciar sesión ahora", "立即登录",
+        "Iniciar sessão agora", "अभी साइन इन करें", "지금 로그인",
+        "Skrá inn núna", "Se connecter maintenant"),
+    "Start spaCR": _row(
+        "Starta spaCR", "spaCR starten", "Iniciar spaCR", "启动 spaCR",
+        "Iniciar o spaCR", "spaCR शुरू करें", "spaCR 시작", "Ræsa spaCR",
+        "Démarrer spaCR"),
+    "Cytoskeleton": _row(
+        "Cytoskelett", "Zytoskelett", "Citoesqueleto", "细胞骨架",
+        "Citoesqueleto", "कोशिका कंकाल", "세포골격", "Frumugrind",
+        "Cytosquelette"),
+    "Save choices": _row(
+        "Spara val", "Auswahl speichern", "Guardar opciones", "保存选择",
+        "Guardar escolhas", "विकल्प सहेजें", "선택 저장", "Vista val",
+        "Enregistrer les choix"),
+    "Set spaCR up": _row(
+        "Konfigurera spaCR", "spaCR einrichten", "Configurar spaCR",
+        "设置 spaCR", "Configurar o spaCR", "spaCR सेट करें", "spaCR 설정",
+        "Stilla spaCR", "Configurer spaCR"),
+    "deuteranopia": _row(
+        "deuteranopi", "Deuteranopie", "deuteranopía", "绿色盲",
+        "deuteranopia", "ड्यूटेरैनोपिया", "제2색맹", "grænblinda",
+        "deutéranopie"),
+    "Follow system": _row(
+        "Följ systemet", "Systemeinstellung folgen", "Seguir el sistema",
+        "跟随系统", "Seguir o sistema", "सिस्टम के अनुसार", "시스템 설정 따르기",
+        "Fylgja kerfinu", "Suivre le système"),
+    "Open the page": _row(
+        "Öppna sidan", "Seite öffnen", "Abrir la página", "打开页面",
+        "Abrir a página", "पृष्ठ खोलें", "페이지 열기", "Opna síðuna",
+        "Ouvrir la page"),
+    "Command palette": _row(
+        "Kommandopalett", "Befehlspalette", "Paleta de comandos", "命令面板",
+        "Paleta de comandos", "कमांड पैलेट", "명령 팔레트", "Skipanaspjald",
+        "Palette de commandes"),
+    "Copy the command": _row(
+        "Kopiera kommandot", "Befehl kopieren", "Copiar el comando", "复制命令",
+        "Copiar o comando", "कमांड कॉपी करें", "명령 복사", "Afrita skipunina",
+        "Copier la commande"),
+    "Extra Performance": _row(
+        "Extra prestanda", "Maximale Leistung", "Máximo rendimiento", "极致性能",
+        "Desempenho máximo", "अधिकतम प्रदर्शन", "최대 성능", "Hámarksafköst",
+        "Performances maximales"),
+    "Skip — keep all off": _row(
+        "Hoppa över — låt allt vara av", "Überspringen – alles ausgeschaltet lassen",
+        "Omitir — mantener todo desactivado", "跳过 — 全部保持关闭",
+        "Ignorar — manter tudo desativado", "छोड़ें — सब कुछ बंद रखें",
+        "건너뛰기 — 모두 끈 상태로 유지", "Sleppa — hafa allt óvirkt",
+        "Passer — tout laisser désactivé"),
+    "whatever is available": _row(
+        "det som är tillgängligt", "was verfügbar ist", "lo que esté disponible",
+        "任意可用项", "o que estiver disponível", "जो उपलब्ध हो",
+        "사용 가능한 항목", "það sem er tiltækt", "ce qui est disponible"),
+    "Sidebar — apps by category": _row(
+        "Sidofält — appar efter kategori", "Seitenleiste – Module nach Kategorie",
+        "Barra lateral — aplicaciones por categoría", "侧边栏 — 按类别列出应用",
+        "Barra lateral — aplicações por categoria", "साइडबार — श्रेणी के अनुसार ऐप",
+        "사이드바 — 카테고리별 앱", "Hliðarstika — forrit eftir flokki",
+        "Barre latérale — applications par catégorie"),
+    "spaCR privacy and optional account setup": _row(
+        "spaCR-integritet och valfri kontokonfiguration",
+        "spaCR-Datenschutz und optionale Kontoeinrichtung",
+        "Privacidad de spaCR y configuración opcional de cuentas",
+        "spaCR 隐私与可选账户设置",
+        "Privacidade do spaCR e configuração opcional de contas",
+        "spaCR गोपनीयता और वैकल्पिक खाता सेटअप",
+        "spaCR 개인정보 보호 및 선택적 계정 설정",
+        "Persónuvernd spaCR og valfrjáls reikningsuppsetning",
+        "Confidentialité de spaCR et configuration facultative des comptes"),
+    "Enable the public GitHub issue-report action": _row(
+        "Aktivera åtgärden för offentliga GitHub-felrapporter",
+        "Aktion zum öffentlichen GitHub-Problembericht aktivieren",
+        "Activar la acción para informar de incidencias públicas en GitHub",
+        "启用公开 GitHub 问题报告操作",
+        "Ativar a ação de relatório público de problemas no GitHub",
+        "सार्वजनिक GitHub समस्या रिपोर्ट कार्रवाई चालू करें",
+        "공개 GitHub 이슈 신고 작업 활성화",
+        "Virkja opinbera GitHub-villutilkynningu",
+        "Activer l’action de signalement public sur GitHub"),
+    "Set up GitHub, Claude, GPT/Codex, and Gemini now": _row(
+        "Konfigurera GitHub, Claude, GPT/Codex och Gemini nu",
+        "GitHub, Claude, GPT/Codex und Gemini jetzt einrichten",
+        "Configurar GitHub, Claude, GPT/Codex y Gemini ahora",
+        "立即设置 GitHub、Claude、GPT/Codex 和 Gemini",
+        "Configurar GitHub, Claude, GPT/Codex e Gemini agora",
+        "GitHub, Claude, GPT/Codex और Gemini अभी सेट करें",
+        "지금 GitHub, Claude, GPT/Codex 및 Gemini 설정",
+        "Stilla GitHub, Claude, GPT/Codex og Gemini núna",
+        "Configurer GitHub, Claude, GPT/Codex et Gemini maintenant"),
+    "Include redacted diagnostic logs in report previews": _row(
+        "Ta med rensade diagnostikloggar i rapportförhandsvisningar",
+        "Bereinigte Diagnoseprotokolle in Berichtsvorschauen aufnehmen",
+        "Incluir registros de diagnóstico censurados en las vistas previas",
+        "在报告预览中包含已脱敏的诊断日志",
+        "Incluir registos de diagnóstico editados nas pré-visualizações",
+        "रिपोर्ट पूर्वावलोकन में संपादित निदान लॉग शामिल करें",
+        "보고서 미리보기에 민감 정보가 제거된 진단 로그 포함",
+        "Hafa hreinsaða greiningarannála með í forskoðun skýrslu",
+        "Inclure les journaux de diagnostic expurgés dans les aperçus"),
+    "Load a synthetic demo dataset for a selected core workflow in one click — no data of your own required. Use it to try spaCR before loading an experiment.": _row(
+        "Läs in syntetiska demodata för ett valt kärnflöde med ett klick — inga egna data krävs. Använd dem för att prova spaCR innan du läser in ett experiment.",
+        "Laden Sie mit einem Klick synthetische Demodaten für einen ausgewählten Kernablauf – eigene Daten sind nicht erforderlich. Probieren Sie damit spaCR aus, bevor Sie ein Experiment laden.",
+        "Cargue con un clic datos sintéticos de demostración para uno de los flujos principales disponibles, sin necesidad de aportar datos propios. Utilícelos para probar spaCR antes de cargar un experimento.",
+        "一键为选定的核心流程加载合成演示数据，无需使用自己的数据。可在加载实验之前用它试用 spaCR。",
+        "Carregue com um clique dados sintéticos de demonstração para um dos fluxos principais disponíveis — não precisa dos seus próprios dados. Use-os para experimentar o spaCR antes de carregar uma experiência.",
+        "चुने हुए मुख्य वर्कफ़्लो के लिए एक क्लिक में सिंथेटिक डेमो डेटा लोड करें — अपने डेटा की आवश्यकता नहीं है। कोई प्रयोग लोड करने से पहले spaCR आज़माने के लिए इसका उपयोग करें।",
+        "선택한 핵심 워크플로의 합성 데모 데이터를 클릭 한 번으로 불러옵니다. 사용자 데이터는 필요하지 않습니다. 실험을 불러오기 전에 spaCR를 시험해 보세요.",
+        "Hladdu tilbúnum sýnigögnum fyrir valið kjarnavinnsluferli með einum smelli — eigin gögn þarf ekki. Notaðu þau til að prófa spaCR áður en tilraun er hlaðin inn.",
+        "Chargez en un clic des données synthétiques de démonstration pour l’un des flux principaux proposés, sans fournir vos propres données. Utilisez-les pour essayer spaCR avant de charger une expérience."),
+    "Ctrl+K opens a searchable list of every app, every recent run, and every menu action. Ctrl+P opens Preferences. F1 shows the shortcut cheat sheet.": _row(
+        "Ctrl+K öppnar en sökbar lista över alla appar, senaste körningar och menyåtgärder. Ctrl+P öppnar Inställningar. F1 visar kortkommandona.",
+        "Ctrl+K öffnet eine durchsuchbare Liste aller Module, letzten Läufe und Menüaktionen. Ctrl+P öffnet die Einstellungen. F1 zeigt die Tastenkürzel.",
+        "Ctrl+K abre una lista con búsqueda de todas las aplicaciones, ejecuciones recientes y acciones de menú. Ctrl+P abre Preferencias. F1 muestra los atajos.",
+        "Ctrl+K 打开可搜索的应用、最近运行和菜单操作列表。Ctrl+P 打开首选项。F1 显示快捷键速查表。",
+        "Ctrl+K abre uma lista pesquisável de todas as aplicações, execuções recentes e ações de menu. Ctrl+P abre as Preferências. F1 mostra os atalhos.",
+        "Ctrl+K सभी ऐप, हाल की रन और मेनू कार्रवाइयों की खोज योग्य सूची खोलता है। Ctrl+P प्राथमिकताएँ खोलता है। F1 शॉर्टकट सूची दिखाता है।",
+        "Ctrl+K는 모든 앱, 최근 실행 및 메뉴 작업을 검색할 수 있는 목록을 엽니다. Ctrl+P는 환경설정을 엽니다. F1은 단축키 안내를 표시합니다.",
+        "Ctrl+K opnar leitanlegan lista yfir öll forrit, nýlegar keyrslur og valmyndaraðgerðir. Ctrl+P opnar Stillingar. F1 sýnir flýtilyklana.",
+        "Ctrl+K ouvre une liste consultable de toutes les applications, exécutions récentes et actions de menu. Ctrl+P ouvre les Préférences. F1 affiche les raccourcis."),
+    "Drop a folder of acquisition images onto Mask to set its input; Mask detects the filename regex and displays a metadata validation summary in the Console. Measure, Annotate and other modules accept the files or folders described by their input controls.": _row(
+        "Släpp en mapp med insamlade bilder på Mask för att ange dess indata; Mask identifierar filnamnsmönstret och visar en sammanfattning av metadatavalideringen i konsolen. Measure, Annotate och övriga moduler tar emot de filer eller mappar som beskrivs vid deras indatakontroller.",
+        "Legen Sie einen Ordner mit Aufnahmen auf Mask ab, um dessen Eingabe festzulegen; Mask erkennt das Dateinamensmuster und zeigt eine Zusammenfassung der Metadatenvalidierung in der Konsole. Measure, Annotate und andere Module nehmen die Dateien oder Ordner an, die an ihren Eingabefeldern beschrieben sind.",
+        "Suelte una carpeta de imágenes adquiridas sobre Mask para definir su entrada; Mask detecta el patrón de nombres y muestra un resumen de validación de metadatos en la Consola. Measure, Annotate y los demás módulos aceptan los archivos o carpetas descritos junto a sus controles de entrada.",
+        "将采集图像文件夹拖放到 Mask 以设置其输入；Mask 会检测文件名正则表达式，并在控制台中显示元数据验证摘要。Measure、Annotate 及其他模块接受其输入控件所说明的文件或文件夹。",
+        "Largue uma pasta de imagens adquiridas em Mask para definir a sua entrada; Mask deteta o padrão dos nomes e mostra um resumo da validação dos metadados na Consola. Measure, Annotate e os outros módulos aceitam os ficheiros ou pastas descritos nos respetivos controlos de entrada.",
+        "अधिग्रहण छवियों का फ़ोल्डर Mask पर छोड़कर उसका इनपुट तय करें; Mask फ़ाइलनाम रेगेक्स पहचानता है और कंसोल में मेटाडेटा सत्यापन सारांश दिखाता है। Measure, Annotate और अन्य मॉड्यूल अपने इनपुट नियंत्रणों में बताए गए फ़ाइल या फ़ोल्डर स्वीकार करते हैं।",
+        "획득 이미지 폴더를 Mask에 놓아 입력을 설정합니다. Mask는 파일명 정규식을 감지하고 콘솔에 메타데이터 검증 요약을 표시합니다. Measure, Annotate 및 다른 모듈은 각 입력 컨트롤에 설명된 파일이나 폴더를 받습니다.",
+        "Slepptu möppu með myndatökum á Mask til að velja inntakið; Mask greinir skráarnafnamynstrið og sýnir samantekt á sannprófun lýsigagna í stjórnborðinu. Measure, Annotate og aðrar einingar taka við þeim skrám eða möppum sem inntaksstýringar þeirra lýsa.",
+        "Déposez un dossier d’images acquises sur Mask pour définir son entrée ; Mask détecte l’expression régulière des noms de fichiers et affiche un résumé de validation des métadonnées dans la console. Measure, Annotate et les autres modules acceptent les fichiers ou dossiers décrits par leurs contrôles d’entrée."),
+    "Primary modules are grouped here into Core, Data, Results & QC, Explore, Assays and Design; related workflows are reached from their host module. Click any name to open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar order.": _row(
+        "Primära moduler är grupperade här i Kärna, Data, Resultat och QC, Utforska, Analyser och Design; relaterade arbetsflöden nås från sin värdmodul. Klicka på ett namn för att öppna det. Ctrl+1 till Ctrl+9 öppnar de första nio apparna i sidofältets ordning.",
+        "Die Hauptmodule sind hier in Kern, Daten, Ergebnisse und QC, Erkunden, Assays und Entwurf gruppiert; zugehörige Arbeitsabläufe erreichen Sie über ihr übergeordnetes Modul. Klicken Sie auf einen Namen, um ihn zu öffnen. Ctrl+1 bis Ctrl+9 öffnet die ersten neun Apps in der Reihenfolge der Seitenleiste.",
+        "Los módulos principales se agrupan aquí en Principal, Datos, Resultados y CC, Explorar, Ensayos y Diseño; los flujos relacionados se abren desde su módulo anfitrión. Haga clic en un nombre para abrirlo. De Ctrl+1 a Ctrl+9 se abren las nueve primeras aplicaciones en el orden de la barra lateral.",
+        "主要模块在这里分为核心、数据、结果与质控、探索、实验分析和实验设计；相关流程可从其宿主模块进入。点击名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
+        "Os módulos principais estão agrupados aqui em Principal, Dados, Resultados e CQ, Explorar, Ensaios e Planejamento; os fluxos relacionados são acedidos a partir do respetivo módulo anfitrião. Clique num nome para o abrir. De Ctrl+1 a Ctrl+9 abrem as primeiras nove aplicações pela ordem da barra lateral.",
+        "मुख्य मॉड्यूल यहाँ मुख्य, डेटा, परिणाम और QC, अन्वेषण, एसे और डिज़ाइन में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। किसी नाम पर क्लिक करके उसे खोलें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
+        "주요 모듈은 핵심, 데이터, 결과 및 QC, 탐색, 어세이 및 설계로 그룹화되어 있습니다. 관련 워크플로는 호스트 모듈에서 열 수 있습니다. 이름을 클릭하면 열립니다. Ctrl+1부터 Ctrl+9까지는 사이드바 순서대로 처음 아홉 개 앱을 엽니다.",
+        "Aðaleiningar eru flokkaðar hér í Kjarna, Gögn, Niðurstöður og gæðaeftirlit, Kanna, Prófanir og Hönnun; tengd vinnsluferli eru opnuð úr hýsingareiningunni. Smelltu á heiti til að opna það. Ctrl+1 til Ctrl+9 opnar fyrstu níu forritin í röð hliðarstikunnar.",
+        "Les modules principaux sont regroupés ici dans Cœur, Données, Résultats et CQ, Explorer, Essais et Conception ; les flux associés sont accessibles depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. De Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
+    "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Account setup uses the official GitHub, Claude, Codex (GPT), and Gemini CLIs; spaCR does not store their passwords or tokens. All choices are optional and revocable in Preferences.": _row(
+        "Kraschrapporter skickas till spaCR:s OFFENTLIGA GitHub-arkiv. De kan läsas av alla, indexeras och kan inte tas bort på ett tillförlitligt sätt. Rapporten rensas, visas i en redigerbar förhandsvisning och skickas bara när du trycker på Skicka för just den rapporten. Kontokonfigurationen använder de officiella kommandoradsverktygen för GitHub, Claude, Codex (GPT) och Gemini; spaCR lagrar inte deras lösenord eller token. Alla val är frivilliga och kan återkallas i Inställningar.",
+        "Absturzberichte werden an das ÖFFENTLICHE spaCR-Repository auf GitHub gesendet. Sie sind weltweit lesbar, werden indexiert und können nicht zuverlässig zurückgenommen werden. Ein Bericht wird bereinigt, in einer bearbeitbaren Vorschau angezeigt und nur gesendet, wenn Sie bei diesem Bericht auf Senden klicken. Die Kontoeinrichtung verwendet die offiziellen CLIs von GitHub, Claude, Codex (GPT) und Gemini; spaCR speichert weder Passwörter noch Token. Alle Optionen sind freiwillig und können in den Einstellungen widerrufen werden.",
+        "Los informes de fallos se envían al repositorio PÚBLICO de spaCR en GitHub. Cualquiera puede leerlos, se indexan y no se pueden retirar de forma fiable. El informe se censura, se muestra en una vista previa editable y solo se envía cuando pulse Enviar para ese informe concreto. La configuración de cuentas usa las CLI oficiales de GitHub, Claude, Codex (GPT) y Gemini; spaCR no almacena sus contraseñas ni tokens. Todas las opciones son voluntarias y se pueden revocar en Preferencias.",
+        "崩溃报告会提交到公开的 spaCR GitHub 仓库。任何人都能阅读，搜索引擎也会收录，而且无法保证彻底撤回。报告会先脱敏并显示在可编辑的预览中；只有当你为该报告按下“发送”时才会提交。账户设置使用 GitHub、Claude、Codex（GPT）和 Gemini 的官方命令行工具；spaCR 不存储其密码或令牌。所有选项均为自愿选择，并可在首选项中撤销。",
+        "Os relatórios de falhas são enviados para o repositório PÚBLICO do spaCR no GitHub. Podem ser lidos por qualquer pessoa, são indexados e não podem ser retirados de forma fiável. O relatório é editado, mostrado numa pré-visualização alterável e só é enviado quando carrega em Enviar nesse relatório específico. A configuração de contas usa as CLI oficiais do GitHub, Claude, Codex (GPT) e Gemini; o spaCR não guarda palavras-passe nem tokens. Todas as opções são voluntárias e podem ser revogadas nas Preferências.",
+        "क्रैश रिपोर्ट सार्वजनिक spaCR GitHub रिपॉज़िटरी में जाती हैं। उन्हें दुनिया भर में पढ़ा और अनुक्रमित किया जा सकता है तथा उनका प्रकाशन भरोसेमंद तरीके से वापस नहीं लिया जा सकता। रिपोर्ट से संवेदनशील जानकारी हटाकर संपादन योग्य पूर्वावलोकन दिखाया जाता है और वह तभी भेजी जाती है जब आप उसी रिपोर्ट के लिए भेजें दबाते हैं। खाता सेटअप आधिकारिक GitHub, Claude, Codex (GPT) और Gemini CLI का उपयोग करता है; spaCR उनके पासवर्ड या टोकन संग्रहीत नहीं करता। सभी विकल्प वैकल्पिक हैं और प्राथमिकताओं में वापस लिए जा सकते हैं।",
+        "충돌 보고서는 공개 spaCR GitHub 저장소로 전송됩니다. 누구나 읽을 수 있고 검색에 노출되며, 게시 후 완전히 회수된다고 보장할 수 없습니다. 보고서는 민감 정보가 제거된 뒤 편집 가능한 미리보기에 표시되며, 해당 보고서에서 보내기를 눌렀을 때만 전송됩니다. 계정 설정에는 공식 GitHub, Claude, Codex(GPT), Gemini CLI를 사용하며 spaCR는 비밀번호나 토큰을 저장하지 않습니다. 모든 선택 사항은 선택적이며 환경설정에서 철회할 수 있습니다.",
+        "Hrunskýrslur fara í OPINBERT spaCR-safn á GitHub. Allir geta lesið þær, þær eru skráðar í leitarvélum og ekki er hægt að tryggja að þær verði afturkallaðar. Skýrslan er hreinsuð, sýnd í breytanlegri forskoðun og aðeins send þegar þú ýtir á Senda fyrir þá tilteknu skýrslu. Reikningsuppsetning notar opinber skipanalínuverkfæri GitHub, Claude, Codex (GPT) og Gemini; spaCR geymir hvorki lykilorð né aðgangslykla þeirra. Öll val eru valfrjáls og má afturkalla í Stillingum.",
+        "Les rapports de plantage sont envoyés au dépôt GitHub PUBLIC de spaCR. Ils sont lisibles partout, indexés et ne peuvent pas être retirés de manière fiable. Le rapport est expurgé, affiché dans un aperçu modifiable et envoyé uniquement lorsque vous cliquez sur Envoyer pour ce rapport précis. La configuration des comptes utilise les interfaces en ligne de commande officielles de GitHub, Claude, Codex (GPT) et Gemini ; spaCR ne conserve ni mots de passe ni jetons. Tous les choix sont facultatifs et révocables dans les Préférences."),
+
+    # ---- Home screen chrome -----------------------------------------
+    "Hit List": _row(
+        "Träfflista", "Trefferliste", "Lista de aciertos", "命中列表",
+        "Lista de acertos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
+        "Liste des résultats"),
+    "Methods & Results": _row(
+        "Metod och resultat", "Methoden und Ergebnisse",
+        "Métodos y resultados", "方法与结果", "Métodos e resultados",
+        "विधियाँ और परिणाम", "방법 및 결과", "Aðferðir og niðurstöður",
+        "Méthodes et résultats"),
+    "Assays": _row("Analyser", "Assays", "Ensayos", "实验分析", "Ensaios", "एसे", "어세이", "Prófanir", "Essais"),
+    "Alpha": _row("Alfa", "Alpha", "Alfa", "内测", "Alfa", "अल्फा", "알파", "Alfa", "Alpha"),
+    "Beta": _row("Beta", "Beta", "Beta", "公测", "Beta", "बीटा", "베타", "Beta", "Bêta"),
+    "Stable": _row("Stabil", "Stabil", "Estable", "稳定", "Estável", "स्थिर", "안정", "Stöðugt", "Stable"),
+    "SYSTEM": _row("SYSTEM", "SYSTEM", "SISTEMA", "系统", "SISTEMA", "सिस्टम", "시스템", "KERFI", "SYSTÈME"),
+    "System": _row("System", "System", "Sistema", "系统", "Sistema", "सिस्टम", "시스템", "Kerfi", "Système"),
+    "RECENT RUNS": _row("SENASTE KÖRNINGAR", "LETZTE LÄUFE", "EJECUCIONES RECIENTES", "最近运行", "EXECUÇÕES RECENTES", "हाल के रन", "최근 실행", "NÝLEGAR KEYRSLUR", "EXÉCUTIONS RÉCENTES"),
+    "TOTALS": _row("TOTALER", "SUMMEN", "TOTALES", "合计", "TOTAIS", "कुल", "합계", "SAMTÖLUR", "TOTAUX"),
+    "QUEUED": _row("I KÖ", "IN WARTESCHLANGE", "EN COLA", "队列中", "EM FILA", "कतार में", "대기 중", "Í BIÐRÖÐ", "EN FILE"),
+    "queued": _row("i kö", "in Warteschlange", "en cola", "队列中", "em fila", "कतार में", "대기 중", "í biðröð", "en file"),
+    "MODULE STATE": _row("MODULSTATUS", "MODULSTATUS", "ESTADO DEL MÓDULO", "模块状态", "ESTADO DO MÓDULO", "मॉड्यूल स्थिति", "모듈 상태", "STAÐA EININGA", "ÉTAT DES MODULES"),
+    "Disk": _row("Disk", "Datenträger", "Disco", "磁盘", "Disco", "डिस्क", "디스크", "Diskur", "Disque"),
+    "job": _row("jobb", "Auftrag", "trabajo", "任务", "tarefa", "जॉब", "작업", "verk", "tâche"),
+    "Walkthroughs": _row("Genomgångar", "Rundgänge", "Recorridos", "分步导览", "Percursos guiados", "मार्गदर्शिकाएँ", "안내 둘러보기", "Leiðsagnir", "Visites guidées"),
+    "Welcome to spaCR": _row("Välkommen till spaCR", "Willkommen bei spaCR", "Bienvenido a spaCR", "欢迎使用 spaCR", "Bem-vindo ao spaCR", "spaCR में आपका स्वागत है", "spaCR에 오신 것을 환영합니다", "Velkomin í spaCR", "Bienvenue dans spaCR"),
+    "Readouts that measure a biological assay rather than a pipeline stage.": _row(
+        "Mätvärden som mäter en biologisk analys snarare än ett pipelinesteg.",
+        "Messgrößen, die einen biologischen Assay messen statt einer Pipeline-Stufe.",
+        "Lecturas que miden un ensayo biológico en lugar de una etapa del flujo.",
+        "衡量生物学实验本身而非流程步骤的读出指标。",
+        "Leituras que medem um ensaio biológico em vez de uma etapa do fluxo.",
+        "ऐसे रीडआउट जो पाइपलाइन चरण के बजाय जैविक एसे को मापते हैं।",
+        "파이프라인 단계가 아니라 생물학적 어세이를 측정하는 판독값입니다.",
+        "Mælingar sem mæla líffræðilega prófun fremur en þrep í vinnsluferli.",
+        "Mesures qui évaluent un essai biologique plutôt qu’une étape du flux."),
+
+    # ---- The GitHub row on the setup screen -------------------------
+    "signed in through the GitHub CLI": _row("inloggad via GitHub CLI", "über die GitHub-CLI angemeldet", "sesión iniciada con la CLI de GitHub", "已通过 GitHub CLI 登录", "sessão iniciada através da CLI do GitHub", "GitHub CLI के माध्यम से साइन इन", "GitHub CLI로 로그인됨", "innskráð(ur) gegnum GitHub CLI", "connecté via la CLI GitHub"),
+    "signed in through GITHUB_TOKEN": _row("inloggad via GITHUB_TOKEN", "über GITHUB_TOKEN angemeldet", "sesión iniciada con GITHUB_TOKEN", "已通过 GITHUB_TOKEN 登录", "sessão iniciada através de GITHUB_TOKEN", "GITHUB_TOKEN के माध्यम से साइन इन", "GITHUB_TOKEN으로 로그인됨", "innskráð(ur) gegnum GITHUB_TOKEN", "connecté via GITHUB_TOKEN"),
+    "signed in with a stored token": _row("inloggad med en sparad token", "mit gespeichertem Token angemeldet", "sesión iniciada con un token guardado", "已使用已保存的令牌登录", "sessão iniciada com um token guardado", "संग्रहीत टोकन से साइन इन", "저장된 토큰으로 로그인됨", "innskráð(ur) með vistuðum aðgangslykli", "connecté avec un jeton enregistré"),
+    "not signed in — reports open in your browser": _row("inte inloggad — rapporter öppnas i din webbläsare", "nicht angemeldet – Berichte öffnen sich im Browser", "sin sesión iniciada: los informes se abren en su navegador", "未登录 — 报告将在浏览器中打开", "sem sessão iniciada — os relatórios abrem no seu navegador", "साइन इन नहीं — रिपोर्ट आपके ब्राउज़र में खुलेंगी", "로그인되지 않음 — 보고서는 브라우저에서 열립니다", "ekki innskráð(ur) — skýrslur opnast í vafranum þínum", "non connecté — les rapports s’ouvrent dans votre navigateur"),
+    "the GitHub CLI is not installed — reports open in your browser": _row("GitHub CLI är inte installerat — rapporter öppnas i din webbläsare", "die GitHub-CLI ist nicht installiert – Berichte öffnen sich im Browser", "la CLI de GitHub no está instalada: los informes se abren en su navegador", "未安装 GitHub CLI — 报告将在浏览器中打开", "a CLI do GitHub não está instalada — os relatórios abrem no seu navegador", "GitHub CLI संस्थापित नहीं है — रिपोर्ट ब्राउज़र में खुलेंगी", "GitHub CLI가 설치되어 있지 않음 — 보고서는 브라우저에서 열립니다", "GitHub CLI er ekki uppsett — skýrslur opnast í vafranum þínum", "la CLI GitHub n’est pas installée — les rapports s’ouvrent dans votre navigateur"),
+    "starting GitHub sign-in…": _row("startar GitHub-inloggning…", "GitHub-Anmeldung wird gestartet…", "iniciando el acceso a GitHub…", "正在开始 GitHub 登录…", "a iniciar a autenticação no GitHub…", "GitHub साइन-इन शुरू हो रहा है…", "GitHub 로그인을 시작하는 중…", "ræsi GitHub-innskráningu…", "démarrage de la connexion GitHub…"),
+    "`gh auth login` would not start — run it in a terminal": _row("`gh auth login` startade inte — kör det i en terminal", "`gh auth login` ließ sich nicht starten – führen Sie es im Terminal aus", "`gh auth login` no se pudo iniciar: ejecútelo en una terminal", "`gh auth login` 无法启动 — 请在终端中运行", "`gh auth login` não arrancou — execute-o num terminal", "`gh auth login` शुरू नहीं हुआ — इसे टर्मिनल में चलाएँ", "`gh auth login`을 시작할 수 없습니다 — 터미널에서 실행하세요", "`gh auth login` ræstist ekki — keyrðu það í skel", "`gh auth login` n’a pas démarré — lancez-le dans un terminal"),
+    "enter {code} in {where}": _row("ange {code} i {where}", "{code} in {where} eingeben", "introduzca {code} en {where}", "在 {where} 中输入 {code}", "introduza {code} em {where}", "{where} में {code} दर्ज करें", "{where}에 {code} 입력", "sláðu {code} inn í {where}", "saisissez {code} dans {where}"),
+
+    # ---- The Demos menu ---------------------------------------------
+    "Mask demo…": _row("Maskdemo…", "Masken-Demo…", "Demo de máscaras…", "掩膜演示…", "Demonstração de máscaras…", "मास्क डेमो…", "마스크 데모…", "Maskasýnishorn…", "Démo de masques…"),
+    "Measure demo…": _row("Mätdemo…", "Mess-Demo…", "Demo de medición…", "测量演示…", "Demonstração de medição…", "मापन डेमो…", "측정 데모…", "Mælingasýnishorn…", "Démo de mesure…"),
+    "Crop demo…": _row("Beskärningsdemo…", "Ausschnitt-Demo…", "Demo de recortes…", "裁剪演示…", "Demonstração de recortes…", "क्रॉप डेमो…", "크롭 데모…", "Útklippusýnishorn…", "Démo de découpe…"),
+    "Classify demo…": _row("Klassificeringsdemo…", "Klassifizierungs-Demo…", "Demo de clasificación…", "分类演示…", "Demonstração de classificação…", "वर्गीकरण डेमो…", "분류 데모…", "Flokkunarsýnishorn…", "Démo de classification…"),
+    "Timelapse demo…": _row("Tidsseriedemo…", "Zeitraffer-Demo…", "Demo de lapso de tiempo…", "延时演示…", "Demonstração de time-lapse…", "टाइमलैप्स डेमो…", "타임랩스 데모…", "Tímaraðarsýnishorn…", "Démo time-lapse…"),
+    "Sequencing demo…": _row("Sekvenseringsdemo…", "Sequenzierungs-Demo…", "Demo de secuenciación…", "测序演示…", "Demonstração de sequenciação…", "सीक्वेंसिंग डेमो…", "시퀀싱 데모…", "Raðgreiningarsýnishorn…", "Démo de séquençage…"),
+    "Choose source data": _row("Välj källdata", "Quelldaten wählen", "Elegir datos de origen", "选择源数据", "Escolher dados de origem", "स्रोत डेटा चुनें", "소스 데이터 선택", "Velja upprunagögn", "Choisir les données source"),
+    "Open Demos menu": _row("Öppna Demo-menyn", "Demos-Menü öffnen", "Abrir el menú Demostraciones", "打开演示菜单", "Abrir o menu Demonstrações", "डेमो मेनू खोलें", "데모 메뉴 열기", "Opna Sýnishorn-valmynd", "Ouvrir le menu Démonstrations"),
+
+    # ---- The settings-count line under every panel -------------------
+    "Showing {shown} of {total} settings": _row("Visar {shown} av {total} inställningar", "{shown} von {total} Einstellungen angezeigt", "Mostrando {shown} de {total} ajustes", "显示 {total} 项设置中的 {shown} 项", "A mostrar {shown} de {total} definições", "{total} में से {shown} सेटिंग दिख रही हैं", "설정 {total}개 중 {shown}개 표시", "Sýni {shown} af {total} stillingum", "Affichage de {shown} réglages sur {total}"),
+    "Showing all {total} settings.": _row("Visar alla {total} inställningar.", "Alle {total} Einstellungen werden angezeigt.", "Mostrando los {total} ajustes.", "显示全部 {total} 项设置。", "A mostrar todas as {total} definições.", "सभी {total} सेटिंग दिख रही हैं।", "설정 {total}개 모두 표시.", "Sýni allar {total} stillingarnar.", "Affichage des {total} réglages."),
+    "{total} settings.": _row("{total} inställningar.", "{total} Einstellungen.", "{total} ajustes.", "{total} 项设置。", "{total} definições.", "{total} सेटिंग।", "설정 {total}개.", "{total} stillingar.", "{total} réglages."),
+    "{n} more under All settings": _row("{n} till under Alla inställningar", "{n} weitere unter „Alle Einstellungen“", "{n} más en Todos los ajustes", "另有 {n} 项在“全部设置”中", "mais {n} em Todas as definições", "‘सभी सेटिंग’ में {n} और", "‘모든 설정’에 {n}개 더", "{n} til viðbótar undir Allar stillingar", "{n} de plus sous Tous les réglages"),
+    "modified only": _row("endast ändrade", "nur geänderte", "solo modificados", "仅已修改", "apenas modificadas", "केवल बदली हुई", "변경된 항목만", "aðeins breyttar", "modifiés uniquement"),
+    "No setting matches. Clear the search box, or switch to All settings.": _row(
+        "Ingen inställning matchar. Rensa sökrutan eller byt till Alla inställningar.",
+        "Keine Einstellung passt. Leeren Sie das Suchfeld oder wechseln Sie zu „Alle Einstellungen“.",
+        "Ningún ajuste coincide. Borre el cuadro de búsqueda o cambie a Todos los ajustes.",
+        "没有匹配的设置。请清空搜索框，或切换到“全部设置”。",
+        "Nenhuma definição corresponde. Limpe a caixa de pesquisa ou mude para Todas as definições.",
+        "कोई सेटिंग मेल नहीं खाती। खोज बॉक्स साफ़ करें, या ‘सभी सेटिंग’ पर जाएँ।",
+        "일치하는 설정이 없습니다. 검색창을 비우거나 ‘모든 설정’으로 전환하세요.",
+        "Engin stilling passar. Hreinsaðu leitarreitinn eða skiptu yfir í Allar stillingar.",
+        "Aucun réglage ne correspond. Videz le champ de recherche ou passez à Tous les réglages."),
+
+    # ---- Figure and settings panel chrome ---------------------------
+    "Figures": _row("Figurer", "Abbildungen", "Figuras", "图表", "Figuras", "आकृतियाँ", "그림", "Myndir", "Figures"),
+    "Live preview": _row("Direktförhandsvisning", "Live-Vorschau", "Vista previa en vivo", "实时预览", "Pré-visualização ao vivo", "लाइव पूर्वावलोकन", "실시간 미리보기", "Bein forskoðun", "Aperçu en direct"),
+    "Clear figures": _row("Rensa figurer", "Abbildungen leeren", "Borrar figuras", "清除图表", "Limpar figuras", "आकृतियाँ हटाएँ", "그림 지우기", "Hreinsa myndir", "Effacer les figures"),
+    "Normalise": _row("Normalisera", "Normalisieren", "Normalizar", "归一化", "Normalizar", "सामान्यीकृत करें", "정규화", "Staðla", "Normaliser"),
+    # FOUR PLOT WORDS THAT ARE ORDINARY ENGLISH WORDS TOO, and the bulk
+    # catalog picked the ordinary sense of each: "Legend" as the myth, "Grid"
+    # as a network (and, in Icelandic, as a person's name), "Opacity" as
+    # ruthlessness, "Colour" as something else entirely. A row here is read
+    # before the bulk catalog, so this is where the chart sense is pinned.
+    "Colour": _row(
+        "Färg", "Farbe", "Color", "颜色", "Cor", "रंग", "색상", "Litur",
+        "Couleur"),
+    "Opacity": _row(
+        "Opacitet", "Deckkraft", "Opacidad", "不透明度", "Opacidade",
+        "अपारदर्शिता", "불투명도", "Ógegnsæi", "Opacité"),
+    "Legend": _row(
+        "Teckenförklaring", "Legende", "Leyenda", "图例", "Legenda",
+        "लेजेंड", "범례", "Skýringar", "Légende"),
+    "Grid": _row(
+        "Rutnät", "Gitter", "Cuadrícula", "网格", "Grade", "ग्रिड", "격자",
+        "Hnitanet", "Grille"),
+    "Hover any setting for details, or select ⓘ for documentation.": _row(
+        "Håll pekaren över en inställning för detaljer, eller välj ⓘ för dokumentation.",
+        "Zeigen Sie auf eine Einstellung für Details, oder wählen Sie ⓘ für die Dokumentation.",
+        "Pase el cursor por un ajuste para ver detalles, o seleccione ⓘ para la documentación.",
+        "将指针悬停在某项设置上可查看详情，或选择 ⓘ 查看文档。",
+        "Passe o cursor sobre uma definição para ver detalhes, ou selecione ⓘ para a documentação.",
+        "विवरण के लिए किसी सेटिंग पर कर्सर ले जाएँ, या दस्तावेज़ के लिए ⓘ चुनें।",
+        "설정 위에 마우스를 올리면 설명이, ⓘ를 선택하면 문서가 나옵니다.",
+        "Haltu bendlinum yfir stillingu til að sjá nánar, eða veldu ⓘ fyrir leiðbeiningar.",
+        "Survolez un réglage pour les détails, ou choisissez ⓘ pour la documentation."),
+    "Hover a settings category for what the group decides, or open one to keep it here.": _row(
+        "Håll pekaren över en inställningskategori för vad gruppen avgör, eller öppna en för att behålla den här.",
+        "Zeigen Sie auf eine Einstellungskategorie, um zu sehen, worüber die Gruppe entscheidet, oder öffnen Sie eine, um sie hier zu behalten.",
+        "Pase el cursor por una categoría de ajustes para ver qué decide el grupo, o abra una para mantenerla aquí.",
+        "将指针悬停在设置类别上可查看该组决定什么，或打开一个以将其保留在此处。",
+        "Passe o cursor sobre uma categoria de definições para ver o que o grupo decide, ou abra uma para a manter aqui.",
+        "समूह क्या तय करता है यह देखने के लिए किसी सेटिंग श्रेणी पर कर्सर ले जाएँ, या इसे यहाँ रखने के लिए कोई एक खोलें।",
+        "설정 범주 위에 마우스를 올리면 그 묶음이 무엇을 정하는지 보이고, 하나를 열면 여기에 고정됩니다.",
+        "Haltu bendlinum yfir stillingaflokk til að sjá hvað hópurinn ræður, eða opnaðu einn til að halda honum hér.",
+        "Survolez une catégorie de réglages pour voir ce que le groupe décide, ou ouvrez-en une pour la garder ici."),
+
+    # ---- What a sweep of six screens in Swedish found still English
+    # Section headings, menu entries, status lines and the hint strip:
+    # captions that reach tr() but had no row, and captions that were
+    # composed before the lookup so no row could ever have matched.
+    "Click to fold {name} away, and click again to bring it back. The panel above takes the space.": _row(
+        "Klicka för att fälla ihop {name}, och klicka igen för att fälla ut den. Panelen ovanför tar utrymmet.",
+        "Klicken, um {name} einzuklappen, und erneut klicken, um es zurückzuholen. Der Bereich darüber nimmt den Platz ein.",
+        "Haga clic para contraer {name}, y haga clic de nuevo para volver a mostrarlo. El panel de arriba ocupa el espacio.",
+        "点击可折叠 {name}，再次点击可将其重新展开。上方的面板会占用腾出的空间。",
+        "Clique para recolher {name} e clique novamente para restaurar. O painel acima ocupa o espaço.",
+        "{name} को समेटने के लिए क्लिक करें, और वापस लाने के लिए फिर से क्लिक करें। ऊपर वाला पैनल यह जगह ले लेता है।",
+        "클릭하면 {name}이(가) 접히고, 다시 클릭하면 되돌아옵니다. 위쪽 패널이 그 공간을 차지합니다.",
+        "Smelltu til að fella {name} saman og smelltu aftur til að opna það. Spjaldið fyrir ofan tekur plássið.",
+        "Cliquez pour replier {name}, et cliquez encore pour l’afficher de nouveau. Le panneau du dessus prend la place."),
+    "Acquisition & Axes": _row(
+        "Insamling & axlar",
+        "Aufnahme & Achsen",
+        "Adquisición y ejes",
+        "采集与坐标轴",
+        "Aquisição e eixos",
+        "अधिग्रहण और अक्ष",
+        "획득 및 축",
+        "Myndataka og ásar",
+        "Acquisition et axes"),
+    "Additional Settings": _row(
+        "Ytterligare inställningar",
+        "Weitere Einstellungen",
+        "Ajustes adicionales",
+        "其他设置",
+        "Configurações adicionais",
+        "अतिरिक्त सेटिंग्स",
+        "추가 설정",
+        "Viðbótarstillingar",
+        "Paramètres supplémentaires"),
+    "Assay Inputs": _row(
+        "Analysindata",
+        "Assay-Eingaben",
+        "Entradas del ensayo",
+        "实验输入",
+        "Entradas do ensaio",
+        "परीक्षण इनपुट",
+        "어세이 입력",
+        "Inntak prófunar",
+        "Entrées du test"),
+    "Attribution Method": _row(
+        "Metod för tilldelning",
+        "Attributionsmethode",
+        "Método de atribución",
+        "归因方法",
+        "Método de atribuição",
+        "एट्रिब्यूशन विधि",
+        "기여도 방법",
+        "Eignunaraðferð",
+        "Méthode d’attribution"),
+    "Background & Denoising": _row(
+        "Bakgrund & brusreducering",
+        "Hintergrund & Entrauschen",
+        "Fondo y reducción de ruido",
+        "背景与去噪",
+        "Fundo e remoção de ruído",
+        "पृष्ठभूमि और शोर निवारण",
+        "배경 및 노이즈 제거",
+        "Bakgrunnur og suðhreinsun",
+        "Fond et débruitage"),
+    "Barcode References": _row(
+        "Streckkodsreferenser",
+        "Barcode-Referenzen",
+        "Referencias de códigos de barras",
+        "条形码参考表",
+        "Referências de códigos de barras",
+        "बारकोड संदर्भ",
+        "바코드 참조",
+        "Strikamerkjatilvísanir",
+        "Références de codes-barres"),
+    "Detection Thresholds": _row(
+        "Detektionströsklar",
+        "Erkennungsschwellen",
+        "Umbrales de detección",
+        "检测阈值",
+        "Limiares de detecção",
+        "पहचान सीमाएँ",
+        "검출 임계값",
+        "Greiningarþröskuldar",
+        "Seuils de détection"),
+    "Dimensionality Reduction": _row(
+        "Dimensionsreduktion",
+        "Dimensionsreduktion",
+        "Reducción de dimensionalidad",
+        "降维",
+        "Redução de dimensionalidade",
+        "विमीयता न्यूनीकरण",
+        "차원 축소",
+        "Víddafækkun",
+        "Réduction de dimensionnalité"),
+    "Effect & Prevalence": _row(
+        "Effekt & prevalens",
+        "Effekt & Prävalenz",
+        "Efecto y prevalencia",
+        "效应与发生率",
+        "Efeito e prevalência",
+        "प्रभाव और व्यापकता",
+        "효과 및 유병률",
+        "Áhrif og algengi",
+        "Effet et prévalence"),
+    "Embedding Search": _row(
+        "Inbäddningssökning",
+        "Einbettungssuche",
+        "Búsqueda de incrustación",
+        "嵌入搜索",
+        "Pesquisa de incorporação",
+        "एम्बेडिंग खोज",
+        "임베딩 검색",
+        "Innfellingarleit",
+        "Recherche de plongement"),
+    "Estimator Tuning": _row(
+        "Estimatorinställning",
+        "Schätzer-Abstimmung",
+        "Ajuste del estimador",
+        "估计器调优",
+        "Ajuste do estimador",
+        "एस्टिमेटर ट्यूनिंग",
+        "추정기 튜닝",
+        "Fínstilling metils",
+        "Réglage de l’estimateur"),
+    "Feature Preparation": _row(
+        "Förberedelse av egenskaper",
+        "Merkmalsaufbereitung",
+        "Preparación de características",
+        "特征准备",
+        "Preparação das características",
+        "विशेषता तैयारी",
+        "특징 준비",
+        "Undirbúningur eiginleika",
+        "Préparation des caractéristiques"),
+    "Feature Selection & Importance": _row(
+        "Egenskapsurval & betydelse",
+        "Merkmalsauswahl & Bedeutung",
+        "Selección de características e importancia",
+        "特征选择与重要性",
+        "Seleção de características e importância",
+        "विशेषता चयन और महत्व",
+        "특징 선택 및 중요도",
+        "Val eiginleika og mikilvægi",
+        "Sélection et importance des caractéristiques"),
+    "Field Sampling": _row(
+        "Fältprovtagning",
+        "Feldstichprobe",
+        "Muestreo de campos",
+        "视野采样",
+        "Amostragem de campos",
+        "फ़ील्ड नमूनाकरण",
+        "필드 샘플링",
+        "Úrtak sviða",
+        "Échantillonnage des champs"),
+    "Importance & diagnostics": _row(
+        "Betydelse & diagnostik",
+        "Bedeutung & Diagnose",
+        "Importancia y diagnóstico",
+        "重要性与诊断",
+        "Importância e diagnóstico",
+        "महत्व और निदान",
+        "중요도 및 진단",
+        "Mikilvægi og greining",
+        "Importance et diagnostic"),
+    "Library Design": _row(
+        "Biblioteksdesign",
+        "Bibliotheksentwurf",
+        "Diseño de la biblioteca",
+        "文库设计",
+        "Planejamento da biblioteca",
+        "लाइब्रेरी डिज़ाइन",
+        "라이브러리 설계",
+        "Hönnun safns",
+        "Conception de la banque"),
+    "Map Quantification": _row(
+        "Kartkvantifiering",
+        "Kartenquantifizierung",
+        "Cuantificación del mapa",
+        "图谱定量",
+        "Quantificação do mapa",
+        "मानचित्र परिमाणीकरण",
+        "지도 정량화",
+        "Magngreining korta",
+        "Quantification des cartes"),
+    "Position & Collision Checks": _row(
+        "Positions- & kollisionskontroller",
+        "Positions- & Kollisionsprüfungen",
+        "Comprobaciones de posición y colisión",
+        "位置与碰撞检查",
+        "Verificações de posição e colisão",
+        "स्थिति और टकराव जाँच",
+        "위치 및 충돌 검사",
+        "Staðsetningar- og árekstraathuganir",
+        "Vérifications de position et de collision"),
+    "Post-processing": _row(
+        "Efterbearbetning",
+        "Nachbearbeitung",
+        "Posprocesamiento",
+        "后处理",
+        "Pós-processamento",
+        "पश्च-प्रसंस्करण",
+        "후처리",
+        "Eftirvinnsla",
+        "Post-traitement"),
+    "Preview & Diagnostics": _row(
+        "Förhandsvisning & diagnostik",
+        "Vorschau & Diagnose",
+        "Vista previa y diagnóstico",
+        "预览与诊断",
+        "Pré-visualização e diagnóstico",
+        "पूर्वावलोकन और निदान",
+        "미리보기 및 진단",
+        "Forskoðun og greining",
+        "Aperçu et diagnostic"),
+    "QC & Failure Handling": _row(
+        "QC & felhantering",
+        "QC & Fehlerbehandlung",
+        "QC y gestión de fallos",
+        "质控与失败处理",
+        "CQ e tratamento de falhas",
+        "QC और विफलता प्रबंधन",
+        "QC 및 실패 처리",
+        "Gæðaeftirlit og meðhöndlun bilana",
+        "CQ et gestion des échecs"),
+    "Read Parsing": _row(
+        "Tolkning av läsningar",
+        "Read-Parsing",
+        "Análisis de lecturas",
+        "读段解析",
+        "Análise das leituras",
+        "रीड पार्सिंग",
+        "리드 파싱",
+        "Þáttun raðlesa",
+        "Analyse des lectures"),
+    "Reference & Count Tables": _row(
+        "Referens- & räknetabeller",
+        "Referenz- & Zähltabellen",
+        "Tablas de referencia y de recuento",
+        "参考表与计数表",
+        "Tabelas de referência e de contagem",
+        "संदर्भ और गिनती तालिकाएँ",
+        "참조 및 카운트 테이블",
+        "Tilvísana- og talningatöflur",
+        "Tables de référence et de comptage"),
+    "Replication Scoring": _row(
+        "Poängsättning av replikation",
+        "Replikationsbewertung",
+        "Puntuación de la replicación",
+        "复制评分",
+        "Pontuação da replicação",
+        "प्रतिकृति स्कोरिंग",
+        "복제 점수 산출",
+        "Stigagjöf fjölgunar",
+        "Score de réplication"),
+    "Rows & Missing Values": _row(
+        "Rader & saknade värden",
+        "Zeilen & fehlende Werte",
+        "Filas y valores faltantes",
+        "行与缺失值",
+        "Linhas e valores ausentes",
+        "पंक्तियाँ और अनुपलब्ध मान",
+        "행 및 결측값",
+        "Raðir og gildi sem vantar",
+        "Lignes et valeurs manquantes"),
+    "Selected hit": _row(
+        "Vald träff",
+        "Ausgewählter Treffer",
+        "Acierto seleccionado",
+        "所选命中",
+        "Acerto selecionado",
+        "चयनित हिट",
+        "선택한 히트",
+        "Valin niðurstaða",
+        "Hit sélectionné"),
+    "Sequencing Depth": _row(
+        "Sekvenseringsdjup",
+        "Sequenzierungstiefe",
+        "Profundidad de secuenciación",
+        "测序深度",
+        "Profundidade de sequenciamento",
+        "सीक्वेंसिंग गहराई",
+        "시퀀싱 깊이",
+        "Raðgreiningardýpt",
+        "Profondeur de séquençage"),
+    "Show the columns": _row(
+        "Visa kolumnerna",
+        "Die Spalten anzeigen",
+        "Mostrar las columnas",
+        "显示各列",
+        "Mostrar as colunas",
+        "स्तंभ दिखाएँ",
+        "열 표시",
+        "Sýna dálkana",
+        "Afficher les colonnes"),
+    "Spectral Embedding": _row(
+        "Spektral inbäddning",
+        "Spektrale Einbettung",
+        "Incrustación espectral",
+        "谱嵌入",
+        "Incorporação espectral",
+        "स्पेक्ट्रल एम्बेडिंग",
+        "스펙트럼 임베딩",
+        "Rófinnfelling",
+        "Plongement spectral"),
+    "Starting Point": _row(
+        "Utgångspunkt",
+        "Ausgangspunkt",
+        "Punto de partida",
+        "起点",
+        "Ponto de partida",
+        "प्रारंभिक बिंदु",
+        "시작 지점",
+        "Upphafspunktur",
+        "Point de départ"),
+    "Starvation & Exclusion": _row(
+        "Svält & uteslutning",
+        "Unterversorgung & Ausschluss",
+        "Pozos hambrientos y exclusión",
+        "读数匮乏与排除",
+        "Privação e exclusão",
+        "भुखमरी और बहिष्करण",
+        "결핍 및 제외",
+        "Svelti og útilokun",
+        "Privation et exclusion"),
+    "Threshold Sweep": _row(
+        "Tröskelsvep",
+        "Schwellenwert-Sweep",
+        "Barrido de umbrales",
+        "阈值扫描",
+        "Varredura de limiar",
+        "सीमा स्वीप",
+        "임계값 스윕",
+        "Þröskuldssveip",
+        "Balayage de seuils"),
+    "Thresholding": _row(
+        "Tröskelsättning",
+        "Schwellenwertbildung",
+        "Umbralización",
+        "阈值处理",
+        "Limiarização",
+        "सीमा निर्धारण",
+        "임계값 처리",
+        "Þröskuldun",
+        "Seuillage"),
+    "Vacuole Assignment": _row(
+        "Tilldelning av vakuoler",
+        "Vakuolenzuordnung",
+        "Asignación de vacuolas",
+        "空泡归属",
+        "Designação de vacúolos",
+        "वैक्यूओल आवंटन",
+        "액포 할당",
+        "Úthlutun vakúóla",
+        "Affectation des vacuoles"),
+    "Visualization & Diagnostics": _row(
+        "Visualisering & diagnostik",
+        "Visualisierung & Diagnose",
+        "Visualización y diagnóstico",
+        "可视化与诊断",
+        "Visualização e diagnóstico",
+        "विज़ुअलाइज़ेशन और निदान",
+        "시각화 및 진단",
+        "Myndræn framsetning og greining",
+        "Visualisation et diagnostic"),
+    "Volumetric Processing (Beta)": _row(
+        "Volymetrisk bearbetning (Beta)",
+        "Volumetrische Verarbeitung (Beta)",
+        "Procesamiento volumétrico (Beta)",
+        "体积处理 (公测)",
+        "Processamento volumétrico (Beta)",
+        "वॉल्यूमेट्रिक प्रसंस्करण (Beta)",
+        "볼륨 처리 (베타)",
+        "Rúmmálsvinnsla (Beta)",
+        "Traitement volumétrique (Bêta)"),
+    "Well Expectations": _row(
+        "Förväntningar per brunn",
+        "Erwartungen pro Well",
+        "Expectativas por pozo",
+        "每孔预期",
+        "Expectativas por poço",
+        "वेल अपेक्षाएँ",
+        "웰 기대치",
+        "Væntingar um brunna",
+        "Attentes par puits"),
+    "Appearance": _row(
+        "Utseende",
+        "Erscheinungsbild",
+        "Apariencia",
+        "外观",
+        "Aparência",
+        "रूप-रंग",
+        "모양",
+        "Útlit",
+        "Apparence"),
+    "Axis scale": _row(
+        "Axelskala",
+        "Achsenskala",
+        "Escala del eje",
+        "坐标轴刻度",
+        "Escala do eixo",
+        "अक्ष स्केल",
+        "축 스케일",
+        "Ásakvarði",
+        "Échelle des axes"),
+    "Group colours": _row(
+        "Gruppfärger",
+        "Gruppenfarben",
+        "Colores de los grupos",
+        "分组颜色",
+        "Cores dos grupos",
+        "समूह के रंग",
+        "그룹 색상",
+        "Litir hópa",
+        "Couleurs des groupes"),
+    "Colour every mark belonging to {group}.": _row(
+        "Färga varje markering som hör till {group}.",
+        "Alle Markierungen einfärben, die zu {group} gehören.",
+        "Colorear todas las marcas que pertenecen a {group}.",
+        "为属于 {group} 的所有标记着色。",
+        "Colorir todas as marcas pertencentes a {group}.",
+        "{group} से संबंधित हर चिह्न को रंग दें।",
+        "{group}에 속한 모든 마크의 색상을 지정합니다.",
+        "Lita öll merki sem tilheyra {group}.",
+        "Colorer toutes les marques appartenant à {group}."),
+    "({count} more groups not listed)": _row(
+        "({count} fler grupper visas inte)",
+        "({count} weitere Gruppen nicht aufgeführt)",
+        "({count} grupos más no listados)",
+        "（另有 {count} 个组未列出）",
+        "(mais {count} grupos não listados)",
+        "({count} और समूह सूची में नहीं)",
+        "(표시되지 않은 그룹 {count}개 더 있음)",
+        "({count} hópar til viðbótar eru ekki sýndir)",
+        "({count} autres groupes non affichés)"),
+    "Colour for {group}": _row(
+        "Färg för {group}",
+        "Farbe für {group}",
+        "Color para {group}",
+        "{group} 的颜色",
+        "Cor para {group}",
+        "{group} के लिए रंग",
+        "{group} 색상",
+        "Litur fyrir {group}",
+        "Couleur de {group}"),
+    "Line colour": _row(
+        "Linjens färg",
+        "Linienfarbe",
+        "Color de línea",
+        "线条颜色",
+        "Cor da linha",
+        "लाइन का रंग",
+        "라인 색상",
+        "Línulitur",
+        "Couleur de la ligne"),
+    "Font colour": _row(
+        "Teckensnittsfärg",
+        "Schriftfarbe",
+        "Color de fuente",
+        "字体颜色",
+        "Cor da fonte",
+        "फ़ॉन्ट का रंग",
+        "글꼴 색상",
+        "Leturlitur",
+        "Couleur de la police"),
+    "Generate a synthetic {app} dataset and open it in the matching app.": _row(
+        "Skapa en syntetisk datauppsättning för {app} och öppna den i motsvarande app.",
+        "Einen synthetischen {app}-Datensatz erzeugen und im passenden Modul öffnen.",
+        "Genere un conjunto de datos sintético de {app} y ábralo en la aplicación correspondiente.",
+        "生成一个合成的 {app} 数据集，并在对应的应用中打开。",
+        "Gerar um conjunto de dados sintético de {app} e abri-lo no aplicativo correspondente.",
+        "एक सिंथेटिक {app} डेटासेट बनाएँ और उसे संबंधित ऐप में खोलें।",
+        "합성 {app} 데이터셋을 생성하고 해당 앱에서 엽니다.",
+        "Búa til tilbúið {app}-gagnasafn og opna það í samsvarandi forriti.",
+        "Génère un ensemble de données {app} synthétique et l’ouvre dans l’application correspondante."),
+    "Spatial phenotype analysis of CRISPR&#8209;Cas9 screens": _row(
+        "Rumslig fenotypanalys av CRISPR&#8209;Cas9-screeningar",
+        "Räumliche Phänotypanalyse von CRISPR&#8209;Cas9-Screens",
+        "Análisis espacial de fenotipos en cribados CRISPR&#8209;Cas9",
+        "CRISPR&#8209;Cas9 筛选的空间表型分析",
+        "Análise espacial de fenótipos em triagens CRISPR&#8209;Cas9",
+        "CRISPR&#8209;Cas9 स्क्रीन का स्थानिक फेनोटाइप विश्लेषण",
+        "CRISPR&#8209;Cas9 스크린의 공간 표현형 분석",
+        "Rúmræn svipgerðargreining á CRISPR&#8209;Cas9-skimunum",
+        "Analyse spatiale du phénotype des criblages CRISPR&#8209;Cas9"),
+    "Licensed under the {name}.": _row(
+        "Licensierad under {name}.",
+        "Lizenziert unter der {name}.",
+        "Licenciado bajo la {name}.",
+        "依据 {name} 授权。",
+        "Licenciado sob a {name}.",
+        "{name} के तहत लाइसेंस प्राप्त।",
+        "{name}에 따라 라이선스가 부여됩니다.",
+        "Gefið út með leyfinu {name}.",
+        "Sous licence {name}."),
+    "Free for research and other noncommercial use.": _row(
+        "Fri för forskning och annan icke-kommersiell användning.",
+        "Kostenlos für die Forschung und andere nichtkommerzielle Nutzung.",
+        "Gratuito para investigación y otros usos no comerciales.",
+        "供研究及其他非商业用途免费使用。",
+        "Gratuito para pesquisa e outros usos não comerciais.",
+        "शोध और अन्य गैर-व्यावसायिक उपयोग के लिए निःशुल्क।",
+        "연구 및 기타 비상업적 용도로는 무료입니다.",
+        "Ókeypis til rannsókna og annarra nota sem ekki eru í viðskiptaskyni.",
+        "Gratuit pour la recherche et tout autre usage non commercial."),
+    "Checking for updates…": _row(
+        "Söker efter uppdateringar…",
+        "Wird nach Updates gesucht…",
+        "Buscando actualizaciones…",
+        "正在检查更新…",
+        "Verificando atualizações…",
+        "अपडेट जाँचे जा रहे हैं…",
+        "업데이트 확인 중…",
+        "Leita að uppfærslum…",
+        "Recherche de mises à jour…"),
+    "Upgrading spaCR…": _row(
+        "Uppgraderar spaCR…",
+        "spaCR wird aktualisiert…",
+        "Actualizando spaCR…",
+        "正在升级 spaCR…",
+        "Atualizando o spaCR…",
+        "spaCR अपग्रेड हो रहा है…",
+        "spaCR 업그레이드 중…",
+        "Uppfæri spaCR…",
+        "Mise à niveau de spaCR…"),
+    "Console context off": _row(
+        "Konsolkontext av",
+        "Konsole-Kontext aus",
+        "Contexto de Consola desactivado",
+        "控制台 上下文已关闭",
+        "Contexto do Console desativado",
+        "कंसोल संदर्भ बंद",
+        "콘솔 컨텍스트 꺼짐",
+        "Slökkt á Stjórnborð-samhengi",
+        "Contexte de console désactivé"),
+    "Console context: {n} chars sent": _row(
+        "Konsolkontext: {n} tecken skickade",
+        "Konsole-Kontext: {n} Zeichen gesendet",
+        "Contexto de Consola: {n} caracteres enviados",
+        "控制台 上下文：已发送 {n} 个字符",
+        "Contexto do Console: {n} caracteres enviados",
+        "कंसोल संदर्भ: {n} वर्ण भेजे गए",
+        "콘솔 컨텍스트: {n}자 전송됨",
+        "Stjórnborð-samhengi: {n} stafir sendir",
+        "Contexte de console : {n} caractères envoyés"),
+    ", {n} dropped": _row(
+        ", {n} borttagna",
+        ", {n} verworfen",
+        ", {n} descartados",
+        "，已丢弃 {n} 个字符",
+        ", {n} descartados",
+        ", {n} छोड़े गए",
+        ", {n}자 잘림",
+        ", {n} sleppt",
+        ", {n} écartés"),
+    "Drop a folder of images anywhere on this window, or {offer}. You can also type a path into the Source field below.": _row(
+        "Släpp en mapp med bilder var som helst i det här fönstret, eller {offer}. Du kan också skriva en sökväg i fältet Källa nedan.",
+        "Legen Sie einen Bildordner irgendwo auf diesem Fenster ab, oder {offer}. Sie können auch einen Pfad in das Feld Quelle unten eingeben.",
+        "Suelte una carpeta de imágenes en cualquier parte de esta ventana, o {offer}. También puede escribir una ruta en el campo Origen de abajo.",
+        "将图像文件夹拖放到本窗口的任意位置，或{offer}。您也可以在下方的来源字段中输入路径。",
+        "Solte uma pasta de imagens em qualquer lugar desta janela, ou {offer}. Você também pode digitar um caminho no campo Origem abaixo.",
+        "छवियों का कोई फ़ोल्डर इस विंडो में कहीं भी छोड़ें, या {offer}। नीचे दिए स्रोत फ़ील्ड में पथ भी टाइप कर सकते हैं।",
+        "이미지 폴더를 이 창 아무 곳에나 끌어다 놓거나, {offer}. 아래의 소스 필드에 경로를 직접 입력할 수도 있습니다.",
+        "Slepptu möppu með myndum hvar sem er í þessum glugga, eða {offer}. Þú getur líka slegið slóð inn í Uppruni-reitinn hér fyrir neðan.",
+        "Déposez un dossier d’images n’importe où sur cette fenêtre, ou {offer}. Vous pouvez aussi saisir un chemin dans le champ Source ci-dessous."),
+    "use Demos → {demo} for a synthetic dataset": _row(
+        "använd Demon → {demo} för en syntetisk datauppsättning",
+        "verwenden Sie Demos → {demo} für einen synthetischen Datensatz",
+        "utilice Demostraciones → {demo} para un conjunto de datos sintético",
+        "使用“演示 → {demo}”获取合成数据集",
+        "use Demonstrações → {demo} para um conjunto de dados sintético",
+        "सिंथेटिक डेटासेट के लिए डेमो → {demo} का उपयोग करें",
+        "합성 데이터셋이 필요하면 데모 → {demo}를 사용하세요",
+        "notaðu Sýnishorn → {demo} fyrir tilbúið gagnasafn",
+        "utilisez Démonstrations → {demo} pour un ensemble de données synthétique"),
+    "pick a dataset from the Demos menu": _row(
+        "välj en datauppsättning i menyn Demon",
+        "wählen Sie einen Datensatz aus dem Demos-Menü",
+        "elija un conjunto de datos del menú Demostraciones",
+        "从“演示”菜单中选择一个数据集",
+        "escolha um conjunto de dados no menu Demonstrações",
+        "डेमो मेनू से कोई डेटासेट चुनें",
+        "데모 메뉴에서 데이터셋을 선택하세요",
+        "veldu gagnasafn úr Sýnishorn-valmyndinni",
+        "choisissez un ensemble de données dans le menu Démonstrations"),
+    "Remove {value}": _row(
+        "Ta bort {value}",
+        "{value} entfernen",
+        "Eliminar {value}",
+        "移除 {value}",
+        "Remover {value}",
+        "{value} हटाएँ",
+        "{value} 제거",
+        "Fjarlægja {value}",
+        "Supprimer {value}"),
+    "Computer Vision": _row(
+        "Datorseende",
+        "Maschinelles Sehen",
+        "Visión por ordenador",
+        "计算机视觉",
+        "Visão computacional",
+        "कंप्यूटर विज़न",
+        "컴퓨터 비전",
+        "Tölvusjón",
+        "Vision par ordinateur"),
+    "Machine Learning": _row(
+        "Maskininlärning",
+        "Maschinelles Lernen",
+        "Aprendizaje automático",
+        "机器学习",
+        "Aprendizado de máquina",
+        "मशीन लर्निंग",
+        "머신러닝",
+        "Vélnám",
+        "Apprentissage automatique"),
+    "Live settings": _row(
+        "Liveinställningar",
+        "Live-Einstellungen",
+        "Ajustes en vivo",
+        "实时设置",
+        "Configurações ao vivo",
+        "लाइव सेटिंग्स",
+        "라이브 설정",
+        "Beinar stillingar",
+        "Paramètres en direct"),
+    "News": _row(
+        "Nyheter",
+        "Neuigkeiten",
+        "Novedades",
+        "新闻",
+        "Notícias",
+        "समाचार",
+        "새 소식",
+        "Fréttir",
+        "Actualités"),
+    "+{n} more": _row(
+        "+{n} till",
+        "+{n} weitere",
+        "+{n} más",
+        "+{n} 项",
+        "+{n} mais",
+        "+{n} और",
+        "+{n}개 더",
+        "+{n} til viðbótar",
+        "+{n} de plus"),
+    "Merge the tables inside each database": _row(
+        "Slå ihop tabellerna i varje databas",
+        "Die Tabellen in jeder Datenbank zusammenführen",
+        "Fusionar las tablas dentro de cada base de datos",
+        "合并每个数据库内的表",
+        "Mesclar as tabelas dentro de cada banco de dados",
+        "हर डेटाबेस के भीतर तालिकाएँ मिलाएँ",
+        "각 데이터베이스 안의 테이블 병합하기",
+        "Sameina töflurnar í hverjum gagnagrunni",
+        "Fusionner les tables dans chaque base de données"),
+    "Merge the databases into one frame": _row(
+        "Slå ihop databaserna till en dataram",
+        "Die Datenbanken zu einem Frame zusammenführen",
+        "Fusionar las bases de datos en un único marco",
+        "将各数据库合并为一个数据框",
+        "Mesclar os bancos de dados em um único quadro",
+        "सभी डेटाबेस को एक फ़्रेम में मिलाएँ",
+        "데이터베이스를 하나의 프레임으로 병합하기",
+        "Sameina gagnagrunnana í einn gagnaramma",
+        "Fusionner les bases de données en un seul tableau"),
+    "Pick a column and regress on it": _row(
+        "Välj en kolumn och regressera på den",
+        "Eine Spalte wählen und darauf regressieren",
+        "Elegir una columna y hacer la regresión sobre ella",
+        "选择一列并对其进行回归",
+        "Escolher uma coluna e fazer a regressão sobre ela",
+        "कोई स्तंभ चुनें और उस पर प्रतिगमन चलाएँ",
+        "열을 선택해 회귀 분석하기",
+        "Veldu dálk og keyrðu aðhvarf á hann",
+        "Choisir une colonne et effectuer la régression"),
+    "Load a table, or press SQL to read the column names out of the database, to fill classes in from a column.": _row(
+        "Läs in en tabell, eller tryck på SQL för att läsa ut kolumnnamnen ur databasen, för att fylla i klasser från en kolumn.",
+        "Laden Sie eine Tabelle oder drücken Sie SQL, um die Spaltennamen aus der Datenbank zu lesen, damit die Klassen aus einer Spalte gefüllt werden können.",
+        "Cargue una tabla, o pulse SQL para leer los nombres de las columnas de la base de datos, y así rellenar las clases a partir de una columna.",
+        "加载一张表，或点击 SQL 从数据库中读取列名，以便根据某一列填充类别。",
+        "Carregue uma tabela, ou pressione SQL para ler os nomes das colunas do banco de dados, para preencher as classes a partir de uma coluna.",
+        "किसी स्तंभ से वर्ग भरने के लिए कोई तालिका लोड करें, या डेटाबेस से स्तंभों के नाम पढ़ने के लिए SQL दबाएँ।",
+        "테이블을 불러오거나 SQL 버튼을 눌러 데이터베이스에서 열 이름을 읽어오면, 열의 값으로 클래스를 채울 수 있습니다.",
+        "Hlaðu töflu, eða ýttu á SQL til að lesa dálkaheitin úr gagnagrunninum, svo hægt sé að fylla flokkana út frá dálki.",
+        "Chargez un tableau, ou appuyez sur SQL pour lire les noms de colonnes dans la base de données, afin de remplir les classes à partir d’une colonne."),
+    "give the class a name first": _row(
+        "ge klassen ett namn först",
+        "geben Sie der Klasse zuerst einen Namen",
+        "primero dé un nombre a la clase",
+        "请先为该类别命名",
+        "dê um nome à classe primeiro",
+        "पहले वर्ग को कोई नाम दें",
+        "먼저 클래스에 이름을 지정하세요",
+        "gefðu flokknum fyrst nafn",
+        "donnez d’abord un nom à la classe"),
+    "choose the column the value comes from": _row(
+        "välj kolumnen som värdet kommer från",
+        "wählen Sie die Spalte, aus der der Wert stammt",
+        "elija la columna de la que procede el valor",
+        "请选择该值取自的列",
+        "escolha a coluna de onde vem o valor",
+        "वह स्तंभ चुनें जिससे मान आता है",
+        "값을 가져올 열을 선택하세요",
+        "veldu dálkinn sem gildið kemur úr",
+        "choisissez la colonne d’où vient la valeur"),
+    "there is already a random-rest class; two classes both meaning 'everything else' have no boundary between them": _row(
+        "det finns redan en slumpmässig restklass; två klasser som båda betyder 'allt annat' har ingen gräns mellan sig",
+        "es gibt bereits eine Zufallsrest-Klasse; zwei Klassen, die beide 'alles andere' bedeuten, haben keine Grenze zwischen sich",
+        "ya existe una clase de resto aleatorio; dos clases que significan 'todo lo demás' no tienen frontera entre ellas",
+        "已经存在一个“随机剩余”类别；两个都表示“其余全部”的类别之间没有界限",
+        "já existe uma classe de restante aleatório; duas classes que significam 'todo o resto' não têm fronteira entre si",
+        "एक random-rest वर्ग पहले से मौजूद है; दो वर्ग जिनका अर्थ एक ही है — ‘बाकी सब’ — उनके बीच कोई सीमा नहीं रहती",
+        "이미 무작위 나머지 클래스가 있습니다; 둘 다 '그 밖의 전부'를 뜻하는 클래스 사이에는 경계가 없습니다",
+        "það er þegar til flokkur fyrir slembiafgang; tveir flokkar sem báðir merkja 'allt hitt' hafa engin mörk sín á milli",
+        "il existe déjà une classe reste aléatoire ; deux classes signifiant toutes deux 'tout le reste' n’ont aucune frontière entre elles"),
+
+    # The first-run tour's own chrome.
+    "Step {n} / {total}": _row(
+        "Steg {n} / {total}", "Schritt {n} / {total}", "Paso {n} / {total}",
+        "第 {n} / {total} 步", "Passo {n} / {total}", "चरण {n} / {total}",
+        "{total}단계 중 {n}단계", "Skref {n} / {total}",
+        "Étape {n} / {total}"),
+    "This quick 5-step tour will show you the home layout. Press Esc at any time to skip.": _row(
+        "Den här korta rundturen i fem steg visar hemskärmens upplägg. Tryck Esc när som helst för att hoppa över den.",
+        "Diese kurze Tour in fünf Schritten zeigt Ihnen den Aufbau der Startseite. Mit Esc können Sie sie jederzeit überspringen.",
+        "Este breve recorrido de cinco pasos le muestra la disposición de la pantalla de inicio. Pulse Esc en cualquier momento para omitirlo.",
+        "这个五步快速导览会介绍主页的布局。随时按 Esc 可以跳过。",
+        "Este percurso rápido de cinco passos mostra a disposição do ecrã inicial. Prima Esc a qualquer momento para o ignorar.",
+        "यह पाँच चरणों की छोटी झलक मुखपृष्ठ का ढाँचा दिखाती है। छोड़ने के लिए कभी भी Esc दबाएँ।",
+        "이 다섯 단계짜리 짧은 둘러보기가 홈 화면 구성을 안내합니다. 언제든 Esc 를 누르면 건너뜁니다.",
+        "Þessi stutta fimm skrefa kynning sýnir uppsetningu heimaskjásins. Ýttu á Esc hvenær sem er til að sleppa henni.",
+        "Cette courte visite en cinq étapes présente la disposition de l’accueil. Appuyez sur Échap à tout moment pour la passer."),
+
+    # HALF A TRANSLATION READS WORSE THAN NONE. Each of these
+    # matched a TERM inside itself, so the word-by-word fallback
+    # produced things like "Load the Mätning databases". An exact
+    # row is what overrides a term match.
+    "Console context: no new output": _row(
+        "Konsolkontext: ingen ny utdata",
+        "Konsole-Kontext: keine neue Ausgabe",
+        "Contexto de Consola: sin salida nueva",
+        "控制台 上下文：无新输出",
+        "Contexto do Console: nenhuma saída nova",
+        "कंसोल संदर्भ: कोई नया आउटपुट नहीं",
+        "콘솔 컨텍스트: 새 출력 없음",
+        "Stjórnborð-samhengi: ekkert nýtt úttak",
+        "Contexte de console : aucune nouvelle sortie"),
+    "Point {module} at some data": _row(
+        "Rikta {module} mot data",
+        "{module} auf Daten richten",
+        "Indica a {module} dónde están los datos",
+        "为 {module} 指定数据",
+        "Aponte {module} para alguns dados",
+        "{module} को कुछ डेटा दिखाएँ",
+        "{module}에 사용할 데이터를 지정하세요",
+        "{module} þarf gögn",
+        "Pointez {module} vers des données"),
+    "Load the measurement databases": _row(
+        "Läs in mätdatabaserna",
+        "Die Messdatenbanken laden",
+        "Cargar las bases de datos de mediciones",
+        "加载测量数据库",
+        "Carregar os bancos de dados de medições",
+        "मापन डेटाबेस लोड करें",
+        "측정 데이터베이스 불러오기",
+        "Hlaða mælingagagnagrunnunum",
+        "Charger les bases de données de mesures"),
+    # THE HEADINGS OF THE ADVANCED-SETTINGS TREE. Every one of them is a
+    # phrase the word-by-word fallback half-translates -- "Objekt Filtration
+    # (all Objekt)", "Bild Preprocessing (per Objekt)", "Avancerat
+    # settings" -- so each needs an exact row, the same way "Intensity
+    # Handling (all objects)" already has one in the external catalog. They
+    # are looked up in the case written here and uppercased on the way to
+    # the header, so a row spelled in capitals would never be found.
+    "Advanced settings": _row(
+        "Avancerade inställningar", "Erweiterte Einstellungen",
+        "Configuración avanzada", "高级设置", "Configurações avançadas",
+        "उन्नत सेटिंग्स", "고급 설정", "Ítarlegar stillingar",
+        "Paramètres avancés"),
+    "Image Preprocessing (per object)": _row(
+        "Bildförbehandling (per objekt)", "Bildvorverarbeitung (pro Objekt)",
+        "Preprocesamiento de imagen (por objeto)", "图像预处理（每个对象）",
+        "Pré-processamento de imagem (por objeto)",
+        "छवि पूर्व-प्रसंस्करण (प्रति ऑब्जेक्ट)", "이미지 전처리 (객체별)",
+        "Forvinnsla myndar (á hvern hlut)",
+        "Prétraitement de l’image (par objet)"),
+    "Object Filtration (all objects)": _row(
+        "Objektfiltrering (alla objekt)", "Objektfilterung (alle Objekte)",
+        "Filtrado de objetos (todos los objetos)", "对象筛选（所有对象）",
+        "Filtragem de objetos (todos os objetos)",
+        "ऑब्जेक्ट फ़िल्टरिंग (सभी ऑब्जेक्ट)", "객체 필터링 (모든 객체)",
+        "Hlutasíun (allir hlutir)", "Filtrage des objets (tous les objets)"),
+    "Organelle Segmentation (advanced)": _row(
+        "Organellsegmentering (avancerat)",
+        "Organellen-Segmentierung (erweitert)",
+        "Segmentación de orgánulos (avanzada)", "细胞器分割（高级）",
+        "Segmentação de organelas (avançada)",
+        "कोशिकांग विभाजन (उन्नत)", "소기관 분할 (고급)",
+        "Hlutun frumulíffæra (ítarlegt)",
+        "Segmentation des organites (avancée)"),
+    # The per-object sub-headings of that tree. Cell, Nucleus and Pathogen
+    # already resolve exactly; the four organelle slots did not, and a
+    # heading composed by the word-by-word fallback is one word away from
+    # reading half English the day a term row changes.
+    "Organelle 1": _row(
+        "Organell 1", "Organelle 1", "Orgánulo 1", "细胞器 1", "Organela 1", "कोशिकांग 1", "소기관 1", "Frumulíffæri 1", "Organite 1"),
+    "Organelle 2": _row(
+        "Organell 2", "Organelle 2", "Orgánulo 2", "细胞器 2", "Organela 2", "कोशिकांग 2", "소기관 2", "Frumulíffæri 2", "Organite 2"),
+    "Organelle 3": _row(
+        "Organell 3", "Organelle 3", "Orgánulo 3", "细胞器 3", "Organela 3", "कोशिकांग 3", "소기관 3", "Frumulíffæri 3", "Organite 3"),
+    "Organelle 4": _row(
+        "Organell 4", "Organelle 4", "Orgánulo 4", "细胞器 4", "Organela 4", "कोशिकांग 4", "소기관 4", "Frumulíffæri 4", "Organite 4"),
+    # Captions a HANDLER writes, and the templates it writes them from.
+    # A sentence composed first and translated afterwards matches nothing --
+    # the finished line carries a count, a module name or a stage name that
+    # no catalog can hold -- so the sentence is a row with a placeholder and
+    # the value is substituted after the lookup.
+    "Copied {count} lines": _row(
+        "Kopierade {count} rader", "{count} Zeilen kopiert",
+        "Se copiaron {count} líneas", "已复制 {count} 行",
+        "{count} linhas copiadas", "{count} पंक्तियाँ कॉपी की गईं",
+        "{count}줄을 복사했습니다", "Afritaði {count} línur",
+        "{count} lignes copiées"),
+    "Fetching {count} file(s)…": _row(
+        "Hämtar {count} fil(er)…", "{count} Datei(en) werden geladen…",
+        "Descargando {count} archivo(s)…", "正在获取 {count} 个文件…",
+        "Baixando {count} arquivo(s)…", "{count} फ़ाइल(ें) प्राप्त की जा रही हैं…",
+        "{count}개 파일을 가져오는 중…", "Sæki {count} skrá/skrár…",
+        "Téléchargement de {count} fichier(s)…"),
+    "Alpha and Beta": _row(
+        "Alfa och Beta", "Alpha und Beta", "Alfa y Beta", "内测和公测",
+        "Alfa e Beta", "अल्फा और बीटा", "알파 및 베타", "Alfa og Beta",
+        "Alpha et Bêta"),
+    "{stages} settings are hidden by Preferences. Enable them in "
+    "Preferences → Feature maturity.": _row(
+        "{stages}-inställningar döljs av Inställningar. Aktivera dem under "
+        "Inställningar → Funktionsmognad.",
+        "{stages}-Einstellungen werden von den Einstellungen ausgeblendet. "
+        "Aktivieren Sie sie unter Einstellungen → Funktionsreife.",
+        "Las preferencias ocultan los ajustes {stages}. Actívelos en "
+        "Preferencias → Madurez de las funciones.",
+        "{stages} 设置已被首选项隐藏。请在“首选项 → 功能成熟度”中启用。",
+        "As preferências ocultam as configurações {stages}. Ative-as em "
+        "Preferências → Maturidade dos recursos.",
+        "{stages} सेटिंग्स प्राथमिकताओं द्वारा छिपाई गई हैं। उन्हें "
+        "प्राथमिकताएँ → फ़ीचर परिपक्वता में सक्षम करें।",
+        "{stages} 설정이 환경설정에 의해 숨겨져 있습니다. "
+        "환경설정 → 기능 성숙도에서 사용하도록 설정하세요.",
+        "{stages}-stillingar eru faldar af Stillingum. Kveiktu á þeim í "
+        "Stillingar → Þroski eiginleika.",
+        "Les préférences masquent les réglages {stages}. Activez-les dans "
+        "Préférences → Maturité des fonctionnalités."),
+    "The '{app}' app is interactive-only in this Qt build. Use the classic "
+    "Tk GUI (`spacr`) for now.": _row(
+        "Modulen ”{app}” är enbart interaktiv i det här Qt-bygget. Använd "
+        "det klassiska Tk-gränssnittet (`spacr`) tills vidare.",
+        "Das Modul „{app}“ ist in diesem Qt-Build nur interaktiv. Verwenden "
+        "Sie vorerst die klassische Tk-Oberfläche (`spacr`).",
+        "El módulo «{app}» solo es interactivo en esta compilación de Qt. "
+        "Utilice por ahora la interfaz clásica de Tk (`spacr`).",
+        "在此 Qt 版本中，“{app}”模块仅支持交互操作。请暂时使用经典的 Tk 界面（`spacr`）。",
+        "O módulo “{app}” é apenas interativo nesta compilação Qt. Use por "
+        "enquanto a interface clássica Tk (`spacr`).",
+        "इस Qt बिल्ड में ‘{app}’ मॉड्यूल केवल इंटरैक्टिव है। फ़िलहाल क्लासिक "
+        "Tk इंटरफ़ेस (`spacr`) का उपयोग करें।",
+        "이 Qt 빌드에서 '{app}' 모듈은 대화형으로만 동작합니다. 당분간 기존 "
+        "Tk 인터페이스(`spacr`)를 사용하세요.",
+        "Einingin „{app}“ er aðeins gagnvirk í þessari Qt-útgáfu. Notaðu "
+        "klassíska Tk-viðmótið (`spacr`) í bili.",
+        "Le module « {app} » est uniquement interactif dans cette version "
+        "Qt. Utilisez pour l’instant l’interface Tk classique (`spacr`)."),
+    "All files": _row(
+        "Alla filer", "Alle Dateien", "Todos los archivos", "所有文件",
+        "Todos os arquivos", "सभी फ़ाइलें", "모든 파일", "Allar skrár",
+        "Tous les fichiers"),
+    # AN EXACT ROW IS WHAT BEATS THE WORD-BY-WORD FALLBACK. Without one,
+    # `_term_translation` finds "image" in the middle of this caption and
+    # leaves "Choose Bild…" on the live preview's button -- half English,
+    # half German, and the same shape in every other language.
+    "Choose image…": _row(
+        "Välj bild…", "Bild auswählen…", "Elegir imagen…", "选择图像…",
+        "Escolher imagem…", "छवि चुनें…", "이미지 선택…", "Velja mynd…",
+        "Choisir une image…"),
+    "No source selected — click Open source…": _row(
+        "Ingen källa vald — klicka på Öppna källa…",
+        "Keine Quelle ausgewählt — klicken Sie auf Quelle öffnen…",
+        "No se ha seleccionado ninguna fuente — haga clic en Abrir fuente…",
+        "未选择来源 — 请点击“打开来源”…",
+        "Nenhuma origem selecionada — clique em Abrir origem…",
+        "कोई स्रोत नहीं चुना गया — ‘स्रोत खोलें…’ पर क्लिक करें",
+        "선택된 소스가 없습니다 — 소스 열기…를 클릭하세요",
+        "Enginn uppruni valinn — smelltu á Opna uppruna…",
+        "Aucune source sélectionnée — cliquez sur Ouvrir la source…"),
+
+    # ---- THE LIVE PREVIEW'S VALUE-CARRYING DROPDOWNS ------------------
+    # Every entry below is BOTH a caption the user reads and a value the
+    # panel matches on, so the value lives in the entry's item data and
+    # only the caption is translated -- see :func:`set_translatable_items`.
+    # An exact row is what makes the caption right. Left to the word-by-word
+    # fallback, "auto" came back as the vehicle ("자동차", "汽车", "कार"),
+    # "Overlay" as "Surprise" in French, and "All channels" as the
+    # half-English "All Kanaler".
+    #
+    # The outline-colour dropdown.
+    "auto": _row(
+        "automatisk", "automatisch", "automático", "自动", "automático",
+        "स्वचालित", "자동", "sjálfvirkt", "automatique"),
+    "color (random)": _row(
+        "färg (slumpmässig)", "Farbe (zufällig)", "color (aleatorio)",
+        "颜色（随机）", "cor (aleatória)", "रंग (यादृच्छिक)", "색상(무작위)",
+        "litur (slembinn)", "couleur (aléatoire)"),
+    "green": _row(
+        "grön", "Grün", "verde", "绿色", "verde", "हरा", "녹색", "grænn",
+        "vert"),
+    "magenta": _row(
+        "magenta", "Magenta", "magenta", "品红", "magenta", "मैजेंटा",
+        "자홍색", "magenta", "magenta"),
+    "yellow": _row(
+        "gul", "Gelb", "amarillo", "黄色", "amarelo", "पीला", "노란색",
+        "gulur", "jaune"),
+    "cyan": _row(
+        "cyan", "Cyan", "cian", "青色", "ciano", "सियान", "청록색",
+        "blágrænn", "cyan"),
+    "white": _row(
+        "vit", "Weiß", "blanco", "白色", "branco", "सफ़ेद", "흰색", "hvítur",
+        "blanc"),
+    "red": _row(
+        "röd", "Rot", "rojo", "红色", "vermelho", "लाल", "빨간색", "rauður",
+        "rouge"),
+    # What the right-hand canvas shows.
+    "View:": _row(
+        "Vy:", "Ansicht:", "Vista:", "视图：", "Vista:", "दृश्य:", "보기:",
+        "Sýn:", "Affichage :"),
+    "Overlay": _row(
+        "Överlägg", "Überlagerung", "Superposición", "叠加", "Sobreposição",
+        "ओवरले", "오버레이", "Yfirlag", "Superposition"),
+    "Masks": _row(
+        "Masker", "Masken", "Máscaras", "掩膜", "Máscaras", "मास्क", "마스크",
+        "Grímur", "Masques"),
+    "Flows": _row(
+        "Flöden", "Flüsse", "Flujos", "流场", "Fluxos", "प्रवाह", "흐름",
+        "Flæði", "Flux"),
+    # The channel view control. "Ch 3" names a plane and stays as written --
+    # a word touching a digit is part of an identifier, not prose.
+    "All channels": _row(
+        "Alla kanaler", "Alle Kanäle", "Todos los canales", "所有通道",
+        "Todos os canais", "सभी चैनल", "모든 채널", "Allar rásir",
+        "Tous les canaux"),
+    # THE SEGMENTATION COMPARTMENTS, whose English spelling is the key the
+    # worker and every `{object}_…` setting are written with. The bulk
+    # catalog had read them as everyday words -- "cell" as a spreadsheet
+    # celda, "nucleus" as an atomic nucleus (परमाणु), "organelle" as an
+    # organ, "pathogen" as pathology -- so these are the biological senses.
+    "cell": _row(
+        "cell", "Zelle", "célula", "细胞", "célula", "कोशिका", "세포",
+        "fruma", "cellule"),
+    "nucleus": _row(
+        "kärna", "Zellkern", "núcleo", "细胞核", "núcleo", "केंद्रक", "핵",
+        "kjarni", "noyau"),
+    "pathogen": _row(
+        "patogen", "Pathogen", "patógeno", "病原体", "patógeno", "रोगजनक",
+        "병원체", "sýkill", "pathogène"),
+    "organelle": _row(
+        "organell", "Organell", "orgánulo", "细胞器", "organela", "कोशिकांग",
+        "세포소기관", "frumulíffæri", "organite"),
+    "cell + nucleus": _row(
+        "cell + kärna", "Zelle + Zellkern", "célula + núcleo", "细胞 + 细胞核",
+        "célula + núcleo", "कोशिका + केंद्रक", "세포 + 핵", "fruma + kjarni",
+        "cellule + noyau"),
+    # How a compartment's intensity threshold is computed. Statistics, not
+    # prose: the fallback had offered "meaning" (意思, "Að segja") for the
+    # average and "a hundred percent" (百分之百) for the percentile.
+    "mean": _row(
+        "medelvärde", "Mittelwert", "media", "均值", "média", "माध्य", "평균",
+        "meðaltal", "moyenne"),
+    "percentile": _row(
+        "percentil", "Perzentil", "percentil", "百分位", "percentil",
+        "प्रतिशतक", "백분위수", "hundraðsmark", "centile"),
 }
 
 
@@ -1551,20 +3527,24 @@ def add_translation(source: str, values: Iterable[str]) -> bool:
     :param source: the English string, exactly as the UI spells it.
     :param values: its translations, in :data:`LANGUAGES` order after
         English (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-    :returns: ``True`` if the row was added, ``False`` if ``source`` was
-        already catalogued — registering the same app name twice is a
-        no-op, not a conflict.
+    :returns: ``True`` if the row was added, ``False`` if the same ``source``
+        and translations were already catalogued.
     :raises ValueError: if ``values`` is not one string per language, or
         any of them is blank. A missing translation fails here, where the
         app name is in the message, rather than as a blank sidebar row in
         Korean.
     """
     source = str(source)
-    if source in _ROWS:
-        return False
     row = _row(*[str(value) for value in values])
     if not all(value.strip() for value in row):
         raise ValueError(f"translation row for {source!r} has a blank entry")
+    if source in _ROWS:
+        if _ROWS[source] != row:
+            raise ValueError(
+                f"translation row for {source!r} conflicts with the "
+                "catalogued row"
+            )
+        return False
     _ROWS[source] = row
     for code, value in zip(_TRANSLATED_CODES, row):
         CATALOGS[code][source] = value
@@ -1628,16 +3608,61 @@ def normalize_language(code: object) -> str:
     return DEFAULT_LANGUAGE
 
 
+_RESOLVED_LANGUAGE: ContextVar[Optional[Dict[str, str]]] = ContextVar(
+    "spacr_resolved_ui_language", default=None)
+
+
+@contextmanager
+def ui_language_resolved_once():
+    """Resolve the UI language once for the body of one synchronous build.
+
+    :func:`current_language` reaches into ``QSettings`` on every call, and a
+    dialog build calls it once per :func:`tr`. Building Preferences was
+    measured asking the preference store what language the interface was in
+    **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask
+    screen's panel build had the same shape at 3,516.
+
+    THE SCOPE IS THE UNIT, not the process. A permanent cache would keep a
+    language the user has just changed, which is the one moment the answer
+    must be re-read; inside a single synchronous build it cannot change,
+    because nothing runs between the calls. Nested scopes share the
+    outermost dict and only the outermost discards it, so a screen that
+    wraps its whole build and a helper that wraps itself do not fight.
+
+    This is the ContextVar arm of :func:`current_language`, which was
+    declared and read but set nowhere until this existed. The environment
+    override still wins: it is consulted before the scope is filled.
+    """
+    scope = _RESOLVED_LANGUAGE.get()
+    if scope is not None:
+        # Already inside one. Do NOT reset it on the way out -- the outer
+        # scope is still using the dict.
+        yield
+        return
+    token = _RESOLVED_LANGUAGE.set({})
+    try:
+        yield
+    finally:
+        _RESOLVED_LANGUAGE.reset(token)
+
+
 def current_language() -> str:
     """Return the active persisted language without creating an import cycle."""
+    scoped = _RESOLVED_LANGUAGE.get()
+    if scoped is not None and "code" in scoped:
+        return scoped["code"]
     env = os.environ.get(ENV_LANGUAGE)
     if env:
-        return normalize_language(env)
-    try:
-        from .preferences import get_language
-        return normalize_language(get_language())
-    except Exception:
-        return DEFAULT_LANGUAGE
+        code = normalize_language(env)
+    else:
+        try:
+            from .preferences import get_language
+            code = normalize_language(get_language())
+        except Exception:
+            code = DEFAULT_LANGUAGE
+    if scoped is not None:
+        scoped["code"] = code
+    return code
 
 
 def language_choices() -> tuple[tuple[str, str], ...]:
@@ -1715,21 +3740,62 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
 _WORD_RE = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]+")
 
 
+@lru_cache(maxsize=None)
+def _folded_terms(language: str) -> Mapping[str, str]:
+    """Return the term catalog keyed by case-folded source word.
+
+    BUILT ONCE PER LANGUAGE, NOT ONCE PER CALL. `_term_translation` runs on
+    every short label the interface draws, and it used to rebuild this whole
+    mapping from `TERM_CATALOGS` each time. Measured on the Swedish catalog of
+    67 terms, that rebuild was 3.18 of the function's 4.66 microseconds --
+    68% of the cost, spent reproducing a constant.
+
+    `TERM_CATALOGS` is assigned once at import from `_build_catalogs` and is
+    never mutated, which is what makes caching safe here; a catalog that could
+    change at runtime would need invalidation instead.
+    """
+    terms = TERM_CATALOGS.get(language)
+    if not terms:
+        return {}
+    return MappingProxyType(
+        {key.casefold(): value for key, value in terms.items()}
+    )
+
+
 def _term_translation(source: str, language: str) -> Optional[str]:
     """Translate known words in a short static label conservatively."""
     if len(source) > 80 or "\n" in source or source.lstrip().startswith("<"):
         return None
     if "/" in source or "\\" in source or "://" in source:
         return None
-    terms = TERM_CATALOGS.get(language, {})
-    if not terms:
+    lookup = _folded_terms(language)
+    if not lookup:
         return None
-    lookup = {key.casefold(): value for key, value in terms.items()}
     changed = False
 
+    def _inside_an_identifier(text: str, start: int, end: int) -> bool:
+        """Whether the word at ``start:end`` is part of a code name.
+
+        A word touching ``_`` or a digit is a piece of an identifier --
+        ``cell_area``, ``channel_1``, ``image_path`` -- and not a word of
+        prose. Translating it rewrites a column name, a settings key or an
+        SQL example into something that no longer names anything: the
+        database browser's own example predicate,
+        ``cell_area > 1000``, was shown to a Swedish user as
+        ``Cell_area > 1000``, and the search hint offered ``'Kanal_1'`` for
+        a column called ``channel_1``.
+        """
+        before = text[start - 1] if start else ""
+        after = text[end] if end < len(text) else ""
+        return any(char == "_" or char.isdigit()
+                   for char in (before, after) if char)
+
     def replace(match: re.Match[str]) -> str:
+        """Replace one matched term, recording that something changed."""
         nonlocal changed
         word = match.group(0)
+        if _inside_an_identifier(source, match.start(), match.end()):
+            return word
         translated = lookup.get(word.casefold())
         if translated is None:
             return word
@@ -1740,6 +3806,59 @@ def _term_translation(source: str, language: str) -> Optional[str]:
 
     result = _WORD_RE.sub(replace, source)
     return result if changed else None
+
+
+#: The join used by composed setting labels, e.g. "Organelle 1 — Cp prob".
+_COMPOSITE_SEPARATOR = " \u2014 "
+
+
+def _composite_translation(source: str, language: str) -> Optional[str]:
+    """Translate an ``A — B`` label by translating each side on its own.
+
+    WHY THIS EXISTS. `_exact_translation` matches a whole string and
+    `_term_translation` substitutes single WORDS, so a label built by joining
+    two pieces with an em dash falls between them: the composite has no exact
+    entry, and a multi-word piece like ``Cp prob`` is not one word, so the
+    word pass cannot see it either. What survives is a half-translated label.
+
+    MEASURED on `organelle_CP_prob`:
+
+        en     'Organelle 1 — Cp prob'
+        ko     '소기관 1 — Cp prob'
+        sv     'Organell 1 — Cp prob'
+        de     'Organelle 1 — Cp prob'
+        zh_CN  '细胞器 1 — Cp prob'
+
+    Every language kept the suffix in English, and only Korean had a test
+    asserting it -- so one locale looked like the whole problem. The
+    translation was never missing: ``tr('Cp prob', 'ko')`` already answered.
+    It was never asked for.
+
+    Each side is resolved exactly first and then by term, which is the same
+    order and the same authority `tr` itself uses, so a hand-reviewed exact
+    entry still wins over a word substitution. Returns None unless at least
+    one side actually changed, so a label with nothing to translate is left
+    byte-for-byte alone.
+    """
+    if _COMPOSITE_SEPARATOR not in source:
+        return None
+    parts = source.split(_COMPOSITE_SEPARATOR)
+    if len(parts) != 2:
+        return None
+    rendered = []
+    changed = False
+    for part in parts:
+        stripped = part.strip()
+        if not stripped:
+            return None
+        piece = (_exact_translation(stripped, language)
+                 or _term_translation(stripped, language))
+        if piece is not None and piece != stripped:
+            changed = True
+        rendered.append(piece if piece is not None else stripped)
+    if not changed:
+        return None
+    return _COMPOSITE_SEPARATOR.join(rendered)
 
 
 def tr(text: object, language: Optional[str] = None, **values: object) -> str:
@@ -1754,6 +3873,7 @@ def tr(text: object, language: Optional[str] = None, **values: object) -> str:
     translated = source
     if code != DEFAULT_LANGUAGE:
         translated = (_exact_translation(source, code)
+                      or _composite_translation(source, code)
                       or _term_translation(source, code)
                       or source)
     if values:
@@ -1844,6 +3964,64 @@ def set_translatable_text(
     widget.setText(tr(source, language, **values))
 
 
+def set_translatable_items(
+    combo,
+    sources: Iterable[str],
+    values: Optional[Iterable[object]] = None,
+    language: Optional[str] = None,
+) -> None:
+    """Fill a dropdown with translated captions over untranslatable values.
+
+    A combo box whose entries a handler reads back with ``currentText()``
+    cannot be translated: the caption moves and every comparison misses.
+    That is why the live preview's dropdowns were marked untranslatable
+    outright, and why the ones that were not marked went wrong quietly --
+    the segmentation object box handed ``cellen`` to a worker that only
+    knows ``cell``, and the threshold method wrote ``medelvärde`` into a
+    settings key that only accepts ``mean``.
+
+    Each entry here carries what the code matches on in its item DATA, so
+    ``currentData()`` answers the same English value whatever the caption
+    reads. The English sources are recorded on the widget, so the ordinary
+    language pass re-renders the captions on every later change instead of
+    freezing the language the dropdown happened to be built in.
+
+    The selected entry is kept by its value, never by its caption, and
+    signals stay blocked while the entries are replaced.
+
+    :param combo: the dropdown to fill; its existing entries are replaced.
+    :param sources: the English captions, in order.
+    :param values: what each entry means to the code, in the same order;
+        defaults to ``sources`` itself.
+    :param language: language to render in; the current one by default.
+    :raises ValueError: if ``values`` is not one value per caption.
+    """
+    captions = [str(source) for source in sources]
+    data = list(captions) if values is None else list(values)
+    if len(data) != len(captions):
+        raise ValueError(
+            f"{len(captions)} captions but {len(data)} values")
+    code = normalize_language(language or current_language())
+    previous = combo.currentData()
+    blocked = combo.blockSignals(True)
+    try:
+        combo.clear()
+        for caption, value in zip(captions, data):
+            combo.addItem(tr(caption, code), value)
+        if previous is not None:
+            index = combo.findData(previous)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+    finally:
+        combo.blockSignals(blocked)
+    combo._spacr_i18n_item_sources = list(captions)
+    # An explicit False, because the property may already be True from the
+    # widget's class -- FlatComboBox marks every entry untranslatable,
+    # which is right for the file names it usually lists and wrong for a
+    # caption that now keeps its value somewhere else.
+    combo.setProperty("i18nSkipItems", False)
+
+
 def _refresh_dynamic_text(widget, language: str) -> bool:
     """Retranslate a template set by :func:`set_translatable_text`."""
     try:
@@ -1873,15 +4051,28 @@ def _refresh_module_help(obj, language: str) -> None:
     name = tr(str(name_source or app_key), language)
     summary = module_summary(str(app_key), str(summary_source), language)
     style = str(obj.property("moduleTooltipStyle") or "")
+    # NO QWidget TOOLTIP ON A MODULE, since 2026-09-03: "remove the popup
+    # window tooltip on the moduals. the tooltip is shown at the botom of the
+    # screen."
+    #
+    # The sentence MOVES rather than disappearing. It goes to the accessible
+    # description, which is what a screen reader reads, and the strip along
+    # the bottom of the window says it to everyone else -- with an API link
+    # and a Tutorial link, which a native tooltip could never carry because
+    # it vanishes the moment the pointer moves toward it.
+    #
+    # `AppTile` has said "NO TOOLTIP on the tile" in its own constructor
+    # since the hint bar was introduced, and this function was quietly
+    # putting one back on the next language refresh -- which runs at startup.
+    # That is why the popups were still there.
+    if style in ("sidebar", "tile"):
+        obj.setToolTip("")
     if style == "sidebar":
-        obj.setToolTip(f"{name} — {summary}")
         obj.setAccessibleName(name)
         obj.setAccessibleDescription(summary)
     elif style == "tile":
         stage_source = str(obj.property("moduleStageSource") or "")
         stage = tr(stage_source, language) if stage_source else ""
-        suffix = f" ({stage.lower()})" if stage else ""
-        obj.setToolTip(f"{name}{suffix} — {summary}")
         obj.setAccessibleName(name)
         obj.setAccessibleDescription(
             f"{stage} — {summary}" if stage else summary)
@@ -1890,21 +4081,57 @@ def _refresh_module_help(obj, language: str) -> None:
         obj.setStatusTip(summary)
 
 
+def _follow_qt_own_catalogs(code: str) -> None:
+    """Load Qt's own catalog for ``code`` when it is not the one loaded.
+
+    ``&Copy``, ``Select All`` and ``Close Tab`` are Qt's strings rather than
+    spaCR's, and they come from ``qtbase_<lang>.qm`` rather than from any
+    catalog here. That file is loaded once at startup, so choosing a
+    different language while the application is running left every Qt menu,
+    file dialog and message box in the language the application STARTED in.
+    The language pass carries it now: one load per change, and none at all
+    when the language has not moved.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+    except Exception:                                        # noqa: BLE001
+        return
+    app = QApplication.instance()
+    if app is None:
+        return
+    if getattr(app, "_spacr_qt_translator_code", None) == code:
+        return
+    install_qt_translations(app, code)
+
+
 def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     """Retranslate static text in ``root`` and all existing descendants.
 
     The function is intentionally best-effort and idempotent. It never edits
     line-edit contents, text editors, table cells, model data, filenames or
     console output.
+
+    Qt's OWN text follows too -- see :func:`_follow_qt_own_catalogs` -- so a
+    language chosen after launch reaches the right-click menu of every text
+    field, not only the captions spaCR wrote.
     """
     if root is None:
         return
     code = normalize_language(language or current_language())
+    _follow_qt_own_catalogs(code)
     try:
         from PySide6.QtGui import QAction
         from PySide6.QtWidgets import (
-            QAbstractButton, QComboBox, QGroupBox, QLabel, QLineEdit,
-            QPlainTextEdit, QTableWidget, QTabWidget, QTextEdit, QTreeWidget,
+            QAbstractButton,
+            QComboBox,
+            QGroupBox,
+            QLabel,
+            QLineEdit,
+            QPlainTextEdit,
+            QTableWidget,
+            QTabWidget,
+            QTextEdit,
+            QTreeWidget,
             QWidget,
         )
     except Exception:
@@ -1963,13 +4190,30 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                     if str(source) in _ROWS or str(source) in _TERM_ROWS:
                         rendered = tr(str(source), code)
                     else:
-                        from .i18n_catalogs import setting_label
-                        rendered = setting_label(
-                            str(setting_key), str(source), code,
-                            str(settings_app_key),
-                        )
-                        if rendered is None:
+                        # GUARDED LIKE EVERY OTHER CATALOG IMPORT. The
+                        # contract is stated at the top of _exact_translation:
+                        # "External catalogs add coverage; their absence must
+                        # not make the compact core catalog unavailable."
+                        #
+                        # This one was the exception, and it was not
+                        # theoretical: a lightweight source install omits
+                        # spacr/qt/i18n_catalogs, and the ModuleNotFoundError
+                        # escaped -- the enclosing except catches
+                        # AttributeError, RuntimeError and TypeError, none of
+                        # which an ImportError is. Every screen change then
+                        # logged a traceback and gave up on translating that
+                        # screen, once per late settings panel.
+                        try:
+                            from .i18n_catalogs import setting_label
+                        except (ImportError, AttributeError):
                             rendered = tr(str(source), code)
+                        else:
+                            rendered = setting_label(
+                                str(setting_key), str(source), code,
+                                str(settings_app_key),
+                            )
+                            if rendered is None:
+                                rendered = tr(str(source), code)
                     if rendered:
                         widget.setText(str(rendered))
                         semantic_setting_text = True
@@ -2041,6 +4285,13 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         if module_api_key and callable(set_url):
             from .screens.settings_model import api_docs_url
             set_url(api_docs_url(str(module_api_key), language=code))
+        retranslate_content = getattr(
+            widget, "retranslate_dynamic_content", None)
+        if callable(retranslate_content):
+            try:
+                retranslate_content(code)
+            except (AttributeError, RuntimeError, TypeError, ValueError):
+                pass
 
     actions = []
     try:
@@ -2060,11 +4311,89 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
 
     # Settings tooltips are structured HTML (name, type, scientific prose and
     # API link), so rebuild them semantically after the generic Qt pass.
+    #
+    # The same catalog errors as the settings-label block above, which is
+    # what this guard was missing: a malformed record raised TypeError out
+    # of `setting_label` there and was caught, and raised it out of the same
+    # catalog here and was not -- so a language switch stopped part way and
+    # left the window half English with no way back except another switch.
+    #
+    # NOT IMPORTED UNLESS IT ALREADY IS. `refresh_api_tooltips` rebuilds the
+    # tooltips that `settings_model` itself attached, so a tree can only hold
+    # one if that module has already been imported -- and if it has not, there
+    # is provably nothing here to refresh.
+    #
+    # Importing it anyway cost 0.3 s of a 1.4 s launch: the module reaches
+    # external_mask_inputs, which reaches external_masks, which reaches
+    # convert, which imports pandas. All of it paid at startup, to retranslate
+    # a Home page that has no settings on it.
+    if "spacr.qt.screens.settings_model" not in sys.modules:
+        return
     try:
         from .screens.settings_model import refresh_api_tooltips
         refresh_api_tooltips(root, code)
-    except (ImportError, AttributeError, RuntimeError):
+    except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
         pass
+
+
+#: Our language codes mapped to the ones Qt names its own catalogs by.
+#:
+#: Qt ships `qtbase_<code>.qm` for its OWN strings -- the words in a file
+#: dialog, a message box's buttons, and the Copy/Paste/Select All that
+#: every text field offers on right-click. None of those are spaCR's to
+#: translate, and without this they stay English on a Swedish screen.
+#:
+#: Hindi and Icelandic are absent because Qt does not ship them. Their
+#: users get English in Qt's own menus and spaCR's own text translated,
+#: which is the best that can be done without writing those catalogs.
+QT_CATALOGS = {
+    "sv": "sv", "de": "de", "es": "es", "zh_CN": "zh_CN",
+    "pt": "pt_BR", "ko": "ko", "fr": "fr",
+}
+
+
+def install_qt_translations(app, language: Optional[str] = None) -> bool:
+    """Load Qt's own translations for ``language``. True if one loaded.
+
+    Idempotent: a translator installed by an earlier call is removed
+    first, so switching language twice does not leave the first one
+    underneath answering for strings the second does not carry.
+    """
+    if app is None:
+        return False
+    code = normalize_language(language or current_language())
+    try:
+        from PySide6.QtCore import QLibraryInfo, QTranslator
+    except Exception:                                        # noqa: BLE001
+        return False
+
+    previous = getattr(app, "_spacr_qt_translator", None)
+    if previous is not None:
+        try:
+            app.removeTranslator(previous)
+        except Exception:                                    # noqa: BLE001
+            pass
+        app._spacr_qt_translator = None
+    # WHICH LANGUAGE IS LOADED, recorded whether or not one could be. Qt
+    # ships no catalog for Hindi or Icelandic, and without this the
+    # language pass would try to load one again on every dialog it sees.
+    app._spacr_qt_translator_code = code
+
+    catalog = QT_CATALOGS.get(code)
+    if catalog is None:
+        return False
+    try:
+        path = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+        translator = QTranslator(app)
+        if not translator.load(f"qtbase_{catalog}", path):
+            return False
+        app.installTranslator(translator)
+        # HELD ON THE APPLICATION. A QTranslator that is garbage collected
+        # is a QTranslator Qt goes on asking and getting nothing from.
+        app._spacr_qt_translator = translator
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
 
 
 def install_dialog_translation(app) -> None:
@@ -2086,7 +4415,17 @@ def install_dialog_translation(app) -> None:
         return
 
     class _DialogTranslationFilter(QObject):
+        """Retranslates a dialog the first time it is shown.
+
+        ON SHOW, NOT ON CONSTRUCTION, because a dialog is routinely built
+        before its widgets are populated -- retranslating at construction
+        walks a tree that is not there yet and silently does nothing. Show
+        is the first moment the tree is complete and the last moment
+        before a person reads it.
+        """
+
         def eventFilter(self, watched, event):  # noqa: N802
+            """Retranslate a dialog's tree the first time it is shown."""
             if event.type() == QEvent.Show and isinstance(watched, QDialog):
                 retranslate_widget_tree(watched)
             return False
@@ -2109,9 +4448,11 @@ __all__ = [
     "current_language",
     "has_translation",
     "install_dialog_translation",
+    "install_qt_translations",
     "language_choices",
     "normalize_language",
     "retranslate_widget_tree",
+    "set_translatable_items",
     "set_translatable_text",
     "tr",
 ]

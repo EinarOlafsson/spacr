@@ -69,6 +69,12 @@ def test_every_default_round_trips_untouched(qapp, app_key):
         # reads back as None, and a float spin box keeps six decimals.
         if value == "" and got is None:
             continue
+        # UMAP's ``path`` is instructional placeholder text, not a plate
+        # literally named "path". DatabaseSetWidget cleans placeholders to
+        # the same empty source list a user sees before choosing data.
+        if app_key == "umap" and key == "src" \
+                and value == "path" and got == []:
+            continue
         if isinstance(value, float) and isinstance(got, float) \
                 and round(value, 6) == round(got, 6):
             continue
@@ -108,8 +114,10 @@ def test_no_list_setting_reaches_the_pipeline_as_a_string(qapp, app_key):
 # ---------------------------------------------------------------------------
 
 def test_the_nested_class_setting_gets_a_nested_editor(qapp):
-    model = _model(qapp, "classify")
-    widget = model._widgets["class_metadata"]
+    widget = _ListEditor(
+        key="class_metadata", default=[["c1"], ["c2"]],
+        nested_capable=True, allow_none=False, element_type=str,
+    )
     assert isinstance(widget, _ListEditor)
     assert widget._nested is True
     assert len(widget._strips) == 2          # one row per class
@@ -244,9 +252,10 @@ def test_a_list_declared_key_with_a_placeholder_string_default_is_left_alone(qap
 
 
 def test_a_none_default_declared_list_still_gets_the_editor(qapp):
-    """``tables`` is None in the classify defaults and declared ``list``."""
-    model = _model(qapp, "classify")
-    widget = model._widgets["tables"]
+    """A list that permits ``None`` keeps an empty value as ``None``."""
+    widget = _ListEditor(
+        key="tables", default=None, allow_none=True, element_type=str,
+    )
     assert isinstance(widget, _ListEditor)
     assert widget.get_value() is None       # empty stays None, not []
 
@@ -346,7 +355,10 @@ def test_uncommitted_text_is_still_collected(qapp):
 
 
 def test_add_group_adds_a_row_and_removing_the_last_one_flattens(qapp):
-    widget = _model(qapp, "classify")._widgets["class_metadata"]
+    widget = _ListEditor(
+        key="class_metadata", default=[["c1"], ["c2"]],
+        nested_capable=True, allow_none=True, element_type=str,
+    )
     widget._on_footer()                       # + Add group
     assert len(widget._strips) == 3
     widget._strips[2]._entry.setText("c3")
@@ -435,22 +447,18 @@ def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):
     of these editors are plain QWidgets -- an imported list would have been
     dropped.
 
-    Renamed from ``..._reaches_the_chip_editor``: since commit 30500970
-    (2026-08-07) only ``class_metadata`` is a chip editor, while ``classes``
-    is a ``ClassEditorWidget`` that reads a legacy list of names back as a
-    dict of name -> rule. The invariant is the same one -- an imported value
-    must not be silently discarded -- so the classes half asserts the names
-    arrive, in order, as rows of the new mapping. The rules' placeholder
-    ``column`` is deliberately not pinned here: what a legacy list should fill
-    in for the column it never carried is an open question (see
-    instructions/open/37), and this test is about the import path.
+    ``class_metadata`` is now hidden because the Classes editor defines the
+    same rules in one place. It remains a supported legacy setting, so an
+    imported value must update the hidden run setting rather than disappear.
+    ``classes`` is a ``ClassEditorWidget`` that reads a legacy list of names
+    back as a mapping of names to rules.
     """
     from spacr.qt.screens.app_screen import AppScreen
     screen = AppScreen("classify")
     applied = screen.apply_settings_dict({"class_metadata": "[['r1'], ['r2']]",
                                           "classes": ["a", "b"]})
     assert applied == 2
-    assert screen._settings_model._widgets["class_metadata"].get_value() \
+    assert screen._settings_model._defaults["class_metadata"] \
         == [["r1"], ["r2"]]
     classes = screen._settings_model._widgets["classes"].get_value()
     assert isinstance(classes, dict)
@@ -486,6 +494,10 @@ def test_live_preview_propagation_reaches_the_chip_editor(qapp):
     ("classes", ["nc", "pc"], True),
     ("png_dims", [0, 1, 2], True),
     ("tables", None, True),
+    ("exclude_grnas", None, True),
+    ("positive_control_wells", None, True),
+    ("negative_control_wells", None, True),
+    ("mixed_control_wells", None, True),
     ("src", "path", False),
     ("count_data", "list of paths", False),
     ("sample", None, False),

@@ -28,7 +28,7 @@ import pandas as pd
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
-from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
@@ -36,10 +36,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .eliding import ElidingPushButton
 from ... import schema
 from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
                           match_keys, object_keys)
 from ...umap_annotations import write_umap_annotations
+from ..hidpi import follow_device_ratio, scaled_for
 from ..linked_selection import LinkedView
 
 LOG = logging.getLogger("spacr.qt.umap_explorer")
@@ -107,12 +109,30 @@ class _AnnotationWorker(QThread):
     finished_result = Signal(int, int, str)
 
     def __init__(self, records, values, column, parent=None):
+        """Write one batch of UMAP annotations off the GUI thread.
+
+        :param records: the objects to annotate.
+        :param values: the label for each, positionally.
+        :param column: the annotation column written to.
+        :param parent: parent object.
+
+        Both sequences are COPIED. They come from a selection the user can
+        change while the write runs, and a worker reading the live list
+        would annotate whatever was selected when it got there rather than
+        what was selected when they asked.
+        """
         super().__init__(parent)
         self._records = list(records)
         self._values = list(values)
         self._column = column
 
     def run(self):
+        """Write the UMAP annotations back and report what landed.
+
+        A failure emits zero written and every record skipped, with the reason,
+        rather than raising: this runs on a worker thread, and a partial write
+        the caller cannot see is worse than one it can.
+        """
         try:
             updated, skipped = write_umap_annotations(
                 self._records, self._values, self._column)
@@ -120,6 +140,25 @@ class _AnnotationWorker(QThread):
         except Exception as exc:
             LOG.info("UMAP annotation write failed", exc_info=True)
             self.finished_result.emit(0, len(self._records), str(exc))
+
+
+#: The explorer names a display setting after the artist it sets; the run
+#: names it after the settings file it is written to. ``generate_image_umap``
+#: maps settings -> display when it builds the payload, and this maps back,
+#: so a value tuned in the display window lands on the key the settings panel
+#: and the settings CSV actually use. Keys not listed here are already the
+#: same on both sides.
+SETTINGS_KEY_FOR_DISPLAY = {
+    "point_size": "dot_size",
+    "canvas_width": "umap_canvas_width",
+    "sidebar_width": "umap_sidebar_width",
+}
+
+
+def as_settings_keys(values: Dict) -> Dict:
+    """Map Image UMAP display keys to their persisted setting names."""
+    return {SETTINGS_KEY_FOR_DISPLAY.get(key, key): value
+            for key, value in (values or {}).items()}
 
 
 class UmapDisplaySettings(QDialog):
@@ -133,6 +172,12 @@ class UmapDisplaySettings(QDialog):
     The ones that cannot are not disabled -- they are editable, saved, and
     take effect on the next run. A greyed control that holds a value the
     user wants to change is worse than a live one with a note beside it.
+
+    :param values: the settings to open on. Every key in :data:`FIELDS` is
+        looked up here; one that is absent falls back to its control's own
+        default rather than raising, so a settings file written before a
+        field existed still opens.
+    :param parent: parent widget.
     """
 
     #: ``key -> (label, kind, low, high, live)``. ``live`` decides which
@@ -150,6 +195,11 @@ class UmapDisplaySettings(QDialog):
     )
 
     def __init__(self, values: Dict, parent=None):
+        """Build the display-settings dialog.
+
+        :param values: the settings to start from.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setWindowTitle("Image UMAP display settings")
         self._editors: Dict[str, QWidget] = {}
@@ -180,6 +230,14 @@ class UmapDisplaySettings(QDialog):
 
     @staticmethod
     def _editor(kind: str, low, high, value):
+        """One editor of the right kind for a setting.
+
+        :param kind: which control the setting wants.
+        :param low: its smallest value.
+        :param high: its largest.
+        :param value: where it starts.
+        :returns: the editor widget.
+        """
         if kind == "int":
             box = QSpinBox()
             box.setRange(int(low), int(high))
@@ -215,16 +273,114 @@ class UmapDisplaySettings(QDialog):
         return {k: v for k, v in self.values().items() if k in live}
 
 
+class _ScaledPreview(QLabel):
+    """The clicked point's crop, shown WHOLE at whatever width it is given.
+
+    A plain ``QLabel`` clips a pixmap wider than itself and says nothing about
+    it, so a crop opened to be inspected loses its edges -- and an object
+    whose interesting part is off-centre can be missing from its own preview.
+    It also cannot be made narrower than the picture, which pins the sidebar
+    at a floor the chart/sidebar divider then has no room to move against.
+
+    Scaling on every resize costs one smooth transform per drag frame and
+    keeps both properties: the whole crop is visible, and the sidebar can
+    yield width to the chart.
+    """
+
+    #: Below this the crop is too small to read, so it is where the sidebar
+    #: stops giving width away.
+    #:
+    #: 120 WAS TOO HIGH, and the reason given for it no longer holds. It
+    #: was set where the controls beneath the crop began to elide -- but
+    #: eliding is what those controls are FOR, and holding the sidebar open
+    #: to prevent it cost the thing the sidebar exists inside: measured,
+    #: the chart/sidebar divider moved on a 1400 px window and was frozen
+    #: at 1000 px and below, because the sidebar was already as narrow as
+    #: this constant allowed.
+    #:
+    #: 72 px is still a legible thumbnail -- the crop is scaled, not
+    #: cropped, so it stays whole -- and it lets the divider move at every
+    #: window size the application opens at.
+    MINIMUM_SIDE = 72
+
+    #: What the label asks the layout for. Fixed on purpose -- see
+    #: :meth:`sizeHint`.
+    PREFERRED_SIDE = 240
+
+    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+        """Build the preview, and follow the screen it is drawn on.
+
+        :param text: the placeholder shown before a pixmap is set.
+        :param parent: parent widget; ownership only.
+        """
+        super().__init__(text, parent)
+        self._source = QPixmap()
+        self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+        # Dragging the window onto a denser screen changes how many real
+        # pixels this label has without changing its size, so no resize
+        # arrives and the crop would stay at the old density.
+        follow_device_ratio(self, self._rescale)
+
+    def sizeHint(self):                                # noqa: N802 - Qt name
+        """A constant, NOT the pixmap's size.
+
+        ``QLabel`` reports the pixmap it is showing as its preferred size.
+        With a pixmap rescaled to whatever the label was given, that is a
+        loop: the layout offers the hint, the label rescales to it, and the
+        next hint is smaller again -- so the preview walks itself down to
+        nothing over a few resizes.
+        """
+        return QSize(self.PREFERRED_SIDE, self.PREFERRED_SIDE)
+
+    def minimumSizeHint(self):                         # noqa: N802 - Qt name
+        """The floor, for the same reason :meth:`sizeHint` is a constant."""
+        return QSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+
+    def setPixmap(self, pixmap: QPixmap) -> None:      # noqa: N802 - Qt name
+        """Remember the full-size crop and show it scaled to fit."""
+        self._source = QPixmap(pixmap)
+        self._rescale()
+
+    def source_pixmap(self) -> QPixmap:
+        """The crop as handed over, before it was scaled to the label."""
+        return self._source
+
+    def _rescale(self) -> None:
+        """Redraw the pixmap for the current size, or pass it through.
+
+        An unsized widget gets the source untouched rather than scaled to
+        nothing, which is what a first paint before layout would otherwise do.
+        """
+        if self._source.isNull() or not self.width() or not self.height():
+            super().setPixmap(self._source)
+            return
+        super().setPixmap(scaled_for(self._source, self, self.size()))
+
+    def resizeEvent(self, event):                      # noqa: N802 - Qt name
+        """Rescale the preview to the new size.
+
+        :param event: the resize event.
+        """
+        super().resizeEvent(event)
+        self._rescale()
+
+
 class ImageUmapExplorer(LinkedView, QWidget):
     """Zoomable embedding: click a point, lasso a group, write labels.
 
     Linked to the shared selection as ``"umap"``. See the module docstring
     for why an incoming selection highlights and an incoming filter dims.
+
+    :param parent: parent widget.
     """
 
     annotation_finished = Signal(int, int)
 
     def __init__(self, parent=None):
+        """Build the explorer: the embedding, the gallery and the writers.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._embedding = np.empty((0, 2), dtype=float)
         self._labels = np.empty(0, dtype=int)
@@ -259,8 +415,14 @@ class ImageUmapExplorer(LinkedView, QWidget):
         # After the UI: both hooks repaint, and a filter can already be set
         # by the time this screen opens.
         self.link_selection("umap")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self):
+        """Lay out the embedding beside the crop gallery."""
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_qtagg import (
             FigureCanvasQTAgg, NavigationToolbar2QT)
@@ -276,17 +438,30 @@ class ImageUmapExplorer(LinkedView, QWidget):
             """
 
             def __init__(self, figure):
+                """Wrap a figure in a canvas that owns its own redraw timer.
+
+                :param figure: the Matplotlib ``Figure`` to draw. The timer
+                    is a child of this canvas, so a queued redraw cannot
+                    outlive the object it would draw on -- which is what
+                    the paragraph above means by owned.
+                """
                 super().__init__(figure)
                 self._spacr_draw_timer = QTimer(self)
                 self._spacr_draw_timer.setSingleShot(True)
                 self._spacr_draw_timer.timeout.connect(self._spacr_draw)
 
             def draw_idle(self):
+                """Queue a redraw on the canvas's OWN timer."""
                 self._draw_pending = True
                 if not self._spacr_draw_timer.isActive():
                     self._spacr_draw_timer.start(0)
 
             def _spacr_draw(self):
+                """Draw once, if a draw is still pending.
+
+                The pending flag is cleared FIRST, so a draw that itself schedules
+                another does not lose it.
+                """
                 if not self._draw_pending:
                     return
                 self._draw_pending = False
@@ -298,6 +473,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
                     return
 
             def cancel_pending_draw(self):
+                """Drop any queued redraw."""
                 self._spacr_draw_timer.stop()
                 self._draw_pending = False
 
@@ -305,9 +481,19 @@ class ImageUmapExplorer(LinkedView, QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(6)
 
+        from ..theme import SPACING, active_palette
+
         self._body_splitter = QSplitter(Qt.Horizontal, self)
+        self._body_splitter.setObjectName("UmapBodySplit")
         self._body_splitter.setChildrenCollapsible(False)
-        from ..theme import active_palette
+        # A HAIRLINE THAT CAN STILL BE HIT. Trading width between the chart
+        # and the sidebar is this widget's main gesture -- a projection of a
+        # few thousand crops is unreadable at panel size -- and the theme
+        # paints every splitter handle 1px, which is 1px of paint and about
+        # 5px of grab. The handle keeps the 1px line the rest of the app
+        # uses and gets a real grab area around it, the same trade the
+        # console panel's divider makes.
+        self._body_splitter.setHandleWidth(SPACING["sm"])
         surface = active_palette()["surface"]
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
@@ -322,9 +508,9 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._body_splitter.addWidget(chart_wrap)
 
         side = QVBoxLayout()
-        self._preview = QLabel("Click a point to preview its image.", self)
+        self._preview = _ScaledPreview("Click a point to preview its image.",
+                                       self)
         self._preview.setAlignment(Qt.AlignCenter)
-        self._preview.setMinimumSize(220, 220)
         self._preview.setStyleSheet("border: 1px solid palette(mid);")
         side.addWidget(self._preview)
         self._point_label = QLabel("", self)
@@ -345,11 +531,23 @@ class ImageUmapExplorer(LinkedView, QWidget):
         form.addRow("Manual label", self._value)
         side.addLayout(form)
 
-        self._apply_selected = QPushButton("Label lasso selection", self)
+        # THESE TWO SET THE SIDEBAR'S FLOOR, AND THROUGH IT THE DIVIDER'S.
+        #
+        # A plain QPushButton's size hint is its whole label, and its
+        # horizontal policy treats that as a hard minimum -- so "Propagate
+        # automatic clusters" pinned the sidebar at 198 px. Measured: the
+        # chart/sidebar divider moved on a 1400 px window and was STUCK at
+        # 1000 px and below, because the sidebar was already as narrow as
+        # its widest word allowed. It was never the image preview.
+        #
+        # An eliding button shortens its own label instead, so the sidebar
+        # gives way and the divider moves at every window size. The full
+        # text stays reachable: eliding sets the tooltip to it.
+        self._apply_selected = ElidingPushButton("Label lasso selection", self)
         self._apply_selected.setObjectName("PrimaryButton")
         self._apply_selected.clicked.connect(self._write_selected)
         side.addWidget(self._apply_selected)
-        self._apply_clusters = QPushButton(
+        self._apply_clusters = ElidingPushButton(
             "Propagate automatic clusters", self)
         self._apply_clusters.setToolTip(
             "Write the current DBSCAN/KMeans cluster number for every point.")
@@ -375,6 +573,32 @@ class ImageUmapExplorer(LinkedView, QWidget):
         side_wrap.setLayout(side)
         side_wrap.setStyleSheet(f"background: {surface};")
         self._body_splitter.addWidget(side_wrap)
+        # The line inside the grab area, so a wider handle does not become a
+        # wider bar -- and an accent line on hover, so the divider answers
+        # before it is dragged.
+        try:
+            border = active_palette()["border_soft"]
+            accent = active_palette()["accent"]
+        except Exception:                                    # noqa: BLE001
+            border, accent = "#3A3A3A", "#4A9EFF"
+        self._body_splitter.setStyleSheet(f"""
+QSplitter#UmapBodySplit::handle:horizontal {{
+    background: transparent;
+    border-left: 1px solid {border};
+}}
+QSplitter#UmapBodySplit::handle:horizontal:hover {{
+    background: transparent;
+    border-left: 1px solid {accent};
+}}
+""")
+        # THE ONLY THING THAT SAYS THE DIVIDER IS THERE before it is found.
+        # A 1px line with no hover text is indistinguishable from the edge
+        # of the chart.
+        handle = self._body_splitter.handle(1)
+        if handle is not None:
+            handle.setToolTip(
+                "Drag to trade width between the chart and the sidebar. The "
+                "plot redraws at the new size; the points do not move.")
         root.addWidget(self._body_splitter, 1)
 
         self._axes = self._figure.add_subplot(111)
@@ -434,7 +658,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
         callback = getattr(self, "_propagate_cb", None)
         if callable(callback):
             try:
-                callback(dialog.values())
+                callback(as_settings_keys(dialog.values()))
             except Exception:
                 LOG.debug("could not propagate the display settings",
                           exc_info=True)
@@ -564,6 +788,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
         return self._point_keys
 
     def _draw_embedding(self) -> None:
+        """Draw every point of the embedding."""
         from matplotlib.widgets import LassoSelector
         from ..theme import active_palette
 
@@ -691,10 +916,9 @@ class ImageUmapExplorer(LinkedView, QWidget):
     def _apply_point_alpha(self) -> None:
         """Repaint opacity so filtered-out points recede without moving.
 
-        A scalar alpha is restored when nothing is filtered, rather than an
-        array of identical values: the display settings are read back from
-        the artist elsewhere, and ``get_alpha()`` returning an array where a
-        float was set is a difference nobody asked for.
+        A scalar alpha is restored when nothing is filtered because display
+        settings elsewhere read the value back from the artist and expect the
+        original scalar form.
         """
         if self._scatter is None:
             return
@@ -717,6 +941,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
         return self._point_visible.copy()
 
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Re-draw for a filter another view has just set.
+
+        :param data_filter: the new shared filter.
+        """
         self._recompute_visible_points()
         self._apply_point_alpha()
         self._status.setText(self._payload_status())
@@ -745,6 +973,12 @@ class ImageUmapExplorer(LinkedView, QWidget):
             match_keys(keys, selection.keys))
 
     def _draw_linked_points(self) -> None:
+        """Redraw only the points a linked view has selected.
+
+        SEPARATE FROM THE FULL DRAW because a selection changes often and the
+        embedding does not: redrawing every point on each linked change makes
+        brushing in another view feel like the application has stalled.
+        """
         if self._linked_artist is None:
             return
         points = (self._embedding[self._linked_points]
@@ -782,6 +1016,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:
+        """Select the point under the click.
+
+        :param event: the matplotlib click event.
+        """
         if (event.inaxes is not self._axes or event.xdata is None
                 or not len(self._embedding)):
             return
@@ -822,6 +1060,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._canvas.draw_idle()
 
     def _on_lasso(self, vertices: Sequence) -> None:
+        """Select every point inside a drawn outline.
+
+        :param vertices: the outline the user drew.
+        """
         from matplotlib.path import Path
 
         inside = Path(vertices).contains_points(self._embedding)
@@ -829,6 +1071,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._refresh_selection()
 
     def _select_cluster(self, _index: int) -> None:
+        """Select a whole cluster from the cluster list.
+
+        :param _index: the row clicked; the cluster is re-read from the list.
+        """
         label = self._cluster_box.currentData()
         if label is None:
             return
@@ -836,6 +1082,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._refresh_selection()
 
     def _refresh_selection(self) -> None:
+        """Redraw the gallery and the counts for the current selection."""
         points = (self._embedding[self._selected]
                   if len(self._selected) else np.empty((0, 2)))
         self._selection_artist.set_offsets(points)
@@ -865,6 +1112,7 @@ class ImageUmapExplorer(LinkedView, QWidget):
             LOG.info("publishing the UMAP selection failed", exc_info=True)
 
     def _write_selected(self) -> None:
+        """Write the selected points' labels to the database."""
         if not len(self._selected):
             self._status.setText("Draw a lasso or select a cluster first.")
             return
@@ -873,10 +1121,17 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._start_write(records, values, "manual selection")
 
     def _write_clusters(self) -> None:
+        """Write every cluster's label to the database."""
         self._start_write(
             self._records, self._labels.tolist(), "automatic clusters")
 
     def _start_write(self, records, values, label: str) -> None:
+        """Write labels on a worker, so the window stays responsive.
+
+        :param records: the objects to label.
+        :param values: the label for each.
+        :param label: what to call this write in the status area.
+        """
         if self._worker is not None and self._worker.isRunning():
             self._status.setText("An annotation write is already running.")
             return
@@ -890,11 +1145,29 @@ class ImageUmapExplorer(LinkedView, QWidget):
         worker.start()
 
     def _set_write_enabled(self, enabled: bool) -> None:
+        """Disable the write buttons while a write is running.
+
+        SO A SECOND WRITE CANNOT START on top of the first: two writers on one
+        SQLite database is a lock error at best, and interleaved labels at
+        worst.
+
+        :param enabled: True to allow writing.
+        """
         self._apply_selected.setEnabled(enabled)
         self._apply_clusters.setEnabled(enabled)
 
     @Slot(int, int, str)
     def _on_write_done(self, updated: int, skipped: int, error: str) -> None:
+        """Report what a finished write actually changed.
+
+        SAYS WHAT IT SKIPPED as well as what it wrote: an object already
+        carrying that label is not an error, but a user who asked for 400 and
+        got 380 needs to know which of the two happened.
+
+        :param updated: how many rows were written.
+        :param skipped: how many already had the label.
+        :param error: what went wrong, if anything.
+        """
         self._worker = None
         self._set_write_enabled(True)
         if error:
@@ -905,6 +1178,10 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self.annotation_finished.emit(updated, skipped)
 
     def closeEvent(self, event):
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):

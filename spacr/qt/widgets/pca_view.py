@@ -159,11 +159,17 @@ class FeaturePicker(QWidget):
     anybody makes twice. The default ticks every continuous column, which is
     what :func:`~spacr.qt.widgets.pca_model.candidate_features` offers and what
     a user exploring a new table wants first.
+
+    :param parent: parent widget.
     """
 
     changed = Signal()
 
     def __init__(self, parent=None):
+        """Build the feature list with its search box.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("PCAFeaturePicker")
         self._all: Tuple[str, ...] = ()
@@ -214,6 +220,10 @@ class FeaturePicker(QWidget):
         self._refilter()
 
     def set_selected(self, features) -> None:
+        """Tick exactly these features and untick the rest.
+
+        :param features: the feature names to select.
+        """
         self._checked = {f for f in features if f in self._all}
         self._refilter()
 
@@ -222,28 +232,40 @@ class FeaturePicker(QWidget):
         return tuple(f for f in self._all if f in self._checked)
 
     def available(self) -> Tuple[str, ...]:
+        """Every feature the picker is offering.
+
+        :returns: the feature names, in list order.
+        """
         return self._all
 
     # -- buttons ---------------------------------------------------------
     def select_all(self) -> None:
+        """Tick every offered feature."""
         self._checked |= set(self._visible())
         self._refilter()
 
     def select_none(self) -> None:
+        """Untick everything."""
         self._checked -= set(self._visible())
         self._refilter()
 
     def invert(self) -> None:
+        """Tick what was unticked and untick what was ticked."""
         for name in self._visible():
             self._checked ^= {name}
         self._refilter()
 
     # -- internals -------------------------------------------------------
     def _visible(self) -> List[str]:
+        """The features the search box is letting through.
+
+        :returns: the visible feature names.
+        """
         needle = self._search.text().strip().lower()
         return [n for n in self._all if not needle or needle in n.lower()]
 
     def _refilter(self) -> None:
+        """Re-list the features matching the search box."""
         self._list.blockSignals(True)
         self._list.clear()
         for name in self._visible():
@@ -261,6 +283,10 @@ class FeaturePicker(QWidget):
         self.changed.emit()
 
     def _on_item_changed(self, item: QListWidgetItem) -> None:
+        """Note that a feature was ticked or unticked.
+
+        :param item: the row that changed.
+        """
         name = item.data(Qt.UserRole)
         if item.checkState() == Qt.Checked:
             self._checked.add(name)
@@ -285,11 +311,17 @@ class ScreePlot(QWidget):
     Clicking a bar emits :attr:`component_picked`, so the scree plot is the
     control that chooses what the scores plot draws rather than a decoration
     beside it.
+
+    :param parent: parent widget.
     """
 
     component_picked = Signal(int)
 
     def __init__(self, parent=None):
+        """Build the variance-explained plot.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self.setObjectName("PCAScreePlot")
         self._result: Optional[PCAResult] = None
@@ -312,11 +344,20 @@ class ScreePlot(QWidget):
 
     def set_result(self, result: Optional[PCAResult], *,
                    highlight: Tuple[int, int] = (0, 1)) -> None:
+        """Show the variance explained by each component of a decomposition.
+
+        :param result: the PCA result, or None to clear.
+        """
         self._result = result
         self._highlight = highlight
         self.render_now()
 
     def render_now(self) -> None:
+        """Draw immediately rather than on the next idle turn.
+
+        For a caller that is about to read pixels -- an export, or a test --
+        and cannot wait for the event loop to get round to it.
+        """
         palette = active_palette()
         self._figure.clear()
         # `clear()` restores the rc facecolor and its alpha with it.
@@ -370,6 +411,10 @@ class ScreePlot(QWidget):
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:
+        """Report which component the user clicked.
+
+        :param event: the matplotlib click event.
+        """
         if self._result is None or event.xdata is None:
             return
         index = int(round(float(event.xdata)))
@@ -391,11 +436,26 @@ class PCAScoresCanvas(GraphCanvas):
     pair of components happens to be on x and y, read from the spec rather than
     configured separately, so the arrows cannot end up describing a different
     plane from the points.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     def __init__(self, parent=None, *, link=None, source: str = "pca"):
         # Before super().__init__: the base constructor wires a debounce timer
         # to self.render_now, which is this class's override and reads these.
+        """Build the scores plot and link it to the shared selection.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table being decomposed.
+        """
         self._result: Optional[PCAResult] = None
         self._biplot = True
         self._arrow_count = DEFAULT_ARROWS
@@ -416,6 +476,10 @@ class PCAScoresCanvas(GraphCanvas):
 
     @property
     def result(self) -> Optional[PCAResult]:
+        """The decomposition being plotted, if any.
+
+        :returns: the PCA result, or None before one has been computed.
+        """
         return self._result
 
     def set_biplot(self, on: bool, *, count: Optional[int] = None,
@@ -458,15 +522,23 @@ class PCAScoresCanvas(GraphCanvas):
 
     # -- rendering -------------------------------------------------------
     def render_now(self) -> None:
+        """Draw immediately rather than on the next idle turn."""
         super().render_now()
         self._arrow_scale = 0.0
         try:
             self._draw_arrows()
-        except Exception:  # pragma: no cover - a decoration must never
-            # take the chart down with it.
+        except Exception:
+            # A DECORATION MUST NEVER TAKE THE CHART WITH IT. The scores
+            # are the plot; the loading arrows are an overlay on top of
+            # them, so a failure here costs the arrows and nothing else.
             LOG.debug("could not draw the loading arrows", exc_info=True)
 
     def _draw_arrows(self) -> None:
+        """Draw the loading arrows over the scores.
+
+        THE ARROWS ARE WHAT MAKES A PCA READABLE: the scores say which objects
+        are alike, and only the loadings say what the axes mean.
+        """
         if not self._biplot or not self._arrow_count:
             return
         plane = self.plane()
@@ -500,11 +572,27 @@ class PCAScoresCanvas(GraphCanvas):
                        zorder=3)
             ax.axvline(0.0, color=palette["border_soft"], linewidth=0.7,
                        zorder=3)
+            # THE FINITE CHECK IS FOR set_result's CALLERS, not for
+            # `pca()`. A result from `pca()` cannot carry a non-finite
+            # correlation -- it ends that block with
+            # `np.clip(np.nan_to_num(correlations), -1, 1)`, and 4,000
+            # adversarial frames (zero-variance columns, collinear pairs,
+            # 1e12 and 1e-12 magnitudes, NaN and infinite entries) never
+            # produced one.
+            #
+            # But `set_result` is public and takes any PCAResult, and the
+            # dataclass validates nothing. An arrow to a NaN is a line to
+            # nowhere on a plot the reader takes at face value, so the
+            # feature loses its arrow and the rest keep theirs.
+            #
+            # It carried a `no cover` pragma claiming it was unreachable.
+            # It was covered all along, by
+            # test_a_feature_whose_correlation_is_not_a_number_gets_no_arrow.
             for i in picked:
                 dx = float(result.correlations[i, kx]) * scale
                 dy = float(result.correlations[i, ky]) * scale
                 if not (np.isfinite(dx) and np.isfinite(dy)):
-                    continue  # pragma: no cover - correlations are clipped
+                    continue
                 ax.annotate(
                     "", xy=(dx, dy), xytext=(0.0, 0.0), zorder=7,
                     arrowprops={"arrowstyle": "-|>", "color": ink,
@@ -535,6 +623,10 @@ class PCAPanel(QWidget):
         :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through,
         so the application gets the threaded panel and a panel built directly
         keeps returning its result from the call.
+    :param parent: parent widget; ownership only.
+    :param source: this view's name on the link, stamped onto everything it
+        publishes so a selection can be attributed and a view does not react
+        to its own brushing. Two panels sharing a link MUST NOT share this.
     """
 
     #: Emitted after every successful decomposition.
@@ -545,6 +637,13 @@ class PCAPanel(QWidget):
 
     def __init__(self, parent=None, *, link=None, source: str = "pca",
                  threaded: bool = False):
+        """Build the picker, the scree plot and the scores canvas.
+
+        :param parent: parent widget.
+        :param link: the shared selection to join, if any.
+        :param source: the table to decompose.
+        :param threaded: whether the fit runs on a worker.
+        """
         super().__init__(parent)
         self.setObjectName("PCAPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -671,6 +770,11 @@ class PCAPanel(QWidget):
         self._biplot.toggled.connect(self._on_view_changed)
         self._arrows.valueChanged.connect(self._on_view_changed)
         self.scree.component_picked.connect(self._on_scree_clicked)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame], *,
@@ -692,6 +796,10 @@ class PCAPanel(QWidget):
 
     @property
     def result(self) -> Optional[PCAResult]:
+        """The decomposition this panel is showing, if any.
+
+        :returns: the PCA result, or None before one has been computed.
+        """
         return self._result
 
     @property
@@ -750,11 +858,17 @@ class PCAPanel(QWidget):
         self._jobs.cancel()
 
         def _fit():
+            """Fit the decomposition. Off the GUI thread when threaded."""
             try:
                 result = pca(frame, spec)
             except PCAError as exc:
                 return {"error": str(exc)}
-            except Exception as exc:  # pragma: no cover - defensive
+            except Exception as exc:
+                # ANYTHING THAT IS NOT A PCAError. That one is the
+                # expected refusal and carries its own explanation; this
+                # is a fault inside the decomposition, and it runs on a
+                # worker where an escaping exception has nowhere to go.
+                # The 'PCA failed:' prefix is what tells the two apart.
                 LOG.info("PCA failed", exc_info=True)
                 return {"error": f"PCA failed: {exc}"}
             # `scores_frame` is another pass over the table; it belongs on
@@ -792,12 +906,11 @@ class PCAPanel(QWidget):
         """True while a decomposition has not delivered its result."""
         return self._jobs.is_busy()
 
-    def closeEvent(self, event):  # noqa: N802 - Qt name
-        """Abandon an in-flight fit rather than let it outlive the panel."""
-        self._jobs.shutdown()
-        super().closeEvent(event)
-
     def _show_failure(self, message: str) -> None:
+        """Report a decomposition that could not be computed.
+
+        :param message: what went wrong.
+        """
         self._result = None
         self._scores = None
         self.scree.set_result(None)
@@ -832,6 +945,7 @@ class PCAPanel(QWidget):
             self._building = False
 
     def _apply_view(self) -> None:
+        """Redraw for the currently chosen pair of components."""
         if self._result is None:
             return
         kx, ky = self._plane()
@@ -847,11 +961,18 @@ class PCAPanel(QWidget):
         self.scree.set_result(self._result, highlight=(kx, ky))
 
     def _on_option_changed(self, *_args) -> None:
+        """Refit after a scaling or component-count option moved."""
         if self._building:
             return
         self.recompute()
 
     def _on_view_changed(self, *_args) -> None:
+        """Redraw after the displayed component pair changed.
+
+        SEPARATE FROM A REFIT: choosing different axes to look along does not
+        change the decomposition, and refitting for it would throw away a
+        result that is still correct.
+        """
         if self._building:
             return
         self._apply_view()
@@ -881,6 +1002,13 @@ class PCAPanel(QWidget):
         self._apply_view()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Abandon an in-flight fit rather than let it outlive the panel.
+
+        The worker holds the table and delivers into widgets that are being
+        destroyed, so the runner is shut down before the canvas it would have
+        drawn into is closed.
+        """
+        self._jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
 
@@ -890,6 +1018,12 @@ class PCAPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _pca_qss(palette, opacity) -> str:
+    """Build the PCA panel's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the panel's surface.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""

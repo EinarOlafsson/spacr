@@ -40,6 +40,7 @@ from ..widgets.trellis_view import TrellisPanelWidget
 from ..widgets.trellis_spec import TrellisSpec
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.trellis")
 
@@ -56,9 +57,22 @@ class TrellisScreen(QWidget):
 
     :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
         for tests. ``None`` joins the process-wide one.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
+        CALL; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the trellis panel beside the filter and column tabs.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the panel and the filter.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("TrellisScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -107,7 +121,16 @@ class TrellisScreen(QWidget):
         body.addWidget(self.panel)
 
         side = QTabWidget(self)
-        side.setMaximumWidth(360)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 360 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        side.setMaximumWidth(scaled_px(360))
         self.filters = DataFilterPanel(self, link=link)
         side.addTab(self.filters, "Filter")
         self.formulas = FormulaPanel(self)
@@ -121,6 +144,11 @@ class TrellisScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "trellis")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
@@ -146,9 +174,11 @@ class TrellisScreen(QWidget):
         self.filters.set_frame(frame)
 
     def _on_formulas_changed(self) -> None:
+        """Recompute the derived columns and push the frame back to the panel."""
         self._push_frame()
 
     def choose_table(self) -> None:
+        """Ask which table in the project to plot."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -202,32 +232,61 @@ class TrellisScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(
             f"could not read {os.path.basename(path)}: {message}")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return self._jobs.active_jobs()
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
         return self._jobs.is_busy()
 
     # -- the grid ---------------------------------------------------------
     @property
     def spec(self) -> TrellisSpec:
+        """The grid the screen is drawing.
+
+        :returns: the trellis spec.
+        """
         return self.panel.spec
 
     def set_spec(self, spec: TrellisSpec) -> None:
+        """Draw a different grid.
+
+        :param spec: the trellis spec.
+        """
         self.panel.set_spec(spec)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         # Abandon an in-flight read rather than let it outlive the screen:
         # Qt aborts the process if a running QThread is destroyed.
+        """Let the panel close first, so it can unlink its canvas.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.panel.close()
         super().closeEvent(event)
@@ -238,25 +297,17 @@ def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
     return TrellisScreen()
 
 
-APP_NAME = "Small Multiples"
-APP_DESCRIPTION = "One chart per group, in a grid, on axes that really are shared"
-APP_INTRO = (
-    "Drop a column on X or Y to say what each panel shows, then a grouping "
-    "column on Facet ↓ or Facet → to repeat it once per level. Axes are "
-    "shared by default, so a shift between panels is a shift in the data; "
-    "free, per-row and per-column scales are available and the grid says so "
-    "when they are on. Every panel prints its n.")
-APP_CLI_NOTE = (
-    "Small Multiples is interactive: the drop zones, the scale options and "
-    "the brush are the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.trellis_spec.trellis() computes the same grid — panels, "
-    "scales and per-panel n — with no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Smådiagram", "Kleine Vielfache", "Múltiplos pequeños",
-    "小型多组图", "Pequenos múltiplos", "स्मॉल मल्टीपल्स", "스몰 멀티플",
-    "Smámyndaröð", "Petits multiples")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -267,19 +318,15 @@ def register() -> bool:
     before ``MainWindow.__init__`` reads the registry — the position the
     docstring there explains.
 
-    Everything after ``SECTION_EXPLORE`` is a table this key would otherwise
-    need a hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_trellis_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/trellis",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

@@ -142,13 +142,31 @@ HISTOGRAM = "histogram"
 BAR = "bar"
 BOX = "box"
 VIOLIN = "violin"
+#: The two the maintainer named that had no kind (200).
+#:
+#: "I want to be able to choose between: Bar, Bar+jitter, Jitter, Box,
+#: Violin, Line (with and without spread), Scatter".
+#:
+#: JITTER IS NOT SCATTER WITH NOISE ADDED. A scatter puts a point at its own
+#: x; a jitter puts every point of a CATEGORY at that category's position,
+#: spread sideways only so they can be told apart. The x displacement carries
+#: no information and must not be read as though it did -- which is why it is
+#: its own kind rather than a scatter option.
+JITTER = "jitter"
+#: The bar with its own observations drawn over it. The most honest of the
+#: summary plots, because the summary and the thing summarised are in the
+#: same picture: a bar hiding four points and a bar hiding four hundred look
+#: identical until the points are on it.
+BAR_JITTER = "bar_jitter"
 HEATMAP = "heatmap"
 EMPTY = "empty"
 
 #: Everything a user may pick from the override menu, plus ``EMPTY`` which is
 #: only ever inferred (there is nothing to override when nothing is dropped).
 PLOT_KINDS: Tuple[str, ...] = (
-    SCATTER, LINE, HISTOGRAM, BAR, BOX, VIOLIN, HEATMAP, EMPTY)
+    SCATTER, LINE, HISTOGRAM, BAR, JITTER, BAR_JITTER, BOX, VIOLIN,
+    HEATMAP, EMPTY,
+)
 
 #: Kinds that reduce many rows to few marks. They never sample: the reduction
 #: *is* the answer, and computing it on a tenth of the rows would move it.
@@ -281,8 +299,23 @@ class GraphSpec:
     shared_y: bool = True
     point_budget: int = DEFAULT_POINT_BUDGET
     seed: int = 0
+    #: Whisker statistic selected from ``figures.spread.SPREAD_CHOICES``.
+    #: Used only when a bar averages a numeric channel; count bars have no
+    #: within-group measurement distribution to summarize.
+    spread: str = "none"
 
     def __post_init__(self) -> None:
+        """Normalise the channels and validate the plot settings.
+
+        ``""`` and ``None`` both mean an empty zone and are normalised to
+        ``None``, which is what lets ``if spec.x:`` be the whole test everywhere
+        else.
+
+        :raises SpecError: if the plot kind is not one this module offers --
+            ``None`` is allowed and means "infer it from the columns dropped";
+            if a role override is neither continuous nor categorical; or if
+            ``bins`` is below 1.
+        """
         for channel in CHANNELS:
             value = getattr(self, channel)
             # "" and None both mean "empty zone"; normalising here is what
@@ -320,7 +353,10 @@ class GraphSpec:
         return {channel: getattr(self, channel) for channel in CHANNELS}
 
     def column_for(self, channel: str) -> Optional[str]:
-        """The column on ``channel``. :raises SpecError: on an unknown channel."""
+        """The column on ``channel``.
+
+        :raises SpecError: on an unknown channel.
+        """
         if channel not in CHANNELS:
             raise SpecError(
                 f"unknown channel {channel!r}; the drop zones are "
@@ -406,10 +442,19 @@ class GraphSpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "GraphSpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     # -- for a caption --------------------------------------------------
@@ -539,6 +584,10 @@ class FacetPanel:
 
     @property
     def n(self) -> int:
+        """How many rows landed in this panel.
+
+        :returns: the row count.
+        """
         return int(len(self.index))
 
     @property
@@ -580,6 +629,10 @@ class FacetGrid:
 
     @property
     def shape(self) -> Tuple[int, int]:
+        """The grid's size as ``(rows, columns)`` of facet levels.
+
+        :returns: the row and column counts.
+        """
         return len(self.row_levels), len(self.col_levels)
 
     @property
@@ -589,9 +642,19 @@ class FacetGrid:
 
     @property
     def is_faceted(self) -> bool:
+        """Whether this is a grid rather than a single chart.
+
+        :returns: True when either axis has levels.
+        """
         return bool(self.row_column or self.col_column)
 
     def panel(self, row: int, col: int) -> FacetPanel:
+        """The panel at one grid position.
+
+        :param row: the grid row, from 0.
+        :param col: the grid column, from 0.
+        :returns: the panel.
+        """
         return self.panels[row * len(self.col_levels) + col]
 
 
@@ -602,6 +665,7 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     """Split ``frame`` into the grid ``spec``'s facet channels describe.
 
     :param frame: the rows to place into panels (post-filter, post-sample).
+    :param spec: graph channels and facet columns that define the grid.
     :param levels_source: where the *levels* come from, when that is not
         ``frame``. The renderer passes the pre-sample frame, so a level that
         exists in the population but drew no rows in the sample still gets its
@@ -616,6 +680,7 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     notices = []
 
     def axis(column: Optional[str]) -> Tuple[Tuple[Optional[str], ...], int]:
+        """One facet axis's levels and how many there are."""
         if not column:
             return (None,), 0
         levels, cut = _levels(source, column, max_levels)
@@ -641,7 +706,13 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
             col_levels = col_levels[:-1]
         elif len(row_levels) > 1:
             row_levels = row_levels[:-1]
-        else:  # pragma: no cover - unreachable while max_panels >= 1
+        else:
+            # NEITHER AXIS CAN LOSE ANOTHER LEVEL. At one row and one
+            # column the product is 1, so the loop is only still running
+            # if the ceiling is below 1 -- which no caller in spaCR
+            # passes, but `max_panels` is a documented keyword and the
+            # cost of being wrong here is not a wrong picture, it is an
+            # infinite loop and a frozen window with nothing in the log.
             break
         notices.append(f"grid capped at {max_panels} panels")
 
@@ -688,6 +759,13 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
 # ---------------------------------------------------------------------------
 
 def _numeric(frame: pd.DataFrame, column: Optional[str]) -> Optional[np.ndarray]:
+    """Read one column as floats, or ``None`` when it is not there.
+
+    :param frame: the table.
+    :param column: the column; empty or absent gives ``None``, which is what
+        lets an unfilled channel be tested with ``if``.
+    :returns: the values, with anything unparseable as NaN.
+    """
     if not column or column not in frame.columns:
         return None
     return pd.to_numeric(frame[column], errors="coerce").to_numpy(dtype=float)
@@ -750,6 +828,14 @@ class Scales:
         return {level: i for i, level in enumerate(self.x_levels)}
 
     def y_positions(self) -> Optional[Dict[str, int]]:
+        """Where each categorical y level sits on the axis.
+
+        None for a continuous y, which is the distinction a renderer needs:
+        a category is drawn at an integer position it was assigned, a number
+        at the position it IS.
+
+        :returns: ``{level: position}``, or None when y is continuous.
+        """
         if self.y_levels is None:
             return None
         return {level: i for i, level in enumerate(self.y_levels)}
@@ -757,6 +843,15 @@ class Scales:
 
 def _category_levels(frame: pd.DataFrame, column: Optional[str],
                      limit: int = 60) -> Optional[Tuple[str, ...]]:
+    """Return a column's distinct values, sorted and capped.
+
+    :param frame: the table.
+    :param column: the column; empty or absent gives ``None``.
+    :param limit: how many levels to return -- a categorical axis past this
+        is unreadable, and the cap is what stops a free-text column being
+        drawn as ten thousand ticks.
+    :returns: the levels, or ``None``.
+    """
     if not column or column not in frame.columns:
         return None
     found = sorted({str(v) for v in _level_series(frame, column).unique()},
@@ -788,6 +883,9 @@ def scales_for(frame: pd.DataFrame, spec: GraphSpec,
 
     :param frame: the rows that will be drawn — post-filter and post-sample,
         so the limits bound what is actually on screen.
+    :param spec: graph channels, kind and bin count to scale.
+    :param kinds: mapping from column names to continuous or categorical
+        axis kinds.
     :param grid: needed only for :attr:`Scales.count_limit`, which is the
         maximum over panels and therefore cannot be computed from the frame
         alone.

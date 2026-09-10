@@ -58,7 +58,13 @@ def _close_figures():
 def force_cpu(monkeypatch):
     """Force the CPU path even on a CUDA box and record empty_cache() calls."""
     import torch
+    cpu = torch.device("cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    monkeypatch.setattr(O.accelerator, "torch_device", lambda: cpu)
+    monkeypatch.setattr(
+        O.accelerator, "cellpose_kwargs",
+        lambda: {"gpu": False, "device": cpu},
+    )
     calls = []
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: calls.append(1))
     return calls
@@ -299,7 +305,7 @@ def test_eval_receives_every_spacr_parameter_for_this_object_type(
     """The eval kwargs are where the silent-discard bugs live, so pin them."""
     src = tmp_path / "stack"
     _write_npz(src, n=3)
-    settings = _settings(src, batch_size=8, nucleus_FT=0.7, nucleus_CP_prob=-1.5,
+    settings = _settings(src, batch_size=8, nucleus_flow_threshold=0.7, nucleus_cellprob_threshold=-1.5,
                          nucleus_min_area=25)
 
     O.generate_cellpose_masks(str(src), settings, "nucleus")
@@ -324,7 +330,12 @@ def test_eval_receives_every_spacr_parameter_for_this_object_type(
     # cellpose_nucleus_channel == 0 -- so the two tests disagreed with each
     # other and this was the one that matched the resume-path bug rather than
     # the writer.
-    assert kw["channels"] == [0]
+    #
+    # That dense position is still asserted, but through the batch handed over
+    # rather than through a channels= kwarg: cellpose 4 discards the kwarg, so
+    # spaCR no longer sends one. See
+    # test_channels_are_remapped_to_the_compacted_stack.
+    assert "channels" not in model.eval_configured[0]
     # _get_diam(20, 'nucleus') == int(0.75 * 20 + 45) == 60
     assert kw["diameter"] == 60
     assert kw["flow_threshold"] == 0.7
@@ -347,8 +358,8 @@ def test_pathogen_uses_its_own_thresholds_and_does_not_resample(
         tmp_path, fake_cellpose):
     src = tmp_path / "stack"
     _write_npz(src, n=2, c=3)
-    settings = _settings(src, pathogen_channel=2, pathogen_FT=0.3,
-                         pathogen_CP_prob=2.0)
+    settings = _settings(src, pathogen_channel=2, pathogen_flow_threshold=0.3,
+                         pathogen_cellprob_threshold=2.0)
 
     O.generate_cellpose_masks(str(src), settings, "pathogen")
 
@@ -374,30 +385,38 @@ def test_channels_are_remapped_to_the_compacted_stack(
     re-indexed; indexing it with the raw channel number is an IndexError or,
     worse, the wrong channel."""
     src = tmp_path / "stack"
-    _write_npz(src, n=2, c=3)
+    data, _ = _write_npz(src, n=2, c=3)
     settings = _settings(src, nucleus_channel=1, cell_channel=3,
                          pathogen_channel=5)
 
     O.generate_cellpose_masks(str(src), settings, object_type)
 
     model = fake_cellpose["model"]
-    assert model.eval_kwargs[0]["channels"] == expected_channels
     # The remap that actually matters: the batch handed over holds exactly the
-    # selected planes. This half is real work; the channels= kwarg above is
-    # not -- see the xfail below.
-    assert model.eval_inputs[0][0].shape == (32, 32, expected_depth)
+    # selected planes, in the selected ORDER. This is now the remap's only
+    # observable -- it used to be echoed into a channels= kwarg as well, but
+    # that was a Cellpose 3 no-op and is gone (see the test below).
+    #
+    # The batch is normalized on the way in, so the planes cannot be compared
+    # by value. Identify each one instead: correlate it against every source
+    # plane and require the best match to be the plane that was asked for.
+    # Normalization is monotonic per plane, so it moves the values without
+    # moving which source plane they came from. Asserting depth alone would
+    # let "cell" pick [0, 1] instead of [1, 0] and still pass.
+    handed = model.eval_inputs[0][0]
+    assert handed.shape == (32, 32, expected_depth)
+    for position, source_plane in enumerate(expected_channels):
+        scores = [
+            abs(np.corrcoef(handed[:, :, position].ravel(),
+                            data[0][:, :, candidate].ravel())[0, 1])
+            for candidate in range(data.shape[3])
+        ]
+        assert int(np.argmax(scores)) == source_plane, (
+            f"{object_type} plane {position} should be source channel "
+            f"{source_plane}, but correlates best with {int(np.argmax(scores))}"
+        )
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/object.py:1251 passes channels=channels to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads the value, so the carefully remapped pair reaches nothing. The "
-    "remap itself is still needed -- it selects the planes that go into the "
-    "batch -- but the kwarg is a Cellpose 3 leftover, and "
-    "spacr.model_compare.IGNORED_ARGUMENTS already lists 'channels' as this "
-    "exact no-op. Fix: drop channels= from the eval call; the sibling "
-    "generator spacr/object.py:1913 already omits it."))
 def test_generate_cellpose_masks_does_not_pass_a_dead_channels_argument(
         tmp_path, fake_cellpose):
     """A remapped channel list that Cellpose discards is not configuration.
@@ -1013,7 +1032,13 @@ def test_a_cuda_box_builds_a_gpu_model_on_device_zero(
     """Only the device selection is exercised — no kernel ever runs, because
     Cellpose is the fake."""
     import torch
+    cuda = torch.device("cuda:0")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(O.accelerator, "torch_device", lambda: cuda)
+    monkeypatch.setattr(
+        O.accelerator, "cellpose_kwargs",
+        lambda: {"gpu": True, "device": cuda},
+    )
 
     src = tmp_path / "stack"
     _write_npz(src, n=2)
@@ -1039,7 +1064,9 @@ def test_a_run_without_a_nucleus_channel_leaves_the_cellpose_alias_unset(
     assert settings.get("cellpose_nucleus_channel") is None
     assert settings.get("cellpose_cell_channel") is None
     assert settings["cellpose_pathogen_channel"] == 0
-    assert fake_cellpose["model"].eval_kwargs[0]["channels"] == [0]
+    # The alias is what steers the plane selection; cellpose 4 discards a
+    # channels= kwarg, so spaCR sends none and the batch carries the choice.
+    assert "channels" not in fake_cellpose["model"].eval_configured[0]
 
 
 # --------------------------------------------------------------------------- #
@@ -1128,6 +1155,12 @@ def test_the_sam_generator_also_builds_a_gpu_model_on_a_cuda_box(
         tmp_path, fake_sam_model, monkeypatch, capsys):
     import torch
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    gpu = torch.device("cuda:7")
+    monkeypatch.setattr(
+        O.accelerator,
+        "cellpose_kwargs",
+        lambda: {"gpu": True, "device": gpu},
+    )
 
     src = tmp_path / "stack"
     _write_npz(src, n=2)
@@ -1135,7 +1168,7 @@ def test_the_sam_generator_also_builds_a_gpu_model_on_a_cuda_box(
 
     model = fake_sam_model["model"]
     assert model.gpu is True
-    assert str(model.device) == "cuda:0"
+    assert str(model.device) == "cuda:7"
     assert model.pretrained_model == "cpsam"
     assert "Torch CUDA is not available" not in capsys.readouterr().out
 
@@ -1163,7 +1196,7 @@ def test_the_sam_generator_keeps_the_batch_whole_for_unusable_frame_limits(
         src, timelapse=True, timelapse_objects=["cell"], timelapse_mode="trackpy",
         timelapse_displacement=10, timelapse_memory=3,
         timelapse_remove_transient=False, timelapse_frame_limits=limits,
-        batch_size=2, cell_min_object_area=0, nucleus_min_object_area=0,
+        batch_size=2, cell_min_split_area=0, nucleus_min_split_area=0,
     )
 
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
@@ -1184,7 +1217,7 @@ def test_sam_generator_routes_to_ultrack_with_its_solver_parameters(
         timelapse_remove_transient=True, timelapse_frame_limits=[0, 3],
         ultrack_max_distance=33.0, ultrack_division_weight=-0.25,
         ultrack_contour_sigma=1.5, ultrack_n_workers=2,
-        cell_min_object_area=0, nucleus_min_object_area=0,
+        cell_min_split_area=0, nucleus_min_split_area=0,
     )
 
     O.generate_cellpose_masks_sam(str(src), settings, "cell")

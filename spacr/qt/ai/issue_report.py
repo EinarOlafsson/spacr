@@ -30,6 +30,10 @@ from typing import Any, Dict, List, Optional
 REPO = "EinarOlafsson/spacr"
 ISSUE_LABEL = "auto-filed"
 LOG_TAIL_LINES = 50
+
+#: Lines kept in the log file saved beside a report. Larger than
+#: :data:`LOG_TAIL_LINES` because this one is not going into a URL.
+LOG_BUNDLE_LINES = 2000
 MAX_URL_LEN = 7500   # GitHub caps the pre-filled issue URL at ~8 KB
 
 
@@ -221,6 +225,43 @@ def log_tail(n_lines: int = LOG_TAIL_LINES,
     return sanitize_path("".join(lines[-n_lines:]))
 
 
+def log_bundle_dir() -> Path:
+    """Where a report's log copy is written."""
+    return Path.home() / ".spacr" / "reports"
+
+
+def save_log_bundle(fingerprint: str,
+                    log_path: Optional[Path] = None,
+                    n_lines: int = LOG_BUNDLE_LINES) -> Optional[Path]:
+    """Write the log tail to a file beside the report and return its path.
+
+    The public issue names this path instead of carrying the log itself.
+    More lines are kept here than would ever have gone in an issue --
+    once the log is not being pasted into a URL there is no length to
+    stay under, and whoever reads the report wants the whole run, not a
+    keyhole.
+
+    :param fingerprint: the traceback hash, so one report's log is easy
+        to match to the issue that names it.
+    :param log_path: override for the log file path.
+    :param n_lines: how many trailing lines to keep.
+    :returns: the path written, or ``None`` if there was nothing to write
+        or the write failed -- a report must still be filable on a
+        read-only home directory.
+    """
+    tail = log_tail(n_lines=n_lines, log_path=log_path)
+    if not tail.strip():
+        return None
+    try:
+        folder = log_bundle_dir()
+        folder.mkdir(parents=True, exist_ok=True)
+        target = folder / f"log-{fingerprint}.txt"
+        target.write_text(tail, encoding="utf-8")
+    except Exception:
+        return None
+    return target
+
+
 # ---------------------------------------------------------------------------
 # Report builder
 # ---------------------------------------------------------------------------
@@ -242,6 +283,13 @@ def _env_lines() -> List[str]:
 
 
 def _optional_version(pkg: str) -> str:
+    """Report an optional package's version for the issue body.
+
+    :param pkg: the distribution name.
+    :returns: its version, or a marker saying it is not installed -- which
+        is itself worth knowing in a bug report, since half of spaCR's
+        failures are a missing extra.
+    """
     try:
         from importlib.metadata import version as _v
         return _v(pkg)
@@ -249,11 +297,22 @@ def _optional_version(pkg: str) -> str:
         return "not installed"
 
 
+#: How much of spaCR AI's analysis goes into an issue.
+#:
+#: It sits between the traceback and the environment, and `issue_url` trims
+#: the TAIL of the body to fit GitHub's URL limit -- so an unbounded analysis
+#: would push the environment, settings and log-bundle path out of the report
+#: entirely. Four thousand characters is several screens of prose, which is
+#: more than any useful diagnosis needs.
+AI_ANALYSIS_MAX_CHARS = 4000
+
+
 def build_report(
     traceback_text: str,
     active_app: str = "",
     settings: Optional[Dict[str, Any]] = None,
     include_log_tail: bool = True,
+    ai_response: str = "",
 ) -> Dict[str, str]:
     """Build a ``(title, body)`` pair for a pre-filled GitHub issue.
 
@@ -264,6 +323,10 @@ def build_report(
     :param settings: the pipeline settings dict in play, if any.
         Sanitised before inclusion.
     :param include_log_tail: also attach the last N log lines.
+    :param ai_response: spaCR AI's analysis of this same error, when the AI
+        is switched on and has already answered. Sanitised and length-capped
+        like everything else here, and clearly marked as machine-generated:
+        it is a lead for whoever reads the report, not a finding.
     :returns: dict with keys ``title``, ``body`` and ``fingerprint``,
         ready to be
         URL-encoded onto ``issues/new``.
@@ -294,6 +357,35 @@ def build_report(
     body_parts.append(tb_clean.strip())
     body_parts.append("```")
     body_parts.append("")
+
+    # AFTER THE TRACEBACK, BEFORE THE ENVIRONMENT. When the AI is on it has
+    # usually already diagnosed the crash by the time the user files, and that
+    # analysis is the most useful thing in the report after the traceback
+    # itself -- it is what a reader would otherwise spend the first hour
+    # reproducing. It goes below the traceback because `issue_url` trims the
+    # tail, and the traceback must survive that trim.
+    #
+    # MARKED AS MACHINE-GENERATED, and folded shut. It is a lead, not a
+    # finding: the analysis in the session this was written for was right
+    # about the cause and wrong about the fix, in a way that would have
+    # changed behaviour silently for every run that left a field blank.
+    analysis = sanitize_path(str(ai_response or "")).strip()
+    if analysis:
+        if len(analysis) > AI_ANALYSIS_MAX_CHARS:
+            analysis = (analysis[:AI_ANALYSIS_MAX_CHARS].rstrip()
+                        + "\n\n… (analysis truncated)")
+        body_parts.append(
+            "<details><summary>spaCR AI's analysis of this error"
+            "</summary>")
+        body_parts.append("")
+        body_parts.append(
+            "Generated by spaCR AI from the traceback above, unreviewed. "
+            "Treat it as a lead rather than a diagnosis.")
+        body_parts.append("")
+        body_parts.append(analysis)
+        body_parts.append("</details>")
+        body_parts.append("")
+
     body_parts.append("### Environment")
     body_parts.extend(_env_lines())
     body_parts.append("")
@@ -310,13 +402,32 @@ def build_report(
         body_parts.append("")
 
     if include_log_tail:
-        tail = log_tail()
-        if tail:
-            body_parts.append("<details><summary>Recent log lines</summary>")
+        # THE LOG DOES NOT GO IN THE ISSUE. An issue on the public tracker
+        # is world-readable and permanent, and a log line carries whatever
+        # the run happened to be about -- a gene name, a plate barcode, a
+        # collaborator's folder, the name of an unpublished screen. None of
+        # that is credential-shaped, so no redaction pass catches it, and
+        # the person filing the bug has no way to know it is there.
+        #
+        # So the log is written BESIDE the report instead: a file on the
+        # user's own disk, whose path the issue names. The maintainer can
+        # ask for it, and the user decides then, having read it.
+        saved = save_log_bundle(tb_hash)
+        if saved is not None:
+            body_parts.append("<details><summary>Log</summary>")
             body_parts.append("")
-            body_parts.append("```")
-            body_parts.append(tail.strip())
-            body_parts.append("```")
+            body_parts.append(
+                "The log is NOT attached: it can carry sample names, plate "
+                "barcodes and folder names, and this issue is public.")
+            body_parts.append("")
+            # Through the same sanitiser as everything else: the bundle
+            # lives under the user's home, and the home path carries their
+            # account name.
+            body_parts.append(f"It was saved on the reporter's machine at "
+                              f"`{sanitize_path(str(saved))}`.")
+            body_parts.append("")
+            body_parts.append(
+                "If you need it, ask -- and read it before sending it.")
             body_parts.append("</details>")
 
     # `fingerprint` is returned, not just embedded in the body, so the
@@ -396,45 +507,19 @@ def open_issue_in_browser(url: str) -> bool:
 
 def submit_report(report: Dict[str, str]) -> str:
     """Submit one payload the user has already approved in the preview."""
-    # NOTHING REACHES THE REAL TRACKER FROM A TEST RUN.
-    #
-    # spaCR posts whenever a token is resolvable, and on a developer machine
-    # the `gh` CLI supplies one -- so a test that reaches this helper without
-    # mocking files a live issue. That is how `[auto 54a0e8] [mask] Error:
-    # boom` (#75) arrived on the public tracker from a fixture's exception.
-    #
-    # The guard sits HERE rather than on github_auth.create_issue, which the
-    # offline suite exercises deliberately with a mocked urllib to check its
-    # error handling. This is the end-to-end helper the application calls;
-    # blocking it costs the tests nothing and closes the hole.
-    import os
-    # THE GUARD SITS ON THE WRITING PATH, NOT ON THE FUNCTION. It used to
-    # refuse here, before the authentication check, which also blocked the
-    # BROWSER FALLBACK -- a path that builds a URL string and opens it, and
-    # cannot create anything on GitHub. That broke
-    # `test_file_issue_returns_url_without_opening`, which exercises exactly
-    # that fallback with the opener stubbed and `is_authenticated` forced
-    # False: no write was possible and the guard refused anyway.
-    #
-    # A guard that fires where nothing could happen teaches people to
-    # disable it, so it now fires only where an issue would really be
-    # created.
-    def _writes_are_allowed() -> bool:
-        return (not os.environ.get("PYTEST_CURRENT_TEST")
-                or os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1")
-
-    # Refuse before authentication as well as before the write. Merely asking
-    # a developer's credential store is an external action a forgotten test
-    # mock must never reach.
-    if not _writes_are_allowed():
-        return ("refusing to file a GitHub issue from inside a test run; set "
-                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
-
     # If the user is signed in to GitHub (stored token / env / gh CLI), create
     # the issue directly via the API — no browser needed. Otherwise fall back to
     # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
+        # This check uses the module instance resolved NOW.  A broad batch once
+        # left this module holding a different instance from the one a test had
+        # patched; its process-wide allow flag then sent four real comments to
+        # issue #114.  A real transport is refused before credential discovery,
+        # while an explicitly substituted offline seam can exercise the flow.
+        refusal = github_auth._transport_refusal()
+        if refusal:
+            return refusal
         if github_auth.is_authenticated():
             # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
             # same bug hashes the same across runs and machines, and nothing
@@ -476,6 +561,7 @@ def file_issue(
     settings: Optional[Dict[str, Any]] = None,
     *,
     include_log_tail: bool = True,
+    ai_response: str = "",
 ) -> str:
     """Legacy end-to-end helper retained for API callers and tests.
 
@@ -489,5 +575,6 @@ def file_issue(
         active_app=active_app,
         settings=settings,
         include_log_tail=include_log_tail,
+        ai_response=ai_response,
     )
     return submit_report(report)

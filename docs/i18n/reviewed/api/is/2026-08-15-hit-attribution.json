@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.hit_attribution.HitAttributionResult#0",
+      "source_sha256": "084ddd37c9218216c4e9b8a32cadc4dded347924250d4d51156c64331f61e25c",
+      "source": "Cross-fitted hit-like probabilities and independent-unit evidence.",
+      "context": "Cross-fitted hit-like probabilities and independent-unit evidence.",
+      "translation": "Víxlprófaðar líkur á svipgerð sem líkist erfðaskimunarhitti ásamt gögnum frá óháðum tilraunaeiningum."
+    }
+  ]
+}

@@ -1,0 +1,287 @@
+"""Lazy pandas imports, with no runtime-only typing branches.
+
+``typing.TYPE_CHECKING`` is a literal ``False`` at runtime, so a block under
+it cannot contribute behavior. Modules that need pandas only inside a public
+operation use a function-local import; the remaining Qt guard supports a
+type-only class annotation and is tracked explicitly until that owner moves it.
+
+The reason is measurable. Pandas is one of the heaviest imports in the
+dependency set. A module that pulls it eagerly pays that on every launch
+whether or not anything asks for a frame -- which is what item 282 and item
+284 are about, and what lazy imports throughout this package exist to avoid.
+Moving one of these imports to module scope would be invisible in review and
+would show up as a slower start.
+"""
+from __future__ import annotations
+
+import ast
+import inspect
+import subprocess
+import sys
+import typing
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+#: Every module carrying a ``TYPE_CHECKING`` guard, with the import it
+#: is hiding. Enumerated rather than discovered, so a NEW guard has to
+#: be added here deliberately and its runtime cost argued for.
+GUARDED = (
+    ("spacr.qt.widgets.class_editor", "pandas"),
+    # spacr.curation, added 2026-09-08. Home imports `CurationLog`, so a
+    # module-scope `import pandas` here put pandas into the process before
+    # Home had painted -- the packaged smoke test names pandas as one of
+    # the operation-only imports the first screen must not cross. The
+    # module already defers the real import to `_pandas()` on first use;
+    # the guard exists so the annotations can still say `pd.DataFrame`
+    # without undoing that. The runtime cost being bought is a first
+    # paint that does not wait on pandas, which is the largest single
+    # import on that path.
+    ("spacr.curation", "pandas"),
+)
+DEFERRED_WITHOUT_GUARD = (
+    ("spacr.classify_classes", "pandas"),
+    ("spacr.feature_dict", "pandas"),
+)
+
+#: Guards that hide a RELATIVE import of a sibling module, used only in an
+#: annotation. Enumerated separately because they are a different claim
+#: and the checks below cannot make the usual one about them.
+#:
+#: `_names` reduces a dotted import to its first segment, which for
+#: ``from ..widgets.fold_strip import FoldStrip`` is "widgets" -- not a
+#: top-level package, never in `sys.modules` under that name, so the
+#: fresh-interpreter test would pass without asking anything. Rather than
+#: enumerate them at a spelling that makes a real check vacuous, they are
+#: held to what IS true of them: the guard exists, the set is closed, and
+#: a new one has to be added deliberately.
+#:
+#: All four name `FoldStrip` for a return annotation
+#: (``Optional["FoldStrip"]``); the strip itself is built by
+#: `install_fold_strip`, imported inside the function that uses it. So
+#: the guard buys a screen import that does not pull the widget layer in
+#: for the sake of a type name.
+TYPE_ONLY_RELATIVE = (
+    ("spacr.qt.screens.db_browser", "widgets.fold_strip"),
+    ("spacr.qt.screens.foreign", "widgets.fold_strip"),
+    ("spacr.qt.screens.graph_builder", "widgets.fold_strip"),
+    ("spacr.qt.screens.qc_dashboard", "widgets.fold_strip"),
+)
+
+LAZY = DEFERRED_WITHOUT_GUARD + GUARDED
+
+
+def _sources():
+    return {name: (ROOT / (name.replace(".", "/") + ".py"))
+            for name, _ in LAZY + TYPE_ONLY_RELATIVE}
+
+
+def test_the_enumeration_is_the_whole_set():
+    """A new guard must be added above, not discovered by this test.
+
+    Otherwise the list drifts into a description of whatever happens to
+    exist, which cannot fail.
+    """
+    found = set()
+    for path in ROOT.joinpath("spacr").rglob("*.py"):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if "if TYPE_CHECKING:" in text:
+            found.add(
+                str(path.relative_to(ROOT)).replace("/", ".")[: -len(".py")])
+
+    assert found == {name for name, _ in GUARDED + TYPE_ONLY_RELATIVE}, (
+        "the set of TYPE_CHECKING guards changed; add the new one to "
+        "GUARDED with the import it hides, and say why that import is "
+        "worth deferring")
+
+
+def test_the_flag_is_false_at_runtime():
+    """Why the block cannot be covered, stated once.
+
+    Not a tautology about the standard library: it is the premise every
+    assertion below rests on, and if it ever stopped holding these
+    blocks would become live code with no test.
+    """
+    assert typing.TYPE_CHECKING is False
+
+
+@pytest.mark.parametrize("module,hidden", DEFERRED_WITHOUT_GUARD)
+def test_a_runtime_impossible_typing_branch_is_not_kept(module, hidden):
+    """The launch path stays lazy without an uncovered branch."""
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    assert not any(isinstance(node, ast.If)
+                   and _is_type_checking(node.test)
+                   for node in ast.walk(tree))
+    module_imports = [name for node in tree.body
+                      if isinstance(node, (ast.Import, ast.ImportFrom))
+                      for name in _names(node)]
+    assert hidden not in module_imports
+    assert any(hidden in _names(node)
+               for node in ast.walk(tree)
+               if isinstance(node, (ast.Import, ast.ImportFrom))), (
+        f"{module} no longer imports {hidden} at its actual point of use")
+
+
+@pytest.mark.parametrize("module,hidden", GUARDED)
+def test_the_hidden_import_is_inside_the_guard(module, hidden):
+    """THE PIN: the import is in the guarded block and nowhere else.
+
+    Read from the AST rather than by string search, so an import added
+    at module level with the same spelling cannot pass because the
+    guarded one is also present.
+    """
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    guarded, unguarded = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.If) and _is_type_checking(node.test):
+            for inner in ast.walk(node):
+                if isinstance(inner, (ast.Import, ast.ImportFrom)):
+                    guarded.extend(_names(inner))
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            unguarded.extend(_names(node))
+
+    assert hidden in guarded, f"{module} no longer defers {hidden}"
+    assert hidden not in unguarded, (
+        f"{module} imports {hidden} at module level as well, so the guard "
+        f"below it is decoration and the cost is paid anyway")
+
+
+def _is_type_checking(test):
+    return (isinstance(test, ast.Name) and test.id == "TYPE_CHECKING") or (
+        isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING")
+
+
+def _names(node):
+    if isinstance(node, ast.Import):
+        return [a.name.split(".")[0] for a in node.names]
+    return [node.module.split(".")[0]] if node.module else []
+
+
+@pytest.mark.parametrize("module,hidden", LAZY)
+def test_importing_the_module_does_not_pull_the_hidden_package(module,
+                                                               hidden):
+    """THE SUBSTANCE, and the half a source check cannot give.
+
+    A fresh interpreter per module, because `sys.modules` in this one
+    already holds pandas -- half the suite imports it -- so asking the
+    question here would answer about the test run rather than about the
+    module.
+
+    This is what actually fails if the import moves out of the guard, or
+    if something the module imports starts pulling pandas itself, which
+    is the way this regresses in practice: not by editing these lines.
+    """
+    code = (
+        "import sys, importlib\n"
+        f"importlib.import_module({module!r})\n"
+        f"print({hidden!r} in sys.modules)\n"
+    )
+    env_probe = subprocess.run(
+        [sys.executable, "-c", code], cwd=str(ROOT),
+        capture_output=True, text=True, timeout=300,
+        env=_offscreen_env(),
+    )
+
+    assert env_probe.returncode == 0, env_probe.stderr[-2000:]
+    assert env_probe.stdout.strip().endswith("False"), (
+        f"importing {module} now pulls {hidden} at runtime, so the "
+        f"TYPE_CHECKING guard is buying nothing and every launch pays for "
+        f"it:\n{env_probe.stdout[-500:]}")
+
+
+def _offscreen_env():
+    import os
+
+    env = dict(os.environ)
+    env.setdefault("QT_QPA_PLATFORM", "offscreen")
+    return env
+
+
+@pytest.mark.parametrize("module,hidden", LAZY)
+def test_the_annotations_that_need_it_are_strings(module, hidden):
+    """The other half of the arrangement: with the import deferred, any
+    annotation naming it has to be lazy too, or the module raises
+    NameError the first time something reads its annotations.
+
+    ``from __future__ import annotations`` makes every annotation a
+    string, which is what lets the import be deferred at all.
+    """
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    futures = [n for n in tree.body
+               if isinstance(n, ast.ImportFrom) and n.module == "__future__"]
+    names = {a.name for n in futures for a in n.names}
+
+    assert "annotations" in names, (
+        f"{module} defers {hidden} without postponed annotations, so any "
+        f"annotation naming it is evaluated at runtime and raises NameError")
+
+
+def test_the_guard_is_not_load_bearing_for_behaviour():
+    """A module whose guarded import is missing must still work.
+
+    Driven rather than argued: the three modules are imported with the
+    hidden package genuinely absent from the interpreter, and the public
+    surface each one advertises is still reachable.
+    """
+    code = (
+        "import sys\n"
+        "sys.modules['pandas'] = None\n"
+        "import importlib\n"
+        "for name in %r:\n"
+        "    importlib.import_module(name)\n"
+        "print('ok')\n" % ([name for name, _ in LAZY],)
+    )
+    probe = subprocess.run(
+        [sys.executable, "-c", code], cwd=str(ROOT),
+        capture_output=True, text=True, timeout=300, env=_offscreen_env())
+
+    assert probe.returncode == 0 and "ok" in probe.stdout, (
+        "a module with a TYPE_CHECKING guard could not be imported with "
+        f"pandas absent, so the guard is not doing what it claims:\n"
+        f"{probe.stderr[-2000:]}")
+
+
+def test_this_file_is_about_lines_that_cannot_run():
+    """Said once, in the suite rather than only in a comment, so the
+    next reader does not go looking for a way to drive them."""
+    source = inspect.getsource(sys.modules[__name__])
+
+    assert "cannot contribute behavior" in source
+
+
+@pytest.mark.parametrize("module,hidden", TYPE_ONLY_RELATIVE)
+def test_the_relative_type_only_import_stays_inside_its_guard(module, hidden):
+    """The claim these four CAN be held to, made rather than assumed.
+
+    They are out of the fresh-interpreter check above for a reason given
+    at the enumeration, and an entry that is only exempt is an allowlist.
+    So the two things that are true of them are asserted: the import is
+    in the guarded block, and it is not also at module level -- which is
+    the way this regresses, by someone adding the import at the top to
+    silence a linter and leaving the guard below as decoration.
+    """
+    tree = ast.parse(_sources()[module].read_text(encoding="utf-8"))
+
+    def dotted(node):
+        return node.module if isinstance(node, ast.ImportFrom) and node.module \
+            else ""
+
+    guarded, unguarded = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.If) and _is_type_checking(node.test):
+            guarded.extend(dotted(inner) for inner in ast.walk(node)
+                           if isinstance(inner, ast.ImportFrom))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            unguarded.append(dotted(node))
+
+    assert hidden in guarded, f"{module} no longer defers {hidden}"
+    assert hidden not in unguarded, (
+        f"{module} imports {hidden} at module level as well, so the guard "
+        f"below it is decoration and the cost is paid anyway")

@@ -42,7 +42,11 @@ def test_requires_at_least_one_channel(tmp_path, capsys):
         pathogen_channel=None, organelle_channel=None))
     assert out is None
     printed = capsys.readouterr().out
-    assert "at least one of" in printed.lower()
+    # The PROPERTY, not the sentence: it refuses and says an object channel
+    # is what is missing. The wording moved to "at least one registered
+    # object channel" when organelle slots became registrable, and pinning
+    # the old phrase failed for a message that got more accurate.
+    assert "object channel" in printed.lower()
 
 
 def test_save_bool_is_expanded_to_list(tmp_path):
@@ -126,14 +130,17 @@ def test_v2_pipeline_dispatch(tmp_path, monkeypatch):
     import spacr._v1_v2_bridge as bridge
     calls = {}
     def _fake_run_v2(*a, **k):
-        calls["run"] = True
+        calls["run"] = k
         return {"stacks": []}
     monkeypatch.setattr(pv2, "run_v2", _fake_run_v2)
     monkeypatch.setattr(bridge, "report_disk_savings", lambda *a, **k: None)
     from spacr.core import preprocess_generate_masks
     src = tmp_path / "plate1"; src.mkdir()
-    preprocess_generate_masks(_base_settings(src, pipeline_style="v2"))
-    assert calls.get("run") is True
+    given = _base_settings(
+        src, pipeline_style="v2", illumination_correction=True,
+        illumination_qc=False)
+    preprocess_generate_masks(given)
+    assert calls["run"]["illumination_settings"] is given
 
 
 def test_metadata_auto_calls_converter(tmp_path, monkeypatch):

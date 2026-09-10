@@ -1,0 +1,27 @@
+{
+  "lesson": "28_training_runs", "language": "zh-CN", "english_sha256": "38b9651086f9d5987277949a9411fad70caa86a367a30069abb9954d0652539f",
+  "review": {"kind": "Editorial translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "Training Runs：用合成日志练习比较操作",
+  "description": "在 Classify 中打开 Training Runs，使用明确标注为合成数据的进度日志，查看记录的指标、自动生成的设置差异和各折的显示模式，而不训练或评估模型。",
+  "objectives": ["发现已有的日志文件夹，区分可用曲线与不完整的测试示例。", "在保留各序列自身 epoch 范围的前提下，比较记录的指标。", "将自动生成的配置差异与执行相关设置分开解读。", "区分记录中的最佳 epoch、最后一个 epoch、折间样本标准差和科学验证。"],
+  "prerequisite": "使用现有的 synthetic/training_runs 教程文件夹，其中已明确说明数据为合成数据。baseline、tuned 和 cross_validated 的曲线、各折数值和设置都是为演示界面生成的，并非任何分类器产生的结果。其中不完整的 .pth 文件仅包含占位文本，绝不能作为模型加载。本课演示的是真实的 CSV 解析器和比较控件，而不是训练、检查点评估或生物学性能。在自己的分析中，应将真实的 train.csv 和 validation.csv 日志连同设置及数据集来源信息一起保留。Training Runs 没有单独的示例下载控件。",
+  "scenes": [
+    "打开 Classify，再打开其中的 Training Runs 工具。本课使用明确标注为合成数据的进度日志：每条曲线、每一折和每项配置都是示例，并非实测的分类器结果。我们只演示比较界面，不训练或评估模型。",
+    "Training Runs 有自己的文件夹选择器、运行列表、Metric 和 Folds 控件，以及 Overlay selected 按钮。它读取已保存的 train.csv 和 validation.csv 表，并恢复设置。父级 Classify 的训练表单属于另一套工作流程；本练习中不要点击它的 Run 按钮。",
+    "点击 Choose folder…，选择现有的合成数据目录 training_runs，再用 Choose 确认。请选择各示例项目的上一级文件夹，而不是某个 CSV 文件。保持这些原始测试示例不变；无需重新生成、复制某次运行或创建新的检查点。",
+    "Scan 会发现4个测试示例文件夹：20个 epoch 的 baseline、25个 epoch 的 tuned、一个包含3折且有18个 epoch 的示例，以及一个不完整条目。baseline 和 tuned 是演示名称。路径中的模型名称并不意味着本课训练过这些模型。",
+    "阅读不完整条目的警告。它没有设置、没有 train.csv，也没有 validation.csv，因此不会为曲线或设置比较提供内容。扩展名为 .pth 的文件只是用于演示发现功能的文本；应用程序不会加载或评估这个占位文件。",
+    "勾选 baseline 和 tuned 示例，再在 Metric 中选择 accuracy。菜单包含这些日志中实际存在的数值列，包括 loss 和 prauc。这些值同样是合成的；熟悉的指标名称不会使生成的数字变成实验测量值。",
+    "点击 Overlay selected。两个选中的示例会显示4个数据序列：train 用虚线表示，validation 用实线表示。各自保留20或25个 epoch 的范围。较短的曲线不会为了与另一条对齐而补齐或截短；请在图例中查看运行及数据划分。",
+    "设置比较会自动进行。这里11项共有设置中有4项不同：batch_size 从64变为32，epochs 从20变为25，learning_rate 从0.0001变为0.0003，src 则指向不同的合成示例项目。",
+    "单独的 env 行显示 n_jobs 从30变为8，这是与执行相关的设置。这里有1项环境差异，0项 schema 差异。这些只是示例设置，并非硬件使用情况或训练耗时的证据。该表也不能证明某项设置导致了曲线差异。",
+    "点击 baseline 的 validation 曲线。详情行报告：最后一个 epoch 的 accuracy 为0.7496，对应 epoch 20；最佳 accuracy 为0.7860，对应 epoch 15。这些是 CSV 中记录的 epoch，而不是单独评估过的检查点。从同一条曲线上挑选最佳点，正是提示结果偏乐观的原因。",
+    "在 Metric 中选择 loss。仍然保留相同的4个序列和设置，但纵轴现在显示日志中的 loss 值。这些测试示例中 validation 曲线后段的上升是刻意生成的。本操作演示的是切换指标，而不是训练后模型出现了实测的性能下降。",
+    "保持选中 tuned，并用18个 epoch、3折的示例替换 baseline。将 Metric 改回 accuracy，点击 Overlay selected，再打开 Folds。实际选项为 per fold、mean ± sd 和 both。它们改变的是显示方式，不会创建新的折。",
+    "选择 mean ± sd。界面显示4个序列：tuned 的两个数据划分，以及3折示例的 train 均值和 validation 均值。每条带表示该 epoch 上3个合成折之间正负1个样本标准差，而不是置信区间，也不是生物学不确定性的估计。",
+    "选择 both，显示10个序列：tuned 的2个、单独各折的6个，以及2条折均值曲线。均值曲线只是对同一组各折数值的汇总，并非额外的独立运行。全部3个合成折在记录的18个 epoch 中始终参与计算。",
+    "选择 per fold，移除两条均值曲线后剩下8个序列。各折曲线在 epoch 18 结束，而 tuned 示例继续到25。更新后的表报告5项配置差异和1项环境差异；改变所选示例也会改变设置比较。",
+    "在本次录制中，我们将返回的数值行、绘制的曲线、设置差异和样本标准差带与现有 CSV 进行核对。原始文件保持不变。这仅验证了本次软件演示；这些合成示例无法确立预测性能、泛化能力或在科学上可复现的最优模型。",
+    "在 Python 中，spacr.train_compare.find_runs 发现文件夹，load_run 读取一次运行的数据。compare_runs 构建比较及设置差异；plot_curves 绘制所选指标。compare_runs 的 folds 参数接受 per_fold、mean 或 both。在自己的结果上使用这些只读工具时，请将真实日志和数据集来源信息保存在一起。"
+  ]
+}

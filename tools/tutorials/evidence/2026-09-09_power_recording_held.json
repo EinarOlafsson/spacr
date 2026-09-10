@@ -1,0 +1,21 @@
+{
+  "lesson": "68_power_design",
+  "status": "Held before narration or media generation: actual headline recommends unchanged design",
+  "capture_directory": "refresh_2026-09-09/captures/power_real",
+  "application_commit": "ce0676653",
+  "package_version": "1.5.0.4",
+  "actual_inputs": {"genes": 40, "guides_per_gene": 4, "score_per": "gene", "wells_per_plate": 96, "plates": 1, "constructs_per_well": 2, "cells_per_well": 120, "hit_prevalence": 0.1, "replicates_per_point": 2, "seed": 0, "backend": "torch"},
+  "real_fits": 18,
+  "fit_kwargs_overridden": false,
+  "real_curves": {"cells": {"points": 5, "current_design_detected": "1/2"}, "wells": {"points": 4, "current_design_detected": "2/2"}},
+  "actual_headline_tail": "Going to 96 wells would take that to 100%.",
+  "defect": "The design already has 96 wells. Independent draws at the same design in the two marginal scans are reported as an improvement obtainable by changing to that identical well count.",
+  "source_location": "spacr/qt/widgets/power_design.py:plain_sentence selects the highest well-scan power without excluding the current well count",
+  "other_visible_limitations": {"nonconverged_fits": 4, "clipped_simulated_screens": 2, "replicates_too_few_for_precise_design_recommendation": true},
+  "recorder_checks": ["Real numeric fields and selectors", "Actual unsupported protective-effect warning then recovery", "Actual normal threaded simulator", "All fit records retained in detection denominator", "Actual caveat toggle and restoration"],
+  "tutorial_acceptance_tests": {"passed": 10, "status_check_mutant": "2 failures: both positive and negative counterparts; the other scan cannot trigger a substitute rejection; restored to green", "unchanged_recommendation_mutant": "1 failure, restored to green"},
+  "application_source_modified": false,
+  "narration_frozen": false,
+  "replacement_media_generated": false,
+  "published": false
+}

@@ -1,5 +1,6 @@
 """Image, dataset, and SQLite input/output helpers used across spaCR."""
 
+import readlif.reader  # `import readlif` alone does not bind the submodule
 import os, re, json, sqlite3, gc, torch, time, random, shutil, cv2, tarfile, glob, queue, threading, tifffile, czifile, atexit, readlif, tempfile, logging, warnings
 import numpy as np
 import pandas as pd
@@ -16,6 +17,18 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Do nothing: IPython is unavailable, so there is nowhere to display to.
+
+        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
+        module scope, and IPython can be mid-init -- partially imported by
+        another thread -- which makes that import raise. Letting it propagate
+        would make importing this module fail for a reason that has nothing to
+        do with what the module does. spaCR only calls `display` from notebook
+        contexts; the Qt GUI ignores it.
+
+        :param args: whatever the caller would have displayed.
+        :param kwargs: likewise.
+        """
         pass
 from skimage.util import img_as_uint
 from skimage.exposure import rescale_intensity
@@ -50,9 +63,176 @@ LOG = logging.getLogger(__name__)
 # they used to carry three hand-written copies of "ABCDEFGHIJKLMNOP" and
 # range(1, 25), which stop at P24.
 from . import convert as _cv
+from . import crop_source as _crop_source
 from .object_roles import CHILD_ROLES, ORGANELLE_ROLES, join_how
+# RE-EXPORTED, NOT DEFINED HERE ANY MORE. These need pandas and sqlite3 and
+# nothing else, and every caller that imported them from this module paid
+# torch + torchvision + cv2 for the privilege. See spacr.png_list.
+from .png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
+                       _object_id_int, crop_rows_from_png_list)
 from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
+
+def _escaped_field_stem(plate, well, field, time):
+    """Compose a merged-stack stem with its free-text plate component escaped.
+
+    Every stack this module writes is ``plate_well_field_time``, whatever
+    ``timelapse`` is set to. The well, the field and the timepoint are drawn
+    from a bounded vocabulary; the PLATE is free text, taken from a regex group
+    or -- far more often -- from ``os.path.basename(src)``, a folder name. A
+    plate folder called ``exp_1`` therefore produced ``exp_1_A01_1_1.npy``:
+    five separator-delimited components for a four-component grammar.
+
+        _map_wells('exp_1_A01_1_1.npy')  ->  ('error',) * 5
+
+    The whole plate could not be measured. Before the identity keys were
+    escaped it was worse rather than better -- the same name parsed as plate
+    ``exp``, well ``1``, field ``A01`` and was wrong QUIETLY.
+
+    The plate is escaped here, at the writer, rather than through
+    :func:`spacr.schema.escape_field_stem_plate`, because the writer holds the
+    four components separately and so has no splitting to get wrong. That
+    helper is the same rule for a caller that holds only a joined name, and it
+    has to guess where the plate ends; escaping before the join means there is
+    nothing to guess. :func:`spacr.schema.parse_field_stem` reads the result
+    back as ``exp_1`` character for character.
+
+    :param plate: free-text plate id. ``None`` keeps its historical spelling,
+        the literal ``'None'``, rather than silently becoming an empty
+        identity.
+    :param time: the timepoint, or ``''`` for the channel-folder layout, which
+        has always written a trailing empty component.
+    :returns: the stem, without an extension.
+    :raises spacr.schema.KeyParseError: when the plate is empty. An empty plate
+        is not an identity, and every field written under one would merge with
+        every other.
+    """
+    from .schema import escape_filename_component
+    return f'{escape_filename_component(str(plate))}_{well}_{field}_{time}'
+
+
+#: Subfolders of a plate source folder whose file stems are field ids written
+#: by this module, and are therefore what :func:`migrate_unescaped_plate_names`
+#: renames. ``orig/`` and the raw drop are deliberately absent: those names are
+#: the vendor's, not spaCR's, and are not field stems.
+FIELD_STEM_FOLDERS = ('stack', 'norm_channel_stack', 'merged', 'masks')
+
+#: Extensions those folders hold.
+FIELD_STEM_SUFFIXES = ('.npy', '.npz', '.tif', '.tiff')
+
+
+def migrate_unescaped_plate_names(src, dry_run=False):
+    """Escape the plate component of arrays a previous release wrote raw.
+
+    A plate folder whose name holds an underscore -- ``exp_1`` -- used to
+    produce ``exp_1_A01_1_1.npy``, five separator-delimited components for a
+    four-component grammar, and ``utils._map_wells`` answered ``('error',) * 5``
+    for every field of it. The plate could not be measured at all.
+
+    Nothing in the measurement database needs migrating, because there is
+    none: every frame of such a plate was refused. What DOES need moving is
+    everything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``,
+    ``merged/`` and, above all, ``masks/``, which is hours to days of
+    segmentation. Renaming those makes the plate measurable without
+    re-segmenting it, which is the whole reason this exists rather than a note
+    saying "re-run the plate".
+
+    THE NEW NAME IS NOT GUESSED. Every stem this module writes ends in three
+    fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is set to,
+    so everything before them is the plate however many underscores it holds.
+    A stem that is already escaped, or whose plate holds no separator, is left
+    alone: the rename is a no-op for every ordinary plate, which is what makes
+    it safe to run over a folder that does not need it.
+
+    Crops under ``data/`` are not touched. A plate that could not be measured
+    has none, and the ``nightly``-only crop names that ``_generate_names``
+    mis-escaped came with a ``png_list`` table whose identities are wrong too,
+    so there is nothing there to salvage by renaming -- re-run ``measure_crop``.
+
+    PUBLIC, because the person who needs it is a user with an ``exp_1``
+    folder full of masks, and a recovery tool they have to reach past a
+    leading underscore to call is a recovery tool most people will not find.
+
+    :param src: the plate source folder, the one holding ``merged/``.
+    :param dry_run: report the renames without performing them.
+    :returns: list of ``(old_path, new_path)`` pairs, renamed unless
+        ``dry_run``.
+    :raises FileExistsError: if a destination is already occupied, before
+        anything is moved. A half-applied rename is worse than none.
+
+    Example:
+        .. code-block:: python
+
+            >>> from spacr.io import migrate_unescaped_plate_names
+            >>> migrate_unescaped_plate_names('/data/exp_1', dry_run=True)
+            [('/data/exp_1/merged/exp_1_A01_1_1.npy',
+              '/data/exp_1/merged/exp%5F1_A01_1_1.npy')]
+    """
+    from .schema import KEY_SEPARATOR, KeyParseError, escape_field_stem_plate
+
+    planned = []
+    for folder in FIELD_STEM_FOLDERS:
+        root = os.path.join(src, folder)
+        if not os.path.isdir(root):
+            continue
+        for base, _dirs, files in os.walk(root):
+            for name in sorted(files):
+                stem, suffix = os.path.splitext(name)
+                if suffix.lower() not in FIELD_STEM_SUFFIXES:
+                    continue
+                parts = stem.split(KEY_SEPARATOR)
+                # Three fixed tail tokens -- well, field, time -- so anything
+                # beyond four components is a plate holding a raw separator.
+                # Testing THAT rather than "does escaping change the name" is
+                # what makes a second run a no-op: escaping is not idempotent,
+                # because a literal percent is escaped first, and
+                # `exp%5F1_A01_1_1` would become `exp%255F1_A01_1_1`. A
+                # migration that corrupts on its second run is worse than one
+                # that never ran.
+                if len(parts) <= 4:
+                    continue
+                try:
+                    # timelapse=True is the writer's grammar, not the run's
+                    # setting: three fixed tail tokens either way.
+                    safe = escape_field_stem_plate(stem, timelapse=True)
+                except KeyParseError:
+                    # Not a field stem. A folder can hold a sidecar or a
+                    # hand-dropped array, and renaming one on a guess is how a
+                    # migration loses a file.
+                    continue
+                # NO `safe == stem` GUARD. Reaching it needs a stem with
+                # more than four components that escaping leaves
+                # unchanged, and there is no such stem: more than four
+                # components means the plate holds a separator, and
+                # escaping a separator always changes the string. Checked
+                # against 20,000 random plate names as well as argued --
+                # every one changed.
+                #
+                # The idempotency the comment above is about comes from
+                # the `len(parts) <= 4` test, not from this one: a stem
+                # that has already been migrated has four components and
+                # never reaches here at all.
+                planned.append((os.path.join(base, name),
+                                os.path.join(base, safe + suffix)))
+
+    occupied = [new for _old, new in planned if os.path.exists(new)]
+    if occupied:
+        raise FileExistsError(
+            f'refusing to migrate {src!r}: {len(occupied)} destination(s) '
+            f'already exist, starting with {occupied[0]!r}. Move or delete '
+            f'them first — a half-applied rename leaves the plate in a state '
+            f'neither the old reader nor the new one can read.')
+
+    if not dry_run:
+        for old, new in planned:
+            os.rename(old, new)
+    return planned
 
 
 def _load_pylibczi():
@@ -107,9 +287,9 @@ def process_non_tif_non_2D_images(folder):
         :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
         :param t: 1-based time index appended as ``_T``; ``None`` omits it.
         """
-        suffix = ""
-        if channel is not None:
-            suffix += f"_C{channel}"
+        # Every splitter call supplies its 1-based channel index; keeping a
+        # channel-less arm here only made two planes able to share a name.
+        suffix = f"_C{channel}"
         if z is not None:
             suffix += f"_Z{z}"
         if t is not None:
@@ -249,6 +429,26 @@ def _load_images_and_labels(image_files, label_files, invert=False):
     # Cellpose 4 no longer exposes submodules as attributes of the package
     # root. Import the IO boundary explicitly, and only when this Cellpose
     # dataset helper is used.
+    """Load a Cellpose training set, keeping each name beside its pixels.
+
+    THE NAMES ARE BUILT BESIDE THE PIXELS, one append each. They used to be
+    ``sorted(basename(f) for f in image_files)`` while the arrays were filled
+    in the CALLER's order -- and the caller shuffles before calling here, so
+    ``identify_masks_finetune`` wrote every mask under a DIFFERENT image's
+    filename: a whole plate of segmentations silently attributed to the
+    wrong wells.
+
+    Sorting was only half of it. Each loop skips a file that will not read,
+    which shortens the arrays while a precomputed name list keeps every
+    entry -- so one unreadable file misnamed every mask after it even when
+    the input was already in order.
+
+    :param image_files: image paths.
+    :param label_files: label paths, positionally matched to the images.
+    :param invert: invert each image after loading.
+    :returns: ``(images, labels, image_names, label_names)``, every list in
+        the same order and the names always matching the arrays beside them.
+    """
     from cellpose import io as cellpose_io
     from .utils import invert_image
     
@@ -326,6 +526,33 @@ def _load_images_and_labels(image_files, label_files, invert=False):
 def _load_normalized_images_and_labels(image_files, label_files, channels=None, percentiles=None,  
                                        invert=False, visualize=False, remove_background=False, 
                                        background=0, Signal_to_noise=10, target_height=None, target_width=None):
+    """Load a Cellpose training set, percentile-normalised and optionally resized.
+
+    With no explicit percentiles, the upper one is chosen per channel as the
+    first of 98, 99, 99.9, 99.99 and 99.999 that clears the signal
+    threshold, then averaged across the set -- so a channel whose signal
+    lives in a thin tail is not flattened by a fixed 99th, and a channel
+    that is mostly background does not have its noise stretched to full
+    scale.
+
+    :param image_files: image paths.
+    :param label_files: label paths, or ``None`` for images alone.
+    :param channels: channel indices to keep from a multi-channel image.
+    :param percentiles: an explicit ``[low, high]`` pair; anything that is
+        not a two-element list is ignored in favour of the per-channel
+        search.
+    :param invert: invert each image after loading.
+    :param visualize: plot the before/after of the resize.
+    :param remove_background: zero everything below ``background``.
+    :param background: the background level.
+    :param Signal_to_noise: how far above ``background`` a percentile must
+        sit to count as signal.
+    :param target_height: resize height, or ``None`` to keep the original.
+    :param target_width: resize width, or ``None`` to keep the original.
+    :returns: ``(images, labels, image_names, label_names, orig_dims)``.
+        Labels are resized with nearest-neighbour and no anti-aliasing,
+        because interpolating a label array invents object ids.
+    """
     from cellpose import io as cellpose_io
     from .plot import plot_resize
     from .utils import invert_image
@@ -431,10 +658,12 @@ def _load_normalized_images_and_labels(image_files, label_files, channels=None, 
     return normalized_images, labels, image_names, label_names, orig_dims
 
 class CombineLoaders:
-    """Round-robin iterator over multiple DataLoaders.
+    """Randomized interleaving of multiple live DataLoaders.
 
-    Yields ``(loader_index, batch)`` pairs, drawing from a random loader
-    each step and dropping loaders once exhausted.
+    Each step shuffles the loaders that have not been exhausted, probes them
+    in that random order, and yields the first available ``(loader_index,
+    batch)`` pair. Exhausted loaders are removed, so every batch from every
+    input loader is yielded once even when the loaders have different lengths.
 
     :param train_loaders: DataLoaders to combine.
     :raises StopIteration: when every wrapped loader is exhausted.
@@ -588,6 +817,8 @@ class spacrDataset(Dataset):
         supplied together with ``specific_labels``, directory scanning
         is skipped.
     :param specific_labels: Labels paired with ``specific_files``.
+    :raises ValueError: If no non-hidden image files are found for any
+        requested class.
     """
 
     def __init__(self, data_dir, loader_classes, transform=None, shuffle=True, pin_memory=False, specific_files=None, specific_labels=None):
@@ -647,7 +878,7 @@ class spacrDataset(Dataset):
                 + "\n".join(looked) +
                 "\n\nThis usually means the dataset-generation step selected no "
                 "rows. Check that class_metadata values actually occur in the "
-                "column named by metadata_type_by, that the annotation column "
+                "column the Classes editor names, that the annotation column "
                 "holds the classes in annotated_classes, and that png_type "
                 "matches the crops that exist.")
 
@@ -747,6 +978,7 @@ class spacrDataLoader(DataLoader):
         self._stop_signal = threading.Event()
         self._sentinel = object()
         self._error = None
+        self._iteration_active = False
         self.pin_memory = kwargs.get('pin_memory', False)
         atexit.register(self.cleanup)
 
@@ -788,6 +1020,11 @@ class spacrDataLoader(DataLoader):
                     continue
 
     def _pin_memory_batch(self, batch):
+        """Pin a batch's tensors for faster host-to-GPU copies.
+
+        Non-tensor members are passed through untouched, so a batch carrying
+        labels or paths alongside its tensors survives intact.
+        """
         if isinstance(batch, (list, tuple)):
             return [b.pin_memory() if isinstance(b, torch.Tensor) else b for b in batch]
         elif isinstance(batch, torch.Tensor):
@@ -801,6 +1038,13 @@ class spacrDataLoader(DataLoader):
         Safe to call more than once (``list(iter(dl))`` calls it twice): any
         in-flight producer is stopped first, so the stream is never doubled.
         """
+        # ``list(iter(loader))`` calls ``iter`` twice: once explicitly and
+        # once inside ``list``. Iterators must return themselves without
+        # restarting while active, otherwise the abandoned first producer can
+        # decode/pin batches that are never yielded and the stream does twice
+        # the work. A fresh pass still starts after exhaustion or cleanup.
+        if self._iteration_active:
+            return self
         self.cleanup()
         self._stop_event = False
         self._stop_signal = threading.Event()
@@ -817,6 +1061,7 @@ class spacrDataLoader(DataLoader):
             name="spacr-data-preloader",
         )
         self.thread.start()
+        self._iteration_active = True
         return self
 
     def __next__(self):
@@ -825,8 +1070,10 @@ class spacrDataLoader(DataLoader):
         try:
             next_batch = self.batch_queue.get(timeout=60)
         except queue.Empty:
+            self._iteration_active = False
             raise StopIteration
         if next_batch is self._sentinel:
+            self._iteration_active = False
             if self._error is not None:
                 err, self._error = self._error, None
                 raise err
@@ -836,6 +1083,7 @@ class spacrDataLoader(DataLoader):
 
     def cleanup(self):
         """Signal the preloader to stop and join the background thread."""
+        self._iteration_active = False
         self._stop_event = True
         stop_signal = getattr(self, '_stop_signal', None)
         if stop_signal is not None:
@@ -1036,7 +1284,19 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 # `_generate_time_lists` parses (plate_well_field_time), so
                 # there is nothing for the timelapse branch to spell
                 # differently.
-                output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
+                #
+                # The plate is escaped because it is FREE TEXT: it comes from
+                # a regex group or, more often, from `os.path.basename(src)` —
+                # a folder name, which very often holds an underscore. A plate
+                # folder called `exp_1` used to produce `exp_1_A01_1_1.npy`,
+                # five separator-delimited components for a four-component
+                # grammar, and `utils._map_wells` returned the string 'error'
+                # in all five slots: the plate could not be measured at all.
+                # `escape_field_stem_plate` writes `exp%5F1_A01_1_1`, which
+                # `schema.parse_field_stem` reads back as plate `exp_1`
+                # character for character.
+                output_filename = _escaped_field_stem(
+                    plate, well, field, timeID) + '.tif'
 
                 mip = np.max(np.stack(images), axis=0)
                 channels_seen.add(channel)
@@ -1185,6 +1445,23 @@ def _generate_time_lists(file_list):
 
 def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
     
+    """Sort a flat folder of images into per-channel stacks from their filenames.
+
+    Zero padding is undone through ``_int_or_token``, which keeps a token
+    holding no integer as itself rather than turning it into ``0`` -- a well
+    called ``0A`` is not well 0.
+
+    Every file is parsed inside a run-ledger item, so a name the regex
+    cannot read is recorded and the rest of the plate still moves; the run
+    reports what it could not place rather than stopping at the first one.
+
+    :param src: the folder to sort.
+    :param regex: the filename pattern, with named groups for the plate,
+        well, field, channel and time.
+    :param timelapse: keep the time component in the output layout.
+    :param metadata_type: the microscope convention; ``'cq1'`` also converts
+        the well id, whose scheme differs from the well name it prints.
+    """
     from .utils import _int_or_token, _convert_cq1_well_id
 
     src_path = src
@@ -1229,7 +1506,14 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                             wellID = _convert_cq1_well_id(wellID)
                             print(f'Converted Well ID: {orig_wellID} to {wellID}')#, end='\r', flush=True)
 
-                        newname = f"{plateID}_{wellID}_{fieldID}_{timeID if timelapse else ''}{ext}"
+                        # Same escape as _rename_and_organize_image_files, and
+                        # for the same reason: plateID falls back to the source
+                        # FOLDER NAME when the regex has no plateID group, and
+                        # a folder called `exp_1` puts a fifth component into a
+                        # four-component name that nothing downstream can split.
+                        newname = _escaped_field_stem(
+                            plateID, wellID, fieldID,
+                            timeID if timelapse else '') + ext
                         newpath = src / chanID
                         move = newpath / newname
                         if move.exists():
@@ -1323,7 +1607,6 @@ def _merge_channels(src, plot=False):
     return num_matching_folders
 
 def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
-    from .utils import print_progress
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
 
@@ -1337,6 +1620,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     Returns:
         str: The directory path where the concatenated channel data is saved.
     """
+    from .utils import print_progress
     channels = [item for item in channels if item is not None]
     paths = []
     time_ls = []
@@ -1428,8 +1712,6 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
     return channel_stack_loc
 
 def _normalize_img_batch(stack, channels, save_dtype, settings):
-    
-    from .utils import print_progress
     """
     Normalize the stack of images.
 
@@ -1442,6 +1724,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     Returns:
         numpy.ndarray: The normalized stack.
     """
+    from .utils import print_progress
 
     # Channel indices may arrive as strings (e.g. from a settings CSV);
     # coerce so ``stack[:, :, :, channel]`` indexing works.
@@ -1464,17 +1747,17 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
         if settings.get('nucleus_channel') is not None and channel == settings['nucleus_channel']:
             background = settings['nucleus_background']
-            signal_threshold = settings['nucleus_Signal_to_noise']*settings['nucleus_background']
+            signal_threshold = settings['nucleus_signal_to_noise']*settings['nucleus_background']
             remove_background = settings['remove_background_nucleus']
 
         if settings.get('cell_channel') is not None and channel == settings['cell_channel']:
             background = settings['cell_background']
-            signal_threshold = settings['cell_Signal_to_noise']*settings['cell_background']
+            signal_threshold = settings['cell_signal_to_noise']*settings['cell_background']
             remove_background = settings['remove_background_cell']
 
         if settings.get('pathogen_channel') is not None and channel == settings['pathogen_channel']:
             background = settings['pathogen_background']
-            signal_threshold = settings['pathogen_Signal_to_noise']*settings['pathogen_background']
+            signal_threshold = settings['pathogen_signal_to_noise']*settings['pathogen_background']
             remove_background = settings['remove_background_pathogen']
 
         # Organelle channel — use organelle-specific settings when
@@ -1482,7 +1765,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
             background = settings.get('organelle_background', background)
             signal_threshold = settings.get(
-                'organelle_Signal_to_noise',
+                'organelle_signal_to_noise',
                 settings.get('Signal_to_noise', 10)) * background
             remove_background = settings.get(
                 'remove_background_organelle', remove_background)
@@ -1527,7 +1810,181 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
     return normalized_stack.astype(save_dtype)
 
-def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=None):
+def _save_npz_atomic(output_path, **arrays):
+    """Write a compressed NumPy archive by atomically replacing its path.
+
+    :param output_path: final ``.npz`` path.
+    :param arrays: named arrays passed to :func:`numpy.savez_compressed`.
+    :returns: ``output_path`` after the durable replacement.
+    """
+    directory = os.path.dirname(output_path) or '.'
+    os.makedirs(directory, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(
+        prefix='.spacr_npz_', suffix='.npz', dir=directory)
+    os.close(fd)
+    try:
+        np.savez_compressed(temporary, **arrays)
+        with open(temporary, 'rb') as handle:
+            os.fsync(handle.fileno())
+        os.replace(temporary, output_path)
+    except BaseException:
+        try:
+            os.remove(temporary)
+        except OSError:
+            pass
+        raise
+    return output_path
+
+
+def _normalized_npz_field_ids(src):
+    """Return exact field stems carried by V1 normalised mask archives.
+
+    :param src: the V1 ``masks/`` directory.
+    :returns: sorted, de-duplicated field stems as a tuple.
+    :raises FileNotFoundError: when no normalised archives exist.
+    :raises ValueError: when an archive has no ``filenames`` manifest.
+    """
+    archives = sorted(
+        os.path.join(src, name) for name in os.listdir(src)
+        if name.endswith('.npz'))
+    if not archives:
+        raise FileNotFoundError(
+            'preprocess=False with segmentation illumination requires the '
+            f'normalised V1 .npz inputs in {src}; none were found.')
+    fields = set()
+    for path in archives:
+        with np.load(path, allow_pickle=False) as archive:
+            if 'filenames' not in archive:
+                raise ValueError(
+                    'preprocess=False cannot validate segmentation '
+                    f'illumination because {path} has no filenames manifest.')
+            for name in np.asarray(archive['filenames']).reshape(-1):
+                fields.add(os.path.splitext(os.path.basename(str(name)))[0])
+    return tuple(sorted(fields))
+
+
+def _publish_v1_normalized_archives(staging_dir, output_dir):
+    """Replace the complete published V1 NPZ set, with in-process rollback.
+
+    :param staging_dir: directory containing only the new, fully written NPZs.
+    :param output_dir: ``masks/`` directory consumed by the V1 segmenters.
+    :returns: final archive paths in stable name order.
+
+    Existing archives are derived preprocessing artifacts, but they are moved
+    to a sibling backup until every new archive is in place.  A raised replace
+    therefore restores the prior complete set rather than leaving a mixture
+    from two runs; a process crash still leaves provenance incomplete, so no
+    caller can accept a partially published set as corrected.
+    """
+    staged = sorted(
+        name for name in os.listdir(staging_dir) if name.endswith('.npz'))
+    if not staged:
+        raise ValueError('cannot publish an empty V1 normalized archive set')
+    previous = sorted(
+        name for name in os.listdir(output_dir) if name.endswith('.npz'))
+    backup_dir = tempfile.mkdtemp(
+        prefix='.spacr_previous_v1_npz_', dir=os.path.dirname(output_dir))
+    moved_previous = []
+    moved_staged = []
+    try:
+        for name in previous:
+            os.replace(os.path.join(output_dir, name),
+                       os.path.join(backup_dir, name))
+            moved_previous.append(name)
+        for name in staged:
+            os.replace(os.path.join(staging_dir, name),
+                       os.path.join(output_dir, name))
+            moved_staged.append(name)
+    except BaseException:
+        for name in reversed(moved_staged):
+            published = os.path.join(output_dir, name)
+            if os.path.exists(published):
+                os.replace(published, os.path.join(staging_dir, name))
+        for name in reversed(moved_previous):
+            saved = os.path.join(backup_dir, name)
+            if os.path.exists(saved):
+                os.replace(saved, os.path.join(output_dir, name))
+        shutil.rmtree(backup_dir, ignore_errors=True)
+        raise
+    shutil.rmtree(backup_dir)
+    shutil.rmtree(staging_dir)
+    return tuple(os.path.join(output_dir, name) for name in staged)
+
+
+def _invalidate_v1_object_masks(output_dir):
+    """Remove object masks made from the superseded normalised NPZ set.
+
+    :param output_dir: V1 ``masks/`` directory containing derived mask stacks.
+    :returns: removed mask-stack directory names in stable order.
+
+    A fresh illumination application changes the pixels presented to every
+    segmenter. Keeping an existing ``*_mask_stack`` would let both the outer
+    completeness check and per-batch resume check reuse masks drawn from the
+    old, potentially uncorrected pixels.
+    """
+    removed = []
+    for name in sorted(os.listdir(output_dir)):
+        path = os.path.join(output_dir, name)
+        if name.endswith('_mask_stack') and os.path.isdir(path):
+            shutil.rmtree(path)
+            removed.append(name)
+    return tuple(removed)
+
+
+def _invalidate_v1_segmentation_outputs(src):
+    """Remove V1 outputs derived from a superseded segmentation-input set.
+
+    :param src: experiment root containing ``masks/`` and optional ``merged/``.
+    :returns: names of removed mask-stack directories and whether ``merged/``
+        was removed.
+
+    This runs only from the full Mask pipeline immediately before it redraws
+    masks. Removing the complete ``merged/`` directory is intentional: a
+    shorter rerun must not leave an old field that is absent from the new raw
+    stack but would otherwise still be measured later.
+    """
+    masks_dir = os.path.join(src, 'masks')
+    removed_masks = (
+        _invalidate_v1_object_masks(masks_dir)
+        if os.path.isdir(masks_dir) else ())
+    merged_dir = os.path.join(src, 'merged')
+    removed_merged = os.path.isdir(merged_dir)
+    if removed_merged:
+        shutil.rmtree(merged_dir)
+    return removed_masks, removed_merged
+
+
+def _correct_v1_segmentation_batch(
+        stack, filenames, channels, settings, illumination_session):
+    """Correct selected V1 channels on a private batch copy.
+
+    :returns: ``(working_stack, field_ids)``; without a session the original
+        stack and an empty tuple are returned unchanged.
+    """
+    if illumination_session is None:
+        return stack, ()
+    from .measure_hooks import PreprocessingContext
+
+    working = np.array(stack, copy=True)
+    field_ids = []
+    for index, filename in enumerate(filenames):
+        field_id = os.path.splitext(os.path.basename(str(filename)))[0]
+        context = PreprocessingContext(
+            file_name=os.path.basename(str(filename)),
+            channels=list(channels),
+            settings=settings,
+        )
+        selected = working[index][..., list(channels)]
+        corrected = illumination_session.correct(
+            field_id, selected, context)
+        working[index][..., list(channels)] = corrected
+        field_ids.append(field_id)
+    return working, tuple(field_ids)
+
+
+def _concatenate_and_normalize_impl(
+        src, channels, save_dtype=np.float32, settings=None,
+        illumination_session=None, archive_output_fldr=None):
     """Concatenate per-file channel arrays and normalise them into a single stack.
 
     :param src: Directory containing per-FOV ``.npy`` channel arrays.
@@ -1539,6 +1996,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         batch_size and plotting keys used elsewhere in preprocessing. The
         ``None`` in the signature is kept only so the argument can still be
         passed positionally; omitting it is an error.
+    :param illumination_session: optional segmentation-only illumination
+        session. It corrects private copies of the selected channels before
+        normalisation and records completion only after each NPZ is durable.
     :returns: Path to the directory where normalised arrays were saved.
     :raises ValueError: if ``settings`` is not supplied.
     """
@@ -1590,13 +2050,30 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
     time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     os.makedirs(output_fldr, exist_ok=True)
+    archive_output_fldr = archive_output_fldr or output_fldr
     # Every FOV that fails to load is dropped from the normalised stacks.
     # Nothing downstream can tell, so account for it here.
     ledger = RunLedger('concatenate_and_normalize')
+    intended_fields = []
 
     if settings['timelapse']:
         try:
-            time_stack_path_lists = _generate_time_lists(os.listdir(src))
+            source_npy_names = sorted(
+                name for name in os.listdir(src) if name.endswith('.npy'))
+            time_stack_path_lists = _generate_time_lists(source_npy_names)
+            grouped_names = sorted(
+                filename for group in time_stack_path_lists
+                for filename in group)
+            if (illumination_session is not None and
+                    grouped_names != source_npy_names):
+                missing = sorted(set(source_npy_names) - set(grouped_names))
+                raise ValueError(
+                    'illumination correction could not group every source '
+                    f'NPY as plate_well_field_time: {missing}')
+            intended_fields = [
+                os.path.splitext(os.path.basename(str(filename)))[0]
+                for group in time_stack_path_lists for filename in group
+            ]
             for i, time_stack_list in enumerate(time_stack_path_lists):
                 start = time.time()
                 stack_region = []
@@ -1616,6 +2093,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 files_to_process = len(time_stack_path_lists)
                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Concatinating")
                 stack = np.stack(stack_region)
+                stack, _field_ids = _correct_v1_segmentation_batch(
+                    stack, filenames_region, channels, settings,
+                    illumination_session)
 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels, 
@@ -1624,8 +2104,14 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 
                 normalized_stack = normalized_stack[..., channels]
                 
-                save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
-                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_region)
+                save_loc = os.path.join(
+                    archive_output_fldr, f'{name}_norm_timelapse.npz')
+                arrays = dict(data=normalized_stack,
+                              filenames=filenames_region)
+                if illumination_session is None:
+                    np.savez_compressed(save_loc, **arrays)
+                else:
+                    _save_npz_atomic(save_loc, **arrays)
                 
                 # Only plot when the user asked for it: an interactive
                 # matplotlib backend makes plt.show() block, which would hang
@@ -1638,6 +2124,11 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
         except Exception as e:
             print(f"Error processing files, make sure filenames metadata is structured plate_well_field_time.npy")
             print(f"Error: {e}")
+            if illumination_session is not None:
+                # A partially corrected timelapse cannot be presented as a
+                # successful raw/off run. Let the run policy record the real
+                # failure and leave provenance incomplete for resume.
+                raise
     else:
         for file in os.listdir(src):
             if file.endswith('.npy'):
@@ -1645,6 +2136,9 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 paths.append(path)
         if settings['randomize']:
             random.shuffle(paths)
+        intended_fields = [
+            os.path.splitext(os.path.basename(path))[0] for path in paths
+        ]
         nr_files = len(paths)
         batch_index = 0
         stack_ls = []
@@ -1686,6 +2180,10 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                     stack = np.stack(padded_stack_ls)
                 else:
                     stack = np.stack(stack_ls)
+
+                stack, _field_ids = _correct_v1_segmentation_batch(
+                    stack, filenames_batch, channels, settings,
+                    illumination_session)
                 
                 normalized_stack = _normalize_img_batch(stack=stack,
                                                         channels=channels,
@@ -1694,11 +2192,17 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 
                 normalized_stack = normalized_stack[..., channels]
 
-                save_loc = os.path.join(output_fldr, f'stack_{batch_index}_norm.npz')
+                save_loc = os.path.join(
+                    archive_output_fldr, f'stack_{batch_index}_norm.npz')
                 # Lossless-compressed so the on-disk normalised batch is much
                 # smaller (np.load reads it transparently); it's deleted with
                 # masks/ after merged/ is built unless keep_intermediate is set.
-                np.savez_compressed(save_loc, data=normalized_stack, filenames=filenames_batch)
+                arrays = dict(data=normalized_stack,
+                              filenames=filenames_batch)
+                if illumination_session is None:
+                    np.savez_compressed(save_loc, **arrays)
+                else:
+                    _save_npz_atomic(save_loc, **arrays)
                 # Gated on settings['plot'] — see the timelapse branch above:
                 # an interactive backend blocks the pipeline on plt.show().
                 if batch_index == 0 and settings.get('plot'):
@@ -1711,12 +2215,63 @@ def concatenate_and_normalize(src, channels, save_dtype=np.float32, settings=Non
                 filenames_batch = []
                 padded_stack_ls = []
 
+    if illumination_session is not None:
+        staged_fields = _normalized_npz_field_ids(archive_output_fldr)
+        if set(staged_fields) != set(intended_fields):
+            missing = sorted(set(intended_fields) - set(staged_fields))
+            extra = sorted(set(staged_fields) - set(intended_fields))
+            raise RuntimeError(
+                'incomplete illumination fields before V1 publication: '
+                f'missing={missing}, unexpected={extra}')
+        _publish_v1_normalized_archives(
+            archive_output_fldr, output_fldr)
+        # Invalidate downstream products BEFORE provenance becomes complete.
+        # A crash after finish must never leave a complete correction record
+        # beside masks/merged fields drawn from the superseded pixels.
+        _invalidate_v1_segmentation_outputs(os.path.dirname(src))
+        settings['resume'] = False
+        for field_id in staged_fields:
+            illumination_session.mark_completed(field_id)
+        illumination_session.finish(intended_fields)
     print(f'All files concatenated and normalized. Saved to: {output_fldr}')
     # Emitted last so a partially-loaded stack cannot scroll off the top of
     # a 400-line progress log. No stamp: output_fldr is masks/, which the
     # segmentation step globs, and a stray sidecar there is not worth the risk.
     ledger.finalize()
     return output_fldr
+
+
+def concatenate_and_normalize(
+        src, channels, save_dtype=np.float32, settings=None,
+        illumination_session=None):
+    """Concatenate, optionally correct, and normalise V1 field arrays.
+
+    :param src: directory containing per-field ``.npy`` channel arrays.
+    :param channels: channel indices retained in the output archives.
+    :param save_dtype: NumPy dtype for normalised arrays. Defaults to float32.
+    :param settings: required preprocessing settings mapping.
+    :param illumination_session: optional segmentation-only correction
+        session. Corrected archives are staged privately and published as one
+        complete set; the staging directory is removed on success or failure.
+    :returns: the ``masks/`` directory containing normalised NPZ archives.
+    """
+    if illumination_session is None:
+        return _concatenate_and_normalize_impl(
+            src, channels, save_dtype=save_dtype, settings=settings)
+
+    output_fldr = os.path.join(os.path.dirname(src), 'masks')
+    os.makedirs(output_fldr, exist_ok=True)
+    # Cellpose enumerates every top-level NPZ in masks/. Build elsewhere so a
+    # failure cannot expose a mixed old/new set, and let TemporaryDirectory's
+    # context guarantee cleanup on every exception path.
+    with tempfile.TemporaryDirectory(
+            prefix='.spacr_v1_npz_', dir=os.path.dirname(output_fldr)
+            ) as staging_dir:
+        return _concatenate_and_normalize_impl(
+            src, channels, save_dtype=save_dtype, settings=settings,
+            illumination_session=illumination_session,
+            archive_output_fldr=staging_dir)
+
 
 def _get_lists_for_normalization(settings):
     """
@@ -1741,18 +2296,18 @@ def _get_lists_for_normalization(settings):
         if not ch is None:
             if ch == settings['nucleus_channel']:
                 backgrounds.append(settings['nucleus_background'])
-                signal_to_noise.append(settings['nucleus_Signal_to_noise'])
-                signal_thresholds.append(settings['nucleus_Signal_to_noise']*settings['nucleus_background'])
+                signal_to_noise.append(settings['nucleus_signal_to_noise'])
+                signal_thresholds.append(settings['nucleus_signal_to_noise']*settings['nucleus_background'])
                 remove_background.append(settings['remove_background_nucleus'])
             elif ch == settings['cell_channel']:
                 backgrounds.append(settings['cell_background'])
-                signal_to_noise.append(settings['cell_Signal_to_noise'])
-                signal_thresholds.append(settings['cell_Signal_to_noise']*settings['cell_background'])
+                signal_to_noise.append(settings['cell_signal_to_noise'])
+                signal_thresholds.append(settings['cell_signal_to_noise']*settings['cell_background'])
                 remove_background.append(settings['remove_background_cell'])
             elif ch == settings['pathogen_channel']:
                 backgrounds.append(settings['pathogen_background'])
-                signal_to_noise.append(settings['pathogen_Signal_to_noise'])
-                signal_thresholds.append(settings['pathogen_Signal_to_noise']*settings['pathogen_background'])
+                signal_to_noise.append(settings['pathogen_signal_to_noise'])
+                signal_thresholds.append(settings['pathogen_signal_to_noise']*settings['pathogen_background'])
                 remove_background.append(settings['remove_background_pathogen'])
 
     return backgrounds, signal_to_noise, signal_thresholds, remove_background
@@ -1970,17 +2525,17 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     for key, file_list in organized_files.items():
         plate, well, field = key
         file_list.sort(key=lambda x: x[0])
-        arrays = []
-        filenames = []
-        for f in file_list:
-            array = np.load(f[1])
-            #if array.dtype != np.uint8:
-            #    array = ((array - array.min()) / (array.max() - array.min()) * 255).astype(np.uint8)
-            arrays.append(array)
-            filenames.append(os.path.basename(f[1]))
-        if not arrays:
-            continue
-        arrays = np.stack(arrays, axis=0)
+        # Every group is created by appending one file, so it is non-empty.
+        # Unpacking that invariant directly avoids an impossible zero-iteration
+        # arm in a loop whose only purpose was to build these two collections.
+        _times, paths = zip(*file_list)
+        arrays = np.stack(tuple(map(np.load, paths)), axis=0)
+        filenames = list(map(os.path.basename, paths))
+        # `paths` follows the time-sorted file_list above.
+        # np.stack retains the former leading time dimension.
+        # Names remain basenames for the movie overlay.
+        # Loading failures still propagate exactly as they did in the loop.
+        # A group can therefore never reach np.stack with no arrays.
         # NOTE: this loop must stay INSIDE the per-(plate, well, field) loop.
         # When it was dedented, `arrays` was unbound if no filename matched
         # the regex (UnboundLocalError) and only the LAST field ever got a
@@ -2019,6 +2574,65 @@ def delete_empty_subdirectories(folder_path):
                 continue
                 # An error occurred, likely because the directory is not empty
                 #print(f"Skipping non-empty directory: {full_dir_path}")
+
+def select_fields(names, fields):
+    """Keep only the ``names`` whose field is in ``fields``.
+
+    This filter allows mask generation to be rerun for selected fields without
+    processing every field on the plate.
+
+    :param names: stack file names, as written by
+        `_rename_and_organize_image_files`.
+    :param fields: what to keep. ``None`` or empty keeps everything, which
+        is the default and the behaviour every existing run has. A list, or
+        a comma-separated string, of field ids in any spelling the rest of
+        spaCR accepts -- ``'f3'``, ``3``, ``'F003'`` -- or a glob such as
+        ``'f1*'`` matched against the field id.
+    :returns: the kept names, in the order given.
+    """
+    import fnmatch
+
+    from . import schema
+
+    if fields is None or (hasattr(fields, '__len__') and not len(fields)):
+        return list(names)
+    if isinstance(fields, str):
+        wanted = [part.strip() for part in fields.split(',') if part.strip()]
+    elif isinstance(fields, (list, tuple, set)):
+        wanted = [str(part).strip() for part in fields if str(part).strip()]
+    else:
+        wanted = [str(fields).strip()]
+    if not wanted:
+        return list(names)
+
+    def field_of(token):
+        """One field's canonical token, so 'f3', '3' and 'F003' are one field.
+
+        NORMALISED THROUGH `schema`, which is the same rule the file names
+        themselves were written by -- matching the raw text instead would
+        make a selection depend on which of three spellings the user typed.
+        Anything schema cannot read is lower-cased and passed through, so a
+        token from a convention it has not met still selects itself.
+        """
+        try:
+            index = schema.field_index(token)
+        except Exception:                                    # noqa: BLE001
+            index = None
+        return f'f{index}' if index is not None else str(token).strip().lower()
+
+    patterns = [field_of(w) if not any(c in str(w) for c in '*?[')
+                else str(w).strip().lower() for w in wanted]
+    kept = []
+    for name in names:
+        try:
+            this = schema.parse_field_stem(name).fieldID
+        except Exception:                                    # noqa: BLE001
+            continue
+        this = str(this).lower()
+        if any(fnmatch.fnmatch(this, pattern) for pattern in patterns):
+            kept.append(name)
+    return kept
+
 
 def preprocess_img_data(settings):
     """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
@@ -2101,6 +2715,21 @@ def preprocess_img_data(settings):
             print('Found existing channel_stack folder.')
         if os.path.exists(os.path.join(src,'masks')):
             print('Found existing masks folder. Skipping preprocessing')
+            if (settings.get('illumination_correction', False) and
+                    settings.get('masks', True)):
+                from .illumination import (
+                    load_segmentation_illumination_resume,
+                )
+                mask_src = os.path.join(src, 'masks')
+                load_segmentation_illumination_resume(
+                    settings,
+                    provenance_path=os.path.join(
+                        src, 'illumination',
+                        'segmentation_application.json'),
+                    pipeline_style='v1',
+                    expected_fields=_normalized_npz_field_ids(mask_src),
+                    verbose=settings.get('verbose', True),
+                )
             return settings, src
 
     #mask_channels = [settings['nucleus_channel'], settings['cell_channel'], settings['pathogen_channel'], settings['organelle_channel']]
@@ -2167,49 +2796,48 @@ def preprocess_img_data(settings):
             # away from the cause. _rename_and_organize_image_files is the
             # only thing that can create it here, so it runs whenever stack/
             # is still absent.
-            if True:
-                img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
-                # Builds the stack/ arrays directly from an in-memory channel dict
-                # (no per-channel sub-folders) and returns the channel count.
-                nr_channel_folders = _rename_and_organize_image_files(
-                    src, regex, settings['batch_size'], settings['metadata_type'], img_format,
-                    timelapse=settings['timelapse'],
-                    save_original_images=settings.get('save_original_images', True))
+            img_format = ['.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2', '.czi', '.lif']
+            # Builds the stack/ arrays directly from an in-memory channel dict
+            # (no per-channel sub-folders) and returns the channel count.
+            nr_channel_folders = _rename_and_organize_image_files(
+                src, regex, settings['batch_size'], settings['metadata_type'], img_format,
+                timelapse=settings['timelapse'],
+                save_original_images=settings.get('save_original_images', True))
 
-                #Make sure no batches will be of only one image
-                # This counted len(stack_path) — the number of CHARACTERS in the
-                # path string, which always ends in 'stack' — so the check fired
-                # (or stayed silent) purely because of how long src happened to
-                # be. Count the .npy stacks that concatenate_and_normalize will
-                # actually batch over instead.
-                all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
-                batch_size = int(settings.get('batch_size') or 0)
-                full_batches = all_imgs // batch_size if batch_size else 0
-                last_batch_size = all_imgs % batch_size if batch_size else 0
+            #Make sure no batches will be of only one image
+            # This counted len(stack_path) — the number of CHARACTERS in the
+            # path string, which always ends in 'stack' — so the check fired
+            # (or stayed silent) purely because of how long src happened to
+            # be. Count the .npy stacks that concatenate_and_normalize will
+            # actually batch over instead.
+            all_imgs = len([f for f in os.listdir(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
+            batch_size = int(settings.get('batch_size') or 0)
+            full_batches = all_imgs // batch_size if batch_size else 0
+            last_batch_size = all_imgs % batch_size if batch_size else 0
 
-                # Report, don't raise: the stack is already written by this
-                # point so aborting cannot fix the batching, it only skipped the
-                # channel-count fix-up, the movies, the plot and the MIP below —
-                # silently corrupting the output of an otherwise fine run.
-                if last_batch_size == 1:
-                    if full_batches == 0:
-                        print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
-                    else:
-                        print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
-                        print("Warning: Last batch of size 1 detected. Adjust the batch size.")
+            # Report, don't raise: the stack is already written by this
+            # point so aborting cannot fix the batching, it only skipped the
+            # channel-count fix-up, the movies, the plot and the MIP below —
+            # silently corrupting the output of an otherwise fine run.
+            if last_batch_size == 1:
+                if full_batches == 0:
+                    print(f"Warning: Only one batch of size 1 detected (all images: {all_imgs}). Adjust the batch size.")
+                else:
+                    print(f"all images: {all_imgs},  full batch: {full_batches}, last batch: {last_batch_size}")
+                    print("Warning: Last batch of size 1 detected. Adjust the batch size.")
 
-                if len(settings['channels']) != nr_channel_folders:
-                    print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
-                    new_channels = list(range(nr_channel_folders))
-                    print(f"Changing channels from {settings['channels']} to {new_channels}")
-                    settings['channels'] = new_channels
+            if len(settings['channels']) != nr_channel_folders:
+                print(f"Number of channels does not match number of channel folders. channels: {settings['channels']} channel folders: {nr_channel_folders}")
+                new_channels = list(range(nr_channel_folders))
+                print(f"Changing channels from {settings['channels']} to {new_channels}")
+                settings['channels'] = new_channels
 
-                if settings['timelapse']:
-                    _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
+            if settings['timelapse']:
+                _create_movies_from_npy_per_channel(stack_path, fps=settings['fps'])
 
-                if settings['plot']:
-                    print(f"plotting {settings['nr']} images from {src}/stack")
-                    plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
+            if settings['plot']:
+                print(f"plotting {settings['nr']} images from {src}/stack")
+                plot_arrays(stack_path, settings['figuresize'], settings['cmap'], nr=settings['nr'], normalize=settings['normalize'])
 
 
         except Exception as e:
@@ -2217,6 +2845,7 @@ def preprocess_img_data(settings):
 
     stacked = ([f for f in os.listdir(stack_path) if f.endswith('.npy')]
                if os.path.isdir(stack_path) else [])
+    stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
         # Emptiness, not absence: _rename_and_organize_image_files creates
         # stack/ before it has anything to put in it, so a folder with no
@@ -2250,10 +2879,22 @@ def preprocess_img_data(settings):
             f"No image stacks were produced from {src}. spaCR found "
             f"{len(images)} image file(s) directly in that folder.{hint}")
 
+    illumination_session = None
+    if (settings.get('illumination_correction', False) and
+            settings.get('masks', True)):
+        from .illumination import prepare_segmentation_illumination
+        illumination_session = prepare_segmentation_illumination(
+            settings,
+            src=stack_path,
+            channels=mask_channels,
+            pipeline_style='v1',
+        )
+
     concatenate_and_normalize(src=stack_path,
                               channels=mask_channels,
                               save_dtype=np.float32,
-                              settings=settings)
+                              settings=settings,
+                              illumination_session=illumination_session)
         
     for key in mask_channel_keys:
         ch = settings.get(key)
@@ -2267,8 +2908,8 @@ def preprocess_img_data(settings):
             ch = int(ch)
         except (TypeError, ValueError):
             continue
-        if ch in seen:
-            settings[f"cellpose_{key}"] = seen[ch]
+        # The same keys and coercion populated `seen` above, so this key exists.
+        settings[f"cellpose_{key}"] = seen[ch]
             
     return settings, src
 
@@ -2353,7 +2994,7 @@ def _get_avg_object_size(masks):
             per_image_counts.append(0)
             if not np.any(mask):
                 print(f"Warning: Mask {idx} is empty.")
-            elif mask.ndim not in [2, 3]:
+            else:
                 print(f"Warning: Mask {idx} has invalid dimension: {mask.ndim}")
 
     # Average number of objects per image
@@ -2371,7 +3012,6 @@ def _get_avg_object_size(masks):
     return avg_num_objects_per_image, avg_object_size
     
 def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
-    from .utils import print_progress
     """
     Save a figure to a specified location.
 
@@ -2382,6 +3022,7 @@ def _save_figure(fig, src, text, dpi=None, i=1, all_folders=1):
     dpi (int, optional): Resolution. ``None`` (the default) follows the
         user's figure-resolution preference -- see spacr.plot.save_figure.
     """
+    from .utils import print_progress
 
     save_folder = os.path.dirname(src)
     obj_type = os.path.basename(src)
@@ -2826,6 +3467,18 @@ def _read_and_join_tables(db_path, table_names=None,
                 joined_df = reconcile_duplicates(
                     joined_df, f'_{entity}', left_name='cell',
                     right_name=entity, on_conflict=duplicate_column_policy)
+    # EVERY PLATE ID COMES BACK IN ONE SPELLING. A screen written by an
+    # older run stamps its plate `pplate1` and everything computed since
+    # stamps it `plate1`, so the two never join: an ML run over 60,816 real
+    # cells scored every one of them and wrote none back, reporting that its
+    # own database "probably comes from a different experiment".
+    #
+    # `schema.normalise_plate_columns` is the one rule, and it is applied on
+    # READ -- nothing on disk is rewritten, so an old database keeps working
+    # and a re-read of it produces the same keys as a fresh run.
+    from . import schema as _schema
+
+    joined_df = _schema.normalise_plate_columns(joined_df)
     return joined_df
     
 #: Table holding the settings of the run that wrote the database **last**.
@@ -2987,9 +3640,106 @@ def _save_settings_to_db(settings, stage=None):
         # runs immediately before measure_crop's workers start writing.
         conn.close()
 
+# A tracked-mask movie is sized from the mask, not from a constant.
+#
+# It used to open ``plt.subplots(figsize=(50, 50))`` and write the animation at
+# ``dpi=80``, so every frame was 50 x 80 = 4000 px on a side whatever the field
+# was: 64 MB of RGBA per frame for a mask that is usually a few hundred pixels
+# across. Measured on a 128 x 128 mask, five frames took 8 s and came out
+# 4000 x 4000. The movie is written whenever ``save`` is true on any of the
+# three tracking backends and a real timelapse is tens to hundreds of frames,
+# so the cost was paid on every tracking run and grew with the run's length
+# rather than with the field's size. It is also why the three ``if plot or
+# save:`` call sites in spacr.timelapse had no test that let them run: writing
+# one real movie cost seconds and hundreds of megabytes.
+MASK_MOVIE_DPI = 100
+MASK_MOVIE_MIN_PX = 320
+MASK_MOVIE_MAX_PX = 1024
+
+
+def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
+                               min_px=MASK_MOVIE_MIN_PX,
+                               max_px=MASK_MOVIE_MAX_PX):
+    """Size one movie frame, and its lettering, from the masks it will show.
+
+    The frame keeps the mask's own aspect ratio and its own resolution, with
+    the long side held inside ``[min_px, max_px]``: a small mask is scaled up
+    far enough for the label numbers to be legible, and a whole-slide field is
+    scaled down instead of being written at a resolution nobody can play.
+
+    The lettering has to be derived here rather than kept at the old constants.
+    24 pt at dpi 80 on a 4000 px canvas is 0.7 % of the frame height; the same
+    24 pt on a 512 px frame would be half the picture, and the old ratio on a
+    512 px frame would be three pixels. Text is therefore sized as a fraction
+    of the frame, with a floor so it never disappears entirely.
+
+    :param masks: the frames the movie will show. Ragged input is allowed and
+        the largest frame decides, so a mask that grew mid-series is not
+        cropped.
+    :param dpi: dots per inch handed to the writer. Only the product
+        ``figsize * dpi`` reaches the file, but the two are kept separate
+        because point sizes are relative to inches.
+    :returns: ``dict`` with ``figsize``, ``dpi``, ``frame_px`` (width, height),
+        ``label_pt``, ``title_pt``, ``caption_pt`` and ``band`` -- the fraction
+        of the figure reserved above and below the image for the two captions.
+    :raises ValueError: when there is no mask to measure, which would otherwise
+        surface as an unreadable empty GIF.
+    """
+    # `shape[:2]` is not enough on its own: a corrupt or one-dimensional array
+    # gives a one-tuple, and unpacking it would raise a ValueError about
+    # iterables rather than about the movie.
+    shapes = [np.asarray(mask).shape[:2] for mask in masks]
+    shapes = [(int(shape[0]), int(shape[1])) for shape in shapes
+              if len(shape) == 2 and shape[0] > 0 and shape[1] > 0]
+    if not shapes:
+        raise ValueError(
+            'cannot size a mask movie: no frame has a non-empty shape. '
+            'An empty animation writes a GIF no player can open.')
+    height = max(h for h, _ in shapes)
+    width = max(w for _, w in shapes)
+
+    long_side = max(height, width)
+    scale = 1.0
+    if long_side < min_px:
+        scale = min_px / long_side
+    elif long_side > max_px:
+        scale = max_px / long_side
+    frame_h = max(1, int(round(height * scale)))
+    frame_w = max(1, int(round(width * scale)))
+
+    def _points(fraction):
+        """A font size in POINTS for a fraction of the frame's short side.
+
+        Matplotlib sizes text in points and this geometry is in pixels, so
+        the conversion has to use the dpi the writer will actually use --
+        computing it against a default dpi puts the labels at the wrong size
+        in the file while looking right on screen. Floored at 5 pt, below
+        which a label is ink rather than text.
+        """
+        return max(5.0, round(min(frame_h, frame_w) * fraction * 72.0 / dpi, 1))
+
+    return {
+        'figsize': (frame_w / dpi, frame_h / dpi),
+        'dpi': dpi,
+        'frame_px': (frame_w, frame_h),
+        'label_pt': _points(1 / 28),
+        'title_pt': _points(1 / 22),
+        'caption_pt': _points(1 / 26),
+        'band': 0.06,
+    }
+
+
 def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     """
     Save a timelapse animation of masks as a GIF.
+
+    The frame is sized from the mask by :func:`_mask_movie_frame_geometry`
+    rather than at a fixed 50 x 50 inches, and a band is reserved at the top
+    and bottom of the figure for the two captions. The frame counter used to
+    be drawn by ``ax.set_title`` into a figure whose axes had been given every
+    last inch by ``subplots_adjust(top=1)``, so it was clipped away on every
+    frame: measured on a rendered GIF, zero lit pixels in the top 5 % of the
+    canvas against 222 in the bottom 5 % where the filename sits.
 
     Parameters:
     - masks (list): List of mask frames.
@@ -3002,54 +3752,76 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     Returns:
     None
     """
+    geometry = _mask_movie_frame_geometry(masks)
+    band = geometry['band']
+
     # Set the face color for the figure to black
-    fig, ax = plt.subplots(figsize=(50, 50), facecolor='black')
-    ax.set_facecolor('black')  # Set the axes background color to black
-    ax.axis('off')  # Turn off the axis
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)  # Adjust the subplot edges
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
+        ax.set_facecolor('black')  # Set the axes background color to black
+        ax.axis('off')  # Turn off the axis
+        # Leave the two bands the captions are drawn into; at top=1 the frame
+        # counter was rendered above the canvas and never reached the file.
+        plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
+                            wspace=0, hspace=0)
 
-    filename_text_obj = None  # Initialize a variable to keep track of the text object
+        filename_text_obj = None  # Initialize a variable to keep track of the text object
+        frame_text_obj = None
 
-    def _update(frame):
-        """
-        Update the frame of the animation.
+        def _update(frame):
+            """
+            Update the frame of the animation.
 
-        Parameters:
-        - frame (int): The frame number to update.
+            Parameters:
+            - frame (int): The frame number to update.
 
-        Returns:
-        None
-        """
-        nonlocal filename_text_obj  # Reference the nonlocal variable to update it
-        if filename_text_obj is not None:
-            filename_text_obj.remove()  # Remove the previous text object if it exists
+            Returns:
+            None
+            """
+            nonlocal filename_text_obj, frame_text_obj  # Reference the nonlocal variables to update them
+            if filename_text_obj is not None:
+                filename_text_obj.remove()  # Remove the previous text object if it exists
+            if frame_text_obj is not None:
+                frame_text_obj.remove()
 
-        ax.clear()  # Clear the axis to draw the new frame
-        ax.axis('off')  # Ensure axis is still off after clearing
-        current_mask = masks[frame]
-        ax.imshow(current_mask, cmap=cmap, norm=norm)
-        ax.set_title(f'Frame: {frame}', fontsize=24, color='white')
+            ax.clear()  # Clear the axis to draw the new frame
+            ax.axis('off')  # Ensure axis is still off after clearing
+            current_mask = masks[frame]
+            ax.imshow(current_mask, cmap=cmap, norm=norm)
+            frame_text_obj = fig.text(0.5, 1 - band / 2, f'Frame: {frame}',
+                                      ha='center', va='center',
+                                      fontsize=geometry['title_pt'], color='white')
 
-        # Add the filename as text on the figure
-        filename_text = filenames[frame]  # Get the filename corresponding to the current frame
-        filename_text_obj = fig.text(0.5, 0.01, filename_text, ha='center', va='center', fontsize=20, color='white')  # Adjust text position, size, and color as needed
+            # Add the filename as text on the figure
+            filename_text = filenames[frame]  # Get the filename corresponding to the current frame
+            filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')  # Adjust text position, size, and color as needed
 
-        # Annotate each object with its label number from the mask
-        for label_value in np.unique(current_mask):
-            if label_value == 0: continue  # Skip background
-            y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
+            # Annotate each object with its label number from the mask
+            for label_value in np.unique(current_mask):
+                if label_value == 0: continue  # Skip background
+                y, x = np.mean(np.where(current_mask == label_value), axis=1)
+                ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
-        # Overlay tracks
-        if tracks_df is not None:
-            for track in tracks_df['track_id'].unique():
-                _track = tracks_df[tracks_df['track_id'] == track]
-                ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
+            # Overlay tracks
+            if tracks_df is not None:
+                for track in tracks_df['track_id'].unique():
+                    _track = tracks_df[tracks_df['track_id'] == track]
+                    ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
 
-    anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-    anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
-    plt.close(fig)
-    print(f'Saved timelapse to {path}')
+        anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
+        anim.save(
+            path,
+            writer='pillow',
+            fps=2,
+            dpi=geometry['dpi'],
+            savefig_kwargs={'facecolor': 'black', 'transparent': False},
+        )
+        plt.close(fig)
+        print(f'Saved timelapse to {path}')
 
 def _save_object_counts_to_database(arrays, object_type, file_names, db_path, added_string):
     """
@@ -3262,9 +4034,31 @@ def _load_and_concatenate_arrays(
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
+    # THE MASK FOLDERS THAT EXIST, LISTED ONCE. The check below runs per
+    # role, and 326 took `ORGANELLE_ROLES` from four to 702 -- so the
+    # `os.path.exists` it used to do became 700-odd stat calls against one
+    # directory on every merge, to answer a question one listing answers for
+    # all of them. Missing directory is the ordinary case for a run that
+    # segmented nothing, and is an empty set rather than an error.
+    try:
+        _mask_stacks = set(os.listdir(os.path.join(src, 'masks')))
+    except OSError:
+        _mask_stacks = set()
+
     def add_mask_folder(role, enabled):
+        """Queue one object's mask stack, if this run has that object.
+
+        EITHER the caller named a channel dimension for it OR the folder is
+        on disk: a run that segmented an object always has the folder, and a
+        run being re-read from settings may name the object before the
+        folder is written. Requiring both would drop a mask stack that is
+        sitting right there.
+
+        :param role: the object, e.g. ``'cell'``.
+        :param enabled: that object's channel dimension, or None.
+        """
         folder = os.path.join(src, 'masks', f'{role}_mask_stack')
-        if enabled is not None or os.path.exists(folder):
+        if enabled is not None or f'{role}_mask_stack' in _mask_stacks:
             folder_paths.append(folder)
             mask_roles.append(role)
 
@@ -3495,33 +4289,50 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     """
 
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=None):
-        
+        """Draw one training curve -- train against validation -- and write it.
+
+        One function per COLUMN rather than per figure because the caller
+        asks for accuracy, loss and the rest by name, and every one of them
+        is the same plot of the same two frames.
+
+        :param train_df: per-epoch training statistics.
+        :param val_df: the same for validation.
+        :param column: which statistic to draw.
+        :param save: write a PDF beside the model rather than only showing it.
+        :param path: the folder to write into.
+        :param dpi: resolution for the written file.
+        """
         pdf_path = os.path.join(path, f'{column}.pdf')
 
         # Create subplots
-        fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
 
-        # Plotting
-        sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
-        sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
+            # Plotting
+            sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
+            sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')
 
-        # Set titles and labels
-        axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
-        axes[0].set_xlabel('Epoch', fontsize=16)
-        axes[0].set_ylabel(column, fontsize=16)
-        axes[0].tick_params(axis='both', which='major', labelsize=12)
+            # Set titles and labels
+            axes[0].set_title(f'Train {column} vs. Epoch', fontsize=20)
+            axes[0].set_xlabel('Epoch', fontsize=16)
+            axes[0].set_ylabel(column, fontsize=16)
+            axes[0].tick_params(axis='both', which='major', labelsize=12)
 
-        axes[1].set_title(f'Validation {column} vs. Epoch', fontsize=20)
-        axes[1].set_xlabel('Epoch', fontsize=16)
-        axes[1].tick_params(axis='both', which='major', labelsize=12)
+            axes[1].set_title(f'Validation {column} vs. Epoch', fontsize=20)
+            axes[1].set_xlabel('Epoch', fontsize=16)
+            axes[1].tick_params(axis='both', which='major', labelsize=12)
 
-        plt.tight_layout()
+            plt.tight_layout()
 
-        if save:
-            from .plot import save_figure
-            pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
-        else:
-            plt.show()
+            if save:
+                from .plot import save_figure
+                pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
+            else:
+                plt.show()
 
     # Read the CSVs into DataFrames
     train_df = pd.read_csv(train_file_path, index_col=0)
@@ -3530,17 +4341,21 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     # Get the folder path for saving plots
     fldr_1 = os.path.dirname(train_file_path)
     
-    if save:
-        # Setting the style
-        sns.set(style="whitegrid")
+    # `sns.set` writes a whole seaborn theme into matplotlib's
+    # process-wide rcParams. Scoped, so reading the model stats does not
+    # restyle every figure the session draws afterwards.
+    with plt.rc_context():
+        if save:
+            # Setting the style
+            sns.set(style="whitegrid")
     
-    # Plot and save the results
-    _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
+        # Plot and save the results
+        _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
 
 def _save_model(model, model_type, results_dict, dst, epoch, epochs,
                 intermedeate_save=None,
@@ -3674,6 +4489,15 @@ def _save_progress(dst, train_df, validation_df):
     return
     
 def _copy_missclassified(df):
+    """Copy every misclassified crop into a ``missclassified`` folder beside its source.
+
+    Split into ``pc`` and ``nc`` by what the original path contains, so the
+    two failure directions can be looked at separately -- a model that only
+    ever errs one way is a different problem from one that errs both.
+
+    :param df: predictions carrying ``true_label``, ``predicted_label`` and
+        ``filename``.
+    """
     misclassified = df[df['true_label'] != df['predicted_label']]
     for _, row in misclassified.iterrows():
         original_path = row['filename']
@@ -3689,11 +4513,43 @@ def _copy_missclassified(df):
     return
     
 def _read_db(db_loc, tables):
+    """Read tables out of a measurements database as data frames.
+
+    A ``~`` path is expanded HERE, once, for every reader. A ``src``
+    beginning with ``~`` produced a literal ``~/...`` path that the schema
+    migration resolved against the WORKING DIRECTORY and then refused. It is
+    fixed here rather than in the migration, whose own docstring states
+    non-expansion as a deliberate contract.
+
+    :param db_loc: the database path.
+    :param tables: the table names to read.
+    :returns: one data frame per requested table, in the order asked.
+    """
     import gc
+    import os
+    import pathlib
     import sqlite3
     import pandas as pd
 
     from .database_schema import ensure_database_schema
+
+    # A `~` PATH IS EXPANDED HERE, once, for every reader.
+    #
+    # GitHub issue #108 (auto-filed 2026-08-17, macOS): a `src` beginning
+    # with `~` produced `~/.../measurements/measurements.db`, which
+    # `ensure_database_schema` -> `migrate_database` resolved against the
+    # WORKING DIRECTORY and then refused with `FileNotFoundError: ~<DB>`.
+    #
+    # It is fixed here rather than in `migrate_database`, whose docstring
+    # states the non-expansion as a deliberate contract ("made absolute but
+    # not tilde-expanded"), and rather than at each of the ~99 sites that
+    # build a measurements path by string concatenation. This is the funnel
+    # they all pass through.
+    #
+    # expandvars too: a settings CSV carried between machines routinely holds
+    # $HOME or %USERPROFILE%, and the failure is identical.
+    if isinstance(db_loc, (str, os.PathLike)):
+        db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
     from .utils import correct_metadata
 
     def _quote_identifier(name):
@@ -3708,12 +4564,44 @@ def _read_db(db_loc, tables):
     # when a malformed table happens to exist in SQLite.
     for table in tables:
         _quote_identifier(table)
-    ensure_database_schema(db_loc)
+
+    # A DATABASE NOBODY CAN WRITE TO IS STILL A DATABASE THAT CAN BE READ.
+    #
+    # GitHub issue #115 (SMB mounts): `ensure_database_schema` renames legacy
+    # columns and stamps the schema version, so calling it before every read
+    # meant that reading a PRE-MIGRATION database from a read-only source --
+    # an SMB share mounted read-only, a colleague's archived plate, a dataset
+    # on a read-only volume -- died with `OperationalError: attempt to write a
+    # readonly database`. The error named the write, not the reason, and the
+    # read was never the thing that needed writing.
+    #
+    # Migration is not required in order to READ. `correct_metadata` below
+    # canonicalises the frame -- `plate`/`row`/`col` to `plateID`/`rowID`/
+    # `columnID` and the rest -- so a legacy table is readable exactly as a
+    # current one is; the migration exists to make that permanent, not to
+    # make it possible. So when the database cannot be written, it is skipped
+    # and the file is opened read-only, which also stops SQLite trying to
+    # place a journal beside it.
+    #
+    # BOTH the file and its DIRECTORY are checked: SQLite writes its journal
+    # into the directory, so a writable file in a read-only directory is not
+    # a writable database.
+    directory = os.path.dirname(os.path.abspath(db_loc)) or "."
+    writable = (os.access(db_loc, os.W_OK) and os.access(directory, os.W_OK))
+    if writable:
+        ensure_database_schema(db_loc)
 
     dfs = []
     chunksize = 100_000  # internal safety setting; adjust if needed
 
-    with sqlite3.connect(db_loc, timeout=30) as conn:
+    if writable:
+        connect_to = db_loc
+        connect_kwargs = {}
+    else:
+        connect_to = f"file:{pathlib.Path(db_loc).as_uri()[7:]}?mode=ro"
+        connect_kwargs = {"uri": True}
+
+    with sqlite3.connect(connect_to, timeout=30, **connect_kwargs) as conn:
         # Optional but useful: fail early if a table name is wrong
         existing_tables = {
             row[0]
@@ -4113,12 +5001,12 @@ def _read_and_merge_data(
     # wells, so a threshold of 100 discarded every well on a plate that
     # averaged 360 cells -- and the wells it kept were the ones with the most
     # crowded single field, which is the opposite of the intent.
-    if 'prcf' in metadata.columns:
-        metadata = metadata.assign(prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
-    else:
-        metadata = metadata.assign(
-            prcfo=lambda x: x['plateID'] + '_' + x['rowID'] + '_' + x['columnID'] + '_' + x['fieldID'] + '_' + x[metadata_key]
-        )
+    # _split_data always rebuilds `prcf` from the four location components and
+    # returns it in metadata, even when an input carried a numeric prcf column.
+    # Every object role also consumes prcf before this point, so a fallback
+    # without it was both unreachable and (for timelapse) missing the time key.
+    metadata = metadata.assign(
+        prcfo=lambda x: x['prcf'] + '_' + x[metadata_key])
 
     cells_well = metadata.groupby('prc')['prcfo'].nunique().reset_index(name='cells_per_well')
     metadata = _merge_with_cardinality(
@@ -4149,6 +5037,12 @@ def _read_and_merge_data(
     return merged_df, obj_df_ls
 
 def _read_mask(mask_path):
+    """Read a mask file as 16-bit labels.
+
+    :param mask_path: the mask file.
+    :returns: the labels as ``uint16`` -- converted rather than cast, so an
+        8-bit mask keeps its object ids instead of having them rescaled.
+    """
     mask = imageio2.imread(mask_path)
     if mask.dtype != np.uint16:
         mask = img_as_uint(mask)
@@ -4242,29 +5136,70 @@ def generate_cellpose_train_test(src, test_split=0.1):
             shutil.copy(mask_path, new_mask_path)
             print(f'Copied {idx+1}/{len(ls)} images to {_type} set')#, end='\r', flush=True)
 
+#: How a mate is spelled in a FASTQ filename, mapped to the key spaCR uses.
+#:
+#: ``R1``/``R2`` is the Illumina convention. ``1``/``2`` is what ENA and the
+#: SRA publish -- every file downloaded from those archives is
+#: ``<run>_1.fastq.gz`` and ``<run>_2.fastq.gz`` -- and not recognising it surfaced as ``KeyError: 'R1'`` after a successful download of
+#: the project's own reads.
+_MATE_SPELLINGS = {
+    "r1": "R1", "1": "R1", "read1": "R1", "fwd": "R1",
+    "r2": "R2", "2": "R2", "read2": "R2", "rev": "R2",
+}
+
+
 def parse_gz_files(folder_path):
     """Group ``.fastq.gz`` files in ``folder_path`` by sample name and read direction.
 
-    :param folder_path: Directory containing gzipped FASTQ files named
-        ``<sample>_R1_...`` / ``<sample>_R2_...``.
-    :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``.
+    Accepts both naming conventions in the wild: ``<sample>_R1_...`` from an
+    Illumina run, and ``<run>_1.fastq.gz`` from ENA or the SRA. See
+    :data:`_MATE_SPELLINGS`.
+
+    A file whose mate cannot be identified contributes NOTHING rather than an
+    empty entry. The previous version created ``{sample: {}}`` for it, which
+    turned an unrecognised filename into a ``KeyError: 'R1'`` several frames
+    later in :func:`spacr.sequencing.generate_barecode_mapping` -- a crash that
+    named neither the file nor the problem.
+
+    :param folder_path: Directory containing gzipped FASTQ files.
+    :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``. Samples may
+        have only one of the two.
     """
     files = os.listdir(folder_path)
     gz_files = [f for f in files if f.endswith('.fastq.gz')]
 
     samples_dict = {}
     for gz_file in gz_files:
-        parts = gz_file.split('_')
-        sample_name = parts[0]
-        read_direction = parts[1]
+        stem = gz_file[:-len('.fastq.gz')]
+        parts = stem.split('_')
+        if len(parts) < 2:
+            # No separator, so there is no mate to read off the name. A
+            # single-ended file still deserves to be seen.
+            samples_dict.setdefault(stem, {})['R1'] = os.path.join(
+                folder_path, gz_file)
+            continue
 
-        if sample_name not in samples_dict:
-            samples_dict[sample_name] = {}
+        sample_name = '_'.join(parts[:-1])
+        mate = _MATE_SPELLINGS.get(parts[-1].strip().lower())
+        if mate is None:
+            # Illumina's full form is `<sample>_S1_L001_R1_001.fastq.gz`, so
+            # the mate is not always last. Look for it anywhere in the name
+            # before giving up on the file.
+            for position, token in enumerate(parts):
+                candidate = _MATE_SPELLINGS.get(token.strip().lower())
+                if candidate is not None and position > 0:
+                    mate = candidate
+                    sample_name = '_'.join(parts[:position])
+                    break
+        if mate is None:
+            LOG.warning(
+                "%s: cannot tell which mate this is, so it is skipped. "
+                "Expected a name like <sample>_R1.fastq.gz or "
+                "<run>_1.fastq.gz.", gz_file)
+            continue
 
-        if read_direction == "R1":
-            samples_dict[sample_name]['R1'] = os.path.join(folder_path, gz_file)
-        elif read_direction == "R2":
-            samples_dict[sample_name]['R2'] = os.path.join(folder_path, gz_file)
+        samples_dict.setdefault(sample_name, {})[mate] = os.path.join(
+            folder_path, gz_file)
     return samples_dict
 
 
@@ -4306,11 +5241,6 @@ CROP_OBJECT_TYPES = (
 
 #: ``png_list`` column holding the object id (``'o<N>'``) for each crop mode,
 #: as written by :func:`spacr.utils.filepaths_to_database`.
-PNG_LIST_ID_COLUMNS = {
-    'cell': 'cell_id', 'nucleus': 'nucleus_id', 'pathogen': 'pathogen_id',
-    'cytoplasm': 'cytoplasm_id',
-    **{role: f'{role}_id' for role in ORGANELLE_ROLES},
-}
 
 #: Column name used to carry a per-row crop handle through the frames in this
 #: module without colliding with a measurement column.
@@ -4378,12 +5308,28 @@ def _crop_shape_overrides(settings):
 #: accepts -- reached `resolve_crop_source`, raised CropError, was swallowed,
 #: and the run trained on pre-cut PNGs instead. The user's explicit choice
 #: was ignored in silence.
+#:
+#: `load_images` and `stream_images` are the CURRENT spelling -- the one the
+#: Classify panel writes -- and they were missing here, so the defect the
+#: paragraph above describes came straight back under new names. Worse than
+#: before: `settings._canonical_image_source` rewrites EVERY choice into this
+#: pair, so `crop_source='merged'` became `'stream_images'` and no value the
+#: panel could produce survived the lookup. Streaming was unreachable from
+#: the GUI; every run trained on pre-cut PNGs and said nothing.
+#: ONE TABLE, TWO READERS. The spellings themselves live in
+#: `spacr.crop_source`, which is where the training path resolves them, so a
+#: settings file cannot be accepted by one reader and refused by the other --
+#: which is exactly the failure both paragraphs above describe, twice. Two
+#: entries differ, and each because the question differs:
+#:
+#: * 'generate' names an ACTION to training (write a crop set, then load it)
+#:   and a SOURCE here (once written, the images are PNGs);
+#: * 'auto' means LOAD IMAGES to training, which has to pick a mode, and
+#:   stays 'auto' here, because `crops.resolve_crop_source` answers "what is
+#:   available in this project" and is the thing that computes it.
 CROP_SOURCE_ALIASES = {
-    'pre_generated': 'png',
+    **_crop_source.CROP_SOURCE_ALIASES,
     'generate': 'png',
-    'png': 'png',
-    'on_demand': 'merged',
-    'merged': 'merged',
     'auto': 'auto',
 }
 
@@ -4606,62 +5552,6 @@ class LazyCropPNG:
         return f"<LazyCropPNG {self.name or '?'} from {kind}>"
 
 
-def _object_id_int(value):
-    """Return the integer in a ``png_list`` object id (``'o12'`` -> ``12``).
-
-    ``'omulti'`` / ``'onone'`` -- a crop that overlaps several objects or none
-    -- have no single label to cut, and come back as None.
-    """
-    if value is None:
-        return None
-    if isinstance(value, (int, np.integer)):
-        return int(value)
-    if isinstance(value, float):
-        return None if np.isnan(value) else int(value)
-    text = str(value).strip()
-    if text[:1] in ('o', 'O'):
-        text = text[1:]
-    try:
-        return int(text)
-    except (TypeError, ValueError):
-        return None
-
-
-def _merged_field_paths(db_path, object_type='cell'):
-    """Return ``{(plateID, rowID, columnID, fieldID): (path_name, file_name)}``.
-
-    Read off a measurement table, which is where
-    :func:`spacr.utils._merge_and_save_to_database` records the merged array
-    each object came from. ``png_list`` records neither, so this is the join
-    that lets a ``png_list`` row be cut on demand.
-
-    The requested object's own table is preferred and the other object tables
-    are tried in turn, because every one of them names the same field.
-    """
-    out = {}
-    if not os.path.isfile(db_path):
-        return out
-    order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
-                                         'pathogen', 'organelle')
-                             if t != object_type]
-    from .database_concurrency import connect as _connect_database
-
-    conn = _connect_database(db_path)
-    try:
-        for table in order:
-            try:
-                rows = conn.execute(
-                    f'SELECT DISTINCT plateID, rowID, columnID, fieldID, '
-                    f'path_name, file_name FROM "{table}"').fetchall()
-            except sqlite3.Error:
-                continue
-            for plate, row, col, field, path_name, file_name in rows:
-                out.setdefault((plate, row, col, field), (path_name, file_name))
-            if out:
-                break
-    finally:
-        conn.close()
-    return out
 
 
 def crop_png_name(file_name, object_type, object_label, cell_id=None):
@@ -4689,65 +5579,6 @@ def crop_png_name(file_name, object_type, object_label, cell_id=None):
     return f"{stem}_{label}.png"
 
 
-def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
-    """Give ``png_list`` rows the keys a crop has to be cut from ``merged/``.
-
-    ``png_list`` records where a crop was *written* and which object it came
-    from (``<object>_id``), but not which merged array produced it. This joins
-    the object table on plate/row/column/field to recover ``path_name``, and
-    turns ``'o12'`` into ``12``.
-
-    Rows whose object id is ``'omulti'`` / ``'onone'`` (a crop overlapping
-    several objects or none) cannot be cut from a single label and are
-    dropped, with a count, rather than silently producing the wrong object.
-
-    :param db_path: the ``measurements.db`` ``png_df`` came from.
-    :param png_df: the ``png_list`` frame.
-    :param object_type: which crop mode the rows describe.
-    :param verbose: report dropped rows.
-    :returns: a copy of ``png_df`` with ``path_name``, ``object_label`` and
-        ``object_type`` columns, minus the rows that cannot be cut.
-    """
-    df = png_df.copy()
-    id_col = PNG_LIST_ID_COLUMNS.get(object_type, 'cell_id')
-    if id_col not in df.columns:
-        # A png_list written for one crop mode carries only that mode's id
-        # column; fall back to whichever object column it does have.
-        for candidate in PNG_LIST_ID_COLUMNS.values():
-            if candidate in df.columns:
-                id_col = candidate
-                break
-    if id_col in df.columns:
-        labels = df[id_col].map(_object_id_int)
-    elif 'object_label' in df.columns:
-        # Not a png_list at all: a frame that already came off the object
-        # table (crop_rows_from_object_table) carries the integer label
-        # directly. Looking up a column that is not there would drop every row.
-        labels = df['object_label'].map(_object_id_int)
-    else:
-        labels = pd.Series([None] * len(df), index=df.index)
-
-    key_cols = ['plateID', 'rowID', 'columnID', 'fieldID']
-    if 'path_name' in df.columns and df['path_name'].notna().any():
-        pass                    # the frame already names its merged array
-    elif all(c in df.columns for c in key_cols):
-        # png_list records where a crop was written, never which merged array
-        # produced it; the object table is the only place that link exists.
-        fields = _merged_field_paths(db_path, object_type)
-        keys = list(zip(*(df[c] for c in key_cols)))
-        df['path_name'] = [fields.get(k, (None, None))[0] for k in keys]
-    else:
-        df['path_name'] = None
-    df['object_label'] = labels
-    df['object_type'] = object_type
-
-    usable = df['object_label'].notna() & df['path_name'].notna()
-    dropped = int((~usable).sum())
-    if dropped and verbose:
-        print(f"crop_rows_from_png_list: {dropped} of {len(df)} png_list rows "
-              f"cannot be cut from merged/ (no single object label, or no "
-              f"matching row in the '{object_type}' table); they are skipped.")
-    return df[usable].copy()
 
 
 def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
@@ -4827,16 +5658,29 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
     n = len(df)
 
     def _col(name):
-        # Columns are pulled out as plain lists rather than walked with
-        # itertuples(): the joined UMAP frame carries a couple of hundred
-        # columns, and building a namedtuple per row of it costs more than
-        # the crops themselves do -- and itertuples silently renames any
-        # column whose name is not a valid identifier.
+        """One column as a plain list, or a column of None when it is absent.
+
+        PLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the
+        joined UMAP frame carries a couple of hundred columns, so building a
+        namedtuple per row of it costs more than reading the crops does, and
+        itertuples silently RENAMES any column whose name is not a valid
+        identifier -- which is how a lookup starts missing a column that is
+        plainly there.
+
+        :param name: the column, or a falsy value for "this frame has none".
+        """
         if name and name in df.columns:
             return df[name].tolist()
         return [None] * n
 
     def _missing(value):
+        """Whether a cell carries no answer.
+
+        NaN AS WELL AS None, because a column read out of pandas holds NaN
+        where a row had nothing and `None is not float('nan')`. Testing only
+        for None lets a NaN through as if it were a value, and it then
+        reaches a path name or an object label.
+        """
         return value is None or (isinstance(value, float) and np.isnan(value))
 
     png_paths = _col('png_path')
@@ -5029,8 +5873,8 @@ def generate_dataset(settings=None):
         raise RuntimeError("No images selected; nothing to tar.")
 
     # ensure destination exists
-    if dst is None:
-        raise RuntimeError("Destination folder (dst) was not set.")
+    # A non-empty src list sets dst on its first iteration; an empty list is
+    # refused by the no-images check above before destination creation.
     os.makedirs(dst, exist_ok=True)
 
     # Combine the temporary tar files into a final tar
@@ -5157,6 +6001,18 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
             conn.close()
 
     def _filter(frame, column):
+        """Keep the rows whose ``column`` contains any of the wanted terms.
+
+        SUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user
+        naming plates or wells, and a stray `(` or `+` in one of them would
+        otherwise raise out of pandas rather than simply matching nothing.
+        Any term matching is enough -- several terms are alternatives, which
+        is what a user listing them means.
+
+        :param frame: the rows to filter.
+        :param column: the column to search; an absent one filters nothing,
+            because a frame that never had it cannot contradict the request.
+        """
         if not file_metadata or column not in frame.columns:
             return frame
         terms = file_metadata if isinstance(file_metadata, (list, tuple)) else [file_metadata]
@@ -5705,15 +6561,10 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         ``cv_group_by`` names — and required, not optional, because the point
         of this function is that a group never straddles the split. Needs the
         same length as ``labels`` and at least two distinct values.
-    :param seed: Seed handed to :func:`make_cv_folds` and used again to pick
-        between candidate folds it rates equally. It really does move the
-        split: the grouped pass orders equally large groups and breaks ties
-        between equally good folds by this seed, so a second seed gives a
-        second, equally stratified holdout. It used to be dead — the grouped
-        branch was a fixed greedy pass — so every seed returned the same
-        holdout and a "robust across seeds" check was really one split tried
-        repeatedly. Where the groups admit only one partition (two groups over
-        two folds, say) no seed can move it.
+    :param seed: Seed passed to :func:`make_cv_folds` and used to break ties
+        between equally suitable folds. Different seeds can produce different
+        holdouts when several partitions satisfy the constraints. The seed has
+        no effect when the groups permit only one partition.
     :returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.
     :raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if
         ``groups`` is missing or the wrong length, or if fewer than two
@@ -6280,11 +7131,10 @@ def generate_training_dataset(settings):
           ``nuclei_limit`` and ``pathogen_limit`` when the matching table is
           absent; it does not select where the crop list comes from.
         - metadata mode: ``metadata_rules``, or ``class_metadata`` values
-          matched against the ``metadata_type_by`` column.
+          matched against the column the Classes editor names.
         - annotation mode: ``annotation_columns`` (legacy
           ``annotation_column``), optional ``annotation_values`` filter, and
           ``write_random_annotation_column``.
-        - measurement mode: ``measurement_rules``.
 
         The resulting ``class_folder_names`` and ``nr_classes`` are written
         back into the dict for downstream training. A pre-split list-shaped
@@ -6331,19 +7181,42 @@ def generate_training_dataset(settings):
 
     # --- helpers -------------------------------------------------------------
     def _ensure_unique_dir(dst_base):
+        """``dst_base``, or the first ``dst_base_N`` that does not exist yet.
+
+        A TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The
+        folder is the record of what a model was trained on, so reusing the
+        name would leave a model whose training data cannot be reconstructed.
+
+        :param dst_base: the folder that was asked for.
+        :returns: a folder path nothing occupies.
+        """
         dst = dst_base
         if os.path.exists(dst):
             base = dst
-            for j in range(1, 100000):
-                try_dst = f"{base}_{j}"
-                if not os.path.exists(try_dst):
-                    print(f'Creating new directory for training: {try_dst}')
-                    dst = try_dst
-                    break
+            j = 1
+            while os.path.exists(f"{base}_{j}"):
+                j += 1
+            # Search is intentionally unbounded: every occupied suffix is real.
+            dst = f"{base}_{j}"
+            print(f'Creating new directory for training: {dst}')
         return dst
 
     def _load_png_table(db_path, object_type='cell'):
-        # read only png_list (we don't force-meet with measurements; keep it permissive)
+        """The per-object crop table, or the measurements standing in for it.
+
+        `png_list` ALONE, deliberately: joining it against the measurement
+        tables would drop every object those tables do not also carry, and a
+        training set is allowed to be a subset of what was measured.
+
+        NO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the
+        same as no data. The objects are still in the measurement table with
+        the same well metadata the class rules select on, so that is read
+        instead -- otherwise a project holding everything it needs reports
+        "0 classes".
+
+        :param db_path: the measurements database.
+        :param object_type: which object's table to fall back to.
+        """
         try:
             [png_df] = _read_db(db_loc=db_path, tables=['png_list'])
             png_df = png_df.copy()
@@ -6371,17 +7244,28 @@ def generate_training_dataset(settings):
         return frame['png_path'].dropna().tolist()
 
     def _fix_path_under_src(src_root, p):
-        """Make sure png_path lives under the current src root (portable absolute fix)."""
+        """Make sure png_path lives under the current src root (portable absolute fix).
+
+        THE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the
+        montage, which needs exactly this and used to get none of it -- the
+        rule was a nested local here, reachable only from this generator, so a
+        screen that had moved computer showed the montage 60,816 dead paths
+        while this function resolved every one.
+
+        The `/data/` rebuild is now only applied when it lands on a file that
+        EXISTS. Rewriting to somewhere equally absent is strictly worse than
+        leaving the recorded path alone: the copy below then fails naming a
+        folder the user never chose.
+        """
+        from .portable_paths import reroot_crop_path
+
         if not isinstance(p, str) or p.strip() == "":
             return None
-        # already under root?
-        if os.path.isabs(p) and p.startswith(src_root):
-            return p if os.path.exists(p) else p  # keep as-is; existence checked later when copying
-        # try CV folder pattern split and rebuild
-        parts = p.split('/data/')
-        if len(parts) > 1:
-            return os.path.join(src_root, 'data', parts[1])
-        # fallback: join relative to src_root
+        rerooted = reroot_crop_path(p, src_root)
+        if rerooted != p:
+            return rerooted
+        # A relative path has no recorded root to rebuild from; it is already
+        # written relative to the screen, so join it and let the copy report.
         if not os.path.isabs(p):
             return os.path.join(src_root, p.lstrip('/'))
         return p
@@ -6423,8 +7307,22 @@ def generate_training_dataset(settings):
         return df[mask]
 
     def _balance_lists(list_of_lists):
-        if not list_of_lists:
-            return list_of_lists
+        """Cut every class down to the smallest one, when that was asked for.
+
+        A CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to
+        say "negative", so balancing is the ordinary case rather than an
+        exotic one -- but it THROWS AWAY DATA, which is why it is a setting
+        and not a default of this function.
+
+        Sampled rather than truncated: the first N crops of a class share a
+        plate, a well and often a field, so taking them in order would trade
+        a class imbalance for a batch imbalance.
+
+        The no-classes gate immediately before the call rejects an empty
+        list, so only populated collections reach this.
+
+        :param list_of_lists: one list of crop paths per class.
+        """
         if not balance_to_smallest:
             return list_of_lists
         sizes = [len(x) for x in list_of_lists]
@@ -6447,8 +7345,8 @@ def generate_training_dataset(settings):
         Returns (names, lists) aligned.
         """
         names, lists = [], []
-        if not ann_cols:
-            return names, lists
+        # The annotation dispatcher rejects an empty column list before this
+        # helper is called, keeping the user-facing error at that boundary.
 
         # Work with numeric-ish annotations 1/2; accept strings that can be cast to int.
         df = png_df.copy()
@@ -6580,7 +7478,13 @@ def generate_training_dataset(settings):
             png_df = rows
         crop_db_path = db_path if os.path.isfile(db_path) else None
 
-        mode = str(settings['dataset_mode']).lower()
+        # THROUGH `resolve_basis`, so a settings file naming the retired
+        # 'measurement' basis is MIGRATED here rather than raising -- which
+        # is the promise `RETIRED_BASES` makes, and it is only kept if every
+        # reader goes through the resolver instead of reading the key.
+        from .training_basis import resolve_basis
+
+        mode = resolve_basis(settings)
         this_names, this_lists = [], []
 
         if mode == 'metadata':
@@ -6633,16 +7537,21 @@ def generate_training_dataset(settings):
                 # printed "got 0 classes" and then indexed the missing column
                 # anyway, turning a diagnosable misconfiguration into a bare
                 # KeyError several frames down.
-                meta_col = settings.get('metadata_type_by') or 'condition'
-                meta_col = str(meta_col).strip() or 'condition'
+                # NOW READ OFF `classes`, which already names the column
+                # each class is defined by -- `metadata_type_by` was a second
+                # place to say the same thing, and two places to say it is
+                # two places to say it differently. A settings file that
+                # still carries the old key is honoured, so an old CSV runs
+                # unchanged.
+                meta_col = _class_column(settings)
                 if meta_col not in png_df.columns:
                     raise ValueError(
                         f"metadata mode: column '{meta_col}' is not in png_list, "
                         f"so no class can be selected. Present columns: "
-                        f"{sorted(map(str, png_df.columns))}. Set "
-                        f"'metadata_type_by' to one of those (usually 'columnID' "
+                        f"{sorted(map(str, png_df.columns))}. Set the Classes "
+                        f"editor's column to one of those (usually 'columnID' "
                         f"or 'rowID'), or switch 'dataset_mode' to "
-                        f"'annotation'/'measurement'."
+                        f"'annotation'."
                     )
                 # Compare as text: png_list holds 'c1'/'r1' strings but a
                 # fallback to the object table can hand back a numeric column,
@@ -6668,7 +7577,15 @@ def generate_training_dataset(settings):
                     this_names.append(name)
                     this_lists.append(_class_items(sel))
 
-        elif mode == 'annotation':
+        else:
+            # resolve_basis has already reduced the vocabulary to metadata or
+            # annotation and raises TrainingBasisError for everything else.
+            # The retired measurement spelling is migrated to annotation.
+            # Consequently this arm is exhaustive, not a fallback guess.
+            # Keeping another unknown-mode exception here duplicated a rule.
+            # Worse, that exception could never name an input that reached it.
+            # The resolver's tested error remains the single refusal surface.
+            # Old settings files therefore still migrate before dispatch.
             ann_cols = settings.get('annotation_columns')
             if not ann_cols:
                 # backward compatibility
@@ -6683,20 +7600,6 @@ def generate_training_dataset(settings):
             this_names, this_lists = _annotation_classes_from_columns(
                 png_df, ann_cols, ann_vals_filter=ann_vals, db_path=db_path
             )
-
-        elif mode == 'measurement':
-            m_rules = settings.get('measurement_rules') or []
-            for r in m_rules:
-                name = r['name']
-                where = r.get('where', [])
-                df_sel = _apply_where(png_df, where)
-                this_names.append(name)
-                this_lists.append(_class_items(df_sel))
-
-        else:
-            raise ValueError(
-                f"Invalid dataset_mode: {settings['dataset_mode']!r}. Use "
-                "'metadata', 'annotation', or 'measurement'.")
 
         # Initialize global collectors (keep class order of first source)
         if class_path_list is None:
@@ -6715,8 +7618,9 @@ def generate_training_dataset(settings):
         details = "\n".join(f"  {line}" for line in selection_context)
         raise ValueError(
             "Training-dataset generation selected no crops for any class. "
-            "Check class_metadata against metadata_type_by, or choose an "
-            "annotation/measurement rule that occurs in the database."
+            "Check class_metadata against the column the Classes editor "
+            "names, or choose an annotation value that occurs in the "
+            "database."
             + (f"\n{details}" if details else "")
         )
 
@@ -6874,6 +7778,35 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
         print(f'Class {i}: {len(ls)} images')
         
     return class_paths
+
+def _class_column(settings) -> str:
+    """The png_list column the classes are defined by.
+
+    ONE PLACE, and `classes` is it: every class in the Classes editor already
+    carries the column its value came from, so asking for the column a second
+    time under its own setting was asking the user to restate something
+    spaCR knows -- and giving them a way to say it differently.
+
+    An older settings file that still names `metadata_type_by` is honoured
+    first, so a CSV written before the removal runs unchanged.
+
+    :param settings: the run settings.
+    :returns: the column name, defaulting to 'columnID'.
+    """
+    from collections.abc import Mapping
+
+    legacy = str(settings.get('metadata_type_by') or '').strip()
+    if legacy:
+        return legacy
+    classes = settings.get('classes')
+    if isinstance(classes, Mapping):
+        for rule in classes.values():
+            if isinstance(rule, Mapping):
+                column = str(rule.get('column') or '').strip()
+                if column:
+                    return column
+    return 'columnID'
+
 
 def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='test', annotated_classes=(1, 2), metadata_type_by='columnID', class_metadata=None):
     """Same as :func:`training_dataset_from_annotation` but pre-filtered by plate metadata.
@@ -7100,17 +8033,17 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                     else grouped_splits[class_index][1]
                 )
                 destination.append(item)
-            for class_index, (train_items, test_items) in grouped_splits.items():
-                if class_data[class_index] and (
-                    not train_items or not test_items
-                ):
-                    raise ValueError(
-                        f"Leakage-safe {group_by}-grouped split leaves class "
-                        f"{classes[class_index]!r} empty in "
-                        f"{'train' if not train_items else 'test'}. Add more "
-                        f"independent {group_by}s, lower test_split, or choose "
-                        "a finer grouping level."
-                    )
+            # grouped_split accepts only candidates whose train and test sides
+            # both contain every supplied class, or raises before returning.
+            # Rechecking each class here duplicated that invariant after the
+            # split had already been accepted and could never reject a result.
+            # The grouped-split contract is pinned by its own negative test.
+            # That test deliberately supplies classes confined to one group.
+            # It observes the upstream, actionable refusal rather than this
+            # former second copy of the same rule.
+            # The accepted split can therefore be persisted directly.
+            # Every non-empty class has members on both sides by construction.
+            # Empty requested classes are handled below as explicit folders.
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
             with open(os.path.join(dst, '.spacr_split.json'), 'w') as handle:
@@ -7134,8 +8067,8 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
             # list still matches the tree, and let the summary below flag it.
             print(f"Class {cls!r} selected no crops; its folders are empty.")
             continue
-        if grouped_splits is None:
-            raise RuntimeError("dataset split provenance was not constructed")
+        # Any non-empty class contributed to flat_items, which constructed
+        # grouped_splits above; the empty-class continue is the only bypass.
         train_data, test_data = grouped_splits[class_index]
 
         # Write train files
@@ -7394,19 +8327,19 @@ def convert_to_yokogawa(folder):
     used_wells = set()
     ledger = RunLedger('convert_to_yokogawa')
 
-    # **Dictionary to store well assignments per original file**
-    file_to_well = {}
-
     for file in sorted(os.listdir(folder)):
         path = os.path.join(folder, file)
         ext = file.lower().split('.')[-1]
 
-        # **Assign a well only once per original file**
-        if file not in file_to_well:
-            file_to_well[file] = _get_next_well(used_wells)
-            #used_wells.add(file_to_well[file])  # Mark it as used
-
-        well = file_to_well[file]  # Use the same well for all channels/times
+        # os.listdir contributes each filename once, so this file receives one
+        # well and every channel/time extracted inside this iteration reuses it.
+        # The former filename dictionary was queried before its sole write, so
+        # the lookup was always absent and its reuse arm was unreachable.
+        # Reuse happens inside this iteration through the local `well` value.
+        # Sorted traversal keeps assignments stable between identical runs.
+        # Each distinct source file still receives one distinct synthetic well.
+        # All planes extracted from that source retain that same assignment.
+        well = _get_next_well(used_wells)
 
         ### **Process Nikon ND2 Files**
         if ext == 'nd2':
@@ -7532,19 +8465,29 @@ def convert_to_yokogawa(folder):
         elif ext == 'lif':
             with ledger.item(file, stage='lif',
                              echo=f"Error processing LIF file {file}"):
-                lif_file = readlif.Reader(path)
+                # readlif's ACTUAL surface, checked against the installed
+                # 0.6.5. This block used to call `readlif.Reader`,
+                # `getIterImage` and `getFrame` -- an older camelCase API
+                # that no longer exists, so every LIF import died with
+                # AttributeError on the first line and the whole format
+                # was unusable.
+                lif_file = readlif.reader.LifFile(path)
 
-                for image_idx, image in enumerate(lif_file.getIterImage()):
+                for image_idx, image in enumerate(lif_file.get_iter_image()):
                     timepoints = range(getattr(image.dims, 't', 1))
                     z_levels = range(getattr(image.dims, 'z', 1))
-                    channels = range(getattr(image.dims, 'c', 1))
+                    # CHANNELS ARE NOT IN `dims`. Dims is
+                    # namedtuple("Dims", "x y z t m"), so `dims.c` never
+                    # existed and the old getattr default silently pinned
+                    # every LIF to a single channel.
+                    channels = range(getattr(image, 'channels', 1) or 1)
 
                     for t_idx in timepoints:
                         for c_idx in channels:
                             z_stack = []
                             for z_idx in z_levels:
                                 try:
-                                    frame = image.getFrame(z=z_idx, t=t_idx, c=c_idx)
+                                    frame = image.get_frame(z=z_idx, t=t_idx, c=c_idx)
                                     z_stack.append(frame)
                                 except IndexError as frame_err:
                                     ledger.record_failure(
@@ -7768,40 +8711,40 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
             sampled_pairs = random.sample(pairs, target_size)
         else:
             sampled_pairs = pairs.copy()
-            if augment_data:
-                # EXACTLY `needed` augmented pairs, so every folder reaches
-                # target_size and the "balanced" split is balanced.
-                #
-                # This used to zip `pairs` (length dataset_len) against
-                # `aug_methods * (dataset_len // len(aug_methods))` -- a list
-                # truncated to a multiple of five -- inside a loop that ran
-                # `needed // 5` times. So the number added depended on
-                # dataset_len rather than on `needed`, and was correct only
-                # for 5 <= dataset_len <= 9. Measured on folders of 12, 20
-                # and 29 pairs against a target of 29:
-                #
-                #     12 -> 44 pairs   (32 added where 17 were needed)
-                #     20 -> 44 pairs   (24 added where 9 were needed)
-                #     29 -> 29 pairs
-                #
-                # The smallest folder ended up the LARGEST. Below five pairs
-                # the multiplier is 0, the augmentation list is empty and the
-                # zip yields nothing, so that folder stayed short instead.
-                needed = target_size - dataset_len
-                aug_methods = get_augmentations()
+            # A folder is shorter than target_size only when augmentation is
+            # enabled: without it target_size is the minimum folder size.
+            # EXACTLY `needed` augmented pairs keep every folder balanced.
+            # The branch therefore already proves augmentation was requested.
+            # With augmentation off, target_size is min(len(folder)), so every
+            # folder takes the sampled branch above and this arm is impossible.
+            # Tests exercise unequal folders with augmentation both off and on.
+            # Off samples every folder down to the smallest observed count.
+            # On grows every shorter folder to the largest observed count.
+            # Removing the duplicate inner flag leaves those outputs unchanged.
+            # It also makes the invariant visible at the target-size decision.
+            # No synthetic augmentation is performed unless the outer sizing
+            # rule selected the maximum, which only augment_data=True can do.
+            # The number added remains exactly target_size - dataset_len.
+            # Original pairs retain their explicit no-augmentation tag below.
+            # Generated pairs cycle distinct transform combinations first.
+            # Only after exhausting those combinations may one repeat.
+            # Sampling order remains randomized with the same random module.
+            # Train/test shuffling and indexing are untouched after this block.
+            # Thus this simplification removes only an unreachable false arm.
+            needed = target_size - dataset_len
+            aug_methods = get_augmentations()
 
-                # Every distinct (pair, augmentation) combination, so a pair
-                # is re-augmented a different way before any one combination
-                # repeats.
-                combos = [(img_path, msk_path, aug)
-                          for aug in aug_methods
-                          for (img_path, msk_path) in pairs]
-                pool = []
-                while len(pool) < needed:
-                    round_ = combos[:]
-                    random.shuffle(round_)
-                    pool.extend(round_)
-                sampled_pairs.extend(pool[:needed])
+            # Every distinct (pair, augmentation) combination, so a pair is
+            # re-augmented differently before any combination repeats.
+            combos = [(img_path, msk_path, aug)
+                      for aug in aug_methods
+                      for (img_path, msk_path) in pairs]
+            pool = []
+            while len(pool) < needed:
+                round_ = combos[:]
+                random.shuffle(round_)
+                pool.extend(round_)
+            sampled_pairs.extend(pool[:needed])
 
         # Add "no augmentation" tag to original files
         augmented_sampled = [

@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Data Manager: inspecionar, limpar e arquivar um exemplo real com segurança",
+  "description": "Inspecione arquivos registrados e não registrados, cancele e confirme a remoção exata dos recortes e mova um projeto privado com seus registros de arquivamento.",
+  "objectives": [
+    "Abrir Data manager pelo Help e verificar o espaço utilizado.",
+    "Ler o plano, os motivos de preservação e a lista completa.",
+    "Distinguir exclusão irreversível de arquivamento e verificar Cancel.",
+    "Examinar o destino e preservar manifesto, registro da origem e backup."
+  ],
+  "prerequisite": "Use o exemplo real de External Masks: dois campos, 103 objetos medidos e figuras salvas. A gravação usa uma cópia isolada verificada byte a byte; os caminhos absolutos do registro apontam apenas para essa cópia dentro do processo de gravação. Os 131 arquivos originais permanecem inalterados. Data Manager não tem download de dados, prévia de imagens, controle Plot ou painel AI próprios. Os tamanhos representam bytes, não qualidade científica. Apenas na cópia são excluídos 103 recortes PNG e seu JSON de formato; o banco de medições e a receita registrada são mantidos. A regeneração não é demonstrada. Arquivar move o projeto restante: não cria um backup nem garante atualizar todos os caminhos históricos. Os logs de recursos externos não são movidos.",
+  "scenes": [
+    "Abra Help e depois Data manager. Essa ferramenta compartilhada gerencia arquivos de projetos; não executa análise de imagens. Usamos uma cópia descartável do exemplo real de External Masks, com medições e figuras salvas. Mantenha um backup independente antes de experimentar a limpeza.",
+    "Choose project seleciona a raiz do projeto. Após a varredura, Usage mostra cerca de noventa e um megabytes em cento e vinte e nove arquivos. Registered e Unregistered são diferentes: arquivos podem existir sem uma entrada no registro. Categorias estimadas a partir das pastas não comprovam o conteúdo científico dos arquivos.",
+    "Em Prune, escolha os tipos a considerar. Ativar uma chave não autoriza, por si só, a exclusão. Deixe bancos de medições e pesos de modelos desmarcados aqui e escolha Show what can be deleted. Leia tanto os arquivos propostos quanto os motivos para preservar outros resultados.",
+    "Este plano contém somente a pasta data dos recortes: cento e três imagens de objetos e um arquivo de formato, não cento e quatro células. Ele propõe liberar cerca de três vírgula quatro megabytes. Get it back by indica Measure, mas regenerar ainda exige as entradas originais, as configurações e software adequado.",
+    "Delete abre uma segunda confirmação com a lista real de arquivos. A exclusão não pode ser desfeita. Amplie a janela e percorra os caminhos antes de confirmá-los. O botão final Delete começa desabilitado; marcar a confirmação é uma ação diferente de excluir algo.",
+    "A confirmação habilita Delete. Desmarcá-la desabilita o botão novamente. Nesta primeira demonstração escolhemos Cancel e todos os arquivos do projeto permanecem inalterados. Cancele sempre que houver dúvida sobre caminhos, quantidades de arquivos ou o procedimento de recuperação.",
+    "Reabrimos o mesmo plano verificado e confirmamos a exclusão somente na cópia descartável. O resultado informa três vírgula quatro megabytes liberados em cento e quatro arquivos. Os outros vinte e quatro arquivos que não fazem parte do registro permanecem idênticos byte a byte, incluindo o banco de medições e as figuras.",
+    "A varredura automática agora informa um resultado registrado ausente no disco: a pasta de recortes removida de propósito. Sua receita continua no registro com metadados da limpeza. Esse registro não permite desfazer a exclusão; não executamos Measure novamente para regenerar os recortes.",
+    "Archive é diferente: move o projeto restante. Escolha um destino vazio fora da origem e depois Show what would move. Após a limpeza, o plano contém vinte e cinco arquivos, totalizando cerca de oitenta e oito megabytes. Confira cuidadosamente origem e destino; esta tela planeja o projeto inteiro.",
+    "Move pede confirmação, com No selecionado por padrão. Primeiro escolhemos No e verificamos que a origem não muda e o destino fica vazio. Um plano e uma confirmação cancelada não movem nada. Não considere o destino do arquivo como uma cópia de backup adicional.",
+    "Confirmamos Yes somente para este exemplo privado. Os arquivos restantes são movidos para o destino. Um manifesto é escrito lá e um log de arquivamento fica na origem. O projeto original usado para criar nossa cópia descartável permanece totalmente inalterado.",
+    "Escolha o destino como projeto e faça outra varredura. O banco de medições arquivado fica registrado no novo caminho, e cada arquivo que não faz parte do registro mantém os bytes anteriores ao movimento. O manifesto adicional explica a nova contagem. Registros históricos e logs externos não são automaticamente reescritos ou movidos.",
+    "Para automação em Python, spacr.data_manager oferece scan_project, plan_prune, prune, plan_archive e archive. Inspecione o plano antes de fornecer seu token de confirmação. Use Database Browser para explorar medições e Report para um resumo legível. Guarde o backup independente e os registros de arquivamento junto à documentação da pesquisa."
+  ]
+}

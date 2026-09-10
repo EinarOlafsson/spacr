@@ -1,0 +1,19 @@
+{
+  "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque",
+  "masks": false,
+  "diameter": 180,
+  "CP_prob": 0,
+  "flow_threshold": 0.4,
+  "rescale": false,
+  "resample": false,
+  "fill_in": true,
+  "resize": true,
+  "target_height": 1120,
+  "target_width": 1120,
+  "remove_background": true,
+  "background": 200,
+  "Signal_to_noise": 10,
+  "save": true,
+  "batch_size": 4,
+  "verbose": true
+}

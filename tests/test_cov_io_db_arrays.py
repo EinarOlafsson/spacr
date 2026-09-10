@@ -479,7 +479,10 @@ def test_load_and_concatenate_arrays_skips_files_missing_from_a_mask_folder(
                                  organelle_chann_dim=None)
 
     merged_dir = os.path.join(root, 'merged')
-    assert sorted(os.listdir(merged_dir)) == ['fov.npy']
+    # The ARRAYS, not every file: the merge also writes plan/layout sidecars
+    # beside them now, and this test is about one merged array per field.
+    assert sorted(f for f in os.listdir(merged_dir)
+                  if f.endswith('.npy')) == ['fov.npy']
 
 
 def test_load_and_concatenate_arrays_ignores_non_npy_reference_files(tmp_path):
@@ -496,7 +499,8 @@ def test_load_and_concatenate_arrays_ignores_non_npy_reference_files(tmp_path):
                                  pathogen_chann_dim=None,
                                  organelle_chann_dim=None)
 
-    assert os.listdir(os.path.join(root, 'merged')) == ['fov.npy']
+    assert sorted(f for f in os.listdir(os.path.join(root, 'merged'))
+                  if f.endswith('.npy')) == ['fov.npy']
 
 
 # ---------------------------------------------------------------------------

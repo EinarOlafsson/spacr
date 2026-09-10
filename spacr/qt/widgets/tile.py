@@ -45,9 +45,16 @@ from .eliding import ElidingLabel
 
 class _TileButton(QPushButton):
     """Button with an animated ``iconPixels`` property so the icon
-    tweens on hover without changing the button's outer geometry."""
+    tweens on hover without changing the button's outer geometry.
+
+    :param base_size: the icon's resting side length in px. The animation
+        returns to it on leave, so it is the size the tile reads as -- the
+        BUTTON's geometry is set by the caller and does not follow it.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, base_size: int, parent=None):
+        """Build the button with its icon at the resting size."""
         super().__init__(parent)
         self._base_size = int(base_size)
         self._icon_pixels = int(base_size)
@@ -56,9 +63,11 @@ class _TileButton(QPushButton):
         self._anim.setEasingCurve(QEasingCurve.OutCubic)
 
     def _get_icon_pixels(self) -> int:
+        """The animated icon size, in px. Read by the property."""
         return self._icon_pixels
 
     def _set_icon_pixels(self, v: int) -> None:
+        """Set the icon size and apply it. Written by the animation."""
         self._icon_pixels = int(v)
         self.setIconSize(QSize(self._icon_pixels, self._icon_pixels))
 
@@ -91,6 +100,7 @@ class Tile(QWidget):
     :param icon_size: base icon side length in px; animates on hover.
     :param tile_size: fixed side length of the tile button in px.
     :param caption: caption shown under the tile; defaults to ``text``.
+    :param parent: parent widget; ownership only.
     :ivar clicked: emitted when the tile button is pressed.
     """
 
@@ -105,6 +115,15 @@ class Tile(QWidget):
         caption: str = "",
         parent=None,
     ):
+        """Build a square tile: an icon over its label.
+
+        :param text: the label.
+        :param icon: the picture; ``None`` leaves the tile text-only.
+        :param icon_size: the icon's edge, in pixels.
+        :param tile_size: the tile's edge, in pixels.
+        :param caption: a second line under the label.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._text = text
 
@@ -156,6 +175,7 @@ class HTile(QPushButton):
     :param description: single-line subtitle (e.g. app tagline).
     :param icon: QIcon rendered on the left.
     :param icon_size: icon side length in px.
+    :param parent: parent widget; ownership only.
     :ivar clicked: emitted when the tile is pressed.
     """
 
@@ -167,6 +187,14 @@ class HTile(QPushButton):
         icon_size: int = 52,
         parent=None,
     ):
+        """Build a wide tile: an icon beside its label and description.
+
+        :param text: the label.
+        :param description: the sentence beside it.
+        :param icon: the picture; ``None`` leaves the tile text-only.
+        :param icon_size: the icon's edge, in pixels.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._text = text
         # Set before any layout work: Qt can ask for sizeHint() while the

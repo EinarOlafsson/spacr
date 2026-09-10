@@ -1,26 +1,9 @@
-"""Quitting spaCR, and quitting one run, when asking nicely is not enough.
+"""Provide graceful-stop, force-quit, and force-restart controls for Qt.
 
-``RunRegistry.cancel_all`` is cooperative: it sets a flag, interrupts the
-thread, and waits. That is the right default -- a pipeline killed mid-write
-leaves a half-written ``.npy`` or a database row with no rows behind it, and
-recovering from that costs more than waiting. But cooperative cancellation
-has one failure mode with no way out from inside the application: a worker
-that is wedged in a C extension never checks the flag, so it never stops,
-and ``closeEvent`` refuses to close for as long as it lives.
-
-That is the state this module exists for. A user watching a run that will
-never finish, in a window that will not close, whose only remaining option
-is to find the process ID from a terminal the desktop entry never opened.
-
-Two things follow from that:
-
-* **Force is always offered, never taken silently.** Every entry point here
-  asks first, and the prompt says what force costs, because the caller is
-  the only one who knows whether the artefact being written matters.
-* **A graceful attempt is not a commitment to wait forever.** Choosing to
-  wait starts a watcher that comes back every :data:`RECHECK_MS`, so the
-  answer "give it another five minutes" can be given repeatedly and the
-  question never has to be remembered.
+Cooperative cancellation remains the default because it lets active writes
+finish safely. When a worker cannot respond, this module presents the user
+with the consequences of stopping immediately, supports a verified restart
+record, and can repeat the choice after :data:`RECHECK_MS`.
 """
 
 from __future__ import annotations
@@ -44,12 +27,18 @@ RECHECK_MS = 5 * 60 * 1000
 GRACEFUL = "graceful"
 FORCE = "force"
 CANCEL = "cancel"
+#: Save the current module and settings before starting a fresh process.
+RESTART = "restart"
 
 
 def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
-                    detail: str = "", verb: str = "Quit") -> str:
+                    detail: str = "", verb: str = "Quit",
+                    offer_restart: bool = False,
+                    restart_detail: str = "") -> str:
     """Ask whether to stop cooperatively or to kill.
 
+    :param parent: widget that owns and centres the modal question, or
+        ``None`` for an application-level dialog.
     :param what: what is being quit, in the user's words -- "spaCR" or the
         name of a module. It is used in the sentence, so it reads as a
         noun: "Quit Mask Generation?".
@@ -61,10 +50,19 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
     :param detail: appended under the question. Callers use it to name what
         is still running, because "something is still running" is not
         enough information to choose with.
-    :returns: :data:`GRACEFUL`, :data:`FORCE` or :data:`CANCEL`.
+    :param offer_restart: add a Force restart button. This option is disabled
+        by default for ordinary quit dialogs.
+    :param restart_detail: what Force restart will cost, from
+        :func:`spacr.restart_state.warning_text`. Shown only when the button
+        is offered, and REQUIRED to be meaningful when it is -- a button whose
+        consequences are not on screen beside it is one people press once.
+    :returns: :data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or
+        :data:`CANCEL`.
 
     Cancel is the default button and the escape action. Force quit is
-    reachable in one click but is never what a stray Return key does.
+    reachable in one click but is never what a stray Return key does, and
+    Force restart is LAST because it is the most destructive thing on the
+    dialog.
     """
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
@@ -78,46 +76,110 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
           "Force quit stops immediately. Anything being written right now "
           "is left half-written."
     )
+    if offer_restart:
+        box.setInformativeText(
+            box.informativeText()
+            + "\n\nForce restart saves this module and its settings, closes "
+              "spaCR, starts it again and reopens the module where you left "
+              "it. Use it when Force stop does not stop.\n\n"
+            + (restart_detail or ""))
     graceful = box.addButton("Finish current work", QMessageBox.AcceptRole)
     force = box.addButton(f"Force {verb.lower()}", QMessageBox.DestructiveRole)
+    restart = (box.addButton("Force restart", QMessageBox.DestructiveRole)
+               if offer_restart else None)
     cancel = box.addButton("Cancel", QMessageBox.RejectRole)
     box.setDefaultButton(cancel)
     box.setEscapeButton(cancel)
     # Red, because it is the one that loses data. The role alone does not
     # colour it on every style.
     force.setObjectName("DangerButton")
+    if restart is not None:
+        restart.setObjectName("DangerButton")
     box.exec()
 
     clicked = box.clickedButton()
     if clicked is graceful:
         return GRACEFUL
+    if restart is not None and clicked is restart:
+        return RESTART
     if clicked is force:
         return FORCE
     return CANCEL
 
 
+def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
+                  launcher=None, exiter=None) -> bool:
+    """Save the current state and restart spaCR in a new process.
+
+    The restart is cancelled if the state cannot be written and verified.
+
+    :param module: key of the module to reopen.
+    :param settings: module settings to restore after launch.
+    :param running: active-run records for the restart summary.
+    :param run_folders: paths that may contain interrupted-run output.
+    :param launcher: optional process-launch function. Defaults to a detached
+        :class:`subprocess.Popen` call.
+    :param exiter: optional exit function. Defaults to
+        :func:`force_quit_now`.
+    :returns: ``True`` when the replacement process was started; ``False``
+        when saving or launching failed and the current process remains open.
+    """
+    from ..restart_state import command, save
+
+    if save(module=module, settings=settings, running=running,
+            run_folders=run_folders) is None:
+        LOG.error("the restart state could not be written; NOT restarting")
+        return False
+
+    started = command()
+    try:
+        if launcher is None:
+            import subprocess
+
+            # DETACHED. `start_new_session` puts the child in its own process
+            # group, so the signal that takes this process down does not
+            # follow it, and it survives the terminal that started us.
+            subprocess.Popen(started, start_new_session=True,
+                             close_fds=True)
+        else:
+            launcher(started)
+    except Exception as exc:                          # noqa: BLE001
+        # THE STATE IS LEFT ON DISK DELIBERATELY. spaCR did not restart, so
+        # the user will start it themselves, and when they do they should
+        # land back where they were.
+        LOG.error("could not start spaCR again (%s); NOT quitting", exc)
+        return False
+
+    LOG.warning("restarting spaCR: %s", " ".join(started))
+    (exiter or force_quit_now)(0)
+    return True
+
+
 def force_quit_now(exit_code: int = 1) -> None:
-    """Leave immediately, without unwinding anything.
+    """Flush available logs and terminate the process immediately.
 
-    ``os._exit`` rather than ``sys.exit`` or ``QApplication.quit``, and the
-    difference is the entire point: both of those unwind: they run atexit
-    handlers, Python finalisation and Qt's own teardown, and every one of
-    those can block on the very thread that is already wedged. A force quit
-    that can hang is not a force quit.
+    This function uses :func:`os._exit`, so Python finalizers, ``atexit``
+    handlers, and Qt teardown do not run. Use it only after the user confirms
+    a force quit.
 
-    Logs are flushed first because the reason a run wedged is usually in
-    them, and this is the one exit path that will not flush them itself.
+    :param exit_code: process exit status.
     """
     LOG.warning("Force quit requested; leaving without cleanup")
     for handler in list(logging.getLogger().handlers):
         try:
             handler.flush()
-        except Exception:  # pragma: no cover - a broken sink must not block
+        except Exception:
+            # A BROKEN SINK MUST NOT BLOCK. This runs when a graceful
+            # stop has already failed, so a handler that will not flush
+            # cannot be what stops the process leaving -- a force quit
+            # that hangs is the original complaint, twice.
             pass
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.flush()
-        except Exception:  # pragma: no cover
+        except Exception:
+            # Same contract for stdout and stderr: a terminal that has
+            # gone takes its flush with it.
             pass
     os._exit(exit_code)
 
@@ -132,6 +194,18 @@ class GracefulQuitWatcher(QObject):
     Stops asking as soon as ``still_running()`` reports False, and stops
     for good once force is chosen, so a user who is already leaving is not
     asked a second time on the way out.
+
+    :param parent: widget the question is shown over, or ``None``.
+    :param still_running: called with no arguments before each prompt and
+        answers whether anything is left to wait for. A callable rather
+        than a list of handles, so the caller may retire them underneath.
+    :param what: what is still running, named in the question the user
+        reads. Keyword-only.
+    :param describe: called with no arguments for a longer line under that
+        question, when there is more worth saying than ``what``.
+    :param on_force: called if the user chooses to force the quit. Nothing
+        here kills anything itself.
+    :param interval_ms: milliseconds between prompts.
     """
 
     def __init__(self, parent: Optional[QWidget],
@@ -141,6 +215,16 @@ class GracefulQuitWatcher(QObject):
                  describe: Optional[Callable[[], str]] = None,
                  on_force: Optional[Callable[[], None]] = None,
                  interval_ms: int = RECHECK_MS):
+        """Arm the watcher that asks again while something is still running.
+
+        :param parent: the window the question is asked on, or ``None``.
+        :param still_running: called to ask whether the work is still going.
+        :param what: what is running, named in the question.
+        :param describe: called for a longer description of the work.
+        :param on_force: called when the user chooses to quit anyway; defaults
+            to the module's own force-quit.
+        :param interval_ms: how often to ask again.
+        """
         super().__init__(parent)
         self._parent = parent
         self._still_running = still_running
@@ -160,6 +244,11 @@ class GracefulQuitWatcher(QObject):
         self._timer.start()
 
     def stop(self) -> None:
+        """Stop watching for the quit signal.
+
+        IDEMPOTENT: shutdown can be reached by more than one route, and a
+        second stop must not be an error.
+        """
         self._timer.stop()
 
     def _recheck(self) -> None:

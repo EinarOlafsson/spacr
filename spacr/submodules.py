@@ -1,10 +1,79 @@
-"""Cellpose training and domain-specific analysis pipeline entry points."""
+"""Run plaque, recruitment, invasion, and replication assays.
+
+WHAT IT IS FOR
+==============
+Four spaCR tiles currently share this landing page, but they answer different
+biological questions.  :func:`analyze_plaques` segments plaque images and
+summarizes plaque number and area.  :func:`analyze_recruitment` measures a
+fluorescent marker around pathogens or vacuoles relative to host cytoplasm.
+:func:`analyze_invasion` uses differential pre/post-permeabilization staining
+to classify parasites as attached outside or invaded inside a host cell.
+:func:`analyze_replication` counts parasites within each parasitophorous
+vacuole and compares the resulting replication-state distributions.  Cellpose
+training, testing, and model-application utilities also live here, but they
+are not substitutes for those four assay entry points.
+
+WHAT IT NEEDS
+=============
+Plaque analysis accepts a folder of TIFF images, or existing masks beneath
+that folder, plus Cellpose settings and a bundled, catalogue, or local plaque
+model.  Recruitment starts from a spaCR ``measurements.db`` containing joined
+cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence
+channel, object filters, and plate metadata that assign cell type, pathogen,
+and treatment.  Invasion and Replication both need one row per segmented
+parasite in a measurement table and condition metadata.  Invasion additionally
+needs the outside- and total-stain channels and preferably known control wells;
+Replication needs a defensible ``vacuole_key`` or spatial-linking distance.
+The Cellpose utilities require paired images and masks for training/testing,
+or an image folder and model path for inference.
+
+WHAT IT PRODUCES
+================
+Plaque analysis writes ``<src>/masks/plaques_analysis.db`` with ``summary``,
+``stats``, and ``details`` tables.  Recruitment returns per-object and
+per-well DataFrames and writes their CSVs and plots.  Invasion returns
+per-parasite classifications, per-field thresholds and QC, per-well
+efficiencies, condition summaries and comparisons, controls, and figures;
+saved runs place those artifacts under ``results/analyze_invasion``.
+Replication returns per-vacuole counts, well and condition distributions,
+pairwise and omnibus statistics, figures, and the grouping method actually
+used, with saved output under ``results/analyze_replication``.  Model utilities
+produce trained weights, evaluation tables, masks, and object summaries as
+appropriate.
+
+WHAT TO DO NEXT
+===============
+For plaques, inspect the masks before interpreting counts or areas.  For
+Recruitment, verify the object filters, condition annotation, and per-well
+denominators before comparing treatments.  For Invasion, review field-level
+thresholds, control agreement, bimodality, and sensitivity flags before using
+the efficiency table.  For Replication, inspect the vacuole grouping and the
+reported non-power-of-two fraction before comparing doubling distributions.
+Follow the specific function links above until the four tiles receive separate
+API destinations.
+
+The analysis unit matters.  Invasion is inferred from *absence* of outside
+stain, so weak staining can only inflate the invaded fraction; thresholds are
+therefore recorded per field and statistics use wells rather than treating
+parasites from one well as independent replicates.  Replication groups by
+vacuole, not by host cell, because one cell can contain several vacuoles; 3,
+5, 6, and 7 parasites remain in an explicit non-power-of-two QC bucket instead
+of being rounded into a biologically expected class.  Plaque area is calibrated
+against the well scale when available, so comparisons should retain the
+acquisition metadata that defines that scale.
+"""
 
 import seaborn as sns
-import os, random, sqlite3, re, time, shutil, itertools
+import os, random, sqlite3, re, time, shutil, itertools, logging
 import pandas as pd
 import numpy as np
 import torch
+
+# THE ONE READER (145). `spacr.tabular` imports pandas and nothing else, so
+# naming it at module scope costs nothing -- and a local import in each of
+# the eight functions that read a table here would be eight places for the
+# next one to be forgotten.
+from .tabular import read_table
 
 from skimage.measure import regionprops, label
 from skimage.transform import resize as sk_resize, rotate
@@ -25,6 +94,18 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Do nothing: IPython is unavailable, so there is nowhere to display to.
+
+        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
+        module scope, and IPython can be mid-init -- partially imported by
+        another thread -- which makes that import raise. Letting it propagate
+        would make importing this module fail for a reason that has nothing to
+        do with what the module does. spaCR only calls `display` from notebook
+        contexts; the Qt GUI ignores it.
+
+        :param args: whatever the caller would have displayed.
+        :param kwargs: likewise.
+        """
         pass
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
@@ -39,7 +120,37 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 from . import schema
+from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
+                            reference_line, resolve_ink, rotate_ticks,
+                            theme_target)
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
+
+#: The categorical vocabulary for a plot whose categories genuinely ARE the
+#: data -- one line per measured column, one bar per class. Taken from the
+#: published palette in the order the figures reach for it, and held fixed so
+#: a series cannot change colour between two panels of the same run. Anything
+#: that is not a category in its own right stays grey; this is not a licence
+#: to colour by group.
+SERIES_COLOURS = (Palette.BLUE, Palette.RUST, Palette.GREEN, Palette.GOLD,
+                  Palette.PURPLE, Palette.NAVY, Palette.OCHRE,
+                  Palette.BLUE_LIGHT, Palette.CORAL, Palette.GREY_DARK)
+
+
+def _style_colour_bar(fig):
+    """Put a seaborn heatmap's colour bar into the house style.
+
+    ``sns.heatmap`` builds its own axes for the bar AFTER the figure exists,
+    with matplotlib's default black ticks and a full frame. On spaCR's dark
+    ground that frame is a white box around the ramp; the style draws no
+    boxes and the ink follows the theme.
+    """
+    if len(fig.axes) < 2:
+        return
+    ink = resolve_ink(theme_target())
+    bar = fig.axes[-1]
+    bar.tick_params(colors=ink, labelsize=TYPE_SCALE['tick'])
+    for spine in bar.spines.values():
+        spine.set_visible(False)
 
 
 #: How many image/label pairs :func:`train_cellpose` previews before training.
@@ -78,6 +189,12 @@ class CellposeLazyDataset(Dataset):
         randomize: bool = True,
         augment: bool = False,
     ):
+        """Pair the image and label files and fix the augmentation factor.
+
+        Mismatched lengths raise here rather than at the first bad index, so a
+        wrongly paired dataset fails at construction instead of part-way through
+        an epoch.
+        """
         if len(image_files) != len(label_files):
             raise ValueError(
                 "image_files and label_files must have the same length."
@@ -98,16 +215,24 @@ class CellposeLazyDataset(Dataset):
         self._n_augments = 8 if self.augment else 1
 
     def __len__(self):
+        """Files times augmentations -- the dataset presents each variant as its own item."""
         return len(self.image_files) * self._n_augments
 
     @staticmethod
     def _to_grayscale(image: np.ndarray) -> np.ndarray:
+        """Collapse a colour image to one plane by averaging its channels."""
         if image.ndim == 3:
             return image.mean(axis=-1)
         return image
 
     @staticmethod
     def _scale_to_unit_interval(image: np.ndarray) -> np.ndarray:
+        """Scale into ``[0, 1]``, but only if the image is not already there.
+
+        An image whose maximum is at or below 1.0 is left ALONE rather than
+        stretched, so already-normalised data is not rescaled by its own noise
+        floor.
+        """
         image = image.astype(np.float32, copy=False)
         max_value = float(image.max()) if image.size else 0.0
         if max_value > 1.0:
@@ -116,6 +241,13 @@ class CellposeLazyDataset(Dataset):
 
     @staticmethod
     def _apply_augmentation(image: np.ndarray, label: np.ndarray, aug_idx: int):
+        """One of eight dihedral variants of an image and its label.
+
+        Index 0 is the original; 1-3 rotate, 4-5 flip, 6-7 combine. THE LABEL GETS
+        THE SAME TRANSFORM AS THE IMAGE, which is the whole contract -- and the
+        rotations use ``preserve_range`` so label values stay the integers they
+        are rather than being rescaled.
+        """
         if aug_idx == 1:
             return (
                 rotate(image, 90, resize=False, preserve_range=True),
@@ -148,6 +280,11 @@ class CellposeLazyDataset(Dataset):
         return image, label
 
     def __getitem__(self, idx):
+        """Load one item, decoding ``idx`` into a file and an augmentation.
+
+        The file is read HERE rather than at construction, which is what makes the
+        dataset lazy: a plate larger than memory costs one image at a time.
+        """
         base_idx = idx // self._n_augments
         aug_idx = idx % self._n_augments
 
@@ -333,35 +470,45 @@ def test_cellpose_model(settings):
         :param flow: Cellpose flow field.
         """
         from . plot import generate_mask_random_cmap
-        fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
-        cmap_lbl = generate_mask_random_cmap(lbl)
-        cmap_pred = generate_mask_random_cmap(pred)
+        # THE STYLE OPENS BEFORE THE FIGURE EXISTS: rcParams reach an artist
+        # when it is CREATED, so a context entered after plt.subplots leaves
+        # the titles and the ground at whatever the session's globals are.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            cmap_lbl = generate_mask_random_cmap(lbl)
+            cmap_pred = generate_mask_random_cmap(pred)
 
-        axs[0].imshow(img, cmap='gray')
-        axs[0].set_title('Image')
-        axs[0].axis('off')
+            # Greyscale per channel, the label maps in their random colours
+            # because a mask's colours are identities and not a quantity, and
+            # the column name as the header -- the micrograph row the style
+            # describes.
+            axs[0].imshow(img, cmap='gray')
+            axs[0].set_title('Image')
+            axs[0].axis('off')
 
-        axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
-        axs[1].set_title('True Mask')
-        axs[1].axis('off')
+            axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
+            axs[1].set_title('True Mask')
+            axs[1].axis('off')
 
-        axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-        axs[2].set_title('Predicted Mask')
-        axs[2].axis('off')
-        
-        axs[3].imshow(flow[2], cmap='gray')
-        axs[3].set_title('Cell Probability')
-        axs[3].axis('off')
+            axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+            axs[2].set_title('Predicted Mask')
+            axs[2].axis('off')
 
-        axs[4].imshow(flow[0], cmap='gray')
-        axs[4].set_title('Flows')
-        axs[4].axis('off')
+            axs[3].imshow(flow[2], cmap='gray')
+            axs[3].set_title('Cell Probability')
+            axs[3].axis('off')
 
-        save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        plt.show()
-        plt.close(fig)
+            axs[4].imshow(flow[0], cmap='gray')
+            axs[4].set_title('Flows')
+            axs[4].axis('off')
+
+            save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
+            # Saved inside the context: savefig.transparent and
+            # savefig.facecolor are read at write time.
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches='tight')
+            plt.show()
+            plt.close(fig)
         
         
     settings = get_default_test_cellpose_model_settings(settings)
@@ -418,9 +565,10 @@ def test_cellpose_model(settings):
         images, labels = zip(*batch)
 
         # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone.
+        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
+        # dropped ``channels`` too -- it logs "channels deprecated in
+        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
-                                          channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],
@@ -430,8 +578,7 @@ def test_cellpose_model(settings):
                                           anisotropy=None,
                                           min_size=5,
                                           augment=True,
-                                          tile_overlap=0.2,
-                                          bsize=224)
+                                          tile_overlap=0.2)
 
         for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
             # Cellpose 4 returns one AJI value per mask as a 1-D ndarray;
@@ -561,30 +708,31 @@ def apply_cellpose_model(settings):
         """
         from .plot import generate_mask_random_cmap
         
-        fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
-        cmap_pred = generate_mask_random_cmap(pred)
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            cmap_pred = generate_mask_random_cmap(pred)
 
-        axs[0].imshow(img, cmap='gray')
-        axs[0].set_title('Image')
-        axs[0].axis('off')
+            axs[0].imshow(img, cmap='gray')
+            axs[0].set_title('Image')
+            axs[0].axis('off')
 
-        axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-        axs[1].set_title('Predicted Mask')
-        axs[1].axis('off')
-        
-        axs[2].imshow(flow[2], cmap='gray')
-        axs[2].set_title('Cell Probability')
-        axs[2].axis('off')
-        
-        axs[3].imshow(flow[0], cmap='gray')
-        axs[3].set_title('Flows')
-        axs[3].axis('off')
+            axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+            axs[1].set_title('Predicted Mask')
+            axs[1].axis('off')
 
-        save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        plt.show()
-        plt.close(fig)
+            axs[2].imshow(flow[2], cmap='gray')
+            axs[2].set_title('Cell Probability')
+            axs[2].axis('off')
+
+            axs[3].imshow(flow[0], cmap='gray')
+            axs[3].set_title('Flows')
+            axs[3].axis('off')
+
+            save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches='tight')
+            plt.show()
+            plt.close(fig)
         
         
     settings = get_default_apply_cellpose_model_settings(settings)
@@ -619,9 +767,10 @@ def apply_cellpose_model(settings):
         
         print(settings['CP_probability'])
         # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone.
+        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
+        # dropped ``channels`` too -- it logs "channels deprecated in
+        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
-                                          channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],
@@ -631,8 +780,7 @@ def apply_cellpose_model(settings):
                                           anisotropy=None,
                                           min_size=5,
                                           augment=True,
-                                          tile_overlap=0.2,
-                                          bsize=224)
+                                          tile_overlap=0.2)
         
         for j, (img, pred, flow) in enumerate(zip(images, masks_pred, flows)):
             fname = os.path.basename(image_files[i + j])
@@ -694,15 +842,16 @@ def plot_cellpose_batch(images, labels):
     # squeeze=False keeps axs 2-D for every batch size; with the default
     # squeeze=True a single-image batch collapsed to a 1-D array and the
     # axs[0, i] indexing below raised IndexError.
-    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
-    for i in range(batch_size):
-        axs[0, i].imshow(images[i], cmap='gray')
-        axs[0, i].set_title(f'Image {i+1}')
-        axs[0, i].axis('off')
-        axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-        axs[1, i].set_title(f'Label {i+1}')
-        axs[1, i].axis('off')
-    plt.show()
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
+        for i in range(batch_size):
+            axs[0, i].imshow(images[i], cmap='gray')
+            axs[0, i].set_title(f'Image {i+1}')
+            axs[0, i].axis('off')
+            axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+            axs[1, i].set_title(f'Label {i+1}')
+            axs[1, i].axis('off')
+        plt.show()
 
 def analyze_percent_positive(settings):
     """Annotate objects above a threshold and summarise positive fractions per well.
@@ -729,8 +878,11 @@ def analyze_percent_positive(settings):
         :param csv_loc: path to a CSV containing a ``Renamed TIFF`` column.
         :returns: :class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.
         """
-        # Load and extract metadata
-        df = pd.read_csv(csv_loc)
+        # Load and extract metadata, THROUGH THE ONE READER (145): the
+        # plate and well columns are exactly what canonicalisation is for,
+        # and a file spelling them `Plate` / `Well` read back here as
+        # columns nothing downstream looks for.
+        df = read_table(csv_loc)
         # A renamed TIFF is '<plate>_<well>_<vendor token>.tif' (the
         # convert_to_yokogawa contract). Taking the plate and the well from the
         # FRONT was wrong in two ways that both end in a silently empty join:
@@ -1055,6 +1207,203 @@ def analyze_recruitment(settings):
 
     return [cells,wells]
 
+
+
+
+
+def _plaque_scale_for(filename, settings):
+    """The pixels-per-mm for one segmented image, or ``None``.
+
+    Reads the well geometry recorded by the detection pass
+    (:func:`split_wells`) for this crop, and turns it into a scale against the
+    plate format the user declared.
+
+    ``None`` is a real answer and the common one: an image that was not split
+    into wells, or a run that never said what plate it was, has no ruler in it.
+    The analysis then reports pixels and leaves the mm^2 columns empty, which
+    is honest. Inventing a default plate format would fill those columns with
+    confident numbers that are wrong by whatever the real plate was.
+    """
+    from .plaque import Well, scale_from_well
+
+    geometry = (settings.get('_well_geometry') or {}).get(filename)
+    if not geometry:
+        return None
+    well = Well(**{k: geometry[k] for k in ('x0', 'y0', 'x1', 'y1')
+                   if k in geometry})
+    try:
+        return scale_from_well(
+            well,
+            plate_format=settings.get('plate_format'),
+            well_diameter_mm=settings.get('well_diameter_mm'))
+    except KeyError:
+        LOG_PLAQUE.warning(
+            "plate_format=%r is not a known format; plaque areas stay in "
+            "pixels", settings.get('plate_format'))
+        return None
+
+
+LOG_PLAQUE = logging.getLogger(__name__)
+
+
+def split_wells(settings):
+    """Cut every multi-well image under ``src`` into one image per well.
+
+    Runs the YOLO well detector over each image, writes one crop per well into
+    ``<src>/wells``, and records each crop's box so
+    :func:`_plaque_scale_for` can turn its diameter into a scale later.
+
+    :param settings: the plaque settings dict. Reads ``src``,
+        ``well_detector_model``, ``well_confidence`` and ``well_pad``; writes
+        ``_well_geometry``.
+    :returns: the folder holding the crops, or ``src`` unchanged when
+        detection is off or finds nothing.
+
+    WHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the
+    two shapes of input differ in what a RESULT ROW MEANS. One field per image
+    gives one row per image; a plate gives one row per well, and the well has
+    to be named or the conditions are pooled into a single meaningless count.
+    Splitting first makes every downstream row a well, whichever shape arrived.
+    """
+    from .plaque import crop_well, detect_wells
+
+    src = settings['src']
+    weights = _resolve_well_detector(settings)
+    if not weights:
+        return src
+
+    out_dir = os.path.join(src, 'wells')
+    os.makedirs(out_dir, exist_ok=True)
+    geometry = {}
+    n_images = 0
+    for filename in sorted(os.listdir(src)):
+        path = os.path.join(src, filename)
+        if not (os.path.isfile(path) and filename.lower().endswith(
+                ('.tif', '.tiff', '.png', '.jpg', '.jpeg'))):
+            continue
+        image = cellpose.io.imread(path)
+        wells = detect_wells(image, weights,
+                             confidence=float(settings.get('well_confidence',
+                                                           0.25)))
+        if not wells:
+            LOG_PLAQUE.warning(
+                "no wells detected in %s; it is passed through whole", filename)
+            continue
+        n_images += 1
+        stem = os.path.splitext(filename)[0]
+        for index, well in enumerate(wells, start=1):
+            crop = crop_well(image, well, pad=int(settings.get('well_pad', 0)))
+            name = f"{stem}_well{index:02d}.tif"
+            cellpose.io.imsave(os.path.join(out_dir, name), crop)
+            geometry[name] = well.as_dict()
+    if not geometry:
+        return src
+    settings['_well_geometry'] = geometry
+    print(f"split {n_images} image(s) into {len(geometry)} well crop(s)")
+    return out_dir
+
+
+def _resolve_well_detector(settings):
+    """Path to the YOLO well-detector checkpoint, or ``None`` when off.
+
+    ``well_detection`` may be ``False`` (off), a path, or a
+    :mod:`spacr.model_zoo` key -- ``True`` means the default detector.
+    """
+    requested = settings.get('well_detection', False)
+    if not requested:
+        return None
+    if requested is True:
+        requested = 'toxoplasma_well_detector_v1'
+    requested = str(requested)
+    if os.path.isfile(requested):
+        return requested
+    from . import model_zoo
+    entry = next((e for e in model_zoo.catalogue(remote=True)
+                  if e.key == requested), None)
+    if entry is None:
+        raise ValueError(
+            f"well_detection={requested!r} is neither a file nor a model_zoo "
+            f"key")
+    dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    os.makedirs(dest, exist_ok=True)
+    return str(model_zoo.fetch(entry, dest))
+
+
+class ModelZooMissing(FileNotFoundError):
+    """A named model is not where it should be."""
+
+
+def _resolve_plaque_model(settings):
+    """The Cellpose checkpoint the plaque analysis should segment with.
+
+    Three sources, in priority order, because they answer different questions:
+
+    1. ``plaque_model`` naming an existing FILE -- the user has their own
+       checkpoint and means it;
+    2. ``plaque_model`` naming a :mod:`spacr.model_zoo` key, fetched from
+       Hugging Face on first use and checksum-verified. This is the default,
+       and it is ``toxoplasma_plaque_v1``;
+    3. the legacy bundled pack, kept reachable as ``'bundled'`` so a run
+       recorded against the old model can be reproduced.
+
+    THE DEFAULT REMAINS ``'bundled'``, which is a deliberate refusal to improve
+    results behind the user's back. ``toxoplasma_plaque_v1`` is markedly better
+    -- F1 0.856 against 0.718 in-domain, and the bundled model recalls only
+    0.631 on the literature set, so it misses about a third of the plaques --
+    and it is still not the default, because making it one would download 1.2
+    GB the first time anyone opens the module and would change the counts
+    reported by every existing pipeline that never asked for a new model.
+    Choosing it is one setting. Neither of those surprises is undoable by
+    someone who did not notice them.
+
+    :param settings: the plaque settings dict.
+    :returns: a filesystem path to a Cellpose checkpoint.
+    """
+    from .utils import download_models
+
+    requested = str(settings.get('plaque_model') or 'bundled')
+
+    if os.path.isfile(requested):
+        return requested
+
+    if requested == 'bundled':
+        # NO 'cp' SUBFOLDER. This path carried one for as long as the plaque
+        # module has existed, and nothing lives there: `download_models`
+        # writes to `resources/models` and returns that, and no `cp` directory
+        # is created anywhere. So the DEFAULT plaque model resolved to a file
+        # that does not exist.
+        #
+        # It went unnoticed because the tests around it assert the suffix
+        # (`.endswith('.CP_model')`) rather than that the file is there -- a
+        # path is a string until something opens it, and the thing that opens
+        # it is Cellpose, several steps later.
+        local_dir = download_models()
+        package_dir = os.path.dirname(__file__)
+        for candidate in (
+                os.path.join(str(local_dir or ''),
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'),
+                os.path.join(package_dir, 'resources', 'models',
+                             'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')):
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        raise ModelZooMissing(
+            "the bundled plaque model is not on this machine. It ships inside "
+            "the package at spacr/resources/models/; if it is missing, choose "
+            "a model_zoo key such as 'toxoplasma_plaque_v1' instead.")
+
+    from . import model_zoo
+    entry = next((e for e in model_zoo.catalogue(remote=True)
+                  if e.key == requested), None)
+    if entry is None:
+        raise ValueError(
+            f"plaque_model={requested!r} is neither a file that exists, the "
+            f"string 'bundled', nor a model_zoo key. Known keys: "
+            f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
+    dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    os.makedirs(dest, exist_ok=True)
+    return str(model_zoo.fetch(entry, dest))
+
+
 def analyze_plaques(settings):
     """Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.
 
@@ -1092,15 +1441,21 @@ def analyze_plaques(settings):
     #from spacr import __file__ as spacr_path
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
-    download_models()
-    package_dir = os.path.dirname(spacr_path)
-    models_dir = os.path.join(package_dir, 'resources', 'models', 'cp')
-    model_path = os.path.join(models_dir, 'toxo_plaque_cyto_e25000_X1120_Y1120.CP_model')
+    model_path = _resolve_plaque_model(settings)
     settings['custom_model'] = model_path
-    print('custom_model',settings['custom_model'])
+    print('custom_model', settings['custom_model'])
 
     settings = get_analyze_plaque_settings(settings)
     save_settings(settings, name='analyze_plaques', show=True)
+
+    # WELL DETECTION FIRST, when the images hold more than one well. This
+    # rewrites `src` to the folder of per-well crops, so everything below --
+    # segmentation, counting, the results rows -- is per WELL rather than per
+    # image. With detection off, src is unchanged and the old one-field-per-
+    # image behaviour is exactly what runs.
+    if settings.get('well_detection'):
+        settings['src'] = split_wells(settings)
+
     settings['dst'] = os.path.join(settings['src'], 'masks')
 
     if settings['masks']:
@@ -1126,11 +1481,34 @@ def analyze_plaques(settings):
             sizes = [region.area for region in regions]
             average_size = np.mean(sizes) if sizes else 0
             std_dev_size = np.std(sizes) if sizes else 0
-            
-            summary_data.append({'file': filename, 'object_count': object_count, 'average_size': average_size})
-            stats_data.append({'file': filename, 'plaque_count': object_count, 'average_size': average_size, 'std_dev_size': std_dev_size})
+
+            # THE WELL IS THE RULER. A pixel area is a property of the
+            # microscope; the same plaque at two magnifications gives two
+            # numbers, and pooling them compares optics rather than biology.
+            # The well is a manufactured object of known size present in the
+            # image, so dividing by its measured diameter puts every area into
+            # mm^2 and makes plates from different scopes comparable -- which
+            # is the whole reason the detector runs.
+            scale = _plaque_scale_for(filename, settings)
+            px_per_mm = scale.px_per_mm if scale else None
+            well_px = scale.well_diameter_px if scale else None
+            mm2 = (lambda a: scale.area_mm2(a)) if scale else (lambda a: None)
+
+            summary_data.append({'file': filename, 'object_count': object_count,
+                                 'average_size': average_size,
+                                 'well_diameter_px': well_px,
+                                 'px_per_mm': px_per_mm,
+                                 'average_size_mm2': mm2(average_size)})
+            stats_data.append({'file': filename, 'plaque_count': object_count,
+                               'average_size': average_size,
+                               'std_dev_size': std_dev_size,
+                               'well_diameter_px': well_px,
+                               'px_per_mm': px_per_mm,
+                               'average_size_mm2': mm2(average_size),
+                               'std_dev_size_mm2': mm2(std_dev_size)})
             for size in sizes:
-                details_data.append({'file': filename, 'plaque_size': size})
+                details_data.append({'file': filename, 'plaque_size': size,
+                                     'plaque_size_mm2': mm2(size)})
     
     # Convert lists to pandas DataFrames
     summary_df = pd.DataFrame(summary_data)
@@ -1215,7 +1593,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
     :param empirical_dict: mapping of ``rowID`` to ``(pc_units, nc_units)`` mixture; a 16-row default is used when ``None``.
     :param pc_grna: positive-control gRNA name. Default ``'TGGT1_220950_1'``.
     :param nc_grna: negative-control gRNA name. Default ``'TGGT1_233460_4'``.
-    :param y_columns: columns to plot on the y axis; a sensible default is used when ``None``.
+    :param y_columns: Columns to plot on the y axis. ``None`` uses
+        ``['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']``.
     :param column: column used to select a subset of wells. Default ``'columnID'``.
     :param value: value in ``column`` to keep. Default ``'c3'``.
     :param plate: plate ID to stamp when a single pair of CSVs is given.
@@ -1285,66 +1664,80 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         """
 
         def _set_theme(theme):
-            """Return a reordered Seaborn palette for consistent line coloring."""
+            """The colours the lines are drawn in, house palette first.
 
-            def __set_reordered_theme(theme='deep', order=None, n_colors=100, show_theme=False):
-                """Return a Seaborn palette optionally reordered by index list ``order``."""
-                palette = sns.color_palette(theme, n_colors)
-                if order:
-                    reordered_palette = [palette[i] for i in order]
-                else:
-                    reordered_palette = palette
-                if show_theme:
-                    sns.palplot(reordered_palette)
-                    plt.show()
-                return reordered_palette
+            ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY
+            ARE THE DATA, so these series keep distinct hues -- but they come
+            from the published palette in a fixed order rather than from
+            seaborn's 100-colour 'deep' ramp reordered by an index list. A
+            hundred hues is a hundred series nobody can tell apart, and the
+            eighth one was a pastel that vanished on the dark ground.
 
-            integer_list = list(range(1, 81))
-            color_order = [7, 9, 4, 0, 3, 6, 2] + integer_list
-            sns_palette = __set_reordered_theme(theme, color_order, 100)
-            return sns_palette
+            An explicit non-default ``theme`` still wins, for a caller who
+            deliberately asked for a seaborn palette.
+            """
+            if theme and theme != 'deep':
+                return sns.color_palette(theme, 100)
+            return list(SERIES_COLOURS)
 
         sns_palette = _set_theme(theme)
 
         # Sort the DataFrame based on the x_column
         df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
-        
-        fig, ax = plt.subplots(figsize=figsize)
 
-        # Handle multiple y-columns, each as a separate line
-        if isinstance(y_columns, list):
-            for idx, y_col in enumerate(y_columns):
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=figsize)
+
+            # Handle multiple y-columns, each as a separate line
+            if isinstance(y_columns, list):
+                for idx, y_col in enumerate(y_columns):
+                    sns.lineplot(
+                        data=df, x=x_column, y=y_col, ax=ax, label=y_col,
+                        color=sns_palette[idx % len(sns_palette)], linewidth=1
+                    )
+            elif group_column:
+                # One hue per group, from the fixed palette and no longer
+                # than the number of groups -- seaborn raises when a palette
+                # is longer than the hue levels it is given.
                 sns.lineplot(
-                    data=df, x=x_column, y=y_col, ax=ax, label=y_col, 
-                    color=sns_palette[idx % len(sns_palette)], linewidth=1
+                    data=df, x=x_column, y=y_columns, hue=group_column, ax=ax,
+                    palette=sns_palette[:df[group_column].nunique()],
+                    linewidth=2
                 )
-        else:
-            sns.lineplot(
-                data=df, x=x_column, y=y_columns, hue=group_column, ax=ax, 
-                palette=sns_palette, linewidth=2
-            )
+            else:
+                # A single series is the claim by default.
+                sns.lineplot(
+                    data=df, x=x_column, y=y_columns, ax=ax,
+                    color=sns_palette[0], linewidth=2
+                )
 
-        # Set axis labels and title
-        ax.set_xlabel(xlabel if xlabel else x_column)
-        ax.set_ylabel(ylabel if ylabel else 'Value')
-        ax.set_title(title if title else 'Line Plot')
+            # Set axis labels and title
+            ax.set_xlabel(xlabel if xlabel else x_column)
+            ax.set_ylabel(ylabel if ylabel else 'Value')
+            ax.set_title(title if title else 'Line Plot')
 
-        # Remove top and right spines
-        sns.despine(ax=ax)
+            # Remove top and right spines
+            sns.despine(ax=ax)
 
-        # Ensure legend only appears when needed and place it to the right
-        if group_column or isinstance(y_columns, list):
-            ax.legend(title='Legend', loc='center left', bbox_to_anchor=(1, 0.5))
+            # Ensure legend only appears when needed and place it to the
+            # right. The frame comes off -- the style draws no boxes -- but
+            # the 'Legend' title stays, because
+            # tests/test_cov_submodules_reads_vs_scores.py reads it back as
+            # the marker that this figure is the line plot and not the
+            # scatter beside it.
+            if group_column or isinstance(y_columns, list):
+                ax.legend(title='Legend', loc='center left',
+                          bbox_to_anchor=(1, 0.5), frameon=False)
 
-        plt.tight_layout()
+            plt.tight_layout()
 
-        # Save the plot if a save path is provided
-        if save_path:
-            save_path = save_figure(plt.gcf(), save_path,
-                                    bbox_inches='tight')
-            print(f"Plot saved to {save_path}")
+            # Save the plot if a save path is provided
+            if save_path:
+                save_path = save_figure(fig, save_path,
+                                        bbox_inches='tight')
+                print(f"Plot saved to {save_path}")
 
-        plt.show()
+            plt.show()
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
@@ -1402,8 +1795,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             reads_ls = []
             scores_ls = []
             for i, reads_csv_temp in enumerate(reads_csv):
-                reads_df_temp = pd.read_csv(reads_csv_temp)
-                scores_df_temp = pd.read_csv(scores_csv[i])
+                reads_df_temp = read_table(reads_csv_temp)
+                scores_df_temp = read_table(scores_csv[i])
                 reads_df_temp['plateID'] = f"plate{i+1}"
                 scores_df_temp['plateID'] = f"plate{i+1}"
                 
@@ -1438,8 +1831,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
             # UnboundLocalError. Raise so the branch actually terminates.
             raise ValueError("reads_csv and scores_csv must contain the same number of elements if reads_csv is a list")
     else:
-        reads_df = pd.read_csv(reads_csv)
-        scores_df = pd.read_csv(scores_csv)
+        reads_df = read_table(reads_csv)
+        scores_df = read_table(scores_csv)
         if plate != None:
             reads_df['plateID'] = plate
             scores_df['plateID'] = plate
@@ -1661,14 +2054,20 @@ def interpret_vision_model(settings=None):
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
 
-        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-        ax.plot(angles, values, linewidth=2, linestyle='solid')
-        ax.fill(angles, values, alpha=0.25)
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+            # One series, so it is the claim and takes the highlight; the fill
+            # is the same hue at the one alpha the published figures use under
+            # a curve.
+            ax.plot(angles, values, linewidth=1.2, linestyle='solid',
+                    color=ROLES['highlight'])
+            ax.fill(angles, values, alpha=0.25, color=ROLES['highlight'])
 
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
-        plt.title(title, pad=20)
-        plt.show()
+            ax.set_xticks(angles[:-1])
+            ax.set_xticklabels(labels, fontsize=TYPE_SCALE['tick'],
+                               rotation=45, ha='right')
+            plt.title(title, pad=20)
+            plt.show()
 
     def extract_compartment_channel(feature_name):
         """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
@@ -1718,7 +2117,7 @@ def interpret_vision_model(settings=None):
                 
         df, _dict = generate_comparison_columns(df, compartments=['cell', 'nucleus', 'pathogen', 'cytoplasm'])
         print(f"Expanded dataframe to {len(df.columns)} columns with relative features")
-        scores_df = pd.read_csv(settings['scores'])
+        scores_df = read_table(settings['scores'])
 
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')
@@ -1864,13 +2263,20 @@ def interpret_vision_model(settings=None):
             print(f"Feature Importance ...")
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
-            # Plot Feature Importance
-            plt.figure(figsize=(10, 6))
-            plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
-            plt.xlabel('Importance')
-            plt.title(f"Top {settings['top_features']} Features - Feature Importance")
-            plt.gca().invert_yaxis()
-            plt.show()
+            # Plot Feature Importance. ONE SERIES, SO IT IS GREY: the
+            # ranking is the claim and the bars carry it by length, so
+            # matplotlib's default saturated blue was decoration on every bar
+            # at once.
+            with figure_style(theme_target()):
+                plt.figure(figsize=(10, 6))
+                plt.barh(top_feature_importance_df['feature'],
+                         top_feature_importance_df['importance'],
+                         color=Palette.GREY_DARK)
+                plt.xlabel('Importance')
+                plt.title(f"Top {settings['top_features']} Features - Feature Importance")
+                plt.gca().invert_yaxis()
+                plt.tight_layout()
+                plt.show()
 
             output['feature_importance'] = feature_importance_df
             fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
@@ -1888,12 +2294,16 @@ def interpret_vision_model(settings=None):
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
         # Plot Permutation Importance
-        plt.figure(figsize=(10, 6))
-        plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
-        plt.xlabel('Importance')
-        plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
-        plt.gca().invert_yaxis()
-        plt.show()
+        with figure_style(theme_target()):
+            plt.figure(figsize=(10, 6))
+            plt.barh(top_perm_importance_df['feature'],
+                     top_perm_importance_df['importance'],
+                     color=Palette.GREY_DARK)
+            plt.xlabel('Importance')
+            plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
+            plt.gca().invert_yaxis()
+            plt.tight_layout()
+            plt.show()
             
         output['permutation_importance'] = perm_importance_df
     
@@ -2019,8 +2429,18 @@ def analyze_endodyogeny(settings):
         bins = [min_volume_bin * (2 ** i) for i in range(n_edges)]
         bins = sorted(set(bins))
 
-        # Ensure the last edge exceeds the data maximum so nothing is clipped
-        if bins[-1] <= max_volume:
+        # Python/NumPy versions can evaluate the vectorised ``area ** 1.5``
+        # one ULP below the mathematically identical scalar bin edge.  Treat
+        # only machine-precision neighbours as the same boundary; otherwise
+        # an object exactly on a doubling edge changes bins across supported
+        # Python versions.
+        edge_rtol = 1e-12
+
+        # Ensure the last edge exceeds the data maximum so nothing is clipped.
+        # ``isclose`` matters when vectorised and scalar exponentiation land
+        # on opposite sides of the same representable edge.
+        if bins[-1] <= max_volume or np.isclose(
+                bins[-1], max_volume, rtol=edge_rtol, atol=0.0):
             bins.append(bins[-1] * 2)
 
         bin_labels = [f"{bins[i]:.2f}-{bins[i+1]:.2f}" for i in range(len(bins) - 1)]
@@ -2029,12 +2449,24 @@ def analyze_endodyogeny(settings):
             print('Volume bins:', bins)
             print('Volume bin labels:', bin_labels)
 
+        # Snap numerical neighbours to the authoritative scalar edges before
+        # the left-closed cut.  Keep the reported volume untouched; this copy
+        # exists only to make boundary membership reproducible.
+        cut_values = df[volume_column].copy()
+        for edge in bins:
+            on_edge = np.isclose(
+                cut_values.to_numpy(dtype=float), edge,
+                rtol=edge_rtol, atol=0.0,
+            )
+            if np.any(on_edge):
+                cut_values.loc[on_edge] = edge
+
         # Cut into bins; values outside the range become NaN
         df[bin_column] = pd.cut(
-            df[volume_column], bins=bins, labels=bin_labels, right=False
+            cut_values, bins=bins, labels=bin_labels, right=False
         )
         df['bin_index'] = pd.cut(
-            df[volume_column], bins=bins, labels=range(1, len(bins)), right=False
+            cut_values, bins=bins, labels=range(1, len(bins)), right=False
         )
 
         # Coerce to float so NaN is preserved (int would raise)
@@ -2390,7 +2822,7 @@ def _set_analyze_replication_defaults(settings):
     settings.setdefault('require_host_cell', True)
     settings.setdefault('seed_wells_from_cells', True)
     settings.setdefault('non_power_of_two_warn', 0.2)
-    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_types', ['HeLa'])
     settings.setdefault('cell_plate_metadata', None)
     settings.setdefault('pathogen_types', ['nc', 'pc'])
     settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
@@ -3364,7 +3796,7 @@ def _set_analyze_invasion_defaults(settings):
     settings.setdefault('min_total_intensity', None)
     settings.setdefault('extracellular_class', 'attached')
     settings.setdefault('seed_wells_from_cells', True)
-    settings.setdefault('cell_types', ['Hela'])
+    settings.setdefault('cell_types', ['HeLa'])
     settings.setdefault('cell_plate_metadata', None)
     settings.setdefault('pathogen_types', ['nc', 'pc'])
     settings.setdefault('pathogen_plate_metadata', [['c1'], ['c2']])
@@ -3447,10 +3879,12 @@ def _resolve_invasion_intensity_column(df, compartment, channel,
     :raises KeyError: when the requested statistic is not in the table.
     """
     def _template(name):
+        """Return the requested statistic's formatted measurement column."""
         return _INVASION_STATISTIC_TEMPLATES[name].format(
             compartment=compartment, channel=channel)
 
     def _candidates(name):
+        """Yield the current and any legacy measurement column for ``name``."""
         yield _template(name)
         legacy = _INVASION_LEGACY_STATISTIC_TEMPLATES.get(name)
         if legacy is not None:
@@ -3680,7 +4114,12 @@ def _invasion_threshold(values, method='otsu'):
         return float('nan')
     try:
         threshold = float(functions[method](values))
-    except (ValueError, RuntimeError):
+    # Depending on NumPy/skimage versions an unrepresentable histogram range
+    # is rejected as ValueError, overflows during bin construction, or reaches
+    # the final integer-bin lookup as IndexError.  All three mean the sample
+    # cannot support a threshold; none should abort the rest of the well.
+    except (ValueError, RuntimeError, FloatingPointError,
+            OverflowError, IndexError):
         return float('nan')
     return _invasion_centre_threshold(values, threshold)
 
@@ -3799,6 +4238,7 @@ def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
     tolerance = float(settings['threshold_agreement_tolerance'])
 
     def _auto(values):
+        """Return a finite-data threshold, or NaN below the object-count floor."""
         values = np.asarray(values, dtype=float)
         values = values[np.isfinite(values)]
         if values.size < floor:
@@ -4323,14 +4763,17 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
         # Nothing was classifiable anywhere — no threshold existed. Say that
         # on the axes rather than dying inside pandas' bar plot, because the
         # unclassified count in the well table is the real answer here.
-        fig, axes = plt.subplots(figsize=(12, 8))
-        axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
-                            'outside-stain threshold', ha='center',
-                  va='center', transform=axes.transAxes)
-        axes.set_xlabel('Group')
-        axes.set_ylabel('Proportion')
-        axes.set_title(title)
-        axes.set_ylim(0, 1.15)
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(figsize=(12, 8))
+            axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
+                                'outside-stain threshold', ha='center',
+                      va='center', transform=axes.transAxes,
+                      fontsize=TYPE_SCALE['label'],
+                      color=resolve_ink(theme_target()))
+            axes.set_xlabel('Group')
+            axes.set_ylabel('Proportion')
+            axes.set_title(title)
+            axes.set_ylim(0, 1.15)
         results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
                                    'p_value': [np.nan],
                                    'degrees_of_freedom': [np.nan]})
@@ -4389,10 +4832,19 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     :param cmap: Matplotlib colormap the histogram bars are drawn from.
     :returns: matplotlib Figure.
     """
-    try:
-        face = plt.get_cmap(cmap)(0.5)
-    except ValueError:
-        face = '0.6'
+    # THE HISTOGRAM FILL IS FURNITURE, NOT A CLAIM: it is the same
+    # distribution in every panel, so it takes the style's one fill colour and
+    # `cmap` is only consulted when a caller has deliberately asked for
+    # something else. It used to be the middle of viridis -- a saturated green
+    # against which the crimson threshold line was the only louder thing on
+    # the panel.
+    if cmap in (None, 'viridis'):
+        face = ROLES['fill']
+    else:
+        try:
+            face = plt.get_cmap(cmap)(0.5)
+        except ValueError:
+            face = ROLES['fill']
     order = sorted(str(value) for value in wells['prc'].unique())
     truncated = len(order) > int(max_panels)
     order = order[:int(max_panels)]
@@ -4400,50 +4852,62 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     n_panels = max(1, len(order))
     n_columns = min(4, n_panels)
     n_rows = int(np.ceil(n_panels / n_columns))
-    fig, axes = plt.subplots(n_rows, n_columns,
-                             figsize=(4.0 * n_columns, 3.0 * n_rows),
-                             squeeze=False)
-    flat = axes.ravel()
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(n_rows, n_columns,
+                                 figsize=(4.0 * n_columns, 3.0 * n_rows),
+                                 squeeze=False)
+        flat = axes.ravel()
 
-    lookup = wells.set_index(wells['prc'].astype(str))
-    for index, prc in enumerate(order):
-        axis = flat[index]
-        subset = parasites[parasites['prc'].astype(str) == prc]
-        values = subset['outside_intensity'].to_numpy(dtype=float)
-        values = values[np.isfinite(values)]
-        if values.size:
-            axis.hist(values, bins=min(40, max(5, values.size // 3)),
-                      color=face, edgecolor='none')
-        row = lookup.loc[prc]
-        if isinstance(row, pd.DataFrame):
-            row = row.iloc[0]
-        threshold = float(row['threshold_median'])
-        reference = float(row['reference_threshold_median'])
-        if np.isfinite(threshold):
-            axis.axvline(threshold, color='crimson', linewidth=1.5,
-                         label=f"threshold ({row['threshold_source']})")
-        if np.isfinite(reference) and reference != threshold:
-            axis.axvline(reference, color='steelblue', linewidth=1.2,
-                         linestyle='--', label='reference')
-        coefficient = float(row['bimodality_coefficient'])
-        axis.set_title(
-            f"{prc}\nn={int(row['n_total'])}  BC="
-            + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
-            fontsize=9)
-        axis.set_xlabel('Outside-channel signal')
-        axis.set_ylabel('Parasites')
-        handles, labels = axis.get_legend_handles_labels()
-        if handles:
-            axis.legend(handles, labels, fontsize=7)
+        lookup = wells.set_index(wells['prc'].astype(str))
+        for index, prc in enumerate(order):
+            axis = flat[index]
+            subset = parasites[parasites['prc'].astype(str) == prc]
+            values = subset['outside_intensity'].to_numpy(dtype=float)
+            values = values[np.isfinite(values)]
+            if values.size:
+                axis.hist(values, bins=min(40, max(5, values.size // 3)),
+                          color=face, edgecolor='none')
+            row = lookup.loc[prc]
+            if isinstance(row, pd.DataFrame):
+                row = row.iloc[0]
+            threshold = float(row['threshold_median'])
+            reference = float(row['reference_threshold_median'])
+            # THE APPLIED THRESHOLD IS THE CLAIM AND THE REFERENCE IS A
+            # REFERENCE. They were crimson at 1.5 and steelblue at 1.2, two
+            # equally loud lines, so the panel did not say which one the
+            # classification actually used.
+            if np.isfinite(threshold):
+                axis.axvline(threshold, color=ROLES['highlight'], linewidth=1.2,
+                             label=f"threshold ({row['threshold_source']})")
+            if np.isfinite(reference) and reference != threshold:
+                reference_line(axis, x=reference)
+                # A proxy handle, so the grey dashed reference is named in the
+                # legend without being drawn twice.
+                axis.plot([], [], color=ROLES['reference'], linestyle=(0, (4, 3)),
+                          linewidth=0.6, label='reference')
+            coefficient = float(row['bimodality_coefficient'])
+            axis.set_title(
+                f"{prc}\nn={int(row['n_total'])}  BC="
+                + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
+                fontsize=TYPE_SCALE['annotation'])
+            axis.set_xlabel('Outside-channel signal')
+            axis.set_ylabel('Parasites')
+            handles, labels = axis.get_legend_handles_labels()
+            if handles:
+                axis.legend(handles, labels, fontsize=TYPE_SCALE['legend'],
+                            frameon=False)
 
-    for index in range(len(order), len(flat)):
-        flat[index].axis('off')
-    if truncated:
-        fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)')
-    else:
-        fig.suptitle('Outside-stain thresholds')
-    fig.tight_layout()
-    return fig
+        for index in range(len(order), len(flat)):
+            flat[index].axis('off')
+        ink = resolve_ink(theme_target())
+        if truncated:
+            fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)',
+                         fontsize=TYPE_SCALE['label'], color=ink)
+        else:
+            fig.suptitle('Outside-stain thresholds',
+                         fontsize=TYPE_SCALE['label'], color=ink)
+        fig.tight_layout()
+        return fig
 
 
 def analyze_invasion(settings):
@@ -4762,8 +5226,10 @@ def analyze_invasion(settings):
     field_classes = parasites.groupby('prcf', sort=False)['invasion_class']
     field_counts = field_classes.value_counts().unstack(fill_value=0)
     for name in _INVASION_CLASSES:
-        if name not in field_counts.columns:
-            field_counts[name] = 0
+        # Categorical value_counts currently emits every declared class, and
+        # ``get`` retains the defensive zero for a future plain-string input
+        # without adding a branch that the categorical path cannot take.
+        field_counts[name] = field_counts.get(name, 0)
     # one_to_one: `fields` is one row per prcf (built by a groupby in
     # _invasion_field_thresholds) and field_counts is a value_counts over the
     # same key unstacked into columns, so it is too. This is the row the
@@ -5073,11 +5539,12 @@ def generate_score_heatmap(settings):
             ``plateID_rowID_columnID``.
         """
         
-        df = pd.read_csv(csv)
+        # `read_table` canonicalises, so every spelling of the column
+        # arrives here as `columnID`. There used to be an `elif 'column'`
+        # fallback under this; it was unreachable rather than load-bearing,
+        # and an unreachable branch is one no test can ever justify.
+        df = read_table(csv)
         if 'columnID' in df.columns:
-            df = df[df['columnID']==column]
-        elif 'column' in df.columns:
-            df['columnID'] = df['column']
             df = df[df['columnID']==column]
         if not plate is None:
             df['plateID'] = f"plate{plate}"
@@ -5107,7 +5574,10 @@ def generate_score_heatmap(settings):
         """
         if control_sgrnas is None:
             control_sgrnas = ['TGGT1_220950_1', 'TGGT1_233460_4']
-        df = pd.read_csv(csv)
+        # 145, AND IT IS THE FIX FOR THE NOTE BELOW: canonicalisation is
+        # what makes the two spellings one, so the half-finished rename
+        # cannot bite again.
+        df = read_table(csv)
         # This helper was left half-way through the column_name -> columnID
         # rename: it grouped by 'columnID' but filtered and merged on
         # 'column_name', a key the grouped frame can never carry, so every
@@ -5170,24 +5640,27 @@ def generate_score_heatmap(settings):
         # Extract only numeric data for the heatmap
         heatmap_data = df.select_dtypes(include=[float, int])
 
-        # Plot heatmap with square boxes, no annotations, and 'viridis' colormap
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(
-            heatmap_data,
-            cmap=cmap,
-            cbar=True,
-            square=True,
-            annot=False
-        )
+        # Plot heatmap with square boxes and no annotations
+        with figure_style(theme_target(), frame='box'):
+            fig = plt.figure(figsize=(12, 8))
+            axis = sns.heatmap(
+                heatmap_data,
+                cmap=cmap,
+                cbar=True,
+                square=True,
+                annot=False
+            )
 
-        plt.title("Heatmap of Prediction Scores for All Channels")
-        plt.xlabel("Channels")
-        plt.ylabel("Plate-Row-Column")
-        plt.tight_layout()
+            plt.title("Heatmap of Prediction Scores for All Channels")
+            plt.xlabel("Channels")
+            plt.ylabel("Plate-Row-Column")
+            # Long channel names rotate 45 and anchor right, as every
+            # categorical axis in the style does.
+            rotate_ticks(axis, 45)
+            _style_colour_bar(fig)
+            plt.tight_layout()
 
-        # Save the figure object and return it
-        fig = plt.gcf()
-        plt.show()
+            plt.show()
 
         return fig
 
@@ -5239,7 +5712,7 @@ def generate_score_heatmap(settings):
 
         # Loop through all collected CSV files and process them
         for csv_file in ls:
-            df = pd.read_csv(csv_file)  # Read CSV into DataFrame
+            df = read_table(csv_file)   # 145: canonical column names
             df = df[df['columnID']==column]
             if not plate is None:
                 df['plateID'] = f"plate{plate}"
@@ -5344,20 +5817,28 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
             # Save the correlation matrix
             correlation_matrix.to_csv(os.path.join(save_folder, 'correlation_matrix.csv'))
         
-        # Visualize the correlation matrix as a heatmap
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', cbar=True)
-        plt.title('gRNA Correlation Matrix')
-        plt.xlabel('gRNAs')
-        plt.ylabel('gRNAs')
-        plt.tight_layout()
-        
-        if save:
-            correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
-            correlation_fig_path = save_figure(plt.gcf(),
-                                               correlation_fig_path)
-        
-        plt.show()
+        # Visualize the correlation matrix as a heatmap. A CORRELATION IS
+        # SIGNED, which is the one case the style allows a diverging map for,
+        # so coolwarm stays and is centred on zero -- it was not, so an
+        # all-positive matrix came out red end to end and looked like a
+        # finding.
+        with figure_style(theme_target(), frame='box'):
+            fig = plt.figure(figsize=(10, 8))
+            axis = sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm',
+                               cbar=True, vmin=-1.0, vmax=1.0, center=0.0)
+            plt.title('gRNA Correlation Matrix')
+            plt.xlabel('gRNAs')
+            plt.ylabel('gRNAs')
+            rotate_ticks(axis, 45)
+            _style_colour_bar(fig)
+            plt.tight_layout()
+
+            if save:
+                correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
+                correlation_fig_path = save_figure(fig,
+                                                   correlation_fig_path)
+
+            plt.show()
 
         return correlation_matrix
 
@@ -5384,30 +5865,42 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
             # Save the effect sizes
             effect_sizes.to_csv(os.path.join(save_folder, 'effect_sizes.csv'))
 
-        # Visualization
-        plt.figure(figsize=(10, 6))
-        sns.barplot(
-            x=effect_sizes.index,
-            y=effect_sizes.values,
-            hue=effect_sizes.index,
-            palette="viridis",
-            legend=False,
-        )
+        # Visualization. GREY BARS, AND THE ANCHORS COLOURED: `hue` was the
+        # gRNA name and `palette='viridis'` gave every bar its own hue, so a
+        # 40-guide panel was a 40-colour ramp that encoded nothing the x axis
+        # did not already say. The gRNAs whose effect was FIXED by
+        # `grna_dict` -- the anchors the rest were propagated from -- are the
+        # ones a reader has to be able to pick out, so those are the coloured
+        # minority.
+        with figure_style(theme_target()):
+            fig = plt.figure(figsize=(10, 6))
+            anchors = set(grna_dict)
+            axis = sns.barplot(
+                x=effect_sizes.index,
+                y=effect_sizes.values,
+                hue=effect_sizes.index,
+                palette=[ROLES['highlight'] if name in anchors
+                         else ROLES['data'] for name in effect_sizes.index],
+                # saturation=1: seaborn desaturates a bar fill to 0.75 by
+                # default, so the palette's #2E77BC reached the canvas as
+                # #4076AA. A fixed hue that arrives as a different hue is not
+                # a fixed hue.
+                saturation=1,
+                legend=False,
+            )
 
-        #for i, val in enumerate(effect_sizes.values):
-        #    plt.text(i, val + 0.02, f"{val:.2f}", ha='center', va='bottom', fontsize=9)
-        plt.title("Effect Sizes of gRNAs")
-        plt.xlabel("gRNAs")
-        plt.ylabel("Effect Size")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        
-        if save:
-            effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
-            effect_sizes_fig_path = save_figure(plt.gcf(),
-                                                effect_sizes_fig_path)
-        
-        plt.show()
+            plt.title("Effect Sizes of gRNAs")
+            plt.xlabel("gRNAs")
+            plt.ylabel("Effect Size")
+            rotate_ticks(axis, 45)
+            plt.tight_layout()
+
+            if save:
+                effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
+                effect_sizes_fig_path = save_figure(fig,
+                                                    effect_sizes_fig_path)
+
+            plt.show()
 
         return effect_sizes
     

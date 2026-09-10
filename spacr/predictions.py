@@ -111,6 +111,36 @@ CV_SCORE_COLUMN = "pred"
 #: (:func:`spacr.utils.process_vision_results`).
 CV_CLASS_COLUMN = "cv_predictions"
 
+#: What a per-object classification score is CALLED in a score table, in the
+#: order they are tried. Which name it gets depends on which classifier
+#: wrote the file, not on anything the reader chose:
+#:
+#: * ``pred`` -- `process_vision_results` and the deep-learning CV scores;
+#: * ``prediction_probability_class_1`` -- `ml_analysis`, i.e. the XGBoost
+#:   and other scikit-learn fits, whose positive-class probability this is.
+#:
+#: Kept in ONE place because the two readers were already meant to agree:
+#: :func:`merge_ml_predictions` knew the second name and
+#: :func:`attach_predictions` did not, so merging an XGBoost score file into
+#: a database worked while reading the same file in memory failed with "no
+#: 'pred' column" -- about a file that held the score all along.
+SCORE_SOURCE_COLUMNS: Tuple[str, ...] = (
+    CV_SCORE_COLUMN, "prediction_probability_class_1",
+)
+
+#: Likewise for the predicted CLASS.
+CLASS_SOURCE_COLUMNS: Tuple[str, ...] = (CV_CLASS_COLUMN, "predictions")
+
+
+def first_present(frame, names) -> Optional[str]:
+    """The first of ``names`` that ``frame`` actually has, else None."""
+    found = getattr(frame, "columns", None)
+    columns = set() if found is None else {str(name) for name in found}
+    for name in names:
+        if str(name) in columns:
+            return str(name)
+    return None
+
 #: Positive-class probability from the classical-ML classifier. This one is
 #: new: the ML stage only ever wrote a class, never its confidence. Namespaced
 #: rather than reusing ``pred`` precisely so it cannot collide with the CV
@@ -143,8 +173,27 @@ _NAME_COLUMNS: Tuple[str, ...] = ("path", "png_path", "file_name")
 #: Per-crop-mode object-id columns :func:`spacr.utils.filepaths_to_database`
 #: writes ('o<n>' strings). Used to rebuild ``prcfo`` when a table somehow
 #: lacks the column but still carries the metadata it is made of.
+#:
+#: DERIVED FROM THE ROLES, NOT LISTED BY HAND. This was a hand-written copy of
+#: spacr.utils.PNG_OBJECT_ID_COLUMNS and it had drifted: the four organelle
+#: roles were absent, so an organelle-mode score table could not rebuild its
+#: key and its join matched zero rows -- read as "no per-object score", which
+#: is the exact failure the comment in ``_result_keys`` says was fixed for the
+#: plainer spellings. PNG_OBJECT_ID_COLUMNS carries a comment about organelle
+#: having been missing from IT once, for the same reason.
+#:
+#: ``spacr.utils`` is imported lazily elsewhere in this module to avoid a
+#: cycle, so the roles come from ``spacr.schema`` -- which is where
+#: PNG_OBJECT_ID_COLUMNS gets them too.
+#:
+#: Order is precedence, and the two additions go LAST so no table that
+#: resolved before resolves differently now.
+from .schema import OBJECT_KEY as _OBJECT_KEY, ORGANELLE_ROLES as _ORGANELLE_ROLES
+
 _OBJECT_ID_COLUMNS: Tuple[str, ...] = (
     "cell_id", "nucleus_id", "pathogen_id", "cytoplasm_id", "object",
+    *(f"{role}_id" for role in _ORGANELLE_ROLES),
+    _OBJECT_KEY,
 )
 
 #: Metadata columns ``prcfo`` is assembled from, in order.
@@ -249,6 +298,33 @@ def _sql_value(value, sql_type: str):
     return str(value)
 
 
+def _clean_prcfo(value) -> Optional[str]:
+    """A ``prcfo`` key with the plate id in the form spaCR keys on.
+
+    THE PLATE IS THE HALF THAT DISAGREES. A screen written by an older run
+    stamps its plate `pplate1` while everything computed since stamps it
+    `plate1`, and `schema.canonical_plate_id` is the one rule that collapses
+    the doubled prefix. It is applied on read for the columns in
+    `PLATE_BEARING_COLUMNS` -- which includes `prcfo` -- but only by two
+    callers, and neither is on this path.
+
+    So a classifier's scores keyed `plate1_r10_c11_f10_o101` met a png_list
+    keyed `pplate1_r8_c19_f11_o84` and NOTHING matched: an ML run over
+    60,816 real cells fitted, scored, explained and plotted, then wrote zero
+    scores back and said the results "probably come from a different
+    experiment", about the same database it had just read.
+
+    Applied to the prcfo key only. A png_path or a file_name is not a plate
+    id and must not have its first two characters rewritten.
+    """
+    text = _clean_key(value)
+    if text is None:
+        return None
+    from . import schema
+
+    return schema.canonical_plate_id(text)
+
+
 def _clean_key(value) -> Optional[str]:
     """Return ``value`` as a usable key string, or ``None`` when it is not one."""
     if value is None:
@@ -324,7 +400,24 @@ def _prcfo_from_metadata(frame: pd.DataFrame) -> Optional[pd.Series]:
     key = pieces[0].astype(str)
     for piece in pieces[1:]:
         key = key + "_" + piece.astype(str)
-    return key.astype("object").where(valid, other=None)
+    # THROUGH THE SAME NORMALISER THE STORED KEY GETS. A key rebuilt here and
+    # a key read from the `prcfo` column must be the same string or the join
+    # silently matches nothing, and the halves disagree exactly where
+    # `_clean_prcfo` says they do: an older run stamps the plate `pplate1`
+    # and everything computed since stamps it `plate1`. Normalising in one
+    # place is what stops the two builders drifting apart again.
+    # Construct the result as explicit object data.  Under pandas 3 string
+    # inference, ``where(..., other=None).map(...)`` promotes the Series to
+    # StringDtype and exposes a missing key as float ``nan``; callers use
+    # identity with ``None`` to distinguish an absent key from a real one.
+    return pd.Series(
+        (
+            _clean_prcfo(value) if bool(is_valid) else None
+            for value, is_valid in zip(key, valid)
+        ),
+        index=frame.index,
+        dtype=object,
+    )
 
 
 def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
@@ -363,6 +456,7 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     empty = (None,) * len(columns)
 
     def convert(value):
+        """Parse and cache one crop basename, or return all-missing metadata."""
         name = _clean_key(value)
         if name is None:
             return empty
@@ -377,8 +471,18 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     frame = pd.DataFrame([convert(v) for v in names], columns=columns,
                          index=names.index)
     # object_label without the 'o': that is the spelling the object tables use.
-    frame["object_label"] = frame["object_label"].map(
-        lambda v: None if v is None else v[1:] if v.startswith("o") else v)
+    def bare_object_label(value):
+        """Normalize a parsed object label and remove one leading ``o``."""
+        # pandas 3 may infer these parsed text columns as StringDtype and
+        # materialise a tuple's ``None`` as float ``nan``.  Normalize through
+        # the same missing-key boundary used everywhere else before asking a
+        # value for string methods.
+        text = _clean_key(value)
+        if text is None:
+            return None
+        return text[1:] if text.startswith("o") else text
+
+    frame["object_label"] = frame["object_label"].map(bare_object_label)
     return frame
 
 
@@ -395,7 +499,7 @@ def _db_keys(kind: str, frame: pd.DataFrame) -> Optional[pd.Series]:
     """Build the ``kind`` key for rows already in the database."""
     if kind == "prcfo":
         if "prcfo" in frame.columns:
-            return frame["prcfo"].map(_clean_key)
+            return frame["prcfo"].map(_clean_prcfo)
         return _prcfo_from_metadata(frame)
     if kind == "png_path":
         if "png_path" in frame.columns:
@@ -415,13 +519,28 @@ def _result_keys(kind: str, results: pd.DataFrame, timelapse: bool) -> Optional[
     """Build the ``kind`` key for rows of a classifier's results frame."""
     if kind == "prcfo":
         if "prcfo" in results.columns:
-            return results["prcfo"].map(_clean_key)
+            return results["prcfo"].map(_clean_prcfo)
         if results.index.name == "prcfo":
-            return pd.Series(results.index, index=results.index).map(_clean_key)
+            return pd.Series(results.index,
+                             index=results.index).map(_clean_prcfo)
         name_col = _name_column(results)
-        if name_col is None:
+        if name_col is not None:
+            return _prcfo_from_names(results[name_col], timelapse)
+        # SAME FALLBACK `_db_keys` ALREADY HAD. A score table with no path
+        # column can still carry the metadata `prcfo` is built from, and an
+        # `ml_analysis` score CSV is exactly that: plate/row/column/field and
+        # an object id, under the plainer spellings that
+        # `schema.canonicalise_columns` resolves. Without this the two sides
+        # of the join were asymmetric -- the database could rebuild the key
+        # and the results frame could not -- so an XGBoost score file matched
+        # zero rows and read as "no per-object score".
+        from .schema import canonicalise_columns
+
+        try:
+            renamed = canonicalise_columns(results.copy())
+        except Exception:                                    # noqa: BLE001
             return None
-        return _prcfo_from_names(results[name_col], timelapse)
+        return _prcfo_from_metadata(renamed)
     if kind == "png_path":
         for name in ("png_path", "path"):
             if name in results.columns:
@@ -472,6 +591,28 @@ def _choose_key(results: pd.DataFrame, db_frame: pd.DataFrame,
 @dataclass
 class MergeReport:
     """What one merge did, in numbers.
+
+    :param table: database table into which prediction results were merged.
+    :param key: join-key strategy selected for the merge.
+    :param columns: prediction columns requested for insertion or update.
+    :param db_rows: target-table rows considered by the merge.
+    :param result_rows: incoming prediction rows considered by the merge.
+    :param matched_rows: target rows that received at least one prediction.
+    :param matched_keys: distinct incoming identities found in the target table.
+    :param unmatched_db_rows: target rows left unchanged because no result
+        carried their identity.
+    :param unmatched_result_rows: parseable result rows whose identity was not
+        present in the target table.
+    :param unparsed_result_rows: result rows from which no join identity could
+        be constructed.
+    :param ambiguous_keys: identities repeated with conflicting prediction
+        values and therefore deliberately not written.
+    :param ambiguous_result_rows: incoming rows involved in those conflicts.
+    :param fanout_rows: additional target rows sharing a matched identity and
+        receiving the same value, such as alternate crops of one object.
+    :param repaired: legacy prediction columns repaired before this merge, as
+        ``(table, column, rows_repaired)`` records.
+    :param added_columns: prediction columns newly created in the target table.
 
     Returned by :func:`merge_prediction_results` and printed by it. Every
     count is here because a merge that matched three rows of forty thousand
@@ -546,6 +687,10 @@ class MergeReport:
         return "\n".join(lines)
 
     def __str__(self) -> str:
+        """Return the same human-readable report as :meth:`summary`.
+
+        :returns: Multi-line prediction-merge summary.
+        """
         return self.summary()
 
 
@@ -758,7 +903,13 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     lookup: Dict[str, Tuple] = {}
     conflicting: Dict[str, int] = {}
     unparsed = 0
-    key_list = list(result_keys)
+    # ``Series.map`` preserves ``None`` on pandas 2 object columns, while
+    # pandas 3's inferred StringDtype materialises the same missing key as
+    # float ``nan``.  Identity checks therefore changed the report from one
+    # unparsed row to one unmatched row.  Normalize both sides by value before
+    # counting or joining so the public merge report is version-independent.
+    key_list = [_clean_key(value) for value in result_keys]
+    db_key_list = [_clean_key(value) for value in db_keys]
     columns_by_row = [list(value_frames[db_col]) for db_col in order]
 
     for idx, row_key in enumerate(key_list):
@@ -787,7 +938,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     # -- match --
     updates = []
     matched_keys = set()
-    for position, row_key in enumerate(db_keys):
+    for position, row_key in enumerate(db_key_list):
         values = lookup.get(row_key) if row_key is not None else None
         if values is None:
             continue
@@ -800,7 +951,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
             cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
             updates)
 
-    db_key_set = {k for k in db_keys if k is not None}
+    db_key_set = {k for k in db_key_list if k is not None}
     unmatched_results = sum(
         1 for k in key_list
         if k is not None and k not in conflicting and k not in db_key_set)
@@ -827,6 +978,67 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
 # ---------------------------------------------------------------------------
 # the two callers
 # ---------------------------------------------------------------------------
+
+
+def attach_predictions(objects, results, *,
+                       score_source: str = "pred",
+                       class_source: str = "cv_predictions",
+                       score_col: str = CV_SCORE_COLUMN,
+                       class_col: str = CV_CLASS_COLUMN,
+                       timelapse: bool = False):
+    """Join prediction columns onto an object frame IN MEMORY.
+
+    THE SAME JOIN AS :func:`merge_prediction_results`, AND NOTHING WRITTEN.
+    `_choose_key` picks the key by MEASURING which one lands on the most rows,
+    so a montage reading scores out of a score CSV and a database that had the
+    same CSV merged into it cannot disagree about which object got which
+    number -- which two separate join implementations eventually would.
+
+    This supports projects whose ``png_list`` table has no prediction column
+    but whose regression inputs already contain one score row per cell. The
+    join uses those scores without changing the database.
+
+    :param objects: the per-object frame, e.g. `png_list` read back.
+    :param results: the score table -- `path`, `pred`, `cv_predictions`, as
+        `process_vision_results` and the regression module's score CSVs carry.
+    :returns: ``(frame, matched)`` -- a COPY of ``objects`` with the score and
+        class columns added where they joined, and how many rows matched.
+        ``matched`` is 0 when nothing lined up, and the frame comes back
+        without the columns, so a caller can refuse with a real number.
+    """
+    if objects is None or results is None or not len(objects) or not len(results):
+        return objects, 0
+    try:
+        kind, result_keys, db_keys = _choose_key(results, objects, timelapse)
+    except ValueError:
+        return objects, 0
+
+    out = objects.copy()
+    # WHICHEVER NAME THE SCORE ARRIVED UNDER. `score_source` stays the first
+    # choice, so an explicit argument still wins; when the table does not
+    # carry it, the other names a score goes by are tried before giving up.
+    # Refusing here on the name alone is what made an XGBoost score CSV read
+    # as "no per-object score" while holding one.
+    score_name = (str(score_source)
+                  if str(score_source) in getattr(results, "columns", ())
+                  else first_present(results, SCORE_SOURCE_COLUMNS))
+    class_name = (str(class_source)
+                  if str(class_source) in getattr(results, "columns", ())
+                  else first_present(results, CLASS_SOURCE_COLUMNS))
+    wanted = {score_col: score_name, class_col: class_name}
+    matched = 0
+    for target, source in wanted.items():
+        if source is None or source not in getattr(results, "columns", ()):
+            continue
+        lookup = dict(zip(result_keys, results[source]))
+        joined = db_keys.map(lambda key: lookup.get(key))
+        found = int(joined.notna().sum())
+        if not found:
+            continue
+        out[target] = joined
+        matched = max(matched, found)
+    return (out, matched) if matched else (objects, 0)
+
 
 def merge_cv_predictions(df, db_path, table: str = PNG_TABLE,
                          score_col: str = CV_SCORE_COLUMN,

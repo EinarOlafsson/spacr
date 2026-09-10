@@ -23,6 +23,9 @@ partway through the strip.
 from __future__ import annotations
 
 import logging
+import sys
+import time
+import weakref
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -33,6 +36,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPushButton,
                                QScrollArea, QSizePolicy, QSlider, QSpinBox,
                                QVBoxLayout, QWidget)
 
+from ..hidpi import scaled_for
 from .toggle import Toggle
 
 LOG = logging.getLogger(__name__)
@@ -60,16 +64,47 @@ def _to_pixmap(rgb: np.ndarray) -> QPixmap:
     return numpy_to_qpixmap(rgb, normalise=False)
 
 
+_LIVE_MOVIES: "weakref.WeakSet[FovMovie]" = weakref.WeakSet()
+
+
+def _live_cache_owners():
+    """Movie render caches that still belong to a live widget."""
+    return tuple(_LIVE_MOVIES)
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Arm the shared memory-budget sweep, if the cleanup module is loaded.
+
+    Looked up in ``sys.modules`` rather than imported: this runs at widget
+    construction, and importing the cleanup machinery in order to register
+    with it would pull it in whether or not anything else wanted it.
+    """
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
+
+
 class FilmStrip(QScrollArea):
     """One field's frames, side by side and scrollable.
 
     Horizontal only. A vertical scrollbar here would fight the panel's own,
     and there is never more than one row.
+
+    :param parent: parent widget.
     """
 
     frame_picked = Signal(int)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Create the horizontal thumbnail strip.
+
+        The viewport paints nothing: the strip is scaffolding that positions
+        thumbnails, and an auto-filled one is one more opaque rectangle over the
+        page.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseFilmStrip")
         self.setWidgetResizable(True)
@@ -127,9 +162,17 @@ class FovMovie(QWidget):
     Renders lazily and caches by ``(frame, objects, tracks)``. Flipping a
     toggle on a 30-frame field would otherwise re-render every frame twice
     -- once for the movie and once for the strip -- on the GUI thread.
+
+    :param title: the caption above the movie. Empty draws none.
+    :param parent: parent widget.
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):
+        """Create an empty movie view for one field.
+
+        :param title: caption shown above the frames.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseFovMovie")
         self.setAutoFillBackground(False)
@@ -142,6 +185,9 @@ class FovMovie(QWidget):
         self._show_tracks = True
         self._frame = 0
         self._cache: Dict[Tuple[int, bool, bool], np.ndarray] = {}
+        self._cache_last_used: Dict[Tuple[int, bool, bool], float] = {}
+        _LIVE_MOVIES.add(self)
+        _ensure_cache_budget_sweep()
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -207,6 +253,7 @@ class FovMovie(QWidget):
         self._tracks = tracks
         self._channel = int(channel)
         self._cache.clear()
+        self._cache_last_used.clear()
 
         count = 0 if self._images is None else int(len(self._images))
         self._scrub.setMaximum(max(0, count - 1))
@@ -224,6 +271,10 @@ class FovMovie(QWidget):
         self.show_frame(self._frame)
 
     def frame_count(self) -> int:
+        """How many frames this field has.
+
+        :returns: the frame count, 0 when nothing is loaded.
+        """
         return 0 if self._images is None else int(len(self._images))
 
     # -- rendering -----------------------------------------------------
@@ -235,6 +286,7 @@ class FovMovie(QWidget):
         key = (index, self._show_objects, self._show_tracks)
         cached = self._cache.get(key)
         if cached is not None:
+            self._cache_last_used[key] = time.time()
             return cached
 
         from .timelapse_preview import render_frame
@@ -255,9 +307,32 @@ class FovMovie(QWidget):
             LOG.debug("could not render frame %s", index, exc_info=True)
             return None
         self._cache[key] = rgb
+        self._cache_last_used[key] = time.time()
         return rgb
 
+    def _cache_budget_entries(self):
+        """Measured composited frames; every one is exactly reproducible."""
+        now = time.time()
+        return [
+            (key, max(0, int(rgb.nbytes)),
+             float(self._cache_last_used.get(key, now)), False)
+            for key, rgb in list(self._cache.items())
+        ]
+
+    def _drop_cache_budget_entry(self, key) -> bool:
+        """Drop one composited frame without disturbing displayed pixmaps."""
+        existed = key in self._cache
+        self._cache.pop(key, None)
+        self._cache_last_used.pop(key, None)
+        return existed
+
     def _render_strip(self) -> None:
+        """Rebuild the thumbnail strip and highlight the current frame.
+
+        Frames that cannot be rendered are skipped rather than left as gaps, and
+        an empty movie clears the strip instead of leaving the last field's
+        thumbnails under a new one.
+        """
         if self._images is None or not len(self._images):
             self._strip.set_frames([])
             return
@@ -291,31 +366,50 @@ class FovMovie(QWidget):
         pixmap = _to_pixmap(rgb)
         target = self._canvas.size()
         if target.width() > 8 and target.height() > 8:
-            pixmap = pixmap.scaled(target, Qt.KeepAspectRatio,
-                                   Qt.SmoothTransformation)
+            pixmap = scaled_for(pixmap, self._canvas, target)
         self._canvas.setPixmap(pixmap)
 
     # -- playback ------------------------------------------------------
     def toggle_play(self) -> None:
+        """Play if paused, pause if playing."""
         if self._timer.isActive():
             self.pause()
         else:
             self.play()
 
     def play(self) -> None:
+        """Start playing, unless there is nothing to animate.
+
+        A SINGLE FRAME IS NOT A MOVIE: starting a timer for it would spin
+        the event loop to redraw the same picture.
+        """
         if self.frame_count() < 2:
             return
         self._timer.start()
         self._play.setText("Pause")
 
     def pause(self) -> None:
+        """Stop the timer and put the button back to Play."""
         self._timer.stop()
         self._play.setText("Play")
 
     def set_fps(self, fps: float) -> None:
+        """Set the playback rate.
+
+        Floored at half a frame per second, because the interval is derived
+        by division and a rate of zero is an infinite one.
+
+        :param fps: the wanted frames per second.
+        """
         self._timer.setInterval(int(1000 / max(0.5, float(fps))))
 
     def _advance(self) -> None:
+        """Step to the next frame, wrapping at the end.
+
+        A movie with fewer than two frames pauses instead: there is nothing to
+        advance to, and a timer running for a still image costs frames for
+        nothing.
+        """
         total = self.frame_count()
         if total < 2:
             self.pause()
@@ -324,9 +418,14 @@ class FovMovie(QWidget):
 
     # -- the strip -----------------------------------------------------
     def toggle_strip(self) -> None:
+        """Open the filmstrip if closed, close it if open."""
         self.set_strip_open(not self.strip_is_open())
 
     def set_strip_open(self, open_: bool) -> None:
+        """Show or hide the filmstrip under the movie.
+
+        :param open_: True to show it.
+        """
         self._strip.setVisible(bool(open_))
         if open_:
             self._strip.highlight(self._frame)
@@ -349,9 +448,17 @@ class TimelapseMoviePanel(QWidget):
     Stacked rather than tabbed on purpose: comparing two fields is the
     point of showing more than one, and a tab hides the thing you are
     comparing against.
+
+    :param parent: parent widget.
     """
 
+    max_fields_changed = Signal(int)
+
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the panel that shows several fields as synchronised movies.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("TimelapseMoviePanel")
         self.setAutoFillBackground(False)
@@ -411,6 +518,11 @@ class TimelapseMoviePanel(QWidget):
         self._empty.setObjectName("Muted")
         self._empty.setAlignment(Qt.AlignCenter)
         column.addWidget(self._empty)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- content -------------------------------------------------------
     def set_fields(self, fields: Sequence[dict]) -> None:
@@ -451,6 +563,7 @@ class TimelapseMoviePanel(QWidget):
         preview: a user lowering this has just been told the machine is
         short of memory, and the setting has to give it back now.
         """
+        previous = self._max_fields
         self._max_fields = max(1, min(int(count), MAX_FIELDS_CEILING))
         if self._fields_spin.value() != self._max_fields:
             self._fields_spin.blockSignals(True)
@@ -461,26 +574,55 @@ class TimelapseMoviePanel(QWidget):
             movie.pause()
             self._stack.removeWidget(movie)
             movie.deleteLater()
+        if self._max_fields != previous:
+            self.max_fields_changed.emit(self._max_fields)
 
     def max_fields(self) -> int:
+        """How many fields this panel will stack at once.
+
+        A CAP, because each field is its own movie with its own timer, and a
+        plate with hundreds would start hundreds of them.
+
+        :returns: the field cap.
+        """
         return self._max_fields
 
     def movies(self) -> List[FovMovie]:
+        """The field movies currently stacked.
+
+        A LIST COPY, so a caller cannot restack the panel by mutating it.
+
+        :returns: the movies, in display order.
+        """
         return list(self._movies)
 
     # -- controls ------------------------------------------------------
     def _sync_overlays(self, *_args) -> None:
+        """Apply the overlay switches to every movie at once.
+
+        :param _args: whatever the emitting toggle passes; ignored, since both
+            switches are re-read either way.
+        """
         objects = self._objects_check.isChecked()
         tracks = self._tracks_check.isChecked()
         for movie in self._movies:
             movie.set_overlays(objects=objects, tracks=tracks)
 
     def _toggle_all(self) -> None:
+        """Play or pause every movie together, and relabel the button.
+
+        Any movie playing counts as playing, so one field left running does not
+        turn the button into a Play that pauses.
+        """
         playing = any(m._timer.isActive() for m in self._movies)
         for movie in self._movies:
             movie.pause() if playing else movie.play()
         self._play_all.setText("Play all" if playing else "Pause all")
 
     def set_fps(self, fps: float) -> None:
+        """Set the playback rate on every stacked field at once.
+
+        :param fps: the wanted frames per second.
+        """
         for movie in self._movies:
             movie.set_fps(fps)

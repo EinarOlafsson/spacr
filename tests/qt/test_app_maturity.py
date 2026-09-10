@@ -20,13 +20,49 @@ def test_the_assessment_covers_every_module_it_claims_to():
     Registration is forced first: `feature_dict` joins the registry from
     `spacr.qt.__init__` at ``run()`` time rather than from ``app.py``, so
     importing the registry alone does not see it.
+
+    A FOLDED module still exists — it is a button on some host's masthead
+    instead of a tile — and the assessment is what its button lights in, so
+    the opinion is live rather than stale. Its evidence is checked against
+    the fold tables in
+    ``test_a_promotion_for_a_folded_module_agrees_with_its_button`` below,
+    because the registry cannot check it any more.
     """
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr.qt.app import APPS
-    known = {row[0] for row in APPS}
+    from spacr.qt.widgets.fold_strip import folded_modules
+    known = {row[0] for row in APPS} | set(folded_modules())
     missing = sorted(set(maturity.PROMOTIONS) - known)
-    assert not missing, f"promotions for modules that are not registered: {missing}"
+    assert not missing, (
+        f"promotions for modules that are neither registered nor folded into "
+        f"a host: {missing}")
+
+
+def test_a_promotion_for_a_folded_module_agrees_with_its_button():
+    """The colour a folded button lights in is the assessment, or it is a lie.
+
+    Once the row is dropped the fold table is the only carrier of the stage,
+    and ``app_stage`` answers "stable" for the key — so nothing at runtime
+    would notice the two disagreeing. This is what notices: a module promoted
+    to beta whose button still says alpha lights green-cyan where the tile it
+    replaced lit magenta.
+    """
+    import spacr.qt
+    from spacr.qt.app import APPS
+    from spacr.qt.widgets.fold_strip import folded_modules
+
+    spacr.qt.register_self_registering_modules()
+    live = {row[0] for row in APPS}
+    checked = 0
+    for key, (_name, _description, stage, host) in folded_modules().items():
+        if key in live or key not in maturity.PROMOTIONS:
+            continue
+        checked += 1
+        assert maturity.PROMOTIONS[key][0] == stage, (
+            f"{key} was assessed as {maturity.PROMOTIONS[key][0]} but its "
+            f"button on {host} lights {stage}")
+    assert checked, "no folded module carried an assessment to check"
 
 
 def test_every_promotion_is_to_a_real_stage():

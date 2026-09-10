@@ -85,7 +85,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any, Iterable, Mapping, Optional, Sequence, Tuple
+from typing import Any, Iterable, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -161,10 +161,12 @@ OBJECT_TYPE_COLUMN: str = schema.OBJECT_TYPE_KEY
 #: plate in a database they already have. ``%`` has to be escaped too or the
 #: escape is not reversible — a plate literally named ``p%5Fx`` would collide
 #: with a plate named ``p_x``.
-_KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
-    ("%", "%25"),
-    (schema.KEY_SEPARATOR, "%5F"),
-)
+#:
+#: The table itself now lives in :data:`spacr.schema.KEY_ESCAPES`, because
+#: ``schema._sanitise_token`` needs the same one for the same reason, and two
+#: copies of an escape table are two escape tables that eventually disagree.
+#: Kept under the old private name so every use below is unchanged.
+_KEY_ESCAPES: Tuple[Tuple[str, str], ...] = schema.KEY_ESCAPES
 
 
 def with_object_type(df: pd.DataFrame, object_type: Any) -> pd.DataFrame:
@@ -257,6 +259,10 @@ def _object_prefixes(df: pd.DataFrame, object_type: Any) -> Optional[pd.Series]:
 
 
 def _key_columns(timelapse: bool) -> list:
+    """Return object-key columns in schema join order.
+
+    Include ``timeID`` when ``timelapse`` is true.
+    """
     cols = list(OBJECT_KEY_COLUMNS)
     if timelapse:
         # Insert the timepoint before the object label, matching the order
@@ -334,6 +340,8 @@ def untyped_object_keys(df: pd.DataFrame,
                         *, timelapse: bool = False) -> pd.Index:
     """The keys ``df`` would have had before object types existed.
 
+    :param df: object rows whose legacy untyped keys are requested.
+
     Not a legacy shim: it is the *less specific* name for the same rows, and
     it is what makes an old key go on meaning what it always meant. A key
     naming no type says "the object labelled 7 in that field" and has to match
@@ -378,6 +386,8 @@ def _split_key(key: Any) -> Optional[Tuple[str, Optional[str], str]]:
 def key_object_type(key: Any) -> Optional[str]:
     """The object type ``key`` states, or ``None`` when it states none.
 
+    :param key: object key to inspect.
+
     ``None`` means *not stated*. It does not mean "cell", and nothing here
     will ever guess: every key spaCR wrote before today is untyped, so a
     default would put a type on the whole world's existing data.
@@ -388,6 +398,8 @@ def key_object_type(key: Any) -> Optional[str]:
 
 def untyped_object_key(key: Any) -> str:
     """``key`` with the object type taken back off, for a looser comparison.
+
+    :param key: object key to reduce to its untyped form.
 
     ``'p_r1_c1_f1_nucleus7'`` → ``'p_r1_c1_f1_7'``, and a key that already
     states no type is returned unchanged. A ``prcfo`` reduces the same way
@@ -409,6 +421,10 @@ def untyped_object_key(key: Any) -> str:
 class RangeFilter:
     """Keep rows whose ``column`` lies within ``[low, high]``.
 
+    :param column: numeric column evaluated by the range filter.
+    :param low: inclusive lower bound, or ``None`` for no lower bound.
+    :param high: inclusive upper bound, or ``None`` for no upper bound.
+
     ``None`` on either bound means unbounded on that side, which is what a
     slider dragged to its end should mean — not "exclude everything".
 
@@ -422,12 +438,20 @@ class RangeFilter:
     high: Optional[float] = None
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
+        """Return which rows of ``df`` pass this range.
+
+        :param df: data frame whose configured column is evaluated.
+        """
         if self.column not in df.columns:
             raise FilterError(
                 f"range filter names column {self.column!r}, which this frame "
                 f"does not have")
         values = pd.to_numeric(df[self.column], errors="coerce")
-        keep = values.notna().to_numpy()
+        # Pandas 3 may expose this boolean array as a read-only view.  The
+        # bounds below deliberately refine it in place, so ask pandas for an
+        # owned, writable buffer rather than relying on version-specific
+        # ``to_numpy`` ownership.
+        keep = values.notna().to_numpy(copy=True)
         if self.low is not None:
             keep &= (values >= self.low).to_numpy()
         if self.high is not None:
@@ -435,6 +459,7 @@ class RangeFilter:
         return keep
 
     def describe(self) -> str:
+        """Return a compact description of this filter's inclusive bounds."""
         if self.low is None and self.high is None:
             return f"{self.column}: any"
         if self.low is None:
@@ -448,6 +473,9 @@ class RangeFilter:
 class CategoryFilter:
     """Keep rows whose ``column`` is one of ``values``.
 
+    :param column: categorical column evaluated by the filter.
+    :param values: accepted values; an empty tuple accepts no rows.
+
     An EMPTY ``values`` keeps nothing, and that is deliberate: unticking every
     box in a category list means "show me none of these", and quietly
     reinterpreting it as "show me all of them" would silently widen the
@@ -459,6 +487,10 @@ class CategoryFilter:
     values: Tuple[Any, ...]
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
+        """Return which rows of ``df`` have an accepted category.
+
+        :param df: data frame whose configured column is evaluated.
+        """
         if self.column not in df.columns:
             raise FilterError(
                 f"category filter names column {self.column!r}, which this "
@@ -467,6 +499,7 @@ class CategoryFilter:
         return df[self.column].astype(str).isin(wanted).to_numpy()
 
     def describe(self) -> str:
+        """Return a compact description showing at most three accepted values."""
         if not self.values:
             return f"{self.column}: none"
         shown = ", ".join(str(v) for v in self.values[:3])
@@ -480,12 +513,16 @@ class DataFilter:
 
     Declarative and re-appliable: the same filter means something on a
     re-run's table, which is what separates it from a selection.
+
+    :param clauses: range and category predicates combined with logical AND.
     """
 
     clauses: list = field(default_factory=list)
 
     def add(self, clause) -> "DataFilter":
         """Add a clause, replacing any existing one on the same column.
+
+        :param clause: range or category clause to add.
 
         Replacing rather than appending is what makes a slider a slider: a
         widget that emits on every drag would otherwise stack a hundred
@@ -496,20 +533,27 @@ class DataFilter:
         return self
 
     def remove(self, column: str) -> "DataFilter":
-        """Drop the clause on ``column``, if any. Unknown columns are fine."""
+        """Drop the clause on ``column``, if any. Unknown columns are fine.
+
+        :param column: configured column whose clause should be removed.
+        """
         self.clauses = [c for c in self.clauses if c.column != column]
         return self
 
     def clear(self) -> "DataFilter":
+        """Remove every clause and return this filter for fluent chaining."""
         self.clauses = []
         return self
 
     @property
     def is_empty(self) -> bool:
+        """Return whether this filter contains no clauses."""
         return not self.clauses
 
     def mask(self, df: pd.DataFrame) -> np.ndarray:
         """Return a boolean mask over ``df``'s rows.
+
+        :param df: data frame to test against every clause.
 
         An empty filter keeps everything, which is the identity a "no filter"
         state should have.
@@ -520,7 +564,10 @@ class DataFilter:
         return keep
 
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
-        """``df`` narrowed to the rows this filter keeps."""
+        """``df`` narrowed to the rows this filter keeps.
+
+        :param df: data frame to filter.
+        """
         return df.loc[self.mask(df)]
 
     def describe(self) -> str:
@@ -642,6 +689,9 @@ class Selection:
     empty index meaning "an explicit selection that happens to be empty" —
     a lasso around blank space. Views draw those two differently: the first
     is the resting state, the second is a result.
+
+    :param keys: selected object keys, or ``None`` for the resting state.
+    :param source: view name that published the selection, used to avoid echo.
     """
 
     keys: Optional[pd.Index] = None
@@ -649,9 +699,11 @@ class Selection:
 
     @property
     def is_active(self) -> bool:
+        """Return whether this is an explicit, possibly empty, selection."""
         return self.keys is not None
 
     def __len__(self) -> int:
+        """Return the selected-key count, or zero in the resting state."""
         return 0 if self.keys is None else len(self.keys)
 
     def mask_for(self, df: pd.DataFrame, *, timelapse: bool = False,
@@ -678,6 +730,8 @@ class Selection:
         * a typed key matches a row stating no type. The row has not
           contradicted it; it has said nothing.
 
+        :param df: object table to match; the returned NumPy mask has one
+            boolean value per row in this frame.
         :param object_type: the table ``df`` came from, when the frame does
             not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """
@@ -756,6 +810,7 @@ class Selection:
 
     @classmethod
     def none(cls) -> "Selection":
+        """Return the resting selection with no keys and no source."""
         return cls(keys=None, source="")
 
 
@@ -799,7 +854,7 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
     :func:`spacr.active_learning.crops_for_object_keys`), and rewriting those
     into something that looks like an object key would break the resolution
     they were relying on. Untyped and typed keys are reconciled where they are
-    *compared* — :func:`_match_keys` — not where they are collected.
+    *compared* — :func:`match_keys` — not where they are collected.
     """
     if isinstance(keys, Selection):
         if keys.keys is None:
@@ -835,16 +890,16 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
 class ObjectRequest:
     """One "open exactly these objects" act, on its way to whatever shows them.
 
-    Built by the view that asked and handed, unchanged, to the opener
+    Built by the view that asked and routed to the opener
     registered for :attr:`kind` — see
     :func:`spacr.qt.linked_selection.open_objects`. Openers take this one
     object rather than a handful of arguments so the request can grow a field
     without breaking every registered opener.
 
-    :param keys: anything :func:`as_key_index` accepts. Normalised to a
-        :class:`pandas.Index` of :data:`OBJECT_KEY_COLUMNS` keys on
-        construction, so an opener may assume ``request.keys`` is an Index of
-        ``str``, in the caller's order, without duplicates.
+    :param keys: anything :func:`as_key_index` accepts. Normalised on
+        construction to an Index of strings in the caller's order, with
+        duplicates removed. Existing strings are neither validated nor
+        recomposed, so they need not use :data:`OBJECT_KEY_COLUMNS`.
     :param reason: why these objects, in the words the receiving view will
         put on screen ("predicted infected, annotated uninfected"). Required
         and non-blank: a grid showing twelve crops out of ninety thousand and
@@ -856,8 +911,8 @@ class ObjectRequest:
     :param timelapse: whether ``keys`` carry a timepoint, so the receiver
         resolves them against its own table the same way they were built.
     :param context: free-form extras for the destination — per-key scores to
-        sort by, a column to annotate into. Copied and made read-only, so a
-        caller mutating their dict cannot change a request already sent.
+        sort by, a column to annotate into. Shallow-copied into a read-only
+        outer mapping; nested mutable values remain shared with the caller.
     :raises ValueError: on a blank ``reason``.
 
     An EMPTY request is legal. A confusion-matrix cell holding no errors is a
@@ -873,6 +928,7 @@ class ObjectRequest:
     context: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        """Normalise keys and reason, then freeze a shallow context copy."""
         object.__setattr__(
             self, "keys", as_key_index(self.keys, timelapse=self.timelapse))
         reason = str(self.reason).strip()
@@ -885,6 +941,7 @@ class ObjectRequest:
         object.__setattr__(self, "context", MappingProxyType(dict(self.context)))
 
     def __len__(self) -> int:
+        """Return the number of normalised keys in this request."""
         return len(self.keys)
 
     def select_from(self, df: pd.DataFrame, *,
@@ -903,6 +960,8 @@ class ObjectRequest:
         Trying them in that order is what keeps a request naming both a
         nucleus 1 and a pathogen 1 opening as two rows rather than one.
 
+        :param df: object table to filter and reorder according to the
+            request's key order.
         :param object_type: the table ``df`` came from, when the frame does
             not carry :data:`OBJECT_TYPE_COLUMN` itself.
         """
@@ -924,6 +983,14 @@ class ObjectRequest:
             plain_rows = typed_rows
 
         def rank(typed: str, plain: str) -> int:
+            """Find a row key's position in the captured request.
+
+            :param typed: row key including its object type when available.
+            :param plain: the same row key without an object type.
+            :returns: request position using exact typed, loose untyped, then
+                narrowed typed-request precedence. Narrowing is allowed only
+                for an untyped row (``typed == plain``); absent keys return -1.
+            """
             found = exact.get(typed)
             if found is None:
                 found = loose.get(plain)

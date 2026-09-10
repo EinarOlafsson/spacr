@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "34_database",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Explore, filtre e exporte bancos de dados de medições do spaCR sem usar a linha de comando.",
+      "prerequisite": "Tenha disponível um banco de dados SQLite do spaCR ou uma pasta de execução.",
+      "objectives": [
+        "Abrir e percorrer um banco de dados com segurança.",
+        "Filtrar uma tabela completa sem confundi-la com a prévia.",
+        "Exportar um subconjunto rastreável."
+      ],
+      "narrations": [
+        "Database Browser examina bancos de dados grandes do spaCR em uma visualização limitada e somente para leitura.",
+        "Selecione um banco de dados de medições ou sua pasta de execução e abra-o.",
+        "Selecione uma tabela depois de examinar sua finalidade e confirmar o estado somente para leitura.",
+        "A prévia carrega uma página limitada e informa separadamente as contagens completas de linhas e colunas.",
+        "Pesquise colunas para facilitar a leitura de tabelas largas de características sem modificar as linhas subjacentes.",
+        "Construa um filtro estruturado. Os nomes das colunas e os operadores são validados, e os valores são vinculados com segurança.",
+        "A contagem filtrada exata descreve a consulta completa, embora apenas uma página seja exibida.",
+        "Exporte o filtro atual completo e a seleção de colunas visíveis. O banco de dados de origem permanece inalterado."
+      ]
+    }
+  }
+}

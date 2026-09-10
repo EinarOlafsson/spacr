@@ -1,31 +1,20 @@
-"""
-Background execution + progress bridge between the Qt UI and the pipeline
-functions in spacr.core / spacr.deep_spacr / spacr.submodules / etc.
+"""Run spaCR pipelines in Qt workers and relay their progress to the GUI.
 
-Runs each pipeline call in a QThread so the UI stays responsive. The
-worker installs stdout/stderr shims that emit `line_ready(str)` on every
-print, so the caller can pipe them into a QPlainTextEdit console.
+:class:`PipelineWorker` executes a pipeline call in a ``QThread`` and routes
+captured standard output and errors through ``line_ready``. The process-wide
+:data:`registry` tracks active jobs for shared surfaces such as Home, while
+``make_thread`` centralizes worker registration and lifecycle setup.
 
-Three things live here beyond "run a function on a thread":
-
-* :class:`PipelineWorker` — the thread body, plus the stdout capture.
-* :data:`registry` — a process-wide list of the jobs that are running
-  right now, so a surface like the Home screen can say what spaCR is
-  doing without every screen having to report in. ``make_thread`` is the
-  single choke point every screen already goes through, so registration
-  happens there and nothing else has to change.
-* :class:`PauseGate` / :func:`checkpoint` — **cooperative** pause. Read
-  :class:`PauseGate`'s docstring before wiring a Pause button to
-  anything: as of today no shipped pipeline calls :func:`checkpoint`, so
-  :attr:`PipelineWorker.supports_pause` is ``False`` for every entry in
-  :func:`resolve_pipeline_entry` and a Pause control must render itself
-  disabled. That is deliberate, and it is asserted by the test suite.
-* :class:`spacr.cancellation.CancellationToken` — cooperative Stop, installed
-  for every worker. Shipped long workflows poll it at safe field/trial/job
-  boundaries without importing Qt.
+Stopping and pausing are cooperative. Every worker receives a
+:class:`spacr.cancellation.CancellationToken`, which long-running pipelines
+poll at safe boundaries. :class:`PauseGate` and :func:`checkpoint` provide the
+pause protocol, but pipeline entries that do not call ``checkpoint`` report
+``supports_pause=False`` and must expose Pause as unavailable.
 """
 from __future__ import annotations
 
+import atexit
+import gc
 import io
 import logging
 import os
@@ -34,16 +23,23 @@ import sys
 import threading
 import time
 import traceback
+import functools
 from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal
 
+from spacr.qt.gil_priority import responsive_gui
 from spacr.cancellation import (
     CancellationToken,
     PipelineCancelled,
     checkpoint as cancellation_checkpoint,
     installed_token,
 )
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from ..figures.style import figure_style, theme_target
 
 LOG = logging.getLogger(__name__)
 
@@ -68,6 +64,13 @@ class _StreamRedirector(io.TextIOBase):
     _MAX_BUF_CHARS = 1024
 
     def __init__(self, on_write: Callable[[str], None]):
+        """Buffer writes into lines and hand each one to ``on_write``.
+
+        :param on_write: called with each completed line. CALLED ON WHATEVER
+            THREAD WROTE -- the worker for a print, the pump thread for an
+            idle flush -- so anything touching Qt widgets from here has to
+            get itself onto the GUI thread.
+        """
         super().__init__()
         self._buf = ""
         self._on_write = on_write
@@ -78,6 +81,18 @@ class _StreamRedirector(io.TextIOBase):
         self._lock = threading.Lock()
 
     def write(self, s: str) -> int:
+        """Buffer written text and emit it a line at a time.
+
+        Emitting happens OUTSIDE the lock, so a slow slot cannot block the
+        thread that is writing. A buffer that grows past the cap without a
+        newline is flushed anyway -- a progress bar that never emits one would
+        otherwise be held until the run ended.
+
+        :param s: the text written; coerced with :func:`str`, because a
+            non-string reaching a redirected stream is a caller's bug and losing
+            the output would hide it.
+        :returns: how many characters were accepted, as a stream must.
+        """
         if not isinstance(s, str):
             s = str(s)
         with self._lock:
@@ -95,6 +110,7 @@ class _StreamRedirector(io.TextIOBase):
         return len(s)
 
     def flush(self) -> None:
+        """Emit whatever is buffered, newline or not."""
         with self._lock:
             pending, self._buf = self._buf, ""
         if pending:
@@ -108,6 +124,10 @@ class _StreamRedirector(io.TextIOBase):
             self._safe_emit(pending)
 
     def _safe_emit(self, s: str) -> None:
+        """Hand one line to the callback, swallowing anything it raises.
+
+        A print must never fail because something downstream of the console did.
+        """
         try:
             self._on_write(s)
         except Exception:
@@ -125,17 +145,36 @@ class _ThreadStreamRouter(io.TextIOBase):
     """
 
     def __init__(self, original):
+        """Wrap the real stream and route writes by thread identity.
+
+        :param original: the stream this proxy replaces, kept so a write
+            from a thread with no registered console still reaches the
+            terminal. It is the FALLBACK, not a tee: a write that finds a
+            target goes there instead, not as well.
+        """
         super().__init__()
         self.original = original
         self._targets: Dict[int, List[_StreamRedirector]] = {}
         self._lock = threading.RLock()
 
     def register(self, target: _StreamRedirector) -> None:
+        """Route this thread's writes to a redirector.
+
+        Registered as a STACK per thread, so a nested run restores the outer
+        one's target when it unregisters rather than clearing the route.
+
+        :param target: the redirector to send this thread's output to.
+        """
         ident = threading.get_ident()
         with self._lock:
             self._targets.setdefault(ident, []).append(target)
 
     def unregister(self, target: _StreamRedirector) -> None:
+        """Stop routing this thread's writes to a redirector.
+
+        :param target: the redirector to remove; one already gone is ignored,
+            since teardown order is not this object's to guarantee.
+        """
         ident = threading.get_ident()
         with self._lock:
             stack = self._targets.get(ident, [])
@@ -145,18 +184,33 @@ class _ThreadStreamRouter(io.TextIOBase):
                 self._targets.pop(ident, None)
 
     def has_targets(self) -> bool:
+        """Report whether any thread is currently routed.
+
+        :returns: ``True`` while at least one redirector is registered.
+        """
         with self._lock:
             return bool(self._targets)
 
     def _target(self):
+        """The stream for the calling thread, or the original.
+
+        Reads the TOP of that thread's stack, so nested redirections unwind in
+        the order they were made rather than the last one winning for good.
+        """
         with self._lock:
             stack = self._targets.get(threading.get_ident(), [])
             return stack[-1] if stack else self.original
 
     def write(self, value: str) -> int:
+        """Write to whichever redirector this thread is routed to.
+
+        :param value: the text.
+        :returns: how many characters were accepted.
+        """
         return self._target().write(value)
 
     def flush(self) -> None:
+        """Flush this thread's redirector, tolerating one that has gone away."""
         try:
             self._target().flush()
         except Exception:
@@ -164,9 +218,19 @@ class _ThreadStreamRouter(io.TextIOBase):
 
     @property
     def encoding(self):
+        """The wrapped stream's encoding, or ``None``.
+
+        Delegated rather than declared: code that inspects a stream's encoding
+        is asking about the real one underneath.
+        """
         return getattr(self.original, "encoding", None)
 
     def isatty(self) -> bool:
+        """Whether the wrapped stream is a terminal.
+
+        :returns: the real stream's answer, and ``False`` for a stream that
+            does not implement it -- a router is never itself a terminal.
+        """
         return bool(getattr(self.original, "isatty", lambda: False)())
 
 
@@ -221,10 +285,24 @@ _MPL_MODULE = None
 
 
 def _matplotlib_show_router(*args, **kwargs):
+    """Route ``plt.show()`` to the current thread's figure capture.
+
+    Calls without a registered capture are discarded on worker threads so
+    Matplotlib cannot start a Qt event loop outside the GUI thread. Calls on
+    the main thread fall back to the original ``show`` implementation.
+    """
     with _MPL_SHOW_LOCK:
         stack = _MPL_SHOW_TARGETS.get(threading.get_ident(), [])
-        target = stack[-1] if stack else _MPL_ORIGINAL_SHOW
-    return target(*args, **kwargs) if target is not None else None
+        target = stack[-1] if stack else None
+        original = _MPL_ORIGINAL_SHOW
+    if target is not None:
+        return target(*args, **kwargs)
+    if threading.current_thread() is not threading.main_thread():
+        LOG.debug("plt.show() on %s with no capture: dropped rather than "
+                  "entering a Qt event loop off the GUI thread",
+                  threading.current_thread().name)
+        return None
+    return original(*args, **kwargs) if original is not None else None
 
 
 def _register_matplotlib_show(plt, target: Callable[..., Any]) -> None:
@@ -239,6 +317,14 @@ def _register_matplotlib_show(plt, target: Callable[..., Any]) -> None:
 
 
 def _unregister_matplotlib_show(target: Callable[..., Any]) -> None:
+    """Remove one thread's ``show`` target, restoring the original when the last goes.
+
+    The module-level patch is undone only when no thread is routed any
+    more, and only if it is still this router that is installed -- something
+    else having patched ``show`` in the meantime is not ours to revert.
+
+    :param target: the show callable to unregister.
+    """
     global _MPL_ORIGINAL_SHOW, _MPL_MODULE
     with _MPL_SHOW_LOCK:
         ident = threading.get_ident()
@@ -272,7 +358,7 @@ APP_KEY_ATTR = "__spacr_app_key__"
 class PauseGate:
     """A latch a worker thread waits on, so a pause is a *pause*.
 
-    **Why this is not simply hooked up to every pipeline.** Pausing a
+    **Why this is not connected to every pipeline.** Pausing a
     running job can only mean one of two things:
 
     * stop the thread wherever it happens to be — which, for spaCR,
@@ -298,6 +384,7 @@ class PauseGate:
     """
 
     def __init__(self) -> None:
+        """Create the gate open, with nothing paused."""
         self._running = threading.Event()
         self._running.set()
         self._paused_since: Optional[float] = None
@@ -455,12 +542,31 @@ class RunHandle(QObject):
     Lives on the GUI thread. ``progress`` is scraped from the worker's
     stdout (see :data:`_PROGRESS_RE`) rather than reported by the
     pipeline, because the pipelines have no reporting channel.
+
+    :param app_key: which module is running. Falls back to ``"job"`` so a
+        handle always has a name to show.
+    :param worker: the :class:`PipelineWorker` doing the work. Its
+        ``worker_count`` is read once here rather than on every update.
+    :param thread: the thread the worker was moved to. Held so the handle
+        can wait on it, not so it can be restarted.
+    :param parent: parent object.
     """
 
     changed = Signal()
 
     def __init__(self, app_key: str, worker: "PipelineWorker",
                  thread: QThread, parent=None):
+        """Wrap one running job for the run registry.
+
+        ``blocks_shutdown`` and ``user_visible`` are read from the worker at
+        construction rather than on demand: :meth:`retire` drops the worker
+        reference, and the answers are still needed after that.
+
+        :param app_key: what the job is called.
+        :param worker: the pipeline worker doing the work.
+        :param thread: the thread it runs on.
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self.app_key = app_key or "job"
         self.worker = worker
@@ -493,9 +599,21 @@ class RunHandle(QObject):
 
     @property
     def gate(self) -> PauseGate:
+        """The pause gate this run checks between steps.
+
+        :returns: the gate.
+        """
         return self.worker.gate
 
     def elapsed(self) -> float:
+        """How long this run has been going, in seconds.
+
+        Floored at zero: a clock adjusted backwards mid-run would otherwise
+        report a negative age, which reads as a bug in the run rather than in
+        the clock.
+
+        :returns: the elapsed seconds.
+        """
         return max(0.0, time.time() - self.started_at)
 
     def is_running(self) -> bool:
@@ -544,6 +662,12 @@ class RunHandle(QObject):
         registry().unregister(self)
 
     def _on_line(self, chunk: str) -> None:
+        """Record the newest output line, and any progress it carries.
+
+        :param chunk: whatever the worker just printed; blank output is ignored,
+            and the line is truncated so one enormous line cannot become the
+            status bar.
+        """
         text = chunk.strip()
         if not text:
             return
@@ -561,21 +685,36 @@ class RunRegistry(QObject):
     that a surface which is *not* the screen that started the job — the
     Home page — can show what spaCR is doing, without teaching every
     screen to report in.
+
+    :param parent: parent widget.
     """
 
     changed = Signal()
 
     def __init__(self, parent=None):
+        """Create the empty run registry.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._handles: List[RunHandle] = []
 
     def register(self, handle: RunHandle) -> RunHandle:
+        """Take ownership of a run and start reporting it.
+
+        :param handle: the run to track.
+        :returns: the same handle, for chaining.
+        """
         self._handles.append(handle)
         handle.changed.connect(self.changed)
         self.changed.emit()
         return handle
 
     def unregister(self, handle: RunHandle) -> None:
+        """Stop tracking a run and hand ownership back to Python.
+
+        :param handle: the run to drop.
+        """
         if handle in self._handles:
             self._handles.remove(handle)
             # Hand ownership back to Python. Left parented, the handle
@@ -589,6 +728,12 @@ class RunRegistry(QObject):
         return list(self._handles)
 
     def is_busy(self) -> bool:
+        """Whether any run is still registered.
+
+        What the window asks before quitting.
+
+        :returns: True while a run is tracked.
+        """
         return bool(self._handles)
 
     def cancel_all(
@@ -672,6 +817,56 @@ def registry() -> RunRegistry:
 _PARKED_THREADS: List[tuple] = []
 _PARKED_LOCK = threading.Lock()
 
+#: How long the exit hook below waits for the parked threads, in milliseconds.
+PARKED_EXIT_WAIT_MS = 20_000
+
+_PARKED_EXIT_HOOK_INSTALLED = False
+
+
+def wait_for_parked_threads(timeout_ms: int = PARKED_EXIT_WAIT_MS) -> int:
+    """Wait for parked Qt threads within a shared time limit.
+
+    Parked threads remain referenced until native work finishes, preventing Qt
+    from destroying a running ``QThread`` during application shutdown.
+
+    :param timeout_ms: Total waiting time, in milliseconds, shared by all
+        parked threads.
+    :returns: Number of threads still running when the time limit expires.
+    """
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    with _PARKED_LOCK:
+        pairs = list(_PARKED_THREADS)
+    for thread, _worker in pairs:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        try:
+            thread.wait(int(remaining * 1000))
+        except RuntimeError:
+            # Wrapper already gone, which only happens after it finished.
+            continue
+    return prune_parked_threads()
+
+
+def _drain_parked_threads_at_exit() -> None:
+    """``atexit`` hook: give parked threads their last chance to finish."""
+    still_running = wait_for_parked_threads()
+    if still_running:
+        LOG.error(
+            "%d worker thread(s) are still running as the process exits. "
+            "Their QThread wrappers are about to be destroyed, which Qt "
+            "treats as fatal. Whatever they are inside did not answer a "
+            "stop request.", still_running)
+
+
+def _install_parked_exit_hook() -> None:
+    """Register the exit hook once, and only if something has been parked."""
+    global _PARKED_EXIT_HOOK_INSTALLED
+    if _PARKED_EXIT_HOOK_INSTALLED:
+        return
+    _PARKED_EXIT_HOOK_INSTALLED = True
+    atexit.register(_drain_parked_threads_at_exit)
+
 
 def prune_parked_threads() -> int:
     """Release parked ``(thread, worker)`` pairs whose thread has exited.
@@ -753,6 +948,29 @@ def prune_job_pairs(pairs, finished=None) -> List[tuple]:
     return kept
 
 
+def emit_safely(signal, *args) -> bool:
+    """Emit a Qt signal unless its C++ receiver has been destroyed.
+
+    Parameters
+    ----------
+    signal : PySide6.QtCore.SignalInstance
+        Bound signal to emit.
+    *args
+        Values passed to ``signal.emit``.
+
+    Returns
+    -------
+    bool
+        ``True`` when emission succeeds; ``False`` when PySide raises
+        ``RuntimeError`` because the receiving object no longer exists.
+    """
+    try:
+        signal.emit(*args)
+        return True
+    except RuntimeError:
+        return False
+
+
 def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
     """Ask ``thread`` to stop, wait for it, and **never** terminate it.
 
@@ -795,12 +1013,17 @@ def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
         return True
     with _PARKED_LOCK:
         _PARKED_THREADS.append((thread, worker))
+    _install_parked_exit_hook()
     LOG.warning(
         "A worker thread did not stop within %d ms; it is parked rather "
         "than terminated so the process is not left with a corrupt heap.",
         timeout_ms,
     )
     return False
+
+
+class _SkipFigureCapture(Exception):
+    """Select the no-Matplotlib path for read-only background jobs."""
 
 
 class PipelineWorker(QObject):
@@ -815,12 +1038,32 @@ class PipelineWorker(QObject):
     * ``figure_ready(object)`` — a matplotlib Figure that the pipeline
       asked to show(); emitted from the worker thread so the UI slot can
       attach it.
+
+    :param fn: the pipeline function to run. It is called on the worker
+        thread, so anything it constructs belongs to that thread.
+    :param settings: the settings dict handed to ``fn``.
+    :param worker_count: how many workers the run is allowed, passed through
+        to the pipeline rather than used here.
+    :param app_key: which module is running, for the journal and for routing
+        output back to the right screen.
+    :param journal: whether to record the run in the journal.
+    :param capture_figures: whether a figure the pipeline shows is captured
+        and emitted through ``figure_ready``. False leaves matplotlib alone,
+        which is what a run wants when nobody is watching it.
     """
 
     line_ready = Signal(str)
     finished = Signal(bool)
     error = Signal(str)
     figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
+    #: Whatever the pipeline function RETURNED. For the regression that is
+    #: {'results': coef_df, 'res_folder': ..., 'model': ...} -- the table the
+    #: run just fitted, in memory.
+    #:
+    #: It used to be thrown away, so the only way to see a finished run was to
+    #: guess where it had written and re-read the CSV. Guessing a path is how
+    #: a screen ends up showing last month's results, or none at all.
+    result_ready = Signal(object)
 
     def __init__(
         self,
@@ -829,6 +1072,7 @@ class PipelineWorker(QObject):
         worker_count: int = 1,
         app_key: str = "",
         journal: bool = True,
+        capture_figures: bool = True,
     ):
         """Prepare to run ``fn(settings)`` in a worker thread.
 
@@ -838,12 +1082,16 @@ class PipelineWorker(QObject):
         :param app_key: optional explicit module name for run-history records.
         :param journal: create a reproducibility manifest. Set false only for
             read-only background UI maintenance such as refreshing history.
+        :param capture_figures: intercept Matplotlib output for an analysis
+            run. Read-only UI jobs disable this so polling cannot load the
+            plotting stack merely by opening a screen.
         """
         super().__init__()
         self._fn = fn
         self._settings = settings
         self._app_key_override = str(app_key or "")
         self._journal_enabled = bool(journal)
+        self._capture_figures = bool(capture_figures)
         self.worker_count = max(1, int(worker_count))
         self.cancel_token = CancellationToken()
         self.was_cancelled = False
@@ -935,12 +1183,70 @@ class PipelineWorker(QObject):
         # of a blocking Tk window. `plt.show` gets restored in `finally`.
         capture_show = None
         try:
+            if not self._capture_figures:
+                raise _SkipFigureCapture
             import matplotlib
-            matplotlib.use("Agg", force=False)
+            # force=True, and the difference is the whole bug: force=False is
+            # a NO-OP once a backend is active, and by the time a run starts
+            # `qtagg` is. Every plt.figure() on this worker then carried a
+            # FigureCanvasQTAgg owned by the worker thread. `app.launch` sets
+            # Agg before any figure exists, which is the real fix; this stays
+            # as the guard for the paths that do not come through launch --
+            # the CLI, a test, a script -- and is a no-op when it is already
+            # Agg.
+            if matplotlib.get_backend().lower() != "agg":
+                matplotlib.use("Agg", force=True)
             import matplotlib.pyplot as plt
+            from matplotlib._pylab_helpers import Gcf
             worker = self
             emitted_ids = set()
             fig_counter = [0]
+
+            def _registered_figures():
+                """Yield existing pyplot figures without creating one.
+
+                ``pyplot.figure(number)`` is both a lookup and a constructor.
+                The numbers below come from pyplot's process-wide registry,
+                but another thread can close one between the two calls.  Read
+                its manager directly so capture never recreates a figure and
+                accidentally assigns it to this run.
+                """
+                for number in list(plt.get_fignums()):
+                    manager = Gcf.get_fig_manager(number)
+                    if manager is not None:
+                        yield manager.canvas.figure
+
+            # pyplot's registry is process-global.  A figure that was already
+            # open before this worker began belongs to its caller (or to a
+            # different screen), not to this run.  Hold the objects, rather
+            # than only their figure numbers: pyplot reuses a closed number
+            # and the replacement must still be eligible for this run.
+            preexisting_figures = tuple(_registered_figures())
+            preexisting_ids = {id(fig) for fig in preexisting_figures}
+
+            def _already_emitted(fig):
+                """Return whether this figure was emitted during this run.
+
+                Both the object identity recorded for the run and the figure
+                marker must match. Requiring both avoids false matches when
+                Python reuses an object ID or a figure persists across runs.
+                """
+                return (id(fig) in emitted_ids
+                        and getattr(fig, "_spacr_emitted", False))
+
+            def _mark_emitted(fig):
+                """Record that a figure has been emitted, by id and on the figure.
+
+                The attribute is the cross-route half of the guard and a figure that
+                refuses one still gets its tile -- it just loses that half.
+                """
+                emitted_ids.add(id(fig))
+                try:
+                    fig._spacr_emitted = True
+                except Exception:                              # noqa: BLE001
+                    # A figure that refuses an attribute still gets its tile;
+                    # it only loses the cross-route half of the guard.
+                    pass
 
             def _capture_show(*args, **kwargs):
                 # Emit ordinary figures only once. Figures explicitly marked
@@ -951,30 +1257,102 @@ class PipelineWorker(QObject):
                 # savefig touches no Qt) — the expensive part — so the GUI
                 # thread only does a cheap file-move + pixmap load and never
                 # hangs while figures stream in.
-                for num in list(plt.get_fignums()):
-                    fig = plt.figure(num)
-                    already_emitted = id(fig) in emitted_ids
-                    if already_emitted and not getattr(
-                            fig, "_spacr_live_update", False):
+                """Emit each new figure once, rendering it HERE on the worker thread.
+
+                Agg's savefig touches no Qt, so the expensive part happens off the GUI
+                thread and the GUI only does a file move and a pixmap load -- which is
+                what stops it hanging while figures stream in.
+
+                Figures marked ``_spacr_live_update`` are re-emitted in place instead,
+                which is how the training monitor refreshes without filling the gallery
+                with one snapshot per epoch.
+                """
+                for fig in _registered_figures():
+                    # Holding the baseline objects for the run prevents their
+                    # IDs from being reused, so this lookup stays both exact
+                    # and constant-time even after a long interactive session.
+                    if id(fig) in preexisting_ids:
                         continue
-                    emitted_ids.add(id(fig))
-                    png_path = ""
-                    try:
-                        import tempfile
-                        from .widgets.figure_queue import render_figure_to_png
-                        fig_counter[0] += 1
-                        tmp = os.path.join(
-                            tempfile.gettempdir(),
-                            f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
-                        if render_figure_to_png(fig, tmp):
-                            png_path = tmp
-                    except Exception:
+                    # The creation site owns the artists' house style; a
+                    # context opened here cannot retroactively restyle them.
+                    # Keep render-time Matplotlib work scoped to the same
+                    # target without changing process-wide rcParams.
+                    with figure_style(theme_target()):
+                        already_emitted = _already_emitted(fig)
+                        if already_emitted and not getattr(
+                                fig, "_spacr_live_update", False):
+                            continue
+                        _mark_emitted(fig)
                         png_path = ""
-                    worker.figure_ready.emit(fig, png_path)
+                        try:
+                            import tempfile
+                            from .widgets.figure_queue import render_figure_to_png
+                            fig_counter[0] += 1
+                            tmp = os.path.join(
+                                tempfile.gettempdir(),
+                                f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
+                            if render_figure_to_png(fig, tmp):
+                                png_path = tmp
+                        except Exception:
+                            png_path = ""
+                        worker.figure_ready.emit(fig, png_path)
                 return None
 
             capture_show = _capture_show
             _register_matplotlib_show(plt, capture_show)
+
+            # AND A SINK FOR FIGURES PYPLOT NEVER SEES.
+            #
+            # `_capture_show` walks `plt.get_fignums()`, so it can only ever
+            # emit figures that are IN pyplot's registry and only when
+            # somebody calls `show`. A module that builds a bare
+            # `matplotlib.figure.Figure` and writes it with savefig -- which
+            # is the correct thing for a library to do, and what
+            # `spacr.regression_qc` does for its whole ~19-panel report --
+            # satisfies neither condition. Every one of those panels was on
+            # disk and none of them was in the application, reported
+            # 2026-08-18 as "several graphs are saved but I cannot see them".
+            #
+            # Same rendering path as above: the PNG is written HERE, on the
+            # worker thread, so the GUI thread only moves a file and loads a
+            # pixmap.
+            def _publish_figure(fig, path=""):
+                # A picture that has already been shown is not a second
+                # picture because it was also saved. `save the sheet, then
+                # plot_plates(verbose=True) shows it` is a real sequence in
+                # `generate_ml_scores`, and without this the gallery held two
+                # tiles for one file.
+                """Publish one figure, unless it has already been shown.
+
+                A picture that was saved and then plotted is ONE picture: without this
+                the gallery held two tiles for one file, which `generate_ml_scores`
+                produces as an ordinary sequence.
+                """
+                if _already_emitted(fig) and not getattr(
+                        fig, "_spacr_live_update", False):
+                    return
+                _mark_emitted(fig)
+                png_path = ""
+                try:
+                    import tempfile
+                    from .widgets.figure_queue import render_figure_to_png
+                    fig_counter[0] += 1
+                    tmp = os.path.join(
+                        tempfile.gettempdir(),
+                        f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
+                    if render_figure_to_png(fig, tmp):
+                        png_path = tmp
+                except Exception:
+                    png_path = ""
+                worker.figure_ready.emit(fig, png_path)
+
+            try:
+                from spacr.figure_sink import set_sink
+                set_sink(_publish_figure)
+            except Exception:
+                LOG.debug("could not install the figure sink", exc_info=True)
+        except _SkipFigureCapture:
+            plt = None
         except Exception:
             plt = None
 
@@ -1013,10 +1391,24 @@ class PipelineWorker(QObject):
 
         ok = False
         try:
-            with installed_token(self.cancel_token):
+            # INSTRUCTION 126. A pure-Python worker starves the GUI thread of
+            # the interpreter lock and the backdrop drops to 42 ms a frame,
+            # which is the reported lag; asking for the lock more often brings
+            # it back to 17.7. Scoped to the run and restored after, so a
+            # headless `spacr-run` in the same interpreter pays nothing.
+            with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
-                self._fn(self._settings)
+                payload = self._fn(self._settings)
             ok = True
+            # Hand the answer back rather than making the screen find it.
+            # Emitted before `finished` so a listener has the data by the time
+            # the run is announced as over.
+            if payload is not None:
+                try:
+                    self.result_ready.emit(payload)
+                except Exception:      # pragma: no cover - never fail a run
+                    LOG.debug("could not deliver the pipeline result",
+                              exc_info=True)
         except PipelineCancelled as exc:
             self.was_cancelled = True
             message = f"Cancelled safely: {exc}\n"
@@ -1074,6 +1466,14 @@ class PipelineWorker(QObject):
             _unregister_worker_streams(
                 redirect, stdout_router, stderr_router
             )
+            # THE SINK COMES DOWN WITH THE RUN. A finished run is not
+            # still publishing, and a sink left installed holds `worker`
+            # alive and emits into a dead signal on the next run.
+            try:
+                from spacr.figure_sink import clear_sink
+                clear_sink()
+            except Exception:
+                LOG.debug("could not clear the figure sink", exc_info=True)
             if capture_show is not None and plt is not None:
                 try:
                     _unregister_matplotlib_show(capture_show)
@@ -1118,6 +1518,60 @@ def _tag(app_key: str, fn: Optional[Callable]) -> Optional[Callable]:
     return fn
 
 
+def _say_what_is_wrong_with_the_settings(app_key, fn):
+    """Wrap a pipeline entry so it reports settings problems before it runs.
+
+    ``spacr.validate.validate_settings`` knows that ``n_job`` is not a
+    setting and that ``n_jobs`` is. The CLI and the batch runner both ask it.
+    The GUI did not: this bridge hands the settings dict straight to the
+    pipeline, so a settings CSV loaded into a screen ran with its typos
+    intact and the key did nothing. That is not hypothetical -- the
+    real `crop_measure_settings.csv` in use here asks for `n_job`, and a
+    measure run started thirty workers while the file said four.
+
+    It REPORTS and runs anyway rather than refusing. The panel itself cannot
+    produce an unknown key, so the only source is a file the user chose to
+    load, and a screen that silently declines to start would be a worse
+    failure than one that says what it ignored. The CLI still refuses.
+
+    Validation never breaks a run: anything it raises is swallowed, because
+    a broken checker must not stop work the checker was only advising on.
+    """
+    if fn is None:
+        return None
+
+    @functools.wraps(fn)
+    def run(settings=None, *args, **kwargs):
+        """Run the entry point, turning a settings problem into a message."""
+        if isinstance(settings, dict):
+            try:
+                from spacr.validate import (ERROR, coerce_expected_types,
+                                            validate_settings)
+
+                # RESTORE THE DECLARED TYPES FIRST, and hand the pipeline the
+                # restored dict. A number typed into a GUI field arrives as
+                # text, so `cell_diameter='60.0'` was reported as an error the
+                # user had to fix by hand -- for a well-formed value -- and
+                # then crashed the run inside Cellpose on `diameter > 0`.
+                # Converting once, here, fixes both, and does it for every
+                # setting rather than for the ones that have already bitten.
+                settings = coerce_expected_types(settings, app_key)
+                found = list(validate_settings(dict(settings), app_key))
+            except Exception:                                    # noqa: BLE001
+                found = []
+            for problem in found:
+                mark = "ERROR" if problem.severity == ERROR else "WARNING"
+                where = f" [{problem.setting}]" if problem.setting else ""
+                print(f"[settings] {mark}{where}: {problem.message}")
+                if problem.fix:
+                    print(f"[settings]     {problem.fix}")
+        if settings is None:
+            return fn(*args, **kwargs)
+        return fn(settings, *args, **kwargs)
+
+    return run
+
+
 def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | None:
     """Return the pipeline function that runs a given app, or None if the
     app is interactive-only (annotate / make_masks) or unknown.
@@ -1135,7 +1589,8 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     from .verbose_logger import log_call
 
     def _ret(fn):
-        return _tag(app_key, fn)
+        """Tag the entry point with its app key and its settings check."""
+        return _tag(app_key, _say_what_is_wrong_with_the_settings(app_key, fn))
 
     try:
         if app_key == "mask":
@@ -1153,6 +1608,17 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "external_masks":
             from spacr.external_masks import prepare_external_masks
             return _ret(log_call(prepare_external_masks))
+        if app_key == "illumination":
+            # NAMED HERE BECAUSE THE ROW IS GONE. Its entry point used to
+            # arrive through the registry's APP_META, which unregistering
+            # pops -- so folding the module into Measure's settings took
+            # `spacr-run illumination` and the Run button with it. The
+            # correction is applied before any intensity feature is
+            # computed, which is why the settings belong on the measure
+            # run; estimating and inspecting the field on its own is a
+            # separate act and still has to work.
+            from spacr.illumination import prepare_illumination_correction
+            return _ret(log_call(prepare_illumination_correction))
         if app_key == "classify_merged":
             # One entry point over both families. It calls deep_spacr or
             # generate_ml_scores unchanged, so a run here and a run through
@@ -1178,9 +1644,6 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "cellpose_masks":
             from spacr.spacr_cellpose import identify_masks_finetune
             return _ret(log_call(identify_masks_finetune))
-        if app_key == "cellpose_all":
-            from spacr.spacr_cellpose import check_cellpose_models
-            return _ret(log_call(check_cellpose_models))
         if app_key == "map_barcodes":
             from spacr.sequencing import generate_barecode_mapping
             return _ret(log_call(generate_barecode_mapping))
@@ -1202,6 +1665,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "align":
             from spacr.align import align_folder
             return _ret(log_call(align_folder))
+        if app_key == "ops":
+            # Imported HERE and not at module scope: `spacrops` reaches
+            # OpenCV and SciPy, and this function is called while a screen is
+            # being built.
+            from spacr.spacrops import ops_preprocess
+            return _ret(log_call(ops_preprocess))
         if app_key == "convert":
             from spacr.convert import convert_folder
             return _ret(log_call(convert_folder))
@@ -1214,6 +1683,25 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "analyze_plaques":
             from spacr.submodules import analyze_plaques
             return _ret(log_call(analyze_plaques))
+        # THE FOLDED MODULES, whose row used to carry their entry point.
+        #
+        # Each of these three declared `entry=` on a `register_app` call.
+        # Folding the module into a host screen deletes that row, and the
+        # registered-entry seam below is the only other place the string
+        # lived -- so without these branches the Run button on a folded
+        # module's page resolves to None and does nothing, while
+        # `spacr-run barcode_qc` goes on working, which is the worst of
+        # both. The pipeline functions are unchanged and are the same ones
+        # the CLI runs; only where the Run button finds them moves.
+        if app_key == "barcode_qc":
+            from spacr.sequencing_qc import barcode_qc
+            return _ret(log_call(barcode_qc))
+        if app_key == "explain_cv":
+            from spacr.surrogate import run_explain_cv
+            return _ret(log_call(run_explain_cv))
+        if app_key == "anndata_export":
+            from spacr.anndata_export import run_anndata_export
+            return _ret(log_call(run_anndata_export))
         # Apps that registered their own entry point. The chain above is
         # the built-in table; this is the seam a module registered
         # through `spacr.qt.app.register_app(..., entry="mod:func")`
@@ -1239,6 +1727,49 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
     return None
 
 
+#: Stack for a pipeline worker thread, in bytes.
+#:
+#: A pthread on macOS gets 512 KB by default and Qt does not raise it, so a
+#: QThread starts with ~1/16th of the main thread's 8 MB. The pipeline is the
+#: same code either way, and parts of it want a *lot* of stack: a classify run
+#: died with SIGBUS, "Thread stack size exceeded due to excessive recursion",
+#: in ``___chkstk_darwin`` under OpenBLAS's ``dgetrf_parallel``, reached from
+#: ``np.linalg.inv`` at ``spacr/ml.py`` (the Mahalanobis inverse covariance).
+#: The crash report put that thread's stack at 544 KB. Nothing was recursing —
+#: ``chkstk`` is the probe that discovers the guard page, and the report's
+#: "excessive recursion" wording is a guess macOS makes about any stack
+#: overflow.
+#:
+#: This is address space, not memory: pages commit as they are touched, so a
+#: generous number costs nothing until it is used. 64 MB is the main thread's
+#: 8 MB with room for LAPACK's blocked kernels on a wide feature matrix.
+#: ``SPACR_WORKER_STACK_MB`` overrides it for anyone who needs to.
+WORKER_STACK_BYTES = 64 * 1024 * 1024
+
+
+def _widen_worker_stack(thread: "QThread") -> None:
+    """Give a worker thread a stack the pipeline can actually run in.
+
+    Must be called before ``start()`` — Qt ignores ``setStackSize`` on a
+    running thread. Wrapped: if the platform refuses the size, the thread
+    keeps the default and the run proceeds exactly as it did before, which is
+    the behaviour this replaces (INVARIANTS §10).
+    """
+    megabytes = os.environ.get("SPACR_WORKER_STACK_MB", "").strip()
+    size = WORKER_STACK_BYTES
+    if megabytes:
+        try:
+            requested = int(megabytes)
+        except (TypeError, ValueError):
+            requested = 0
+        if requested > 0:
+            size = requested * 1024 * 1024
+    try:
+        thread.setStackSize(size)
+    except Exception:
+        pass
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
@@ -1246,33 +1777,16 @@ def make_thread(
     *,
     journal: bool = True,
     user_visible: bool = True,
+    capture_figures: bool = True,
 ) -> tuple["QThread", PipelineWorker]:
     """Return ``(thread, worker)`` — the caller connects the worker's signals
     and calls ``thread.start()``.
 
-    **The worker's C++ deletion is left to Python, deliberately.** There used
-    to be a ``worker.finished.connect(worker.deleteLater)`` here, and it
-    segfaulted the process: ``finished`` is emitted inside ``run()``, so the
-    deletion was posted to the WORKER thread's own event loop and executed
-    during that thread's deferred-delete flush, at the same moment the GUI
-    thread dropped the object's last Python reference in its completion
-    handler. Two owners, one object. gdb put the crash in
-    ``QThread -> sendPostedEvents -> ~QObject -> Sbk_GetPyOverride``, and a
-    stress harness over this function alone reproduced it 3 runs in 8.
+    The worker remains Python-owned and is not connected to ``deleteLater``;
+    its last strong reference releases it. The QThread itself keeps
+    ``deleteLater`` because it belongs to the caller's running event loop.
 
-    Re-chaining it off ``thread.finished`` is NOT a fix and was measured: the
-    worker's thread affinity is still the worker thread, so ``deleteLater``
-    still defers into a loop that has stopped, and the same race survives
-    (2 crashes in 20 at 800 jobs). A PySide6 object constructed in Python is
-    already owned by Python; adding ``deleteLater`` on top is the second owner.
-    So the worker is simply not scheduled for deletion — the caller's last
-    reference frees it, on the thread that holds it.
-
-    The QThread itself keeps ``deleteLater``: it is created on, and has the
-    affinity of, the thread that calls this function, so its deferred delete is
-    flushed by that thread's own running loop.
-
-    A caller MUST hold a strong reference to both until ``thread.finished``:
+    A caller must hold a strong reference to both until ``thread.finished``:
     a QThread garbage-collected while running takes the process down.
 
     The job is also added to :func:`registry` for as long as it runs, so
@@ -1289,13 +1803,49 @@ def make_thread(
         want to show up on Home under a name of their own.
     :param journal: create a reproducibility record. Disable only for
         read-only UI housekeeping that is not an analysis run.
+    :param capture_figures: prepare Matplotlib figure interception. Keep true
+        for analysis runs; read-only UI jobs which cannot emit figures set it
+        false to preserve the operation import boundary.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
+    # THE FIRST pyplot IMPORT HAPPENS ON THIS THREAD, NOT ON THE WORKER.
+    #
+    # `PipelineWorker.run` imports matplotlib.pyplot, so on the first job
+    # a module that large is imported from the worker while the GUI thread
+    # may be collecting garbage -- and that combination segfaults the
+    # process. A segfault is not one failed test: it takes the whole
+    # pytest shard, and every coverage measurement with it, which is how
+    # it was found.
+    #
+    # `make_thread` runs on the caller's thread, so importing here puts
+    # that first import where it is safe. Temporarily suspend cyclic GC as
+    # well: pyplot's many allocations can otherwise start a collection in
+    # the middle of the import. If that collection releases an old PySide
+    # wrapper, Qt re-enters Python while matplotlib's module graph is only
+    # half initialized; settings-search followed by the UMAP dialog used to
+    # reproduce that native crash reliably. Every job after the first is a
+    # dict lookup, and the worker's own `matplotlib.use("Agg", force=True)`
+    # still wins -- importing pyplot does not choose a backend.
+    if capture_figures and "matplotlib.pyplot" not in sys.modules:
+        gc_was_enabled = gc.isenabled()
+        try:
+            if gc_was_enabled:
+                gc.disable()
+            import matplotlib.pyplot  # noqa: F401
+        except Exception:              # noqa: BLE001
+            # A build with no matplotlib still starts jobs; the worker's
+            # own import is what would fail, and it already handles that.
+            LOG.debug("matplotlib.pyplot could not be pre-imported",
+                      exc_info=True)
+        finally:
+            if gc_was_enabled:
+                gc.enable()
     thread = QThread()
+    _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)
     worker = PipelineWorker(
         fn, settings, worker_count=allocation, app_key=app_key,
-        journal=journal,
+        journal=journal, capture_figures=capture_figures,
     )
     # Set on the worker rather than passed to its constructor, so a
     # PipelineWorker built anywhere else keeps the visible default.

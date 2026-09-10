@@ -1,0 +1,48 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Measure response range, shape, and per-microplate sample position support.",
+      "label": "spacr.settings_advisor.read_the_response#0",
+      "source": "Measure response range, shape, and per-well support.",
+      "source_sha256": "2abc3e008cb3c377d129b2066e676c6beb52464919440fd4d379a067da990fff",
+      "translation": "Mæla svið og lögun svörunar ásamt stuðningi eftir staðsetningu sýnis á örplötu."
+    },
+    {
+      "context": "At most ``row_cap`` object rows are read across the supplied score tables. The returned mapping records whether that cap was reached so callers can qualify sample-derived recommendations.",
+      "label": "spacr.settings_advisor.read_the_response#1",
+      "source": "At most ``row_cap`` object rows are read across the supplied score tables. The returned mapping records whether that cap was reached so callers can qualify sample-derived recommendations.",
+      "source_sha256": "d41f0607bd6a16b95d5ea29e9c0d946a236d432a280606487fa54da99b9b7123",
+      "translation": "Að hámarki eru ``row_cap`` hlutaraðir lesnar úr uppgefnum stigatöflum. Skilaða vörpunin skráir hvort hámarkinu var náð svo kallandi kóði geti merkt ráðleggingar sem byggjast á úrtaki."
+    },
+    {
+      "context": "Parameters",
+      "label": "spacr.settings_advisor.read_the_response#2",
+      "source": "Parameters",
+      "source_sha256": "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+      "translation": "Færibreytur"
+    },
+    {
+      "context": "paths : sequence of str Score tables to inspect. dependent_variable : str, optional Response column. Common generated-score names are tried when omitted. row_cap : int, optional Maximum number of object rows to inspect.",
+      "label": "spacr.settings_advisor.read_the_response#3",
+      "source": "paths : sequence of str Score tables to inspect. dependent_variable : str, optional Response column. Common generated-score names are tried when omitted. row_cap : int, optional Maximum number of object rows to inspect.",
+      "source_sha256": "8d6677f85dad84402e8281eb59708028d5087430d42756213aef67d2b3efca6c",
+      "translation": "paths : sequence of str Stigatöflur sem á að skoða. dependent_variable : str, optional Svörunardálkur. Algeng nöfn myndaðra stiga eru prófuð þegar gildinu er sleppt. row_cap : int, optional Hámarksfjöldi hlutaraða sem á að skoða."
+    },
+    {
+      "context": "Returns",
+      "label": "spacr.settings_advisor.read_the_response#4",
+      "source": "Returns",
+      "source_sha256": "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
+      "translation": "Skilar"
+    },
+    {
+      "context": "key-value mapping Measured response properties and any non-fatal problems in ``\"trouble\"``.",
+      "label": "spacr.settings_advisor.read_the_response#5",
+      "source": "dict Measured response properties and any non-fatal problems in ``\"trouble\"``.",
+      "source_sha256": "f6808e6860c26ec5bebfc64df8e93eba0311d034f9d6fb8c4f40557261aefa83",
+      "translation": "lykla-gilda vörpun Mældir eiginleikar svörunar og öll vandamál sem eru ekki banvæn í ``\"trouble\"``."
+    }
+  ],
+  "schema": 1
+}

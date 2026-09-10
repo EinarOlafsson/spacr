@@ -1,0 +1,29 @@
+{
+  "lesson": "05_home",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "scene_count_per_catalog": 9,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160],
+    "fps": 30,
+    "frames": 4422,
+    "duration_seconds": 147.4,
+    "audio_streams": 0,
+    "bytes": 7502720,
+    "sha256": "30b970efc04d1acf2f8e606637d29421f7a852ed1932708ef526363fb76ef667"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match the selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Desktop and 390px mobile layout", "No JavaScript errors", "Caption-only scenes match staged text and produce WebVTT without changing the voice"]
+  },
+  "evidence_directory": "refresh_2026-09-09/production/05_home and refresh_2026-09-09/browser/05_home in the tutorial workspace",
+  "translation_review": "Editorial corrections against English and captured GUI; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

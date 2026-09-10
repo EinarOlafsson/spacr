@@ -8,7 +8,12 @@ from typing import Iterable, Mapping, Sequence, Tuple
 
 
 def _quoted_identifier(name: str) -> str:
-    """Return a safely quoted SQLite identifier."""
+    """Return a safely quoted SQLite identifier.
+
+    :param name: annotation-column name to quote.
+    :returns: identifier with embedded quotes escaped for SQLite.
+    :raises ValueError: when the stripped name is empty or contains a NUL.
+    """
     text = str(name or "").strip()
     if not text or "\x00" in text:
         raise ValueError("Annotation column must be a non-empty SQLite name.")
@@ -22,11 +27,17 @@ def write_umap_annotations(
 ) -> Tuple[int, int]:
     """Write one integer value per UMAP record into ``png_list``.
 
+    :param records: rows carrying ``db_path`` and original ``db_png_path``.
+    :param values: integer annotations aligned one-to-one with ``records``.
+    :param column: annotation column to add or update in ``png_list``.
+
     Records are grouped by database so a multi-plate embedding commits once
     per file.  The original ``png_path`` value from the database is the update
     key; corrected/display paths are deliberately not used.
 
     :returns: ``(rows_updated, records_skipped)``.
+    :raises ValueError: when records and values differ in length or ``column``
+        is not a valid SQLite identifier.
     """
     records = list(records)
     values = list(values)

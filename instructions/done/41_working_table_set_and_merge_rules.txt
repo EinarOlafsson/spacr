@@ -2,7 +2,10 @@
 GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
 ================================================================================
 
-Status:    not started
+Status:    COMPLETE 2026-08-07 (5c15056c + item 7). Header corrected
+           2026-08-26: it still said "not started" while this file's
+           own closing section records every item as landed. One
+           defect found and fixed on 2026-08-26 -- see the last entry.
 Requested: 2026-08-07
 
 Verbatim:
@@ -142,3 +145,55 @@ Item 7 landed last: spacr/qt/widgets/aggregation_rules.py shows the rule for
 every measurement and lets any of them be overridden, and the primary object
 is a setting. Only CHANGED rows become overrides, so a later improvement to
 the rules still reaches a user who has opened the window.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE ARITHMETIC IS RIGHT; ONE GATE COST ALL THE OTHERS
+--------------------------------------------------------------------------------
+
+THE NUMBERS, hand-checked rather than trusted. One cell with four pathogens,
+built so all five answers differ, through `merge_tables(db, ["cell",
+"pathogen"])`:
+
+    areas    1, 2, 4, 8        -> pathogen_area                    15  (sum)
+    integ    5, 6, 7, 8        -> ..._integrated_intensity         26  (sum)
+    inten    10, 20, 30, 100   -> ..._min_intensity                10  (min)
+                               -> ..._max_intensity               100  (max)
+                               -> ..._mean_intensity               40  (mean)
+
+Every one as the criterion asks. `pathogen_count` and `pathogen_measured`
+come along, which is what makes a childless parent distinguishable from one
+with four.
+
+WHAT WAS BROKEN: "Removing a chip removes that table's measurements from the
+pickers, and any gate drawn on them says so rather than vanishing silently."
+
+`GateTree._rebuild` called `GateSet.stats`, which is ALL-OR-NOTHING: it walks
+every gate and the first one whose columns are absent raises, so the except
+branch blanked the counts for EVERY gate. Dropping the nucleus table cost the
+cell gates their numbers too -- the opposite of removing one table's
+measurements -- and the gate that actually could not be answered said nothing
+about why, since a blank cell reads as zero or as a slow redraw.
+
+FIXED. `GateTree._gate_stats` falls back to evaluating gate by gate, so a
+gate that cannot be answered loses only its own row, and that row now reads
+`GateTree.UNAVAILABLE` in the count column with the missing measurement named
+in its tooltip.
+
+`tests/qt/test_a_gate_on_a_removed_table_says_so.py` -- three tests, two
+confirmed RED before the fix.
+`test_gates_that_do_not_fit_this_table_are_still_listed_without_counts`
+pinned the blank cell; updated to the new text with the reason recorded in
+it, its own property ("an uncomputable count was printed as a number")
+unchanged.
+
+NOTED, NOT CHANGED -- a deliberate deviation from this file's first
+criterion. "Opening a database loads cell automatically, shown as a REMOVABLE
+chip": the chip for the LAST remaining table is deliberately not removable
+(`_rebuild_chips` passes `removable=len(self._tables) > 1`, and
+`remove_table` refuses), because a Gate Editor with no table is a screen with
+nothing on it. Recorded here so the next audit does not read it as drift.
+
+Re-run: tests/test_merge_tables.py, test_cov_4_merge_tables.py,
+test_aggregation_rules.py (64 passed) and tests/qt/test_gates.py,
+test_cov_9_gate_editor.py, test_cov_gate_editor_tree_and_panel.py,
+test_a_gate_on_a_removed_table_says_so.py (98+ passed).

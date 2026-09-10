@@ -86,10 +86,12 @@ from ..widgets.toggle import Toggle
 
 from ... import model_compare as mc
 from ..bridge import make_thread
+from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["ModelCompareScreen", "FIELD_RANGE", "PREVIEW_PX"]
 
@@ -116,7 +118,7 @@ _PARAM_HEADERS = ("parameter", "A", "B", "reaches the model?")
 
 def _cell(text: str) -> QTableWidgetItem:
     """A read-only table cell."""
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -240,10 +242,19 @@ class _ModelPanel(QGroupBox):
     Only the arguments Cellpose 4 actually reads get a widget. Anything else a
     user wants to try goes in the free-text ``extra`` line, where the report
     will pick it up and tell them whether it does anything.
+
+    :param title: the group box's heading -- which side of the comparison
+        this is.
+    :param parent: parent widget; ownership only.
+    :param diameter: the starting object diameter. A STARTING POINT, not a
+        constraint: the field is editable, and the two panels are seeded
+        with the same value so a comparison begins from one baseline rather
+        than from two defaults that happen to differ.
     """
 
     def __init__(self, title: str, parent: Optional[QWidget] = None,
                  diameter: float = 30.0):
+        """Build one side's form, seeded with the shared starting diameter."""
         super().__init__(title, parent)
         self.setObjectName(MODEL_PANEL_NAME)
         form = QFormLayout(self)
@@ -329,6 +340,11 @@ class _ModelPanel(QGroupBox):
         )
 
     def set_enabled(self, enabled: bool) -> None:
+        """Enable or disable every control on this model's panel.
+
+        :param enabled: whether the panel can be edited -- off while a
+            comparison is running.
+        """
         for widget in (self.model_edit, self.diameter_box, self.flow_box,
                        self.cellprob_box, self.min_size_box,
                        self.normalize_box, self.resample_box, self.extra_edit):
@@ -352,6 +368,17 @@ class ModelCompareScreen(QWidget):
     job_finished = Signal(bool)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        The panel stylesheet is applied here rather than relied on from the
+        launch sheet: ``app.py`` imports this module inside the branch that
+        builds the screen, long after that sheet was generated, so the block is
+        not in the sheet that is live and the panels would open bare.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: segment on a worker thread. Set ``False`` in tests so
+            ``compare`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._folder: str = ""
@@ -372,7 +399,7 @@ class ModelCompareScreen(QWidget):
         # so the block registered above is not in the sheet that is live and
         # the panels open bare. That is why the fix measured correct in a
         # test and was still black in the running app.
-        ensure_widget_qss_applied(MODEL_PANEL_NAME)
+        ensure_widget_qss_applied(MODEL_PANEL_NAME, root=self)
 
         self._build_ui()
         from ..dnd import install_dropzone
@@ -382,10 +409,16 @@ class ModelCompareScreen(QWidget):
             "Choose a folder of fields, configure both models, then Compare. "
             "Neither model is treated as ground truth.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the source row, both model panels, the tables and the mask previews."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -457,6 +490,7 @@ class ModelCompareScreen(QWidget):
         # ── resolved parameters ───────────────────────────────────────
         outer.addWidget(QLabel("Parameters that reached each model", self))
         self._param_table = QTableWidget(0, len(_PARAM_HEADERS), self)
+        install_sorting(self._param_table)
         self._param_table.setHorizontalHeaderLabels(list(_PARAM_HEADERS))
         self._prepare_table(self._param_table)
         self._param_table.setMaximumHeight(200)
@@ -465,6 +499,7 @@ class ModelCompareScreen(QWidget):
         # ── per-field metrics ─────────────────────────────────────────
         outer.addWidget(QLabel("Per-field comparison", self))
         self._row_table = QTableWidget(0, len(_ROW_HEADERS), self)
+        install_sorting(self._row_table)
         self._row_table.setHorizontalHeaderLabels(list(_ROW_HEADERS))
         self._prepare_table(self._row_table)
         self._row_table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -494,6 +529,12 @@ class ModelCompareScreen(QWidget):
         outer.addWidget(self._status)
 
     def _build_preview(self, parent: QSplitter, side: str):
+        """Build one side of the side-by-side mask preview.
+
+        :param parent: the splitter the preview is added to.
+        :param side: which model this side shows -- ``"A"`` or ``"B"``.
+        :returns: the ``(canvas, caption)`` pair, so the caller can hold both.
+        """
         holder = QWidget(parent)
         layout = QVBoxLayout(holder)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -556,12 +597,14 @@ class ModelCompareScreen(QWidget):
     # -- source ------------------------------------------------------------
 
     def _pick_folder(self) -> None:
+        """Ask for a folder of fields and load it."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of fields", self._folder or os.getcwd())
         if path:
             self.set_source(path)
 
     def _on_open_typed_path(self) -> None:
+        """Load whatever path is currently typed in the source box."""
         self.set_source(self._path_edit.text())
 
     def configure(self, model_a: str = "", model_b: str = "",
@@ -621,6 +664,7 @@ class ModelCompareScreen(QWidget):
         n_fields = int(self._fields_box.value())
 
         def _job():
+            """Load the comparison fields. Off the GUI thread."""
             names, images = mc.load_fields(source, n_fields=n_fields)
             return source, names, images
 
@@ -696,6 +740,7 @@ class ModelCompareScreen(QWidget):
         segment_fn = self._segment_fn
 
         def _job() -> mc.ComparisonReport:
+            """Run both models over the same fields. Off the GUI thread."""
             return mc.compare_models(images, config_a, config_b,
                                      field_names=names, segment_fn=segment_fn)
 
@@ -706,6 +751,12 @@ class ModelCompareScreen(QWidget):
             _job, self._apply_result, operation="comparison")
 
     def _apply_result(self, report: mc.ComparisonReport) -> None:
+        """Fill every output pane from a finished comparison and select the first field.
+
+        :param report: the comparison; neither model is treated as ground truth,
+            so the summary reports both counts and the ARI between them rather
+            than an accuracy for either.
+        """
         self._report = report
         self._fill_param_table(report)
         self._fill_row_table(report)
@@ -730,6 +781,11 @@ class ModelCompareScreen(QWidget):
     # -- rendering ---------------------------------------------------------
 
     def _clear_results(self) -> None:
+        """Empty every result pane and both previews.
+
+        Called before a new run and after a failure, so one model's masks are
+        never left beside another model's numbers.
+        """
         self._report = None
         self._param_table.setRowCount(0)
         self._row_table.setRowCount(0)
@@ -743,6 +799,10 @@ class ModelCompareScreen(QWidget):
             caption.setText(f"Model {side}")
 
     def _fill_warnings(self, report: mc.ComparisonReport) -> None:
+        """Show the comparison's warnings, or hide the strip when there are none.
+
+        :param report: the comparison to read warnings from.
+        """
         if not report.warnings:
             self._warnings.setText("")
             self._warnings.setVisible(False)
@@ -798,6 +858,10 @@ class ModelCompareScreen(QWidget):
         return _table_rows(self._param_table)
 
     def _fill_row_table(self, report: mc.ComparisonReport) -> None:
+        """Fill the per-field metrics table, one row per field.
+
+        :param report: the comparison to read per-field results from.
+        """
         table = self._row_table
         table.blockSignals(True)
         table.setRowCount(len(report.comparisons))
@@ -872,18 +936,23 @@ class ModelCompareScreen(QWidget):
         qimage = QImage(composed.tobytes(), width, height, 3 * width,
                         QImage.Format_RGB888).copy()
         canvas.setText("")
-        canvas.setPixmap(QPixmap.fromImage(qimage).scaled(
-            max(PREVIEW_PX, canvas.width()), max(PREVIEW_PX, canvas.height()),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        canvas.setPixmap(scaled_for(
+            QPixmap.fromImage(qimage), canvas,
+            max(PREVIEW_PX, canvas.width()),
+            max(PREVIEW_PX, canvas.height())))
         return True
 
     def preview_sizes(self):
-        """``(a, b)`` pixmap sizes — ``(0, 0)`` for a panel with no image."""
+        """``(a, b)`` preview sizes on screen — ``(0, 0)`` for an empty panel.
+
+        The size the picture OCCUPIES, not the pixel count it was drawn
+        with: on a HiDPI screen the panel is rendered at twice the density
+        and the two answers differ by that factor.
+        """
         out = []
         for canvas in (self._preview_a, self._preview_b):
-            pixmap = canvas.pixmap()
-            out.append((0, 0) if pixmap is None or pixmap.isNull()
-                       else (pixmap.width(), pixmap.height()))
+            shown = logical_size(canvas.pixmap())
+            out.append((shown.width(), shown.height()))
         return tuple(out)
 
     def preview_captions(self):
@@ -915,6 +984,7 @@ class ModelCompareScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
@@ -979,6 +1049,12 @@ class ModelCompareScreen(QWidget):
         return len(self._jobs)
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        What the window asks before closing.
+
+        :returns: True while work is outstanding.
+        """
         return self._busy
 
     def _on_worker_error_text(self, tb: str) -> None:
@@ -995,6 +1071,14 @@ class ModelCompareScreen(QWidget):
             error=True)
 
     def _on_job_error(self, exc: Exception, operation: str = "job") -> None:
+        """Clear the results and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        :param operation: what was being attempted, used to open the message --
+            a load and a comparison fail differently and the status line has to
+            say which.
+        """
         self._clear_results()
         message = str(exc) or exc.__class__.__name__
         self._set_status(
@@ -1003,6 +1087,11 @@ class ModelCompareScreen(QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable the source controls and Compare to match what is loaded.
+
+        Compare needs fields loaded; everything else only needs no job in
+        flight.
+        """
         loaded = bool(self._images)
         self._btn_compare.setEnabled(loaded and not self._busy)
         self._btn_load.setEnabled(not self._busy)

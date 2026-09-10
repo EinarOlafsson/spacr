@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Image Scatter: raunverulegar mælingar og myndskurðurinn á bak við hvern punkt",
+  "description": "Kannaðu undireininguna Image Scatter í Image UMAP með niðurhöluðum frumumælingum, sannreyndum forskoðunum við bendil og flutningi nákvæmlega einnar frumu yfir í Annotate.",
+  "objectives": [
+    "Finndu Image Scatter innan Image UMAP og lestu inn réttu frumutöfluna.",
+    "Skoðaðu pör af hráum mælingum og skildu hnit sem vantar eða eru föst.",
+    "Tengdu frumu á grafi við raunverulegan myndskurð hennar án þess að breyta merkingum eða upprunagögnum."
+  ],
+  "prerequisite": "Notaðu aftur niðurhalanlega Annotate-dæmið, ásamt mælingagagnagrunninum, frumumyndskurðunum og merkiskrám fyrir myndsnið þeirra. Kennslan notar einkaeintak af 2.341 frumu og öllum 2.341 upprunalegu PNG-skránum, óbreytt bæti fyrir bæti. Óháðar SQLite-athuganir ná yfir hvert upprunagildi, frumuauðkenni með fullum upplýsingum um myndsvið og slóð myndskurðar; birt hnit og RGB-mynddílar smámyndanna eru einnig sannreynd. Aðeins tengingar við frumumyndskurði eru sannreyndar, ekki tengingar við kjarna- eða sýklamyndskurði. Óvenjulegur punktur er ekki sönnun um svipgerð, sýkingu, meðferð eða rétta hlutaskiptingu. Engin UMAP-aðlögun, þjálfun, GPU-útreikningur, skráaútflutningur eða breyting á upprunamerkingum fer fram. Image Scatter hefur ekki eigin niðurhalara, val á mynddálki, lita- eða hópunarstýringar, ásavörpun, útflutningsstýringu eða AI-stjórnborð. Plot les inn valda töflu; ásaval teiknar hana aftur. Innlestur takmarkast við 200.000 raðir; það er hvorki slembiúrtak né sönnun þess að engar upplýsingar tapist úr stærri töflum. Kennslan staðfestir ekki sameiginlega síun. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame og ScatterCanvas.point_position.",
+  "scenes": [
+    "Opnaðu Image UMAP frá Home og veldu síðan Image Scatter. Þessi undirskjár teiknar tvær fyrirliggjandi mælingar; hann aðlagar ekki UMAP-innfellingu. Við endurnýtum raunverulega, niðurhalanlega Annotate-dæmið og höldum mælingagagnagrunninum og frumumyndskurðunum saman. Annotate-kennslan sýnir hvar það fæst.",
+    "Veldu Browse og opnaðu afritið af mælingagagnagrunninum. Haltu data-möppunni og merkiskrám myndskurðasniðsins með þegar þú flytur verkefni, því tafla ein og sér inniheldur ekki myndirnar. Dæmið sem sést notar einkaeintök; upprunalegar mælingar og mynddílar myndskurðanna haldast óbreytt.",
+    "Veldu cell í töfluvalinu og síðan Plot. Plot les þessa töflu; þetta er ekki hlutaskiptingar- eða þjálfunarverk. Dæmið okkar hefur 2.341 frumu með samsvarandi frumumyndskurðum. Ef þú velur aðra töflu þarftu að ýta aftur á Plot; breyting á valinu ein og sér les ekki inn raðir hennar.",
+    "Stilltu x á cell_area og y á cell_channel_1_mean_intensity. Breytingar á ásunum teikna innlesnu raðirnar aftur samstundis. Þetta eru hráar mælingar, ekki umbreytt hnit úr innfellingu. Punktarnir lýsa einstökum frumum, ekki óháðum endurtekningum tilraunar, og mynstur í myndinni er ekki tölfræðipróf.",
+    "Haltu bendlinum yfir frumunni lengst til hægri. Myndskurður hennar birtist við hlið dreifiritsins með fullu auðkenni fyrir plötu, röð, dálk, myndsvið og frumu. Þessi smámynd er vistaður myndskurður, ekki allt smásjármyndsviðið eða ný hlutaskipting. Óvenjulegt útlit eitt og sér staðfestir ekki svipgerð.",
+    "Færðu bendilinn út af teiknisvæðinu: tímabundna forskoðunin hverfur. Farðu aftur yfir sama punkt og myndskurðurinn birtist úr skyndiminni án nýrrar afkóðunar. Að halda bendlinum yfir punkti er tímabundin myndskoðun, ekki merking eða varanlegt val. Engum upprunamerkingum er breytt.",
+    "Víxlaðu mælingunum tveimur á x- og y-ásnum. Sama fruman heldur auðkenni sínu og myndskurði þótt staða hennar á skjánum breytist. Veldu merkingarbæra ása í stað þess að samþykkja sjálfkrafa fyrstu talnadálkana; töluleg auðkenni og lýsigögn myndatökunnar eru einnig í boði í þessum vallistum.",
+    "Settu x aftur á cell_area og veldu cell_channel_0_homogeneity_distance_32 á y. Sjö frumur vantar þessa mælingu, svo aðeins er hægt að teikna 2.334 hnitapör. Fjöldi innlesinna raða sýnir enn 2.341. Gildi sem vantar eru ekki núll og faldar hnitastöður breyta ekki númerun hlutauðkenna.",
+    "Veldu measurement_ndim á y. Allar raðir hafa gildið tveir, svo punktarnir liggja á láréttri línu. Þetta er fastur lýsigagnadálkur, ekki líffræðilegt samræmi. Settu cell_channel_1_mean_intensity aftur áður en þú skoðar aðra frumu.",
+    "Til að skoða myndskurð sem þú smellir á í Annotate skaltu fyrst opna Annotate og lesa inn sama afritaða verkefnið. Farðu aftur um Home, Image UMAP og fyrirliggjandi Image Scatter-flipa þess. Merkingarsíðan verður að þekkja rétta verkefnið; graf og opið, ótengt gagnasafn eru ekki gild tenging.",
+    "Smelltu á punktinn sjálfan og skiptu síðan yfir í Annotate. Að halda bendlinum yfir honum sýnir aðeins forskoðun. Smellurinn sendir nákvæman frumulykil ásamt nöfnum ásanna tveggja í merkingarskjáinn. Hann skiptir ekki sjálfkrafa um síðu, úthlutar ekki merkingu og sannar ekki að hluturinn sé útlagi.",
+    "Annotate sýnir nú nákvæmlega frumuna sem þú smelltir á með sama vistaða myndskurðinum. Skoðaðu mynd hennar áður en þú ákveður hvort þú ætlir að merkja hana; þessi sýning lætur allar merkingar óbreyttar. Image Scatter hefur ekki sérstakan útflutning á grafi eða vali. Notaðu Database Browser til að flytja út töflur, eða PCA-kennsluna fyrir þáttagreiningu og skjalfestar CSV-niðurstöður hennar."
+  ]
+}

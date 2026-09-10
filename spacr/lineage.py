@@ -54,8 +54,8 @@ so the collapse can be reproduced on demand rather than only remembered.
 from __future__ import annotations
 
 import os
-import sqlite3
-from dataclasses import dataclass, field as _field
+from dataclasses import dataclass
+from dataclasses import field as _field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -158,15 +158,15 @@ def node_key(row: Mapping[str, Any],
 class LineageNode:
     """One object and everything inside it.
 
-    :ivar key: the shared object key — the same string every other view uses.
-    :ivar table: which object table the row came from.
-    :ivar label: the integer object label within its field.
-    :ivar field: the ``prcf`` this object belongs to.
-    :ivar children: contained objects, grouped table by table in
-        :data:`LINEAGE_TABLES` order and by label within a table, so two runs
-        of the same data draw the same tree.
-    :ivar row: the source row, so a view can show a measurement beside the
-        name without going back to the frame.
+    :param key: shared typed object key used by spaCR's other views and
+        selections.
+    :param table: object-table name from which the source row came.
+    :param label: integer object label within its field.
+    :param field: ``prcf`` field identifier containing the object.
+    :param children: contained objects, grouped in :data:`LINEAGE_TABLES`
+        order and then by label for deterministic trees.
+    :param row: copied source row retained so views can display measurements
+        without reopening the frame.
     """
 
     key: str
@@ -371,6 +371,14 @@ def _sort_label(value: Any) -> Tuple[int, Any]:
 
 def _node(row: Mapping[str, Any], table: str, *,
           typed: bool = True) -> LineageNode:
+    """Build a leaf lineage node from one measurement row.
+
+    :param row: Measurement row containing object and field identifiers.
+    :param table: Object-table name recorded on the node and optionally in its
+        key.
+    :param typed: Include ``table`` in the generated object key when true.
+    :returns: Leaf node with a normalized numeric label and a copied row.
+    """
     label = _object_label(row.get(schema.OBJECT_LABEL_KEY))
     return LineageNode(key=node_key(row, table if typed else None),
                        table=table,
@@ -395,7 +403,7 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
 
     :param frames: ``{table name: rows}``, forwarded to :func:`build_forest`.
         Only the tables in :data:`LINEAGE_TABLES` are read, so anything else
-        handed over is ignored, and a run that measured no pathogens simply
+        handed over is ignored, and a run that measured no pathogens
         searches childless cells.
     :param key: a shared object key, compared against :attr:`LineageNode.key`
         after ``str()``. It is *not* compared against
@@ -409,21 +417,27 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
     :param typed: must agree with how ``key`` is spelled, and nothing checks
         that it does. A typed key searched with ``typed=False`` — or a legacy
         untyped one searched with the default — returns ``None``, the same
-        answer as "no such object". With ``typed=False`` a key that names two
-        objects returns the first root holding either of them, in field then
-        label order, so a nucleus 1 and a pathogen 1 sitting in *different*
-        cells resolve to whichever cell sorts first.
+        answer as "no such object". With ``typed=False``, collisions inside
+        one family still identify that family, but a key found in different
+        families raises rather than choosing whichever root sorts first.
     :raises LineageError: when ``root`` is missing from ``frames``, or when a
         table that is present cannot be named. The forest is built before the
         search, so a ``nucleus`` table without its field columns raises even
         when the wanted key belongs to a pathogen. A key that is merely not
-        there is ``None``, not an exception.
+        there is ``None``, not an exception. Also raised when ``key`` names
+        objects in more than one family; use typed keys to disambiguate them.
     """
     wanted = str(key)
+    matches: List[LineageNode] = []
     for node in build_forest(frames, root=root, typed=typed):
         if node.find(wanted) is not None:
-            return node
-    return None
+            matches.append(node)
+    if len(matches) > 1:
+        families = ", ".join(node.node_id for node in matches)
+        raise LineageError(
+            f"key {wanted!r} names objects in multiple lineage families: "
+            f"{families}. Use a typed object key to choose one family.")
+    return matches[0] if matches else None
 
 
 def orphans(frames: Mapping[str, pd.DataFrame], *,
@@ -483,6 +497,16 @@ def lineage_frame(forest: Sequence[LineageNode]) -> pd.DataFrame:
     rows: List[Dict[str, Any]] = []
 
     def visit(node: LineageNode, parent: str, depth: int) -> None:
+        """Append one node and recursively flatten its descendants.
+
+        :param node: lineage node to record before visiting its children.
+        :param parent: key of the caller-supplied parent, or an empty string
+            for a root.
+        :param depth: zero-based depth to store for this node.
+        :returns: None. A row containing node metadata and its current child
+            count is appended to the captured list, then children are visited
+            in their existing order with this node as parent.
+        """
         rows.append({"key": node.key, "table": node.table,
                      "label": node.label, "field": node.field,
                      "parent_key": parent, "depth": depth,
@@ -545,10 +569,12 @@ def read_object_tables(db_path: str,
                        *, limit: int = 200_000) -> Dict[str, pd.DataFrame]:
     """Read the object tables a lineage needs. Safe on a worker thread.
 
-    Missing tables are simply absent from the result — a run that measured
+    Missing tables are absent from the result — a run that measured
     cells and nuclei but no pathogens is a legitimate experiment, not a
     broken database.
 
+    :param db_path: path to the measurements SQLite database, opened
+        read-only so the loader is safe to run on a worker thread.
     :param limit: per-table row cap, so a mis-aimed path cannot turn into a
         two-minute read behind a spinner.
     :raises LineageError: when there is no database at ``db_path``.

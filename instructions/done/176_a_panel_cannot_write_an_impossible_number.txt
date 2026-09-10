@@ -1,0 +1,44 @@
+================================================================================
+A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
+================================================================================
+
+Status:    filed AND closed 2026-08-19, from a run that failed on the
+           maintainer's own screen.
+Reported:  2026-08-19 -- a regression ran for forty seconds, wrote its
+           figures, its regression_data.csv and three QC plots, and then died:
+
+               ValueError: alpha must be strictly between 0 and 1; got -0.95
+
+WHERE -0.95 CAME FROM. It is 0.05 minus one. A QDoubleSpinBox's default
+`singleStep` is 1.0, and the settings panel built EVERY float field with
+`setRange(-1e12, 1e12)` and no step at all -- so one scroll of the wheel over
+`fdr_alpha` wrote it. The same tick turns `fraction_threshold` 0.02 into
+-0.98, `tolerance` 0.02 into -0.98 and `l1_ratio` 0.5 into -0.5.
+
+WHAT SHIPPED
+
+A. THE STEP FOLLOWS THE VALUE'S MAGNITUDE -- 0.01 below 1, 0.1 below 10, 1.0
+   above. One down-click on 0.05 now lands on 0.04.
+
+B. THE RANGE FOLLOWS THE SETTING'S OWN TOOLTIP, where that text states a
+   domain ("must be between 0 and 1"). Not a hand-kept list of key names,
+   which would be one more thing to fall out of step with `spacr.settings`.
+   The floor is 1e-6 rather than 0: a setting refused at 0 by the code that
+   reads it gains nothing from a box that clamps a bad saved value to 0.
+
+C. AND THE RUN REFUSES BEFORE IT WRITES ANYTHING. A settings CSV reaches the
+   fit without passing a panel, so the check has to live there too -- the same
+   argument `_require_backend` makes for the backend greying rule. The message
+   names the setting, says what it is for, and names the value the user
+   probably meant: "a value one less than what you meant is what a spin box
+   does when its arrow or the scroll wheel is nudged -- 0.05 may be the number
+   you set."
+
+HOW IT WAS KNOWN TO WORK
+* One down-click on each of fdr_alpha, fraction_threshold, l1_ratio and
+  quantile stays positive.
+* fdr_alpha and quantile clamp to (0, 1]; huber_t and threshold_multiplier
+  keep their range and gain a sane step, because their tooltips state no
+  domain and inventing one would be worse.
+* -0.95, 0.0, 1.0, 1.5 and 'x' are each refused in under a second, naming the
+  setting.

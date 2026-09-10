@@ -1,0 +1,141 @@
+================================================================================
+CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
+================================================================================
+
+Status:    DONE 2026-08-21.
+Requested: 2026-08-21 -- "console, AI chat and system should all be
+           colapsable to make space for the container above if necessary,
+           this should be tru of all moduals that have the three".
+Owner:     Qt GUI (module screens)
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED
+--------------------------------------------------------------------------------
+
+The three panels along the bottom each fold away, and the space they release
+goes to the container above them.
+
+THE SPACE IS THE POINT, not the folding. A panel that collapses and leaves a
+gap has cost the user a click and given them nothing: the figures, the
+montage or the results above have to actually grow into it.
+
+ALL THREE, AND EVERY MODULE THAT HAS THEM. Two that fold and one that does
+not is worse than none folding, because the user learns the gesture and then
+meets the exception. The rule belongs wherever the three are assembled
+rather than on each screen, or the twenty-eighth module will arrive without
+it -- which is what happened to the plate-map button, the tooltip rule and
+the movable-dialog rule, each fixed once centrally after being applied by
+hand to a handful of places.
+
+--------------------------------------------------------------------------------
+WHAT THE USER CLICKS
+--------------------------------------------------------------------------------
+
+    "the colapsing of the console and AI box should be controlled bt
+     clicking on the Console text and colapsing of System by clicking on
+     System"
+
+THE PANEL'S OWN NAME IS THE CONTROL. No separate chevron, no button beside
+it: the word "Console" folds the console, the word "System" folds system.
+
+THAT SETTLES WHAT IS LEFT BEHIND, which the section below asks. A folded
+panel keeps its name, because the name is how it comes back -- so the strip
+is not a decision to make, it is a consequence of where the click is.
+
+AND IT HAS TO LOOK CLICKABLE. A word that folds a panel and looks exactly
+like a word that does not is a control the user finds by accident. The
+pointer changes over it and it responds to hover, the way the folding
+section headings already do -- `CollapsibleSection` solved this and its
+header is the same gesture on the same kind of thing.
+
+--------------------------------------------------------------------------------
+WHAT HAS TO BE DECIDED
+--------------------------------------------------------------------------------
+
+  * WHAT THE STRIP SAYS WHEN THE PANEL HAS NEWS. A folded console is a
+    console whose errors are invisible, so the strip has to mark that
+    something arrived -- and mark it in a way that survives being ignored,
+    since the reason it is folded is that the user is looking elsewhere.
+  * WHETHER THE STATE PERSISTS. A user who folds the chat on every launch is
+    telling you something; a layout that resets each time makes them say it
+    again every day. It belongs with the other panel geometry spaCR already
+    saves.
+  * FOLDING ALL THREE. The most common case is wanting the whole bottom
+    back, and doing it three times is three times the work of doing it once.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Clicking the panel's NAME folds it, and clicking the name again brings it
+  back.
+* The name looks clickable -- pointer and hover -- before it is clicked.
+* Each of the three folds and unfolds, on every module that has them.
+* The container above takes the released space, measured rather than
+  eyeballed -- its height before and after differs by what was folded.
+* A folded panel leaves a strip that names it and can restore it.
+* A folded console that receives an error says so on its strip.
+* The state survives a restart.
+* A test drives the fold on more than one module, because "all modules that
+  have the three" is the part that decays.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+ONE HELPER, `spacr/qt/widgets/foldable.py`, wherever the three are assembled
+-- not a rule applied by hand per screen, which is precisely how the
+plate-map button, the tooltip rule and the movable-dialog rule each came to
+be missing from one module and had to be fixed centrally afterwards.
+
+THE BODY IS HIDDEN, NOT RESIZED. A hidden widget contributes nothing to its
+layout's size hint, so whatever is above takes the room without anybody
+computing it -- and the test measures that, 180px released of 180px folded,
+rather than eyeballing it. In the splitter the sizes are moved explicitly as
+well, because a splitter keeps its own and hiding the widget alone would
+leave the handle where it was and the space simply unused, which is the
+failure this instruction is actually about.
+
+ONE NAME, BOTH BOXES. The maintainer's follow-up asked for "the colapsing of
+the console and AI box ... by clicking on the Console text": the chat row is
+the console panel's own second half and has no heading of its own, so the
+one click takes both. "System" folds the usage card by its own title.
+
+THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED -- pointer and tooltip -- and
+the arrow is part of the label TEXT rather than a widget beside it, because
+a heading whose affordance is a sibling can be laid out apart from it and
+then the arrow points at nothing.
+
+A FOLDED CONSOLE THAT RECEIVES AN ERROR SAYS SO on its strip, and unfolding
+clears it: arriving is seeing, and an alert that survived would keep
+claiming there is something to look at after the user has looked at it.
+
+THE FILTER IS HELD. Qt keeps a bare pointer to an event filter, so one that
+only the constructor referenced is collected at the end of the call that
+installed it -- after which the heading stops responding and nothing says
+why. `Card.folder` and `AppScreen._console_folder` exist for that reason.
+
+NOT EVERY CARD FOLDS. `foldable=False` is the default: most cards in spaCR
+are the only thing in their slot, and folding one would leave a strip over
+empty space rather than giving the room to anything.
+
+--------------------------------------------------------------------------------
+AND IT SURVIVES A RESTART
+--------------------------------------------------------------------------------
+
+ONE KEY HOLDING A DICT, keyed `"<module>/<panel>"`. Not a QSettings key per
+panel: a panel added later would need a new key invented for it, and the
+ones that exist would have to be found by guessing at their names.
+
+PER MODULE, because folding the console on Mask must not fold it on
+Sequencing -- the same rule the console/chat splitter already follows, for
+the same reason: the modules are used for different work and want different
+amounts of room.
+
+AN OPEN PANEL IS REMOVED FROM THE DICT rather than stored as False. The
+default is open, so storing it would grow the dict by one entry for every
+panel the user has ever touched and never shrink it.
+
+NO KEY MEANS NO WRITING. A bare panel in a test must not touch the real
+preferences -- a test that wrote to them would fold a panel on the user's
+next launch, which has happened in this repo before.

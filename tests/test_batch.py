@@ -46,6 +46,7 @@ from spacr.batch import (
     validate_queue,
 )
 from spacr.errors import RunLedger
+from tests.child_env import child_env
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -1056,8 +1057,7 @@ def test_import_pulls_no_torch_qt_or_cellpose():
     )
     proc = subprocess.run(
         [sys.executable, "-c", code], capture_output=True, text=True, timeout=180,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": "/tmp", "MPLBACKEND": "Agg"})
+        env=child_env(pythonpath=str(REPO_ROOT)))
     assert proc.returncode == 0, f"{proc.stdout}\n{proc.stderr}"
     loaded = json.loads(proc.stdout.strip().splitlines()[-1])
     offenders = [m for m, present in loaded.items() if present]
@@ -1080,8 +1080,7 @@ def test_validating_a_queue_pulls_no_torch_or_cellpose(tmp_path, plate):
     )
     proc = subprocess.run(
         [sys.executable, "-c", code], capture_output=True, text=True, timeout=180,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": "/tmp", "MPLBACKEND": "Agg"})
+        env=child_env(pythonpath=str(REPO_ROOT)))
     assert proc.returncode == 0, f"{proc.stdout}\n{proc.stderr}"
     loaded = json.loads(proc.stdout.strip().splitlines()[-1])
     assert not [m for m, present in loaded.items() if present]

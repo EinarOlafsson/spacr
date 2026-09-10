@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "es",
+  "title": "Data Manager: inspeccionar, limpiar y archivar un ejemplo real con seguridad",
+  "description": "Examina archivos registrados y no registrados, cancela y confirma la eliminación exacta de recortes y mueve un proyecto privado conservando los registros del archivo.",
+  "objectives": [
+    "Abrir Data manager desde Help e inspeccionar el espacio ocupado.",
+    "Leer el plan de borrado, los motivos de conservación y la lista completa.",
+    "Distinguir el borrado irreversible del traslado y comprobar Cancel.",
+    "Volver a examinar el destino y conservar el manifiesto, el registro de origen y la copia de seguridad."
+  ],
+  "prerequisite": "Usa el ejemplo real de External Masks: dos campos, 103 objetos medidos y figuras guardadas. La grabación opera sobre una copia aislada cuyos bytes se han verificado; las rutas absolutas del registro apuntan únicamente a esa copia dentro del proceso de grabación. Los 131 archivos originales no cambian. Data Manager no tiene descarga de datos, vista previa de imágenes, control Plot ni panel AI propios. Los tamaños representan bytes, no calidad científica. Se borran solo de la copia 103 recortes PNG y su JSON de formato, conservando la base de datos y la receta registrada; no se demuestra su regeneración. Archivar mueve el proyecto restante: no crea una copia de seguridad ni garantiza actualizar todas las rutas históricas. Los registros de recursos externos no se trasladan.",
+  "scenes": [
+    "Abre Help y después Data manager. Esta herramienta compartida administra archivos de proyectos; no ejecuta análisis de imágenes. Usamos una copia desechable del ejemplo real de External Masks, incluidas sus mediciones y figuras guardadas. Conserva una copia de seguridad independiente antes de probar el borrado.",
+    "Choose project selecciona la raíz del proyecto. Usage muestra unos noventa y un megabytes en ciento veintinueve archivos tras el examen. Registered y Unregistered son distintos: puede haber archivos sin un registro. Las categorías estimadas a partir de carpetas no demuestran el contenido científico de los archivos.",
+    "En Prune elige qué tipos considerar. Activar un interruptor no autoriza por sí solo el borrado. Deja sin seleccionar las bases de datos de mediciones y los pesos de modelos; después pulsa Show what can be deleted. Lee tanto la propuesta como los motivos por los que se conservan otros resultados.",
+    "Este plan incluye solo la carpeta data de recortes: ciento tres imágenes de objetos y un archivo de formato, no ciento cuatro células. Propone liberar unos tres coma cuatro megabytes. Get it back by indica Measure, pero regenerar requiere todavía las entradas originales, los ajustes y software adecuado.",
+    "Delete abre una segunda confirmación con la lista real de archivos. La eliminación no se puede deshacer. Amplía el diálogo y recorre las rutas antes de aceptarlas. El botón final Delete comienza desactivado; marcar la aceptación es una acción distinta de borrar.",
+    "La aceptación activa Delete. Desmarcarla vuelve a desactivarlo. En esta primera demostración elegimos Cancel, y todos los archivos del proyecto quedan intactos. Cancela siempre que no tengas claras las rutas, las cantidades de archivos o el procedimiento para recuperarlos.",
+    "Reabrimos el mismo plan verificado y confirmamos el borrado únicamente en la copia desechable. El resultado indica tres coma cuatro megabytes liberados en ciento cuatro archivos. Los otros veinticuatro archivos ajenos al registro conservan exactamente sus bytes, incluida la base de datos de mediciones y las figuras.",
+    "El examen automático informa ahora de un resultado registrado que falta en disco: la carpeta de recortes que eliminamos deliberadamente. Su receta permanece en el registro con metadatos del borrado. No es un búfer para deshacer, y no hemos vuelto a ejecutar Measure para regenerar los recortes.",
+    "Archive es diferente: mueve el proyecto restante. Elige un destino vacío fuera del origen y pulsa Show what would move. Tras el borrado, el plan contiene veinticinco archivos, unos ochenta y ocho megabytes. Revisa cuidadosamente origen y destino; esta pantalla planifica el traslado del proyecto completo.",
+    "Move pide confirmación con No seleccionado por defecto. Primero elegimos No y comprobamos que el origen no cambia y el destino sigue vacío. Ni el plan ni cancelar la confirmación trasladan archivos. El destino del archivo no es una copia de seguridad adicional.",
+    "Confirmamos Yes solo para este ejemplo privado. Los archivos restantes se trasladan al destino. Allí se escribe un manifiesto y en el origen queda un registro del traslado. El proyecto original con el que creamos la copia desechable permanece completamente intacto.",
+    "Selecciona el destino como proyecto y examínalo de nuevo. La base de datos archivada está registrada en su nueva ruta y cada archivo ajeno al registro coincide byte por byte con su versión anterior al traslado. El manifiesto adicional explica el nuevo recuento. Los registros históricos y externos no se reescriben ni trasladan automáticamente.",
+    "Para automatizar con Python, spacr.data_manager ofrece scan_project, plan_prune, prune, plan_archive y archive. Inspecciona el plan antes de proporcionar su token de confirmación. Para explorar mediciones usa Database Browser; para un resumen legible usa Report. Conserva la copia de seguridad independiente y los registros del archivo junto con la documentación de investigación."
+  ]
+}

@@ -15,9 +15,13 @@ Fixtures provided:
     synth_masks_multi  dict of cell/nucleus/pathogen label masks
     synth_measurements pandas DataFrame with typical spacr columns
     synth_sqlite_db    file-backed sqlite with a minimal spacr schema
-    dark_style         style_out dict returned by set_dark_style() with
-                       a hidden Tk root; scope='function' to keep Tk
-                       state fresh across tests.
+
+Two fixtures are gone with the Tkinter interface. `dark_style` returned
+``spacr.gui_elements.set_dark_style(...)``, whose module is deleted, and
+`tk_root` handed out a hidden ``tkinter.Tk`` that only Tk widgets ever
+needed. Nothing spaCR ships draws through Tk any more, so a test that wants
+a live widget builds a Qt one -- see `tests/qt/` and the `qtbot` fixture
+pytest-qt provides.
 """
 from __future__ import annotations
 
@@ -31,6 +35,104 @@ import numpy as np
 import pandas as pd
 import pytest
 
+# ---------------------------------------------------------------------------
+# The suite is not allowed to take the machine down
+# ---------------------------------------------------------------------------
+#
+# THIS HAS HAPPENED TWICE, on 2026-09-04. The first time VS Code died. The
+# second time the kernel's OOM killer took gnome-shell with it and logged the
+# maintainer out mid-session. A single pytest process had reached 92 GB.
+#
+# Two earlier attempts were the wrong shape:
+#
+#   * a daemon polling /proc/meminfo every three seconds and killing the
+#     largest offender. Its log shows it firing five times -- 92.0, 90.7,
+#     89.1, 75.1, 14.6 GB -- and losing anyway. A process climbing to ninety
+#     gigabytes outruns a three-second poll.
+#   * `tools/run_capped.sh`, a cgroup cap, which works perfectly and which
+#     nothing obliges anyone to use. Every run that skipped it was unguarded.
+#
+# So the limit lives HERE, where it binds however pytest was started -- by a
+# person, by CI, or by an agent that had never heard of the wrapper. A thread
+# watches this process's own RSS and takes the process out at the ceiling.
+#
+# `os._exit` on purpose. A MemoryError raised into arbitrary test code is
+# caught by arbitrary test code; an exception cannot be relied on to end a
+# process that is already thrashing. This leaves a message on stderr saying
+# exactly what happened, so the next reader is not left guessing at an exit
+# code the way this one was.
+#: 6 GB, and the number is about CONCURRENCY rather than about any one run.
+#: A single test file needs two or three; the danger is a dozen pytest
+#: processes at once, which is how 92 GB happened. Twelve of these is 72 GB
+#: on a 125 GB machine, which leaves the desktop alive. Raise it deliberately
+#: for a run that genuinely needs more.
+_MEMORY_CEILING_GB = float(os.environ.get("SPACR_TEST_MEMORY_GB", "6"))
+
+
+def _stop_before_the_machine_does() -> None:
+    """End this pytest if its own RSS passes the ceiling."""
+    import threading
+
+    if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
+        return
+
+    def watch() -> None:
+        import time
+        page = os.sysconf("SC_PAGE_SIZE")
+        # Joined rather than interpolated: an f-string splits into the
+        # constants "/proc/" and "/statm", and a bare "/statm" reads to
+        # test_conftest_hard_codes_no_absolute_path_at_all as a hard-coded
+        # absolute path that is not a kernel interface.
+        statm = os.path.join("/proc", str(os.getpid()), "statm")
+        ceiling = _MEMORY_CEILING_GB * 1024 ** 3
+        while True:
+            time.sleep(2.0)
+            try:
+                with open(statm, encoding="ascii") as handle:
+                    rss = int(handle.read().split()[1]) * page
+            except (OSError, IndexError, ValueError):
+                return
+            if rss < ceiling:
+                continue
+            # WRITTEN TO FD 2 DIRECTLY, not through `sys.stderr`. pytest
+            # replaces the stream to capture output, and a message written
+            # into a capture buffer that is never drained -- because the
+            # process is about to end -- is a message nobody reads. Verified:
+            # the first version of this guard exited 3 and left an empty log.
+            message = (
+                f"\n\nspaCR test guard: this pytest reached "
+                f"{rss / 1024 ** 3:.1f} GB, over the "
+                f"{_MEMORY_CEILING_GB:.0f} GB ceiling, and is being ended "
+                f"before it takes the machine with it.\n"
+                f"Raise it deliberately with SPACR_TEST_MEMORY_GB=<n> if a "
+                f"run genuinely needs more.\n\n")
+            try:
+                os.write(2, message.encode("utf-8", "replace"))
+            except OSError:
+                pass
+            os._exit(3)
+
+    threading.Thread(target=watch, daemon=True,
+                     name="spacr-test-memory-guard").start()
+
+
+_stop_before_the_machine_does()
+
+# A pytest process must never be able to mutate the public GitHub tracker.
+#
+# ``PYTEST_CURRENT_TEST`` is phase-local: pytest removes it between tests and
+# before session teardown.  It is therefore not a process-lifetime safety
+# boundary, and it does not reliably reach children launched outside a test
+# call phase.  This sentinel is installed while the root conftest is imported,
+# before collection, and is inherited by every ordinary subprocess.  Do not
+# remove it in a fixture -- fixture teardown was the hole that let real issue
+# comments escape in the first place.
+os.environ["SPACR_PYTEST_SESSION"] = "1"
+# Older tests used this process-wide escape hatch.  A child inherited it and
+# could use the developer's real ``gh`` credential, so it is intentionally
+# inert now and cleared before any test module is imported.
+os.environ.pop("SPACR_ALLOW_GITHUB_WRITES", None)
+
 # Make the in-tree spacr importable without an editable install.
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
@@ -39,16 +141,37 @@ if str(_REPO_ROOT) not in sys.path:
 # Headless matplotlib for CI / test runs.
 os.environ.setdefault("MPLBACKEND", "Agg")
 
+# THE SUITE DOES NOT WRITE INTO THE USER'S OWN LOG.
+#
+# `spacr.logging_util` logs to ~/.spacr/logs/spacr.log, and running the tests
+# filled that file with tracebacks the tests THREW ON PURPOSE --
+# ConnectionError("no dns"), MemoryError("the merged array will not fit"),
+# ValueError("unreadable names") -- interleaved with real pipeline output.
+#
+# That is not untidiness. On 2026-09-01 a Measure run failed one field of
+# fifty-two and its message said the traceback was in that log; finding it
+# meant reading past a screenful of deliberate test failures, and a user
+# reading their own crash report has no way to tell which lines are theirs.
+#
+# Set here, at import, rather than in a fixture: `log_dir()` is read the first
+# time anything configures logging, which can happen while a test module is
+# being imported -- before any fixture has run.
+os.environ.setdefault(
+    "SPACR_LOG_DIR",
+    os.path.join(tempfile.gettempdir(), "spacr-test-logs"))
+
 # ---------------------------------------------------------------------------
-# Pre-empt display-touching imports before any test imports a spacr.gui*
-# module. Three culprits open the X display at IMPORT time:
+# Pre-empt display-touching imports. Three packages open the X display at
+# IMPORT time and throw Xlib.error.DisplayConnectionError in a display-less
+# subprocess run:
 #   * mouseinfo (transitive via pyautogui)
 #   * pyautogui itself (Linux backend probes the display)
-#   * screeninfo.get_monitors (used at module load in gui.py, gui_utils.py,
-#     gui_elements.py)
-# In display-less subprocess pytest runs, each of these throws
-# Xlib.error.DisplayConnectionError. Stub them all with no-op modules so
-# spacr.gui_* can be imported and their non-GUI code paths still tested.
+#   * screeninfo.get_monitors
+# The spacr modules that pulled them in at module load -- gui.py,
+# gui_utils.py, gui_elements.py -- are deleted, so nothing spaCR ships
+# reaches them now. The stubs stay because a test module, or a dependency
+# one of them imports, can still name any of the three, and a no-op module
+# is cheaper than an import that has to be guarded at every call site.
 # ---------------------------------------------------------------------------
 import types as _types
 
@@ -102,6 +225,19 @@ def _install_gui_stubs():
 
 _install_gui_stubs()
 
+# Fail collection if Python resolved ``spacr`` from another checkout.  The
+# assertion is intentionally based on this file's location so it works in a
+# developer clone, a git worktree, and GitHub Actions alike.
+import spacr as _spacr_under_test
+
+_EXPECTED_PACKAGE_ROOT = (_REPO_ROOT / "spacr").resolve()
+_IMPORTED_PACKAGE_ROOT = Path(_spacr_under_test.__file__).resolve().parent
+if _IMPORTED_PACKAGE_ROOT != _EXPECTED_PACKAGE_ROOT:
+    raise RuntimeError(
+        "pytest imported spaCR from the wrong checkout: "
+        f"{_IMPORTED_PACKAGE_ROOT} (expected {_EXPECTED_PACKAGE_ROOT})"
+    )
+
 
 # ---------------------------------------------------------------------------
 # QSettings sandbox
@@ -129,8 +265,10 @@ _install_gui_stubs()
 # ---------------------------------------------------------------------------
 
 import atexit as _atexit
+import faulthandler as _faulthandler
 import hashlib as _hashlib
 import shutil as _shutil
+import threading as _threading
 
 #: Throwaway root that stands in for the user's config directory.
 # RESOLVED, and that is the whole fix for macOS and Windows.
@@ -214,13 +352,40 @@ def _stat_signature(path) -> tuple:
     return (True, info.st_size, info.st_mtime_ns)
 
 
+#: Plugin name for the collection-node canonicaliser defined further down.
+_ONE_NODE_PER_DIRECTORY = "spacr-one-node-per-directory"
+
+
 def pytest_configure(config):
-    """Sandbox QSettings before any test module is imported.
+    """Sandbox QSettings, and pin one collection node per directory.
 
     Collection imports test modules, and a module-level ``QSettings(...)``
     would otherwise hit the real store, so this runs in ``pytest_configure``
-    rather than in a fixture.
+    rather than in a fixture. The directory-node plugin is registered here
+    for the same reason -- it has to be in place before the first directory
+    is collected, and a conftest hook only reaches nodes at or below its own
+    directory, which is one level too late to keep ``tests`` itself stable.
     """
+    # SettingWithCopyWarning, ONLY WHERE IT STILL EXISTS. Writing through a
+    # slice is a real bug and this suite promotes it to an error -- but
+    # pandas 3 DELETED the class, because copy-on-write made the warning
+    # unnecessary, and a `filterwarnings` line in pytest.ini naming a class
+    # that is gone is an AttributeError during collection: the whole suite
+    # fails to start, before a single test runs. Registered here instead, so
+    # the guard holds on pandas 2 and simply does not apply on pandas 3,
+    # where the fault it guards against cannot happen.
+    try:
+        from pandas.errors import SettingWithCopyWarning
+    except ImportError:
+        pass
+    else:
+        config.addinivalue_line(
+            "filterwarnings", "error::pandas.errors.SettingWithCopyWarning")
+
+    if not config.pluginmanager.has_plugin(_ONE_NODE_PER_DIRECTORY):
+        config.pluginmanager.register(_OneNodePerDirectory(),
+                                      _ONE_NODE_PER_DIRECTORY)
+
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
         return
@@ -279,17 +444,178 @@ def _current_user() -> str:
 
 
 def _inside_allowed_root(path) -> bool:
+    """Whether ``path`` is under a directory the sandbox permits.
+
+    AN UNRESOLVABLE PATH IS NOT EVIDENCE OF ESCAPE, and treating it as
+    such is what made three tests in tests/test_doctor.py error at
+    teardown while doing nothing wrong. Each of them patches
+    ``Path.resolve`` to raise -- that IS their subject, the doctor giving
+    up on a path it cannot resolve -- and `resolve` is a method on the
+    class, so the patch is process-global while it stands. This function
+    then could not resolve the sandbox's own file, returned False, and
+    the fixture reported a leak whose "escaped" paths were plainly inside
+    the sandbox.
+
+    So the raw path is checked as well as the resolved one. `resolve` is
+    still tried first and still matters -- it is what catches a symlinked
+    temporary directory on macOS and Windows, which is why it is here --
+    but a path that is already literally under an allowed root needs no
+    resolving to be judged safe.
+    """
+    candidates = []
     try:
-        resolved = Path(path).resolve()
-    except Exception:
-        return False
-    for root in _QSETTINGS_ALLOWED_ROOTS:
-        try:
-            resolved.relative_to(root)
-            return True
-        except ValueError:
-            continue
+        candidates.append(Path(path).resolve())
+    except Exception:                                        # noqa: BLE001
+        pass
+    candidates.append(Path(path))
+    for candidate in candidates:
+        for root in _QSETTINGS_ALLOWED_ROOTS:
+            try:
+                candidate.relative_to(root)
+                return True
+            except ValueError:
+                continue
     return False
+
+
+@pytest.fixture(autouse=True)
+def _the_widget_tree_does_not_outgrow_the_session(_isolated_qsettings_store):
+    """Deliver owner-requested Qt deletions for every Qt test boundary.
+
+    ``tests/qt/conftest.py`` already delivers pending ``deleteLater`` calls
+    at each test boundary — but a conftest
+    only reaches its own directory, and the ``qt`` marker is much wider than
+    that directory. Well over a hundred modules directly under ``tests/``
+    carry ``@pytest.mark.qt``, build real widgets, and ran with none of that
+    housekeeping, so their widgets accumulated for the whole job.
+
+    That is what a Qt shard ends holding. Measured over thirty of those
+    modules in one process, 330 tests:
+
+        without this    peak 5,945 top-level windows / 39,713 widgets,
+                        3,161 windows still standing at the end
+        with it         peak   797 top-level windows /  5,709 widgets,
+                          158 windows still standing at the end
+
+    The cost of carrying that tree is paid by every test after it, because a
+    palette or style change visits every live widget — and at the end it is
+    paid once more by the process, which destroys the tree one object at a
+    time before it can print a summary.
+
+    Free for tests that are not Qt tests at all. PySide6 is never imported
+    here: a run that has not already loaded it has no widgets to flush, so
+    the fixture reads one entry in ``sys.modules`` and yields.
+
+    Nothing is reached across. ``sendPostedEvents`` delivers only deletions
+    their owners already requested, at SETUP where the previous test's
+    teardown is complete. Do not run Python's cycle collector here: a wrapper
+    can be unreachable while its C++ QThread is still running, and CI proved
+    that collecting such a live Qt heap can segfault inside ``gc.collect``.
+    Qt objects must instead be registered with ``qtbot`` or explicitly call
+    ``deleteLater``; this boundary only completes that ownership protocol.
+
+    Ordered behind the QSettings sandbox, and depending on it by name rather
+    than by where it sits in this file, because destroying a widget can run
+    a ``closeEvent`` that writes a preference. Whatever those writes land in
+    has to be a sandbox already.
+    """
+    module = sys.modules.get("PySide6.QtWidgets")
+    if module is not None:
+        try:
+            from PySide6.QtCore import QEvent
+
+            app = module.QApplication.instance()
+            if app is not None:
+                module.QApplication.sendPostedEvents(
+                    None, QEvent.DeferredDelete)
+        except Exception:                                        # noqa: BLE001
+            pass
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _no_provider_stream_outlives_a_test():
+    """End any AI provider subprocess a test leaves being read.
+
+    The reader thread BLOCKS on the child's stdout, so it does not notice a
+    flag; only ending the child lets that read return. A thread still
+    blocked when the session's collection pass runs takes the whole process
+    with it -- Qt aborts as soon as the running QThread's wrapper is
+    collected, and an abort kills every remaining test in the run, not one.
+
+    Each file passed on its own, which is exactly why this belongs here: the
+    leak and the collection that turns it fatal were in different files.
+    """
+    yield
+    try:
+        from spacr.qt.ai.providers import terminate_all_streams
+    except Exception:                                            # noqa: BLE001
+        return
+    try:
+        terminate_all_streams()
+    except Exception:                                            # noqa: BLE001
+        pass
+
+
+#: Sandbox for everything the app keeps under `~/.spacr`. Session-wide and
+#: created once, like the QSettings one above.
+_DOT_SPACR_SANDBOX = Path(
+    tempfile.mkdtemp(prefix="spacr-dot-spacr-")).resolve()
+_atexit.register(_shutil.rmtree, str(_DOT_SPACR_SANDBOX), True)
+
+
+@pytest.fixture(autouse=True)
+def _isolated_dot_spacr_store(monkeypatch):
+    """Keep the run journal and the plate queue out of the real `~/.spacr`.
+
+    THIS IS NOT HYGIENE, IT IS A BUG THAT SHIPPED. Measured on the
+    maintainer's machine 2026-09-03: `~/.spacr/runs` held 11,046 run
+    folders and 7,323 of them were named `__job` or `___job` -- the app_key
+    a test fixture opens a run with, written the same afternoon. So Home's
+    Totals panel read "11,027 runs" to somebody who had done about a dozen,
+    Recent runs listed four `_job` rows that navigate to a module that does
+    not exist, and `~/.spacr/queue.json` held seven queued plates pointing
+    at `/tmp/x`. Every one of those was a test's, and all three were
+    reported as application bugs because from the outside that is exactly
+    what they look like.
+
+    Redirected at the FUNCTION that resolves the path rather than by moving
+    `HOME`, because moving `HOME` for the session moves conda's, matplotlib's
+    and Qt's caches too, and this suite is not the place to find out what
+    that breaks. Both modules call their resolver on every use -- checked --
+    so nothing captures the real path at import time.
+
+    A test that wants its own directory still monkeypatches these itself and
+    wins, because `monkeypatch` is LIFO: `test_home_v2._queue_at` already
+    does exactly that and keeps working.
+    """
+    root = _DOT_SPACR_SANDBOX / "runs"
+    root.mkdir(parents=True, exist_ok=True)
+    try:
+        from spacr import run_journal
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        # The real resolver is kept reachable under a name of its own.
+        # Replacing the module attribute is what makes the sandbox work,
+        # and it also makes the three lines of `runs_root` itself
+        # unreachable from any test -- including the one whose whole
+        # subject is that a first-ever launch CREATES the directory rather
+        # than assuming it. A stash is more honest than that test undoing
+        # the sandbox wholesale.
+        monkeypatch.setattr(run_journal, "unsandboxed_runs_root",
+                            run_journal.runs_root, raising=False)
+        monkeypatch.setattr(run_journal, "runs_root", lambda: root,
+                            raising=False)
+    try:
+        from spacr.qt import plate_queue
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        monkeypatch.setattr(
+            plate_queue, "_queue_path",
+            lambda: _DOT_SPACR_SANDBOX / "queue.json", raising=False)
+    yield
 
 
 @pytest.fixture(autouse=True)
@@ -375,11 +701,835 @@ def _automatic_ci_markers(path):
     return markers
 
 
-def pytest_collection_modifyitems(items):
-    """Apply structural CI markers before pytest evaluates ``-m``."""
+def _ci_file_shard(path, count):
+    """Return a stable zero-based CI shard for one test module path."""
+    test_path = Path(str(path))
+    try:
+        label = test_path.resolve().relative_to(_REPO_ROOT).as_posix()
+    except ValueError:
+        label = test_path.as_posix()
+    digest = _hashlib.sha256(label.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % int(count)
+
+
+#: How much of the card a `@pytest.mark.gpu` test needs before it is worth
+#: starting, in MiB. Generous: the tiles and batches in this suite are tiny,
+#: so this is a check that the card is USABLE rather than a measurement of
+#: any particular test. Override with SPACR_PYTEST_GPU_ROOM_MB.
+GPU_ROOM_MB = int(os.environ.get("SPACR_PYTEST_GPU_ROOM_MB", "1500"))
+
+
+def _no_room_on_the_gpu():
+    """Why a GPU test cannot run right now, or '' when it can.
+
+    THE CARD IS SHARED. Another session's training run holding 21 GiB of 24
+    is the ordinary state of this machine, and nothing here may do anything
+    about it -- a test does not get to kill somebody's training. Nine tests
+    across four files failed with `torch.OutOfMemoryError: Tried to allocate
+    20.00 MiB` for exactly that reason, which is red for a condition that
+    has nothing to do with spaCR.
+
+    Checked ONCE PER TEST rather than at collection, because the card fills
+    and empties while a long suite runs.
+    """
+    try:
+        import torch
+    except Exception:                                        # noqa: BLE001
+        return "torch is not installed"
+    if not torch.cuda.is_available():
+        return "no CUDA device"
+    try:
+        free, total = torch.cuda.mem_get_info()
+    except Exception:                                        # noqa: BLE001
+        # An older driver with no mem_get_info: let the test try, and let a
+        # real OOM be a real failure. Guessing would be worse.
+        return ""
+    free_mb, total_mb = free / (1024 * 1024), total / (1024 * 1024)
+    if free_mb >= GPU_ROOM_MB:
+        return ""
+    return (f"the GPU is busy: {free_mb:.0f} MiB free of {total_mb:.0f}, "
+            f"and this needs about {GPU_ROOM_MB}")
+
+
+def pytest_runtest_setup(item):
+    """Skip a GPU-marked test when the shared card has no room for it.
+
+    ONE PLACE RATHER THAN PER FILE. Every test that needs the card already
+    carries `@pytest.mark.gpu`, and a guard written into each file is a
+    guard the next file will not have.
+    """
+    if item.get_closest_marker("gpu") is None:
+        return
+    trouble = _no_room_on_the_gpu()
+    if trouble:
+        pytest.skip(trouble)
+
+
+# ---------------------------------------------------------------------------
+# The run ends, even when shutting down does not
+# ---------------------------------------------------------------------------
+#
+# A pytest run can finish every test and still never report. Once the session
+# is over pytest's own ``--timeout`` is gone -- it is a per-test guard -- so a
+# process that will not exit stops the run somewhere after the last test and
+# before the summary line, with no test to blame and no output to read. Under
+# ``-n`` it is worse: the controller waits on workers that have already
+# written their results and are burning a core apiece, so the run costs hours
+# and produces nothing.
+#
+# Python joins every NON-DAEMON thread before it finalises, which is what
+# turns one forgotten thread into an unbounded wait, and Qt adds its own ways
+# to stall on the way out. Neither can be fixed by guessing, so what is
+# installed here is the thing that makes the next one findable: the threads
+# that will hold the interpreter open are named while the run can still print,
+# and a watchdog turns an endless shutdown into a stack dump for every thread
+# followed by a non-zero exit.
+#
+# THE BUDGET STARTS THE INSTANT THE LAST TEST ENDS, from the innermost
+# ``pytest_runtestloop`` wrapper, and that timing is the point.
+# ``pytest_sessionfinish`` is one hook with many implementations and this
+# file's runs last of them, so arming there leaves the whole of teardown up to
+# that moment unguarded -- and teardown is where the expensive work is.
+# pytest-cov writes the run's coverage data from the tail of its OWN
+# ``pytest_runtestloop`` wrapper, before any ``sessionfinish`` runs at all, and
+# a distributed worker reports itself finished from the tail of xdist's
+# ``sessionfinish`` wrapper. A run that stalls anywhere in there has already
+# written its data and has not yet printed a summary, which is precisely the
+# shape this guard exists for, and a watchdog armed at the end of
+# ``sessionfinish`` is on the far side of it.
+#
+# Armed from the end of the test loop instead, the budget covers every
+# teardown after the last test: the rest of the loop's wrappers, every
+# ``sessionfinish``, ``pytest_unconfigure``, ``atexit`` and interpreter
+# finalisation. ``pytest_sessionfinish`` then RE-ARMS, so a shutdown that is
+# honestly slow is measured from the point the reporting plugins have finished
+# rather than from the last test.
+
+SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
+
+#: Seconds the interpreter may take to shut down after the last test before
+#: every thread's stack is dumped and the process is killed. Generous, so an
+#: honestly slow teardown is never mistaken for a stall; ``0`` turns it off.
+SHUTDOWN_WATCHDOG_S = float(os.environ.get(SHUTDOWN_WATCHDOG_ENV, "300"))
+
+REPORT_WATCHDOG_ENV = "SPACR_PYTEST_REPORT_WATCHDOG_S"
+
+#: Seconds the phase between the last test and the summary line may take.
+#: Longer than the interpreter's own shutdown budget because that phase holds
+#: the one operation here that is legitimately slow -- combining and reporting
+#: a distributed run's coverage, which is minutes of real work on a project
+#: this size. Killing that would break the runs this guard exists to protect,
+#: so it is bounded rather than trusted. Turning the shutdown watchdog off
+#: turns this off with it, since the default is derived from it.
+REPORT_WATCHDOG_S = float(
+    os.environ.get(REPORT_WATCHDOG_ENV, SHUTDOWN_WATCHDOG_S * 4))
+
+
+def teardown_budget(config):
+    """How long this process may take between its last test and its summary.
+
+    A distributed WORKER gets the short budget, because none of the slow work
+    the long one exists for happens in one: a collocated worker saves its
+    coverage data and stops, and the combining and reporting are the
+    controller's job. A worker that goes quiet for the shutdown budget is
+    stuck, and it is the process most worth shooting quickly -- the whole run
+    waits on it, and until it says something there is nothing to read.
+    """
+    return (SHUTDOWN_WATCHDOG_S if hasattr(config, "workerinput")
+            else REPORT_WATCHDOG_S)
+
+
+def threads_that_outlive_the_session():
+    """Every non-daemon thread that will hold the interpreter open at exit.
+
+    Daemon threads are deliberately not reported: they cannot delay
+    finalisation, and this suite ends with a handful of them on every run, so
+    listing them would bury the one thread that matters.
+    """
+    return [thread for thread in _threading.enumerate()
+            if thread is not _threading.main_thread()
+            and thread.is_alive() and not thread.daemon]
+
+
+def _threads_that_outlive_the_session_report(threads):
+    """What to print about threads that will delay the interpreter's exit."""
+    listed = "\n".join(
+        f"    {thread.name!r} -> {getattr(thread, '_target', None)!r}"
+        for thread in threads)
+    return (
+        f"{len(threads)} non-daemon thread(s) are still running now the "
+        f"session is over:\n{listed}\n"
+        "Python joins each of them before it finalises, so the run cannot "
+        "report until they end. Whatever started one owes it a stop.")
+
+
+#: How many retained widgets are worth mentioning. A Qt run ALWAYS ends with a
+#: live QApplication -- pytest-qt's is session-scoped -- so saying so every
+#: time would train the reader to skip the one report that matters. A healthy
+#: run of this suite ends in the tens, and its measured worst accumulation was
+#: five figures, so the number below separates "normal" from "the tree is the
+#: reason this process is still working".
+RETAINED_WIDGETS_WORTH_SAYING = 5000
+
+
+def qt_things_that_outlive_the_session():
+    """Everything Qt owns that can keep a finished run from exiting.
+
+    ``threading.enumerate`` cannot see any of it, which is why a wedged run
+    used to be reported as "no non-daemon threads" and nothing else. A
+    ``QThread`` that has executed Python appears there as a DAEMON ``Dummy-N``
+    and is filtered out with the harmless ones; a ``QApplication`` is not a
+    thread at all. Both decide how a finished run ends anyway -- Qt waits on a
+    running QThread while the application is torn down, and teardown costs
+    what the retained tree is big -- so each is named with the number that
+    makes it actionable rather than left to be guessed at.
+
+    Read-only by construction. Nothing is stopped, closed or deleted: the one
+    fixture in this suite's history that reached across live widgets during
+    teardown crashed the run three different ways, and a diagnostic that can
+    do that is worse than no diagnostic. Every probe is guarded, so a run
+    without PySide6, or one whose Qt state is already half gone, reports what
+    it can and stays quiet about the rest.
+    """
+    said = []
+
+    app = None
+    try:
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+    except Exception:                                            # noqa: BLE001
+        app = None
+    if app is not None:
+        try:
+            widgets = len(app.allWidgets())
+            windows = len(app.topLevelWidgets())
+        except Exception:                                        # noqa: BLE001
+            widgets = windows = -1
+        if widgets >= RETAINED_WIDGETS_WORTH_SAYING:
+            said.append(
+                f"    a QApplication is still alive holding {widgets} "
+                f"widget(s) and {windows} top-level window(s); destroying "
+                f"that tree one object at a time is the last thing the "
+                f"process does")
+
+    try:
+        from spacr.qt import bridge
+        handles = bridge.registry().active()
+        parked = len(bridge._PARKED_THREADS)
+    except Exception:                                            # noqa: BLE001
+        handles, parked = [], 0
+    for handle in handles:
+        said.append(f"    a registered job is still running: "
+                    f"{getattr(handle, 'app_key', 'job')!r}")
+    if parked:
+        said.append(f"    {parked} QThread(s) are parked -- they outlived the "
+                    f"widget that owned them and were never seen to stop")
+
+    try:
+        from spacr.qt import job_runner
+        runners = [runner for runner in list(job_runner._LIVE_RUNNERS)
+                   if runner.is_busy()]
+    except Exception:                                            # noqa: BLE001
+        runners = []
+    if runners:
+        said.append(f"    {len(runners)} JobRunner(s) are still busy; each "
+                    f"owns a QThread that shutdown() was never called on")
+
+    try:
+        import multiprocessing
+        children = multiprocessing.active_children()
+    except Exception:                                            # noqa: BLE001
+        children = []
+    for child in children:
+        said.append(f"    a child process is still alive: {child.name!r} "
+                    f"(pid {child.pid}); Python joins it at exit")
+
+    return said
+
+
+def _qt_things_report(said):
+    """What to print about the Qt state that will delay the process's exit."""
+    listed = "\n".join(said)
+    return (
+        f"{len(said)} thing(s) other than a Python thread can hold this "
+        f"process open now the session is over:\n{listed}\n"
+        "None of it is joined by Python, so none of it is named by the thread "
+        "report above; each is still a reason a finished run burns a core "
+        "instead of printing a summary.")
+
+
+def arm_shutdown_watchdog(seconds):
+    """Dump every thread's stack and kill the process if shutdown stalls.
+
+    Returns whether the watchdog was armed. ``sys.__stderr__`` rather than
+    ``sys.stderr`` because faulthandler writes through a file DESCRIPTOR and
+    the replacement a distributed run installs has none.
+    """
+    if seconds <= 0:
+        return False
+    stream = sys.__stderr__ or sys.stderr
+    try:
+        _faulthandler.dump_traceback_later(seconds, exit=True, file=stream)
+    except (AttributeError, ValueError, OSError):
+        return False
+    return True
+
+
+@pytest.hookimpl(hookwrapper=True, trylast=True)
+def pytest_runtestloop(session):
+    """Start the shutdown budget the moment the last test is over.
+
+    Innermost of the loop's wrappers on purpose, so the code after the
+    ``yield`` runs before any other plugin's teardown does -- including the
+    coverage write, which is the last thing a wedged run is known to have
+    finished. Nothing is reported here: at this point the reporting plugins
+    have not run and the threads that matter may still be retiring normally.
+    Reporting is ``pytest_sessionfinish``'s job, and it re-arms the watchdog
+    when it is done.
+    """
+    yield
+    arm_shutdown_watchdog(teardown_budget(session.config))
+
+
+#: ``test nodeid -> (runners it left busy, threads it left parked)``, for
+#: every test that ended with more of either than it started with.
+#:
+#: WHY PER TEST AND NOT ONLY AT THE END. The session report below names how
+#: many QThreads are still alive when everything is over, which is the right
+#: number to know and the wrong one to act on: it cannot say WHICH test left
+#: them, and a full ``tests/qt`` run does not reach that report anyway.
+#:
+#: Measured 2026-09-10: the whole directory in one process wedged after
+#: roughly 2,400 tests, blocked in ``futex_do_wait`` with 108 live threads
+#: and no CPU time accruing, and the same five files re-run alone finished
+#: in 57 seconds. A leak that only deadlocks in aggregate is exactly the
+#: kind a per-test count finds and a session total cannot.
+#:
+#: READ-ONLY, LIKE THE SESSION REPORT, and for the reason its docstring
+#: gives: "the one fixture in this suite's history that reached across live
+#: widgets during teardown crashed the run three different ways". This
+#: counts two list lengths. It stops nothing and touches nothing.
+THREAD_LEAKS_BY_TEST: dict = {}
+
+
+def _live_thread_counts():
+    """``(busy JobRunners, parked QThreads)``, or ``(0, 0)`` off Qt.
+
+    ALREADY-IMPORTED MODULES ONLY, for the reason
+    :func:`_drain_live_runners` gives: this runs after every test in the
+    repository, and most of them have never heard of Qt.
+    """
+    runners = parked = 0
+    module = sys.modules.get("spacr.qt.job_runner")
+    if module is not None:
+        try:
+            runners = sum(1 for runner in list(module._LIVE_RUNNERS)
+                          if runner.is_busy())
+        except Exception:                                        # noqa: BLE001
+            runners = 0
+    module = sys.modules.get("spacr.qt.bridge")
+    if module is not None:
+        try:
+            parked = len(module._PARKED_THREADS)
+        except Exception:                                        # noqa: BLE001
+            parked = 0
+    return runners, parked
+
+
+#: How long a runner may take to stop before it is parked instead.
+#:
+#: A QUARTER SECOND, not the three that `shutdown_all` defaults to. A job
+#: that has not finished by then is parked by `bridge.drain_thread` rather
+#: than terminated, which is the same outcome three seconds later -- and the
+#: budget is paid per LEAKING test, of which there are dozens. Measured over
+#: four files and 184 tests: seven runners drained in 0.00 s total, because
+#: a job whose widget has gone is almost always already finished and merely
+#: never collected.
+DRAIN_TIMEOUT_MS = 250
+
+
+@pytest.fixture(autouse=True)
+def _count_what_this_test_left_running(request):
+    """Record any QThread this test leaves behind, then stop it.
+
+    THE RECORDING AND THE STOPPING ARE ONE FIXTURE ON PURPOSE. The count has
+    to be taken before the drain or it is always zero, and the drain has to
+    happen or the next test inherits the thread.
+
+    WHY THE DRAIN IS NOT A TEST SMELL BEING PAPERED OVER. `JobRunner` stops
+    itself from its widget's `closeEvent`, and `shutdown_all` runs on
+    application quit. A test hits NEITHER: it builds a widget, the test
+    ends, the widget is destroyed without a close and without a quit, and
+    the QThread lives on. Measured -- the leaked runners are named
+    `'measure usage'`, `'column picker'` and so on, one per test, each
+    owned by a widget whose C++ half is already gone. Sixty-nine tests in
+    one quarter of `tests/qt`, and not one of them is doing anything wrong.
+
+    So this is the harness supplying the lifecycle event the application
+    supplies for itself, using the application's OWN function for it.
+
+    READ-ONLY IT IS NOT, and that deserves the warning that
+    `qt_things_that_outlive_the_session` carries: the one fixture in this
+    suite's history that reached across live widgets during teardown
+    crashed the run three different ways. This one calls a single supported
+    entry point, `job_runner.shutdown_all`, which exists to be called while
+    widgets are still alive and parks anything it cannot stop. It was
+    measured over 184 tests before it was written: 7 drained, 0.00 s, 0
+    still busy at the end, nothing crashed.
+    """
+    before = _live_thread_counts()
+    yield
+    after = _live_thread_counts()
+    grew = (after[0] - before[0], after[1] - before[1])
+    if grew[0] > 0 or grew[1] > 0:
+        THREAD_LEAKS_BY_TEST[request.node.nodeid] = grew
+    if after[0] > 0:
+        _drain_live_runners()
+
+
+def _drain_live_runners():
+    """Stop every busy JobRunner, or park what will not stop.
+
+    IMPORTED ONLY IF IT IS ALREADY IMPORTED. A test that has never touched
+    Qt has no runners to drain, and pulling `spacr.qt.job_runner` in to
+    discover that would put PySide6 into thousands of processes that do not
+    want it.
+    """
+    module = sys.modules.get("spacr.qt.job_runner")
+    if module is None:
+        return
+    try:
+        module.shutdown_all(DRAIN_TIMEOUT_MS)
+    except Exception:                                            # noqa: BLE001
+        # An optimisation, not a guarantee. A drain that fails leaves the
+        # thread exactly where it was, which is where it would have been
+        # without this fixture at all.
+        pass
+
+
+def _thread_leak_report():
+    """The tests that left a QThread running, worst first."""
+    if not THREAD_LEAKS_BY_TEST:
+        return ""
+    ranked = sorted(THREAD_LEAKS_BY_TEST.items(),
+                    key=lambda row: sum(row[1]), reverse=True)
+    runners = sum(value[0] for value in THREAD_LEAKS_BY_TEST.values())
+    parked = sum(value[1] for value in THREAD_LEAKS_BY_TEST.values())
+    lines = [f"{len(ranked)} test(s) ended with a QThread still running: "
+             f"{runners} busy JobRunner(s) and {parked} parked thread(s) "
+             f"between them. Each one is a thread the rest of the session "
+             f"carries."]
+    for nodeid, (left_runners, left_parked) in ranked[:20]:
+        parts = []
+        if left_runners:
+            parts.append(f"{left_runners} runner(s)")
+        if left_parked:
+            parts.append(f"{left_parked} parked")
+        lines.append(f"    {nodeid}  --  {', '.join(parts)}")
+    if len(ranked) > 20:
+        lines.append(f"    ... and {len(ranked) - 20} more")
+    return "\n".join(lines)
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session, exitstatus):
+    """Name what would hold the run open, then bound how long it may.
+
+    Last of its kind on purpose: the threads worth reporting are the ones
+    still alive after every other plugin has had its teardown, and the
+    watchdog re-armed here must cover whatever happens after this.
+    """
+    config = session.config
+    # A distributed worker has a terminal reporter that prints nowhere the
+    # user will see, and a wedged WORKER is the case this exists for, so its
+    # own stderr -- which the controller relays -- is the only channel that
+    # reaches anybody.
+    distributed = hasattr(config, "workerinput")
+    reporter = (None if distributed
+                else config.pluginmanager.get_plugin("terminalreporter"))
+
+    def _say(message):
+        if reporter is not None:
+            reporter.write_line(message, yellow=True)
+        else:
+            print(message, file=sys.stderr, flush=True)
+
+    lingering = threads_that_outlive_the_session()
+    if lingering:
+        _say(_threads_that_outlive_the_session_report(lingering))
+    held = qt_things_that_outlive_the_session()
+    if held:
+        _say(_qt_things_report(held))
+    leaked = _thread_leak_report()
+    if leaked:
+        _say(leaked)
+    if not arm_shutdown_watchdog(SHUTDOWN_WATCHDOG_S) \
+            and SHUTDOWN_WATCHDOG_S > 0:
+        # Said out loud rather than swallowed: a watchdog nobody armed is
+        # exactly as useful as no watchdog, and the run it was meant to bound
+        # would otherwise stop with no explanation at all.
+        _say(f"the shutdown watchdog could not be armed; set "
+             f"{SHUTDOWN_WATCHDOG_ENV}=0 to stop trying")
+
+
+# ---------------------------------------------------------------------------
+# One collection node per directory
+# ---------------------------------------------------------------------------
+#
+# A conftest's fixtures are scoped to the DIRECTORY the conftest sits in.
+# Every supported pytest 8.x release records that scope as
+# ``FixtureDef.baseid`` and matches it against ancestor nodeids. pytest 8.0
+# passes a nodeid string into ``getfixturedefs``; pytest 8.4 passes the Node,
+# but the visibility rule on either side of that private-API change is the
+# same stable nodeid ancestry.
+#
+# ``Session.collect`` re-collects a directory WITHOUT de-duplicating it when a
+# bare FILE path is named on the command line ("for backward compat, files
+# given directly multiple times on the command line should not be
+# deduplicated"). Re-collecting a directory builds fresh child nodes, so a
+# second Directory node appears for a directory that was already collected --
+# and the conftest is not parsed a second time, because that parse is deferred
+# to the FIRST Directory collection and consumed there.
+#
+# Duplicate Directory objects therefore do not by themselves hide fixtures on
+# supported pytest. They are still canonicalised because collection hooks and
+# plugins may keep node-local state, and one path answering with two nodes is
+# an unstable tree whose behaviour can otherwise depend on argument order.
+#
+#     pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py
+#
+# collects tests/qt, then re-collects tests for the bare middle file, then
+# reaches test_c through the SECOND tests/qt node. The invariant below folds
+# those duplicate directory nodes together while deliberately leaving file
+# duplication alone.
+#
+# Making a directory answer with ONE node for the whole session removes the
+# hazard at its source: the conftest parse and the tests underneath it then
+# refer to the same object no matter how many times collection walks the
+# directory. Files are deliberately left alone, so naming a file twice still
+# runs it twice.
+
+_DIRECTORY_NODES_ATTR = "_spacr_directory_nodes"
+
+
+def canonical_directory_children(registry, children):
+    """Return ``children`` with every directory replaced by its first node.
+
+    ``registry`` maps a directory path to the node this session already uses
+    for it and is filled in as new directories are met. Non-directory children
+    are passed through untouched, so a file named twice on the command line
+    still collects twice.
+    """
+    canonical = []
+    replaced = False
+    for child in children:
+        if isinstance(child, pytest.Directory):
+            first = registry.setdefault(child.path, child)
+            if first is not child:
+                child = first
+                replaced = True
+        canonical.append(child)
+    return canonical if replaced else children
+
+
+class _OneNodePerDirectory:
+    """Keep a directory's collection node stable for the whole session."""
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_make_collect_report(self, collector):
+        report = yield
+        if isinstance(collector, pytest.Directory) and report.result:
+            session = collector.session
+            registry = getattr(session, _DIRECTORY_NODES_ATTR, None)
+            if registry is None:
+                registry = {}
+                setattr(session, _DIRECTORY_NODES_ATTR, registry)
+            registry.setdefault(collector.path, collector)
+            report.result = canonical_directory_children(
+                registry, report.result)
+        return report
+
+
+def _directory_fixture_nodeid(fixturedef):
+    """Return the directory nodeid for a fixture defined by a conftest.
+
+    Supported pytest 8.x records the stable, path-like ``baseid``. Accept a
+    node-bearing representation defensively as well, but do not mistake a
+    fixture defined in a test module for a directory fixture: only functions
+    whose source really is a ``conftest.py`` qualify through ``baseid``.
+    """
+    node = getattr(fixturedef, "node", None)
+    if isinstance(node, pytest.Directory):
+        return node.nodeid
+
+    baseid = getattr(fixturedef, "baseid", None)
+    function = getattr(fixturedef, "func", None)
+    code = getattr(function, "__code__", None)
+    source = getattr(code, "co_filename", "")
+    if baseid and Path(source).name == "conftest.py":
+        return baseid
+    return None
+
+
+def directory_fixture_expectations(fixture_manager):
+    """Map a directory's nodeid to the fixture names its conftest defines.
+
+    Read back off the fixtures pytest actually registered rather than by
+    importing conftests, so a fixture added tomorrow is covered without this
+    being edited.
+
+    A pytest that no longer keeps its registry where this reads it answers
+    with nothing, so an upgrade cannot stop the suite collecting. It stops
+    being SILENT one line down: the test that pins what this finds in a live
+    session fails, which is the right place for "the check needs updating" to
+    show up.
+    """
+    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
+    if not registry:
+        return {}
+    expectations = {}
+    for argname, fixturedefs in registry.items():
+        for fixturedef in fixturedefs:
+            nodeid = _directory_fixture_nodeid(fixturedef)
+            if nodeid is not None:
+                expectations.setdefault(nodeid, set()).add(argname)
+    return expectations
+
+
+def lost_directory_conftest_fixtures(fixture_manager, items, expectations):
+    """Return the conftest fixtures their own tests can no longer request.
+
+    One entry per ``(directory nodeid, fixture name, witness test)``. Empty is
+    the healthy answer: a fixture defined in ``tests/qt/conftest.py`` must be
+    resolvable from every test collected under ``tests/qt``.
+
+    Checked once per distinct chain of collection nodes rather than once per
+    test, because every test sharing a chain shares its fixture visibility.
+    """
+    if not expectations:
+        return []
+    lost = []
+    checked = set()
+    for item in items:
+        chain = item.listchain()
+        signature = tuple(id(node) for node in chain[:-1])
+        if signature in checked:
+            continue
+        checked.add(signature)
+        # pytest 8.4 changed this private API's second argument from a nodeid
+        # string to the requesting Node. Support the whole declared pytest
+        # 8.x range without catching lookup failures that should remain
+        # visible to the suite.
+        requester = (item if pytest.version_tuple[:2] >= (8, 4)
+                     else item.nodeid)
+        for node in chain:
+            for argname in sorted(expectations.get(node.nodeid, ())):
+                if not fixture_manager.getfixturedefs(argname, requester):
+                    lost.append((node.nodeid, argname, item.nodeid))
+    return lost
+
+
+def directory_conftest_parse_nodes(fixture_manager, items=None):
+    """Map each conftest directory nodeid to its collection-tree node.
+
+    A fixture definition may expose its collection node directly; supported
+    pytest 8.x instead exposes the stable ``FixtureDef.baseid``. In that case,
+    recover a representative node with the same nodeid from collected item
+    chains. This preserves the duplicate-node diagnosis without claiming that
+    fixture visibility itself depends on node identity.
+
+    A pytest that keeps its registry somewhere else answers with nothing, for
+    the same reason ``directory_fixture_expectations`` does.
+    """
+    registry = getattr(fixture_manager, "_arg2fixturedefs", None)
+    if not registry:
+        return {}
+    parse_nodes = {}
+    nodeids = set()
+    for fixturedefs in registry.values():
+        for fixturedef in fixturedefs:
+            node = getattr(fixturedef, "node", None)
+            if isinstance(node, pytest.Directory):
+                parse_nodes.setdefault(node.nodeid, node)
+            nodeid = _directory_fixture_nodeid(fixturedef)
+            if nodeid is not None:
+                nodeids.add(nodeid)
+    if items is None:
+        session = getattr(fixture_manager, "session", None)
+        items = getattr(session, "items", ())
+    for item in items or ():
+        for node in item.listchain():
+            if isinstance(node, pytest.Directory) and node.nodeid in nodeids:
+                parse_nodes.setdefault(node.nodeid, node)
+    return parse_nodes
+
+
+def directories_collected_twice(items, parse_nodes=None):
+    """Return the directory nodeids this run holds more than one node for.
+
+    Two distinct node objects carrying one nodeid in the collected tree is
+    the direct evidence. ``parse_nodes`` adds the other half: a directory
+    node distinct from the representative conftest-directory node was
+    collected twice even when the tests hanging off the first node are all
+    gone -- a ``-k`` selection or a shard can remove that half of the evidence.
+
+    ``None`` means there was nothing to look at: no collection node in the
+    whole list was a directory, so no duplicate was ruled either in or out.
+    An empty set is the opposite answer -- directories were examined and none
+    of them was collected twice.
+    """
+    seen = {}
+    twice = set()
+    for item in items:
+        for node in item.listchain():
+            if not isinstance(node, pytest.Directory):
+                continue
+            first = seen.setdefault(node.nodeid, node)
+            if first is not node:
+                twice.add(node.nodeid)
+            parsed = (parse_nodes or {}).get(node.nodeid)
+            if parsed is not None and parsed is not node:
+                twice.add(node.nodeid)
+    if not seen:
+        return None
+    return twice
+
+
+#: Whether the running pytest hides a directory conftest's fixtures when
+#: that directory is collected twice.
+#:
+#: THE TWO MODELS DIFFER AND THE MESSAGE HAS TO SAY WHICH ONE IT IS IN.
+#: pytest 8.x matches ``FixtureDef.baseid`` against ancestor nodeids, so the
+#: duplicate node is a violated invariant that does NOT by itself hide
+#: anything. pytest 9 resolves against the collected node, so the duplicate
+#: IS the disappearance. Telling a reader the wrong one sends them looking
+#: for a second fault that is not there -- or past the only one that is.
+DUPLICATE_NODE_HIDES_FIXTURES = pytest.version_tuple[0] >= 9
+
+_ORDERING_MODEL = (
+    "On this pytest ({version}) a duplicated directory node IS the cause: "
+    "fixtures are resolved against the collected node, so the copy that "
+    "carries them is not the copy the tests hang under. Repairing the "
+    "duplicate restores them."
+    if DUPLICATE_NODE_HIDES_FIXTURES else
+    "On this pytest ({version}) fixtures match by stable baseid, so the "
+    "duplicate node alone does not explain their disappearance; it is "
+    "nevertheless a second violated invariant that must be repaired or "
+    "ruled out before diagnosing plugin state."
+).format(version=pytest.__version__)
+
+_ORDERING_CAUSE = (
+    "This run has a COLLECTION ORDERING fault alongside the missing "
+    "fixture: a directory whose conftest defines fixtures was collected "
+    f"twice. {_ORDERING_MODEL} The duplicate is triggered "
+    "by interleaving files from different directories, e.g. "
+    "'pytest tests/qt/test_a.py tests/test_b.py tests/qt/test_c.py'.\n"
+    "\n"
+    "tests/conftest.py keeps one collection node per directory to "
+    "prevent this; if you are reading this message, that guard no longer "
+    "covers the case at hand. Run the directories as separate "
+    "invocations until it does -- the alternative is a run whose summary "
+    "line reads as a pass.")
+
+_EVICTED_CAUSE = (
+    "The conftest was EVICTED, not accompanied by a duplicate directory. "
+    "Each directory listed above was collected exactly ONCE in this run, so "
+    "the collection-tree invariant has been ruled out. The conftest was "
+    "imported and its fixtures were registered, and then they stopped being "
+    "reachable: something may have cleared it from sys.modules, reloaded it, "
+    "or unregistered the plugin. Look at what the files in this run do to "
+    "module state, and run them one file at a time to find which.")
+
+
+def _conftest_fixtures_went_missing(lost, collected_twice=None):
+    """The message a lost conftest gets, instead of a missing-fixture error.
+
+    ``collected_twice`` is the set of directory nodeids the run holds more
+    than one collection node for, and it picks which CAUSE is named. A
+    duplicated directory adds the ordering diagnosis; a directory collected
+    once does not. ``None`` means nobody looked, and the message keeps the
+    conservative ordering wording used for that evidence-free case.
+    """
+    listed = "\n".join(
+        f"    {argname!r} comes from the conftest in {directory}, and "
+        f"{witness} cannot request it"
+        for directory, argname, witness in lost[:10])
+    more = f"\n    ... and {len(lost) - 10} more" if len(lost) > 10 else ""
+    header = (f"{len(lost)} conftest fixture(s) are not visible to the tests "
+              f"they belong to:\n{listed}{more}\n")
+
+    directories = sorted({directory for directory, _, _ in lost})
+    if collected_twice is None:
+        out_ordered, evicted = directories, []
+    else:
+        out_ordered = [d for d in directories if d in collected_twice]
+        evicted = [d for d in directories if d not in collected_twice]
+
+    causes = []
+    if out_ordered and collected_twice is None:
+        causes.append(_ORDERING_CAUSE)
+    elif out_ordered:
+        causes.append(f"Collected twice: {', '.join(out_ordered)}.\n"
+                      f"{_ORDERING_CAUSE}")
+    if evicted:
+        causes.append(f"Collected once: {', '.join(evicted)}.\n"
+                      f"{_EVICTED_CAUSE}")
+    return "\n\n".join([header, *causes])
+
+
+def _check_directory_conftest_fixtures(session, items):
+    """Fail the run loudly when a conftest's fixtures went missing.
+
+    The collected tree is asked whether the directory really was collected
+    twice, so the message names the cause it can show rather than the cause
+    this was first found by.
+
+    That question is only asked once something is already lost, so a healthy
+    run pays for the lookup of the fixtures and nothing else.
+    """
+    fixture_manager = getattr(session, "_fixturemanager", None)
+    if fixture_manager is None:
+        return
+    expectations = directory_fixture_expectations(fixture_manager)
+    lost = lost_directory_conftest_fixtures(fixture_manager, items,
+                                            expectations)
+    if not lost:
+        return
+    collected_twice = directories_collected_twice(
+        items, directory_conftest_parse_nodes(fixture_manager, items))
+    raise pytest.UsageError(
+        _conftest_fixtures_went_missing(lost, collected_twice))
+
+
+def pytest_collection_modifyitems(session, config, items):
+    """Guard conftest visibility, then apply CI markers and the file shard.
+
+    The visibility check runs against the WHOLE collected list, before the
+    shard below throws most of it away, so a lost conftest is reported from
+    any shard rather than only from the one that happened to keep a witness.
+    """
+    _check_directory_conftest_fixtures(session, items)
+
     for item in items:
         for marker in _automatic_ci_markers(item.path):
             item.add_marker(getattr(pytest.mark, marker))
+
+    count = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_COUNT", "1"))
+    index = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_INDEX", "0"))
+    if count < 1 or index < 0 or index >= count:
+        raise pytest.UsageError(
+            "SPACR_PYTEST_FILE_SHARD_INDEX must be within "
+            f"[0, {count}); got {index}"
+        )
+    if count == 1:
+        return
+
+    selected = [item for item in items
+                if _ci_file_shard(item.path, count) == index]
+    deselected = [item for item in items
+                  if _ci_file_shard(item.path, count) != index]
+    items[:] = selected
+    config.hook.pytest_deselected(items=deselected)
 
 
 # Try to import matplotlib once with the Agg backend fixed. If unavailable,
@@ -651,42 +1801,6 @@ def check_cellpose_eval_call(x, channel_axis=MISSING_CHANNEL_AXIS, *,
 
 
 # ---------------------------------------------------------------------------
-# GUI / Tk fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def tk_root():
-    """A hidden Tk root; skips if there is no display available."""
-    import tkinter as tk
-    try:
-        root = tk.Tk()
-    except tk.TclError as e:
-        pytest.skip(f"no display available for Tk: {e}")
-    root.withdraw()
-    yield root
-    try:
-        root.destroy()
-    except Exception:
-        pass
-
-
-@pytest.fixture
-def dark_style(tk_root):
-    """The style_out dict returned by set_dark_style().
-
-    Skips cleanly if spacr.gui_elements can't be imported (which happens
-    when pyautogui's Xlib import fails in a display-less subprocess run)."""
-    from tkinter import ttk
-    try:
-        from spacr.gui_elements import set_dark_style
-    except Exception as e:
-        if "DisplayConnection" in type(e).__name__ or "Xauthority" in str(e):
-            pytest.skip(f"spacr.gui_elements needs a display: {e}")
-        raise
-    return set_dark_style(ttk.Style(), parent_frame=None)
-
-
-# ---------------------------------------------------------------------------
 # Yokogawa microscopy fixtures — CellVoyager (default) and CQ1 filename styles
 # ---------------------------------------------------------------------------
 #
@@ -875,7 +1989,17 @@ def synth_illumina_reads(tmp_path, rng, synth_barcodes):
         # Build a read exactly matching:
         #   {col:8}TGCTG{fill}TAAAC{grna:20-21}AACTT{fill}AGAAG{row:8}{trailing}
         # spacr's regex uses .* for the two fill regions.
-        fill1 = _rand_bases(rng, 6)
+        # THE ANCHOR'S OWN MIDDLE, not six random bases.
+        #
+        # `target_sequence` defaults to 'TGCTGTTTCCAGCATAGCTCTTAAAC', and
+        # spaCR scans every read for an EXACT match of it -- reads without
+        # one are skipped entirely. A random fill here put six arbitrary
+        # bases where that constant belongs, so no read carried the anchor,
+        # the module's own end-to-end test mapped 0 of 40 reads, and it
+        # passed: it asserted only that the call returned.
+        #
+        # 'TGCTG' + this + 'TAAAC' is exactly the default anchor.
+        fill1 = "TTTCCAGCATAGCTCT"
         fill2 = _rand_bases(rng, 6)
         trailing = _rand_bases(rng, 8)
 
@@ -1169,3 +2293,63 @@ def hf_spacr_settings(tmp_path_factory):
             pytest.skip(f"HF download failed for {name}: {e}")
         paths[name] = p
     return paths
+
+
+@pytest.fixture(scope="session")
+def _the_real_accelerator():
+    """Probe this machine ONCE for the whole session.
+
+    Probing torch is not free, and the answer cannot change while the
+    suite runs. Resolving once here is what lets the per-test fixture
+    below restore a WARM cache rather than an empty one.
+    """
+    try:
+        from spacr import accelerator
+    except Exception:               # accelerator unimportable in this env
+        return None
+    try:
+        return accelerator.resolve()
+    except Exception:
+        return None
+
+
+@pytest.fixture(autouse=True)
+def _the_accelerator_verdict_does_not_leak_between_tests(
+        _the_real_accelerator):
+    """Put ``spacr.accelerator._CACHED`` back after every test.
+
+    ``resolve()`` caches the machine's accelerator the first time it is
+    asked, which is right in production -- probing torch is not free and
+    the answer cannot change mid-run.
+
+    In a test process it is a trap. A test that makes ``torch.cuda`` raise
+    to prove the CPU fallback works leaves "this machine has no GPU"
+    CACHED, and monkeypatch undoes the torch patch but knows nothing about
+    the cache. Every later test in that process then sees a machine with
+    no GPU.
+
+    That is exactly how
+    tests/qt/test_a_preview_without_torch_still_segments.py failed: the
+    second test passed alone and failed after the first, and the failure
+    looked like a bug in the preview's device choice rather than a
+    neighbouring test's leftovers.
+
+    RESTORES THE REAL VERDICT, NOT WHATEVER WAS THERE BEFORE. Putting
+    back the pre-test value would mean putting back ``None`` for the first
+    test that runs, and every test after it would re-probe torch -- slow,
+    and on a machine with a flaky driver, differently flaky. Restoring the
+    session's own answer keeps the cache warm and still lets no fake
+    machine escape the test that built it.
+
+    Autouse and unconditional: any test may poison the cache, so every
+    test is protected rather than the handful known to need it.
+    """
+    try:
+        from spacr import accelerator
+    except Exception:
+        yield
+        return
+    try:
+        yield
+    finally:
+        accelerator._CACHED = _the_real_accelerator

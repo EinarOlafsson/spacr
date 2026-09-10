@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "fraction_threshold",
+      "source_sha256": "ec55c7faaf981eef998d2d30a8992d843de2bbea787b9a699be0a6d9a62ec0c8",
+      "source": "Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
+      "translation": "gRNA 在一个微孔总读数中必须达到的最低相对丰度，范围为 0–1。将此值设得更高会去除低丰度和串扰 gRNAs，并降低每个微孔的平均 gRNAs 数；若设置过高，所有行都会被删除且运行会报错。使用 None 可自动选择使每个微孔达到 target_unique_count 个 gRNAs 的截断值。默认值为 None。回归从可复现的固定截断值 0.02 开始；仅在确实需要自动扫描时才输入 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "hinge_threshold",
+      "source_sha256": "b63f443deb2e1b290f82875c1639147b265b483d0c65d7a238c06098e63e76ab",
+      "source": "Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
+      "translation": "响应值高于此阈值时，该微孔在 hinge（线性 SVM）拟合中被视为阳性。若响应已经是二元值，请设为 None，此时其中两个值会成为两个类别。对于连续响应，spaCR 会拒绝缺少阈值的设置，而不会按均值或中位数切分，因为由软件选择的截断值会决定所检验的假设。仅在 regression_type 为 'hinge' 时读取。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ig_baseline",
+      "source_sha256": "4d1d8de21522271a954ecc2895dcda2344af6b1cdbc6f3095bf0d759485485dd",
+      "source": "Reference image used by integrated gradients: 'zero' is black, 'blur' is a blurred copy of the input image, and 'noise' is random. The baseline defines the attribution reference and therefore changes the result. On dark-field images, a zero baseline attributes broadly to bright object signal; a blurred baseline preserves low-frequency content and emphasizes contributions from image detail. Default 'zero'.",
+      "translation": "积分梯度使用的参考图像：'zero' 为黑色，'blur' 为输入图像的模糊副本，'noise' 为随机图像。基线定义归因参考，因此会改变结果。对于暗场图像，零基线会广泛归因于明亮的对象信号；模糊基线保留低频内容，并突出图像细节的贡献。默认值为 'zero'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "infection_pca_method",
+      "source_sha256": "fb1c61eb94db4c92911d1ba3bc38d2176ded38c0749315a7158cef49c080f899",
+      "source": "Records the embedding used ('pca', 'umap' or 't-sne'). The pipeline derives and overwrites this value from infection_intensity_strategy during QC; change infection_intensity_strategy to select the embedding. This output remains empty until QC has run. No default.",
+      "translation": "记录所使用的嵌入方法（'pca'、'umap' 或 't-sne'）。流水线在 QC 期间根据 infection_intensity_strategy 计算并覆盖此值；要选择嵌入方法，请更改 infection_intensity_strategy。此输出在 QC 运行前保持为空。无默认值。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "invert",
+      "source_sha256": "276089736ce035825aa369b04ede476d121d7eeb7e40537c03023fb34e1b7087",
+      "source": "Invert intensities as each image is loaded, pixel -> dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False.",
+      "translation": "加载每张图像时反转强度，即 pixel -> dtype_max - pixel（uint8 时为 255 - x）。对于对象比背景暗的明场或相差数据，应开启此项，因为 Cellpose 期望暗背景上的亮对象；荧光数据应关闭。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_objects_for_bimodality",
+      "source_sha256": "42dfd8c19e250c875701bced4afa271cb9bf2898d814ad7675dc54cde80bcd0b",
+      "source": "Objects required before the bimodality coefficient is computed at all; below it the coefficient is left NaN and the field or well is flagged. The statistic exceeds its cutoff on genuinely unimodal data about 45% of the time at ten objects and 15% at twenty, so computing it there would silence the check exactly where the classification is least trustworthy. Default 30, where that false-pass rate is 5%.",
+      "translation": "计算双峰系数所需的最少对象数；低于此数时，系数保留为 NaN，并标记该显微镜视野或微孔。对于真正的单峰数据，在 10 个对象时该统计量约有 45% 的概率超过截断值，在 20 个对象时约为 15%；若在这些样本量下计算，恰好会在分类最不可靠时让检查静默通过。默认值为 30，此时误通过率为 5%。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_objects_for_threshold",
+      "source_sha256": "dc3806ab0a6f0a8f7bc499d44487eac17b292eb5fa5760c3b352f51530a2eae4",
+      "source": "Minimum number of objects required to derive a field-specific threshold. Below this count, the field uses its well threshold and then its plate threshold; automatic_source records the level used. Increasing the value improves statistical stability but reduces adaptation to local illumination variation. Default 10.",
+      "translation": "推导视野特异性阈值所需的最少对象数。低于此数量时，该视野先使用所属微孔的阈值，再使用所属微孔板的阈值；automatic_source 会记录实际采用的层级。增大此值可提高统计稳定性，但会降低对局部照明变化的适应性。默认值为 10。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "model_name",
+      "source_sha256": "65c016f6374310f738870e0a5187bea8e647722182afb3354640aa247d3ed2af",
+      "source": "Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
+      "translation": "用于分割的 Cellpose 模型。Cellpose 4 提供一个标准模型 'cpsam'。为兼容旧设置，仍接受 SAM 之前的名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但它们会映射为 'cpsam' 并报告该映射。过去用于区分模型的三个参数中，在 Cellpose 4 中只有 diameter 仍生效（eval 按 30/diameter 缩放图像）；model_type 和 diam_mean 会记录为 'not used in v4.0.1+' 后省略。除非加载自定义 CPSAM 检查点，否则请使用 'cpsam'。默认值为 'cpsam'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalization_percentiles",
+      "source_sha256": "f6ed3076c4879f9784d2a19965aac63cfdce2e12e73407e68156e7ace253c163",
+      "source": "Two-element [low, high] percentile pair used to stretch each channel's non-zero pixels to the full display range in plot_merged; applied only when normalize is True. Narrowing the pair (e.g. [5, 95]) boosts contrast but saturates bright objects; widening it flattens the image. Default [2, 98].",
+      "translation": "由 [low, high] 两个元素组成的分位数对；plot_merged 用它把每个图像数据通道的非零像素拉伸到完整显示范围，仅在 normalize 为 True 时应用。缩窄范围（例如 [5, 95]）会增强对比度但使亮对象饱和；加宽范围会使图像变平。默认值为 [2, 98]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_by",
+      "source_sha256": "9eaaf7a4a1ede98f411164465784c9645a6ac463bf7a630c655e42c7a99999b4",
+      "source": "Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
+      "translation": "用于缩放 PNG 提取图像区域的分位数来源，仅当 'normalize' 是 [low, high] 分位数对时生效：'png' 按每个提取图像区域自身的分位数拉伸，使逐对象对比度最大；'fov' 使用整个显微镜视野的分位数，使对象之间的亮度可比较。若要比较提取图像区域的强度，请选择 'fov'。默认值为 'png'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_chann_dim",
+      "source_sha256": "85c9e10b1a18e204045ad4255a3a9ae460eb250c969028586de9174306641ad7",
+      "source": "Recruitment analysis only (analyze_recruitment): the image-channel index paired with the nucleus mask when drawing outline overlays, and the switch that enables nucleus_size_range / nucleus_intensity_range filtering. Set it to None to skip nucleus filtering. It plays no part in segmentation - use nucleus_channel for that. Default 0.",
+      "translation": "仅用于募集分析（analyze_recruitment）：绘制轮廓叠加图时与细胞核掩模配对的图像数据通道索引，同时也是启用 nucleus_size_range / nucleus_intensity_range 过滤的开关。设为 None 可跳过细胞核过滤。它不参与分割；分割应使用 nucleus_channel。默认值为 0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_intensity_percentile",
+      "source_sha256": "26110c2c362dbda2c3698db3da7775f30a9f71260590d609db55d64519c48647",
+      "source": "Percentile of each nucleus's own pixel intensities used as the merge reference when nucleus_intensity_threshold_method is 'percentile'. Higher values (90) demand a very bright shared boundary and merge almost nothing; lower values (50) merge readily. Range 0-100, default 75. Ignored when the method is 'mean'.",
+      "translation": "当 nucleus_intensity_threshold_method 为 'percentile' 时，用作合并参考值的每个细胞核自身像素强度分位数。较高值（90）要求共享边界非常明亮，因此几乎不合并；较低值（50）更容易合并。范围为 0–100，默认值为 75。当方法为 'mean' 时忽略。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_intensity_range",
+      "source_sha256": "3e77b70bc4521a89ff009916d38638a82e7180ee02ec689bcfd08c5085458ae8",
+      "source": "Two-element [min, max] bound on mean nucleus-channel intensity used by the recruitment analysis to drop rows from the measurement table - it filters measured objects, not masks or normalization. Rows are kept only if min < mean intensity < max (raw units), and each bound is ignored unless it is an int. Default [0, 100000].",
+      "translation": "募集分析中用于从测量表删除行的细胞核图像数据通道平均强度两元素边界 [min, max]；它过滤的是已测量对象，而不是掩模或归一化。仅当 min < 平均强度 < max（原始单位）时保留行；如果某个边界不是 int，则会忽略该边界。默认值为 [0, 100000]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_color",
+      "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
+      "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
+      "translation": "用于依次选择细胞、细胞核和病原体轮廓 RGB 颜色的三字母代码：'rgb'、'bgr'、'gbr' 或 'rbg'。默认值 'gbr' 把细胞画成绿色、细胞核画成蓝色、病原体画成红色。无法识别的字符串会在不发出警告的情况下回退到 'rbg'，因此拼写错误不会报错，而会改变图中的颜色。当轮廓颜色与某个图像数据通道冲突时可更改此项。默认值为 'gbr'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_palette",
+      "source_sha256": "d09a2d1dcd1f785b80b82c4cb1cc4e6bf7710b79199183b78380414834cba5a8",
+      "source": "Colour palette used for object outlines in overlay figures. 'default' assigns red to cells, blue to nuclei, green to pathogens, and yellow to organelles. 'colourblind' uses vermillion, sky blue, bluish green, and yellow from the Okabe-Ito palette. Under deuteranope simulation, the minimum pairwise separation is 27 of 255 for 'default' and 142 for 'colourblind'. Default 'default' preserves the appearance of existing figures.",
+      "translation": "叠加图中对象轮廓使用的调色板。'default' 为细胞分配红色、为细胞核分配蓝色、为病原体分配绿色、为细胞器分配黄色。'colourblind' 使用 Okabe-Ito 调色板中的朱红色、天蓝色、蓝绿色和黄色。在绿色盲模拟下，颜色对的最小间距在 'default' 中为 27/255，在 'colourblind' 中为 142/255。默认值 'default' 可保持现有图的外观。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_area_multiplier",
+      "source_sha256": "34efd8898f8de5328d2fab6e6aa73e11e0c7e357566d59e5e2147b247d84e7f6",
+      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_split_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
+      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_split_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_chann_dim",
+      "source_sha256": "b2a9cd2909602957075a3e9bfeffc6a9f25cbeac524ba2ba6bc5a484b38dfdf5",
+      "source": "Recruitment analysis only (analyze_recruitment): the image-channel index paired with the pathogen mask when drawing outline overlays, and the switch that enables pathogen_size_range / pathogen_intensity_range filtering. Set it to None to skip pathogen filtering. It plays no part in segmentation - use pathogen_channel for that. Default 2.",
+      "translation": "仅用于募集分析（analyze_recruitment）：绘制轮廓叠加图时与病原体掩模配对的图像数据通道索引，同时也是启用 pathogen_size_range / pathogen_intensity_range 过滤的开关。设为 None 可跳过病原体过滤。它不参与分割；分割应使用 pathogen_channel。默认值为 2。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_channel",
+      "source_sha256": "7000eb3fe8c4b8ad4698c1996184ca7c191ee30304c6e0965c3efccdb7fcc81f",
+      "source": "Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
+      "translation": "用于分割病原体掩模（弓形虫等）的从零开始编号的原始采集图像数据通道；pathogen_background、pathogen_signal_to_noise 和 remove_background_pathogen 也应用于此图像数据通道。设为 None 会禁用病原体分割、病原体表、仅感染对象过滤器（uninfected）以及 adjust_cells 步骤；后者需要同时存在细胞、细胞核和病原体掩模。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_intensity_percentile",
+      "source_sha256": "fc3ae1e765a6d1b466a7c32577b07dab4903c091cca3c89ca00d8fbb70e38c44",
+      "source": "Percentile, 0-100, of a pathogen's interior intensity used as the merge reference when pathogen_intensity_threshold_method is 'percentile'. Two touching labels merge only if their shared border is at least this bright inside the dimmer object, so raising it demands a brighter border and merges fewer pairs. Ignored when the method is 'mean'. Default 75.",
+      "translation": "当 pathogen_intensity_threshold_method 为 'percentile' 时，用作合并参考值的病原体内部强度分位数，范围为 0–100。只有当两个相邻标签的共享边界在较暗对象内部也至少达到此亮度时才会合并，因此提高该值会要求更亮的边界并减少合并。当方法为 'mean' 时忽略。默认值为 75。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_intensity_range",
+      "source_sha256": "566e0618f058613f99fd87dba633ad9ea6d51782daedc070358dcc336fe12895",
+      "source": "Two-element [min, max] mean-intensity filter applied to the pathogen table in analyze_recruitment; pathogens whose mean intensity in the paired mask channel falls outside the open interval are dropped before recruitment ratios are computed. Bounds must be ints - floats are silently ignored. Default [0, 100000]. Use it to exclude dead or saturated parasites.",
+      "translation": "在 analyze_recruitment 中应用于病原体表的两元素平均强度过滤范围 [min, max]；在配对掩模图像数据通道中的平均强度落在此开区间之外的病原体，会在计算募集比例前被删除。边界必须是 int；float 会被静默忽略。默认值为 [0, 100000]。可用它排除死亡或饱和的寄生虫。"
+    }
+  ]
+}

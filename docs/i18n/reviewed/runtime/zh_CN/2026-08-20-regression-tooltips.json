@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "regression_qc",
+      "source_sha256": "95e9e6c3c8ae783db6a9395f32b3fd320174cb9b18f06f9418f00cb7a85c8262",
+      "source": "Write variance-homogeneity, residual, design, influence, and calibration diagnostics to <res_folder>/regression_qc/ as figures, a combined PDF, and a text report. One fit requires approximately 5.8 seconds and writes 19 files, so this is enabled for individual analyses but disabled automatically during parameter sweeps to avoid producing thousands of diagnostic files. Reopen a selected trial to generate its diagnostics. Applies to every regression_type. Default True.",
+      "translation": "将方差齐性、残差、设计、影响度和校准诊断写入 <res_folder>/regression_qc/，输出为图、合并 PDF 和文本报告。每次拟合约需 5.8 秒并写入 19 个文件，因此单次分析默认启用，但参数扫描会自动禁用，以避免生成数千个诊断文件。重新打开选定的试验即可生成其诊断。适用于所有 regression_type。默认值为 True。"
+    }
+  ]
+}

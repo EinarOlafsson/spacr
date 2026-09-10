@@ -1,0 +1,32 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Project Browser: finndu raunveruleg verkefni og túlkaðu gögnin að baki",
+  "description": "Finndu skráð og óskráð dæmi, stilltu leitardýpt, raðaðu raunverulegri diskanotkun og lestu færslur án greiningar eða eyðingar.",
+  "objectives": [
+    "Opna Project browser í Help og afmarka leitarmöppur.",
+    "Nota Depth og Scan og raða eftir mældum bætafjölda.",
+    "Greina á milli skorts á upprunaskráningu, yfirlýstra úttaksstiga og raunverulegrar keyrslusögu.",
+    "Lesa smáatriði, fjarlægja aðeins leitarrætur og nota sérverkfæri fyrir gögn og keyrsluskrár."
+  ],
+  "prerequisite": "Notaðu fullgerð dæmi úr External Masks og Batch Runner. Upptakan ber saman sannreynt einkaeintak af mældu verkefni með tveimur myndsviðum og eintak af fjögurra rása umbreytingu, með földum stöðupunkti og tveimur öðrum umbreytingarfærslum. Þetta eru ólík dæmi, ekki fyrir og eftir. Allar 131 upprunaskrár mælingaverkefnisins og sjö upprunaskrár umbreytingarinnar haldast óbreyttar. Aðeins innan einangraða upptökuferlisins vísa upprunalegar afurðaslóðir á mælingaafritið; upprunaskráning er ekki endurskrifuð. Project Browser hefur ekkert eigið niðurhal, lifandi forskoðun, Plot-stýringu eða AI-spjald. Scan les verkefnisgögn, ekki allar keyrsluskrár. Röðun, dýpt og fjarlæging leitarróta nota raunverulegar stýringar; engin greining, eyðing, opnun ytri skráastjóra eða sjálfvirk afhending fer fram. SQLite fjarlægir aðeins tóma WAL-skrá og 32768 bæta SHM-skrá einkaskrásetningarinnar. Gagnagrunnar og aðrar skrár halda sömu bætum.",
+  "scenes": [
+    "Opnaðu Help og síðan Project browser. Þessi sameiginlegi skjár finnur verkefnismöppur og tekur saman það sem er skráð eða til á diski. Við notum einkaeintök af raunverulegu úttaki úr External Masks og Batch Runner. Þetta er yfirlitsverkfæri, ekki keyrsla myndgreiningar.",
+    "Add folder velur hvar á að leita. Þegar Depth er núll er aðeins mappan sjálf skoðuð. Valda yfirmappan geymir verkefni einu stigi neðar, svo taflan er tóm. Tóm niðurstaða á þessari dýpt þýðir ekki að verkefnið eða myndirnar vanti.",
+    "Stilltu Depth á einn og veldu Scan. Umbreytta myndamappan birtist: um þrjátíu og tvö megabæti í sjö skrám. Þetta eru fjórar teknar rásamyndir, umbreytingartafla, stöðufærsla og falinn stöðupunktur. Skráafjöldi er ekki fjöldi frumna eða óháðra tilrauna.",
+    "State sýnir unknown, nothing recorded því mappan hefur enga afurðaskrásetningu. Stage segir nothing run og Last run never þótt umbreytingunni hafi í raun lokið. Dálkarnir lýsa yfirlýstu úttaki og skráðum afurðum, ekki allri umbreytingarsögunni. Unknown sannar hvorki góð gagnagæði né að gögn séu óunnin.",
+    "Bættu mælda verkefninu við sem annarri leitarrót. Línan sýnir Measure, um níutíu og eitt megabæti, hundrað tuttugu og níu skrár og tímastimpil úr skrásetningunni. Ef upplýsingar um valda línu eru tómar eftir endurskönnun skaltu velja aðra línu og fara til baka. Við sýnum þessa leið án þess að breyta forritinu.",
+    "Veldu mælda verkefnið og dragðu skilrúmið til að breikka upplýsingarnar. Þrjár afurðafærslur eru current hér, en um áttatíu og sjö megabæti eru enn óskráð. Current lýsir skráðum samanburði, ekki fullri upprunaskráningu eða vísindalegu réttmæti. Last run segir skýrt að tíminn komi úr skrásetningunni.",
+    "Lestu Stages áður en þú túlkar merkingu um lok. Hér er Mask-úttak complete því innflutt fylki, talningar og grímur eru til; það sannar ekki að Mask-segmentation hafi verið keyrð. What could run next listar tillögur, ekki hnappa eða staðfestingu á að hver greining henti þessum tilraunagögnum.",
+    "Smelltu á Size til að breyta röðun. Við bárum bæði hækkandi og lækkandi röð saman við raunverulegan bætafjölda og línuval vísar enn á rétt verkefni. Hér eru engar aðskildar síur fyrir stig, aldur, stöðu einingar eða úreltar niðurstöður. Notaðu fyrirliggjandi röðunardálka og leitarrætur.",
+    "Þegar báðar rætur eru til staðar finnur Depth núll enn mælda verkefnið sem var valið beint, en ekki umbreytinguna undir yfirmöppu þess. Depth einn endurheimtir báðar línur. Dýpt breytir leitarsviðinu; hún fjarlægir ekki gögn eða breytir hversu mikilli greiningu er lokið.",
+    "Remove hættir að leita undir valinni rót; það eyðir ekki möppunni. Við fjarlægjum mælingarótina og bætum óbreyttu verkefninu aftur við. Í þessari útgáfu sendir tvísmellur valið áfram sem merki en helst í Project Browser. Ekki búast við að verkefnisgluggi eða síðasta keyrsla opnist sjálfkrafa.",
+    "Notaðu Run History fyrir raunverulegar keyrsluskrár, Database Browser fyrir mælingatöflur og Data Manager fyrir hreinsun eða safnflutning. Í Python býður spacr.projects upp á discover, scan og browse. Allar upprunaskrár eru óbreyttar og engin ný greining hófst. Fylgdu viðeigandi kennslustund um verkferlið áður en þú framkvæmir tillögu að næsta skrefi."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "reviewed_at": "2026-08-21",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "mask_array",
+      "source_sha256": "5635def8fdf222ecda4e0e5986b73ae0787c93e5ed5a589a5218ca3b9cd8c461",
+      "source": "Labelled mask plane that defines object identifiers when stream_method is 'array'. Select the mask corresponding to the biological object being classified; this setting is ignored by the 'column' method. Default 'cell'.",
+      "translation": "当 stream_method 为 'array' 时，定义对象标识符的带标签掩膜平面。请选择与待分类生物对象对应的掩膜；'column' 方法会忽略此设置。默认值为 'cell'。"
+    }
+  ]
+}

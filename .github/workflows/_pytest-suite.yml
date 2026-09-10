@@ -24,6 +24,34 @@ on:
         required: false
         default: 60
         type: number
+      xdist_workers:
+        description: Number of isolated pytest workers (0 keeps the suite serial)
+        required: false
+        default: 0
+        type: number
+      file_shard_index:
+        description: Zero-based deterministic test-file shard
+        required: false
+        default: 0
+        type: number
+      file_shard_count:
+        description: Number of deterministic test-file shards
+        required: false
+        default: 1
+        type: number
+      run_serial_tail:
+        description: Run the process-local Qt measurement files after pytest
+        required: false
+        default: false
+        type: boolean
+      per_test_timeout_seconds:
+        description: >-
+          Hard ceiling on a single test. 0 leaves tests unbounded; a non-zero
+          value installs pytest-timeout, which dumps every thread's stack and
+          kills the worker so the wedged test is named.
+        required: false
+        default: 0
+        type: number
 
 jobs:
   pytest:
@@ -41,6 +69,16 @@ jobs:
       # local temporary filesystem is the appropriate equivalent.
       NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
       XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      # A pytest worker is the unit of isolation.  Keep numerical libraries
+      # from creating another pool inside every worker and oversubscribing the
+      # four-core hosted runner.
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      # The Network leg owns the HF E2E file, but hosted runners have no CUDA.
+      # Run its deterministic four-field dataset on CPU so mask output is a
+      # release-gate assertion instead of a permanent resource skip.
+      SPACR_HF_E2E_STUB: ${{ inputs.suite_name == 'Network' && '1' || '0' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -61,7 +99,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
 
       - name: Install spacr and hardware-appropriate PyTorch
         run: |
@@ -76,6 +114,9 @@ jobs:
               "torch>=2.0" torchvision
           fi
           python -m pip install -e ".[${{ inputs.extras }}]"
+          if [ "${{ inputs.per_test_timeout_seconds }}" -gt 0 ]; then
+            python -m pip install "pytest-timeout>=2.3,<3"
+          fi
           python -m pip check
 
       - name: Show resolved scientific dependencies
@@ -109,8 +150,81 @@ jobs:
           print("NAS tests probe their declared paths with bounded checks.")
           PY
 
+      # A SUITE THAT HANGS MUST SAY WHERE. A job killed by its own
+      # timeout_minutes prints no summary at all -- no last test, no stack,
+      # nothing to act on -- so a single wedged test reads exactly like a lost
+      # runner and costs the whole job budget to learn nothing.
+      #
+      # pytest's faulthandler timeout dumps every thread's traceback once a
+      # single test has run longer than the threshold and then lets it carry
+      # on. That is enough on a serial suite. It is NOT enough under -n: the
+      # dump is written by the WORKER, whose output the controller forwards
+      # only when the worker reports a result, so a worker that never reports
+      # never delivers its dump. A wedged shard therefore stays completely
+      # silent until the runner takes it away, which is the failure this
+      # comment used to claim was solved.
+      #
+      # per_test_timeout_seconds closes that. pytest-timeout's thread method
+      # does not depend on the wedged test returning to the interpreter: it
+      # dumps every thread from a watchdog and then ends the worker process,
+      # and xdist reports the crash together with the test id the worker was
+      # running. The ceiling sits above the faulthandler threshold so the
+      # in-process dump gets its chance first, and far below every job
+      # timeout so the shard still finishes and prints a summary.
       - name: Run ${{ inputs.suite_name }} tests
+        env:
+          SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
+          SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
+          PYTHONFAULTHANDLER: "1"
         run: |
+          xdist_args=()
+          if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
+            xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
+          fi
+          timeout_args=()
+          if [ "${{ inputs.per_test_timeout_seconds }}" -gt 0 ]; then
+            # --max-worker-restart=0 is what keeps the ceiling from costing
+            # MORE than the hang it replaces. xdist otherwise replaces the
+            # ended worker and hands it the very same test, which wedges
+            # again, so a deterministic hang would pay the ceiling once per
+            # restart. With no restarts it is paid once: the crash is
+            # reported against the test id, the surviving workers finish
+            # their own files, and the shard prints a summary.
+            timeout_args=(--timeout "${{ inputs.per_test_timeout_seconds }}"
+                          --timeout-method thread
+                          --max-worker-restart=0)
+          fi
           python -m pytest tests/ \
+            -o faulthandler_timeout=900 \
+            "${timeout_args[@]}" \
             -m '${{ inputs.marker_expression }}' \
-            -v --tb=short
+            --ignore=tests/test_perf_guard.py \
+            --ignore=tests/qt/test_gui_responsiveness.py \
+            --ignore=tests/qt/test_home_stage_and_dock.py \
+            --ignore=tests/qt/test_figure_queue.py \
+            --ignore=tests/qt/test_pca.py \
+            --ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+            --ignore=tests/qt/test_the_backdrop_survives_a_run.py \
+            "${xdist_args[@]}" -v --tb=short
+          if [ "${{ inputs.run_serial_tail }}" = "true" ]; then
+            # These files measure process-local memory, event-loop latency,
+            # CPU frame budgets, and real hover pixels. Running them beside
+            # three multi-GB Qt workers measures scheduler contention and
+            # races the offscreen platform's shared synthetic cursor, not the
+            # product contracts.
+            # Keep the measurement suites serial after the parallel functional
+            # workers have exited. Reset file sharding so every measurement
+            # file runs exactly once on the designated shard.
+            SPACR_PYTEST_FILE_SHARD_INDEX=0 \
+            SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest \
+              -o faulthandler_timeout=900 \
+              "${timeout_args[@]}" \
+              tests/test_perf_guard.py \
+              tests/qt/test_gui_responsiveness.py \
+              tests/qt/test_home_stage_and_dock.py \
+              tests/qt/test_figure_queue.py \
+              tests/qt/test_pca.py \
+              tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py \
+              tests/qt/test_the_backdrop_survives_a_run.py \
+              -m '${{ inputs.marker_expression }}' -v --tb=short
+          fi

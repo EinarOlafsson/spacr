@@ -1,0 +1,78 @@
+================================================================================
+352 -- A FRESH COVERAGE MEASUREMENT FOR THE QT LANE, 2026-09-09
+================================================================================
+
+WHY THIS FILE EXISTS: the baseline anyone would plan 352 from --
+`instructions/data/288_per_module_coverage_batched_2026-08-30b.txt` -- is ten
+days stale and understates the Qt lane badly. Planning off it means writing
+tests for modules that are already covered.
+
+    module                                 2026-08-30    2026-09-09
+    ------------------------------------   ----------    ----------
+    spacr/qt/widgets/annotation_umap_tab      56.29%       100.00%
+    spacr/qt/screens/mask                     59.81%        99.07%
+    spacr/qt/screensaver                      61.11%        98.61%   (after)
+    spacr/qt/memory_budget                    71.62%        97.30%   (after)
+    spacr/qt/widgets/sortable_table           79.30%        98.91%
+    spacr/qt/widgets/qc_field_browser         80.83%        94.94%
+    spacr/qt/crash_recovery                   80.00%       100.00%   (after)
+    spacr/qt/startup_benchmark                82.66%        99.51%
+    spacr/qt/safespacr                        85.00%       100.00%
+
+Six of the nine were already high before this session touched anything. Three
+were raised here -- crash_recovery, memory_budget and screensaver -- and are
+marked "(after)".
+
+WHAT WAS ACTUALLY MISSING, and it was the same shape in all three: not the
+main path, which is what a test naturally exercises, but every FALLBACK. No
+psutil. Memory that cannot be read. A preferences module that will not
+import. A log directory that does not exist. A GL stack that will not build a
+backdrop. A marker file on a read-only filesystem.
+
+That is the half that runs on somebody else's machine, and none of it had a
+test. `crash_recovery` had none at all -- the module whose entire job is to
+run when a launch is already segfaulting.
+
+HOW TO RE-MEASURE ONE MODULE, since the batched script is slow and this is
+what was actually used:
+
+    python -m coverage run --source=spacr.qt.<module> -m pytest <its tests> \
+        -q -p no:cacheprovider -m "not gpu"
+    python -m coverage report --show-missing
+
+REMAINING IN THIS LANE, honestly: qc_field_browser at 94.94% is the largest
+gap by statement count (36 of 727) and the rest are single lines and partial
+branches. 352 asks for "the highest REASONABLE coverage -- not 100%", and the
+Qt lane is at 97.47% across the modules measured here. The next real work is
+not in these numbers.
+
+--------------------------------------------------------------------------------
+LATER THE SAME DAY -- figure_queue IS NOT MEASURED, AND SAYING SO
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/figure_queue.py` is the one module in this lane whose
+coverage I do NOT know. It is also the biggest: 1,376 statements, 3,000
+lines, and 59 test files mention it.
+
+A four-file run reported 36.57%, which is not its coverage -- it is what four
+of fifty-nine files reach, and quoting it would be the same error as the
+2026-08-30 baseline this file exists to correct. The full 59-file run STALLED:
+no output for seven minutes, at 70%, and was killed. It wrote no coverage
+data, so there is no partial number to report either.
+
+RECORDED AS UNMEASURED rather than left with the four-file figure or the
+2026-08-30 one (84.47%, which is now ten days old and, on this lane's
+evidence, likely to be wrong in either direction).
+
+WHAT THE NEXT ATTEMPT SHOULD DO DIFFERENTLY: run it in batches with a
+per-test timeout, so a single hanging test names itself instead of taking the
+measurement with it. That is exactly what `tests/test_db_contract.py` did to
+the whole non-Qt suite -- a hang with an empty log reads as slowness, and
+nobody had ever seen that file complete either.
+
+    python -m pytest <batch> --timeout=120 --timeout-method=thread
+
+The rest of the lane stands as measured above: crash_recovery 100%,
+memory_budget 97.30%, screensaver 98.61%, mask 99.07%, annotation_umap_tab
+100%, sortable_table 98.91%, qc_field_browser 94.94%, startup_benchmark
+99.51%, safespacr 100%.

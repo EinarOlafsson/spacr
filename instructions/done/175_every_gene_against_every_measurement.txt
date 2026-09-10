@@ -1,0 +1,296 @@
+================================================================================
+EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
+================================================================================
+
+Status:    DONE 2026-08-20. See the closing section.
+Requested: 2026-08-19 -- "please bake all of this in to spacr. i would also
+           like a button that compares every gene to every measurement and
+           gives me a comprehensive table of this and visualises it in an
+           intuitive way."
+
+WHAT "ALL OF THIS" IS. Three corrections were found by hand while sweeping one
+gene, in about ten minutes, and every one of them would be made again by a
+user doing it themselves. They are the reason this is a feature and not a
+script.
+
+  1. IDENTIFIERS ARE NOT MEASUREMENTS. `pathogen_object_label` came out at
+     p=2.5e-07 for EAF1 and it is a LABEL: the cells picked out sit lower in
+     the segmentation's numbering. That is position in a list, not biology.
+     `pathogen_pathogen` is the same column under another name -- spearman
+     0.9979 against `pathogen_object_label`, identical in 141,626 of 226,467
+     rows -- and it slipped past the first filter. Both were nearly reported
+     as findings.
+
+  2. 785 TESTS IS NOT ONE TEST. Uncorrected, `pathogen_solidity` at p=1.8e-03
+     looked interesting; under Benjamini-Hochberg it is nothing. The scan
+     already knows this (`spacr.measurement_scan` corrects within AND across
+     measurements) and the sweep must too.
+
+  3. CIRCULARITY IS A COLUMN, NOT A FOOTNOTE. The classification score is
+     itself a function of the image, so a measurement it already tracks cannot
+     validate anything derived from it. Measured on this screen:
+     spearman(pred, pathogen_channel_1_mean_intensity) = -0.389, and the
+     "strongest result" for GRA14 was exactly that measurement, in exactly the
+     direction the correlation predicts. Every row of the table carries
+     |rho(pred, measurement)| so a reader can discount it without being told.
+
+WHAT TO BUILD
+
+A. THE SWEEP, at the WELL level, as one matrix operation. Measured: the full
+   guide x measurement grid -- 1,376 guides x 785 measurements over 1,366
+   wells -- is ONE matmul and takes 0.1 s. Anything that loops is doing it
+   wrong. Blocked on plate, so a plate difference cannot become a gene effect.
+
+B. THE TABLE: gene (and guide), measurement, effect, p, q, circularity, and
+   the well count behind it. Sortable, filterable, and exportable, because the
+   answer to "every gene against every measurement" is a million rows and
+   nobody reads a million rows.
+
+C. THE PICTURE. A million cells is not a heatmap anybody can read, so the
+   default view is the SURVIVORS: the genes and measurements that have at
+   least one entry surviving the correction, clustered so related measurements
+   sit together. Everything else is one click away, never the first thing
+   shown.
+
+D. AND THE CELL-LEVEL SWEEP FOR ONE GENE stays available beside it -- the
+   assignment from 173, then the same three corrections. That is the slow,
+   deep version of the same question and it answers a different one: not
+   "does this gene move this measurement" but "do the cells I attributed to it
+   differ".
+
+HOW TO KNOW IT WORKED
+
+* The whole grid computes in seconds, not minutes.
+* No identifier column appears in the table at all.
+* Every row carries its q value and its circularity, and the default sort
+  cannot put an uncorrected p at the top.
+* A gene with no effect on anything produces no survivors, and the picture
+  says so rather than showing a colourful grid of noise.
+* The EAF1 result reproduces: its three low-circularity survivors are the
+  pathogen channel co-localisation measures, at q ~ 1e-2.
+
+  EAF1 IS `TGGT1_225160`. The reference screen's count tables name genes by
+  TGGT1 id and nothing in the tree mapped the symbol to one, so this
+  criterion could not be checked at all -- an audit reported it unverifiable
+  rather than guessing, and the id is written down here so the next run of
+  it is a measurement instead of a search. Do not confuse it with `239740`,
+  which `settings.py` sets as the default positive control and is a
+  different gene.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- A, B, C AND D SHIPPED. What remains is where the button LIVES.
+--------------------------------------------------------------------------------
+
+SHIPPED
+  * `spacr.gene_measurement_sweep` -- the grid as ONE matmul. Measured on the
+    maintainer's screen: 1,240 guides x 767 measurements over 1,366 wells in
+    4 plate blocks, 1.2 seconds.
+  * The three corrections, in the ENGINE so a settings CSV, a macro and the
+    button cannot disagree: identifiers excluded (including twins caught by
+    correlation), Benjamini-Hochberg across the whole grid, circularity per
+    row.
+  * `plot_sweep` -- the survivors, clustered so neighbours are alike. Nothing
+    surviving draws nothing.
+  * `spacr.qt.widgets.sweep_panel.SweepPanel` -- the button, the table, the
+    q and circularity filters, and Save (which writes ALL the rows and the
+    figure beside them, not the page on screen). It runs on a JobRunner and
+    its worker touches no widget, which a test pins by reading the source.
+
+THREE THINGS THE TESTS CAUGHT IN MY OWN CODE, all of which would have been
+reported as findings:
+  * "path" is a substring of "pathogen", so a substring rule for identifier
+    names silently dropped EVERY pathogen measurement -- 354 columns.
+  * A guide in 7 of 1,366 wells was given the whole screen's degrees of
+    freedom and reported p = 0.0. The participation ratio fixed it and took
+    the survivor count from 5,959 to 186.
+  * Circularity that was never computed came back as 0.00 and the panel
+    displayed it, which reads as "nothing here is circular".
+
+ALSO SHIPPED
+  * MOUNTED on the Measurements tab, beside the scan, wired to the merged
+    frame, the counts (through the same reader the montage uses) and the
+    score CSVs.
+  * GENE LEVEL, which is the question actually asked. A gene's fraction in a
+    well is the SUM of its guides', the same rule the regression applies, so
+    "does this gene move this measurement" is not a different arithmetic from
+    the fit that found the gene. `level` takes 'gene' (the panel's default),
+    'guide', or 'both' -- and with 'both' a gene and one of its guides are
+    different rows that a reader can tell apart.
+
+    The mapping needed its own rule. `hits.gene_of` reads a DESIGN TERM and
+    truncates at the first underscore; handed the bare `TGGT1_225160_2` that
+    a count table actually carries, it returns `TGGT1` -- the organism, for
+    every guide in the screen, pooling the whole library into one "gene".
+
+STILL OWED
+  * The picture is still per-row rather than per-gene: it draws whatever
+    survived, and at 'both' that mixes the two levels in one grid.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- ALL TEN VIEWS BUILT.
+--------------------------------------------------------------------------------
+
+"i want you to implement afew ways of visualizing this data, come up with 10
+ways, ill tell you what i like" -- then, after four: "For 175 build all of the
+I'll let you know which one I like after looking at all of them!"
+
+WRITTEN DOWN HERE, because the first four were built from a conversation and
+the other six were nearly lost with it. Each answers a question the others
+cannot; that is the test for whether a view earns its place.
+
+  1. HEATMAP -- what survived, clustered so neighbours are alike.
+     `plot_sweep`. The default: it is what "a comprehensive table visualised
+     intuitively" asked for. Survivors only; the whole grid is a texture.
+
+  2. CALIBRATION -- is the screen calibrated at all? `plot_calibration`.
+     Observed P against the uniform, with the inflation factor lambda named
+     on the plot. THE FIRST THING TO READ and the last thing anybody builds:
+     it says whether the other nine are worth reading. Not the default,
+     because opening on a QQ plot answers a question the user did not ask.
+
+  3. GRID VOLCANO -- every pair, effect against evidence. `plot_grid_volcano`.
+     The shape of the WHOLE grid, which #1 cannot show. Coloured by
+     circularity where it is known and grey where it is not, with the legend
+     saying which -- grey is not "clean".
+
+  4. HITS vs REPRESENTATION -- `plot_effect_against_representation`. The
+     maintainer's own question: "220950 is waaay over represented". x is the
+     EFFECTIVE WELL COUNT, not `share`; see the function for why the two
+     order genes oppositely.
+
+  5. MEASUREMENT FAMILIES -- `plot_measurement_families`. What KIND of thing
+     each gene moves, in six coarse families. "moves pathogen intensity and
+     nothing else" is a sentence about biology; "41 significant
+     measurements" is not.
+
+  6. GENE PROFILE -- `plot_gene_profile`. One gene's fingerprint: every
+     measurement it moves, ordered, coloured by family. The per-gene readout
+     a row of a heatmap cannot give. A gene with nothing significant SAYS
+     SO and shows its strongest effects anyway.
+
+  7. GENE SIMILARITY -- `plot_gene_similarity`. Which genes behave alike,
+     by correlating whole effect profiles. The only view that reads two
+     genes against each other, and the honest way to ask "is my hit list one
+     finding or twelve". Correlated across the WHOLE row, because a shared
+     sub-threshold pattern is exactly the evidence that two genes belong
+     together.
+
+  8. WHICH MEASUREMENTS DISCRIMINATE -- `plot_measurement_hits`. The grid
+     read down its other axis. A measurement moved by half the library is a
+     plate effect wearing a measurement's name; it is marked in red.
+
+  9. CIRCULARITY -- `plot_circularity`. Corroboration or restatement, for
+     every surviving pair. Drawn rather than filtered: 0.15 is a working bar
+     and not a law, and a reader should see where their own hits fall.
+     Refuses to draw when circularity was never computed.
+
+ 10. GUIDE CONCORDANCE -- `plot_guide_concordance`. Do a gene's own guides
+     agree on the sign? The only internal control this design has.
+
+ALL TEN ARE IN THE PANEL'S CHOOSER and all ten save beside the table. Every
+one returns None rather than an empty axis when there is nothing to draw: a
+picture of nothing reads as "no effect" when it means "no data", and that
+misreading is the thing this whole instruction is about.
+
+--------------------------------------------------------------------------------
+2026-08-19 (later) -- THE FILTERS AND THE FIGURES.
+--------------------------------------------------------------------------------
+
+WHAT TO LEAVE OUT, asked for and built: `drop_measurements`, `drop_guides`
+(matched at both levels), `max_wells_fraction` (the over-representation
+filter) and `max_share`. Breadth and share are kept apart because a guide can
+be in every well at a low fraction or in three wells at 0.8, and 220950 is
+extreme on both. What was left out is PRINTED, or a sweep that quietly
+dropped a gene would send the reader hunting for a row that was never
+computed.
+
+THE TEN FIGURES ARE REBUILT in the apicomplexan-genomics idiom (the
+`apicomplexan-figures` skill). Everything grey except the claim; dots and a
+mean line where the old code drew a bar for n = 2-4 guides, which that skill
+explicitly refuses; a bubble plot for measurement enrichment; legends as
+coloured text; no gridlines. Data colour comes from the paper's palette and
+INK from the theme, so they read in the application and would still print.
+
+STILL OWED
+  * The maintainer's pick of which of the ten earn their place.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- "I CANNOT SEE ANY OF THE X OR Y AXES" REACHED THE FILE.
+--------------------------------------------------------------------------------
+
+`_readable` fixed it ON SCREEN and the ten figures went on writing the
+SCREEN's picture to disk. They all called `figure.savefig` directly, so none
+of them got instruction 150's chrome flip -- the theme's ink, #E8EDEE, onto a
+white page.
+
+MEASURED ON THE PIXELS. `plot_calibration` and
+`plot_effect_against_representation` saved with ZERO dark pixels: a white
+rectangle with an invisible plot on it. The other eight passed a naive check
+only because their DATA is dark -- a heatmap supplies its own ink -- so their
+AXES were just as invisible and nothing said so. That is the report reaching
+the file after it had been fixed on screen, which is the version nobody
+notices until they paste it into a manuscript.
+
+`_write(figure, path)` is the one writer now, and every one of the ten uses
+it. It wears the print look for the length of the write and restores in a
+`finally`, because the figure is RETURNED to the caller and may be shown.
+THE CHROME FLIPS AND THE DATA DOES NOT, through the same `export_colour` both
+renderers use, so a mark coloured for its claim keeps its colour.
+
+After: page (255,255,255), 6,922 and 8,589 dark pixels respectively.
+
+15 tests in tests/test_the_sweep_figures_have_readable_axes.py, and the pair
+of them is the point: one checks every figure LABELS both axes, the other
+checks the SAVED FILE is readable on paper. The screen half was already
+passing while the file half was not, which is exactly how this got out.
+
+STILL OWED -- and it is the only thing left on 175:
+  * The maintainer's pick of which of the ten earn their place. The test
+    above asserts there are ten, so cutting some is a deliberate edit rather
+    than a drift.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- THE PICK. MEASURED, AND THE ANSWER IS ALL TEN.
+--------------------------------------------------------------------------------
+
+The maintainer asked for the ten to be measured rather than argued about, and
+for the weak ones cut. THEY WERE MEASURED AND NOTHING SHOULD BE CUT -- and
+the measurement found something better than a cut.
+
+RUN ON A SCREEN-SHAPED SWEEP -- 12 genes x 3 guides, 40 measurements, 4
+plates, per-well scores -- every one of the ten draws, and no two answer the
+same question. `WHAT_EACH_ONE_ANSWERS` in the test file records the question
+each one is for, so dropping one later is a decision rather than an
+archaeology exercise.
+
+The closest pair is `plot_measurement_families` and `plot_measurement_hits`,
+and they are the TWO MARGINS of one matrix: what kind of thing a gene moves,
+and which measurements are moved most. A reader chasing a hit needs the
+first; a reader asking whether one measurement is doing all the work needs
+the second. That is not a duplicate.
+
+AND THE MEASUREMENT FOUND THE REAL FAULT, which was in the test rather than
+in the figures. The fixture was TWO GUIDES AND THREE COLUMNS, one gene each,
+and three of the ten could not draw on it at all:
+
+    plot_guide_concordance   needs several guides of ONE gene -- concordance
+                             is a statement about guides, and every guide was
+                             its own gene
+    plot_gene_similarity     needs enough genes to cluster
+    plot_circularity         needs per-well classification scores, which the
+                             fixture did not pass
+
+All three returned None and their tests SKIPPED. A SKIP IS NOT A PASS: the
+two checks a pooled screen most depends on -- "do a gene's guides agree" and
+"is this association just the classification score again" -- were untested
+for as long as they have existed, and a panel that CANNOT draw looked exactly
+like one with nothing to draw.
+
+A fourth was hidden the same way: `_draw` passed the gene name "A", which was
+the old fixture's guide. On a library shaped like a real one it names
+nothing, so `plot_gene_profile` skipped too.
+
+The fixture is screen-shaped now and the gene comes from the result. Six
+skips became zero.
+
+33 tests in tests/test_the_sweep_figures_have_readable_axes.py.

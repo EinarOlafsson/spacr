@@ -289,6 +289,15 @@ class PCASpec:
     structural_missing: float = DEFAULT_STRUCTURAL_MISSING
 
     def __post_init__(self) -> None:
+        """De-duplicate the features and validate the decomposition settings.
+
+        :raises PCAError: if ``scaling`` or ``nan_policy`` is not one this
+            module offers, if ``n_components`` is below 1, or if
+            ``structural_missing`` is not a fraction of rows in ``[0, 1]``. The
+            component count is capped at the module's maximum rather than
+            refused: asking for more components than that is a request for
+            noise, not an error.
+        """
         seen: Dict[str, None] = {}
         for name in self.features or ():
             if name:
@@ -317,19 +326,51 @@ class PCASpec:
 
     # -- edits ----------------------------------------------------------
     def with_features(self, features: Sequence[str]) -> "PCASpec":
+        """A copy decomposing a different set of columns.
+
+        A COPY: a spec is a value, so the one a view is showing is never
+        edited underneath it.
+
+        :param features: the columns to decompose.
+        :returns: the new spec.
+        """
         return replace(self, features=tuple(features))
 
     def with_scaling(self, scaling: str) -> "PCASpec":
+        """A copy using a different scaling.
+
+        SCALING IS NOT COSMETIC HERE. PCA maximises variance, so unscaled
+        columns in different units let the largest unit dominate every
+        component -- which is why this is a spec field and not a display
+        option.
+
+        :param scaling: the scaling's name.
+        :returns: the new spec.
+        """
         return replace(self, scaling=scaling)
 
     def with_nan_policy(self, policy: str) -> "PCASpec":
+        """A copy handling missing values differently.
+
+        :param policy: the policy's name.
+        :returns: the new spec.
+        """
         return replace(self, nan_policy=policy)
 
     def with_components(self, n: int) -> "PCASpec":
+        """A copy keeping a different number of components.
+
+        :param n: how many to keep.
+        :returns: the new spec.
+        """
         return replace(self, n_components=n)
 
     # -- serialisation ---------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """This spec as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {
             "features": list(self.features),
             "n_components": self.n_components,
@@ -350,10 +391,19 @@ class PCASpec:
         return cls(**known)
 
     def to_json(self) -> str:
+        """This spec as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "PCASpec":
+        """Rebuild a spec from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt spec.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
@@ -431,14 +481,30 @@ class PCAResult:
 
     @property
     def n_components(self) -> int:
+        """How many components were kept.
+
+        :returns: the component count.
+        """
         return int(self.scores.shape[1])
 
     @property
     def n_features(self) -> int:
+        """How many columns went into the decomposition.
+
+        The columns ACTUALLY used, which can be fewer than the spec asked
+        for: a constant or all-null column contributes no variance and is
+        dropped before fitting.
+
+        :returns: the feature count.
+        """
         return len(self.features)
 
     @property
     def component_names(self) -> Tuple[str, ...]:
+        """The components' display names, in order.
+
+        :returns: one name per component.
+        """
         return tuple(component_name(i) for i in range(self.n_components))
 
     @property
@@ -458,6 +524,14 @@ class PCAResult:
 
     # -- reading one component --------------------------------------------
     def _check(self, k: int) -> int:
+        """Bounds-check a component index.
+
+        :param k: the component asked for.
+        :returns: it, as an ``int``.
+        :raises PCAError: if this result has no such component -- naming the
+            ones it does have, because "PC7" against a five-component fit is a
+            question about the fit rather than a bug.
+        """
         if not 0 <= int(k) < self.n_components:
             raise PCAError(
                 f"there is no component {component_name(k)}; this result has "
@@ -488,7 +562,7 @@ class PCAResult:
         k = self._check(k)
         column = self.loadings[:, k]
         total = float((column ** 2).sum())
-        if total <= 0:  # pragma: no cover - a unit-norm column cannot be zero
+        if total <= 0:
             return 1.0
         positive = float((column[column > 0] ** 2).sum())
         return max(positive, total - positive) / total
@@ -915,12 +989,21 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     n, p = standard.shape
     singular, vectors = _decompose(standard)
     largest = float(singular.max()) if singular.size else 0.0
-    if largest <= 0:  # pragma: no cover - constants were already removed
-        raise PCAError("the analysed matrix has no variance left to decompose.")
+    # NO `largest <= 0` OR `rank < 1` GUARD. Both were marked
+    # `# pragma: no cover`, and their own reasons were right:
+    # `_drop_constant` above has already refused a matrix with no
+    # variance in it, with a message that names the offending features --
+    # "every selected feature is constant over the analysed objects", or
+    # "only 1 feature varies... PCA needs two". A matrix that reaches
+    # here therefore has at least two varying features, so its largest
+    # singular value is positive and its rank is at least one.
+    #
+    # Checked rather than assumed: identical columns, one constant
+    # column, and denormal values all raise from `_drop_constant`;
+    # perfectly collinear columns get through and decompose, which is
+    # correct -- collinearity reduces the rank to 1, not to 0.
     tolerance = largest * max(n, p) * float(np.finfo(float).eps)
     rank = int((singular > tolerance).sum())
-    if rank < 1:  # pragma: no cover - implied by largest > 0
-        raise PCAError("the analysed matrix has rank 0.")
 
     k = max(1, min(int(spec.n_components), rank))
     loadings = np.asarray(vectors[:, :k], dtype=float)

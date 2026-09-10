@@ -1,35 +1,25 @@
-"""The one place that says what object kinds spaCR has.
+"""Shared object-role vocabulary and role-aware settings helpers.
 
-Eleven modules used to spell this out independently -- ``OBJECT_TYPES`` in
-:mod:`spacr.measure_hooks`, :mod:`spacr.feature_dict`, :mod:`spacr.schema`,
-:mod:`spacr.crops` and :mod:`spacr.diameter`; ``OBJECT_TABLES`` in
-:mod:`spacr.schema`, :mod:`spacr.filters` and :mod:`spacr.merge_tables`;
-``CROP_OBJECT_TYPES`` in :mod:`spacr.io`; ``CROP_MODES`` in
-:mod:`spacr.measure`; and ``OBJECT_NAMES`` in :mod:`spacr.validate`. Only two
-of the eleven derived from another.
-
-They agreed on MEMBERSHIP and disagreed on ORDER -- three different orderings
-of the same five names, plus two four-name variants that leave out cytoplasm.
-That is the shape of the problem: adding a sixth kind meant finding all
-eleven, and missing one produced a column that silently vanished from a model
-matrix rather than an error.
-
-ORDER IS NOT INCIDENTAL, which is why this module does not impose one. The
-merged-array plane order, the object-table order and the crop-mode order are
-each load-bearing in their own module and are deliberately kept there. What
-lives here is the MEMBERSHIP and the distinction between roles, so a new kind
-is declared once.
-
-Instruction 76 (support more than one organelle) is what this is for: the
-vocabulary has to become derivable before a second organelle can be added to
-it.
+The schema defines membership in segmented, derived, child, and organelle
+roles. This module exposes those relationships to consumers that need labels,
+setting keys, table anchors, or join behavior. Consumers retain their own
+ordering where array planes, table layout, or crop modes require a specific
+sequence; the shared registry defines which names are valid and how their
+roles relate.
 """
 from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Tuple
 
-from .schema import (ALL_ROLES, CHILD_ROLES, DERIVED_ROLES,
-                     ORGANELLE_ROLES, SEGMENTED_ROLES)
+# These schema sets remain re-exported for existing ``object_roles`` consumers.
+from .schema import (  # noqa: F401
+    ALL_ROLES,
+    CHILD_ROLES,
+    DERIVED_ROLES,
+    ORGANELLE_ROLES,
+    SEGMENTED_ROLES,
+)
+
 
 #: Organelle slots use letter suffixes internally because object types are
 #: embedded directly in underscore-separated object keys: ``organelle_2``
@@ -45,54 +35,261 @@ from .schema import (ALL_ROLES, CHILD_ROLES, DERIVED_ROLES,
 #: itself. Each is many-rows-per-cell and carries its parent's label in a
 #: ``cell_id`` column, which is what makes them roll up the same way.
 #:
-#: `io._read_and_join_tables` and `io._read_and_merge_data` both used to spell
-#: this as the literal ``['nucleus', 'pathogen']``, so ORGANELLE WAS ABSENT
-#: FROM BOTH: asking for it returned a frame with no organelle columns and no
-#: message. Naming it once here is what lets a second organelle reach every
-#: reader by being added in one place -- which is the whole of instruction 76.
+#: Centralising these relationships lets additional organelle slots reach all
+#: table readers without duplicating role lists.
 def is_segmented(role: str) -> bool:
     """True when ``role`` is found in a channel rather than derived.
 
     :param role: object kind, e.g. ``"nucleus"``. Unknown names are False
         rather than an error, because callers use this to decide whether to
-        look for a channel setting and an unknown kind simply has none.
+        look for a channel setting; an unknown kind has none.
+    :returns: ``True`` only for roles in :data:`SEGMENTED_ROLES`.
     """
     return role in SEGMENTED_ROLES
 
 
 def is_organelle(role: str) -> bool:
-    """True when ``role`` is one of the closed organelle slots."""
+    """True when ``role`` is one of the closed organelle slots.
+
+    :param role: object-role name to test.
+    :returns: ``True`` only for roles in :data:`ORGANELLE_ROLES`.
+    """
     return str(role) in ORGANELLE_ROLES
 
 
 def organelle_index(role: str) -> int:
-    """Return the one-based user-facing index of an organelle slot."""
+    """Return the one-based user-facing index of an organelle slot.
+
+    :param role: organelle role whose numeric slot is requested.
+    :returns: The one-based slot encoded by ``role``.
+    :raises ValueError: if ``role`` is not an organelle slot.
+
+    ANSWERED FROM THE LETTER, not from a list of the slots that happen to
+    segment today. The suffix IS the number -- organelle, organelleb,
+    organellec -- so a slot the schema has no mask plane for still has a
+    name, and a settings file carrying seven slots renders as
+    "Organelle 5" rather than as "Organellee".
+    """
+    from .organelle_types import organelle_number
+
     try:
-        return ORGANELLE_ROLES.index(str(role)) + 1
+        return organelle_number(role)
     except ValueError as exc:
         raise ValueError(
-            f"{role!r} is not an organelle role; expected one of "
-            f"{list(ORGANELLE_ROLES)}") from exc
+            f"Cannot determine an organelle index: {exc}"
+        ) from exc
 
 
 def organelle_label(role: str) -> str:
-    """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``)."""
-    return f"Organelle {organelle_index(role)}"
+    """Human-readable label for a slot (``Organelle 1``, ``Organelle 2``).
+
+    :param role: organelle role to render for users.
+    :returns: The numbered user-facing organelle label.
+    :raises ValueError: if ``role`` is not an organelle slot.
+    """
+    from .organelle_types import organelle_slot_label
+
+    return organelle_slot_label(role)
+
+
+#: Terms whose established capitalization must survive label generation.
+#: Python's ``str.capitalize`` lower-cases the remaining characters, so the
+#: shared label formatter restores forms such as ``gRNA``, ``DNA``, and
+#: ``UMAP`` consistently across every settings surface.
+#: Keys whose label is not a de-underscored capitalisation at all.
+#:
+#: ``controls`` names guide or gene identifiers, whereas the neighbouring
+#: control settings name wells. Use an explicit label so the two concepts are
+#: not confused in settings forms.
+EXACT_LABELS = {
+    "controls": "Control gRNA/Gene",
+    # THE THIRD SENSE OF "log", and the reason these are spelled out rather
+    # than left to the humaniser. `dog` and the Laplacian-of-Gaussian `log_*`
+    # suffixes are handled in CASED_TERMS and CASED_PHRASES below; these three
+    # are the ORDINARY logarithm, and "Log x" is ambiguous in English before
+    # any translator sees it. Every machine translator read the logbook:
+    # German "Protokoll x" and "Protokollieren y", Spanish "Registro x",
+    # French "Journal x", and Chinese rendered `log_x` as "彩票X" -- lottery.
+    #
+    # Saying "logarithmic" removes the ambiguity at the source instead of
+    # correcting nine locales separately, which is the same fix as `dog` and
+    # for the same reason: the translators were not wrong about the word they
+    # were given. It is also more accurate English -- all three are log10 or
+    # log(x + 1e-6), not "log" in any other sense.
+    "log_x": "Logarithmic x",
+    "log_y": "Logarithmic y",
+    "log_data": "Log-transform features",
+    # "Src" is an abbreviation of an abbreviation: the humaniser capitalises
+    # the key and stops there, so the field that asks for the images read
+    # "Src". Asked for on 2026-09-01 -- "path should always just say path".
+    # The KEY stays `src`; every settings CSV in existence uses it.
+    #
+    # NOT applied to regression, which overrides this to "Output directory"
+    # in `settings_model._label_for`. That one is not an abbreviation, it is
+    # a more specific true statement -- regression's `src` is where results
+    # are written, not where images are read from.
+    # SOURCE, NOT PATH, AND THIS IS THE SECOND RENAME. The humaniser
+    # capitalises the key and stops, so the field that asks for the images
+    # read "Src" -- an abbreviation of an abbreviation. It was renamed to
+    # "Path" on 2026-09-01 ("path should always just say path"), and to
+    # "Source" on 2026-09-04, to standardise one word across every surface
+    # that names where a run reads its input. Both are recorded because the
+    # second reverses the first, and a reader who finds only the current
+    # answer cannot tell a decision from an oversight.
+    #
+    # THE KEY STAYS `src`. Every settings CSV in existence uses it, and this
+    # renames the label, not the setting.
+    #
+    # ONLY `src`. The other path-like keys -- `model_path`,
+    # `custom_model_path`, `organelle_unet_model_path` -- name a MODEL, not a
+    # source, and calling them Source would be a lie that reads as a
+    # standard. Measured across all 508 keys in `spacr.settings`: `src` is
+    # the only source among them.
+    #
+    # NOT applied to regression, which overrides this to "Output directory"
+    # in `settings_model._label_for`. That one is not an abbreviation, it is
+    # a more specific true statement -- regression's `src` is where results
+    # are written, not where images are read from.
+    "src": "Source",
+    # "Sample" reads as the thing being sampled; it is a CAP on how many
+    # crops are drawn. The key stays `sample` -- every settings CSV in
+    # existence uses it, and this renames the label, not the setting.
+    "sample": "Sample size limit",
+    # These keys belong to the statistical-power simulator, not electrical
+    # power.  Leaving the ordinary underscore humaniser to infer their labels
+    # produced awkward English ("Power n genes") and led translation models
+    # to choose electrical/mechanical terminology in several languages.
+    # Qualify the whole family at its single label source so every settings
+    # surface and every source-hashed locale catalog carries the same meaning.
+    "power": "Statistical power",
+    "power_backend": "Statistical power — inference backend",
+    "power_background_positive_rate": (
+        "Statistical power — background positive-call rate"
+    ),
+    "power_cells_per_well": "Statistical power — cells per well",
+    "power_constructs_per_well": (
+        "Statistical power — library units per well"
+    ),
+    "power_detection_auroc": (
+        "Statistical power — detection AUROC threshold"
+    ),
+    "power_effect_fold": "Statistical power — effect multiplier",
+    "power_hit_rate": "Statistical power — hit probability",
+    "power_n_genes": "Statistical power — genes",
+    "power_n_grnas_per_gene": "Statistical power — gRNAs per gene",
+    "power_n_plates": "Statistical power — plates",
+    "power_n_replicates": "Statistical power — replicates",
+    "power_reads_per_well": "Statistical power — reads per well",
+    "power_score_per": "Statistical power — scoring level",
+    "power_seed": "Statistical power — random seed",
+    "power_wells_per_plate": "Statistical power — wells per plate",
+}
+
+CASED_TERMS = {
+    "grna": "gRNA",
+    "grnas": "gRNAs",
+    "dna": "DNA",
+    "rna": "RNA",
+    "gpu": "GPU",
+    "umap": "UMAP",
+    "csv": "CSV",
+    "png": "PNG",
+    "qc": "QC",
+    "id": "ID",
+    # DIFFERENCE OF GAUSSIANS, and the only reason it is spelled out here is
+    # that the machine translators read the lower-case word as the animal.
+    # "Organelle 1 — Dog sigma high" became "Hundesigma hoch" in German,
+    # "Chien sigma haut" in French, "강아지 Sigma" (puppy) in Korean and "狗
+    # Sigma" in Chinese, in the label of a blob-detector parameter. `dog`
+    # appears in exactly two suffixes in the whole vocabulary,
+    # `dog_sigma_high` and `dog_sigma_low`, so there is no ambiguity to
+    # weigh -- it is always skimage's `blob_dog`.
+    "dog": "DoG",
+}
+
+#: Phrases that must be recased TOGETHER, because the word alone is
+#: ambiguous. `log` is Laplacian of Gaussians in the blob-detector settings
+#: and an ordinary logarithm in `log_x`, `log_y` and `log_data`, so it cannot
+#: go in :data:`CASED_TERMS` -- a blanket rule would turn a log axis into a
+#: filter. Same defect as `dog` above and found the same way: the label read
+#: "Log max sigma", and the translators read it as a logbook. German
+#: "Protokoll max sigma", Swedish "Logg max sigma", and Chinese rendered
+#: `log_x` as "彩票X" -- lottery.
+CASED_PHRASES = {
+    "log max sigma": "LoG max sigma",
+    "log min sigma": "LoG min sigma",
+    "log num sigma": "LoG num sigma",
+    "log threshold": "LoG threshold",
+}
+
+
+def _recase(text: str) -> str:
+    """Restore the terms `capitalize()` flattened.
+
+    :param text: Human-readable text whose established terms need recasing.
+    :returns: The text with :data:`CASED_TERMS` spellings restored.
+    """
+    text = str(text)
+    # PHRASES FIRST. A phrase rule exists because its word is ambiguous on
+    # its own, so applying the word rules first would settle the ambiguity
+    # the wrong way and leave nothing for the phrase rule to match.
+    lowered = text.lower()
+    for phrase, cased in CASED_PHRASES.items():
+        if phrase in lowered:
+            start = lowered.index(phrase)
+            text = text[:start] + cased + text[start + len(phrase):]
+            lowered = text.lower()
+    return " ".join(CASED_TERMS.get(word.lower(), word)
+                    for word in text.split(" "))
+
+
+def _split_id_suffix(key: str) -> str:
+    """Separate a terminal ``ID`` suffix from a camel-case setting key.
+
+    Identifier columns such as ``plateID`` and ``objectID`` contain no
+    underscore, so ordinary tokenization would render them as ``Plateid``.
+
+    :param key: Setting key that may end in a camel-case ``ID`` suffix.
+    :returns: The key with spacing inserted before a terminal ``ID``.
+    """
+    import re
+
+    return re.sub(r'(?<=[a-z])(ID)\b', r' \1', str(key))
 
 
 def setting_label(key: str) -> str:
-    """Humanise a setting key, giving organelle slots numbered labels."""
+    """Humanise a setting key, giving organelle slots numbered labels.
+
+    :param key: canonical setting key to turn into a display label.
+    :returns: The canonical human-readable setting label.
+    """
+    from .organelle_types import organelle_role_of
+
     key = str(key)
-    for role in sorted(ORGANELLE_ROLES, key=len, reverse=True):
-        if key == role or key.startswith(f'{role}_'):
-            suffix = key[len(role):].lstrip('_').replace('_', ' ')
-            return (organelle_label(role) if not suffix else
-                    f'{organelle_label(role)} — {suffix.capitalize()}')
-    return key.replace('_', ' ').strip().capitalize()
+    # RESOLVED FROM THE KEY, not by looping the four roles the schema
+    # segments. A settings file may carry any slot the vocabulary allows,
+    # and one that fell outside those four rendered as "Organellee
+    # channel" -- the raw suffix -- instead of "Organelle 5 — Channel".
+    role = organelle_role_of(key)
+    if role is not None:
+        suffix = key[len(role):].lstrip('_').replace('_', ' ')
+        return (organelle_label(role) if not suffix else
+                f'{organelle_label(role)} — '
+                f'{_recase(suffix.capitalize())}')
+    if key in EXACT_LABELS:
+        return EXACT_LABELS[key]
+    spaced = _split_id_suffix(key).replace('_', ' ').strip()
+    return _recase(spaced.capitalize())
 
 
 def role_setting(role: str, suffix: str) -> str:
-    """Return the setting key for ``suffix`` in one segmented role."""
+    """Return the setting key for ``suffix`` in one segmented role.
+
+    :param role: segmented object role that owns the setting.
+    :param suffix: role-relative setting suffix such as ``channel``.
+    :returns: The canonical ``<role>_<suffix>`` setting key.
+    :raises ValueError: if ``role`` is not segmented.
+    """
     role = str(role)
     if role not in SEGMENTED_ROLES:
         raise ValueError(f"{role!r} is not a segmented role")
@@ -100,13 +297,23 @@ def role_setting(role: str, suffix: str) -> str:
 
 
 def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
-    """Organelle slots whose ``<role>_channel`` is enabled, in plane order."""
+    """Organelle slots whose ``<role>_channel`` is enabled, in plane order.
+
+    :param settings: settings mapping carrying per-role channel assignments.
+    :returns: Enabled organelle slots in schema and mask-plane order.
+    """
     return tuple(role for role in ORGANELLE_ROLES
                  if settings.get(role_setting(role, "channel")) is not None)
 
 
 def organelle_settings_view(settings: Mapping[str, Any], role: str) -> Dict[str, Any]:
     """Return a copy exposing one slot through the legacy ``organelle_*`` API.
+
+    :param settings: complete settings mapping to adapt without mutating it.
+    :param role: organelle slot to expose under legacy key names.
+    :returns: A copied mapping exposing the selected slot through legacy
+        ``organelle_*`` keys.
+    :raises ValueError: if ``role`` is not an organelle slot.
 
     The classical organelle segmenter predates slots and reads roughly forty
     ``organelle_*`` keys. Keeping that well-tested implementation and adapting
@@ -136,6 +343,7 @@ def ordered(*roles: str) -> Tuple[str, ...]:
     keeping its own private copy of what the names are.
 
     :param roles: object kinds in this module's required order.
+    :returns: ``roles`` unchanged as a tuple.
     :raises ValueError: if a name is not in :data:`ALL_ROLES`, naming it and
         listing the valid kinds.
     """
@@ -197,7 +405,11 @@ def anchor_column(table: str) -> str:
 
 
 def is_one_row_per_cell(table: str) -> bool:
-    """True when ``table`` holds one row per cell and needs no roll-up."""
+    """True when ``table`` holds one row per cell and needs no roll-up.
+
+    :param table: object-table name to classify.
+    :returns: Whether the table needs no child-to-cell roll-up.
+    """
     return str(table).strip().lower() in ONE_ROW_PER_CELL
 
 

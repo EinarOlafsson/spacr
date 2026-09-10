@@ -7,17 +7,18 @@ Python, Qt, PyTorch, CUDA, or the scientific stack. During installation they:
 
 1. download a pinned standalone `uv` bootstrap over TLS;
 2. download a private managed CPython 3.12 runtime;
-3. install the portable CPU/MPS PyTorch build by default;
+3. select the PyTorch backend automatically, including CUDA on compatible NVIDIA systems;
 4. install `spacr[qt]` in a private environment;
 5. run `pip check` and import spaCR, Qt, and PyTorch before activating it; and
 6. create the platform's normal application launcher and uninstaller.
 
 No existing system Python is modified. A failed update preserves the previous
-working spaCR environment. Windows offers NVIDIA acceleration as an optional
-installer component; Linux users can request accelerator auto-detection with
-``--torch-backend auto``. The CPU default avoids an accidental multi-gigabyte
-CUDA download and works on every supported machine. Apple's standard PyTorch
-wheel retains Metal Performance Shaders (MPS) support.
+working spaCR environment. Automatic hardware acceleration is selected by
+default. On compatible NVIDIA systems, ``uv`` installs a CUDA-capable PyTorch
+build; elsewhere it falls back safely to the portable build. Users who require
+the smaller CPU-only installation can deselect acceleration on Windows or pass
+``--torch-backend cpu`` on Linux. Apple's standard PyTorch wheel retains Metal
+Performance Shaders (MPS) support.
 
 Installer status, help, errors, and progress are localized for every spaCR UI
 language: English, Swedish, German, Spanish, Simplified Chinese, Portuguese,
@@ -57,23 +58,38 @@ assets on the matching GitHub release. The version is always read from
 # Print the current package version
 python packaging/release.py version
 
-# Validate and increment the one canonical version
+# Validate and increment setup.py, spacr/_version.py, and CITATION.cff together
 python packaging/release.py bump 1.4.9.9
+
+# Verify all three release-version sources still name the same release
+python packaging/release.py verify
 
 # After the three native builders have populated dist/online
 python packaging/release.py collect --branch main
 ```
 
-The native installers cannot all be generated on one local operating system.
+The bump command updates the lightweight ``spacr/_version.py`` facade literal
+and moves ``CITATION.cff``'s ``version`` and ``date-released`` fields. An
+idempotent rerun preserves the date already recorded for that release. Release
+versions have three or four numeric components; prerelease labels and
+non-version names are rejected. The native installers cannot all be generated
+on one local operating system.
 The GitHub workflow runs each builder on its matching native runner and then
 calls the collection command once all three artifacts exist.
+
+The download block is a row of three drawn platform icons rather than text
+links. `packaging/generate_platform_icons.py` regenerates
+`spacr/resources/icons/platforms/{windows,macos,linux}.png` and exits non-zero
+if one glyph drifts outside the shared weight band, so no platform can quietly
+become the loud one. Re-run it only when the artwork changes; `release.py
+collect` moves the links forward without touching the icons.
 
 ## One-click releases
 
 Run **Actions → release spaCR → Run workflow**, enter the new version, and
 leave the target as `main`. `.github/workflows/release.yml` then:
 
-1. validates and commits the version increment;
+1. validates and commits the package, facade, and citation version increment;
 2. builds and validates the wheel and source distribution;
 3. publishes to PyPI using trusted publishing and waits until that immutable
    version is available from the PyPI API;
@@ -85,8 +101,10 @@ leave the target as `main`. `.github/workflows/release.yml` then:
 
 GitHub displays manual ``workflow_dispatch`` buttons from the default branch,
 so merge `release.yml` into `main` once to enable that button permanently.
-There is also a branch-native path: changing ``VERSION`` in `setup.py` and
-pushing that commit to `main` automatically runs
+There is also a branch-native path: changing ``VERSION`` in `setup.py`, the
+matching ``__version__`` in ``spacr/_version.py``, and the matching
+version/date in ``CITATION.cff``, then pushing that commit to `main`,
+automatically runs
 steps 2-6 for the already-incremented version. Rerunning the same version is
 safe: an existing PyPI artifact is not uploaded twice, existing release
 assets are replaced, and an existing tag must already point to the exact
@@ -106,6 +124,14 @@ One-time repository setup:
 No PyPI API token is stored in GitHub. If `main` has branch
 protection, allow `github-actions[bot]` to push these two release commits or
 replace the direct-push steps with your protected-branch merge policy.
+
+Zenodo receives every GitHub Release event for this repository. Consequently,
+GitHub Releases are reserved for version tags of the form ``v1.5.0`` or
+``v1.5.0.5``; example data and other auxiliary downloads must use workflow
+artifacts or a separate repository instead. The README cites the stable concept
+DOI, ``10.5281/zenodo.21343316``. Once Zenodo archives a version, put that
+release's newly minted version DOI in ``CITATION.cff``; never substitute an
+older release's version DOI for the concept DOI in the README.
 
 ## Conda-forge releases
 
@@ -156,9 +182,10 @@ installer/executable for each of the three target platforms:
 **Common contract**
 
 The launcher `spacr_launcher.py` in this directory is the entry point
-every installer wraps — it calls `spacr.gui.gui_app()`. So a single
-launcher spec drives all three build systems; only the packaging /
-metadata / signing differs per platform.
+used by the legacy Windows and macOS bundles. It starts the maintained Qt
+application through `spacr.qt.run()`. The shared `spacr.spec` file defines
+the frozen application; platform-specific scripts then package, sign, or
+archive its output.
 
 **What each build does under the hood**
 

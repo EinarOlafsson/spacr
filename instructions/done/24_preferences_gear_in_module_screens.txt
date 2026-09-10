@@ -104,3 +104,22 @@ every zoom rather than being correct at one:
 Four tests, and the one that matters asserts the icon GROWS with the font
 scale -- a fixed size would pass every other assertion here and still be
 the bug.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: HOLDS, AND THE TEST IS FOUND BY ATTRIBUTE NOT objectName
+--------------------------------------------------------------------------------
+
+Driven, not read. tests/qt/test_preferences_gear.py (8) builds a real
+AppScreen for mask, measure, classify, ml_analyze and regression: each has
+`_btn_preferences`, its icon is not null, it carries the accessible name, it
+sits to the RIGHT of Copy console on the same row, and pressing it routes to
+the MainWindow's own `_open_preferences` rather than a second dialog.
+tests/qt/test_preferences_gear_visible.py (4) covers the 16px half: the glyph
+is painted, is a readable fraction of the button, and GROWS with the font
+scale.
+
+ONE CORRECTION TO THIS FILE: HOW TO KNOW asks for "a test that finds it by
+objectName". No test does, and none should -- the button's objectName is
+"GhostButton", which is a STYLE class shared with every other ghost button in
+the app, so finding by it would find the wrong widget. The tests reach it by
+its attribute on the screen, which is the identity that is actually unique.

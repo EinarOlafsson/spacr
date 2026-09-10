@@ -83,13 +83,19 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
-from ..theme import (SPACING, active_palette, make_transparent,
-                     mark_surface, paint_panel, register_widget_qss)
+from ..app_catalog import declared_app, register_declared
+from ..theme import (
+    SPACING,
+    active_palette,
+    make_transparent,
+    mark_surface,
+    paint_panel,
+    register_widget_qss,
+)
 from ..widgets.power_design import (
     CAVEATS,
     PLATE_FORMATS,
@@ -102,6 +108,7 @@ from ..widgets.power_design import (
     simulator_kwargs,
     wells_grid,
 )
+from ..widgets.sortable_table import install_sorting, table_item
 from .app_screen import ModuleHeader
 
 __all__ = [
@@ -175,6 +182,13 @@ _HELD_FIELDS = (
 )
 
 
+# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
+# still declared but are no longer in SECTION_ORDER. Every screen below now
+# files under Data. The docstrings keep their original reasoning because it
+# still says what each screen IS -- and they are published, translated API
+# prose, so editing them invalidates reviewed translations in nine languages.
+
 def _power_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """QSS for this screen, contributed through :func:`register_widget_qss`.
 
@@ -229,10 +243,9 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
     thread reads the result from an object it already owns rather than from a
     signal payload that would have to cross the thread boundary.
 
-    Two separate calls to :func:`spacr.power_model.scan_parameters`, one per
-    axis, rather than one call sweeping both: the Cartesian product of the two
-    grids is 20 fits where the two questions need 9, and nobody asked what
-    happens at a quarter of the wells *and* twice the cells.
+    The well-count and cell-count axes are scanned separately. This measures
+    each marginal response without evaluating the Cartesian product of both
+    grids.
 
     :param payload: mutable job dict with keys
 
@@ -275,6 +288,7 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
         stopping a sweep between points.
         """
         def _hook(point: Dict[str, Any]) -> Any:
+            """Report one completed point back to the progress bar."""
             done[0] += 1
             if progress is not None:
                 progress(done[0], total, label)
@@ -352,9 +366,17 @@ class PowerCurveView(QWidget):
 
     :meth:`describe` returns exactly what is drawn, as text, so a test can
     assert the content of the plot without reading pixels.
+
+    :param title: the caption drawn above the curve. Empty draws none.
+    :param parent: parent widget.
     """
 
     def __init__(self, title: str = "", parent: Optional[QWidget] = None):
+        """Create an empty curve view.
+
+        :param title: caption drawn above the curve.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._title = str(title)
         self._points: List[Tuple[float, float]] = []
@@ -408,6 +430,10 @@ class PowerCurveView(QWidget):
     # -- painting ----------------------------------------------------------
 
     def paintEvent(self, event):  # noqa: N802 - Qt name
+        """Draw the power curve.
+
+        :param event: the Qt paint event.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = self._palette
@@ -440,6 +466,7 @@ class PowerCurveView(QWidget):
         span = (x_hi - x_lo) or 1.0
 
         def to_px(x: float, y: float) -> Tuple[float, float]:
+            """Data coordinates to pixels, clamping the vertical to the axis."""
             return (left + width * (x - x_lo) / span,
                     top + height * (1.0 - max(0.0, min(1.0, y))))
 
@@ -500,9 +527,19 @@ class CaveatPanel(QWidget):
     where the COM-Poisson third moment sits at the same weight as "the R
     version overstates power" is a list that gets skimmed, and the one line
     that would have changed somebody's plate count goes with it.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the caveat list, with the harmless ones folded away.
+
+        Caveats that change the reported power are always visible; the rest --
+        departures from spaCRPower that only affect how these numbers compare
+        with the R package's -- sit behind a toggle.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(CAVEAT_OBJECT)
         layout = QVBoxLayout(self)
@@ -539,6 +576,14 @@ class CaveatPanel(QWidget):
 
     @staticmethod
     def _make_label(caveat, severity: str) -> QLabel:
+        """Build one caveat line.
+
+        :param caveat: the caveat record; its headline becomes the text and its
+            detail the tooltip.
+        :param severity: style key, ``"high"`` for caveats that change the
+            number and ``"note"`` for the rest.
+        :returns: the label, ready to add to a layout.
+        """
         label = QLabel(f"! {caveat.headline}")
         label.setWordWrap(True)
         label.setToolTip(caveat.detail)
@@ -547,6 +592,10 @@ class CaveatPanel(QWidget):
         return label
 
     def _on_toggled(self, checked: bool) -> None:
+        """Show or hide the harmless caveats and relabel the toggle.
+
+        :param checked: the button's new state.
+        """
         self._rest.setVisible(bool(checked))
         self._more.setText("Hide the rest of the caveats" if checked
                            else "Show the rest of the caveats")
@@ -582,6 +631,12 @@ class PowerScreen(QWidget):
 
     def __init__(self, threaded: bool = True,
                  parent: Optional[QWidget] = None):
+        """Build the screen with the design form beside the curves and table.
+
+        :param threaded: run the sweep on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._jobs: List[Tuple[Any, Any]] = []
@@ -624,10 +679,23 @@ class PowerScreen(QWidget):
 
         self._sync_derived()
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_form(self) -> QWidget:
+        """Build the left column: library, plates, effect, acquisition and run.
+
+        Every simulator parameter the form does not ask for is printed in the
+        held-values note rather than left implicit -- a power analysis defended
+        in a methods section needs every number that went into it.
+
+        :returns: the scrollable form widget.
+        """
         holder = QScrollArea()
         holder.setWidgetResizable(True)
         inner = QWidget()
@@ -639,26 +707,16 @@ class PowerScreen(QWidget):
         library = QGroupBox("Library")
         form = QFormLayout(library)
         self._genes = self._int_box(2, 100000, defaults.n_genes)
-        self._genes.setToolTip(
-            "Genes in the library. The real T. gondii screen this simulator "
-            "was fitted to had 452. Power falls roughly as the log of this.")
+        self._genes.setToolTip(_setting_tooltip("power_n_genes"))
         self._grnas = self._int_box(1, 100, defaults.n_grnas_per_gene)
-        self._grnas.setToolTip(
-            "Guides per gene. Only reaches the simulation when you score per "
-            "guide — see the caveats: there is no guide-efficiency layer.")
+        self._grnas.setToolTip(_setting_tooltip("power_n_grnas_per_gene"))
         self._score_per = QComboBox()
         self._score_per.addItems(["gene", "guide"])
-        self._score_per.setToolTip(
-            "'gene' pools a gene's guides before the model sees them, which "
-            "is what the real analysis and spaCRPower do. 'guide' gives every "
-            "construct its own coefficient and its own read count.")
+        self._score_per.setToolTip(_setting_tooltip("power_score_per"))
         self._constructs = self._float_box(0.1, 500.0, defaults.constructs_per_well,
                                            decimals=2, step=0.1)
         self._constructs.setToolTip(
-            "Mean library constructs spotted into each well — 'gRNAs per "
-            "well'. The knob that trades constructs-per-well against "
-            "wells-per-construct, and the sweep spaCRPower cared most about. "
-            "4.6 in the real screen.")
+            _setting_tooltip("power_constructs_per_well"))
         form.addRow("Genes", self._genes)
         form.addRow("gRNAs / gene", self._grnas)
         form.addRow("Score per", self._score_per)
@@ -674,8 +732,10 @@ class PowerScreen(QWidget):
         for fmt in PLATE_FORMATS:
             self._plate_format.addItem(str(fmt), fmt)
         self._plate_format.setCurrentText(str(defaults.wells_per_plate))
+        self._plate_format.setToolTip(
+            _setting_tooltip("power_wells_per_plate"))
         self._plates = self._int_box(1, 200, defaults.n_plates)
-        self._plates.setToolTip("Plates in the screen. 4 x 384 in the real screen.")
+        self._plates.setToolTip(_setting_tooltip("power_n_plates"))
         form.addRow("Wells / plate", self._plate_format)
         form.addRow("Plates", self._plates)
         self._wells_note = QLabel("")
@@ -687,27 +747,17 @@ class PowerScreen(QWidget):
         self._background = self._float_box(
             0.0001, 0.99, defaults.background_positive_rate, decimals=4, step=0.01)
         self._background.setToolTip(
-            "Probability a non-hit cell is called positive — the classifier's "
-            "false-positive rate. 0.12 in the real screen.")
+            _setting_tooltip("power_background_positive_rate"))
         # The floor is below 1 on purpose. A spin box that refuses the
         # keystroke teaches nothing; one that accepts a protective effect and
         # then says why the model cannot score it teaches the thing worth
         # knowing — see DesignSpec.validate.
         self._effect = self._float_box(0.05, 50.0, defaults.effect_fold,
                                        decimals=3, step=0.1)
-        self._effect.setToolTip(
-            "How many times more often a hit-genotype cell is called "
-            "positive. The effect size. The real screen's classifier sat at "
-            "0.80 against a background of 0.12, i.e. 6.67-fold. Below 1 means "
-            "a protective knockout, which this model does not score — it "
-            "ranks evidence in one direction only.")
+        self._effect.setToolTip(_setting_tooltip("power_effect_fold"))
         self._prevalence = self._float_box(0.0001, 1.0, defaults.hit_rate,
                                            decimals=4, step=0.005)
-        self._prevalence.setToolTip(
-            "Fraction of the library that is a true hit. 0.025 was inferred "
-            "from the real screen by inverting the well positivity rate "
-            "against the classifier operating point. The single number most "
-            "worth checking against your own pilot data.")
+        self._prevalence.setToolTip(_setting_tooltip("power_hit_rate"))
         form.addRow("Background positive rate", self._background)
         form.addRow("Effect size (fold)", self._effect)
         form.addRow("Hit prevalence", self._prevalence)
@@ -720,15 +770,9 @@ class PowerScreen(QWidget):
         form = QFormLayout(acquisition)
         self._cells = self._float_box(1.0, 100000.0, defaults.cells_per_well,
                                       decimals=1, step=10.0)
-        self._cells.setToolTip(
-            "Mean cells imaged per well — the parameter you buy with "
-            "microscope time, and the one the first curve sweeps. The real "
-            "screen averaged 123.")
+        self._cells.setToolTip(_setting_tooltip("power_cells_per_well"))
         self._reads = self._int_box(100, 10_000_000, int(defaults.reads_per_well))
-        self._reads.setToolTip(
-            "Mean sequencing reads per well. Unambiguously per well: "
-            "spaCRPower divided its read budget by the number of genes. "
-            "~30 000 in the real screen.")
+        self._reads.setToolTip(_setting_tooltip("power_reads_per_well"))
         form.addRow("Cells imaged / well", self._cells)
         form.addRow("Reads / well", self._reads)
         # Everything the simulator needs that the form does not ask for is
@@ -748,27 +792,17 @@ class PowerScreen(QWidget):
         run = QGroupBox("Run")
         form = QFormLayout(run)
         self._replicates = self._int_box(1, 50, defaults.n_replicates)
-        self._replicates.setToolTip(
-            "Simulated screens per grid point. One screen at one setting is a "
-            "single draw from a noisy process; three is the minimum that "
-            "reads as a probability at all.")
+        self._replicates.setToolTip(_setting_tooltip("power_n_replicates"))
         self._threshold = self._float_box(0.5, 1.0, defaults.detection_auroc,
                                           decimals=2, step=0.01)
         self._threshold.setToolTip(
-            "The AUROC a simulated screen has to reach to count as a "
-            "detection. There is no p-value here — the model ranks genes, so "
-            "the bar is a ranking quality, and you choose it.")
+            _setting_tooltip("power_detection_auroc"))
         self._seed = self._int_box(0, 2_000_000_000, defaults.seed)
-        self._seed.setToolTip(
-            "Master seed. Every number on this screen is reproducible from "
-            "this plus the parameters above.")
+        self._seed.setToolTip(_setting_tooltip("power_seed"))
         self._backend = QComboBox()
         self._backend.addItems(list(_BACKEND_CHOICES))
         self._backend.setCurrentText(defaults.backend)
-        self._backend.setToolTip(
-            "Inference backend. 'torch' is mean-field ADVI and is always "
-            "available; numpyro and pymc are exact NUTS if you installed "
-            "them. 'auto' prefers NUTS and reports which it used.")
+        self._backend.setToolTip(_setting_tooltip("power_backend"))
         form.addRow("Replicates / point", self._replicates)
         form.addRow("Detect at AUROC ≥", self._threshold)
         form.addRow("Seed", self._seed)
@@ -777,6 +811,37 @@ class PowerScreen(QWidget):
         self._cost_note.setWordWrap(True)
         form.addRow(self._cost_note)
         layout.addWidget(run)
+
+        # This is a hand-built form, but these are still ordinary registered
+        # settings.  Carry the same semantic identity as SettingsWidgets so
+        # the post-construction tooltip pass can use the source-hashed
+        # SETTING_TOOLTIPS catalog and a later language switch can rebuild the
+        # help.  Without these properties retarget_field_tooltips merely moved
+        # the authored English string from editor to label; all nine locale
+        # translations existed in the catalog and none could reach this form.
+        self._setting_fields = {
+            "power_n_genes": self._genes,
+            "power_n_grnas_per_gene": self._grnas,
+            "power_score_per": self._score_per,
+            "power_cells_per_well": self._cells,
+            "power_wells_per_plate": self._plate_format,
+            "power_n_plates": self._plates,
+            "power_constructs_per_well": self._constructs,
+            "power_background_positive_rate": self._background,
+            "power_effect_fold": self._effect,
+            "power_hit_rate": self._prevalence,
+            "power_reads_per_well": self._reads,
+            "power_n_replicates": self._replicates,
+            "power_detection_auroc": self._threshold,
+            "power_seed": self._seed,
+            "power_backend": self._backend,
+        }
+        for key, field in self._setting_fields.items():
+            source = _setting_tooltip(key)
+            field.setProperty("settingsAppKey", APP_KEY)
+            field.setProperty("settingKey", key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
 
         buttons = QHBoxLayout()
         self._btn_run = QPushButton("Run the power analysis")
@@ -802,6 +867,10 @@ class PowerScreen(QWidget):
         return holder
 
     def _build_output(self) -> QWidget:
+        """Build the right column: the answer line, caveats, both curves and the table.
+
+        :returns: the output panel.
+        """
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -825,6 +894,7 @@ class PowerScreen(QWidget):
         layout.addWidget(self._wells_view, 1)
 
         self._table = QTableWidget(0, len(_TABLE_HEADERS))
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_TABLE_HEADERS))
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionMode(QAbstractItemView.NoSelection)
@@ -841,6 +911,13 @@ class PowerScreen(QWidget):
 
     @staticmethod
     def _int_box(low: int, high: int, value: int) -> QSpinBox:
+        """Build a bounded integer spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :returns: the spin box.
+        """
         box = QSpinBox()
         box.setRange(int(low), int(high))
         box.setValue(int(value))
@@ -849,6 +926,15 @@ class PowerScreen(QWidget):
     @staticmethod
     def _float_box(low: float, high: float, value: float, *,
                    decimals: int = 2, step: float = 0.1) -> QDoubleSpinBox:
+        """Build a bounded floating-point spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :param decimals: digits shown after the point.
+        :param step: how far one arrow click moves the value.
+        :returns: the spin box.
+        """
         box = QDoubleSpinBox()
         box.setDecimals(int(decimals))
         box.setRange(float(low), float(high))
@@ -946,6 +1032,12 @@ class PowerScreen(QWidget):
 
     @staticmethod
     def _humanise(seconds: float) -> str:
+        """Render a duration as seconds, minutes or hours.
+
+        :param seconds: the duration.
+        :returns: a short string -- seconds below 90, minutes below 90 minutes,
+            hours above that.
+        """
         if seconds < 90:
             return f"{seconds:.0f} s"
         if seconds < 5400:
@@ -1119,6 +1211,15 @@ class PowerScreen(QWidget):
         self._set_status(" ".join(notes) if notes else "Done.")
 
     def _fill_table(self, cells, wells, spec: DesignSpec) -> None:
+        """Fill the sample-size table from both sweeps.
+
+        :param cells: the cells-per-well sweep, or ``None``; each of its rows is
+            listed at the spec's well count.
+        :param wells: the wells sweep, or ``None``; each of its rows is listed at
+            the spec's cells per well.
+        :param spec: the design the sweeps were run around, for the value held
+            fixed in each half.
+        """
         rows: List[Tuple[str, str, Any]] = []
         if cells is not None:
             for _, row in cells.iterrows():
@@ -1141,7 +1242,7 @@ class PowerScreen(QWidget):
                 str(int(row["n_failed"])),
             ]
             for column, text in enumerate(values):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(index, column, item)
 
@@ -1251,6 +1352,11 @@ class PowerScreen(QWidget):
                          error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed sweep on the status line.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
         message = str(exc) or exc.__class__.__name__
         self._set_status(f"The sweep failed: {message}", error=True)
 
@@ -1273,6 +1379,12 @@ class PowerScreen(QWidget):
         return self._status.property("spacrError") == "true"
 
     def _update_controls(self) -> None:
+        """Enable Run and Stop to match the current design and run state.
+
+        Run is disabled while a sweep is in flight and while the design fails
+        validation -- in which case the first problem becomes its tooltip, so
+        the reason is reachable from the disabled button itself.
+        """
         problems = self.spec().validate() if hasattr(self, "_genes") else []
         self._btn_run.setEnabled(not self._busy and not problems)
         self._btn_stop.setEnabled(self._busy)
@@ -1307,39 +1419,17 @@ def make_power_screen(app_key: Optional[str] = None) -> QWidget:
     return PowerScreen()
 
 
-APP_NAME = "Power / Design"
-APP_DESCRIPTION = ("How many cells per well and how many wells to detect an "
-                   "effect of a given size")
-APP_INTRO = (
-    "Before a pooled screen runs, the only honest way to know whether it can "
-    "find its hits is to simulate screens you know the truth for and fit the "
-    "model you would really use. Describe the library, the plates, the "
-    "classifier and the effect you expect; this sweeps cells-per-well and "
-    "wells, and reports the fraction of simulated screens in which the model "
-    "recovered the planted hits. The departures from the R package it is "
-    "ported from — including that the R version overstates power — are shown "
-    "next to the number, not in a footnote.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive design exploration; "
-                "spacr.power_model.scan_parameters() is the headless "
-                "equivalent and takes the same parameters.")
-#: :data:`APP_NAME` in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr. Handed to ``register_app(translations=…)``, which is
-#: what puts them in every catalog; a missing one is a blank sidebar row in
-#: that language rather than an English one. "Power" is the statistical
-#: term throughout, not electrical power.
-APP_TRANSLATIONS = (
-    "Statistisk styrka / design",
-    "Teststärke / Design",
-    "Potencia / diseño",
-    "检验效能 / 设计",
-    "Potência / delineamento",
-    "सांख्यिकीय शक्ति / डिज़ाइन",
-    "검정력 / 설계",
-    "Tölfræðilegt afl / hönnun",
-    "Puissance / plan",
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
 
 #: The settings this app has, as ``{key: (default, type, tooltip)}``.
@@ -1352,37 +1442,37 @@ APP_TRANSLATIONS = (
 _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
     "power_n_genes": (
         452, int,
-        '(int) - Genes in the library. The real T. gondii screen this simulator was fitted to had 452. Power falls roughly as the log of this: doubling the library costs about as much as halving the wells. Default 452.'),
+        '(int) - Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.'),
     "power_n_grnas_per_gene": (
         4, int,
         "(int) - Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4."),
     "power_score_per": (
         "gene", str,
-        "(str) - 'gene' pools a gene's guides before the model sees them, which is what the real analysis and spaCRPower do; 'guide' gives every construct its own coefficient. Default 'gene'."),
+        "(str) - 'gene' simulates one aggregate library unit and coefficient per gene; 'guide' simulates genes × guides-per-gene independent guide-level units, each with its own coefficient and reads. The simulator has no guide-efficiency or within-gene grouping layer. Choices: 'gene' or 'guide'. Default 'gene'."),
     "power_cells_per_well": (
         123.0, float,
         '(float) - Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.'),
     "power_wells_per_plate": (
         384, int,
-        '(int) - Wells per plate: 96, 384 or 1536. With the plate count it sets the total number of wells, and raising it buys replication rather than cells - a 1536 plate holds four times the wells of a 384 at the same imaging cost per well, so power rises while cells per well stays where you set it. Default 384.'),
+        '(int) - Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not restricted to those formats. This is multiplied by power_n_plates and only the resulting total well count reaches the simulator; no plate identity is modelled. Default 384.'),
     "power_n_plates": (
         4, int,
-        '(int) - Plates in the screen; four 384-well plates in the real one. This is the cheapest axis to move: another plate is another full set of wells, and because plate is a random effect in the model it also buys a better estimate of plate-to-plate variance rather than confounding with it. Default 4.'),
+        '(int) - Number of plates used to calculate total simulated wells: wells-per-plate × plates. The simulator and fitted model receive only that total and do not model plate identity or plate-to-plate variance. Default 4.'),
     "power_constructs_per_well": (
         4.6, float,
-        '(float) - Mean library constructs spotted into each well. The knob that trades constructs-per-well against wells-per-construct, and the sweep spaCRPower cared most about. 4.6 in the real screen. Default 4.6.'),
+        '(float) - Target mean distinct library units present per well (genes in gene mode, guides in guide mode), passed as well_abundance_factor_mu. Probability clipping can make the realised mean lower. Default 4.6.'),
     "power_background_positive_rate": (
         0.12, float,
-        "(float) - Probability a non-hit cell is called positive - the classifier's false-positive rate. 0.12 in the real screen. Default 0.12."),
+        "(float) - Mean probability that a non-hit cell is called positive. Rates vary across library-unit/well observations according to the held class_neg_var. Default 0.12."),
     "power_effect_fold": (
         6.667, float,
-        "(float) - How many times more often a hit-genotype cell is called positive. The effect size. The real screen's MaxViT classifier sat at 0.80 against 0.12, i.e. 6.67-fold. Default 6.667."),
+        "(float) - Requested fold multiplier on the mean background positive-call rate. The simulator uses min(0.999, background rate × fold); the screen rejects folds below 1 and classifier mean/variance combinations that cannot define a beta distribution. Default 6.667, yielding 0.80004 at the default background."),
     "power_hit_rate": (
         0.025, float,
-        '(float) - Fraction of the library that is a true hit. 0.025 was inferred from the real screen by inverting the well positivity rate against the classifier operating point. The single number most worth checking against your own pilot data. Default 0.025.'),
+        '(float) - Independent probability that each simulated library unit is a true hit; the realised hit fraction varies between replicates. In guide mode, guide units are assigned independently because no gene-grouping layer is modelled. Default 0.025.'),
     "power_reads_per_well": (
         30000, int,
-        '(int) - Mean sequencing reads per well. Unambiguously per well: spaCRPower divided its read budget by the number of genes, giving ~284 where a real screen has ~30000. Default 30000.'),
+        '(int) - Target mean sequencing depth per well. Per-well targets vary according to the held read_depth_cv, and realised reads cannot exceed the amplified barcode pool. Default 30000.'),
     "power_n_replicates": (
         3, int,
         '(int) - Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.'),
@@ -1391,11 +1481,25 @@ _SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
         '(float) - The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.'),
     "power_seed": (
         0, int,
-        '(int) - Master seed. Every number the screen reports is reproducible from this plus the parameters above. Default 0.'),
+        '(int) - Master seed used to derive each grid-point replicate seed. Reproduction requires the complete DesignSpec, the same sweep grid and order, resolved backend, and software stack. Default 0.'),
     "power_backend": (
         "torch", str,
-        "(str) - Inference backend: 'auto', 'torch' (mean-field ADVI, always available), 'numpyro' or 'pymc' (exact NUTS, if installed). ADVI gets the coefficient ORDER right, which is all AUROC needs, and understates the intervals, which is why it is not the choice when the interval is the deliverable. Default 'torch'."),
+        "(str) - Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'."),
 }
+
+
+def _setting_tooltip(key: str) -> str:
+    """Return the one authored tooltip for a Power form setting.
+
+    The hand-built form and the generic settings registry are two renderers
+    of the same controls. Reading both from :data:`_SETTINGS` prevents the
+    visible labels from retaining an older scientific claim after the
+    registry tooltip is corrected.
+
+    :param key: a key declared in :data:`_SETTINGS`.
+    :returns: its tooltip text.
+    """
+    return _SETTINGS[key][2]
 
 
 def power_default_settings(settings: Optional[Dict[str, Any]] = None
@@ -1444,13 +1548,11 @@ def spec_from_settings(settings: Dict[str, Any]) -> DesignSpec:
 def register_settings(replace: bool = False) -> bool:
     """Register this app's defaults through :func:`spacr.settings.register_defaults`.
 
-    Separate from :func:`register`, and like it **not called at import**:
-    ``register_defaults`` merges into the process-wide ``expected_types``,
-    ``tooltips`` and ``categories`` tables, and a module that mutates those
-    the moment it is imported changes what every settings test in the suite
-    sees depending on import order. ``register_app(defaults_module=...)``
-    exists precisely so the import is deferred to the moment the settings
-    panel asks for the key; this function is what that import would run.
+    Separate from :func:`register`, and called at the bottom of this module:
+    ``register_app(defaults_module=...)`` defers importing the screen until
+    its settings are requested, and that import must populate the same
+    process-wide ``expected_types``, ``tooltips`` and ``categories`` tables
+    regardless of which screen or test happened to import it first.
 
     :param replace: overwrite an existing registration for this key.
     :returns: ``True`` if this call registered it, ``False`` if it was
@@ -1497,17 +1599,17 @@ def register() -> bool:
     a worse interface to :func:`spacr.power_model.scan_parameters` than
     calling it, which is exactly what the note tells the user to do.
     """
-    from ..app import APPS, SECTION_DESIGN, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    # Settings first: if the shared tables reject a key, nothing has landed
-    # in APPS yet and the app is absent rather than half-present.
+    # The declared row names this module as its defaults owner, but a caller
+    # has already imported the module in order to call this function.  The
+    # generic resolver therefore cannot rely on a later import side effect to
+    # install the defaults.  Keep the app row and its settings atomic, as the
+    # pre-declaration registration path did.
     register_settings()
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_DESIGN,
-        factory=make_power_screen, stage=STAGE_ALPHA,
-        title="Power / Design", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/power",
-        defaults_module="spacr.qt.screens.power",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
+
+
+# ``defaults_module`` means importing this lazily loaded owner establishes
+# its defaults.  Without this call, asking for Power settings after another
+# test imported the screen returned a different inventory from asking in a
+# fresh process.
+register_settings()

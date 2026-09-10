@@ -56,8 +56,8 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPoint, QRect, QSettings
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import (QApplication, QMainWindow, QStackedWidget,
-                               QWidget)
+from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow,
+                               QStackedWidget, QWidget)
 
 from spacr.qt import preferences as prefs
 
@@ -246,8 +246,14 @@ def _viewport(screen) -> QRect:
     return QRect(top_left.x(), top_left.y(), view.width(), view.height())
 
 
+#: How much of a category has to be on screen before it is worth measuring.
+#: Enough that the sample is the card's own surface and not a sliver of its
+#: border.
+MEASURABLE_BAND_PX = 80
+
+
 def _inside(view: QRect, rect: QRect) -> bool:
-    """Is ``rect`` scrolled fully into ``view``, vertically?
+    """Is enough of ``rect`` on screen, vertically, to measure?
 
     Vertically only, and the horizontal half is handled by :func:`_clip`
     instead, because a category is as wide as the *content* widget and the
@@ -255,8 +261,27 @@ def _inside(view: QRect, rect: QRect) -> bool:
     Measure, the categories are 624 px across a 408 px viewport. Requiring
     full containment would reject every category on a screen where nothing
     is wrong.
+
+    THE VERTICAL HALF NOW HAS THE SAME PROBLEM, for the same reason. A
+    category taller than the column can never be fully inside it, and
+    Regression opens with one: its Input Tables card is 787 px in an 826 px
+    viewport starting 301 px down, so full containment rejected every
+    category on the screen and the test could measure nothing at all. The
+    card is that tall because it is deliberately opened -- it carries the
+    "Load test data" button, which is unfindable inside a collapsed body.
+
+    So this asks for a measurable BAND rather than the whole card. Callers
+    clip to the viewport before measuring anyway, which is what keeps a card
+    hanging off the bottom from being read half-and-half.
     """
-    return rect.top() >= view.top() and rect.bottom() <= view.bottom()
+    top = max(rect.top(), view.top())
+    bottom = min(rect.bottom(), view.bottom())
+    visible = max(0, bottom - top + 1)
+    # A COLLAPSED CARD IS 34 px TALL, so the band cannot simply be a floor:
+    # most categories on a settings screen are collapsed, and demanding 80 px
+    # of them rejects the whole column. Fully visible is enough, whatever the
+    # height; the band only applies to a card too tall to fit.
+    return visible >= min(rect.height(), MEASURABLE_BAND_PX)
 
 
 def _clip(view: QRect, rect: QRect) -> QRect:
@@ -365,7 +390,13 @@ def test_the_column_between_the_categories_is_the_page(qtbot,
 
         gap between categories   0.702 (with the container) -> 1.000
     """
-    _window, screen = _show(qtbot, "measure")
+    # `illumination`, NOT `measure`. Instruction 177 C made measure's
+    # categories TABS, so exactly one of them is on screen at a time and
+    # there is no gap BETWEEN categories left to measure -- the helper below
+    # said so out loud, "the categories are flush against each other". This
+    # test is about the column's theme showing between stacked cards, which
+    # every screen that is not in `SETTINGS_AS_TABS` still does.
+    _window, screen = _show(qtbot, "illumination")
     alpha = _transmission(screen)
     for gap in _gaps(screen)[:4]:
         measured = _mean(alpha, gap)
@@ -444,7 +475,13 @@ def test_the_probe_can_see_a_container_behind_the_categories(
                 f"{pane_surface('surface_alt', palette['theme'], opacity)}; }}")
 
     monkeypatch.setitem(theme_mod._WIDGET_QSS, SETTINGS_PANEL_NAME, container)
-    _window, screen = _show(qtbot, "measure")
+    # `illumination`, NOT `measure`. Instruction 177 C made measure's
+    # categories TABS, so exactly one of them is on screen at a time and
+    # there is no gap BETWEEN categories left to measure -- the helper below
+    # said so out loud, "the categories are flush against each other". This
+    # test is about the column's theme showing between stacked cards, which
+    # every screen that is not in `SETTINGS_AS_TABS` still does.
+    _window, screen = _show(qtbot, "illumination")
     alpha = _transmission(screen)
     gap = _mean(alpha, _gaps(screen)[0])
     assert gap < 0.95, (
@@ -633,31 +670,67 @@ def test_the_probe_can_see_the_black_pane(qtbot, app_theme_restored,
         "made the running app black")
 
 
-def test_a_late_registered_block_reaches_a_styled_application(qt_theme_applied):
-    """The seam that made the fix invisible in the running app.
+def test_a_late_registered_block_reaches_its_screen_before_first_paint(
+        qtbot, qt_theme_applied):
+    """The local registration seam closes the first-paint race synchronously.
 
     ``app.py`` imports a screen's module inside the branch that builds it,
     which is long after the launch stylesheet was generated — so a block
     registered at module import is not in the sheet that is live, and the
-    screen opens unstyled however correct its rule is.
-    :func:`spacr.qt.theme.ensure_widget_qss_applied` is what closes it, and
-    this is the case it exists for.
+    screen used to open unstyled however correct its rule was. The screen root
+    receives the block before it is shown, without re-polishing the rest of
+    the application.
     """
     from spacr.qt.theme import ensure_widget_qss_applied, register_widget_qss
 
     name = "_TestLateBlock"
+    live_sheet = qt_theme_applied.styleSheet()
+    assert name not in qt_theme_applied.styleSheet(), (
+        "the fixture's stylesheet must predate this registration")
     register_widget_qss(name, lambda palette, opacity:
-                        "QLabel#_TestLateBlock { color: #ff00ff; }",
+                        "QLabel#_TestLateBlock { "
+                        "background-color: #ff00ff; color: #ff00ff; }",
                         replace=True)
+    root = QWidget()
+    root.resize(40, 40)
+    widget = QLabel(root)
+    widget.setObjectName(name)
+    widget.setGeometry(0, 0, 40, 40)
+    qtbot.addWidget(root)
     try:
-        assert name not in qt_theme_applied.styleSheet(), (
-            "the fixture's stylesheet predates this registration; that is "
-            "the whole premise")
-        assert ensure_widget_qss_applied(name) is True
-        assert name in qt_theme_applied.styleSheet()
-        # Idempotent: a second call has nothing to fix.
-        assert ensure_widget_qss_applied(name) is False
+        assert qt_theme_applied.styleSheet() == live_sheet
+        # The same host hook every production screen passes before insertion
+        # into MainWindow's visible stack.
+        from spacr.qt.app import MainWindow
+
+        # A STAND-IN WITH THE ONE METHOD `_theme_screen` DELEGATES TO.
+        # The backdrop install is a separate step so its refusal can be
+        # retried without re-applying the stylesheet to the whole tree
+        # (see `test_the_backdrop_never_waits_out_a_heavy_import.py`), and
+        # this test is about the QSS half. A bare `object()` used to work
+        # only because the backdrop code was inline and inside a
+        # `try/except`, which made a broken `self` look like a machine
+        # with no ambient module.
+        class _NoBackdrop:
+            installs = 0
+
+            def _install_screen_backdrop(self, screen, key):
+                type(self).installs += 1
+
+        host = _NoBackdrop()
+        MainWindow._theme_screen(host, root, "late_probe")
+        assert name in root.styleSheet()
+        assert qt_theme_applied.styleSheet() == live_sheet
+        root.show()
+        qt_theme_applied.processEvents()
+        pixel = widget.grab().toImage().pixelColor(20, 20)
+        assert (pixel.red(), pixel.green(), pixel.blue()) == (255, 0, 255)
+        # Idempotent: a second call has nothing to fix or repaint.
+        assert ensure_widget_qss_applied(name, root=root) is False
     finally:
-        from spacr.qt.theme import stylesheet, unregister_widget_qss
+        from spacr.qt.theme import (
+            clear_widget_qss_overlays,
+            unregister_widget_qss,
+        )
         unregister_widget_qss(name)
-        qt_theme_applied.setStyleSheet(stylesheet())
+        clear_widget_qss_overlays(qt_theme_applied)

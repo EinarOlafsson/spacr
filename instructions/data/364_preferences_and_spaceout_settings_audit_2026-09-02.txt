@@ -1,0 +1,1010 @@
+================================================================================
+364 -- PREFERENCES AND SPACEOUT SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+spaCR Preferences (`PreferencesDialog`)          111 setting rows
+             behind them, in spacr/qt/preferences.py   70 QSettings keys
+             + the Figures tab's graph-style panel     23 general rows
+             + its per-graph pages                     37 rows, 27 keys
+spaceout Preferences (the Fractal tab)            12 rows
+             behind them                               29 `spaceout/*` keys
+
+The dialog builds 128 labelled rows with the Fractal tab forced on (counted
+by walking the finished dialog, the way
+`tests/qt/test_every_preference_says_what_it_is.py` does): 12 Fractal, 5
+action buttons that are not settings (Memory, GPU memory, Threads, Disk,
+Application), and 111 settings. Five of those 111 -- the log levels -- carry
+two switches each, so the surface asks 116 questions on 111 rows.
+
+The same three questions the five previous audits asked, in the same order,
+against the same standard of evidence: every claim below is either a
+quotation from the setting's own tooltip or a line of code that reads it, or
+does not.
+
+THESE TWO SURFACES ARE NOT LIKE THE SIX MODULES. A module setting is a key in
+a dict that a pipeline function reads. A preference is a QSettings key with a
+typed getter, and the getter is the only way in -- so "is it read" is a
+question about FUNCTION CALLERS, not about `settings['<key>']`. The scan used
+here is: for every `def get_*` and `def set_*` in `spacr/qt/preferences.py`,
+count references outside that file and inside it, then read every call site.
+It found what the module scans could not: eight public functions with no
+caller anywhere in `spacr/`, and a whole vocabulary of 37 figure settings
+that is stored, shown, translated, and cannot reach a figure.
+
+AND THE GOOD NEWS FIRST, because it is a real result. Every one of the 128
+rows is explained. `tests/qt/test_every_preference_says_what_it_is.py` walks
+the finished dialog -- with `spaceout_enabled` forced True, so the Fractal
+tab is covered -- and asserts that every label writes a sentence into the
+hint strip, that no tooltip is left on a field, that no explanation merely
+repeats its label, and that `PREFERENCE_TIPS` carries no key for a row that
+is not there. All four pass. This surface has the equivalent of
+`test_every_setting_a_module_offers_has_a_category`, and it works. What it
+cannot check is whether the sentence is TRUE, and that is where Findings 3, 6
+and 11 live.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- WHAT THE SURFACE HAS INSTEAD OF `categories` AND `expected_types`
+--------------------------------------------------------------------------------
+
+Recorded first because the open instruction asks it directly and the answer
+is different in kind from the module answer.
+
+There is NO `settings.categories` entry and NO `settings.expected_types`
+entry for any preference, and there should not be: a preference is not a key
+in a module's settings dict. Its category is its TAB (General, Appearance,
+Performance, Modules, Figures, Logging, and Fractal under spaceout) and its
+type is enforced by its own getter, each of which validates on read against a
+declared tuple -- `VALID_THEMES`, `VALID_CB_MODES`, `PERFORMANCE_LEVELS`,
+`FRACTAL_QUALITIES` and so on -- and falls back to a named default rather
+than propagating a bad value. `_as_bool` (preferences.py:3786) exists for
+exactly the reason the Annotate audit found `edge_image` shipping the STRING
+'False': an INI hands every value back as a string and `bool("false")` is
+True. So the defect that let a checkbox ship a truthy string CANNOT happen
+here; each getter coerces.
+
+  THE HOLE IS THE OTHER DIRECTION. Nothing checks that every STORED key has a
+  row, or that every row's value is READ. `test_every_preference_says_what_it
+  _is.py` walks rows and asks whether they are explained; no test walks the
+  99 `_KEY_*` constants and asks whether anything consumes them. That is what
+  lets Findings 2, 4 and 5 sit unnoticed, and it is the one test this surface
+  is missing.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- THE FIGURES TAB'S 37 PER-GRAPH ROWS CANNOT REACH A FIGURE
+--------------------------------------------------------------------------------
+
+PROPOSE: THIS IS THE ITEM TO LOOK AT FIRST. It is the largest block of
+settings on either surface, it is the only one that costs a user their work
+rather than their patience, and the code that proves it is a comment the
+package already wrote about itself.
+
+35 of the 37 per-graph rows, and 2 of the 23 general rows, are stored, shown,
+tooltipped, translated -- and cannot change any figure spaCR draws.
+
+  THE ONE ROUTE FROM THE STORE TO A FIGURE, and there is only one:
+
+      spacr/figures/style.py:327    params.update(user_overrides(kind))
+      spacr/figures/style.py:229    chosen = resolve(kind, general, per_graph)
+      spacr/figures/style.py:231    after, before = rc_params(chosen),
+                                                    rc_params(untouched)
+      spacr/figures/style.py:232-233    return {key: value for key, value in
+                                        after.items() if before.get(key) != value}
+
+  `user_overrides` turns the user's style deltas into MATPLOTLIB rcParams and
+  returns only the rcParams that MOVED. A style key that `rc_params` does not
+  emit therefore reaches nothing. `spacr/figure_style.py` says so itself, in
+  the comment beside the palette:
+
+      # THE PALETTE IS AN rcParam TOO, and it has to be one here rather than
+      # only inside `apply`. `spacr.figures.style.rc` -- the only supported
+      # way a figure gets this style -- builds its overrides by DIFFING two
+      # `rc_params` dicts, so a setting this function does not emit cannot
+      # reach a drawn figure at all: a user who picked a palette in
+      # Preferences got the Matplotlib default cycle back.
+      (spacr/figure_style.py:386-392)
+
+  That paragraph was written to fix ONE key. It is true of twenty-seven.
+
+MEASURED, not inferred. For each style key: take the resolved style, change
+that key, and diff `rc_params` before and after.
+
+    INERT GENERAL (2 of 23):    format   mark_colouring
+
+    INERT PER-GRAPH (25 of 27): annotate  annotate_cells  aspect  bar_alpha
+    bins  centred  colormap  edge_colour  edge_width  error_bars  fill_colour
+    jitter_width  label_top_n  legend  log_y  per_row  point_alpha
+    reference_colour  reference_style  split_axis  threshold_colour
+    threshold_style  threshold_width  trend_colour  trend_line
+
+    LIVE PER-GRAPH (2 of 27):   grid -> axes.grid
+                                marker_size -> lines.markersize
+
+  So of the 37 per-graph ROWS the panel builds -- five for jitter_bar, three
+  for residuals, five for scatter, six for histogram, five for plate_heatmap,
+  nine for volcano, four for line -- 35 do nothing. A user who opens
+  Preferences, picks the volcano page, sets "Label top n" to 25, turns
+  "Split axis" on and chooses a threshold colour, and presses OK, has changed
+  three JSON entries and no figure.
+
+THE API THAT WAS MEANT TO DELIVER THEM EXISTS AND HAS NO CALLER.
+`spacr/figure_style.py:401 apply()` returns the FULL resolved style,
+"including settings that have no Matplotlib rcParam equivalent". Its only
+caller is `spacr/qt/preferences.py:949 apply_figure_style`, whose docstring
+reads:
+
+    """Push the user's style for ``kind`` into matplotlib. Returns it.
+
+    The one call a plotting function needs: it reads the preferences, layers
+    them over the defaults and this graph kind's own, and applies the result.
+    """
+
+  `apply_figure_style` HAS NO CALLERS ANYWHERE UNDER `spacr/`. "The one call
+  a plotting function needs" is a call no plotting function makes.
+
+  AND THE TESTS DESCRIBE THE CALLER THAT DOES NOT EXIST:
+
+      `apply` still has to return the resolved style -- the caller reads
+      per-graph settings such as ``label_top_n`` out of it that have no
+      rcParam at all
+      (tests/test_figure_style_uncovered_paths.py:122-124)
+
+      the settings matplotlib has no rcParam for -- how many volcano labels
+      to write -- are read off the return value and the plot cannot be drawn
+      without them
+      (tests/test_figure_style.py:129-131)
+
+  Both are true statements about a design. Neither is a statement about this
+  package: no plot reads them off anything.
+
+  THE PACKAGE ALREADY KNOWS `label_top_n` IS NOT AN rcParam, and says so
+  three lines from where it stores the panel's values:
+
+      #: Merging the two vocabularies would put `label_top_n` into
+      #: `rcParams.update`, which raises rather than being ignored.
+      (spacr/qt/preferences.py:817-818)
+
+  -- and the panel offers `label_top_n` anyway.
+
+  PROPOSAL, and it needs the maintainer because there are two honest
+  answers. EITHER make `rc()` hand the resolved style to the plot (which
+  means every plotting function that draws a volcano, a histogram or a plate
+  heatmap has to read it, and that is the design the tests already describe);
+  OR cut `GRAPH_DEFAULTS` down to the keys `rc_params` emits and stop
+  offering the other twenty-five. What must not stand is the third state,
+  which is what ships: thirty-five controls with tooltips explaining what
+  they would do.
+
+  THE LIVE CONTROLS FOR THE SAME QUESTIONS ALREADY EXIST ELSEWHERE, which is
+  why nobody noticed. `spacr/volcano_style.py` has its own `split_axis`,
+  `colormap` and `show_colorbar` on a `VolcanoStyle` dataclass driven by the
+  Volcano explorer, stored under the SEPARATE key `figures/style_defaults`
+  (preferences.py:819) -- and that one works. Two vocabularies, one live.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- `supersampling` IS "A SUPER IMPORTANT SETTING" THAT NOTHING READS
+--------------------------------------------------------------------------------
+
+PROPOSE: this is spaceout's Finding 1, and it is the first genuinely dead
+setting found on either surface here.
+
+The Fractal tab's Supersampling row is introduced by its own comment:
+
+    # SUPERSAMPLING, called out as "a super important setting". It
+    # is the one that decides whether the picture is smooth or
+    # aliased, and it costs its own square: 2 is four samples a
+    # pixel, 3 is nine.
+    (spacr/qt/preferences.py:5513-5516)
+
+and its tooltip says "The cost is the square of this number, so it is the
+first thing to turn down on a slow machine and the first to turn up on a fast
+one" (preferences.py:5519-5525).
+
+NO RENDERER READS IT. The complete set of places the name occurs under
+`spacr/`, excluding the i18n catalogs:
+
+    preferences.py     the key (457), the limit (316), the getter (2496),
+                       the setter (2577), the Scale derivation (416), the
+                       row (5517), the save (6040), the complaint list (6055)
+    fractal_defaults.py:57   DEFAULT_SUPERSAMPLING = 1
+    fractal_mandelbrot.py:76 "supersampling": 2, in DEFAULTS
+
+  and nothing in `fractal_travel.py`, `fractal_orbit_gpu.py`,
+  `fractal_cascade.py`, `fractal_space.py` or `fractal_mandelbrot.py`'s
+  shaders. The sample count is HARD-CODED in each renderer:
+
+      * the CPU renderer does TRUE SPATIAL 2x2 supersampling inside one
+        frame -- four samples of the same instant, averaged.
+      (spacr/qt/widgets/fractal_cascade.py:15-16)
+
+      // TRUE SPATIAL 2x2, four samples of ONE instant. The CPU path jitters
+      (spacr/qt/widgets/fractal_orbit_gpu.py:139)
+
+      """Two samples a side on a small frame, one on a large one.
+      (spacr/qt/widgets/fractal_space.py:472-476)
+
+  Two samples a side, always, whatever the field says.
+
+AND THE CONSTANT THAT DOCUMENTS THE DEFAULT DOCUMENTS NOTHING.
+`fractal_defaults.py:44-57` carries five lines of reasoning for
+`DEFAULT_SUPERSAMPLING = 1` -- "changed 2026-09-01: 'default to
+computationally easy settings like supersampling 1 and scale 0.5 and speed
+1'". `get_fractal_settings` does not read it. It reads
+`_MANDEL_DEFAULTS["supersampling"]`, which is `fractal_mandelbrot.DEFAULTS`,
+which is 2. Measured in a clean store:
+
+    supersampling resolved: 2    DEFAULT_SUPERSAMPLING: 1
+
+  THE TEST WRITTEN TO CATCH EXACTLY THIS OMITS THE KEY:
+
+      def test_preferences_reads_these_and_not_a_second_copy():
+          """The settings layer must resolve to the same numbers, or the
+          constants above document something nothing uses."""
+          values = get_fractal_settings()
+          assert values["pattern"] == F.DEFAULT_PATTERN
+          assert values["backend"] == F.DEFAULT_BACKEND
+          assert values["scale"] == F.DEFAULT_SCALE
+          assert values["speed"] == F.DEFAULT_SPEED
+      (tests/qt/test_the_backdrop_opens_on_the_asked_for_defaults.py:97-107)
+
+  Four keys, and supersampling is not one of them -- while the file's other
+  three tests assert `DEFAULT_SUPERSAMPLING == 1` and compute a cost budget
+  from it. The test suite passes (14 passed, run 2026-09-02) with the
+  constant and the resolved value four times apart.
+
+  PROPOSAL: retire the key and the row, or wire it. If it is wired, the
+  `DEFAULT_SUPERSAMPLING`/`DEFAULTS["supersampling"]` disagreement has to be
+  settled first and the round-trip test has to name it.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- QUALITY: FOUR LEVELS, THREE ACCEPTED, AND A PRESET NEVER APPLIED
+--------------------------------------------------------------------------------
+
+PROPOSE: this is three defects on one row, and the third is the one the
+module documents having already fixed elsewhere.
+
+(a) `apply_quality_preset` HAS NO CALLER. `QUALITY_PRESETS`
+    (preferences.py:2365-2390) maps each level to four numbers, and
+    `apply_quality_preset` (preferences.py:2394-2409) writes them. Nothing
+    under `spacr/` calls it -- only four tests. The dialog's save writes only
+    the STRING (`quality=fractal_quality.currentData()`,
+    preferences.py:6023). So the row's own tooltip is false:
+
+        "A level is a set of numbers, not an adjective: choosing one fills
+        in supersampling, render scale, the iteration budget and the scale
+        below."
+        (preferences.py:5444-5451)
+
+    It fills in none of them.
+
+(b) `ultra` IS SILENTLY RESET TO `auto`. Two copies of the level list, and
+    they disagree:
+
+        spacr/qt/preferences.py:2358
+            FRACTAL_QUALITIES = ("auto", "balanced", "high", "ultra")
+        spacr/qt/widgets/fractal_travel.py:53
+            QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high")
+
+    `Settings.validated()` (fractal_travel.py:257) does
+    `quality=self.quality if self.quality in QUALITIES else DEFAULT_QUALITY`,
+    and `create_fractal_widget` calls it on every build
+    (fractal_travel.py:2427). Measured:
+
+        panel picks ultra -> validated auto -> gpu resolves balanced
+        panel picks high  -> validated high -> gpu resolves high
+
+    So on the GPU -- the default backend wherever vispy is installed --
+    choosing ULTRA gives you BALANCED, which is strictly less than High. On
+    the CPU it lands on `high` only if the machine has 16 or more cores, and
+    on `balanced` otherwise. Ultra is never more than High and is usually
+    less.
+
+  THIS IS THE DEFECT `fractal_defaults.py` RECORDS HAVING FIXED FOR PATTERNS:
+
+      #: There used to be a second copy in `preferences.FRACTAL_PATTERNS`,
+      #: and adding a pattern to one and not the other meant the new pattern
+      #: was selectable in code and absent from the Preferences combo --
+      #: which is how it was found.
+      (spacr/qt/fractal_defaults.py:33-36)
+
+    `FRACTAL_PATTERNS` is now imported from `fractal_defaults`
+    (preferences.py:2355). `FRACTAL_QUALITIES` is still a second copy, and
+    it grew a fourth entry the renderer never learned.
+
+(c) THE TOOLTIP DESCRIBES TWO LEVELS AND THE COMBO OFFERS FOUR.
+
+        "Quality": "How much detail the fractal is asked for. Balanced costs
+        less per frame; high adds an iteration to the fractal and raises the
+        internal resolution. Automatic chooses from the number of cores on
+        the CPU renderer and uses balanced on the GPU."
+        (preferences.py:4216)
+
+    Ultra is not mentioned. "raises the internal resolution" is not true
+    either -- see Finding 4.
+
+  PROPOSAL: import `FRACTAL_QUALITIES` from `fractal_defaults` the way
+  `FRACTAL_PATTERNS` already is, so one list decides both; then either call
+  `apply_quality_preset` from the combo or delete `QUALITY_PRESETS` and the
+  sentence that promises it.
+
+--------------------------------------------------------------------------------
+FINDING 4 -- `scale` AND `render_scale` ARE ONE QUESTION, SHIPPED DISAGREEING
+--------------------------------------------------------------------------------
+
+PROPOSE: COMBINE. This is the `organelle_min_size`/`_min_area` shape from the
+Mask audit -- two keys for one question, read by different code -- with one
+extra turn: at a fresh install the two hold different values, so the shipped
+default does not happen.
+
+    scale         the row on the Fractal tab. Default 0.5.
+    render_scale  derived from it on save (`SCALE_GROUP`,
+                  preferences.py:384-388; `scale_group_values`, :406-418).
+                  Default 1.0, from `fractal_mandelbrot.DEFAULTS`.
+
+Measured in a clean store:
+
+    scale: 0.5   render_scale: 1.0   DEFAULT_SCALE: 0.5
+
+  `DEFAULT_SCALE`'s own comment (fractal_defaults.py:59-62) says: "Render
+  scale, asked for on 2026-09-01. Half resolution: the backdrop is behind the
+  interface and a full-resolution one buys sharpness nobody reads at the cost
+  of frames everybody feels." The backdrop renders at FULL resolution until
+  somebody opens Preferences and presses OK, because that is the only thing
+  that runs the derivation.
+
+AND `scale`'S OWN CONTRIBUTION IS THROWN AWAY. On the CPU path:
+
+    spacr/qt/widgets/fractal_travel.py:785
+        base_pixels *= settings.scale * settings.scale
+
+    spacr/qt/widgets/fractal_travel.py:1307-1328
+        requested = float(base_pixels) * adaptive_scale ** 2
+        ...
+        if render_scale > 0.0:
+            requested = native * render_scale * render_scale * adaptive_scale ** 2
+
+  `base_pixels` -- and with it `settings.scale` AND the per-pattern budget
+  AND the balanced/high distinction -- is overwritten whenever
+  `render_scale > 0`, which the same comment says is always: "since
+  `render_scale` defaults above zero, that was every launch"
+  (fractal_travel.py:1311-1312). `_number` floors `render_scale` at 0.05
+  (FRACTAL_LIMITS, preferences.py:335), so it can never be zero.
+
+  ON THE GPU PATH NEITHER IS READ. `_render_scale()` has exactly one caller,
+  `CpuFractalWidget._target_size` (fractal_travel.py:961), and
+  `_make_gpu_widget` (fractal_travel.py:1542-2266) sizes from
+  `self.physical_size` and never mentions `render_scale` or `settings.scale`.
+  `_render_scale`'s docstring says "MODULE LEVEL, because both builders need
+  it" (fractal_travel.py:2373); one builder needs it.
+
+  SO THE TOOLTIP IS HALF RIGHT AND HALF WRONG:
+
+      "Scale": "A resource multiplier for the CPU renderer's internal
+      resolution, applied before it adapts. Below 1.0 draws fewer pixels and
+      scales them up; above 1.0 draws more. It does not change what the
+      fractal looks like, only how finely it is sampled. The GPU renderer
+      ignores it."
+      (preferences.py:4217)
+
+  "The GPU renderer ignores it" is honest and correct. "above 1.0 draws more"
+  is not: `target_render_size` caps at `min(native, requested)`
+  (fractal_travel.py:1330), so above 1.0 draws exactly native, and
+  `Settings.validated()` clamps scale to 2.0 first (fractal_travel.py:258).
+  Measured: `target_render_size(1920,1080,1.0,render_scale=1.75,...)` returns
+  (1920, 1080), the same as 1.0.
+
+  PROPOSAL: one key. Keep `render_scale` -- it is the one the renderer reads
+  and the one whose name says what it is -- retire `scale` into
+  RETIRED_SETTINGS, and let the row write `render_scale` directly. Then
+  `DEFAULT_SCALE = 0.5` becomes true on first launch instead of after the
+  first Save.
+
+--------------------------------------------------------------------------------
+FINDING 5 -- THE FRACTAL FIELDS PROMISE TO BE UNCAPPED AND ARE CAPPED IN USE
+--------------------------------------------------------------------------------
+
+PROPOSE: fix the promise or fix the clamp. The design is written out twice
+and contradicted once, silently.
+
+    """A NUMBER FIELD, not a capped slider.
+
+    A spin box whose maximum is 2 turns a typed 40 into 2 without
+    explaining the change. These settings accept the typed number
+    and let validation report clearly when it cannot be used.
+    """
+    (spacr/qt/preferences.py:5454-5466, `_tenths`)
+
+and `set_fractal_settings` repeats it: "THE FIELD'S NUMBER IS KEPT. Only a
+value that cannot work at all is moved ... a store that silently reduced 8000
+to 8 would make the field a control that lies about what it did"
+(preferences.py:2651-2655). `tests/qt/test_the_fractal_fields_are_not_capped
+.py:46-47` pins it: `set_fractal_settings(scale=40.0)` round-trips as 40.0.
+
+    IT IS REDUCED TO 2.0 THE MOMENT IT IS USED.
+
+        scale=clamp(float(self.scale), 0.25, 2.0),
+        (spacr/qt/widgets/fractal_travel.py:258, in `Settings.validated`)
+
+    Measured: `Settings(scale=40.0).validated().scale == 2.0`. And
+    `explain_a_fractal_number("scale", 40)` returns "" -- FRACTAL_LIMITS
+    gives scale a floor of 0.01 and NO ceiling (preferences.py:306) -- so the
+    "Some numbers cannot be used" dialog (preferences.py:6078-6084) says
+    nothing. The field takes 40, the store keeps 40, the tool reports
+    nothing, and the picture is drawn at 2.
+
+  AND THE HONEST NUMBERS ARE WRITTEN AT THE CALL SITE AND DISCARDED.
+  `_tenths(name, value, low=None, high=None)` never reads `low` or `high`:
+  its body sets `box.setRange(-1e12, 1e12)` and returns. Its five callers
+  pass bounds anyway:
+
+      fractal_scale = _tenths("FractalScale", ..., 0.25, 2.0)   (:5490)
+      fractal_speed = _tenths("FractalSpeed", ..., 0.15,
+                              MAX_FRACTAL_SPEED)                    (:5493)
+      fractal_dream = _tenths("FractalDream", ..., 0.0, 1.5)    (:5496)
+
+  `0.25, 2.0` at :5490 is EXACTLY the clamp `validated()` applies. The number
+  that would have made the field honest is typed into the call and thrown
+  away.
+
+  THE FUNCTION NEXT DOOR HAS THE ARGUMENT ALREADY WRITTEN OUT:
+
+      # NO `suffix` PARAMETER. It had one, defaulting to "", and the single
+      # caller below never passed it -- so the `setSuffix` it guarded could
+      # not run ... A parameter with no caller is not extensibility, it is a
+      # branch that cannot be tested and a reader wondering what uses it.
+      (spacr/qt/preferences.py:5475-5480, `_whole`)
+
+  The same defect survives in `_tenths` twenty lines above, with five
+  callers instead of none.
+
+  `MAX_FRACTAL_SPEED` IS A CASUALTY OF IT. `MAX_FRACTAL_SPEED: float =
+  1_000_000.0` (preferences.py:448) occurs exactly twice in the package: its
+  definition, and :5495 where it is passed to the parameter that is ignored.
+  A module-level constant with a five-line provenance that decides nothing.
+
+  PROPOSAL: either delete `low`/`high` from `_tenths` and `MAX_FRACTAL_SPEED`
+  with them, or give `scale` a ceiling in `FRACTAL_LIMITS` so
+  `explain_a_fractal_number` says what `validated()` is about to do.
+
+--------------------------------------------------------------------------------
+FINDING 6 -- LAPTOP MODE: A SETTER AND A GETTER THAT DISAGREE, AND A ROW THAT
+             REVERTS EVERY LAUNCH
+--------------------------------------------------------------------------------
+
+PROPOSE: the second item for the maintainer's attention, because unlike
+Finding 1 it changes what the application looks like on every start and there
+is nothing on the surface that explains it.
+
+(a) THE GETTER NO LONGER READS THE KEY THE SETTER WRITES.
+
+        def get_laptop_mode() -> str:
+            """...
+            DERIVED, NOT STORED. ... There is no ``"automatic"`` any more
+            """
+            return "on" if get_performance_level() == "laptop" else "off"
+        (preferences.py:2746-2762)
+
+        def set_laptop_mode(choice: str) -> None:
+            ...
+            if choice not in LAPTOP_MODE_CHOICES:   # ("automatic","on","off")
+                raise ValueError(...)
+            _settings().setValue(_KEY_LAPTOP_MODE, choice)
+        (preferences.py:2764-2783)
+
+    `prefs/laptop_mode` is read in exactly one other place -- the one-shot
+    migration inside `get_performance_level` (preferences.py:2894) -- and
+    that migration is idempotent: "once a level is stored the old values are
+    never consulted again" (:2882). So on any installed spaCR,
+    `set_laptop_mode("on")` writes a key nothing will read, and
+    `get_laptop_mode()` answers "off" straight afterwards unless the
+    performance level happens to be Laptop. The setter still accepts
+    "automatic", a value the getter documents as gone.
+
+    NEITHER HAS A CALLER. `get_laptop_mode`, `set_laptop_mode` and
+    `laptop_mode_note` (preferences.py:2785) are called nowhere under
+    `spacr/` -- only from tests -- and `LAPTOP_MODE_LABELS`
+    (preferences.py:2334) is referenced nowhere at all. There is no Laptop
+    row in the dialog; the level selector replaced it.
+
+(b) AND THE MODE STILL ACTS, BEHIND THE PREFERENCE THAT REPLACED IT.
+
+        def apply(on: Optional[bool] = None) -> Dict[str, object]:
+            if on is None:
+                on, why = wanted()
+            ...
+            if on:
+                if preferences.get_ambient_enabled():
+                    preferences.set_ambient_enabled(False)
+        (spacr/qt/laptop_mode.py:143-166)
+
+    called unconditionally at launch (`spacr/qt/app.py:5819-5821`), and
+    `wanted()` decides from the MACHINE -- fewer than 4 usable cores or less
+    than 8 GiB (laptop_mode.py:21-25, :104-111) -- not from the performance
+    level the user chose. So on a small machine, or in a container pinned to
+    three CPUs, every launch PERSISTS `ambient_enabled = False` and never
+    restores it, whatever the user picked on the Performance row.
+
+    THE ANIMATION ROW THEN LIES, WHICH IS THE STATE THE DESIGN WAS WRITTEN TO
+    PREVENT. `set_ambient_enabled` does not touch `ambient_theme`, so the
+    Preferences Animation combo still reads "Blobs" while nothing is painted.
+    The module docstring:
+
+        ``ambient_enabled``: ... The user-facing control is the ``None``
+        entry in the Animation list rather than a second switch: one row, one
+        meaning. Choosing an animation turns it back on.
+        (preferences.py:94-99)
+
+    Saving Preferences does turn it back on (`set_ambient_animation` ->
+    `set_ambient_enabled(True)`, preferences.py:1789), and the next launch
+    turns it off again. A row that cannot be made to stick, with no control
+    and no message anywhere on the surface.
+
+(c) AND THE MODE OVERSTATES WHAT IT DOES. `what_it_turns_down()`
+    (laptop_mode.py:118-129) names two things -- "the ambient background
+    animation" and "the backdrop blur" -- and `laptop_mode_note("on")`
+    renders both into a sentence. `apply()` writes one setting. Nothing there
+    touches `ambient_blur`.
+
+  PROPOSAL: make `laptop_mode.apply` consult `get_performance_level()`
+  instead of measuring the machine behind the user's choice, or make it
+  process-local the way `SPACR_NO_BACKDROP` already is
+  (`get_ambient_enabled`, preferences.py:1706-1708) -- an environment
+  override that is never persisted is exactly the right shape for "this
+  machine is small today". Retire `set_laptop_mode`, `laptop_mode_note` and
+  `LAPTOP_MODE_LABELS`; keep `get_laptop_mode` only if something is going to
+  ask it.
+
+--------------------------------------------------------------------------------
+FINDING 7 -- THE FIGURES TAB ASKS FOR THE FORMAT TWICE AND THE RESOLUTION TWICE
+--------------------------------------------------------------------------------
+
+PROPOSE: COMBINE, and retire the dead half.
+
+Four rows on ONE tab, in this order:
+
+     2. "Figure format"     prefs/figure_format   png | pdf      default pdf
+     7. "PNG resolution"    prefs/figure_png_dpi  100..1200      default 300
+    27. "Dpi"               style["dpi"]          a spin box     default 150
+    28. "Format"            style["format"]       pdf|png|svg    default pdf
+
+  `prefs/figure_format` is read in ten files and `prefs/figure_png_dpi` in
+  eight. `style["dpi"]` reaches `savefig.dpi` and `figure.dpi`
+  (figure_style.py:345-346). `style["format"]` is read by NOTHING: the string
+  `"format"` occurs in `spacr/figure_style.py` only at its default (:48) and
+  in the allowed set (:160), and `rc_params` emits no key for it -- so by
+  Finding 1's rule it cannot reach a figure. It is a dead combo twenty-six
+  rows below the live one, offering an svg the live one does not.
+
+  THE TWO DPI ROWS ARE BOTH LIVE AND BOTH APPLICATION-WIDE, twenty rows
+  apart, with different defaults (300 and 150) and different vocabularies (a
+  menu of five, and a free spin box). Nothing on either row mentions the
+  other. The live one's tooltip carefully explains its own scope --
+  "Resolution of the raster spaCR renders for the Figures panel, and of any
+  image embedded inside a vector PDF page" (preferences.py:5156-5162) -- and
+  "Dpi" says only "Resolution of the saved image in pixels per inch. A value
+  of 300 is commonly required for print." (preferences.py:4202), which is
+  advice to type a number into the field whose default is 150 while the row
+  twenty above it already says 300.
+
+  PROPOSAL: retire `style["format"]`. Decide which DPI is the answer and
+  delete the other; if both must stay, each tooltip has to name the other and
+  say which wins.
+
+--------------------------------------------------------------------------------
+FINDING 8 -- THE SPACE THEME'S KEYS ARE UNREACHABLE BY THE MODULE'S OWN ARGUMENT
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE `prefs/space_variant` and `prefs/space_seed`, and the five
+accessors that only each other call.
+
+`theme_background_path` is the single entry point to the Space artwork:
+
+    def theme_background_path(theme, width=0, height=0):
+        if theme == "space":
+            return space_background_path(width, height)
+        if theme == "cell":
+            return cell_background_path(width, height)
+        return None
+    (preferences.py:1622-1634)
+
+Every caller passes `resolve_effective_theme()`, which returns one of
+`PALETTE_THEMES = ("dark", "light", "cell", "glass")` (preferences.py:1636-
+1676): preferences.py:3937, app.py:5169, widgets/home.py:1380,
+screens/app_screen.py:720. `"space"` is not in `VALID_THEMES`, `set_theme`
+refuses it, `theme_choices()` offers no space token, and `get_theme()` maps
+anything unrecognised to `DEFAULT_THEME`. The branch cannot be entered.
+
+  THE MODULE ALREADY MAKES THIS EXACT ARGUMENT, ONE FUNCTION ABOVE:
+
+      # NO `space` BRANCH. "space" is not in VALID_THEMES -- `set_theme`
+      # refuses it and `theme_choices` offers no `space:` token -- so a
+      # branch for it could not be reached by any route through this
+      # module, and coverage counted three items nothing could execute.
+      # The Space ARTWORK still exists and `spaceout` still draws it; what
+      # is gone is the theme by that name, which is why the variant
+      # accessors below stay.
+      (preferences.py:1493-1499, in `get_theme_choice`)
+
+  The first half is right and was acted on. The second half -- "`spaceout`
+  still draws it, which is why the variant accessors below stay" -- is not
+  borne out: `get_space_variant` and `get_space_seed` have NO callers outside
+  `space_background_path`, and `space_background_path` has no reachable
+  caller. `spaceout` is the fractal dressing (`theme.enable_spaceout`,
+  theme.py:1898) and the Fractal tab; the "space" fractal PATTERN is
+  `spacr/qt/widgets/fractal_space.py`, a starfield shader that reads neither
+  key. `set_space_variant` and `set_space_seed` are called from nowhere at
+  all.
+
+  What dies with it: `space_variants` (:1520), `get_space_variant` (:1533),
+  `set_space_variant` (:1540), `get_space_seed` (:1565), `set_space_seed`
+  (:1574), `space_background_path` (:1579), the `space` branch of
+  `theme_background_path`, and the two lines of the module docstring that
+  document them (:59-62).
+
+--------------------------------------------------------------------------------
+FINDING 9 -- SETTINGS WITH NO CONTROL, AND ONE CONTROL WITH NO SETTING
+--------------------------------------------------------------------------------
+
+PROPOSE: decide each. Recorded together because they are one shape -- the
+declaration and the surface have drifted apart -- and because the previous
+audit found the identical pair in Map Barcodes (Findings 1 and 12).
+
+READ AT LAUNCH, NEVER OFFERED, NEVER SET:
+
+    prefs/preload_policy    read at `spacr/qt/app.py:2795`
+                            (`if get_preload_policy() != "eager": ...`),
+                            documented at preferences.py:2673-2682 -- "'eager'
+                            -- at startup, on a worker thread ... useful only
+                            on a machine that will certainly run a pipeline
+                            and prefers to pay a potentially tens-of-seconds
+                            import cost at the beginning."
+                            `set_preload_policy` (preferences.py:2690) has
+                            ZERO callers under `spacr/`, and there is no row.
+                            The only way to reach `eager` is to hand-edit the
+                            INI. Safe mode even forces it back
+                            (`_SAFE_OVERRIDES`, preferences.py:624), which is
+                            a guard against a state nothing can produce.
+
+STORED AND READ, NEVER OFFERED (spaceout, and see Finding 12):
+
+    spaceout/fractal_speed_min / _speed_max / _speed_period
+    spaceout/fractal_pointer_size / _pointer_strength
+
+    All five are read -- `RuntimeControls` takes them at
+    `widgets/ambient.py:5318-5326` and `apply_saved_controls` refreshes them
+    at `fractal_travel.py:2293-2300`. All five were taken OFF the panel
+    deliberately and the reasons are good ("SLOWEST AND FASTEST ARE GONE FROM
+    THE PANEL", preferences.py:5506-5510; "ONE MOUSE CONTROL, not three",
+    :5646-5650; "HOW OFTEN IT BREATHES IS NOT A QUESTION ANYBODY ASKED",
+    :5652-5655). What was not done is retiring them, so five settings a user
+    can only reach by hand still steer the backdrop.
+
+PUBLIC FUNCTIONS WITH NO CALLER ANYWHERE UNDER `spacr/`, found by the
+getter/setter scan:
+
+    apply_figure_style      (949)   -- see Finding 1
+    set_figure_colors_auto  (1419)
+    apply_quality_preset    (2394)  -- see Finding 3
+    set_preload_policy      (2690)
+    get_laptop_mode         (2746)  -- see Finding 6
+    set_laptop_mode         (2764)  -- see Finding 6
+    laptop_mode_note        (2785)  -- see Finding 6
+    mode_label              (3037)  -- named in the module docstring's
+                                      Public API block (:30) and called
+                                      nowhere; `mode_note` and
+                                      `mode_warning` beside it are both
+                                      live (:5269, :5273)
+    in_safe_mode            (639)   -- a public predicate nothing asks
+
+--------------------------------------------------------------------------------
+FINDING 10 -- THE ORDINARY LAUNCH CAN SEE THE FRACTAL AND CANNOT CONFIGURE IT
+--------------------------------------------------------------------------------
+
+PROPOSE: gate the screensaver, or stop hiding the tab.
+
+The Fractal tab is built only under spaceout, and the reason is stated:
+
+    # THE SPACEOUT FRACTAL, and ONLY under spaceout. An ordinary launch
+    # builds none of these rows, so the hidden mode stays hidden: a
+    # settings page advertising it would be the giveaway.
+    (preferences.py:5367-5370)
+
+    The installer the application actually uses, `_the_spaceout_fractal`,
+    returns None immediately when `spaceout_enabled()` is false
+    (widgets/ambient.py:5290-5294), and the caller then installs the
+    ordinary ambient engine.
+
+`spacr/qt/screensaver.py` does not. `Screensaver._build_the_backdrop`
+(screensaver.py:57-86) calls `get_fractal_settings()` and
+`create_fractal_widget(...)` with no spaceout check, and
+`show_screensaver` (screensaver.py:126) has none either. The action that
+opens it is bound unconditionally:
+
+    act_saver = QAction("Full-screen background", self)
+    act_saver.setShortcut(QKeySequence("Ctrl+Shift+F"))
+    (spacr/qt/app.py:3465-3474)
+
+  So in an ORDINARY `spacr` session, Ctrl+Shift+F draws the spaceout fractal
+  full screen at 29 settings the Preferences dialog is specifically written
+  not to show. The mode is not hidden; only its controls are.
+
+AND THE FOURTH INSTALLER IS DEAD AND STILL CARRIES THE OLD DEFECT.
+`install_the_spaceout_fractal` (spacr/qt/app.py:130-179) reads the settings
+and builds a backdrop:
+
+    widget = create_fractal_widget(
+        Settings(backend=values["backend"], quality=values["quality"],
+                 scale=values["scale"]),
+        RuntimeControls(speed=values["speed"], dream=values["dream"],
+                        variable_speed=values["variable_speed"]),
+    )
+    (spacr/qt/app.py:151-157)
+
+  NOTHING CALLS IT under `spacr/` -- six tests do, and the file itself says
+  why: "The spaceout fractal is installed by `install_ambient` itself"
+  (spacr/qt/app.py:5162). So this is NOT reaching a user, and the claim to
+  check first about any settings defect found here is whether it ships. This
+  one does not.
+
+  IT MATTERS ANYWAY, because it is forty lines of settings-reading code that
+  six tests pin in place while carrying the defect its live twin records
+  having fixed. It drops `pattern=` entirely -- so it would always draw
+  `DEFAULT_PATTERN` however the first row of the Fractal tab is set -- and
+  every one of `speed_min`, `speed_max`, `speed_period`, `pointer_gravity`,
+  `pointer_size`, `pointer_strength` and `zoom_rate`:
+
+      # EVERY SAVED CONTROL, not most of them. The three pointer
+      # settings were collected, stored and never passed, so Mouse
+      # gravity could not be turned off: `RuntimeControls` defaults it
+      # to on, and nothing here ever said otherwise.
+      (spacr/qt/widgets/ambient.py:5319-5322)
+
+  `ambient.py:5311-5327` passes the full set and `screensaver.py:69-83` does
+  too. `app.py:151` is the copy that was left behind, and its own docstring
+  still asserts the opposite: "The settings come from Preferences, which
+  shows them only under spaceout, so one place decides both what is offered
+  and what is drawn" (app.py:140-142). PROPOSE: delete it, and the three
+  tests that only exercise it.
+
+--------------------------------------------------------------------------------
+FINDING 11 -- `PREFERENCE_TIPS` OUTRANKS A ROW'S OWN TOOLTIP AND THEN DELETES IT
+--------------------------------------------------------------------------------
+
+PROPOSE: reverse the precedence, or move the good text into the table.
+
+    tip = PREFERENCE_TIPS.get(text, "")                 (preferences.py:4261)
+    ...
+    if not tip:
+        # WHATEVER THE ROW ALREADY SAID, moved rather than duplicated
+        tip = (field.toolTip() or "").strip()           (:4272-4275)
+    ...
+    label.setToolTip(tr(tip))                           (:4278)
+    ...
+    else:
+        field.setToolTip("")                            (:4294)
+
+The table wins, and the field's own sentence is then CLEARED -- so where both
+exist, the widget's text is destroyed and never shown anywhere.
+
+  IT HAPPENS TO EXACTLY ONE ROW, AND IT IS THE WORST ONE TO LOSE. "Quality"
+  is the only field with both a `setToolTip` (preferences.py:5444-5451) and a
+  `PREFERENCE_TIPS` entry (:4216). The text that survives names two of the
+  four levels and claims High "raises the internal resolution" (Finding 4
+  says it does not); the text that is deleted is the one that explains what a
+  level IS and why Auto exists.
+
+  THE FIVE ANIMATION SLIDERS ESCAPE IT ONLY BY ACCIDENT. Their field is
+  `_hbox_wrap(column)` -- a bare QWidget with no tooltip (preferences.py:
+  6222-6226) -- so `field.setToolTip("")` clears the wrapper and the slider
+  inside keeps its own long, accurate sentence, which
+  `_everything_explains_itself_in_the_strip` (:6125) then sweeps into the
+  hint bar. The result is that "Animation detail" has TWO explanations in the
+  window: the label's, "Backdrop rendering detail. Reduce this value if
+  animation affects interface performance." (:4213), and the slider's, which
+  says what it actually does -- "it sets how many pixels the picture is
+  worked out in before it is stretched to fill the page. Costs roughly the
+  square of what it says" (:4623-4631). The same is true of Animation blur,
+  speed, size, density, Page opacity, Show busy spinner after, Module
+  visibility and the three wrapped Rim rows.
+
+  PROPOSAL: `PREFERENCE_TIPS` should be the FALLBACK, not the winner -- a
+  sentence written next to the control is the one that tracks the control.
+  Then delete from the table every entry a field already answers.
+
+--------------------------------------------------------------------------------
+FINDING 12 -- THREE ANSWERS TO "HOW FAST", AND THE SHIPPED ONE IS WRONG
+--------------------------------------------------------------------------------
+
+PROPOSE: one source. The derivation constants are written twice and the
+defaults contradict both.
+
+    SPEED_GROUP = {"speed": 1.0, "zoom_rate": 1.0,
+                   "speed_min": 0.55, "speed_max": 1.65,
+                   "speed_period": 41.0}
+    (preferences.py:365-373)
+
+    speed_min=fractal_speed.value() * 0.55,
+    speed_max=fractal_speed.value() * 1.65,
+    (preferences.py:6031-6033, in the dialog's save)
+
+  0.55 and 1.65 are hand-written in the dialog beside the table that already
+  computes them -- `set_fractal_settings(speed=...)` runs
+  `speed_group_values` and writes both keys (preferences.py:2626-2634) before
+  the explicit kwargs overwrite them with the same numbers. Two copies of one
+  ratio; change `SPEED_GROUP` and the dialog does not follow.
+
+    DEFAULT_SPEED_MIN: Final[float] = 2.0
+    DEFAULT_SPEED_MAX: Final[float] = 6.0
+    #: The bounds variable speed sweeps between. They bracket DEFAULT_SPEED,
+    #: so turning it on changes the RANGE and not the average pace.
+    (spacr/qt/fractal_defaults.py:68-71)
+
+  `DEFAULT_SPEED` is 1.0. 2.0..6.0 does not bracket 1.0 -- it is entirely
+  above it, averaging four times it. Measured in a clean store:
+  `speed: 1.0  speed_min: 2.0  speed_max: 6.0`. `RuntimeControls.speed_at`
+  (fractal_travel.py:292-316) sweeps between the two whenever
+  `variable_speed` is on, so at these values Variable speed does not breathe
+  around Speed, it replaces it -- and the row's tooltip promises the
+  opposite: "It modulates the speed above rather than replacing it, so the
+  number you set is still the middle of the range." (preferences.py:4220).
+
+  THE CASE IS LATENT, NOT LIVE, and it is worth saying so precisely.
+  `DEFAULT_VARIABLE_SPEED` is False, and the only way to turn it on through
+  the interface is a Save, which writes 0.55/1.65 in the same call. The wrong
+  bounds are reachable from a hand-edited INI, from `set_fractal_settings(
+  variable_speed=True)` called on its own, and from any future caller that
+  turns it on without also writing the bounds. The comment is wrong today
+  either way.
+
+  `pointer_gravity` AND `pointer_strength` CARRY ONE BIT. The save writes
+  `pointer_size=1.0` unconditionally and `pointer_strength=(1.0 if checked
+  else 0.0)` beside `pointer_gravity=checked` (preferences.py:6034-6039), and
+  both gate the same effect: `follow_pointer` zeroes the pull and push
+  (fractal_travel.py:993-994, :2054) and `pointer_strength` scales it
+  (:987). One toggle, two keys, and a third (`pointer_size`) that the panel
+  resets to 1.0 on every save so its own default can never be seen.
+
+--------------------------------------------------------------------------------
+FINDING 13 -- THE PERFORMANCE LEVEL'S NOTES DESCRIBE MORE THAN THE LEVELS DO
+--------------------------------------------------------------------------------
+
+PROPOSE: correct the notes. Not a redundancy -- the single selector is the
+right shape and instruction 286's collapse of the two controls was right --
+but the prose now promises behaviour that has no implementation.
+
+Everything that reads `get_performance_level()`:
+
+    preferences.py:2761   get_laptop_mode        -- itself dead (Finding 6)
+    preferences.py:2977   retention_scale        -- one caller,
+                          live_figure_allowance (:2981), whose one consumer
+                          is `widgets/figure_queue.py:2116`
+    preferences.py:3003   get_spacr_mode -> spacr_mode_for_level, read by
+                          `qt/resource_cleanup.py:1248`
+    qt/timing.py:834      records it in a diagnostic snapshot; acts on nothing
+    qt/setup_screen.py:156 displays it
+
+  So a level changes exactly two things: how many figures stay editable
+  (`retention_scale`, 0.25 to 2.5) and which of THREE cleanup postures
+  `resource_cleanup` runs (`spacr_mode_for_level`, preferences.py:2935-2950,
+  maps laptop and extra_performance onto one and balanced and workstation
+  onto another).
+
+  WHAT THE NOTES SAY (preferences.py:2241-2266):
+
+      laptop:      "...background work is kept to one worker."
+                   Nothing under `spacr/` reduces a worker count by
+                   performance level; no `n_jobs`, thread pool or job runner
+                   reads it.
+      workstation: "spaCR keeps the most: caches, live figures and loaded
+                   models stay in memory for reuse, and nothing is dropped
+                   until you ask."
+                   Workstation and Balanced share one posture. The only
+                   difference between them is `retention_scale` 2.5 vs 1.0,
+                   which multiplies the live-figure count and nothing else.
+
+  Both are shown as the level's tooltip -- "The hardware each level is for,
+  and what it trades. Shown as the level's tooltip, so the choice can be made
+  without guessing" (:2240-2241).
+
+--------------------------------------------------------------------------------
+WHAT WAS CHECKED AND IS NOT A FINDING
+--------------------------------------------------------------------------------
+
+Recorded so the next reader does not re-open them.
+
+* `ambient_enabled` AND `ambient_theme` ARE TWO KEYS FOR ONE QUESTION ON
+  PURPOSE, and the reasoning is fourteen lines long and correct
+  (preferences.py:1692-1703): "no animation" has to mean nothing is
+  constructed, the three install sites all read `get_ambient_enabled` first,
+  and the separate key is the programmatic switch. The defect is not the pair
+  -- it is the one caller that writes the switch without the row (Finding 6).
+
+* `apply_workspace_preference` LOOKED DEAD AND IS NOT. Zero references
+  outside `preferences.py`; it is called from `apply_preferences_to_app`
+  (preferences.py:3922), which runs at startup and on every save. `runs/
+  save_workspace` and `runs/workspace_copy_limit_mb` are both live.
+
+* THE TWO FIGURE-COLOUR VOCABULARIES DO COLLIDE AND THE PRECEDENCE IS
+  DELIBERATE. `prefs/figure_bg` / `figure_fg` / `figure_line` /
+  `figure_text_size` are set from the FIGURES PANEL (widgets/figure_queue.py:
+  2860-2865), not from Preferences, and the graph-style panel has its own
+  `background` / `foreground` / `chrome_colour` / `font_size`. Both reach the
+  same figure, and `figures/style.py:328-333` resolves it explicitly: "The
+  two figure-colour controls are the dedicated ones for these roles, so they
+  outrank the graph-style panel's general `foreground`". Correct, and worth
+  noting only because neither surface's tooltip mentions the other.
+
+* `spacr_mode` IS DERIVED, NOT A SECOND SETTING. `get_spacr_mode` answers
+  from `get_performance_level()` (preferences.py:3003) and `prefs/spacr_mode`
+  is written only so the migration and older readers agree
+  (`set_spacr_mode`, :3022-3028). One question, one stored answer.
+
+* `ui/folded_panels`, `panels/section_layout`, `figures/grid_cell_px` AND
+  `prefs/mode_visual_stash` ARE UI STATE, not settings, and correctly have no
+  row. `prefs/ambient_motion_scale` is a migration marker
+  (`_migrate_ambient_motion`, :1935) and likewise.
+
+* `ai/preferred_provider`, `ai/issue_prompt` AND `ai/on_by_default` live in
+  `preferences.py` and have no row in the Preferences dialog; they are the AI
+  console's own settings and are read from there. Not audited here.
+
+* `pane_opacity` IS STORED AS A PERCENT AND READ AS A FRACTION, and both the
+  key comment (:3396-3407) and the module docstring (:82-86) say so. The
+  asymmetry is deliberate -- "stored as a percent because that is what the
+  slider shows and what a user reading the INI would expect to find".
+
+* THE LOGGING TAB'S TEN SWITCHES ARE FIVE QUESTIONS AND THEIR ONE
+  CONSTRAINT, not a redundancy: the console switch is disabled while its file
+  switch is off, and `set_log_levels` re-clamps rather than trusting the
+  dialog (preferences.py:5988-5996), because "a disabled QCheckBox still
+  reports whatever it was last set to". This is the right shape.
+
+* ONE PREFERENCE IS STORED IN THE WRONG FILE, and it is outside the dialog so
+  it is recorded here rather than as a finding. `spacr/qt/widgets/
+  model_zoo_picker.py:55,68` uses a bare `QSettings()`, which resolves to the
+  application's own organisation and name -- `("Olafsson Lab", "spaCR")`,
+  set at `spacr/qt/menus.py:19-22,194-195`. That is precisely one of the two
+  legacy namespaces `spacr/qt/prefs.py:18-21` documents migrating AWAY from.
+  `model_zoo/download_dir` is therefore the only user preference not in
+  `QSettings("spacr", "qt")`.
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED OF THE MAINTAINER
+--------------------------------------------------------------------------------
+
+1. Finding 1 -- the 35 inert per-graph figure settings. Wire them (which
+   means every plot function reads the resolved style, as the tests already
+   describe) or cut them. This is the only item here that costs a user work
+   they thought they had done.
+2. Finding 6 -- laptop mode. Should `laptop_mode.apply` read the performance
+   level the user chose, or become a process-local override like
+   `SPACR_NO_BACKDROP`? Either way the Animation row stops reverting.
+3. Findings 2, 3 and 4 -- the three spaceout rows that do not do what they
+   say: Supersampling (read by nothing), Quality (preset never applied, Ultra
+   silently demoted), Scale (a no-op on the GPU and a default that disagrees
+   with itself). Approve retiring `supersampling` and `scale`, and importing
+   one quality list the way `FRACTAL_PATTERNS` already is?
+4. Finding 8 -- approve retiring `prefs/space_variant` and `prefs/space_seed`
+   into RETIRED_SETTINGS with the five accessors? Nothing can reach them.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+The six core modules, spaCR Preferences and spaceout Preferences are audited.
+What the original request named and this pass has not covered:
+
+  * LIVE PREVIEW settings
+  * the HYPERPARAMETER SEARCHES: train_test_model (50),
+    check_cellpose_models (18), identify_masks_finetune (23)
+  * the ASSAY SUB-MODULES: motility (55), recruitment (30), plaques (22)
+
+  AND ONE THING THIS AUDIT OWES THE OTHERS. The Annotate audit's Finding 0
+  showed that a file-count scan misses a dead setting whose name collides
+  with a string literal. This surface needed a third method again: a
+  preference is reached only through its getter, so the scan that works here
+  is "count callers of `get_*` and `set_*` outside the module, then read
+  every call site". It found eight uncalled public functions and two dead
+  QSettings keys that neither of the earlier methods could have seen. Any
+  future surface should be asked how its settings are READ before it is
+  scanned for dead ones.

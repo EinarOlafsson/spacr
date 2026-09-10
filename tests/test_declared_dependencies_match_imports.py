@@ -143,6 +143,12 @@ IMPORT_TO_DIST = {
     "cv2": "opencv-python-headless",
     "cuml": "cuml-cu12",
     "cupy": "cupy-cuda12x",
+    # `cupyx` is a SUBPACKAGE of the same distribution, not a second
+    # one -- `cupyx.scipy.ndimage` is where cupy keeps the SciPy-
+    # compatible half. `ops_accel` imports it by that name for the
+    # windowed maximum, function-local and guarded, and without this
+    # line the sweep looks for a PyPI project called "cupyx".
+    "cupyx": "cupy-cuda12x",
     # mpl_toolkits ships INSIDE matplotlib -- there is no `mpl-toolkits` on
     # PyPI to depend on, so without this the check asks for a distribution
     # that cannot be installed.
@@ -174,16 +180,6 @@ IMPORT_TO_DIST = {
 # PySide6 in the core dependencies for art nobody regenerates at runtime.
 # ---------------------------------------------------------------------------
 EXCLUDED_DIRS = ("_generators",)
-
-# Subpackages whose module-scope imports are satisfied by an extra ON PURPOSE.
-#
-# `spacr/qt/` is the PySide6 GUI. `import spacr` does not import it, the
-# `spacr-run` headless CLI never touches it, and PySide6 is ~150 MB that
-# cluster users have no use for — so PySide6 lives in the `qt` extra and the
-# GUI subpackage is unimportable without it by design. That trade-off is
-# asserted separately, and deliberately, by
-# tests/test_packaging_metadata.py::test_console_scripts_and_extras_agree_about_qt.
-EXTRA_GATED_SUBPACKAGES = {"spacr/qt/": "qt"}
 
 #: Distributions spaCR reaches only through a string literal, so no import
 #: statement exists for the table below to be checked against. See
@@ -327,8 +323,6 @@ def _module_scope_imports() -> dict[str, set[str]]:
     for path in sorted(PKG.rglob("*.py")):
         rel = str(path.relative_to(REPO_ROOT))
         if not _is_censused(rel):
-            continue
-        if any(rel.startswith(p) for p in EXTRA_GATED_SUBPACKAGES):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"),
                          filename=str(path))

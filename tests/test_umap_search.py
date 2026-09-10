@@ -4,9 +4,10 @@
      each row in this table to spawn a that rows umap (3d umap) and then i can
      luster that umap"
 
-The row IS the recipe. A stored row must rebuild exactly the map it scored --
-not a map with the same settings, the same map -- or clicking row 7 draws
-something row 7's score does not describe, and nobody would notice.
+The row carries both the recipe and the exact embedding it scored. Rebuilding
+the same requested configuration may still produce different coordinates on
+a nondeterministic backend, so clicking row 7 must use its stored coordinates
+or the displayed score can describe a different map.
 """
 from __future__ import annotations
 
@@ -28,6 +29,9 @@ from spacr.umap_search import (
 def test_a_recipe_round_trips_through_json():
     recipe = UmapRecipe(n_neighbors=30, min_dist=0.25, n_components=3,
                         columns=("a", "b"), backend="cuml")
+    for field in ("n_neighbors", "min_dist", "n_components", "metric",
+                  "random_state", "scale", "columns", "backend"):
+        assert f":ivar {field}:" in (UmapRecipe.__doc__ or "")
     assert UmapRecipe.from_dict(json.loads(json.dumps(recipe.to_dict()))) == recipe
 
 
@@ -48,6 +52,15 @@ def test_components_are_clamped_to_two_or_three():
     """A UMAP nobody can draw is not a UMAP this module offers."""
     assert UmapRecipe(n_components=1).n_components == 2
     assert UmapRecipe(n_components=9).n_components == 3
+
+
+def test_recipe_columns_are_normalized_to_an_immutable_tuple():
+    """A caller's mutable list must not make a frozen recipe change later."""
+    columns = ["a", "b"]
+    recipe = UmapRecipe(columns=columns)
+
+    columns.append("c")
+    assert recipe.columns == ("a", "b")
 
 
 def test_3d_is_reported_as_such():
@@ -84,10 +97,24 @@ def test_rows_keep_the_order_they_were_scored_in():
     assert [r.recipe.n_neighbors for r in table] == [5, 30, 15]
 
 
+def test_table_slices_follow_the_type_and_list_contract():
+    """A slice returns a detachable list while integer lookup returns a row."""
+    table = SearchTable()
+    first = table.add(_row(5))
+    second = table.add(_row(30))
+
+    sliced = table[:1]
+    assert sliced == [first] and table[1] is second
+    sliced.clear()
+    assert list(table) == [first, second]
+
+
 def test_the_embedding_travels_with_its_score():
     """Recomputing on click would give a map that merely MATCHES the recipe
     -- and with a non-deterministic backend, not even that."""
     row = _row(5)
+    for field in ("scores", "embedding", "labels", "note"):
+        assert f":param {field}:" in (SearchRow.__doc__ or "")
     table = SearchTable()
     table.add(row)
     assert table[0].embedding is row.embedding

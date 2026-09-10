@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "lesson": "05_home",
+    "source_language": "en",
+    "scene_order": [
+      "overview",
+      "navigation",
+      "modules",
+      "performance",
+      "open_module"
+    ],
+    "review": "Curated for natural narration and exact English UI labels"
+  },
+  "es": [
+    "Cuando todos los niveles de madurez están visibles, Home muestra los cuarenta y cuatro módulos registrados de spaCR. La pestaña Home los agrupa en Core, Data, Results & QC, Explore, Assays y Design; cada pestaña de categoría filtra el mismo registro.",
+    "La barra lateral izquierda mantiene Home y los módulos visibles de Core directamente accesibles. Con todos los niveles de madurez habilitados, esta es la secuencia de seis pasos de Core. Seleccione el encabezado de una categoría para desplegar sus demás módulos visibles.",
+    "La franja Core sigue el orden del flujo de trabajo: Mask, Measure, Annotate, Classify, Map Barcodes y Regression. Pase el puntero sobre un mosaico para mostrar la descripción del módulo y su color de madurez Alpha, Beta o Stable. En Preferences puede ocultar los módulos Alpha o Beta de Home y de la navegación; los módulos Stable permanecen visibles.",
+    "En Preferences hay un único selector Performance level con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil adecuado para este equipo; modifica la caché, los límites de procesos, la limpieza y el detalle de las animaciones, pero no los ajustes ni los resultados científicos.",
+    "Seleccione el mosaico de un módulo para abrir su pantalla de ajustes. El nombre y la descripción del módulo, en la parte superior, confirman qué flujo de trabajo está activo."
+  ],
+  "fr": [
+    "Lorsque tous les niveaux de maturité sont visibles, Home affiche les quarante-quatre modules enregistrés de spaCR. L’onglet Home les regroupe sous Core, Data, Results & QC, Explore, Assays et Design ; chaque onglet de catégorie filtre le même registre.",
+    "La barre latérale gauche garde Home et les modules Core visibles directement accessibles. Lorsque tous les niveaux de maturité sont activés, il s’agit de la séquence Core en six étapes. Sélectionnez un en-tête de catégorie pour développer ses autres modules visibles.",
+    "La bande Core suit l’ordre du flux de travail : Mask, Measure, Annotate, Classify, Map Barcodes et Regression. Survolez une tuile pour afficher la description du module et sa couleur de maturité Alpha, Beta ou Stable. Dans Preferences, vous pouvez masquer les modules Alpha ou Beta sur Home et dans la navigation ; les modules Stable restent visibles.",
+    "Dans Preferences, un seul sélecteur Performance level propose Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la mise en cache, les limites de processus, le nettoyage et le niveau de détail des animations, mais pas les paramètres ni les résultats scientifiques.",
+    "Sélectionnez la tuile d’un module pour ouvrir son écran de paramètres. Le nom et la description du module, en haut de l’écran, confirment le flux de travail actif."
+  ],
+  "hi": [
+    "जब सभी परिपक्वता स्तर दिखाई देते हैं, तब Home spaCR के सभी चवालीस पंजीकृत मॉड्यूल दिखाता है। Home टैब उन्हें Core, Data, Results & QC, Explore, Assays और Design में समूहित करता है; हर श्रेणी टैब इसी रजिस्ट्री को फ़िल्टर करता है।",
+    "बायाँ साइडबार Home और Core के दिखाई देने वाले मॉड्यूल सीधे उपलब्ध रखता है। सभी परिपक्वता स्तर सक्षम होने पर यह Core का छह-चरणीय क्रम होता है। किसी श्रेणी के बाकी दिखाई देने वाले मॉड्यूल खोलने के लिए उसका शीर्षक चुनें।",
+    "Core खंड वर्कफ़्लो क्रम का अनुसरण करता है: Mask, Measure, Annotate, Classify, Map Barcodes और Regression। मॉड्यूल का विवरण और उसका Alpha, Beta या Stable परिपक्वता रंग देखने के लिए टाइल पर पॉइंटर रखें। Preferences में Alpha या Beta मॉड्यूल को Home और नेविगेशन से छिपाया जा सकता है; Stable मॉड्यूल हमेशा दिखाई देते हैं।",
+    "Preferences में एक ही Performance level चयन है, जिसमें बढ़ते संसाधन उपयोग के क्रम में Laptop, Extra Performance, Performance, Balanced और Workstation हैं। इस कंप्यूटर के लिए उपयुक्त प्रोफ़ाइल चुनें; यह कैश, worker सीमा, सफ़ाई और animation का विवरण बदलता है, लेकिन वैज्ञानिक settings या results नहीं बदलता।",
+    "किसी मॉड्यूल की सेटिंग स्क्रीन खोलने के लिए उसकी टाइल चुनें। ऊपर दिया गया मॉड्यूल का नाम और विवरण पुष्टि करते हैं कि कौन-सा वर्कफ़्लो सक्रिय है।"
+  ],
+  "it": [
+    "Quando sono visibili tutti i livelli di maturità, Home mostra tutti i quarantaquattro moduli registrati di spaCR. La scheda Home li raggruppa in Core, Data, Results & QC, Explore, Assays e Design; ogni scheda di categoria filtra lo stesso registro.",
+    "La barra laterale sinistra mantiene Home e i moduli visibili di Core direttamente accessibili. Con tutti i livelli di maturità abilitati, questa è la sequenza Core in sei passaggi. Seleziona l’intestazione di una categoria per espandere i moduli visibili rimanenti.",
+    "La fascia Core segue l’ordine del flusso di lavoro: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Passa il puntatore su un riquadro per mostrare la descrizione del modulo e il relativo colore di maturità Alpha, Beta o Stable. In Preferences puoi nascondere i moduli Alpha o Beta da Home e dalla navigazione; i moduli Stable restano visibili.",
+    "In Preferences è disponibile un solo selettore Performance level con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di risorse. Scegli il profilo adatto a questo computer; modifica cache, limiti dei processi, pulizia e dettaglio delle animazioni, ma non le impostazioni o i risultati scientifici.",
+    "Seleziona il riquadro di un modulo per aprire la relativa schermata delle impostazioni. Il nome e la descrizione del modulo, nella parte superiore, confermano quale flusso di lavoro è attivo."
+  ],
+  "pt-BR": [
+    "Quando todos os níveis de maturidade estão visíveis, Home mostra todos os quarenta e quatro módulos registrados do spaCR. A aba Home os agrupa em Core, Data, Results & QC, Explore, Assays e Design; cada aba de categoria filtra o mesmo registro.",
+    "A barra lateral esquerda mantém Home e os módulos visíveis de Core diretamente acessíveis. Com todos os níveis de maturidade habilitados, esta é a sequência de seis etapas de Core. Selecione o cabeçalho de uma categoria para expandir os demais módulos visíveis.",
+    "A faixa Core segue a ordem do fluxo de trabalho: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Passe o ponteiro sobre um bloco para exibir a descrição do módulo e sua cor de maturidade Alpha, Beta ou Stable. Em Preferences, é possível ocultar módulos Alpha ou Beta de Home e da navegação; os módulos Stable permanecem visíveis.",
+    "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos.",
+    "Selecione o bloco de um módulo para abrir a tela de configurações. O nome e a descrição do módulo, na parte superior, confirmam qual fluxo de trabalho está ativo."
+  ],
+  "ja": [
+    "すべての成熟度レベルを表示すると、Home には登録済みの spaCR モジュール 44 個がすべて表示されます。Home タブでは Core、Data、Results & QC、Explore、Assays、Design にグループ化され、各カテゴリタブは同じ登録一覧を絞り込みます。",
+    "左側のサイドバーからは Home と、表示対象になっている Core モジュールへ直接移動できます。すべての成熟度レベルを有効にすると、6 段階の Core シーケンスが表示されます。カテゴリ見出しを選択すると、そのカテゴリの残りの表示対象モジュールが展開されます。",
+    "Core の帯は Mask、Measure、Annotate、Classify、Map Barcodes、Regression のワークフロー順です。タイルにポインターを合わせると、モジュールの説明と Alpha、Beta、Stable の成熟度を示す色が表示されます。Preferences では Alpha または Beta モジュールを Home とナビゲーションから非表示にできますが、Stable モジュールは常に表示されます。",
+    "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。",
+    "モジュールのタイルを選択して、設定画面を開きます。画面上部のモジュール名と説明で、現在のワークフローを確認できます。"
+  ],
+  "zh-CN": [
+    "显示所有成熟度级别时，Home 会显示 spaCR 全部四十四个已注册模块。Home 选项卡将它们分为 Core、Data、Results & QC、Explore、Assays 和 Design；每个类别选项卡都筛选同一模块注册表。",
+    "左侧边栏可直接访问 Home 和当前可见的 Core 模块。启用所有成熟度级别时，这里显示完整的六步 Core 流程。选择类别标题即可展开其中其余可见模块。",
+    "Core 区域按工作流程顺序排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。将指针悬停在卡片上，即可显示模块说明及其 Alpha、Beta 或 Stable 成熟度颜色。Preferences 可以在 Home 和导航中隐藏 Alpha 或 Beta 模块；Stable 模块始终可见。",
+    "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。",
+    "选择模块卡片以打开其设置屏幕。屏幕顶部的模块名称和说明可确认当前处于哪个工作流程。"
+  ]
+}

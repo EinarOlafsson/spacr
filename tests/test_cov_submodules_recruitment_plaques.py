@@ -345,8 +345,16 @@ def test_analyze_recruitment_plots_first_n_merged_files(tmp_path,
     # (file_path, channel_dims, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim)
     assert args[1] == [0, 1, 2, 3]
     assert args[2:] == (3, 0, 2)
-    assert kwargs == {"figuresize": 10, "normalize": True, "thickness": 3,
-                      "save_pdf": True}
+    # `normalize=True` used to be here, and plot_image_mask_overlay has no
+    # such parameter -- every call raised TypeError into a bare except, so
+    # this branch printed a failure instead of drawing a single overlay and
+    # the test asserted a call that could never have worked. It wanted
+    # percentile normalisation, which is `percentiles`. `outline_palette`
+    # arrived with it, so a colour-blind reader can be given outlines they
+    # can tell apart.
+    assert kwargs == {"figuresize": 10, "percentiles": (1, 99),
+                      "thickness": 3, "save_pdf": True,
+                      "outline_palette": "default"}
 
 
 def test_analyze_recruitment_missing_merged_dir_skips_plotting(tmp_path,
@@ -405,6 +413,27 @@ def test_analyze_recruitment_cell_size_filter_drops_rows(tmp_path,
 
     assert len(cells) == 2  # one surviving cell in each of the two wells
     assert set(np.round(cells["cell_area"])) == {1002}
+
+
+def test_analyze_recruitment_default_keeps_zero_intensity_cells(
+        tmp_path, recruitment_env):
+    """An untouched run does not silently discard a valid zero signal."""
+    from spacr.submodules import analyze_recruitment
+
+    src = tmp_path / "plate"
+    src.mkdir()
+    recruitment_env["df"].iloc[
+        0,
+        recruitment_env["df"].columns.get_loc(
+            "cell_channel_0_mean_intensity"),
+    ] = 0.0
+    settings = _base_settings(src)
+
+    cells, _ = analyze_recruitment(settings)
+
+    assert settings["cell_intensity_range"] is None
+    assert len(cells) == 8
+    assert (cells["cell_channel_0_mean_intensity"] == 0.0).sum() == 1
 
 
 def test_analyze_recruitment_target_intensity_min_filter(tmp_path,

@@ -12,13 +12,21 @@ from functools import partial
 
 
 class _DeferredModule:
-    """Small module proxy for dependencies used by one distant code path."""
+    """Small module proxy for dependencies used by one distant code path.
+
+    :param name: dotted module name, imported on FIRST ATTRIBUTE ACCESS and
+        cached from then on. Nothing checks it here, so a name with a typo
+        in it costs nothing until the distant path is finally taken -- which
+        is the trade this proxy exists to make.
+    """
 
     def __init__(self, name):
+        """Record the module name without importing it."""
         self.__dict__['_name'] = name
         self.__dict__['_module'] = None
 
     def _load(self):
+        """Import on first use and cache the module."""
         module = self.__dict__['_module']
         if module is None:
             from importlib import import_module
@@ -27,12 +35,24 @@ class _DeferredModule:
         return module
 
     def __getattr__(self, name):
+        """Forward attribute reads, importing the module if needed."""
         return getattr(self._load(), name)
 
     def __setattr__(self, name, value):
+        """Forward attribute writes ONTO THE REAL MODULE, importing it first.
+
+        The proxy keeps its own state in ``__dict__`` directly for this reason: an
+        ordinary assignment here would set an attribute on the imported module,
+        not on the proxy.
+        """
         setattr(self._load(), name, value)
 
     def __repr__(self):
+        """Name the module and say whether it has been imported yet.
+
+        Deliberately does NOT import it -- inspecting a proxy in a debugger must
+        not be the thing that triggers the import it exists to defer.
+        """
         state = (
             'loaded' if self.__dict__['_module'] is not None
             else 'not yet imported'
@@ -55,9 +75,21 @@ except ImportError:  # scikit-image 0.22-0.24
     from skimage.morphology import square as _legacy_square
 
     def _square_footprint(size):
+        """A square structuring element, on scikit-image 0.22 to 0.24.
+
+        `square(n)` was removed in 0.25 in favour of
+        `footprint_rectangle((n, n))`. Both spellings are wrapped rather
+        than pinning a version, because spaCR is installed alongside
+        whatever cellpose and torch have already chosen.
+        """
         return _legacy_square(size)
 else:
     def _square_footprint(size):
+        """A square structuring element, on scikit-image 0.25 and later.
+
+        The modern spelling. See the ImportError branch above for why both
+        exist.
+        """
         return footprint_rectangle((size, size))
 from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries
@@ -76,6 +108,11 @@ import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from functools import reduce
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib only
+# inside its own functions, so naming it here costs nothing at
+# import time.
+from .figures.style import figure_style, theme_target
 try:
     from IPython.display import display
 except Exception:
@@ -84,13 +121,24 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Do nothing: IPython is unavailable, so there is nowhere to display to.
+
+        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
+        module scope, and IPython can be mid-init -- partially imported by
+        another thread -- which makes that import raise. Letting it propagate
+        would make importing this module fail for a reason that has nothing to
+        do with what the module does. spaCR only calls `display` from notebook
+        contexts; the Qt GUI ignores it.
+
+        :param args: whatever the caller would have displayed.
+        :param kwargs: likewise.
+        """
         pass
 from typing import Optional, Any
 from .image_colors import read_image_rgb, write_image_rgb
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 
 from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
-from concurrent.futures import ThreadPoolExecutor
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -150,6 +198,7 @@ def _preserve_batchnorm_running_stats(module: nn.Module):
 def _checkpoint_module(module: nn.Module, function, *args):
     """Checkpoint ``function`` while preserving stateful normalization buffers."""
     def contexts():
+        """Return forward and recomputation contexts for non-reentrant checkpointing."""
         return nullcontext(), _preserve_batchnorm_running_stats(module)
 
     return checkpoint(function, *args, use_reentrant=False,
@@ -158,7 +207,7 @@ from sklearn.metrics import auc, precision_recall_curve
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, Isomap, SpectralEmbedding
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 
@@ -257,9 +306,15 @@ class _LazyModule:
 
     :param name: dotted module name to import on first attribute access.
     :param block_roots: import roots refused for the duration of that import.
+    :param minimum_distribution: ``(distribution, version, reason)``, or
+        ``None`` for no check. Guards against an INSTALLED BUT TOO OLD
+        package, not a missing one -- a distribution that cannot be found at
+        all is left to the import below, so the caller gets Python's normal
+        error rather than a version complaint about something absent.
     """
 
     def __init__(self, name, block_roots=(), minimum_distribution=None):
+        """Record the module name and its import guards without importing."""
         self.__dict__['_name'] = name
         self.__dict__['_module'] = None
         self.__dict__['_block_roots'] = tuple(block_roots)
@@ -360,15 +415,23 @@ class _LazyModule:
         return module
 
     def __getattr__(self, item):
+        """Forward attribute reads, importing the module if needed."""
         return getattr(self._load(), item)
 
     def __setattr__(self, item, value):
+        """Forward attribute writes onto the real module, importing it first."""
         setattr(self._load(), item, value)
 
     def __dir__(self):
+        """The real module's names, importing it to find them."""
         return dir(self._load())
 
     def __repr__(self):
+        """Name the module and say whether it has been imported.
+
+        Does NOT import it: inspecting a lazy proxy in a debugger must not be the
+        thing that triggers the import it exists to defer.
+        """
         loaded = self.__dict__['_module'] is not None
         state = 'loaded' if loaded else 'not yet imported'
         return f"<lazy module {self.__dict__['_name']!r} ({state})>"
@@ -400,7 +463,7 @@ import tifffile
 # The one definition of what a spaCR database key is. Imported at module
 # scope rather than lazily because every key built in this file goes through
 # it and it costs nothing: schema.py is stdlib-only by design.
-from . import schema
+from . import schema, tabular
 from .tiff_io import write_tiff
 
 
@@ -466,6 +529,12 @@ def _select_intensity_channel(raw, intensity_channel):
 
 
 def _union_find_root(parent, i):
+    """Find a set's representative, compressing the path as it goes.
+
+    :param parent: the union-find parent array, modified in place.
+    :param i: the element to look up.
+    :returns: its root.
+    """
     while parent[i] != i:
         parent[i] = parent[parent[i]]
         i = parent[i]
@@ -473,6 +542,16 @@ def _union_find_root(parent, i):
 
 
 def _union_find_merge(parent, a, b):
+    """Merge the sets holding two elements.
+
+    The lower index becomes the root, so the representative of a merged set
+    is deterministic -- which is what makes labels reproducible between
+    runs rather than depending on the order objects happened to be visited.
+
+    :param parent: the union-find parent array, modified in place.
+    :param a: one element.
+    :param b: the other.
+    """
     ra = _union_find_root(parent, a)
     rb = _union_find_root(parent, b)
     if ra != rb:
@@ -1447,12 +1526,23 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     :param csv_file_path: path to the CSV file.
     :param show: display the raw DataFrame for debugging. Default ``False``.
     :param setting_key: name of the key column. Default
-        ``'setting_key'``.
+        ``'setting_key'``; ``'Key'`` is accepted too, see below.
     :param setting_value: name of the value column. Default
-        ``'setting_value'``.
+        ``'setting_value'``; ``'Value'`` is accepted too.
     :returns: dict of parsed settings, ready to pass back into the
         original pipeline entry point.
     :raises ValueError: if the required key / value columns are missing.
+
+    THE TWO SPELLINGS. :func:`save_settings` writes ``Key`` / ``Value``,
+    while this function's defaults ask for ``setting_key`` /
+    ``setting_value`` -- so the documented inverse pair did not round-trip,
+    and the example above raised. Callers had each worked around it
+    separately (``spacr/qt/dnd.py`` tries one spelling and catches the
+    failure to try the other), which is how it survived: nothing that used
+    the defaults was reading a file spacr had written.
+
+    Either spelling is now read. An explicitly named column still wins, so a
+    caller that knows its file's header is unaffected.
 
     Example:
         .. code-block:: python
@@ -1465,15 +1555,25 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     See Also:
         :func:`save_settings` — inverse operation.
     """
-    # Read the CSV file into a DataFrame
-    df = pd.read_csv(csv_file_path)
+    # ONE READER. A settings CSV is key/value so the vocabulary is a no-op
+    # on it, but the `~` and `$VAR` expansion is not: a settings file carried
+    # between machines routinely holds one, and it used to be a
+    # FileNotFoundError naming a path the user can see is right.
+    df = tabular.read_table(csv_file_path, report=None)
 
     if show:
         display(df)
 
-    # Ensure the columns 'setting_key' and 'setting_value' exist
+    # Ensure the columns exist, in either of the two spellings spacr writes.
     if setting_key not in df.columns or setting_value not in df.columns:
-        raise ValueError(f"CSV file must contain {setting_key} and {setting_value} columns.")
+        if 'Key' in df.columns and 'Value' in df.columns:
+            setting_key, setting_value = 'Key', 'Value'
+        else:
+            raise ValueError(
+                f"CSV file must contain {setting_key} and {setting_value} "
+                f"columns (or the Key/Value pair save_settings writes); "
+                f"{os.path.basename(str(csv_file_path))} has "
+                f"{list(df.columns)}.")
 
     def parse_value(value):
         """Parse the string value into the appropriate Python data type."""
@@ -1619,13 +1719,16 @@ def pretty_print_settings(settings, title="Settings"):
     g = _BOX_GLYPHS['unicode'] if console_can_encode(pretty) else _BOX_GLYPHS['ascii']
 
     def _say(line):
+        """Print a console-safe form of ``line`` and return ``None``."""
         print(console_safe(line))
 
     def _fmt(v):
+        """Return ``v`` as text truncated to the table's value width."""
         s = str(v)
         return s if len(s) <= 44 else s[:41] + g['ellipsis']
 
     def _row(k, v):
+        """Return one padded key-and-formatted-value table row."""
         return f"  {str(k):<{key_w}}  {_fmt(v)}"
 
     bar = g['h'] * line_w
@@ -1702,9 +1805,53 @@ def save_settings(settings, name='settings', show=False):
         os.makedirs(os.path.join(src,'settings'), exist_ok=True)
         print(f"Saving settings to {settings_csv}")
         settings_df.to_csv(settings_csv, index=False)
+        _save_settings_json(settings, os.path.splitext(settings_csv)[0] + '.json')
     except (OSError, PermissionError) as e:
         print(f"Warning: could not save settings to {settings_csv}: {e}. "
               f"Continuing without writing the settings copy.")
+
+
+def _save_settings_json(settings, path):
+    """Write the same settings as JSON beside the CSV.
+
+    THE CSV LOSES THE TYPES. Every value in it is text, so a list comes back
+    as ``"[0, 1, 2]"``, ``None`` as ``""`` and ``False`` as ``"False"`` --
+    which is why loading one needs `ast.literal_eval` and a pile of special
+    cases, and why a settings file that round-trips through the panel is not
+    always the file that ran. JSON keeps the shape, so a results folder can
+    say exactly what produced it.
+
+    The CSV stays: it is what every existing loader reads and what a user
+    opens in a spreadsheet. This is a sibling, not a replacement.
+
+    Never raises. A settings copy that cannot be written is a note, not a
+    reason to lose a finished run.
+    """
+    import json
+
+    def plain(value):
+        """The value as something JSON can hold, or its repr."""
+        if value is None or isinstance(value, (bool, int, float, str)):
+            return value
+        if isinstance(value, dict):
+            return {str(k): plain(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [plain(v) for v in value]
+        try:
+            import numpy as _np
+
+            if isinstance(value, _np.generic):
+                return value.item()
+        except Exception:                                    # noqa: BLE001
+            pass
+        return repr(value)
+
+    try:
+        with open(path, 'w', encoding='utf-8') as out:
+            json.dump({str(k): plain(v) for k, v in dict(settings).items()},
+                      out, indent=2, sort_keys=True)
+    except Exception as error:                               # noqa: BLE001
+        print(f"Warning: could not write {path}: {error}")
 
 def print_progress(files_processed, files_to_process, n_jobs, time_ls=None, batch_size=None, operation_type=""):
     """Print a one-line progress report with an ETA derived from mean step time.
@@ -1775,7 +1922,10 @@ def reset_mp():
             set_start_method('fork', force=True)
 
 def is_multiprocessing_process(process):
-    """Return ``True`` if ``process`` cmdline contains ``multiprocessing``."""
+    """Return ``True`` if ``process`` cmdline contains ``multiprocessing``.
+
+    :param process: process object exposing the :mod:`psutil` ``cmdline`` API.
+    """
     try:
         for cmd in process.cmdline():
             if 'multiprocessing' in cmd:
@@ -1876,6 +2026,28 @@ def _gen_rgb_image(image, channels):
     return rgb_image
 
 def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_thickness):
+    """Draw each mask's outline over the RGB image.
+
+    DRAWN ON THE CALLING THREAD, DELIBERATELY. This used to run in a thread
+    pool, which aborted the whole process -- SIGABRT, core dumped, no
+    traceback -- once Qt and Tk had both been initialised in the same
+    session: cv2 and skimage's contour code are not safe to call off the
+    main thread with two GUI toolkits resident, and there is nothing to
+    catch.
+
+    Giving the pool up cost almost nothing. There are at most three mask
+    dimensions and ``find_contours`` holds the GIL throughout, so the
+    threads bought 3-5% -- measured at 1,257 ms serial against 1,222 ms
+    threaded on 3x60 objects at 1024 px, and 17.3 s against 16.5 s on 3x200
+    at 2048 px. A 1.03x speedup is not worth a core dump.
+
+    :param image: the merged array, image channels then mask slices.
+    :param rgb_image: the base to draw over.
+    :param mask_dims: which slices hold the masks to outline.
+    :param outline_colors: one colour per mask dimension, cycled.
+    :param outline_thickness: the outline width, in pixels.
+    :returns: the overlaid image, the outlines, and the input array.
+    """
     outlines = []
     overlayed_image = rgb_image.copy()
 
@@ -1895,9 +2067,19 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
 
         return dilation(outline, _square_footprint(outline_thickness))
 
-    # Parallel processing
-    with ThreadPoolExecutor() as executor:
-        outlines = list(executor.map(process_dim, mask_dims))
+    # Drawn on the CALLING thread, deliberately. This used to run in a
+    # ThreadPoolExecutor, which aborted the whole process -- SIGABRT, core
+    # dumped, no traceback -- once Qt and Tk had both been initialised earlier
+    # in the same session. cv2 and skimage's contour code are not safe to call
+    # off the main thread with two GUI toolkits resident, and there is nothing
+    # to catch: the process is simply gone, taking every result with it.
+    #
+    # Giving the pool up cost nothing. There are at most three mask dimensions
+    # (cell, nucleus, pathogen) and find_contours holds the GIL throughout, so
+    # the threads were buying 3-5% -- measured on 3x60 objects at 1024px
+    # (1257 ms serial vs 1222 ms threaded) and 3x200 at 2048px (17.3 s vs
+    # 16.5 s). A 1.03x speedup is not worth a core dump.
+    outlines = [process_dim(mask_dim) for mask_dim in mask_dims]
 
     # Overlay outlines onto the RGB image
     for i, outline in enumerate(outlines):
@@ -1940,6 +2122,17 @@ def _convert_cq1_well_id(well_id):
     return schema.well_id(row + 1, col + 1)
 
 def _get_cellpose_batch_size():
+    """Choose a Cellpose batch size from the GPU's VRAM.
+
+    The bounds form an EXHAUSTIVE ladder. The previous ``> 8 and < 12``
+    style left 8.0, 12.0 and 24.0 GB unmatched, so the batch size was never
+    assigned, the print below raised ``UnboundLocalError``, and a bare
+    ``except`` silently turned that into a batch size of 8 -- a card with 24
+    GB quietly running at the smallest batch.
+
+    :returns: the batch size, and 8 when there is no CUDA device or its
+        memory cannot be inspected.
+    """
     try:
         # Check if CUDA is available
         if torch.cuda.is_available():
@@ -1971,6 +2164,24 @@ def _get_cellpose_batch_size():
 
 def _extract_filename_metadata(filenames, src, regular_expression, metadata_type='cellvoyager'):
     
+    """Group image paths by the metadata their filenames carry.
+
+    Zero padding is undone so ``001`` and ``1`` are one key, through
+    ``_int_or_token``, which KEEPS a token it cannot read rather than
+    substituting ``0`` -- every unreadable well used to collapse onto well
+    ``0``.
+
+    A filename the regex cannot read is reported and skipped rather than
+    raising, so one odd name does not cost the plate.
+
+    :param filenames: the names to parse.
+    :param src: the folder they are in; also the fallback plate name when
+        the pattern has no plate group.
+    :param regular_expression: the compiled pattern.
+    :param metadata_type: the microscope convention; ``'cq1'`` also converts
+        the well id, whose scheme differs from the well name it prints.
+    :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
+    """
     images_by_key = defaultdict(list)
 
     for filename in filenames:
@@ -2049,7 +2260,8 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
 
     # Read the existing table into a DataFrame
     try:
-        existing_df = pd.read_sql(f"SELECT * FROM {table}", conn)
+        existing_df = tabular.read_database(
+            db_path, [table], report=None, migrate=False)[0]
     except Exception as e:
         print(f"Failed to read table {table} from database: {e}")
         conn.close()
@@ -2117,6 +2329,7 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         _update_database_with_merged_info(db_path, df, table='png_list', columns=['pathogen', 'treatment', 'host_cells', 'condition', 'prcfo'])
     
     def _compartment_column(compartment):
+        """Return the selected compartment series, or raise for a missing column."""
         suffix = f'_channel_{channel_of_interest}_{measurement}'
         col = f'{compartment}{suffix}'
         if col not in df.columns:
@@ -2177,7 +2390,10 @@ def _map_values(row, values, locs):
     return values[0] if values else None
 
 def is_list_of_lists(var):
-    """Return ``True`` if ``var`` is a list whose every element is also a list."""
+    """Return ``True`` if ``var`` is a list whose every element is also a list.
+
+    :param var: value to test, including an empty or nested list.
+    """
     if isinstance(var, list) and all(isinstance(i, list) for i in var):
         return True
     return False
@@ -2245,6 +2461,8 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
                     source_folder, crop_mode='cell', timelapse=None,
                     object_id=None):
     """Build the ``(image_name, folder_path, table_name)`` tuple for a cropped object."""
+    file_name = schema.escape_field_stem_plate(
+        file_name, timelapse=bool(timelapse))
     non_zero_cell_ids = cell_id[cell_id != 0]
     cell_id_str = "multi" if non_zero_cell_ids.size > 1 else str(non_zero_cell_ids[0]) if non_zero_cell_ids.size == 1 else "none"
     cell_nucleus_ids = cell_nucleus_ids[cell_nucleus_ids != 0]
@@ -2603,7 +2821,8 @@ def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
     if not os.path.isfile(db_path):
         return 0
     delay = 0.2
-    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+    attempt = 1
+    while True:
         try:
             return _release_imported_rows_once(db_path, table, frame, timelapse)
         except sqlite3.OperationalError as e:
@@ -2613,6 +2832,7 @@ def _release_imported_rows_for_field(db_path, table, frame, timelapse=False):
                   f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
             time.sleep(delay)
             delay *= 2
+            attempt += 1
 
 
 def _release_imported_rows_once(db_path, table, frame, timelapse=False):
@@ -2791,24 +3011,23 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         for i, col in enumerate(column_list):
             cols.insert(i, cols.pop(cols.index(col)))
         merged_df = merged_df[cols]  # rearrange the columns
-        if len(merged_df) > 0:
-            if table_type in schema.CANONICAL_OBJECT_TABLES:
-                merged_df = schema.validate_object_table_frame(
-                    merged_df,
-                    table_type,
-                    timelapse=timelapse,
-                )
-            db_path = f'{source_folder}/measurements/measurements.db'
-            _assert_measurement_units_compatible(db_path, table_type, stamp)
-            if table_type in schema.CANONICAL_OBJECT_TABLES:
-                # F34. A foreign import copies its rows into the canonical
-                # table when the destination is empty; appending beside them
-                # makes every downstream count the sum of two populations. The
-                # copy for this field is handed back first, or nothing is
-                # written -- both before the insert, never after.
-                _release_imported_rows_for_field(
-                    db_path, table_type, merged_df, timelapse=timelapse)
-            _append_to_measurements_db(db_path, table_type, merged_df)
+        if table_type in schema.CANONICAL_OBJECT_TABLES:
+            merged_df = schema.validate_object_table_frame(
+                merged_df,
+                table_type,
+                timelapse=timelapse,
+            )
+        db_path = f'{source_folder}/measurements/measurements.db'
+        _assert_measurement_units_compatible(db_path, table_type, stamp)
+        if table_type in schema.CANONICAL_OBJECT_TABLES:
+            # F34. A foreign import copies its rows into the canonical
+            # table when the destination is empty; appending beside them
+            # makes every downstream count the sum of two populations. The
+            # copy for this field is handed back first, or nothing is
+            # written -- both before the insert, never after.
+            _release_imported_rows_for_field(
+                db_path, table_type, merged_df, timelapse=timelapse)
+        _append_to_measurements_db(db_path, table_type, merged_df)
 
 
 #: How many times a locked measurements.db write is retried before it fails.
@@ -2920,9 +3139,13 @@ def _insert_frame(conn, table, frame):
     values_by_column = []
     for _name, series in frame.items():
         if series.dtype.kind == 'm':
-            # pandas.to_sql deliberately writes NaT as numpy's iNaT sentinel
-            # for unsupported timedelta columns; preserve that compatibility.
-            values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            # pandas writes numpy-backed timedeltas in their native unit, but
+            # normalises Arrow-backed durations to nanoseconds.  Preserve both
+            # behaviours, including numpy's iNaT sentinel for missing values.
+            if isinstance(series.dtype, getattr(pd, 'ArrowDtype', ())):
+                values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            else:
+                values = series.to_numpy().view('i8')
             values_by_column.append(values.astype(object))
         else:
             values_by_column.append(
@@ -3030,7 +3253,8 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
     :raises sqlite3.OperationalError: when every attempt fails and ``required``.
     """
     delay = 0.2
-    for attempt in range(1, DB_WRITE_ATTEMPTS + 1):
+    attempt = 1
+    while True:
         conn = None
         try:
             from .database_concurrency import connect
@@ -3058,6 +3282,7 @@ def _append_to_measurements_db(db_path, table, frame, required=True):
                   f"(attempt {attempt}/{DB_WRITE_ATTEMPTS}): {e}; retrying")
             time.sleep(delay)
             delay *= 2
+            attempt += 1
         finally:
             if conn is not None:
                 conn.close()
@@ -3298,6 +3523,16 @@ def _masks_to_masks_stack(masks):
 
 def _get_diam(mag, obj):
 
+    """Return an object type's expected diameter at a magnification.
+
+    :param mag: the objective magnification.
+    :param obj: the object type.
+    :returns: the diameter in pixels.
+    :raises ValueError: naming the supported types, for anything else --
+        this used to fall through to an unbound variable and raise
+        ``UnboundLocalError``, which names an implementation detail rather
+        than the setting the user got wrong.
+    """
     if obj == 'cell':
         diameter = 2 * mag + 80
     elif obj == 'cell_large':
@@ -3318,6 +3553,17 @@ def _get_diam(mag, obj):
     return int(diameter)
 
 def _get_object_settings(object_type, settings):
+    """Assemble one object type's segmentation settings.
+
+    The size bounds are derived from the diameter rather than asked for, so
+    they scale with the magnification. A pre-SAM Cellpose model name left in
+    an old settings file is mapped forward HERE, once, rather than carried
+    into segmentation as if it still selected different weights.
+
+    :param object_type: the object being segmented.
+    :param settings: the run settings.
+    :returns: the settings for that object.
+    """
     object_settings = {}
 
     object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
@@ -3361,16 +3607,18 @@ def _get_object_settings(object_type, settings):
     
 def _pivot_counts_table(db_path):
 
+    """Rewrite the object-count table as one row per file, one column per type.
+
+    Written to ``pivoted_counts`` rather than over the source table, so the
+    long form the pipeline appends to is left intact.
+
+    :param db_path: the measurements database.
+    """
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
-        conn = sqlite3.connect(db_path, timeout=30)
-        # Read the entire table into a pandas DataFrame
-        query = f"SELECT * FROM {table_name}"
-        df = pd.read_sql_query(query, conn)
-        # Close the connection
-        conn.close()
-        return df
+        return tabular.read_database(
+            db_path, [table_name], report=None, migrate=False)[0]
 
     def _pivot_dataframe(df):
         """Pivot count-type rows into one column per object type, NaNs filled with 0."""
@@ -3735,7 +3983,10 @@ class Cache:
         self.max_size = max_size
 
     def get(self, key):
-        """Return the cached value for ``key`` and mark it most-recently-used, or ``None``."""
+        """Return and refresh ``key``, or ``None`` when it is not cached.
+
+        :param key: cache key to look up.
+        """
         if key in self.cache:
             value = self.cache.pop(key)
             self.cache[key] = value
@@ -3743,7 +3994,11 @@ class Cache:
         return None
 
     def put(self, key, value):
-        """Insert ``value`` under ``key``, evicting the least-recently-used entry if full."""
+        """Insert ``value`` under ``key``, evicting the oldest entry if full.
+
+        :param key: cache key under which to store the value.
+        :param value: object to cache.
+        """
         if len(self.cache) >= self.max_size:
             self.cache.popitem(last=False)
         self.cache[key] = value
@@ -3786,7 +4041,10 @@ class SelfAttention(nn.Module):
         self.attention = ScaledDotProductAttention(d_k)
 
     def forward(self, x):
-        """Return self-attention over ``x`` of shape ``(B, in_channels)``."""
+        """Return self-attention over ``x`` of shape ``(B, in_channels)``.
+
+        :param x: batch of input feature vectors.
+        """
         Q = self.W_q(x)
         K = self.W_k(x)
         V = self.W_v(x)
@@ -3805,7 +4063,10 @@ class EarlyFusion(nn.Module):
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=1, stride=1)
 
     def forward(self, x):
-        """Return the 64-channel fused feature map."""
+        """Return the 64-channel fused feature map.
+
+        :param x: image-feature tensor accepted by the 1x1 convolution.
+        """
         x = self.conv1(x)
         return x
 
@@ -3822,7 +4083,10 @@ class SpatialAttention(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """Return the spatial attention map for ``x`` in ``[0, 1]``."""
+        """Return the spatial attention map for ``x`` in ``[0, 1]``.
+
+        :param x: feature map whose channel statistics define the attention.
+        """
         avg_out = torch.mean(x, dim=1, keepdim=True)
         max_out, _ = torch.max(x, dim=1, keepdim=True)
         x = torch.cat([avg_out, max_out], dim=1)
@@ -3843,13 +4107,19 @@ class MultiScaleBlockWithAttention(nn.Module):
         self.spatial_attention = nn.Conv2d(out_channels, out_channels, kernel_size=1)
 
     def custom_forward(self, x):
-        """Apply dilated conv + ReLU followed by the 1x1 spatial attention."""
+        """Apply dilated conv + ReLU followed by the 1x1 spatial attention.
+
+        :param x: input feature map for the convolutional block.
+        """
         x1 = F.relu(self.dilated_conv1(x), inplace=True)
         x = self.spatial_attention(x1)
         return x
 
     def forward(self, x):
-        """Forward pass; delegates to :meth:`custom_forward`."""
+        """Forward pass; delegates to :meth:`custom_forward`.
+
+        :param x: input feature map for the convolutional block.
+        """
         return self.custom_forward(x)
 
 # Final Classifier
@@ -3876,7 +4146,10 @@ class CustomCellClassifier(nn.Module):
             param.requires_grad = True
 
     def custom_forward(self, x):
-        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``."""
+        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``.
+
+        :param x: three-channel image batch to classify.
+        """
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)
@@ -3884,7 +4157,10 @@ class CustomCellClassifier(nn.Module):
         return x
 
     def forward(self, x):
-        """Forward pass, optionally through activation checkpointing."""
+        """Forward pass, optionally through activation checkpointing.
+
+        :param x: three-channel image batch to classify.
+        """
         if self.use_checkpoint:
             return _checkpoint_module(self, self.custom_forward, x)
         else:
@@ -3920,6 +4196,8 @@ class TorchModel(nn.Module):
         :param use_checkpoint: enable gradient checkpointing through the backbone.
         :param num_classes: output class count; ``1`` yields a BCE-style binary head.
         :param multilabel: informational flag consumed by external loss/metrics code.
+        :param image_size: square input resolution used for the dummy forward
+            pass that infers the backbone's feature width.
         :raises ValueError: if ``model_name`` is not a TorchVision model.
         """
         super().__init__()
@@ -3976,6 +4254,16 @@ class TorchModel(nn.Module):
         return None
 
     def _init_base_model(self, pretrained: bool) -> nn.Module:
+        """Build the torchvision backbone this model wraps.
+
+        Both weight APIs are supported: the newer ``weights=`` form when
+        torchvision offers a weight enum for this architecture, and the older
+        ``pretrained=`` flag when it does not.
+
+        :param pretrained: load pretrained weights.
+        :returns: the backbone module.
+        :raises ValueError: if torchvision has no model of that name.
+        """
         fn = models.__dict__.get(self.model_name, None)
         if fn is None or not callable(fn):
             raise ValueError(f"Unknown torchvision model: {self.model_name}")
@@ -3989,6 +4277,11 @@ class TorchModel(nn.Module):
             return fn(pretrained=pretrained)
 
     def _apply_dropout_rate(self, module: nn.Module, p: float):
+        """Set one dropout probability on every dropout layer in a module.
+
+        :param module: the subtree to walk.
+        :param p: the probability to set, on 1-, 2- and 3-D dropout alike.
+        """
         for m in module.modules():
             if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
                 m.p = p
@@ -4075,6 +4368,15 @@ class TorchModel(nn.Module):
         return out
 
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
+        """Run the backbone and flatten its output to ``(N, F)``.
+
+        Some backbones return a spatial feature map rather than a vector, so the
+        trailing dimensions are flattened -- the head expects one row per
+        sample either way.
+
+        :param x: the input batch.
+        :returns: the features, two-dimensional.
+        """
         out = self._run_backbone_raw(x)
         # Ensure 2D features (N, F)
         if isinstance(out, torch.Tensor) and out.ndim > 2:
@@ -4082,7 +4384,10 @@ class TorchModel(nn.Module):
         return out
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
+        """Return classification logits of shape ``(N, num_classes)``.
+
+        :param x: input image batch for the configured TorchVision backbone.
+        """
         feats = self._run_backbone(x)
         if self.use_dropout:
             feats = self.dropout(feats)
@@ -4098,6 +4403,7 @@ class TorchModel_v2(nn.Module):
     :param use_checkpoint: enable gradient checkpointing through the backbone.
     :param num_classes: output class count.
     :param multilabel: informational flag consumed by external loss/metrics code.
+    :raises ValueError: if ``model_name`` is not a TorchVision model.
     """
     def __init__(
         self,
@@ -4142,11 +4448,22 @@ class TorchModel_v2(nn.Module):
     # Helpers
     # --------------------------------------------------------------------- #
     def _apply_dropout_rate(self, module: nn.Module, p: float):
+        """Set ``p`` on every dropout layer inside ``module``.
+
+        Walks the whole tree, so a backbone with dropout at several depths is set
+        consistently rather than only at its top level.
+        """
         for m in module.modules():
             if isinstance(m, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
                 m.p = p
 
     def _init_base_model(self, pretrained: bool) -> nn.Module:
+        """Build the named torchvision backbone.
+
+        An unknown name raises rather than falling back to a default: silently
+        training a different architecture than the one asked for produces a model
+        whose results cannot be compared to anything.
+        """
         fn = models.__dict__.get(self.model_name, None)
         if fn is None:
             raise ValueError(f"Unknown torchvision model: {self.model_name}")
@@ -4161,6 +4478,11 @@ class TorchModel_v2(nn.Module):
 
     def _get_weight_choice(self):
         # Return DEFAULT weights enum if available; else None
+        """The torchvision ``DEFAULT`` weights enum for this model, or ``None``.
+
+        ``None`` means torchvision ships no pretrained weights under that name, in
+        which case the backbone starts from random initialisation.
+        """
         for attr in dir(models):
             if attr.lower() == f"{self.model_name}_weights":
                 return getattr(models, attr).DEFAULT
@@ -4168,6 +4490,11 @@ class TorchModel_v2(nn.Module):
 
     def _remove_head_for_features(self):
         # Remove final classifier so backbone returns features
+        """Replace the classifier head with identity so the backbone returns features.
+
+        ``maxvit_t`` IS EXCLUDED: its classifier holds the pooling the forward
+        pass needs, so replacing it removes more than the head.
+        """
         if hasattr(self.base_model, "fc"):
             self.base_model.fc = nn.Identity()
         elif hasattr(self.base_model, "classifier"):
@@ -4175,6 +4502,12 @@ class TorchModel_v2(nn.Module):
                 self.base_model.classifier = nn.Identity()
 
     def _infer_feature_dim(self) -> int:
+        """The backbone's feature width, measured by running one dummy image.
+
+        MEASURED RATHER THAN TABULATED, so a torchvision version that changes a
+        backbone's width does not silently mismatch the classifier. Costs one
+        224x224 forward pass at construction.
+        """
         self._remove_head_for_features()
         self.base_model.eval()
         with torch.no_grad():
@@ -4185,6 +4518,11 @@ class TorchModel_v2(nn.Module):
         return int(out.size(1))
 
     def _init_spacr_classifier(self, dropout_rate: float):
+        """Attach the linear head, and dropout before it when a rate was given.
+
+        ``dropout_rate=None`` means no dropout layer at all rather than a layer
+        with ``p=0``.
+        """
         self.use_dropout = dropout_rate is not None
         if self.use_dropout:
             self.dropout = nn.Dropout(float(dropout_rate))
@@ -4195,13 +4533,21 @@ class TorchModel_v2(nn.Module):
     # --------------------------------------------------------------------- #
     def _run_backbone(self, x: torch.Tensor) -> torch.Tensor:
         # Wrap for checkpoint (expects a function)
+        """Run the backbone, through gradient checkpointing when enabled.
+
+        Checkpointing recomputes activations in the backward pass instead of
+        storing them: less memory, more compute, and the same output.
+        """
         if self.use_checkpoint:
             return _checkpoint_module(
                 self.base_model, lambda t: self.base_model(t), x)
         return self.base_model(x)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return classification logits of shape ``(N, num_classes)`` for input batch ``x``."""
+        """Return classification logits of shape ``(N, num_classes)``.
+
+        :param x: input image batch for the configured TorchVision backbone.
+        """
         feats = self._run_backbone(x)
         # Ensure 2D features (N, F)
         if feats.ndim > 2:
@@ -4233,7 +4579,11 @@ class FocalLossWithLogits(nn.Module):
         self.alpha = alpha
 
     def forward(self, logits, target):
-        """Return the focal loss value for the chosen ``reduction`` mode."""
+        """Return the focal loss value for the chosen ``reduction`` mode.
+
+        :param logits: unnormalized binary, multiclass, or multilabel scores.
+        :param target: labels shaped for the corresponding logits branch.
+        """
         # Binary / multilabel (BCE-style)
         if logits.ndim == 1 or logits.size(-1) == 1 or (
             logits.ndim == 2 and target.ndim == 2 and target.size(1) == logits.size(1)
@@ -4272,6 +4622,8 @@ class ResNet(nn.Module):
     :param dropout_rate: dropout probability before the final linear layer; ``None`` disables.
     :param use_checkpoint: enable gradient checkpointing through the ResNet backbone.
     :param init_weights: ``'imagenet'`` for pretrained weights or ``'none'`` for random init.
+    :raises ValueError: if ``resnet_type`` is unsupported, or if
+        ``init_weights`` is neither ``'imagenet'`` nor ``'none'``.
     """
     def __init__(self, resnet_type='resnet50', dropout_rate=None, use_checkpoint=False, init_weights='imagenet'):
         """Select the backbone and delegate head construction to :meth:`initialize_base`."""
@@ -4316,7 +4668,10 @@ class ResNet(nn.Module):
         self.fc2 = nn.Linear(500, 1)
 
     def forward(self, x):
-        """Return the flattened single-logit prediction for input batch ``x``."""
+        """Return the flattened single-logit prediction for input batch ``x``.
+
+        :param x: image batch for the configured ResNet backbone.
+        """
         if self.use_checkpoint:
             x = _checkpoint_module(self.resnet, self.resnet, x)
         else:
@@ -4429,18 +4784,33 @@ def compute_irm_penalty(losses, dummy_w, device):
 #    return
 
 def _list_torchvision_model_names() -> set[str]:
-    """Robustly collect available torchvision model factory names."""
-    names: set[str] = set()
-    # Newer API
+    """Every torchvision classification FACTORY, and nothing else.
+
+    THE FALLBACK USED TO POLLUTE THE ANSWER. It added every public callable
+    in ``torchvision.models``, which is the factories plus the classes they
+    build (``AlexNet``, ``ResNet``) plus every weights enum
+    (``AlexNet_Weights``). Two consequences, both real: the names offered
+    to a user who mistyped began "AlexNet, AlexNet_Weights, ConvNeXt,
+    ConvNeXt_Base_Weights" -- twenty entries and not one of them a name
+    that works -- and `choose_model('AlexNet_Weights')` passed the name
+    check and failed inside the wrapper instead.
+
+    The modern API answers exactly this question, so the fallback runs only
+    when it answers nothing, and then keeps only lower-case factory names.
+    """
     try:
-        names |= set(tv_models.list_models(module=tv_models))
-    except Exception:
-        pass
-    # Fallback for older torchvision
-    for n, fn in tv_models.__dict__.items():
-        if not n.startswith("_") and callable(fn):
-            names.add(n)
-    return names
+        names = set(tv_models.list_models(module=tv_models))
+    except Exception:                                        # noqa: BLE001
+        names = set()
+    if names:
+        return names
+    # Older torchvision: the factories are lower_snake_case and the classes
+    # and weights enums are not.
+    return {
+        name for name, value in tv_models.__dict__.items()
+        if not name.startswith("_") and callable(value)
+        and name.islower() and not name.endswith("_weights")
+    }
 
 
 def choose_model(model_type: str,
@@ -4473,23 +4843,36 @@ def choose_model(model_type: str,
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
     :param verbose: print the model structure when ``True``.
 
-    :returns:
-        The instantiated ``nn.Module``, or ``None`` if ``model_type`` is unknown
-        or the forward sanity check fails.
+    :returns: The instantiated ``nn.Module``.
+    :raises ValueError: ``model_type`` names no backbone, or the built model
+        does not produce logits of the requested shape.
+
+    Unsupported names raise immediately and include close TorchVision matches
+    when available, so configuration errors are reported before training.
     """
+    import difflib
 
     tv_names = _list_torchvision_model_names()
     valid_names = set(tv_names) | {"custom"}
 
     if model_type not in valid_names:
-        print(f"[choose_model] Invalid model_type '{model_type}'. "
-              f"Known TorchVision models include e.g.: {sorted(list(tv_names))[:20]} ...")
-        return None
+        close = difflib.get_close_matches(str(model_type), sorted(tv_names),
+                                          n=5, cutoff=0.6)
+        suggestion = (f" Did you mean {close}?" if close else
+                      f" Names spaCR can build include "
+                      f"{sorted(tv_names)[:8]} and {len(tv_names) - 8} more.")
+        raise ValueError(
+            f"model_type={model_type!r} names no classification backbone "
+            f"torchvision provides.{suggestion}")
 
+    # NOT `end="\r"`. A carriage return with no newline leaves the cursor at
+    # the start of THIS line, so whatever is printed next overwrites it --
+    # and in a captured log the two run together as
+    # "use_checkpoint: FalsePASS". The banner is one line of its own.
     print(
         f"Model parameters: Architecture: {model_type} "
         f"init_weights: {init_weights} dropout_rate: {dropout_rate} "
-        f"use_checkpoint: {use_checkpoint}", end="\r", flush=True
+        f"use_checkpoint: {use_checkpoint}", flush=True
     )
 
     # --- CUSTOM BRANCH -------------------------------------------------------
@@ -4526,9 +4909,14 @@ def choose_model(model_type: str,
                 raise RuntimeError(
                     f"Expected logits of shape (1,{head_dim}); got {type(z)} / {getattr(z, 'shape', None)}"
                 )
-    except Exception as e:
-        print(f"\n[choose_model] Model forward sanity-check failed: {e}")
-        return None
+    except Exception as error:                               # noqa: BLE001
+        # ALSO RAISES. A backbone that builds and does not produce logits is
+        # a broken model, not a missing one, and returning None sent it down
+        # the same silent path as a misspelled name.
+        raise ValueError(
+            f"model_type={model_type!r} built, but its forward pass does not "
+            f"produce {head_dim} logit(s) at {img_size}x{img_size}: {error}"
+        ) from error
 
     if verbose:
         print("\n", base_model)
@@ -4554,6 +4942,7 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
     """
     # --- helpers -------------------------------------------------------------
     def _focal_bce_with_logits(logits, y, alpha=1.0, gamma=2.0, reduction="mean"):
+        """Return focal binary cross-entropy for ``logits`` and targets ``y``."""
         p = torch.sigmoid(logits)
         ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
         p_t = p * y + (1 - p) * (1 - y)
@@ -4565,6 +4954,7 @@ def calculate_loss(output, target, prefer_focal=False, gamma=2.0, alpha=1.0, red
         return loss
 
     def _focal_cross_entropy(logits, y_idx, alpha=1.0, gamma=2.0, reduction="mean"):
+        """Return focal cross-entropy for logits and class indices ``y_idx``."""
         log_p = F.log_softmax(logits, dim=1)
         p = log_p.exp()
         log_p_t = log_p.gather(1, y_idx.view(-1,1)).squeeze(1)
@@ -4681,7 +5071,10 @@ def save_file_lists(dst, data_set, ls):
     :returns: None.
     """
     df = pd.DataFrame(ls, columns=[data_set])
-    df.to_csv(f'{dst}/{data_set}.csv', index=False)
+    # canonicalise=False: the single column is NAMED by the caller's
+    # `data_set`, so the vocabulary would be renaming an identifier the
+    # caller chose rather than a metadata column somebody spelled loosely.
+    tabular.write_table(df, f'{dst}/{data_set}.csv', canonicalise=False)
     return
 
 def augment_single_image(args):
@@ -4776,10 +5169,12 @@ def suggest_training_changes(
         return float(val)
 
     def _find_csv(root, hint):
+        """Return the lexically last matching CSV in ``root``, if any."""
         cs = sorted(glob.glob(os.path.join(root, f"*{hint}*.csv")))
         return cs[-1] if cs else None
 
     def _normalize_cols(df):
+        """Return ``df`` with normalized, aliased, first-occurrence columns."""
         # Lowercase and strip; map common variants
         m = {c: c.strip().lower() for c in df.columns}
         df = df.rename(columns=m)
@@ -4812,6 +5207,7 @@ def suggest_training_changes(
         return df
 
     def _poly_slope(y):
+        """Return the finite linear slope of ``y``, or zero when undefined."""
         if len(y) < 2 or np.allclose(y, y[0]):
             return 0.0
         x = np.arange(len(y), dtype=float)
@@ -4823,6 +5219,7 @@ def suggest_training_changes(
         return float(coef[0])
 
     def _last_seq(series, k):
+        """Return at most the final ``k`` values as a floating-point array."""
         s = np.asarray(series, dtype=float)
         return s[-min(k, len(s)):] if len(s) else np.array([])
 
@@ -4840,8 +5237,8 @@ def suggest_training_changes(
         out["suggestions"].append("Could not locate val CSV; enable validation logging in _save_progress.")
         return out
 
-    tr = pd.read_csv(train_csv)
-    va = pd.read_csv(val_csv)
+    tr = tabular.read_table(train_csv, report=None)
+    va = tabular.read_table(val_csv, report=None)
 
     tr = _normalize_cols(tr)
     va = _normalize_cols(va)
@@ -4994,13 +5391,8 @@ def suggest_training_changes(
             "Track per-class metrics/confusion matrices to verify rare classes.",
         ])
 
-    # De-duplicate while preserving order
-    seen = set()
-    dedup = []
-    for s in out["suggestions"]:
-        if s not in seen:
-            dedup.append(s); seen.add(s)
-    out["suggestions"] = dedup
+    # De-duplicate while preserving order. ``dict`` preserves insertion order.
+    out["suggestions"] = list(dict.fromkeys(out["suggestions"]))
 
     return out
 
@@ -5082,6 +5474,7 @@ def build_loss(loss_type: str = "ce",
 
     # -------- helpers (scoped) --------
     def _infer_indices(target: torch.Tensor, C: int) -> torch.Tensor:
+        """Return class indices from an index vector or 2-D target matrix."""
         # Accept indices (N,) or one-hot (N,C); return indices (N,)
         if target.ndim == 2:
             return target.argmax(dim=1).long()
@@ -5106,6 +5499,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- binary focal BCE -----
     def _focal_bce(logits, y, alpha, gamma):
+        """Return mean focal binary cross-entropy for ``logits`` and ``y``."""
         p = torch.sigmoid(logits)
         ce = F.binary_cross_entropy_with_logits(logits, y, reduction="none")
         pt = p * y + (1 - p) * (1 - y)
@@ -5116,6 +5510,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- multiclass focal-CE -----
     def _focal_ce(logits, y_idx, alpha, gamma):
+        """Return mean focal cross-entropy for logits and class indices."""
         log_p = F.log_softmax(logits, dim=1)
         p = log_p.exp()
         log_p_t = log_p.gather(1, y_idx.view(-1, 1)).squeeze(1)
@@ -5133,6 +5528,7 @@ def build_loss(loss_type: str = "ce",
 
     # ----- Asymmetric Loss (multilabel-style one-vs-all) -----
     def _asl(logits, y, gpos, gneg, clip):
+        """Return mean asymmetric multilabel loss for logits and targets."""
         x_sigmoid = torch.sigmoid(logits)
         xs_pos = x_sigmoid
         xs_neg = 1 - x_sigmoid
@@ -5145,6 +5541,7 @@ def build_loss(loss_type: str = "ce",
 
     # Auto heuristic
     def _auto_choice() -> str:
+        """Return the default loss name from class count and imbalance."""
         if num_classes >= 2:
             if class_counts is not None:
                 props = (class_counts.float() / class_counts.sum().clamp_min(1))
@@ -5316,7 +5713,7 @@ def annotate_predictions(csv_loc):
     :returns: DataFrame enriched with parsed metadata and a ``cond`` column
         (``'screen'``/``'pc'``/``'nc'`` from the plate/well convention).
     """
-    df = pd.read_csv(csv_loc)
+    df = tabular.read_table(csv_loc, report=None)
     df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
@@ -5336,7 +5733,14 @@ def annotate_predictions(csv_loc):
         else:
             return ''
 
-    df['cond'] = df.apply(assign_condition, axis=1)
+    # Keep the semantic distinction between an explicitly empty condition
+    # (``""``) and an unknown one (``None``).  Pandas 3 can otherwise infer
+    # a nullable string column and normalise the latter to ``nan``.
+    df['cond'] = pd.Series(
+        (assign_condition(row) for _, row in df.iterrows()),
+        index=df.index,
+        dtype=object,
+    )
     return df
 
 def initiate_counter(counter_, lock_):
@@ -5473,32 +5877,37 @@ def model_metrics(model):
     print(f"Durbin-Watson: {durbin_w_value}")
 
     # Residual Plots
-    fig, ax = plt.subplots(2, 2, figsize=(15, 12))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(2, 2, figsize=(15, 12))
 
-    # Residual vs. Fitted
-    ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
-    ax[0, 0].set_title('Residuals vs Fitted')
-    ax[0, 0].set_xlabel('Fitted values')
-    ax[0, 0].set_ylabel('Residuals')
+        # Residual vs. Fitted
+        ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
+        ax[0, 0].set_title('Residuals vs Fitted')
+        ax[0, 0].set_xlabel('Fitted values')
+        ax[0, 0].set_ylabel('Residuals')
 
-    # Histogram
-    sns.histplot(model.resid, kde=True, ax=ax[0, 1])
-    ax[0, 1].set_title('Histogram of Residuals')
-    ax[0, 1].set_xlabel('Residuals')
+        # Histogram
+        sns.histplot(model.resid, kde=True, ax=ax[0, 1])
+        ax[0, 1].set_title('Histogram of Residuals')
+        ax[0, 1].set_xlabel('Residuals')
 
-    # QQ Plot
-    sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
-    ax[1, 0].set_title('QQ Plot')
+        # QQ Plot
+        sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
+        ax[1, 0].set_title('QQ Plot')
 
-    # Scale-Location
-    standardized_resid = model.get_influence().resid_studentized_internal
-    ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
-    ax[1, 1].set_title('Scale-Location')
-    ax[1, 1].set_xlabel('Fitted values')
-    ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
+        # Scale-Location
+        standardized_resid = model.get_influence().resid_studentized_internal
+        ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
+        ax[1, 1].set_title('Scale-Location')
+        ax[1, 1].set_xlabel('Fitted values')
+        ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
 
 def check_multicollinearity(x):
     """Checks multicollinearity of the predictors by computing the VIF.
@@ -5901,7 +6310,7 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
         trapezoid over the resulting points sorted by recall, so a single
         threshold gives an area of ``0`` -- pass at least two (COCO convention is
         ``np.linspace(0.5, 0.95, 10)``). Duplicate thresholds contribute
-        zero-width segments and simply do not count.
+        zero-width segments and do not count.
     :raises ValueError: if a computed precision or recall falls outside
         ``[0, 1]``, which indicates the mask counts disagree with the matches.
     """
@@ -6078,8 +6487,16 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         cell_mask = stack[:, :, cell_dim]
     else:
         return stack
-    nucleus_mask = stack[:, :, nucleus_dim]
+    # A DIM OF None IS np.newaxis, NOT A MISSING CHANNEL. `stack[:, :, None]`
+    # does not raise: it returns the WHOLE STACK with an axis inserted, so
+    # `nucleus_mask` became every channel at once and zeroing a nucleus label
+    # zeroed every object that happened to share the number. Measured on an
+    # 8x8 stack: a cell labelled 5, nowhere near the pathogen, was erased in
+    # full when nucleus_dim was None.
+    if pathogen_dim is None:
+        return stack                       # nothing to remove
     pathogen_mask = stack[:, :, pathogen_dim]
+    nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
     pathogen_labels = np.unique(pathogen_mask)[1:]
     for pathogen_label in pathogen_labels:
         pathogen_region = pathogen_mask == pathogen_label
@@ -6090,22 +6507,29 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
             # `nucleus_mask == pathogen_label` reused a pathogen label id as a
             # nucleus label id — independent label spaces — so it deleted an
             # arbitrary unrelated nucleus that merely shared the number.
-            nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
-            nuclei_in_pathogen = nuclei_in_pathogen[nuclei_in_pathogen != 0]
             pathogen_mask[pathogen_region] = 0
-            for nucleus_label in nuclei_in_pathogen:
-                nucleus_mask[nucleus_mask == nucleus_label] = 0
+            if nucleus_mask is not None:
+                nuclei_in_pathogen = np.unique(nucleus_mask[pathogen_region])
+                nuclei_in_pathogen = nuclei_in_pathogen[
+                    nuclei_in_pathogen != 0]
+                for nucleus_label in nuclei_in_pathogen:
+                    nucleus_mask[nucleus_mask == nucleus_label] = 0
     stack[:, :, cell_dim] = cell_mask
-    stack[:, :, nucleus_dim] = nucleus_mask
+    if nucleus_dim is not None:
+        stack[:, :, nucleus_dim] = nucleus_mask
     stack[:, :, pathogen_dim] = pathogen_mask
     return stack
 
 def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_dim, object_dim):
     """Zero out cells containing more than one object in ``object_dim``."""
+    # See `_remove_outside_objects`: a dim of None is np.newaxis and silently
+    # widens the view to the whole stack instead of raising.
+    if mask_dim is None or object_dim is None:
+        return stack
     cell_mask = stack[:, :, mask_dim]
-    nucleus_mask = stack[:, :, nucleus_dim]
-    pathogen_mask = stack[:, :, pathogen_dim]
     object_mask = stack[:, :, object_dim]
+    nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
+    pathogen_mask = None if pathogen_dim is None else stack[:, :, pathogen_dim]
 
     for cell_label in np.unique(cell_mask)[1:]:
         cell_region = cell_mask == cell_label
@@ -6117,19 +6541,24 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
         if len(labels_in_cell) > 1:
             cell_mask[cell_region] = 0
-            nucleus_mask[cell_region] = 0
+            if nucleus_mask is not None:
+                nucleus_mask[cell_region] = 0
             # Resolve the pathogens through the cell FOOTPRINT. labels_in_cell
             # are object_dim label ids, and nucleus/pathogen masks are labeled
             # independently from 1 — reusing them as pathogen ids deletes
             # unrelated pathogens whenever object_dim is not the pathogen dim.
-            pathogens_in_cell = np.unique(pathogen_mask[cell_region])
-            pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
-            for pathogen_label in pathogens_in_cell:
-                pathogen_mask[pathogen_mask == pathogen_label] = 0
+            if pathogen_mask is not None:
+                pathogens_in_cell = np.unique(pathogen_mask[cell_region])
+                pathogens_in_cell = pathogens_in_cell[pathogens_in_cell != 0]
+                for pathogen_label in pathogens_in_cell:
+                    pathogen_mask[pathogen_mask == pathogen_label] = 0
 
-    stack[:, :, cell_dim] = cell_mask
-    stack[:, :, nucleus_dim] = nucleus_mask
-    stack[:, :, pathogen_dim] = pathogen_mask
+    if cell_dim is not None:
+        stack[:, :, cell_dim] = cell_mask
+    if nucleus_dim is not None:
+        stack[:, :, nucleus_dim] = nucleus_mask
+    if pathogen_dim is not None:
+        stack[:, :, pathogen_dim] = pathogen_mask
     return stack
     
 def merge_touching_objects(mask, threshold=0.25):
@@ -6307,11 +6736,34 @@ def _merge_overlapping_objects(mask1, mask2):
                     mask2[mask2 == m2_label] = overlapping_2_labels[0]
     return mask1, mask2
 
-def _filter_object(mask, min_value):
-    """Zero out label values whose pixel count is below ``min_value``."""
+def _filter_object(mask, min_value, max_value=None):
+    """Zero out label values outside the allowed pixel-count range.
+
+    :param min_value: drop objects smaller than this. 0 or None disables it.
+    :param max_value: drop objects LARGER than this. None -- the default,
+        and what every existing run does -- disables it.
+    :returns: ``mask``, filtered in place.
+
+    THE UPPER BOUND EXISTS BECAUSE THE LOWER ONE IS NOT ENOUGH. A
+    segmentation blow-up -- one "cell" covering a quarter of the field, two
+    cells merged by a bright bridge -- passes every minimum there is, gets
+    measured, and carries its area into the classifier and the regression.
+    A minimum can only remove debris.
+
+    :returns: the number of objects removed is NOT returned; the caller
+        counts them, because it is the caller that knows which object type
+        this is and can say so.
+    """
     count = np.bincount(mask.ravel())
-    to_remove = np.where(count < min_value)
-    mask[np.isin(mask, to_remove)] = 0
+    too_small = count < (min_value or 0)
+    if max_value:
+        too_big = count > max_value
+    else:
+        too_big = np.zeros_like(too_small)
+    # Label 0 is the background and is never an object.
+    remove = np.where(too_small | too_big)[0]
+    remove = remove[remove != 0]
+    mask[np.isin(mask, remove)] = 0
     return mask
 
 def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):
@@ -6418,6 +6870,19 @@ def _object_filter(df, object_type, size_range, intensity_range, mask_chans, mas
 
 def _get_regex(metadata_type, img_format, custom_regex=None):
     
+    """Return the filename pattern for a microscope convention.
+
+    :param metadata_type: the convention -- ``'cellvoyager'``, ``'cq1'``,
+        ``'auto'``, or ``'custom'`` with a pattern of your own.
+    :param img_format: the file extension the pattern should end on;
+        ``None`` means ``tif``.
+    :param custom_regex: the pattern, for ``'custom'``.
+    :returns: the pattern.
+    :raises ValueError: NAMING THE VOCABULARY, for an unrecognised type.
+        Falling through left the variable unbound and raised "cannot access
+        local variable 'regex'" -- an error about an implementation detail
+        rather than about the setting that was wrong.
+    """
     print(f"Image_format: {img_format}")
 
     if img_format == None:
@@ -6430,12 +6895,34 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
         regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif"     
     elif metadata_type == 'custom':
         regex = f"({custom_regex}).{img_format}"
-        
+    else:
+        # NAME THE VOCABULARY. Falling through left `regex` unbound, so an
+        # unrecognised metadata_type raised "cannot access local variable
+        # 'regex'" from inside this function -- an error that names an
+        # implementation detail and not the setting the user got wrong.
+        raise ValueError(
+            f"metadata_type={metadata_type!r} is not one of 'cellvoyager', "
+            f"'cq1', 'auto' or 'custom'. Choose one of those, or use "
+            f"'custom' with a regular expression of your own.")
+
     print(f'regex mode:{metadata_type} regex:{regex}')
     return regex
 
 def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True):
     
+    """Copy a small sample of the source into a test folder.
+
+    A timelapse is cut to ONE image set rather than the requested number:
+    the point of a test run there is a complete sequence, and ten partial
+    sequences test nothing.
+
+    :param src: the folder to sample from.
+    :param regex: the filename pattern.
+    :param timelapse: treat the source as a timelapse.
+    :param test_images: how many image sets to take.
+    :param random_test: sample at random rather than taking the first.
+    :returns: the test folder.
+    """
     if timelapse:
         test_images = 1  # Use only 1 set for timelapse to ensure full sequence inclusion
     
@@ -6452,12 +6939,11 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
 
     for filename in all_filenames:
         match = regular_expression.match(filename)
-        if match:
-            plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
-            well = match.group('wellID')
-            field = match.group('fieldID')
-            set_identifier = (plate, well, field)
-            images_by_set[set_identifier].append(filename)
+        plate = match.group('plateID') if 'plateID' in match.groupdict() else os.path.basename(src)
+        well = match.group('wellID')
+        field = match.group('fieldID')
+        set_identifier = (plate, well, field)
+        images_by_set[set_identifier].append(filename)
     
     # Prepare for random selection
     set_identifiers = list(images_by_set.keys())
@@ -6660,11 +7146,14 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     pretrained = _resolve_cellpose_pretrained(
         model_name, object_type=object_type, restore_type=restore_type)
 
-    return cp_models.CellposeModel(
-        gpu=torch.cuda.is_available(),
-        device=device,
-        pretrained_model=pretrained,
-    )
+    from .accelerator import cellpose_kwargs
+
+    # device= from the caller still wins; only the flags it cannot know
+    # about (gpu, and the dtype the device can hold) come from here.
+    kwargs = cellpose_kwargs()
+    if device is not None:
+        kwargs["device"] = device
+    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 class SelectChannels:
     """Callable transform that zeroes out image channels not present in ``channels``.
@@ -6717,7 +7206,11 @@ class SaliencyMapGenerator:
         self.model = model
 
     def compute_saliency_maps(self, X, y):
-        """Return absolute-gradient saliency maps for inputs ``X`` given labels ``y``."""
+        """Return absolute-gradient saliency maps for inputs ``X``.
+
+        :param X: differentiable input image batch to probe.
+        :param y: binary labels selecting the signed output scores.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -6734,7 +7227,10 @@ class SaliencyMapGenerator:
         return saliency
 
     def compute_saliency_and_predictions(self, X):
-        """Return ``(saliency, predictions)`` computed against the model's own predicted classes."""
+        """Return saliency maps and the model's own predicted classes.
+
+        :param X: differentiable input image batch to classify and probe.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -6768,8 +7264,7 @@ class SaliencyMapGenerator:
         """Render a grid overlaying saliency maps on inputs with predicted-class labels.
 
         The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
-        ``axis('off')`` is applied only to the panels that get a sample, so an
-        incomplete last row renders as empty framed boxes. The figure is
+        unused panels in an incomplete last row are hidden. The figure is
         returned, never shown.
 
         :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
@@ -6780,15 +7275,15 @@ class SaliencyMapGenerator:
         :param saliency: torch tensor of at least ``N`` entries. It is indexed
             and moved to the CPU on every iteration even when ``overlay`` is
             false, so a numpy array raises ``AttributeError`` either way. Each
-            entry must be ``(H, W)`` or ``(3, H, W)``: only a leading ``3`` is
-            transposed to channels-last, so ``(1, H, W)`` and ``(2, H, W)``
-            raise ``TypeError`` from ``imshow``.
+            entry may be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``; a leading
+            singleton is removed and a leading RGB dimension is transposed to
+            channels-last. Other three-dimensional shapes reach ``imshow`` and
+            raise ``TypeError``.
         :param predictions: sequence supporting ``predictions[i].item()``,
             whose scalar is stamped in each panel's corner. A plain Python list
             of ints raises ``AttributeError``.
-        :param overlay: false draws no image at all -- neither the input nor
-            the map -- leaving a grid of bare class labels on empty axes.
-            Default ``True``.
+        :param overlay: true draws the input beneath a translucent map; false
+            draws the map alone. Default ``True``.
         :param normalize: percentile-stretch the input image only; the saliency
             map is always drawn raw. Has no effect unless ``overlay`` is true,
             and a channel that is flat between its 2nd and 98th percentiles
@@ -6800,35 +7295,49 @@ class SaliencyMapGenerator:
         # squeeze=False keeps axs 2-D; without it matplotlib collapses a
         # single-row grid to 1-D and the axs[i // 8, i % 8] index below
         # raised IndexError for every batch of 8 or fewer images.
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
-        for i in range(N):
-            ax = axs[i // 8, i % 8]
-            saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
+            # An incomplete last row must be absent, not seven empty framed
+            # panels beside the final sample. Used panels stay off too because
+            # an image grid has no meaningful ticks or spines.
+            for ax in axs.flat:
+                ax.axis('off')
 
-            # The MAP is always drawn. It used to be inside `if overlay`, so
-            # overlay=False produced a grid of bare class labels on empty
-            # axes -- no input, no map, nothing. overlay now means what its
-            # name says: draw the input UNDER the map, or the map alone.
-            if overlay:
-                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                if normalize:
-                    img_np = self.percentile_normalize(img_np)
-                ax.imshow(img_np)
-                ax.imshow(saliency_map, cmap='jet', alpha=0.5)
-            else:
-                ax.imshow(saliency_map, cmap='jet')
+            for i in range(N):
+                ax = axs[i // 8, i % 8]
+                saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
 
-            # Add class label in the top-left corner
-            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-            ax.axis('off')
+                # The MAP is always drawn. It used to be inside `if overlay`, so
+                # overlay=False produced a grid of bare class labels on empty
+                # axes -- no input, no map, nothing. overlay now means what its
+                # name says: draw the input UNDER the map, or the map alone.
+                if overlay:
+                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                    if normalize:
+                        img_np = self.percentile_normalize(img_np)
+                    ax.imshow(img_np)
+                    ax.imshow(saliency_map, cmap='jet', alpha=0.5)
+                else:
+                    ax.imshow(saliency_map, cmap='jet')
 
-        plt.tight_layout(pad=0)
-        return fig
+                # Add class label in the top-left corner
+                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+                ax.axis('off')
+
+            plt.tight_layout(pad=0)
+            return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
+
+        :param img: channels-last image array to normalize.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -6874,7 +7383,11 @@ class GradCAMGenerator:
         self.target_layer_module.register_full_backward_hook(backward_hook)
 
     def get_layer(self, model, target_layer):
-        """Resolve a dotted attribute path into the referenced submodule."""
+        """Resolve a dotted attribute path into the referenced submodule.
+
+        :param model: root model from which attribute traversal starts.
+        :param target_layer: dot-separated submodule attribute path.
+        """
         # Recursively find the layer specified in target_layer
         modules = target_layer.split('.')
         layer = model
@@ -6883,7 +7396,11 @@ class GradCAMGenerator:
         return layer
 
     def compute_gradcam_maps(self, X, y):
-        """Return the min-max normalized Grad-CAM map for a single-sample batch ``X`` and label ``y``."""
+        """Return a normalized Grad-CAM map for one sample.
+
+        :param X: single-sample differentiable input batch to probe.
+        :param y: binary label selecting the signed output score.
+        """
         X.requires_grad_()
 
         # Forward pass
@@ -6918,7 +7435,10 @@ class GradCAMGenerator:
         return gradcam
 
     def compute_gradcam_and_predictions(self, X):
-        """Return ``(gradcam_maps, predictions)`` for every sample in the batch ``X``."""
+        """Return Grad-CAM maps and predictions for every sample.
+
+        :param X: differentiable input image batch to classify and probe.
+        """
         self.model.eval()
         X.requires_grad_()
 
@@ -6944,8 +7464,7 @@ class GradCAMGenerator:
         """Render a grid overlaying Grad-CAM maps on inputs with predicted-class labels.
 
         The grid is always eight columns wide with ``ceil(N / 8)`` rows, and
-        ``axis('off')`` is applied only to the panels that get a sample, so an
-        incomplete last row renders as empty framed boxes. The figure is
+        unused panels in an incomplete last row are hidden. The figure is
         returned, never shown.
 
         :param X: batch tensor shaped ``(N, C, H, W)``; ``N`` fixes the grid
@@ -6953,19 +7472,15 @@ class GradCAMGenerator:
             The pixels are read only under ``overlay``, where the sample is
             permuted to ``(H, W, C)`` -- ``C`` of 1, 3 or 4 renders, ``C`` of 2
             raises ``TypeError`` from ``imshow``.
-        :param gradcam: torch tensor of per-sample 2-D maps, i.e. ``(N, H, W)``
-            as returned by :meth:`compute_gradcam_and_predictions`. Unlike
-            :meth:`SaliencyMapGenerator.plot_activation_grid` there is no
-            channels-first transpose here, so an ``(N, 3, H, W)`` stack raises
-            ``TypeError``. It is indexed and moved to the CPU on every
-            iteration even when ``overlay`` is false, so it must be a tensor
-            either way.
+        :param gradcam: torch tensor with at least ``N`` entries. Each map may
+            be ``(H, W)``, ``(1, H, W)`` or ``(3, H, W)``, with the same shape
+            normalization used by the saliency twin. It is indexed and moved
+            to the CPU on every iteration, so it must be a tensor either way.
         :param predictions: sequence supporting ``predictions[i].item()``,
             whose scalar is stamped in each panel's corner. A plain Python list
             of ints raises ``AttributeError``.
-        :param overlay: false draws no image at all -- neither the input nor
-            the map -- leaving a grid of bare class labels on empty axes.
-            Default ``True``.
+        :param overlay: true draws the input beneath a translucent map; false
+            draws the map alone. Default ``True``.
         :param normalize: percentile-stretch the input image only; the Grad-CAM
             map is always drawn raw. Has no effect unless ``overlay`` is true,
             and a channel that is flat between its 2nd and 98th percentiles
@@ -6976,36 +7491,47 @@ class GradCAMGenerator:
         rows = (N + 7) // 8
         # See SaliencyMapGenerator.plot_activation_grid — squeeze=False is
         # required so the 2-D index below works for a single-row grid.
-        fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
 
-        for i in range(N):
-            ax = axs[i // 8, i % 8]
-            gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
+            for ax in axs.flat:
+                ax.axis('off')
 
-            # Same contract as the saliency twin: the map always draws, and
-            # overlay decides whether the input is drawn beneath it.
-            if overlay:
-                img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                if normalize:
-                    img_np = self.percentile_normalize(img_np)
-                ax.imshow(img_np)
-                ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
-            else:
-                ax.imshow(gradcam_map, cmap='jet')
+            for i in range(N):
+                ax = axs[i // 8, i % 8]
+                gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
 
-            #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
-            #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
+                # Same contract as the saliency twin: the map always draws, and
+                # overlay decides whether the input is drawn beneath it.
+                if overlay:
+                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
+                    if normalize:
+                        img_np = self.percentile_normalize(img_np)
+                    ax.imshow(img_np)
+                    ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
+                else:
+                    ax.imshow(gradcam_map, cmap='jet')
 
-            # Add class label in the top-left corner
-            ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                    bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-            ax.axis('off')
+                #ax.imshow(X[i].permute(1, 2, 0).detach().cpu().numpy())  # Original image
+                #ax.imshow(gradcam_map, cmap='jet', alpha=0.5)  # Overlay the gradcam map
 
-        plt.tight_layout(pad=0)
-        return fig
+                # Add class label in the top-left corner
+                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
+                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
+                ax.axis('off')
+
+            plt.tight_layout(pad=0)
+            return fig
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
-        """Per-channel percentile-normalize ``img`` into ``[0, 1]``."""
+        """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
+
+        :param img: channels-last image array to normalize.
+        """
         img_normalized = np.zeros_like(img)
 
         for c in range(img.shape[2]):  # Iterate over each channel
@@ -7087,7 +7613,11 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
     # written against; these checkpoints are whole nn.Module pickles.
     model = torch.load(model_path, weights_only=False)
     
-    dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+    # A CUDA tensor TYPE, which only CUDA has. Every other backend
+    # takes a plain float tensor and is moved with .to(device).
+    from .accelerator import is_cuda
+
+    dtype = torch.cuda.FloatTensor if is_cuda() else torch.FloatTensor
     len_chans = len(channels)
     model.type(dtype)
 
@@ -7159,7 +7689,8 @@ class GradCAM:
 
     :param model: trained model to inspect.
     :param target_layers: list of dotted layer names to hook.
-    :param use_cuda: run the model on CUDA when available.
+    :param use_cuda: if true, move the model and inputs to CUDA
+        unconditionally; the caller must ensure CUDA is available.
     """
     def __init__(self, model, target_layers=None, use_cuda=True):
         """Store the model and move it to CUDA if requested."""
@@ -7171,7 +7702,10 @@ class GradCAM:
             self.model = model.cuda()
 
     def forward(self, input):
-        """Return the model output for ``input``."""
+        """Return the model output for ``input``.
+
+        :param input: tensor passed directly to the wrapped model.
+        """
         return self.model(input)
 
     def __call__(self, x, index=None):
@@ -7439,102 +7973,162 @@ def filter_columns(df, filter_by):
     df = df[cols_to_include]
     return df
 
-def reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric, eps, min_samples, clustering, reduction_method='umap', verbose=False, embedding=None, n_jobs=-1, mode='fit', model=False):
+def reduction_and_clustering(
+        numeric_data, n_neighbors, min_dist, metric, eps, min_samples,
+        clustering, reduction_method='umap', verbose=False, embedding=None,
+        n_jobs=-1, mode='fit', model=False, reducer_options=None,
+        prefer_gpu=False, random_seed=42):
     """Reduce ``numeric_data`` to 2-D and cluster the embedding.
 
-    :param numeric_data: numeric data matrix.
-    :param n_neighbors: UMAP ``n_neighbors`` or t-SNE perplexity (fraction or int).
-    :param min_dist: UMAP ``min_dist``.
-    :param metric: distance metric used by UMAP/DBSCAN.
-    :param eps: DBSCAN ``eps``.
-    :param min_samples: DBSCAN ``min_samples`` or KMeans cluster count.
-    :param clustering: ``'dbscan'`` or ``'kmeans'``.
-    :param reduction_method: ``'umap'`` or ``'tsne'``.
-    :param verbose: print progress.
-    :param embedding: precomputed embedding (skips reducer fit).
-    :param n_jobs: parallel worker count.
-    :param mode: ``'fit'`` to train a new reducer, otherwise transform with ``model``.
-    :param model: existing reducer to reuse when ``mode != 'fit'``.
-    :returns: ``(embedding, labels, reducer)``.
-    :raises ValueError: on unsupported ``reduction_method`` or missing model.
+    Supported reducers are UMAP, t-SNE, PCA, Isomap and Spectral Embedding.
+    ``reducer_options`` carries only method-specific settings; irrelevant
+    options are never forwarded. RAPIDS is opt-in and applies to UMAP, t-SNE
+    and PCA, with the actual backend retained on the fitted reducer.
+
+    :param numeric_data: rows of numeric features to embed and cluster.
+    :param n_neighbors: reducer neighborhood size, or a row fraction as a
+        float; also supplies the default t-SNE perplexity.
+    :param min_dist: minimum embedding distance used by UMAP.
+    :param metric: distance metric used by the reducer and DBSCAN.
+    :param eps: DBSCAN neighborhood radius.
+    :param min_samples: DBSCAN minimum neighborhood size, or KMeans cluster
+        count when ``clustering='kmeans'``.
+    :param clustering: clustering algorithm, ``'dbscan'`` or ``'kmeans'``.
     """
+    values = np.asarray(numeric_data)
+    options = dict(reducer_options or {})
+    aliases = {
+        't-sne': 'tsne', 't_sne': 'tsne',
+        'spectral_embedding': 'spectral', 'spectral-embedding': 'spectral',
+    }
+    method = aliases.get(
+        str(reduction_method or 'umap').strip().lower(),
+        str(reduction_method or 'umap').strip().lower(),
+    )
+    supported = ('umap', 'tsne', 'pca', 'isomap', 'spectral')
+    if method not in supported:
+        raise ValueError(
+            f"Unsupported reduction method: {reduction_method}. Supported "
+            f"methods are {', '.join(supported)}")
+    gpu_supported = ('umap', 'tsne', 'pca')
+    if prefer_gpu and method not in gpu_supported:
+        raise ValueError(
+            f"GPU acceleration is not available for {method}. Turn GPU off "
+            f"or choose one of {', '.join(gpu_supported)}.")
 
-    if verbose:
-        v = 1
-    else:
-        v = 0
-    
     if isinstance(n_neighbors, float):
-        n_neighbors = int(n_neighbors * len(numeric_data))
+        n_neighbors = int(n_neighbors * len(values))
+    n_neighbors = max(2, int(n_neighbors))
+    seed = _run_random_state(int(random_seed))
 
-    if n_neighbors <= 2:
-        n_neighbors = 2
-    
     if mode == 'fit':
-        if reduction_method == 'umap':
-            reducer = umap.UMAP(n_neighbors=n_neighbors,
-                                n_components=2,
-                                metric=metric,
-                                n_epochs=None,
-                                learning_rate=1.0,
-                                init='spectral',
-                                min_dist=min_dist,
-                                spread=1.0,
-                                set_op_mix_ratio=1.0,
-                                local_connectivity=1,
-                                repulsion_strength=1.0,
-                                negative_sample_rate=5,
-                                transform_queue_size=4.0,
-                                a=None,
-                                b=None,
-                                random_state=_run_random_state(42),
-                                metric_kwds=None,
-                                angular_rp_forest=False,
-                                target_n_neighbors=-1,
-                                target_metric='categorical',
-                                target_metric_kwds=None,
-                                target_weight=0.5,
-                                transform_seed=_run_random_state(42),
-                                n_jobs=n_jobs,
-                                verbose=verbose)
-
-        elif reduction_method == 'tsne':
-            reducer = TSNE(n_components=2,
-                        perplexity=n_neighbors,
-                        early_exaggeration=12.0,
-                        learning_rate=200.0,
-                        # scikit-learn >=1.5 renamed TSNE's ``n_iter`` to
-                        # ``max_iter``; the old name is a hard error on 1.7+.
-                        max_iter=1000,
-                        n_iter_without_progress=300,
-                        min_grad_norm=1e-7,
-                        metric=metric,
-                        init='random',
-                        verbose=v,
-                        random_state=_run_random_state(42),
-                        method='barnes_hut',
-                        angle=0.5,
-                        n_jobs=n_jobs)
-            
+        backend = 'cpu'
+        if method == 'umap':
+            kwargs = dict(
+                n_neighbors=n_neighbors, n_components=2, metric=metric,
+                min_dist=float(min_dist), random_state=seed,
+                transform_seed=seed, n_jobs=n_jobs, verbose=bool(verbose),
+            )
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'umap', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'tsne':
+            requested_perplexity = float(
+                options.get('perplexity', n_neighbors))
+            if requested_perplexity <= 0 or len(values) < 2:
+                raise ValueError(
+                    "t-SNE perplexity must be greater than 0 and smaller "
+                    f"than the {len(values)} input rows; got "
+                    f"{requested_perplexity}.")
+            # A row limit can leave fewer rows than the saved/default
+            # perplexity. Use the largest valid neighbourhood rather than
+            # failing after data loading; retain the requested setting in the
+            # settings file and report the adjustment in verbose mode.
+            perplexity = min(requested_perplexity, float(len(values) - 1))
+            if verbose and perplexity != requested_perplexity:
+                print(f'Adjusted t-SNE perplexity from '
+                      f'{requested_perplexity:g} to {perplexity:g} for '
+                      f'{len(values)} rows')
+            kwargs = dict(
+                n_components=2, perplexity=perplexity,
+                early_exaggeration=float(
+                    options.get('early_exaggeration', 12.0)),
+                learning_rate=float(options.get('learning_rate', 200.0)),
+                max_iter=int(options.get('max_iter', 1000)), metric=metric,
+                init='random', verbose=int(bool(verbose)), random_state=seed,
+            )
+            # sklearn accepts n_jobs; cuML releases differ, so do not forward
+            # that CPU-only tuning argument to a requested GPU constructor.
+            if not prefer_gpu:
+                kwargs['n_jobs'] = n_jobs
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'tsne', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'pca':
+            kwargs = dict(
+                n_components=2, whiten=bool(options.get('whiten', False)),
+                svd_solver=str(options.get('svd_solver', 'auto')),
+                random_state=seed,
+            )
+            from .gpu_reduce import make_reducer
+            reducer, backend = make_reducer(
+                'pca', prefer_gpu=bool(prefer_gpu), **kwargs)
+        elif method == 'isomap':
+            graph_neighbors = min(
+                max(1, int(options.get('n_neighbors', n_neighbors))),
+                max(1, len(values) - 1),
+            )
+            reducer = Isomap(
+                n_neighbors=graph_neighbors,
+                n_components=2, metric=metric,
+                path_method=str(options.get('path_method', 'auto')),
+                n_jobs=n_jobs,
+            )
         else:
-            raise ValueError(f"Unsupported reduction method: {reduction_method}. Supported methods are 'umap' and 'tsne'")
-        
-        embedding = reducer.fit_transform(numeric_data)
+            affinity = str(options.get('affinity', 'nearest_neighbors'))
+            kwargs = dict(
+                n_components=2, affinity=affinity, random_state=seed,
+                n_jobs=n_jobs,
+            )
+            if affinity == 'nearest_neighbors':
+                kwargs['n_neighbors'] = min(
+                    max(1, int(options.get('n_neighbors', n_neighbors))),
+                    max(1, len(values) - 1),
+                )
+            reducer = SpectralEmbedding(**kwargs)
+
+        if prefer_gpu and backend != 'cuml':
+            raise RuntimeError(
+                f"GPU was requested for {method}, but cuML could not build "
+                "the reducer. No CPU fallback was run; turn GPU off to use "
+                "the CPU backend.")
+
+        embedding = reducer.fit_transform(values)
+        if hasattr(embedding, 'get'):
+            embedding = embedding.get()
+        embedding = np.asarray(embedding)
+        try:
+            reducer._spacr_backend = backend
+            reducer._spacr_reduction_method = method
+        except Exception:
+            pass
         if verbose:
-            print(f'Trained and fit reducer')
-
+            print(f'Trained and fit reducer: {method} on {backend}')
     else:
-        # `model` defaults to False, not None (and core.py passes False
-        # explicitly), so a plain `is not None` check sent the sentinel into
-        # model.transform() and raised AttributeError on a bool instead of
-        # the intended "provide a model" error.
-        if model is not None and model is not False:
-            embedding = model.transform(numeric_data)
-            reducer = model
-            if verbose:
-                print(f'Fit data to reducer')
-        else:
-            raise ValueError(f"Model is None. Please provide a model for transform.")
+        if model is None or model is False:
+            raise ValueError("Model is None. Please provide a model for transform.")
+        transform = getattr(model, 'transform', None)
+        if not callable(transform):
+            raise ValueError(
+                f"{method} cannot transform new rows after fitting. Turn off "
+                "embedding_by_controls or choose UMAP, PCA, or Isomap.")
+        embedding = transform(values)
+        if hasattr(embedding, 'get'):
+            embedding = embedding.get()
+        embedding = np.asarray(embedding)
+        reducer = model
+        if verbose:
+            print('Fit data to reducer')
 
     if clustering == 'dbscan':
         clustering_model = DBSCAN(eps=eps, min_samples=min_samples, metric=metric, n_jobs=n_jobs)
@@ -7611,27 +8205,33 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
     :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: matplotlib ``Figure``.
     """
-    unique_labels = np.unique(labels)
-    #num_clusters = len(unique_labels[unique_labels != 0])
-    colors, label_to_color_index = assign_colors(unique_labels, colors)
-    cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
-    fig, ax = setup_plot(
-        figuresize, black_background, theme_colors=theme_colors)
-    plot_clusters(
-        ax, embedding, labels, colors, cluster_centers, plot_outlines,
-        plot_points, smooth_lines, figuresize, dot_size, verbose,
-        point_color=point_color, point_alpha=point_alpha,
-        outline_width=outline_width,
-    )
-    if not image_paths is None and plot_images:
-        plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
-    if interactive_payload is not None:
-        # The Qt bridge recognises this attribute and keeps the underlying
-        # points/image/database identities instead of flattening the result
-        # into a PNG-only gallery entry.
-        fig._spacr_umap_payload = interactive_payload
-    plt.show()
-    return fig
+    # `setup_plot` pushes the theme's colours into matplotlib's
+    # process-wide rcParams so the panels it builds match the GUI. Scoped
+    # to this figure: a UMAP drawn on the dark theme used to leave every
+    # later figure of the session with white-on-white text once the user
+    # moved to a screen that draws on paper.
+    with plt.rc_context():
+        unique_labels = np.unique(labels)
+        #num_clusters = len(unique_labels[unique_labels != 0])
+        colors, label_to_color_index = assign_colors(unique_labels, colors)
+        cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
+        fig, ax = setup_plot(
+            figuresize, black_background, theme_colors=theme_colors)
+        plot_clusters(
+            ax, embedding, labels, colors, cluster_centers, plot_outlines,
+            plot_points, smooth_lines, figuresize, dot_size, verbose,
+            point_color=point_color, point_alpha=point_alpha,
+            outline_width=outline_width,
+        )
+        if not image_paths is None and plot_images:
+            plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
+        if interactive_payload is not None:
+            # The Qt bridge recognises this attribute and keeps the underlying
+            # points/image/database identities instead of flattening the result
+            # into a PNG-only gallery entry.
+            fig._spacr_umap_payload = interactive_payload
+        plt.show()
+        return fig
 
 def generate_colors(num_clusters, black_background):
     """Return a deterministic Viridis RGBA palette for cluster points.
@@ -7653,7 +8253,11 @@ def generate_colors(num_clusters, black_background):
     return mpl.colormaps['viridis'](positions)
 
 def assign_colors(unique_labels, random_colors):
-    """Return a ``(colors, label_to_index)`` mapping keyed by ``unique_labels``."""
+    """Return colors and their positional mapping for the unique labels.
+
+    :param unique_labels: cluster labels in the order assigned palette indices.
+    :param random_colors: iterable of color values converted to tuples.
+    """
     colors = [tuple(color) for color in random_colors]
     label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
     return colors, label_to_color_index
@@ -7695,9 +8299,33 @@ def _style_plot_axes(fig, ax, colors):
 
 
 def setup_plot(figuresize, black_background, theme_colors=None):
-    """Return a themed ``(fig, ax)`` matching the active GUI container."""
+    """Create a square Matplotlib figure using scoped theme colors.
+
+    Parameters
+    ----------
+    figuresize : float
+        Figure width and height in inches.
+    black_background : bool
+        Use the legacy dark or light fallback when ``theme_colors`` is not
+        supplied.
+    theme_colors : mapping, optional
+        ``background``, ``foreground``, and ``border`` colors. Missing or
+        invalid entries use the fallback palette.
+
+    Returns
+    -------
+    tuple
+        The ``(figure, axes)`` pair.
+
+    Notes
+    -----
+    Theme values are applied inside :func:`matplotlib.rc_context` and then to
+    the created artists. Global Matplotlib settings are not modified.
+    """
+    import matplotlib as mpl
+
     colors = _plot_theme_colors(black_background, theme_colors)
-    plt.rcParams.update({
+    with mpl.rc_context({
         'figure.facecolor': colors['background'],
         'axes.facecolor': colors['background'],
         'axes.edgecolor': colors['border'],
@@ -7705,8 +8333,14 @@ def setup_plot(figuresize, black_background, theme_colors=None):
         'xtick.color': colors['foreground'],
         'ytick.color': colors['foreground'],
         'axes.labelcolor': colors['foreground'],
-    })
-    fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+    }):
+        # NOT `figure_style` HERE, DELIBERATELY. `setup_plot` exists to draw
+        # in the GUI THEME's colours, and the context above is already
+        # applying them. A house-style context nested inside would win --
+        # the inner rc_context is the one in force -- and hand back a figure
+        # painted for print on a dark screen, which is the exact failure
+        # `theme_target` exists to prevent.
+        fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
     _style_plot_axes(fig, ax, colors)
     return fig, ax
 
@@ -7861,10 +8495,9 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
         all of its members -- no sampling happens.
     :param img_zoom: scale factor handed to ``OffsetImage``, applied to the
         file's own pixel dimensions rather than to data units.
-    :param colors: bound by the ``zip`` and then never read, so it contributes
-        no color at all. What it does contribute is a length: ``zip`` stops at
-        the shorter sequence, and since ``np.unique`` counts the ``-1`` noise
-        label a palette sized to the real clusters silently drops the last one.
+    :param colors: accepted for caller compatibility but not read. Thumbnail
+        overlays do not use a cluster color, and palette length no longer
+        limits how many labels are visited.
     :param cluster_indices: mapping of label to the row indices to draw from.
         Looked up with ``.get(label, [])``, so a label present in ``labels``
         but absent here plots nothing instead of raising.
@@ -7920,7 +8553,10 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     ax.add_artist(ab)
 
 def remove_canvas(img):
-    """Return ``img`` as an RGBA array whose alpha channel masks out zero pixels."""
+    """Return ``img`` as RGBA with zero-valued pixels made transparent.
+
+    :param img: PIL image in ``L``, ``I``, or ``RGB`` mode.
+    """
     if img.mode in ['L', 'I']:
         img_data = np.array(img)
         img_data = img_data / np.max(img_data)
@@ -7991,13 +8627,10 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
     :param cluster_images: ordered mapping of cluster label to that cluster's
         list of image arrays; one column per key, and an empty mapping raises
         ``ValueError`` from ``subplots``.
-    :param colors: consumed two different ways in the same figure. The panel
-        border uses ``colors[label]`` for integer keys, so the palette must
-        reach the largest label, while the legend swatches beside the grid are
-        taken positionally -- with non-contiguous labels the two disagree, and
-        cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``.
-        String keys use the positional index for both. A palette shorter than
-        the mapping raises ``IndexError``, and entries need at least three
+    :param colors: palette used consistently for both panel borders and legend
+        swatches. Integer labels index it by label (wrapping when necessary),
+        while string labels use their position in ``cluster_images``. An empty
+        palette falls back to neutral grey, and entries need at least three
         components.
     :param figuresize: figure height in inches and the label font size; the
         width is this times the cluster count. It is shrunk to
@@ -8018,56 +8651,71 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         figuresize = max_figsize / num_clusters
 
     plot_colors = _plot_theme_colors(black_background, theme_colors)
-    grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
-    grid_fig.patch.set_facecolor(plot_colors['background'])
-    if num_clusters == 1:
-        grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
-    for cluster_label, axes in zip(cluster_images.keys(), grid_axes):
-        axes.set_facecolor(plot_colors['background'])
-        images = cluster_images[cluster_label]
-        num_images = len(images)
-        grid_size = int(np.ceil(np.sqrt(num_images)))
-        image_size = 0.9 / grid_size
-        whitespace = (1 - grid_size * image_size) / (grid_size + 1)
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+        grid_fig.patch.set_facecolor(plot_colors['background'])
+        if num_clusters == 1:
+            grid_axes = [grid_axes]  # Ensure grid_axes is always iterable
+        cluster_labels = list(cluster_images.keys())
 
-        # Both branches WRAP. A string label is positioned, an integer label
-        # indexes the palette directly -- and DBSCAN numbers its clusters
-        # 0..k-1, so a run with more clusters than colours used to die here
-        # with a bare "list index out of range" from colors[cluster_label].
-        # Reusing a colour is a worse figure; crashing is a lost run.
-        if isinstance(cluster_label, str):
-            idx = list(cluster_images.keys()).index(cluster_label)
-            if verbose:
-                print(f'Lable: {cluster_label} index: {idx}')
-        else:
-            idx = int(cluster_label)
-        color = colors[idx % len(colors)] if len(colors) else (0.5, 0.5, 0.5)
+        def cluster_color(cluster_label):
+            """Resolve one cluster's color once for panels and legend."""
+            if isinstance(cluster_label, str):
+                idx = cluster_labels.index(cluster_label)
+            else:
+                idx = int(cluster_label)
+            return (colors[idx % len(colors)] if len(colors)
+                    else (0.5, 0.5, 0.5))
 
-        axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
-        axes.axis('off')
-        for i, img in enumerate(images):
-            row = i // grid_size
-            col = i % grid_size
-            x_pos = (col + 1) * whitespace + col * image_size
-            y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
-            ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
-            ax_img.imshow(img, cmap='gray', aspect='auto')
-            ax_img.axis('off')
-            ax_img.set_aspect('equal')
-            ax_img.set_facecolor(color[:3])
+        for cluster_label, axes in zip(cluster_labels, grid_axes):
+            axes.set_facecolor(plot_colors['background'])
+            images = cluster_images[cluster_label]
+            num_images = len(images)
+            grid_size = int(np.ceil(np.sqrt(num_images)))
+            image_size = 0.9 / grid_size
+            whitespace = (1 - grid_size * image_size) / (grid_size + 1)
+
+            # Both branches WRAP. A string label is positioned, an integer label
+            # indexes the palette directly -- and DBSCAN numbers its clusters
+            # 0..k-1, so a run with more clusters than colours used to die here
+            # with a bare "list index out of range" from colors[cluster_label].
+            # Reusing a colour is a worse figure; crashing is a lost run.
+            if isinstance(cluster_label, str) and verbose:
+                print(
+                    f'Lable: {cluster_label} '
+                    f'index: {cluster_labels.index(cluster_label)}')
+            color = cluster_color(cluster_label)
+
+            axes.add_patch(plt.Rectangle((0, 0), 1, 1, transform=axes.transAxes, color=color[:3]))
+            axes.axis('off')
+            for i, img in enumerate(images):
+                row = i // grid_size
+                col = i % grid_size
+                x_pos = (col + 1) * whitespace + col * image_size
+                y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
+                ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
+                ax_img.imshow(img, cmap='gray', aspect='auto')
+                ax_img.axis('off')
+                ax_img.set_aspect('equal')
+                ax_img.set_facecolor(color[:3])
     
-    # Add cluster labels beside the UMAP plot
-    spacing_factor = 0.5  # Adjust this value to control the spacing between labels
-    for i, (cluster_label, color) in enumerate(zip(cluster_images.keys(), colors)):
-        label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
-        grid_fig.text(
-            1.05, label_y, f'Cluster {cluster_label}',
-            verticalalignment='center', fontsize=figuresize,
-            color=plot_colors['foreground'])
-        grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
+        # Add cluster labels beside the UMAP plot
+        spacing_factor = 0.5  # Adjust this value to control the spacing between labels
+        for i, cluster_label in enumerate(cluster_labels):
+            color = cluster_color(cluster_label)
+            label_y = 1 - (i + 1) * (spacing_factor / num_clusters)  # Adjust y position for each label
+            grid_fig.text(
+                1.05, label_y, f'Cluster {cluster_label}',
+                verticalalignment='center', fontsize=figuresize,
+                color=plot_colors['foreground'])
+            grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
 
-    plt.show()
-    return grid_fig
+        plt.show()
+        return grid_fig
 
 def generate_path_list_from_db(db_path, file_metadata):
     """Return all ``png_path`` values from ``db_path`` optionally filtered by ``file_metadata`` substrings.
@@ -8128,11 +8776,20 @@ def correct_paths(df, base_path, folder='data'):
     such a row, and it has to keep its position so the rewritten column still
     aligns with ``df``.
 
+    Delegate rewriting to :func:`spacr.crops.reanchor_path`, which handles
+    same-platform moves, Windows paths read on Linux, and old absolute paths.
+    It finds the rightmost anchor component after normalizing separators and
+    checks existing roots component by component. Paths with no matching
+    ``folder`` component pass through unchanged; their count and one example
+    are printed so unresolved paths remain visible.
+
     :param df: DataFrame with a ``png_path`` column, or a list of paths.
     :param base_path: destination root to prepend.
     :param folder: intermediate folder name that anchors the rewrite.
     :returns: DataFrame + list, or list, mirroring the input type.
     """
+    from .crops import NO_ANCHOR, REANCHORED, reanchor_path
+
     if isinstance(df, pd.DataFrame):
 
         if 'png_path' not in df.columns:
@@ -8145,18 +8802,22 @@ def correct_paths(df, base_path, folder='data'):
         image_paths = df
 
     adjusted_image_paths = []
+    unanchored = []
+    n_paths = 0
     for path in image_paths:
-        if not isinstance(path, str):
+        if not isinstance(path, str) or not path:
             adjusted_image_paths.append(path)
-        elif base_path not in path:
-            parts = path.split(f'/{folder}/')
-            if len(parts) > 1:
-                new_path = os.path.join(base_path, f'{folder}', parts[1])
-                adjusted_image_paths.append(new_path)
-            else:
-                adjusted_image_paths.append(path)
-        else:
-            adjusted_image_paths.append(path)
+            continue
+        n_paths += 1
+        new_path, outcome = reanchor_path(path, base_path, anchors=(folder,))
+        if outcome == NO_ANCHOR:
+            unanchored.append(path)
+        adjusted_image_paths.append(new_path)
+
+    if unanchored:
+        print(f"{len(unanchored):,} of {n_paths:,} recorded paths could not be "
+              f"re-anchored under {base_path}: they contain no '{folder}' "
+              f"component. The first is {unanchored[0]}")
 
     if isinstance(df, pd.DataFrame):
         df['png_path'] = adjusted_image_paths
@@ -8400,6 +9061,14 @@ def preprocess_data(
         exclude=excluded_features,
         allow_unknown=allow_unknown,
     )
+
+    # The unfiltered UMAP/statistics path does not pass through
+    # ``filter_dataframe_features``.  Give it the same missing-measurement
+    # contract before transformations or estimators see an all-NaN feature.
+    # Resolve every non-finite representation, not only pandas NA. A feature
+    # frame containing only +/- infinity has no ``isna`` bit set but is just
+    # as unfit for correlation filters and estimators as one containing NaN.
+    numeric_data = _resolve_missing_model_features(numeric_data)
     
     # Check if numeric_data is empty
     if numeric_data.empty:
@@ -8504,6 +9173,121 @@ def remove_highly_correlated_columns(df, threshold=0.95, verbose=False):
     
     return df
 
+#: The morphology measurements, by their bare skimage names. A column
+#: belongs to this group when one of these appears anywhere in its name, so
+#: `cell_area`, `nucleus_solidity` and `pathogen_zernike_7` are all
+#: morphology whichever object they were measured on.
+MORPHOLOGY_FEATURES = (
+    'area', 'area_bbox', 'major_axis_length', 'minor_axis_length',
+    'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity',
+    'area_filled', 'convex_area', 'equivalent_diameter_area',
+    'feret_diameter_max',
+) + tuple(f'zernike_{i}' for i in range(25))
+
+#: The feature group meaning "the shape of the object, whatever it was
+#: stained with". Spelled out because it is a value a user picks, not an
+#: implementation detail. Its canonical reader lives in the lightweight
+#: settings module so merely opening Classify does not import this module's
+#: torch/cv2/matplotlib stack.
+from .settings import (
+    FEATURE_SELECTION_MORPHOLOGY as MORPHOLOGY,
+    canonical_feature_selection as feature_selection,
+)
+
+#: Every group the panel offers, in the order it offers them.
+FEATURE_GROUPS = (0, 1, 2, 3, MORPHOLOGY)
+
+
+def feature_columns(columns, selection):
+    """Which of ``columns`` the selection keeps. Order preserved.
+
+    The union over the selection's members, so ``[1, 'morphology']`` is
+    channel 1's intensities AND the shapes rather than the empty
+    intersection of the two.
+
+    COLOCALISATION BELONGS TO BOTH CHANNELS IT MEASURES. A
+    ``cell_channel_1_channel_2_pearsons`` column names two channels and
+    survives a request for either -- which is what makes "localization"
+    reachable without a separate setting: ask for the channel and its
+    relationships come with it.
+
+    :param columns: ordered column names available for selection.
+    :param selection: channel, morphology group, text filter, mixture, or
+        ``None`` as accepted by :func:`feature_selection`.
+    """
+    canonical = feature_selection(selection)
+    if canonical is None:
+        return list(columns)
+    members = canonical if isinstance(canonical, list) else [canonical]
+    keep = []
+    for column in columns:
+        name = str(column)
+        for member in members:
+            if member == MORPHOLOGY:
+                if any(base in name for base in MORPHOLOGY_FEATURES):
+                    keep.append(column)
+                    break
+            elif isinstance(member, int):
+                if f"channel_{member}" in name:
+                    keep.append(column)
+                    break
+            elif str(member) in name:
+                keep.append(column)
+                break
+    return keep
+
+
+def _resolve_missing_model_features(df):
+    """Make non-finite measurements fit-ready without inventing zero signal.
+
+    A missing value and either sign of infinity carry the same information at
+    this boundary: no finite measurement exists for that object. A measurement
+    absent from every object is removed. A measurement available for at least
+    one object is retained, with its non-finite rows filled by that feature's
+    median. Median imputation gives an object with no measurement the typical
+    observed value, so the absence itself cannot masquerade as unusually
+    strong or weak signal; it is also robust to the long-tailed intensity
+    distributions common here.
+
+    :param df: numeric model-feature frame.
+    :returns: a frame with no missing values.
+    """
+    # Ratios measured over an empty compartment legitimately reach the model
+    # table as +/- infinity. Pandas does not classify those values as missing,
+    # and scikit-learn's scalers refuse them, so normalize them into the same
+    # explicit missing-value contract before deciding which columns survive.
+    df = df.replace([np.inf, -np.inf], np.nan)
+    missing = df.isna()
+    all_missing = missing.all(axis=0)
+    all_missing_columns = all_missing[all_missing].index.tolist()
+    if all_missing_columns:
+        df = df.drop(columns=all_missing_columns)
+
+    partially_missing = df.isna().any(axis=0)
+    partial_columns = partially_missing[partially_missing].index.tolist()
+    missing_values = (
+        int(df[partial_columns].isna().sum().sum())
+        if partial_columns else 0
+    )
+    if partial_columns:
+        medians = df[partial_columns].median(axis=0, skipna=True)
+        df = df.copy()
+        df[partial_columns] = df[partial_columns].fillna(medians)
+
+    # Keep the long-standing diagnostic text stable for callers and logs,
+    # while spelling out that only wholly absent columns are removed now.
+    print(
+        f"Dropped {len(all_missing_columns)} columns with NaN values "
+        "(all values were missing)"
+    )
+    if partial_columns:
+        print(
+            f"Median-imputed {missing_values} missing value(s) in "
+            f"{len(partial_columns)} partially observed feature column(s)"
+        )
+    return df
+
+
 def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_variance_features=True, remove_highly_correlated_features=True, verbose=False):
     """Restrict a features DataFrame to a channel of interest and clean up correlated/low-variance columns.
 
@@ -8556,77 +9340,40 @@ def filter_dataframe_features(df, channel_of_interest, exclude=None, remove_low_
         
     df = df[declared_features].copy()
     
-    if not channel_of_interest is None:
-        if isinstance(channel_of_interest, list):
-            feature_strings = [f"channel_{channel}" for channel in channel_of_interest]
-
-        # NOTE: 'morphology' must be tested BEFORE the generic str branch.
-        # It is a str, so the isinstance(..., str) check used to swallow it,
-        # leaving the morphology branch unreachable and `columns_to_drop`
-        # unassigned -> UnboundLocalError on the documented option.
-        elif channel_of_interest == 'morphology':
-            morphological_features = ['area', 'area_bbox', 'major_axis_length', 'minor_axis_length', 'eccentricity', 'extent', 'perimeter', 'euler_number', 'solidity', 'zernike_0', 'zernike_1', 'zernike_2', 'zernike_3', 'zernike_4', 'zernike_5', 'zernike_6', 'zernike_7', 'zernike_8', 'zernike_9', 'zernike_10', 'zernike_11', 'zernike_12', 'zernike_13', 'zernike_14', 'zernike_15', 'zernike_16', 'zernike_17', 'zernike_18', 'zernike_19', 'zernike_20', 'zernike_21', 'zernike_22', 'zernike_23', 'zernike_24', 'area_filled', 'convex_area', 'equivalent_diameter_area', 'feret_diameter_max']
-            morphological_columns = [item for item in df.columns.tolist() if any(base in item for base in morphological_features)]
-            columns_to_drop = [col for col in df.columns if col not in morphological_columns]
-
-        elif isinstance(channel_of_interest, str):
-            feature_strings = [channel_of_interest]
-
-        elif isinstance(channel_of_interest, int):
-            feature_strings = [f"channel_{channel_of_interest}"]
-
-        if channel_of_interest != 'morphology':
-            # ONE rule: keep a column when it NAMES a requested channel (or,
-            # for a free-text filter, contains the requested text); drop it
-            # otherwise.
-            #
-            # There used to be a second, subtractive half: a hard-coded
-            # drop list ['channel_1'..'channel_4'] minus the request, and any
-            # column mentioning a leftover was dropped even if it also named
-            # the requested channel. That half is deleted, not amended, and
-            # the reason it can go is that it was inert everywhere except one
-            # place. A column naming exactly ONE channel is decided identically
-            # by both halves -- if it names the requested channel the drop list
-            # no longer contains that token, and if it names some other channel
-            # the `all(fs not in col)` test already drops it. So the drop list
-            # only ever changed the fate of a column carrying TWO channel
-            # tokens, and the only such family in the schema is
-            # `<object>_channel_<i>_channel_<j>_<stat>`: colocalisation.
-            #
-            # Colocalisation measures the relationship BETWEEN a pair of
-            # channels and therefore belongs to both members of the pair. It
-            # now survives when EITHER member is requested -- exactly the
-            # special case we want, obtained by REMOVING a rule rather than
-            # bolting a `channel_\d+_channel_\d+` exemption onto the drop list.
-            # Asking for channel 1 no longer means "only how channel 1 relates
-            # to channel 0"; it means how channel 1 relates to every channel it
-            # was measured against. Nothing is recomputed: the columns are
-            # already in measurements.db, this is a filter change only.
-            #
-            # Same edit also fixes free-text filters: filter_by='mean_intensity'
-            # used to keep only channel_0's mean_intensity because every other
-            # channel's column tripped the drop list.
-            #
-            # str(col) because column labels are not guaranteed to be str.
-            columns_to_drop = [col for col in df.columns
-                               if all(fs not in str(col) for fs in feature_strings)]
-
+    # WHICH FEATURES THE MODEL SEES, from one setting that takes every
+    # shape a user can mean by it -- a channel, several channels,
+    # 'morphology', a column-name fragment, or a mixture. See
+    # `feature_selection`, which is where the four doors into this question
+    # (the panel's chip strip, a settings CSV, a script, and the default)
+    # are made to agree.
+    #
+    # THE UNION, not the intersection: [1, 'morphology'] is channel 1's
+    # intensities AND the shapes, which is the combination the request asked
+    # to be straightforward. And colocalisation belongs to both channels it
+    # measures, so asking for channel 1 keeps
+    # `cell_channel_1_channel_2_pearsons` -- which is how "localization" is
+    # reachable without a setting of its own.
+    selection = feature_selection(channel_of_interest)
+    if selection is not None:
+        keep = feature_columns(df.columns, selection)
+        columns_to_drop = [col for col in df.columns if col not in set(keep)]
         df = df.drop(columns=columns_to_drop)
         if verbose:
             print(f"Removed columns: {columns_to_drop}")
-  
+
+    # Resolve missingness before variance and correlation filtering.  An
+    # all-missing feature then disappears explicitly; a one-value feature
+    # becomes constant after imputation and the ordinary variance rule drops
+    # it.  Running those filters first lets pandas' pairwise NaN rules make a
+    # different accidental decision for each missingness pattern.
+    df = _resolve_missing_model_features(df)
+
     if remove_low_variance_features:
         df = remove_low_variance_columns(df, threshold=0.01, verbose=verbose)
     
     if remove_highly_correlated_features:
         df = remove_highly_correlated_columns(df, threshold=0.95, verbose=verbose)
         
-    # Remove columns with NaN values
-    before_drop_NaN = len(df.columns)
-    df = df.dropna(axis=1)
-    after_drop_NaN = len(df.columns)
-    print(f"Dropped {before_drop_NaN - after_drop_NaN} columns with NaN values")
-
     features = schema.model_feature_columns(df)
 
     if isinstance(exclude, list):
@@ -8874,9 +9621,21 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     kruskal_results = []
 
     for feature in numeric_features:
-        groups = [all_df[all_df[cluster_col] == label][feature] for label in np.unique(all_df[cluster_col])]
-        
-        if check_normality(all_df[feature]):
+        groups = [
+            all_df.loc[all_df[cluster_col] == label, feature]
+            for label in np.unique(all_df[cluster_col])
+        ]
+        is_normal = check_normality(all_df[feature])
+        # A clustering algorithm is allowed to find one population. Neither
+        # ANOVA nor Kruskal-Wallis is defined for fewer than two groups, but
+        # that must not turn an otherwise valid embedding into an exception.
+        # Keep the feature in its normality-selected result table and mark the
+        # unavailable statistic explicitly; ``combine_results`` then retains
+        # the feature importance and its stable one-row schema.
+        if len(groups) < 2:
+            result = (feature, np.nan, np.nan)
+            (anova_results if is_normal else kruskal_results).append(result)
+        elif is_normal:
             stat, p = f_oneway(*groups)
             anova_results.append((feature, stat, p))
         else:
@@ -8898,6 +9657,10 @@ def combine_results(rf_df, anova_df, kruskal_df):
     -- the signature of a frame with duplicated column names, or of two runs'
     results concatenated by mistake -- would multiply the importance rows and
     report the same feature several times as if independently ranked.
+
+    :param rf_df: random-forest results keyed uniquely by ``Feature``.
+    :param anova_df: ANOVA results keyed uniquely by ``Feature``.
+    :param kruskal_df: Kruskal-Wallis results keyed uniquely by ``Feature``.
     """
     combined_df = rf_df.merge(anova_df, on='Feature', how='left',
                               validate='one_to_one')
@@ -9027,8 +9790,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
                 if overlap_percentage > overlap_threshold:
                     first_label = overlapping_cell_labels[0]
                     for other_label in overlapping_cell_labels[1:]:
-                        if other_label != first_label:
-                            cell_mask[cell_mask == other_label] = first_label
+                        cell_mask[cell_mask == other_label] = first_label
 
     # Merge cells based on nucleus overlap
     for nucleus_id in range(1, num_nuclei + 1):
@@ -9046,8 +9808,7 @@ def _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask
             if all(overlap_percentage > overlap_threshold for overlap_percentage in overlap_percentages):
                 first_label = overlapping_cell_labels[0]
                 for other_label in overlapping_cell_labels[1:]:
-                    if other_label != first_label:
-                        cell_mask[cell_mask == other_label] = first_label
+                    cell_mask[cell_mask == other_label] = first_label
 
     # Check for cells without nuclei and merge based on shared perimeter
     labeled_cells = label(cell_mask)  # Re-label after merging based on overlap
@@ -9289,8 +10050,12 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     :returns: merged DataFrame (also written to ``<results_file><name>.csv``).
     """
     # Read the CSV files into dataframes
-    df_results = pd.read_csv(results_file)
-    df_metadata = pd.read_csv(metadata_file)
+    df_results = tabular.read_table(results_file, report=None)
+    # canonicalise=False: this is a third-party gene annotation file whose
+    # header is the vendor's ('Gene ID'), not spaCR metadata, and renaming a
+    # column of it would break the merge two lines below.
+    df_metadata = tabular.read_table(metadata_file, canonicalise=False,
+                                     report=None)
     
     def extract_and_clean_gene(feature):
         """Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``."""
@@ -9308,7 +10073,28 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     # Apply the function to the feature column
     df_results['gene'] = df_results['feature'].apply(extract_and_clean_gene)
     
-    df_metadata['gene'] = df_metadata['Gene ID'].apply(lambda x: x.split('_')[1] if '_' in x else None)
+    # The identifier column is DETECTED, not assumed.
+    #
+    # 'Gene ID' is the header of the bundled toxoplasma_metadata.csv, and
+    # hard-coding it meant any other annotation table died on
+    # `KeyError: 'Gene ID'` -- a message naming a column the user's file does
+    # not have and never claimed to, after the whole regression had already
+    # run. A gRNA barcode export keyed on 'name' (TGGT1_225160_2) carries
+    # exactly the same identifier in exactly the same shape.
+    identifier_column = next(
+        (column for column in ('Gene ID', 'gene_id', 'GeneID', 'gene', 'name',
+                               'grna', 'grna_name')
+         if column in df_metadata.columns), None)
+    if identifier_column is None:
+        raise ValueError(
+            f"{os.path.basename(metadata_file)} has no column holding a gene "
+            f"or gRNA identifier. Looked for 'Gene ID', 'gene_id', 'GeneID', "
+            f"'gene', 'name', 'grna' and 'grna_name'; the file has "
+            f"{list(df_metadata.columns)}. The identifier is parsed as the "
+            f"middle field of e.g. 'TGGT1_225160_2', so any column in that "
+            f"form will do.")
+    df_metadata['gene'] = df_metadata[identifier_column].astype(str).apply(
+        lambda value: value.split('_')[1] if '_' in value else None)
     
     # Drop rows where gene extraction failed
     #df_results = df_results.dropna(subset=['gene'])
@@ -9350,7 +10136,7 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     new_file = f"{base}{name}{ext}"
     
     # Save the merged dataframe to the new file
-    merged_df.to_csv(new_file, index=False)
+    tabular.write_table(merged_df, new_file)
     
     return merged_df
 
@@ -9361,8 +10147,18 @@ def process_vision_results(df, threshold=0.5):
     :param threshold: cutoff used to derive ``cv_predictions``.
     :returns: enriched DataFrame with ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``prc``, ``cv_predictions``.
     """
-    # Split the 'path' column using _map_wells function
-    mapped_values = df['path'].apply(lambda x: _map_wells(x))
+    # `_map_wells_png`, NOT `_map_wells`. These paths are CROPS --
+    # `plate1_E01_18_1_250.png`, which is plate_well_field_time_object -- and
+    # `_map_wells` parses a FIELD stem, which is three parts or four with a
+    # timepoint. Five parts is neither, so it raised for every row and
+    # returned its 'error' tuple, and an entire inference run came out with
+    # plateID/rowID/columnID/fieldID = 'error' and prc = 'error_error_error'.
+    #
+    # Which means the scores could not be joined back to a well: no per-well
+    # aggregate, no regression on a CV model's output, and the only sign was
+    # a screenful of "Error processing filename" that the run scrolled past
+    # while reporting success. The crop parser has always existed beside it.
+    mapped_values = df['path'].apply(lambda x: _map_wells_png(x))
     
     df['plateID'] = mapped_values.apply(lambda x: x[0])
     df['rowID'] = mapped_values.apply(lambda x: x[1])
@@ -9373,10 +10169,46 @@ def process_vision_results(df, threshold=0.5):
     # TIMEPOINT. Splitting from the right is correct for both layouts.
     df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]
                     .str.split('.').str[0].str.rsplit('_', n=1).str[-1])
-    df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+    # ONE COMPOSER. A bare `plateID + '_' + rowID + '_' + columnID` is
+    # correct only while no plate id contains the separator or a `%`, and the
+    # regression path composes the SAME key through `schema.compose_prc`,
+    # which escapes both. A plate called `exp1_plate2` therefore produced two
+    # different strings for one well and the join between them matched
+    # nothing.
+    df['prc'] = schema.compose_prc_column(df)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
     return df
+
+def feature_folder_name(channel_of_interest) -> str:
+    """A folder name for one feature selection. Safe on every filesystem.
+
+    ``None`` is ``all_features``; a channel is ``channel_1``; several are
+    ``channels_1_2``; ``morphology`` is itself; a mixture joins them in the
+    order given; and a free-text filter is slugified, because a user may
+    reasonably filter on ``mean_intensity`` and a column fragment can carry
+    anything.
+
+    :param channel_of_interest: feature selection accepted by
+        :func:`feature_selection`.
+    """
+    selection = feature_selection(channel_of_interest)
+    if selection is None:
+        return 'all_features'
+
+    def _one(member):
+        """Return one filesystem-safe selection-member slug."""
+        return re.sub(r'[^0-9A-Za-z]+', '_', str(member)).strip('_') or 'x'
+
+    if isinstance(selection, int):
+        return f"channel_{selection}"
+    if not isinstance(selection, list):
+        return _one(selection)
+    if all(isinstance(member, int) for member in selection):
+        return "channels_" + "_".join(str(m) for m in selection)
+    return "_".join(f"channel_{m}" if isinstance(m, int) else _one(m)
+                    for m in selection)
+
 
 def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
     """Return the standard set of ML output paths for the given model and channel selection.
@@ -9388,19 +10220,12 @@ def get_ml_results_paths(src, model_type='xgboost', channel_of_interest=1):
         permutation_fig, feature_importance_fig, shap_fig, plate_heatmap, settings, ml_features)``.
     :raises ValueError: if ``channel_of_interest`` has an unsupported type.
     """
-    if isinstance(channel_of_interest, list):
-        feature_string = "channels_" + "_".join(map(str, channel_of_interest))
-
-    elif isinstance(channel_of_interest, int):
-        feature_string = f"channel_{channel_of_interest}"
-
-    elif channel_of_interest == 'morphology':
-        feature_string = 'morphology'
-
-    elif channel_of_interest == None:
-        feature_string = 'all_features'
-    else:
-        raise ValueError(f"Unsupported channel_of_interest: {channel_of_interest}. Supported values are 'int', 'list', 'None', or 'morphology'.")
+    # NAMED FROM THE CANONICAL SELECTION, so two spellings of one feature
+    # space -- `1` and `[1]`, `'1,2'` and `[1, 2]` -- write to one folder.
+    # It used to raise on a free-text filter that `filter_dataframe_features`
+    # has always accepted, so `channel_of_interest='mean_intensity'` filtered
+    # the features and then died on the way to naming the folder.
+    feature_string = feature_folder_name(channel_of_interest)
 
     res_fldr = os.path.join(src, 'results', model_type, feature_string)
     print(f'Saving results to {res_fldr}')
@@ -9513,6 +10338,9 @@ def convert_and_relabel_masks(folder_path):
 
     Returns:
     - None
+
+    :param folder_path: directory containing ``.npy`` masks to inspect and
+        convert in place.
     """
     files = [f for f in os.listdir(folder_path) if f.endswith('.npy')]
     
@@ -9732,6 +10560,9 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     
     Returns:
     - cytoplasm_mask (np.array): Copy of cell_mask with nucleus pixels set to 0, keeping the cell labels elsewhere (pathogens are not considered).
+
+    :param nucleus_mask: nucleus mask whose nonzero pixels are excluded.
+    :param cell_mask: labeled cell mask copied into the cytoplasm result.
     """
     
     # Make sure the nucleus and cell masks are numpy arrays
@@ -9764,7 +10595,7 @@ def add_column_to_database(settings):
     """
 
     # Read the DataFrame from the provided CSV path
-    df = pd.read_csv(settings['csv_path'])
+    df = tabular.read_table(settings['csv_path'], report=None)
 
     # Replace 0 values with 2 in the update column
     if (df[settings['update_column']] == 0).any():
@@ -9850,29 +10681,16 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
-    """Rename legacy metadata columns to the canonical spacr names.
+    """Renamed legacy metadata columns. **Defined in :mod:`spacr.schema`.**
 
-    Handles the common aliases (``plate_name`` -> ``plateID``, ``col`` -> ``columnID``,
-    ``row_name`` -> ``rowID``, ``grna_name`` -> ``grna``) and splits ``plate_row``
-    into ``plateID`` and ``rowID``.
+    Re-exported here because every existing caller imports it from `utils`,
+    and moved there because importing this module costs torch, torchvision
+    and cv2 -- 6.7 seconds -- for a function that needs none of them.
 
-    :param df: DataFrame whose columns may use legacy names.
-    :returns: A DataFrame carrying the canonical names. The renames are not applied
-        in place, so the caller must use the returned frame.
+    :param df: tabular frame whose legacy metadata names are canonicalized.
     """
-    if 'plate_name' in df.columns:
-        df = df.rename(columns={'plate_name': 'plateID'})
-    if 'column_name' in df.columns:
-        df = df.rename(columns={'column_name': 'columnID'})
-    if 'col' in df.columns:
-        df = df.rename(columns={'col': 'columnID'})
-    if 'row_name' in df.columns:
-        df = df.rename(columns={'row_name': 'rowID'})
-    if 'grna_name' in df.columns:
-        df = df.rename(columns={'grna_name': 'grna'})
-    if 'plate_row' in df.columns:
-        df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
-    return df
+    from .schema import correct_metadata_column_names as _moved
+    return _moved(df)
 
 def control_filelist(folder, mode='columnID', values=None):
     """Return filenames in ``folder`` whose row or column ID matches one of ``values``.
@@ -9916,19 +10734,20 @@ def canonicalize_measurement_columns(df):
 
     Follows the same never-destructive rule: a rename whose target is already
     present is skipped, so a frame carrying both spellings keeps both rather
-    than losing one to a silently dropped duplicate.
+    than losing one to a silently dropped duplicate. The rule itself lives in
+    :func:`spacr.schema.canonical_rename_plan`, which this and
+    ``schema.canonicalise_columns`` both call so the two frame canonicalisers
+    cannot drift apart again — and which folds case, because these frames are
+    written with ``to_sql`` and SQLite compares identifiers
+    case-insensitively.
 
     :param df: A measurement DataFrame.
     :returns: ``df`` with legacy column names replaced (a copy is not made;
         the frame is renamed in place and returned).
     """
-    existing = set(df.columns)
-    mapping = {}
-    for name in df.columns:
-        new_name = canonical_column_name(name)
-        if new_name != name and new_name not in existing:
-            mapping[name] = new_name
-            existing.add(new_name)
+    from .schema import canonical_rename_plan
+
+    mapping = canonical_rename_plan(df.columns)
     if mapping:
         df.columns = [mapping.get(name, name) for name in df.columns]
     return df
@@ -10034,7 +10853,15 @@ def group_feature_class(df, feature_groups=None, name='compartment'):
         else:
             return None
         
-    df[name] = df['feature'].apply(lambda x: find_feature_class(x, feature_groups))
+    # Preserve unmatched features as real ``None`` values.  Pandas 3 may
+    # otherwise infer a nullable string dtype and expose those entries as
+    # ``nan``, which changes the public result even though ``isna`` agrees.
+    df[name] = pd.Series(
+        (find_feature_class(feature, feature_groups)
+         for feature in df['feature']),
+        index=df.index,
+        dtype=object,
+    )
     
     if name == 'channel':
         # See add_column_to_database: chained inplace is a no-op under
@@ -10197,13 +11024,13 @@ def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, low
         ``display`` for notebook users, and the destination is printed.
     """
     # Read the input CSV file into a DataFrame
-    df = pd.read_csv(input_csv)
+    df = tabular.read_table(input_csv, report=None)
 
     # Filter rows based on the thresholds
     filtered_df = df[(df[column_name] > upper_threshold) | (df[column_name] < lower_threshold)]
 
     # Save the filtered DataFrame to a new CSV file
-    filtered_df.to_csv(output_csv, index=False)
+    tabular.write_table(filtered_df, output_csv)
     display(filtered_df)
 
     print(f"Filtered DataFrame saved to {output_csv}")
@@ -10247,6 +11074,11 @@ def calculate_shortest_distance(df, object1, object2):
 
     Returns:
     - df: Pandas DataFrame with a new column for shortest edge-to-edge distance.
+
+    :param df: measurement frame containing centroid and Feret-diameter
+        columns for both objects.
+    :param object1: prefix of the first object's measurement columns.
+    :param object2: prefix of the second object's measurement columns.
     """
 
     # Compute centroid-to-centroid Euclidean distance
@@ -10341,17 +11173,35 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     """
     image_path_map = {}
 
-    for dirpath, _, filenames in os.walk(root_folder):
+    for dirpath, dirnames, filenames in os.walk(root_folder):
+        # NEVER RE-CONSOLIDATE OUR OWN OUTPUT. `consolidated` is created
+        # INSIDE the folder being walked, so a second run over the same
+        # `src` finds the copies from the first one and makes copies of
+        # those, prefixed again -- doubling the plate on every run and
+        # producing `consolidated_plate1_A01_f1_c1.tif`. Pruning the walk
+        # is what makes the operation repeatable.
+        dirnames[:] = [name for name in dirnames if name != "consolidated"]
         for file in filenames:
             ext = file.lower().split('.')[-1]
             if ext in valid_extensions:
                 # Get relative path of the image from root_folder
                 relative_path = os.path.relpath(dirpath, root_folder)
-                
-                # Construct new filename: Embed folder hierarchy into the name
-                folder_parts = relative_path.split(os.sep)  # Get all folder names
-                folder_info = "_".join(folder_parts) if folder_parts else ""  # Join with underscores
-                
+
+                # Construct new filename: Embed folder hierarchy into the name.
+                #
+                # `os.path.relpath(root, root)` is `'.'`, NOT `''`, so an image
+                # sitting directly in `src` used to be renamed `._name.tif`.
+                # That is a hidden file on Unix and the AppleDouble
+                # resource-fork convention on macOS, and `spacr.io` skips
+                # anything beginning with a dot -- so consolidating a flat
+                # folder made every image in it silently disappear from the
+                # run rather than failing.
+                if relative_path == os.curdir:
+                    folder_parts = []
+                else:
+                    folder_parts = relative_path.split(os.sep)
+                folder_info = "_".join(folder_parts)
+
                 # Generate new filename
                 new_filename = f"{folder_info}_{file}" if folder_info else file
 
@@ -10395,49 +11245,45 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         #print(f"Copied: {original_path} -> {new_file_path}")
         
 def correct_metadata(df):
-    """Normalize a metadata DataFrame to the canonical spacr column names and plate ID form.
+    """Normalize a metadata DataFrame to the canonical spaCR names and plate ids.
 
-    Strips a duplicated ``pp`` prefix from plate IDs, promotes legacy
-    ``*_name`` columns to their ID equivalents, and renames
-    ``row``/``col``/``column``/``field`` (and their ``*_name`` variants) to
-    ``rowID``/``columnID``/``fieldID``.
+    One call into :func:`spacr.schema.canonicalise_frame`, which is the whole
+    vocabulary in one place:
+
+    * every legacy spelling renamed, folding case *and* punctuation, so
+      ``Plate``/``PLATE``/``plate``/``plateid``/``plate_name`` all arrive as
+      ``plateID`` and the same for the row, the column, the field and the
+      well;
+    * **one** column per key. A file carrying ``well`` and ``wellID`` has two
+      opinions about which well a row came from; they are compared row by row
+      as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype
+      difference is not a disagreement), one is kept, and the rest are
+      dropped. Agreement prints; disagreement warns and says how many rows
+      differ.
+    * the ``pp`` plate repair, over every column that embeds the plate id.
+
+    THE ``pp`` REPAIR RUNS AFTER THE RENAMES, and over every plate-bearing
+    column. It used to run first and only over ``plateID``/``prcfo``, which
+    meant it did nothing at all for the files that actually carry the
+    artifact: a legacy score CSV has a ``plate`` column and NO ``plateID``
+    column, so the guard was false, the repair was skipped, and the very next
+    line then copied the unrepaired ``plate`` value into ``plateID``.
+
+    The cost was silent and total. Score files stamped ``pplate1`` met count
+    files stamped ``plate1``, every ``prc`` differed by one character, the
+    join produced ZERO rows, and the run died several steps later inside a
+    plot with ``KeyError: 0`` -- nowhere near the mismatch, and with nothing
+    on screen naming a plate.
 
     :param df: Metadata DataFrame that may still use legacy naming.
     :returns: The DataFrame with canonical columns.
     """
-    #if 'object' in df.columns:
-    #    df['objectID'] = df['object']
-    # delete these four lines in 2027
-    if 'plateID' in df.columns:
-        df["plateID"] = df["plateID"].str.replace(r"^pp", "p", regex=True)
-        
-    if 'prcfo' in df.columns:
-        df["prcfo"] = df["prcfo"].str.replace(r"^pp", "p", regex=True)
-        
+    from . import schema
     if 'object_name' in df.columns:
+        df = df.copy()
         df['objectID'] = df['object_name']
-    
-    if 'plate' in df.columns:
-        df['plateID'] = df['plate']
-    
-    if 'plate_name' in df.columns:
-        df['plateID'] = df['plate_name']
-    
-    # Rename legacy aliases to their canonical names, but never when the
-    # canonical column already exists — an unguarded rename produced two
-    # columns with the same name (e.g. 'field_name' renamed onto an existing
-    # 'fieldID'), which then breaks every downstream df['fieldID'] lookup.
-    for alias, canonical in (('row', 'rowID'),
-                             ('row_name', 'rowID'),
-                             ('col', 'columnID'),
-                             ('column', 'columnID'),
-                             ('column_name', 'columnID'),
-                             ('field', 'fieldID'),
-                             ('field_name', 'fieldID')):
-        if alias in df.columns and canonical not in df.columns:
-            df = df.rename(columns={alias: canonical})
+    return schema.canonicalise_frame(df, report=print)
 
-    return df
 
 def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5):
     """

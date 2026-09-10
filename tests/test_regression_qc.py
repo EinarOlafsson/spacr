@@ -143,8 +143,10 @@ def test_residual_panel_draws_exactly_one_point_per_well():
     assert len(scatters) == 1
     assert scatters[0].get_offsets().shape[0] == 97
     assert stats["n_points"] == 97
-    # ...and the panel says so on its own face, so the figure is readable alone.
-    assert "n = 97 wells" in ax.get_title()
+    # ...and the panel says so on its own face, so the figure is readable
+    # alone. The n used to be bolted onto a two-line sentence title; the house
+    # style has no sentence titles, so it moved into the panel's own note.
+    assert "n = 97 wells" in " ".join(t.get_text() for t in ax.texts)
     assert ax.get_xlabel() and ax.get_ylabel()
 
     offsets = np.asarray(scatters[0].get_offsets())
@@ -254,6 +256,30 @@ def test_qq_notices_heavy_tails():
     assert stats["quantile_correlation"] < 0.99
 
 
+def test_qq_reports_the_exact_dagostino_shape_statistics():
+    """The Q-Q panel records the numerical judgement printed beside it."""
+    from scipy import stats as sps
+
+    rng = _stream(111, 2)
+    n = 300
+    X = _design(n, seed=111, n_predictors=1)
+    y = 1.0 + X["x1"] + rng.exponential(1.0, size=n)
+    ctx = rq.build_context(sm.OLS(y, X).fit(), X, y)
+    fig, ax = _axes()
+    stats = rq.draw_panel("qq_residuals", ctx, ax)
+    expected = sps.normaltest(ctx.resid)
+
+    assert stats["normality_test"] == "D'Agostino K²"
+    assert stats["normality_statistic"] == pytest.approx(expected.statistic)
+    assert stats["normality_p"] == pytest.approx(expected.pvalue)
+    assert stats["skew"] == pytest.approx(sps.skew(ctx.resid))
+    assert stats["excess_kurtosis"] == pytest.approx(
+        sps.kurtosis(ctx.resid))
+    annotation = " ".join(text.get_text() for text in ax.texts)
+    assert "D'Agostino K²" in annotation
+    assert "skew" in annotation and "excess kurtosis" in annotation
+
+
 def test_residual_distribution_reports_the_planted_skew():
     """A deliberately skewed residual is reported as skewed, not smoothed over."""
     rng = _stream(12, 2)
@@ -264,6 +290,7 @@ def test_residual_distribution_reports_the_planted_skew():
     fig, ax = _axes()
     stats = rq.draw_panel("residual_distribution", ctx, ax)
     assert stats["skew"] > 1.0
+    assert np.isfinite(stats["normality_statistic"])
     assert stats["normality_p"] < 1e-6
     assert stats["n_points"] == n
 
@@ -620,6 +647,37 @@ def test_p_value_histogram_diagnoses_each_broken_shape():
     assert rq.diagnose_p_value_histogram([0.1, 0.2])["verdict"] == "too-few"
 
 
+def test_p_value_histogram_refuses_numbers_that_cannot_be_p_values():
+    """A statistic column must not masquerade as an empty p-value column."""
+    with pytest.raises(ValueError, match=(
+            r"3 finite p-value\(s\) outside \[0, 1\]; "
+            r"observed range \[3, 12\]")):
+        rq.diagnose_p_value_histogram([3.0, 7.0, 12.0])
+
+
+def test_probability_boundaries_are_real_p_values_and_the_panel_explains_bad_ones():
+    """Zero and one are valid; a malformed coefficient table is named."""
+    boundary = rq.diagnose_p_value_histogram([0.0, 1.0])
+    assert boundary["n"] == 2
+    assert boundary["counts"][[0, -1]].tolist() == [1, 1]
+
+    model, X, y, meta = _ols_case()
+    coef_df = pd.DataFrame({
+        "feature": ["stat-1", "stat-2", "stat-3"],
+        "coefficient": [0.1, 0.2, 0.3],
+        "p_value": [3.0, 7.0, 12.0],
+    })
+    ctx = rq.build_context(model, X, y, metadata=meta, coef_df=coef_df,
+                           regression_type="ols")
+    fig, ax = _axes()
+    try:
+        with pytest.raises(rq.PanelUnavailable, match=(
+                r"3 finite p-value\(s\) outside \[0, 1\]")):
+            rq.draw_panel("p_value_histogram", ctx, ax)
+    finally:
+        fig.clear()
+
+
 def test_p_value_panel_prints_the_diagnosis_on_the_figure():
     """A verdict nobody can see on the figure is a verdict nobody acts on."""
     rng = _stream(41, 2)
@@ -640,7 +698,11 @@ def test_p_value_panel_prints_the_diagnosis_on_the_figure():
     assert stats["source"] == "coefficient table"
     assert stats["n"] == 1200
     assert "conservative" in drawn
-    assert "1,200 coefficients" in ax.get_title()
+    # The n used to be a second line of the title. The house style has no
+    # sentence titles, so it moved to the annotation -- still on the panel's
+    # own face, which is the thing this test is actually protecting.
+    assert "n = 1,200 coefficients" in drawn
+    assert ax.get_title() == "p-value distribution"
 
 
 def test_coefficient_forest_sorts_by_effect_size_and_carries_intervals():
@@ -900,8 +962,12 @@ def test_report_writes_every_drawn_panel_and_a_combined_page(tmp_path):
         assert os.path.getsize(panel.path) > 1000
         assert os.path.basename(panel.path) == f"{panel.name}.pdf"
     assert os.path.isfile(manifest["combined"])
+    assert os.path.isfile(manifest["assumptions"])
+    assert os.path.basename(manifest["assumptions"]) == (
+        "ols_assumption_diagnostics.pdf")
     assert os.path.isfile(manifest["report"])
     assert manifest["n_observations"] == 96
+    assert manifest["n_unique_wells"] == 96
     assert manifest["n_predictors"] == X.shape[1]
     assert {p.name for p in manifest["panels"]} == set(rq.PANEL_ORDER)
 
@@ -912,6 +978,31 @@ def test_report_writes_every_drawn_panel_and_a_combined_page(tmp_path):
     assert volcano_panel.stats["volcano_path"] == str(volcano)
     assert not any("volcano_plot" in name
                    for name in os.listdir(manifest["directory"]))
+
+
+def test_long_fit_reports_rows_and_unique_wells_separately(tmp_path):
+    """Repeated guide rows must never be relabelled as independent wells."""
+    X = pd.DataFrame({"Intercept": np.ones(8),
+                      "x": np.linspace(0.0, 1.0, 8)})
+    y = 1.0 + 2.0 * X["x"] + np.array([0.1, -0.1] * 4)
+    model = sm.OLS(y, X).fit()
+    metadata = pd.DataFrame({
+        schema.PRC_KEY: np.repeat(["w1", "w2", "w3", "w4"], 2),
+        schema.PLATE_KEY: ["p1"] * 4 + ["p2"] * 4,
+    })
+
+    manifest = rq.regression_qc_report(
+        model, X, y, str(tmp_path), metadata=metadata,
+        regression_type="ols", panels=["residuals_vs_fitted"],
+        combined=False, verbose=False)
+
+    assert manifest["n_observations"] == 8
+    assert manifest["n_unique_wells"] == 4
+    panel = manifest["panels"][0]
+    assert panel.status == "written"
+    report = open(manifest["report"], encoding="utf-8").read()
+    assert "fitted rows      : 8" in report
+    assert "unique wells     : 4" in report
 
 
 def test_every_skipped_panel_carries_a_reason_in_the_text_report(tmp_path):
@@ -1037,10 +1128,17 @@ def test_the_combined_page_shows_the_skip_reason_on_the_page(tmp_path, monkeypat
     captured = {}
     real_save = rq._save
 
-    def spy(fig, path):
-        if os.path.basename(path) == "regression_qc_report.pdf":
+    # The STEM, not the file name. `_save` is handed a path with no extension
+    # unless the caller forced a format, because the extension follows
+    # whatever `save_figure` actually writes -- a manifest that names
+    # `report.pdf` for a file written as `report.png` is a path nobody can
+    # open. `**kwargs` for the same reason: `_save` now carries the caller's
+    # explicit format through.
+    def spy(fig, path, **kwargs):
+        stem = os.path.splitext(os.path.basename(path))[0]
+        if stem == "regression_qc_report":
             captured["texts"] = [t.get_text() for ax in fig.axes for t in ax.texts]
-        return real_save(fig, path)
+        return real_save(fig, path, **kwargs)
 
     monkeypatch.setattr(rq, "_save", spy)
     model, X, y, meta = _ols_case(n=96, seed=75)
@@ -1093,7 +1191,8 @@ def test_format_qc_report_names_every_panel_and_the_headline_numbers(tmp_path):
     text = rq.format_qc_report(manifest)
     for panel in manifest["panels"]:
         assert panel.title in text
-    assert "observations     : 96 wells" in text
+    assert "fitted rows      : 96" in text
+    assert "unique wells     : 96" in text
     assert "Model fit" in text and "Screen-level structure" in text
     r2 = next(p for p in manifest["panels"]
               if p.name == "observed_vs_predicted").stats["r2"]
@@ -1785,6 +1884,11 @@ def _all_fitted_models(n=240, seed=200):
 
     plan = {
         "ols": (continuous, {}),
+        # `spline` IS an OLS fit, on a design whose CONTINUOUS covariates
+        # carry a basis. It joins this sweep on the continuous response for
+        # exactly that reason: the QC report has to describe the fit that
+        # ran, and the fit that ran is a least-squares one.
+        "spline": (continuous, {}),
         "wls": (continuous, {"weights": counts}),
         "rlm": (continuous, {}),
         "huber": (continuous, {"huber_t": 1.2}),
@@ -1800,16 +1904,48 @@ def _all_fitted_models(n=240, seed=200):
         "ridge": (continuous, {"alpha": 1.0}),
         "elasticnet": (continuous, {"alpha": 0.01, "l1_ratio": 0.5}),
         "hinge": (continuous, {"hinge_threshold": float(continuous.median())}),
+        # The two backends that answer the gene question WITHOUT forming
+        # `gene_fraction` -- the sum of a gene's guide fractions, which makes
+        # a guide-and-gene design singular by construction. They join this
+        # sweep for the same reason as every other family: the QC report has
+        # to describe the fit that actually ran.
+        #
+        # `rra_permutations` is small here on purpose. The default is 10,000
+        # per distinct guide count, which is right for a screen and is a
+        # quarter of a second of pure permutation per fixture in a test that
+        # already drives seventeen families.
+        "group_lasso": (continuous, {"group_lasso_lambda": 0.01}),
+        "rra": (continuous, {"rra_alpha": 0.25, "rra_permutations": 200}),
     }
     # horseshoe is the one type with no fitted values at all; it has its own
     # test above and cannot be built without spacr.power_model.
     assert set(plan) | {"horseshoe"} == set(REGRESSION_TYPES), (
         "a regression type appeared or vanished; the QC sweep must follow it")
 
+    # A SCREEN-SHAPED DESIGN FOR THE TWO THAT NEED ONE.
+    #
+    # `group_lasso` penalises a GENE's guide columns as one block and refuses
+    # a design where every column would be its own block -- which is ordinary
+    # lasso under another name, and is exactly what this fixture's
+    # ['Intercept', 'x1', 'x2'] would give it. `rra` groups guides by gene for
+    # the same reason. Both read the gene off the COLUMN NAME, so they need
+    # the terms `prepare_formula` actually builds.
+    #
+    # Same data, renamed: two guides of one gene and two of another, so there
+    # is a block to keep or drop and a rank to aggregate.
+    screen_X = X.rename(columns={
+        "x1": "fraction:grna[224750_1]",
+        "x2": "fraction:grna[224750_2]",
+    })
+    screen_X["fraction:grna[201180_1]"] = X["x1"] * 0.6 + X["x2"] * 0.4
+    screen_X["fraction:grna[201180_2]"] = X["x1"] * 0.4 - X["x2"] * 0.6
+
+    shaped = {"group_lasso", "rra"}
     fits = {}
     for name, (y, kwargs) in plan.items():
-        model = regression_model(X, y, regression_type=name, **kwargs)
-        fits[name] = (model, X, y, kwargs.get("weights"))
+        design = screen_X if name in shaped else X
+        model = regression_model(design, y, regression_type=name, **kwargs)
+        fits[name] = (model, design, y, kwargs.get("weights"))
     return fits
 
 

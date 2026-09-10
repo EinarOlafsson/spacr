@@ -2,11 +2,35 @@
 
 from __future__ import annotations
 
+import os as _os
 import warnings as _warnings
 from importlib import import_module
-from typing import Final
 
-from .version import __version__
+# APPLE METAL OPERATOR FALLBACK, AND IT HAS TO BE SET HERE.
+#
+# Metal implements most but not all of torch's operators. A missing one
+# raises NotImplementedError mid-run rather than degrading, which on the
+# reporting iMac took cellpose down at `aten::upsample_linear1d` -- after
+# the model had loaded and the image was already on the card. This flag
+# turns those into a quiet CPU detour for the op that is missing.
+#
+# TORCH READS IT WHEN THE MPS BACKEND REGISTERS, WHICH IS AT `import
+# torch`. Setting it later has no effect at all -- measured: identical
+# code fails when the variable is set after the import and succeeds when
+# set before it. That is why this sits at the top of the package rather
+# than in `spacr.accelerator`, which is imported far too late to matter.
+#
+# setdefault, not assignment: a user who set it to 0 deliberately wants
+# the hard failure, and that is a legitimate way to find out which
+# operator is costing them a round trip. See instruction 319.
+_os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
+# ``spacr.version`` answers detailed environment/version queries and therefore
+# imports ``importlib.metadata``.  That machinery was more than 60% of a clean
+# installed ``import spacr`` even though the wheel already knows its version.
+# The release helper keeps this literal synchronized with setup.py; callers
+# that explicitly import ``spacr.version`` retain the metadata-backed API.
+from ._version import __version__
 
 # Third-party FutureWarnings that fire at import — noise the user
 # can't act on from inside spaCR. Silenced before the modules that trigger
@@ -50,12 +74,21 @@ _warnings.filterwarnings(
     module=r"cellpose(\.|$)",
 )
 
-_SUBMODULES: Final[tuple[str, ...]] = (
+# The submodules this package documents, in the order that groups them by
+# what they are for. This is the frozen-bundle floor, not the whole list --
+# see `_SUBMODULES` below, which adds whatever else is on disk.
+_DOCUMENTED_SUBMODULES: tuple[str, ...] = (
+    "api",
     "core",
     "schema",
     "database_schema",
     "database_concurrency",
     "io",
+    # One reader and one writer for every table spaCR opens: CSV, SQLite,
+    # Parquet, Feather, Excel. Normalises column names through
+    # `spacr.schema` on read, so the CSV picker and the run agree about what
+    # a column is called. pandas + sqlite3 only, so a picker can import it.
+    "tabular",
     "utils",
     "errors",
     "settings",
@@ -64,6 +97,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # and Qt front ends read the same spec rather than each keeping their
     # own opinion about what a given key looks like.
     "settings_spec",
+    "settings_advisor",
     "plot",
     "measure",
     # Opt-in preprocessing / region-filter extension points for the measure
@@ -86,6 +120,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # from `sequencing` so the multiprocessing read workers do not import
     # the plotting and statistics only the post-run analysis needs.
     "sequencing_qc",
+    "read_background",
     # cell → nucleus → pathogen, read as the tree the `cell_id` links in
     # measurements.db already describe. Query-only; it adds no column.
     "lineage",
@@ -96,11 +131,18 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "feature_dict",
     "image_colors",
     "crops",
+    "png_list",
+    "regex_infer",
+    "import_plan",
+    "portable_paths",
+    "picture_settings",
+    "well_spec",
     "align",
     "convert",
     "foreign",
     "external_masks",
     "resume",
+    "restart_state",
     "checkpoint",
     "normalization",
     # Plate-wide intensity rescaling provenance and the desktop installer's
@@ -114,33 +156,32 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "train_compare",
     "hyperparam",
     "attribution",
+    "attribution_columns",
     "agreement",
+    "annotation_power",
+    "annotation_umap_qc",
+    "annotation_validation",
     "active_learning",
     # Correcting a mask and a track by hand, on the record: every edit is
     # journalled so a curated result still says where it came from.
     "curation",
+    "sudoku",
     "plate_qc",
     "seg_qc",
     "model_compare",
+    "image_import",
+    # The other half of reading a folder of images: a field that arrived as
+    # tiles is put back together, so spaCR's filename needs no tile slot.
+    "image_stitch",
     "model_zoo",
     "batch",
     "batch_correction",
     "classifier_evaluation",
+    "classifier_quality",
     # The confusion matrix as a set of live queries rather than a picture —
     # "which objects are in this cell" is answerable, so a misclassified
     # object can be opened instead of counted.
     "confusion",
-    "gui_utils",
-    "gui_elements",
-    "gui_core",
-    "gui",
-    "app_annotate",
-    "app_make_masks",
-    "app_mask",
-    "app_measure",
-    "app_classify",
-    "app_sequencing",
-    "app_umap",
     "submodules",
     "ml",
     "predictions",
@@ -154,6 +195,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # spell the vocabulary out independently and now derive from this, so it
     # is imported by nearly everything that touches a mask.
     "object_roles",
+    "object_settings_table",
     # The organelle presets: one cell-biology choice that fills in the
     # fifty-three organelle settings a user would otherwise have to reason
     # about. `settings`, `settings_spec` and `measure` all import it, so it
@@ -170,6 +212,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "omero",
     "cli",
     "cli_database",
+    "cli_workspace",
     # Whole-installation diagnosis behind `spacr-doctor`.
     "doctor",
     # `spacr-crashreport`: everything a maintainer needs about a failed run
@@ -177,6 +220,13 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # remembered traceback.
     "crashreport",
     "cli_leakage",
+    # `spacr-download`: the published example data as a command instead of a
+    # button, so a cluster login node can stage what a batch job will read.
+    # `example_archives` is the Qt-free half of the GUI's own downloader --
+    # which repositories publish what, and how an archive is fetched, unpacked
+    # and repaired -- shared by both.
+    "cli_download",
+    "example_archives",
     "cli_plugins",
     "cli_remote",
     "cli_repro",
@@ -200,6 +250,71 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    "regression_failure",
+    # spaCR's OWN summary of a run, for the regression types statsmodels writes
+    # none for and for the permutation path, which
+    # has no fitted model at all. Every field is a number or a stated reason.
+    "regression_summary",
+    # Where each gene's protein lives, for colouring ONE compartment against
+    # grey. Pure pandas: the join belongs to the screen, not to the picture.
+    "localisation",
+    # Saved and visible are the SAME event. A module hands a figure here and
+    # it is written AND announced -- through no pyplot registry, so a figure
+    # built as a bare matplotlib.figure.Figure reaches the GUI too. That was
+    # the whole ~19-panel regression QC report, on disk and invisible.
+    "figure_sink",
+    # Canonical control identifiers and the optional example-data downloader
+    # are dependency-light public helpers used by both the GUI and notebooks.
+    "control_names",
+    "example_data_manifest",
+    "example_data",
+    # A column that is not there offers the columns that are. Reads only the
+    # header row, so it can populate a GUI dropdown on the GUI thread from a
+    # score CSV that is hundreds of megabytes.
+    "columns",
+    # Everything spaCR knows about a Toxoplasma gene, joined onto an export
+    # by gene NUMBER. Next to `localisation` because it is the same join
+    # widened from one compartment to the whole annotation, and separate
+    # from `toxo` because that module draws figures and this one only reads
+    # the five bundled CSVs.
+    "annotation",
+    # WHO fits the model, as opposed to WHICH model is fitted. `mixed_gpu`
+    # is the profiled REML objective in torch, for the fit that dominates a
+    # screen's runtime; `regression_backends` is the inventory the panel
+    # offers and greys.
+    "regression_backends",
+    "mixed_gpu",
+    # The two backends that answer "which genes are involved" WITHOUT ever
+    # forming `gene_fraction` -- the sum of a gene's guide fractions, which
+    # makes a guide-and-gene design singular by construction. `rra` ranks
+    # guides and aggregates by rank (MAGeCK alpha-RRA); `group_lasso`
+    # penalises a gene's guides as a block. Pure numpy/scipy, no Qt, no ml.
+    "rra",
+    "group_lasso",
+    # What an effect size is measured FROM, and the sentence that says so.
+    # Separate from `figures` because the answer belongs to the fit, not to
+    # the picture: the console summary and the exported stats table state the
+    # same baseline the panel does.
+    "baseline",
+    # The cells behind a coefficient: which objects a dot on the volcano is
+    # most consistent with. Pure pandas -- the montage is a Qt tab, but WHICH
+    # objects to show is a question about the screen, not about a widget.
+    "cell_montage",
+    # The headless half of the per-plate measurements merge: {plate: db} plus
+    # the chosen tables in, one merged frame out, by CALLING multi_database
+    # and merge_tables rather than aggregating anything itself.
+    "plate_measurements",
+    # How wide a coefficient has to be before it counts as a hit. Seven
+    # ways of measuring the control spread, in one place so the run and the
+    # plot's right-click menu cannot offer different ones.
+    "thresholds",
+    # Which regression backends exist and which settings each one reads.
+    # Pure data; imports NOTHING, which is why it is not part of ml.
+    "regression_spec",
+    # Building the settings for a second run of the same screen through a
+    # different model. No Qt: the GUI offers the gesture, but what a re-fit
+    # is allowed to change is a question about the fit, not about a menu.
+    "refit",
     # The spaCRPower port: `power_simulate` generates a synthetic pooled
     # screen, `power_model` fits the horseshoe-Poisson hit model to it. They
     # are separate modules because the simulator is cheap and dependency-free
@@ -279,11 +394,103 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "gpu_reduce",
     "merge_tables",
     "model_check",
+    "openmp_guard",
     "surrogate",
+    "guide_permutation",
+    "hit_attribution",
+    "hit_investigation",
     "training_basis",
+    # The regression surface, added over 2026-08-15/16. A module missing from
+    # this tuple is not reachable as `spacr.<name>` at all -- the lazy loader
+    # is the only path -- so leaving one out ships a module nobody outside the
+    # package can import, and `test_lazy_loader_matches_files` exists to catch
+    # exactly that.
+    "multiple_testing",       # every FDR / FWER correction, in one place
+    "volcano_style",          # the volcano's thresholds and their rules
+    "guide_concordance",      # do a gene's own guides agree in direction
+    "regression_diagnostics", # design, residual and inference panels
+    "regression_search",      # the dependent-variable search
+    "metadata_resolution",    # which metadata column is which
+    "multi_database",         # read and merge several measurement databases
+    "measurement_scan",       # which measurement has genes with an effect
+    # Everything known about ONE gene, gathered from the bundled annotation
+    # and the screen's own table. `gene_facts` answers the question and
+    # `gene_tile` renders it; both are pure pandas, so the Gene tab can be
+    # built headless and tested without Qt.
+    "gene_facts",
+    "gene_tile",              # everything spaCR knows about one gene
+    "gene_measurement_compare",
+    "gene_measurement_sweep",
+    "guide_attribution",
+    "fit_resources",
+    "parameter_sweep",        # the settings sweep and its containment
+    "sweep_child",            # one contained trial, exec'd in its own cgroup
+    "trial_metrics",          # what makes a sweep row judgeable
+    "workspace",              # saved GUI context around a recorded run
+    "figure_style",           # the older per-figure style store
+    "style_base",             # shared values for current figure renderers
+    # Dependency-light helpers shared by the regression, classification, and
+    # streamed-image interfaces.
+    "dependent_join",
+    "graph_types",
+    "outlier_filter",
+    "permutation_qc",
+    "response_distribution",
+    "run_recommendations",
+    "stream_dataset",
+    "well_scope",
 )
 
-__all__ = ["__version__", "download_models", *_SUBMODULES]
+
+def _submodules_on_disk() -> frozenset[str]:
+    """Every ``spacr/*.py`` sitting beside this file, by module name.
+
+    Returns nothing when the sources are not on a readable filesystem -- a
+    PyInstaller bundle keeps the modules inside its archive, where there is
+    no directory to scan -- which is why this widens the documented tuple
+    rather than replacing it.
+    """
+    try:
+        entries = _os.listdir(_os.path.dirname(_os.path.abspath(__file__)))
+    except OSError:
+        return frozenset()
+    return frozenset(
+        name[:-3] for name in entries
+        if name.endswith(".py") and name not in ("__init__.py", "__main__.py")
+    )
+
+
+#: What ``getattr(spacr, name)`` will import. The documented tuple is the
+#: floor; the directory is the authority. A hand-kept inventory of the files
+#: in its own directory had drifted four separate times, each landing a
+#: module that existed but could not be reached through the package, so the
+#: names are taken from the directory whenever there is one to read.
+_SUBMODULES: tuple[str, ...] = tuple(sorted(
+    set(_DOCUMENTED_SUBMODULES) | _submodules_on_disk()
+))
+
+__all__ = [
+    "__version__",
+    "download_models",
+    "MaskConfig",
+    "MeasureConfig",
+    "run_mask",
+    "run_measure",
+]
+
+_FACADE_NAMES: frozenset[str] = frozenset({
+    "MaskConfig", "MeasureConfig", "run_mask", "run_measure",
+})
+
+
+def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
+    """Download spaCR's optional model files on first use.
+
+    The implementation is imported only when called, keeping ``import spacr``
+    and wildcard imports lightweight.
+    """
+    from .utils import download_models as _download_models
+    return _download_models(repo_id=repo_id, retries=retries, delay=delay)
 
 
 def __getattr__(name: str):
@@ -293,9 +500,8 @@ def __getattr__(name: str):
     :returns: Imported submodule or the ``download_models`` callable.
     :raises AttributeError: If ``name`` is neither a known submodule nor ``download_models``.
     """
-    if name == "download_models":
-        from .utils import download_models
-        return download_models
+    if name in _FACADE_NAMES:
+        return getattr(import_module(".api", __name__), name)
 
     if name in _SUBMODULES:
         return import_module(f".{name}", __name__)
@@ -305,4 +511,31 @@ def __getattr__(name: str):
 
 def __dir__() -> list[str]:
     """Include lazy submodule names in ``dir(spacr)`` for tab-completion."""
-    return sorted(set(globals()) | {"download_models"} | set(_SUBMODULES))
+    return sorted(set(globals()) | _FACADE_NAMES | set(_SUBMODULES))
+
+
+def _silence_glyph_logging() -> None:
+    """Pin fontTools at WARNING as soon as spaCR is imported.
+
+    ``fontTools.subset`` emits about forty INFO lines for every figure saved
+    -- each glyph name and glyph ID, twice, for MATH then GSUB then glyf, then
+    one line per font table. A regression run saves a dozen figures, so
+    thousands of lines of glyph inventory bury the run's own output, and the
+    line the user is actually looking for scrolls past unread.
+
+    ``logging_util.QUIET_LOGGERS`` lists it too, but that only applies when
+    ``setup_logging()`` runs, it short-circuits on ``_INITIALISED`` if
+    something configured logging first, and a script or notebook that never
+    calls it gets no protection at all. Doing it at import means importing
+    spaCR is sufficient, whatever the startup order.
+
+    This sets a floor, not a lock: anyone who genuinely wants glyph traces can
+    lower the level again after importing.
+    """
+    import logging
+
+    for name in ("fontTools", "fontTools.subset", "fontTools.ttLib"):
+        logging.getLogger(name).setLevel(logging.WARNING)
+
+
+_silence_glyph_logging()

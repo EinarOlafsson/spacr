@@ -58,10 +58,15 @@ from PySide6.QtWidgets import (
 )
 
 from ... import confusion as cx
-from ...classifier_evaluation import (
-    find_evaluation_bundles,
-    load_evaluation_bundle,
-)
+# `spacr.classifier_evaluation` is NOT imported here, and the two functions it
+# owns are imported inside the worker bodies that call them instead. It reads
+# `sklearn.metrics` at its top, which reads `scipy.sparse`, which is the whole
+# of both libraries and the better part of a second -- and this screen module
+# is one of `theme.WIDGET_QSS_MODULES`, so every launch imported it to collect
+# a stylesheet block, whether or not anybody ever opened Classifier
+# Evaluation.
+# Both call sites are already inside a background worker, so the import is
+# paid off the GUI thread by the user who asked for the scan.
 from ..bridge import make_thread
 from ..iconset import icon
 from ..i18n import tr
@@ -70,8 +75,28 @@ from ..linked_selection import (DEFAULT_OPEN_KIND, has_object_opener,
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
+
+
+def find_evaluation_bundles(root: Any) -> List[Path]:
+    """Discover evaluation manifests while keeping sklearn off GUI startup.
+
+    The implementation is imported only when a scan worker calls this seam.
+    Keeping the seam at module scope also lets tests and downstream wrappers
+    replace discovery without importing the scientific stack eagerly.
+    """
+    from ...classifier_evaluation import find_evaluation_bundles as discover
+
+    return discover(root)
+
+
+def load_evaluation_bundle(path: Any) -> Dict[str, Any]:
+    """Load one evaluation bundle without importing sklearn at GUI startup."""
+    from ...classifier_evaluation import load_evaluation_bundle as load
+
+    return load(path)
 
 __all__ = [
     "ClassifierEvaluationScreen",
@@ -94,7 +119,7 @@ LIST_PREVIEW = 200
 
 APP_KEY = "classifier_evaluation"
 APP_NAME = "Classifier Evaluation"
-APP_SECTION = "Results & QC"
+APP_SECTION = "Core"
 APP_INTRO = (
     "Inspect held-out predictions, grouped or nested cross-validation, "
     "calibration, confusion matrices, per-plate performance and leakage checks."
@@ -102,11 +127,15 @@ APP_INTRO = (
 
 
 class _DropPathEdit(QLineEdit):
-    """A path field that accepts one dropped folder or manifest."""
+    """A path field that accepts one dropped folder or manifest.
+
+    :param parent: parent widget; ownership only.
+    """
 
     path_dropped = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the field and let it accept drops."""
         super().__init__(parent)
         self.setAcceptDrops(True)
 
@@ -140,7 +169,7 @@ def _item(value: Any) -> QTableWidgetItem:
         text = f"{value:.5g}"
     else:
         text = str(value)
-    item = QTableWidgetItem(text)
+    item = table_item(text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -176,6 +205,16 @@ class ClassifierEvaluationScreen(QWidget):
     evaluation_loaded = Signal(str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        The confusion cell under inspection is held, so moving the confidence
+        threshold re-splits that cell rather than making the user click it
+        again.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: scan on a worker thread. Set ``False`` in tests so
+            ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._busy = False
@@ -201,6 +240,11 @@ class ClassifierEvaluationScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "classifier_evaluation")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
         """Construct source controls and tabbed evaluation views."""
@@ -302,6 +346,7 @@ class ClassifierEvaluationScreen(QWidget):
     def _table(self) -> QTableWidget:
         """Return a read-only, row-selecting data table."""
         table = QTableWidget(0, 0, self)
+        install_sorting(table)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
         table.setAlternatingRowColors(True)
@@ -435,6 +480,7 @@ class ClassifierEvaluationScreen(QWidget):
         self._pending_error = ""
 
         def _work(_settings):
+            """Find the evaluation bundles under a folder. Off the GUI thread."""
             try:
                 self._pending_bundles = find_evaluation_bundles(source)
             except Exception as exc:
@@ -500,6 +546,7 @@ class ClassifierEvaluationScreen(QWidget):
         self._pending_error = ""
 
         def _work(_settings):
+            """Load one evaluation bundle. Off the GUI thread."""
             try:
                 self._pending_bundle = load_evaluation_bundle(manifest)
             except Exception as exc:
@@ -766,9 +813,17 @@ class ClassifierEvaluationScreen(QWidget):
             self.show_cell(self._cell.true_class, self._cell.predicted_class)
 
     def _open_high(self) -> Any:
+        """Open the crops in the high-confidence half of the inspected cell.
+
+        :returns: whatever :meth:`open_cell` returns.
+        """
         return self.open_cell("high")
 
     def _open_low(self) -> Any:
+        """Open the crops in the low-confidence half of the inspected cell.
+
+        :returns: whatever :meth:`open_cell` returns.
+        """
         return self.open_cell("low")
 
     def open_cell(self, which: str) -> Any:

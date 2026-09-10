@@ -182,35 +182,87 @@ def screen(qtbot, qt_theme_applied):
 # Registration
 # ---------------------------------------------------------------------------
 
-def test_agreement_is_registered_under_results_and_qc_as_alpha():
-    """Both axes, which are no longer the same kind of thing.
+def test_agreement_has_no_tile_because_annotate_carries_it():
+    """The row is gone; the module is a button on the Annotate masthead.
 
-    #16i briefly made "Alpha modules" a SECTION and filed this screen
-    there; #16j put it back under Results & QC — scoring annotation
-    passes is reading a result — and kept alpha as a maturity stage that
-    the Home tile draws as a hover colour."""
+    Scoring annotation passes is the sentence after annotating them, so
+    this screen folded onto Annotate and stopped being its own
+    destination. The registry row went with the fold -- a tile that opens
+    the same screen a button on the host already opens is a second front
+    door, not a second module.
+
+    Previously this asserted the row's section and maturity; what has to
+    be asserted now is that nothing else was left behind pointing at it.
+    """
     from spacr.qt.app import APPS
-    entry = next((a for a in APPS if a[0] == "agreement"), None)
-    assert entry is not None, "agreement missing from APPS"
-    key, name, desc, section = entry
+    from spacr.qt.screens.annotate import FOLDED_APPS
+
+    assert not any(row[0] == "agreement" for row in APPS)
+    assert "agreement" in FOLDED_APPS
+
+
+def test_the_agreement_button_keeps_the_name_and_sentence_its_tile_had():
+    """A folded module still has to be recognisable as itself.
+
+    ``FoldStrip`` reads the name, the sentence and the maturity out of the
+    app registry, which answers nothing once the row is dropped: the
+    tooltip would empty and the hover would fall back to stable-blue. The
+    fold tables hold what the tile said so the button can go on saying it.
+    """
+    from spacr.qt.screens.map_barcodes import fold_description
+
+    name, description, stage = fold_description("agreement")
+
     assert name == "Annotator Agreement"
-    assert desc and desc.strip()
-    from spacr.qt.app import SECTION_RESULTS, app_stage
-    assert section == SECTION_RESULTS, (
-        f"agreement filed under {section!r}; scoring annotation passes "
-        "is reading a result")
-    # `spacr.qt.maturity` reassessed every alpha module against the
-    # evidence in the repository and this one no longer qualifies; the
-    # reason is recorded beside the decision. Applied here because the
-    # promotions land in `register_self_registering_modules`, which every
-    # launch calls but a bare test process may not have. `apply` alone,
-    # not the whole registration pass: it touches only APP_STAGE, so it
-    # cannot re-register a module a test has deliberately removed.
+    assert "κ" in description and "discordant" in description
+    assert stage in ("alpha", "beta", "stable")
+
+
+def test_the_agreement_button_lights_in_the_colour_its_tile_LIT():
+    """The recorded stage is the one a LAUNCHED app would have shown.
+
+    ``maturity.apply`` runs at launch and promoted this module to stable
+    on 130 tests, 431 assertions, tutorial lesson 23 and a README section.
+    A fallback copied from ``app.py``'s table instead of from the applied
+    answer would light the button green-cyan where the tile lit blue --
+    and once the row is dropped, the fallback is the only record there is.
+    """
     from spacr.qt import maturity
-    maturity.apply()
-    assert app_stage(key) == "stable", (
-        "130 tests and 431 assertions, a shipped lesson and a README "
-        "section: the tile colour has to say that")
+    from spacr.qt.app import APP_STAGE, APPS
+    from spacr.qt.screens.map_barcodes import fold_description
+
+    at_launch = dict(APP_STAGE)
+    maturity.apply(at_launch, [row[0] for row in APPS])
+
+    assert at_launch.get("agreement", "stable") == "stable"
+    assert fold_description("agreement")[2] == "stable"
+
+
+def test_the_agreement_button_is_on_the_annotate_masthead(qtbot,
+                                                            qt_theme_applied):
+    """The one way in, and it still carries the module's own screen.
+
+    The whole risk of dropping a row is a module that can no longer be
+    reached. This drives the button the way a user does and asserts the
+    Agreement screen itself arrives -- not a reimplementation of it.
+    """
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    strip = getattr(screen, "_fold_strip", None)
+    assert strip is not None, "Annotate built no fold strip"
+
+    button = strip.button_for("agreement")
+    assert button is not None
+    assert button.toolTip().startswith("Annotator Agreement")
+    assert button.property("stage") == "stable"
+
+    opened = screen._fold_openers[0].open()
+    assert opened is not None
+    # The page shown is the module's own screen, or a container holding it.
+    assert (isinstance(opened, AgreementScreen)
+              or opened.findChildren(AgreementScreen))
 
 
 def test_agreement_has_a_title_and_an_intro():
@@ -222,12 +274,19 @@ def test_agreement_has_a_title_and_an_intro():
 
 
 def test_agreement_icon_resolves_to_a_real_resource_file():
+    """It has its own PNG now, so it needs no override to point at another.
+
+    This asserted an `_ICON_OVERRIDES` entry, which was right while the
+    module had no artwork of its own and had to borrow Annotate's. The
+    override was removed with four others once `agreement.png` was
+    installed; the property worth keeping is that the icon RESOLVES.
+    """
     from spacr.qt import app as qt_app
-    assert "agreement" in qt_app._ICON_OVERRIDES, (
-        "agreement needs an _ICON_OVERRIDES entry — no binary was added")
     here = os.path.dirname(os.path.abspath(qt_app.__file__))
+    override = qt_app._ICON_OVERRIDES.get("agreement")
+    name = override or "agreement.png"
     path = os.path.normpath(os.path.join(
-        here, "..", "resources", "icons", qt_app._ICON_OVERRIDES["agreement"]))
+        here, "..", "resources", "icons", name))
     assert os.path.isfile(path), f"missing icon file: {path}"
 
 
@@ -239,13 +298,46 @@ def test_icon_provider_returns_a_non_null_icon(qtbot, qt_theme_applied):
     assert not icon.isNull(), "agreement icon is null — the PNG failed to load"
 
 
-def test_sidebar_lists_annotator_agreement(qtbot, qt_theme_applied):
+def test_the_sidebar_no_longer_lists_annotator_agreement(qtbot,
+                                                          qt_theme_applied):
+    """The fold's whole point: one door, not two.
+
+    This asserted the sidebar row until the module folded onto Annotate.
+    A row beside the host's own would be the second front door the fold
+    exists to remove — and the sidebar is built from the registry, so a
+    row here would mean the drop had not happened.
+    """
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.app import Sidebar
+    from spacr.qt.screens.annotate import FOLDED_APPS
+
     bar = Sidebar()
     qtbot.addWidget(bar)
     labels = {b.accessibleName() for b in bar.findChildren(QPushButton)}
-    assert "Annotator Agreement" in labels
+    keys = {b.property("navKey") for b in bar.findChildren(QPushButton)}
+
+    # NO ROW AT ALL, AND THAT IS THE CURRENT DECISION RATHER THAN A
+    # REGRESSION. This block asserted a nested fold-child row, indented under
+    # Annotate and hidden until the host opened, on the strength of a
+    # 2026-09-02 request -- "nested modules should be nested in the dock".
+    # It was superseded the next day. `f43b5a42e` rewrote the dock from
+    # scratch and quotes the instruction it was written to: "start from
+    # scratch and write a simple dock no effects just icon and text in
+    # categories. SCRAP THE SUB CATEGORIES". `Dock.expand_host` and
+    # `host_is_expanded` are stubs saying so in as many words.
+    #
+    # So a missing row here is the feature. The 33 folded modules are reached
+    # from their host screen's fold strip, which is where the rewrite put
+    # them, and re-adding the row to make this test pass would quietly undo a
+    # decision the maintainer made deliberately.
+    row = next((b for b in bar.findChildren(QPushButton)
+                if b.property("navKey") == "agreement"), None)
+    assert row is None, (
+        "a folded module has a dock row again -- the sub-category level was "
+        "scrapped on 2026-09-03 and the fold strip on its host is the way in"
+    )
+    assert "Annotate" in labels, "the host it folded into must still be there"
+    assert "agreement" in FOLDED_APPS
 
 
 def test_main_window_builds_the_agreement_screen(qtbot, qt_theme_applied):

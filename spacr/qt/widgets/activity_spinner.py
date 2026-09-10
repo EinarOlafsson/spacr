@@ -148,6 +148,22 @@ class ActivitySpinner(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None, diameter: int = 16,
                  auto: bool = True, delay_ms: Optional[int] = None) -> None:
+        """Create the spinner, hidden until work has been going long enough.
+
+        It is transparent for mouse events, so it cannot swallow a click meant
+        for the button beside it. Whether the current stretch of work has earned
+        the spinner is kept as its own flag rather than read back from
+        ``isVisible()`` -- a widget can be visible for reasons that have nothing
+        to do with this decision, and reading visibility would let any of them
+        quietly cancel the delay.
+
+        :param parent: parent widget, or ``None``.
+        :param diameter: size in pixels.
+        :param auto: follow the process-wide run registry rather than being
+            driven by hand.
+        :param delay_ms: how long work must run before the spinner appears;
+            ``None`` uses the preference.
+        """
         super().__init__(parent)
         self._diameter = max(8, int(diameter))
         self.setFixedSize(self._diameter, self._diameter)
@@ -206,6 +222,11 @@ class ActivitySpinner(QWidget):
             self._auto = False
 
     def _running_handles(self) -> List:
+        """Return the runs currently in flight, according to the registry.
+
+        :returns: the live handles, or an empty list when this spinner is driven
+            by hand or the registry cannot be reached.
+        """
         if not self._auto:
             return []
         try:
@@ -302,6 +323,13 @@ class ActivitySpinner(QWidget):
             self._show_now()
 
     def _show_now(self) -> None:
+        """Show the spinner and start its animation if it is really on screen.
+
+        ``isVisible`` is ``False`` while an ancestor is hidden, and the whole
+        idle-costs-nothing claim rests on never running the timer for pixels
+        nobody can see -- ``showEvent`` starts it if and when the screen comes
+        back.
+        """
         self.setVisible(True)
         # ``isVisible`` is False while an ancestor is hidden, and the whole
         # idle-costs-zero claim rests on never running the animation timer
@@ -329,6 +357,7 @@ class ActivitySpinner(QWidget):
     # -- animation --------------------------------------------------------
 
     def _advance(self) -> None:
+        """Step the rotation one frame and repaint."""
         self._angle = (self._angle + STEP_DEGREES) % 360.0
         self.update()
 

@@ -58,8 +58,13 @@ class TestTheCropPreviewAgreesWithTheRun:
         return [int(png[8, 8, i]) for i in range(3)]
 
     def _preview_channels(self, panel):
-        from spacr.qt.widgets.measure_preview import _parse_channels
-        return _parse_channels(panel._png_dims.text())
+        """The RGB-ordered source channels the control names.
+
+        The control is the named-slot editor, not a comma list: position no
+        longer decides a colour, so the order is read back off the mapping.
+        """
+        from spacr.qt.widgets.measure_preview import _mapping_to_rgb_list
+        return _mapping_to_rgb_list(panel._png_dims.get_value())
 
     def test_the_default_preview_matches_the_default_run(self, qtbot):
         from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
@@ -100,11 +105,34 @@ class TestTheCropPreviewAgreesWithTheRun:
 
         p = MeasurePreviewPanel(threaded=False)
         qtbot.addWidget(p)
-        p._png_dims.setText("1,0,2")
+        p._png_dims.set_value({"r": 1, "g": 0, "b": 2})
 
         out = p.settings_for_propagation()
         assert out["png_channel_mapping"] == {"r": 1, "g": 0, "b": 2}
         assert "png_dims" not in out
+
+    def test_the_control_asks_for_colours_by_name_not_by_list_position(
+            self, qtbot):
+        """The rule the whole crop-colour episode was reduced to.
+
+        A comma list whose POSITION decides which colour a channel lands in
+        carries an unstated convention, and an unstated convention gets read
+        backwards -- it did, for eleven days, and undoing it took a format
+        version and a migrator. This control was the last one in the GUI
+        still asking that way, as free text labelled "RGB channel order".
+        """
+        from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+
+        p = MeasurePreviewPanel(threaded=False)
+        qtbot.addWidget(p)
+
+        assert not hasattr(p._png_dims, "setText"), (
+            "the crop preview is asking for a colour by list position again")
+
+        p._png_dims.set_value({"r": 2, "g": 1, "b": 0})
+        assert p._png_channel_mapping() == {"r": 2, "g": 1, "b": 0}
+        assert p.settings_for_propagation()["png_channel_mapping"] == {
+            "r": 2, "g": 1, "b": 0}
 
     def test_a_legacy_png_dims_settings_file_still_seeds_the_panel(self, qtbot):
         """The legacy list reads entry 0 as BLUE, and must keep doing so.

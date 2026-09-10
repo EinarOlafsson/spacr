@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.i18n.ui_language_resolved_once#1",
+      "source_sha256": "870bbcc6c21347a17dba5b55fa24fff53b8f1032833fd2e54f8e7f465f7c59f8",
+      "source": ":func:`current_language` reaches into ``QSettings`` on every call, and a dialog build calls it once per :func:`tr`. Building Preferences was measured asking the preference store what language the interface was in **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask screen's panel build had the same shape at 3,516.",
+      "context": ":func:`current_language` reaches into ``QSettings`` on every call, and a dialog build calls it once per :func:`tr`. Building Preferences was measured asking the preference store what language the interface was in **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask application view's panel build had the same shape at 3,516.",
+      "translation": ":func:`current_language` sækir í ``QSettings`` í hverju kalli, og bygging glugga kallar á það einu sinni fyrir hvert :func:`tr`. Mælt var að bygging Preferences spurði stillingageymsluna hvaða tungumál viðmótið væri á **346 sinnum**, gegnum 415 ``QSettings`` lestra, fyrir einn glugga; spjaldbygging Mask-skjásins hafði sömu lögun við 3,516."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog#1",
+      "source_sha256": "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+      "source": "Kept as a factory (not a real class subclass) so this module can be imported headless without pulling in QtWidgets. The real :class:`QDialog` is returned by ``PreferencesDialog(parent)``. Build the dialog with the UI language resolved once.",
+      "context": "Kept as a factory (not a real class subclass) so this module can be imported headless without pulling in QtWidgets. The real :class:`QDialog` is returned by ``PreferencesDialog(parent)``. Build the dialog with the UI language resolved once.",
+      "translation": "Haldið sem verksmiðju (ekki raunverulegri undirklassa) svo að þessa einingu megi flytja inn án skjás og án þess að draga QtWidgets með. Raunverulegum :class:`QDialog` er skilað af ``PreferencesDialog(parent)``. Byggðu gluggann þar sem UI-tungumálið er leyst einu sinni."
+    }
+  ]
+}

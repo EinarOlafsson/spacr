@@ -1,0 +1,28 @@
+{
+  "lesson": "32_align_stitch",
+  "language": "is",
+  "english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
+  "review": {"kind": "Editorial caption translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "Align & Stitch: skoðaðu raunverulega áætlun og staðfestu skrifuðu samsettu myndina",
+  "description": "Keyrðu núverandi viðmót fyrir samsetningu mynda með varðveittum, raunverulegum smásjármynddílum, skoðaðu útreiknaða uppröðun, skrifaðu myndræmur með takmörkuðum biðminnisstærðum og staðfestu bæði samsettu myndina og hnitafærslur hennar.",
+  "objectives": [
+    "Greina þetta dæmi með myndskurðum og þekkta rúmfræði frá tilraun þar sem myndflísar voru teknar sjálfstætt.",
+    "Stilla reitaskipan, skörun, röð og viðmiðunarrás í núverandi notendaviðmóti.",
+    "Skoða samstillinguna áður en skrifað er og greina á milli minnisheimildar fyrir myndræmubiðminni og heildarminnisnotkunar.",
+    "Varðveita samsettu myndina, hnitafærslurnar og upplýsingar um uppruna gagnanna saman."
+  ],
+  "prerequisite": "Undirbúðu myndflísar með þekktri röð og skörun ásamt gagnlegri samstillingarrás fyrir eigin keyrslu; fjöldatölur og niðurstöður verða aðrar hjá þér. Upptakan endurnýtir níu varðveitta, nákvæma 800 × 800 × 4 myndskurði úr einu raunverulegu 2.000 × 2.000 × 4 myndsviði, með 600 mynddíla skrefi. Þeir líkja eftir 3 × 3 myndatöku, ekki níu sjálfstætt teknum myndsviðum. Heitin tutorial_A01 eru hnit til sýnikennslu, ekki upprunalega platan og brunnurinn. Align & Stitch hefur engan sérstakan hnapp til að sækja dæmigögn.",
+  "scenes": [
+    "Opnaðu Align & Stitch í flokknum Tools á Home. Áætlanagerð og skrif eru aðskildar aðgerðir, svo þú getur skoðað uppröðun áður en þú býrð til samsetta mynd úr henni. Þessi skjár sýnir uppröðun myndflísa og textaskýrslu; lituðu rétthyrningarnir eru ekki forskoðun smásjármyndanna.",
+    "Veldu möppuna með varðveittu myndflísunum fyrir leiðbeiningarnar. Flísarnar níu eru nákvæmir myndskurðir úr einni raunverulegri fjögurra rása mynd, vísvitandi raðað til að líkja eftir myndatöku með þekktri rúmfræði. Þetta eru ekki níu sjálfstæð myndsvið og plötu- og brunnheiti þeirra eru auðkenni til sýnikennslu.",
+    "Stilltu Grid á 3 × 3, Order á row-major og Overlap á 0,25. Þessar 800 mynddíla flísar færast um 600 mynddíla í hverju skrefi. Notaðu raunverulega myndatökuröð og uppgefna skörun fyrir eigin gögn; ekki má lýsa skönnun sem fer til skiptis í gagnstæðar áttir sem row-major.",
+    "Stilltu Ref. channel á 1, annað planið í þessu dæmi þar sem talning hefst á núlli. Samstillingin notar bygginguna í því plani og beitir einni sameiginlegri staðsetningu á allar fjórar rásirnar. Veldu viðeigandi samstillingarrás; aðgerðin er ekki sjálfstæð leiðrétting á litahliðrun hverrar rásar.",
+    "Notaðu Min confidence 0,3, Neighbour radius 1 og Blend feather. Stilltu RAM budget (MB), minnisheimild myndræmubiðminnisins, á 8 fyrir þetta afmarkaða dæmi. Stillingin takmarkar myndræmurnar sem notaðar eru við skrif; hún setur ekki þak á hverja minnisúthlutun eða heildarminnisnotkun forritsins.",
+    "Ýttu á Plan. Allar níu dæmiflísarnar samstillast án þess að grípa þurfi til uppgefinna staðsetninga og fyrirhugaði myndflöturinn er 2.000 × 2.000 mynddílar með fjórum rásum. Engin úttaksmynd hefur enn verið skrifuð. Athugaðu fjölda flísa sem hafa verið samstilltar, settar á uppgefnar staðsetningar eða ekki staðsettar, í stað þess að líta á sérhverja fullgerða áætlun sem ásættanlega.",
+    "Smelltu á miðjuflísina til að skoða hnit hennar, öryggismat, leif og pörin sem lögðu til upplýsingar. Hér er upphafspunktur hennar 600 mynddílar í hvora átt, sem samsvarar þekktri uppröðun myndskurðanna. Fullkomin samsvörun á skörunarsvæðum í þessu tilbúna dæmi segir ekki fyrir um gæði samstillingar við nýja myndatöku.",
+    "Veldu nýja úttaksmöppu og aðskilinn hnitagagnagrunn og hafðu slökkt á Overwrite. Write stack verður aðeins virkt þegar áætlun er til og áfangastaður hefur verið tilgreindur. Haltu upprunalegu myndflísunum óbreyttum; að tilgreina úttaksslóð kemur ekki í stað yfirferðar á samstillingunni.",
+    "Ýttu á Write stack. Raunverulegt úttak inniheldur allar níu flísarnar og hver mynddíll í öllum fjórum rásunum samsvarar upprunalega myndsviðinu í þessu dæmi. Niðurstaðan sýnir úttaksslóð og notkun myndræmubiðminnis. Þetta er mæld niðurstaða fyrir þessa þekktu myndskurði, ekki loforð um samstillingu án upplýsingataps fyrir hvaða myndir sem er.",
+    "Hnitagagnagrunnurinn inniheldur níu færslur. Við athugum hverja upprunaskrá, plötu og brunn sýnikennslunnar, auðkenni myndsviðs, staðsetningu á myndfletinum og slóð úttaksmyndastaflans, ekki aðeins línufjöldann. Varðveittu færslurnar með myndinni og upprunaskrárlistanum svo að áfram sé hægt að túlka hnitin við síðari notkun.",
+    "Í Python les spacr.align.scan_tiles uppröðun myndflísanna og estimate_offsets byggir áætlunina. write_stack býr til samsettu myndina; save_coordinates og read_coordinates skrifa hnitatöflu hennar og lesa hana aftur. Þessi litla samsetning staðfestir ekki réttmæti aðskilins OPS-vinnuferlis. Farðu yfir raunverulega rúmfræði myndatökunnar áður en þú notar annað hvort vinnuferlið til að draga vísindalegar ályktanir."
+  ]
+}

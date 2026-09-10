@@ -15,14 +15,15 @@ import colorsys
 import contextlib
 import logging
 import os
-import re
 import queue
+import re
 import sqlite3
+import sys
 import threading
 import time
+from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional,
-                    Sequence, Tuple)
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 from PIL import Image
@@ -30,11 +31,31 @@ from skimage.exposure import rescale_intensity
 
 from spacr.database_concurrency import (
     connect as connect_database,
+)
+from spacr.database_concurrency import (
     transaction,
 )
 
-
 LOG = logging.getLogger("spacr.qt.annotate_engine")
+
+#: The crop table the annotation screen reads.
+#:
+#: A GENERATED SET LANDS UNDER ANOTHER NAME. `spacr.annotation_dataset` writes
+#: `png_list`, then `png_list_2`, `png_list_3` -- never overwriting a set that
+#: may already carry hand-made labels -- so the screen has to be able to open
+#: more than the first one. Every reader below therefore takes the table as a
+#: keyword, defaulting to this, and nothing changes for a caller that does not
+#: pass one.
+DEFAULT_PNG_TABLE = "png_list"
+
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Start the GUI sweep if resource cleanup was registered before Qt."""
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +118,7 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
 
     That is issue #6 -- "labels do not appear with good contrast in the
     annotation app like they do on Linux machines" -- and it is a theme
-    difference rather than a platform one: macOS simply defaults to the
+    difference rather than a platform one: macOS defaults to the
     light appearance far more often.
 
     HUE IS PRESERVED so a class keeps its identity across themes; only
@@ -147,40 +168,23 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
                     stored_channel_order: str = "auto",
                     display_order: str = "rgb",
                     display_primaries: str = "rgb") -> Image.Image:
-    """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
+    """Open one object crop PNG as an 8-bit RGB image in display order.
 
-    Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
-    anything spaCR wrote before the BGR fix has ``png_dims[0]`` in its *blue*
-    channel, so a plain PIL read shows the user's first stain as blue and
-    their third as red -- and the annotator's "r"/"g"/"b" channel filters then
-    address the wrong stains. :func:`spacr.crops.read_crop_png` resolves which
-    format the folder is in (sidecar marker, else the database column, else
-    legacy) and corrects it on load, so an old dataset and a new one look the
-    same here.
+    :func:`spacr.crops.read_crop_png` resolves the stored format from the
+    sidecar marker, database, or legacy fallback before applying the requested
+    display order. Sixteen-bit single-channel images are narrowed consistently
+    instead of being clipped by an RGB conversion.
 
-    It also fixes the other half: a 16-bit single-channel crop opened with
-    ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white.
-    Every crop is narrowed the same way now -- by its high byte.
+    Two different questions are kept separate rather than combined into one
+    control:
+
+        stored_channel_order   Physical channel order in the file, resolved
+                               from its sidecar marker or database. ``'auto'``
+                               is recommended when metadata is available.
+        display_order          Preferred on-screen order, independent of file
+                               storage. Defaults to ``'rgb'``.
 
     :param path: the crop PNG.
-    TWO DIFFERENT QUESTIONS, and keeping them apart is why there are two
-    parameters rather than one control that does both:
-
-        stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the
-                               bytes, resolved from the sidecar marker or the
-                               database. Getting it wrong shows the wrong
-                               stain, so 'auto' is the right answer almost
-                               always.
-        display_order          HOW DO I WANT TO LOOK AT IT. A preference,
-                               making no claim about the file. Defaults to
-                               'rgb', the identity.
-
-    The second exists because a project authored before the crop-format fix
-    can want its ORIGINAL picture back -- its parasite stain in red rather
-    than blue -- and the only ways to get it were to re-run measurement for
-    hours, or to mark the folder as a format it is not. The second works and
-    then lies to every later reader. A display preference does neither.
-
     :param db_path: optional ``measurements.db``, consulted when the crop
         folder carries no sidecar marker.
     :param display_order: one of ``spacr.crops.DISPLAY_ORDERS``. Applied
@@ -269,7 +273,36 @@ def filter_channels_pil(
     return Image.merge("RGB", (r, g, b))
 
 
+class OutlineCancelled(Exception):
+    """Raised when a requested cancellation stops outline generation.
+
+    Cellpose model construction and inference cannot be interrupted safely.
+    Cancellation is therefore checked between native calls, and this
+    exception unwinds the current page of crops.
+    """
+
+
+def _check_stop(should_stop) -> None:
+    """Raise :class:`OutlineCancelled` when the caller has asked to stop.
+
+    A ``should_stop`` that raises is treated as "stop": the usual reason is
+    ``RuntimeError: Internal C++ object already deleted`` from a QThread whose
+    wrapper has gone, and a caller that no longer exists is not waiting for
+    this crop.
+    """
+    if should_stop is None:
+        return
+    try:
+        stop = bool(should_stop())
+    except Exception:                                        # noqa: BLE001
+        stop = True
+    if stop:
+        raise OutlineCancelled()
+
+
 _cellpose_outline_model = None
+_cellpose_outline_last_used = 0.0
+_cellpose_outline_in_use = 0
 # Cellpose/PyTorch model construction and inference enter native code and are
 # not safe to run concurrently through one cached model.  Annotate page loads
 # used to fan out across several QThreads and ThreadPoolExecutors, so two crops
@@ -279,36 +312,382 @@ _cellpose_outline_model = None
 _cellpose_outline_lock = threading.RLock()
 
 
-def _get_cellpose_outline_model():
-    """Lazily build + cache a small Cellpose (SAM) model for outline masks."""
-    global _cellpose_outline_model
+def _get_cellpose_outline_model(should_stop=None):
+    """Lazily build + cache a small Cellpose (SAM) model for outline masks.
+
+    :param should_stop: asked once before the model is built and once after
+        the lock is taken. Building it imports cellpose and torch and reads a
+        1.2 GB checkpoint, so a caller that has already given up must not pay
+        for it.
+    """
+    global _cellpose_outline_last_used, _cellpose_outline_model
+    _check_stop(should_stop)
     with _cellpose_outline_lock:
+        _check_stop(should_stop)
         if _cellpose_outline_model is None:
             from cellpose import models as cp_models
+            # Any accelerator, not only CUDA -- see instruction 319.
+            # device=None leaves cellpose to resolve it, which it does
+            # correctly once `gpu` tells it there is one to look for.
             try:
-                import torch
-                gpu = torch.cuda.is_available()
+                from ..accelerator import cellpose_kwargs
+
+                kwargs = cellpose_kwargs()
             except Exception:
-                gpu = False
+                kwargs = {"gpu": False}
+            # device is deliberately left to cellpose here; the flags it
+            # cannot infer -- gpu, and the dtype the device can hold --
+            # still have to come from the resolver.
+            kwargs.pop("device", None)
             _cellpose_outline_model = cp_models.CellposeModel(
-                gpu=gpu, pretrained_model="cpsam", device=None)
+                pretrained_model="cpsam", device=None, **kwargs)
+        _cellpose_outline_last_used = time.time()
         return _cellpose_outline_model
 
 
-def _cellpose_foreground(channel_2d) -> "np.ndarray":
-    """Return a boolean foreground mask for one channel using Cellpose."""
+def _cellpose_foreground(channel_2d, should_stop=None) -> "np.ndarray":
+    """Return a boolean foreground mask for one channel using Cellpose.
+
+    :param should_stop: asked immediately before ``model.eval``. The wait for
+        the lock is itself unbounded — another crop may be inside a forward
+        pass — so the question is asked again on the far side of it rather
+        than only on the way in.
+    """
+    global _cellpose_outline_in_use, _cellpose_outline_last_used
+    _check_stop(should_stop)
     with _cellpose_outline_lock:
-        model = _get_cellpose_outline_model()
-        res = model.eval(
-            channel_2d.astype(np.float32),
-            diameter=None,
-            flow_threshold=0.4,
-            cellprob_threshold=0.0,
-        )
+        _cellpose_outline_in_use += 1
+        try:
+            model = _get_cellpose_outline_model(should_stop=should_stop)
+            _check_stop(should_stop)
+            res = model.eval(
+                channel_2d.astype(np.float32),
+                diameter=None,
+                flow_threshold=0.4,
+                cellprob_threshold=0.0,
+            )
+        finally:
+            _cellpose_outline_in_use -= 1
+            _cellpose_outline_last_used = time.time()
     mask = res[0]
     if isinstance(mask, list):
         mask = mask[0]
     return np.asarray(mask) > 0
+
+
+#: How many outline masks to keep. A montage tab is a few hundred crops and
+#: each mask is one bit per pixel; 512 covers a screenful several times over
+#: for well under a megabyte.
+_MASK_CACHE_SIZE = 512
+
+#: The cache itself: {(channel bytes, shape, sigma, factor): mask}.
+_MASK_CACHE: "OrderedDict" = None
+_MASK_CACHE_USED: Dict[Any, float] = {}
+
+
+def _foreground_mask(channel, sigma: float, factor: float):
+    """Return and cache the Otsu foreground mask for one channel.
+
+    The mask depends only on the pixel bytes, shape, smoothing width, and
+    threshold factor. Display-only changes such as normalization, opacity,
+    outline thickness, and percentiles can therefore reuse it. Content-based
+    keys also survive crop-object replacement during a montage reload.
+    """
+    global _MASK_CACHE
+    if _MASK_CACHE is None:
+        _MASK_CACHE = OrderedDict()
+        _ensure_cache_budget_sweep()
+
+    from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter
+    from skimage.filters import threshold_otsu
+
+    contiguous = np.ascontiguousarray(channel)
+    key = (hash(contiguous.tobytes()), contiguous.shape, round(sigma, 4),
+           round(factor, 4))
+    cached = _MASK_CACHE.get(key)
+    if cached is not None:
+        _MASK_CACHE.move_to_end(key)
+        _MASK_CACHE_USED[key] = time.time()
+        return cached
+
+    smoothed = gaussian_filter(contiguous.astype(np.float32), sigma=sigma)
+    try:
+        otsu = threshold_otsu(smoothed)
+    except Exception:
+        otsu = float(np.percentile(smoothed, 50.0))
+    threshold = float(min(255.0, max(0.0, otsu * factor)))
+    mask = smoothed > threshold
+    mask = binary_closing(mask, structure=np.ones((3, 3), dtype=bool))
+    mask = binary_fill_holes(mask)
+
+    _MASK_CACHE[key] = mask
+    _MASK_CACHE_USED[key] = time.time()
+    while len(_MASK_CACHE) > _MASK_CACHE_SIZE:
+        old, _ = _MASK_CACHE.popitem(last=False)
+        _MASK_CACHE_USED.pop(old, None)
+    return mask
+
+
+#: {(mask bytes, shape, thickness): edge}
+_EDGE_CACHE: "OrderedDict" = None
+_EDGE_CACHE_USED: Dict[Any, float] = {}
+
+
+def _edge_of(mask, thickness: int):
+    """The boundary of ``mask``, dilated to ``thickness``, remembered."""
+    from skimage.morphology import dilation, disk
+    from skimage.segmentation import find_boundaries
+
+    global _EDGE_CACHE
+    if _EDGE_CACHE is None:
+        _EDGE_CACHE = OrderedDict()
+        _ensure_cache_budget_sweep()
+
+    packed = np.packbits(np.ascontiguousarray(mask))
+    key = (hash(packed.tobytes()), tuple(np.shape(mask)), int(thickness))
+    cached = _EDGE_CACHE.get(key)
+    if cached is not None:
+        _EDGE_CACHE.move_to_end(key)
+        _EDGE_CACHE_USED[key] = time.time()
+        return cached
+
+    edge = find_boundaries(mask, mode="inner").astype(np.uint8)
+    if thickness > 0:
+        edge = dilation(edge > 0, disk(thickness)).astype(np.uint8)
+
+    _EDGE_CACHE[key] = edge
+    _EDGE_CACHE_USED[key] = time.time()
+    while len(_EDGE_CACHE) > _MASK_CACHE_SIZE:
+        old, _ = _EDGE_CACHE.popitem(last=False)
+        _EDGE_CACHE_USED.pop(old, None)
+    return edge
+
+
+def forget_outline_masks() -> None:
+    """Drop every cached mask. For tests, and for a caller changing plates."""
+    global _MASK_CACHE, _EDGE_CACHE
+    _MASK_CACHE = None
+    _EDGE_CACHE = None
+    _MASK_CACHE_USED.clear()
+    _EDGE_CACHE_USED.clear()
+
+
+def _model_bytes(model) -> int:
+    """Measured parameter and buffer bytes without importing torch."""
+    network = getattr(model, "net", model)
+    total = 0
+    seen = set()
+    for accessor_name in ("parameters", "buffers"):
+        accessor = getattr(network, accessor_name, None)
+        if not callable(accessor):
+            continue
+        try:
+            values = accessor()
+        except Exception:                                    # noqa: BLE001
+            continue
+        for value in values:
+            marker = id(value)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            try:
+                total += max(0, int(value.numel())
+                             * int(value.element_size()))
+            except Exception:                                # noqa: BLE001
+                try:
+                    total += max(0, int(value.nbytes))
+                except Exception:                            # noqa: BLE001
+                    continue
+    return total
+
+
+def _release_cached_models() -> int:
+    """Release Annotate's warm Cellpose reference when it is not in use.
+
+    The non-blocking lock is important: a five-second GUI budget tick must
+    never wait behind native Cellpose inference.  The next tick can retry.
+    """
+    global _cellpose_outline_last_used, _cellpose_outline_model
+    if not _cellpose_outline_lock.acquire(blocking=False):
+        return 0
+    try:
+        if _cellpose_outline_in_use or _cellpose_outline_model is None:
+            return 0
+        _cellpose_outline_model = None
+        _cellpose_outline_last_used = 0.0
+        return 1
+    finally:
+        _cellpose_outline_lock.release()
+
+
+def cache_budget_entries():
+    """Measured records for decoded outline arrays retained between draws."""
+    rows = []
+    now = time.time()
+    for kind, cache, used in (
+            ("mask", _MASK_CACHE, _MASK_CACHE_USED),
+            ("edge", _EDGE_CACHE, _EDGE_CACHE_USED)):
+        for key, value in list((cache or {}).items()):
+            rows.append(((kind, key), max(0, int(value.nbytes)),
+                         float(used.get(key, now)), False))
+    model = _cellpose_outline_model
+    if model is not None:
+        rows.append((
+            ("model", "cellpose-outline"),
+            _model_bytes(model),
+            float(_cellpose_outline_last_used or now),
+            bool(_cellpose_outline_in_use),
+        ))
+    return rows
+
+
+def drop_cache_budget_entry(record_key) -> bool:
+    """Evict one decoded array selected by the global memory policy."""
+    kind, key = record_key
+    if kind == "model":
+        return bool(_release_cached_models())
+    cache = _MASK_CACHE if kind == "mask" else _EDGE_CACHE
+    used = _MASK_CACHE_USED if kind == "mask" else _EDGE_CACHE_USED
+    if cache is None:
+        return False
+    existed = key in cache
+    cache.pop(key, None)
+    used.pop(key, None)
+    return existed
+
+
+# ---------------------------------------------------------------------------
+# Which objects are drawn at all
+#
+# ONE NUMBER FOR EVERY COLOUR was the whole complaint. A crop's red, green and
+# blue planes hold different things -- a nucleus, a cell, a parasite -- and a
+# size window that suits one of them is nonsense for the other two. So the
+# filter is written per plane, and each plane gets a window on its SIZE and a
+# window on its BRIGHTNESS.
+#
+# EMPTY IS A VALUE, and it is the value that means "no bound on this side".
+# It is how a user turns half a filter off, so it survives a round trip
+# instead of being helpfully replaced with a zero -- and zero is not the same
+# answer, because a zero minimum on intensity is a real (if weak) claim about
+# what may be drawn.
+# ---------------------------------------------------------------------------
+
+#: The colour planes a filter can be written against, in the order the
+#: settings form draws them.
+FILTER_CHANNELS: Tuple[str, ...] = ("r", "g", "b")
+
+#: What each plane's two rows bound. ``area`` is the object's size in pixels;
+#: ``intensity`` is its MEAN value in that same plane, 0-255 after decode --
+#: mean rather than peak, so a single hot pixel cannot carry a dim object past
+#: a brightness floor.
+FILTER_MEASURES: Tuple[str, ...] = ("area", "intensity")
+
+
+def filter_key(channel: str, measure: str) -> str:
+    """Return the settings key for a channel and measurement pair."""
+    return f"{str(channel).strip().lower()}_{str(measure).strip().lower()}"
+
+
+def filter_bound(value) -> Optional[float]:
+    """Parse a filter bound, returning ``None`` for empty or invalid input."""
+    if value is None:
+        return None
+    if isinstance(value, str) and not value.strip():
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number:                       # NaN compares false with all
+        return None
+    return number
+
+
+def empty_object_filters() -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+    """Return all object-filter bounds in their disabled state."""
+    return {filter_key(channel, measure): (None, None)
+            for channel in FILTER_CHANNELS
+            for measure in FILTER_MEASURES}
+
+
+def normalize_object_filters(
+    object_filters: Optional[Mapping] = None,
+    object_size=None,
+) -> Dict[str, Tuple[Optional[float], Optional[float]]]:
+    """Normalise object-filter bounds and migrate legacy size limits.
+
+    Legacy ``object_size`` limits are applied to the area filter for each
+    colour channel, with non-positive legacy limits treated as disabled.
+    Explicit ``object_filters`` values take precedence; invalid or empty
+    explicit bounds are disabled, while zero remains a valid explicit bound.
+
+    :param object_filters: ``{'r_area': (min, max), ...}``; partial maps are
+        accepted and unknown keys are ignored.
+    :param object_size: Legacy ``(min, max)`` area limits in pixels.
+    :returns: A new dictionary containing every supported key and a pair of
+        floats or ``None``.
+    """
+    bounds = empty_object_filters()
+    try:
+        legacy_lo, legacy_hi = object_size
+    except (TypeError, ValueError):
+        legacy_lo = legacy_hi = None
+    legacy_lo = filter_bound(legacy_lo)
+    legacy_hi = filter_bound(legacy_hi)
+    if legacy_lo is not None and legacy_lo <= 0:
+        legacy_lo = None
+    if legacy_hi is not None and legacy_hi <= 0:
+        legacy_hi = None
+    if legacy_lo is not None or legacy_hi is not None:
+        for channel in FILTER_CHANNELS:
+            bounds[filter_key(channel, "area")] = (legacy_lo, legacy_hi)
+    for key, pair in dict(object_filters or {}).items():
+        key = str(key).strip().lower()
+        if key not in bounds:
+            continue
+        try:
+            low, high = pair
+        except (TypeError, ValueError):
+            continue
+        bounds[key] = (filter_bound(low), filter_bound(high))
+    return bounds
+
+
+def _keep_objects(mask, plane, area, intensity):
+    """Drop the connected components outside ``area`` and ``intensity``.
+
+    :param mask: boolean foreground.
+    :param plane: the same channel's values, for the brightness window.
+    :param area: ``(min, max)`` in pixels; either side may be ``None``.
+    :param intensity: ``(min, max)`` mean value; either side may be ``None``.
+    :returns: the mask with the objects outside either window removed.
+    """
+    from scipy.ndimage import label
+
+    area_lo, area_hi = area
+    intensity_lo, intensity_hi = intensity
+    if all(bound is None for bound in
+           (area_lo, area_hi, intensity_lo, intensity_hi)):
+        return mask
+    labelled, count = label(mask)
+    if count <= 0:
+        return mask
+    flat = labelled.ravel()
+    sizes = np.bincount(flat, minlength=count + 1).astype(np.float64)
+    totals = np.bincount(flat, weights=plane.astype(np.float64).ravel(),
+                         minlength=count + 1)
+    means = totals / np.maximum(sizes, 1.0)
+    keep = np.ones(sizes.shape, dtype=bool)
+    keep[0] = False                     # label 0 is the background
+    if area_lo is not None:
+        keep &= sizes >= area_lo
+    if area_hi is not None:
+        keep &= sizes <= area_hi
+    if intensity_lo is not None:
+        keep &= means >= intensity_lo
+    if intensity_hi is not None:
+        keep &= means <= intensity_hi
+    return keep[labelled]
 
 
 def outline_image(
@@ -322,6 +701,8 @@ def outline_image(
     outline_threshold_factor: float = 1.0,
     object_size: Tuple[int, int] = (0, 0),
     outline_method: str = 'otsu',
+    object_filters: Optional[Mapping] = None,
+    should_stop=None,
 ) -> Image.Image:
     """Overlay per-channel object outlines on `base_img`.
 
@@ -331,10 +712,29 @@ def outline_image(
     optionally dilate it, then alpha-blend it over the channel in
     `base_img` with `edge_transparency/100` opacity. Peak-normalized so
     thin edges stay visible.
+
+    WHICH objects get an outline is decided per plane by ``object_filters``
+    -- an area window and a mean-intensity window for each of red, green and
+    blue. ``object_size`` is the one-window-for-every-plane setting those
+    replaced and is still honoured: it is migrated onto the three area rows
+    by :func:`normalize_object_filters`, so a caller that passes only it gets
+    exactly what it always got.
+
+    :param base_img: RGB display image to receive the blended outlines. Its
+        current channel filtering is preserved except where an outlined
+        channel is deliberately blanked in outline-only mode.
+    :param full_img: unfiltered RGB image supplying the channel intensities
+        used to detect objects, aligned pixel-for-pixel with ``base_img``.
+    :param should_stop: optional callable asked before each channel's Cellpose
+        model construction and forward pass. When it answers True the work is
+        abandoned by raising :class:`OutlineCancelled` rather than finishing a
+        page nobody is waiting for; ``'otsu'`` outlines are fast enough that
+        they are never interrupted mid-channel.
     """
     if not outline_channels or edge_transparency <= 0:
         return base_img
-    from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter, label
+    from scipy.ndimage import (binary_closing, binary_fill_holes,
+                               gaussian_filter)
     from skimage.filters import threshold_otsu
     from skimage.morphology import dilation, disk
     from skimage.segmentation import find_boundaries
@@ -352,10 +752,7 @@ def outline_image(
             base_arr[:, :, channel_map[ch]] = 0
     opacity = max(0.0, min(1.0, float(edge_transparency) / 100.0))
     factor = float(outline_threshold_factor)
-    try:
-        min_px, max_px = object_size
-    except Exception:
-        min_px, max_px = (0, 0)
+    bounds = normalize_object_filters(object_filters, object_size)
     for ch in outline_channels:
         idx = channel_map[ch]
         if edge_image:
@@ -363,36 +760,30 @@ def outline_image(
         if outline_method == 'cellpose':
             # Small Cellpose model gives cleaner object outlines than Otsu.
             try:
-                fg_mask = _cellpose_foreground(full_arr[:, :, idx])
+                fg_mask = _cellpose_foreground(full_arr[:, :, idx],
+                                               should_stop=should_stop)
+            except OutlineCancelled:
+                # NOT a cellpose failure, so NOT a reason to fall back to
+                # Otsu: the caller has gone and the rest of this page must
+                # not be computed. Re-raised ahead of the generic handler
+                # below, which would otherwise swallow it and go on working
+                # for a screen that is being torn down.
+                raise
             except Exception:
                 # Fall back to Otsu if cellpose isn't available / fails.
                 outline_method = 'otsu'
         if outline_method != 'cellpose':
-            ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
-                                     sigma=float(edge_sigma))
-            try:
-                otsu = threshold_otsu(ch_sm)
-            except Exception:
-                otsu = float(np.percentile(ch_sm, 50.0))
-            thr = float(min(255.0, max(0.0, otsu * factor)))
-            fg_mask = (ch_sm > thr)
-            fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
-            fg_mask = binary_fill_holes(fg_mask)
-        if (min_px and min_px > 0) or (max_px and max_px > 0):
-            lbl, n = label(fg_mask)
-            if n > 0:
-                counts = np.bincount(lbl.ravel())
-                lo = int(min_px) if int(min_px) > 0 else 0
-                hi = int(max_px) if int(max_px) > 0 else int(counts.max())
-                keep = np.zeros_like(counts, dtype=bool)
-                for i in range(1, len(counts)):
-                    if lo <= counts[i] <= hi:
-                        keep[i] = True
-                fg_mask = keep[lbl]
-        edge = find_boundaries(fg_mask, mode="inner").astype(np.uint8)
-        thick = int(max(0, round(edge_thickness))) - 1
-        if thick > 0:
-            edge = dilation(edge > 0, disk(thick)).astype(np.uint8)
+            fg_mask = _foreground_mask(full_arr[:, :, idx],
+                                       float(edge_sigma), factor)
+        fg_mask = _keep_objects(
+            fg_mask, full_arr[:, :, idx],
+            bounds[filter_key(ch, "area")],
+            bounds[filter_key(ch, "intensity")])
+        # THE EDGE IS CACHED TOO, for the same reason as the mask: it is a
+        # function of the mask and the thickness alone, and neither moves
+        # when a user changes normalisation, percentiles or transparency.
+        # `find_boundaries` and `dilation` were the other half of the cost.
+        edge = _edge_of(fg_mask, int(max(0, round(edge_thickness))) - 1)
         alpha = np.clip(edge.astype(np.float32) * opacity, 0.0, 1.0)
         orig = base_arr[:, :, idx].astype(np.float32)
         blended = alpha * 255.0 + (1.0 - alpha) * orig
@@ -435,6 +826,13 @@ class AnnotateSettings:
 
     src: str = ""
     db_path: str = ""
+    #: The crop table being annotated.
+    #:
+    #: A generated set lands under `png_list_2` and onwards -- never
+    #: overwriting one that may already carry hand-made labels -- so the
+    #: screen has to be told which it is opening. Defaults to the first,
+    #: which is what a Measure run writes.
+    png_table: str = DEFAULT_PNG_TABLE
     annotation_column: str = "annotate"
     image_size: Tuple[int, int] = (200, 200)
     image_type: Optional[str] = None
@@ -466,12 +864,34 @@ class AnnotateSettings:
     threshold_direction: Optional[Any] = None
     outline: Optional[List[str]] = None
     outline_method: str = "otsu"        # "otsu" | "cellpose"
-    outline_threshold_factor: float = 1.0
-    outline_sigma: float = 1.0
+    #: 1.25 AND 4, BECAUSE THAT IS WHAT THE TOOLTIPS PROMISE. Both settings
+    #: are described in `settings.py` as "Default 1.25." and "Default 4.",
+    #: and `set_annotate_default_settings` ships exactly those, but this
+    #: dataclass shipped 1.0 and 1.0 -- and the SCREEN builds itself from
+    #: this dataclass, never from the factory. So the two numbers that decide
+    #: the whole shape of the outline an annotator draws were, on the only
+    #: surface where anyone draws one, not the numbers the help text named.
+    outline_threshold_factor: float = 1.25
+    outline_sigma: float = 4.0
     edge_thickness: float = 1.0
     edge_transparency: float = 100.0
     edge_image: bool = False
+    #: THE OLD ONE-WINDOW-FOR-EVERY-PLANE size filter, kept so a settings
+    #: file written against it still means what it meant. It is migrated onto
+    #: the three area rows of `object_filters` when the outline is drawn; the
+    #: screen writes the new fields.
     object_size: Tuple[int, int] = (0, 0)
+    #: ``{'r_area': (min, max), 'r_intensity': (min, max), 'g_area': ...}``:
+    #: six rows of two fields, one pair per plane per measure. ``None`` on a
+    #: side means NO BOUND there, which is how half a filter is turned off --
+    #: see `normalize_object_filters`.
+    #:
+    #: EMPTY BY DEFAULT, and that is not the same as twelve empty bounds. A
+    #: key that is absent has never been written, so a legacy `object_size`
+    #: is still migrated onto it; a key that is present and ``(None, None)``
+    #: is a user who cleared that row, and the old value does not come back.
+    object_filters: Dict[str, Tuple[Optional[float], Optional[float]]] = field(
+        default_factory=dict)
     grid_rows: int = 5
     grid_cols: int = 5
     # Active-learning queue (spacr.active_learning). Off by default: it needs
@@ -481,8 +901,15 @@ class AnnotateSettings:
     queue_diversity: str = "well"       # well | field | plate | none
     queue_limit: int = 0                # 0 = the whole unlabelled pool
     # 'auto' | 'png' | 'merged' -- see spacr.crops.resolve_crop_source.
-    # 'auto' prefers the PNG folder, so existing projects are unaffected.
-    crop_source: str = "auto"
+    #
+    # 'png' IS LOAD IMAGES, WHICH IS WHAT INSTRUCTIONS 170 AND 171 DECIDED.
+    # This field shipped 'auto' and the factory was changed to 'png' without
+    # it, so the fix landed everywhere except the screen people annotate on.
+    # Nothing about a real dataset changes: 'png' and 'auto' both take the
+    # PNG folder when there is one and both fall through to 'merged' when
+    # there is not -- resolve_crop_source only records a different `reason`.
+    # What changes is that the default is now the one that was chosen.
+    crop_source: str = "png"
 
     @property
     def page_size(self) -> int:
@@ -494,8 +921,9 @@ class AnnotateSettings:
 # DB helpers
 # ---------------------------------------------------------------------------
 
-def ensure_annotation_column(db_path: str, column: str) -> None:
-    """Add `column` INTEGER to `png_list` if missing and index png_path."""
+def ensure_annotation_column(db_path: str, column: str, *,
+                             table: str = DEFAULT_PNG_TABLE) -> None:
+    """Add `column` INTEGER to ``table`` if missing and index png_path."""
     if not column or not os.path.isfile(db_path):
         return
     safe = column.replace('"', '""')
@@ -503,11 +931,12 @@ def ensure_annotation_column(db_path: str, column: str) -> None:
     try:
         cur = conn.cursor()
         with transaction(conn):
-            cur.execute('PRAGMA table_info("png_list")')
+            cur.execute(f'PRAGMA table_info("{table}")')
             cols = {row[1] for row in cur.fetchall()}
             if column not in cols:
-                cur.execute(f'ALTER TABLE "png_list" ADD COLUMN "{safe}" INTEGER')
-            cur.execute('CREATE INDEX IF NOT EXISTS idx_png_path ON "png_list" (png_path)')
+                cur.execute(f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
+            cur.execute(f'CREATE INDEX IF NOT EXISTS idx_png_path '
+                        f'ON "{table}" (png_path)')
     finally:
         conn.close()
 
@@ -551,9 +980,13 @@ def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
     if not text:
         return "", []
 
+    # NO `if not tokens` GUARD. `_tokenise_image_type` matches `(`, `)`
+    # or any run of non-space non-paren characters, so it returns at
+    # least one token for ANY text -- and whitespace-only text has
+    # already returned above. There is no input that reaches an empty
+    # token list, which is why the guard was marked `# pragma: no cover`
+    # and why deleting it is better than pretending it can be tested.
     tokens = _tokenise_image_type(text)
-    if not tokens:
-        return "", []
     sql, params, rest = _parse_or(tokens)
     if rest:
         raise ValueError(
@@ -581,6 +1014,17 @@ def _tokenise_image_type(text: str) -> List[str]:
 
 
 def _parse_or(tokens):
+    """Parse a sequence of ``and`` terms joined by ``or``.
+
+    The lowest-precedence level of the image filter's grammar, so ``or``
+    binds more loosely than ``and`` -- ``a and b or c`` is ``(a and b) or
+    c``, which is what a reader expects.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)`` -- a parameterised fragment, never
+        interpolated text, so a fragment containing a quote cannot become
+        SQL.
+    """
     sql, params, rest = _parse_and(tokens)
     while rest and rest[0].lower() == "or":
         right_sql, right_params, rest = _parse_and(rest[1:])
@@ -590,6 +1034,11 @@ def _parse_or(tokens):
 
 
 def _parse_and(tokens):
+    """Parse a sequence of terms joined by ``and``.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)``.
+    """
     sql, params, rest = _parse_term(tokens)
     while rest and rest[0].lower() == "and":
         right_sql, right_params, rest = _parse_term(rest[1:])
@@ -599,6 +1048,16 @@ def _parse_and(tokens):
 
 
 def _parse_term(tokens):
+    """Parse one term: a negation, a parenthesised group, or a path fragment.
+
+    :param tokens: the remaining tokens.
+    :returns: ``(sql, params, rest)``; a bare fragment becomes a ``LIKE``
+        against the crop path, bound as a parameter.
+    :raises ValueError: if the filter ends after an operator, if a ``(`` is
+        never closed, or if an operator appears where a fragment was
+        expected -- each named, because "invalid filter" tells the user
+        nothing about which word to change.
+    """
     if not tokens:
         raise ValueError("the image filter ends after an operator")
     head, rest = tokens[0], tokens[1:]
@@ -617,7 +1076,9 @@ def _parse_term(tokens):
     return "png_path LIKE ?", [f"%{head}%"], rest
 
 
-def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
+
+def count_rows(db_path: str, image_type: Optional[str] = None, *,
+               table: str = DEFAULT_PNG_TABLE) -> int:
     """Return the number of ``png_list`` rows, optionally filtered by ``image_type``.
 
     :param db_path: path to ``measurements.db``; missing files count as 0.
@@ -631,7 +1092,7 @@ def count_rows(db_path: str, image_type: Optional[str] = None) -> int:
         cur = conn.cursor()
         where, params = parse_image_type(image_type)
         clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT COUNT(*) FROM "png_list"{clause}', params)
+        cur.execute(f'SELECT COUNT(*) FROM "{table}"{clause}', params)
         return int(cur.fetchone()[0])
 
 
@@ -641,7 +1102,7 @@ def fetch_page(
     offset: int,
     page_size: int,
     image_type: Optional[str] = None,
-) -> List[Tuple[str, Optional[int]]]:
+    *, table: str = DEFAULT_PNG_TABLE) -> List[Tuple[str, Optional[int]]]:
     """Read one page of (png_path, annotation) rows in insertion order."""
     if not os.path.isfile(db_path):
         return []
@@ -653,7 +1114,7 @@ def fetch_page(
         where, params = parse_image_type(image_type)
         clause = f"WHERE {where} " if where else ""
         cur.execute(
-            f'SELECT png_path, "{col}" FROM "png_list" '
+            f'SELECT png_path, "{col}" FROM "{table}" '
             f'{clause}LIMIT ? OFFSET ?',
             (*params, page_size, offset),
         )
@@ -671,6 +1132,17 @@ def fetch_page(
 # ---------------------------------------------------------------------------
 
 def _apply_threshold(df, column: str, threshold: float, direction: str):
+    """Narrow a frame to rows past a threshold, if there is one to apply.
+
+    :param df: the frame.
+    :param column: the column to threshold; a missing or unknown one leaves
+        the frame alone rather than raising, so a saved filter naming a
+        column this table lacks does not empty the view.
+    :param threshold: the cut; ``None`` leaves the frame alone.
+    :param direction: ``"higher"`` keeps rows above it, anything else keeps
+        rows below.
+    :returns: the narrowed frame.
+    """
     if column is None or column not in df.columns or threshold is None:
         return df
     if direction == "higher":
@@ -687,7 +1159,7 @@ def fetch_filtered_paths(
     thresholds: List[float],
     directions: List[str],
     image_type: Optional[str] = None,
-) -> List[Tuple[str, Optional[int]]]:
+    *, table: str = DEFAULT_PNG_TABLE) -> List[Tuple[str, Optional[int]]]:
     """Return ALL (png_path, annotation) rows matching every one of the
     measurement/threshold/direction triples.
 
@@ -751,8 +1223,14 @@ def fetch_filtered_paths(
     df = df.dropna(subset=["png_path"])
     if image_type:
         df = df[df["png_path"].str.contains(image_type)]
-    if annotation_column not in df.columns:
-        return []
+    # NO `annotation_column not in df.columns` GUARD. The `if` near the
+    # top of this function CREATES that column when the table lacks it --
+    # `df[annotation_column] = None` -- so by here it is always present and
+    # the guard could not fire. (Named rather than given a line number: the
+    # number in this comment was already stale by 35 lines.)
+    # It was marked `# pragma: no cover` and counted as an uncoverable
+    # item; driving it returned a row instead of the empty list it
+    # promised, which is how the contradiction surfaced.
     return df[["png_path", annotation_column]].values.tolist()
 
 
@@ -782,7 +1260,8 @@ METADATA_COLUMNS: Tuple[str, ...] = (
 )
 
 
-def metadata_values(db_path: str, column: str) -> List[str]:
+def metadata_values(db_path: str, column: str, *,
+                    table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """The distinct values of one png_list metadata column, sorted.
 
     Read from the database rather than guessed from a naming convention:
@@ -806,17 +1285,18 @@ def metadata_values(db_path: str, column: str) -> List[str]:
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        cur.execute('PRAGMA table_info("png_list")')
+        cur.execute(f'PRAGMA table_info("{table}")')
         if column not in {row[1] for row in cur.fetchall()}:
             return []
         cur.execute(
-            f'SELECT DISTINCT "{column}" FROM "png_list" '
+            f'SELECT DISTINCT "{column}" FROM "{table}" '
             f'WHERE "{column}" IS NOT NULL')
         return sorted(str(row[0]) for row in cur.fetchall())
 
 
 def paths_by_metadata(db_path: str, column: str,
-                      values: Sequence[str]) -> List[str]:
+                      values: Sequence[str],
+                          *, table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """png_paths whose ``column`` is one of ``values``.
 
     :param db_path: the measurements database.
@@ -837,12 +1317,12 @@ def paths_by_metadata(db_path: str, column: str,
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
-        cur.execute('PRAGMA table_info("png_list")')
+        cur.execute(f'PRAGMA table_info("{table}")')
         if column not in {row[1] for row in cur.fetchall()}:
             return []
         # CAST so a numeric columnID matches the strings the picker offers.
         cur.execute(
-            f'SELECT png_path FROM "png_list" '
+            f'SELECT png_path FROM "{table}" '
             f'WHERE CAST("{column}" AS TEXT) IN ({placeholders})', wanted)
         return [row[0] for row in cur.fetchall()]
 
@@ -886,7 +1366,8 @@ def paths_by_measurements(db_path: str, annotation_column: str,
     return [path for path, _ in rows]
 
 
-def gate_paths(db_path: str, gates: Sequence[Any]) -> List[str]:
+def gate_paths(db_path: str, gates: Sequence[Any], *,
+               table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """png_paths surviving a chain of :class:`spacr.qt.widgets.gate_spec.Gate`.
 
     The route the Gate Editor was missing. The gate maths is NOT reproduced
@@ -933,7 +1414,8 @@ def annotation_batch(paths: Iterable[str],
     return {str(path): value for path in paths}
 
 
-def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
+def class_counts(db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE) -> List[Tuple[int, int]]:
     """Return sorted list of (class_value, count) for annotated rows."""
     if not os.path.isfile(db_path):
         return []
@@ -942,15 +1424,23 @@ def class_counts(db_path: str, annotation_column: str) -> List[Tuple[int, int]]:
         connect_database(db_path, readonly=True, timeout=30)
     ) as conn:
         cur = conn.cursor()
+        # SUGGESTIONS ARE NOT CLASSES. They live in this column offset by
+        # `suggest.SUGGESTION_OFFSET`, so counting raw values reports 11 and
+        # 12 beside the real 1 and 2 and tells a reader they have classes
+        # they have never labelled.
+        from ..suggest import SUGGESTION_OFFSET
+
         cur.execute(
             f'SELECT "{col}" AS cls, COUNT(*) '
-            f'FROM "png_list" WHERE "{col}" IS NOT NULL '
-            f'GROUP BY "{col}" ORDER BY 1'
+            f'FROM "{table}" WHERE "{col}" IS NOT NULL AND "{col}" < ? '
+            f'GROUP BY "{col}" ORDER BY 1',
+            (SUGGESTION_OFFSET,),
         )
         return [(int(r[0]), int(r[1])) for r in cur.fetchall() if r[0] is not None]
 
 
-def clear_column(db_path: str, annotation_column: str) -> None:
+def clear_column(db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE) -> None:
     """Null every value in ``annotation_column`` of ``png_list``.
 
     :param db_path: path to ``measurements.db``; missing files are ignored.
@@ -962,7 +1452,7 @@ def clear_column(db_path: str, annotation_column: str) -> None:
     conn = connect_database(db_path, timeout=30)
     try:
         with transaction(conn):
-            conn.execute(f'UPDATE "png_list" SET "{col}" = NULL')
+            conn.execute(f'UPDATE "{table}" SET "{col}" = NULL')
     finally:
         conn.close()
 
@@ -972,7 +1462,7 @@ def find_last_annotated_offset(
     annotation_column: str,
     page_size: int,
     image_type: Optional[str] = None,
-) -> Optional[int]:
+    *, table: str = DEFAULT_PNG_TABLE) -> Optional[int]:
     """Return the page-aligned offset of the last annotated row, or None."""
     if not os.path.isfile(db_path):
         return None
@@ -983,7 +1473,7 @@ def find_last_annotated_offset(
         cur = conn.cursor()
         where, params = parse_image_type(image_type)
         clause = f" WHERE {where}" if where else ""
-        cur.execute(f'SELECT "{col}" FROM "png_list"{clause}', params)
+        cur.execute(f'SELECT "{col}" FROM "{table}"{clause}', params)
         rows = cur.fetchall()
     last = None
     for i, (val,) in enumerate(rows):
@@ -1004,14 +1494,19 @@ class SaveWorker:
     """
     _SENTINEL = object()
 
-    def __init__(self, db_path: str, annotation_column: str):
+    def __init__(self, db_path: str, annotation_column: str, *,
+                 table: str = DEFAULT_PNG_TABLE):
         """Prepare an idle worker; call :meth:`start` to spawn its thread.
 
         :param db_path: path to the SQLite ``measurements.db``.
-        :param annotation_column: column in ``png_list`` to write into.
+        :param annotation_column: column in ``table`` to write into.
+        :param table: the crop table being annotated. A generated set lands
+            under ``png_list_2`` and onwards, and a writer pointed at the
+            wrong one would put a user's labels on somebody else's rows.
         """
         self.db_path = db_path
         self.annotation_column = annotation_column
+        self.table = table
         self._q: "queue.Queue[Any]" = queue.Queue()
         self._terminate = False
         self._busy = False
@@ -1099,6 +1594,12 @@ class SaveWorker:
 
     # ------------------------------------------------------------------
     def _run(self) -> None:
+        """Drain the annotation queue into the database until told to stop.
+
+        The database's journal mode is left as it is: enabling WAL blindly is
+        unsafe for projects on NAS and NFS mounts, which is where a shared
+        plate usually lives.
+        """
         conn = None
         cur = None
         try:
@@ -1142,13 +1643,13 @@ class SaveWorker:
                     with transaction(conn):
                         if to_null:
                             cur.executemany(
-                                f'UPDATE "png_list" SET "{col}" = NULL '
+                                f'UPDATE "{self.table}" SET "{col}" = NULL '
                                 'WHERE png_path = ?',
                                 [(p,) for p in to_null],
                             )
                         if to_set:
                             cur.executemany(
-                                f'UPDATE "png_list" SET "{col}" = ? '
+                                f'UPDATE "{self.table}" SET "{col}" = ? '
                                 'WHERE png_path = ?',
                                 to_set,
                             )

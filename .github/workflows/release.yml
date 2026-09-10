@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: New PEP 440 version (for example 1.4.9.9)
+        description: New 3- or 4-component numeric version (for example 1.4.9.9)
         required: true
         type: string
       target_branch:
@@ -30,7 +30,14 @@ concurrency:
 jobs:
   bump:
     name: Prepare repository version
-    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    # A force-push can make github.event.before unreachable from the new
+    # history.  It must never be mistaken for a setup.py version bump: the
+    # contributor-history rewrite demonstrated that this otherwise starts a
+    # release from an unchanged version.  A real release remains available
+    # through workflow_dispatch after any history operation.
+    if: >-
+      github.event_name != 'push' ||
+      (github.actor != 'github-actions[bot]' && github.event.forced != true)
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -82,8 +89,12 @@ jobs:
               )
           PY
               fi
+            else
+              echo "::notice::The pre-push setup.py is not reachable; refusing to infer a release from rewritten history."
+              release_required=false
             fi
           fi
+          python packaging/release.py verify >/dev/null
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           echo "release_required=$release_required" >> "$GITHUB_OUTPUT"
@@ -97,9 +108,9 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py
+          git add setup.py CITATION.cff spacr/_version.py
           if git diff --cached --quiet; then
-            echo "setup.py already declares $VERSION; continuing idempotently."
+            echo "Release metadata already declares $VERSION; continuing idempotently."
           else
             git commit -m "chore(release): bump version to $VERSION"
             git push origin "HEAD:$TARGET_BRANCH"
@@ -165,6 +176,27 @@ jobs:
             tests/test_packaging_metadata.py \
             tests/test_online_installers.py \
             tests/test_conda_forge_recipe.py -q --tb=short
+
+      # THE CONDA-FORGE RECIPE, REPORTED AND NEVER BLOCKING.
+      #
+      # The feedstock updates itself -- it watches PyPI and auto-merges the
+      # bot's version PR once CI is green -- and this step does not change
+      # that. It reports ENTRY-POINT DRIFT: the bot's PR rewrites version
+      # and sha256 and nothing else, so a console script this package has
+      # dropped is still declared by the recipe long after the module goes.
+      #
+      # It cannot fail the release, and that was established rather than
+      # assumed: the published package's info/link.json carries those entry
+      # points as INSTALL-TIME metadata, so conda writes the wrappers when a
+      # user installs and nothing imports the module during the build. What
+      # ships is a command that raises ModuleNotFoundError when run -- worth
+      # fixing, not worth refusing to release over.
+      - name: Report conda-forge recipe drift (never blocking)
+        run: |
+          SDIST=$(ls dist/*.tar.gz | head -1)
+          # `|| true` as well as the tool's own exit 0: a network hiccup
+          # reaching raw.githubusercontent must not be what stops a release.
+          python tools/check_conda_forge_recipe.py --sdist "$SDIST" || true
 
       - uses: actions/upload-artifact@v7
         with:

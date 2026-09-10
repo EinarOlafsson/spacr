@@ -1,0 +1,517 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#0",
+      "source_sha256": "5c36b1f20aed26c7a0aef9c9315029d8033ed731a74d7c2bd230b7f2de6b5058",
+      "source": "Place ``path`` in Explain CV's database or prediction control.",
+      "context": "Place ``path`` in Explain CV's database or prediction control.",
+      "translation": "Setur ``path`` í gagnagrunns- eða spástýringu Explain CV."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#1",
+      "source_sha256": "77b4196729e72f6598f0ab191b50dd544b06e8ce09d1b8237bc116c2ebeaa3f2",
+      "source": "accepted database, project directory, or prediction CSV.",
+      "context": "accepted database, project directory, or prediction CSV.",
+      "translation": "samþykktur gagnagrunnur, verkefnamappa eða CSV-skrá með spám."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.apply#2",
+      "source_sha256": "91ae125c2bebc666cd62444872c7c61b369f5baf3730049f7962db3b5a60ab36",
+      "source": "host screen exposing the ``explain`` input panel.",
+      "context": "host screen exposing the ``explain`` input panel.",
+      "translation": "forritssýn sem hýsir ``explain``-inntaksspjald."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept#0",
+      "source_sha256": "f02cabad12657851210112db7444a0087ab0ff6512a9d7c0e8d32737991f81f3",
+      "source": "Return whether ``path`` is an Explain CV database or CSV input.",
+      "context": "Return whether ``path`` is an Explain CV database or CSV input.",
+      "translation": "Skilar því hvort ``path`` sé gagnagrunns- eða CSV-inntak fyrir Explain CV."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.can_accept#1",
+      "source_sha256": "f81f45b76e3894bab2331f7330ab79baa36ffdfaf486e04fc365282cf9c00141",
+      "source": "database, project directory, or prediction CSV to test.",
+      "context": "database, project directory, or prediction CSV to test.",
+      "translation": "gagnagrunnur, verkefnamappa eða CSV-skrá með spám sem á að prófa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message#0",
+      "source_sha256": "ea9e16a1bd336ef83ddda8deaa003231777d126f4bcc4ed2979c6ea0031c6727",
+      "source": "Explain why ``path`` is not an Explain CV input.",
+      "context": "Explain why ``path`` is not an Explain CV input.",
+      "translation": "Útskýrir hvers vegna ``path`` er ekki Explain CV-inntak."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler.error_message#1",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "translation": "höfnuð skrá eða mappa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#0",
+      "source_sha256": "1c9893c86e430b1710ce988d6b1ed796272282de9a280d14462aa7bb110c7e67",
+      "source": "Route ``path`` to the matching Investigate Hit control.",
+      "context": "Route ``path`` to the matching Investigate Hit control.",
+      "translation": "Beinir ``path`` í samsvarandi stýringu Investigate Hit."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#1",
+      "source_sha256": "3fe65eb9ae7231fcd460451a4c04e155516fe14b08df4c4621effcc3c7803260",
+      "source": "accepted database, results directory, prediction CSV, or guide-fraction CSV.",
+      "context": "accepted database, results directory, prediction CSV, or guide-fraction CSV.",
+      "translation": "samþykktur gagnagrunnur, niðurstöðumappa, CSV-skrá með spám eða CSV-skrá með hlutföllum leiðarvísa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.apply#2",
+      "source_sha256": "3ec6ece4eb3b8e761754dcb58149dc13d9d5a08e1067effe5c070fee64369900",
+      "source": "host screen exposing the ``investigate`` input panel.",
+      "context": "host screen exposing the ``investigate`` input panel.",
+      "translation": "forritssýn sem hýsir ``investigate``-inntaksspjald."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept#0",
+      "source_sha256": "e87ef31b0931bae9f4b2e83055ed080d2d1846524f385ac21713fb32adc4b809",
+      "source": "Return whether ``path`` can supply an Investigate Hit input.",
+      "context": "Return whether ``path`` can supply an Investigate Hit input.",
+      "translation": "Skilar því hvort ``path`` geti veitt inntak fyrir Investigate Hit."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.can_accept#1",
+      "source_sha256": "b66ca984bf18098c9e3c677791791d9cec31260b153a69eca51144653e82e47c",
+      "source": "database, directory, prediction CSV, or fractions CSV to test.",
+      "context": "database, directory, prediction CSV, or fractions CSV to test.",
+      "translation": "gagnagrunnur, mappa, CSV-skrá með spám eða CSV-skrá með hlutföllum leiðarvísa sem á að prófa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message#0",
+      "source_sha256": "68f4eb28dd372c8e8fcdf9ebc8a1df6aa9cbd3ab5858db0944a5061d79024593",
+      "source": "Explain why ``path`` is not an Investigate Hit input.",
+      "context": "Explain why ``path`` is not an Investigate Hit input.",
+      "translation": "Útskýrir hvers vegna ``path`` er ekki inntak fyrir Investigate Hit."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler.error_message#1",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "translation": "höfnuð skrá eða mappa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.LayoutDropHandler.resolve#0",
+      "source_sha256": "f71f978b7c6e57647131e78471d646400eb898132302b013bcc64df0d27f8131",
+      "source": "Return the :class:`spacr.chaining.DropResolution` for ``path``.",
+      "context": "Return the :class:`spacr.chaining.DropResolution` for ``path``.",
+      "translation": "Skilar :class:`spacr.chaining.DropResolution` fyrir ``path``."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.LayoutDropHandler.resolve#1",
+      "source_sha256": "2b018ef4000395e2e9ef2abbc917e8d7b74dfc46f8a89c0b2b808d7e2b328ea9",
+      "source": "dropped path to resolve against this handler's app and artifact kinds.",
+      "context": "dropped path to resolve against this handler's app and artifact kinds.",
+      "translation": "slóð sem var sleppt og á að leysa gagnvart forrita- og afurðategundum þessa meðhöndlara."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#0",
+      "source_sha256": "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
+      "source": "The database ``path`` names: itself, or the one under it.",
+      "context": "The database ``path`` names: itself, or the one under it.",
+      "translation": "Gagnagrunnurinn sem ``path`` vísar á: slóðin sjálf eða gagnagrunnurinn undir henni."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#1",
+      "source_sha256": "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd",
+      "source": "Returns ``None`` when there is no database file to be found, so a caller can fall back rather than hand a folder to something that expects to open a database.",
+      "context": "Returns ``None`` when there is no database file to be found, so a caller can fall back rather than hand a folder to something that expects to open a database.",
+      "translation": "Skilar ``None`` þegar engin gagnagrunnsskrá finnst, svo kallari geti valið varaleið í stað þess að afhenda möppu einhverju sem ætlast til að opna gagnagrunn."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file#2",
+      "source_sha256": "6bfc4a60af343fb403743e0ae585c3c5e4a08318172cb70c1d2b07745dbda1bf",
+      "source": "database file, measurements directory, or plate directory to resolve.",
+      "context": "database file, measurements directory, or plate directory to resolve.",
+      "translation": "gagnagrunnsskrá, mælingamappa eða örplötumappa sem á að leysa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#0",
+      "source_sha256": "2719579dfb308242ae61da8608877c4db93c488f2b9ed28a0a8a70bc7520088c",
+      "source": "Attach ``path`` to a plate row or the embedded sweep card.",
+      "context": "Attach ``path`` to a laboratory microplate row or the embedded sweep card.",
+      "translation": "Tengir ``path`` við röð örplötu eða innbyggða spjaldið fyrir færibreytusóp."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#1",
+      "source_sha256": "da8e60988c4e456e509acc8f9550648832fa275a35723d765e30d2ed08d365bd",
+      "source": "accepted database, plate directory, sweep CSV, or sweep directory.",
+      "context": "accepted database, plate directory, sweep CSV, or sweep directory.",
+      "translation": "samþykktur gagnagrunnur, örplötumappa, CSV-skrá fyrir færibreytusóp eða mappa fyrir færibreytusóp."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.apply#2",
+      "source_sha256": "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52",
+      "source": "Regression screen receiving the resolved input.",
+      "context": "Regression application view receiving the resolved input.",
+      "translation": "Regression-forritssýn sem tekur við leysta inntakinu."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept#0",
+      "source_sha256": "a6eff78d79275b0a029ef15867f51edb44c1088eba7eaba52ac40fb4fba3cfb7",
+      "source": "Return whether Regression can route ``path`` to either input area.",
+      "context": "Return whether Regression can route ``path`` to either input area.",
+      "translation": "Skilar því hvort Regression geti beint ``path`` á annað tveggja inntakssvæða."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.can_accept#1",
+      "source_sha256": "dc8e56191a436e24c5fc7a7e933cde56469fd2b7efb9da2483b379393c550338",
+      "source": "database, plate directory, sweep CSV, or sweep directory to classify.",
+      "context": "database, plate directory, sweep CSV, or sweep directory to classify.",
+      "translation": "gagnagrunnur, örplötumappa, CSV-skrá fyrir færibreytusóp eða mappa fyrir færibreytusóp sem á að flokka."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.error_message#0",
+      "source_sha256": "b318de896f330dba1b0d9fa5054fc513bcf4d46d941a72cda554b918b6e6ed51",
+      "source": "Explain why ``path`` matches neither Regression input contract.",
+      "context": "Explain why ``path`` matches neither Regression input contract.",
+      "translation": "Útskýrir hvers vegna ``path`` samræmist hvorugum inntakssamningi Regression."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.RegressionDropHandler.error_message#1",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "translation": "höfnuð skrá eða mappa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#0",
+      "source_sha256": "18af6180efff43df374ba4f3b841931f930b5377af66a4148ded58ab4ccaab17",
+      "source": "Route score and count CSVs from ``path`` to the sweep panel.",
+      "context": "Route score and count CSVs from ``path`` to the sweep panel.",
+      "translation": "Beinir CSV-skrám með stigum og talningum frá ``path`` í spjaldið fyrir færibreytusóp."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#1",
+      "source_sha256": "85d608b05dea0e43ceaac08be358951936ac7df220f24d80990bbccf230c213a",
+      "source": "accepted CSV file or directory of CSV files.",
+      "context": "accepted CSV file or directory of CSV files.",
+      "translation": "samþykkt CSV-skrá eða mappa með CSV-skrám."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.apply#2",
+      "source_sha256": "054b2a0fe67bb73eccad27516cf74d2b1d9f7e53e98283720169ef58990ac422",
+      "source": "sweep panel or host screen carrying it on ``_sweep``.",
+      "context": "sweep panel or host screen carrying it on ``_sweep``.",
+      "translation": "spjald fyrir færibreytusóp eða forritssýn sem geymir það í ``_sweep``."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept#0",
+      "source_sha256": "3813603aa7f9111c39669e53fac99d85da94fd6838d158a85fbdc37204c00ebd",
+      "source": "Return whether ``path`` contributes at least one sweep CSV.",
+      "context": "Return whether ``path`` contributes at least one sweep CSV.",
+      "translation": "Skilar því hvort ``path`` leggi til að minnsta kosti eina CSV-skrá fyrir færibreytusóp."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.can_accept#1",
+      "source_sha256": "cb5d46af85bcf33b7c816b04d4bb2486167d193df512d6e8536d92f264195aca",
+      "source": "CSV file or directory whose immediate CSV children are considered.",
+      "context": "CSV file or directory whose immediate CSV children are considered.",
+      "translation": "CSV-skrá eða mappa þar sem aðeins er tekið tillit til CSV-skráa beint undir henni."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message#0",
+      "source_sha256": "6ede5bc087b43668920928ed7be12e922a49c88b7973fc37ff05a2399ed9e7fd",
+      "source": "Explain why ``path`` cannot populate the sweep inputs.",
+      "context": "Explain why ``path`` cannot populate the sweep inputs.",
+      "translation": "Útskýrir hvers vegna ``path`` getur ekki fyllt út inntök færibreytusópsins."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SweepInputsDropHandler.error_message#1",
+      "source_sha256": "0420cfc1e8ced12bb2521992f75463aff2ed35c5888af2fbb069e43c19525896",
+      "source": "rejected file or directory.",
+      "context": "rejected file or directory.",
+      "translation": "höfnuð skrá eða mappa."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.active_scan_jobs#0",
+      "source_sha256": "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
+      "source": "How many folder-scan threads ``screen`` still owns.",
+      "context": "How many folder-scan threads ``screen`` still owns.",
+      "translation": "Hversu marga þræði fyrir möppuyfirferð ``screen`` á enn."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.active_scan_jobs#1",
+      "source_sha256": "514945bd0625064a4b89fa8d191b5b2b28474ea1afbe69dd4edd0b9ecd3b1c3a",
+      "source": "screen whose active drop-scan jobs are counted.",
+      "context": "application view whose active drop-scan jobs are counted.",
+      "translation": "forritssýn þar sem virk verk við skönnun á slepptum möppum eru talin."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#0",
+      "source_sha256": "1f8eae40b9d84cbabc08863b511498a911f4fb23158f8d8cc24c96ca738b7c58",
+      "source": "Return a fresh DropHandler for ``app_key``.",
+      "context": "Return a fresh DropHandler for ``app_key``.",
+      "translation": "Skilar nýjum DropHandler fyrir ``app_key``."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#1",
+      "source_sha256": "0a63a0a0c86794167d87917a0a9550003824a326f28850e10c5bbe5892798284",
+      "source": "Falls back to :class:`SourceDropHandler` so every conventional AppScreen can at least receive its source folder.",
+      "context": "Falls back to :class:`SourceDropHandler` so every conventional AppScreen can at least receive its source folder.",
+      "translation": "Fellur aftur á :class:`SourceDropHandler` svo sérhver hefðbundin AppScreen geti að minnsta kosti tekið við upprunamöppu sinni."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.get_handler#2",
+      "source_sha256": "533412d2efa300868215a0bb0661bc5e51ddea1fcf564b1a686df7da9715f1af",
+      "source": "registered built-in or plugin application key whose drop policy is requested.",
+      "context": "registered built-in or plugin application key whose drop policy is requested.",
+      "translation": "skráður lykill innbyggðs forrits eða viðbótaforrits sem óskað er eftir sleppistefnu fyrir."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#0",
+      "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
+      "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
+      "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
+      "translation": "Fer EINU SINNI yfir möppu sem var sleppt og skilar lýsigagnaskýrslu möppunnar."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
+      "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
+      "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
+      "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
+      "translation": "Öruggt fyrir vinnsluþráð: venjuleg gögn fara inn, venjuleg gögn koma út og ekkert Qt kemur við sögu. Að ein yfirferð dugi er aðalatriðið. Þetta kom í stað þriggja yfirferða um sama tré — ``detect_folder_metadata`` fór eina, ``plan_folder_extraction`` aðra og kallaði svo aftur á ``detect_folder_metadata`` í þá þriðju — allar á aðalkeyrsluslóð GUI og allar innan sleppiatburðarins."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",
+      "source_sha256": "421d1910302a626ceefd4424cce563462dadbc6a3d4b448bbf4d6bbc8a3864e1",
+      "source": "The probe is pulled off the *same* lazy generator the planner then drains, so a folder whose layout is not recognisable costs 30 files, not a traversal.",
+      "context": "The probe consumes 30 entries from *the generator later consumed by the planner*. An unrecognized folder therefore costs only 30 files rather than a complete traversal.",
+      "translation": "Prófunin tekur 30 færslur úr *sama lata ítraranum sem skipuleggjarinn tæmir síðan*, þannig að mappa með óþekkjanlegu skipulagi kostar aðeins 30 skrár en ekki heila yfirferð."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#3",
+      "source_sha256": "fb2ff69e03d247a16d8b8480c534e3f9a70d848fbcf63e5d5bef42db3204d9ec",
+      "source": "dropped directory to inspect for a recognised image layout.",
+      "context": "dropped directory to inspect for a recognised image layout.",
+      "translation": "mappa sem var sleppt og á að kanna með tilliti til þekkts myndaskipulags."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_folder_structure#4",
+      "source_sha256": "47f2cd5acbdbffeb8c1830b95fe4bc4ac149ca479e97ec41afdbb8b3ff3bf308",
+      "source": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty ``labels`` means no folder layout was recognised and there is nothing to report.",
+      "context": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Empty ``labels`` means no folder layout was recognised and there is nothing to report.",
+      "translation": "``{\"labels\": (...), \"rows\": [...], \"error\": \"\"}``. Tóm ``labels`` merkja að ekkert möppuskipulag hafi verið þekkt og ekkert sé að tilkynna."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_is_busy#0",
+      "source_sha256": "174e9608d7c7825d589fbb4a31e2f555f00995a0cbe02102116f462131000446",
+      "source": "True while a dropped folder is still being walked for ``screen``.",
+      "context": "True while a dropped folder is still being walked for ``screen``.",
+      "translation": "True meðan enn er verið að fara yfir möppu sem var sleppt fyrir ``screen``."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_is_busy#1",
+      "source_sha256": "82ce9dd96e783d0b4224d0b432af1d1c93081212de27ab8ef9c934b2fb517901",
+      "source": "screen that owns the drop scanner to query.",
+      "context": "application view that owns the drop scanner to query.",
+      "translation": "forritssýn sem á skanna slepptra mappa og kanna á stöðu hans."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#0",
+      "source_sha256": "08a963da5589e147217fc65fea3981cb54125ea1c237a2e6038f8cdcedae56d2",
+      "source": "List the top level of a dropped folder once. Worker-safe.",
+      "context": "List the top level of a dropped folder once. Worker-safe.",
+      "translation": "Skráir efsta lag möppu sem var sleppt einu sinni. Öruggt fyrir vinnsluþráð."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#1",
+      "source_sha256": "cde8b3a70d998b17f8552d1728a718766b0e560716448a0f77130112cc9a4ccd",
+      "source": "Returns the filenames the regex preview samples plus the total image count the report quotes. Both used to come from two separate listings of the same directory, taken on the GUI thread.",
+      "context": "Returns the filenames the regex preview samples plus the total image count the report quotes. Both used to come from two separate listings of the same directory, taken on the main GUI execution path.",
+      "translation": "Skilar skráarheitunum sem sýnishorn regex-forskoðunarinnar tekur og heildarfjölda mynda sem skýrslan tilgreinir. Hvort tveggja fékkst áður með tveimur aðskildum skráningum á sömu möppu á aðalkeyrsluslóð GUI."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.scan_mask_folder#2",
+      "source_sha256": "6f58a6be3c4d5180b9198398fec6d3ae6de4b350d62e02dfc9f1a1518cca5958",
+      "source": "dropped directory whose top-level files are inspected.",
+      "context": "dropped directory whose top-level files are inspected.",
+      "translation": "mappa sem var sleppt og efstu skrár hennar eru skoðaðar."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#0",
+      "source_sha256": "27fff98bed3f12b33e0e522e737a3d047041ba47c5f9ad92b98c2dad7288e755",
+      "source": "Return the tables in a SQLite file, or ``[]`` for anything else.",
+      "context": "Return the tables in a SQLite file, or ``[]`` for anything else.",
+      "translation": "Skilar töflum í SQLite-skrá, eða ``[]`` fyrir allt annað."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#1",
+      "source_sha256": "bc903bbc38ad17e7f3fa76466efe634320fcca1d103661e435e06a1e5ed59298",
+      "source": "One ``sqlite_master`` query; the table screens make the same one when they load. Kept here so the drop can *ask* which table rather than let ``load_path`` take the first one silently.",
+      "context": "One ``sqlite_master`` query; the table application views make the same one when they load. Kept here so the drop can *ask* which table rather than let ``load_path`` take the first one silently.",
+      "translation": "Ein ``sqlite_master``-fyrirspurn; forritssýnir taflna gera sömu fyrirspurn þegar þær hlaðast. Þetta er haft hér svo sleppiaðgerðin geti *spurt* hvaða töflu eigi að nota í stað þess að láta ``load_path`` taka þá fyrstu hljóðlega."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#2",
+      "source_sha256": "1bd3b62f3a2a289ef73d6176c7fe0eb937aa4233155f492d3e355661633d4acd",
+      "source": "Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a ``#`` in its name would otherwise have everything after it read as query parameters, and the open would fail on a database that is perfectly fine.",
+      "context": "Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a ``#`` in its name would otherwise have everything after it read as query parameters, and the open would fail on a database that is perfectly fine.",
+      "translation": "Opnað lesvarið og í gegnum *prósentukóðað* URI: ef mappa inniheldur ``?`` eða ``#`` í heitinu myndi allt þar á eftir annars túlkast sem fyrirspurnarfæribreytur og ekki tækist að opna fullkomlega gildan gagnagrunn."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.table_names#3",
+      "source_sha256": "13b301d0b4fbdb6223f18f76496a7ab00b382733de1ee56c4331a6ff94d305ee",
+      "source": "candidate SQLite database path to inspect read-only.",
+      "context": "candidate SQLite database path to inspect read-only.",
+      "translation": "slóð að mögulegum SQLite-gagnagrunni sem á að skoða lesvarið."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#0",
+      "source_sha256": "c05b39fc2334ae8978b0e57fc8fa2db2f34c6659c01d9140bbc58ccf989e487b",
+      "source": "A cut on one column — the line dragged across a histogram.",
+      "context": "A cut on one column — the line dragged across a histogram.",
+      "translation": "Skurður á einum dálki — línan sem er dregin yfir stuðlarit."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#1",
+      "source_sha256": "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd",
+      "source": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a gate with neither is the whole population, and naming that is a way to lose track of it.",
+      "context": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a data-selection boundary with neither is the whole population, and naming that is a way to lose track of it.",
+      "translation": "``None`` sem mörk þýðir að viðkomandi átt er ótakmörkuð. Þröskuldur sem er dreginn að jaðrinum á að merkja það, ekki \"útiloka allt\". Að minnsta kosti ein mörk eru áskilin: gagnavalsmörk án beggja marka ná yfir allt þýðið og ef þau eru nefnd er auðvelt að missa yfirsýn yfir það."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#2",
+      "source_sha256": "2d878e6669f0ddec2a6dc1bc8f0d102962705ab001f25149d6a95bd8d5df6a15",
+      "source": "unique name by which the hierarchy and filter identify this gate.",
+      "context": "unique name by which the hierarchy and filter identify this data-selection boundary.",
+      "translation": "einstakt heiti sem stigveldið og sían nota til að bera kennsl á þessi gagnavalsmörk."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#3",
+      "source_sha256": "a023c2599228c7be0c0e06d889dfbeee8702821f56e11c832a3f520078f054bb",
+      "source": "name of the gate containing this one, or ``None`` for a root gate.",
+      "context": "name of the data-selection boundary containing this one, or ``None`` for a root data-selection boundary.",
+      "translation": "heiti gagnavalsmarkanna sem innihalda þessi, eða ``None`` fyrir rótargagnavalsmörk."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#4",
+      "source_sha256": "eba9ef56f5abf92892c76aee2ba22ac976efa41ed6580a54f590031df002514c",
+      "source": "measurement column on which to apply the threshold.",
+      "context": "measurement column on which to apply the threshold.",
+      "translation": "mælingadálkurinn sem þröskuldinum er beitt á."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#5",
+      "source_sha256": "c8467e621a07a4cd343a1b14b35b732429720837b42b944edd909d1ac34d06cf",
+      "source": "inclusive lower bound, or ``None`` when the gate is unbounded below.",
+      "context": "inclusive lower bound, or ``None`` when the data-selection boundary is unbounded below.",
+      "translation": "innifalin neðri mörk, eða ``None`` þegar gagnavalsmörkin eru ótakmörkuð niður á við."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#6",
+      "source_sha256": "f3dba538039ff05a02f59d2bdb486df5a7b83019d2fe91360518c9b827dae5ba",
+      "source": "inclusive upper bound, or ``None`` when the gate is unbounded above.",
+      "context": "inclusive upper bound, or ``None`` when the data-selection boundary is unbounded above.",
+      "translation": "innifalin efri mörk, eða ``None`` þegar gagnavalsmörkin eru ótakmörkuð upp á við."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#0",
+      "source_sha256": "e9e4ac75806a2c176328dc44bd8df01a91a0ea476c391787f118e8897b5d2987",
+      "source": "One anchor per bound, at the middle of the view's height.",
+      "context": "One anchor per bound, at the middle of the view's height.",
+      "translation": "Eitt akkeri er sett við hvert markgildi, í miðri hæð sýnarinnar."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#1",
+      "source_sha256": "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5",
+      "source": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the gate does not have -- the user would drag it and discover they had just invented one.",
+      "context": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the data-selection boundary does not have -- the user would drag it and discover they had just invented one.",
+      "translation": "Ótakmörkuð átt fær ekkert handfang. Þröskuldur án efri marka er opinn til óendanleika; akkeri á jaðri sýnarinnar myndi líta út eins og mörk sem gagnavalsmörkunin hefur ekki. Notandinn gæti dregið það og óvart búið til ný mörk."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#2",
+      "source_sha256": "cf09b0f7ecfda02131c44d46ac500e916d34e99836a74789d234036905e344bd",
+      "source": "visible ``(x_low, x_high, y_low, y_high)`` limits used to place each bound handle vertically.",
+      "context": "visible ``(x_low, x_high, y_low, y_high)`` limits used to place each bound handle vertically.",
+      "translation": "sýnileg mörk ``(x_low, x_high, y_low, y_high)`` sem notuð eru til að staðsetja hvert markahandfang lóðrétt."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#3",
+      "source_sha256": "8ea3174d36a18f03e471bbe1b6cce1c6c766452c30cf3a252f5ce9481db9d6f6",
+      "source": "one handle for every finite bound.",
+      "context": "one handle for every finite bound.",
+      "translation": "eitt handfang fyrir hvert endanlegt markgildi."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#0",
+      "source_sha256": "1e89a0f6f119364299e3e3a69c5e176f00946d1fed43119603554e90f8291428",
+      "source": "Select finite values that lie within the inclusive bounds.",
+      "context": "Select finite values that lie within the inclusive bounds.",
+      "translation": "Velur endanleg gildi sem liggja innan inniföldu markanna."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#1",
+      "source_sha256": "dfc78773eb37ff53509e23d3b259b70e98120f023b80e4c21c783d100b1b859c",
+      "source": "measurement table containing this gate's column.",
+      "context": "measurement table containing this data-selection boundary's column.",
+      "translation": "mælingatafla sem inniheldur dálk þessara gagnavalsmarka."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.mask#2",
+      "source_sha256": "4d843c6c6d76a160903a092c59076c729a8b20bf1d4e3836f64cd89cc28e54f1",
+      "source": "boolean mask aligned row-for-row with ``frame``.",
+      "context": "boolean mask aligned row-for-row with ``frame``.",
+      "translation": "rökgríma sem samsvarar ``frame`` röð fyrir röð."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#0",
+      "source_sha256": "5f50e3da1c823b45dd304b8c9fad61904c87b1c8c4060bc040fba36f75503ca9",
+      "source": "``dy`` is ignored: a threshold is a cut on ONE column, so it has no second axis to move along.",
+      "context": "``dy`` is ignored: a threshold is a cut on ONE column, so it has no second axis to move along.",
+      "translation": "``dy`` er hunsað: þröskuldur er skurður á EINUM dálki og hefur því engan annan ás til að færast eftir."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#1",
+      "source_sha256": "193eef38d318e3ff78dff268d1f200a6d52df84f9e54f7565a7e1c5e0aa572f1",
+      "source": "displacement to add to each finite threshold bound.",
+      "context": "displacement to add to each finite threshold bound.",
+      "translation": "hliðrun sem á að bæta við hvert endanlegt markgildi þröskuldsins."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.translated#2",
+      "source_sha256": "61064fc2636e1a7aa59fa2a4091bac488d2b1543954dd3377b663e19d42241e8",
+      "source": "vertical displacement, ignored by this one-column gate.",
+      "context": "vertical displacement, ignored by this one-column data-selection boundary.",
+      "translation": "lóðrétt tilfærsla sem gagnavalsmörk á einum dálki hunsa."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#0",
+      "source_sha256": "51599d23aa1a7bfec819c303965c4e546a6f60760151349e338b2e5e6eb46f22",
+      "source": "Return this gate with replacement bounds on its column.",
+      "context": "Return this data-selection boundary with replacement bounds on its column.",
+      "translation": "Skilar þessum gagnavalsmörkum með nýjum mörkum í dálki þeirra."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#1",
+      "source_sha256": "fcc7c7c3a666891f9313e139a74983642cf1b88e3995489dd9366c4e9f5e3075",
+      "source": "measurement column whose bounds are being changed; a different column is rejected because this gate cannot represent it.",
+      "context": "measurement column whose bounds are being changed; a different column is rejected because this data-selection boundary cannot represent it.",
+      "translation": "mælingadálkurinn sem verið er að breyta mörkum fyrir; öðrum dálki er hafnað vegna þess að þessi gagnavalsmörk geta ekki táknað hann."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#2",
+      "source_sha256": "d74d4682f1e3f4707eb348a6ee15f02f697326a6627f4be3c5341e4b4d75458c",
+      "source": "inclusive lower bound, or ``None`` for an open lower end.",
+      "context": "inclusive lower bound, or ``None`` for an open lower end.",
+      "translation": "innifalin neðri mörk, eða ``None`` fyrir opinn neðri enda."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.with_threshold#3",
+      "source_sha256": "e22ed2416f6550ace2e002654c5baf9ff9cec02374a8cc0f737d2b5d52003669",
+      "source": "inclusive upper bound, or ``None`` for an open upper end.",
+      "context": "inclusive upper bound, or ``None`` for an open upper end.",
+      "translation": "innifalin efri mörk, eða ``None`` fyrir opinn efri enda."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.qt.layout_policy.read_policy#3",
+      "source_sha256": "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4",
+      "source": "Degrades to empty rather than raising, for the reason the release-notes panel does: an application must not fail to open a window because a resource file is absent from a wheel.",
+      "context": "Degrades to empty rather than throwing, for the reason the release-notes panel does: an application must not fail to open a window because a resource file is absent from a wheel.",
+      "translation": "Se dégrade en vide plutôt que de lever une exception, pour la même raison que le panneau des notes de version : une application ne doit pas échouer à ouvrir une fenêtre parce qu'un fichier de ressources manque dans un wheel."
+    }
+  ]
+}

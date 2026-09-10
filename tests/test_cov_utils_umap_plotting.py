@@ -336,7 +336,7 @@ def test_reduction_and_clustering_umap_fit_uses_requested_neighbors():
 def test_reduction_and_clustering_rejects_unknown_reduction_method():
     from spacr.utils import reduction_and_clustering
 
-    with pytest.raises(ValueError, match="Unsupported reduction method: pca"):
+    with pytest.raises(ValueError, match="Unsupported reduction method: bogus"):
         reduction_and_clustering(
             np.zeros((6, 3)),
             n_neighbors=3,
@@ -345,7 +345,7 @@ def test_reduction_and_clustering_rejects_unknown_reduction_method():
             eps=0.5,
             min_samples=2,
             clustering="dbscan",
-            reduction_method="pca",
+            reduction_method="bogus",
         )
 
 
@@ -488,11 +488,25 @@ def test_assign_colors_maps_every_unique_label():
 def test_setup_plot_applies_theme(black_background):
     from spacr.utils import setup_plot
 
+    from matplotlib.colors import to_rgba
+
     fig, ax = setup_plot(4, black_background)
     expected = "black" if black_background else "white"
-    assert plt.rcParams["figure.facecolor"] == expected
-    assert plt.rcParams["axes.facecolor"] == expected
-    assert plt.rcParams["text.color"] == ("white" if black_background else "black")
+    ink = "white" if black_background else "black"
+
+    # ON THE FIGURE, NOT ON `plt.rcParams`. This asserted the process-wide
+    # values after the call -- which was asserting a LEAK: rcParams is shared,
+    # so theming one figure through it themed every LATER figure in the
+    # process, including one being saved for paper. Instruction 136 asks by
+    # name that no module write rcParams globally, and `setup_plot` now scopes
+    # them with `rc_context`.
+    #
+    # Note this passed for black_background=False only because white is
+    # already matplotlib's default -- the assertion was never measuring the
+    # theming.
+    assert fig.get_facecolor() == to_rgba(expected)
+    assert ax.get_facecolor() == to_rgba(expected)
+    assert to_rgba(ax.xaxis.label.get_color()) == to_rgba(ink)
     assert fig.get_size_inches().tolist() == [4.0, 4.0]
     assert ax.figure is fig
 
@@ -765,6 +779,45 @@ def test_plot_embedding_without_images_skips_overlay():
     ax = fig.axes[0]
     assert _count_annotation_boxes(ax) == 0
     assert len(ax.collections) == 2
+
+
+def _umap_on_black(embedding):
+    """A minimal black-background UMAP, built the way the app builds one."""
+    from spacr.utils import plot_embedding
+
+    return plot_embedding(
+        embedding, None, np.array([0, 0, 0, 1]), image_nr=1, img_zoom=0.3,
+        colors=np.array([[0.9, 0.1, 0.1, 1.0], [0.1, 0.1, 0.9, 1.0]]),
+        plot_by_cluster=False, plot_outlines=False, plot_points=True,
+        plot_images=False, smooth_lines=False, black_background=True,
+        figuresize=4, dot_size=10, remove_image_canvas=True, verbose=False,
+    )
+
+
+def test_a_dark_umap_does_not_darken_the_next_screens_figures():
+    """The theme a UMAP draws on belongs to the UMAP, not to the session.
+
+    ``setup_plot`` pushes the GUI theme's background/foreground/border into
+    matplotlib's process-wide rcParams so its own panels match the app. It put
+    them back nowhere -- so a UMAP drawn on the dark theme left white text and
+    a black canvas as the default for every figure the session drew afterwards,
+    including the ones a screen draws on paper. White on white.
+
+    The UMAP must still come out dark, so both halves are asserted.
+    """
+    watched = ("text.color", "figure.facecolor", "axes.facecolor",
+               "axes.labelcolor", "xtick.color", "ytick.color")
+    before = {key: matplotlib.rcParams[key] for key in watched}
+
+    fig = _umap_on_black(np.array([[0.0, 0.0], [1.0, 0.2],
+                                   [0.2, 1.0], [5.0, 5.0]]))
+
+    # It drew itself dark...
+    assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
+    # ...without deciding the colours for whatever is drawn next.
+    assert {key: matplotlib.rcParams[key] for key in watched} == before, (
+        "a UMAP left the GUI theme's colours on matplotlib's globals; the "
+        "next figure of the session inherits them")
 
 
 # ---------------------------------------------------------------------------

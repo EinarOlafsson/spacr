@@ -234,7 +234,7 @@ class TestPanel:
         qtbot.addWidget(panel)
         assert panel.load_image(sample_tif) is True
         assert panel._image is not None
-        assert panel._path_label.text() == str(sample_tif)
+        assert panel._path_full == str(sample_tif)
 
     def test_load_image_bad_path_is_silent(self, qtbot, tmp_path):
         panel = live_preview.LivePreviewPanel()
@@ -501,13 +501,35 @@ class TestAppScreenIntegration:
         assert getattr(scr, "_runtime_splitter", None) is not None
 
     @pytest.mark.parametrize("app_key", ["regression", "map_barcodes"])
-    def test_screens_with_neither_get_a_bare_console(self, qtbot, app_key):
+    def test_screens_with_neither_have_no_preview_and_no_search(
+            self, qtbot, app_key):
+        """Neither a Live Preview nor a Hyperparameter search occupies the
+        slot on these two.
+
+        IT USED TO ALSO ASSERT NO SPLITTER, and that has been wrong since
+        2026-08-15: every screen gets a vertical splitter now so the
+        figures/console divider is draggable everywhere, and the regression
+        screen additionally carries the Parameter sweep card in one. A screen
+        with a splitter is not a screen with a preview, which is what this
+        test is actually about.
+        """
         from spacr.qt.screens.app_screen import AppScreen
         scr = AppScreen(app_key)
         qtbot.addWidget(scr)
         assert getattr(scr, "_live_preview", None) is None
+        assert getattr(scr, "_measure_preview", None) is None
         assert getattr(scr, "_hyperparam", None) is None
-        assert getattr(scr, "_runtime_splitter", None) is None
+
+    def test_every_screen_can_drag_its_figures_console_divider(self, qtbot):
+        """The reason the assertion above had to change. Named so that
+        removing the splitter fails here rather than silently taking a
+        control away."""
+        from spacr.qt.screens.app_screen import AppScreen
+
+        for app_key in ("regression", "map_barcodes", "mask", "measure"):
+            scr = AppScreen(app_key)
+            qtbot.addWidget(scr)
+            assert getattr(scr, "_runtime_splitter", None) is not None, app_key
 
     def test_autoload_from_folder(self, qtbot, tmp_path, sample_tif):
         from spacr.qt.screens.app_screen import AppScreen
@@ -585,7 +607,7 @@ class TestCompartmentSettings:
         # Object = pathogen -> common keys are pathogen_*.
         p._object_box.setCurrentIndex(p._object_box.findText("pathogen"))
         s = p.settings_for_propagation()
-        assert s["pathogen_Signal_to_noise"] == 42
+        assert s["pathogen_signal_to_noise"] == 42
         assert s["pathogen_background"] == 77
         assert s["remove_background_pathogen"] is True
 

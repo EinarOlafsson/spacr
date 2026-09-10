@@ -203,6 +203,12 @@ def test_channel_ids_sort_naturally_so_c10_is_not_c2(tmp_path):
         _write(str(root / "plateA" / "wellA" / f"fov01_C{channel}.tif"),
                value=channel)
     plan = cv.plan(cv.scan(str(root)))
+    for field in ("sources", "channel_map", "z_handling"):
+        assert f":ivar {field}:" in (type(plan).__doc__ or "")
+    for field in ("source_plate", "source_well", "source_field",
+                  "source_channel", "source_t", "z_handling", "n_z_planes",
+                  "n_timepoints", "meta"):
+        assert f":param {field}:" in (type(plan.mappings[0]).__doc__ or "")
     lookup = {m.source_channel: m.channel for m in plan.mappings}
     assert lookup["C1"] == 1
     assert lookup["C2"] == 2
@@ -1352,6 +1358,23 @@ def test_convert_folder_preview_only_writes_nothing(run1, tmp_path, capsys):
     assert not dst.exists()
     assert "nothing was written" in capsys.readouterr().out
     assert len(result.plan) == 20
+
+
+def test_convert_folder_previews_an_empty_source_without_an_empty_table(
+        tmp_path, capsys):
+    src = tmp_path / "empty"
+    src.mkdir()
+
+    result = cv.convert_folder(src=str(src), preview_only=True, preview_rows=5)
+
+    printed = capsys.readouterr().out
+    assert result.plan.ok
+    assert len(result.plan.mappings) == 0
+    assert result.n_written == 0
+    assert "No readable images were found." in printed
+    assert "preview_only is set" in printed
+    assert "Empty DataFrame" not in printed
+    assert not os.path.exists(result.dst)
 
 
 def test_convert_folder_truncates_a_long_preview(run1, capsys):

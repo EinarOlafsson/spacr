@@ -407,6 +407,8 @@ def _unit_family(unit: str) -> Tuple[Optional[str], int]:
 def is_spacr_name(name: str) -> bool:
     """True when ``name`` is a column spaCR itself writes.
 
+    :param name: candidate column name to classify.
+
     Delegated to :func:`spacr.feature_dict.parse_column` rather than a
     second parser: that module already implements the whole grammar
     (``<object>_channel_<i>_<stat>``, the radial-distribution and
@@ -476,19 +478,19 @@ class ColumnMap:
     what comes back from :func:`load_column_map` — there is no path by
     which an inferred mapping reaches the database unreviewed.
 
-    :ivar source: the column name in their table, verbatim.
-    :ivar target: the column name in ``measurements.db``. Empty means
-        "not mapped", which is reported rather than dropped.
-    :ivar transform: ``'identity'`` (copy), ``'length'`` / ``'area'`` /
-        ``'volume'`` (apply the pixel size to the 1st / 2nd / 3rd power),
-        or an explicit literal factor such as ``'*0.65'`` or ``'/1000'``.
-    :ivar unit_in: the unit their values are in, e.g. ``'um^2'``. Required
-        for any non-identity, non-literal transform: converting without
-        knowing what you are converting *from* is guessing.
-    :ivar unit_out: the unit the stored values are in. Defaults to
-        spaCR's own (``px`` / ``px^2`` / ``px^3``) for a scaling transform.
-    :ivar note: free text carried into the plan, the map file and the
-        ``foreign_columns`` table.
+    :param source: source-table column name, preserved verbatim.
+    :param target: destination column in ``measurements.db``; an empty value
+        is reported as unmapped and routed under the foreign prefix rather
+        than dropped.
+    :param transform: ``"identity"``, a pixel-size ``"length"``/``"area"``/
+        ``"volume"`` conversion, or a literal factor such as ``"*0.65"`` or
+        ``"/1000"``.
+    :param unit_in: declared source unit; required for non-identity,
+        non-literal conversions.
+    :param unit_out: stored-value unit; scaling transforms default to spaCR's
+        corresponding pixel unit when omitted.
+    :param note: reviewer prose retained in the map file, import plan, and
+        ``foreign_columns`` provenance table.
     """
 
     source: str
@@ -637,8 +639,17 @@ class ColumnMap:
 
     @classmethod
     def from_row(cls, row: TMapping[str, Any]) -> 'ColumnMap':
-        """Build a mapping from one row of the column-map file."""
+        """Build a mapping from one row of the column-map file.
+
+        :param row: column-map record keyed by the serialised field names.
+        """
         def _get(key: str) -> str:
+            """Return one serialised mapping field as stripped text.
+
+            :param key: Column-map field name to read from ``row``.
+            :returns: Stripped text, or an empty string for a missing, null,
+                or NaN value.
+            """
             value = row.get(key, '')
             if value is None or (isinstance(value, float) and pd.isna(value)):
                 return ''
@@ -665,17 +676,19 @@ class ResolvedColumn:
     property that can be checked: the mapping is the input, the resolution
     is the derivation, and the derivation is deterministic.
 
-    :ivar mapping: the reviewed :class:`ColumnMap` this came from.
-    :ivar target: the column name actually written, after any rename.
-    :ivar factor: multiplier applied to every value, or None when the
-        values are written unchanged because the conversion could not be
-        performed.
-    :ivar calibrated: False when the stored values are *not* in
-        ``unit_out`` — the flag that stops a µm² column being read as px².
-    :ivar unit: the unit the stored values really are in.
-    :ivar status: ``'mapped'``, ``'renamed'``, ``'uncalibrated'`` or
-        ``'unmapped'``.
-    :ivar reason: why, in words, for anything but ``'mapped'``.
+    :param mapping: reviewed source-to-target column mapping from which this
+        resolution was derived.
+    :param target: column name actually written after conflict handling and
+        any rename.
+    :param factor: multiplier applied to numeric values, or ``None`` when a
+        requested conversion could not be performed.
+    :param calibrated: whether stored values are valid in the unit reported
+        by ``unit``.
+    :param unit: unit of the stored values, or an empty string when unknown.
+    :param status: resolution state: ``"mapped"``, ``"renamed"``,
+        ``"uncalibrated"``, or ``"unmapped"``.
+    :param reason: explanation for a non-``"mapped"`` resolution, otherwise
+        an empty string.
     """
 
     mapping: ColumnMap
@@ -694,6 +707,8 @@ class ResolvedColumn:
     def apply(self, values: 'pd.Series') -> 'pd.Series':
         """Return ``values`` with this resolution's factor applied.
 
+        :param values: foreign-column values to copy or scale.
+
         A non-numeric column is passed through untouched however the
         factor reads: multiplying a string column of treatment names by
         0.65 is not a unit conversion, it is a crash.
@@ -706,7 +721,10 @@ class ResolvedColumn:
         return numeric * float(self.factor)
 
     def to_record(self, table: str) -> Dict[str, Any]:
-        """One row of the ``foreign_columns`` provenance table."""
+        """One row of the ``foreign_columns`` provenance table.
+
+        :param table: destination table that owns the resolved column.
+        """
         return {
             'table': table,
             'column': self.target,
@@ -728,12 +746,14 @@ class ResolvedColumn:
 class Conflict:
     """A foreign column whose target would collide with something of spaCR's.
 
-    :ivar kind: ``'reserved'`` (a join key), ``'spacr_name'`` (a column
-        spaCR itself writes), ``'duplicate_target'`` (two sources, one
-        target) or ``'shadows_spacr'`` (an unmapped column whose own name
-        is a spaCR name — carried under the foreign prefix, so not
-        blocking, but the user needs to know).
-    :ivar blocking: True when the import refuses until it is resolved.
+    :param kind: collision category: ``"reserved"``, ``"spacr_name"``,
+        ``"duplicate_target"``, or the non-blocking ``"shadows_spacr"``
+        notice.
+    :param source: foreign source-column name involved in the collision.
+    :param target: requested destination-column name that conflicts.
+    :param detail: human-readable explanation of the collision.
+    :param blocking: whether the import must refuse the plan until the
+        collision is resolved.
     """
 
     kind: str
@@ -743,6 +763,10 @@ class Conflict:
     blocking: bool = True
 
     def __str__(self) -> str:
+        """Return a compact description of the conflicting column.
+
+        :returns: Conflict kind, source, target, and explanatory detail.
+        """
         return f'[{self.kind}] {self.source!r} -> {self.target!r}: {self.detail}'
 
 
@@ -1040,14 +1064,23 @@ def read_measurements(source: Union[str, 'pd.DataFrame'],
 class MaskMapping:
     """One foreign label image and the field it belongs to.
 
-    :ivar source: the mask file on disk.
-    :ivar object_type: ``'cell'`` / ``'nucleus'`` / ``'pathogen'`` /
-        ``'organelle'``.
-    :ivar stem: the ``plate1_A01_3`` stem it will be written under.
-    :ivar match: ``'exact'`` when the mask's field key equalled the
-        image's, ``'normalised'`` when it matched only after stripping a
-        mask suffix. Recorded because a normalised match is a guess, and
-        the plan shows it.
+    :param source: Filesystem path of the foreign label-mask image.
+    :param object_type: Segmented object role from
+        :data:`spacr.crops.MASK_PLANE_ORDER` (cell, nucleus, pathogen, or
+        one of the organelle slots).
+    :param stem: Canonical matched spaCR field stem, such as
+        ``plate1_A01_3``, used for imported per-field artifacts.
+    :param plate: Canonical plate identifier of the matched image field.
+    :param well: Canonical well identifier of the matched image field.
+    :param field: Integer field number of the matched image field.
+    :param source_field: Field token parsed from the original mask filename
+        before matching.
+    :param match: ``"exact"`` when the source field token matched unchanged,
+        or ``"normalised"`` when mask suffix stripping was required. This
+        records filename matching independently of directory-based fallback.
+    :param labels: Sorted positive object labels read from the mask during
+        verified planning; empty when the mask has no positive labels or
+        label verification was disabled.
     """
 
     source: str
@@ -1176,6 +1209,7 @@ class JoinReport:
     :ivar image_key: their column naming the image a row belongs to, or
         ``''`` when the whole table is one field.
     :ivar label_key: their column holding the object's integer label.
+    :ivar object_type: mask object class the measurement rows describe.
     :ivar rows_total: rows in their table.
     :ivar rows_matched: rows whose ``(field, label)`` exists in a mask.
     :ivar unresolved_fields: ``(value, count)`` for image-key values that
@@ -1186,6 +1220,7 @@ class JoinReport:
         row measures.
     :ivar ambiguous_keys: image-key spellings that matched more than one
         field and were therefore not used.
+    :ivar examples: representative row-level failures shown after the counts.
     """
 
     image_key: str = ''
@@ -1359,26 +1394,47 @@ class ImportPlan:
     three lists that matter — :attr:`unmapped`, :attr:`conflicts` and
     :attr:`warnings` — are the ones a user has to read before agreeing.
 
-    :ivar images: the :class:`spacr.convert.ConversionPlan` for their
+    :param images: the :class:`spacr.convert.ConversionPlan` for their
         image files. Built by :func:`spacr.convert.plan`; this module adds
         no second naming scheme.
-    :ivar masks: :class:`PairingReport` — which mask belongs to which
+    :param masks: :class:`PairingReport` — which mask belongs to which
         field, and every file on either side that did not pair.
-    :ivar measurements: their table, as read.
-    :ivar column_maps: the reviewed mapping that will be applied.
-    :ivar unmapped: source columns with no mapping, **by name**. They are
+    :param measurements: their table, as read.
+    :param column_maps: the reviewed mapping that will be applied.
+    :param unmapped: source columns with no mapping, **by name**. They are
         still imported, under :data:`FOREIGN_PREFIX`.
-    :ivar conflicts: :class:`Conflict` entries; a blocking one makes
+    :param conflicts: :class:`Conflict` entries; a blocking one makes
         :attr:`ok` False.
-    :ivar warnings: non-blocking things the user must see — an
+    :param warnings: non-blocking things the user must see — an
         uncalibrated column, a low join match rate, a lossy z handling.
-    :ivar resolved: the derived, executable form of ``column_maps``.
-    :ivar join: :class:`JoinReport`.
-    :ivar base_warnings: the warnings that do *not* come from the column
+    :param resolved: the derived, executable form of ``column_maps``.
+    :param join: :class:`JoinReport`.
+    :param errors: blocking planning problems that make :attr:`ok` false.
+    :param notes: non-problem planning facts shown before the user confirms
+        the import.
+    :param object_types: mask/object classes to import, in spaCR mask-plane
+        order.
+    :param n_channels: common number of intensity channels in each imported
+        image field.
+    :param mask_dims: zero-based merged-array mask-plane index keyed by object
+        type.
+    :param um_per_px: image calibration in micrometres per pixel, or ``None``
+        when physical length and area conversions must remain uncalibrated.
+    :param prefix: namespace prepended to foreign target columns that do not
+        use a reviewed spaCR name.
+    :param on_conflict: ``"refuse"`` to block colliding targets or ``"rename"``
+        to assign an unused prefixed name.
+    :param allow_spacr_targets: explicit opt-in allowing reviewed foreign
+        columns to use names owned by spaCR.
+    :param sources: absolute source locations keyed by ``"images"``,
+        ``"measurements"``, and ``"mask:<object_type>"``.
+    :param base_warnings: the warnings that do *not* come from the column
         mapping (unpaired masks, the join, z handling). Kept apart so
         :meth:`with_column_maps` can rebuild the mapping's own warnings
         without losing them or duplicating them.
-    :ivar base_errors: likewise for blocking problems.
+    :param base_errors: likewise for blocking problems.
+    :param proposed: true while the column mapping is inferred and has not yet
+        been returned through :meth:`with_column_maps` for review.
     """
 
     images: 'cv.ConversionPlan'
@@ -1496,7 +1552,10 @@ class ImportPlan:
         return [r.target for r in self.resolved]
 
     def target_for(self, source: str) -> str:
-        """The column name ``source`` will actually be written under."""
+        """The column name ``source`` will actually be written under.
+
+        :param source: foreign source column to look up.
+        """
         for resolution in self.resolved:
             if resolution.source == str(source):
                 return resolution.target
@@ -1523,6 +1582,11 @@ def _resolve_columns(column_maps: Sequence[ColumnMap],
     taken: Set[str] = set()
 
     def _foreign(source: str) -> str:
+        """Build an unused prefixed target for one foreign column.
+
+        :param source: Foreign source-column name to sanitise.
+        :returns: SQL-safe prefixed target not present in ``taken``.
+        """
         return _unique(f'{prefix}{_sanitise_column(source)}', taken)
 
     def _note_shadow(source: str, target: str) -> None:
@@ -2033,6 +2097,8 @@ def plan_import(images: str,
 def format_plan(plan: ImportPlan) -> str:
     """Render an :class:`ImportPlan` as the block a user reads before agreeing.
 
+    :param plan: proposed import plan to render.
+
     Ordered by what can hurt them: blocking problems, then conflicts, then
     the columns that could not be mapped, then the join, then the plain
     counts.
@@ -2122,14 +2188,26 @@ def format_plan(plan: ImportPlan) -> str:
 class ImportResult:
     """What :func:`run_import` actually did.
 
-    :ivar conversion: the :class:`spacr.convert.ConversionResult` for
+    :param plan: import plan represented by this result.
+    :param dst: destination project directory.
+    :param conversion: the :class:`spacr.convert.ConversionResult` for
         their images — the provenance back to the original filenames.
-    :ivar db_path: the ``measurements.db`` that was written.
-    :ivar merged: merged ``.npy`` paths, one per imported field.
-    :ivar rows: rows written into each foreign object table.
-    :ivar crops: PNG paths cut from the merged arrays, if any.
-    :ivar measured: True when spaCR's own measurements were re-extracted.
-    :ivar notes: things that happened and are not problems — chiefly a
+    :param db_path: the ``measurements.db`` that was written.
+    :param column_map_path: path of the applied column mapping saved beside the
+        imported project.
+    :param stacks: per-field intensity-stack ``.npy`` files written for the
+        project.
+    :param mask_files: per-field label-mask ``.npy`` files written for the
+        project.
+    :param merged: merged ``.npy`` paths, one per imported field.
+    :param rows: rows written into each foreign object table.
+    :param crops: PNG paths cut from the merged arrays, if any.
+    :param measured: True when spaCR's own measurements were re-extracted.
+    :param ledger: :class:`RunLedger` carrying per-item outcomes and overall
+        completeness, or ``None`` when no ledger was produced.
+    :param warnings: non-fatal execution problems, including fields skipped
+        after planning.
+    :param notes: things that happened and are not problems — chiefly a
         canonical object table that was already populated and was
         therefore left exactly as it was found.
     """
@@ -2932,10 +3010,9 @@ def _populate_conversion_map(db_path: str, map_path: str) -> None:
                                    f'ADD COLUMN "{column}"')
                     held.append(column)
             shared = [c for c in incoming if c in held]
-            if 'target' in shared:
-                cursor.execute(
-                    f'DELETE FROM "{cv.CONVERSION_TABLE}" WHERE target IN '
-                    f'(SELECT target FROM "{staging}")')
+            cursor.execute(
+                f'DELETE FROM "{cv.CONVERSION_TABLE}" WHERE target IN '
+                f'(SELECT target FROM "{staging}")')
             names = ', '.join(f'"{c}"' for c in shared)
             cursor.execute(f'INSERT INTO "{cv.CONVERSION_TABLE}" ({names}) '
                            f'SELECT {names} FROM "{staging}"')
@@ -3254,6 +3331,12 @@ def run_import(plan: ImportPlan, dst: str, *,
     total = len(steps) + int(bool(measure)) + int(bool(crops))
 
     def _step(index: int, message: str) -> None:
+        """Report one import step when a progress callback is available.
+
+        :param index: One-based completed-step position.
+        :param message: Human-readable description of the current step.
+        :returns: ``None``.
+        """
         if progress is not None:
             progress(index, total, message)
 

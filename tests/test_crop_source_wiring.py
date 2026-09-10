@@ -143,6 +143,34 @@ def _drop_png_folder(project):
     shutil.rmtree(os.path.join(project, "data"))
 
 
+def _point_png_list_at(project):
+    """Rewrite png_list's absolute paths onto THIS copy of the project.
+
+    The fixture copies a session-scoped build, and the rows keep the paths
+    they were written with, so by default a per-test project reads the shared
+    tree's crops. Harmless for a test that only reads them; wrong for one
+    that changes how they are marked.
+    """
+    conn = sqlite3.connect(_db(project))
+    try:
+        rows = conn.execute("SELECT png_path FROM png_list").fetchall()
+        if not rows:
+            return
+        marker = os.sep + "data" + os.sep
+        first = rows[0][0]
+        if marker not in first:
+            return
+        old_root = first.split(marker)[0]
+        if os.path.abspath(old_root) == os.path.abspath(project):
+            return
+        conn.execute("UPDATE png_list SET png_path = ? || "
+                     "substr(png_path, ?)",
+                     (project, len(old_root) + 1))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def _annotate(project, column="test"):
     """Give png_list a two-valued annotation column, the way Annotate would."""
     conn = sqlite3.connect(_db(project))
@@ -419,18 +447,48 @@ def test_auto_uses_the_png_folder_when_there_is_one_and_merged_when_there_is_not
     assert len(_tar_members(tar)) == N_CELLS * len(FIELDS)
 
 
-def test_a_tar_that_would_have_been_empty_now_fails(project):
+def test_a_tar_that_would_have_been_empty_falls_back_and_says_so(project, capsys):
     """BUG (fixed): utils.add_images_to_tar swallows a missing file with a
     print, so a tar built against a deleted crop folder was announced as
     'Saved 48 images' while holding none, and the run only failed later,
-    inside inference, on an empty dataset."""
+    inside inference, on an empty dataset.
+
+    THE ANSWER CHANGED WITH INSTRUCTION 171, AND THE BUG DID NOT COME BACK.
+    This used to raise, on the reasoning that a silent fallback makes a user
+    believe they are looking at a crop they are not. The maintainer then
+    asked for the fallback outright -- "if that fails it should always try
+    the other" -- and 171 D settles it: keep the fallback, drop the SILENCE.
+
+    So the tar is full rather than empty, and it is full of REAL crops cut
+    from merged/, with a line naming the route that drew them. What must
+    never happen is the original bug: an empty tar announced as a full one.
+    """
     from spacr.io import generate_dataset
     _drop_png_folder(project)
-    with pytest.raises(RuntimeError) as excinfo:
-        generate_dataset({"src": project, "experiment": "empty",
+    tar = generate_dataset({"src": project, "experiment": "empty",
+                            "file_metadata": "cell_png", "sample": None,
+                            "crop_source": "png"})
+    said = capsys.readouterr().out
+    assert "stream images" in said, said
+    members = _tar_members(tar)
+    assert len(members) == N_CELLS * len(FIELDS)
+
+
+def test_a_tar_with_no_route_at_all_still_fails(project):
+    """The guard that survives the fallback: NEITHER source can serve.
+
+    A fallback is only a convenience while there is something to fall back
+    to. With no crops and no arrays, an empty tar announced as a full one is
+    the original bug, so this has to raise rather than write nothing.
+    """
+    from spacr.io import generate_dataset
+    _drop_png_folder(project)
+    shutil.rmtree(os.path.join(project, "merged"))
+    with pytest.raises(Exception) as excinfo:
+        generate_dataset({"src": project, "experiment": "nothing",
                           "file_metadata": "cell_png", "sample": None,
                           "crop_source": "png"})
-    assert "crop_source='merged'" in str(excinfo.value)
+    assert str(excinfo.value)
 
 
 def test_tar_from_merged_works_with_no_png_list_at_all(project):
@@ -594,6 +652,17 @@ def test_copied_crops_keep_the_source_folders_format(project):
     name attached to a model trained on it."""
     from spacr.io import generate_training_dataset
     _annotate(project)
+    # THE ROWS POINT AT THE PRISTINE TREE, NOT AT THIS COPY. `project` is a
+    # copytree of a session-scoped build, and png_list keeps the ABSOLUTE
+    # paths recorded when it was built -- so the run reads the shared
+    # folders, and unmarking this copy's folders unmarked something nobody
+    # was going to look at. The test measured format 3 off the pristine
+    # sidecars and read it as the inheritance rule failing.
+    #
+    # Repointed first, so the folders unmarked below are the ones the run
+    # actually reads. It cannot be done by unmarking the pristine tree: that
+    # is shared with every other test in this file.
+    _point_png_list_at(project)
     # Unmark the crop folders: unmarked means legacy.
     for sidecar in glob.glob(os.path.join(project, "data", "**",
                                           crops.CROP_FORMAT_SIDECAR),
@@ -645,17 +714,26 @@ def test_a_crop_that_cannot_be_written_does_not_lose_the_rest(tmp_path, capsys):
     assert len(glob.glob(os.path.join(out, "*", "*", "*.png"))) == 4
 
 
-def test_a_training_split_that_would_have_been_empty_now_fails(project):
+def test_a_training_split_that_would_have_been_empty_falls_back(project, capsys):
     """BUG (fixed): with the crop folder gone, the copy path wrote zero images
     and still returned a train/ and test/ tree, so Classify (CV) went on to
-    train on nothing."""
+    train on nothing.
+
+    As above, 171 D turned the refusal into an announced fallback. The split
+    is real -- cut from merged/ -- rather than an empty tree, which is what
+    the original bug produced.
+    """
     from spacr.io import generate_training_dataset
     _annotate(project)
     _drop_png_folder(project)
     random.seed(0)
-    with pytest.raises(RuntimeError) as excinfo:
-        generate_training_dataset(_training_settings(project, "png"))
-    assert "crop_source='merged'" in str(excinfo.value)
+    train, test = generate_training_dataset(_training_settings(project, "png"))
+    said = capsys.readouterr().out
+    assert "stream images" in said, said
+    for folder in (train, test):
+        written = glob.glob(os.path.join(folder, "**", "*.png"),
+                            recursive=True)
+        assert written, f"{folder} is the empty tree the bug produced"
 
 
 def test_a_class_that_selected_nothing_is_named_not_a_sklearn_message(tmp_path, capsys):
@@ -1082,3 +1160,164 @@ def test_an_unusable_crop_source_says_so_without_verbose(project, capsys):
                      verbose=False)
     printed = capsys.readouterr().out
     assert "nonsense" in printed
+
+
+# ---------------------------------------------------------------------------
+# EVERY image_source spelling, end to end through the settings the panel writes
+#
+# The chain has three vocabularies: what the panel offers, what
+# `settings._canonical_image_source` normalises it to, and what
+# `crops.resolve_crop_source` understands. Instruction 230 renamed the first
+# two and left the third, so `_canonical_image_source` rewrote EVERY choice
+# into a pair of words `io.CROP_SOURCE_ALIASES` did not contain,
+# `resolve_crop_source` raised, `open_crop_source` swallowed it, and every
+# run trained on pre-cut PNGs whatever the user picked. Streaming was
+# unreachable from the GUI and nothing said so.
+#
+# These two tests are deliberately different in kind. The first drives every
+# spelling and checks the source that comes back. The second needs no project
+# at all: it asserts the vocabularies still MEET, so the next rename fails
+# here rather than in a silent fallback six months later.
+# ---------------------------------------------------------------------------
+
+#: Panel spelling -> the crop source class it has to produce. Both halves of
+#: each pair are spellings a real settings CSV carries.
+IMAGE_SOURCE_MEANS = {
+    "load_images": "PngCropSource",
+    "png": "PngCropSource",
+    "pre_generated": "PngCropSource",
+    "generate": "PngCropSource",
+    "stream_images": "MergedCropSource",
+    "merged": "MergedCropSource",
+    "on_demand": "MergedCropSource",
+    "stream": "MergedCropSource",
+}
+
+
+@pytest.mark.parametrize("spelling,expected", sorted(IMAGE_SOURCE_MEANS.items()))
+def test_every_image_source_spelling_reaches_the_source_it_names(
+        project, spelling, expected):
+    """The user's choice survives normalisation and opens that source."""
+    from spacr.io import open_crop_source
+    from spacr.settings import deep_spacr_defaults
+
+    settings = deep_spacr_defaults({"image_source": spelling, "src": project})
+    source = open_crop_source(settings, src=project, verbose=False)
+    assert source is not None, (
+        f"image_source={spelling!r} opened no crop source at all; a swallowed "
+        f"CropError here is the silent fallback to pre-cut PNGs")
+    assert type(source).__name__ == expected
+
+
+def test_every_source_the_normaliser_can_produce_is_a_word_the_reader_knows():
+    """The two vocabularies must meet, or the choice is dropped in silence.
+
+    No project and no filesystem: this is a claim about the code, and it is
+    the one that would have caught the rename. `_canonical_image_source`
+    decides what `crop_source` ends up holding; `io.CROP_SOURCE_ALIASES` is
+    what turns that back into a word `crops.resolve_crop_source` accepts.
+    Every output of the first has to be a key of the second.
+    """
+    from spacr.io import CROP_SOURCE_ALIASES
+    from spacr.settings import _IMAGE_SOURCES, _canonical_image_source
+
+    produced = {_canonical_image_source(v) for v in _IMAGE_SOURCES}
+    # The fallback for an unrecognised value counts: it is what a typo gets.
+    produced.add(_canonical_image_source("a source spaCR never had"))
+    unknown = sorted(produced - set(CROP_SOURCE_ALIASES))
+    assert not unknown, (
+        f"_canonical_image_source can produce {unknown}, which "
+        f"io.CROP_SOURCE_ALIASES does not translate. resolve_crop_source "
+        f"will raise on it and open_crop_source will swallow the error.")
+    # And every alias has to name a word resolve_crop_source really takes.
+    assert set(CROP_SOURCE_ALIASES.values()) <= {"png", "merged", "auto"}
+
+
+def test_a_crop_that_cannot_be_written_into_the_test_split_is_also_survived(
+        tmp_path, capsys):
+    """The two write loops are separate code, and both can fail.
+
+    A dataset is only useful if BOTH splits landed, so a failure on the test
+    side has to be counted and reported the same way as one on the train side
+    -- otherwise a test set quietly smaller than it should be makes every
+    evaluation optimistic by an amount nobody can see.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    items = []
+    for i in range(10):
+        p = src / f"good_{i}.png"
+        Image.new("RGB", (8, 8)).save(p)
+        items.append(str(p))
+    # Enough missing entries that the grouped split puts some on each side.
+    items += [str(src / f"missing_{i}.png") for i in range(10)]
+    out = str(tmp_path / "ds")
+
+    generate_dataset_from_lists(out, [items], ["only"], test_split=0.5,
+                                group_by="cell")
+
+    printed = capsys.readouterr().out
+    assert "could not be written" in printed
+    written = glob.glob(os.path.join(out, "*", "*", "*.png"))
+    assert len(written) == 10, "a writable crop was lost"
+
+
+def test_only_the_first_five_failures_are_named(tmp_path, capsys):
+    """The cap, and the count that makes it safe.
+
+    A screen can select tens of thousands of crops. Naming every failure turns
+    a warning into a wall of output that hides the summary line underneath it,
+    so five are named and the total is reported once -- the scale of the
+    problem is the part the reader needs.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    items = []
+    for i in range(4):
+        p = src / f"good_{i}.png"
+        Image.new("RGB", (8, 8)).save(p)
+        items.append(str(p))
+    items += [str(src / f"missing_{i:02d}.png") for i in range(12)]
+    out = str(tmp_path / "ds")
+
+    generate_dataset_from_lists(out, [items], ["only"], test_split=0.25,
+                                group_by="cell")
+
+    printed = capsys.readouterr().out
+    named = [line for line in printed.splitlines()
+             if line.startswith("Could not add")]
+    assert len(named) == 5, f"the cap did not hold: {len(named)} named"
+    assert "12 of 16 crops could not be written" in printed
+
+
+def test_a_split_where_nothing_could_be_written_is_refused_with_the_way_out(
+        tmp_path, capsys):
+    """Not a partial result -- a broken input, and training on it is training
+    on nothing.
+
+    The message names ``crop_source='merged'`` because the overwhelmingly
+    common cause is a PNG crop folder that was deleted or moved after the
+    measurements were made, and cutting the crops out of ``merged/*.npy``
+    instead is the fix rather than a workaround.
+    """
+    from spacr.io import generate_dataset_from_lists
+    src = tmp_path / "src"
+    src.mkdir()
+    # Four, so the counter stays under the naming cap on BOTH sides of the
+    # split and the test-split failure is named as well as the train ones.
+    items = [str(src / f"missing_{i}.png") for i in range(4)]
+    out = str(tmp_path / "ds")
+
+    with pytest.raises(RuntimeError) as caught:
+        generate_dataset_from_lists(out, [items], ["only"], test_split=0.5,
+                                    group_by="cell")
+
+    message = str(caught.value)
+    assert "No crop could be written" in message
+    assert "crop_source='merged'" in message
+
+    printed = capsys.readouterr().out
+    assert "/test/" in printed or "test" in printed.lower(), (
+        "the test-split failures were never reported")

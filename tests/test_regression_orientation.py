@@ -941,6 +941,7 @@ def test_random_row_column_effects_names_the_results_folder_end_to_end(
     disagreeing.
     """
     import os
+    import re
 
     import spacr.ml as ML
     import spacr.plot as P
@@ -956,16 +957,34 @@ def test_random_row_column_effects_names_the_results_folder_end_to_end(
     # components over two full plates is the slowest fit in the module.
     score, count = write_screen(tmp_path, plates=("plate1", "plate2"),
                                 n_cells=4)
-    settings = settings_for(score, count, regression_type="ols",
-                            random_row_column_effects=True)
+    settings = settings_for(
+        score,
+        count,
+        regression_type="ols",
+        model_plate_position=True,
+        random_row_column_effects=True,
+    )
     out = ML.perform_regression(settings)
 
     assert settings["regression_type"] == "mixed"
-    assert os.path.isfile(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", "mixed", "list",
-        "results.csv"))
+    # THE FOLDER IS ASKED FOR, NOT SPELLED OUT. This assertion named
+    # `results/screen_scores/mixed/list/` -- the four-level path from before
+    # the output rule became `<count folder>/results/<type>`, with `_1`, `_2`
+    # for a repeat. tests/test_regression_types.py hit the same staleness and
+    # says so in its own comment; this copy was missed and stayed red.
+    #
+    # What the test is actually about survives intact, and is the whole point
+    # of it: a run configured as 'ols' with the flag on fits a MixedLM, and
+    # the folder must be named for the model that was FITTED rather than the
+    # one that was asked for -- otherwise a mixed fit lands in an `ols`
+    # folder with nothing anywhere disagreeing.
+    folder = out["res_folder"]
+    assert os.path.isfile(os.path.join(folder, "results.csv"))
+    # `_1`, `_2` stripped by matching DIGITS at the end, never by splitting
+    # on "_": `quasi_binomial` and `guide_permutation` contain the separator.
+    assert re.sub(r"_\d+$", "", os.path.basename(folder)) == "mixed", folder
     assert not os.path.isdir(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", "ols"))
+        os.path.dirname(folder), "ols"))
     assert len(out["results"]) > 0
 
 
@@ -1029,10 +1048,28 @@ def test_quantile_outside_the_open_unit_interval_is_refused(bad):
 COVERED_ELSEWHERE = {
     "mixed": "test_mixed_recovers_the_fixed_effect_over_a_real_random_intercept",
     "hinge": "test_hinge_recovers_the_sign_of_both_planted_effects",
+    # The spline expands continuous nuisance covariates, so the simple x_pos /
+    # x_neg design above no longer has one coefficient per planted covariate.
+    # Its screen-shaped ground-truth test instead verifies the contract that
+    # matters: guide columns stay intact and the planted gene is recovered.
+    "spline": (
+        "tests/test_regression_types.py"
+        "::test_every_regression_type_runs_and_recovers_the_planted_effect"
+    ),
     # ADVI: too slow for this file. The signal case and the hit/non-hit
     # separation are pinned by test_regression_types.py (marked slow) and the
     # null case by test_power_model.test_null_screen_auroc_is_near_chance.
     "horseshoe": "tests/test_regression_types.py + tests/test_power_model.py",
+    # Instruction 133. Both need the DESIGN COLUMN NAMES to find the gene
+    # behind each guide, and the fixtures in this file build a design whose
+    # columns are 'a', 'b', 'c' -- there is no gene in them to group by, so
+    # the planted-effect test has to be run on a screen-shaped design.
+    "group_lasso":
+        "tests/test_group_lasso_and_rra_backends.py"
+        "::test_group_lasso_selects_a_genes_guides_as_a_block",
+    "rra":
+        "tests/test_group_lasso_and_rra_backends.py"
+        "::test_rra_recovers_the_planted_gene_as_the_top_call",
 }
 
 

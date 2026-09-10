@@ -1,11 +1,10 @@
-"""
-AnnotateScreen — Qt widget replacing the Tk AnnotateApp.
+"""Display and annotate image crops in the Qt interface.
 
 Displays a paginated grid of clickable image thumbnails backed by
-`png_list` in a `measurements/measurements.db`. Left-click = value 1,
-right-click = value 2, re-click the same value = clear. Annotations
-are persisted through a background SaveWorker (see
-`spacr.qt.annotate_engine.SaveWorker`).
+``png_list`` in ``measurements/measurements.db``. Left-click assigns value 1,
+right-click assigns value 2, and clicking the assigned value again clears it.
+Annotations are persisted through
+:class:`spacr.qt.annotate_engine.SaveWorker`.
 
 A keyboard-only rapid-annotation layer sits on top of the same write
 path (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class
@@ -28,24 +27,57 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
-Advanced features that are *not* yet ported (marked as TODOs in the UI):
-UMAP window, Deep spaCR training launcher, measurement-threshold
-filtering (the threshold filter can be entered in settings but only
-plain per-page fetch is used at query time in this MVP).
+Shift + left click blows one crop up to fill the grid's container, drawn in
+front of the tiles rather than reflowing them (:class:`_ZoomOverlay`); a
+click beside it, or ``Escape``, folds it back. It is an EXTRA gesture --
+plain left click goes on labelling, because that is what this screen is
+for, and the class keys still land while a crop is open.
+
+Annotator Agreement is folded onto this screen's masthead rather than
+carrying a tile of its own: κ between annotation columns is a question
+about the labels this screen writes, asked by the person who wrote them
+while the crops are still in front of them. The button is that module's
+own icon, lit on hover in its maturity colour, and it opens the agreement
+screen itself as a PAGE beside the grid rather than a window over it — a
+window is the last resort for a fold, and nothing here needs one. See
+:data:`FOLDED_APPS`.
+
+The Qt screen does not currently provide the UMAP window, Deep spaCR training
+launcher, or measurement-threshold filtering. A threshold can be entered in
+settings, but page queries do not apply it.
 """
 from __future__ import annotations
 
+import inspect
+import logging
 import os
+import threading
+import time
 from copy import deepcopy
 from collections import deque
 from functools import partial
 from typing import Any, Deque, Dict, List, Optional, Sequence, Tuple
 
-from PIL import Image
-from PIL.ImageQt import ImageQt
+# PYSIDE6 BEFORE PIL, AND THE ORDER IS LOAD-BEARING. `PIL.ImageQt` resolves
+# a Qt6 of its own at import time, and when it wins the race PySide6 then
+# fails to load against it:
+#
+#     from PIL.ImageQt import ImageQt        # first
+#     from PySide6.QtCore import Qt          # ImportError: undefined symbol
+#                                            # _ZN14QObjectPrivateC2E16QtPrivate_6_11_2
+#
+# Reversing the two makes it import cleanly, verified both ways in the
+# `spacr` environment on 2026-09-04 (PySide6 6.11.2).
+#
+# The running application never hit this, because `spacr.qt` has already
+# imported PySide6 long before it reaches this screen -- which is exactly
+# what made it invisible. What it broke was importing this module on its
+# own: every test and tool that does so failed at the import line, and the
+# failure names a Qt symbol rather than anything about ordering.
 from PySide6.QtCore import (
     Qt,
     QEvent,
+    QLocale,
     QRect,
     QRectF,
     QSize,
@@ -54,9 +86,13 @@ from PySide6.QtCore import (
     Signal,
     Slot,
 )
-from PySide6.QtGui import (QColor, QFont, QImage, QKeySequence, QPainter,
-                           QPainterPath, QPen, QPixmap, QShortcut)
+from PIL import Image
+from PIL.ImageQt import ImageQt
+from PySide6.QtGui import (QColor, QDoubleValidator, QFont, QImage,
+                           QKeySequence, QPainter, QPainterPath, QPen,
+                           QPixmap, QShortcut)
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -88,7 +124,10 @@ from ..bridge import drain_thread
 from ..job_runner import JobRunner
 
 from ..annotate_engine import (
+    FILTER_CHANNELS,
+    FILTER_MEASURES,
     AnnotateSettings,
+    OutlineCancelled,
     SaveWorker,
     class_counts,
     clear_column,
@@ -96,19 +135,368 @@ from ..annotate_engine import (
     ensure_annotation_column,
     fetch_filtered_paths,
     fetch_page,
+    filter_bound,
     filter_channels_pil,
+    filter_key,
     find_last_annotated_offset,
     label_to_hex,
     load_crop_image,
+    normalize_object_filters,
     normalize_pil,
     outline_image,
 )
 from ..linked_selection import (register_object_opener,
                                 unregister_object_opener)
-from .. import iconset, prefs
-from ..theme import SPACING, palette_for
+from .. import iconset, path_probe, prefs
+from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
+from ..widgets.fold_strip import FoldStrip
+from .map_barcodes import FoldOpener, restate_fold_button
+
+from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
+
+#: Imported at module level rather than inside the handler because the tile
+#: chrome reads it on every repaint. `spacr.suggest` pulls in pandas and
+#: numpy and nothing heavier -- both are already imported by the time this
+#: screen exists -- so this costs nothing at launch.
+from ...suggest import SUGGESTION_OFFSET
+
+LOG = logging.getLogger(__name__)
+
+#: Registry keys of the modules folded onto this screen's masthead, in
+#: the order the strip draws them. Annotator Agreement measures Cohen's
+#: and Fleiss' κ between the annotation columns this screen writes and
+#: walks the disagreements, so it is the same visit as annotating: the
+#: person who wants it is already here, looking at the crops it disagrees
+#: about.
+FOLDED_APPS = ("agreement",)
+
+#: Registry key of the screen this module hangs its strip on.
+#:
+#: MISSING UNTIL 2026-09-03, AND IT COST THE FOLD ITS PLACE EVERYWHERE.
+#: `app.folded_children()` builds the one host-to-children map the dock, the
+#: spaCR menu and the generated API page all read, and it identifies a host
+#: by `APP_KEY` or `HOST_KEY`. This module declared neither, so it was
+#: skipped -- `FOLDED_APPS` above was read by the fold STRIP, which is handed
+#: the key by the screen, and by nothing else. Annotator Agreement therefore
+#: had a button on this masthead and no nested row in the dock, no entry
+#: under Annotate in the menu, and no line on the API page, while every other
+#: host's children had all three.
+#:
+#: Found while wiring the nesting into the API homepage.
+#: It is the same shape as the bug in the same commit's other half: one
+#: mapping read by three surfaces, and a host that quietly is not in it.
+HOST_KEY = "annotate"
+
+
+# ---------------------------------------------------------------------------
+# Two different questions about a folder, and why one answer cannot serve both
+# ---------------------------------------------------------------------------
+#
+# THE CHEAP QUESTION -- "shall I name this folder in the subtitle?" -- is what
+# `spacr.qt.path_probe` was written for, and `path_probe.isdir` is the right
+# way to ask it from the GUI thread: it answers from a cache and does the stat
+# on its own thread. Naming a folder that turns out to be gone costs a label.
+#
+# THE EXPENSIVE QUESTION -- "shall I open `QFileDialog` in this folder?" --
+# looks identical and is not, because the dialog STATS AND THEN LISTS its
+# starting directory ON THE GUI THREAD. Point it at a folder on a sleeping
+# `autofs` mount and the window locks for as long as the automount takes:
+# twenty seconds and still counting, measured on the maintainer's machine
+# 2026-09-04. So this question may only be answered "yes" when a real stat has
+# come back and said so.
+#
+# `path_probe` CANNOT ANSWER THE SECOND ONE, by design.
+# `path_probe._stat_with_timeout` stops WAITING after `PROBE_TIMEOUT_S` and
+# reports the path as PRESENT, because for the question it was written for a
+# path drawn red on the strength of a slow mount is worse than one drawn
+# black. Its cache therefore holds two kinds of True -- one a stat returned
+# and one the timeout invented -- and nothing in it tells them apart. Gating
+# the file dialog on that cache does not remove the freeze, it postpones it by
+# the length of the timeout.
+#
+# Timing the `probes.answered` emission does not recover the difference
+# either, and the first pass at this screen tried: the cache is keyed on the
+# path, `spacr.qt.chaining.ChainingBar.search_roots` probes
+# `prefs.get_last_source("annotate")` -- exactly this screen's remembered
+# source -- and `path_probe.exists` does not re-queue a key that is already in
+# flight. So the answer this screen timed was routinely somebody else's probe,
+# started at a moment this module never saw, and a stat that never returned
+# was clocked at whatever was left of ITS five seconds and vouched for.
+#
+# So the expensive question is asked outright, off the GUI thread, and ONLY
+# WHAT A STAT ACTUALLY RETURNED IS KEPT. That is the rule
+# `spacr.qt.dnd_handlers._decide` already states for the same reason ("the
+# cache holds real answers only"), and the bounded off-thread read is the same
+# shape as `spacr.qt.resource_cleanup._readings_within_the_budget`. Nothing
+# below ever runs a stat on the calling thread; the GUI thread only ever reads
+# a dict.
+
+#: How long a real answer about a folder is still worth acting on.
+#:
+#: An answer is proof the mount was awake when it was taken, not that it still
+#: is -- an idle `autofs` share goes back to sleep (the maintainer's is
+#: `timeout=600`), and a picker started in a folder that has since dozed off
+#: is the original freeze again. Two minutes is comfortably inside any
+#: plausible automount timeout and comfortably longer than opening Settings,
+#: reading the form and pressing Browse, which is the sequence the head start
+#: exists for. An expired answer is not wrong, only old: it stops being acted
+#: on and a fresh check is queued.
+VOUCH_TTL_S = 120.0
+
+#: Most folders checked at once. These are stat calls on a handful of paths --
+#: the open source, the one remembered from last session, whatever has been
+#: typed into the settings dialog's source field -- so the cap is a guard
+#: against a pathological caller rather than a throughput knob. A check turned
+#: away by it costs the user the picker's head start and nothing else.
+VOUCH_WORKERS = 4
+
+#: Real answers only, keyed on the path: ``{path: (monotonic, is_dir)}``.
+#: Written by the checking threads, read by the GUI thread, hence the lock.
+_VOUCHED: Dict[str, Tuple[float, bool]] = {}
+
+#: Paths a check is running for right now, so two presses of Browse do not
+#: park two threads on the same sleeping mount.
+_VOUCHING: set = set()
+
+_VOUCH_LOCK = threading.Lock()
+
+
+def _vouch_worker(path: str) -> None:
+    """Stat one folder and record the answer, on a throwaway thread.
+
+    :param path: the folder to ask about.
+    :returns: nothing; :data:`_VOUCHED` is the output.
+
+    This is the only place in this module that touches a filesystem, and it
+    is never called on the GUI thread. It may park for as long as the kernel
+    takes -- a daemon thread stuck in a sleeping automount costs a stack,
+    where a stuck GUI thread costs the application -- and whenever it does
+    park, the absence of an entry in :data:`_VOUCHED` is itself the answer
+    :func:`_vouched_dir` needs.
+    """
+    answer = False
+    try:
+        answer = os.path.isdir(path)
+    except OSError:
+        answer = False
+    finally:
+        with _VOUCH_LOCK:
+            _VOUCHED[path] = (time.monotonic(), bool(answer))
+            _VOUCHING.discard(path)
+
+
+def _vouch_later(path) -> None:
+    """Queue a truthful check of ``path``, and return immediately.
+
+    Call this wherever a folder is about to become a candidate for a file
+    dialog -- when a source is opened, when the settings dialog is built,
+    when its source field stops being edited -- so that the answer is in by
+    the time anybody presses a button. :func:`_vouched_dir` is the read.
+
+    :param path: the folder to ask about. Anything falsy is ignored.
+    :returns: nothing.
+
+    Never stats on the calling thread. A path whose answer is still fresh is
+    not asked again, and neither is one already being asked about.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return
+    now = time.monotonic()
+    with _VOUCH_LOCK:
+        if text in _VOUCHING:
+            return
+        held = _VOUCHED.get(text)
+        if held is not None and (now - held[0]) < VOUCH_TTL_S:
+            return
+        if len(_VOUCHING) >= VOUCH_WORKERS:
+            # Nothing is queued behind the cap on purpose: the caller loses a
+            # head start, not a result, and a queue here would be a second
+            # backlog to reason about beside `path_probe`'s own.
+            return
+        _VOUCHING.add(text)
+    threading.Thread(target=_vouch_worker, args=(text,), daemon=True,
+                     name=f"spacr-annotate-vouch:{text[:40]}").start()
+
+
+def _vouched_dir(path) -> bool:
+    """True only for a folder a real stat came back and confirmed, recently.
+
+    The gate in front of every ``QFileDialog`` on this screen, and the reason
+    the module comment above says `path_probe` cannot serve here: a folder the
+    probe only ASSUMED was there, because its stat never returned, is the one
+    case where opening the picker in it reproduces the freeze.
+
+    :param path: the folder being considered as a starting directory.
+    :returns: whether it may be handed to a file dialog.
+
+    Reads a dict and the clock; it never stats and never blocks. A folder it
+    cannot vouch for costs the user the head start and nothing else -- the
+    picker opens at the working directory, which is local by construction, and
+    they can navigate wherever they like from there. A stale answer is
+    re-asked in the background so a folder in daily use keeps its head start
+    instead of losing it permanently the first time a mount was slow.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return False
+    with _VOUCH_LOCK:
+        held = _VOUCHED.get(text)
+    if held is None:
+        _vouch_later(text)
+        return False
+    when, answer = held
+    if (time.monotonic() - when) >= VOUCH_TTL_S:
+        _vouch_later(text)
+        return False
+    return bool(answer)
+
+
+def _probe_isdir(path) -> bool:
+    """:func:`spacr.qt.path_probe.isdir`, for the CHEAP question only.
+
+    Whether to name a folder in the subtitle. Answers from `path_probe`'s
+    shared cache, never stats on the calling thread, and an unseen path comes
+    back ``False`` with a check queued -- so a caller that gates on it must
+    also subscribe to `path_probe.probes.answered` and run again, which
+    :meth:`AnnotateScreen._follow_path_probes` is.
+
+    Deliberately NOT the gate in front of a file dialog; see
+    :func:`_vouched_dir` and the module comment above for why the two
+    questions cannot share an answer.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return False
+    return path_probe.isdir(text)
+
+
+def _ask_about_the_folder(path) -> None:
+    """Put both questions about ``path`` to their own threads, and return.
+
+    The one call every warm-up site makes, so that no site has to remember
+    that there are two caches and which of them a button will read. Both
+    halves return immediately and neither stats on the calling thread.
+
+    Two moments call it. ONE, where the mount is demonstrably awake -- a
+    picker has just listed the folder, or a source has just been opened in
+    it -- so the next press of a Browse button starts there instead of at
+    the working directory. TWO, ahead of a button nobody has pressed yet --
+    the settings dialog is built, its source field stops being edited -- so
+    the answer is in by the time anybody reaches it. The second is why this
+    is a question and not a recording: `path_probe.prime` would be the call
+    if the answer were already in hand, and here it is not.
+
+    :param path: the folder to ask about. Anything falsy is ignored.
+    :returns: nothing.
+    """
+    text = str(path or "").strip()
+    if not text:
+        return
+    _probe_isdir(text)          # the shared cache, for everybody's subtitles
+    _vouch_later(text)          # this screen's own, for its file dialogs
+
+
+def _build_agreement(host_window) -> QWidget:
+    """Annotator Agreement's own screen, unchanged.
+
+    It arrives as the screen the sidebar row used to open rather than as
+    a summary of it: the κ table, the pairwise matrix and the
+    disagreement review are all capabilities of that screen, and a fold
+    that reimplemented one of them would be a fold that lost the others.
+
+    :param host_window: the main window, unused -- this screen reaches
+        nothing outside itself.
+    """
+    from .agreement import AgreementScreen
+    return AgreementScreen()
+
+
+#: One builder per folded module, the same shape the settings-driven fold
+#: hosts use — see :func:`spacr.qt.screens.map_barcodes.install_fold_strip`.
+FOLD_BUILDERS = {"agreement": _build_agreement}
+
+
+# ---------------------------------------------------------------------------
+# Screen chrome that must follow the theme
+#
+# Both blocks below were widget-local ``setStyleSheet`` calls with raw hex in
+# them, which is the one thing a per-widget sheet cannot do well: it beats the
+# application sheet whatever the selector says, so it never picked up a theme
+# change and never carried the user's page opacity. Registered blocks are
+# re-composed from the live palette on every stylesheet build instead.
+# ---------------------------------------------------------------------------
+
+#: ``objectName`` of the canvas the crops are laid out on, and the name its
+#: QSS block is registered under.
+GRID_OBJECT_NAME = "AnnotateGrid"
+
+#: ``objectName`` of the scroll viewport the canvas sits in.
+#:
+#: IT NEEDS A NAME BECAUSE A WIDGET-LOCAL SHEET IS INHERITED. A rule set on
+#: the viewport with ``setStyleSheet("background: transparent")`` applies to
+#: the viewport *and every descendant*, and a widget-local rule outranks the
+#: application sheet — so the unselectored version of it silently blanked the
+#: canvas inside it. Named, the rule can say "this widget" and mean it.
+GRID_VIEWPORT_NAME = "AnnotateGridViewport"
+
+#: ``objectName`` of the Console + AI switch on the bottom row.
+CONSOLE_SWITCH_NAME = "AnnotateConsoleSwitch"
+
+
+def _grid_backdrop_qss(palette, opacity=None) -> str:
+    """The panel the thumbnails sit on: a page surface with round corners.
+
+    The corner is :data:`spacr.qt.theme.RADIUS`'s ``md``, which is what the
+    panels either side of it use — the settings cards, the tab panes and the
+    chart frames all round at the same number, and a square-cornered slab in
+    the middle of them reads as unfinished rather than as deliberate.
+    """
+    from ..theme import RADIUS, block_surface
+    return f"""
+QWidget#{GRID_OBJECT_NAME} {{
+    background: {block_surface("surface_alt", palette.get("theme"), opacity)};
+    border-radius: {RADIUS["md"]}px;
+}}
+QWidget#{GRID_VIEWPORT_NAME} {{
+    background: transparent;
+}}
+"""
+
+
+def _console_switch_qss(palette, opacity=None) -> str:
+    """The Console switch: text on the page, lit while the pane is open.
+
+    No plate. A ``QToolButton`` with no rule of its own is drawn by the
+    widget style from the palette's Button role, which is a dark slab behind
+    the caption — the "black box". Written as text alone, in the theme's own
+    foreground colour (white on the dark themes), and it takes the accent
+    while the console is open.
+
+    The lit state is a STATE and not a hover: it holds while nobody is
+    touching the button, the same way a checkable fold button holds its
+    stage fill (:mod:`spacr.qt.widgets.fold_strip`).
+    """
+    return f"""
+QToolButton#{CONSOLE_SWITCH_NAME} {{
+    background: transparent;
+    border: none;
+    padding: 3px 6px;
+    color: {palette["fg"]};
+}}
+QToolButton#{CONSOLE_SWITCH_NAME}:hover {{
+    color: {palette.get("accent_hi", palette["accent"])};
+}}
+QToolButton#{CONSOLE_SWITCH_NAME}:checked {{
+    color: {palette["accent"]};
+}}
+"""
+
+
+register_widget_qss(GRID_OBJECT_NAME, _grid_backdrop_qss, replace=True)
+register_widget_qss(CONSOLE_SWITCH_NAME, _console_switch_qss, replace=True)
 
 
 # ---------------------------------------------------------------------------
@@ -239,7 +627,8 @@ def _qt_code_tokens() -> Dict[int, str]:
             continue
         try:
             out[int(code)] = token
-        except (TypeError, ValueError):   # pragma: no cover - defensive
+        except (TypeError, ValueError):
+            # A binding whose enum will not convert costs that key, not the map.
             continue
     return out
 
@@ -306,22 +695,100 @@ class _PageLoadWorker(QThread):
     done = Signal(int, object)   # (gen, list[(PIL.Image, annotation)])
 
     def __init__(self, gen: int, paths: list, load_fn, parent=None):
+        """Load one page of crops off the GUI thread.
+
+        :param gen: the page generation this worker belongs to. Carried back
+            with the result so a page the user has already left can be
+            discarded rather than drawn over the one they are looking at.
+        :param paths: the crops to load, in grid order.
+        :param load_fn: the callable that loads one crop. Whether it accepts
+            ``should_stop`` is asked ONCE here rather than per crop, so the
+            answer stays out of the loop.
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._gen = gen
         self._paths = paths
         self._load_fn = load_fn
+        # Whether this loader can be told to give up. The page loader can;
+        # a simpler per-row callable need not, and asking it once here keeps
+        # that decision out of the per-crop loop.
+        try:
+            self._load_fn_stops = "should_stop" in inspect.signature(
+                load_fn).parameters
+        except (TypeError, ValueError):
+            self._load_fn_stops = False
+
+    def _stop_requested(self) -> bool:
+        """Whether this page has been abandoned.
+
+        Handed DOWN into the outline code as ``should_stop`` rather than only
+        being consulted by the loop here. One crop's Cellpose outline is a
+        model construction plus one forward pass per channel, all of it native
+        and none of it interruptible, so a per-crop check answers minutes too
+        late: ``closeEvent`` gave up waiting and parked a QThread that was
+        still running, and destroying that wrapper aborts the process.
+
+        A destroyed C++ half reads as "stop" instead of raising, because a
+        worker whose wrapper has gone has certainly been abandoned.
+        """
+        try:
+            return bool(self.isInterruptionRequested())
+        except RuntimeError:
+            return True
 
     def run(self):
+        """Decode one page of crops and hand them back, if the screen still exists.
+
+        THE EMIT IS INSIDE THE GUARD, AND THAT IS THE WHOLE POINT. ``emit`` and
+        ``isInterruptionRequested`` are calls into this worker's C++ half, and
+        by the time a page finishes decoding the screen may be gone -- Qt
+        destroys the C++ object with its parent while this thread is still in
+        PIL. Both then raise, and raised here, outside any ``try``, the
+        exception escapes a ``QThread.run`` override: PySide6 prints "Error
+        calling Python override of QThread::run()" and the process aborts.
+        Caught in the full suite mid-``Image.resize``.
+
+        Nothing is lost by swallowing it: the only thing that branch does is
+        hand results to a screen that no longer exists. A page abandoned
+        mid-crop returns without emitting for the same reason -- the partial
+        list describes a page the screen has already moved off.
+        """
         try:
             loaded = []
             for row in self._paths:
-                if self.isInterruptionRequested():
+                if self._stop_requested():
                     return
-                loaded.append(self._load_fn(row))
+                if self._load_fn_stops:
+                    loaded.append(
+                        self._load_fn(row, should_stop=self._stop_requested))
+                else:
+                    loaded.append(self._load_fn(row))
+        except OutlineCancelled:
+            # The page was abandoned mid-crop. Return WITHOUT emitting: the
+            # partial list describes a page the screen has already moved off,
+            # and the point of unwinding early was to let the thread end.
+            return
         except Exception:
             loaded = []
-        if not self.isInterruptionRequested():
-            self.done.emit(self._gen, loaded)
+        # THE EMIT IS INSIDE THE GUARD, AND THAT IS THE WHOLE POINT.
+        #
+        # `emit` and `isInterruptionRequested` are calls into this worker's
+        # C++ half, and by the time a page finishes decoding the screen may
+        # already be gone -- Qt destroys the C++ object with its parent while
+        # this thread is still in PIL. Both then raise `RuntimeError:
+        # Internal C++ object already deleted`, and raised HERE, outside any
+        # try, the exception escapes a QThread::run override: PySide6 prints
+        # "Error calling Python override of QThread::run()" and the process
+        # aborts. Caught in the full suite on 2026-08-19, mid-`Image.resize`.
+        #
+        # Nothing is lost by swallowing it. The only thing this branch does
+        # is hand results to a screen that no longer exists.
+        try:
+            if not self.isInterruptionRequested():
+                self.done.emit(self._gen, loaded)
+        except RuntimeError:
+            pass
 
 
 class _RetrainWorker(QThread):
@@ -343,22 +810,184 @@ class _RetrainWorker(QThread):
 
     def __init__(self, db_path: str, annotation_column: str,
                  options: Dict[str, object], parent=None):
+        """Carry one retraining round's inputs onto a worker thread.
+
+        :param db_path: the annotation database to retrain from.
+        :param annotation_column: which column holds the labels.
+        :param options: keyword arguments passed through to
+            ``active_learning.retrain_round``. COPIED, not referenced: the
+            caller's dict belongs to a widget that may be edited while this
+            runs, and a worker reading it mid-round would train on settings
+            nobody chose.
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._db_path = db_path
         self._column = annotation_column
         self._options = dict(options)
 
     def run(self):
+        """Run one active-learning round and hand back the result.
+
+        Guarded at both ends for the reason ``_PageLoadWorker.run`` sets out: a
+        signal emitted at a destroyed C++ object raises out of ``run``, and an
+        exception out of a ``QThread.run`` override aborts the process. The
+        failure is surfaced rather than eaten -- a retrain that quietly did
+        nothing is worse than one that says why it could not.
+        """
         try:
             from ... import active_learning as al
             result = al.retrain_round(self._db_path, self._column,
                                       **self._options)
         except Exception as exc:                      # surfaced, never eaten
-            self.failed.emit(f"{type(exc).__name__}: {exc}")
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass                  # the screen went first; see run() above
             return
-        if self.isInterruptionRequested():
+        # Guarded for the reason `_PageLoadWorker.run` sets out at length: a
+        # signal emitted at a destroyed C++ object raises out of run(), and
+        # an exception out of a QThread::run override aborts the process.
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit(result)
+        except RuntimeError:
+            pass
+
+
+class _SuggestWorker(QThread):
+    """Fit a round, then write its opinion down as proposed labels.
+
+    BOTH HALVES OFF THE GUI THREAD, and the first half is why. Fitting is
+    the same work ``_RetrainWorker`` does -- seconds to a minute on a real
+    plate -- and a thirty-second block on the GUI thread is what the desktop
+    offers to force-quit; that happened on 2026-09-05 over a `urlopen` and
+    is not repeating over a model fit. The second half reads the whole crop
+    table into pandas, which is not free either.
+
+    IT FITS RATHER THAN READING A STALE SCORE. The request is "train a model
+    on your annotated images", and the labels made in the last ten minutes
+    are the ones that matter most; suggesting from the round before them
+    would propose labels the annotator has already moved past. Fitting here
+    also keeps ONE model behind both the suggestion and the queue's ranking,
+    because the round it fits is the round that writes the scores
+    :func:`spacr.suggest.suggest_from_scores` then reads.
+
+    Nothing here touches a widget: ``done``/``failed`` are ordinary signals
+    connected to bound methods of the screen, so Qt queues them onto the GUI
+    thread.
+    """
+
+    done = Signal(object)      # (Suggestions, written: int)
+    failed = Signal(str)
+
+    def __init__(self, db_path: str, annotation_column: str,
+                 options: Dict[str, object], *,
+                 png_table: str = "png_list",
+                 only_paths: Optional[Sequence[str]] = None,
+                 parent=None):
+        """Carry one suggestion run's inputs onto a worker thread.
+
+        :param db_path: the annotation database to fit and write in.
+        :param annotation_column: which column holds the labels.
+        :param options: keyword arguments for ``retrain_round``. COPIED for
+            the reason ``_RetrainWorker.__init__`` gives: the caller's dict
+            belongs to a widget that may be edited while this runs.
+        :param png_table: the crop table.
+        :param only_paths: restrict the suggestions written to these crops,
+            which is the "the images on screen" scope. None means every
+            unannotated crop. COPIED, and for the same reason: the screen's
+            page turns while this runs.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._db_path = db_path
+        self._column = annotation_column
+        self._options = dict(options)
+        self._png_table = png_table
+        self._only = None if only_paths is None else [str(p)
+                                                      for p in only_paths]
+
+    def run(self):
+        """Fit, propose, write, and hand back what was proposed.
+
+        Guarded at both ends for the reason ``_RetrainWorker.run`` sets out:
+        an exception out of a ``QThread.run`` override aborts the process,
+        and a signal emitted at a destroyed C++ object raises out of ``run``.
+        """
+        try:
+            from ... import active_learning as al
+            from ...suggest import (resolve_suggestions, suggest_from_scores,
+                                    write_suggestions)
+
+            # CLEARED BEFORE THE FIT, and this is not housekeeping.
+            # `retrain_round` takes every non-null value in the column as a
+            # class label, and `_class_value(11)` is 11 -- so a second
+            # Suggest run would fit on the FIRST run's output as two extra
+            # classes and feed the model its own opinion. It is also 379's
+            # stated rule ("re-running SUGGEST replaces the outstanding
+            # suggestions rather than adding to them"), so the two answers
+            # agree: nothing a machine proposed is ever trained on.
+            resolve_suggestions(self._db_path, self._column, keep=False,
+                                png_table=self._png_table)
+            al.retrain_round(self._db_path, self._column, **self._options)
+            proposal = suggest_from_scores(
+                self._db_path, self._column, png_table=self._png_table)
+            frame = proposal.frame
+            if self._only is not None and not frame.empty:
+                # The SCOPE, applied to the proposal rather than to the fit.
+                # The model is fitted on every label either way -- narrowing
+                # the training set to one page would make a worse model to
+                # save no time at all. What "this page" narrows is which
+                # crops get written, which is the only part the reviewer has
+                # to live with.
+                frame = frame[frame["png_path"].isin(set(self._only))]
+                frame = frame.reset_index(drop=True)
+                proposal.frame = frame
+                proposal.scored = int(len(frame))
+            written = 0
+            if not frame.empty:
+                written = write_suggestions(
+                    self._db_path, self._column, frame,
+                    png_table=self._png_table)
+        except Exception as exc:                      # surfaced, never eaten
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass                  # the screen went first; see run() above
             return
-        self.done.emit(result)
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit((proposal, written))
+        except RuntimeError:
+            pass
+
+
+def _retire(obj) -> bool:
+    """Hand ``obj`` back to Qt for deletion, tolerating one already gone.
+
+    Every caller is a retirement path that runs LATER than the thread it is
+    retiring: a queued ``finished`` slot, or ``closeEvent`` after a bounded
+    drain. By then the worker's C++ half may already have been destroyed with
+    its parent, and ``deleteLater`` on that shell raises ``RuntimeError:
+    Internal C++ object already deleted``.
+
+    The disconnects beside each call site were already guarded against exactly
+    that state; the delete on the next line was not, so the guard stopped one
+    line short of the object it was written for and the exception surfaced out
+    of the Qt event loop instead -- a traceback with nothing the user can do
+    about it, in a slot whose whole job is tidying up.
+
+    :returns: True when Qt was asked to delete it, False when there was
+        nothing left to delete.
+    """
+    try:
+        obj.deleteLater()
+    except RuntimeError:
+        return False
+    return True
 
 
 class _TextReportDialog(QDialog):
@@ -367,10 +996,29 @@ class _TextReportDialog(QDialog):
     The coverage table and the learning curve are wide, aligned text that a
     ``QMessageBox`` reflows into unreadable soup, and both are things a user
     wants to paste into a lab notebook.
+
+    SHOWN, NEVER ``exec``-ED. ``QDialog.exec`` runs a NESTED event loop, and
+    ``QCoreApplication.quit`` unwinds only the outermost one: closing the main
+    window while a report was open left the process alive with no window and
+    the GUI thread parked inside the report call for good. The same nested
+    loop also lets this dialog's own parent be destroyed while its ``exec``
+    is still on the stack, which is a delete of the object running the loop.
+    :meth:`AnnotateScreen._show_report` opens it as a plain window instead.
     """
 
     def __init__(self, title: str, body: str, parent: Optional[QWidget] = None):
+        """Show a report beside the grid rather than over it.
+
+        :param title: the window title.
+        :param body: the report text.
+        :param parent: parent widget, used for ownership only -- this opens
+            as a WINDOW in its own right so it can be moved and kept open
+            while annotating continues behind it.
+        """
         super().__init__(parent)
+        # A window in its own right, not a sheet stuck to the screen: it is
+        # read alongside the grid, moved, and kept open while annotating.
+        self.setWindowFlag(Qt.Window, True)
         self.setWindowTitle(title)
         self.resize(920, 620)
         layout = QVBoxLayout(self)
@@ -388,6 +1036,15 @@ class _TextReportDialog(QDialog):
         buttons.accepted.connect(self.accept)
         layout.addWidget(buttons)
         self._view = view
+
+    def set_body(self, body: str) -> None:
+        """Replace the report text, keeping the window where the user put it.
+
+        Pressing Coverage twice is asking for a fresher answer, not for a
+        second window: the reports are one per subject, so the open one is
+        rewritten rather than stacked behind a new one.
+        """
+        self._view.setPlainText(body)
 
 
 class _Thumbnail(QLabel):
@@ -410,6 +1067,10 @@ class _Thumbnail(QLabel):
 
     left_clicked = Signal(int)
     right_clicked = Signal(int)
+    #: Shift + left click. An EXTRA gesture: plain left click still labels,
+    #: because annotating is the primary action and a crop the user wanted to
+    #: look at closely is the exception rather than the rule.
+    shift_clicked = Signal(int)
     # (slot, entered). Emitted on Enter/Leave only — never per mouse-move —
     # so tracking the cursor across the grid costs two repaints per tile
     # boundary crossed and nothing at all in between.
@@ -418,6 +1079,19 @@ class _Thumbnail(QLabel):
     def __init__(self, slot: int, parent: Optional[QWidget] = None,
                  border_color: Optional[str] = None,
                  ring_color: Optional[str] = None):
+        """Build one grid cell.
+
+        :param slot: this cell's fixed position in the grid, which is how
+            the screen addresses it when a page of crops arrives.
+        :param parent: parent widget.
+        :param border_color: the resting border, or ``None`` to look it up.
+        :param ring_color: the ring drawn on the current cell, or ``None``
+            to look it up.
+
+        BOTH COLOURS ARE PASSED DOWN, not looked up per cell: the screen
+        resolves them once per grid rebuild so the hover path never touches
+        a palette.
+        """
         super().__init__(parent)
         self.slot = slot
         # Colours are resolved by the screen once per grid rebuild and
@@ -426,6 +1100,11 @@ class _Thumbnail(QLabel):
         self._ring_color = ring_color or current_ring_color()
         self._current = False
         self._occupied = False
+        #: A machine's proposal rather than the annotator's answer. Drawn as
+        #: the SAME class colour with a dashed ring, never as a colour of its
+        #: own: a third colour on a two-class screen reads as a third class,
+        #: which is the one thing a suggestion must not look like.
+        self._suggested = False
         self.setAlignment(Qt.AlignCenter)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         # Transparent so the rounded tile sits cleanly on the grid canvas
@@ -484,6 +1163,25 @@ class _Thumbnail(QLabel):
         self.update()
         return True
 
+    def is_suggested(self) -> bool:
+        """True when this cell's label was proposed, not decided."""
+        return self._suggested
+
+    def set_suggested(self, on: bool) -> bool:
+        """Draw this cell's ring dashed; returns True when it changed.
+
+        Mirrored onto a Qt property as well as the field so a stylesheet and
+        a test can both ask, the way ``set_current`` does -- and so "is this
+        a suggestion" has exactly one answer per tile.
+        """
+        on = bool(on)
+        self.setProperty("suggested", on)
+        if on == self._suggested:
+            return False
+        self._suggested = on
+        self.update()
+        return True
+
     # -- painting ------------------------------------------------------
     def paintEvent(self, event):        # noqa: N802  (Qt naming)
         """Draw the clipped crop, the state ring and (if current) the ring."""
@@ -509,7 +1207,8 @@ class _Thumbnail(QLabel):
                                    QRectF(pm.rect()))
                 painter.restore()
             self._stroke(painter, self._border_color, BORDER_WIDTH,
-                         HOVER_RING_WIDTH + BORDER_WIDTH / 2.0, w, h)
+                         HOVER_RING_WIDTH + BORDER_WIDTH / 2.0, w, h,
+                         dashed=self._suggested)
             if self._current:
                 self._stroke(painter, self._ring_color, HOVER_RING_WIDTH,
                              HOVER_RING_WIDTH / 2.0, w, h)
@@ -518,12 +1217,24 @@ class _Thumbnail(QLabel):
 
     @staticmethod
     def _stroke(painter: QPainter, color: str, width: int, inset: float,
-                w: float, h: float) -> None:
-        """Stroke one rounded rect inset by ``inset`` from the widget edge."""
+                w: float, h: float, dashed: bool = False) -> None:
+        """Stroke one rounded rect inset by ``inset`` from the widget edge.
+
+        ``dashed`` marks a suggested label. The COLOUR is unchanged -- the
+        dash pattern is the whole difference -- because a suggested 1 is a
+        proposal about class 1 and must read as one. Giving it its own
+        colour would put a third swatch on a two-class screen and invite the
+        reading that there is a third class.
+        """
         if w - 2 * inset <= 0 or h - 2 * inset <= 0:
             return
         pen = QPen(QColor(color))
         pen.setWidth(width)
+        if dashed:
+            # In units of the pen width, so the dashes keep their proportions
+            # when the interface is zoomed -- see `spacr.qt.live_zoom`.
+            pen.setStyle(Qt.CustomDashLine)
+            pen.setDashPattern([2.0, 2.0])
         painter.setPen(pen)
         radius = max(1.0, TILE_RADIUS - inset)
         painter.drawRoundedRect(
@@ -532,9 +1243,16 @@ class _Thumbnail(QLabel):
 
     # -- mouse ---------------------------------------------------------
     def mousePressEvent(self, event):
-        """Route left/right mouse buttons to typed signals; ignore others."""
+        """Route the mouse to typed signals; ignore buttons with no meaning.
+
+        Shift is read before the plain left click rather than after, so the
+        zoom gesture cannot also drop a label on the crop it opens.
+        """
         if event.button() == Qt.LeftButton:
-            self.left_clicked.emit(self.slot)
+            if event.modifiers() & Qt.ShiftModifier:
+                self.shift_clicked.emit(self.slot)
+            else:
+                self.left_clicked.emit(self.slot)
         elif event.button() == Qt.RightButton:
             self.right_clicked.emit(self.slot)
         else:
@@ -552,6 +1270,111 @@ class _Thumbnail(QLabel):
 
 
 # ---------------------------------------------------------------------------
+# The one crop the annotator wanted to look at properly
+# ---------------------------------------------------------------------------
+
+
+class _ZoomOverlay(QWidget):
+    """One crop blown up to fill the grid's container, in front of the grid.
+
+    IN FRONT, not instead of. The overlay is a child of the scroll
+    viewport and is raised above the canvas the tiles are laid out on, so
+    nothing reflows: the grid keeps its geometry, the page keeps its
+    scroll position, and folding the crop back is a repaint rather than a
+    rebuild.
+
+    Clicks are split by where they land. Inside the picture they are
+    swallowed — the annotator is looking at it, and a stray click there
+    must not label the crop underneath or dismiss the thing they opened.
+    Outside it the overlay folds back, which is the whole way out of the
+    gesture along with ``Escape``.
+
+    :param parent: parent widget; ownership only.
+    """
+
+    #: A click landed off the picture: the caller should fold it back.
+    dismissed = Signal()
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Build an empty overlay, bound to no slot yet."""
+        super().__init__(parent)
+        self._pixmap: Optional[QPixmap] = None
+        self.slot: int = -1
+        self.setCursor(Qt.PointingHandCursor)
+        self.hide()
+
+    def show_pixmap(self, pixmap: QPixmap, slot: int) -> None:
+        """Take over the container with ``pixmap``, drawn for ``slot``."""
+        self._pixmap = pixmap
+        self.slot = int(slot)
+        self.show()
+        self.raise_()
+        self.update()
+
+    def picture_rect(self) -> QRectF:
+        """Where the crop is actually drawn, in this widget's coordinates.
+
+        The whole container minus a margin, at the crop's own aspect ratio.
+        The margin is what a "click outside" has to land in, so it is real
+        space rather than nothing: an overlay drawn edge to edge would leave
+        a user holding a picture with no way out but the keyboard.
+        """
+        pm = self._pixmap
+        if pm is None or pm.isNull():
+            return QRectF()
+        margin = float(SPACING["md"])
+        box_w = max(1.0, self.width() - 2 * margin)
+        box_h = max(1.0, self.height() - 2 * margin)
+        scale = min(box_w / pm.width(), box_h / pm.height())
+        w = pm.width() * scale
+        h = pm.height() * scale
+        return QRectF(margin + (box_w - w) / 2.0,
+                      margin + (box_h - h) / 2.0, w, h)
+
+    def paintEvent(self, event):        # noqa: N802  (Qt naming)
+        """Dim the grid, then draw the crop over it with round corners."""
+        pm = self._pixmap
+        if pm is None or pm.isNull():
+            return
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+            # A scrim, not a blank: the grid stays legible behind the crop
+            # so it is obvious that nothing was navigated away from.
+            painter.fillRect(self.rect(), QColor(0, 0, 0, 170))
+            box = self.picture_rect()
+            if box.isEmpty():
+                return
+            clip = QPainterPath()
+            clip.addRoundedRect(box, TILE_RADIUS, TILE_RADIUS)
+            painter.setClipPath(clip)
+            painter.drawPixmap(box, pm, QRectF(pm.rect()))
+            painter.setClipping(False)
+            pen = QPen(QColor(current_ring_color()))
+            pen.setWidth(BORDER_WIDTH)
+            painter.setPen(pen)
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRoundedRect(box, TILE_RADIUS, TILE_RADIUS)
+        finally:
+            painter.end()
+
+    def mousePressEvent(self, event):   # noqa: N802  (Qt naming)
+        """Swallow clicks on the picture; fold back on the ones beside it."""
+        if not self.picture_rect().contains(event.position()):
+            self.dismissed.emit()
+        event.accept()
+
+    def keyPressEvent(self, event):     # noqa: N802  (Qt naming)
+        """Escape folds the crop back; everything else goes to the grid."""
+        if event.key() == Qt.Key_Escape:
+            self.dismissed.emit()
+            event.accept()
+            return
+        event.ignore()
+
+
+# ---------------------------------------------------------------------------
 # Settings dialog
 # ---------------------------------------------------------------------------
 
@@ -564,6 +1387,44 @@ def _csv_to_list(text: str) -> Optional[List[str]]:
 def _list_to_csv(vals: Optional[List[str]]) -> str:
     """Format a list as a comma-separated string; empty/None becomes ``""``."""
     return ", ".join(str(v) for v in vals) if vals else ""
+
+
+def _filter_text(value) -> str:
+    """One filter bound as a user would type it; ``None`` becomes empty.
+
+    ``%g`` rather than ``str``: the bounds are floats internally and a field
+    that read back ``200.0`` after the user typed ``200`` looks like the
+    dialog corrected them.
+    """
+    if value is None:
+        return ""
+    try:
+        return f"{float(value):g}"
+    except (TypeError, ValueError):
+        return ""
+
+
+#: What each of the six filter rows is called on the settings form. The
+#: colour leads, because that is what the annotator is choosing between --
+#: the plane holding the nuclei, not the second row of the third group.
+FILTER_ROW_LABELS = {
+    ("r", "area"): "Red area",
+    ("r", "intensity"): "Red intensity",
+    ("g", "area"): "Green area",
+    ("g", "intensity"): "Green intensity",
+    ("b", "area"): "Blue area",
+    ("b", "intensity"): "Blue intensity",
+}
+
+#: The sentence every one of the twelve fields carries. EMPTY IS THE POINT:
+#: it is the only way to say "no bound on this side", and a user who cannot
+#: find the off switch fills a zero in instead, which is a different filter.
+FILTER_FIELD_TIP = (
+    "The window an object must fall inside to be outlined in this colour. "
+    "Area is the object's size in pixels; intensity is its mean brightness "
+    "in that colour, 0\u2013255.\n\nLEAVE A FIELD EMPTY for no bound on "
+    "that side. An empty field is how half a filter is turned off, and it "
+    "is not the same as a zero.")
 
 
 def _cover_rect(pm: QPixmap, box: QRectF) -> QRectF:
@@ -613,13 +1474,21 @@ def _reanchor_png_path(path: str, db_path: str) -> str:
     return path
 
 
-def _load_thumb_image_worker(row, src, settings):
+def _load_thumb_image_worker(row, src, settings, should_stop=None):
     """Load one thumbnail from an immutable page-request snapshot.
 
     This function deliberately receives no :class:`AnnotateScreen`.  Calling a
     bound QWidget method from a worker kept the screen wrapper alive after its
     C++ object had been destroyed and let background threads read settings
     while the GUI thread replaced them.
+
+    :param should_stop: passed through to :func:`outline_image`, which asks it
+        before every Cellpose call. A Cellpose outline is native work that
+        cannot be stopped once it has started, and a page of them went on
+        running for minutes after the screen had asked its worker to stop --
+        long enough that the close gave up waiting and parked a QThread that
+        was still running. Handing the interruption flag down here is what
+        lets a page be abandoned between calls instead.
     """
     if isinstance(row, dict):
         annotation = row.get("annotation")
@@ -664,8 +1533,15 @@ def _load_thumb_image_worker(row, src, settings):
                 edge_image=s.edge_image,
                 outline_threshold_factor=s.outline_threshold_factor,
                 object_size=s.object_size,
+                object_filters=getattr(s, "object_filters", None),
                 outline_method=getattr(s, "outline_method", "otsu"),
+                should_stop=should_stop,
             )
+        except OutlineCancelled:
+            # Re-raised ahead of the blanket handler below. Swallowing it
+            # here would turn "the screen has gone, stop" back into "draw
+            # this crop without an outline" and carry on with the page.
+            raise
         except Exception:
             pass
     return img.resize(s.image_size), annotation
@@ -709,7 +1585,7 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             # has run, so fall back to page order and say why rather than
             # showing an empty grid.
             return {"filtered_rows": None,
-                    "total": count_rows(s.db_path, s.image_type),
+                    "total": count_rows(s.db_path, s.image_type, table=s.png_table),
                     "queue_summary": "",
                     "note": f"Uncertainty queue unavailable: {exc}"}
         rows = al.queue_rows(queue)
@@ -730,14 +1606,22 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
         return {"filtered_rows": rows, "total": len(rows),
                 "queue_summary": "", "note": ""}
     return {"filtered_rows": None,
-            "total": count_rows(s.db_path, s.image_type),
+            "total": count_rows(s.db_path, s.image_type, table=s.png_table),
             "queue_summary": "", "note": ""}
 
 
 class _SettingsDialog(QDialog):
-    """Modal dialog that edits an :class:`AnnotateSettings` in place."""
+    """Modal dialog that edits an :class:`AnnotateSettings` in place.
+
+    :param settings: the :class:`AnnotateSettings` this edits IN PLACE. The
+        dialog mutates the object it was handed rather than returning a new
+        one, so a caller that wants the old values back on Cancel has to
+        keep its own copy.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
+        """Build the form, detached from the window manager."""
         super().__init__(parent)
         # A modal, transient-for dialog is ATTACHED by GNOME/Mutter: centred
         # on the parent, undraggable, and pulling at it un-maximises the main
@@ -745,18 +1629,54 @@ class _SettingsDialog(QDialog):
         from ..dialogs import detach_from_window_manager
         detach_from_window_manager(self)
         self.setWindowTitle("Annotate — Settings")
-        self.setMinimumWidth(480)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(480))
         self._settings = settings
 
         form = QFormLayout()
 
         self._src_edit = QLineEdit(settings.src)
+        # WARM THE ANSWER; do not ask the filesystem from here. `Browse…`
+        # hands its starting folder to `QFileDialog`, which stats AND LISTS
+        # that folder on the GUI thread -- twenty seconds on a sleeping
+        # `autofs` share, measured 2026-09-04 -- so `_pick_src` only offers a
+        # folder a real stat has come back and confirmed. This queues that
+        # check now, on a thread of its own, so the answer is in by the time
+        # anybody reaches the button.
+        if settings.src:
+            _ask_about_the_folder(settings.src)
+        # AND AGAIN WHENEVER THE FIELD IS EDITED. `editingFinished` fires on
+        # focus-out, which for a mouse is the PRESS on Browse -- a moment
+        # before its `clicked` -- so a hand-typed local folder is normally
+        # answered in time as well, while a sleeping one is not. That
+        # asymmetry is the whole point: the picker keeps opening where the
+        # user pointed it, except when doing so would freeze the window.
+        self._src_edit.editingFinished.connect(self._probe_the_source_field)
         src_row = QHBoxLayout()
         src_row.setContentsMargins(0, 0, 0, 0)
         src_row.addWidget(self._src_edit, 1)
         src_btn = QPushButton("Browse…")
         src_btn.clicked.connect(self._pick_src)
         src_row.addWidget(src_btn)
+        # SOMETHING TO ANNOTATE, for a user who has not measured a plate yet.
+        # Beside Browse because it fills the same field, and because the
+        # question it answers -- "what do I point this at?" -- is asked here.
+        # TWO STRATEGIES, TWO BUTTONS. Annotating can read crops that are
+        # already on disk, or cut them from the merged arrays on demand, and
+        # the two need different halves of a plate:
+        #
+        #   crops     -> data/ and measurements/measurements.db  (282 MB)
+        #   streaming -> merged/ and measurements/measurements.db (388 MB)
+        #
+        # Both unpack into the same plate folder, so pressing both leaves a
+        # complete plate and either strategy then works. One button fetching
+        # 670 MB would make the cheaper half unavailable on its own.
+        # THE TWO EXAMPLE BUTTONS MOVED. They were here, beside the source
+        # box, spending two slots on a choice most users make once -- and
+        # naming the choice ("crops" vs "streaming") before explaining it.
+        # They are now one "Load test data" button next to Generate, which
+        # opens a chooser that can afford to describe each route properly.
         src_wrap = QWidget(); src_wrap.setLayout(src_row)
         form.addRow("Source folder", src_wrap)
 
@@ -772,6 +1692,40 @@ class _SettingsDialog(QDialog):
         self._img_size.setRange(48, 800)
         self._img_size.setValue(settings.image_size[0])
         form.addRow("Image size (px)", self._img_size)
+
+        # WHERE THE PICTURE COMES FROM, offered rather than inferred.
+        # The setting has always existed and was never asked about: it
+        # shipped 'auto', which takes the exported crops whenever a `data/`
+        # folder is there, so a screen holding both folders could not be
+        # told to read the arrays without editing a settings file.
+        #
+        # The two modes are named the same way every other spaCR panel names
+        # them, and the STORED values stay 'png' and 'merged' -- no settings
+        # file written before this changes meaning. 'auto' is retired from
+        # the panel and not from the code: it answers "what is available
+        # here", which is not an answer to which mode a user wants.
+        from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
+                              STREAM_IMAGES_LABEL)
+
+        self._crop_source = QComboBox()
+        self._crop_source.addItem(
+            f"{LOAD_IMAGES_LABEL} \u2014 crops already in data/", LOAD_IMAGES)
+        self._crop_source.addItem(
+            f"{STREAM_IMAGES_LABEL} \u2014 cut from merged/*.npy",
+            STREAM_IMAGES)
+        self._crop_source.setToolTip(
+            "LOAD IMAGES reads the crops the measure step exported under "
+            "data/. STREAM IMAGES cuts them out of merged/*.npy as the page "
+            "is drawn, which needs no export. Either mode falls back to the "
+            "other when its folder is missing, and says which route drew.")
+        stored = str(getattr(settings, "crop_source", "") or "").strip().lower()
+        # EVERY SPELLING THIS SETTING HAS EVER CARRIED resolves here, so a
+        # settings file written under any of them opens on the mode it named
+        # rather than on whatever happened to be last in the list.
+        self._crop_source.setCurrentIndex(
+            1 if stored in ("merged", "stream", "stream_images", "on_demand")
+            else 0)
+        form.addRow("Image source", self._crop_source)
 
         self._image_type = QLineEdit(settings.image_type or "")
         self._image_type.setPlaceholderText("e.g. cell (blank = all types)")
@@ -916,15 +1870,48 @@ class _SettingsDialog(QDialog):
         self._edge_image.setChecked(bool(settings.edge_image))
         form.addRow("", self._edge_image)
 
-        self._obj_min = QSpinBox(); self._obj_min.setRange(0, 10_000_000)
-        self._obj_min.setValue(int(settings.object_size[0]))
-        self._obj_max = QSpinBox(); self._obj_max.setRange(0, 10_000_000)
-        self._obj_max.setValue(int(settings.object_size[1]))
-        obj_row = QHBoxLayout(); obj_row.setContentsMargins(0, 0, 0, 0)
-        obj_row.addWidget(self._obj_min); obj_row.addWidget(QLabel("–"))
-        obj_row.addWidget(self._obj_max)
-        obj_wrap = QWidget(); obj_wrap.setLayout(obj_row)
-        form.addRow("Object size (px area)", obj_wrap)
+        # ── Which objects get an outline: six rows of two fields ─────────
+        #
+        # One number for every colour was the complaint. Red, green and blue
+        # hold different objects, so each plane gets its own size window and
+        # its own brightness window -- six rows of two fields rather than
+        # twelve separate settings, which is the same information without a
+        # form nobody can read.
+        #
+        # A LEGACY `object_size` IS SHOWN IN THESE FIELDS, migrated onto the
+        # three area rows by the engine, so the value a project was already
+        # filtering on is in front of the user rather than silently still in
+        # force somewhere they cannot see.
+        self._object_filter_fields: Dict[
+            Tuple[str, str], Tuple[QLineEdit, QLineEdit]] = {}
+        current_filters = normalize_object_filters(
+            getattr(settings, "object_filters", None),
+            getattr(settings, "object_size", None))
+        for channel in FILTER_CHANNELS:
+            for measure in FILTER_MEASURES:
+                low, high = current_filters[filter_key(channel, measure)]
+                filter_row = QHBoxLayout()
+                filter_row.setContentsMargins(0, 0, 0, 0)
+                pair: List[QLineEdit] = []
+                for value, hint in ((low, "min"), (high, "max")):
+                    edit = QLineEdit(_filter_text(value))
+                    edit.setPlaceholderText(hint)
+                    # A number or nothing. `filter_bound` treats anything
+                    # else as no bound, and a filter that switched itself
+                    # off because of a half-typed number would be silent.
+                    validator = QDoubleValidator(edit)
+                    validator.setNotation(QDoubleValidator.StandardNotation)
+                    validator.setBottom(0.0)
+                    validator.setLocale(QLocale.c())
+                    edit.setValidator(validator)
+                    edit.setToolTip(FILTER_FIELD_TIP)
+                    filter_row.addWidget(edit)
+                    pair.append(edit)
+                filter_wrap = QWidget(); filter_wrap.setLayout(filter_row)
+                form.addRow(FILTER_ROW_LABELS[(channel, measure)],
+                            filter_wrap)
+                self._object_filter_fields[(channel, measure)] = (
+                    pair[0], pair[1])
 
         # ── Threshold filter (measurement > / < threshold on merged tables)
         self._measurement = QLineEdit(
@@ -1025,8 +2012,11 @@ class _SettingsDialog(QDialog):
             self._edge_thick: "edge_thickness",
             self._edge_transp: "edge_transparency",
             self._edge_image: "edge_image",
-            self._obj_min: "object_min_size",
-            self._obj_max: "object_max_size",
+            # The twelve filter fields are deliberately NOT here. This map
+            # installs the API tooltip for a pipeline SETTING, and no
+            # pipeline function takes a per-colour window; pointing one of
+            # them at `object_max_size` would replace the sentence written
+            # above with a description of a different, single-number knob.
             self._measurement: "measurement",
             self._threshold: "threshold",
             self._threshold_dir: "threshold_direction",
@@ -1034,7 +2024,41 @@ class _SettingsDialog(QDialog):
             self._queue_measure: "queue_measure",
             self._queue_diversity: "queue_diversity",
             self._queue_limit: "queue_limit",
-        }, api_dots=False)
+        })
+
+        # POLISHED BY `spacr.qt.dialogs.make_the_window_resizable`, which
+        # does this for EVERY dialog now and not only for this one.
+        #
+        # The defect is worth keeping a note of here because this dialog is
+        # where it was measured: the detacher reads a dialog's floor on its
+        # Polish event, an event filter runs before the widget's own handler,
+        # and so the floor used to be measured before the stylesheet reached
+        # any of this dialog's 165 children. Sixteen of them change size
+        # across that boundary -- its eight QComboBoxes, 29 px in the default
+        # "Sans Serif 9" and 30 px in the stylesheet's "Open Sans".
+        #
+        #     floor read at Polish   480 x 1183   the size it re-opened at
+        #     floor once on screen   512 x 1191   the size it really needs
+        #
+        # Eight rows, eight pixels, and this dialog opened eight pixels short
+        # of its own content with a scroll bar already showing.
+
+    def _probe_the_source_field(self) -> None:
+        """Queue a background check of whatever the source field now holds.
+
+        Never blocks: :func:`_ask_about_the_folder` hands both questions to
+        other threads and returns. The answers are deliberately discarded
+        here -- they are read by :meth:`_pick_src`, later, through
+        :func:`_vouched_dir`, and this is only what puts them in the caches
+        in time to be read.
+
+        ``editingFinished``, so one check per editing session rather than one
+        per keystroke: a check is a stat, and a sleeping mount parks the
+        thread that makes it.
+        """
+        text = self._src_edit.text().strip()
+        if text:
+            _ask_about_the_folder(text)
 
     def _picker_db_path(self) -> str:
         """Where the SQL picker looks — the src folder as it reads right now.
@@ -1046,11 +2070,233 @@ class _SettingsDialog(QDialog):
         """
         return self._src_edit.text().strip()
 
+    def example_destination(self):
+        """The shared example plate folder.
+
+        Shared with Classify because it is one dataset, and with Mask and
+        Measure because `data/`, `merged/` and `measurements/measurements.db`
+        are parts of one plate that are needed together.
+        """
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def _load_the_example_data(self, *, ask=None) -> str:
+        """Fetch the example set and point this screen at it.
+
+        :returns: the source that was set, or ``""``.
+        """
+        destination = self.example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # THIS SET'S OWN DATABASE is the test. The folder is shared with the
+        # other example sets now, so its existence says nothing -- and a
+        # cancelled download leaves it behind too.
+        if (destination / "measurements" / "measurements.db").is_file():
+            return self._use_the_example_data(destination)
+
+        button = getattr(self, "_example_btn", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText("Fetching…")
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText("Example…")
+            if result is None:
+                LOG.info("annotation example not downloaded: %s", error)
+                return
+            self._use_the_example_data(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _load_the_streaming_example(self, *, ask=None) -> str:
+        """Fetch the merged arrays, for the streaming strategy.
+
+        The same plate folder as the crops, so the two compose: a user who
+        presses both ends up with a plate that either strategy can work from.
+        """
+        destination = self.example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # `merged/` holding an array is the test, not the folder: it is shared
+        # with the crops download and with Mask's images.
+        merged = destination / "merged"
+        if merged.is_dir() and any(merged.glob("*.npy")):
+            return self._use_the_example_data(destination)
+
+        button = getattr(self, "_stream_btn", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText("Fetching…")
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText("Example (streaming)")
+            if result is None:
+                LOG.info("streaming example not downloaded: %s", error)
+                return
+            self._use_the_example_data(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_measure_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _use_the_example_data(self, destination) -> str:
+        """Point the source field at the downloaded example.
+
+        The DATABASE, not the folder: this screen reads `png_list`, and the
+        published settings file names the database for the same reason.
+        """
+        from pathlib import Path
+
+        destination = Path(destination)
+        database = destination / "measurements" / "measurements.db"
+        source = str(database if database.is_file() else destination)
+        self._src_edit.setText(source)
+        # AND THE SETTINGS THAT CAME WITH IT. The dataset ships an
+        # `annotate_settings.csv` describing which column holds the labels,
+        # what size the crops are and which channels they carry -- and a user
+        # who has to work that out first has done most of the work the example
+        # was meant to save.
+        self._apply_example_settings(destination / "settings"
+                                     / "annotate_settings.csv")
+        # `infected`, NOT `annotate`, when the file did not say. The published
+        # set is labelled by a rule -- a cell is infected exactly when the
+        # pathogen table names it as a parent -- and `annotate` is
+        # deliberately empty, so opening on it would show 2,341 unlabelled
+        # crops and none of the labels the example exists to carry.
+        if hasattr(self, "_ann_col") and not self._ann_col.text().strip():
+            self._ann_col.setText("infected")
+        return source
+
+    #: Settings keys the dialog can fill in, and the widget each one drives.
+    #:
+    #: Named rather than derived: the dialog holds far more widgets than the
+    #: published file sets, and a loop over every attribute would quietly pick
+    #: up whichever ones happened to share a name.
+    _EXAMPLE_SETTING_WIDGETS = {
+        "annotation_column": "_ann_col",
+        "image_size": "_img_size",
+        "channels": "_channels",
+        "image_type": "_image_type",
+        "measurement": "_measurement",
+        "threshold": "_threshold",
+        "normalize_channels": "_norm_channels",
+        "outline": "_outline",
+    }
+
+    #: Other spellings the same question has been written under.
+    #:
+    #: `img_size` IS NOT A LEGACY FILE FORMAT -- it is what
+    #: `set_annotate_default_settings` writes TODAY. The factory has always
+    #: called it `img_size` (an int) and this screen has always called it
+    #: `image_size` (a width/height pair), so a settings CSV produced from
+    #: spaCR's OWN defaults set every field in this dialog except the crop
+    #: size, silently, and the user saw a form that had mostly filled itself
+    #: in and had no reason to suspect the one row that had not.
+    #:
+    #: Found by the Annotate audit. Accepting the other
+    #: spelling here rather than renaming either side: the factory's name is
+    #: in shipped settings files and in every notebook that writes one, and
+    #: this screen's name is in `AnnotateSettings.image_size`, which is a
+    #: tuple and genuinely a different type. `toxo` is accepted the same way
+    #: elsewhere in the package.
+    _ALSO_SPELT = {
+        "image_size": ("img_size",),
+    }
+
+    def _apply_example_settings(self, path) -> int:
+        """Fill the form from a settings CSV that shipped with a dataset.
+
+        Each field independently: one unusable value must not cost the rest of
+        the form, which is the whole reason a settings file is worth shipping.
+
+        :returns: how many fields were set.
+        """
+        import csv
+        from pathlib import Path
+
+        path = Path(path)
+        if not path.is_file():
+            return 0
+        try:
+            with path.open(newline="") as handle:
+                rows = {str(row[0]).strip(): str(row[1]).strip()
+                        for row in csv.reader(handle)
+                        if len(row) >= 2 and row[0] != "Key"}
+        except OSError:
+            LOG.debug("could not read %s", path, exc_info=True)
+            return 0
+
+        applied = 0
+        for key, attribute in self._EXAMPLE_SETTING_WIDGETS.items():
+            value = rows.get(key)
+            for spelling in self._ALSO_SPELT.get(key, ()):
+                if value in (None, "", "None"):
+                    value = rows.get(spelling)
+            widget = getattr(self, attribute, None)
+            if widget is None or value in (None, "", "None"):
+                continue
+            try:
+                if hasattr(widget, "setValue"):
+                    widget.setValue(int(float(value)))
+                elif hasattr(widget, "setCurrentText"):
+                    widget.setCurrentText(value)
+                else:
+                    widget.setText(value)
+                applied += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("example settings: %r is not usable for %s",
+                          value, key, exc_info=True)
+        LOG.info("applied %d settings from %s", applied, path)
+        return applied
+
     def _pick_src(self):
+        """Ask for the experiment source, starting where the field points.
+
+        ...but only when the field points somewhere a real stat has come back
+        and confirmed. This is the same defect as the subtitle stat on the
+        screen that owns this dialog: `QFileDialog.getExistingDirectory` stats
+        and then lists its starting directory ON THE GUI THREAD, and the field
+        routinely holds the folder of the last source opened -- so a user
+        whose plate lives on a sleeping `autofs` mount pressed Browse and got
+        the twenty-second freeze that `spacr.qt.path_probe` exists to prevent.
+
+        :func:`_vouched_dir` rather than the probe's own answer, and the
+        difference matters: the probe reports an unanswered stat as PRESENT
+        after its timeout, so gating on it alone would reopen this exact hole
+        five seconds late. The check is queued when the dialog opens and again
+        when the field is edited (see :meth:`_probe_the_source_field`), so a
+        folder that is really there has almost always answered by the time
+        this runs. One that has not opens the picker at the working directory,
+        which is local by construction; nothing is lost but the head start,
+        and the user can still navigate from there.
+        """
+        start = self._src_edit.text().strip()
+        if not _vouched_dir(start):
+            start = os.getcwd()
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
-                                              self._src_edit.text() or os.getcwd())
+                                             start)
         if d:
             self._src_edit.setText(d)
+            # QUEUE the folder's answers now, while the dialog has just
+            # listed it and the mount is demonstrably awake, so the next press
+            # of Browse can start here. Queued, not had: this returns
+            # immediately and both stats happen on other threads.
+            # `path_probe.prime` is not what to call -- it records the
+            # `exists` question, and neither question here is that one.
+            _ask_about_the_folder(d)
 
     def accept(self):  # noqa: D401 - Qt slot
         """Refuse OK when the threshold filter cannot be applied as typed.
@@ -1094,10 +2340,18 @@ class _SettingsDialog(QDialog):
         s.annotation_column = self._ann_col.text().strip() or "annotate"
         size = int(self._img_size.value())
         s.image_size = (size, size)
+        s.crop_source = str(self._crop_source.currentData() or "png")
         s.image_type = self._image_type.text().strip() or None
         s.channels = _csv_to_list(self._channels.text())
         s.stored_channel_order = str(
             self._stored_channel_order.currentData() or "rgb")
+        # BOTH VIEW CONTROLS ARE READ BACK HERE. Neither used to be, so the
+        # two combos above were decorative: a crop drawn after choosing CMY
+        # measured pixel-for-pixel identical to the RGB one, because the
+        # settings object the loader reads still said "rgb".
+        s.display_order = str(self._display_order.currentData() or "rgb")
+        s.display_primaries = str(
+            self._display_primaries.currentData() or "rgb")
         s.normalize_channels = _csv_to_list(self._norm_channels.text())
         s.percentiles = (float(self._pct_lo.value()), float(self._pct_hi.value()))
         s.outline = _csv_to_list(self._outline.text())
@@ -1107,7 +2361,16 @@ class _SettingsDialog(QDialog):
         s.edge_thickness = float(self._edge_thick.value())
         s.edge_transparency = float(self._edge_transp.value())
         s.edge_image = bool(self._edge_image.isChecked())
-        s.object_size = (int(self._obj_min.value()), int(self._obj_max.value()))
+        s.object_filters = {
+            filter_key(channel, measure): (filter_bound(low.text()),
+                                           filter_bound(high.text()))
+            for (channel, measure), (low, high)
+            in self._object_filter_fields.items()}
+        # The single window the twelve fields replaced. Zeroed once they have
+        # been written, or the migration would run again next time and put an
+        # old bound back into a row the user has just emptied -- which is
+        # exactly the case "empty means no bound" exists for.
+        s.object_size = (0, 0)
         # Threshold filter
         meas_txt = self._measurement.text().strip()
         s.measurement = _csv_to_list(meas_txt)
@@ -1132,6 +2395,164 @@ class _SettingsDialog(QDialog):
         return s
 
 
+class _GenerateAnnotationDatabaseDialog(QDialog):
+    """Build a set of crops to annotate, without measuring the plate again.
+
+    Everything the run needs is already on disk twice over: the object masks
+    inside the merged arrays, and the coordinate columns in measurements.db.
+    This chooses between them, filters, and registers the result as a new
+    ``png_list`` table. See :mod:`spacr.annotation_dataset`.
+
+    THE TWO SOURCES ARE NOT INTERCHANGEABLE and the difference is not
+    guessable, so it is written on the form rather than left to the manual:
+    the database stores coordinates and nothing else, so it can only ever cut
+    a bounding box.
+
+    :param settings: the annotation settings the form is filled from and
+        written back to.
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, settings, parent=None):
+        """Build the form for generating an annotation database."""
+        super().__init__(parent)
+        self.setWindowTitle("Generate annotation database")
+        self._settings = settings
+        self._written = ""
+        outer = QVBoxLayout(self)
+
+        form = QFormLayout()
+        self._source = QComboBox(self)
+        from spacr.annotation_dataset import STREAM_SOURCES
+
+        for value, label in STREAM_SOURCES:
+            self._source.addItem(label, value)
+        self._source.currentIndexChanged.connect(self._refresh_gates)
+        form.addRow("Read the objects from", self._source)
+
+        self._object = QComboBox(self)
+        self._object.addItems(["cell", "nucleus", "pathogen", "cytoplasm"])
+        form.addRow("Object", self._object)
+
+        self._channels = QLineEdit("0,1,2", self)
+        self._channels.setToolTip(
+            "Image channels to put in the crop, in order. Three make an RGB "
+            "picture; one makes greyscale.")
+        form.addRow("Channels", self._channels)
+
+        self._bounding_box = QCheckBox("Crop to the bounding box", self)
+        self._bounding_box.setChecked(True)
+        self._bounding_box.setToolTip(
+            "On, the crop is the rectangle around the object and keeps "
+            "whatever else falls inside it. Off, everything outside the mask "
+            "is removed -- which only the array source can do.")
+        form.addRow("", self._bounding_box)
+
+        self._min_size = QSpinBox(self)
+        self._min_size.setRange(0, 100_000_000)
+        self._min_size.setToolTip("0 means no lower bound.")
+        form.addRow("Minimum object area", self._min_size)
+
+        self._max_size = QSpinBox(self)
+        self._max_size.setRange(0, 100_000_000)
+        self._max_size.setToolTip("0 means no upper bound.")
+        form.addRow("Maximum object area", self._max_size)
+
+        self._max_objects = QSpinBox(self)
+        self._max_objects.setRange(0, 10_000_000)
+        self._max_objects.setToolTip(
+            "0 means every object. A cap is applied last and in the table's "
+            "existing order, so the same settings always give the same set.")
+        form.addRow("Most objects to take", self._max_objects)
+        outer.addLayout(form)
+
+        self._note = QLabel("", self)
+        self._note.setWordWrap(True)
+        self._note.setObjectName("SubtitleSmall")
+        outer.addWidget(self._note)
+
+        self._status = QLabel("", self)
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        self._generate = QPushButton("Generate")
+        self._generate.setDefault(True)
+        self._generate.clicked.connect(self._on_generate)
+        buttons.addButton(self._generate, QDialogButtonBox.ActionRole)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+        self._refresh_gates()
+
+    def written_table(self) -> str:
+        """The table that was written, or ``""``."""
+        return self._written
+
+    def _refresh_gates(self, *_args) -> None:
+        """Say what the chosen source can and cannot do."""
+        source = self._source.currentData()
+        if source == "database":
+            self._bounding_box.setChecked(True)
+            self._bounding_box.setEnabled(False)
+            self._note.setText(
+                "The database stores coordinates and no masks, so this source "
+                "can only cut a bounding box. Choose the arrays to cut to the "
+                "object itself.")
+        else:
+            self._bounding_box.setEnabled(True)
+            self._note.setText(
+                "The arrays carry the object masks, so this source can cut to "
+                "the object or to its bounding box.")
+
+    def _collected(self) -> dict:
+        """The settings the generator will be given."""
+        object_type = self._object.currentText()
+        channels = [int(part) for part in
+                    str(self._channels.text()).replace(" ", "").split(",")
+                    if part]
+        return {
+            "src": str(getattr(self._settings, "src", "") or ""),
+            "database": str(getattr(self._settings, "db_path", "") or ""),
+            "stream_source": self._source.currentData(),
+            "object_array": object_type,
+            "channel_arrays": channels or [0, 1, 2],
+            "bounding_box": self._bounding_box.isChecked(),
+            f"{object_type}_min_size": int(self._min_size.value()),
+            f"{object_type}_max_size": int(self._max_size.value()),
+            "max_objects": int(self._max_objects.value()),
+        }
+
+    def _on_generate(self) -> None:
+        """Run it, and say what happened either way."""
+        from spacr.annotation_dataset import generate_annotation_dataset
+
+        self._generate.setEnabled(False)
+        self._status.setText("Working…")
+        try:
+            report = generate_annotation_dataset(self._collected())
+        except Exception as error:                           # noqa: BLE001
+            LOG.warning("could not generate the annotation set", exc_info=True)
+            self._status.setText(f"Failed: {error}")
+            self._generate.setEnabled(True)
+            return
+        self._generate.setEnabled(True)
+        self._written = str(report.get("table") or "")
+        trouble = "; ".join(str(t) for t in report.get("trouble") or [])
+        if not report.get("written"):
+            # NOT SILENT. A generator that writes nothing and closes looks
+            # exactly like one that worked.
+            self._status.setText(
+                f"Nothing was written. {trouble}" if trouble
+                else "Nothing was written.")
+            return
+        message = (f"Wrote {report['written']} crops from "
+                   f"{report['fields']} field(s) into {self._written}.")
+        if trouble:
+            message += f"\n\nAlso: {trouble}"
+        self._status.setText(message)
+        self.accept()
+
+
 # ---------------------------------------------------------------------------
 # AnnotateScreen
 # ---------------------------------------------------------------------------
@@ -1154,15 +2575,22 @@ class _AutoAnnotateDialog(QDialog):
     thousands of rows is not undoable through the grid -- the undo stack only
     holds the slots on this page -- so the preview is the safety, and the
     Apply button stays disabled until one has been taken.
+
+    :param settings: the :class:`AnnotateSettings` the preview and the apply
+        both run against.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, settings: AnnotateSettings,
                  parent: Optional[QWidget] = None):
+        """Build the form, with Apply disabled until a preview is taken."""
         super().__init__(parent)
         from ..dialogs import detach_from_window_manager
         detach_from_window_manager(self)
         self.setWindowTitle("Annotate — auto-annotate")
-        self.setMinimumWidth(520)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         self._settings = settings
         self._matched: List[str] = []
 
@@ -1240,9 +2668,11 @@ class _AutoAnnotateDialog(QDialog):
     # -- state -------------------------------------------------------------
 
     def source(self) -> str:
+        """The annotation source the user chose."""
         return str(self._source.currentData())
 
     def value(self) -> int:
+        """The value to write for the chosen source."""
         return int(self._value.value())
 
     def matched_paths(self) -> List[str]:
@@ -1282,10 +2712,16 @@ class _AutoAnnotateDialog(QDialog):
     # -- ui ----------------------------------------------------------------
 
     def _load_metadata_columns(self) -> None:
+        """Offer the metadata columns the engine knows about.
+
+        Taken from the engine rather than listed here, so a column added there
+        appears without a second edit.
+        """
         from ..annotate_engine import METADATA_COLUMNS
         self._column.addItems(list(METADATA_COLUMNS))
 
     def _on_source_changed(self, *_args) -> None:
+        """Enable the column and value fields only for a metadata source."""
         metadata = self.source() == "metadata"
         for widget in (self._column, self._values):
             widget.setEnabled(metadata)
@@ -1313,10 +2749,22 @@ class _AutoAnnotateDialog(QDialog):
             self._values.setPlaceholderText(f"{shown}{more}")
 
     def _invalidate_preview(self, *_args) -> None:
+        """Throw the preview away and disable Apply.
+
+        Called whenever anything the preview was computed FROM changes. Applying
+        against a stale preview would annotate rows the user never saw, and
+        annotating thousands of rows is not undoable through the grid.
+        """
         self._matched = []
         self._apply.setEnabled(False)
 
     def _on_preview(self) -> None:
+        """Match rows and show how many, without changing anything.
+
+        The preview is the SAFETY: applying annotates thousands of rows and the
+        undo stack only holds the slots on this page, so Apply stays disabled
+        until this has run.
+        """
         from ..annotate_engine import paths_by_measurements, paths_by_metadata
 
         if not self._settings.db_path:
@@ -1354,9 +2802,11 @@ class _AutoAnnotateDialog(QDialog):
             if self._matched else "Nothing matches.")
 
     def _on_open_gate_editor(self) -> None:
+        """Close with the code that asks the caller to open the Gate Editor."""
         self.done(_AUTO_ANNOTATE_OPEN_GATE)
 
     def _on_open_umap(self) -> None:
+        """Close with the code that asks the caller to open the UMAP."""
         self.done(_AUTO_ANNOTATE_OPEN_UMAP)
 
 
@@ -1366,15 +2816,29 @@ _AUTO_ANNOTATE_OPEN_GATE = 100
 _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
+
 class AnnotateScreen(QWidget):
-    """Main Qt widget for the annotate app."""
+    """Main Qt widget for the annotate app.
+
+    :param parent: parent widget.
+    """
 
     # Emitted with (target_app_key, seed_settings_dict); MainWindow
     # picks this up to switch to that screen and preseed values.
     train_requested = Signal(str, dict)
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the annotation grid, its controls and its shortcuts.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
+        # This module is imported lazily, which normally means minutes after
+        # the only stylesheet that would have carried its blocks was built.
+        # A no-op when they are already in it.
+        from ..theme import ensure_widget_qss_applied
+        ensure_widget_qss_applied(
+            GRID_OBJECT_NAME, CONSOLE_SWITCH_NAME, root=self)
         self._settings = AnnotateSettings()
         self._offset = 0
         self._total = 0
@@ -1388,6 +2852,16 @@ class AnnotateScreen(QWidget):
         # model's ranking put it in front of the annotator.
         self._round_index = 0
         self._retrain_worker: Optional[_RetrainWorker] = None
+        #: The Suggest run, kept separate from the retrain above so
+        #: one can be running while the other is retired. They fit
+        #: the same kind of model and must not be the same slot.
+        self._suggest_worker: Optional[_SuggestWorker] = None
+        #: True when the outstanding suggestions came from a fit whose
+        #: negatives were INVENTED -- see `_synthetic_negatives_needed`.
+        #: Such a run is a RANKING and not a verdict, so the bulk KEEP is
+        #: withheld: accepting two thousand mostly-negative guesses in one
+        #: click is the worst thing this button could do.
+        self._suggestions_are_a_ranking = False
         self._last_round = None            # spacr.active_learning.RoundResult
         self._stop_verdict = None          # spacr.active_learning.StoppingVerdict
         # A routed ObjectRequest currently pinning the grid to a subset, and
@@ -1413,6 +2887,15 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._page_gen = 0
         self._closing = False
+        # ``_SettingsDialog`` contains signal/bound-method cycles.  A local
+        # variable alone does not own it after ``exec()`` returns, and cyclic
+        # GC may legally run in whichever Python thread crosses its threshold.
+        # Coverage changed that timing enough for the page QThread to collect
+        # the dialog's timer-bearing QWidget tree: Qt warned that QBasicTimer
+        # was stopped from the wrong thread and then segfaulted in the GUI
+        # dispatcher's stale timer event. Keep the Python wrapper here until
+        # Qt's GUI-thread DeferredDelete has destroyed the C++ object.
+        self._settings_dialog: Optional[_SettingsDialog] = None
         # Counting the population is database work, not widget work — see
         # `_refresh_total`. Its own runner, separate from the page loader,
         # because a settings apply cancels the count without disturbing the
@@ -1477,35 +2960,224 @@ class AnnotateScreen(QWidget):
         # registration when this one closes.
         register_object_opener("annotate", self._object_opener)
 
-        if self._suggested_source and os.path.isdir(self._suggested_source):
+        # The remembered source is a path the USER supplied, and this used
+        # to be a bare `os.path.isdir` on it, here, in __init__ -- i.e. on
+        # the GUI thread, with the screen not yet on screen. Measured on the
+        # maintainer's machine 2026-09-04: one stat on a path under
+        # `/nas_mnt` (an autofs mount whose share was asleep) had NOT
+        # RETURNED AFTER TWENTY SECONDS. Opening Annotate after a session
+        # that last worked on the NAS therefore froze the whole application
+        # before it drew anything, with no traceback, because a stalled
+        # event loop is not a crash. The subtitle is a hint; it is not worth
+        # a single millisecond of the interface.
+        #
+        # SUBSCRIBE FIRST, THEN ASK, and not the other way round: the probe
+        # is QUEUED by `_apply_suggested_source`, and a worker that finishes
+        # quickly emits `answered` from its own thread while `__init__` is
+        # still running. A Qt signal emitted with nothing connected to it is
+        # dropped, not buffered, so asking first would lose the only answer
+        # this path is ever given and leave the suggestion missing for the
+        # life of the screen -- the "pessimistic gate with nothing to
+        # recover it" that `path_probe.isdir` always needs a subscriber for.
+        self._follow_path_probes()
+        self._apply_suggested_source()
+        # AND THE OTHER QUESTION about the same folder, which nothing above
+        # asks. `_apply_suggested_source` gates on the shared probe, which is
+        # right for a subtitle and not good enough for a file dialog;
+        # `_starting_folder` reads `_vouched_dir` instead, and if the harder
+        # question is never PUT then the answer is never there and the picker
+        # never starts in the folder the user was last working in. Queued
+        # here, at construction, so it has landed long before anybody can
+        # press the button.
+        if self._suggested_source:
+            _vouch_later(self._suggested_source)
+
+    # ------------------------------------------------------------------
+    def _apply_suggested_source(self) -> None:
+        """Offer the last-used source in the subtitle, if it is still there.
+
+        :func:`_probe_isdir` answers from a cache and never stats on the
+        calling thread -- see `spacr.qt.path_probe`'s module docstring for the
+        twenty-second `os.path.exists` that made it necessary. An unknown path
+        comes back ABSENT, which is the right way round for this label:
+        leaving the placeholder standing for a moment and then offering the
+        suggestion is a screen that learned something, while offering a folder
+        that turns out to be gone and then retracting it is one that lied.
+        `_follow_path_probes` is the half that supplies the answer.
+
+        The probe's own answer is enough HERE, without the stricter
+        :func:`_vouched_dir` the pickers use: naming a folder in a subtitle
+        costs nothing if the mount is asleep, while opening a file dialog in
+        it freezes the window. The two questions are asked separately and
+        answered separately -- ``__init__`` puts the harder one -- because
+        one answer genuinely cannot serve both; see the module comment beside
+        :func:`_vouched_dir`.
+
+        Split out of ``__init__`` precisely so the probe can re-run this
+        same decision later without duplicating it.
+        """
+        if self._settings.src:
+            # A source has been opened since; `_open_source` owns the
+            # subtitle from that point and a late probe must not stamp a
+            # stale suggestion over the database the user is looking at.
+            return
+        if self._suggested_source and _probe_isdir(self._suggested_source):
             self._src_label.setText(
                 f"Suggested (last used): {self._suggested_source}"
             )
+            # The subtitle now carries a filesystem path, which a language
+            # switch must reproduce byte-for-byte. Only the placeholder it
+            # replaced is prose, so the opt-out belongs here rather than on
+            # the label itself.
+            self._src_label.setProperty("i18nSkipText", True)
+
+    def _follow_path_probes(self) -> None:
+        """Fill the suggestion in when the background stat finally answers.
+
+        The connection is to `path_probe.probes`, which is process-wide and
+        outlives every screen ever built on it, so the slot is a plain
+        closure kept on the instance and withdrawn twice over: in
+        ``closeEvent`` for the ordinary path, and on ``destroyed`` for a
+        screen that is deleted without being closed. It is guarded on
+        RuntimeError besides: a queued emission can land after Qt has
+        deleted the C++ half of a screen whose Python wrapper is still
+        alive, and touching the label then is an abort, not an exception
+        that anything upstream would catch.
+        """
+        def landed(path: str, answer: bool) -> None:
+            """Re-run the suggestion when the probe answers about its path.
+
+            :param path: the path whose answer just changed. Every probe in
+                the process arrives here, so anything but this screen's own
+                remembered source is ignored.
+            :param answer: what the probe now says. Only True is acted on --
+                a folder that is gone leaves the placeholder standing.
+            :returns: nothing; the subtitle is the output.
+            """
+            try:
+                if self._closing:
+                    # `closeEvent` runs nested event loops while it drains
+                    # its workers, so a queued emission can still be
+                    # delivered here after the screen has begun tearing
+                    # itself down. Nothing on a closing screen wants a new
+                    # subtitle.
+                    return
+                if answer and path == self._suggested_source:
+                    self._apply_suggested_source()
+            except RuntimeError:
+                # The screen has gone; the signal outlived it.
+                pass
+
+        self._path_probe_landed = landed
+        signal = path_probe.probes.answered
+        signal.connect(landed)
+
+        # ONE withdrawal, reachable from two places. `closeEvent` is the
+        # ordinary way out, but it is not the only one: a screen can be
+        # destroyed without ever being closed -- the stack deletes it, or a
+        # test drops its last reference -- and a connection left on a
+        # process-wide signal then delivers to a widget whose C++ half is
+        # gone. `destroyed` fires while the wrapper is still usable, which
+        # is the moment to let go; the same pattern
+        # `spacr.qt.chaining.ChainingBar` uses on the same signal.
+        #
+        # `withdrawn` is a plain cell rather than an attribute so that the
+        # second call is a no-op WITHOUT touching a half-destroyed wrapper:
+        # disconnecting an already-disconnected slot is not an exception in
+        # PySide, it is a RuntimeWarning printed from C++ that no `except`
+        # can catch. The closure holds the SIGNAL for the same reason --
+        # this can run during interpreter teardown, when the module globals
+        # it would otherwise reach through have already been cleared.
+        withdrawn: List[bool] = []
+
+        def let_go(*_args) -> None:
+            """Withdraw this screen from the process-wide probe signal.
+
+            :param _args: whatever the caller passes. ``destroyed`` carries
+                the dying QObject and ``closeEvent`` passes nothing, and this
+                reads neither.
+            :returns: nothing. Safe to call twice: the second call is a
+                no-op rather than a disconnect of an absent slot.
+            """
+            if withdrawn:
+                return
+            withdrawn.append(True)
+            try:
+                signal.disconnect(landed)
+            except (RuntimeError, TypeError):
+                pass        # the source is gone
+
+        self._release_path_probe = let_go
+        self.destroyed.connect(let_go)
+
+    # ------------------------------------------------------------------
+    def _install_folds(self, header, row) -> Optional[FoldStrip]:
+        """Put the folded modules' buttons on the masthead ``row``.
+
+        One button per entry in :data:`FOLDED_APPS`, drawn as that
+        module's own icon and lit on hover in its maturity colour. The
+        strip is added past the row's stretch, so it stays right-aligned
+        however wide the title column gets.
+
+        Guarded on its own: a screen that opens without its fold buttons
+        is a smaller screen, while an exception raised here would be no
+        annotation screen at all.
+
+        :returns: the strip, or None if it could not be built.
+        """
+        # What this screen's own page is called once a folded module puts
+        # a page beside it. Named here because this screen builds its own
+        # masthead and carries no registry key to be looked up by.
+        self._fold_page_title = "Annotate"
+        try:
+            openers = [FoldOpener(self, key, FOLD_BUILDERS[key])
+                       for key in FOLDED_APPS]
+            strip = FoldStrip([(o.key, o.open) for o in openers], header)
+            for opener in openers:
+                restate_fold_button(strip.button_for(opener.key), opener.key)
+            row.addWidget(strip)
+        except Exception:
+            LOG.debug("Could not install the annotate fold strip",
+                      exc_info=True)
+            return None
+        # The openers outlive this call only because the screen holds them.
+        self._fold_openers = openers
+        self._fold_strip = strip
+        return strip
 
     # ------------------------------------------------------------------
     def _build_ui(self):
         # Resolved once here rather than imported at module scope, so the
         # grid canvas and the tile chrome agree with the theme the user is
         # actually running (see `tile_palette`).
+        """Lay out the thumbnail grid over the class and navigation rows."""
         PALETTE = tile_palette()
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # Header
+        # Header. The title and the source line stack in a column on the
+        # left; anything folded into this screen sits right-aligned past
+        # the stretch, which is where every other masthead puts its
+        # trailing controls (see `ModuleHeader.add_trailing`).
         header = QWidget()
-        hbox = QVBoxLayout(header)
+        head_row = QHBoxLayout(header)
+        head_row.setContentsMargins(0, 0, 0, 0)
+        head_row.setSpacing(SPACING["lg"])
+        title_column = QWidget(header)
+        hbox = QVBoxLayout(title_column)
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.setSpacing(4)
         title = QLabel("Annotate")
         title.setObjectName("TitleHeading")
         hbox.addWidget(title)
-        self._src_label = QLabel("No source selected — click Open source…")
+        self._src_label = QLabel(tr("No source selected — click Open source…"))
         self._src_label.setObjectName("SubtitleSmall")
-        # This label becomes a live filesystem path after a source is opened.
-        self._src_label.setProperty("i18nSkipText", True)
         hbox.addWidget(self._src_label)
+        head_row.addWidget(title_column)
+        head_row.addStretch(1)
+        self._install_folds(header, head_row)
         outer.addWidget(header)
         outer.addWidget(Divider())
 
@@ -1556,10 +3228,9 @@ class AnnotateScreen(QWidget):
         self._btn_coverage.setIcon(iconset.icon("chart"))
         self._btn_coverage.setCursor(Qt.PointingHandCursor)
         self._btn_coverage.setToolTip(
-            "Where the annotations actually came from: how many per class, "
-            "per well, per plate, and per active-learning round. '200 cells "
-            "labelled' means nothing until you know that 190 of them were "
-            "one well."
+            "Summarize annotation provenance by class, well, plate and "
+            "active-learning round. This identifies label sets concentrated "
+            "within a small number of wells or plates."
         )
         self._btn_coverage.clicked.connect(self._on_coverage)
         row.addWidget(self._btn_coverage)
@@ -1576,6 +3247,24 @@ class AnnotateScreen(QWidget):
         self._btn_retrain.clicked.connect(self._on_retrain)
         row.addWidget(self._btn_retrain)
 
+        # SUGGEST SITS NEXT TO RETRAIN because it is the same act with a
+        # different destination: Retrain re-ranks the queue with the model,
+        # Suggest writes the model's opinion down where you can accept it.
+        # A menu rather than a dialog for the same reason "Train…" has one --
+        # the choice is between named things with no further settings.
+        self._btn_suggest = QPushButton("Suggest…")
+        self._btn_suggest.setIcon(iconset.icon("classify"))
+        self._btn_suggest.setCursor(Qt.PointingHandCursor)
+        self._btn_suggest.setToolTip(
+            "Fit boosted trees on the labels made so far and write the "
+            "model's proposed label onto every crop you have not answered "
+            "yet — most confident first, dashed rather than solid, and only "
+            "where you have not already decided. Then keep them all, throw "
+            "them all away, or answer the ones it got wrong one at a time."
+        )
+        self._btn_suggest.clicked.connect(self._on_suggest_menu)
+        row.addWidget(self._btn_suggest)
+
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
         self._btn_curve.setCursor(Qt.PointingHandCursor)
@@ -1586,29 +3275,52 @@ class AnnotateScreen(QWidget):
         self._btn_curve.clicked.connect(self._on_learning_curve)
         row.addWidget(self._btn_curve)
 
-        self._btn_train_cv = QPushButton("Train CV")
-        self._btn_train_cv.setIcon(iconset.icon("classify"))
-        self._btn_train_cv.setCursor(Qt.PointingHandCursor)
-        self._btn_train_cv.setToolTip(
+        # ONE TRAINING BUTTON, TWO DESTINATIONS.
+        #
+        # "Train CV" and "Train XG" sat side by side and read as two features
+        # rather than as one decision. They are the same act -- take these
+        # annotations and train something on them -- differing only in WHAT
+        # the model looks at: the images, or the measured features. A menu
+        # says that; two buttons made the user work it out from four-letter
+        # abbreviations.
+        #
+        # A menu rather than a dialog: the choice is between two named things
+        # with no further settings, and a modal for that is a click more than
+        # the question is worth.
+        self._btn_train = QPushButton("Train…")
+        self._btn_train.setIcon(iconset.icon("classify"))
+        self._btn_train.setCursor(Qt.PointingHandCursor)
+        self._btn_train.setToolTip(
+            "Train a model on the current annotations, on the images or on "
+            "the measured features, and apply it to the whole dataset."
+        )
+        train_menu = QMenu(self._btn_train)
+        action_cv = train_menu.addAction(
+            iconset.icon("classify"), "On the images (CNN / Transformer)…")
+        action_cv.setToolTip(
             "Generate a training dataset from the current annotations "
             "and train a Torch CNN / Transformer classifier, then apply "
             "it to the full dataset. Opens the Classify screen with "
             "this source pre-selected."
         )
-        self._btn_train_cv.clicked.connect(self._on_train_cv)
-        row.addWidget(self._btn_train_cv)
-
-        self._btn_train_xg = QPushButton("Train XG")
-        self._btn_train_xg.setIcon(iconset.icon("chart"))
-        self._btn_train_xg.setCursor(Qt.PointingHandCursor)
-        self._btn_train_xg.setToolTip(
+        action_cv.triggered.connect(self._on_train_cv)
+        action_xg = train_menu.addAction(
+            iconset.icon("chart"), "On the measured features (XGBoost)…")
+        action_xg.setToolTip(
             "Train an XGBoost model on the measurement features "
             "using the current annotations as class labels, then apply "
             "it to score the full dataset. Opens the ML Analyze screen "
             "with this source pre-selected."
         )
-        self._btn_train_xg.clicked.connect(self._on_train_xg)
-        row.addWidget(self._btn_train_xg)
+        action_xg.triggered.connect(self._on_train_xg)
+        self._btn_train.setMenu(train_menu)
+        self._train_menu = train_menu
+        # KEPT AS NAMES, not as widgets. Everything that used to enable,
+        # disable or click these two buttons still has something to hold, and
+        # a caller that flips one now flips the single button they became.
+        self._btn_train_cv = self._btn_train
+        self._btn_train_xg = self._btn_train
+        row.addWidget(self._btn_train)
 
         self._btn_auto = QPushButton("Auto-annotate…")
         self._btn_auto.setCursor(Qt.PointingHandCursor)
@@ -1653,7 +3365,32 @@ class AnnotateScreen(QWidget):
         self._btn_clear.clicked.connect(self._on_clear_column)
         row.addWidget(self._btn_clear)
 
+        # BUILD A SET TO ANNOTATE, for a user who has measured a plate and has
+        # no crops registered -- or who wants a different selection from the
+        # one Measure happened to cut. It sits on the right, past the stretch,
+        # because it is a module rather than one of the per-page actions to
+        # its left.
         row.addStretch(1)
+        # TO THE LEFT OF GENERATE, because fetching a set to work on comes
+        # before building one from it, and the two are the same kind of action.
+        self._btn_test_data = QPushButton(tr("Load test data"))
+        self._btn_test_data.setCursor(Qt.PointingHandCursor)
+        self._btn_test_data.setToolTip(tr(
+            "Download an example plate to annotate, and fill in the settings "
+            "that go with it."))
+        self._btn_test_data.clicked.connect(self._choose_the_test_data)
+        row.addWidget(self._btn_test_data)
+
+        self._btn_generate = QPushButton("Generate annotation database…")
+        self._btn_generate.setCursor(Qt.PointingHandCursor)
+        self._btn_generate.setToolTip(
+            "Build a set of crops to annotate by streaming them from the "
+            "merged arrays or from the coordinates in measurements.db, "
+            "without measuring the plate again. The result is registered as "
+            "a new png_list table.")
+        self._btn_generate.clicked.connect(self._on_generate_annotation_db)
+        row.addWidget(self._btn_generate)
+
         self._page_label = QLabel("")
         self._page_label.setObjectName("SubtitleSmall")
         self._page_label.setProperty("i18nSkipText", True)
@@ -1697,23 +3434,38 @@ class AnnotateScreen(QWidget):
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
         self._grid_scroll.setFrameShape(QScrollArea.NoFrame)
-        # Dark-gray canvas (not black) behind the rounded thumbnails.
-        self._grid_scroll.viewport().setStyleSheet(
-            f"background: {PALETTE['surface_alt']};")
+        # THE VIEWPORT PAINTS NOTHING. The backdrop is the holder inside it,
+        # and the holder's corners are round — a viewport filled with the same
+        # grey would sit in those corners as four square nubs and the rounding
+        # would not read at all.
+        self._grid_scroll.viewport().setAutoFillBackground(False)
+        self._grid_scroll.viewport().setObjectName(GRID_VIEWPORT_NAME)
         self._grid_holder = QWidget()
-        self._grid_holder.setObjectName("AnnotateGrid")
-        # The space BETWEEN the images. Same raw-hex problem as the legend:
-        # this is the surface the thumbnails sit on, so it takes the page
-        # opacity — the images themselves are pixmaps and are untouched by it.
-        from ..theme import pane_surface
-        self._grid_holder.setStyleSheet(
-            f"QWidget#AnnotateGrid {{ background: "
-            f"{pane_surface('surface_alt')}; }}")
+        self._grid_holder.setObjectName(GRID_OBJECT_NAME)
+        # The space BETWEEN the images, and the panel behind them: a page
+        # surface with the theme's own corner radius, styled by the registered
+        # block rather than by a widget-local sheet so it follows both the
+        # theme and the page-opacity preference. The images themselves are
+        # pixmaps and are untouched by either.
         self._grid_layout = QGridLayout(self._grid_holder)
         self._grid_layout.setSpacing(SPACING["sm"])
         self._grid_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                               SPACING["sm"], SPACING["sm"])
         self._grid_scroll.setWidget(self._grid_holder)
+        # setWidget() turns autoFillBackground ON, and that is what squared
+        # the corner off. The auto-fill runs BEFORE the stylesheet's own
+        # painter and covers the whole rectangle with the palette's window
+        # brush -- which QSS has already propagated the block's `background`
+        # into. So the panel came out the right colour, the `border-radius`
+        # in the block was painted underneath it, and the backdrop read as a
+        # square slab among the rounded cards beside it. Measured at the
+        # corner; the same call is made for the viewport just above.
+        self._grid_holder.setAutoFillBackground(False)
+        # Shift + left click blows one crop up to fill this container. Built
+        # here rather than on demand so it is already a child of the viewport
+        # and already above the canvas the tiles are laid out on.
+        self._zoom_overlay = _ZoomOverlay(self._grid_scroll.viewport())
+        self._zoom_overlay.dismissed.connect(self._fold_zoom_back)
         # Without these the scroll area swallows the arrow keys and scrolls
         # instead of moving grid focus.
         self._grid_scroll.installEventFilter(self)
@@ -1733,14 +3485,74 @@ class AnnotateScreen(QWidget):
         console_layout = QVBoxLayout(self._console_wrap)
         console_layout.setContentsMargins(0, 0, 0, 0)
         console_layout.setSpacing(SPACING["xs"])
+        # THE TITLE IS A ROW, so the two controls a console is actually for
+        # can sit on it. This screen builds its own ConsolePanel rather than
+        # using the generic module screen's, and had inherited neither -- so
+        # the one pane most likely to be holding a traceback was the one pane
+        # you could not copy or file from.
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(SPACING["sm"])
         console_title = QLabel("Console + AI", self._console_wrap)
         console_title.setObjectName("CardTitle")
-        console_layout.addWidget(console_title)
+        title_row.addWidget(console_title)
+        title_row.addStretch(1)
+
+        self._btn_copy_console = QPushButton(tr("Copy console"),
+                                             self._console_wrap)
+        self._btn_copy_console.setObjectName("GhostButton")
+        self._btn_copy_console.setCursor(Qt.PointingHandCursor)
+        self._btn_copy_console.setToolTip(tr(
+            "Copy everything in the console, section headers included."))
+        self._btn_copy_console.clicked.connect(self._on_copy_console)
+        title_row.addWidget(self._btn_copy_console)
+
+        # HIDDEN UNTIL THERE IS SOMETHING TO REPORT, exactly as the module
+        # screens do it: a permanently visible "File as issue" invites reports
+        # with no traceback attached, which are the ones nobody can act on.
+        self._btn_file_issue = QPushButton(tr("File as issue"),
+                                           self._console_wrap)
+        self._btn_file_issue.setObjectName("GhostButton")
+        self._btn_file_issue.setCursor(Qt.PointingHandCursor)
+        self._btn_file_issue.setToolTip(tr(
+            "Open a pre-filled GitHub issue with the last traceback and "
+            "environment. You review it before submitting."))
+        self._btn_file_issue.setVisible(False)
+        self._btn_file_issue.setEnabled(False)
+        self._btn_file_issue.clicked.connect(self._on_file_issue)
+        title_row.addWidget(self._btn_file_issue)
+
+        console_layout.addLayout(title_row)
         from ..widgets import ConsolePanel
         self._console = ConsolePanel(
             active_app_label="Annotate", parent=self._console_wrap)
         self._console.setMinimumHeight(180)
         console_layout.addWidget(self._console, 1)
+
+        # EVERY error path, not a list of them. `append_error` is the single
+        # funnel the panel documents -- a WARNING routes through it too -- so
+        # wrapping it here reveals "File as issue" whoever raised the problem,
+        # including code written after this line. Listing the call sites
+        # instead would have missed the pipeline worker, which is the one that
+        # reported this.
+        _original_append_error = self._console.append_error
+
+        def _append_error_and_offer_the_report(text, *args, **kwargs):
+            """Show the error as before, then offer to file it.
+
+            WRAPS rather than replaces, so the original behaviour is unchanged even
+            if the offer fails -- an error message must still appear when the thing
+            that would report it is broken.
+            """
+            try:
+                return _original_append_error(text, *args, **kwargs)
+            finally:
+                # In a finally: a console that cannot draw is exactly when a
+                # user most wants the report button, and a raise here would
+                # otherwise swallow the original error.
+                self.note_console_error()
+
+        self._console.append_error = _append_error_and_offer_the_report
         self._runtime_splitter.addWidget(self._console_wrap)
         self._runtime_splitter.setStretchFactor(0, 4)
         self._runtime_splitter.setStretchFactor(1, 2)
@@ -1753,12 +3565,18 @@ class AnnotateScreen(QWidget):
         bottom_row = QHBoxLayout(bottom)
         bottom_row.setContentsMargins(0, 0, 0, 0)
         bottom_row.setSpacing(SPACING["sm"])
-        self._status_label = QLabel("Ready.")
+        self._status_label = QLabel(tr("Ready."))
         self._status_label.setObjectName("SubtitleSmall")
-        self._status_label.setProperty("i18nSkipText", True)
         bottom_row.addWidget(self._status_label, 1)
 
         self._console_switch = QToolButton(self)
+        # Named so the registered block above can reach it: white text on the
+        # page with no plate behind it, accent-blue while the pane is open.
+        self._console_switch.setObjectName(CONSOLE_SWITCH_NAME)
+        # The caption ends in a state arrow, so the generic text pass would
+        # translate the composed string and drop it. This screen re-renders
+        # the caption itself from `retranslate_dynamic_content`.
+        self._console_switch.setProperty("i18nSkipText", True)
         self._set_console_switch_text(False)
         self._console_switch.setCheckable(True)
         self._console_switch.setCursor(Qt.PointingHandCursor)
@@ -1774,16 +3592,10 @@ class AnnotateScreen(QWidget):
         self._ai_switch.toggled.connect(self._on_ai_switch)
         bottom_row.addWidget(self._ai_switch)
 
-        self._ai_menu_btn = QToolButton(self)
-        self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
-        self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
-        self._ai_menu_btn.setFocusPolicy(Qt.NoFocus)
-        self._ai_menu_btn.setToolTip("Pick provider · Providers…")
-        self._ai_menu_btn.setText("▾")
-        self._ai_menu = QMenu(self._ai_menu_btn)
-        self._ai_menu_btn.setMenu(self._ai_menu)
-        bottom_row.addWidget(self._ai_menu_btn)
-        self._refresh_ai_menu()
+        # NO PROVIDER CHEVRON. The generic AppScreen used to build the same
+        # one; both moved to Preferences → AI, where "which assistant do I
+        # use" is answered once instead of on the actions row of every
+        # module.
         outer.addWidget(bottom)
 
         self._rebuild_grid()
@@ -1797,11 +3609,236 @@ class AnnotateScreen(QWidget):
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
 
-    def _set_console_switch_text(self, expanded: bool) -> None:
-        """Render the localized caption without losing the arrow state."""
-        source = "Console ▴" if expanded else "Console ▾"
-        self._console_switch.setProperty("_spacr_i18n_text", source)
-        self._console_switch.setText(tr(source))
+    def _choose_the_test_data(self, *, chooser=None, ask=None) -> str:
+        """Ask which half of the example plate to fetch, then fetch it.
+
+        The two routes need different halves of the plate and differ in size,
+        so the choice is made in a dialog that can describe both before either
+        starts -- see :class:`TestDataChooser`. They were two buttons beside
+        the source box, naming the choice ("crops" / "streaming") with the
+        explanation hidden in a tooltip.
+
+        Whichever route is taken, three things follow and all three matter:
+        the data arrives, the source is re-pointed at the LOCAL folder it
+        landed in, and Image source is set to the mode that route implies.
+        The second is the one that used to be missing -- the shipped settings
+        carry the paths of the machine that generated them, so applying them
+        left ``src`` pointing at a stranger's home directory.
+
+        :param chooser: replaces the dialog, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: the source that was set, or ``""`` when nothing was chosen
+            or the download has not finished yet.
+        """
+        dialog = chooser if chooser is not None else TestDataChooser(self)
+        if hasattr(dialog, "exec"):
+            dialog.exec()
+        route = str(getattr(dialog, "chosen", "") or "")
+        if not route:
+            return ""
+
+        from ..hf_download import example_plate_folder
+
+        destination = example_plate_folder()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # WHAT COUNTS AS ALREADY HAVING IT differs by route, and the folder
+        # itself answers neither: it is shared with the other example sets and
+        # a cancelled download leaves it behind. Each route tests for its own
+        # half.
+        if route == "stream":
+            merged = destination / "merged"
+            have_it = merged.is_dir() and any(merged.glob("*.npy"))
+        else:
+            have_it = (destination / "measurements"
+                       / "measurements.db").is_file()
+
+        if have_it:
+            return self._use_the_test_data(destination, route)
+
+        was = self._btn_test_data.text()
+        self._btn_test_data.setEnabled(False)
+        self._btn_test_data.setText(tr("Fetching test data…"))
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            self._btn_test_data.setEnabled(True)
+            self._btn_test_data.setText(was)
+            if result is None:
+                LOG.info("test data not downloaded: %s", error)
+                self._console.append_notice(
+                    "Test data was not downloaded: {detail}\n",
+                    detail=error or "cancelled")
+                return
+            self._use_the_test_data(destination, route)
+
+        download = ask
+        if download is None:
+            if route == "stream":
+                from ..hf_download import download_measure_example as download
+            else:
+                from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return ""
+
+    def _use_the_test_data(self, destination, route: str) -> str:
+        """Point this screen at the downloaded plate, in ``route``'s mode.
+
+        The LOCAL destination, whatever the shipped settings said. Applied
+        after them rather than before, so a path recorded on the publisher's
+        machine cannot be the last write. Applied the other way round, the
+        source came back as ``/home/carruthers/datasets/plate1`` on a machine
+        that had never heard of that user.
+        """
+        from pathlib import Path
+
+        destination = Path(destination)
+        database = destination / "measurements" / "measurements.db"
+        source = str(database if database.is_file() else destination)
+
+        self._settings.src = source
+        self._settings.db_path = str(database) if database.is_file() else ""
+
+        # STREAM cuts crops out of merged/*.npy as the page is drawn; LOAD
+        # reads the ones already exported under data/. Setting this is half of
+        # what the route means; leaving it would open the wrong reader on the
+        # right data.
+        self._settings.crop_source = (
+            "stream_images" if route == "stream" else "load_images")
+
+        self._console.append_notice(
+            "Test data ready: {path}\n", path=source)
+        # The page count is what a new source changes first, and it is the
+        # number the user reads to know the load worked.
+        refresh = getattr(self, "_refresh_total", None)
+        if callable(refresh):
+            try:
+                refresh()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not refresh after the test data", exc_info=True)
+        return source
+
+    def _on_copy_console(self) -> None:
+        """Copy the whole console, and say so.
+
+        A clipboard write is silent, so a button that appears to do nothing is
+        indistinguishable from one that failed. The caption reports it, and it
+        is TRANSLATED at the moment of writing: the language pass ran when this
+        screen was built and does not run again, so an English literal set by a
+        handler would stay English for the session.
+
+        THE BUTTON IS THE TIMER'S CONTEXT, and that third argument is the
+        whole of a bug rather than tidiness. `QTimer.singleShot(msec,
+        functor)` belongs to nothing: it fires 1.2 seconds later whatever has
+        happened in the meantime, and the functor holds this screen, so the
+        deleted thing it reaches for is the C++ QPushButton:
+
+            RuntimeError: libshiboken: Internal C++ object
+            (PySide6.QtWidgets.QPushButton) already deleted.
+
+        A user who copies the console and leaves the screen inside 1.2
+        seconds gets that in the event loop. In the suite it was worse than
+        an error in the wrong place -- it was an error in the wrong TEST:
+        `test_annotate_console_can_be_copied_and_reported.py` presses this
+        button twice, its screens are torn down at the end of those tests,
+        and the two strays landed in whichever test happened to be spinning
+        an event loop 1.2 seconds later. Measured:
+        `test_annotate_console_can_be_copied_and_reported.py` plus
+        `test_annotate_keyboard.py` reported the error against
+        `test_auto_advance_skips_already_labelled_crops`, which touches
+        neither the console nor a button.
+
+        Passing the button as the context object makes Qt cancel the pending
+        call when the button is destroyed, which is the guarantee the
+        two-argument form does not give. Same pair before and after:
+        102 passed and 1 error, then 103 passed.
+        """
+        try:
+            text = self._console.copy_all()
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Could not copy the console: {detail}\n", detail=exc)
+            return
+        button = self._btn_copy_console
+        button.setText(tr("Copied"))
+        QTimer.singleShot(1200, button,
+                          lambda: button.setText(tr("Copy console")))
+        LOG.debug("copied %d console characters", len(text))
+
+    def note_console_error(self) -> None:
+        """Reveal "File as issue" because something went wrong.
+
+        The button appears in this console when there is an issue, and is
+        hidden until then rather than always present,
+        because a permanently visible report button invites reports with no
+        traceback attached, which are the ones nobody can act on.
+
+        Still gated on the user's opt-in, the same gate the module screens use.
+        Opting in reveals the ACTION; nothing is ever submitted in response to
+        the failure itself.
+        """
+        button = getattr(self, "_btn_file_issue", None)
+        if button is None:
+            return
+        try:
+            from ..ai import settings as _ai_settings
+            allowed = _ai_settings.get_auto_file_issues()
+        except Exception:                                    # noqa: BLE001
+            allowed = False
+        button.setVisible(bool(allowed))
+        button.setEnabled(bool(allowed))
+
+    def _on_file_issue(self) -> None:
+        """Open a pre-filled GitHub issue for what the console is holding.
+
+        The console text is read here, on the GUI thread, because reading a
+        widget is the one part that must happen here. Everything after it --
+        resolving a token through ``gh auth token`` and POSTing to
+        api.github.com -- is what the module screens measured at up to 28
+        seconds on a bad network, so it is handed to the shared reporter rather
+        than run inline.
+        """
+        try:
+            body = self._console.copy_all()
+        except Exception:                                    # noqa: BLE001
+            body = ""
+        try:
+            from ..ai.issue_report import file_issue
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Issue reporting is unavailable: {detail}\n", detail=exc)
+            return
+        try:
+            file_issue(self, {"screen": "annotate"}, body)
+        except TypeError:
+            # The reporter's signature is the module screens' business and has
+            # changed before. A failure to file must not take the annotation
+            # session with it, so it is reported rather than raised.
+            LOG.debug("file_issue signature mismatch", exc_info=True)
+            self._console.append_notice(
+                "Could not open the issue form; the console text is copied "
+                "instead.\n")
+        except Exception as exc:                             # noqa: BLE001
+            self._console.append_notice(
+                "Could not file the issue: {detail}\n", detail=exc)
+
+    def _set_console_switch_text(self, expanded: bool,
+                                 language: Optional[str] = None) -> None:
+        """Render the localized caption without losing the arrow state.
+
+        Only the word is looked up. The arrow is state rather than prose, and
+        a caption composed with it first asks the catalog for a key that can
+        never exist.
+        """
+        arrow = "▴" if expanded else "▾"
+        self._console_switch.setText(f"{tr('Console', language)} {arrow}")
+
+    def retranslate_dynamic_content(
+        self, language: Optional[str] = None,
+    ) -> None:
+        """Re-render the captions this screen composes from live state."""
+        self._set_console_switch_text(
+            self._console_switch.isChecked(), language)
 
     def _on_ai_switch(self, on: bool) -> None:
         """Enable chat routing and reveal the console when AI is selected."""
@@ -1814,49 +3851,34 @@ class AnnotateScreen(QWidget):
         if not self._console._current_provider_name:
             configured = ai_module.configured_providers()
             if configured:
-                self._console.set_ai_provider(configured[0].name)
-                self._refresh_ai_menu()
+                self._console.set_ai_provider(
+                    self._wanted_provider() or configured[0].name)
             else:
                 self._console.append_notice(
-                    "[AI] No vendor CLI installed. Click ▾ next to the AI "
-                    "switch → Providers…\n")
+                    "[AI] No vendor CLI installed. "
+                    "Preferences → AI → Providers…\n")
                 self._ai_switch.setChecked(False)
 
-    def _refresh_ai_menu(self) -> None:
-        """Rebuild the provider dropdown beside Annotate's AI button."""
+    def _wanted_provider(self) -> str:
+        """The provider Preferences asks for, if it is actually installed.
+
+        :returns: the chosen provider's name, or ``""`` to let the console
+            take the first available one.
+        """
         from .. import ai as ai_module
-        self._ai_menu.clear()
-        configured = ai_module.configured_providers()
-        current = self._console._current_provider_name
-        if configured:
-            for provider in configured:
-                action = self._ai_menu.addAction(provider.label)
-                action.setCheckable(True)
-                action.setChecked(provider.name == current)
-                action.triggered.connect(
-                    lambda _checked=False, name=provider.name:
-                    self._on_pick_provider(name))
-            self._ai_menu.addSeparator()
-        else:
-            source = "(no vendor CLI installed)"
-            unavailable = self._ai_menu.addAction(tr(source))
-            unavailable.setProperty("_spacr_i18n_text", source)
-            unavailable.setEnabled(False)
-            self._ai_menu.addSeparator()
-        source = "Providers…"
-        action = self._ai_menu.addAction(tr(source))
-        action.setProperty("_spacr_i18n_text", source)
-        action.triggered.connect(self._on_open_providers_dialog)
+        from ..preferences import get_preferred_provider
 
-    def _on_pick_provider(self, name: str) -> None:
-        self._console.set_ai_provider(name)
-        self._refresh_ai_menu()
-
-    def _on_open_providers_dialog(self) -> None:
-        from ..widgets.ai_chat_panel import _ProvidersDialog
-        dialog = _ProvidersDialog(self)
-        if dialog.exec() == QDialog.Accepted:
-            self._refresh_ai_menu()
+        wanted = get_preferred_provider()
+        if not wanted:
+            return ""
+        # A PREFERENCE IS A WISH, NOT A GUARANTEE. The CLI it names can be
+        # uninstalled between sessions, and honouring the name regardless
+        # would route every question to something that is not there.
+        try:
+            names = {p.name for p in ai_module.configured_providers()}
+        except Exception:                                    # noqa: BLE001
+            return ""
+        return wanted if wanted in names else ""
 
     # ------------------------------------------------------------------
     # Key legend
@@ -1921,7 +3943,12 @@ class AnnotateScreen(QWidget):
         self._legend_toggle = QPushButton("?")
         self._legend_toggle.setFocusPolicy(Qt.NoFocus)
         self._legend_toggle.setCursor(Qt.PointingHandCursor)
-        self._legend_toggle.setFixedWidth(28)
+        # A CAP THAT CANNOT CUT (193). The number keeps this
+        # control compact; `sizeHint` is the floor, so a larger
+        # font or a glyph a theme renders wider grows the button
+        # rather than clipping it.
+        self._legend_toggle.setMinimumWidth(max(28, self._legend_toggle.sizeHint().width()))
+        self._legend_toggle.setMaximumWidth(max(28, self._legend_toggle.sizeHint().width()))
         self._legend_toggle.setToolTip("Show the full keyboard reference")
         self._legend_toggle.clicked.connect(self._toggle_legend)
         lay.addWidget(self._legend_toggle, 0)
@@ -1945,6 +3972,12 @@ class AnnotateScreen(QWidget):
         # Bare arrow keys now drive grid focus (see `handle_key`), so page
         # navigation moved to PageUp/PageDown with Alt+Arrow kept as an
         # alias for anyone with the old muscle memory.
+        """Bind the number keys, the arrows and undo.
+
+        THE KEYBOARD IS THE INTERFACE HERE. Annotation is thousands of
+        one-key decisions, and a hand that has to reach for the mouse between
+        each one does a fraction as many in an hour.
+        """
         QShortcut(QKeySequence(Qt.Key_PageUp), self, self._on_prev)
         QShortcut(QKeySequence(Qt.Key_PageDown), self, self._on_next)
         QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
@@ -1973,6 +4006,10 @@ class AnnotateScreen(QWidget):
 
     def _rebuild_grid(self):
         """Regenerate empty thumbnail widgets sized for current settings."""
+        # A zoomed crop belongs to the grid that is about to be thrown away,
+        # and its pixmap would go on being shown over a page of different
+        # crops. Fold it back first.
+        self._fold_zoom_back()
         # Recompute page-fit before we create widgets
         self._compute_grid_dims()
         for w in self._thumbs:
@@ -1999,6 +4036,7 @@ class AnnotateScreen(QWidget):
             thumb.setFixedSize(w + pad, h + pad)
             thumb.left_clicked.connect(self._on_thumb_left)
             thumb.right_clicked.connect(self._on_thumb_right)
+            thumb.shift_clicked.connect(self._on_thumb_shift)
             thumb.hover_changed.connect(self._on_thumb_hover)
             self._grid_layout.addWidget(thumb, i // cols, i % cols)
             self._thumbs.append(thumb)
@@ -2030,17 +4068,48 @@ class AnnotateScreen(QWidget):
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
+    def _starting_folder(self) -> str:
+        """Where the source picker opens, decided without stat-ing anything.
+
+        `QFileDialog.getExistingDirectory` stats and then LISTS its starting
+        directory on the GUI thread, so handing it a path on a sleeping
+        `autofs` mount is the same twenty-second freeze as the subtitle stat
+        was, moved to the click that opens the picker.
+
+        BOTH candidates are paths the user supplied -- the source now open
+        and the one remembered from last session -- so both go through
+        :func:`_vouched_dir`, which offers a folder only when a real stat came
+        back and confirmed it. `path_probe`'s own answer would not do: it
+        reports an unanswered stat as PRESENT once its timeout is up, which is
+        the freeze back five seconds later. Neither candidate is asked for the
+        first time here: the open source was queued by :meth:`_open_source`
+        when it was opened and the remembered one during construction, so by
+        the time anybody reaches this button the answer is almost always
+        already in hand. One that is not, or one that has gone stale, is
+        re-asked in the background by :func:`_vouched_dir` itself and is
+        offered again on the press after next.
+
+        :returns: a folder to open the picker in, falling back to the
+            working directory, which is local by construction.
+        """
+        for candidate in (self._settings.src, self._suggested_source):
+            if _vouched_dir(candidate):
+                return candidate
+        return os.getcwd()
+
     def _on_pick_source(self):
-        starting = (self._settings.src
-                    or self._suggested_source
-                    or os.getcwd())
+        """Ask for a project to annotate."""
         d = QFileDialog.getExistingDirectory(self, "Pick experiment source",
-                                              starting)
+                                             self._starting_folder())
         if not d:
             return
         self._open_source(d)
 
     def _open_source(self, src: str):
+        """Open a project and load its first page of crops.
+
+        :param src: the project folder.
+        """
         db_path = os.path.join(src, "measurements", "measurements.db")
         if not os.path.isfile(db_path):
             answer = QMessageBox.question(
@@ -2056,11 +4125,23 @@ class AnnotateScreen(QWidget):
             self._worker = None
         self._settings.src = src
         self._settings.db_path = db_path
-        ensure_annotation_column(db_path, self._settings.annotation_column)
-        self._worker = SaveWorker(db_path, self._settings.annotation_column)
+        # Ask about the folder now, while the mount is awake -- the picker
+        # (or the settings dialog) has just listed it -- so the next press of
+        # "Source…" can start here without `QFileDialog` being the thing that
+        # finds out. Both questions, because `_starting_folder` reads the
+        # stricter one and the subtitles of other screens read the shared
+        # one. It returns immediately; both stats happen off this thread.
+        # See `_starting_folder` and `_vouched_dir`.
+        _ask_about_the_folder(src)
+        ensure_annotation_column(db_path, self._settings.annotation_column,
+                                 table=self._settings.png_table)
+        self._worker = SaveWorker(db_path, self._settings.annotation_column,
+                                  table=self._settings.png_table)
         self._worker.start()
         self._offset = 0
         self._src_label.setText(f"{src}  →  {db_path}")
+        # From here on the subtitle is a pair of filesystem paths, not prose.
+        self._src_label.setProperty("i18nSkipText", True)
         self._console.append_notice("Opened {name}\n", name=db_path)
         prefs.push_recent_source("annotate", src)
         # Show the grid page FIRST so its viewport is realized, then defer the
@@ -2089,20 +4170,39 @@ class AnnotateScreen(QWidget):
         self._load_page()
 
     def _on_open_settings(self):
+        """Open the annotation settings dialog."""
         dlg = _SettingsDialog(self._settings, self)
-        if dlg.exec() != QDialog.Accepted:
-            return
-        old_src = self._settings.src
-        old_col = self._settings.annotation_column
-        self._settings = dlg.collect()
-        self._rebuild_grid()
-        # Restart worker if src/col changed
-        if self._settings.src != old_src or self._settings.annotation_column != old_col:
-            self._open_source(self._settings.src)
-        else:
-            self._refresh_total(then=self._load_page)
+        self._settings_dialog = dlg
+        dlg.destroyed.connect(self._on_settings_dialog_destroyed)
+        try:
+            if dlg.exec() != QDialog.Accepted:
+                return
+            old_src = self._settings.src
+            old_col = self._settings.annotation_column
+            self._settings = dlg.collect()
+            self._rebuild_grid()
+            # Restart worker if src/col changed
+            if (self._settings.src != old_src
+                    or self._settings.annotation_column != old_col):
+                self._open_source(self._settings.src)
+            else:
+                self._refresh_total(then=self._load_page)
+        finally:
+            # Never drop the retained wrapper here. ``deleteLater`` is the
+            # ownership hand-off to the GUI event loop; ``destroyed`` clears
+            # it only after the QWidget tree has been deleted on that thread.
+            try:
+                dlg.deleteLater()
+            except RuntimeError:
+                self._settings_dialog = None
+
+    @Slot(object)
+    def _on_settings_dialog_destroyed(self, _dialog=None):
+        """Release the modal only after Qt destroyed it on the GUI thread."""
+        self._settings_dialog = None
 
     def _on_next(self):
+        """Go to the next page of crops."""
         self._flush_pending()
         page = self._settings.page_size
         if self._offset + page < max(self._total, 1):
@@ -2110,33 +4210,84 @@ class AnnotateScreen(QWidget):
             self._load_page()
 
     def _on_prev(self):
+        """Go to the previous page."""
         self._flush_pending()
         page = self._settings.page_size
         self._offset = max(0, self._offset - page)
         self._load_page()
 
     def _on_skip(self):
+        """Leave this page unannotated and move on."""
         self._flush_pending()
-        offset = find_last_annotated_offset(
-            self._settings.db_path,
-            self._settings.annotation_column,
-            self._settings.page_size,
-            self._settings.image_type,
-        )
+        offset = self._last_annotated_offset()
         if offset is None:
             self._status_label.setText("No annotated images found.")
             return
         self._offset = offset
         self._load_page()
 
+    def _last_annotated_offset(self) -> Optional[int]:
+        """Page offset of the last annotated crop, in the population on screen.
+
+        ``_offset`` indexes whatever :meth:`_load_page` is paging through, and
+        that is NOT always the table: a threshold filter, the uncertainty
+        queue and a routed request each replace it with ``_filtered_rows``.
+        Asking the database for the answer in those states returns an index
+        into the table and hands it to a list of a different length, so Skip
+        landed on an empty page -- with no message, and with Next/Prev unable
+        to get back to the crop the button was pressed to find.
+
+        So the row set that is on screen is the one that gets counted, and
+        only the unfiltered case asks the database.
+        """
+        page = self._settings.page_size
+        rows = self._filtered_rows
+        if rows is None:
+            return find_last_annotated_offset(self._settings.db_path,
+                self._settings.annotation_column,
+                page,
+                self._settings.image_type,table=self._settings.png_table)
+        last = None
+        for index, (_path, value) in enumerate(rows):
+            if value is not None and value != 0:
+                last = index
+        if last is None:
+            return None
+        return (last // page) * page
+
     def _on_class_counts(self):
-        rows = class_counts(self._settings.db_path, self._settings.annotation_column)
+        """Show how many objects have been given each class so far.
+
+        THE NUMBER THAT SAYS WHEN TO STOP. A classifier needs a balance, not
+        a total, and the count per class is the only thing that shows it.
+        """
+        rows = class_counts(self._settings.db_path, self._settings.annotation_column, table=self._settings.png_table)
         if not rows:
             QMessageBox.information(self, "Class counts", "No annotated rows yet.")
             return
+        # `class_counts` EXCLUDES SUGGESTIONS AT THE SOURCE since 560a34a6b,
+        # so these rows are answers and nothing here has to sort them out.
+        # This screen briefly folded the offset values back itself, which was
+        # right while the query returned them and is dead code now.
         lines = ["Class    Count    Color"]
         for cls, cnt in rows:
             lines.append(f"{cls:>5}  {cnt:>7}    {label_to_hex(cls, dark=on_dark_theme()) or ''}")
+        # STILL REPORTED, because leaving them out entirely answers the
+        # question "are my classes balanced" with a number that quietly
+        # ignores a few thousand rows in the same column. Counted apart from
+        # the classes, which is the distinction that matters.
+        try:
+            from ...suggest import pending_suggestions
+
+            waiting = pending_suggestions(
+                self._settings.db_path, self._settings.annotation_column,
+                png_table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            waiting = 0
+        if waiting:
+            lines.append("")
+            lines.append(f"{waiting:,} suggested, not yet kept or thrown "
+                         f"away — not counted above.")
         QMessageBox.information(self, "Class counts", "\n".join(lines))
 
     # ------------------------------------------------------------------
@@ -2199,6 +4350,64 @@ class AnnotateScreen(QWidget):
         self._al_label.setText(" · ".join(parts))
         self._al_label.setVisible(bool(self._settings.db_path))
 
+    def _show_report(self, title: str, body: str):
+        """Put a text report on screen WITHOUT entering a nested event loop.
+
+        ``QDialog.exec`` is the obvious way to show one of these and it wedges
+        the application. ``exec`` runs a nested event loop;
+        ``QCoreApplication.quit`` — which is what closing the last window
+        does — unwinds only the outermost loop. Close the main window while a
+        report is up and the window disappears, the process stays alive, and
+        the GUI thread sits inside this call for ever with nothing left to
+        click. Reproduced in a child process: the main thread's only frame is
+        ``_on_coverage``, and it never returns.
+
+        The nested loop is dangerous a second way. The report is parented to
+        this screen so that it dies with it, and a nested loop is exactly the
+        window in which the screen CAN die — leaving Qt to delete the object
+        whose ``exec`` is still on the stack.
+
+        So the report is opened as a window that owns its own end:
+        ``WA_DeleteOnClose`` retires it when the user closes it, the Qt parent
+        retires it when this screen goes, and no event loop of ours is ever on
+        the stack. Reports are more useful this way too — a coverage table can
+        stay open while the annotating continues underneath it.
+
+        :param title: window title, and the key one report is remembered
+            under so a second press rewrites it instead of stacking a copy.
+        :param body: the pre-formatted, column-aligned text.
+        :returns: the window, so a caller can assert on what it shows.
+        """
+        open_reports = getattr(self, "_reports", None)
+        if open_reports is None:
+            open_reports = {}
+            self._reports = open_reports
+        # Drop the husks first. `WA_DeleteOnClose` means a report the user
+        # closed has already lost its C++ half, and asking such a wrapper
+        # anything raises RuntimeError. A `destroyed` connection would clear
+        # them sooner, at the price of a closure holding this screen inside
+        # an object this screen owns; a sweep here costs nothing and keeps
+        # the reference graph a tree.
+        for key, report in list(open_reports.items()):
+            try:
+                report.isVisible()
+            except RuntimeError:
+                open_reports.pop(key, None)
+        existing = open_reports.get(title)
+        if existing is not None:
+            existing.set_body(body)
+            existing.show()
+            existing.raise_()
+            existing.activateWindow()
+            return existing
+        dialog = _TextReportDialog(title, body, self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose, True)
+        open_reports[title] = dialog
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+        return dialog
+
     def _on_coverage(self):
         """Show where the annotations actually came from."""
         if not self._settings.db_path:
@@ -2216,7 +4425,7 @@ class AnnotateScreen(QWidget):
             QMessageBox.warning(self, "Coverage unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
-        _TextReportDialog("Annotation coverage", body, self).exec()
+        self._show_report("Annotation coverage", body)
 
     def _on_learning_curve(self):
         """Show held-out accuracy per round and the stopping verdict."""
@@ -2235,7 +4444,7 @@ class AnnotateScreen(QWidget):
             QMessageBox.warning(self, "Learning curve unavailable",
                                 f"{type(exc).__name__}: {exc}")
             return
-        _TextReportDialog("Active-learning rounds", body, self).exec()
+        self._show_report("Active-learning rounds", body)
 
     def _on_retrain(self):
         """Fit a round on the labels so far, then re-rank without leaving."""
@@ -2247,6 +4456,12 @@ class AnnotateScreen(QWidget):
         if self._retrain_worker is not None:
             self._status_label.setText("A retrain is already running.")
             return
+        # NO LONGER ASKS ABOUT OUTSTANDING SUGGESTIONS, and the reason is
+        # that the trap moved. `retrain_round` filtered them out at the
+        # source in 560a34a6b, so a fit with suggestions outstanding is
+        # simply correct now -- and a dialog offering to throw a review
+        # queue away before a Retrain is a destructive prompt with nothing
+        # behind it. The guard was right while the fit was wrong.
         # The labels the annotator just made are the whole point of the
         # round; a retrain that raced the save worker would fit on the state
         # before them.
@@ -2254,7 +4469,8 @@ class AnnotateScreen(QWidget):
         if self._worker is not None:
             self._worker.stop(wait=True)
             self._worker = SaveWorker(self._settings.db_path,
-                                      self._settings.annotation_column)
+                                      self._settings.annotation_column,
+                                      table=self._settings.png_table)
             self._worker.start()
 
         self._btn_retrain.setEnabled(False)
@@ -2320,7 +4536,7 @@ class AnnotateScreen(QWidget):
             worker.finished.disconnect(self._on_retrain_finished)
         except (RuntimeError, TypeError):
             pass
-        worker.deleteLater()
+        _retire(worker)
 
     # ------------------------------------------------------------------
     # Object routing (spacr.qt.linked_selection)
@@ -2392,6 +4608,290 @@ class AnnotateScreen(QWidget):
         self._offset = 0
         self._refresh_total(then=self._load_page)
 
+    def _synthetic_negatives_needed(self):
+        """How many negatives to invent, or ``None`` when both classes exist.
+
+        The rule is "the same number of images as is annotated
+        for the other class", so the count is the number of answers already
+        made -- read from the column rather than assumed, because the whole
+        point is that the user has been labelling one class only.
+
+        Returns ``None`` whenever two or more classes are present, which is
+        the ordinary case and the one that needs no lie told about it.
+        """
+        from ..annotate_engine import class_counts
+
+        try:
+            rows = class_counts(self._settings.db_path,
+                                self._settings.annotation_column,
+                                table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            return None
+        answers = [(cls, count) for cls, count in rows
+                   if cls < SUGGESTION_OFFSET]
+        if len(answers) != 1:
+            return None
+        return int(answers[0][1])
+
+    # ------------------------------------------------------------------
+    # Suggest: the model's opinion, written down where it can be rejected
+    # ------------------------------------------------------------------
+    def _on_suggest_menu(self):
+        """Build the Suggest menu and drop it under the button."""
+        menu = self._build_suggest_menu()
+        if menu is None:
+            return
+        menu.exec(self._btn_suggest.mapToGlobal(
+            self._btn_suggest.rect().bottomLeft()))
+
+    def _build_suggest_menu(self):
+        """The Suggest menu, or None when there is no source to suggest for.
+
+        SEPARATE FROM SHOWING IT, so what the menu offers can be asserted
+        without a modal. `QMenu.exec` blocks in C++ and does not come back
+        for a monkeypatch on a Shiboken type; a test that tried hung until
+        its timeout killed it, which is how this seam got found.
+
+        BUILT ON EVERY PRESS rather than once at construction, because the
+        two verdict entries carry a live count and a menu that said "Keep 0
+        suggestions" would be worse than no menu. The count is one COUNT(*)
+        on an indexed integer column, which is cheap enough to pay for on a
+        button press and not cheap enough to pay for on every repaint.
+        """
+        if not self._settings.db_path:
+            QMessageBox.information(
+                self, "Open a source first",
+                "Open an experiment source before suggesting labels.")
+            return None
+        from ...suggest import pending_suggestions
+
+        try:
+            waiting = pending_suggestions(
+                self._settings.db_path, self._settings.annotation_column,
+                png_table=self._settings.png_table)
+        except Exception:                                    # noqa: BLE001
+            waiting = 0
+
+        menu = QMenu(self._btn_suggest)
+        page = menu.addAction(iconset.icon("classify"),
+                              "Suggest for the images on this page")
+        page.setToolTip(
+            "Fit on every label you have made, but write suggestions only "
+            "onto the crops in front of you. The model is the same either "
+            "way — this narrows what you have to review, not what it learns."
+        )
+        page.triggered.connect(lambda: self._start_suggest(this_page=True))
+        every = menu.addAction(iconset.icon("chart"),
+                               "Suggest for every unanswered image")
+        every.setToolTip(
+            "Write a suggestion onto every crop with no answer yet, most "
+            "confident first. Nothing you have already annotated is touched."
+        )
+        every.triggered.connect(lambda: self._start_suggest(this_page=False))
+        if waiting:
+            menu.addSeparator()
+            if self._suggestions_are_a_ranking:
+                # WITHHELD, NOT DISABLED-WITH-A-TOOLTIP. There is no safe
+                # bulk accept for a model whose negatives were invented, and
+                # a greyed-out control invites the user to find out how to
+                # enable it. Rejecting in bulk stays: throwing away a
+                # ranking costs nothing.
+                caveat = menu.addAction(
+                    "Only one class was annotated — review these one by one")
+                caveat.setEnabled(False)
+            else:
+                keep = menu.addAction(f"Keep all {waiting:,} suggestions")
+                keep.setToolTip(
+                    "Turn every outstanding suggestion into an ordinary "
+                    "annotation, indistinguishable from one you made by hand."
+                )
+                keep.triggered.connect(
+                    lambda: self._resolve_suggestions(True))
+            throw = menu.addAction(f"Throw away all {waiting:,} suggestions")
+            throw.setToolTip(
+                "Clear every outstanding suggestion back to unanswered. "
+                "Your own annotations are not touched."
+            )
+            throw.triggered.connect(lambda: self._resolve_suggestions(False))
+        return menu
+
+    def _start_suggest(self, *, this_page: bool) -> None:
+        """Fit a round and write its proposals, off the GUI thread."""
+        if self._suggest_worker is not None:
+            self._status_label.setText("A suggestion run is already going.")
+            return
+        # The labels just made are the ones that most change the model; a run
+        # that raced the save worker would fit on the state before them. Same
+        # flush `_on_retrain` does, and for the same reason.
+        self._flush_pending()
+        if self._worker is not None:
+            self._worker.stop(wait=True)
+            self._worker = SaveWorker(self._settings.db_path,
+                                      self._settings.annotation_column,
+                                      table=self._settings.png_table)
+            self._worker.start()
+
+        # THE ONE-CLASS CASE, asked for in so many words: "if only one class
+        # randomly choose the same number of images as is annotated for the
+        # other class". The count is how many the user has actually made, so
+        # it is read here rather than guessed in the worker.
+        synthetic = self._synthetic_negatives_needed()
+
+        only = None
+        if this_page:
+            only = [str(path) for path, _ in self._page_paths]
+            if not only:
+                self._status_label.setText(
+                    "There is nothing on this page to suggest for.")
+                return
+
+        self._suggestions_are_a_ranking = bool(synthetic)
+        self._btn_suggest.setEnabled(False)
+        self._status_label.setText(
+            "Fitting on the labels so far, then suggesting…")
+        self._console.append_notice(
+            "Suggesting labels from a model fitted on the labels so far…\n")
+        worker = _SuggestWorker(
+            self._settings.db_path, self._settings.annotation_column,
+            {"round_index": self._round_index,
+             # BOOSTED TREES, which is what the request asked for by the name
+             # XGBoost. `_build_round_model` maps this to sklearn's
+             # HistGradientBoostingClassifier -- the same algorithm, already
+             # a dependency, and the one the rest of the round machinery
+             # (grouped split, model card, saved joblib) already understands.
+             "model_type": "gradient_boosting",
+             # THE MAINTAINER'S TWO RULES, now that `retrain_round` can
+             # express them (2026-09-07). "if there is class imbalance use
+             # the class with fewer" is `balance="downsample"`; the
+             # one-class case is handled below, where the count is known.
+             "balance": "downsample",
+             "measure": self._settings.queue_measure,
+             "diversity": self._settings.queue_diversity,
+             "image_type": self._settings.image_type,
+             "synthetic_negatives": synthetic},
+            png_table=self._settings.png_table,
+            only_paths=only, parent=self)
+        worker.done.connect(self._on_suggest_done)
+        worker.failed.connect(self._on_suggest_failed)
+        worker.finished.connect(self._on_suggest_finished)
+        self._suggest_worker = worker
+        worker.start()
+
+    @Slot(object)
+    def _on_suggest_done(self, payload) -> None:
+        """Suggestions are in the column: say how many, and show them."""
+        proposal, written = payload
+        note = getattr(proposal, "note", "") or ""
+        if not written:
+            message = note or "nothing was left to suggest a label for"
+            self._console.append_notice(
+                "No suggestions written — {why}.\n", why=message)
+            self._status_label.setText(f"No suggestions — {message}.")
+            return
+        self._console.append_notice(
+            "Wrote {n} suggestions, most confident first. They are drawn "
+            "with a dashed ring: answer the ones it got wrong, then keep or "
+            "throw away the rest from the Suggest menu.\n",
+            n=f"{written:,}")
+        if self._suggestions_are_a_ranking:
+            # IN WORDS, BEFORE ANYTHING CAN BE ACCEPTED IN BULK. Only one
+            # class had been annotated, so the negatives this model learned
+            # from were drawn at random from the unlabelled pool: they are
+            # mostly-negative, not negative. What came back is an ORDER to
+            # review in, not a set of answers.
+            self._console.append_notice(
+                "These came from a model with INVENTED negatives — only one "
+                "class was annotated, so the other was drawn at random from "
+                "unlabelled crops. Treat this as a ranking to review, not as "
+                "answers: accepting them in bulk is not offered.\n")
+        self._status_label.setText(
+            f"{written:,} suggestions written — dashed rings are proposals, "
+            f"not answers.")
+        # Re-read the page so the dashed rings appear without a navigation.
+        self._refresh_total(then=self._load_page)
+
+    @Slot(str)
+    def _on_suggest_failed(self, message: str) -> None:
+        """A suggestion run could not fit — say why, and what is missing."""
+        self._console.append_notice(
+            "Suggest failed: {msg}\n", msg=message)
+        self._status_label.setText(f"Suggest failed — {message}")
+        QMessageBox.warning(
+            self, "Suggest failed",
+            f"{message}\n\nNothing was written; your annotations are "
+            f"untouched. The usual causes are too few labels, only one class "
+            f"annotated so far — a classifier needs an example of both — or "
+            f"no measurement tables to build features from.")
+
+    @Slot()
+    def _on_suggest_finished(self) -> None:
+        """Retire the suggestion thread on the GUI thread."""
+        worker = self._suggest_worker
+        self._suggest_worker = None
+        try:
+            self._btn_suggest.setEnabled(True)
+        except RuntimeError:
+            return                    # the screen went first
+        if worker is None:
+            return
+        for signal, slot in ((worker.done, self._on_suggest_done),
+                             (worker.failed, self._on_suggest_failed),
+                             (worker.finished, self._on_suggest_finished)):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass
+        _retire(worker)
+
+    def _resolve_suggestions(self, keep: bool) -> None:
+        """Accept every outstanding suggestion, or clear them all away.
+
+        Confirmed before either, because both are bulk and one of them is a
+        bulk WRITE of labels a machine chose. `resolve_suggestions` acts only
+        on offset values, so a human's annotation caught by the same query is
+        untouched whichever way this goes -- but the annotator should still
+        get to see the number before it happens.
+        """
+        from ...suggest import pending_suggestions, resolve_suggestions
+
+        db_path = self._settings.db_path
+        column = self._settings.annotation_column
+        if not db_path:
+            return
+        waiting = pending_suggestions(db_path, column,
+                                      png_table=self._settings.png_table)
+        if not waiting:
+            self._status_label.setText("There are no suggestions waiting.")
+            return
+        if keep:
+            question = (f"Accept all {waiting:,} suggestions as annotations "
+                        f'in column "{column}"?\n\nThey become ordinary '
+                        f"annotations and can no longer be told apart from "
+                        f"the ones you made by hand.")
+        else:
+            question = (f"Throw away all {waiting:,} suggestions in column "
+                        f'"{column}"?\n\nThose crops go back to unanswered. '
+                        f"Your own annotations are not touched.")
+        if QMessageBox.question(
+                self, "Keep suggestions" if keep else "Throw away suggestions",
+                question) != QMessageBox.Yes:
+            return
+        # The pending writes go first: a suggestion the annotator has just
+        # answered by hand is no longer a suggestion, and resolving before
+        # the save worker had flushed would sweep it up as one.
+        self._flush_pending()
+        changed = resolve_suggestions(
+            db_path, column, keep=keep,
+            png_table=self._settings.png_table)
+        if not keep:
+            # The ranking is gone, so the caveat that went with it is too.
+            self._suggestions_are_a_ranking = False
+        verb = "accepted" if keep else "thrown away"
+        self._console.append_notice(
+            "{n} suggestions {verb}.\n", n=f"{changed:,}", verb=verb)
+        self._status_label.setText(f"{changed:,} suggestions {verb}.")
+        self._refresh_total(then=self._load_page)
+
     def _on_train_cv(self):
         """Save any pending annotations, then hand off to Classify."""
         if not self._settings.src:
@@ -2436,6 +4936,7 @@ class AnnotateScreen(QWidget):
         self.train_requested.emit("ml_analyze", seed)
 
     def _on_clear_column(self):
+        """Clear every annotation in one column, after confirming."""
         col = self._settings.annotation_column
         answer = QMessageBox.question(
             self, "Confirm clear",
@@ -2444,7 +4945,7 @@ class AnnotateScreen(QWidget):
         if answer != QMessageBox.Yes:
             return
         self._pending_updates.clear()
-        clear_column(self._settings.db_path, col)
+        clear_column(self._settings.db_path, col, table=self._settings.png_table)
         self._refresh_total(then=self._load_page)
 
     def _on_auto_annotate(self):
@@ -2508,7 +5009,8 @@ class AnnotateScreen(QWidget):
 
         column = self._settings.annotation_column
         try:
-            ensure_annotation_column(self._settings.db_path, column)
+            ensure_annotation_column(self._settings.db_path, column,
+                                     table=self._settings.png_table)
         except Exception as exc:
             QMessageBox.warning(
                 self, "Could not write",
@@ -2630,16 +5132,103 @@ class AnnotateScreen(QWidget):
         changed = self._apply_to_slots(slots, None)
         self._set_kbd_hint(f"Cleared {changed} image(s) on this page.")
 
+    def _on_generate_annotation_db(self) -> None:
+        """Open the streaming generator, and adopt what it makes."""
+        dialog = _GenerateAnnotationDatabaseDialog(self._settings, self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        from spacr.annotation_dataset import crops_folder_for
+
+        table = dialog.written_table()
+        if not table:
+            return
+        # OPENED, not merely reported. The screen used to read `png_list` and
+        # only `png_list`, so a second generated set landed under a name it
+        # could not show -- and a user who had just asked for a set and was
+        # then shown the old one would reasonably conclude it had failed.
+        # Every engine reader takes the table now, so the new set is simply
+        # what this screen is looking at.
+        self._settings.png_table = table
+        try:
+            self._reload()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open the generated set", exc_info=True)
+        QMessageBox.information(
+            self, "Annotation set ready",
+            f"Wrote {table} and opened it. Its crops are in "
+            f"{crops_folder_for(table)}/ beside the database.")
+
     def _on_thumb_left(self, slot: int):
+        """Assign the current class to one crop.
+
+        :param slot: which grid position was clicked.
+        """
         self._toggle_annotation(slot, 1)
 
     def _on_thumb_right(self, slot: int):
+        """Clear one crop's annotation.
+
+        :param slot: which grid position was clicked.
+        """
         self._toggle_annotation(slot, 2)
+
+    def _on_thumb_shift(self, slot: int):
+        """Blow ``slot``'s crop up to fill the grid's container.
+
+        Does nothing for a cell with no crop in it: there is nothing to
+        look at, and an empty black overlay a user then has to dismiss is
+        worse than the gesture appearing not to have fired.
+        """
+        overlay = getattr(self, "_zoom_overlay", None)
+        if overlay is None:
+            return
+        if not (0 <= slot < len(self._thumb_pixmaps)):
+            return
+        pixmap = self._thumb_pixmaps[slot]
+        if pixmap is None or pixmap.isNull():
+            return
+        self._fit_zoom_overlay()
+        overlay.show_pixmap(pixmap, slot)
+        overlay.setFocus(Qt.OtherFocusReason)
+
+    def _fold_zoom_back(self) -> None:
+        """Put the zoomed crop back in its place in the grid."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        if overlay is None:
+            return
+        overlay.hide()
+        overlay.slot = -1
+        # The grid, not the overlay, is where the next keystroke belongs.
+        self.setFocus(Qt.OtherFocusReason)
+
+    def _zoom_is_open(self) -> bool:
+        """True while one crop is blown up over the grid."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        try:
+            return overlay is not None and overlay.isVisible()
+        except RuntimeError:
+            return False
+
+    def _fit_zoom_overlay(self) -> None:
+        """Keep the overlay exactly the size of the container it fills."""
+        overlay = getattr(self, "_zoom_overlay", None)
+        scroll = getattr(self, "_grid_scroll", None)
+        if overlay is None or scroll is None:
+            return
+        try:
+            overlay.setGeometry(scroll.viewport().rect())
+        except RuntimeError:
+            # The viewport went away with the screen; nothing to fit.
+            return
 
     # ------------------------------------------------------------------
     # Page loading + rendering
     # ------------------------------------------------------------------
     def _filter_active(self) -> bool:
+        """Whether a filter is narrowing what the grid shows.
+
+        :returns: True when filtered.
+        """
         s = self._settings
         return bool(s.measurement and s.threshold and s.threshold_direction)
 
@@ -2712,19 +5301,20 @@ class AnnotateScreen(QWidget):
             then()
 
     def _load_page(self):
+        """Load the current page, on a worker."""
         if self._closing:
             return
         page = self._settings.page_size
         if self._filtered_rows is not None:
             self._page_paths = list(self._filtered_rows[self._offset:self._offset + page])
         else:
-            self._page_paths = fetch_page(
-                self._settings.db_path,
+            self._page_paths = fetch_page(self._settings.db_path,
                 self._settings.annotation_column,
                 self._offset,
                 page,
-                self._settings.image_type,
-            )
+                self._settings.image_type,table=self._settings.png_table)
+        # A crop blown up over the grid belongs to the page being replaced.
+        self._fold_zoom_back()
         # Clear all thumbs
         for i in range(len(self._thumbs)):
             self._set_slot_image(i, None)
@@ -2772,6 +5362,14 @@ class AnnotateScreen(QWidget):
         self._start_page_worker(request)
 
     def _start_page_worker(self, request):
+        """Read one page of crops off the GUI thread.
+
+        OFF THE GUI THREAD BECAUSE THE CROPS COME FROM A DATABASE, and a page
+        read from a sleeping network share would otherwise freeze the window
+        for as long as the share takes to wake.
+
+        :param request: which page to read.
+        """
         gen, paths, crop_src, settings = request
         load_fn = partial(
             _load_thumb_image_worker,
@@ -2794,7 +5392,7 @@ class AnnotateScreen(QWidget):
         worker = self._page_worker
         self._page_worker = None
         if worker is not None:
-            worker.deleteLater()
+            _retire(worker)
         if self._pending_page_load is not None and not self._closing:
             request = self._pending_page_load
             self._pending_page_load = None
@@ -2802,6 +5400,15 @@ class AnnotateScreen(QWidget):
 
     @Slot(int, object)
     def _on_page_loaded(self, gen: int, loaded):
+        """Show a page that has come back, unless it is stale.
+
+        THE GENERATION IS CHECKED. A user who pages quickly has several reads
+        in flight, and an older one landing last would replace the page they
+        are now looking at.
+
+        :param gen: the generation this read belongs to.
+        :param loaded: the crops it returned.
+        """
         if gen != self._page_gen:
             return   # superseded by a newer load
         page = self._settings.page_size
@@ -2898,9 +5505,19 @@ class AnnotateScreen(QWidget):
         return current
 
     def _is_annotated(self, slot: int) -> bool:
-        """True when ``slot`` already carries a non-zero class label."""
+        """True when ``slot`` already carries a non-zero class label.
+
+        A SUGGESTION IS NOT AN ANSWER, and this is where that matters most.
+        Both callers walk to the next crop the annotator has not decided,
+        and "Suggest for every unanswered image" gives every crop a value --
+        so counting proposals as answers would leave the keyboard flow with
+        nowhere to go on a page it had just filled with things to review.
+        The dashed ring says "look at me"; this is what lets Tab get there.
+        """
         value = self._current_value(slot)
-        return value is not None and value != 0
+        if value is None or value == 0:
+            return False
+        return not self._is_suggested_slot(slot)
 
     def _set_annotation(self, slot: int, value: Optional[int]) -> bool:
         """Record ``value`` (or ``None`` to clear) as ``slot``'s label."""
@@ -2941,9 +5558,38 @@ class AnnotateScreen(QWidget):
         five of the first six below the readability floor. That is issue #6 --
         reported as a macOS problem, and really a light-theme one, since
         macOS defaults to the light appearance far more often than Linux.
+
+        A SUGGESTION RESOLVES TO ITS OWN CLASS'S COLOUR. Suggestions are
+        stored offset (a suggested 1 is an 11 -- see
+        :data:`spacr.suggest.SUGGESTION_OFFSET`), and handing that raw to
+        ``label_to_hex`` would either fall off the end of the palette or,
+        worse, land on the colour of a class the model never proposed. The
+        offset is removed here; what distinguishes a suggestion is the
+        dashed ring :meth:`_is_suggested_slot` turns on, not the colour.
         """
-        return (label_to_hex(self._current_value(slot), dark=on_dark_theme())
+        return (label_to_hex(self._displayed_class(slot), dark=on_dark_theme())
                 or resting_border_color())
+
+    def _displayed_class(self, slot: int):
+        """``slot``'s class as the palette knows it, suggestion or answer."""
+        value = self._current_value(slot)
+        if value is None:
+            return None
+        try:
+            value = int(value)
+        except (TypeError, ValueError):
+            return value
+        if value > SUGGESTION_OFFSET:
+            return value - SUGGESTION_OFFSET
+        return value
+
+    def _is_suggested_slot(self, slot: int) -> bool:
+        """True when ``slot`` carries a proposal rather than an answer."""
+        value = self._current_value(slot)
+        try:
+            return value is not None and int(value) > SUGGESTION_OFFSET
+        except (TypeError, ValueError):
+            return False
 
     def _repaint_slot(self, slot: int) -> None:
         """Sync one tile's chrome with the model. Cheap: no pixmap work.
@@ -2958,6 +5604,7 @@ class AnnotateScreen(QWidget):
         thumb = self._thumbs[slot]
         thumb.set_occupied(slot < len(self._page_paths))
         thumb.set_border_color(self._border_color_for(slot))
+        thumb.set_suggested(self._is_suggested_slot(slot))
         thumb.set_current(slot == self._focus_slot)
 
     def _toggle_annotation(self, slot: int, new_value: int):
@@ -3076,6 +5723,12 @@ class AnnotateScreen(QWidget):
         return None
 
     def _push_undo(self, slot: int, path: str, previous: Optional[int]) -> None:
+        """Record one annotation so it can be taken back.
+
+        :param slot: which grid position changed.
+        :param path: the object that was annotated.
+        :param previous: what it was before.
+        """
         self._undo_stack.append((slot, path, previous))
 
     def handle_key(self, key, text: str = "") -> bool:
@@ -3111,7 +5764,10 @@ class AnnotateScreen(QWidget):
             if self._legend_expanded:
                 return self._toggle_legend()
             return False
-        return False      # pragma: no cover - every token above is handled
+        # A TOKEN THE CHAIN DOES NOT KNOW. False means "not consumed",
+        # so the key is left for Qt's default handling -- returning True
+        # here would swallow a key the window still wants.
+        return False
 
     # -- individual actions --------------------------------------------
     def _kbd_assign(self, value: int) -> bool:
@@ -3247,18 +5903,61 @@ class AnnotateScreen(QWidget):
         without one (window hidden, cursor warped), and a hover nobody is
         pointing at any more must not survive.
         """
+        # ``drain_thread`` processes Qt events while closeEvent waits for an
+        # active page load.  The observed widgets can therefore deliver a
+        # queued event after teardown has started.  None of these interactions
+        # has meaning once the screen is closing, and touching the partly
+        # dismantled widget tree here raises from Qt's event loop.
+        if getattr(self, "_closing", False):
+            return False
         try:
             etype = event.type()
         except Exception:
             return False       # not something we can reason about
+        # A zoomed crop owns Escape, and it owns it before the grid's own
+        # key handling can read the same press as "clear the selection".
+        if etype == QEvent.KeyPress and event.key() == Qt.Key_Escape \
+                and self._zoom_is_open():
+            self._fold_zoom_back()
+            return True
         if etype == QEvent.KeyPress and self.handle_key(event.key(),
                                                          event.text()):
             return True
         if etype == QEvent.Leave:
             self._set_hover_slot(None)
-        if obj is self._grid_holder and self._band_event(etype, event):
+        # The overlay fills the container, so it has to follow it. A resize
+        # that left it at its old size would put the picture off-centre and
+        # move the margin a click has to land in to fold it back.
+        if etype == QEvent.Resize and self._zoom_is_open():
+            scroll = getattr(self, "_grid_scroll", None)
+            if scroll is not None and obj is scroll.viewport():
+                self._fit_zoom_overlay()
+        grid_holder = getattr(self, "_grid_holder", None)
+        if obj is grid_holder and grid_holder is not None and self._band_event(
+            etype, event
+        ):
             return True
         return super().eventFilter(obj, event)
+
+    def _detach_event_filters(self) -> None:
+        """Stop observed grid widgets from calling back during teardown."""
+        observed = []
+        scroll = getattr(self, "_grid_scroll", None)
+        if scroll is not None:
+            observed.append(scroll)
+            try:
+                observed.append(scroll.viewport())
+            except RuntimeError:
+                pass
+        holder = getattr(self, "_grid_holder", None)
+        if holder is not None:
+            observed.append(holder)
+        for widget in observed:
+            try:
+                widget.removeEventFilter(self)
+            except RuntimeError:
+                # A child can already have been deleted by its Qt parent.
+                pass
 
     # ------------------------------------------------------------------
     # Rubber-band selection
@@ -3331,6 +6030,12 @@ class AnnotateScreen(QWidget):
 
     # ------------------------------------------------------------------
     def _flush_pending(self):
+        """Write the queued annotations to the database.
+
+        BATCHED RATHER THAN PER CLICK: annotation is fast and the database is
+        not, so a write per keystroke would make the grid stutter under
+        exactly the rhythm it is designed for.
+        """
         if not self._pending_updates or self._worker is None:
             return
         batch = dict(self._pending_updates)
@@ -3364,9 +6069,14 @@ class AnnotateScreen(QWidget):
                 n=str(len(batch)), err=f"{type(exc).__name__}: {exc}")
 
     def _refresh_status_label(self):
+        """Say what the save worker is doing, or what stopped it.
+
+        A failure wins over everything else: unsaved counts and a "saving…"
+        note beside an error would read as progress.
+        """
         w = self._worker
         if w is None:
-            self._status_label.setText("Ready.")
+            self._status_label.setText(tr("Ready."))
             return
         parts = []
         if w.last_error:
@@ -3380,12 +6090,26 @@ class AnnotateScreen(QWidget):
             parts.append(f"{w.pending_batches} batch queued")
         if w.last_save_ts is not None and not parts:
             parts.append("saved")
-        self._status_label.setText(" · ".join(parts) if parts else "Ready.")
+        self._status_label.setText(
+            " · ".join(parts) if parts else tr("Ready."))
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):
         """Drain every native/Python worker before Qt destroys this screen."""
         self._closing = True
+        self._detach_event_filters()
+        # Close the report windows FIRST. They are children of this screen, so
+        # Qt would take them down with it anyway -- but only after the drains
+        # below, which run an event loop, and a report left standing over a
+        # screen that is being emptied is a window onto a half-torn-down
+        # parent.
+        for report in list(getattr(self, "_reports", {}).values()):
+            try:
+                report.close()
+            except RuntimeError:
+                pass
+        if getattr(self, "_reports", None) is not None:
+            self._reports.clear()
         # Withdraw the routing registration first, so a request arriving
         # during teardown cannot reach a half-destroyed screen. The bound
         # method is passed on purpose: with two Annotate screens opened in a
@@ -3393,6 +6117,14 @@ class AnnotateScreen(QWidget):
         # and an unconditional withdrawal would leave the live screen
         # unreachable.
         unregister_object_opener("annotate", self._object_opener)
+        # Same shape of problem, the other process-wide signal: a connection
+        # left on `path_probe.probes` keeps this screen reachable from an
+        # object that outlives it, and the emission would arrive at a
+        # deleted C++ widget.
+        release = getattr(self, "_release_path_probe", None)
+        if release is not None:
+            release()
+            self._path_probe_landed = None
         self._resize_timer.stop()
         self._pending_page_load = None
         self._flush_pending()
@@ -3427,7 +6159,28 @@ class AnnotateScreen(QWidget):
                 # Only when it really stopped. `deleteLater` on a parked,
                 # still-running QThread is the abort being avoided; the park
                 # list owns it from here.
-                retrain.deleteLater()
+                _retire(retrain)
+        suggest = self._suggest_worker
+        if suggest is not None:
+            # The same budgeted drain, for the same reason: a Suggest run
+            # fits a model and then WRITES to SQLite, and tearing the widget
+            # down mid-write is the crash the paragraph above is about. It
+            # has strictly more to lose than a retrain, because a half-
+            # written suggestion set is a column the annotator has to clean
+            # up by hand.
+            suggest.requestInterruption()
+            stopped = drain_thread(suggest, timeout_ms=CLOSE_DRAIN_MS)
+            self._suggest_worker = None
+            for signal, slot in ((suggest.done, self._on_suggest_done),
+                                 (suggest.failed, self._on_suggest_failed),
+                                 (suggest.finished,
+                                  self._on_suggest_finished)):
+                try:
+                    signal.disconnect(slot)
+                except (RuntimeError, TypeError):
+                    pass
+            if stopped:
+                _retire(suggest)
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
@@ -3449,7 +6202,7 @@ class AnnotateScreen(QWidget):
             except (RuntimeError, TypeError):
                 pass
             if stopped:
-                worker.deleteLater()
+                _retire(worker)
         try:
             self._console.shutdown()
         except Exception:

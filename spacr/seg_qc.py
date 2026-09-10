@@ -166,7 +166,8 @@ import math
 import os
 import re
 import time
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass
+from dataclasses import field as _dc_field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -296,9 +297,15 @@ class SegmentationQCFailed(RuntimeError):
 
     Carries the summary so a caller can report WHICH fields failed and why,
     rather than only that something did.
+
+    :param message: the exception's own message.
+    :param summary: the QC summary, so a caller can report WHICH fields
+        failed and why rather than only that something did. ``None`` when
+        there is nothing to carry.
     """
 
     def __init__(self, message: str, summary: Optional[Dict[str, Any]] = None):
+        """Initialize the message and copy its structured QC summary."""
         super().__init__(message)
         self.summary = dict(summary or {})
 
@@ -340,6 +347,7 @@ class FieldQC:
         return self.severity == "fail"
 
     def __str__(self) -> str:
+        """Return one line naming the field, count, severity, and flags."""
         flags = ", ".join(self.flags) if self.flags else "clean"
         return f"{self.field}: {self.n_objects} objects [{self.severity}] {flags}"
 
@@ -814,8 +822,8 @@ def _iter_masks(source: Any):
     """Yield ``(field_name, loader)`` pairs for whatever the caller passed.
 
     Accepts a folder of ``.npy`` masks (what :mod:`spacr.object` writes), a
-    single ``.npy`` file, a 3-D stack, a mapping of name to mask, or any
-    sequence of 2-D masks. Files are yielded as thunks so only one field is in
+    single ``.npy`` file, a 3-D stack, a mapping of name to mask OR to a
+    callable returning one, or any sequence of 2-D masks. Files are yielded as thunks so only one field is in
     memory at a time — a 1536-field plate must not be loaded to be scored.
     """
     if isinstance(source, (str, os.PathLike)):
@@ -835,7 +843,16 @@ def _iter_masks(source: Any):
 
     if isinstance(source, _abc.Mapping):
         for name, mask in source.items():
-            yield str(name), (lambda m=mask: m)
+            # A CALLABLE VALUE IS A THUNK, not a mask. That is what lets a
+            # caller whose masks are not one-file-per-field -- the v2
+            # pipeline, whose mask is a channel of a merged stack -- be
+            # scored without materialising the plate: a mapping of already
+            # loaded arrays would hold all 1536 fields at once, which is
+            # exactly what the file path above goes out of its way to avoid.
+            if callable(mask):
+                yield str(name), mask
+            else:
+                yield str(name), (lambda m=mask: m)
         return
 
     arr = source
@@ -1250,6 +1267,7 @@ class FlagGuidance:
     illumination: bool = False
 
     def __str__(self) -> str:
+        """Return the flag identifier and its short explanatory headline."""
         return f"{self.flag}: {self.headline}"
 
     def text(self) -> str:
@@ -1336,7 +1354,7 @@ FLAG_GUIDANCE: Dict[str, FlagGuidance] = {
             "the whole plate is like this seg_qc already demotes it to a "
             "warning, because it is the assay and not a defect",
             "size or probability filters removing most of what was found "
-            "(cell_min_area, the *_CP_prob thresholds)",
+            "(cell_min_area, the *_cellprob_threshold thresholds)",
             "a field that is largely outside the well",
         ),
         fix=(
@@ -1536,6 +1554,7 @@ class FieldAddress:
         return bool(self.well)
 
     def __str__(self) -> str:
+        """Return ``plate/well`` when known, otherwise the plate name."""
         return f"{self.plate}/{self.well}" if self.well else self.plate
 
 
@@ -1543,7 +1562,7 @@ def parse_field_name(name: str) -> FieldAddress:
     """Split a field name into plate / well / row / column.
 
     Never raises and never guesses: a name that does not carry a well comes
-    back with empty well, row and column, and the callers below simply do not
+    back with empty well, row and column, and callers do not
     make the positional claims that need them.
 
     :param name: a field name, file name or path — extension and directories
@@ -1664,6 +1683,7 @@ class Finding:
     illumination: bool = False
 
     def __str__(self) -> str:
+        """Return the severity-tagged finding headline."""
         return f"[{self.severity}] {self.headline}"
 
     def text(self) -> str:
@@ -1692,10 +1712,11 @@ def _flag_findings(
         fields = tuple(sorted(q.field for q in members))
         where = plate or "this project"
         located = _name_list(list(wells), max_named)
+        named_fields = _name_list(list(fields), max_named)
         if located:
             where += f", wells {located}"
-        elif fields:
-            where += f", fields {_name_list(list(fields), max_named)}"
+        elif named_fields:
+            where += f", fields {named_fields}"
         # The severity is the flag's own, with one exception that has to be
         # honoured: `_apply_plate_context` demotes empty and near-empty fields
         # on a sparse plate, because with a plate median of 2 pathogens per
@@ -1840,7 +1861,7 @@ def _gradient_findings(
                     fix=(
                         f"{ILLUMINATION_ADVICE} If the raw images look evenly "
                         f"lit, the threshold is the other suspect: check "
-                        f"<object>_CP_prob and <object>_min_area, and measure "
+                        f"<object>_cellprob_threshold and <object>_min_area, and measure "
                         f"the diameter from your own images before re-masking."
                     ),
                     plate=plate,
@@ -2009,6 +2030,7 @@ class Scorecard:
         return str(self.summary.get("verdict", "empty"))
 
     def __str__(self) -> str:
+        """Return object type and verdict, marking a stale card out of date."""
         stale = " (out of date)" if self.stale else ""
         return f"{self.object_type}: {self.verdict}{stale}"
 
@@ -2031,6 +2053,8 @@ class QCDigest:
     :param findings: what :func:`diagnose` made of every card together.
     :param stale: True when any card is older than its masks.
     :param checked_at: when this digest was built (``time.time()``).
+    :param blocks_run: always ``False``; segmentation QC advises the user but
+        never prevents them from continuing a run.
     """
 
     root: str = ""
@@ -2074,6 +2098,7 @@ class QCDigest:
         }))
 
     def __str__(self) -> str:
+        """Return the overall verdict followed by its actionable headline."""
         return f"{self.verdict}: {self.headline}"
 
 
@@ -2095,6 +2120,12 @@ def qc_roots(src: Any) -> Tuple[str, ...]:
     candidates: List[str] = []
 
     def _add(path: str) -> None:
+        """Append one unique existing directory to the captured candidates.
+
+        :param path: candidate directory path; false-like, missing, non-directory,
+            and already-recorded values are ignored.
+        :returns: None. Accepted paths retain discovery order.
+        """
         if path and os.path.isdir(path) and path not in candidates:
             candidates.append(path)
 
@@ -2215,7 +2246,7 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
                         metrics[key] = float("nan")
                 try:
                     n_objects = int(float(row.get("n_objects") or 0))
-                except (TypeError, ValueError):
+                except (TypeError, ValueError, OverflowError):
                     n_objects = 0
                 metrics.setdefault("n_objects", float(n_objects))
                 out.append(FieldQC(
@@ -2230,6 +2261,12 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
     except OSError as exc:
         return [], f"{os.path.basename(path)} unreadable ({type(exc).__name__})"
     except csv.Error as exc:
+        # Python <=3.11 rejects a NUL while iterating the CSV; 3.12+ accepts
+        # it and the explicit checks above reject it. Keep one diagnosis on
+        # every supported interpreter so callers do not have to parse a
+        # version-specific stdlib message.
+        if "nul" in str(exc).lower():
+            return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
         return [], f"{os.path.basename(path)} is not readable as CSV ({exc})"
     return out, ""
 
@@ -2466,7 +2503,10 @@ def score_digest(
 
 
 def format_digest(digest: QCDigest) -> str:
-    """Render a digest as text — what the console prints, what a test reads."""
+    """Render a digest as text — what the console prints, what a test reads.
+
+    :param digest: completed segmentation-QC digest to render.
+    """
     lines = [f"Segmentation QC: {digest.verdict.upper()} — {digest.headline}"]
     if digest.subhead:
         lines.append(f"  {digest.subhead}")

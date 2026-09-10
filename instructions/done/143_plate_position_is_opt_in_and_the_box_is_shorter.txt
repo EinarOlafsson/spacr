@@ -1,0 +1,145 @@
+================================================================================
+PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "is rowID + columnID always run? this should be an opt in"
+  "the text box has too much text it should read more like this: [the box's
+   own current text, pasted back]"
+
+Related: 132 built the box. 138 made it fill its width, which is what made the
+         volume visible.
+
+--------------------------------------------------------------------------------
+A. YES, IT IS ALWAYS RUN. IT SHOULD NOT BE.
+--------------------------------------------------------------------------------
+
+CHECKED, not assumed. `spacr.ml.prepare_formula` ends:
+
+    if random_row_column_effects:
+        return f'{dependent_variable} ~ {term}{screen}'
+    return f'{dependent_variable} ~ {term} + rowID + columnID{screen}'
+
+So plate row and column are ALWAYS in the model. The only control is
+`random_row_column_effects`, which does not remove them -- it moves them from
+fixed effects into the mixed fit's variance components. There is no way to fit
+a screen without plate position at all.
+
+WHAT IT COSTS. A 384-well plate contributes 16 rows and 24 columns, so 38
+terms less two dropped as references: 36 parameters spent on a nuisance the
+screen may not have. On 610 analysed wells that is 6% of the residual degrees
+of freedom, taken from every model, on every run, without being asked for.
+
+THE PRECEDENT IS IN THE SAME FUNCTION. `block_screen` adds `screenID` and
+DEFAULTS TO OFF, with the reason written down: "the caller decides, because a
+single-screen project's screenID column has ONE value". Plate position
+deserves the same treatment for the same reason -- a screen on one row, or a
+randomised layout, has nothing there to model.
+
+WHAT TO BUILD:
+  * a setting, default OFF, that decides whether rowID and columnID enter the
+    model at all;
+  * it is INDEPENDENT of `random_row_column_effects`, which then chooses
+    fixed-vs-random for a term that is already in. Off plus random is a
+    contradiction and is refused, per instruction 106, rather than silently
+    picking one;
+  * the model box states which of the three states is in force, because the
+    formula on screen has to be the formula that is fitted.
+
+DEFAULT OFF IS A CHANGE OF ANSWER, so it is a release note: coefficients move
+on any screen that HAS a plate-position effect. Say so plainly rather than
+letting a user discover it by re-running an old screen. If that is judged too
+sharp a break, default it ON and let the setting turn it off -- but SAY which
+was chosen and why; do not leave it ambiguous.
+
+MEASURE IT BEFORE CHOOSING THE DEFAULT: fit one real screen with and without,
+and report how much the coefficients move and whether the row/column terms
+were significant. That is a two-line answer that decides the question.
+
+--------------------------------------------------------------------------------
+B. THE BOX SAYS TOO MUCH
+--------------------------------------------------------------------------------
+
+2,438 characters over 29 lines for `ols`/`both`. The maintainer pasted the
+box's OWN CURRENT TEXT back as the example, which is the clearest possible
+statement that the shape is right and the VOLUME is wrong.
+
+Instruction 138 is why it became visible: the prose used to be hard-wrapped to
+54 columns and is now full-width, so the same words read as a denser block.
+
+WHAT STAYS -- this is what a user needs every time they open the panel:
+    MODEL / LEVEL, the one-line description
+    each FORMULA, with the file it writes
+    one sentence per formula saying what a coefficient IS
+    TWO MODELS, TWO TABLES
+    WHAT <MODEL> DOES, at one or two sentences
+
+WHAT GOES -- read once, then never again:
+    WHY THE FORMULA CHANGED. It is the longest block in the box, it is
+    release-note material, and it describes a bug that no longer exists in a
+    version the user is not running. Keep it, but not here: behind a "why?"
+    link, in the docs, or in the release notes.
+    The MULTIPLE TESTING paragraph shortens to its first sentence; the
+    "two tests of one hypothesis" caution belongs beside the hit list, where
+    somebody is actually making the claim.
+
+TARGET: under about 900 characters, which is a box a reader finishes.
+
+DO NOT SHORTEN BY DELETING THE NUMBERS. "1248 parameters at rank 862" is what
+makes the claim checkable; if that sentence survives anywhere it keeps its
+figures. Shorten by removing what does not need re-reading, not by making what
+remains vaguer.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A setting decides whether plate position is in the model; its default is
+  stated and justified by a measurement.
+* Off + random_row_column_effects is refused with a reason.
+* The formula in the box matches the formula fitted, in all three states.
+* The box is under ~900 characters and every number that survives keeps its
+  figures.
+* The removed history is still readable somewhere, and the box says where.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- A AND B DONE.
+--------------------------------------------------------------------------------
+
+A. `model_plate_position` exists, DEFAULTS FALSE, and is independent of
+   `random_row_column_effects` -- which then chooses fixed against random for
+   a term that is already in. The contradictory pair (position off, random
+   effects on) is REFUSED with the reason, per 106, rather than silently
+   picking one.
+
+   THE MEASUREMENT THE INSTRUCTION ASKED FOR BEFORE CHOOSING, and it is in
+   the setting's own description so a user can see it: on a 610-well screen
+   the 35 position terms were jointly significant (p=6.7e-23); omitting them
+   raised residual SD 7.2% and changed the hit list. On a screen with no
+   position effect, INCLUDING them raised standard errors 1.6%. So the cost
+   of leaving them out when they matter is large and the cost of putting them
+   in when they do not is small -- which is the argument for defaulting ON,
+   and the default is OFF because "always fitted, never asked for" was the
+   complaint. The setting is one click and the box states which of the three
+   states is in force.
+
+B. THE BOX FOR ols/both IS 913 CHARACTERS, from 2,438. Target was "under
+   about 900, a box a reader finishes". The history block -- 880 of the
+   original characters, describing a design no shipped version fits -- is in
+   `regression_model_explainer.__doc__`, which is published as API
+   documentation, with a 61-character pointer left behind: a measurement
+   nobody can find is a measurement deleted.
+
+   Every box measured today: ols 913, glm 1015, lasso 1199, rra 1236,
+   mixed 1595.
+
+   MIXED IS OVER AND STAYS OVER, deliberately. It carries WHAT IT COSTS,
+   which a later report put there -- a mixed run on a real screen looks
+   indistinguishable from a hang, and this is the paragraph that says one
+   core at 100% is a healthy REML fit and names the measured ratios (54x at
+   40 genes, 67x at 80). 143 B says plainly: "do not shorten by deleting the
+   numbers", so it was shortened by half its words with every figure kept.
+   A user who reads it once before starting an hour-long fit has had the
+   whole value of it.

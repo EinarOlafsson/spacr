@@ -77,6 +77,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
+from .cancellation import (
+    PipelineCancelled,
+    current_token,
+)
+from .cancellation import (
+    checkpoint as cancellation_checkpoint,
+)
 from .cli import (
     EXIT_OK,
     EXIT_USAGE,
@@ -240,6 +247,7 @@ class Problem:
         return self.severity == ERROR
 
     def __str__(self) -> str:
+        """Render the problem message followed by its corrective action."""
         where = f'{self.job_id}: ' if self.job_id else ''
         key = f'[{self.setting}] ' if self.setting else ''
         return f'{where}{key}{self.message}\n    fix: {self.fix}'
@@ -487,9 +495,11 @@ class Queue:
     # -- container ---------------------------------------------------------
 
     def __len__(self) -> int:
+        """Return the number of jobs currently in the queue."""
         return len(self.jobs)
 
     def __iter__(self):
+        """Iterate over the jobs in queue order."""
         return iter(self.jobs)
 
     @property
@@ -498,14 +508,20 @@ class Queue:
         return [job.id for job in self.jobs]
 
     def find(self, job_id: str) -> Optional[Job]:
-        """Return the job with ``job_id``, or None."""
+        """Return the job with ``job_id``, or None.
+
+        :param job_id: unique queue job identifier to find.
+        """
         for job in self.jobs:
             if job.id == job_id:
                 return job
         return None
 
     def index(self, job_id: str) -> int:
-        """Position of ``job_id`` in run order, or ``-1``."""
+        """Position of ``job_id`` in run order, or ``-1``.
+
+        :param job_id: unique queue job identifier to locate.
+        """
         for i, job in enumerate(self.jobs):
             if job.id == job_id:
                 return i
@@ -514,7 +530,10 @@ class Queue:
     # -- editing -----------------------------------------------------------
 
     def mint_id(self, module: str) -> str:
-        """Return an unused, human-typable id for a job of ``module``."""
+        """Return an unused, human-typable id for a job of ``module``.
+
+        :param module: module name used as the identifier's readable stem.
+        """
         base = re.sub(r'[^a-z0-9_]+', '-', str(module).strip().lower()) or 'job'
         n = 1
         taken = set(self.ids)
@@ -556,6 +575,8 @@ class Queue:
     def remove(self, job_id: str) -> bool:
         """Remove ``job_id`` and drop it from every other job's ``depends_on``.
 
+        :param job_id: unique identifier of the job to remove.
+
         Leaving a dangling dependency behind would silently skip the jobs that
         referred to it, so the reference is cleaned up here.
 
@@ -573,6 +594,8 @@ class Queue:
     def move(self, job_id: str, offset: int) -> int:
         """Move ``job_id`` ``offset`` places (negative is earlier).
 
+        :param job_id: unique identifier of the job to reposition.
+        :param offset: relative number of queue positions to move.
         :returns: the job's new index, or ``-1`` when it is not in the queue.
         """
         i = self.index(job_id)
@@ -611,6 +634,7 @@ class Queue:
     def from_dict(cls, data: Mapping[str, Any]) -> 'Queue':
         """Rebuild a queue from :meth:`to_dict` or from a hand-written file.
 
+        :param data: serialized or hand-written queue mapping to rebuild.
         :raises QueueError: when the document is not a queue, is a format from
             the future, or holds a job entry that cannot be read.
         """
@@ -621,7 +645,9 @@ class Queue:
         try:
             version = int(version)
         except (TypeError, ValueError):
-            raise QueueError(f'"spacr_queue" must be a version number, got {version!r}.')
+            raise QueueError(
+                f'"spacr_queue" must be a version number, got {version!r}.'
+            ) from None
         if version > QUEUE_FORMAT:
             raise QueueError(
                 f'this queue file is format {version}, but this spaCR understands '
@@ -956,6 +982,14 @@ def _cycle_problems(queue: Queue) -> List[Problem]:
     state: Dict[str, int] = {}
 
     def walk(job_id: str, trail: List[str]) -> None:
+        """Depth-first search one captured dependency subgraph for cycles.
+
+        :param job_id: queue job whose known dependencies should be visited.
+        :param trail: active ancestor IDs used to reconstruct a back-edge cycle.
+        :returns: None. Captured state records active and completed jobs, and a
+            back edge appends one problem; missing dependency IDs are ignored
+            here because ordinary dependency validation reports those typos.
+        """
         if state.get(job_id) == 2:
             return
         if state.get(job_id) == 1:
@@ -1114,7 +1148,10 @@ class QueueResult:
     # -- accessors ---------------------------------------------------------
 
     def jobs_with(self, status: str) -> List[Job]:
-        """Every job that ended in ``status``."""
+        """Every job that ended in ``status``.
+
+        :param status: job status value to select.
+        """
         return [job for job in self.queue.jobs if job.status == status]
 
     @property
@@ -1324,6 +1361,10 @@ def subprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
 
 def inprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
     """Run one job in this interpreter, with its output tee'd to its log.
+
+    :param job: queue job whose module and overrides are executed.
+    :param settings_path: resolved settings file supplied to the job command.
+    :param log_path: destination file for redirected output.
 
     Same argv, same exit-code contract as :func:`subprocess_runner` — it calls
     :func:`spacr.cli.main` directly — but with none of the isolation: a

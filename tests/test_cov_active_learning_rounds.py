@@ -326,13 +326,26 @@ def test_every_supported_model_type_fits_and_reports_the_same_shape(
 
 
 def test_an_unknown_model_type_is_named_back_with_the_real_ones(project):
-    """A typo must not fall through to a default nobody asked for."""
+    """A typo must not fall through to a default nobody asked for.
+
+    THE TYPO USED TO BE "xgboost", which stopped being one: it is an
+    offered model_type now, an optional dependency that refuses with
+    installation instructions rather than a list of alternatives. So the
+    test asked a supported name to fail, and got a fit. The name here has
+    to be one the dispatch really does not know, and the assertion below
+    that `xgboost` is OFFERED is what keeps this from drifting back --
+    a future rename would fail here instead of quietly turning this test
+    into a fit again.
+    """
     with pytest.raises(ValueError) as excinfo:
-        al.retrain_round(project["db"], "annotate", model_type="xgboost",
+        al.retrain_round(project["db"], "annotate", model_type="xgbost",
                          save_model=False)
     message = str(excinfo.value)
-    assert "'xgboost'" in message
+    assert "'xgbost'" in message
     assert "logistic_regression" in message and "random_forest" in message
+    assert "xgboost" in message, (
+        "the refusal no longer offers xgboost, so a user who typed it "
+        "correctly is not told it exists")
 
 
 def test_a_round_fits_classes_that_were_annotated_as_text(tmp_path):
@@ -454,6 +467,16 @@ def test_a_grouped_split_expands_when_the_requested_fold_has_one_class(
 # ---------------------------------------------------------------------------
 # RoundResult — what the screen prints
 # ---------------------------------------------------------------------------
+
+def test_round_result_documents_and_normalizes_its_named_fields():
+    """The keyword-only construction contract remains public and usable."""
+    result = al.RoundResult(round_index=2, notes=None, report=None)
+
+    assert ":param fields:" in (al.RoundResult.__doc__ or "")
+    assert result.round_index == 2
+    assert result.notes == []
+    assert result.report == {}
+
 
 def test_a_round_summary_names_the_weakest_class_and_its_caveats():
     """An aggregate of 0.75 hides a class the model cannot do at all.

@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {"table": "ui", "key": "Dream", "source_sha256": "c6d5ed757b66bfd3147a10410e0922b701baf55c401a1491e314d65fba08d15d", "source": "Dream", "translation": "Rêve"},
+    {"table": "ui", "key": "Quality", "source_sha256": "1b2c08a8733d7ff1d06e726107a977124929c975066a3a606d19055dfd4e3dbd", "source": "Quality", "translation": "Qualité"},
+    {"table": "ui", "key": "Speed", "source_sha256": "c372fee9b4566b85a592ae6e98e571f3929c8e262cf2feff7acba63a65a50f14", "source": "Speed", "translation": "Vitesse"},
+    {"table": "ui", "key": "Variable speed", "source_sha256": "cdd392c1b106f7e2e55e63a2e0f7304a234fe3a2bf4b89277d90bf85cf0178f8", "source": "Variable speed", "translation": "Vitesse variable"}
+  ]
+}

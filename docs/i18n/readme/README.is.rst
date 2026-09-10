@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Python| |Tests| |Qt| |Source| |Issues| |License| |DOI|
+|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -26,62 +26,134 @@
    :alt: GitHub-mál
 .. |License| image:: https://img.shields.io/github/license/EinarOlafsson/spacr
    :target: https://github.com/EinarOlafsson/spacr/blob/main/LICENSE
-   :alt: PolyForm Noncommercial-leyfi
-.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343317-blue
-   :target: https://doi.org/10.5281/zenodo.21343317
+   :alt: BSD 3-Clause-leyfi
+.. |Preprint| image:: https://img.shields.io/badge/bioRxiv-2026.07.08.737057-BF2636
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+   :alt: bioRxiv-forprentun
+.. |DOI| image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21343316-blue
+   :target: https://doi.org/10.5281/zenodo.21343316
    :alt: Zenodo DOI
 .. |Release| image:: https://img.shields.io/github/v/release/EinarOlafsson/spacr?label=Installers
    :target: https://github.com/EinarOlafsson/spacr/releases/latest
    :alt: Nýjustu uppsetningarforrit
-.. |CondaRecipe| image:: https://img.shields.io/badge/conda--forge-recipe-44A833?logo=anaconda
-   :target: https://github.com/EinarOlafsson/spacr/tree/main/conda-forge/recipe
-   :alt: conda-forge-uppskrift
+.. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge-útgáfa
 
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/logo_spacr.png
+.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
    :alt: spaCR
-   :align: center
-   :width: 360
+   :width: 920
 
 spaCR
 =====
 
-Tungumál: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
-`Deutsch <README.de.rst>`_ ·
-`Español <README.es.rst>`_ ·
-`简体中文 <README.zh_CN.rst>`_ ·
-`Português <README.pt.rst>`_ ·
-`हिन्दी <README.hi.rst>`_ ·
-`한국어 <README.ko.rst>`_ ·
-`Íslenska <README.is.rst>`_ ·
-`Français <README.fr.rst>`_
+.. spacr-language-picker-begin
 
-`Upplýsingar um þýðingarlíkön <../TRANSLATION_MODELS.md>`_
+Tungumál: `🌐 Íslenska ▾ <README.md>`_
+
+.. spacr-language-picker-end
 
 **Rýmisbundin svipgerðargreining á CRISPR-skimunum.**
 
-spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, tengir hverja frumu við gRNA-ið sem hún fékk og greinir frá því hvaða gen breyttu svipgerðinni. Plötumyndir og FASTQ-raðir eru inntak; mælingar fyrir hvert viðfang, þjálfaðir flokkarar, áhrifastærðir fyrir hverja leiðarsameind og hvert gen og forgangsraðaður niðurstöðulisti eru úttak.
+spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþættir svipgerðir einstakra viðfanga við magn leiðarsameinda sem fæst úr raðgreiningu og metur hvaða gen tengjast svipgerðarbreytingum. Út frá plötumyndum og FASTQ-röðum býr það til mælingar fyrir hvert viðfang, þjálfaða flokkara, áhrifamat fyrir hverja leiðarsameind og hvert gen og forgangsraðaðan lista yfir niðurstöður.
 
-Fyrir myndgreindar samsettar CRISPR-skimanir nær þetta yfir allt verkflæðið. Ef þú ert með afkastamiklar smásjármyndir en enga skimun er hægt að keyra aðgreiningu, mælingar, merkingar og flokkun sjálfstætt.
+Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms.
 
-Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og brunnaauðkenni eru geymd í einu SQLite-verkefni, þannig að rekja má niðurstöðugildi aftur til viðfangsins sem það kom frá.
+Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
 
-Keyrðu spaCR sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa. Báðar leiðir nota sömu einingar og CUDA er virkjað sjálfkrafa þegar einingin styður það.
+Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
+
+Hardware aðstoð
+~~~~~~~~~~~~~~~~
+
+.. spacr-hardware-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 18 18 22
+
+   * - Hardware
+     - Cellpose 4
+     - Torch
+     - UMAP / clustering
+   * - NVIDIA (CUDA)
+     - 🟢 GPU
+     - 🟢 GPU
+     - 🟢 GPU
+   * - AMD on Linux (ROCm)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - AMD in an Intel Mac (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Apple Silicon (Metal)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - Intel Arc/Xe (XPU)
+     - 🟣 GPU
+     - 🟣 GPU
+     - 🔴 CPU
+   * - No GPU
+     - 🟢 CPU
+     - 🟢 CPU
+     - 🟢 CPU
+
+stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
+
+.. spacr-hardware-end
 
 
-Yfirlit yfir verkflæðið
------------------------
+Setja upp spaCR
+---------------
 
-|Tutorials|
+Skjáborðsforrit
+~~~~~~~~~~~~~~~~~~~
 
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: Verkflæði spaCR og skipulag úttaks
-   :align: center
+Þessir uppbyggingar búnir eigin Python. Conda er ekki nauðsynlegt.
 
-Smásjármyndir (TIFF, OME-TIFF, LIF, CZI, ND2) og raðgreiningarlestur (FASTQ) fara í samverkandi ferli fyrir myndgreiningu og strikamerkjavörpun. Síðan eru viðfangstöflur, myndúrklippur, merkingar, spár, auðkenni leiðarsameinda, QC-niðurstöður og samantektir fyrir hvern brunn greind saman.
+.. spacr-installer-links-begin
 
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-Flýtiræsing
------------
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir macOS 11+ (Intel og Apple Silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: Sækja spaCR 1.5.0.4 fyrir 64-bita Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Eldri spaCR-uppsetningarforrit
+   :target: ../../source/installers.rst
+
+.. spacr-installer-links-end
+
+Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið installer arkívu. Installer tengsl og verslun filnames eru uppfærdur af útgáfur vinnuflu; fyrri installerir eru enn í sama útgáfa arkíva.
+
+Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:
+
+.. code-block:: bash
+
+   chmod +x SpaCR-*-Linux-x86_64-Online.run
+   ./SpaCR-*-Linux-x86_64-Online.run
+
+Á macOS, opna ``.pkg``. Núverandi beta er ekki notarið; ef Gatekeeper blokkir það, velja **System Settings → Privacy & Security → Open Anyway**.
+
+Sjá `Installer leiðbeiningar <../../source/installer_guide.rst>`_ til að uppgötva, deinstalla, offline og vandamálið.
+
+Uppsetning frá PyPI
+~~~~~~~~~~~~~~~~~~~
+
+Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi. Python 3.12 býður upp á mesta úrvalið af valfrjálsum vísindapökkum:
 
 .. code-block:: bash
 
@@ -91,104 +163,75 @@ Flýtiræsing
    python -m pip install "spacr[qt]"
    spacr
 
-spaCR styður Python **3.9 til 3.14** (nema Python 3.14.1, sem torchvision styður ekki). Python 3.12 býður upp á fjölbreyttasta úrval valfrjálsra vísindapakka. Mælt er með Linux fyrir CUDA-verkflæði; macOS og Windows eru einnig studd.
+spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.
 
-
-Upplýsingar um uppsetningu
---------------------------
-
-|Release| |PyPI| |CondaRecipe|
-
-**(beta) Létt uppsetningarforrit fyrir skjáborð:**
-
-.. spacr-installer-links-begin
-
-* `Windows 10/11: hala niður SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel og Apple silicon): hala niður SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64-bita Linux: hala niður SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
-
-.. spacr-installer-links-end
-
-Létt uppsetningarforrit — hvorki conda né uppsett Python nauðsynlegt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Uppsetningarforritið sækir eigið Python 3.12-keyrsluumhverfi, Qt, PyTorch, spaCR og vísindalega hjálparpakka meðan á uppsetningu stendur, þannig að hvorki conda né uppsett Python er nauðsynlegt. Færanlega CPU-útgáfan er sjálfgefið val og kemur í veg fyrir að nokkur gígabæti af CUDA-söfnum séu sótt án fyrirvara. Í Windows er NVIDIA-hröðun valfrjáls hluti uppsetningarinnar, Linux tekur við ``--torch-backend auto`` og staðlaði PyTorch-pakkinn fyrir macOS styður áfram Apple MPS-hröðun.
-
-Hjálpartexti, framvinda og villuboð uppsetningarforritsins fylgja tungumáli stýrikerfisins á öllum tíu tungumálum spaCR: ensku, sænsku, þýsku, spænsku, einfaldaðri kínversku, portúgölsku, hindí, kóresku, íslensku og frönsku. Tungumál sem ekki eru studd nota ensku.
-
-Á Linux skaltu gera uppsetningarforritið sem var sótt keyranlegt áður en þú opnar það:
-
-.. code-block:: bash
-
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
-
-Á macOS skaltu opna ``.pkg``-skrána sem var sótt. Ef Gatekeeper stöðvar núverandi beta-uppsetningarforrit vegna þess að það hefur ekki verið vottað af Apple skaltu opna **System Settings → Privacy & Security**, velja **Open Anyway** fyrir spaCR og keyra síðan pakkann aftur.
-
-Uppsetningarforritið sannprófar spaCR, Qt, PyTorch og samræmi milli hjálparpakka áður en eldri uppsetningu er skipt út, svo rofin uppfærsla skilur fyrra virka umhverfið eftir óbreytt. Greiningarannáll er vistaður sem ``install.log`` í sérstakri uppsetningarmöppu spaCR.
-
-Skjáborðsforrit frá PyPI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   python -m pip install "spacr[qt]"
-   spacr
-
-Uppsetning án grafísks viðmóts eða á þjóni
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
 
 .. code-block:: bash
 
    python -m pip install spacr
    spacr-run --list
 
-Nýjasta þróunargrein
+Opinlegri samsetningar eru settar sérstakt, t.d. ``spacr[zarr]``, ``spacr[omero]``,``spacr[napari]`` og ``spacr[czi,nd2,lif]``. Sjá `Uppsetningu leiðbeiningar <../../source/installer_guide.rst>`_ fyrir fullkomna útgáfur og Python-version samskipti tól.
+
+Uppsetning með conda-forge
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opinberi conda-forge-pakkinn setur spaCR og nauðsynlegar einingar skjáborðsforritsins upp í virka umhverfinu:
+
+.. code-block:: bash
+
+   conda create -n spacr python=3.12 -y
+   conda activate spacr
+   conda install conda-forge::spacr
+   spacr
+
+Uppsetur frá kjarninu
+~~~~~~~~~~~~~~~~~~~~~
+
+Klónaðu upphafinn og setja upp það í breyttan hátt, þannig að vinnumópi þína *is* byggð pakka og breytingar munu virka án endursetningu::
+
+    git clone https://github.com/EinarOlafsson/spacr.git
+    cd spacr
+    conda create -n spacr python=3.12 -y
+    conda activate spacr
+    pip install -e .
+    spacr
+
+Skammslan er ``nightly``. Fyrir ákveðinn útgáfur::
+
+    git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
+
+Til að draga eftirfarandi breytingar, frá innri klóna::
+
+    git pull
+    pip install -e .
+
+2. línu er aðeins nauðsynlegt þegar afhengingar eða innfangspunktur breytist; Python kóða er taka upp án þess. ef lögun er enn að hlaupa gamla kóða eftir að taka, ``spacr-doctor`` segir að ``spacr`` er í raun á leiðinni, sem er venjulega ástæða.
+
+Að setja upp úr ljósið (Light)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fullt klón: 427 MB. Kjarnklón: 76 MB.
+
+::
+
+    curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
+    sh install_spacr.sh --branch nightly
+
+Skips ``docs/``, ``tests/`` og Cellpose athygli, skráðir tölur og útbreiddar þýðingar.
+
+Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
+
+``packaging/source_install_excludes.txt`` listar hvert skipað leið.
+
+
+Skipanalínuskipanir
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   git clone https://github.com/EinarOlafsson/spacr.git
-   cd spacr
-   git switch nightly
-   python -m pip install -e ".[qt]"
-
-Conda-umhverfi
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   conda create -n spacr python=3.12 pip -y
-   conda activate spacr
-   python -m pip install "spacr[qt]"
-
-Valfrjálsir eiginleikar
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Settu aðeins upp þá viðbótarpakka sem verkflæðið þitt þarfnast:
-
-.. code-block:: bash
-
-   python -m pip install "spacr[trackastra]"    # transformer tracking
-   python -m pip install "spacr[ultrack]"       # global-optimization tracking
-   python -m pip install "spacr[btrack]"        # btrack timelapse tracking
-   python -m pip install "spacr[attribution]"   # TorchCAM methods
-   python -m pip install "spacr[boosting]"      # LightGBM and CatBoost
-   python -m pip install "spacr[zernike]"       # Zernike measurements
-   python -m pip install "spacr[napari]"        # napari mask correction
-   python -m pip install "spacr[czi,nd2,lif]"   # vendor file readers
-
-Hvaða viðbótarpakka er hægt að setja upp fer eftir Python-útgáfunni. Í Python 3.13 takmarka háðakröfur ultrack ``spacr[all]`` og NumPy-útgáfukrafa TorchCAM takmarkar ``attribution``-viðbótina; þetta hefur ekki áhrif á kjarnapakkann eða Qt-forritið. Í Python 3.14 er btrack fáanlegt með viðkomandi viðbótarpakka. pylibCZIrw-breytirinn fyrir CZI er valfrjáls og óprófaður; enn er hægt að lesa CZI-skrár með czifile.
-
-Eldra Tk-viðmótið er enn sett upp sem ``spacr-legacy`` en er ekki lengur í þróun.
-
-
-Skipanalínuskipanir
--------------------------
-
-.. code-block:: bash
-
-   spacr                                      # Qt application
+   spacr                                      # launch the Qt application
    spacr-doctor                               # diagnose the installation
    spacr-run --list                           # list headless modules
    spacr-run --describe MODULE                # inspect a module contract
@@ -196,345 +239,200 @@ Skipanalínuskipanir
    spacr-run validate --module MODULE \
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
+   spacr-download --list                      # what example data exists
+   spacr-download measure annotate            # fetch example sets by name
 
-Við bilanagreiningu skaltu stilla ``SPACR_LOG_LEVEL=DEBUG``. Annálaskrár skiptast sjálfkrafa og eru skrifaðar í ``~/.spacr/logs/spacr.log``.
+Stilltu ``SPACR_LOG_LEVEL=DEBUG`` við bilanagreiningu. Annálaskrár með skráaveltu eru skrifaðar í ``~/.spacr/logs/spacr.log``.
+
+``spacr-run --list`` listar einingar sem hafa skipanalínuinngang til keyrslu án grafísks viðmóts. Einingum fyrir merkingu, gagnayfirferð, samanburð og könnun sem eingöngu eru í GUI er sleppt.
 
 
-Eiginleikar
------------
+Kjarnaverkflæði
+---------------
 
-Einingarnar sex sem flestar skimanir nota
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Aðalvinnuflæðið samanstendur af sex einingum:
 
-**Mask** aðgreinir frumur, kjarna, sýkla og frumulíffæri með Cellpose, bæði í tvívíðum myndum og rúmmáls- eða tímaraðargögnum. Listinn yfir líkön er lesinn úr uppsettu Cellpose í stað þess að vera harðkóðaður, og þvermál viðfanga er metið út frá myndunum áður en keyrslan hefst. Hægt er að leiðrétta grímur handvirkt í lagaskoðaranum eða senda þær til napari og aftur til baka.
+- **Mask** hlutgreinir frumur, frumukjarna, sýkla og frumulíffæri með Cellpose.
+- **Measure** skrifar lögunar-, styrkleika-, áferðar-, rúm- og samstaðsetningareiginleika ásamt myndúrklippum viðfanga í SQLite.
+- **Annotate** merkir myndúrklippur í lyklaborðsstýrðu hnitaneti og styður biðraðir virks náms.
+- **Classify** þjálfar líkön byggð á myndum eða mælingum og skráir frammistöðu á fráteknum gögnum með hverjum varðpunkti.
+- **Map Barcodes** varpar FASTQ-lestrum á brunna og gRNA og veitir gæðamat fyrir magn, árekstra og þekju.
+- **Regression** metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með líkanafjölskyldum sem henta samfelldum gildum, hlutföllum og talningum.
 
-**Measure** vistar formfræðilega eiginleika, styrk, áferð og samstaðsetningu fyrir hvert viðfang í gagnagrunn verkefnisins, ásamt myndúrklippunum. Nýtt í 1.5.0.0: lýsingarleiðrétting metur flat-field út frá bakkanum sjálfum og leiðréttir myndirnar með því áður en nokkur styrkeiginleiki er mældur; þannig hverfur skekkja eftir staðsetningu brunna sem kemur fram sem jaðaráhrif í hitakorti bakkans. Borði fyrir gæðamat aðgreiningar lýsir á skýru máli hvernig grímurnar líta út áður en Measure keyrir; hann upplýsir en stöðvar ekki. Teiknaður marghyrningur takmarkar mælingar við áhugasvæði (ROI).
+spaCR-einingar
+--------------
 
-**Annotate** sýnir myndúrklippur í lyklaborðsstýrðu risti og skrifar merkingar beint í SQLite. Einingin lokar nú lykkju virks náms: hægt er að endurþjálfa líkan á því sem þegar hefur verið merkt án þess að yfirgefa skjáinn, endurraða biðröðinni eftir óvissu, fylgjast með námsferlinum og fá niðurstöðu um hvenær fleiri merkingar hætta að breyta líkaninu. Þekja er birt fyrir hvern flokk, brunn og bakka, og hver umferð er skráð.
+.. spacr-workflow-begin
 
-**Classify** þjálfar PyTorch CNN- og transformer-líkön á merktum myndúrklippum og hefðbundin líkön eða eflingarlíkön á mælingatöflum. Nákvæmni hvers flokks er nú varðveitt fyrir hvert þjálfunartímabil í stað þess að vera fleygt, og hver varðpunktur fær líkanaspjald þar sem gagnasafn, jafnvægi flokka, skiptingarregla og mælikvarðar á fráteknu prófunarsafni eru skráð. Á matsskjánum virkar reitur í ruglingsfylki sem fyrirspurn: smelltu á hann til að opna samsvarandi myndúrklippur; öruggar rangar spár eru aðskildar frá óvissum spám.
+Kjarni
+^^^^^^
 
-**Map Barcodes** afkóðar strikamerki raða, dálka og gRNA úr FASTQ-lestrum, úthlutar brunnum auðkennum stýriraða og tengir þau við myndgreindar frumur. Gæðamat strikamerkja sýnir fjölda lestra á hvern brunn, árekstrartíðni og hlutfall óvarpaðra lestra, og kannar gildi í kringum þann vænta fjölda gRNA í hverjum brunni sem notandinn tilgreinir í stað þess að nota fastan þröskuld.
+Core sequence from microscopy images through segmentation, measurements,
+annotations, classification, barcode mapping and regression.
 
-**Regression** metur áhrif stýriraða, gena, skilyrða og viðmiða með 17 líkanafjölskyldum, þar á meðal blönduðum líkönum, logistic- og probit-líkönum, quantile- og beta-líkönum, GLM-líkönum með quasi-binomial-dreifni, lasso, ridge, elastic net, hinge og horseshoe. Niðurstaðan er raðaður og skýrður listi yfir markverðar niðurstöður, ekki hráskrá yfir stuðla.
+| |Module_mask|\ |Module_measure|\ |Module_annotate|\ |Module_classify_merged|\ |Module_map_barcodes|\ |Module_regression|
 
-Nýtt í 1.5.0.0
-~~~~~~~~~~~~~~
+Gögn
+^^^^
 
-Áður en skimun verður til svarar einingin Power / Design því hve margar frumur og hve marga brunna þarf, með hliðsjón af raðgreiningarvillu og brottfalli sem stafar af brunnum sem voru myndaðir of gislega. Tilraunahönnuður raðar bakkanum, viðmiðum hans og endurtekningum og flytur út skipulagið fyrir vinnslulínuna. Að skimun lokinni safnar QC-stjórnborð prófunum á aðgreiningu, bakka, samræmi merkingaraðila og gagnaleka í eina niðurstöðu, og ComBat er tiltækt við hlið ``center`` og ``zscore`` fyrir lotuleiðréttingu.
+Import images and tables into spaCR projects and execute reproducible
+multi-plate workflows.
 
-Niðurstöður eru kannaðar í forritinu í stað þess að flytja þær út og inn aftur. Graph Builder teiknar töflu með því að draga dálka á x-ás, y-ás, lit, stærð og undirreit. Afmörkunarsvæði sem eru teiknuð á stuðlarit eða dreifirit verða að síum. Eiginleikaskoðari raðar eiginleikum eftir því hve vel þeir aðskilja flokkana. Smámyndafylki, aðhvarfslíkön fyrir skammtasvörun, stýririt og traust greining frávika nota sömu ásavél. Ef viðföng eru valin í einni sýn veljast þau í öllum sýnum, og þegar valið er opnað birtast myndúrklippurnar sem viðföngin komu úr. Lagaskoðari staflar myndum, merkimiðum, punktum og formum, með hornréttum sýnum, samstilltu samanburðarristi og ættarté frá frumu til kjarna og sýkils.
+| |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
 
-Keyrslur eru nú rekjanlegar. Hver keyrsla hefur auðkenni, slembifræ og ``on_error``-stefnu; Mask, Measure, Classify og AnnData-útflutningur skrá úttak sitt í afurðaskrá svo rekja megi úttaksskrá til stillinganna sem bjuggu hana til. Eining opnast með því úttaki sem fyrra skref skrifaði í raun, verkflæðisritið merkir úrelt úttak, samanburður keyrslna sýnir mun á stillingum, fjölda viðfanga og niðurstöðulistum og hver GUI-keyrsla býr til samsvarandi Python-skriftu. Mælingar má flytja út sem ``.h5ad`` fyrir scanpy; OME-Zarr og OMERO eru aðgengileg í gegnum Python-API. Útflytjandi aðferða og niðurstaðna semur þessa tvo handritskafla úr skipulagðri samantekt keyrslunnar: líkanið skrifar textann en sérhver tala kemur úr samantektinni, og drögum sem innihalda tölu sem þar er ekki að finna er hafnað. Ef uppsetningin er gölluð segir ``spacr-doctor`` hvaða spaCR-uppsetning er í raun í notkun, hvort GPU virkar, hvort Cellpose samsvarar API-köllunum og hvort gagnagrunnur og stillingar verkefnisins séu gild; jafnframt fylgir afritanleg lausn hverri misheppnaðri prófun.
+Verkfæri
+^^^^^^^^
 
-Fjöltyngt skjáborðsviðmót
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Point these at a project: edit masks by hand, stitch tiles, read an
+embedding, draw a gate, build a plot, check quality.
 
-**spaCR → Stillingar → Tungumál** þýðir virka forritið yfir á ensku, sænsku, þýsku, spænsku, mandarín-kínversku, portúgölsku, hindí, kóresku, íslensku eða frönsku án endurræsingar. Valið varðveitist og einingar sem eru opnaðar síðar nota það.
+| |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Leiðsögn, stillingar, gervigreindar- og LIVE-stýringar, einingarlýsingar og tilkynningar frá spaCR fylgja völdu tungumáli. Úttak vinnsluferla, annálar, rakningar, slóðir, gagnagrunnsgildi, merkingar, svör gervigreindar, mælingar og vistaðar niðurstöður eru aldrei þýdd; vísindalegt úttak helst því á viðurkenndu ensku formi. Verkfæraábendingar fyrir stillingar sem hafa ekki verið yfirfarnar á tungumálinu birtast á ensku fremur en í blandaðri þýðingu. `Staðfærsluleiðbeiningarnar <https://einarolafsson.github.io/spacr/localization.html>`_ lýsa hegðuninni, umhverfisbreytunni og þeirri `samhengisháðu hjálp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ sem er þýdd með viðmótinu.
+Prófanir
+^^^^^^^^
+
+Quantitative readouts for biological assays.
+
+| |Module_analyze_plaques|\ |Module_recruitment|\ |Module_invasion|\ |Module_replication|
+
+.. |Module_mask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Mask
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
+   :align: middle
+.. |Module_measure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Measure
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |Module_annotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Annotate
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
+   :align: middle
+.. |Module_classify_merged| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Classify
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |Module_map_barcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Map Barcodes
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |Module_regression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Regression
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |Module_foreign| image:: ../../../spacr/resources/icons/workflow/apps/foreign.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Import
+   :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Run Compare
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/run_compare/index.html
+   :align: middle
+.. |Module_experiment_design| image:: ../../../spacr/resources/icons/workflow/apps/experiment_design.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Experiment Design
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/experiment_design/index.html
+   :align: middle
+.. |Module_power| image:: ../../../spacr/resources/icons/workflow/apps/power.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Power / Design
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/power/index.html
+   :align: middle
+.. |Module_dose_response| image:: ../../../spacr/resources/icons/workflow/apps/dose_response.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Dose–Response
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/dose_response/index.html
+   :align: middle
+.. |Module_qc_dashboard| image:: ../../../spacr/resources/icons/workflow/apps/qc_dashboard.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir QC
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/qc_dashboard/index.html
+   :align: middle
+.. |Module_make_masks| image:: ../../../spacr/resources/icons/workflow/apps/make_masks.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Make Masks
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/make_masks/index.html
+   :align: middle
+.. |Module_align| image:: ../../../spacr/resources/icons/workflow/apps/align.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Align & Stitch
+   :target: https://einarolafsson.github.io/spacr/api/spacr/align/index.html
+   :align: middle
+.. |Module_umap| image:: ../../../spacr/resources/icons/workflow/apps/umap.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Image UMAP
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.generate_image_umap
+   :align: middle
+.. |Module_gate_editor| image:: ../../../spacr/resources/icons/workflow/apps/gate_editor.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Gate Editor
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/gate_editor/index.html
+   :align: middle
+.. |Module_graph_builder| image:: ../../../spacr/resources/icons/workflow/apps/graph_builder.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Graph Builder
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/graph_builder/index.html
+   :align: middle
+.. |Module_analyze_plaques| image:: ../../../spacr/resources/icons/workflow/apps/analyze_plaques.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Plaque Assay
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_plaques
+   :align: middle
+.. |Module_recruitment| image:: ../../../spacr/resources/icons/workflow/apps/recruitment.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Recruitment
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_recruitment
+   :align: middle
+.. |Module_invasion| image:: ../../../spacr/resources/icons/workflow/apps/invasion.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Invasion Assay
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_invasion
+   :align: middle
+.. |Module_replication| image:: ../../../spacr/resources/icons/workflow/apps/replication.png
+   :width: 16.0%
+   :alt: Opna API-skjölin fyrir Replication Assay
+   :target: https://einarolafsson.github.io/spacr/api/spacr/submodules/index.html#spacr.submodules.analyze_replication
+   :align: middle
+
+.. spacr-workflow-end
+
+Hver mólur spaCR skipar, í orði heimaskæran listar þá: sjö pipeline mólus fyrst, þá allt annað. Veldu skál til að opna API síðu þessara mólusa.
+
+
+Make Masks
+~~~~~~~~~~
+
+Make Masks birtast undir **Tools** fyrir höndilega korrigeringu af sviði maskar; másthead hans opnar Cellpose vinnuflokk. Nín tól: **Brush**, **Erase**,**Erasa objekt**, #**Wand +**, [**Wan −**, "**Draw**, '**Divide**,'**Zoom** og '**Recrop**.
+
+Sjá `Leikstjóri <../../source/features.rst>`_ fyrir hvert tól.
+
+Öll aðrar auðlindir
+~~~~~~~~~~~~~~~~~~~
+
+- `Samskiptaþjálfunar <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 leiðbeiningar vinnufluðum frá uppsetningu í gegnum hit rannsóknir.
+- `Python API snemma byrjun <../../source/python_api.rst>`_ — hlaupa og staðfest pipelines frá skriptum, notebooks eða klúster.
+- `Leikstjóri <../../source/features.rst>`_ — hæfileika, fullnægjandi og valfrjáls tengsl.
+- `Heilluð API reference <https://einarolafsson.github.io/spacr/api/index.html>`_ — stuðlað innfangspunktur eftir verkefni, með fullkomna mótum tengslum einn hærra.
+- `Sjálf tungumál og þýðingu leiðbeining <../../source/localization.rst>`_ — samskipti tungumál, kontext hjálp og vísindaleg útleiðslu.
+
+Tungumál og þýðingar
+~~~~~~~~~~~~~~~~~~~~~~
+
+Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.
+
+Nín ekki Engleska sögu eru stutt og tæknilegt skoðað í stað þess að lesa end til end af einum heimilum tungumálum. `Sjáðu skammt <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ skráir hvaða tungumálar hafa haft mannleg útgang, hversu mikið af líkamanum sem dekkar, og hvert orð eftir á Englesku eftir ákvörðun.
 
 Hreyfimyndaleiðbeiningar fyrir stillingar
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-94 stuttar hreyfimyndir sýna hvernig 143 sjónrænar stillingar hafa áhrif á mynd. Haltu bendlinum yfir stillingu og smelltu á **Hreyfimynd** í verkfæraábendingunni til að spila ferkantaða forskoðunina við hlið textans; smelltu aftur til að fella hana saman. Hreyfimyndir spilast aðeins þegar beðið er um þær og hægt er að slökkva alveg á þeim í Stillingum. `Galleríið <https://einarolafsson.github.io/spacr/setting_animations.html>`_ sýnir þær allar og `skrá yfir hreyfimyndir stillinga <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ tilgreinir hvaða stillingu hver mynd tilheyrir.
-
-Tilvísun eininga
-~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 25 25 25 25
-
-   * - Eining
-     - Eiginleiki
-     - Staða
-     - Lýsing
-   * - **Skjáborðsupplifun**
-     -
-     -
-     -
-   * - |api-qt-app|_
-     - |doc-i18n|_
-     - Stöðugt
-     - Endurþýðir opna skjái og skjái sem verða til eftir þörfum samstundis á tíu innbyggðum tungumálum.
-   * - |api-qt-app|_
-     - |doc-i18n-help|_
-     - Stöðugt
-     - Staðfærir samantektir eininga og viðmót stillingahjálpar án þess að breyta API-slóðum.
-   * - |api-qt-ai|_
-     - |api-qt-ai-console|_
-     - Stöðugt
-     - Staðfærir AI- og LIVE-stýringar án þess að breyta efni notenda eða líkana.
-   * - |api-animations|_
-     - |doc-animations|_
-     - Stöðugt
-     - Spilar 94 innbyggðar hreyfimyndir fyrir 143 sjónrænar stillingar úr verkfæraábendingunni.
-   * - |api-selection|_
-     - |api-linked-views|_
-     - Alfa
-     - Deilir einu vali viðfanga milli töflu-, bakka-, ívörpunar-, dreifi- og grafmynda.
-   * - |api-doctor|_
-     - |api-doctor-checks|_
-     - Alfa
-     - Prófar GPU, Cellpose-API, gagnagrunn og stillingar og gefur lausn fyrir hverja misheppnaða prófun.
-   * - **Myndgreining**
-     -
-     -
-     -
-   * - |api-mask|_
-     - |api-mask-2d|_
-     - Stöðugt
-     - Aðgreinir frumur, kjarna, sýkla og frumulíffæri í tvívíðum myndum.
-   * - |api-mask|_
-     - |api-mask-3d|_
-     - Beta
-     - Aðgreinir rúmmálsmyndir og fjórvíðar tímaraðir.
-   * - |api-illumination|_
-     - |api-flatfield|_
-     - Alfa
-     - Metur flata sviðið út frá bakkanum og leiðréttir það áður en styrkur er mældur.
-   * - |api-measure|_
-     - |api-measure-2d|_
-     - Stöðugt
-     - Mælir lögun, styrk, áferð og samstaðsetningu og vistar myndúrklippur.
-   * - |api-segqc|_
-     - |api-segqc-verdict|_
-     - Alfa
-     - Lýsir gæðum aðgreiningarinnar áður en Measure keyrir án þess að stöðva keyrsluna.
-   * - |api-timelapse|_
-     - |api-tracking|_
-     - Beta
-     - Rekur viðföng með IoU, Trackpy, btrack, Trackastra eða ultrack og magnmælir hreyfanleika.
-   * - |api-layers|_
-     - |api-layer-viewer|_
-     - Alfa
-     - Staflar mynd-, merkimiða-, punkta- og formalögum með hornréttum sýnum og samanburðarristi.
-   * - |api-napari|_
-     - |api-napari-curation|_
-     - Alfa
-     - Sendir grímu til napari til leiðréttingar, tekur hana aftur og skráir hverja breytingu.
-   * - **AI og svipgerðargreining**
-     -
-     -
-     -
-   * - |api-annotate|_
-     - |api-annotation|_
-     - Stöðugt
-     - Yfirfer myndúrklippur í lyklaborðsstýrðu risti og vistar merkingar í SQLite.
-   * - |api-active-learning|_
-     - |api-al-loop|_
-     - Alfa
-     - Endurþjálfar innan Annotate, endurraðar eftir óvissu og segir hvenær hægt er að hætta merkingu.
-   * - |api-classify|_
-     - |api-classification|_
-     - Stöðugt
-     - Þjálfar og beitir CNN- og transformer-líkönum í PyTorch.
-   * - |api-classify|_
-     - |api-model-cards|_
-     - Alfa
-     - Skráir gagnasafn, jafnvægi flokka, skiptingarreglu og prófunarmælikvarða við hvern varðpunkt.
-   * - |api-confusion|_
-     - |api-confusion-drill|_
-     - Alfa
-     - Opnar myndúrklippur að baki reit í ruglingsfylki og aðskilur öruggar villur frá óvissum tilvikum.
-   * - |api-ml|_
-     - |api-ml-models|_
-     - Stöðugt
-     - Þjálfar túlkanleg hefðbundin líkön og eflingarlíkön á mælingatöflum.
-   * - |api-classify|_
-     - |api-activation|_
-     - Beta
-     - Útskýrir spár með Captum, SmoothGrad og TorchCAM.
-   * - |api-umap|_
-     - |api-embedding|_
-     - Beta
-     - Skoðar myndívörpun gagnvirkt og dreifir klasamerkingum.
-   * - **Raðgreining og skimunargreining**
-     -
-     -
-     -
-   * - |api-sequencing|_
-     - |api-barcodes|_
-     - Stöðugt
-     - Varpar raða-, dálka- og gRNA-strikamerkjum úr FASTQ-lestrum og tengir leiðarsameindir við myndaðar frumur.
-   * - |api-barcode-qc|_
-     - |api-barcode-qc-sweep|_
-     - Alfa
-     - Skýrir frá lestrum á brunn, árekstrartíðni og óvörpuðu hlutfalli miðað við væntanleg gRNA á brunn.
-   * - |api-regression|_
-     - |api-regression-models|_
-     - Stöðugt
-     - Metur áhrif leiðarsameinda, gena, skilyrða og viðmiða með 17 líkanafjölskyldum.
-   * - |api-power|_
-     - |api-power-design|_
-     - Alfa
-     - Reiknar hve margar frumur og brunna skimun þarf með tilliti til raðgreiningarvillna og brottfalls brunna.
-   * - |api-graph|_
-     - |api-graph-builder|_
-     - Alfa
-     - Byggir graf með því að draga dálka á x, y, lit, stærð og flöt.
-   * - |api-artifacts|_
-     - |api-provenance|_
-     - Alfa
-     - Skráir keyrsluauðkenni, slembifræ og stillingar að baki úttaki Mask, Measure, Classify og útflutnings.
-
-.. |api-qt-app| replace:: **Qt-forrit**
-.. _api-qt-app: https://einarolafsson.github.io/spacr/api/spacr/qt/app/index.html
-
-.. |doc-i18n| replace:: **Staðfærsla á tíu tungumálum**
-.. _doc-i18n: https://einarolafsson.github.io/spacr/localization.html
-
-.. |doc-i18n-help| replace:: **Staðfærð samhengishjálp**
-.. _doc-i18n-help: https://einarolafsson.github.io/spacr/localization.html#contextual-help
-
-.. |api-qt-ai| replace:: **Qt AI**
-.. _api-qt-ai: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
-
-.. |api-qt-ai-console| replace:: **AI-studd stjórnstöð**
-.. _api-qt-ai-console: https://einarolafsson.github.io/spacr/api/spacr/qt/ai/index.html
-
-.. |api-animations| replace:: **Skrá yfir hreyfimyndir stillinga**
-.. _api-animations: https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html
-
-.. |doc-animations| replace:: **Hreyfimyndir sjónrænna stillinga**
-.. _doc-animations: https://einarolafsson.github.io/spacr/setting_animations.html
-
-.. |api-selection| replace:: **Val**
-.. _api-selection: https://einarolafsson.github.io/spacr/api/spacr/selection/index.html
-
-.. |api-linked-views| replace:: **Tengt val**
-.. _api-linked-views: https://einarolafsson.github.io/spacr/api/spacr/qt/linked_selection/index.html
-
-.. |api-doctor| replace:: **Doctor**
-.. _api-doctor: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
-
-.. |api-doctor-checks| replace:: **Greining uppsetningar**
-.. _api-doctor-checks: https://einarolafsson.github.io/spacr/api/spacr/doctor/index.html
-
-.. |api-mask| replace:: **Mask**
-.. _api-mask: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
-
-.. |api-mask-2d| replace:: **Gerð tvívíðra gríma**
-.. _api-mask-2d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-
-.. |api-mask-3d| replace:: **Gerð þrí- og fjórvíðra gríma**
-.. _api-mask-3d: https://einarolafsson.github.io/spacr/api/spacr/core/index.html#spacr.core.preprocess_generate_masks
-
-.. |api-illumination| replace:: **Lýsing**
-.. _api-illumination: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-
-.. |api-flatfield| replace:: **Flatsviðsleiðrétting**
-.. _api-flatfield: https://einarolafsson.github.io/spacr/api/spacr/illumination/index.html
-
-.. |api-measure| replace:: **Measure**
-.. _api-measure: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
-
-.. |api-measure-2d| replace:: **Mælingar viðfanga**
-.. _api-measure-2d: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html#spacr.measure.measure_crop
-
-.. |api-segqc| replace:: **Gæðamat aðgreiningar**
-.. _api-segqc: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
-
-.. |api-segqc-verdict| replace:: **Mat fyrir keyrslu**
-.. _api-segqc-verdict: https://einarolafsson.github.io/spacr/api/spacr/seg_qc/index.html
-
-.. |api-timelapse| replace:: **Timelapse**
-.. _api-timelapse: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-
-.. |api-tracking| replace:: **Rakning viðfanga**
-.. _api-tracking: https://einarolafsson.github.io/spacr/api/spacr/timelapse/index.html
-
-.. |api-layers| replace:: **Lög**
-.. _api-layers: https://einarolafsson.github.io/spacr/api/spacr/layers/index.html
-
-.. |api-layer-viewer| replace:: **Lagasjá**
-.. _api-layer-viewer: https://einarolafsson.github.io/spacr/api/spacr/qt/layer_viewer/index.html
-
-.. |api-napari| replace:: **napari-tenging**
-.. _api-napari: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
-
-.. |api-napari-curation| replace:: **Leiðrétting gríma**
-.. _api-napari-curation: https://einarolafsson.github.io/spacr/api/spacr/napari_bridge/index.html
-
-.. |api-annotate| replace:: **Annotate**
-.. _api-annotate: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-
-.. |api-annotation| replace:: **Handvirk merking**
-.. _api-annotation: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/annotate/index.html
-
-.. |api-active-learning| replace:: **Virkt nám**
-.. _api-active-learning: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
-
-.. |api-al-loop| replace:: **Endurþjálfun og endurröðun**
-.. _api-al-loop: https://einarolafsson.github.io/spacr/api/spacr/active_learning/index.html
-
-.. |api-classify| replace:: **Classify**
-.. _api-classify: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-classification| replace:: **Flokkun mynda**
-.. _api-classification: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-model-cards| replace:: **Líkanaspjöld**
-.. _api-model-cards: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-activation| replace:: **Virkjunarkort**
-.. _api-activation: https://einarolafsson.github.io/spacr/api/spacr/deep_spacr/index.html
-
-.. |api-confusion| replace:: **Confusion**
-.. _api-confusion: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
-
-.. |api-confusion-drill| replace:: **Ítarleg skoðun ruglingsfylkis**
-.. _api-confusion-drill: https://einarolafsson.github.io/spacr/api/spacr/confusion/index.html
-
-.. |api-ml| replace:: **Vélanám**
-.. _api-ml: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-ml-models| replace:: **Flokkun mælinga**
-.. _api-ml-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-umap| replace:: **Image UMAP**
-.. _api-umap: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
-
-.. |api-embedding| replace:: **Gagnvirk ívörpun**
-.. _api-embedding: https://einarolafsson.github.io/spacr/api/spacr/app_umap/index.html
-
-.. |api-sequencing| replace:: **Raðgreining**
-.. _api-sequencing: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |api-barcodes| replace:: **Vörpun strikamerkja**
-.. _api-barcodes: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
-
-.. |api-barcode-qc| replace:: **Gæðamat strikamerkja**
-.. _api-barcode-qc: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-
-.. |api-barcode-qc-sweep| replace:: **Skýrsla um brunna og árekstra**
-.. _api-barcode-qc-sweep: https://einarolafsson.github.io/spacr/api/spacr/sequencing_qc/index.html
-
-.. |api-regression| replace:: **Regression**
-.. _api-regression: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-regression-models| replace:: **Mat á áhrifum skimunar**
-.. _api-regression-models: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
-
-.. |api-power| replace:: **Power**
-.. _api-power: https://einarolafsson.github.io/spacr/api/spacr/power_model/index.html
-
-.. |api-power-design| replace:: **Tölfræðilegt afl og hönnun**
-.. _api-power-design: https://einarolafsson.github.io/spacr/api/spacr/power_simulate/index.html
-
-.. |api-graph| replace:: **Graph**
-.. _api-graph: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_spec/index.html
-
-.. |api-graph-builder| replace:: **Graph Builder**
-.. _api-graph-builder: https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/graph_builder/index.html
-
-.. |api-artifacts| replace:: **Afurðir**
-.. _api-artifacts: https://einarolafsson.github.io/spacr/api/spacr/artifacts/index.html
-
-.. |api-provenance| replace:: **Uppruni keyrslu**
-.. _api-provenance: https://einarolafsson.github.io/spacr/api/spacr/runctx/index.html
-
+Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Gögn
 ----
@@ -542,32 +440,188 @@ Gögn
 Viðmiðunargagnasöfn
 ~~~~~~~~~~~~~~~~~~~
 
-- `Heildargagnasafn smásjármynda: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `Prófunargagnasafn: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `Raðgreiningargögn: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `Aflgreining: spaCRPower <https://github.com/maomlab/spaCRPower>`_
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Opna smásjárgagnasafnið í BioStudies
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Opna prófunargagnasafnið á Hugging Face
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: Opna raðgreiningargagnasafnið hjá NCBI
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: Opna spaCRPower
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: Opna bioRxiv-forprentið
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
+
+Góðursvæði
+~~~~~~~~~~
+
+spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna **Mönnun Zoo** frá heimaskjólum til að skoða og setja upp þá, eða nefna key í setningarfilenni - ``pathogen_model: toxoplasma_pv_v1`` - og mönnin er hlaðið niður og checksum-verified fyrsta sinn sem það er nauðsynlegt.
+
+.. spacr-model-zoo-begin
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 34 42
+
+   * - Model
+     - Training data
+     - Hold-out performance
+   * - ``toxoplasma_pv_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset
+     - F1 0.867 against 0.713 for stock cpsam, at IoU 0.5
+   * - ``toxoplasma_plaque_v1``
+       (Cellpose-SAM (cpsam))
+     - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
+     - F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
+   * - ``toxoplasma_well_detector_v1``
+       (YOLO11n)
+     - whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them
+     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987
+
+.. spacr-model-zoo-end
+
+Hvert dæmi yfir er metið á myndum sem myndavél hefur aldrei séð í æfingu.
+
+**Trekkur** er hversu margir af hlutum mönnun er raunverulegur; **reikla** er hve mörg af raunverulegum hlutum það fann.
+
+**F1** er tvö sameiginlegt, og er kvótað vegna þess að hver einn er trivially gamed - tala um einn ómeðlilegt plakk fyrir næstum fullkomna nákvæmni, eða hvert myrkur blob fyrir næstu fullkomnu endurskoðun. Það sem þú myndi helst missa af því að mæla, og fjölda er yfirleitt betra með yfirskoðun: plakkamálið var samþykkt á nákvóm 0.858 með endurskoða 0.811 yfir fyrri runda á 0.939 og 0.631.
+
+**IoU**, kross yfir samfélag, er hversu mikið áætlað objekt og raunverulegur einn overlap, skipt af sviði sem þeir dekka saman. Það er stjórnandi aðrir eru lesin gegn, þannig að skólan þýðir ekkert án þangað: "F1 0.867 á IoU 0.5" talar vacuole eins og fannst þegar tvö útlínin sammála meira en helmingum samfélagi þeirra.
+
+**mAP50** og **map50-95** eru með uppgötvuna. fyrri spyr hvort bólkurnar voru fundið; annar endurtekur það yfir tíu þremur frá 0.5 til 0.95, þannig að það spyr einnig hversu þreyttur hver boksi er þreytur.
+
+**Cross-validated**, með **SD**, þýðir að skólan er miðjan þremur rún á mismunandi rúnum og SD er hversu langt þeir flytja út.
+
+Modelli eru veitt á eigin Hugging Face reikningum rithöfundar síns, þannig að að taka þátt þýðir ekki að veita skrifu aðgang að einhverjum öðrum. ``spacr.model_zoo`` ``publish_model`` gerir upplifun og trúa á listanum eftir að bæta.
+
+
+Greining á afköstum
+----------------------
+
+Búðu til vélbúnaðarskýrslu og hengdu hana við mál um afköst::
+
+    python tools/spacr_hardware_report.py
+
+Spara til ``~/.spacr/reports`` og trúa leiðinni. ``--quick`` skiptir lengri skilyrði; ``--out PATH`` setur staðsetningu.
+
+Lesa engin verkefni gögnum. Tíms innfang, fjölbreytna bókasafn, vinstri byggingu og uppgötvun. Rannsóknir um meðferð-arquitectur emulans (a x86_64 Python bygging á Apple Silicon) og BLAS framkvæmd NumPy.
+
+Orðlinna reference
+----------------------
+
+Öll beint hér að neðan er sett með ``pip install spacr``. Allir samþykkir ``--help``.
+
+Að byrja við umsókn
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr              # the desktop application
+   spacr-tutorial     # the interactive tutorial library
+   spacr-server       # no first-run setup screen, for unattended launches
+
+``spacr-server`` skípa modal setup skján, sem annars myndi blokkja óþekkt vinnu.
+
+``spacr-qt`` og ``spacr-nightly`` eru alias af ``spacr``.
+
+Þegar spaCR mun ekki byrja
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-doctor       # diagnose the installation and say how to fix it
+   safespacr          # the least spaCR that can still change a setting
+
+``spacr-doctor`` drukkar eitt línu á athygli, með komandi til að kjósa fyrir hvert mismunandi. Það segir einnig hvaða ``spacr`` er á leiðinni, sem er það sem gamla redigable uppsetningu skugga.
+
+``safespacr`` lætur hvert forrit eins og uppáhaldsins og þykir bakgrunni, tegundum, verbose logging og hlaða út. Nottu það þegar sparaður forrit breytir upphafið. Það breytist ekkert stöðugt.
+
+Að hlaupa modúlum án heiðar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Engin Qt, engin sýning — fyrir klúster, þjónusta og CI.
+
+.. code-block:: bash
+
+   spacr-run --list                              # modules with a headless entry
+   spacr-run --describe MODULE                   # what a module consumes and produces
+   spacr-run validate --module MODULE \
+       --settings settings.csv                   # check settings before spending the run
+   spacr-run MODULE --settings settings.csv      # execute
+   spacr-remote --help                           # submit and monitor SSH, Slurm or cloud jobs
+
+``validate`` lætur sömu settun sem fer myndi og segir hvað er saknað, óþekkt eða sýnir ekkert.
+
+``spacr-run --list`` sýnir aðeins mólur með heiðarlegt innfangspunkt; notkun, lækning og rannsóknir eru samskipt og yfirgefið.
+
+Spurning á leiðinni síðar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hver rán er skráður á ``~/.spacr/runs`` með settum sínum, hashed inntölum, úttökum, varningar, útgáfur og frönum.
+
+.. code-block:: bash
+
+   spacr-repro RUN_DIR        # replay a recorded run from its journal
+   spacr-workspace RUN_DIR    # what that run had open: databases, montages, views
+
+Ákvarðanir gögnum og uppsetningu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   spacr-db-audit DB      # SQLite health, integrity, locking, reader/writer probe
+   spacr-leakage          # classifier train/test leakage audit
+   spacr-plugins          # installed plugin registry and failure diagnostics
+
+Umhverfi
+~~~~~~~~~~~
+
+.. code-block:: bash
+
+   SPACR_LOG_LEVEL=DEBUG spacr      # verbose logging for one launch
+
+Rotating logs eru skrifað í ``~/.spacr/logs/spacr.log``. Sættu þessar skál á bug-report.
 
 
 Framlög og aðstoð
 ------------------------
 
-Villutilkynningar og afmarkaðar tillögur að eiginleikum eru velkomnar á `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal láta fylgja útgáfu spaCR, stýrikerfi, Python-útgáfu, stillingar einingarinnar og viðeigandi annálsbút. ``spacr-doctor`` safnar flestum þessum upplýsingum sjálfkrafa.
+Sendu villutilkynningar og afmarkaðar óskir um eiginleika í gegnum `GitHub-mál <https://github.com/EinarOlafsson/spacr/issues>`_. Þegar bilun er tilkynnt skal tilgreina útgáfu spaCR, stýrikerfi, útgáfu Python, stillingar einingarinnar og viðeigandi hluta úr annálnum. ``spacr-doctor`` safnar flestum þessara upplýsinga; láttu vélbúnaðarskýrsluna fylgja þegar tilkynnt er um afkastavandamál.
 
 Leyfi
 ~~~~~~~~~
 
-Frumkóði núverandi þróunargreinar er aðgengilegur samkvæmt `PolyForm Noncommercial License 1.0.0 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Notkun í atvinnuskyni krefst sérstaks leyfis frá rétthafa. Útgefnar útgáfur til og með spaCR 1.4.9.9 eru áfram aðgengilegar samkvæmt MIT-leyfinu sem fylgdi þeim.
+spaCR er frelsað undir `BSD 3-Klausur leyfi <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
+
+Ef spaCR hjálpaði að útgáfa verk, er nefndur verðmæt og er ekki skilyrði fyrir leyfi — sjá `Tilvísun í spaCR`_ hér neðan.
 
 Kennsluefni
 ~~~~~~~~~~~
 
-`Gagnvirka safnið af spaCR-kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_ inniheldur talsettar og textaðar leiðbeiningar um uppsetningu og hvert verkflæði forritsins á átta tungumálum.
+`Gagnvirka spaCR-kennslusafnið <https://einarolafsson.github.io/spacr/tutorials/>`_ inniheldur talsettar og textaðar leiðbeiningar um uppsetningu og hvert verkflæði: 73 kennslustundir með 50 röddum á átta tungumálum.
 
 Tilvísun í spaCR
 ~~~~~~~~~~~~~~~~
 
-Ef spaCR nýtist rannsóknunum þínum skaltu vitna í:
+Ef spaCR nýtist við rannsóknina skaltu vitna í:
 
-Olafsson EB, *o.fl.* Sameinuð myndgreiningarskimun með CRISPR greinir EAF1 sem mótara á yfirtöku ESCRT-kerfisins í *T. gondii*.
+Olafsson EB, *et al.* A sameiginlegur myndbönd sem er bastir á CRISPR skrefinn skilur EAF1 sem *T. gondii* modulator ESCRT subversion.
 
-`bioRxiv-forprent <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `hugbúnaðarsafn <https://doi.org/10.5281/zenodo.21343317>`_
+`Bioregl fyrirframskrift <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `Programvarparkíf <https://doi.org/10.5281/zenodo.21343316>`_
+
+Þakkir
+~~~~~~~~~~~~~~~
+
+spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.

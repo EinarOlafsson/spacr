@@ -555,7 +555,19 @@ def test_correct_metadata_strips_double_p_plate_prefix():
     assert out["prcfo"].tolist() == ["p1_A01_1_o1", "x"]
 
 
-def test_correct_metadata_promotes_object_and_plate_columns():
+def test_correct_metadata_promotes_object_and_renames_plate():
+    """`plate` is RENAMED now, not copied.
+
+    It used to be copied while `row`, `col` and `field` were renamed, so one
+    function had two rules and a frame came out carrying `plate` AND
+    `plateID` -- two columns, one fact, and every reader downstream picking
+    whichever it happened to ask for. Instruction 145 B made the rule one:
+    keep one column per metadata key.
+
+    `object_name` is still a copy, because `objectID` is a promotion of a
+    label rather than a spelling of a key and `object_name` is not in the
+    vocabulary at all.
+    """
     from spacr.utils import correct_metadata
 
     df = pd.DataFrame({"object_name": ["o1", "o2"], "plate": ["p1", "p1"]})
@@ -563,8 +575,8 @@ def test_correct_metadata_promotes_object_and_plate_columns():
 
     assert out["objectID"].tolist() == ["o1", "o2"]
     assert out["plateID"].tolist() == ["p1", "p1"]
-    # source columns are kept, not renamed
-    assert "object_name" in out.columns and "plate" in out.columns
+    assert "object_name" in out.columns
+    assert "plate" not in out.columns
 
 
 def test_correct_metadata_renames_short_legacy_names():
@@ -591,8 +603,10 @@ def test_correct_metadata_handles_name_suffixed_legacy_columns():
     assert out["rowID"].tolist() == ["A"]
     assert out["columnID"].tolist() == [7]
     assert "row_name" not in out.columns and "column_name" not in out.columns
-    # plate_name is copied (not renamed), so it survives alongside plateID
-    assert "plate_name" in out.columns
+    # `plate_name` is RENAMED now, like its three siblings. It used to be
+    # copied, which left the frame carrying two columns for one plate.
+    assert "plate_name" not in out.columns
+    assert set(out.columns) == {"plateID", "rowID", "columnID", "v"}
 
 
 def test_correct_metadata_renames_column_variant():

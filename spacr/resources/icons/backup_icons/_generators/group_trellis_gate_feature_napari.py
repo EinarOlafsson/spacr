@@ -92,8 +92,7 @@ Every candidate below is held to one line and none is allowed to wander::
 napari's mark, and why five of the ten carry it
 -----------------------------------------------
 
-The user asked for "a black and white version of the napari logo".  napari's
-mark is **napari's trademark, not spaCR's**.  Using it to label a bridge *to*
+napari's mark is **napari's trademark, not spaCR's**. Using it to label a bridge *to*
 napari is ordinary nominative use and is what most integrations do, but it is
 a decision the user should make with the alternative in front of them, so both
 kinds are drawn:
@@ -246,6 +245,7 @@ def blob(c, cx, cy, r, rot=0.0, k=(1.00, 0.86, 1.10, 0.80, 1.04, 0.90),
 
 
 def cross(c, cx, cy, s, w=W_MAIN):
+    """Draw a diagonal cross centered at ``(cx, cy)`` with half-span ``s``."""
     c.line(cx - s, cy - s, cx + s, cy + s, w)
     c.line(cx + s, cy - s, cx - s, cy + s, w)
 
@@ -257,6 +257,7 @@ def petal(c, cx, cy, ang, d0, L, half, filled=True, w=W_MAIN, n=22, swirl=0.0):
     of them read as a pinwheel rather than a clover at 48 px.
     """
     def prof(t):
+        """Return the tapered half-width profile at fractional petal length."""
         return (t ** 0.60) * ((1.0 - t) ** 0.62)
 
     norm = max(prof(i / 200.0) for i in range(1, 200))
@@ -895,6 +896,7 @@ rosette is built from the same `_draw` primitives as every other icon here.
 
 
 def main(argv):
+    """Generate every icon group and append the napari trademark disclosure."""
     outdir = argv[1] if len(argv) > 1 else default_outdir(__file__)
     rc = emit_groups(outdir, GROUPS,
                      "group_trellis_gate_feature_napari.py")

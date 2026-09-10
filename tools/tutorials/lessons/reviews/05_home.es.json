@@ -1,0 +1,34 @@
+{
+  "lesson": "05_home",
+  "language": "es",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {
+    "kind": "Codex editorial review against English and captured English GUI",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Restore omitted sentences about nested tools and specialist links.",
+      "Keep English GUI labels recognizable in the shared recording.",
+      "Translate image crops as recortes de imágenes, not cultivos.",
+      "Replace literal tile, hover, parent and assay mistranslations."
+    ]
+  },
+  "title": "Pantalla Home y navegación",
+  "description": "Encuentre los seis pasos de Core, explore las categorías actuales de Home y localice las herramientas relacionadas dentro de sus módulos principales.",
+  "objectives": [
+    "Seguir el flujo de trabajo actual de Core, desde las imágenes hasta los resultados de regresión.",
+    "Encontrar Data, Tools y Assays sin confundir una acción integrada con un módulo que falta.",
+    "Distinguir los conjuntos de datos reales descargables de las demostraciones generadas y encontrar los tutoriales especializados correspondientes."
+  ],
+  "prerequisite": "Instale spaCR y abra la aplicación de escritorio. La grabación utiliza el tema oscuro y un tamaño de texto ampliado.",
+  "scenes": [
+    "La pantalla Home organiza spaCR en Core, Data, Tools y Assays. Son categorías de flujo de trabajo. Las herramientas relacionadas también pueden estar dentro de un módulo principal, por lo que los botones de Home no enumeran todas las funciones disponibles.",
+    "Core sigue el flujo de análisis del cribado: Mask, Measure, Annotate, Classify, Map Barcodes y Regression. Empiece por el paso que corresponda a sus datos de entrada. No necesita repetir la segmentación si ya dispone de mediciones o recortes de imágenes compatibles.",
+    "Data reúne Import, Run Compare, Experiment Design, Power and Design, Dose Response y el control de calidad. Import también da acceso a Import Images, Format Converter y External Masks. Abra primero el módulo principal para encontrar esos flujos de trabajo.",
+    "Tools contiene Make Masks, Align and Stitch, Image UMAP, Gate Editor y Graph Builder. Cada uno es un espacio de trabajo con acciones relacionadas. Por ejemplo, Make Masks incluye entrenamiento y comparación de modelos, mientras que Graph Builder incluye Plate Viewer y Small Multiples.",
+    "Assays agrupa Plaque Assay, Recruitment, Invasion Assay y Replication Assay. Elija un flujo de trabajo que corresponda al experimento y a los datos de entrada que requiere. El color que indica el grado de madurez de un módulo es independiente de su categoría; lea la información emergente antes de confiar en una función experimental.",
+    "Classify es un único módulo. Su ajuste Classifier family permite elegir entre visión por ordenador basada en imágenes y aprendizaje automático a partir de características medidas. Los tutoriales anteriores de visión por ordenador y aprendizaje automático siguen explicando esas dos rutas; no representan botones independientes de Home.",
+    "Los iconos de la parte superior de Classify abren Classifier Evaluation, Explain CV Model, Activation, Training Runs y Feature Explorer. Pase el cursor por cada icono para ver su nombre y descripción. Consulte el tutorial especializado enlazado cuando quiera examinar un modelo entrenado o sus resultados.",
+    "Los tutoriales de Core utilizan los conjuntos de datos reales disponibles mediante Load test data. La descarga completa los campos de entrada pertinentes y los ajustes compatibles. Las demostraciones generadas del menú Help son una opción distinta. En Mask, los interruptores Time y 3D muestran los flujos de trabajo temporales y volumétricos; Live abre la vista previa.",
+    "Use Help para volver a las visitas guiadas y los tutoriales. Mantenga el tutorial del módulo actual junto a la aplicación y siga sus comprobaciones de datos, ajustes y resultados. La siguiente lección muestra cómo conectar estos mismos flujos de trabajo con la API de Python y la línea de comandos."
+  ]
+}

@@ -224,8 +224,31 @@ _MODULE_LIST: Tuple[Module, ...] = (
                 "align_coordinates in measurements.db when db_path is set"),
     ),
     Module(
+        key="ops",
+        summary="Stitch an optical-pooled-screening plate and place its "
+                "phenotype images onto the mosaics.",
+        entry="spacr.spacrops:ops_preprocess",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:ops_defaults",
+        validate_key="",
+        requires=("genotype_source \u2014 the low-magnification acquisition "
+                  "carrying the barcodes",
+                  "phenotype_source \u2014 the high-magnification "
+                  "acquisition carrying the morphology"),
+        writes=("<dst_root>/<well>/stitch/ \u2014 the per-well mosaic",
+                "<dst_root>/<well>/results/ \u2014 the pairwise and mosaic "
+                "reports",
+                "<dst_root>/<well>/stitch/crops_20x/ \u2014 each phenotype "
+                "field placed on the mosaic, with its transform"),
+        note="ALPHA. The stitch is measured correct against a plate with "
+             "known geometry, but it has not met a real acquisition: check "
+             "the QC overlays before trusting a mosaic. Set downsample=1.0 "
+             "if pairs are being skipped \u2014 at the 0.5 default a small "
+             "tile leaves the detector almost no corners.",
+    ),
+    Module(
         key="foreign",
-        summary="Import someone else's images, masks and measurement table as a spaCR project.",
+        summary="Import external images, masks, and a measurement table as a spaCR project.",
         entry="spacr.foreign:import_project",
         defaults=None,
         defaults_entry="spacr.foreign:default_settings",
@@ -349,6 +372,33 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("volcano plots, plate heatmaps, gene phenotype plots, GO reports",),
     ),
     Module(
+        key="explain_cv",
+        summary="Explain existing CV predictions with measured object features.",
+        entry="spacr.surrogate:run_explain_cv",
+        defaults=None,
+        defaults_entry="spacr.surrogate:explain_cv_default_settings",
+        validate_key="explain_cv",
+        requires=("db_path — exact measurements.db for the scored objects",
+                  "predictions_file — existing per-object CV predictions CSV"),
+        writes=("fidelity report, class metrics, confusion matrix, gain/permutation/SHAP tables and figures",),
+        note=("The CV model is not rerun. Importances are withheld when held-out "
+              "fidelity does not clear the configured majority-baseline gate."),
+    ),
+    Module(
+        key="investigate_hit",
+        summary="Resolve one exact regression hit to cross-fitted candidate cells.",
+        entry="spacr.hit_investigation:investigate_hit",
+        defaults=None,
+        defaults_entry="spacr.hit_investigation:hit_investigation_default_settings",
+        validate_key="investigate_hit",
+        requires=("results_folder — exact regression output to hash",
+                  "db_path, predictions_file and guide_fractions_file",
+                  "target_gene, target_guides and score_column"),
+        writes=("candidate cells, well enrichment, guide evidence, control-fitted embedding and blinded gallery manifest",),
+        note=("Candidate probabilities describe hit-like morphology under a "
+              "well-level model, not observed cell-resolved guide identity."),
+    ),
+    Module(
         key="map_barcodes",
         summary="Map row / column / gRNA barcodes out of sequencing reads onto wells.",
         entry="spacr.sequencing:generate_barecode_mapping",
@@ -457,15 +507,6 @@ _MODULE_LIST: Tuple[Module, ...] = (
         writes=("<dst>/ — one mask .tif per input image",),
     ),
     Module(
-        key="cellpose_all",
-        summary="Compare every available Cellpose model on the same images.",
-        entry="spacr.spacr_cellpose:check_cellpose_models",
-        defaults="get_check_cellpose_models_default_settings",
-        validate_key="cellpose_all",
-        requires=("src — folder of images",),
-        writes=("<src>/cellpose_test/ — masks and a comparison figure per model",),
-    ),
-    Module(
         key="convert",
         summary="Convert vendor images into mapped, collision-safe Yokogawa TIFFs.",
         entry="spacr.convert:convert_folder",
@@ -525,8 +566,10 @@ _MODULE_LIST: Tuple[Module, ...] = (
     ),
     # Hand-written, and it has to be: the seam that publishes an app's other
     # strings cannot derive `requires`, `writes` or `note`, which are the
-    # three things `--describe` exists to print. The app row itself comes
-    # from spacr.anndata_export.register_anndata_app.
+    # three things `--describe` exists to print. There is no app row to
+    # take them from either -- the export folded onto the Measure masthead
+    # and its registration went with the tile -- so this entry is the
+    # whole of what `spacr-run anndata_export` knows about itself.
     Module(
         key="anndata_export",
         summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
@@ -570,6 +613,8 @@ ALIASES: Dict[str, str] = {
     "generate_image_umap": "umap",
     "embedding": "umap",
     "perform_regression": "regression",
+    "explain_classifier": "explain_cv",
+    "hit_investigation": "investigate_hit",
     "analyze_recruitment": "recruitment",
     "analyze_invasion": "invasion",
     "invasion_assay": "invasion",
@@ -588,6 +633,12 @@ ALIASES: Dict[str, str] = {
     "anndata": "anndata_export",
     "h5ad": "anndata_export",
     "run_anndata_export": "anndata_export",
+    # cellpose_all was "benchmark every Cellpose model on one folder". Cellpose
+    # 4 ships exactly one model, so the comparison had a single entrant and the
+    # run was `cellpose_masks` under another name -- which already defaults
+    # model_name to the same stock 'cpsam'. Kept as an alias, not deleted, so a
+    # script or settings CSV that still says cellpose_all keeps running.
+    "cellpose_all": "cellpose_masks",
 }
 
 
@@ -630,6 +681,52 @@ _register_plugin_modules()
 # the error message is kinder than "unknown module": the user did not typo, the
 # thing simply cannot run without a person looking at a screen.
 INTERACTIVE_ONLY: Dict[str, str] = {
+    # ------------------------------------------------------------------
+    # THE SIX THE FOLD TOOK OFF THE COMMAND LINE, added 2026-09-07.
+    #
+    # None had a row in `_MODULE_LIST`. They answered to `spacr-run` because
+    # `_absorb_registered_gui_only` pulls `cli_note=` out of the Qt registry
+    # -- and that pull only happens in a process that has imported
+    # `spacr.qt.app`, which a headless `spacr-run` deliberately does not.
+    # `571b6e77c` and `00f166a7f` then folded them into host screens. So
+    # `spacr-run outliers` answers "unknown module 'outliers'", which tells
+    # the user they mistyped a name that was removed.
+    #
+    # WRITTEN HERE, not absorbed -- the same decision as `curate`,
+    # `image_scatter` and `pca` above, and for the same reason. FOUR OF THEM
+    # STILL HAVE A CATALOG ROW, and the text below is that row's `cli_note`
+    # COPIED VERBATIM: `INTERACTIVE_ONLY.setdefault` means a hand-written
+    # entry outranks the registry, so a paraphrase here would silently
+    # replace the sentence the screen declares. That duplication is guarded
+    # -- `test_the_gui_only_sentence_reaches_spacr_run` fails the moment the
+    # two drift, which is how the first version of this block was caught.
+    "outliers": "For headless use, call "
+                "spacr.qt.widgets.outlier_model.detect_outliers() to compute "
+                "the same object flags, well scores, and report.",
+    "control_chart": "For headless use, call "
+                     "spacr.qt.widgets.control_chart.control_chart(frame, "
+                     "spec) to return the same limits, violations, and "
+                     "report text.",
+    "trellis": "For headless use, call "
+               "spacr.qt.widgets.trellis_spec.trellis() to compute the panel "
+               "layout, scales, and per-panel sample sizes.",
+    "feature_explorer": "For headless use, call "
+                        "spacr.qt.widgets.feature_rank.rank_features(frame, "
+                        "spec) to return the same feature-level statistics "
+                        "and ranking.",
+    # The other two have NO catalog row left to copy from, so these are
+    # written rather than mirrored, and name where the thing went.
+    "import_images": "Image import folded into the foreign-format importer. "
+                     "In the GUI open 'foreign'; headless, call "
+                     "spacr.image_import.apply_import, which is what that "
+                     "screen drives.",
+    "regression_diagnostics": "Regression diagnostics folded into "
+                              "Regression, which writes them as part of its "
+                              "own run. In the GUI open 'regression'; "
+                              "headless, run 'spacr-run regression' — the "
+                              "diagnostics are written beside its output — "
+                              "or call spacr.regression_diagnostics "
+                              "directly.",
     "annotate": "Annotate paints labels onto a grid of single-object images by hand; "
                 "run it in the GUI (spacr-qt) — there is no batch equivalent.",
     "make_masks": "Make Masks is a manual mask editor; run it in the GUI (spacr-qt).",
@@ -655,6 +752,16 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "model_zoo": "Model Zoo is an interactive browser; headless, call "
                  "spacr.model_zoo.discover_local + format_zoo, and "
                  "benchmark(entry, source=...) to test one on three fields.",
+    # WRITTEN HERE, not absorbed. Curate is folded into Make Masks and has
+    # no registry row left to carry a `cli_note=`, so the sentence
+    # `_absorb_registered_gui_only` used to pull out of the row has to live
+    # in this table -- otherwise `spacr-run curate` stops explaining itself
+    # and starts guessing that the user meant `convert`.
+    "curate": "Curate is hand correction of a mask or a track table -- the "
+              "brush and the track surgery are the whole feature; run it in "
+              "the GUI (spacr-qt), where it is a button on Make Masks. "
+              "Headless, spacr.curation.MaskCuration and TrackCuration make "
+              "the same edits with the same ledger.",
     "report": "Report is a one-click document builder; headless, call "
               "spacr.report.build_report(src, out, fmt='html').",
     "train_compare": "Training Runs is an interactive curve/settings comparison; "
@@ -674,6 +781,55 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                     "sizes, plan_prune(src) for exactly what is regenerable "
                     "and what is being kept, then prune(plan, "
                     "confirm=plan.token) once you have read the plan.",
+    # WRITTEN HERE, not absorbed. These three are folded -- Image Scatter and
+    # PCA onto Image UMAP, Volcano Explorer onto Regression -- and have no
+    # registry row left to carry a `cli_note=`, so the sentence
+    # `_absorb_registered_gui_only` used to pull out of the row has to live in
+    # this table. Without it `spacr-run pca` stops explaining itself and
+    # starts guessing the user meant something else.
+    "image_scatter": "Image Scatter is an interactive plot — the hover "
+                     "preview is the whole feature; run it in the GUI "
+                     "(spacr-qt), where it is a button on Image UMAP. "
+                     "Headless, read the same table with pandas.",
+    "pca": "PCA here is interactive multivariate exploration — ticking "
+           "features and brushing a cluster are the feature; run it in the "
+           "GUI (spacr-qt), where it is a button on Image UMAP. Headless, "
+           "spacr.qt.widgets.pca_model.pca() is the equivalent.",
+    "volcano_explorer": "Volcano Explorer is an interactive reader for a "
+                        "finished regression — clicking a point is the "
+                        "feature, so there is nothing to batch; run it in "
+                        "the GUI (spacr-qt), where it is “Publication "
+                        "figure…” on the Regression volcano and a button on "
+                        "that masthead. Headless, call "
+                        "spacr.volcano_style.render_volcano(results, "
+                        "VolcanoStyle(...), save_path='volcano.pdf'); that "
+                        "is the renderer this screen draws through, so the "
+                        "figure is the same one, vector at publication "
+                        "size.",
+    # THE OTHER THREE FOLDED ROWS. A folded module keeps its key everywhere
+    # a key is written, and `spacr-run <key>` is one of those places: a key
+    # the registry no longer holds and this table does not name answers
+    # "unknown module" and then guesses at a near spelling, which tells a
+    # user who typed the right name that they typed the wrong one.
+    "hit_list": "Hit List is an interactive ranked table — filtering, "
+                "annotating and clicking through to the cells is the "
+                "feature; run it in the GUI (spacr-qt), where it is a tab "
+                "on the Regression results and a button on that masthead. "
+                "Headless, spacr.hits.build_hit_list(...) builds the same "
+                "ranking, and 'spacr-run investigate_hit' takes one hit "
+                "back to its wells.",
+    "methods_export": "Use Methods & Results for interactive drafting. In a "
+                      "headless workflow, call "
+                      "spacr.methods_export.build_digest(...), then "
+                      "render_methods(digest) and render_results(digest); "
+                      "these functions need no AI provider.",
+    "napari_bridge": "Open in napari hands a mask to napari for you to "
+                     "correct by hand and reads it back; the correcting is "
+                     "the feature, so there is nothing to batch. Run it in "
+                     "the GUI (spacr-qt), where it is a button on Make "
+                     "Masks. Headless, "
+                     "spacr.napari_bridge.correct_mask(mask_path, "
+                     "image_path) is the same round trip from Python.",
 }
 
 
@@ -1085,6 +1241,13 @@ def coerce_value(key: str, text: str, current: Any,
         except ValueError:
             pass
 
+    if (key == "custom_model"
+            and lowered in (_TRUE_WORDS | _FALSE_WORDS)):
+        raise SettingsError(
+            "--set custom_model is a checkpoint path, not a boolean switch; "
+            "use custom_model=none for the stock Cellpose model."
+        )
+
     if allow(str):
         return text
 
@@ -1220,10 +1383,12 @@ class _NoShow:
     """
 
     def __init__(self) -> None:
+        """Initialize empty references for a reversible pyplot patch."""
         self._plt = None
         self._original = None
 
     def __enter__(self) -> "_NoShow":
+        """Replace ``pyplot.show`` with figure cleanup when available."""
         try:
             import matplotlib.pyplot as plt
         except Exception:
@@ -1232,6 +1397,14 @@ class _NoShow:
         self._original = plt.show
 
         def _close_instead(*args: Any, **kwargs: Any) -> None:
+            """Close the captured current figure instead of displaying it.
+
+            :param args: ignored positional arguments accepted for ``show``
+                signature compatibility.
+            :param kwargs: ignored keyword arguments accepted for compatibility.
+            :returns: None. Backend and close errors are deliberately swallowed
+                so optional visualization cleanup cannot fail a headless run.
+            """
             try:
                 plt.close(plt.gcf())
             except Exception:
@@ -1241,6 +1414,7 @@ class _NoShow:
         return self
 
     def __exit__(self, *exc_info: Any) -> bool:
+        """Restore pyplot, close remaining figures, and propagate exceptions."""
         if self._plt is not None and self._original is not None:
             try:
                 self._plt.show = self._original
@@ -1613,6 +1787,7 @@ class _Parser(argparse.ArgumentParser):
     """ArgumentParser whose usage errors exit 2 through the same path as ours."""
 
     def error(self, message: str) -> None:  # type: ignore[override]
+        """Print usage and ``message``, then exit with the usage status."""
         self.print_usage(sys.stderr)
         print(f"error: {message}", file=sys.stderr)
         raise SystemExit(EXIT_USAGE)
@@ -1702,7 +1877,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return exc.code if isinstance(exc.code, int) else EXIT_USAGE
 
     if args.version:
-        from .version import __version__
+        from ._version import __version__
         print(__version__)
         return EXIT_OK
 

@@ -106,6 +106,39 @@ def test_plot_recruitment_default_columns_builds_two_figures():
     assert all(ax.get_legend() is None for ax in grid.axes[:5])
 
 
+def test_a_recruitment_plot_does_not_recolour_the_next_plot():
+    """Drawing one figure must not restyle the ones the user draws after it.
+
+    ``_plot_recruitment`` picks its own four colours, which is fine -- but it
+    used to install them with ``sns.set_palette``, and that writes matplotlib's
+    process-wide colour cycle. Every plot the session drew afterwards came out
+    in the recruitment palette: other screens, other modules, and the palette
+    the user had chosen in figure preferences, silently overridden by whichever
+    figure they happened to open first.
+
+    The bars must still be the recruitment colours -- the fix is where the
+    palette is set, not what it is -- so both halves are asserted here.
+    """
+    before = matplotlib.rcParams["axes.prop_cycle"]
+
+    P._plot_recruitment(_recruitment_df(channel=1), "test", 1, figuresize=4)
+
+    # seaborn draws bars at saturation 0.75, so the expectation is computed
+    # through its own desaturate rather than typed as the raw triples.
+    import seaborn as sns
+
+    intended = [(55 / 255, 155 / 255, 155 / 255),
+                (155 / 255, 55 / 255, 155 / 255)]
+    bars = {tuple(np.round(patch.get_facecolor()[:3], 4))
+            for patch in _figs()[0].axes[0].patches}
+    assert bars == {tuple(np.round(sns.desaturate(colour, 0.75), 4))
+                    for colour in intended}, (
+        "the recruitment bars lost their own colours")
+    assert matplotlib.rcParams["axes.prop_cycle"] == before, (
+        "drawing a recruitment plot left its palette on matplotlib's global "
+        "colour cycle; the next figure of the session inherits it")
+
+
 def test_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5():
     """Extra user columns are prepended; the 7th panel (i=6) keeps its autoscale."""
     df = _recruitment_df(channel=0)
@@ -445,11 +478,32 @@ def test_reg_v_plot_annotates_only_significant_points():
     assert [t.get_position() for t in ax.texts] == [
         (1.5, -np.log10(0.001)), (-2.0, -np.log10(0.02)),
     ]
-    # Every row is scattered, coloured by the sign of the effect.
+    # EVERY ROW IS SCATTERED, AND ONLY THE CALLED ONES CARRY COLOUR.
+    #
+    # It used to hand the scatter a scalar-mappable array of np.sign(effect)
+    # under a coolwarm ramp, so every point was coloured by a fact the x axis
+    # already states -- and the house rule is that colour is an ARGUMENT.
+    # The restyle on 2026-08-18 gives explicit per-point colours instead:
+    # a called row (p < 0.05) takes ROLES["up"] or ROLES["down"] by sign,
+    # everything else is ROLES["data"] grey.
+    from matplotlib.colors import to_rgb
+
+    from spacr.figures.style import ROLES
+
     offsets = np.asarray(ax.collections[0].get_offsets())
     assert offsets.shape == (4, 2)
     assert np.allclose(offsets[:, 0], df["effect"])
-    assert np.allclose(ax.collections[0].get_array(), np.sign(df["effect"]))
+    assert ax.collections[0].get_array() is None, (
+        "a colormap over the sign colours every point, which is the thing "
+        "the restyle removed")
+    drawn = [tuple(round(v, 3) for v in rgba[:3])
+             for rgba in ax.collections[0].get_facecolors()]
+    expected = []
+    for effect, p_value in zip(df["effect"], df["p"]):
+        role = ("data" if p_value >= 0.05
+                else ("up" if effect > 0 else "down"))
+        expected.append(tuple(round(v, 3) for v in to_rgb(ROLES[role])))
+    assert drawn == expected
     # Significance threshold line at p = 0.05.
     assert any(np.allclose(ln.get_ydata(), -np.log10(0.05)) for ln in ax.lines)
 

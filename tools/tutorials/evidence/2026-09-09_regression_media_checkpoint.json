@@ -1,0 +1,23 @@
+{
+  "lesson": "13_regression",
+  "status": "Shared master and English voice matrix verified; other voices still rendering",
+  "canonical_english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
+  "scene_count": 21,
+  "catalog_structure": {"languages": 14, "lessons_each": 75, "scenes_each": 542, "passed": true},
+  "translations": {"source_pinned_editorial_reviews": 13, "native_speaker_signoff": false},
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 11680,
+    "duration_seconds": 389.333333, "audio_streams": 0, "bytes": 32531618,
+    "sha256": "397034da07680429f5ce0d4eef55acba10feb5ec6ab364ce989de09c5a166467"
+  },
+  "english_tracks_fully_decoded_and_freshness_checked": 24,
+  "browser_playback_checks_passed": {"spoken_languages": ["en", "es"], "independent_caption_languages": ["da", "de", "is", "ko", "nb", "sv"]},
+  "browser_scope": "Actual staged audio bytes, 21-scene narration/captions, chapter seeking, media clocks, linked lessons, current Main modules route, 390px mobile layout and JavaScript errors",
+  "synthesis_checkpoint": "26 GPU tracks completed (24 English and two Spanish). GPU writer exited before CPU resumed the remaining 24 voices, because another session's documentation repair began using approximately 20 GiB of video memory.",
+  "dataset": "Four downloaded score/count pairs; actual bounded 199-permutation run; 434 guide plus 325 gene rows; five figures",
+  "source_evidence": "2026-09-09_regression_core_capture.json",
+  "artifacts": "refresh_2026-09-09/production/13_regression and refresh_2026-09-09/browser/13_regression in the tutorial workspace",
+  "human_listening_review": false,
+  "all_50_voices_verified": false,
+  "published": false
+}

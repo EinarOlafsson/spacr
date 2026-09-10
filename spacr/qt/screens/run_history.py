@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMenu,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QSplitter,
@@ -37,6 +39,7 @@ from ..iconset import icon
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -50,7 +53,7 @@ __all__ = [
 
 APP_KEY = "run_history"
 APP_NAME = "Run History"
-APP_SECTION = "Results & QC"
+APP_SECTION = "Data"
 APP_INTRO = (
     "Search every recorded job and inspect its settings, inputs, outputs, "
     "warnings, failure traceback, versions, seeds, and performance in one place."
@@ -64,7 +67,7 @@ _COLUMNS = (
 
 def _readonly_item(text: Any) -> QTableWidgetItem:
     """Return a non-editable table item."""
-    item = QTableWidgetItem("" if text is None else str(text))
+    item = table_item("" if text is None else str(text))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -91,11 +94,13 @@ def _bytes(value: Any) -> str:
     except (TypeError, ValueError):
         return "—"
     units = ("B", "KiB", "MiB", "GiB", "TiB")
-    for unit in units:
-        if abs(number) < 1024.0 or unit == units[-1]:
+    # The largest unit is left out of the loop and answered below: with it in,
+    # the loop always returns and the line after it can never run.
+    for unit in units[:-1]:
+        if abs(number) < 1024.0:
             return f"{number:.0f} {unit}" if unit == "B" else f"{number:.1f} {unit}"
         number /= 1024.0
-    return "—"
+    return f"{number:.1f} {units[-1]}"
 
 
 def _json_text(value: Any) -> str:
@@ -135,6 +140,12 @@ class RunHistoryScreen(QWidget):
     history_refreshed = Signal(int)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the run-history screen.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read the history on a worker thread. Set ``False`` in
+            tests so a refresh finishes before it returns.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self.records: List[Dict[str, Any]] = []
@@ -196,15 +207,34 @@ class RunHistoryScreen(QWidget):
         filters.addWidget(self._search, 1)
         filters.addWidget(self._module)
         filters.addWidget(self._status_filter)
+        self._clear_all = QPushButton("Clear all", self)
+        self._clear_all.setIcon(icon("trash"))
+        self._clear_all.setToolTip(
+            "Delete every journalled run on this machine. The runs' own "
+            "output folders inside your projects are not touched.")
+        self._clear_all.clicked.connect(self._delete_every_run)
         filters.addWidget(self._refresh)
+        filters.addWidget(self._clear_all)
         outer.addLayout(filters)
 
         splitter = QSplitter(Qt.Vertical, self)
         self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self._table.setSelectionMode(QAbstractItemView.SingleSelection)
+        # SEVERAL ROWS AT A TIME. Asked for on 2026-08-31: "the ability to
+        # select more than one run and right click and delete or open".
+        # Deleting runs one at a time is the operation nobody performs --
+        # what a full disk actually needs is forty of them gone at once.
+        #
+        # The detail panes below still describe ONE run (the current row),
+        # because "the settings of these six runs" is not a thing a form
+        # can show. Extending the selection changes what the ACTIONS
+        # operate on, not what is displayed.
+        self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self._table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._table.customContextMenuRequested.connect(self._show_row_menu)
         self._table.setAlternatingRowColors(True)
         self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
@@ -296,6 +326,7 @@ class RunHistoryScreen(QWidget):
         self._pending_error = ""
 
         def _load(_settings):
+            """Read the run journal. Off the GUI thread."""
             try:
                 self._pending_result = search_runs()
             except Exception as exc:
@@ -547,6 +578,98 @@ class RunHistoryScreen(QWidget):
             QDesktopServices.openUrl(
                 QUrl.fromLocalFile(str(Path(record["dir"]).resolve()))
             )
+
+    def _selected_records(self) -> List[Dict[str, Any]]:
+        """Every record whose row is selected, in table order.
+
+        Distinct from :meth:`_selected_record`, which is the CURRENT row
+        and drives the detail panes. A right-click acts on the selection;
+        the panes describe one run. Conflating them is how "delete" ends
+        up removing the row under the cursor rather than the six that are
+        highlighted.
+        """
+        seen, records = set(), []
+        for index in self._table.selectionModel().selectedRows():
+            item = self._table.item(index.row(), 0)
+            run_id = str(item.data(Qt.UserRole)) if item is not None else ""
+            record = self._record_by_id.get(run_id)
+            if record is not None and run_id not in seen:
+                seen.add(run_id)
+                records.append(record)
+        return records
+
+    def _show_row_menu(self, position) -> None:
+        """The right-click menu: open the folders, or delete the runs.
+
+        Labels COUNT what they will act on -- "Delete 6 runs…" rather
+        than "Delete" -- because the selection is the one thing the user
+        cannot re-read from the menu once it is open.
+        """
+        records = self._selected_records()
+        if not records:
+            return
+        menu = QMenu(self._table)
+        count = len(records)
+        opener = menu.addAction(
+            "Open run folder" if count == 1 else f"Open {count} run folders")
+        remover = menu.addAction(
+            "Delete run…" if count == 1 else f"Delete {count} runs…")
+        chosen = menu.exec(self._table.viewport().mapToGlobal(position))
+        if chosen is opener:
+            for record in records:
+                QDesktopServices.openUrl(
+                    QUrl.fromLocalFile(str(Path(record["dir"]).resolve())))
+        elif chosen is remover:
+            self._delete_records(records)
+
+    def _delete_records(self, records: List[Dict[str, Any]]) -> None:
+        """Confirm, delete, report what was refused, and reload.
+
+        THE CONFIRMATION NAMES THE COUNT AND IS NOT DEFAULTED TO YES.
+        This removes directories and there is no undo; a dialog whose
+        default button destroys data is a dialog people dismiss.
+
+        Refusals are shown rather than swallowed. `delete_runs` returns
+        them precisely so that deleting fifty runs where one is still
+        going deletes forty-nine and says which one it kept.
+        """
+        if not records:
+            return
+        count = len(records)
+        subject = ("this run" if count == 1 else f"these {count} runs")
+        confirm = QMessageBox(self)
+        confirm.setIcon(QMessageBox.Warning)
+        confirm.setWindowTitle("Delete runs")
+        confirm.setText(f"Delete {subject} from the run journal?")
+        confirm.setInformativeText(
+            "The journal folders are removed permanently. Outputs written "
+            "into your projects are not touched.")
+        confirm.setStandardButtons(QMessageBox.Cancel | QMessageBox.Yes)
+        confirm.setDefaultButton(QMessageBox.Cancel)
+        if confirm.exec() != QMessageBox.Yes:
+            return
+        from ...run_journal import delete_runs
+
+        deleted, refused = delete_runs(record["dir"] for record in records)
+        if refused:
+            self._set_status(
+                f"Deleted {deleted}; kept {len(refused)}: "
+                + "; ".join(refused[:3])
+                + ("…" if len(refused) > 3 else ""))
+        else:
+            self._set_status(f"Deleted {deleted} run"
+                             f"{'' if deleted == 1 else 's'}.")
+        self.refresh()
+
+    def _delete_every_run(self) -> None:
+        """The Clear all button: every run the table currently knows of.
+
+        `self.records`, not a fresh directory listing. What the button
+        offers to delete has to be what the user is looking at -- a run
+        that started since the last refresh is not on screen, and
+        removing it because the button said "all" would be a surprise.
+        """
+        self._delete_records(list(self.records))
 
     def _copy_selected_path(self) -> None:
         """Copy the selected run folder path to the clipboard."""

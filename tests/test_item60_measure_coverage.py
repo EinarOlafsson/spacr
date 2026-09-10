@@ -81,11 +81,17 @@ def test_spatial_adjacency_empty_mask_returns_empty_maps():
     assert M._spatial_adjacency(np.zeros((4, 4), dtype=int)) == ({}, {})
 
 
-def test_spatial_adjacency_old_skimage_refuses_anisotropic_spacing(monkeypatch):
+def test_spatial_adjacency_old_skimage_honours_anisotropic_spacing(monkeypatch):
     monkeypatch.setattr(M, "_EXPAND_LABELS_TAKES_SPACING", False)
-    with pytest.raises(M.ConfigurationError, match="anisotropic"):
-        M._spatial_adjacency(np.zeros((2, 3, 3), dtype=int),
-                             spacing=(2., .2, .2))
+    mask = np.zeros((3, 3, 3), dtype=int)
+    mask[0, 1, 1] = 1
+    mask[2, 1, 1] = 2
+    percent, neighbours = M._spatial_adjacency(
+        mask, spacing=(2., .2, .2), expand=1)
+    # One blank z plane is 2 physical units from either object, so a
+    # one-unit expansion cannot make them touch. A voxel-unit fallback would.
+    assert neighbours == {}
+    assert percent == {1: 0.0, 2: 0.0}
     assert M._spatial_adjacency(np.zeros((3, 3), dtype=int), spacing=None) == ({}, {})
 
 
@@ -186,18 +192,18 @@ def test_radial_distribution_empty_parent_and_zero_distance(monkeypatch):
     assert zero[(1, 1, 0)][0] == 1
 
 
-def test_corrected_manders_signal_and_background_paths():
+def test_manders_signal_and_background_paths():
     mask = np.array([[0, 1, 1], [0, 1, 1]], dtype=int)
     signal = np.array([[0., 0., 0.], [0., 0., 8.]])
     out = M._calculate_correlation_object_level(
         signal, signal * 2, mask,
-        {"manders_thresholds": [50], "corrected_manders": True})
+        {})
     assert out.loc[0, "manders_m1"] == pytest.approx(1.)
     assert out.loc[0, "manders_overlap_coefficient"] == pytest.approx(1.)
 
     background = M._calculate_correlation_object_level(
         np.zeros_like(signal), np.zeros_like(signal), mask,
-        {"manders_thresholds": [50], "corrected_manders": True})
+        {})
     assert background.loc[0, "manders_m1"] == 0
     assert background.loc[0, "manders_m2"] == 0
     assert background.loc[0, "manders_overlap_coefficient"] == 0
@@ -249,7 +255,7 @@ def test_measure_core_optional_masks_filters_and_field_rescale(
     merged, name = _write_stack(tmp_path, data)
     settings = _settings_for(
         merged, nucleus_mask_dim=None, organelle_mask_dim=7,
-        organelle_min_size=1, save_measurements=False, save_png=False)
+        organelle_min_area=1, save_measurements=False, save_png=False)
     monkeypatch.setattr(
         M, "_resolve_intensity_rescale_record",
         lambda *_a, **_k: {
@@ -258,7 +264,7 @@ def test_measure_core_optional_masks_filters_and_field_rescale(
         })
     monkeypatch.setattr(M, "_write_intensity_rescale_record",
                         lambda *_a, **_k: None)
-    _index, _average, cells, _figs = M._measure_crop_core(
+    _index, _average, cells, _figs, _error = M._measure_crop_core(
         0, [], name, settings)
     assert isinstance(cells, np.ndarray)
     assert "NOT comparable" in capsys.readouterr().out
@@ -288,7 +294,8 @@ def test_measure_core_plot_handles_volume_and_malformed_plane(
         merged2, channels=[0], cell_mask_dim=None, nucleus_mask_dim=None,
         pathogen_mask_dim=None, plot=True, save_png=False,
         save_measurements=False)
-    _i, _t, cells, _f = M._measure_crop_core(0, [], name2, plane_settings)
+    _i, _t, cells, _f, _error = M._measure_crop_core(
+        0, [], name2, plane_settings)
     assert cells == 0
 
 
@@ -300,7 +307,8 @@ def test_measure_core_empty_png_size_returns_failure_sentinel(
         tmp_path, _build_merged_stack(synth_masks_multi, rng))
     settings = _settings_for(
         merged, png_size=[], save_measurements=False, save_png=True)
-    _i, _t, cells, _f = M._measure_crop_core(0, [], name, settings)
+    _i, _t, cells, _f, _error = M._measure_crop_core(
+        0, [], name, settings)
     assert cells == 0
     assert "png_size is empty" in capsys.readouterr().out
 
@@ -427,12 +435,25 @@ def test_measure_crop_retries_worker_then_succeeds(tmp_path, monkeypatch):
     merged.mkdir()
     np.save(merged / "plate_A01_f1.npy", np.zeros((2, 2, 2), np.uint16))
     success = (0, .1, np.array([0]), {})
+    # The pool takes iter(results), so counting what it PULLS is the only
+    # observable -- and it is the one that matters: both results consumed
+    # means the first raised and the run came back for the second. Without
+    # this the test passed for a measure_crop that never retried at all.
+    consumed = []
+
+    class _Counted(list):
+        def __iter__(self):
+            for item in list.__iter__(self):
+                consumed.append(item)
+                yield item
+
     _patch_item60_orchestrator(
         monkeypatch,
-        [_Item60Result(error=RuntimeError("transient")),
-         _Item60Result(value=success)])
+        _Counted([_Item60Result(error=RuntimeError("transient")),
+                  _Item60Result(value=success)]))
     M.measure_crop(_orchestrator_settings(
         merged, on_error="retry", on_error_attempts=2))
+    assert len(consumed) == 2, consumed
 
 
 def test_measure_crop_reraises_pipeline_cancellation(tmp_path, monkeypatch):

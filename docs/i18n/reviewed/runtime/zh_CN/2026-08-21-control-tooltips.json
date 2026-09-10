@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "reviewed_at": "2026-08-21",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "controls",
+      "source_sha256": "7ae3717a942308af9d7dfcf2ae0cfc09565b894cced8fa55bf2831a95dea967b",
+      "source": "Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
+      "translation": "非靶向对照 gRNA 标识符。其系数设定火山图效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高；None 会禁用该阈值。默认值 ['000000'] 指定非切割对照基因，spaCR 会将其解析为已加载文库中的所有相关向导。也可以使用单个向导标识符，无论是否带有生物体前缀。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "exclude_grnas",
+      "source_sha256": "9ab00bce68d05eb485ee0e981f0ec0757cc996b5ca22828186158b4471589f5b",
+      "source": "gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",
+      "translation": "已知不存在于细胞中的 gRNA 或基因标识符，例如引物或质粒残留。这些序列会在计算向导片段占比之前被移除，保留下来的向导会重新归一化。这与背景扣除不同：背景扣除校正的是错误分配给某个真实向导的读数。基因标识符会匹配该基因的所有向导。默认值为 None。"
+    }
+  ],
+  "review_notes": {
+    "controls": "re-stamped 2026-08-21: the English dropped a redundant clause ('and so does either spelling') with no change of meaning; the translation already said exactly this",
+    "exclude_grnas": "re-reviewed 2026-08-21: the English was rewritten to drop the screen-specific figures, so the previous translation described text that no longer exists"
+  }
+}

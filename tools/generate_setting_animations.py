@@ -18,7 +18,7 @@ import textwrap
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageSequence
 
@@ -382,17 +382,29 @@ class Painter:
         color: Tuple[int, int, int],
         width: float = 0.5,
         radius: float = 0.0,
+        fill: Optional[Tuple[int, int, int]] = None,
     ) -> None:
+        """Draw a rectangle. ``fill`` paints its interior as well.
+
+        A FILL IS SOMETIMES THE SUBJECT. `remove_image_canvas` animates the
+        removal of a thumbnail's canvas, and a canvas drawn as a hairline
+        outline is almost invisible before it is removed -- so the animation
+        showed a change whose absence nobody could notice. A canvas is a
+        filled rectangle, and drawing it as one is what makes its removal
+        legible.
+        """
         values = self.box(box)
         if radius > 0:
             self.draw.rounded_rectangle(
                 values,
                 radius=int(round(radius * SCALE)),
                 outline=color,
+                fill=fill,
                 width=self.width(width),
             )
         else:
-            self.draw.rectangle(values, outline=color, width=self.width(width))
+            self.draw.rectangle(values, outline=color, fill=fill,
+                                width=self.width(width))
 
     def canvas_rectangle(
         self,
@@ -663,6 +675,16 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
     # exist at all; area variants read their order off the sizes.
     base = [0.4, 0.6, 0.8, 1.0] if by_intensity else [1.0] * len(sizes)
     if by_intensity:
+        # AND THEY NEED ONE SIZE. Until 2026-08-18 the intensity animations
+        # kept the four different sizes the area animations use, so the
+        # objects differed in size AND brightness and the two families were
+        # the same picture -- 20-22% of the drawn ink separated
+        # `*_min_area` from `*_min_intensity_percentile`, and nothing told a
+        # viewer which property the threshold had read. One size leaves
+        # brightness as the only order there is, which is the criterion.
+        uniform = sizes[2]
+        sizes = [uniform] * len(sizes)
+    if by_intensity:
         rank_by = lambda index: base[index]
     else:
         rank_by = lambda index: sizes[index][0] * sizes[index][1]
@@ -832,42 +854,116 @@ def _adjust_cells(painter: Painter, action: float) -> None:
 
 
 def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
+    """Two touching pairs, of which the setting's criterion merges exactly one.
+
+    THESE ARE TWO DIFFERENT SETTINGS AND THEY USED TO BE ONE PICTURE. A single
+    pair merged, and `*_intensity_merge` added a pulsing line over it; measured
+    against `*_perimeter_fraction`, 98% of the drawn pixels were identical. A
+    viewer comparing the two animations learned that the settings do the same
+    thing, which is the failure this whole audit is about -- an animation is a
+    stronger claim than a sentence.
+
+    So each now draws its own criterion, and draws a pair that FAILS it:
+
+    * `perimeter_fraction` is shared boundary length over the smaller object's
+      perimeter. One pair overlaps deeply and merges; one pair touches at a
+      point, shares almost no boundary, and stays two objects.
+    * `intensity_merge` asks whether there is a real membrane between them.
+      The pair with no visible boundary merges; the pair divided by a bright
+      membrane stays two objects, and the membrane is drawn the whole time
+      rather than pulsed, because it is the evidence and not decoration.
+
+    A threshold that keeps something is the honest illustration of a
+    threshold. One that dissolves the only pair on screen shows a merge, not a
+    criterion.
+    """
     _well(painter)
     kind = spec.params["kind"]
-    scale = 1.45 if kind == "cell" else 1.0
+    scale = {"cell": 1.45, "organelle": 0.72, "pathogen": 0.82}.get(kind, 1.0)
+    wide, narrow = 58 * scale, 29 * scale
+    tall = 31 * scale
+    top, bottom = 70.0, 172.0
+    intensity = bool(spec.params.get("intensity"))
+
+    # The pair that MERGES. For perimeter_fraction it is the deeply overlapping
+    # one; for intensity_merge it is the one with no membrane between halves.
+    _object_outline(painter, kind, (168, top), (wide, 42 * scale), action, 0.5)
     _object_outline(
-        painter, kind, (176, 120), (67 * scale, 42 * scale), action, 0.5,
-    )
-    _object_outline(
-        painter, kind, (145, 120), (34 * scale, 38 * scale),
+        painter, kind, (168 - narrow * 0.42, top), (narrow, tall),
         1.0 - action, 0.2,
     )
     _object_outline(
-        painter, kind, (207, 120), (34 * scale, 38 * scale),
+        painter, kind, (168 + narrow * 0.42, top), (narrow, tall),
         1.0 - action, 0.9,
     )
-    if spec.params.get("intensity"):
-        pulse = 0.4 + 0.6 * math.sin(action * math.pi)
+
+    # The pair that does NOT merge, and the reason it does not.
+    if intensity:
+        # Same geometry as above; the membrane is what keeps them apart.
+        _object_outline(
+            painter, kind, (168 - narrow * 0.42, bottom), (narrow, tall), 1.0, 0.3,
+        )
+        _object_outline(
+            painter, kind, (168 + narrow * 0.42, bottom), (narrow, tall), 1.0, 1.1,
+        )
         painter.line(
-            [(176, 85), (176, 155)],
-            _mix(OBJECT_COLORS[kind], pulse),
-            0.7,
+            [(168, bottom - tall * 0.62), (168, bottom + tall * 0.62)],
+            WHITE, 0.9,
+        )
+    else:
+        # Barely touching, so the shared boundary is a fraction of a perimeter.
+        _object_outline(
+            painter, kind, (168 - narrow * 1.05, bottom), (narrow, tall), 1.0, 0.3,
+        )
+        _object_outline(
+            painter, kind, (168 + narrow * 1.05, bottom), (narrow, tall), 1.0, 1.1,
         )
 
 
 def _split_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """An oversized object is split -- and one that is not oversized is NOT.
+
+    THE CONTROL WAS MISSING. Every object in the frame split, so the animation
+    showed the CONSEQUENCE of the setting and nothing about what DECIDES it: a
+    viewer could not tell whether it splits everything or only some things,
+    which is the only question a threshold setting raises.
+
+    The audit prescribed the fix and it is the one taken here -- draw an
+    object that is not split. settings.py records that the split is purely
+    GEOMETRIC for pathogen, so drawing an intensity valley would have been a
+    picture of a mechanism this setting does not use.
+
+    So: a large object on the left splits, a small one on the right does not,
+    and both are on screen the whole time. The difference between them is the
+    thing the setting is about.
+    """
     _well(painter)
     kind = spec.params["kind"]
     scale = 1.45 if kind == "cell" else 1.0
+
+    # THE ONE THAT SPLITS -- oversized, so it comes apart.
     _object_outline(
-        painter, kind, (150, 120), (35 * scale, 39 * scale), action, 0.2,
+        painter, kind, (120, 120), (30 * scale, 34 * scale), action, 0.2,
     )
     _object_outline(
-        painter, kind, (210, 120), (35 * scale, 39 * scale), action, 0.9,
+        painter, kind, (172, 120), (30 * scale, 34 * scale), action, 0.9,
     )
     _object_outline(
-        painter, kind, (180, 120), (67 * scale, 42 * scale),
+        painter, kind, (146, 120), (58 * scale, 37 * scale),
         1.0 - action, 0.5,
+    )
+    # THE CUT, drawn where the two halves part. A split has a place it
+    # happens, and showing it is the difference between "two now" and "cut
+    # here".
+    if action > 0.05:
+        painter.line([(146, 120 - 34 * scale), (146, 120 + 34 * scale)],
+                     _mix(WHITE, 0.20 + 0.45 * action), 0.5)
+
+    # THE ONE THAT DOES NOT -- small enough to be left alone, unchanged in
+    # every frame. It is the control, and without it the animation says
+    # nothing about what decides a split.
+    _object_outline(
+        painter, kind, (268, 120), (30 * scale, 34 * scale), 1.0, 0.55,
     )
 
 
@@ -884,6 +980,19 @@ def _probability_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _flow_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """A poorly-fitting mask is discarded -- as the threshold comes DOWN.
+
+    THE DIRECTION WAS BACKWARDS BY IMPLICATION, and that is worse than a faint
+    animation: `flow_threshold` is counter-intuitive -- LOWERING it discards
+    more masks -- while every animation in this set runs off -> on, so the
+    frame where the ragged mask vanishes was also the frame a viewer reads as
+    "the setting went up".
+
+    Nothing in the drawing said which way the value moved, so the viewer
+    supplied the only reading available. The bar below is the fix: it EMPTIES
+    as the discard happens, so the picture says "lower this and more is
+    thrown away" instead of leaving it to be guessed the wrong way round.
+    """
     _well(painter)
     kind = spec.params["kind"]
     color = OBJECT_COLORS[kind]
@@ -898,6 +1007,17 @@ def _flow_scene(painter: Painter, spec: Spec, action: float) -> None:
         True,
         fill_closed=False,
     )
+    # THE VALUE, FALLING. A track with a fill that shrinks left as `action`
+    # runs -- the same direction the mask disappears in, which is the whole
+    # point: the two now agree, and they disagreed before.
+    left, right, y = 96, 264, 196
+    painter.line([(left, y), (right, y)], _mix(GRAY, 0.45), 1.0)
+    painter.line([(left, y), (left + (right - left) * (1.0 - action), y)],
+                 _mix(WHITE, 0.75), 2.6)
+    # A tick at each end so the track reads as a range rather than a bar
+    # chart: the left end is where the most is discarded.
+    for x in (left, right):
+        painter.line([(x, y - 5), (x, y + 5)], _mix(GRAY, 0.55), 0.9)
 
 
 def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
@@ -908,6 +1028,9 @@ def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     kind = spec.params["kind"]
     color = OBJECT_COLORS[kind]
+    if kind == "organelle":
+        _organelle_diameter_scene(painter, action, color)
+        return
     center = (180, 120)
     radius = 64 if kind == "cell" else 40
     scale = 0.55 + 0.45 * action
@@ -928,6 +1051,51 @@ def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
         )
 
 
+def _organelle_diameter_scene(painter: Painter, action: float,
+                              color: Tuple[int, int, int]) -> None:
+    """What `organelle_diameter` STILL does, which is not size the mask.
+
+    THE OTHER DIAMETERS SIZE THE OBJECT; THIS ONE DOES NOT. The organelle
+    path runs through Cellpose-SAM, which is called with ``diameter=None``,
+    and no classical method sizes its kernels from this value -- so an
+    animation of an organelle growing as the number rises showed an effect
+    the code does not have. The value is not dead, though: it is read by
+    :func:`spacr.organelle_types.OrganelleType.morphology_for`, which
+    switches the recommended morphology from spot to ring once the expected
+    diameter reaches ``RING_RESOLVABLE_PX``. So the masks hold still, the
+    caliper sweeps, and what changes at the threshold is the morphology the
+    preset picks -- a dot below it, a ring at or above it.
+    """
+    ring_at = 0.5  # RING_RESOLVABLE_PX, placed at the middle of the sweep
+    ringness = max(0.0, min(1.0, (action - ring_at) / 0.32))
+    centres = ((122, 92), (196, 76), (152, 154), (232, 142), (268, 96))
+    for index, centre in enumerate(centres):
+        outer = 13.0 + 1.5 * (index % 3)
+        painter.ellipse(
+            (centre[0] - outer, centre[1] - outer,
+             centre[0] + outer, centre[1] + outer),
+            _mix(color, 0.85), 0.55,
+        )
+        # Below the threshold the object is read as a solid spot; above it,
+        # the lumen is resolvable and the same object is read as a ring.
+        core = outer - 1.5 - (outer - 4.0) * ringness
+        if core > 0.8:
+            painter.dot(centre, core, _mix(color, 0.85 - 0.35 * ringness))
+    # The caliper is the expected diameter being dialled in. It is the
+    # annotation, not the subject -- but it is what the user is changing.
+    half = 8.0 + 26.0 * action
+    y = 196
+    painter.line(((180 - half, y), (180 + half, y)), _mix(WHITE, 0.72), 0.5)
+    for x in (180 - half, 180 + half):
+        painter.line(((x, y - 7), (x, y + 7)), _mix(WHITE, 0.72), 0.5)
+    # The threshold itself, so the flip has a visible cause.
+    mark = 8.0 + 26.0 * ring_at
+    painter.dashed(((180 - mark, y - 14), (180 - mark, y + 14)),
+                   _mix(WHITE, 0.30), 0.35)
+    painter.dashed(((180 + mark, y - 14), (180 + mark, y + 14)),
+                   _mix(WHITE, 0.30), 0.35)
+
+
 def _background_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     kind = spec.params["kind"]
@@ -946,6 +1114,19 @@ def _background_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _signal_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """Raising Signal_to_noise raises the normalisation ceiling: things DIM.
+
+    THE ANIMATION BRIGHTENED, which is the opposite of what the setting does
+    -- the same class of error as the flow thresholds and, like them, filed
+    only as "the direction is not indicated". A picture that moves the wrong
+    way is not undirected; it is directed wrongly, and a viewer will read it.
+
+    So the ramp DIMS with the action, and the faint objects go first: raising
+    the ceiling costs the dimmest signal before it costs the brightest, which
+    is exactly the decision this setting is for. The gauge below FILLS, so
+    "the value went up" and "the picture got darker" are visible in the same
+    frame instead of contradicting each other.
+    """
     _well(painter)
     kind = spec.params["kind"]
     # A ramp of signal-to-noise across five objects rather than three, at a
@@ -955,12 +1136,24 @@ def _signal_scene(painter: Painter, spec: Spec, action: float) -> None:
         ((66, 118), (123, 118), (180, 118), (237, 118), (294, 118)),
         (0.15, 0.32, 0.52, 0.75, 1.0),
     )):
-        amount = base + (1.0 - base) * action
+        # THE DIMMEST LOSES MOST. `base` scales how far each object falls, so
+        # the faintest fades toward nothing while the brightest merely dulls
+        # -- which is what raising the ceiling actually does to a field.
+        amount = base * (1.0 - 0.85 * action)
         _object_outline(
             painter, kind, center,
             (44, 34) if kind == "cell" else (32, 24),
             amount, idx * 0.6,
         )
+    # THE CEILING, RISING. Same track as the flow thresholds so the two read
+    # the same way, and filling rather than emptying because here the value
+    # goes UP as the picture goes down.
+    left, right, y = 96, 264, 196
+    painter.line([(left, y), (right, y)], _mix(GRAY, 0.45), 1.0)
+    painter.line([(left, y), (left + (right - left) * (0.15 + 0.85 * action), y)],
+                 _mix(WHITE, 0.75), 2.6)
+    for x in (left, right):
+        painter.line([(x, y - 5), (x, y + 5)], _mix(GRAY, 0.55), 0.9)
 
 
 def _fill_holes(painter: Painter, spec: Spec, action: float) -> None:
@@ -995,23 +1188,64 @@ def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     mode = spec.params["mode"]
     if mode == "watershed":
+        # SHOWED THE WRONG THING. One blob 62 wide cross-faded into two 32
+        # wide sitting 60 px apart -- so at every intermediate frame all three
+        # overlapped each other AND the fading original, and the "after"
+        # state was one wide mush with no split visible at all.
+        #
+        # THREE CHANGES, and each is about the same thing: a split is only a
+        # split if you can see the gap.
+        #
+        # 1. THEY MOVE APART instead of appearing where they will end up. The
+        #    two halves start at the original's centre and separate as the
+        #    action runs, which is what a watershed DOES -- it decides where
+        #    one object becomes two.
+        # 2. THEY END FURTHER APART, 100 px rather than 60, so two 32-wide
+        #    glyphs have clear ground between them at the end.
+        # 3. THE ORIGINAL IS MOSTLY GONE BEFORE THEY ARRIVE, but the two
+        #    ramps OVERLAP. A clean hand-off (out by 0.5, in from 0.5) leaves
+        #    a frame with nothing on it at all -- measured: left=0 centre=0
+        #    right=0 at action 0.5 -- and a blank frame is worse than the
+        #    mush this is replacing, because it reads as a broken animation
+        #    rather than an unclear one. Out over 0..0.6, in over 0.4..1.0.
+        gone = max(0.0, min(1.0, (0.6 - action) / 0.6))
+        arrived = max(0.0, min(1.0, (action - 0.4) / 0.6))
         _object_outline(
-            painter, "organelle", (180, 120), (62, 30), 1.0 - action, 0.4,
+            painter, "organelle", (180, 120), (62, 30), gone, 0.4,
+        )
+        gap = 12 + 38 * action
+        _object_outline(
+            painter, "organelle", (180 - gap, 120), (32, 25), arrived, 0.2,
         )
         _object_outline(
-            painter, "organelle", (150, 120), (32, 25), action, 0.2,
+            painter, "organelle", (180 + gap, 120), (32, 25), arrived, 0.9,
         )
-        _object_outline(
-            painter, "organelle", (210, 120), (32, 25), action, 0.9,
-        )
+        # THE LINE THE SPLIT IS MADE ON. A watershed is a boundary, and
+        # drawing it is the difference between "two things now" and "here is
+        # where one became two".
+        if arrived > 0.05:
+            painter.line([(180, 92), (180, 148)],
+                         _mix(WHITE, 0.25 + 0.45 * arrived), 0.5)
     elif mode == "skeleton":
-        _object_outline(
-            painter, "organelle", (180, 120), (94, 38), 1.0 - action, 0.5,
+        # THE SKELETON HAS TO BE THE MEDIAL AXIS OF THE THING IT REPLACES.
+        # The old frame drew the organelle template and then, separately, a
+        # five-point zigzag that ran nowhere near its branches -- so it read
+        # as the object being erased and an unrelated line drawn, which is
+        # the opposite of what skeletonising does. The network is built from
+        # these branch paths, and the skeleton is drawn along the SAME paths,
+        # so the only thing that changes is the thickness.
+        branches = (
+            ((78, 138), (112, 120), (150, 118), (186, 110)),
+            ((186, 110), (222, 96), (258, 92), (288, 100)),
+            ((186, 110), (214, 132), (248, 146), (284, 148)),
+            ((150, 118), (140, 148), (128, 174), (104, 190)),
         )
-        skeleton = [
-            (88, 124), (126, 108), (164, 116), (205, 101), (272, 119),
-        ]
-        painter.line(skeleton, _mix(MAGENTA, action), 0.55)
+        for path in branches:
+            painter.line(path, _mix(WHITE, 0.32 + 0.50 * (1.0 - action)),
+                         1.0 + 5.6 * (1.0 - action))
+        if action > 0.04:
+            for path in branches:
+                painter.line(path, MAGENTA, 0.30 + 0.32 * action)
     elif mode == "rolling_ball":
         # The background being subtracted has to LOOK like background:
         # three hairlines were 0.6% of the frame and read as three lines.
@@ -1085,12 +1319,24 @@ def _normalization(painter: Painter, action: float) -> None:
 def _crop_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     mode = spec.params["mode"]
+    if mode == "bounding_box":
+        # THE CONTRAST IS MASK-SHAPED VERSUS RECTANGULAR, so draw both shapes.
+        # The box growing and a neighbour arriving was the CONSEQUENCE of the
+        # setting, and it read as png_size, which grows a box for a different
+        # reason. What actually changes is which pixels survive the crop:
+        # off, only what the mask covers; on, everything the box encloses.
+        # Filling the box as it is switched on is that sentence in one image.
+        BOX = (95, 50, 278, 192)
+        if action > 0.03:
+            painter.rectangle(BOX, _mix(WHITE, 0.5 + 0.5 * action), 0.5, 5,
+                              fill=_mix(GRAY, 0.10 + 0.30 * action))
+        else:
+            painter.rectangle(BOX, _mix(WHITE, 0.5), 0.5, 5)
     _object_outline(painter, "cell", (180, 120), (72, 58), 1.0, 0.4)
     _object_outline(painter, "nucleus", (162, 110), (20, 16), 1.0, 0.7)
     _object_outline(painter, "pathogen", (211, 128), (15, 9), 1.0, 0.2)
     if mode == "bounding_box":
         _object_outline(painter, "cell", (265, 135), (43, 35), action, 1.2)
-        painter.rectangle((95, 50, 278, 192), _mix(WHITE, 0.5 + 0.5 * action), 0.5, 5)
     elif mode == "dilate":
         margin = 2 + 18 * action
         painter.line(
@@ -1118,16 +1364,44 @@ def _crop_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _cytoplasm(painter: Painter, action: float) -> None:
+    """The cytoplasm is the cell MINUS its compartments, so draw the minus.
+
+    THIS SHOWED THE WRONG THING, and the audit (62) has the measurement: a
+    grey blob pulsed in brightness and NO nucleus, pathogen or organelle
+    appeared in any frame -- so the subtraction that defines a cytoplasm was
+    never drawn at all. The cause was one argument: `painter.line(...,
+    fill_closed=True)` fills the polygon opaquely, and it was called last, so
+    it painted over all three. Measured: 1988 blue / 1028 teal / 300 magenta
+    pixels before that call, 0 / 0 / 0 after it.
+
+    Fixing the argument alone would have restored three compartments floating
+    on a fill, which is a picture of a cell rather than of this setting. The
+    ORDER is the fix: the cytoplasm region is filled first, then the three
+    compartments are drawn ON TOP -- so they read as punched out of it, which
+    is what the setting does.
+    """
     _well(painter)
     _object_outline(painter, "cell", (180, 120), (92, 69), 1.0, 0.3)
-    _object_outline(painter, "nucleus", (154, 111), (22, 18), 1.0, 0.4)
-    _object_outline(painter, "pathogen", (215, 128), (16, 10), 1.0, 0.8)
-    _object_outline(painter, "organelle", (193, 88), (10, 8), 1.0, 0.2)
+    # The region, FIRST, so it is a ground rather than a lid -- and DIMMER
+    # than it was. At 0.35..0.90 it was a near-white slab that a half-width
+    # outline cannot be seen against; the cytoplasm is a region, not a
+    # highlight, and it only has to be visible enough to be a ground.
     inset = 5 + 3 * action
     painter.line(
         _blob_points(180, 120, 92 - inset, 69 - inset, 0.3, 0.07),
-        _mix(WHITE, 0.35 + 0.55 * action), 0.45, True,
+        _mix(WHITE, 0.18 + 0.30 * action), 0.45, True,
     )
+    # And the compartments OVER it: what is taken out to leave a cytoplasm.
+    # The sixth argument is a shape PHASE, not an opacity -- the originals
+    # are kept, because varying it wobbles the outline and says nothing about
+    # the setting. What makes them read is the width: drawn at 1.1 against
+    # the 0.5 everything else uses, because they are the subject here rather
+    # than context.
+    for kind, centre, size, phase in (
+            ("nucleus", (154, 111), (22, 18), 0.4),
+            ("pathogen", (215, 128), (16, 10), 0.8),
+            ("organelle", (193, 88), (10, 8), 0.2)):
+        _object_outline(painter, kind, centre, size, 1.0, phase, width=1.1)
 
 
 def _radial(painter: Painter, action: float) -> None:
@@ -1208,18 +1482,79 @@ def _tracking_scene(painter: Painter, spec: Spec, action: float) -> None:
                 painter, center, (36, 28),
                 (1.0 - action) if missing else 1.0, idx * 0.6,
             )
-    elif mode in ("link", "stitch"):
-        first = (145, 120)
-        second = (190 + 38 * action, 120)
-        draw_cell = _draw_motile_cell if mode == "link" else _object_outline
-        if mode == "link":
-            draw_cell(painter, first, (42, 32), 0.6, 0.2)
-            draw_cell(painter, second, (42, 32), 1.0, 0.8)
-        else:
-            draw_cell(painter, "cell", first, (42, 32), 0.6, 0.2)
-            draw_cell(painter, "cell", second, (42, 32), 1.0, 0.8)
+    elif mode == "link":
+        # TWO TIMEPOINTS, DRAWN AS TWO TIMEPOINTS. The subject was right --
+        # a detection in one frame and a detection in the next, linked while
+        # they overlap enough -- but both were drawn on the same bare
+        # background, so nothing said "these are different frames" and the
+        # whole reading rested on one faint dashed line. Each detection now
+        # sits in its own panel, the earlier one drawn dimmer, and the link
+        # between them is a solid line that thins and breaks as the required
+        # overlap rises.
+        for left in (74, 196):
+            painter.rectangle((left, 62, left + 90, 178), _mix(WHITE, 0.30),
+                              0.4, 6)
+        first = (119, 120)
+        second = (241, 120)
+        _draw_motile_cell(painter, first, (42, 32), 0.55, 0.2)
+        _draw_motile_cell(painter, second, (42, 32), 1.0, 0.8)
+        # A BAND, NOT A HAIRLINE. The link either holds or it does not, and a
+        # half-pixel dashed line changing brightness is not a difference
+        # anyone reads in a 48 px tooltip. The link is a solid band whose
+        # thickness IS the overlap, so it visibly narrows and snaps.
         overlap = max(0.0, 1.0 - action * 1.15)
-        painter.dashed((first, second), _mix(WHITE, 0.25 + 0.65 * overlap), 0.45)
+        left_edge, right_edge = first[0] + 22, second[0] - 22
+        if overlap > 0.02:
+            half = 4.0 + 20.0 * overlap
+            painter.polygon(
+                ((left_edge, 120 - half), (right_edge, 120 - half),
+                 (right_edge, 120 + half), (left_edge, 120 + half)),
+                _mix(WHITE, 0.30 + 0.45 * overlap),
+            )
+        else:
+            # The link is GONE, and an absence needs to be drawn: two stubs
+            # reaching for each other with a gap between them read as broken,
+            # where an empty middle just reads as an empty middle.
+            for stub in ((left_edge, left_edge + 24),
+                         (right_edge - 24, right_edge)):
+                painter.line(((stub[0], 120), (stub[1], 120)),
+                             _mix(WHITE, 0.45), 0.6)
+    elif mode == "stitch":
+        # Z-PLANES, NOT NEIGHBOURS. Stitching joins masks BETWEEN adjacent
+        # z-slices, and drawing two objects side by side on one plane made
+        # this indistinguishable from the watershed-split animation. The two
+        # slices are now drawn as a stack seen at an angle -- an upper plane
+        # and a lower one -- so the join being tested is plainly vertical.
+        planes = ((96, 84, 262, 84), (72, 156, 238, 156))
+        for left, top, right, _bottom in planes:
+            painter.line(((left, top), (right, top)), _mix(WHITE, 0.52), 0.5)
+        painter.line(((planes[0][0], planes[0][1]),
+                      (planes[1][0], planes[1][1])), _mix(WHITE, 0.40), 0.45)
+        painter.line(((planes[0][2], planes[0][1]),
+                      (planes[1][2], planes[1][1])), _mix(WHITE, 0.40), 0.45)
+        upper = (179, 84)
+        lower = (155, 156)
+        _object_outline(painter, "cell", upper, (42, 32), 0.75, 0.2)
+        _object_outline(painter, "cell", lower, (42, 32), 1.0, 0.8)
+        # Same band, drawn vertically: when the two slices are stitched they
+        # are ONE label, and one label is one solid body, not two shapes with
+        # a thread between them.
+        stitched = max(0.0, 1.0 - action * 1.15)
+        if stitched > 0.02:
+            half = 5.0 + 24.0 * stitched
+            painter.polygon(
+                ((upper[0] - half, upper[1] + 14),
+                 (upper[0] + half, upper[1] + 14),
+                 (lower[0] + half, lower[1] - 14),
+                 (lower[0] - half, lower[1] - 14)),
+                _mix(WHITE, 0.30 + 0.45 * stitched),
+            )
+        else:
+            for stub in (((upper[0], upper[1] + 14),
+                          (upper[0] - 5, upper[1] + 36)),
+                         ((lower[0] + 5, lower[1] - 36),
+                          (lower[0], lower[1] - 14))):
+                painter.line(stub, _mix(WHITE, 0.45), 0.6)
     elif mode == "projection":
         for idx, offset in enumerate((-24, -12, 0, 12, 24)):
             _object_outline(
@@ -1327,7 +1662,14 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
                 for other in points if other != point)
             count = 1 + int(round(action * 3))
             for _distance, other in distances[:count]:
-                painter.line((point, other), _mix(WHITE, 0.12 + 0.08 * count), 0.35)
+                # LEGIBLE AT TOOLTIP SIZE. At 0.35 width and 0.12..0.36
+                # opacity these edges only became visible above about 300 px,
+                # and the tooltip is where they are actually looked at -- so
+                # the animation of a NEIGHBOUR GRAPH showed no graph in the
+                # place it is shown. The dots still lead: the edges are the
+                # thing that CHANGES, and they now change visibly.
+                painter.line((point, other),
+                             _mix(WHITE, 0.34 + 0.16 * count), 0.85)
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
                 painter.dot(point, DOT_RADIUS, color)
@@ -1353,10 +1695,18 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "canvas":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster[::2]:
+                # A CANVAS THAT IS BARELY THERE CANNOT BE SEEN TO GO. This
+                # drew a thin 0.45-wide outline at 0.65 opacity, so the thing
+                # being removed was almost invisible before the removal and
+                # the animation showed a change nobody could miss the absence
+                # of. It is FILLED now -- a canvas is a filled rectangle
+                # behind a thumbnail, which is what makes it worth removing --
+                # and drawn BEFORE the cell so the cell sits on it.
                 painter.rectangle(
-                    (point[0] - 7, point[1] - 7,
-                     point[0] + 7, point[1] + 7),
-                    _mix(GRAY, 0.65 * (1.0 - action)), 0.45, 1,
+                    (point[0] - 8, point[1] - 8,
+                     point[0] + 8, point[1] + 8),
+                    _mix(GRAY, 0.85 * (1.0 - action)), 0.9, 1,
+                    fill=_mix(GRAY, 0.42 * (1.0 - action)),
                 )
                 _mini_cell(painter, point, 4.5, color)
     elif mode == "outlines":
@@ -1404,23 +1754,32 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
                 painter.dot(point, DOT_RADIUS, _mix(color, 0.5))
-        scattered = (
-            (CLUSTERS[0][0], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][4], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][9], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][13], CLUSTER_COLORS[0]),
-            (CLUSTERS[1][6], CLUSTER_COLORS[1]),
-            (CLUSTERS[1][11], CLUSTER_COLORS[1]),
+        # OFF IS A PILE, ON IS A SPREAD. Sampling at random across the whole
+        # map over-represents the densest cluster, so the off state puts every
+        # thumbnail in one cluster; the on state puts the same number in each.
+        # Splitting the off state across two clusters made the two halves of
+        # the animation look like the same picture rearranged.
+        scattered = tuple(
+            (CLUSTERS[0][index], CLUSTER_COLORS[0])
+            for index in (0, 4, 7, 9, 11, 13)
         )
+        # FOUR PER CLUSTER, NOT TWO. The contrast was right -- one cluster
+        # unrepresented with the setting off, every cluster represented with
+        # it on -- and two thumbnails per cluster was too little difference to
+        # see at tooltip size, which is the size it is seen at. Six scattered
+        # against six per-cluster made the two states nearly the same amount
+        # of ink; twelve per-cluster makes "every cluster is sampled" the
+        # obvious reading.
         per_cluster = tuple(
             (cluster[index], color)
             for cluster, color in zip(CLUSTERS, CLUSTER_COLORS)
-            for index in (2, 10)
+            for index in (2, 6, 10, 13)
         )
+        # 9.5 was smaller than the dots it was meant to stand out from.
         for point, color in scattered:
-            _mini_cell(painter, point, 9.5, color, 1.0 - action)
+            _mini_cell(painter, point, 14.0, color, 1.0 - action)
         for point, color in per_cluster:
-            _mini_cell(painter, point, 9.5, color, action)
+            _mini_cell(painter, point, 14.0, color, action)
     elif mode == "dot_size":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
@@ -1516,23 +1875,29 @@ def render_frame(spec: Spec, index: int) -> Image.Image:
 def _specs() -> List[Spec]:
     specs: List[Spec] = []
     category = "Mask filtering"
+    # The remove_border_* spellings are NOT missing by accident: commit
+    # 60f7798e retired them from spacr.settings on 2026-08-11 and edited the
+    # shipped manifest by hand without touching this file, so a full run here
+    # used to put them back. Every retired key is named in
+    # tests/test_dead_settings.py::test_the_retired_keys_are_gone_from_every_declaration_site,
+    # which is where the record of what they used to alias now lives.
     aliases = {
         "cell": {
-            "border": ("cell_remove_border_objects", "remove_border_cells"),
+            "border": ("cell_remove_border_objects",),
             "minimum": ("cell_min_area", "cell_min_size"),
             "maximum": ("cell_max_area",),
             "dim": ("cell_min_intensity_percentile",),
             "bright": ("cell_max_intensity_percentile",),
         },
         "nucleus": {
-            "border": ("nucleus_remove_border_objects", "remove_border_nuclei"),
+            "border": ("nucleus_remove_border_objects",),
             "minimum": ("nucleus_min_area", "nucleus_min_size"),
             "maximum": ("nucleus_max_area",),
             "dim": ("nucleus_min_intensity_percentile",),
             "bright": ("nucleus_max_intensity_percentile",),
         },
         "pathogen": {
-            "border": ("pathogen_remove_border_objects", "remove_border_pathogens"),
+            "border": ("pathogen_remove_border_objects",),
             "minimum": ("pathogen_min_area", "pathogen_min_size"),
             "maximum": ("pathogen_max_area",),
             "dim": ("pathogen_min_intensity_percentile",),
@@ -1541,10 +1906,23 @@ def _specs() -> List[Spec]:
         "organelle": {
             "border": (
                 "organelle_remove_border_objects", "organelle_remove_border",
-                "remove_border_organelles",
             ),
-            "minimum": ("organelle_min_area", "organelle_min_size"),
-            "maximum": ("organelle_max_area", "organelle_max_size"),
+            # ORGANELLE HAS NO LIVE `_size` ALIAS, and this is the one kind
+            # that does not. cell, nucleus and pathogen still declare
+            # `*_min_size` as a real setting, so their pair is a pair.
+            # `organelle_min_size` and `organelle_max_size` are the only two
+            # names in `validate.RETIRED_SETTINGS` here, retired because
+            # organelle carried a `_size` pair and an `_area` pair meaning the
+            # same thing that were read by DIFFERENT code -- the batch mask
+            # writer took `_size`, the shared filter behind the live preview
+            # took `_area` -- so tuning the preview and pressing run applied a
+            # different filter with nothing saying so. Naming the retired key
+            # here would map help to a key no run can carry. This used to say
+            # the canonical name TWICE, which is not "no alias" but a
+            # duplicate: it put `organelle_min_area` in the entry's settings
+            # list two times over.
+            "minimum": ("organelle_min_area",),
+            "maximum": ("organelle_max_area",),
             "dim": ("organelle_min_intensity_percentile",),
             "bright": ("organelle_max_intensity_percentile",),
         },
@@ -1592,20 +1970,20 @@ def _specs() -> List[Spec]:
             f"{kind}_intensity_split", f"{kind.capitalize()} watershed split",
             "Mask repair", "split",
             (f"{kind}_intensity_split", f"{kind}_area_multiplier",
-             f"{kind}_min_distance", f"{kind}_min_object_area"),
+             f"{kind}_min_distance", f"{kind}_min_split_area"),
             {"kind": kind},
         ))
 
     for kind in ("cell", "nucleus", "pathogen"):
         specs.extend([
             Spec(
-                f"{kind}_CP_prob", f"{kind.capitalize()} probability threshold",
+                f"{kind}_cellprob_threshold", f"{kind.capitalize()} probability threshold",
                 "Segmentation", "probability",
-                (f"{kind}_CP_prob",), {"kind": kind},
+                (f"{kind}_cellprob_threshold",), {"kind": kind},
             ),
             Spec(
-                f"{kind}_FT", f"{kind.capitalize()} flow threshold",
-                "Segmentation", "flow", (f"{kind}_FT",), {"kind": kind},
+                f"{kind}_flow_threshold", f"{kind.capitalize()} flow threshold",
+                "Segmentation", "flow", (f"{kind}_flow_threshold",), {"kind": kind},
             ),
             Spec(
                 f"{kind}_diameter", f"{kind.capitalize()} diameter",
@@ -1620,9 +1998,9 @@ def _specs() -> List[Spec]:
                 {"kind": kind},
             ),
             Spec(
-                f"{kind}_Signal_to_noise", f"{kind.capitalize()} signal-to-noise",
+                f"{kind}_signal_to_noise", f"{kind.capitalize()} signal-to-noise",
                 "Image preprocessing", "signal",
-                (f"{kind}_Signal_to_noise",), {"kind": kind},
+                (f"{kind}_signal_to_noise",), {"kind": kind},
             ),
         ])
     specs.extend([
@@ -1631,13 +2009,13 @@ def _specs() -> List[Spec]:
             "diameter", ("organelle_diameter",), {"kind": "organelle"},
         ),
         Spec(
-            "organelle_CP_prob", "Organelle probability threshold",
-            "Segmentation", "probability", ("organelle_CP_prob",),
+            "organelle_cellprob_threshold", "Organelle probability threshold",
+            "Segmentation", "probability", ("organelle_cellprob_threshold",),
             {"kind": "organelle"},
         ),
         Spec(
-            "organelle_FT", "Organelle flow threshold", "Segmentation",
-            "flow", ("organelle_FT",), {"kind": "organelle"},
+            "organelle_flow_threshold", "Organelle flow threshold", "Segmentation",
+            "flow", ("organelle_flow_threshold",), {"kind": "organelle"},
         ),
         Spec(
             "fill_in", "Fill holes in masks", "Mask repair", "fill_holes",
@@ -1734,8 +2112,10 @@ def _specs() -> List[Spec]:
          ("t_link_threshold",)),
         ("stitch_threshold", "Z-plane stitch threshold", "stitch",
          ("stitch_threshold",)),
+        # pick_slice was retired with the rest on 2026-08-11; see the note in
+        # the mask-filtering aliases above.
         ("z_projection", "Z projection", "projection",
-         ("z_projection", "pick_slice")),
+         ("z_projection",)),
         ("t_project_for_tracking", "Project volumes for tracking", "project_tracking",
          ("t_project_for_tracking",)),
         ("straightness_filter", "Remove overly straight tracks", "straightness",
@@ -1788,6 +2168,23 @@ def _specs() -> List[Spec]:
 
 
 def _write_gif(spec: Spec) -> Path:
+    """Encode one scene, keeping the canvas between frames.
+
+    ``disposal=1`` -- leave the previous frame in place -- rather than
+    ``disposal=2``, which clears to the background colour first. With
+    ``optimize=True`` Pillow shrinks each later frame to the sub-rectangle
+    that changed, so under disposal 2 everything OUTSIDE that rectangle
+    reverts to background: a bright 9-pixel ring appears on every frame after
+    the first and flashes once per loop. It is invisible in a still and
+    invisible in the file size, and it shipped in 26 of the 94 animations --
+    exactly the ones regenerated after 2026-08-09, whose changes sit away
+    from the edges. The other 68 were encoded with full-canvas frames that
+    happened to cover it.
+
+    These scenes are opaque and never need the canvas cleared, so disposal 1
+    is not only correct here, it is smaller: cell_min_area falls from 119 KB
+    to 36 KB because the encoder no longer has to re-send hidden background.
+    """
     frames = [render_frame(spec, index) for index in range(FRAMES)]
     path = ASSETS / f"{spec.slug}.gif"
     frames[0].save(
@@ -1796,7 +2193,7 @@ def _write_gif(spec: Spec) -> Path:
         append_images=frames[1:],
         duration=85,
         loop=0,
-        disposal=2,
+        disposal=1,
         optimize=True,
     )
     return path
@@ -1956,7 +2353,7 @@ main{{padding:4px 28px 40px}} section{{padding-top:22px}} h2{{font-size:18px}} h
 .hidden{{display:none}} .legend{{color:#e28bc7}}
 </style></head><body>
 <header><h1>spaCR setting animation review</h1>
-<p>{len(specs)} shipped GIFs · exact setting-key lookup · <span class="legend">purple dots open these animations inside spaCR</span></p>
+<p>{len(specs)} shipped GIFs · exact setting-key lookup · <span class="legend">the teal Animation word in a tooltip footer opens these inside spaCR</span></p>
 <input id="search" placeholder="Filter by title or exact setting key" autofocus></header>
 <main>{''.join(sections)}</main>
 <script>const q=document.querySelector('#search');q.addEventListener('input',()=>{{const s=q.value.toLowerCase().trim();document.querySelectorAll('.card').forEach(c=>c.classList.toggle('hidden',s&&!c.dataset.search.includes(s)));}});</script>
@@ -1985,7 +2382,15 @@ def _write_manifest(
 
 
 def _write_docs_gallery(specs: Sequence[Spec]) -> None:
-    """Generate the Sphinx gallery and stable anchors used by API links."""
+    """Generate the Sphinx gallery and stable anchors used by API links.
+
+    This function is the ONLY writer of ``docs/source/setting_animations.rst``.
+    Hand-editing that page is work that disappears the next time somebody runs
+    this tool, so the prose below is the source of the prose there -- edit it
+    here and re-run with ``--docs-only``. The committed page is asserted to be
+    character-for-character what this writes, by
+    ``tests/test_setting_animations_page_is_generated.py``.
+    """
     groups: Dict[str, List[Spec]] = {}
     for spec in specs:
         groups.setdefault(spec.category, []).append(spec)
@@ -1994,11 +2399,18 @@ def _write_docs_gallery(specs: Sequence[Spec]) -> None:
         "Setting animation gallery",
         "=========================",
         "",
+        # The reveal mechanism, described as spacr/qt/widgets/hover_tooltip.py
+        # actually behaves: a teal word in the tooltip footer, per setting, and
+        # nothing decoded until it is pressed. The purple dot this used to
+        # describe was spacr/qt/widgets/animation_link.py, which is deleted.
         "spaCR includes short, deterministic GIFs for settings whose effect is",
-        "easier to understand visually. In the desktop interface a purple dot",
-        "above the teal API dot opens the corresponding animation immediately",
-        "above the setting. The midpoint between both dots remains aligned with",
-        "the setting label.",
+        "easier to understand visually. In the desktop interface, hovering a",
+        "setting shows its explanation; pressing the teal **Animation** word in",
+        "that tooltip's footer reveals the corresponding animation to the right",
+        "of the text. It is revealed for that setting only — the next setting is",
+        "text again until its own **Animation** is pressed, and nothing is",
+        "decoded until it is. Set *Setting animations* in Preferences to show",
+        "them without asking.",
         "",
         "The diagrams use a shared biological grammar: white fibroblast or",
         "motile immune-cell outlines, blue nuclei with unequal nucleoli, teal",
@@ -2087,7 +2499,25 @@ def _regenerate_subset(specs: Sequence[Spec], slugs: Sequence[str]) -> int:
         )
     _write_manifest([entries[spec.slug] for spec in specs], template_hashes)
     print(f"Regenerated {len(wanted)} of {len(specs)} GIFs: {', '.join(wanted)}")
-    print("Contact sheets, storyboards and the docs gallery need a full run.")
+    print("Contact sheets and storyboards need a full run; the docs gallery "
+          "is --docs-only.")
+    return 0
+
+
+def _regenerate_docs_only(specs: Sequence[Spec]) -> int:
+    """Rewrite the Sphinx gallery page and nothing else.
+
+    The page is generated, but until this existed the ONLY code path that
+    wrote it was a full run -- which re-encodes all 94 GIFs byte-different
+    under a different Pillow build and rewrites every hash in the manifest.
+    So the page could not be refreshed without an unsafe change, and it went
+    stale for nine days instead. This writes ``DOCS_PAGE`` and touches no
+    GIF, no manifest, no contact sheet and no storyboard, which is what makes
+    "fix the generator and regenerate in the same commit" a thing anyone can
+    actually do.
+    """
+    _write_docs_gallery(specs)
+    print(f"Wrote {DOCS_PAGE} from {len(specs)} specs; no GIF or manifest touched.")
     return 0
 
 
@@ -2105,7 +2535,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             "untouched. Repeatable."
         ),
     )
+    parser.add_argument(
+        "--docs-only",
+        action="store_true",
+        help=(
+            "Rewrite docs/source/setting_animations.rst from the specs and "
+            "touch nothing else -- no GIF, no manifest. Use this after "
+            "editing the gallery prose or a spec's setting keys."
+        ),
+    )
     arguments = parser.parse_args(argv)
+    if arguments.docs_only:
+        if arguments.only:
+            parser.error("--docs-only writes no GIFs, so --only means nothing with it")
+        return _regenerate_docs_only(_specs())
     if arguments.only:
         return _regenerate_subset(_specs(), arguments.only)
     template_hashes = _validate_templates()

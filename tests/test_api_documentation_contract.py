@@ -40,11 +40,39 @@ def test_every_public_api_function_and_class_has_a_docstring():
     )
 
 
-def test_sphinx_autoapi_covers_the_package_and_undocumented_members():
+def test_sphinx_autoapi_has_a_curated_public_landing_page():
     conf = (PACKAGE_ROOT.parent / "docs" / "source" / "conf.py").read_text(
         encoding="utf-8"
     )
     assert "'autoapi.extension'" in conf
     assert "autoapi_dirs" in conf
     assert "'members'" in conf
-    assert "'undoc-members'" in conf
+    assert "'undoc-members'" not in conf
+    assert "autoapi_template_dir" in conf
+    template = (
+        PACKAGE_ROOT.parent / "docs" / "source" / "_autoapi_templates" /
+        "index.rst"
+    ).read_text(encoding="utf-8")
+    assert "Start with the workflow you want to run" in template
+    assert "Complete module reference" in template
+
+
+def test_generated_module_pages_are_intentional_orphans():
+    """Sphinx 8 must not warn about pages outside the curated navigation.
+
+    Sphinx 8.1 emits its not-in-any-toctree warning without a warning type,
+    so ``suppress_warnings = ['toc.not_included']`` cannot match it.  AutoAPI
+    still generates the complete contributor directory; marking each own
+    module page as an intentional orphan keeps those pages linkable without
+    adding every implementation module to the visible navigation.
+    """
+    template = (
+        PACKAGE_ROOT.parent / "docs" / "source" / "_autoapi_templates" /
+        "python" / "module.rst"
+    ).read_text(encoding="utf-8")
+
+    own_page_prefix = template.split("{{ obj.id }}", 1)[0]
+    assert "{% if is_own_page %}" in own_page_prefix
+    assert ":orphan:" in own_page_prefix
+    assert template.index(":orphan:") < template.index("{{ obj.id }}")
+    assert ".. dropdown:: Complete contributor module directory" in template

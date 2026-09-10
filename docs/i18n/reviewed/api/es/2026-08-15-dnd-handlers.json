@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler#0",
+      "source_sha256": "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132",
+      "source": "Fill Explain CV's database or prediction input from one drop.",
+      "context": "Fill Explain CV's database or prediction input from one drop.",
+      "translation": "Rellene la entrada de base de datos o de predicción de Explain CV con una sola acción de soltar."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler#0",
+      "source_sha256": "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48",
+      "source": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "context": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "translation": "Rellene las entradas de procedencia de Investigate Hit sin adivinar un acierto."
+    }
+  ]
+}

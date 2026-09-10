@@ -1,10 +1,4 @@
-"""Measure this machine, then choose the worker count from the measurement.
-
-Instruction 86:
-
-    "Add a small benchmark command that records throughput and peak RAM/VRAM
-     for representative fields, making worker-count defaults specific to the
-     current machine."
+"""Measure throughput and memory use to recommend a worker count.
 
 WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core
 count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one
@@ -47,6 +41,8 @@ class Measurement:
         "not measured", the other "measured, and it used none".
     :param baseline_rss_bytes: RSS before the work started, so the caller can
         tell the interpreter's own footprint from the work's.
+    :param notes: caveats about warm-up or unavailable measurements that must
+        accompany the numeric result.
     """
 
     items: int
@@ -58,10 +54,12 @@ class Measurement:
 
     @property
     def per_item_seconds(self) -> float:
+        """Return mean wall time per measured item, or NaN when none ran."""
         return self.seconds / self.items if self.items else float("nan")
 
     @property
     def items_per_second(self) -> float:
+        """Return measured throughput, or NaN for a nonpositive duration."""
         return self.items / self.seconds if self.seconds > 0 else float("nan")
 
     @property
@@ -72,7 +70,24 @@ class Measurement:
 
 @dataclass(frozen=True)
 class Recommendation:
-    """A worker count, and every number that produced it."""
+    """A worker count and the retained evidence supporting it.
+
+    :param workers: final recommended parallel-worker count; always at least
+        one and bounded by the normalized core count, measured memory capacity
+        when usable, and configured maximum.
+    :param reason: human-readable explanation of the branch that set
+        ``workers``: missing measurement, one-worker fallback, memory bound,
+        core bound, or configured maximum.
+    :param measurement: exact :class:`Measurement` supplied to
+        :func:`recommend_workers`; ``None`` means no benchmark was available,
+        while a zero-work-footprint measurement is retained but triggers the
+        core-count fallback.
+    :param cores: effective logical-core ceiling after defaulting from
+        :func:`os.cpu_count` and clamping to at least one.
+    :param available_bytes: available-memory snapshot before the configured
+        reserve is subtracted; supplied by the caller or measured by spaCR,
+        and zero when unavailable.
+    """
 
     workers: int
     reason: str
@@ -81,6 +96,7 @@ class Recommendation:
     available_bytes: int = 0
 
     def __str__(self) -> str:
+        """Return the worker count followed by its sizing explanation."""
         return f"{self.workers} worker(s): {self.reason}"
 
 
@@ -88,7 +104,7 @@ def _rss_bytes() -> int:
     """Resident set size now, in bytes, or 0 where it cannot be read."""
     try:
         import resource
-    except ImportError:                      # pragma: no cover - Windows
+    except ImportError:                      # Windows
         return 0
     usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     # ru_maxrss is KILOBYTES on Linux and BYTES on macOS. Getting this
@@ -113,6 +129,7 @@ def _vram_bytes() -> Optional[int]:
 
 
 def _reset_vram() -> None:
+    """Reset PyTorch's peak CUDA counter when that facility is available."""
     try:
         import torch
 
@@ -147,6 +164,10 @@ def benchmark(work: Callable[[Any], Any], items: Sequence[Any], *,
     them in parallel measures the sum while hiding the per-worker figure that
     the recommendation divides by.
 
+    :param work: callable invoked once for every warm-up and measured item;
+        its return value is ignored because only resource use is measured.
+    :param items: ordered workload to process. At least one item is
+        required, and the final item is always kept in the measured set.
     :param warmup: items processed before the clock starts. The first field
         pays for imports, CUDA context creation and page faults that no later
         field pays again, and counting it makes a short run look far slower
@@ -252,7 +273,11 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
 
 def format_report(measurement: Measurement,
                   recommendation: Recommendation) -> str:
-    """The benchmark as a few lines a user can read and paste into an issue."""
+    """The benchmark as a few lines a user can read and paste into an issue.
+
+    :param measurement: observed serial benchmark costs and throughput.
+    :param recommendation: worker recommendation derived from those costs.
+    """
     lines = [
         "spaCR benchmark",
         f"  items measured      {measurement.items}",

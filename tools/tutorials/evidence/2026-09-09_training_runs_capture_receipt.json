@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "date": "2026-09-09",
+  "lesson": "28_training_runs",
+  "scope": "Bounded current-GUI controls demonstration using explicitly synthetic existing logs; not model training, checkpoint evaluation or scientific validation.",
+  "capture": {
+    "directory": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/training_runs_readable",
+    "commit": "4ad8072d95873f840d9088f48d49e0eeda0e9be2",
+    "version": "1.5.0.4",
+    "exit_code": 0,
+    "exit_code_evidence": "Parent capture runner reported successful completion; provenance.completed_capture and final acceptance independently inspected.",
+    "completed_capture": true,
+    "accepted": true,
+    "acceptance_scope": "Software workflow on disclosed synthetic fixtures only",
+    "evidence_sha256": {
+      "provenance.json": "6e81b1593d8eb53c6e5d28f0b8394b6ae4a7efca36c2136bed112f2e5f0a40e7",
+      "frames.json": "5a75de7627dfef706a0184a9e00cf935a55b6627bb79764fde7ec9e416613922",
+      "scientific_acceptance.json": "fc7595fedeae6723f4b3dd92ba83246743b559bd6d4e00c9e5d386ef9cc2019c"
+    },
+    "frame_count": 15,
+    "all_frame_hashes_recomputed_and_matching": true,
+    "frame_dimensions": [
+      3840,
+      2160
+    ],
+    "app_source_modified": false,
+    "active_jobs_at_acceptance": 0,
+    "successful_comparison_jobs": 2,
+    "job_results": [
+      true,
+      true
+    ]
+  },
+  "source_code_sha256": {
+    "tools/tutorials/capture_training_runs.py": "d73d4fb41cdd72f8ac5bfaaabec5d26ad4d7338eea74422c97ad164af82a31b8",
+    "tools/tutorials/tests/test_training_runs_evidence.py": "0eee9dc70d05e7539b21bc05356cb1209cd54ff587b3c21d811a3a2737641e8e",
+    "spacr/train_compare.py": "399525b64ba386de7970760e787b5a700cc76fc4d2ae6d8424427306fb37b2ab",
+    "spacr/qt/screens/train_compare.py": "e1d4976a2391ff706d6099b771d36f486d558f3b6646ea194386641979a9f020",
+    "spacr/qt/screens/classify.py": "915d75d02fcad9c6783a51377ca2b350c71bf5771b3f1ff9ed2d816582160b25"
+  },
+  "inputs": {
+    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/training_runs",
+    "provenance_audit": "tools/tutorials/evidence/2026-09-09_training_runs_input_audit.json",
+    "manifest_disclosure": "Synthetic progress logs; no model was trained.",
+    "synthetic": true,
+    "generated_or_copied_for_this_capture": false,
+    "source_preserved": true,
+    "preservation_check": "Recorder compared every input SHA256 and dev/inode/size/mtime/ctime/mode before and after the complete workflow; access time excluded.",
+    "fingerprinted_files": 15,
+    "sha256": {
+      "manifest.json": "0fb6b5be3dfda9469020dce803eaec904872c7d47e8b27681e7b02cecb952515",
+      "baseline/settings/train_test_maxvit_t_20.csv": "e885541f9e51a7a8a277b4255b4d22519a5423ab7db28d8dcaab9c86d1bcd48f",
+      "baseline/model/maxvit_t/0_1/epochs_20/train.csv": "86bd53471a1d0f6002f179b35a804b42b3ec7661c37496004eb39089866eee54",
+      "baseline/model/maxvit_t/0_1/epochs_20/validation.csv": "815e92b6032f3074140717b41ccadca9ecc42ff760d93b2c82be4da6bc92e177",
+      "tuned/settings/train_test_maxvit_t_25.csv": "58b7c2277d658a20b8e1c715e6f057b23be62a3e145832cdb82edfc4893138cc",
+      "tuned/model/maxvit_t/0_1/epochs_25/train.csv": "07c47b9174fca1722ff3bbf97d34c717133df1228b3951fe6627be5c7ac24d21",
+      "tuned/model/maxvit_t/0_1/epochs_25/validation.csv": "fe0d071c4171ae3124f237a01d3ba047228dac5d826c8e4c0dcf3159a969b8d8",
+      "cross_validated/settings/train_test_resnet50_18.csv": "87c32a84f9563a2add4c181301af6812413c91dff30531174500ed0fa2959aed",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_1/train.csv": "d2baa266f8339f6369df0ed7056220c2427004c3ad932dbbb94768a02e408406",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_1/validation.csv": "93e65b0e7c07dcfc4e3fb21e44f9f098aa7e0a6d100097332ec8a95286e9a211",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_2/train.csv": "1f298d925ece4ff4d77742c2643e7ea0607b7a2c401e6d4f6e4b7ce6ee7e932e",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_2/validation.csv": "2246a16aa4756cc7455a0bf4b45bc4bac3fe47ba61e1d27fafbac8e0fd7de48d",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_3/train.csv": "b4382875a7c2c076e4ead091097aec3b22c328ce324d40c7cfac0a8794dfa05f",
+      "cross_validated/model/resnet50/0_1/epochs_18/fold_3/validation.csv": "b14973c157bf870442d3e45ff294c223f1cf06acfc8f1a64ac0f74245ca80dab",
+      "incomplete/model/maxvit_t/0_1/epochs_8/maxvit_t_epoch_8_channels_0_1.pth": "3344e4754144763ccbaa373956254e4d3348fe04dfa4b7859306b788803faac0"
+    },
+    "discovered_runs": [
+      {
+        "name": "baseline",
+        "run_id": "maxvit_t/0_1/epochs_20",
+        "csv_rows": 40,
+        "epochs_per_split": 20,
+        "folds": 0
+      },
+      {
+        "name": "tuned",
+        "run_id": "maxvit_t/0_1/epochs_25",
+        "csv_rows": 50,
+        "epochs_per_split": 25,
+        "folds": 0
+      },
+      {
+        "name": "cross_validated",
+        "run_id": "resnet50/0_1/epochs_18",
+        "csv_rows": 108,
+        "epochs_per_split_per_fold": 18,
+        "folds": 3
+      },
+      {
+        "name": "incomplete",
+        "run_id": "maxvit_t/0_1/epochs_8",
+        "csv_rows": 0,
+        "warning_count": 4,
+        "placeholder_bytes": 41,
+        "checkpoint_loaded": false
+      }
+    ]
+  },
+  "actual_controls": {
+    "entry": "Classify -> actual nested Training Runs FoldButton",
+    "actions": [
+      "Choose folder… and native Choose directory dialog",
+      "Scan",
+      "Tick native run rows",
+      "Metric popup selection by Home/Down/Enter with final requested/actual text check",
+      "Overlay selected",
+      "Automatic settings table",
+      "Real canvas mouse pick on baseline validation series",
+      "Folds: per fold, mean ± sd, both"
+    ],
+    "metric_items": [
+      "accuracy",
+      "loss",
+      "prauc",
+      "neg_accuracy",
+      "pos_accuracy",
+      "optimal_threshold"
+    ],
+    "run_identity_readability": {
+      "splitter_sizes_before": [
+        300,
+        3033
+      ],
+      "splitter_sizes_after": [
+        920,
+        2413
+      ],
+      "run_list_viewport_width": 918,
+      "plot_width": 2413,
+      "all_four_full_identifiers_visually_checked": true,
+      "native_elision_and_viewport_guard_passed": true,
+      "minima_or_policies_changed": false,
+      "limitation": "Long settings summaries can remain elided after the complete identifier; no claim that every entire summary fits."
+    },
+    "visible_status": "Actual inline incomplete-run warning block, plot status, automatic settings table and picked-series detail line; no invented console panel.",
+    "series_pick": {
+      "performed_and_verified": true,
+      "run_id": "maxvit_t/0_1/epochs_20",
+      "split": "val",
+      "last_epoch": 20,
+      "last_accuracy_csv": 0.7495660088059621,
+      "last_accuracy_display": "0.7496",
+      "best_epoch": 15,
+      "best_accuracy_csv": 0.7860106927777422,
+      "best_accuracy_display": "0.7860",
+      "warning": "chosen on this same curve, so optimistic",
+      "checkpoint_evaluation": false
+    }
+  },
+  "numeric_acceptance": {
+    "method": "Independent CSV rows/column sets/finite values and identities compared with actual returned GUI result; actual plotted XY series and sample-SD band vertices checked against independently calculated source rows. No curves or worker results injected.",
+    "baseline_vs_tuned": {
+      "accuracy_series": 4,
+      "loss_series": 4,
+      "epoch_ranges": [
+        [
+          1,
+          20
+        ],
+        [
+          1,
+          25
+        ]
+      ],
+      "shared_settings": 11,
+      "changed_settings": [
+        [
+          "batch_size",
+          "64",
+          "32"
+        ],
+        [
+          "epochs",
+          "20",
+          "25"
+        ],
+        [
+          "learning_rate",
+          "0.0001",
+          "0.0003"
+        ],
+        [
+          "src",
+          "/synthetic/tutorial/baseline",
+          "/synthetic/tutorial/tuned"
+        ]
+      ],
+      "environment_settings": [
+        [
+          "n_jobs",
+          "30",
+          "8"
+        ]
+      ],
+      "schema_differences": 0
+    },
+    "tuned_vs_cross_validated": {
+      "metric": "accuracy",
+      "mean_series": 4,
+      "both_series": 10,
+      "per_fold_series": 8,
+      "epoch_ranges": [
+        [
+          1,
+          25
+        ],
+        [
+          1,
+          18
+        ]
+      ],
+      "fold_count": 3,
+      "shared_settings": 11,
+      "changed_settings": [
+        [
+          "cross_validation_folds",
+          "0",
+          "3"
+        ],
+        [
+          "epochs",
+          "25",
+          "18"
+        ],
+        [
+          "learning_rate",
+          "0.0003",
+          "0.0002"
+        ],
+        [
+          "model_type",
+          "maxvit_t",
+          "resnet50"
+        ],
+        [
+          "src",
+          "/synthetic/tutorial/tuned",
+          "/synthetic/tutorial/cross_validated"
+        ]
+      ],
+      "environment_settings": [
+        [
+          "n_jobs",
+          "8",
+          "12"
+        ]
+      ],
+      "schema_differences": 0,
+      "sample_sd_ddof": 1,
+      "band": "mean ± one sample SD across the same three synthetic folds at each epoch, not a confidence interval",
+      "train_accuracy_epoch1": {
+        "mean": 0.5411111111111111,
+        "sample_sd": 0.006710963942462877,
+        "n_folds": 3
+      },
+      "train_accuracy_epoch18": {
+        "mean": 0.9116941544476442,
+        "sample_sd": 0.006710963942462877,
+        "n_folds": 3
+      },
+      "validation_accuracy_epoch1": {
+        "mean": 0.5233333333333333,
+        "sample_sd": 0.020132891827388685,
+        "n_folds": 3
+      },
+      "validation_accuracy_epoch18": {
+        "mean": 0.8284834590018184,
+        "sample_sd": 0.020132891827388685,
+        "n_folds": 3
+      }
+    }
+  },
+  "guard_tests": {
+    "file": "tools/tutorials/tests/test_training_runs_evidence.py",
+    "command": "env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tools/tutorials/tests/test_training_runs_evidence.py -p no:cacheprovider --confcutdir=tools/tutorials/tests",
+    "pure_tests": 24,
+    "latest_rerun": {
+      "passed": 24,
+      "failed": 0
+    },
+    "coverage": "Matching immutable numeric rows; rejected missing/extra rows and columns, wrong and nonfinite values, empty/gapped/duplicate epochs; native identifier accepted only when full, correct, unelided and inside the visible row/viewport.",
+    "qt_or_app_imports": false,
+    "source_mutation_proof": {
+      "mutation": "Temporarily inserted an early return in _require_visible_identifier, disabling the actual visibility guard.",
+      "red": {
+        "failed": 6,
+        "passed": 18
+      },
+      "failures": "All six clipped/elided/wrong-identifier rejection cases became false negatives.",
+      "restored_source_byte_identical": true,
+      "restored_source_sha256": "d73d4fb41cdd72f8ac5bfaaabec5d26ad4d7338eea74422c97ad164af82a31b8",
+      "green": {
+        "passed": 24,
+        "failed": 0
+      },
+      "app_running_during_mutation": false
+    }
+  },
+  "english": {
+    "file": "tools/tutorials/lessons/28_training_runs.json",
+    "canonical_sha256": "38b9651086f9d5987277949a9411fad70caa86a367a30069abb9954d0652539f",
+    "canonicalization": "sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode())",
+    "scenes": 17,
+    "narration_words": 764,
+    "objectives": 4,
+    "focus_boxes_within_actual_frame_bounds": true,
+    "focus_updated_for_current_readable_capture": true,
+    "first_scene_and_prerequisite_disclose_synthetic": true
+  },
+  "limits": {
+    "scientific_validation": false,
+    "held_out_validation": false,
+    "training_performed": false,
+    "inference_performed": false,
+    "checkpoint_loaded": false,
+    "device": null,
+    "device_note": "Synthetic configuration values do not establish actual hardware use or training time.",
+    "predictive_performance_or_generalization_claim": false,
+    "scientifically_reproducible_winner_claim": false,
+    "core_classify_hold_unchanged": true,
+    "whole_lesson_complete": false,
+    "audio_or_render_verified": false,
+    "published": false,
+    "native_speaker_signoff": false
+  }
+}

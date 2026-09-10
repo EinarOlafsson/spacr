@@ -61,11 +61,17 @@ def _menu_labels(win, name: str):
     """
     mb = win.menuBar()
     labels: list = []
-    for top_act in mb.actions():
-        if top_act.text().replace("&", "") != name:
-            continue
+    stack = [act for act in mb.actions()]
+    while stack:
+        top_act = stack.pop(0)
         m = top_act.menu()
         if m is None:
+            continue
+        if top_act.text().replace("&", "") != name:
+            # Not this one -- but a menu can be nested now: Demos moved
+            # under Help on 2026-08-23, so a search that only looks at
+            # the bar's own actions finds nothing at all.
+            stack.extend(m.actions())
             continue
         for a in m.actions():
             if not a.isSeparator():
@@ -102,12 +108,17 @@ class TestPreferencesMenuEntry:
         labels = _menu_labels(mw, "spaCR")
         assert any("Preferences" in lbl for lbl in labels)
 
-    def test_preferences_action_has_ctrl_comma_shortcut(self, mw):
+    def test_preferences_action_has_ctrl_p_shortcut(self, mw):
+        """Ctrl+P, asked for on 2026-09-08 in place of Ctrl+comma.
+
+        The old key needed the "sometimes normalises to Ctrl+" allowance
+        below, because a trailing comma is not a character Qt round-trips
+        through a key sequence cleanly. Ctrl+P has no such problem.
+        """
         actions = _menu_actions(mw, "spaCR")
         for text, shortcut in actions:
             if "Preferences" in text:
-                # Ctrl+, sometimes normalises to "Ctrl+" on Qt
-                assert shortcut in ("Ctrl+,", "Ctrl+")
+                assert shortcut == "Ctrl+P"
                 return
         pytest.fail("no Preferences action found")
 
@@ -136,17 +147,32 @@ class TestLivePreviewModelDefault:
         qtbot.addWidget(panel)
         assert panel.current_params()["model"] == "cpsam"
 
-    def test_legacy_models_still_available(self, qtbot):
+    def test_legacy_models_are_not_offered_but_are_still_accepted(self, qtbot):
+        """UPDATED 2026-09-01, and the distinction is the point.
+
+        This used to assert the pre-SAM spellings were IN the live combo. They
+        are deliberately not, at the maintainer's request: all four resolve to
+        cpsam, so offering them is four labels for one model.
+
+        The obligation they existed for is real and is kept -- a SAVED settings
+        file naming cyto2 must still round-trip, or the preview quietly uses a
+        different model than the settings say. That is now handled by
+        accepting the value rather than by advertising it, which is the half
+        that actually protected the user.
+        """
         from spacr.qt.widgets.live_preview import LivePreviewPanel
         panel = LivePreviewPanel()
         qtbot.addWidget(panel)
         items = [panel._model_box.itemText(i)
                   for i in range(panel._model_box.count())]
         assert "cpsam" in items
+        assert items[0] == "cpsam", "SAM is the default and comes first"
         for legacy in ("cyto3", "cyto2", "nuclei"):
-            assert legacy in items
-        # SAM should be first (default)
-        assert items[0] == "cpsam"
+            assert legacy not in items, f"{legacy} is still offered"
+
+        # ... and a settings file naming one is still honoured.
+        panel.apply_settings({"model_name": "cyto2"})
+        assert panel._model_box.currentText() == "cyto2"
 
 
 # ---------------------------------------------------------------------------
@@ -248,57 +274,66 @@ class TestE2EDemoMenu:
         assert captured["dest"] == str(tmp_path)
         assert captured["parent"] is mw
 
-    def test_e2e_chain_prompts_and_navigates(
+    def test_importing_the_demo_opens_mask_with_its_settings(
             self, mw, monkeypatch, tmp_path):
-        """After a fake successful download, the chain should prompt
-        the user before each stage; if they answer Yes to all three,
-        we should end up having navigated to mask, measure, and
-        annotate in turn."""
-        settings_dir = tmp_path / "settings"
-        settings_dir.mkdir()
-        for stage in ("mask", "measure", "annotate"):
-            (settings_dir / f"{stage}_settings.csv").write_text("plot,false\n")
-        dataset_dir = tmp_path / "plate1"
-        dataset_dir.mkdir()
+        """One screen, filled in, and nothing started.
 
-        prompts = []
-        def _yes(*a, **k):
-            prompts.append(a)
-            return QMessageBox.Yes
-        monkeypatch.setattr(QMessageBox, "question", _yes)
-        # Stub the pipeline run so we don't actually start Cellpose
-        monkeypatch.setattr(
-            "spacr.qt.screens.app_screen.AppScreen._on_run",
-            lambda self: None)
-
-        mw._run_e2e_chain(dataset_dir, settings_dir)
-
-        # Three prompts — one per stage
-        assert len(prompts) == 3
-        assert "annotate" in mw._screens
-        assert "mask" in mw._screens
-        assert "measure" in mw._screens
-
-    def test_e2e_chain_stops_when_user_says_no(
-            self, mw, monkeypatch, tmp_path):
-        """Answering No at the first prompt should abort the chain
-        without touching downstream screens."""
+        This asserted three prompts and three screens until 2026-08-31,
+        when the import stopped being a Mask -> Measure -> Annotate chain
+        that ran each pipeline itself. Asked for as "the user should be
+        able to hit import and then live preview or run": a demo dataset
+        exists to be looked at, and the first thing anyone wants is Live
+        Preview on one field.
+        """
         settings_dir = tmp_path / "settings"
         settings_dir.mkdir()
         (settings_dir / "mask_settings.csv").write_text("plot,false\n")
         dataset_dir = tmp_path / "plate1"
         dataset_dir.mkdir()
 
+        prompts = []
         monkeypatch.setattr(QMessageBox, "question",
-                             lambda *a, **k: QMessageBox.No)
-        called = {"run": 0}
-        def _bump(self):
-            called["run"] += 1
+                            lambda *a, **k: prompts.append(a))
+        runs = {"n": 0}
         monkeypatch.setattr(
-            "spacr.qt.screens.app_screen.AppScreen._on_run", _bump)
+            "spacr.qt.screens.app_screen.AppScreen._on_run",
+            lambda self: runs.__setitem__("n", runs["n"] + 1))
 
         mw._run_e2e_chain(dataset_dir, settings_dir)
-        assert called["run"] == 0
-        # Also — measure/annotate should not have been navigated to.
+
+        assert "mask" in mw._screens, "Mask Generation did not open"
+        assert runs["n"] == 0, "importing the demo started a pipeline"
+        assert prompts == [], (
+            "the import asked a question; a Continue prompt before work "
+            "nobody asked to start has No as its safe answer")
+        # Measure and Annotate are reached from Mask once masks exist.
+        # Opening them against a dataset with none would open two screens
+        # that can only report there is nothing to do.
         assert "measure" not in mw._screens
         assert "annotate" not in mw._screens
+
+    def test_the_dataset_folder_wins_over_the_packs_own_src(
+            self, mw, monkeypatch, tmp_path):
+        """The pack names a path on the machine that produced it.
+
+        Driven through the real chain rather than the loader alone,
+        because the argument that carries it is the one easy to drop when
+        wiring the two together.
+        """
+        settings_dir = tmp_path / "settings"
+        settings_dir.mkdir()
+        (settings_dir / "mask_settings.csv").write_text(
+            "src,/somebody/elses/disk\n")
+        dataset_dir = tmp_path / "plate1"
+        dataset_dir.mkdir()
+
+        applied = {}
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen.AppScreen.apply_settings_dict",
+            lambda self, settings: applied.update(settings))
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen.AppScreen._on_run",
+            lambda self: None)
+
+        mw._run_e2e_chain(dataset_dir, settings_dir)
+        assert applied.get("src") == str(dataset_dir)

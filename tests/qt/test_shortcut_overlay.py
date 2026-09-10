@@ -10,14 +10,14 @@ rectangle of text over the middle of somebody's work.
 from __future__ import annotations
 
 import pytest
-
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtGui import QKeyEvent, QKeySequence
 from PySide6.QtWidgets import QLabel, QWidget
 
 from spacr.qt.shortcuts import (
     SHORTCUTS,
     ShortcutOverlay,
+    _bind,
     install,
     show_cheat_sheet,
 )
@@ -72,18 +72,72 @@ def test_the_card_is_centred_and_fits(window, qtbot):
     overlay.dismiss()
 
 
+def test_the_recrop_row_remains_reachable_in_a_short_window(window, qtbot):
+    """Growing the complete map may scroll its inside, never clip its tail."""
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    overlay.show()
+    qtbot.waitExposed(overlay)
+
+    recrop = next(
+        label
+        for label in overlay._card.findChildren(QLabel)
+        if label.text().startswith("Recrop an object")
+    )
+    overlay._scroll.ensureWidgetVisible(recrop)
+    qtbot.wait(10)
+
+    top = recrop.mapTo(overlay._scroll.viewport(), QPoint()).y()
+    assert top < overlay._scroll.viewport().height()
+    assert top + recrop.height() > 0
+    assert overlay._card.height() <= overlay.height()
+    overlay.dismiss()
+
+
 def test_every_registered_shortcut_is_on_the_card(window, qtbot):
+    """EVERY MAPPED ONE, not only the window's own (197).
+
+    `SHORTCUTS` is what `install()` binds; `SCREEN_SHORTCUTS` is what the
+    screens bind and the map still has to describe. `mapped()` is both.
+    """
+    from spacr.qt.shortcuts import mapped, native
+
     overlay = show_cheat_sheet(window)
     qtbot.addWidget(overlay)
     rendered = {label.text() for label in overlay._card.findChildren(QLabel)}
-    for spec in SHORTCUTS:
-        assert spec.keys in rendered, f"{spec.keys} is bound but not shown"
-        assert spec.label in rendered, f"{spec.label} is missing its row"
+    for spec in mapped():
+        # PRINTED IN THE PLATFORM'S SPELLING, so the comparison is against
+        # what the card actually shows rather than Qt's portable form.
+        assert native(spec.keys) in rendered, \
+            f"{spec.keys} is bound but not shown"
+        # A ROW STARTS WITH THE LABEL and may continue with the scope --
+        # "Brush  —  the Make Masks screen" -- because a key that works on
+        # one screen and is listed without saying so sends a user to press
+        # it somewhere it does nothing.
+        assert any(text.startswith(spec.label) for text in rendered), \
+            f"{spec.label} is missing its row"
+    overlay.dismiss()
+
+
+def test_a_per_screen_row_says_where_it_works(window, qtbot):
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    rendered = {label.text() for label in overlay._card.findChildren(QLabel)}
+
+    assert any("Make Masks screen" in text for text in rendered)
     overlay.dismiss()
 
 
 def test_the_categories_are_laid_out_in_columns(window, qtbot):
-    """Fifteen bindings in one column is a scroll; in three it is a glance."""
+    """Fifteen bindings in one column is a scroll; in three it is a glance.
+
+    TILED, NOT ONE PAIR PER CATEGORY. The map grew from 17 rows to 33 (197)
+    and a column-pair for every category made the card 1,640 px wide against
+    a 1,280 px overlay -- a map that runs off the screen is the same fault
+    as one that leaves keys out. Categories fill the width and then wrap, so
+    what is asserted is that they SHARE ROWS, not that every one has a
+    column of its own.
+    """
     overlay = show_cheat_sheet(window)
     qtbot.addWidget(overlay)
     overlay.show()
@@ -92,7 +146,17 @@ def test_the_categories_are_laid_out_in_columns(window, qtbot):
                if lbl.objectName() == "ShortcutOverlayCategory"]
     assert len(headers) >= 2
     xs = {lbl.x() for lbl in headers}
-    assert len(xs) == len(headers), "the categories stacked instead of tiling"
+    assert len(xs) > 1, "the categories stacked instead of tiling"
+
+
+def test_the_card_never_runs_off_the_overlay(window, qtbot):
+    """The reason the layout wraps at all."""
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    overlay.show()
+    qtbot.waitExposed(overlay)
+
+    assert overlay._card.width() <= overlay.width()
     overlay.dismiss()
 
 
@@ -135,10 +199,179 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
     declared = {s.keys for s in SHORTCUTS}
     assert {"Ctrl+F", "Ctrl+Shift+R"} <= declared
 
-    from PySide6.QtGui import QShortcut
+    # A QAction'S SHORTCUT IS BOUND TOO. `Ctrl+Shift+A` opens the full app
+    # list and is set on a window action rather than on a QShortcut -- looking
+    # only at QShortcut called a wired key unwired. The rule this test is
+    # for is "documented and reachable", and either kind reaches.
+    from PySide6.QtGui import QAction, QShortcut
+
     bound = {sc.key().toString() for sc in window.findChildren(QShortcut)}
-    for keys in declared:
+    bound |= {a.shortcut().toString() for a in window.findChildren(QAction)
+              if not a.shortcut().isEmpty()}
+
+    # A GESTURE IS NOT A KEY SEQUENCE, and cannot be bound as one. Qt binds a
+    # shortcut to a key PRESS; 378's text resize is a modifier held while the
+    # wheel turns, caught in an event filter, and there is no QKeySequence
+    # that expresses it. It belongs on the cheat sheet all the same -- 378's
+    # own note says "a gesture nobody can guess belongs on that map" -- so
+    # the rule this test enforces has to be read as "documented and
+    # REACHABLE" rather than "documented and bound to a QShortcut", which is
+    # what the comment above already says about QAction.
+    #
+    # Recognised by shape rather than by a list of exceptions: a spec whose
+    # keys contain a space around "+" is prose describing a gesture, where a
+    # real sequence is "Ctrl+Shift+A" with no spaces. That way a second
+    # gesture needs no edit here, and a typo in a real sequence still fails.
+    gestures = {keys for keys in declared if " + " in keys}
+    assert gestures <= {"Z + scroll"}, (
+        f"unexpected gesture spec {sorted(gestures - {'Z + scroll'})}; add it "
+        f"deliberately rather than letting a mistyped sequence through")
+    for keys in declared - gestures:
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
+
+
+def test_two_live_windows_do_not_make_their_shortcuts_ambiguous(qtbot):
+    """A second spaCR window has its own keys, not a competing app-global
+    copy of the first window's keys.
+
+    Qt suppresses both callbacks when two ``ApplicationShortcut`` objects
+    carry one sequence.  That used to make Ctrl+End intermittent after an
+    old window survived until deferred deletion; driving two live windows is
+    the order-independent regression for that failure.
+    """
+    from PySide6.QtWidgets import QMainWindow
+
+    first = QMainWindow()
+    second = QMainWindow()
+    qtbot.addWidget(first)
+    qtbot.addWidget(second)
+    first.resize(320, 200)
+    second.resize(320, 200)
+    first.show()
+    second.show()
+
+    fired = []
+    one = _bind(first, "Ctrl+Alt+9", lambda: fired.append("first"))
+    two = _bind(second, "Ctrl+Alt+9", lambda: fired.append("second"))
+    assert one.context() == two.context() == Qt.WindowShortcut
+
+    second.raise_()
+    second.activateWindow()
+    qtbot.waitUntil(second.isActiveWindow, timeout=2000)
+    qtbot.keyClick(second, Qt.Key_9, Qt.ControlModifier | Qt.AltModifier)
+
+    assert fired == ["second"]
+
+
+def _open_console(window, qtbot):
+    """The Mask screen's console, unfolded and on screen.
+
+    The console is foldable and a folded one is `isHidden()`, which is
+    exactly the state in which its own `Ctrl+End` could never fire: a
+    `Qt.WindowShortcut` whose parent widget is hidden is not active.
+    """
+    window._on_nav_selected("mask")
+    qtbot.wait(50)
+    screen = window._screens["mask"]
+    screen._console_folder.set_shut(False)
+    qtbot.wait(20)
+    console = screen._console
+    assert console.isVisible(), "the console never reached the screen"
+    return console
+
+
+def test_ctrl_end_really_sends_the_console_to_its_newest_line(window, qtbot):
+    """DRIVEN, not looked up in a table.
+
+    `Ctrl+End` was declared three times and bound nowhere `installed()` could
+    see it: the only holder was the console panel's own, which does not
+    exist until a module screen is built and is inert while that panel is
+    hidden. So a fresh window -- the one a user reads the cheat sheet on --
+    carried no `Ctrl+End` at all.
+
+    THE WINDOW'S BINDING IS THE ONE UNDER TEST. The panel's copy stands down
+    (two live holders of one key is ambiguous, and an ambiguous shortcut
+    fires neither), so it is asserted inert BEFORE the key is pressed:
+    whatever moves the scrollbar below can only be the window's.
+    """
+    console = _open_console(window, qtbot)
+    _activate(window, qtbot)
+    qtbot.wait(50)
+    assert not console._end_shortcut.isEnabled(), \
+        "the panel still holds Ctrl+End; this would not be the window's jump"
+    # The range is given to the bar rather than grown out of console output,
+    # for the reason the console's own tests give: headless, the entries lay
+    # out to nothing and the bar's maximum is 0, so EVERY position is the
+    # end and a jump could not be told from doing nothing. It is set after
+    # the window is activated, because that runs a layout pass which
+    # recomputes the range away -- and asserted below, so a range that goes
+    # missing fails the test rather than quietly emptying it.
+    bar = console._scroll.verticalScrollBar()
+    bar.setRange(0, 2000)
+    bar.setValue(0)
+    console._follow_output = False
+    assert bar.maximum() > 0 and bar.value() == 0
+
+    qtbot.keyClick(window, Qt.Key_End, Qt.ControlModifier)
+
+    assert bar.maximum() > 0, \
+        "the scrollbar lost its range; nothing here was proved"
+    assert bar.value() == bar.maximum()
+    # Both halves of the jump, because they are one decision: a console that
+    # jumped without resuming the follow would slide off the end on the very
+    # next line written.
+    assert console._follow_output
+
+
+def test_ctrl_end_is_harmless_on_a_screen_with_no_console(window, qtbot):
+    """Home has none, and "harmless" is more than "it did not raise": the
+    screen is left exactly as it was found, rather than the key navigating
+    somewhere or taking the caret off whatever had it."""
+    window._on_nav_selected("__home__")
+    qtbot.wait(20)
+    _activate(window, qtbot)
+    home = window._stack.currentWidget()
+    before = window.focusWidget()
+
+    qtbot.keyClick(window, Qt.Key_End, Qt.ControlModifier)
+
+    assert window._stack.currentWidget() is home
+    assert window.focusWidget() is before
+
+
+def test_only_one_ctrl_end_is_live_at_a_time(window, qtbot):
+    """Two holders of one key is Qt's definition of AMBIGUOUS, and an
+    ambiguous shortcut fires NEITHER handler -- measured: with the window's
+    binding and the console's own both live, `activated` stays silent on
+    both. The window's is the one that reaches every screen, so the panel's
+    copy stands down as the screen is shown.
+    """
+    from PySide6.QtGui import QShortcut
+
+    console = _open_console(window, qtbot)
+    live = [sc for sc in window.findChildren(QShortcut)
+            if sc.key() == QKeySequence("Ctrl+End") and sc.isEnabled()]
+    assert len(live) == 1, [sc.parentWidget() for sc in live]
+    assert console._end_shortcut in window.findChildren(QShortcut)
+    assert not console._end_shortcut.isEnabled()
+
+
+def test_the_cheat_sheet_describes_ctrl_end_once(window, qtbot):
+    """It was declared three times -- a prose block and two `ShortcutSpec`
+    entries whose descriptions disagreed ("Jump to the newest console line"
+    against "Jump to the newest line") -- so the map printed the same key
+    twice, under two categories, saying two things.
+    """
+    from spacr.qt.shortcuts import mapped, native
+
+    ends = [spec for spec in mapped() if spec.keys == "Ctrl+End"]
+    assert len(ends) == 1, [spec.label for spec in ends]
+
+    overlay = show_cheat_sheet(window)
+    qtbot.addWidget(overlay)
+    printed = [label.text() for label in overlay._card.findChildren(QLabel)]
+    assert printed.count(native("Ctrl+End")) == 1, printed
+    overlay.dismiss()
 
 
 def _activate(window, qtbot) -> None:
@@ -285,3 +518,20 @@ def test_menu_commands_survive_being_collected(window, qtbot):
 def test_installing_shortcuts_twice_is_harmless(window):
     install(window)  # already installed by MainWindow.__init__
     assert getattr(window, "_settings_search_watcher", None) is not None
+
+
+def test_installing_them_twice_does_not_bind_anything_twice(window):
+    """"Harmless" has to mean this, because for a shortcut it is not a
+    nicety: two holders of one key make it AMBIGUOUS, and an ambiguous
+    shortcut fires NEITHER handler. A reload path that called `install`
+    again would have silenced every key it re-bound.
+    """
+    from PySide6.QtGui import QShortcut
+
+    install(window)  # already installed by MainWindow.__init__
+
+    keys = [sc.key().toString() for sc in window.findChildren(
+        QShortcut, options=Qt.FindDirectChildrenOnly)]
+    assert keys
+    assert len(keys) == len(set(keys)), \
+        [k for k in set(keys) if keys.count(k) > 1]

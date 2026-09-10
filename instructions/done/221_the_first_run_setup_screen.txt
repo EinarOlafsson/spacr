@@ -1,0 +1,261 @@
+================================================================================
+THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
+================================================================================
+
+Status:    DONE 2026-08-21.
+Requested: 2026-08-21 -- "instead of having options in the installers like i
+           have asked for preveously. instead the first time spacr is run
+           have the user be prompted with a setup screen ... i basically want
+           my version of the sleek intro that apple has."
+Owner:     Qt GUI (first run, preferences)
+
+--------------------------------------------------------------------------------
+WHY THIS REPLACES THE INSTALLER OPTIONS
+--------------------------------------------------------------------------------
+
+THE INSTALLER IS THE WRONG PLACE AND THIS SUPERSEDES THE EARLIER REQUEST. An
+installer runs once, often unattended, sometimes by an administrator who is
+not the user, and it asks its questions before the person has seen a single
+screen of the thing they are configuring. Every answer is a guess.
+
+The first RUN is the first moment the questions mean anything, and it is the
+only moment when the answers can be changed by the person they affect.
+
+--------------------------------------------------------------------------------
+WHAT IT ASKS
+--------------------------------------------------------------------------------
+
+  language                 theme                  colour-blind mode
+  spacr mode               reproducibility hash   report logs
+  module visibility        AI provider            one-click issue filing
+  GitHub login             AI on by default
+
+ELEVEN QUESTIONS IS A LOT FOR A FIRST SCREEN, and the design has to answer
+for that rather than list them in a column. They are not equal: language and
+theme change what the next screen looks like, and the reproducibility hash
+is a decision a user cannot evaluate before their first run. Group them, and
+let every one of them have a working default so the screen can be dismissed
+without answering anything.
+
+--------------------------------------------------------------------------------
+HOW IT LOOKS
+--------------------------------------------------------------------------------
+
+  * the home screen behind it, BLURRED;
+  * a rounded box, transparent, with the blob ambient theme showing through;
+  * a blue line on the box's periphery that FOLLOWS THE CORNER THE MOUSE IS
+    NEAREST.
+
+THE CORNER LINE IS THE ONE THING HERE THAT IS NOT DECORATION-BY-DEFAULT, and
+it needs stating precisely or it will be built as a glow: the accent tracks
+which of the four corners the pointer is closest to, and moves between them.
+It is a pointer-position readout, so it has to keep up with the mouse
+without repainting the blurred backdrop underneath -- cache the backdrop,
+paint only the border.
+
+INVARIANTS 10 APPLIES: decoration must never be load-bearing. If the blur,
+the ambient blobs or the corner line cannot be drawn, the screen still shows
+its questions and still saves the answers.
+
+--------------------------------------------------------------------------------
+AND IT OPENS AGAIN ON EVERY UPDATE
+--------------------------------------------------------------------------------
+
+    "also the setup windo should be opened every update."
+
+So the trigger is not "has this ever been answered" but "has it been
+answered for THIS VERSION". A stored version stamp beside the answers, and
+the screen opens whenever the running version differs from it.
+
+WHICH IS WHY IT MUST NOT RESET THE ANSWERS. Reopening is for the questions
+that are NEW -- an update that adds a setting has a question the user has
+never seen, and one that changes what a setting means has a question whose
+old answer no longer applies. Every existing answer is shown as it stands
+and kept unless changed. A setup screen that reappears with everything back
+at its default is a release that silently un-configures the tool.
+
+Say what changed. A screen that reopens with no indication of why reads as
+a bug, and the honest version -- "these two are new since 4.1" -- is also
+the one that gets the new questions answered rather than dismissed.
+
+--------------------------------------------------------------------------------
+IT IS REACHABLE AFTERWARDS
+--------------------------------------------------------------------------------
+
+    "in the help the user should always be able to access this view by
+     clicking startup"
+
+Help -> Startup, always, not only when unanswered. A first-run screen that
+cannot be reopened is a set of decisions the user made once, before they knew
+what any of them meant.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`ai_on_by_default` exists: `preferences.get_ai_on_by_default` /
+`set_ai_on_by_default`.
+
+OFF BY DEFAULT, AND THAT IS THE DEFAULT RATHER THAN THE PREFERENCE. An
+assistant that is on before anybody asked for it sends what it is looking at
+somewhere, and the first run is exactly when the user has not yet decided
+whether that is acceptable. The screen asks; until it is answered the answer
+is no. An unrecognised stored value also reads as off -- the failure falls on
+the quiet side, the same rule `issue_prompt` follows.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A fresh profile opens the setup screen before the home screen is usable.
+* All eleven settings are asked and all eleven persist.
+* Dismissing without answering leaves every default intact and does not ask
+  again -- a screen that reappears until it is answered is a modal dialog
+  wearing a nicer coat.
+* Help -> Startup reopens it at any time.
+* It opens once after an update and not again until the next one, with the
+  previous answers intact and the new questions marked.
+* With the blur, the blobs and the corner line all disabled, the screen
+  still works.
+* The corner accent follows the NEAREST corner, checked by moving the
+  pointer rather than by reading the paint code.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+`spacr/qt/setup_screen.py` -- the questions, when to ask them, and how the
+answers are written.
+
+  * `should_open()` compares the running version against the one that last
+    answered, so a fresh profile is asked, a dismissed screen stays shut,
+    and an UPDATE asks again without resetting anything.
+  * `questions()` is built against the preference module's OWN accessors,
+    asserted by a test. An answer given here and an answer given in
+    Preferences must be the same answer, not two stores that agree by
+    accident.
+  * `apply()` writes each answer separately and returns what failed. A setup
+    screen that discards six good answers because the seventh was bad has
+    cost the user the whole screen.
+  * every question has a working default, so the screen can be dismissed
+    without answering any of it.
+
+`spacr/qt/widgets/setup_card.py` -- the rounded translucent card whose
+border lights at the corner nearest the pointer.
+
+THE ACCENT IS A POINTER READOUT, NOT A GLOW, which is the one thing most
+likely to be built wrong: it tracks WHICH of the four corners the mouse is
+nearest and moves between them. Only the border repaints when it moves --
+the card is translucent over a backdrop, and repainting that on every mouse
+move is the difference between a smooth accent and a stuttering one. Mouse
+tracking is on, or the move event fires only while a button is held, which
+is never on a card the user is reading.
+
+Colours from the palette, never a literal, and every paint step inside a
+guard: an unpainted card is still a card with working controls on it.
+
+Tests: `tests/qt/test_the_first_run_asks.py`, 20 passing.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+The dialog that puts the two together: the blurred home screen behind, the
+card in front, the questions laid out on it, Help -> Startup to reopen, and
+the "these are new since 4.1" marking on an update. The parts it needs all
+exist and are tested; assembling them is the remaining work.
+
+--------------------------------------------------------------------------------
+THE DIALOG, DONE 2026-08-21
+--------------------------------------------------------------------------------
+
+`spacr/qt/widgets/setup_dialog.py`, opened from `qt/app.py` AFTER
+`win.show()` -- the screen blurs what is behind it, and there is nothing
+behind a window that has not been shown.
+
+NINE QUESTIONS, NOT ELEVEN, and the two missing ones are missing for a
+reason. `ai_provider` and `share_logs` were added here along with a new
+`preferred_provider` preference. MODULE VISIBILITY and GITHUB LOGIN have no
+preference to write: there is no stored set of visible modules and no stored
+credential, so a box for either would be a control that changes nothing --
+which is the failure instruction 219 is about, arriving by a different door.
+
+GROUPED, NOT LISTED. "How it looks" first, because language and theme change
+what the NEXT screen looks like; the reproducibility hash sits under "How it
+runs" rather than beside the theme, because it is a decision nobody can
+evaluate before their first run. A group whose questions all removed
+themselves is not drawn -- an empty "The assistant" heading would read as a
+bug.
+
+THE PROVIDER QUESTION REMOVES ITSELF when no CLI is installed. Asking
+somebody to choose between providers none of which are there is asking a
+question with no true answers, and this screen's rule is that every question
+has a working default. Its default is "whatever is available" rather than a
+pinned name: a machine with two CLIs today may have one tomorrow, and a
+pinned name that is gone is worse than no preference.
+
+DISMISSING MARKS IT ANSWERED. Every question has a working default, so a
+user who closes it has CHOSEN those defaults -- and reopening on every
+launch until they fill it in would make dismissing it impossible.
+
+THE THEME LIST WAS BACK TO FRONT. `theme_choices()` is (caption, value)
+while every other list is (value, caption), so the screen opened on "Dark"
+for a user whose theme was "Follow system". Normalised at the source rather
+than special-cased in the screen: a screen that knows which of its questions
+is reversed is a screen that gets it wrong the next time one is added.
+
+INVARIANTS 10, TESTED. The backdrop is a CACHED PIXMAP, not a live blur --
+the corner accent is a pointer-position readout and has to keep up with the
+mouse, and blurring a live widget would repaint the whole backdrop on every
+move. With no parent, or when the grab raises, `_backdrop` returns None and
+the dialog is a plain dialog with the same controls and the same answers.
+A test monkeypatches `grab` to raise and asserts exactly that.
+
+--------------------------------------------------------------------------------
+2026-08-26 - AUDIT: THE TEST FILE SEGFAULTED BEFORE IT REACHED THE CORNER
+--------------------------------------------------------------------------------
+
+Re-audited against this file's own criteria by running them rather than by
+reading them, and the first thing found was that
+`tests/qt/test_the_first_run_setup_screen.py` COULD NOT FINISH.
+
+It died with a segmentation fault at the setup of
+`test_the_card_still_reports_a_corner` -- inside the session fixture that
+walks the widget tree, not inside any test -- so the last three classes never
+ran and pytest reported no failure, only a dead interpreter. Reproducible in
+declaration order and under the random one, and reducible to three tests:
+build a parentless dialog, build a parented one, build a parentless one
+again.
+
+THE CAUSE IS OWNERSHIP, NOT THE DIALOG. `test_a_failed_grab_does_not_stop_it`
+made a bare `QWidget()` parent and let the garbage collector have it. The
+parent's C++ widget is destroyed with the dialog still held in a Python
+cycle, and freeing that wrapper afterwards deletes an object that is already
+gone -- which crashes the NEXT test's setup rather than this one. `qtbot`
+now owns both, and the file runs 19 green, three times over, in random order.
+
+THE REST OF THE CRITERIA HOLD. Every question has an editor and a working
+default; dismissing marks it answered and does not ask again; the decoration
+is not load-bearing (no parent, or a `grab` that raises, leaves a plain
+dialog with the same controls); and the accent is checked by MOVING THE
+POINTER -- `nearest_corner` at the four corners and `_follow` plus the easing
+frames -- not by reading the paint code.
+
+TWO THINGS THE CRITERIA ABOVE SAY THAT THE CODE DOES NOT, both already
+explained further up this file rather than newly discovered:
+
+  * "All eleven settings" is NINE, measured: `questions()` returns language,
+    theme, colour_blind, spacr_mode, hash_inputs, issue_prompt, ai_default,
+    share_logs, ai_provider. Module visibility and GitHub login have no
+    preference to write, which is the reason NINE QUESTIONS, NOT ELEVEN
+    gives above.
+  * "Help -> Startup" is Help -> "Set spaCR up again...", wired to
+    `_show_setup`.
+
+AND THE SCREEN THE APP OPENS IS `setup_slides.SetupSlides`, not the
+`setup_dialog.SetupDialog` this file's last section describes. `qt/app.py`
+imports `setup_slides` in both places -- the first-run gate and the Help
+action -- and `setup_dialog` is now imported by nothing outside `tests/`.
+Whether that module is kept as a second door or removed is a decision for
+whoever owns the slides, not something an audit should settle; it is recorded
+here so the next reader does not assume the dialog is what a user meets.

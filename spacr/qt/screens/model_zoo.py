@@ -94,10 +94,12 @@ from ..widgets.toggle import Toggle
 
 from ... import model_zoo as zoo
 from ..bridge import make_thread
+from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
            "PREVIEW_PX", "compose_labels"]
@@ -196,9 +198,13 @@ QLabel#{PREVIEW_NAME} {{
 register_widget_qss(ZOO_QSS_NAME, _model_zoo_qss, replace=True)
 
 
-def _cell(text: str) -> QTableWidgetItem:
-    """A read-only table cell."""
-    item = QTableWidgetItem(text)
+def _cell(text: str, key=None) -> QTableWidgetItem:
+    """A read-only table cell.
+
+    :param key: the number to sort on when the text is not one -- a size
+        printed as "900 KB" reads as 900 and belongs below "12 MB".
+    """
+    item = table_item(text, key=key)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -240,8 +246,36 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
+def _tooltip_for(entry) -> str:
+    """`describe()`, led by the few numbers that decide a choice.
+
+    The tooltip is the scorecard's smallest surface, so it leads with the
+    handful of numbers that decide a choice and says where the rest is. A
+    scorecard is
+    37 rows, and `describe()` renders `metrics` one per line -- which is the
+    same mistake the model-zoo table made before it was cut to three
+    columns: complete and unreadable.
+
+    So the headline goes FIRST, and the full card follows it unchanged. A
+    model whose `metrics` is free-form -- a note, a training loss, anything
+    that is not a scorecard -- gets exactly what it got before, because
+    `headline` returns nothing it does not recognise and this must not turn
+    somebody's two-line note into a truncated table.
+    """
+    card = entry.describe()
+    try:
+        from ...scorecard import headline
+
+        lines = headline(entry.metrics or {})
+    except Exception:                                        # noqa: BLE001
+        return card
+    if not lines:
+        return card
+    return "\n".join(lines) + "\n\n" + card
+
+
 class ModelZooScreen(QWidget):
-    """Browse, verify, download and bench the models spaCR can run.
+    """Browse, verify, download and benchmark models supported by spaCR.
 
     :param parent: Qt parent.
     :param threaded: run scans, downloads and benchmarks on worker threads (the
@@ -271,6 +305,11 @@ class ModelZooScreen(QWidget):
     _progress_said = Signal(str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the zoo: the scan list, the downloads and the benchmark.
+
+        :param parent: parent widget.
+        :param threaded: whether scans and downloads run on workers.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._entries: List[zoo.ModelEntry] = []
@@ -293,7 +332,7 @@ class ModelZooScreen(QWidget):
         # screen, long after the launch stylesheet was generated, so the
         # block registered above is not in the sheet that is live and every
         # container opens bare. See `ensure_widget_qss_applied`.
-        ensure_widget_qss_applied(ZOO_QSS_NAME)
+        ensure_widget_qss_applied(ZOO_QSS_NAME, root=self)
 
         self._build_ui()
         from ..dnd import install_dropzone
@@ -307,10 +346,16 @@ class ModelZooScreen(QWidget):
             "download. Every model shows what it was trained on — 'unknown' "
             "means nobody recorded it, not that it fits anything.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the model list beside the details and the benchmark."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -348,6 +393,7 @@ class ModelZooScreen(QWidget):
 
         # ── the listing ───────────────────────────────────────────────
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
+        install_sorting(self._table)
         # The listing IS the container here — nothing is under it — so it
         # keeps a surface rather than showing the page through.
         self._table.setObjectName(TABLE_NAME)
@@ -401,10 +447,10 @@ class ModelZooScreen(QWidget):
         self._allow_unverified = Toggle(
             "Accept a model with no published checksum", download)
         self._allow_unverified.setToolTip(
-            "(bool) Off by default. A download nobody can check against a "
-            "published hash could be truncated or substituted, and a wrong "
-            "checkpoint still loads and still produces masks — just not the "
-            "author's.")
+            "(bool) Disabled by default. Without a published checksum, a "
+            "download cannot be verified for truncation or substitution. An "
+            "incorrect checkpoint may still load but can produce invalid "
+            "masks.")
         dl.addWidget(self._allow_unverified)
 
         self._progress = QProgressBar(download)
@@ -448,6 +494,7 @@ class ModelZooScreen(QWidget):
 
         split = QSplitter(Qt.Horizontal, test)
         self._bench_table = QTableWidget(0, len(_BENCH_HEADERS), split)
+        install_sorting(self._bench_table)
         self._bench_table.setHorizontalHeaderLabels(list(_BENCH_HEADERS))
         self._bench_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._bench_table.verticalHeader().setVisible(False)
@@ -529,7 +576,14 @@ class ModelZooScreen(QWidget):
                 entry.trained_by,
             )
             for c, text in enumerate(cells):
-                item = _cell(str(text))
+                # The size column is printed in whichever unit reads best,
+                # so it sorts on the byte count behind it.
+                item = _cell(str(text),
+                             key=entry.size_bytes if c == 4 else None)
+                if c == 0:
+                    # Which model the row stands for. The table sorts, so a
+                    # row number names nothing outside the moment it was read.
+                    item.setData(Qt.UserRole, r)
                 if c == 6 and not entry.provenance_known:
                     # Never blank, and never quiet: 'unknown' in the warning
                     # colour, because a model with no provenance is the one you
@@ -537,7 +591,7 @@ class ModelZooScreen(QWidget):
                     item.setForeground(_brush(active_palette()["warning"]))
                 if c == 5 and entry.checksum_state == "none":
                     item.setForeground(_brush(active_palette()["warning"]))
-                item.setToolTip(entry.describe())
+                item.setToolTip(_tooltip_for(entry))
                 table.setItem(r, c, item)
         table.blockSignals(False)
         table.resizeColumnsToContents()
@@ -573,6 +627,7 @@ class ModelZooScreen(QWidget):
             return False
 
         def _job() -> List[zoo.ModelEntry]:
+            """Find every model, catalogue plus local. Off the GUI thread."""
             found = list(zoo.catalogue()) if include_catalogue else []
             have = {e.path for e in found if e.path}
             if target:
@@ -586,6 +641,10 @@ class ModelZooScreen(QWidget):
         return self._run_job(_job, self._apply_scan)
 
     def _apply_scan(self, entries: List[zoo.ModelEntry]) -> None:
+        """Show the checkpoints a finished scan found.
+
+        :param entries: the models it found.
+        """
         self.set_entries(entries)
         unknown = sum(1 for e in entries if not e.provenance_known)
         self._set_status(
@@ -597,15 +656,18 @@ class ModelZooScreen(QWidget):
                "Every one records what it was trained on."))
 
     def _on_scan_typed(self) -> None:
+        """Scan whatever folder the user typed."""
         self.scan(self._scan_edit.text())
 
     def _pick_scan_folder(self) -> None:
+        """Ask for a folder to scan for checkpoints."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder to scan for models", os.getcwd())
         if path:
             self.scan(path)
 
     def _pick_dest_folder(self) -> None:
+        """Ask where downloaded models should be written."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose where downloaded models go",
             self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR)
@@ -619,9 +681,21 @@ class ModelZooScreen(QWidget):
         return sorted({i.row() for i in self._table.selectedIndexes()})
 
     def selected_entries(self) -> List[zoo.ModelEntry]:
-        """The selected models, in table order."""
-        return [self._entries[r] for r in self.selected_rows()
-                if 0 <= r < len(self._entries)]
+        """The selected models, in table order.
+
+        Through the identity stamped on each row, not the row number: the
+        table sorts, and a row number stops naming a model the moment a
+        header is clicked.
+        """
+        out = []
+        for row in self.selected_rows():
+            item = self._table.item(row, 0)
+            index = None if item is None else item.data(Qt.UserRole)
+            if index is None:
+                index = row
+            if 0 <= int(index) < len(self._entries):
+                out.append(self._entries[int(index)])
+        return out
 
     def select(self, *rows: int) -> None:
         """Select these rows (test/programmatic helper).
@@ -643,6 +717,7 @@ class ModelZooScreen(QWidget):
         self._on_selection_changed()
 
     def _on_selection_changed(self) -> None:
+        """Show the details of the selected model."""
         chosen = self.selected_entries()
         if len(chosen) == 1:
             self._detail.setPlainText(chosen[0].describe())
@@ -699,6 +774,7 @@ class ModelZooScreen(QWidget):
         tick = self._progress_ticked.emit
 
         def _job() -> zoo.ModelEntry:
+            """Install the chosen model. Off the GUI thread."""
             return zoo.install(entry, dest, require_checksum=require,
                                opener=opener, progress=tick,
                                cancel=lambda: bool(cancel["stop"]))
@@ -709,6 +785,10 @@ class ModelZooScreen(QWidget):
                              on_error=self._on_download_failed)
 
     def _apply_download(self, entry: zoo.ModelEntry) -> None:
+        """Show a model that has finished downloading.
+
+        :param entry: the model that arrived.
+        """
         self._progress.setValue(100)
         # The catalogue row this came from is replaced by the local file, not
         # listed beside it: one model, one row, and the row now points at bytes
@@ -727,6 +807,10 @@ class ModelZooScreen(QWidget):
         self.download_finished.emit(True, entry.path)
 
     def _on_download_failed(self, message: str) -> None:
+        """Report a failed download without losing the list.
+
+        :param message: what went wrong.
+        """
         self._progress.setValue(0)
         self._set_status(message, error=True)
         self.download_finished.emit(False, "")
@@ -759,6 +843,10 @@ class ModelZooScreen(QWidget):
             self._progress.setFormat(zoo._human_bytes(done))
 
     def _on_progress_text(self, message: str) -> None:
+        """Show a download's progress line.
+
+        :param message: the progress text.
+        """
         self._set_status(message)
 
     def download_progress(self) -> int:
@@ -797,6 +885,7 @@ class ModelZooScreen(QWidget):
         n_fields = int(self._fields_box.value())
 
         def _job():
+            """Load the benchmark fields. Off the GUI thread."""
             names, images = mc.load_fields(source, n_fields=n_fields)
             return source, names, images
 
@@ -832,15 +921,18 @@ class ModelZooScreen(QWidget):
         return list(self._field_names)
 
     def _on_fields_typed(self) -> None:
+        """Load benchmark fields from whatever path the user typed."""
         self.set_fields_source(self._fields_edit.text())
 
     def _pick_fields_folder(self) -> None:
+        """Ask for a folder of fields to benchmark against."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of fields", self._fields_folder or os.getcwd())
         if path:
             self.set_fields_source(path)
 
     def _reload_fields(self) -> None:
+        """Re-read the benchmark fields from disk."""
         self._btn_test.setText(f"Test on {self._fields_box.value()} fields")
         if self._fields_folder:
             self.set_fields_source(self._fields_folder)
@@ -875,6 +967,7 @@ class ModelZooScreen(QWidget):
         say = self._progress_said.emit
 
         def _job() -> zoo.BenchmarkResult:
+            """Benchmark one model against the loaded fields. Off the GUI thread."""
             return zoo.benchmark(
                 entry, images=images, field_names=names, source=folder,
                 segment_fn=segment_fn,
@@ -885,6 +978,10 @@ class ModelZooScreen(QWidget):
         return self._run_job(_job, self._apply_benchmark)
 
     def _apply_benchmark(self, result: zoo.BenchmarkResult) -> None:
+        """Show a finished benchmark.
+
+        :param result: the benchmark's result.
+        """
         self._result = result
         table = self._bench_table
         table.blockSignals(True)
@@ -948,18 +1045,21 @@ class ModelZooScreen(QWidget):
         qimage = QImage(composed.tobytes(), width, height, 3 * width,
                         QImage.Format_RGB888).copy()
         self._preview.setText("")
-        self._preview.setPixmap(QPixmap.fromImage(qimage).scaled(
+        self._preview.setPixmap(scaled_for(
+            QPixmap.fromImage(qimage), self._preview,
             max(PREVIEW_PX, self._preview.width()),
-            max(PREVIEW_PX, self._preview.height()),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            max(PREVIEW_PX, self._preview.height())))
         return True
 
     def preview_size(self):
-        """``(w, h)`` of the preview pixmap, ``(0, 0)`` when there is none."""
-        pixmap = self._preview.pixmap()
-        if pixmap is None or pixmap.isNull():
-            return (0, 0)
-        return (pixmap.width(), pixmap.height())
+        """``(w, h)`` the preview OCCUPIES, ``(0, 0)`` when there is none.
+
+        Widget coordinates, not the pixel count behind them: the picture is
+        rendered at the screen's density, so on a HiDPI panel those two
+        numbers differ by the device pixel ratio.
+        """
+        shown = logical_size(self._preview.pixmap())
+        return (shown.width(), shown.height())
 
     # -- hand-off to Model Compare -----------------------------------------
 
@@ -1062,6 +1162,11 @@ class ModelZooScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker thread: a
+            return would be swallowed by the runner.
+            """
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
@@ -1131,6 +1236,10 @@ class ModelZooScreen(QWidget):
         return self._busy
 
     def _report_failure(self, exc: Exception) -> None:
+        """Report a failed scan, download or benchmark.
+
+        :param exc: what went wrong.
+        """
         message = str(exc) or exc.__class__.__name__
         handler = getattr(self, "_error_handler", None)
         self._busy = False
@@ -1169,6 +1278,7 @@ class ModelZooScreen(QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         chosen = self.selected_entries()
         one = len(chosen) == 1
         busy = self._busy

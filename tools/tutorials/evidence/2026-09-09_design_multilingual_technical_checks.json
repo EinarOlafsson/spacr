@@ -1,0 +1,38 @@
+{
+  "lesson": "67_experiment_design",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "fff27aa35c1e4dd012aae5f4240143f8a33cb0e1125da2dc7959d7d4688d9ed2",
+  "scene_count_per_catalog": 14,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 7370,
+    "duration_seconds": 245.666667, "audio_streams": 0, "bytes": 13052300,
+    "sha256": "e5d14294bece5efb934342a92f71368e13ec138c6ff984709a1867dd34be89df"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match the staged track", "Chapter seek and video/audio synchronization", "Retained specialist links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent captions match every staged scene and generate WebVTT without switching voice"]
+  },
+  "recording": {
+    "application_commit": "e96ac198f6df1ef11d8ece09735b1d505c1763b1",
+    "package_version": "1.5.0.4", "actual_font_scale": 2,
+    "capture_directory": "refresh_2026-09-09/captures/design_readable",
+    "checks": ["Actual name and replicate editors", "Header-boundary double-click fits columns", "Six-well capacity error then ninety-six-well recovery", "Single-replicate warning then recovery", "Actual block-layout warnings", "Random layout with outer ring unused: 60 usable, 24 assigned", "Seed 42 to 43 to 42 restores the exact displayed assignments", "Actual B02-to-C04 selection selects six wells without reassigning conditions", "Actual export button and folder picker", "All 24 exported CSV conditions and roles match the displayed assignments", "Three real export files with a non-expressible settings fragment"],
+    "planned_not_acquired": true,
+    "statistical_power_calculation": false,
+    "measured_treatment_effects": false,
+    "settings_fragment_is_complete_analysis_configuration": false,
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 598, "refreshed": 11, "unselected_lessons_unchanged": 64, "unselected_media_replaced": false},
+  "synthesis": "One CUDA process at a time, 10% video-memory cap, two CPU threads and 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/67_experiment_design and refresh_2026-09-09/browser/67_experiment_design in the tutorial workspace",
+  "translation_review": "Editorial checks against English and actual results; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

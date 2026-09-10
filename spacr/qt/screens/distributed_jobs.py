@@ -45,8 +45,9 @@ from ..bridge import make_thread
 from ..i18n import tr
 from ..iconset import icon
 from ..theme import SPACING, active_palette
-from ..widgets import Card, Divider, InfoLink
-from .settings_model import api_docs_url, attach_api_tooltip
+from ..widgets import Card, Divider
+from .settings_model import attach_api_tooltip
+from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
 
@@ -65,19 +66,30 @@ _COLUMNS = (
 
 def _item(value) -> QTableWidgetItem:
     """Return a non-editable table item."""
-    item = QTableWidgetItem("" if value is None else str(value))
+    item = table_item("" if value is None else str(value))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
 
 class ExecutionProfileDialog(QDialog):
-    """Create or edit one distributed execution profile."""
+    """Create or edit one distributed execution profile.
+
+    :param parent: parent widget.
+    :param profile: the profile to edit. ``None`` CREATES one -- the dialog
+        is both routes, which is why it is not two classes.
+    """
 
     def __init__(
         self,
         parent=None,
         profile: Optional[ExecutionProfile] = None,
     ):
+        """Build the execution-profile editor.
+
+        :param parent: parent widget, or ``None``.
+        :param profile: the profile to edit; ``None`` starts a new one. Its
+            original name is kept so a rename can be told from a new profile.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Execution profile"))
         self.setMinimumWidth(650)
@@ -86,6 +98,11 @@ class ExecutionProfileDialog(QDialog):
         if profile is not None:
             self._load(profile)
         self._sync_backend()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
         """Build the backend-independent profile editor."""
@@ -288,30 +305,53 @@ class ExecutionProfileDialog(QDialog):
         field: QWidget,
         api_key: str,
     ) -> None:
-        """Add a hover-help label and teal API dot beside one profile field."""
+        """Put this field's hover help, API link and all, on its label.
+
+        NOTHING IS DRAWN BESIDE THE LABEL. A teal API dot used to be, and
+        the settings forms had already dropped theirs: a column of dots
+        reads as texture rather than as one affordance per setting. The
+        link is the last line of the help, where the reader was already
+        finding it.
+        """
         help_text = field.toolTip() or (
             f"Controls {source_label.casefold()} for distributed execution."
         )
         label = QLabel(tr(source_label), self)
         label.setObjectName("SettingsLabel")
+        # Module first, then the setting: the dot beside this label was
+        # built with the arguments this way round and reached the module's
+        # own page, while the label's help -- given them the other way --
+        # named the help text as the module and landed on the documentation
+        # index. With the dot gone, the help is the only route to the page.
         attach_api_tooltip(
-            label, help_text, "distributed_jobs", api_key
+            label, "distributed_jobs", api_key, help_text
         )
-        info = InfoLink(
-            api_docs_url("distributed_jobs", api_key),
-            tooltip=(
-                f"Open spaCR API documentation for {source_label.casefold()}."
-            ),
-            parent=self,
-        )
-        wrapper = QWidget(self)
-        row = QHBoxLayout(wrapper)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["xs"])
-        row.addWidget(label)
-        row.addWidget(info)
-        row.addStretch(1)
-        form.addRow(wrapper, field)
+        # ``attach_api_tooltip`` deliberately expands the plain field help
+        # into structured HTML with an API link.  The generic retargeting
+        # pass therefore sees two *different* strings and conservatively
+        # keeps both.  This row created the richer label explicitly, so the
+        # plain duplicate on the editor is safe to remove here.
+        field.setToolTip("")
+        label.setCursor(Qt.WhatsThisCursor)
+        label.setProperty("settingHelpLabel", True)
+        self._install_help_filter(label)
+        form.addRow(label, field)
+
+    def _install_help_filter(self, label: QWidget) -> None:
+        """Give ``label`` the clickable sticky popup the settings forms use.
+
+        A native Qt tooltip cannot be walked into, so its API link cannot be
+        clicked -- the pointer leaving the label takes the link with it.
+        One filter per dialog: Qt keeps a LIST of event filters, so a second
+        object would show two popups for one hover.
+        """
+        filter_ = getattr(self, "_api_tooltip_filter", None)
+        if filter_ is None:
+            from .settings_model import _ApiTooltipFilter
+            filter_ = _ApiTooltipFilter(self)
+            self._api_tooltip_filter = filter_
+        label.removeEventFilter(filter_)
+        label.installEventFilter(filter_)
 
     def _sync_backend(self, *_args) -> None:
         """Show only controls meaningful to the selected backend."""
@@ -378,7 +418,17 @@ class ExecutionProfileDialog(QDialog):
 
 
 class DistributedJobsScreen(QWidget):
-    """Submit and monitor distributed spaCR jobs without blocking Qt."""
+    """Submit and monitor distributed spaCR jobs without blocking Qt.
+
+    :param parent: parent widget.
+    :param manager: the job manager to submit through. One is created when
+        none is given, so a test can supply a manager that reaches no cluster.
+    :param threaded: whether submissions and polls run off the GUI thread.
+        False runs them inline, which is what makes a test deterministic.
+    :param auto_poll: whether the screen starts its own refresh timer. False
+        leaves the job list to be refreshed by hand, so a test is not racing
+        a timer it did not start.
+    """
 
     def __init__(
         self,
@@ -388,6 +438,18 @@ class DistributedJobsScreen(QWidget):
         threaded: bool = True,
         auto_poll: bool = True,
     ):
+        """Build the screen and arm its drop zone and poll timer.
+
+        A store that cannot be read reports itself on the status line and leaves
+        the screen usable with no jobs listed, rather than failing to build --
+        the profiles half still works and is how the store gets fixed.
+
+        :param parent: parent widget, or ``None``.
+        :param manager: the remote job manager; ``None`` opens the default one.
+        :param threaded: run submissions and polls on a worker thread.
+        :param auto_poll: start the refresh timer. Off in tests, which drive
+            ``refresh`` themselves.
+        """
         super().__init__(parent)
         self.manager = manager or RemoteJobManager()
         self._threaded = bool(threaded)
@@ -419,6 +481,11 @@ class DistributedJobsScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "distributed_jobs")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
         """Construct profile, submission, table, and detail controls."""
@@ -510,6 +577,7 @@ class DistributedJobsScreen(QWidget):
 
         splitter = QSplitter(Qt.Vertical, self)
         self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(list(_COLUMNS))
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -689,6 +757,7 @@ class DistributedJobsScreen(QWidget):
         self._set_status(label)
 
         def _work(_settings):
+            """Run the operation on the job runner's thread."""
             try:
                 self._pending_result = operation()
             except Exception as exc:
@@ -765,6 +834,7 @@ class DistributedJobsScreen(QWidget):
         )
 
         def _submit():
+            """Resolve the module and its settings, then submit. Off-thread."""
             from ...cli import resolve_module, resolve_settings
             module = resolve_module(module_name)
             if module is None:
@@ -779,6 +849,7 @@ class DistributedJobsScreen(QWidget):
             return self.manager.submit(module.key, settings, profile_name)
 
         def _done(job: RemoteJob):
+            """Redraw the job list with the new job selected."""
             self._render_jobs(self.manager.jobs.list(), select=job.job_id)
             self._set_status(
                 tr("Submitted {module} as {job}.").format(
@@ -791,6 +862,7 @@ class DistributedJobsScreen(QWidget):
     def refresh(self) -> None:
         """Poll all non-terminal jobs in a worker thread."""
         def _done(jobs):
+            """Redraw the job list and report how many are still active."""
             self._render_jobs(jobs)
             active = sum(
                 job.status in ACTIVE_STATES or job.status == "unknown"
@@ -839,6 +911,11 @@ class DistributedJobsScreen(QWidget):
             return
 
         def _done(updated):
+            """Redraw with the cancelled job still selected.
+
+            Keeping the SELECTION is the point: a list that jumps to the top after a
+            cancel loses the row the user was working with.
+            """
             self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
             self._set_status(
                 tr("Cancellation requested for {job}.").format(
@@ -860,6 +937,7 @@ class DistributedJobsScreen(QWidget):
             return
 
         def _done(text):
+            """Show the fetched log, re-reading the job in case it moved on."""
             updated = self.manager.jobs.get(job.job_id)
             self._render_jobs(self.manager.jobs.list(), select=updated.job_id)
             self._detail.setPlainText(self._job_detail(updated))

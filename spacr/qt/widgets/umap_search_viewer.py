@@ -12,14 +12,19 @@ rather than pulling in a second GUI stack.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from typing import Any, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QPointF, Qt, Signal
-from PySide6.QtGui import QColor, QIcon, QImage, QMouseEvent, QPainter, QPen, QPixmap, QWheelEvent
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtGui import (
+    QColor, QIcon, QImage, QMouseEvent, QPainter, QPen, QPixmap, QPolygonF,
+    QWheelEvent,
+)
 from PySide6.QtWidgets import (
-    QAbstractItemView, QDialog, QHBoxLayout, QLabel, QListView, QListWidget,
-    QListWidgetItem, QPushButton, QVBoxLayout, QWidget,
+    QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QFormLayout, QHBoxLayout, QLabel, QListView, QListWidget, QListWidgetItem,
+    QMenu, QPushButton, QVBoxLayout, QWidget,
 )
 
 BACKGROUND = QColor(8, 10, 14)
@@ -35,6 +40,17 @@ CLUSTER_COLORS: Tuple[Tuple[int, int, int], ...] = (
 
 
 def _coordinates(value: Any) -> np.ndarray:
+    """Validate an embedding and pad it to three dimensions.
+
+    A 2-D embedding gains a zero third axis, so the renderer has one code
+    path rather than two.
+
+    :param value: the coordinates.
+    :returns: an ``(n, 3)`` float array.
+    :raises ValueError: if the shape is not ``(n, 2)`` or ``(n, 3)``, if it
+        is empty, or if it holds NaN or infinities -- each of which draws as
+        a blank panel rather than as an error if let through.
+    """
     coords = np.asarray(value, dtype=float)
     if coords.ndim != 2 or coords.shape[1] not in (2, 3):
         raise ValueError("UMAP coordinates must have shape (rows, 2) or (rows, 3).")
@@ -47,10 +63,44 @@ def _coordinates(value: Any) -> np.ndarray:
     return coords
 
 
-def colors_for_labels(labels: Optional[Sequence[int]], count: int) -> List[QColor]:
+@lru_cache(maxsize=128)
+def _colormap_rgb(name: str, count: int) -> Tuple[Tuple[int, int, int], ...]:
+    """Sample a Matplotlib colour map lazily; retain a Qt-only fallback."""
+    count = max(1, int(count))
+    if name == "spaCR":
+        return tuple(CLUSTER_COLORS[index % len(CLUSTER_COLORS)]
+                     for index in range(count))
+    try:
+        from matplotlib import colormaps
+        cmap = colormaps.get_cmap(str(name))
+        values = cmap(np.linspace(0.0, 1.0, count))
+        return tuple(tuple(int(round(float(channel) * 255.0))
+                           for channel in rgba[:3]) for rgba in values)
+    except Exception:
+        return tuple(CLUSTER_COLORS[index % len(CLUSTER_COLORS)]
+                     for index in range(count))
+
+
+def available_colormaps() -> List[str]:
+    """Every installed Matplotlib colour map, plus spaCR's native palette."""
+    try:
+        from matplotlib import colormaps
+        return ["spaCR", *sorted(str(name) for name in colormaps)]
+    except Exception:
+        return ["spaCR", "viridis", "plasma", "inferno", "magma"]
+
+
+def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
+                      cmap: str = "spaCR", alpha: float = 0.86) -> List[QColor]:
     """One readable colour per point, with HDBSCAN noise in grey."""
+    opacity = int(round(255.0 * float(np.clip(alpha, 0.05, 1.0))))
     if labels is None:
-        return [QColor(POINT) for _ in range(count)]
+        if cmap == "spaCR":
+            colour = QColor(POINT)
+            colour.setAlpha(opacity)
+            return [QColor(colour) for _ in range(count)]
+        palette = _colormap_rgb(cmap, count)
+        return [QColor(*rgb, opacity) for rgb in palette]
     values = np.asarray(labels)
     if values.shape != (count,):
         return [QColor(POINT) for _ in range(count)]
@@ -62,12 +112,22 @@ def colors_for_labels(labels: Optional[Sequence[int]], count: int) -> List[QColo
         if value < 0:
             out.append(QColor(NOISE))
             continue
-        red, green, blue = CLUSTER_COLORS[ids[value] % len(CLUSTER_COLORS)]
-        out.append(QColor(red, green, blue, 220))
+        palette = _colormap_rgb(cmap, max(1, len(ids)))
+        red, green, blue = palette[ids[value] % len(palette)]
+        out.append(QColor(red, green, blue, opacity))
     return out
 
 
 def _rotation(yaw: float, pitch: float) -> np.ndarray:
+    """Build the rotation matrix for a yaw and a pitch.
+
+    Applied pitch-after-yaw, which is what makes dragging feel like turning
+    a held object rather than tumbling it.
+
+    :param yaw: rotation about the vertical axis, in radians.
+    :param pitch: rotation about the horizontal axis, in radians.
+    :returns: the 3x3 matrix.
+    """
     cy, sy = math.cos(yaw), math.sin(yaw)
     cp, sp = math.cos(pitch), math.sin(pitch)
     around_y = np.array(((cy, 0.0, sy), (0.0, 1.0, 0.0),
@@ -91,6 +151,129 @@ def project_points(coords: Any, width: int, height: int, *,
     points[:, 0] = rotated[:, 0] * scale + float(width) / 2.0
     points[:, 1] = -rotated[:, 1] * scale + float(height) / 2.0
     return points, rotated[:, 2]
+
+
+def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
+               pitch: float = 0.0, zoom: float = 1.0) -> dict:
+    """Return projected grid lines and exactly two or three primary axes."""
+    raw = np.asarray(coords, dtype=float)
+    dimensions = raw.shape[1] if raw.ndim == 2 else 0
+    xyz = _coordinates(raw)
+    centre = np.mean(xyz, axis=0, keepdims=True)
+    rotation = _rotation(float(yaw), float(pitch))
+    rotated = (xyz - centre) @ rotation.T
+    span = float(np.max(np.ptp(rotated[:, :2], axis=0)))
+    usable = max(1.0, min(float(width), float(height)) * 0.88)
+    scale = usable * max(0.05, float(zoom)) / max(span, 1e-9)
+
+    def projected(points: Sequence[Sequence[float]]) -> np.ndarray:
+        """Project points into the frame, in PIXEL coordinates.
+
+        The vertical is negated because screen y grows downward and the data's
+        does not -- without it the plot is drawn upside down and still looks
+        plausible.
+        """
+        values = (np.asarray(points, dtype=float) - centre) @ rotation.T
+        result = np.empty((len(values), 2), dtype=float)
+        result[:, 0] = values[:, 0] * scale + float(width) / 2.0
+        result[:, 1] = -values[:, 1] * scale + float(height) / 2.0
+        return result
+
+    low = np.min(xyz, axis=0)
+    high = np.max(xyz, axis=0)
+    # Degenerate dimensions still receive a visible axis of finite length.
+    high = np.where(np.isclose(high, low), low + 1.0, high)
+    origin = low.copy()
+    axes = []
+    for index in range(dimensions):
+        end = origin.copy()
+        end[index] = high[index]
+        line = projected((origin, end))
+        axes.append((line[0], line[1], f"Dimension {index + 1}"))
+
+    grid = []
+    fractions = (0.2, 0.4, 0.6, 0.8)
+    # A readable base-plane grid: X/Y in both 2D and 3D. The third axis rises
+    # from the same origin in 3D and rotates with the map.
+    for fraction in fractions:
+        x = low[0] + (high[0] - low[0]) * fraction
+        grid.append(tuple(projected(((x, low[1], low[2]),
+                                     (x, high[1], low[2])))))
+        y = low[1] + (high[1] - low[1]) * fraction
+        grid.append(tuple(projected(((low[0], y, low[2]),
+                                     (high[0], y, low[2])))))
+    return {"dimensions": dimensions, "axes": axes, "grid": grid}
+
+
+class UmapAppearanceDialog(QDialog):
+    """Non-modal point renderer controls for one embedding view.
+
+    :param appearance: the settings to open on, read with ``.get`` so a
+        partial dict is legitimate and anything absent falls back to the
+        control's own default.
+    :param parent: parent widget.
+
+    NON-MODAL, which is the point: the view stays visible and usable while
+    this is open, so a change can be judged against the picture it changes.
+    """
+
+    applied = Signal(dict)
+
+    def __init__(self, appearance: dict, parent: Optional[QWidget] = None):
+        """Build the embedding-appearance dialog.
+
+        :param appearance: the current settings; each control opens on its
+            value and falls back to the view's default when the key is absent.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self.setObjectName("UmapAppearanceDialog")
+        self.setWindowTitle("Embedding appearance")
+        form = QFormLayout(self)
+        self.marker = QComboBox(self)
+        self.marker.addItems(["circle", "square", "diamond", "cross"])
+        self.marker.setCurrentText(str(appearance.get("marker", "circle")))
+        form.addRow("Point rendering", self.marker)
+        self.size = QDoubleSpinBox(self)
+        self.size.setRange(1.0, 24.0)
+        self.size.setSingleStep(0.5)
+        self.size.setValue(float(appearance.get("size", 3.2)))
+        form.addRow("Point size", self.size)
+        self.alpha = QDoubleSpinBox(self)
+        self.alpha.setRange(0.05, 1.0)
+        self.alpha.setSingleStep(0.05)
+        self.alpha.setDecimals(2)
+        self.alpha.setValue(float(appearance.get("alpha", 0.86)))
+        form.addRow("Opacity", self.alpha)
+        self.cmap = QComboBox(self)
+        self.cmap.addItems(available_colormaps())
+        self.cmap.setCurrentText(str(appearance.get("cmap", "spaCR")))
+        form.addRow("Colour map", self.cmap)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Apply | QDialogButtonBox.Close, parent=self)
+        buttons.button(QDialogButtonBox.Apply).clicked.connect(self._apply)
+        buttons.rejected.connect(self.close)
+        form.addRow(buttons)
+
+    def values(self) -> dict:
+        """Whatever the controls currently read.
+
+        :returns: the appearance settings as a plain dict.
+        """
+        return {
+            "marker": self.marker.currentText(),
+            "size": self.size.value(),
+            "alpha": self.alpha.value(),
+            "cmap": self.cmap.currentText(),
+        }
+
+    def _apply(self) -> None:
+        """Announce the current settings without closing the dialog.
+
+        Applying rather than accepting is the point: the embedding is judged by
+        looking at it, so the controls have to stay reachable while it redraws.
+        """
+        self.applied.emit(self.values())
 
 
 def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
@@ -117,9 +300,16 @@ def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
 
 
 class UmapEmbeddingView(QWidget):
-    """A black-background 2-D/3-D point view; drag a 3-D map to spin it."""
+    """A black-background 2-D/3-D point view; drag a 3-D map to spin it.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Create an empty embedding view.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UmapEmbeddingView")
         self.setMinimumSize(280, 260)
@@ -134,20 +324,107 @@ class UmapEmbeddingView(QWidget):
         self._zoom = 1.0
         self._drag_at = None
         self._point_size = 3.2
+        self._marker = "circle"
+        self._point_alpha = 0.86
+        self._cmap = "spaCR"
+        self._appearance_dialog: Optional[UmapAppearanceDialog] = None
 
     @property
     def coordinates(self) -> Optional[np.ndarray]:
+        """The embedded points.
+
+        A COPY, so a caller cannot move this view's points by writing into
+        the array it was handed.
+
+        :returns: an ``(n, dimensions)`` array, or None before a search.
+        """
         return None if self._coords is None else self._coords.copy()
 
     @property
     def labels(self) -> Optional[np.ndarray]:
+        """The class of each point, when the view has been given any.
+
+        A copy, for the same reason as :attr:`coordinates`.
+
+        :returns: one label per point, or None.
+        """
         return None if self._labels is None else self._labels.copy()
 
     @property
     def dimensions(self) -> int:
+        """Whether the embedding is being shown in 2-D or 3-D.
+
+        :returns: 2, 3, or 0 before anything has been embedded.
+        """
         return self._dimensions
 
+    @property
+    def appearance(self) -> dict:
+        """How the points are currently drawn.
+
+        :returns: the marker, size, opacity and colouring as a plain dict.
+        """
+        return {
+            "marker": self._marker, "size": self._point_size,
+            "alpha": self._point_alpha, "cmap": self._cmap,
+        }
+
+    def set_appearance(self, values: dict) -> None:
+        """Apply rendering-only changes without changing the embedding."""
+        marker = str(values.get("marker", self._marker))
+        if marker not in {"circle", "square", "diamond", "cross"}:
+            raise ValueError(f"Unknown point rendering: {marker!r}.")
+        self._marker = marker
+        self._point_size = float(np.clip(
+            values.get("size", self._point_size), 1.0, 24.0))
+        self._point_alpha = float(np.clip(
+            values.get("alpha", self._point_alpha), 0.05, 1.0))
+        cmap = str(values.get("cmap", self._cmap))
+        self._cmap = cmap if cmap in available_colormaps() else "spaCR"
+        self.update()
+
+    def open_appearance_editor(self) -> UmapAppearanceDialog:
+        """Open the non-modal appearance editor, wired to apply live.
+
+        NON-MODAL AND LIVE, because the whole question the dialog answers is
+        what the points look like -- an editor that blocked the view it is
+        adjusting would have to be closed to be judged.
+
+        :returns: the dialog, already shown.
+        """
+        dialog = UmapAppearanceDialog(self.appearance, self)
+        dialog.applied.connect(self.set_appearance)
+        dialog.finished.connect(lambda _result: setattr(
+            self, "_appearance_dialog", None))
+        self._appearance_dialog = dialog
+        dialog.show()
+        dialog.raise_()
+        return dialog
+
+    def contextMenuEvent(self, event) -> None:  # noqa: N802
+        """Offer the appearance editor on right-click.
+
+        :param event: the Qt context-menu event.
+        """
+        menu = QMenu(self)
+        appearance = menu.addAction("Appearance…")
+        reset = menu.addAction("Reset view")
+        chosen = menu.exec(event.globalPos())
+        if chosen is appearance:
+            self.open_appearance_editor()
+        elif chosen is reset:
+            self.reset_view()
+        event.accept()
+
     def clear(self, message: str = "No search has been run yet.") -> None:
+        """Empty the view and say why it is empty.
+
+        The message is a parameter because "no search yet" and "that search
+        returned nothing" are different situations and a blank panel cannot
+        tell them apart.
+
+        :param message: what to show in place of the points.
+        """
         self._coords = None
         self._dimensions = 0
         self._labels = None
@@ -157,6 +434,13 @@ class UmapEmbeddingView(QWidget):
 
     def set_embedding(self, coords: Any, *, labels: Optional[Sequence[int]] = None,
                       caption: str = "", backend: str = "") -> None:
+        """Show an embedding.
+
+        :param coords: an ``(n, 2)`` or ``(n, 3)`` array of coordinates.
+        :param labels: one class per point, for colouring.
+        :param caption: text drawn under the view.
+        :param backend: which embedder produced this, for the caption.
+        """
         values = np.asarray(coords, dtype=float)
         dimensions = values.shape[1] if values.ndim == 2 else 0
         self._coords = _coordinates(values)
@@ -169,6 +453,13 @@ class UmapEmbeddingView(QWidget):
         self.reset_view()
 
     def set_labels(self, labels: Optional[Sequence[int]]) -> None:
+        """Recolour the existing points by a new set of classes.
+
+        Separate from :meth:`set_embedding` so a relabelling does not
+        recompute or re-frame the layout the user is looking at.
+
+        :param labels: one class per point, or None to clear the colouring.
+        """
         if self._coords is None:
             return
         values = None if labels is None else np.asarray(labels, dtype=int)
@@ -178,12 +469,22 @@ class UmapEmbeddingView(QWidget):
         self.update()
 
     def reset_view(self) -> None:
+        """Put the camera back to where the embedding was first framed.
+
+        The way out of a spin or a zoom that has lost the cloud: a 3-D view
+        can be rotated until nothing is on screen, and no amount of further
+        dragging necessarily finds it again.
+        """
         self._yaw = 0.22
         self._pitch = -0.16
         self._zoom = 1.0
         self.update()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        """Begin a spin drag.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() == Qt.LeftButton and self._coords is not None:
             self._drag_at = event.position()
             event.accept()
@@ -191,6 +492,10 @@ class UmapEmbeddingView(QWidget):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        """Spin the embedding by how far the pointer has moved.
+
+        :param event: the Qt mouse event.
+        """
         if self._drag_at is not None and self._coords is not None:
             delta = event.position() - self._drag_at
             self._drag_at = event.position()
@@ -204,10 +509,18 @@ class UmapEmbeddingView(QWidget):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+        """End a spin drag.
+
+        :param event: the Qt mouse event.
+        """
         self._drag_at = None
         super().mouseReleaseEvent(event)
 
     def wheelEvent(self, event: QWheelEvent) -> None:  # noqa: N802
+        """Zoom the view; ignored until there is something to zoom.
+
+        :param event: the Qt wheel event.
+        """
         if self._coords is None:
             return super().wheelEvent(event)
         steps = float(event.angleDelta().y()) / 120.0
@@ -216,6 +529,10 @@ class UmapEmbeddingView(QWidget):
         event.accept()
 
     def paintEvent(self, _event) -> None:  # noqa: N802
+        """Draw the points, or the empty-state message.
+
+        :param _event: the Qt paint event; unused.
+        """
         painter = QPainter(self)
         painter.fillRect(self.rect(), BACKGROUND)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -229,31 +546,78 @@ class UmapEmbeddingView(QWidget):
             self._coords, self.width(), self.height(), yaw=self._yaw,
             pitch=self._pitch if self.dimensions == 3 else 0.0,
             zoom=self._zoom)
-        colours = colors_for_labels(self._labels, len(self._coords))
-        pen = QPen()
-        pen.setWidthF(self._point_size)
-        pen.setCapStyle(Qt.RoundCap)
+        frame = axis_frame(
+            self._coords[:, :self.dimensions], self.width(), self.height(),
+            yaw=self._yaw, pitch=self._pitch if self.dimensions == 3 else 0.0,
+            zoom=self._zoom)
+        grid_pen = QPen(QColor(71, 85, 105, 105))
+        grid_pen.setWidthF(0.8)
+        painter.setPen(grid_pen)
+        for start, end in frame["grid"]:
+            painter.drawLine(QPointF(*start), QPointF(*end))
+        axis_pen = QPen(QColor(148, 163, 184, 205))
+        axis_pen.setWidthF(1.35)
+        painter.setPen(axis_pen)
+        for start, end, label in frame["axes"]:
+            painter.drawLine(QPointF(*start), QPointF(*end))
+            painter.drawText(QPointF(float(end[0]) + 4.0,
+                                     float(end[1]) - 4.0), label)
+
+        colours = colors_for_labels(
+            self._labels, len(self._coords), cmap=self._cmap,
+            alpha=self._point_alpha)
+        radius = self._point_size / 2.0
         for index in np.argsort(depth):
-            pen.setColor(colours[int(index)])
-            painter.setPen(pen)
+            colour = colours[int(index)]
             x, y = points[int(index)]
-            painter.drawPoint(QPointF(float(x), float(y)))
+            point = QPointF(float(x), float(y))
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(colour)
+            if self._marker == "circle":
+                painter.drawEllipse(point, radius, radius)
+            elif self._marker == "square":
+                painter.drawRect(QRectF(
+                    float(x) - radius, float(y) - radius,
+                    self._point_size, self._point_size))
+            elif self._marker == "diamond":
+                painter.drawPolygon(QPolygonF((
+                    QPointF(float(x), float(y) - radius),
+                    QPointF(float(x) + radius, float(y)),
+                    QPointF(float(x), float(y) + radius),
+                    QPointF(float(x) - radius, float(y)),
+                )))
+            else:
+                marker_pen = QPen(colour)
+                marker_pen.setWidthF(max(1.0, self._point_size / 2.0))
+                painter.setPen(marker_pen)
+                painter.drawLine(QPointF(float(x) - radius, float(y)),
+                                 QPointF(float(x) + radius, float(y)))
+                painter.drawLine(QPointF(float(x), float(y) - radius),
+                                 QPointF(float(x), float(y) + radius))
         painter.setPen(FOREGROUND)
         title = self._caption
         if self._backend:
             title += f"  ·  {self._backend}"
         painter.drawText(12, 22, title)
         painter.setPen(MUTED)
-        hint = ("drag to spin · wheel to zoom" if self.dimensions == 3
-                else "wheel to zoom")
+        hint = ("drag to spin · wheel to zoom · right-click appearance"
+                if self.dimensions == 3
+                else "wheel to zoom · right-click appearance")
         painter.drawText(12, self.height() - 12, hint)
         painter.end()
 
 
 class UmapExplorer(QWidget):
-    """Small shell around :class:`UmapEmbeddingView` with a reset control."""
+    """Small shell around :class:`UmapEmbeddingView` with a reset control.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the embedding view with its reset control above it.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -269,15 +633,28 @@ class UmapExplorer(QWidget):
         layout.addWidget(self.view, 1)
 
     def _reset(self) -> None:
+        """Return the embedding to its default rotation and zoom."""
         self.view.reset_view()
 
 
 class UmapGalleryDialog(QDialog):
-    """All table embeddings on black, with a click returning the real trial."""
+    """All table embeddings on black, with a click returning the real trial.
+
+    :param trials: the trials to show. Clicking one emits it through
+        :attr:`trial_chosen` UNCHANGED -- the gallery hands back the object
+        it was given rather than an index into a list the caller would have
+        to keep in step.
+    :param parent: parent widget.
+    """
 
     trial_chosen = Signal(object)
 
     def __init__(self, trials: Iterable[Any] = (), parent: Optional[QWidget] = None):
+        """Build the gallery of every embedding produced by a search.
+
+        :param trials: the trials to show, newest first is the caller's choice.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("UmapGalleryDialog")
         self.setWindowTitle("All Image UMAPs")
@@ -309,6 +686,14 @@ class UmapGalleryDialog(QDialog):
         self.set_trials(trials)
 
     def set_trials(self, trials: Iterable[Any]) -> None:
+        """Show the trials that actually produced an embedding.
+
+        FILTERED, NOT ALL. A sweep's failed or skipped trials have no
+        embedding to show, and a gallery cell for one would be a blank tile
+        the user has to work out the meaning of.
+
+        :param trials: every trial from the sweep.
+        """
         self._trials = [trial for trial in trials
                         if getattr(trial, "extra_metrics", {}).get("embedding") is not None]
         self.list.clear()
@@ -333,6 +718,11 @@ class UmapGalleryDialog(QDialog):
             "its stored coordinates into the UMAP viewer.")
 
     def _choose(self, item: QListWidgetItem) -> None:
+        """Announce the trial behind a clicked tile.
+
+        :param item: the clicked tile; its stored index is bounds-checked, so a
+            tile left over from an earlier set cannot emit the wrong trial.
+        """
         index = item.data(Qt.UserRole)
         if isinstance(index, int) and 0 <= index < len(self._trials):
             self.trial_chosen.emit(self._trials[index])

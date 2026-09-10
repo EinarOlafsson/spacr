@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "backgrounds",
+      "source_sha256": "53e350ac17e083242c4e10bf0ffbc235db931d206eaae981c4fd9efaf9ac6388",
+      "source": "Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
+      "translation": "为兼容旧版本而保留在设置快照中的字段。当前掩膜预处理会忽略此列表，改为读取 cell_background、nucleus_background、pathogen_background 和每个细胞器的背景设置，因此更改此字段不会改变分割结果。默认值为 [100, 100, 100, 100]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "normalize_plots",
+      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
+      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
+      "translation": "为兼容旧版本而保留在设置快照中的字段。当前绘图路径不会读取它；请改用各图的归一化和百分位数控件。更改此值不会影响图形或测量结果。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_chann_dim",
+      "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
+      "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
+      "translation": "为较旧设置文件保留的旧版合并字段。当前 Mask 使用 organelle_channel 决定是否附加掩膜平面，Measure 使用 organelle_mask_dim 定位该平面；更改此字段不会产生任何影响。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "visualize",
+      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
+      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
+      "translation": "保留在已保存设置中的旧版 Image UMAP 裁剪选择器。当前工作流始终连接测量表并裁剪细胞图像，使缩略图标签与测量行对应；更改此值不会改变嵌入或缩略图。默认值为 'cell'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "width_height",
+      "source_sha256": "52b4c1dbf57bcf42b71db99fac1cde403908e97010034b4e2f53e69235ab18c8",
+      "source": "Legacy Cellpose checkpoint metadata retained for older settings files. Current training resizes every image-mask pair with the scalar target_size and does not read this list, so changing it does not change training. Default [1000, 1000].",
+      "translation": "为较旧设置文件保留的旧版 Cellpose 检查点元数据。当前训练使用标量 target_size 调整每个图像与掩膜对的大小，并且不会读取此列表，因此更改它不会改变训练。默认值为 [1000, 1000]。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save",
+      "source_sha256": "cd6bf61665eb46cccb2885d06d909bc9f0e27666ffec83b1df41bad3eae0346e",
+      "source": "Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module.",
+      "translation": "控制当前模块是否写入可选的磁盘产物，例如掩膜、图形或结果表。Mask 接受一个三项列表，分别控制 [cell, nucleus, pathogen]；其他模块使用一个布尔值。默认值因模块而异。"
+    }
+  ]
+}

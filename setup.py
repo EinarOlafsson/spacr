@@ -7,15 +7,28 @@
 # failures behind a bare `except CalledProcessError: pass`, invoked the bare
 # name `pip` (absent from PATH in many venv layouts), and installed an entire
 # second, unused Qt binding: pyqtgraph, pyqt6, pyqt6.sip, qtpy and superqt —
-# a hand-copy of cellpose's `gui` extra, duplicated within itself. 75 files
-# under spacr/ import PySide6; zero import PyQt6, pyqtgraph, qtpy or superqt.
+# a hand-copy of cellpose's `gui` extra, duplicated within itself. Files under
+# spacr/ import PySide6; zero import PyQt6, qtpy or superqt.
 # The block is gone; nothing replaced it, because nothing needed it.
+#
+# PYQTGRAPH IS NO LONGER PART OF THAT BAN, and the paragraph above is left
+# standing because it was true when it was written. spacr/qt/widgets/
+# fast_plots.py is the volcano, the Q-Q, the p-histogram, the control panel
+# and the guide-agreement plot, and the regression results panel builds all
+# five -- so pyqtgraph is now a first-class dependency spaCR imports, declared
+# in the core requirements beside PySide6. It is not a Qt BINDING; it draws
+# through whichever binding is installed, so none of the ABI reasoning that
+# banned PyQt6 applies to it. Reported from a real install that had PySide6
+# and not this, where opening ANY module raised RuntimeError out of the
+# screen factory.
 #
 # Project metadata that PEP 621 owns (name, requires-python, classifiers,
 # authors, URLs) now lives in pyproject.toml. The fields below stay here
 # because packaging/build_{debian,macos,windows}.* and four tests read this
 # file as text or execute it directly; pyproject.toml declares them
 # `dynamic` so setuptools takes them from this call.
+import sys
+
 from setuptools import setup, find_packages
 
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -70,8 +83,8 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # 18 distributions had zero imports, zero string references and zero dynamic
 # references, and are gone: transformers, monai, segmentation_models_pytorch,
 # torch-geometric, PyWavelets, rapidfuzz, wandb, gdown, pytz, ipykernel,
-# ttkthemes, ttf_opensans (spaCR bundles its own Open Sans under
-# spacr/resources/font/), brokenaxes, gpustat, customtkinter, openai, keyring
+# ttf_opensans (spaCR bundles its own Open Sans under
+# spacr/resources/font/), brokenaxes, gpustat, openai, keyring
 # and importlib-metadata. Three of those had a *prose* hit and no code hit —
 # "transformers" in a GUI blurb, "@openai/codex" in an npm one-liner, "OS
 # keyring" in a stale docstring — which is precisely the difference a raw grep
@@ -97,35 +110,59 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 # `model_type=` string and live in the `boosting` extra — see the note there.
 #
 # ---------------------------------------------------------------------------
-# WHAT A VERSION BOUND IN THIS LIST MEANS. Settled 2026-08-11, because
-# "always use the optimal dependency versions" has two readings that imply
-# opposite CI jobs, and the list was being edited under both.
+# WHAT "THE OPTIMAL DEPENDENCY VERSIONS" MEANS.
 #
-# The lower bound is the OLDEST VERSION CI ACTUALLY INSTALLS AND TESTS. It is
-# not a guess at the oldest that might work, and raising it is cheap. This is
-# the rule the cellpose floor was settled by: `>=4.0` was resolving to 4.0.1
-# in CI, whose `CellposeModel` signature spaCR has never been developed
-# against, so the floor moved to 4.0.7 rather than the contract test being
-# loosened. A floor nobody installs is worse than one declared too high --
-# pip resolves it happily and the failure lands on a user.
-# `.github/constraints/minimum-py39.txt` is the file that makes the floor
-# real, and `tests/test_minimum_constraints_match_setup.py` keeps the two
-# from drifting apart again.
+# The phrase has two readings that imply opposite CI jobs -- the oldest set
+# that passes, or the newest set that passes -- and a list edited under both
+# readings at once drifts in both directions. spaCR means the NEWEST. Both
+# jobs exist because they answer different questions, and only one of them is
+# a recommendation.
 #
-# The upper bound is a MAJOR VERSION SPaCR HAS NOT SEEN. It exists so a
+#   WHAT A USER GETS is the newest. `pip install spacr` resolves the TOP of
+#   every range below, so the upper end of each range is the version spaCR
+#   recommends. The `Fast / Full suite control` job in
+#   .github/workflows/tests.yml installs with no constraints file at all and
+#   runs the suite against whatever pip picks that day, which is the only way
+#   the recommendation stays true as new releases land.
+#
+#   WHAT A USER IS PROMISED is the floor. A lower bound is for an environment
+#   pinned by something else -- a cluster module, a conda solve, another
+#   package's own cap. It is not advice, and it is worthless unless something
+#   installs it, so the `Minimum dependencies` job in the same workflow
+#   installs .github/constraints/minimum-py39.txt on CPython 3.9 and runs the
+#   same suite there.
+#
+# A lower bound is therefore THE OLDEST VERSION CI ACTUALLY INSTALLS AND
+# TESTS, never a guess at the oldest that might work. Raising one is cheap;
+# leaving one unverified is how "it installed and then crashed" reports are
+# made, because pip resolves a low floor happily and the failure lands on a
+# user. cellpose is the worked example: `>=4.0` resolved to 4.0.1 in CI,
+# whose `CellposeModel` signature spaCR has never been developed against, so
+# the floor moved to 4.0.7 rather than the contract test being loosened.
+#
+# Every constraint pin equals its declared floor exactly, unless the minimum
+# profile cannot install that combination -- coupled packages such as torch,
+# torchvision and sympy are the case that arises -- and then the constraints
+# file names the package and says why. A pin quietly sitting above its floor
+# leaves the floor the one bound in this file that nothing tests.
+#
+# An upper bound is a MAJOR VERSION spaCR HAS NOT SEEN. It exists so a
 # breaking release cannot arrive silently between a user's `pip install` and
-# their first run, and it is meant to be raised deliberately after testing --
-# not left to rot. Where a package has no upper bound here that is a
-# considered choice, not an oversight: tifffile, lxml, fastremap, tqdm and
-# protobuf have not broken us across a major.
+# their first run, and it is meant to be raised deliberately after testing.
+# A cap left to rot denies users exactly the newest version this policy is
+# about. Where a package has no upper bound that is a considered choice, not
+# an oversight: tifffile, lxml, fastremap, tqdm and protobuf have not broken
+# spaCR across a major.
 #
-# So a normal `pip install spacr` resolves to the NEWEST version in each
-# range, and that is what "optimal" means for a user. It deliberately does
-# NOT mean a lockfile. The reason is measured rather than assumed: on Python
-# 3.9 the newest resolvable IPython is 8.18.1 while on 3.11+ it is 9.16.1,
-# and matplotlib is 3.9.4 versus 3.11.1. Across the six interpreters spaCR
-# supports there is no single newest-that-works set, so any file claiming one
-# would be wrong on 3.9 the day it was written.
+# "Newest" deliberately does NOT mean a lockfile. Measured rather than
+# assumed: on Python 3.9 the newest resolvable IPython is 8.18.1 while on
+# 3.11+ it is 9.16.1, and matplotlib is 3.9.4 versus 3.11.1. Across the six
+# interpreters spaCR supports there is no single newest-that-works set, so
+# any file claiming one would be wrong on 3.9 the day it was written.
+#
+# tests/test_optimal_dependency_versions.py holds this shape: both ends
+# blocking, the floor end constrained, the newest end unconstrained, and no
+# unexplained pin above a floor.
 # ---------------------------------------------------------------------------
 dependencies = [
     # -----------------------------------------------------------------------
@@ -173,7 +210,7 @@ dependencies = [
     # makes spacr/plot.py:3064 hand seaborn a frame missing its `x_column`,
     # and forbids `read_html` on a raw string, which is exactly what
     # spacr/sim.py:655 passes.
-    'pandas>=2.2.1,<3.0',
+    'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',
     # 4.0.7, not 4.0: the floor has to be a version the test suite actually
     # passes on. `CellposeModel.__init__` gained `use_bfloat16` and
@@ -285,7 +322,34 @@ dependencies = [
     # unexpected keyword argument 'rng'`, which is what the min-deps job hit.
     # 0.47.0 publishes cp39 wheels, so the floor stays reachable on 3.9.
     'shap>=0.47.0,<1.0',
-    'torch>=2.0,<3.0',
+    # PyTorch stopped publishing Intel-macOS wheels after CPython 3.12.  Keep
+    # the rest of spaCR installable on that interpreter/platform pair instead
+    # of asking pip to resolve an artifact that does not exist. Apple silicon,
+    # Windows and Linux retain the normal dependency.
+    'torch>=2.0,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13"',
+    # THE THREE REGRESSION BACKENDS THAT COST NOTHING TO SHIP (220).
+    # Measured 2026-08-21 rather than estimated:
+    #
+    #   pyfixest  0 new packages beyond what spaCR already pulls, >=3.10
+    #   glum      0 new packages beyond what spaCR already pulls, >=3.10
+    #   gpytorch  2 new packages, 288 KB total, >=3.10
+    #
+    # GATED AT 3.10 BECAUSE THAT IS WHERE TORCH ALREADY SITS. `torch>=2.0`
+    # directly above resolves to 2.8.0 on Python 3.9 (the last release with
+    # cp39 wheels) and to 3.10+ builds after that, so these three add no
+    # interpreter constraint spaCR did not already have -- a 3.9 install
+    # simply does without them and still runs.
+    #
+    # numpyro and pymer4 stay EXTRAS and that is not symmetry for its own
+    # sake. numpyro drags jax and jaxlib: 88 MB, and jaxlib requires >=3.12,
+    # so as a default it would be absent on half the interpreters spaCR
+    # supports while costing every user who never selects it. pymer4 cannot
+    # be a default at any gate -- it needs R, rpy2 and lme4, and R is a
+    # system package pip cannot provide, so `pip install pymer4` succeeds
+    # and the backend still does not run.
+    'pyfixest>=0.40.1,<1; python_version >= "3.10"',
+    'glum>=3.1.2,<4; python_version >= "3.10"',
+    'gpytorch>=1.11,<2; python_version >= "3.10"',
     # PyTorch's official SummaryWriter backend. Vision training writes
     # loss/accuracy/F1/LR events to each run folder for an interactive
     # TensorBoard dashboard; 2.21 is the release exercised by the Python 3.12
@@ -299,8 +363,24 @@ dependencies = [
     # floors are the first Python-3.9-through-3.12-compatible line and force
     # the resolver onto mutually constrained numba/llvmlite wheels. Newer
     # Python versions naturally select newer releases within these bounds.
-    'numba>=0.60,<1.0',
-    'llvmlite>=0.43,<1.0',
+    'numba>=0.60,<1.0; sys_platform != "darwin" or platform_machine != "x86_64"',
+    'llvmlite>=0.43,<1.0; sys_platform != "darwin" or platform_machine != "x86_64"',
+    # INTEL MAC HAS A CEILING, and it is a fact about wheels rather than
+    # about spaCR: llvmlite 0.46+ publishes no macOS x86_64 wheel, and
+    # numba 0.63+ requires that unavailable line. Without the ceiling pip
+    # selects the newest of each, finds no wheel, falls back to a source
+    # build and stops on a missing `cmake` -- reported from a clean
+    # `pip install -e .` on an iMac, where the packaged installer had
+    # succeeded minutes earlier on the same machine.
+    #
+    # THE INSTALLER ALREADY KNEW THIS. `install_spacr_unix.sh` applies the
+    # identical pair as an architecture-specific resolver guard. Declaring
+    # it only there meant the shipped installer worked and a developer
+    # install from git did not -- the same knowledge written in one of the
+    # two places it is needed. It belongs here, where every install path
+    # reads it.
+    'numba>=0.60,<0.63; sys_platform == "darwin" and platform_machine == "x86_64"',
+    'llvmlite>=0.43,<0.46; sys_platform == "darwin" and platform_machine == "x86_64"',
     # Floor RAISED from `>=0.1`, which was false — torchvision 0.1.6 is from
     # 2017. spacr/utils.py:53 imports `ResNet18_Weights ... ResNet152_Weights`
     # from torchvision.models.resnet at module scope (the multi-weight API,
@@ -308,7 +388,7 @@ dependencies = [
     # `model_name='maxvit_t'` (0.14.0). torchvision pins torch exactly, and
     # 0.15.x is the release built against torch 2.0 — so `torch>=2.0` above
     # already implies 0.15. This line now says that instead of implying it.
-    'torchvision>=0.15,<1.0',
+    'torchvision>=0.15,<1.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version < "3.13"',
     # `torch-geometric`, `transformers`, `segmentation_models_pytorch` and
     # `monai` REMOVED: zero imports, zero string references, zero dynamic
     # references. Together they were the four most expensive names on the
@@ -332,6 +412,65 @@ dependencies = [
     'seaborn>=0.13.2,<1.0',
     'matplotlib>=3.8.3,<4.0',
     'matplotlib_venn>=1.1,<2.0',
+    # THE SAME RULE AS THE ENTRY BELOW, applied to a module that was missing
+    # it. spacr.regression_panels imports PdfReader, PdfWriter and Link at
+    # module scope, so the PDF implementation is a direct dependency. The
+    # 6.16.1 floor is the first release containing the current resource-use
+    # fixes for hostile PDFs, including the XForm text-extraction bound; it
+    # supports every Python admitted by this package and ships a universal
+    # wheel. The discontinued PyPDF2 name is deliberately not accepted.
+    #
+    # It also took the test suite down whole rather than one file: a
+    # module-scope import in tests/test_regression_panel_packages.py made this
+    # a COLLECTION error, so `pytest tests/` exited 2 having run nothing.
+    'pypdf>=6.16.1,<7.0',
+    # DECLARED THOUGH MATPLOTLIB ALREADY PULLS IT. spacr/figure_style.py
+    # imports it directly and UNGUARDED, so a resolver that ever stops
+    # shipping it transitively turns a house-style figure into an
+    # ImportError. An import spaCR makes itself is a dependency spaCR
+    # declares itself.
+    'cycler>=0.10,<1',
+
+    # -----------------------------------------------------------------------
+    # THE Qt GUI IS NOT OPTIONAL. Asked for on 2026-08-17: stop hiding the
+    # GUI behind an optional extra and always install it.
+    #
+    # `spacr-qt` is a console entry point declared UNCONDITIONALLY below, so a
+    # plain `pip install spacr` was installing a command that could not run --
+    # the same shape as the pyqtgraph report earlier that day, one level up.
+    # PySide6 IS the interface: there is no second one to fall back to, so a
+    # missing binding is not a degraded install, it is no application.
+    #
+    # SAFE ACROSS THE BLOCKING SUPPORT MATRIX, checked rather than assumed --
+    # `requires-python` is >=3.9,<3.16, with 3.15 deliberately forward-
+    # declared in an experimental CI cell. A core dependency with no wheel is
+    # an install failure, not a missing feature:
+    #   PySide6   6.11.2 declares <3.15,>=3.10; 6.6/6.7 cover 3.9. The
+    #             `>=6.6,<7` range resolves on 3.9-3.14. The 3.15 CI cell is
+    #             expected to fail until PySide6 raises its ceiling.
+    #   pyqtgraph 0.14 declares >=3.10; 0.13.3 covers 3.9 and is the first
+    #             release whose LabelItem base-class order works with
+    #             PySide6 6.6. Same reasoning.
+    #   qtawesome 1.4.2 declares >=3.7.
+    #
+    # The HEADLESS invariant is untouched and still tested: importing
+    # spacr.core, spacr.ml or spacr.measure does not import PySide6. Being a
+    # dependency is not being an import -- a cluster install carries the
+    # wheel and never loads it.
+    'PySide6>=6.6,<7',
+    'qtawesome>=1.3,<2',
+    'pyqtgraph>=0.13.3,<1',
+    # Pure-Python arbitrary precision used by the selectable Mandelbrot
+    # backdrop.  That pattern is offered by the installed desktop app, so it
+    # must not depend on SymPy happening to bring mpmath transitively.
+    'mpmath>=1.3,<2',
+    # The shipped backdrop defaults to the Mandelbrot deep zoom, whose shader
+    # is implemented with VisPy/gloo. VisPy is imported only when a backdrop
+    # is constructed, so declaring its wheel here makes the documented/default
+    # GUI complete without adding work to ``import spacr`` or configuration
+    # screens. Headless machines still take the guarded CPU fallback.
+    'vispy>=0.14,<1.0',
+    'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     # KEPT despite zero imports, and deliberately so. Both are pandas'
     # optional acceleration backends, and pandas picks them up by *presence*,
@@ -383,13 +522,21 @@ dependencies = [
     # package is what stops that message ever being shown.
     'openpyxl>=3.1,<4.0',
     'imageio>=2.34.0,<3.0',
-    # Ceiling LOWERED from `<1.0`, which protected nothing. pingouin 0.6.0
-    # renamed every dashed result column ("p-val" -> "p_val", "W-val" ->
-    # "W_val"), and spaCR indexes the old names directly:
-    # spacr/plot.py:3493 `.iloc[0][['T', 'p-val']]` and plot.py:3502
-    # `.iloc[0][['W-val', 'p-val']]`. Reproduced against pingouin 0.6.1: both
-    # raise KeyError. `<1.0` would have shipped that to every fresh install.
-    'pingouin>=0.5.5,<0.6',
+    # PINGOUIN IS GONE FROM THE CORE, and the cap it needed with it.
+    #
+    # It was here because plot.py indexed pingouin's dashed result columns
+    # directly -- `.iloc[0][['T', 'p-val']]` -- which is why the ceiling had
+    # to be `<0.6`: 0.6.0 renamed every one of them ("p-val" -> "p_val").
+    # Those two call sites were the last uses in the package, and routing
+    # plot.py's selectors through spacr.figures.stats (2026-08-17) removed
+    # them. Nothing under spacr/ imports pingouin now; the statistics it used
+    # to provide come from scipy.stats, which is already a core dependency.
+    #
+    # It survives as a `dev` dependency, because that is what it now is: an
+    # INDEPENDENT implementation to check spaCR's own Welch ANOVA against
+    # (tests/test_spacrgraph_equal_variance.py). A wrong statistic that runs
+    # is worse than the one it replaced, so that cross-check is worth a test
+    # dependency -- and worth nothing at all in a user's install.
     # NOT unused, whatever an import census says. spaCR reaches umap through
     # `umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)` at
     # spacr/utils.py:197 — the module name is a string literal, so there is no
@@ -404,13 +551,19 @@ dependencies = [
     # There was no 0.5.10 release; 0.5.11 is the first published compatible
     # version and supports every spaCR interpreter, including Python 3.9.
     'umap-learn>=0.5.11,<1.0',
-    # `ttkthemes` REMOVED: zero imports. The Tk GUI is plain tkinter/ttk and
-    # the default GUI is PySide6, which has its own theming.
+    # `ttkthemes` REMOVED: zero imports. PySide6 is the interface and it
+    # carries its own theming.
+    #
     # Ceiling RAISED. XGBoost 3.0 removed DeviceQuantileDMatrix, `feval`,
     # datatable support and legacy model *saving*; spaCR uses XGBClassifier
-    # (spacr/ml.py:2474, hyperparam.py:1844, gui_elements.py:5461) plus
-    # booster-level `xgb.DMatrix`/`xgb.train` (spacr/timelapse.py:7030-7050),
-    # all of which survive. The resolver handles the interpreter split by
+    # (spacr/hyperparam.py:3540, spacr/regression_annotation.py:1080) plus
+    # booster-level `xgb.DMatrix`/`xgb.train`, all of which survive.
+    #
+    # CITATIONS RE-CHECKED 2026-08-31 and three of the four were stale --
+    # they pointed at ml.py and hyperparam.py lines that have since become
+    # unrelated code, and at a module that no longer exists at all. A
+    # version ceiling is only as good as the evidence for it, and evidence
+    # nobody can follow is a ceiling nobody can safely raise. The resolver handles the interpreter split by
     # itself: xgboost 3.3 needs Python >=3.12, so a 3.9-3.11 install lands on
     # an older compatible line without help.
     'xgboost>=2.0.3,<4',
@@ -421,7 +574,6 @@ dependencies = [
     # ships its own Open Sans under spacr/resources/font/ and loads it from
     # there, which is why the font works today on machines that never had this
     # package.
-    # `customtkinter` REMOVED: zero imports. Same reason as ttkthemes.
     'biopython>=1.80,<2.0',
     # Ceiling REMOVED. spaCR imports lxml in zero files; it is here only as
     # the preferred backend for the single `pd.read_html` call at
@@ -448,7 +600,21 @@ dependencies = [
     # torch.cuda imports to print a FutureWarning at startup. Function-local
     # imports remain guarded and fall back to torch when NVML is unavailable.
     # Pure Python, no wheel constraints; major 14 is not yet qualified.
-    'nvidia-ml-py>=11.5,<14',
+    #
+    # THE FLOOR LOOKS WRONG AND IS NOT. THIS IS A DRIVER NUMBER, NOT A SEMVER.
+    # nvidia-ml-py numbers each release after the NVIDIA driver it binds, so
+    # its published sequence reads 10.418.84, 11.450.51, 11.460.79, ...,
+    # 13.610.43. The middle field is a driver branch, so 11.450.51 is NEWER
+    # than a hypothetical 11.5 and the ordinary-looking `>=11.5` names no
+    # release at all -- 11.450.51 is simply the first thing that satisfies it.
+    # DO NOT "correct" 11.450.51 to 11.5, 11.45 or 11.4.50.51. Every one of
+    # those is a bound this distribution can never equal, and the two
+    # spellings resolve identically anyway -- nothing is published between
+    # 10.418.84 and 11.450.51, so a round boundary and the exact release admit
+    # the same set. The exact release is the one that can be PINNED, which is
+    # what makes this floor a promise the `Minimum dependencies` job keeps
+    # rather than the one bound here that nothing installs.
+    'nvidia-ml-py>=11.450.51,<14',
     # `gpustat` REMOVED: zero imports. GPU state is read through GPUtil,
     # nvidia-ml-py (imported as pynvml) and torch.cuda, all declared above.
     # KEPT despite zero imports: PyTables is what backs `pd.HDFStore` at
@@ -573,29 +739,66 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    data_files=(
+        [
+            ('share/applications', [
+                'packaging/linux/io.github.olafssonlab.spacr.desktop']),
+        ] + [
+            (f'share/icons/hicolor/{size}x{size}/apps', [
+                f'packaging/linux/icons/hicolor/{size}x{size}/apps/'
+                'io.github.olafssonlab.spacr.png'])
+            for size in (16, 32, 48, 64, 128, 256, 512)
+        ]
+    ) if sys.platform.startswith('linux') else [],
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'mask=spacr.app_mask:start_mask_app',
-            'measure=spacr.app_measure:start_measure_app',
-            'make_masks=spacr.app_make_masks:gui_make_masks',
-            'annotate=spacr.app_annotate:start_annotate_app',
-            'classify=spacr.app_classify:start_classify_app',
-            # 'sim=spacr.app_sim:gui_sim' removed: spacr/app_sim.py does not
-            # exist, so the installed `sim` command died with ImportError.
-            # Simulations run headless via `spacr-run simulation`.
-            # New Qt GUI is the default
+            # FIVE PER-MODULE LAUNCHERS ARE GONE: `mask`, `measure`,
+            # `make_masks`, `annotate` and `classify` each opened a window
+            # of their own. Every one of them is a tab in `spacr` now, and
+            # `spacr-run <module>` is the headless route, so neither the
+            # commands nor the top-level names they occupied are needed.
             'spacr=spacr.qt:run',
             'spacr-qt=spacr.qt:run',
             'spacr-nightly=spacr.qt:run',
+            # The same application, wearing something else: rainbow palette,
+            # moving fractals behind every screen. Every module, screen and
+            # setting is the one `spacr` opens -- only the dressing differs.
+            # It is an ENTRY POINT and not a theme menu entry on purpose:
+            # nothing in Preferences offers it and nothing persists it, so an
+            # ordinary `spacr` start can never land in it.
+            'spaceout=spacr.qt.spaceout:main',
+            # The least spaCR that can still change a setting. For when a
+            # saved preference is what makes an ordinary start die: it reads
+            # every preference as its default and forces the backdrop, the
+            # setting animations, verbose logging and preloading off, so the
+            # user can get in and re-save the value that broke it.
+            'safespacr=spacr.qt.safespacr:main',
+            # Same GUI with the first-run setup screen never offered.
+            # For a launch with nobody in front of it: the screen is
+            # modal and opens before the main window, so an
+            # unattended job would block on it.
+            'spacr-server=spacr.qt:run_without_setup',
             'spacr-tutorial=spacr.qt.tutorial.__main__:main',
             # spacr-repro <run-folder> — replay a recorded run journal
             'spacr-repro=spacr.cli_repro:main',
+            # spacr-workspace <run-folder> — what the run had OPEN: the
+            # databases, the montage, the figure views, and whether the
+            # files it names are still there. No display needed, because
+            # the question is usually asked about somebody else's run.
+            'spacr-workspace=spacr.cli_workspace:main',
             # spacr-run <module> --settings f — headless pipeline runner for
-            # clusters: no Qt, no Tk, no display. Importing spacr.cli pulls
+            # clusters: no Qt, no display. Importing spacr.cli pulls
             # neither torch nor matplotlib, so --help/--list answer instantly.
             'spacr-run=spacr.cli:main',
+            # spacr-download [what ...] — the example data as a command
+            # rather than as a button. Fetches the mask / measure / annotate
+            # example sets by default, and pieces of the 33 GB published
+            # screen only when they are asked for by kind and plate. Imports
+            # no Qt, so a cluster login node can stage the data a batch job
+            # will read.
+            'spacr-download=spacr.cli_download:main',
             # Persistent SSH / Slurm / cloud job submission and monitoring.
             'spacr-remote=spacr.cli_remote:main',
             # Installed plugin registry and failure diagnostics.
@@ -611,10 +814,6 @@ setup(
             # file is sound. One line per check, a copyable fix on every line
             # that is not PASS, and a non-zero exit so CI can gate on it.
             'spacr-doctor=spacr.doctor:main',
-            # Classic Tk GUI remains available under new names
-            'spacr-tk=spacr.gui:gui_app',
-            'spacr-legacy=spacr.gui:gui_app',
-            'spaceout=spacr.gui:gui_app',
         ],
     },
     extras_require={
@@ -626,6 +825,13 @@ setup(
         'dev': [
             'pytest>=8.0,<9',
             'pytest-qt>=4.4,<5',
+            # CI isolates long suites by test file.  This is also the
+            # accepted way to keep the Qt suite's process-global state from
+            # accumulating over thousands of tests.
+            # Floor at the release the minimum-dependencies job installs,
+            # so the oldest xdist spaCR claims is one the Qt sharding has
+            # actually run under.
+            'pytest-xdist>=3.6.1,<4',
             'tomli>=2.0; python_version < "3.11"',
             # tests/test_key_parsing_properties.py states the plate / row /
             # column / field / object key contract as properties rather than
@@ -634,12 +840,28 @@ setup(
             # It registers a `derandomize=True` profile, so it is reproducible
             # in CI rather than a source of intermittent red.
             'hypothesis>=6.100,<7',
+            # README and installer-archive rendering tests exercise the same
+            # reStructuredText parser GitHub and Sphinx use. They import
+            # docutils directly, so a contributor install must provide it
+            # instead of relying on an unrelated documentation environment.
+            'docutils>=0.20.1,<0.24',
+            # The canonical tabular-I/O contract includes Parquet and
+            # Feather round trips. pandas deliberately leaves both engines
+            # optional; pyarrow is the one the test profile supplies.
+            # Floored at the release the minimum-dependencies job installs
+            # rather than at the start of the 14 line, which nothing runs.
+            'pyarrow>=14.0.2,<26',
             # Quality-gate tooling. These are kept out of core dependencies:
             # users running microscopy pipelines do not need static-analysis
             # packages, while contributors get the same versions CI runs.
             'ruff>=0.9,<1',
             'mypy>=1.11,<2',
             'xenon>=0.9,<1',
+            # The outside reference for spaCR's own Welch ANOVA. Was a core
+            # dependency until 2026-08-17; see the note where it used to be.
+            # Unpinned at the top: the cross-check reads `F` and `p-unc`,
+            # neither of which the 0.6 column rename touched.
+            'pingouin>=0.5.5,<2.0',
         ],
         # Pinned identically to the core dependency. Unpinned, this extra
         # silently widened the core `<5.0` cap to "any opencv", so
@@ -650,7 +872,11 @@ setup(
         # (timelapse_mode='trackastra'). Optional because it pulls its own
         # pretrained weights on first use; trackpy/btrack/iou stay available
         # without it. BSD-3, PyTorch-only, no TensorFlow.
-        'trackastra': ['trackastra>=0.5,<1.0'],
+        'trackastra': [
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
+        ],
         # `pip install spacr[ultrack]` — global-optimisation object tracking
         # (timelapse_mode='ultrack'). Kept alongside trackastra rather than
         # replacing it: ultrack solves segmentation and linking as one integer
@@ -658,13 +884,15 @@ setup(
         # is the better zero-config generalist. Optional because it brings an
         # ILP solver and a database backend. BSD-3, no TensorFlow.
         #
-        # Not installable on Python 3.13: every ultrack release from 0.1.0
-        # through 0.7.2 declares `requires-python >=3.9,<3.13` (checked
-        # 2026-07-27). pip refuses cleanly, naming the Python version, so a
-        # 3.13 user gets a sentence rather than a traceback — but it is why
-        # `spacr[all]` cannot be installed on 3.13 either. Use
-        # `timelapse_mode='trackastra'` there; trackastra has no such ceiling.
-        'ultrack': ['ultrack>=0.6,<1.0'],
+        # Ultrack 0.8 adds Python 3.13 support and retains an explicit <3.14
+        # ceiling.  The marker makes requesting the extra on 3.14 a clean
+        # no-op instead of an unsatisfiable installation; spaCR's other
+        # tracking modes remain available there.
+        'ultrack': [
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
+        ],
         # `pip install spacr[attribution]` — the five torchcam CAM variants
         # (gradcam, gradcam_pp, scorecam, xgradcam, layercam) in
         # spacr/attribution.py. Optional for exactly one reason, and it is a
@@ -725,6 +953,29 @@ setup(
             'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
             'cupy-cuda12x>=13.0; python_version >= "3.11" and python_version < "3.13"',
         ],
+        # `pip install spacr[intel-gpu]` — Intel Arc / Xe through torch's XPU
+        # device. NOT CORE, and not because it is large: IPEX pins a narrow
+        # torch range, so making it core would let an Intel-GPU extra dictate
+        # the torch version on the NVIDIA machines that are every current
+        # user. `spacr.accelerator` probes `torch.xpu` and simply does not
+        # select the backend when this is absent, which is the same bargain
+        # `rapids` above strikes. Instruction 319.
+        #
+        # Linux and Windows only: there is no Intel discrete GPU on macOS,
+        # where an Intel Mac's AMD card is reached through Metal instead --
+        # and Metal needs no extra at all, because torch ships it in the
+        # stock macOS wheel.
+        'intel-gpu': [
+            'intel-extension-for-pytorch>=2.1; platform_system != "Darwin"',
+        ],
+        # `pip install spacr[directml]` — any vendor's GPU on Windows, via
+        # DirectML. The widest reach on that platform and the thinnest
+        # operator coverage, so it is the last backend the resolver picks.
+        # Windows-only by construction; the marker keeps it from being
+        # resolved anywhere it cannot install.
+        'directml': [
+            'torch-directml>=0.2; platform_system == "Windows"',
+        ],
         # `pip install spacr[boosting]` — the two gradient-boosting backends
         # reachable through `model_type='lightgbm'` and `model_type='catboost'`
         # (spacr/ml.py:2477,2483 and spacr/hyperparam.py:1855,1866). Both are
@@ -735,6 +986,14 @@ setup(
         # because xgboost and scikit-learn's HistGradientBoosting — the two
         # defaults — are core already.
         'boosting': ['catboost>=1.2,<2.0', 'lightgbm>=4.0,<5.0'],
+        # `pip install spacr[plaque]` — YOLO well detection for plate or strip
+        # images in `spacr.plaque`. The import is function-local, so users who
+        # analyze one plaque field per image do not install another detection
+        # framework or download detector weights. The floor is the first
+        # Ultralytics YOLO release exposing the `YOLO(...).predict(...)` API
+        # this module calls; the major-version ceiling keeps that API contract
+        # explicit.
+        'plaque': ['ultralytics>=8.0,<9'],
         # `pip install spacr[umap]` — declared so the command spaCR already
         # prints is true. `spacr/hyperparam.py:80-85` (UMAP_MISSING_MESSAGE)
         # tells the user to run `pip install umap-learn` "or `pip install
@@ -782,11 +1041,47 @@ setup(
         # someone types when they just want every feature.
         'napari': ['napari>=0.5,<1.0'],
         'full': ['opencv-python'],
+        # The sweep caps BLAS threads per trial so N parallel fits do not each
+        # spawn a full thread pool -- which is instruction 114's whole
+        # subject. The import is function-local and already degrades (the
+        # limit simply is not applied), so it is an extra rather than a core
+        # dependency; scikit-learn pulls it in for most installs anyway.
+        'sweep': ['threadpoolctl>=3.0,<4'],
+        # KEPT AS AN ALIAS now that these are core, so every existing
+        # instruction, the three packaging scripts, the README and the
+        # docs keep working -- `pip install spacr[qt]` resolves to the same
+        # thing `pip install spacr` does. Removing the name would break
+        # printed instructions to no benefit.
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            # THE INTERACTIVE PLOTS. The comment at the top of this file says
+            # pyqtgraph was a second, unused Qt binding pulled in by a
+            # hand-copy of cellpose's `gui` extra, and that was TRUE when it
+            # was written -- zero files imported it. It is not true any more:
+            # spacr/qt/widgets/fast_plots.py is the volcano, the Q-Q, the
+            # p-histogram, the control panel and the guide-agreement plot,
+            # and the regression results panel builds all five. Reported from
+            # a real install that had PySide6 and not this, where opening ANY
+            # module raised RuntimeError out of the screen factory.
+            'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
+        # `pip install spacr[flowview]` — the optional live pipeline graph.
+        # Its model, tracing, layout, and static exporters stay headless-safe;
+        # the live panel reuses the PySide6 binding already pinned by core.
+        # Repeating the identical pin keeps the documented feature command
+        # valid without introducing another drawing or graph dependency.
+        #
+        # RESTORED 2026-08-31. Dropped as collateral by 807fdd627, a commit
+        # about pandas, whose own message records that the flowview line was
+        # not its author's and had been swept in by committing a whole path.
+        # `pip install spacr[flowview]` has been an error since.
+        'flowview': ['PySide6>=6.6,<7'],
+        # Backwards-compatible feature spelling. VisPy is now core because the
+        # installed application's DEFAULT_PATTERN needs it, but keeping the
+        # extra means existing ``spacr[fractal]`` commands remain valid.
+        'fractal': ['vispy>=0.14,<1.0'],
         # `spacr-tutorial` — renders narrated MP4 tutorials for every
         # module. ffmpeg is required at runtime (system package) and a
         # Piper voice model is fetched on first run.
@@ -794,7 +1089,12 @@ setup(
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
+            # Piper itself has an abi3 Intel-macOS wheel, but its onnxruntime
+            # dependency has no cp314 Intel wheel. Keep the renderer available
+            # everywhere else and let 3.14 Intel Macs use the non-narrated
+            # tutorial path rather than fail the aggregate install.
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
         ],
         # The AI Console shells out to vendor coding-agent CLIs
         # (`claude`, `codex`, `gemini`) so authentication piggy-backs
@@ -827,10 +1127,11 @@ setup(
         #     constrain no platform and no Python version; these extras are
         #     organisational, not load-bearing.
         # ------------------------------------------------------------------
-        'czi': ['pylibCZIrw>=5.0.0,<7.0', 'czifile'],
+        'czi': ['pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
+                'czifile'],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
-        'zernike': ['mahotas>=1.4.13,<2.0'],
+        'zernike': ['mahotas>=1.4.13,<2.0; python_version < "3.13"'],
         # btrack loads a native tracker library. Keeping it behind a lazy
         # feature boundary lets the rest of timelapse run on new Python
         # versions while upstream wheels catch up.
@@ -861,6 +1162,20 @@ setup(
         # them.
         'numpyro': ['numpyro>=0.13,<1.0', 'jax>=0.4,<1.0'],
         'pymc': ['pymc>=5.10,<6.0'],
+        # Optional regression engines selected by regression_backend. Both
+        # imports are function-local, and the GUI disables an engine that is
+        # not installed, so neither belongs in the core scientific stack.
+        # These floors are the oldest Python 3.9 wheels checked against the
+        # exact APIs spaCR calls: pyfixest.core.demean.demean and glum's
+        # GeneralizedLinearRegressor offset/sample_weight fit path.
+        # CORE NOW (220), and these names stay as aliases so a script that
+        # says `pip install spacr[pyfixest]` keeps working. The pin must be
+        # BYTE-IDENTICAL to the core one -- there is a test asserting an
+        # extra never contradicts core, because two pins for one package is
+        # how an environment ends up with a version neither line asked for.
+        'pyfixest': ['pyfixest>=0.40.1,<1; python_version >= "3.10"'],
+        'glum': ['glum>=3.1.2,<4; python_version >= "3.10"'],
+        'gpytorch': ['gpytorch>=1.11,<2; python_version >= "3.10"'],
 
         # `pip install spacr[zarr]` — `spacr.ome_zarr`, the OME-NGFF
         # (OME-Zarr) reader/writer. The emerging standard for large
@@ -902,7 +1217,7 @@ setup(
         'omero': ['omero-py>=5.17,<6'],
 
         # `pip install spacr[all]` — every optional feature at once, minus
-        # eight, each for a stated reason:
+        # ten, each for a stated reason:
         #   * `dev`   — test tooling, not a feature.
         #   * `full`  — the GUI-capable opencv build, which would shadow the
         #               headless one already in the core deps.
@@ -931,6 +1246,11 @@ setup(
         #               platform-specific build and pymc brings PyTensor's
         #               compiler path; neither belongs in the extra someone
         #               types when they just want every feature.
+        #   * `pyfixest`, `glum` — optional alternatives to the statsmodels
+        #               regression engine already in the core stack. They
+        #               are selected explicitly per fit, so installing both
+        #               for every `all` user would add weight without making
+        #               another module available.
         #   * `zarr`  — kept out because it buys nothing for a user who did
         #               not ask for it: `spacr.ome_zarr` reads and writes
         #               stored/zlib OME-Zarr with the standard library alone,
@@ -945,24 +1265,10 @@ setup(
         # of the extras it claims to aggregate, so it cannot drift.
         #
         # ---------------------------------------------------------------
-        # `spacr[all]` DOES NOT INSTALL ON PYTHON 3.13, and the reason is not
-        # anything above. It is `ultrack`: every release from 0.1.0 through
-        # 0.7.2 declares `requires-python >=3.9,<3.13`, so pip on 3.13 says
-        #
-        #     ERROR: Ignored the following versions that require a different
-        #     python version: ... 0.7.2 Requires-Python >=3.9,<3.13
-        #     ERROR: No matching distribution found for ultrack<1.0,>=0.6
-        #
-        # (measured 2026-07-27, CPython 3.13.14). That is upstream's ceiling,
-        # not ours, and it is a CLEAN refusal — which is precisely why
-        # torchcam is still excluded above even though `all` is already
-        # unusable on 3.13: a clean "requires a different python version" is a
-        # message a user can act on, and a numpy source build is not. When
-        # ultrack ships a 3.13 release this note comes out and `all` works
-        # again with no other change.
-        #
-        # On 3.13 use `spacr[qt,tutorial,trackastra,boosting,czi,nd2,lif,zernike]`,
-        # which is `all` minus ultrack, or simply `spacr[qt,zernike]`.
+        # Ultrack 0.8 now supports Python 3.13 and declares <3.14. Trackastra
+        # declares >=3.10. Their markers below keep ``all`` resolvable at both
+        # ends of spaCR's 3.9--3.14 range while installing each tracker where
+        # upstream actually supports it.
         #
         # `spacr[all]` also pulls mahotas, which has no cp313 wheel and builds
         # from sdist. That one is deliberate and fine — asking for
@@ -974,17 +1280,30 @@ setup(
         'all': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            # The interactive plots. In `qt` since the regression panel was
+            # built on them, and missing here until 2026-08-17 -- so
+            # `pip install spacr[all]` installed strictly LESS than
+            # `pip install spacr[qt]`, which is the one thing the name of
+            # this extra promises cannot happen.
+            'pyqtgraph>=0.13.3,<1',
+            'vispy>=0.14,<1.0',
             'win10toast>=0.9; platform_system == "Windows"',
-            'piper-tts>=1.2,<2',
-            'trackastra>=0.5,<1.0',
-            'ultrack>=0.6,<1.0',
+            'piper-tts>=1.2,<2; sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.14"',
+            'trackastra>=0.5,<1.0; python_version >= "3.10" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")',
+            'ultrack>=0.6,<1.0; python_version >= "3.10" and '
+            'python_version < "3.14" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")',
             'catboost>=1.2,<2.0',
             'lightgbm>=4.0,<5.0',
-            'pylibCZIrw>=5.0.0,<7.0',
+            'ultralytics>=8.0,<9',
+            'pylibCZIrw>=5.0.0,<7.0; python_version < "3.14"',
             'czifile',
             'nd2reader>=3.3.0,<4.0',
             'readlif',
-            'mahotas>=1.4.13,<2.0',
+            'mahotas>=1.4.13,<2.0; python_version < "3.13"',
             'btrack>=0.7.0,<1.0',
             'anndata>=0.10,<0.13',
         ],

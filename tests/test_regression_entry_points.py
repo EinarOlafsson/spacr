@@ -1,11 +1,14 @@
 """Regression -- the step that produces the hits -- must start from every entry point.
 
 ``spacr.ml.perform_regression`` is the last step of the pooled-screen pipeline.
-All three dispatchers build its settings dict from one function:
+Both dispatchers build its settings dict from one function:
 
-  * Tk  -- ``gui_core.setup_settings_panel``            (settings_type 'regression')
-  * Qt  -- ``qt.screens.settings_model.resolve_default_settings('regression')``
+  * GUI -- ``qt.screens.settings_model.resolve_default_settings('regression')``
   * CLI -- ``cli.module_defaults(MODULES['regression'])``
+
+A third, ``gui_core.setup_settings_panel`` with ``settings_type ==
+'regression'``, went with the Tk interface, and the test that read it out of
+that file's source is gone with it.
 
 and every one of them called ``get_perform_regression_default_settings``, which
 returned 37 keys while ``perform_regression`` indexed six it did not supply --
@@ -45,23 +48,68 @@ APP_KEY = "regression"
 _HELPER_MODULES = (
     "spacr.ml", "spacr.utils", "spacr.sequencing", "spacr.batch_correction",
     "spacr.settings", "spacr.toxo", "spacr.plot",
+    # Instruction 161: the failure reporter is handed the settings dict so it
+    # can name what the run was configured to do. It reads keys, so it belongs
+    # here -- which this test told us in so many words the moment it was added,
+    # and is the whole reason the list exists.
+    "spacr.regression_failure",
+    # Instruction 156: the per-mode run summary is handed the settings so it
+    # can state what was fitted. Same reason as the line above.
+    "spacr.regression_summary",
+    # The optional outlier pass receives the complete settings mapping and
+    # reads its own source/filter keys. Keep it in the same AST contract as
+    # every other helper reached by the regression entry point.
+    "spacr.outlier_filter",
+    "spacr.well_spec",
+    # The pre-fit resource estimate receives the complete settings mapping so
+    # it can describe the selected family and design size.
+    "spacr.fit_resources",
 )
 
-#: The one key ``perform_regression`` reads without a default, because it
-#: derives it itself: ``_perform_regression_set_paths`` sets
-#: ``settings['src']`` from ``count_data`` (ml.py) before
-#: ``utils.save_settings`` reads it to place ``settings/regression.csv``.
-_DERIVED_KEYS = frozenset({"src"})
+# Local import aliases whose public module name is intentionally different.
+# The AST sees the local callee, while the contract must inspect the function
+# that name resolves to.
+_HELPER_ALIASES = {
+    "_drop_outliers": ("spacr.outlier_filter", "apply"),
+}
+
+#: Keys ``perform_regression`` reads without a default, because it derives
+#: them itself before reading them. A derived key is NOT an exemption from
+#: the contract below -- it is a different way of satisfying it, and the
+#: derivation is asserted rather than assumed by
+#: :func:`test_the_only_keys_without_a_default_are_derived_and_written_first`.
+#:
+#: * ``score_data`` / ``count_data`` -- the paired-input migration. One row of
+#:   ``paired_data`` states one score/count relationship, and
+#:   ``ml.normalize_regression_input_pairs`` unpacks it into these two lists
+#:   at the top of ``perform_regression``. They are deliberately NOT
+#:   defaulted: ``get_perform_regression_default_settings`` says so in as many
+#:   words, because defaulting them would write the legacy pair back into
+#:   every new settings CSV and undo the migration. A settings file that still
+#:   carries them is migrated instead.
+_DERIVED_KEYS = frozenset({"score_data", "count_data"})
 
 #: The six that were missing, and what each is for. Kept explicit so a future
 #: edit that drops one is named in the failure rather than counted.
 MISSING_BEFORE = {
     "verbose": "ml.py:1409 -- `if settings['verbose']:`",
     "tolerance": "ml.py:1412 -- minimum_cell_simulation(settings, tolerance=...)",
-    "score_column": "ml.py:408 -- the column minimum_cell_simulation resamples",
+    # `score_column` and `y_lims` LEFT this table on 2026-08-18. Both were
+    # here because a reader indexed them and nothing supplied them; both were
+    # then retired outright rather than defaulted -- `score_column` because it
+    # named the same measurement as `dependent_variable` (instruction 135 A)
+    # and `y_lims` because the axis is chosen automatically and changed on the
+    # plot now (instruction 135, "Regression plot can be removed"). Their
+    # readers were changed with them: minimum_cell_simulation resamples
+    # `dependent_variable`, and the volcano call reads `y_lims` with `.get`,
+    # whose None is that function's own "scale to the data".
+    #
+    # The live AST guard below is what actually protects this now. It reads
+    # ml.py and names any key a reader SUBSCRIPTS without a default, so a
+    # third key going missing is caught whether or not anybody remembers to
+    # add it here.
     "invert_dependent_variable": "ml.py:1424 -- passed to process_scores",
     "control_wells": "sequencing.py:988 -- iterated by graph_sequencing_stats",
-    "y_lims": "ml.py:1669 -- passed to toxo.custom_volcano_plot",
 }
 
 
@@ -93,18 +141,42 @@ def _settings_subscripts(fn, ctx):
     return keys
 
 
+#: Builtins that take the settings dict and are NOT helpers.
+#:
+#: The check below demands every callee be importable from
+#: :data:`_HELPER_MODULES`, and its reason is in its own failure message:
+#: "otherwise the keys it indexes go unchecked". A builtin indexes no keys.
+#: `dict(settings)` is a copy -- `perform_regression` returns one so a caller
+#: offering to re-fit has the run's own settings -- and demanding a module for
+#: it asks the author to add `builtins` to the list of spaCR helper modules,
+#: which is not a thing anybody should be asked to do to make a copy.
+#:
+#: Restricted to the ones that genuinely cannot read a key. `getattr` is
+#: deliberately absent: `getattr(settings, ...)` is not how spaCR reads a
+#: setting, but it is close enough to indexing that letting it through
+#: silently would be a hole in exactly the direction this test guards.
+_NOT_A_HELPER = frozenset({"dict", "len", "list", "sorted", "set", "tuple",
+                           "bool", "repr", "print"})
+
+
 def _helpers_given_the_settings_dict():
     """Names ``perform_regression`` passes its whole settings dict to.
 
     Nested defs are excluded: ``inspect.getsource`` already contains them, so
     their subscripts are collected with the outer function's.
     """
-    from spacr.ml import perform_regression
+    # BOTH HALVES. `perform_regression` is the failure-reporting wrapper since
+    # instruction 161 and `_perform_regression` is the body, so scanning only
+    # the public name finds the reporter and none of the helpers that actually
+    # read settings -- `normalize_regression_input_pairs` among them, which is
+    # what derives score_data and count_data.
+    from spacr.ml import _perform_regression, perform_regression
 
-    tree = _tree(perform_regression)
-    nested = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    trees = [_tree(perform_regression), _tree(_perform_regression)]
+    nested = {n.name for tree in trees for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef)}
     names = set()
-    for node in ast.walk(tree):
+    for node in [n for tree in trees for n in ast.walk(tree)]:
         if not isinstance(node, ast.Call):
             continue
         passed = list(node.args) + [kw.value for kw in node.keywords]
@@ -112,12 +184,16 @@ def _helpers_given_the_settings_dict():
             continue
         func = node.func
         name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
-        if name and name not in nested:
+        if name and name not in nested and name not in _NOT_A_HELPER:
             names.add(name)
     return names
 
 
 def _resolve(name):
+    if name in _HELPER_ALIASES:
+        module, attribute = _HELPER_ALIASES[name]
+        obj = getattr(importlib.import_module(module), attribute, None)
+        return obj if callable(obj) else None
     for module in _HELPER_MODULES:
         obj = getattr(importlib.import_module(module), name, None)
         if callable(obj):
@@ -126,9 +202,16 @@ def _resolve(name):
 
 
 def _keys_read_by_the_whole_call(ctx=ast.Load):
-    from spacr.ml import perform_regression
+    # BOTH HALVES OF THE CALL. Instruction 161 wrapped `perform_regression` so
+    # a failure reports its stage and design instead of "failed for an unknown
+    # reason"; the body moved to `_perform_regression` and the public name is
+    # now the wrapper. THE READS DID NOT MOVE, THE PLACE TO LOOK FOR THEM DID
+    # -- which is the same correction this file already made when
+    # `_perform_regression_set_paths` stopped being a nested def, and the
+    # reason that note is a few lines below.
+    from spacr.ml import _perform_regression, perform_regression
 
-    functions = [perform_regression]
+    functions = [perform_regression, _perform_regression]
     for name in sorted(_helpers_given_the_settings_dict()):
         resolved = _resolve(name)
         assert resolved is not None, (
@@ -161,19 +244,124 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
         "get_perform_regression_default_settings does not supply "
         f"{missing}, which perform_regression (or a helper it hands the dict "
         "to) reads with settings[...]. Every dispatcher builds the dict from "
-        "that function, so regression cannot be started from Tk, Qt or the CLI."
+        "that function, so regression cannot be started from the Qt panel "
+        "or the CLI."
     )
     # And the derivation really is a derivation: something must write it.
     assert read & _DERIVED_KEYS <= _keys_read_by_the_whole_call(ast.Store)
 
 
-def test_src_is_the_only_key_without_a_default_and_it_is_written_first():
-    """``src`` is derived from ``count_data``, not asked for."""
+def test_publication_manifest_is_optional_and_typed_without_a_gui_field():
+    from spacr.settings import categories, expected_types
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
+    assert _defaults()["regression_panel_manifest"] is None
+    assert expected_types["regression_panel_manifest"] == (
+        dict, str, type(None)
+    )
+    assert all(
+        "regression_panel_manifest" not in names for names in categories.values()
+    )
+    assert "regression_panel_manifest" in _APP_HIDDEN_KEYS["regression"]
+
+
+def _assert_derived_before_read(fn, deriver, keys):
+    """The call that derives ``keys`` precedes every read of them in ``fn``.
+
+    "Derived" only answers the missing-default contract if the derivation
+    actually RUNS BEFORE the read. A derivation placed after would satisfy a
+    membership check and still raise KeyError on a real run, which is the
+    exact shape of the bug this file exists for.
+    """
+    tree = ast.parse(textwrap.dedent(inspect.getsource(fn)))
+    derived = [node.lineno for node in ast.walk(tree)
+               if isinstance(node, ast.Call)
+               and getattr(node.func, "id",
+                           getattr(node.func, "attr", None)) == deriver]
+    assert derived, f"{fn.__name__} no longer calls {deriver}"
+    reads = [node.lineno for node in ast.walk(tree)
+             if isinstance(node, ast.Subscript)
+             and isinstance(node.ctx, ast.Load)
+             and getattr(node.value, "id", None) == "settings"
+             and isinstance(node.slice, ast.Constant)
+             and node.slice.value in keys]
+    assert not reads or min(derived) < min(reads), (
+        f"{fn.__name__} reads settings{sorted(keys)} at line {min(reads)} "
+        f"before {deriver} derives it at line {min(derived)}")
+
+
+def test_the_only_keys_without_a_default_are_derived_and_written_first():
+    """Derived, not forgotten -- and the difference is checked, not assumed.
+
+    ``score_data`` and ``count_data`` are derived from ``paired_data``.
+    ``src`` has a blank default whose automatic location is resolved from
+    ``count_data`` before output begins. "Derived" is only an answer
+    to the missing-default contract if the derivation actually runs BEFORE the
+    read, so the ordering is asserted rather than the mere existence of an
+    assignment somewhere in the module -- an assignment placed after the read
+    would satisfy a Store-membership check and still raise ``KeyError`` on a
+    real run, which is the exact shape of the bug this file exists for.
+    """
     from spacr.ml import perform_regression
 
+    from spacr.ml import _perform_regression_set_paths
+
     read = _keys_read_by_the_whole_call()
-    assert sorted(read - set(_defaults())) == ["src"]
-    assert "src" in _settings_subscripts(perform_regression, ast.Store)
+    assert sorted(read - set(_defaults())) == sorted(_DERIVED_KEYS)
+    assert _defaults()["src"] == ""
+
+    # `src` IS DERIVED IN THE HELPER, and this used to look only inside
+    # `perform_regression`. `_perform_regression_set_paths` was a nested def
+    # and became a module-level function so it could be tested directly; the
+    # derivation did not move, the place to look for it did, and the
+    # assertion went red without anything being wrong.
+    #
+    # Asserted as the ORDERING, the same as the pair below, rather than as
+    # "some function somewhere assigns it" -- which is the check this file
+    # exists to be stricter than.
+    from spacr.ml import _perform_regression
+
+    written = (_settings_subscripts(perform_regression, ast.Store)
+               | _settings_subscripts(_perform_regression, ast.Store)
+               | _settings_subscripts(_perform_regression_set_paths, ast.Store))
+    assert "src" in written, (
+        "nothing derives settings['src'], so save_settings will raise KeyError "
+        "placing settings/regression.csv")
+    # THE BODY, not the wrapper. `perform_regression` reports failures since
+    # instruction 161 and delegates; the ordering being asserted -- derive,
+    # then read -- lives in `_perform_regression`, which is where those calls
+    # are. Same correction as above: the derivation did not move, the place to
+    # look for it did.
+    _assert_derived_before_read(_perform_regression,
+                                "_perform_regression_set_paths", {"src"})
+
+    # score_data/count_data are written by a helper, so the ordering that
+    # matters is: the normalising call, then the first subscript read.
+    tree = ast.parse(textwrap.dedent(inspect.getsource(_perform_regression)))
+    normalise = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", getattr(node.func, "attr", None))
+        == "normalize_regression_input_pairs"
+    ]
+    assert normalise, (
+        "perform_regression no longer calls normalize_regression_input_pairs, "
+        "so score_data/count_data are read but never derived. Either restore "
+        "the call or give them defaults.")
+    reads = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.ctx, ast.Load)
+        and getattr(node.value, "id", None) == "settings"
+        and isinstance(node.slice, ast.Constant)
+        and node.slice.value in {"score_data", "count_data"}
+    ]
+    assert reads, "expected perform_regression to read the derived pair"
+    assert min(normalise) < min(reads), (
+        f"perform_regression reads settings['score_data'/'count_data'] at "
+        f"line {min(reads)} of its own source but only derives them at line "
+        f"{min(normalise)}, so a settings dict built from the defaults raises "
+        f"KeyError before the derivation runs.")
 
 
 @pytest.mark.parametrize("key", sorted(MISSING_BEFORE))
@@ -197,8 +385,9 @@ def test_the_missing_six_have_values_their_readers_accept():
     assert isinstance(defaults["tolerance"], (int, float))
     assert 0 < defaults["tolerance"] <= 100
 
-    # The column it resamples has to exist in the score table it is given.
-    assert defaults["score_column"] == defaults["dependent_variable"]
+    # The column minimum_cell_simulation resamples is the response itself
+    # now, so there is no second name that can disagree with it.
+    assert "score_column" not in defaults
 
     # process_scores accepts False/0, True/1 or -1 and raises on anything else.
     assert defaults["invert_dependent_variable"] in (False, 0, True, 1, -1)
@@ -208,8 +397,11 @@ def test_the_missing_six_have_values_their_readers_accept():
     assert isinstance(defaults["control_wells"], list)
     iter(defaults["control_wells"])
 
-    # toxo.custom_volcano_plot normalises this and raises on any other shape.
-    assert _normalize_y_lims(defaults["y_lims"], pd.Series([1.0, 2.0]))
+    # `y_lims` is retired, and its reader takes None -- which is
+    # custom_volcano_plot's own "scale to the data", i.e. exactly the
+    # automatic axis instruction 135 asked for.
+    assert "y_lims" not in defaults
+    assert _normalize_y_lims(None, pd.Series([1.0, 2.0]))
 
 
 def test_control_wells_names_the_same_wells_as_filter_value():
@@ -234,29 +426,43 @@ def test_control_wells_names_the_same_wells_as_filter_value():
         {"filter_value": "c1"})["control_wells"] == []
 
 
-def test_score_column_follows_a_chosen_dependent_variable():
-    """Otherwise the cell-count simulation describes a different measurement."""
+def test_the_cell_count_simulation_resamples_the_response_itself():
+    """There is no second column name that can disagree with the response.
+
+    `score_column` used to shadow `dependent_variable` here and default to
+    it, which meant the only thing the setting could do was describe a
+    DIFFERENT measurement from the one the regression fits -- and then wells
+    would be kept or dropped on the wrong evidence. Instruction 135 A retired
+    it; an old settings CSV that carries it still loads, and the value is not
+    silently ignored.
+    """
+    import inspect
+
+    from spacr import ml
     from spacr.settings import get_perform_regression_default_settings
 
     chosen = get_perform_regression_default_settings(
-        {"dependent_variable": "pathogen_nucleus_shortest_distance"})
-    assert chosen["score_column"] == "pathogen_nucleus_shortest_distance"
-    # An explicit score_column still wins.
-    explicit = get_perform_regression_default_settings(
-        {"dependent_variable": "recruitment", "score_column": "pred"})
-    assert explicit["score_column"] == "pred"
+        {"dependent_variable": "pathogen_nucleus_shortest_distance",
+         "score_column": "something_else"})
+    assert "score_column" not in chosen
+    assert chosen["dependent_variable"] == "pathogen_nucleus_shortest_distance"
+
+    source = inspect.getsource(ml.minimum_cell_simulation)
+    assert "settings['score_column']" not in source
+    assert "settings['dependent_variable']" in source
 
 
 def test_quantile_regression_still_clears_agg_type():
-    """The one piece of logic in the builder, unchanged by the new defaults."""
+    """A requested quantile fit operates on objects, not averaged wells."""
     from spacr.settings import get_perform_regression_default_settings
 
     assert get_perform_regression_default_settings(
-        {"regression_type": "quantile"})["agg_type"] is None
+        {"regression_type": "quantile",
+         "inference": "parametric"})["agg_type"] is None
 
 
 # ---------------------------------------------------------------------------
-# 2. all three dispatchers really do resolve the same dict
+# 2. both dispatchers really do resolve the same dict
 # ---------------------------------------------------------------------------
 
 def test_the_cli_module_resolves_the_defaults_builder():
@@ -272,16 +478,6 @@ def test_the_qt_panel_resolves_the_same_defaults():
     from spacr.qt.screens.settings_model import resolve_default_settings
 
     assert set(resolve_default_settings(APP_KEY)) == set(_defaults())
-
-
-def test_the_tk_panel_resolves_the_same_defaults():
-    """Read from source: importing gui_core needs a Tk display."""
-    import spacr.gui_core
-
-    source = inspect.getsource(spacr.gui_core.setup_settings_panel)
-    assert ("settings_type == 'regression'" in source
-            or 'settings_type == "regression"' in source)
-    assert "get_perform_regression_default_settings(settings={})" in source
 
 
 def test_the_resolved_dict_passes_its_own_pre_flight():
@@ -304,16 +500,28 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
 
 
 # ---------------------------------------------------------------------------
-# 2b. the Tk panel coerces the two newly-typed shapes correctly
+# 2b. check_settings coerces the two newly-typed shapes correctly
 # ---------------------------------------------------------------------------
 #
-# ``check_settings`` walks ``expected_types`` and parses each widget's raw
-# string. Declaring a type therefore has teeth: the generic
+# ``check_settings`` walks ``expected_types`` and parses a raw settings string
+# into the declared type. Declaring a type therefore has teeth: the generic
 # "try each type in the tuple" fallback at the bottom of that function reaches
 # ``bool('False')`` -- True -- for ``(bool, int)``, and ``list('[0, 5]')`` --
 # ['[', '0', ',', ' ', '5', ']'] -- for ``(list, None)``. Both now have their
 # own branch. The second one also repairs ``x_lim``, ``control_wells`` and
 # ``filter_min_max``, which carried the same declared type all along.
+#
+# WHERE THE RAW STRINGS COME FROM HAS MOVED. This function was written for a
+# widget map -- ``key -> (label, widget, var, frame)`` -- built by an interface
+# that no longer exists, and it is not what the shipping settings panel calls:
+# that panel coerces each field itself and the pre-flight in
+# :mod:`spacr.validate` reports whatever did not become the declared type
+# before a run starts (asserted by the pre-flight test above). What is being
+# fixed here is the ``expected_types`` DECLARATION and the parse it licenses,
+# which both readers share, so the cases below still guard the entry point --
+# a ``(list, None)`` setting that arrives as characters, or a ``(bool, int)``
+# one that arrives as True because it was spelled 'False', is the same broken
+# run whichever reader parsed it.
 
 class _Var:
     def __init__(self, value):
@@ -464,9 +672,17 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
 
     Nothing is stubbed. ``minimum_cell_simulation`` (which reads ``tolerance``
     and ``score_column``) and ``graph_sequencing_stats`` (which iterates
-    ``control_wells``) both run for real, because ``min_cell_count`` and
-    ``fraction_threshold`` are left at their None defaults -- the state a user
-    who edits nothing is in.
+    ``control_wells``) both run for real.
+
+    ``min_cell_count`` USED TO BE None by default, which is what made the
+    simulation run here without being asked for. It is 100 now -- a deliberate
+    change, requested in d6eb6ca3 along with transform=log and
+    multiple_testing_method=none, on the ground that below 100 cells a well's
+    score is noise dressed as a measurement. So this test now does two things
+    rather than one: it pins the default a user who edits nothing gets, and it
+    then asks for None explicitly, because the simulation path is the one that
+    reads ``tolerance`` and ``score_column`` and it would otherwise stop being
+    covered by anything.
 
     Before the fix this raised ``KeyError: 'verbose'`` with
     ``settings/regression.csv`` already on disk and not one result file
@@ -487,14 +703,56 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     ).to_csv(settings_csv, index=False)
 
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    assert settings["min_cell_count"] is None
-    assert settings["fraction_threshold"] is None
+    assert settings["min_cell_count"] == 100, (
+        "the requested default; if this moves, move it here deliberately")
+    # `inference` DEFAULTS TO NONPARAMETRIC since 2026-08-18, which routes the
+    # run through guide permutation and returns a different result shape. The
+    # exact-set assertion below is about the REGRESSION mode's contract, so
+    # the mode is pinned here rather than the assertion loosened -- the
+    # default's own shape is pinned by
+    # `test_the_default_inference_returns_the_permutation_shape`.
+    assert settings["inference"] == "nonparametric"
+    settings["inference"] = "parametric"
+    # Changed from None on request 2026-08-18, with model_plate_position off
+    # and inference nonparametric. Asserted rather than ignored so the CLI
+    # path and the GUI defaults cannot drift apart again.
+    assert settings["fraction_threshold"] == 0.02
+
+    # …and now drive the simulated path, which the default no longer reaches.
+    settings["min_cell_count"] = None
 
     np.random.seed(0)
     out = perform_regression(settings)
 
-    assert set(out) == {"results", "significant"}
-    res = os.path.join(str(cdir), "results", "xgb_scores", "ols", "list")
+    # The fit comes back with the coefficients, not just the verdict. This
+    # was {"results", "significant"} until c0db2f48: a consumer could say WHAT
+    # was significant and nothing about whether the fit deserved to be
+    # believed. `model` and `model_data` are what the QC suite reads to get
+    # R-squared, residuals and the design that actually reached the fit, so
+    # dropping either would silently take the diagnostics away again -- which
+    # is why this stays an exact set rather than a subset check.
+    assert set(out) == {"results", "significant", "model", "model_data",
+                        "regression_type", "res_folder", "settings"}
+
+    # `settings` is the run's OWN dict, so a caller offering to re-fit the
+    # same screen through a different model has it without reading a file --
+    # the shared settings/ copy is overwritten by every later run of the same
+    # screen, so on a second run the file describes the wrong one.
+    # 'mixed' since instruction 132: it makes the gene a fixed effect and
+    # each guide a random effect nested in it, which is the only model here
+    # that says what a guide IS. The run still reports whatever it fitted.
+    assert out["settings"]["regression_type"] == "mixed"
+    assert out["settings"] is not settings, (
+        "the run handed back the caller's own dict, so mutating the copy "
+        "would reach back into the settings the caller still holds")
+
+    # ASKED FOR, NOT SPELLED OUT. This was
+    # `results/xgb_scores/ols/list` -- the four-level path from before the
+    # output rule became `<count folder>/results/<type>`, with `_1`, `_2` for
+    # a repeat. Same staleness as test_regression_types.py had, and the same
+    # fix: the run says where it wrote.
+    res = out["res_folder"]
+    assert os.path.dirname(res) == os.path.join(str(cdir), "results"), res
     results = pd.read_csv(os.path.join(res, "results.csv"))
     assert len(results) > 0
     for name in ("results_gene.csv", "results_grna.csv",

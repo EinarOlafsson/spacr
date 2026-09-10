@@ -1,0 +1,104 @@
+{
+  "id": "29_report",
+  "number": 29,
+  "slug": "report",
+  "series": 4,
+  "app_key": "report",
+  "section": "Help",
+  "title": "Report: inspect and share recorded results without rerunning analysis",
+  "description": "Generate a report from the real External Masks example, distinguish processing completion from missing quality-control evidence, and inspect the actual self-contained HTML before sharing it.",
+  "objectives": [
+    "Find Report under Help and scan a separate copy of an existing project.",
+    "Distinguish processing stamps, unavailable quality checks and missing run provenance.",
+    "Generate HTML using the actual format, figure-cap and output controls.",
+    "Inspect recorded tables, listed vector figures and saved settings without claiming a new analysis or automatic privacy redaction."
+  ],
+  "prerequisite": "Use the real two-field project produced in External Masks, with103 cells and supplied cell labels. This recording uses a complete, byte-verified private copy so the accepted project is protected. The earlier direct-source scan created an empty SQLite WAL and a shared-memory sidecar without changing existing data; do not interpret read-only analysis as a guarantee that SQLite creates no bookkeeping files. No pipeline or QC is rerun. There is no matching run journal for the private copy. The103 cytoplasm rows duplicate cell-only regions, not an independent compartment. Report has no separate test-data download, live segmentation preview or AI interaction in this demonstration.",
+  "scenes": [
+    {
+      "visual": "00a_help_report_menu",
+      "narration": "Open Help, then Report. This utility collects existing project artifacts into a document; it does not rerun segmentation, measurements or quality-control analyses. It is a Help workflow, not a separate Home tile.",
+      "hold_after": 0.7,
+      "related_lessons": ["31_external_masks", "54_qc_dashboard"]
+    },
+    {
+      "visual": "02_existing_project_picker",
+      "narration": "Choose run folder… and select the private copy of our completed External Masks project. It contains two acquired image fields and their measured outputs. The copy preserves every original file, and the accepted source project remains unchanged throughout this recording.",
+      "hold_after": 0.7,
+      "related_lessons": ["31_external_masks"]
+    },
+    {
+      "visual": "03_actual_completion_not_qc_pass",
+      "narration": "After scanning, read the green Complete message carefully. It says every stamped processing step handled every item. That is a processing-completion statement, not proof that segmentation is accurate or that quality control passed.",
+      "hold_after": 0.7,
+      "focus": [450, 275, 3000, 150]
+    },
+    {
+      "visual": "04_read_only_missing_sections",
+      "narration": "The section list is an availability inventory, not an inclusion checklist. Five of eight sections are found here. Run provenance, Segmentation QC and Plate QC are not available, and their explanations remain in the generated report rather than disappearing.",
+      "hold_after": 0.7,
+      "focus": [450, 330, 2800, 350]
+    },
+    {
+      "visual": "05_actual_output_format_choices",
+      "narration": "The actual Format choices are HTML, PDF and Both. We keep HTML for this demonstration. PDF is described as a matplotlib transcription; it is not a promise of an identical browser-page layout. Only HTML is generated and inspected in this recording.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_figure_cap",
+      "narration": "Set Embed at most to three figures. This limits embedded raster figures. Our project instead contains six vector PDFs, which Report lists without embedding. Raising the cap would not turn those PDFs into image previews.",
+      "hold_after": 0.7,
+      "focus": [450, 1900, 1650, 130]
+    },
+    {
+      "visual": "07_separate_output_picker",
+      "narration": "Choose output… and save to a new HTML filename outside the source project. There are no title, authorship or privacy-exclusion controls in this GUI. Review paths and metadata before sharing; Report does not automatically redact them.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_report_written",
+      "narration": "Press Generate report and wait for the written-file confirmation. This run creates only the selected HTML file in its output directory. Open can hand it to your desktop viewer; here we inspect that exact generated file directly in Chrome, without clicking Open.",
+      "hold_after": 0.7,
+      "focus": [450, 1975, 3370, 160]
+    },
+    {
+      "visual": "browser_01_report_top_completion_and_contents",
+      "narration": "The real document opens as one local HTML file, with no external resource requests. Its contents links identify the eight sections. The banner retains the completion statement and says zero of six figures are embedded; it does not hide the missing evidence.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "browser_02_run_status",
+      "narration": "Run status reproduces the actual measure_crop stamp: two attempted, two succeeded and zero failed. We did not manufacture a completion record. These counts describe processed fields, not the number of cells or a scientific validation score.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "browser_03_provenance",
+      "narration": "No journalled run names this copied folder. The report explicitly says its fallback versions describe the machine generating this report, not reconstructed provenance for the analysis. The missing segmentation and plate QC sections also remain visible: not available is not the same as passed.",
+      "hold_after": 0.7,
+      "related_lessons": ["54_qc_dashboard"]
+    },
+    {
+      "visual": "browser_06_figures",
+      "narration": "Key figures lists all six source PDFs and explains why they are not embedded. Their paths identify before-filtering, after-filtering and crop figures for both fields. Refer back to External Masks to see those actual figures; this report does not rasterize them.",
+      "hold_after": 0.7,
+      "related_lessons": ["31_external_masks"]
+    },
+    {
+      "visual": "browser_07_statistics",
+      "narration": "Statistics and result tables reports one hundred and three cell rows, the same number of cytoplasm rows and PNG links. In this cell-only example, cytoplasm duplicates the cell regions. Do not add those tables together and call them independent cells. Database totals include settings and other bookkeeping rows.",
+      "hold_after": 0.7,
+      "related_lessons": ["34_database", "31_external_masks"]
+    },
+    {
+      "visual": "browser_09_settings_first_native_disclosure",
+      "narration": "Expand the actual saved-settings disclosure to inspect its preview. These values come from the project's saved settings file, not a recovered run journal. The displayed row count does not establish that every setting is distinct, and this recording does not read every row aloud.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "browser_10_appendix",
+      "narration": "In Python, spacr.report.collect_report collects a Report object. build_report collects and writes the requested format, returning a list of output paths. Use the GUI or API to share recorded evidence with its limitations intact; neither replaces missing QC, establishes biological validity or removes sensitive metadata for you.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api", "34_database"]
+    }
+  ]
+}

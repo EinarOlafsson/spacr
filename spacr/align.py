@@ -101,9 +101,9 @@ import math
 import os
 import re
 import sqlite3
-from dataclasses import dataclass, field as dc_field
-from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
-                    Tuple, Union)
+from dataclasses import dataclass
+from dataclasses import field as dc_field
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -194,18 +194,48 @@ DEFAULT_ANCHOR_WEIGHT = 1e-3
 #: edge still receives that tile's value instead of a zero.
 _WEIGHT_FLOOR = 1e-3
 
+#: A well token: up to TWO letters, then the column digits. Two, not one,
+#: because a 1536-well plate runs past Z into ``AA01``. With one letter
+#: ``AA01`` never matched, the last-resort branch below read the trailing
+#: digits of the *channel* token as the field, and every field of the well
+#: collapsed onto one site -- only the last file read survived.
+#: ``spacr.schema.parse_well`` has always accepted two (``AA01`` -> r27/c1),
+#: so this makes align agree with the rest of spaCR rather than widening
+#: anything.
+#:
+#: The leading ``(?![Cc][Hh]\d)`` is the one token a second letter would
+#: otherwise steal from :data:`_CHANNEL_TOKEN`: ``ch2``. With a one-letter
+#: well ``some_image_ch2_12`` fell through to the last-resort branch and read
+#: channel 2 correctly; without this guard it would parse as well "ch2".
+#: Nothing else collides -- the other channel spellings are one letter
+#: (``c``, ``w``), which a one-letter well already matched before this
+#: change, or too long to be a well at all (``channel``). Real two-letter
+#: wells start at ``AA`` and stop at ``AF`` even on a 1536-well plate, so no
+#: plate format loses a well to this.
+_WELL_TOKEN = r'(?![Cc][Hh]\d)[A-Za-z]{0,2}\d+'
+
 #: Yokogawa CV7000/CV8000 output, the naming spaCR's pipeline expects.
 _YOKOGAWA = re.compile(
-    r'^(?P<plate>.+)_(?P<well>[A-Za-z]?\d+)_T(?P<t>\d+)F(?P<field>\d+)'
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_T(?P<t>\d+)F(?P<field>\d+)'
     r'L(?P<l>\d+)A(?P<a>\d+)Z(?P<z>\d+)C(?P<c>\d+)$')
 
 #: The same, without the ``A##`` action id (some exports drop it).
 _YOKOGAWA_SHORT = re.compile(
-    r'^(?P<plate>.+)_(?P<well>[A-Za-z]?\d+)_T(?P<t>\d+)F(?P<field>\d+)'
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_T(?P<t>\d+)F(?P<field>\d+)'
     r'L(?P<l>\d+)C(?P<c>\d+)$')
 
 #: spaCR's merged-stack naming: ``<plate>_<well>_<field>.npy``.
-_MERGED = re.compile(r'^(?P<plate>[^_]+)_(?P<well>[A-Za-z]?\d+)_(?P<field>\d+)$')
+#:
+#: The plate is ``.+`` and not ``[^_]+`` so the name is split RIGHT TO LEFT,
+#: which is what the other patterns here already do and what
+#: ``spacr.schema.parse_prcf`` calls "what makes it correct". A plate token
+#: holding the separator -- ``exp1_plate1`` -- did not match at all, fell to
+#: the last-resort branch, and had its WELL read as a channel: ``B07`` and
+#: ``C08`` of one plate both keyed to site ``('', '', 1)`` as channels 1 and
+#: 8, so write_stack composited one well into the other's canvas and every
+#: align_coordinates row carried an empty plateID/rowID/columnID.
+_MERGED = re.compile(
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_(?P<field>\d+)$')
 
 #: Last resort: a trailing integer is the field, a ``_C##`` token the channel.
 _TRAILING_FIELD = re.compile(r'(?P<field>\d+)\s*$')
@@ -286,23 +316,29 @@ class Tile:
     the only file. Either way there is exactly one :class:`Tile`, and so
     exactly one :class:`Placement`, per stage position.
 
-    :ivar path: absolute path of the reference-channel file.
-    :ivar index: position in the list handed to :func:`estimate_offsets`.
-        The pair graph and the least-squares solve are indexed by it.
-    :ivar plate: plate token parsed from the filename.
-    :ivar well: well token parsed from the filename, e.g. ``'B07'``.
-    :ivar field: 1-based field id.
-    :ivar channel: the channel that drives registration for this site.
-    :ivar shape: ``(H, W, C)`` of the assembled site — ``C`` counts the
-        sibling files when channels are split across them.
-    :ivar dtype: dtype name, e.g. ``'uint16'``.
-    :ivar grid_row: nominal row in the acquisition grid.
-    :ivar grid_col: nominal column in the acquisition grid.
-    :ivar nominal_y: nominal stage position, canvas rows.
-    :ivar nominal_x: nominal stage position, canvas columns.
-    :ivar channel_paths: one path per channel, or ``()`` when the channels
-        live inside :attr:`path`.
-    :ivar error: why this tile could not be read; ``''`` when it can.
+    :param path: absolute path of the reference-channel file, or the sole file
+        when all channels are planes of one array.
+    :param index: zero-based tile index used by pair results, the global solve,
+        and the reader cache.
+    :param plate: plate token parsed from the filename, or ``""`` when absent.
+    :param well: well token parsed from the filename, such as ``"B07"``, or
+        ``""`` when absent.
+    :param field: one-based field identifier assigned during scanning; zero
+        only on a manually constructed tile without an assigned field.
+    :param channel: zero-based assembled-channel index selected to drive
+        registration.
+    :param shape: assembled-site shape ``(height, width, channels)``;
+        unreadable headers retain zero height and width.
+    :param dtype: NumPy dtype name reported by the reference header, or
+        ``"uint16"`` as the unreadable-header fallback.
+    :param grid_row: zero-based nominal row in the acquisition grid.
+    :param grid_col: zero-based nominal column in the acquisition grid.
+    :param nominal_y: nominal vertical stage position in pixels.
+    :param nominal_x: nominal horizontal stage position in pixels.
+    :param channel_paths: absolute sibling-file paths in assembled channel
+        order, or ``()`` when all channels live inside :attr:`path`.
+    :param error: header-read failure text, or ``""`` when the tile is
+        readable.
     """
 
     path: str
@@ -350,18 +386,26 @@ class Tile:
 class PairResult:
     """One neighbour pair, registered or refused.
 
-    :ivar i: index of the first tile.
-    :ivar j: index of the second tile.
-    :ivar dy: measured displacement of ``j`` relative to ``i``, rows.
-    :ivar dx: measured displacement of ``j`` relative to ``i``, columns.
-    :ivar nominal_dy: what the stage positions said the displacement was.
-    :ivar nominal_dx: ditto, columns.
-    :ivar confidence: normalised cross-correlation of the two overlap
-        strips *after* ``(dy, dx)`` is applied. 0.0 when refused.
-    :ivar accepted: whether this pair fed the global solve.
-    :ivar overlap_px: pixels compared. A pair scored on 200 pixels is
-        worth less than one scored on 400 000 and the note records it.
-    :ivar note: why a refused pair was refused.
+    :param i: index of the first tile.
+    :param j: index of the second tile.
+    :param dy: row displacement of tile ``j`` relative to tile ``i`` used by
+        this result: measured when accepted and normally the nominal fallback
+        when refused.
+    :param dx: column displacement of tile ``j`` relative to tile ``i`` used
+        by this result: measured when accepted and normally the nominal
+        fallback when refused.
+    :param nominal_dy: row displacement predicted by nominal stage positions.
+    :param nominal_dx: column displacement predicted by nominal stage
+        positions.
+    :param confidence: best non-negative normalized cross-correlation score.
+        It may be below the acceptance threshold for a refused pair and is
+        zero when no usable candidate could be scored.
+    :param accepted: whether this pair contributes an edge to the global
+        position solve.
+    :param overlap_px: number of overlap pixels associated with the
+        registration decision.
+    :param note: explanation for a refused pair, or ``""`` for an accepted
+        pair.
     """
 
     i: int
@@ -386,21 +430,19 @@ class PairResult:
 class Placement:
     """Where one tile goes, and how much that position is worth.
 
-    :ivar tile: the :class:`Tile` this places.
-    :ivar y: solved row offset, in the global frame. May be negative —
-        :func:`plan_canvas` turns the frame into canvas indices.
-    :ivar x: solved column offset, in the global frame.
-    :ivar confidence: best pair confidence backing this tile; 0.0 for a
-        nominal fallback, 1.0 for the single-tile case.
-    :ivar method: one of :data:`METHOD_REGISTRATION`,
-        :data:`METHOD_NOMINAL`, :data:`METHOD_SINGLE`.
-    :ivar note: human explanation, e.g. which pairs were refused.
-    :ivar residual: RMS distance, in pixels, between this tile's solved
-        position and what its own accepted pairs asked for. 0.0 when the
-        tile has no pairs. **This is the number to sort on**: a tile that
-        registered against neighbours that disagree shows up here and
-        nowhere else.
-    :ivar n_pairs: accepted pairs incident on this tile.
+    :param tile: source :class:`Tile` placed by this result.
+    :param y: solved row offset in the global frame; negative positions are
+        preserved until canvas planning.
+    :param x: solved column offset in the global frame.
+    :param confidence: greatest accepted-pair confidence supporting this
+        tile, zero for nominal fallback, or one for the single-tile case.
+    :param method: placement method, one of :data:`METHOD_REGISTRATION`,
+        :data:`METHOD_NOMINAL`, or :data:`METHOD_SINGLE`.
+    :param note: explanation of fallback or refused-pair evidence.
+    :param residual: root-mean-square disagreement, in pixels, between the
+        solved position and accepted incident pairs.
+    :param n_pairs: number of accepted registration pairs incident on this
+        tile.
     """
 
     tile: Tile
@@ -484,13 +526,14 @@ class AlignPlan:
 class CanvasSpec:
     """Canvas geometry, computed before a single byte is allocated.
 
-    :ivar height: canvas rows.
-    :ivar width: canvas columns.
-    :ivar channels: canvas planes.
-    :ivar dtype: numpy dtype name.
-    :ivar origin_y: global-frame row that maps to canvas row 0. Negative
-        offsets live here rather than being clipped away.
-    :ivar origin_x: global-frame column that maps to canvas column 0.
+    :param height: number of rows in the output canvas.
+    :param width: number of columns in the output canvas.
+    :param channels: number of image planes in the output canvas.
+    :param dtype: NumPy dtype name used for the output array.
+    :param origin_y: global-frame row mapped to canvas row zero, preserving
+        negative vertical offsets.
+    :param origin_x: global-frame column mapped to canvas column zero,
+        preserving negative horizontal offsets.
     """
 
     height: int
@@ -520,21 +563,27 @@ class CanvasSpec:
 class AlignResult:
     """What :func:`write_stack` actually did.
 
-    :ivar plan: the plan that was written.
-    :ivar canvas: the geometry it was written at.
-    :ivar stack_path: the ``.npy`` written, ``''`` for a dry run.
-    :ivar n_written: tiles composited into the canvas.
-    :ivar n_skipped: tiles that could not be read at write time. A tile
-        whose header parsed but whose pixels do not is caught here, not
-        in :func:`estimate_offsets`.
-    :ivar peak_buffer_bytes: the largest in-RAM buffer the write
-        allocated — band accumulator plus weight plane. Compare it with
-        ``canvas.nbytes``: that ratio is the whole point of this module.
-    :ivar band_rows: canvas rows held in RAM at once.
-    :ivar writer: ``'memmap'`` or ``'stream'``.
-    :ivar status: ``RunLedger`` status — ``complete`` / ``partial`` / ``empty``.
-    :ivar warnings: anything non-fatal that happened during the write.
-    :ivar db_path: database :func:`save_coordinates` wrote to, if any.
+    :param plan: alignment plan supplied to the write or retained by a preview
+        result.
+    :param canvas: planned output-canvas geometry.
+    :param stack_path: path of the written ``.npy`` stack, or ``""`` for a dry
+        run, preview, or empty write.
+    :param n_written: number of distinct tiles that contributed at least one
+        pixel to the canvas.
+    :param n_skipped: number of tiles whose reader or window read failed while
+        writing; each tile is counted at most once.
+    :param peak_buffer_bytes: predicted maximum bytes occupied by the band
+        accumulator and weight plane.
+    :param band_rows: maximum number of canvas rows held in one write band.
+    :param writer: canvas writer selected for the run, ``"stream"`` or
+        ``"memmap"``.
+    :param status: write outcome: ``"empty"`` before pixels are written,
+        ``"complete"`` when no tile read failed, or ``"partial"`` when at
+        least one tile was skipped.
+    :param warnings: non-fatal dry-run, empty-canvas, read-failure, placement,
+        or artifact-stamping messages.
+    :param db_path: coordinate database written by :func:`save_coordinates`,
+        or ``""`` when coordinates were not saved.
     """
 
     plan: AlignPlan
@@ -653,6 +702,28 @@ def _channel_last(array):
 # Windowed tile access
 # ---------------------------------------------------------------------------
 
+def _cast_window(block: np.ndarray, dtype: np.dtype, path: str) -> np.ndarray:
+    """Cast tile pixels without integer wraparound.
+
+    Integer output follows the same round-and-clip policy as the final canvas
+    writer. Non-finite floating pixels cannot be represented honestly by an
+    integer image, so they fail the tile instead of turning into an arbitrary
+    sentinel during ``astype``.
+    """
+    dtype = np.dtype(dtype)
+    values = np.asarray(block)
+    if np.issubdtype(dtype, np.integer):
+        if (np.issubdtype(values.dtype, np.floating)
+                and not np.isfinite(values).all()):
+            raise AlignError(
+                f'{path}: non-finite pixels cannot be converted to {dtype}')
+        if np.issubdtype(values.dtype, np.floating):
+            values = np.rint(values)
+        limits = np.iinfo(dtype)
+        values = np.clip(values, limits.min, limits.max)
+    return values.astype(dtype, copy=False)
+
+
 class _TileReader:
     """Memory-mapped, windowed access to one site's pixels.
 
@@ -670,6 +741,13 @@ class _TileReader:
     """
 
     def __init__(self, tile: Tile):
+        """Open window-readable sources for every channel belonging to ``tile``.
+
+        :param tile: the tile to read. Its ``channel_paths`` are opened one
+            source per channel, falling back to the single ``path`` when the
+            tile has none -- so a one-channel tile and a merged stack present
+            the same reader, and the caller never branches on which it got.
+        """
         self.tile = tile
         self._sources: List[Any] = []
         self._fields: List[Any] = []
@@ -741,51 +819,50 @@ class _TileReader:
         :param x1: one past the last column, over-wide allowed as for ``y1``
             and reversed rejected as for ``y1``. A window entirely outside
             the tile is all zeros, not an error.
-        :param channels: indices in output order — result plane ``k`` holds
-            ``channels[k]``, repeating an index repeats the plane, and an
-            empty sequence yields an ``(h, w, 0)`` array. What an index
-            *selects* depends on how the site is stored: when
+        :param channels: non-negative indices in output order — result plane
+            ``k`` holds ``channels[k]``, repeating an index repeats the plane,
+            and an empty sequence yields an ``(h, w, 0)`` array. Every index
+            is validated against the assembled site's channel count before
+            any pixels are read. What a valid index *selects* depends on how
+            the site is stored: when
             :attr:`Tile.channel_paths` is set it picks the sibling file and
             only plane 0 of that file is ever read, so additional planes
             inside a sibling are unreachable from here; otherwise it picks a
-            plane of the single file. Out-of-range and negative indices are
-            not handled uniformly — see below.
+            plane of the single file.
         :param dtype: dtype of the returned array, and of the cast applied
-            to the tile's pixels. That cast is a plain ``astype``: narrowing
-            a ``uint16`` tile to ``uint8`` wraps modulo — 300 comes back as
-            44 — it does not rescale or clip. Passing ``None`` does not mean
+            to the tile's pixels. Narrowing to an integer rounds floating
+            values and clips to the target range, matching the final canvas
+            writer; it never wraps modulo. Passing ``None`` does not mean
             "the tile's own dtype"; it resolves through ``np.dtype`` to
             ``float64``.
 
-        An index the site does not have behaves differently per backing
-        store, which is worth knowing before relying on either. A merged
-        ``(H, W, C)`` ``.npy`` is served by
-        :meth:`~spacr.crops.MergedField.read_window`, which raises
-        ``CropError``; every other layout — 2-D or channel-first ``.npy``,
-        TIFF, split channel files — silently leaves that output plane zero.
-        On the silent paths a negative index is not rejected either: for a
-        single-file tile it wraps Python-style, so ``-1`` reads the last
-        plane, while for split channel files it is filtered out to zeros.
+        :raises AlignError: if a channel is negative or out of range, or a
+            non-finite floating pixel is requested in an integer dtype.
         """
-        out = np.zeros((int(y1 - y0), int(x1 - x0), len(channels)),
-                       dtype=np.dtype(dtype))
-        for k, channel in enumerate(channels):
+        requested = [int(channel) for channel in channels]
+        available = self.shape[2]
+        for channel in requested:
+            if not 0 <= channel < available:
+                raise AlignError(
+                    f'{self.tile.path}: channel {channel} out of range for '
+                    f'a site with {available} channels')
+        target_dtype = np.dtype(dtype)
+        out = np.zeros((int(y1 - y0), int(x1 - x0), len(requested)),
+                       dtype=target_dtype)
+        for k, channel in enumerate(requested):
             if self._split_channels:
-                group, plane = int(channel), 0
-                if not 0 <= group < len(self._sources):
-                    continue
+                group, plane = channel, 0
             else:
-                group, plane = 0, int(channel)
+                group, plane = 0, channel
             field = self._fields[group]
             if field is not None:
                 sub = field.read_window(int(y0), int(y1), int(x0), int(x1),
-                                        [plane], dtype=dtype)
-                out[:, :, k] = sub[:, :, 0]
+                                        [plane], dtype=field.dtype)
+                out[:, :, k] = _cast_window(
+                    sub[:, :, 0], target_dtype, self.tile.path)
                 continue
             source = self._sources[group]
             height, width = int(source.shape[0]), int(source.shape[1])
-            if plane >= int(source.shape[2]):
-                continue
             sy0, sy1 = max(0, int(y0)), min(height, int(y1))
             sx0, sx1 = max(0, int(x0)), min(width, int(x1))
             if sy1 <= sy0 or sx1 <= sx0:
@@ -793,7 +870,7 @@ class _TileReader:
             dy, dx = sy0 - int(y0), sx0 - int(x0)
             block = np.asarray(source[sy0:sy1, sx0:sx1, plane])
             out[dy:dy + (sy1 - sy0), dx:dx + (sx1 - sx0), k] = \
-                block.astype(dtype, copy=False)
+                _cast_window(block, target_dtype, self.tile.path)
         return out
 
     def close(self) -> None:
@@ -830,8 +907,27 @@ class _ReaderCache:
     to ``max_open`` tiles instead of to the whole input folder.
     """
 
+    #: A registration pair needs BOTH of its tiles mapped at the same time,
+    #: so one is not a legal working set however little memory a caller
+    #: wants to use. With a floor of 1, ``cache.get(tile_b)`` evicted and
+    #: closed tile A's reader while ``_register_pair`` was still holding it;
+    #: every pair then died inside the try with "'NoneType' object has no
+    #: attribute 'shape'", the exception was swallowed into
+    #: ``PairResult.note``, and every tile fell back to its stage position.
+    #: The stitch was not refused — it just looked like a plate that would
+    #: not register.
+    MIN_OPEN = 2
+
     def __init__(self, max_open: int = 8):
-        self.max_open = max(1, int(max_open))
+        """Create an LRU reader cache with room for at least one tile pair.
+
+        :param max_open: how many tile readers may be open at once. RAISED TO
+            :data:`MIN_OPEN` IF LOWER -- registration holds two readers at
+            once, so a smaller cache evicts one of the pair it is using. See
+            MIN_OPEN for what that looked like: not a refused stitch, but a
+            plate that silently would not register.
+        """
+        self.max_open = max(self.MIN_OPEN, int(max_open))
         self._open: "Dict[int, _TileReader]" = {}
         self._order: List[int] = []
         self.opened = 0
@@ -978,7 +1074,8 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
                order: str = 'row-major',
                recursive: bool = False,
                positions: Optional[Mapping[int, Sequence[float]]] = None,
-               reference_channel: Optional[int] = None) -> List[Tile]:
+               reference_channel: Optional[int] = None,
+               group_by_well: bool = False) -> List[Tile]:
     """Return one :class:`Tile` per stage position, **without reading pixels**.
 
     Every file's shape and dtype comes out of its header. A folder of
@@ -1004,6 +1101,15 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
         microscope's real coordinates when you have them.
     :param reference_channel: which channel drives registration. Defaults
         to the lowest channel present.
+    :param group_by_well: lay ``grid`` out **once per well** instead of once
+        across the whole folder. A grid is a property of the acquisition and
+        the acquisition is per well — the same field pattern is repeated in
+        every well — so a folder holding two wells imaged 2x2 is two 2x2
+        grids, not one 2x4. With this off, such a folder was refused with
+        "grid 2x2 has room for 4 tiles but 8 were found", and ``grid=None``
+        inferred a single 2x4 that laid each well out as a 1x4 strip and put
+        its vertical neighbours outside the overlap. :func:`align_folder`
+        passes its own ``group_by_well`` setting through.
     :returns: tiles in grid order, each with ``index`` set.
     :raises ConfigurationError: ``src`` does not exist, or ``grid`` is too
         small for the tiles found.
@@ -1034,7 +1140,22 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
         record['paths'][int(meta['channel'])] = path
 
     keys = sorted(order_seen, key=lambda k: (sites[k]['first'],))
-    rows, cols = _grid_shape(len(keys), grid)
+
+    # The grid is laid out once per well when the caller groups by well, and
+    # once across the folder otherwise. `index` stays globally unique either
+    # way -- it keys the reader cache and names tiles in pair results -- so
+    # only the position WITHIN a grid is per group.
+    if group_by_well:
+        groups: "Dict[Tuple[str, str], List[Tuple[str, str, int]]]" = {}
+        for key in keys:
+            groups.setdefault((key[0], key[1]), []).append(key)
+    else:
+        groups = {('', ''): list(keys)}
+    layout: "Dict[Tuple[str, str, int], Tuple[int, int]]" = {}
+    for members in groups.values():
+        rows, cols = _grid_shape(len(members), grid)
+        for position_in_group, key in enumerate(members):
+            layout[key] = _grid_position(position_in_group, rows, cols, order)
 
     tiles: List[Tile] = []
     for k, key in enumerate(keys):
@@ -1045,7 +1166,7 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
             ref = channels[0]
         ref_path = record['paths'][ref]
         plate, well, field = key
-        grid_row, grid_col = _grid_position(k, rows, cols, order)
+        grid_row, grid_col = layout[key]
 
         error = ''
         try:
@@ -1448,7 +1569,7 @@ def _sequential_positions(n_tiles: int,
 
 def estimate_offsets(tiles: Sequence[Tile],
                      *,
-                     reference_channel: int = 0,
+                     reference_channel: Optional[int] = None,
                      min_confidence: float = DEFAULT_MIN_CONFIDENCE,
                      min_overlap_px: int = DEFAULT_MIN_OVERLAP_PX,
                      upsample: int = DEFAULT_UPSAMPLE,
@@ -1468,6 +1589,14 @@ def estimate_offsets(tiles: Sequence[Tile],
     :param reference_channel: the plane registration is measured on. Every
         channel of a site then shares that site's single solution —
         registering channels independently would shear the composite.
+        ``None`` (the default) takes the channel the tiles already carry,
+        which is the one :func:`scan_tiles` selected. This used to default to
+        ``0``, so ``scan_tiles(reference_channel=2)`` followed by the
+        documented ``estimate_offsets(tiles)`` silently registered on channel
+        0 instead — the selection was stored on every tile and read by
+        nothing. Tiles that disagree fall back to ``0``; the resolved value
+        is recorded on the plan and printed by :func:`format_plan`, so
+        whichever way it went is visible rather than assumed.
     :param min_confidence: normalised cross-correlation below which a pair
         is refused and the tile falls back to nominal.
     :param min_overlap_px: overlaps narrower than this in either axis are
@@ -1491,6 +1620,9 @@ def estimate_offsets(tiles: Sequence[Tile],
     :raises ConfigurationError: no readable tiles at all.
     """
     tiles = list(tiles)
+    if reference_channel is None:
+        chosen = {int(tile.channel) for tile in tiles if tile.readable}
+        reference_channel = chosen.pop() if len(chosen) == 1 else 0
     plan = AlignPlan(tiles=tiles, reference_channel=int(reference_channel))
 
     usable: List[Tile] = []
@@ -1664,6 +1796,12 @@ def _count_components(n_tiles: int,
     parent = list(range(n_tiles))
 
     def find(a: int) -> int:
+        """Resolve and compress one tile's captured component parent.
+
+        :param a: tile index whose union-find representative is required.
+        :returns: root index after path-halving each traversed parent link in
+            the captured forest.
+        """
         while parent[a] != a:
             parent[a] = parent[parent[a]]
             a = parent[a]
@@ -1693,8 +1831,8 @@ def _feather_width(plan: AlignPlan, tiles: Sequence[Tile]) -> int:
             continue
         (ay0, ay1, ax0, ax1), _ = windows
         span = min(ay1 - ay0, ax1 - ax0)
-        if span > 0:
-            widths.append(int(span))
+        # _overlap_windows returns None unless both dimensions are positive.
+        widths.append(int(span))
     smallest = min(min(t.height, t.width) for t in tiles)
     if not widths:
         return 1
@@ -1718,7 +1856,7 @@ def plan_canvas(placements: Sequence[Placement],
     """Compute the canvas geometry from the offsets, allocating nothing.
 
     Negative offsets are the normal case — the solve fixes the gauge to
-    the nominal centroid, so a tile can easily land above or left of the
+    the nominal centroid, so a tile may land above or left of the
     origin. The canvas is sized to the bounding box of every placed tile
     and :attr:`CanvasSpec.origin_y` / :attr:`~CanvasSpec.origin_x` carry
     the mapping back to the global frame, so nothing is ever clipped.
@@ -1851,6 +1989,17 @@ class _StreamCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
+        """Create an NPY canvas and open its data region for sequential writes.
+
+        :param path: where to create the ``.npy``. Opened twice -- once by
+            ``open_memmap`` to lay down the header, then as a plain file
+            handle at the data offset -- so the process never maps a byte of
+            the canvas.
+        :param spec: the canvas geometry and dtype. Its width, channels and
+            itemsize give the row stride that every ``write_band`` seek is
+            computed from, so a spec that does not match the array on disk
+            writes bands to the wrong rows rather than failing.
+        """
         self.path = path
         self.spec = spec
         array = np.lib.format.open_memmap(
@@ -1888,6 +2037,13 @@ class _MemmapCanvas:
     """
 
     def __init__(self, path: str, spec: CanvasSpec):
+        """Create a memory-mapped NPY canvas matching ``spec``.
+
+        :param path: where to create the ``.npy``.
+        :param spec: the canvas geometry and dtype, passed to
+            ``open_memmap`` -- so unlike :class:`_StreamCanvas` the mapping
+            cannot disagree with the file.
+        """
         self.path = path
         self.spec = spec
         self.array = np.lib.format.open_memmap(
@@ -2249,8 +2405,8 @@ def save_coordinates(plan: Union[AlignPlan, Iterable[AlignPlan]],
     frame = pd.DataFrame(rows, columns=list(ALIGN_COLUMNS))
 
     parent = os.path.dirname(os.path.abspath(os.fspath(db_path)))
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    # dirname(abspath(...)) is always an absolute, non-empty directory.
+    os.makedirs(parent, exist_ok=True)
     connection = sqlite3.connect(str(db_path), timeout=30)
     try:
         frame.to_sql(table, connection, if_exists=if_exists, index=False)
@@ -2432,7 +2588,8 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
                        overlap=float(resolved.get('overlap') or 0.0),
                        order=str(resolved.get('order') or 'row-major'),
                        recursive=bool(resolved.get('recursive')),
-                       reference_channel=None)
+                       reference_channel=None,
+                       group_by_well=bool(resolved.get('group_by_well')))
     groups = (group_tiles(tiles) if resolved.get('group_by_well')
               else {('', ''): tiles})
 
@@ -2447,7 +2604,12 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
     for key, members in sorted(groups.items()):
         plan = estimate_offsets(
             members,
-            reference_channel=int(resolved.get('reference_channel') or 0),
+            # None, not 0: an unset setting must let the tiles' own channel
+            # stand, or align_folder defeats scan_tiles the same way the old
+            # estimate_offsets default did.
+            reference_channel=(
+                None if resolved.get('reference_channel') is None
+                else int(resolved['reference_channel'])),
             min_confidence=float(resolved.get('min_confidence')),
             min_overlap_px=int(resolved.get('min_overlap_px')),
             upsample=int(resolved.get('upsample')),

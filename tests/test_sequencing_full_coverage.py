@@ -67,15 +67,30 @@ def test_map_sequences_to_names_rejects_a_csv_missing_its_columns(tmp_path):
     assert "name" in msg and "sequence" in msg
 
 
-def test_map_sequences_to_names_rejects_duplicate_sequences(tmp_path):
+def test_map_sequences_to_names_drops_duplicate_sequences(tmp_path, capsys):
+    """A shared sequence is unassigned; the rest of the library still maps.
+
+    THE CLAIM CHANGED, and the property it was protecting did not. One
+    sequence resolving to two names would make the well assignment depend on
+    dict insertion order, so such a read must never be attributed -- it maps
+    to NA and falls out of the counts.
+
+    What changed is the blast radius. This used to raise and take the WHOLE
+    FILE with it, and the real tsg101 gRNA library is 1,385 guides of which
+    three sequences are shared: spaCR would not map the maintainer's own
+    screen, and 1,382 unambiguous guides were unusable because of eight
+    rows. The ambiguous ones are dropped and named instead.
+    """
     csv = _write_csv(tmp_path / "dup.csv",
                      ["ACGT", "ACGT", "TTGG"], ["b1", "b2", "b3"])
-    with pytest.raises(ValueError) as exc:
-        SEQ.map_sequences_to_names(csv, ["ACGT"], rc=False)
-    # One sequence resolving to two names would make the well assignment
-    # depend on dict insertion order. The example is named so it can be found.
-    assert "duplicate sequences" in str(exc.value)
-    assert "ACGT" in str(exc.value)
+
+    mapped = SEQ.map_sequences_to_names(csv, ["ACGT", "TTGG"], rc=False)
+
+    assert pd.isna(mapped[0]), "an ambiguous read was given a name"
+    assert mapped[1] == "b3", "an unambiguous barcode was lost with it"
+    # Named, so a count that went missing can be found.
+    said = capsys.readouterr().out
+    assert "ACGT" in said and "more than one name" in said
 
 
 def test_map_sequences_to_names_ignores_duplicate_nan_rows(tmp_path):
@@ -461,9 +476,14 @@ def _exit_nonzero():
     raise SystemExit(3)
 
 
+def _return_none():
+    """Pickle-safe successful process target (Python 3.14 uses forkserver)."""
+    return None
+
+
 def test_finish_saver_is_a_no_op_for_a_writer_that_stops():
     q = _FakeQueue([])
-    proc = mp.Process(target=lambda: None)
+    proc = mp.Process(target=_return_none)
     proc.start()
     SEQ._finish_saver(q, proc, timeout=30)
     assert q.put_items == ["STOP"]
@@ -880,6 +900,55 @@ def test_generate_barecode_mapping_skips_a_sample_with_no_reads(
     assert not os.path.isdir(os.path.join(str(tmp_path), "S1_paired"))
 
 
+def test_generate_barecode_mapping_names_a_missing_paired_mate(
+        tmp_path, mapping_env, monkeypatch, caplog):
+    """A partial pair is skipped at the sample boundary with useful context."""
+    import spacr.io as IO
+    monkeypatch.setattr(
+        IO, "parse_gz_files",
+        lambda src: {"archive_run": {"R1": os.path.join(src, "run_1.fastq.gz")}})
+
+    with caplog.at_level("WARNING", logger="spacr.sequencing"):
+        SEQ.generate_barecode_mapping({"src": str(tmp_path),
+                                       "mode": "paired"})
+
+    assert mapping_env == []
+    assert "archive_run: skipped" in caplog.text
+    assert "paired mode needs R1 and R2" in caplog.text
+    assert "has R1" in caplog.text
+
+
+def test_generate_barecode_mapping_single_falls_back_to_the_available_mate(
+        tmp_path, mapping_env, monkeypatch):
+    """Single-read decoding can use the sole mate when the preferred one is absent."""
+    import spacr.io as IO
+    only_r1 = os.path.join(str(tmp_path), "run_1.fastq.gz")
+    monkeypatch.setattr(IO, "parse_gz_files",
+                        lambda src: {"archive_run": {"R1": only_r1}})
+
+    SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
+                                   "single_direction": "R2"})
+
+    assert [call[0] for call in mapping_env] == ["single", "qc"]
+    assert mapping_env[0][1]["r1_file"] == only_r1
+    assert mapping_env[0][1]["r2_file"] is None
+
+
+def test_generate_barecode_mapping_names_an_empty_single_sample(
+        tmp_path, mapping_env, monkeypatch, caplog):
+    import spacr.io as IO
+    monkeypatch.setattr(IO, "parse_gz_files",
+                        lambda src: {"archive_run": {}})
+
+    with caplog.at_level("WARNING", logger="spacr.sequencing"):
+        SEQ.generate_barecode_mapping({"src": str(tmp_path), "mode": "single",
+                                       "single_direction": "R2"})
+
+    assert mapping_env == []
+    assert "single mode needs R2" in caplog.text
+    assert "has nothing" in caplog.text
+
+
 # ---------------------------------------------------------------------------
 # barecodes_reverse_complement
 # ---------------------------------------------------------------------------
@@ -1038,7 +1107,14 @@ def test_display_falls_back_to_a_no_op_when_IPython_is_unavailable(
         assert mod.display("anything", extra=1) is None
     finally:
         monkeypatch.undo()
-        importlib.reload(importlib.import_module("spacr.sequencing"))
+        restored = importlib.reload(importlib.import_module("spacr.sequencing"))
+        # Removing and re-importing a submodule updates the package attribute
+        # to the temporary module.  Restoring only ``sys.modules`` leaves two
+        # live module identities, so a later test can patch one while a
+        # function-level import reads the other.  Reunify both views here.
+        import spacr
+        spacr.sequencing = restored
+        assert spacr.sequencing is sys.modules["spacr.sequencing"]
 
 
 # ---------------------------------------------------------------------------

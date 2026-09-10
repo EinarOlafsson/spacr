@@ -1,0 +1,199 @@
+================================================================================
+THE SUDOKU ANNOTATION METHODS
+================================================================================
+
+Status:    filed 2026-08-21, GATE PASSED and IMPLEMENTED 2026-08-21.
+           Gated on the maintainer's approval of the explanation -- see the
+           gate below, which is the first line of this instruction for a
+           reason.
+Requested: 2026-08-21.
+Owner:     Sequencing annotation (`guide_attribution.py`)
+
+--------------------------------------------------------------------------------
+THE GATE
+--------------------------------------------------------------------------------
+
+    "before implementing either of these methods please explain them to me
+     mathematically and in simple terms that i am garanteed to understand"
+
+NOTHING IS BUILT UNTIL THAT EXPLANATION IS GIVEN AND ACCEPTED. Not a
+prototype, not a branch, not a helper "ready for when it is approved". The
+request is not for a status update on the way to the code; it is for the
+maths to be checked by the person who will have to defend the results.
+
+A method that assigns cells to guides decides what every downstream number
+means. Building it first and explaining it after inverts who is reviewing
+whom.
+
+--------------------------------------------------------------------------------
+A. SUDOKU -- WHAT WAS ASKED FOR
+--------------------------------------------------------------------------------
+
+    "we come up with a sofisticated exclude, include criterion across wells,
+     where we anchor the approach to the highest scoring cells in the
+     annotated wells (the user may choose several high scoring guides), then
+     use the fractions, clssification scores, and cell measurements for a
+     suduku like process of elimination and affirmation where cells get a
+     score that mapps if they are likely to not be one of the chosen top
+     scoring guides, and a seperate score for if they are likely to be one of
+     the top scoring guides."
+
+The essential parts, none of which may be quietly dropped:
+
+  * ANCHORS. The highest scoring cells in the annotated wells are taken as
+    near-certain examples. The user chooses which guides anchor it, and may
+    choose several.
+  * ACROSS WELLS, not within one. This is what makes it sudoku rather than
+    the per-well posterior that already exists: what a guide's cells look
+    like is learned from every well the guide is in, and applied in each.
+  * THREE SOURCES OF EVIDENCE: the sequencing fractions, the classification
+    scores, and the cell measurements.
+  * ELIMINATION AND AFFIRMATION, and these are SEPARATE. "cells get a score
+    that mapps if they are likely to not be one of the chosen top scoring
+    guides, and a seperate score for if they are likely to be one".
+
+TWO SCORES, NOT ONE, and this is the part most likely to be lost in
+implementation because one number is easier. It must not be: "probably not
+this guide" and "probably this guide" are different claims and a cell can be
+low on both. A cell that is unlike the anchors AND unlike everything else is
+exactly the cell a single score hides, and it is the interesting one.
+
+--------------------------------------------------------------------------------
+B. SUDOKU ALL -- THE SEQUENTIAL FORM
+--------------------------------------------------------------------------------
+
+    "the method starts with the highest scoring + p value guide and performs
+     the suduku method across all wells that have the guide, and then excludes
+     the cells annotated with that guide and goes to the next guide with the
+     now highest cloassification score + p value, and so on untill the method
+     reaches a reasonable threshold of unsertainty where there is no way to
+     know if cell is one gRNA or another, where it is a coin flip."
+
+Greedy, in confidence order, removing what it has claimed as it goes, and
+STOPPING at a stated uncertainty -- not running to exhaustion. The stopping
+rule is a first-class part of the method, not an afterthought: "where it is a
+coin flip" has to become a number, and that number has to be defensible.
+
+THE ORDER IS THE RISK, and it must be said in the explanation rather than
+discovered later: a greedy method that removes cells commits early. The first
+guide's mistakes are permanent and every later guide inherits them. Whatever
+is built must be able to say how much the answer would change if the order
+changed, or the confidence it reports is not confidence.
+
+--------------------------------------------------------------------------------
+C. WHAT THE EXPLANATION MUST CONTAIN
+--------------------------------------------------------------------------------
+
+  * the model, in symbols, with every symbol named in words;
+  * the same thing again with no symbols at all;
+  * what it assumes, and which assumption breaks first;
+  * where it disagrees with `attributed` and `assigned`, and why -- these
+    already exist and already solve the neighbouring problem, so a new method
+    has to justify itself against them;
+  * what the two scores mean on one named example cell;
+  * the stopping rule for the sequential form, as a number;
+  * how it would be shown to be wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The explanation was given and the maintainer accepted it BEFORE any code.
+* Both scores are produced and both are kept -- no collapse to one number.
+* The anchors are the user's choice and several guides can anchor.
+* The sequential form stops at a stated uncertainty and says where it
+  stopped and why.
+* Order sensitivity is measured and reported, not assumed away.
+* Tested on data where the truth is known by construction.
+
+--------------------------------------------------------------------------------
+THE GATE WAS PASSED
+--------------------------------------------------------------------------------
+
+The mathematics was explained on 2026-08-21 and accepted: "it sounds
+reasonable to me esspecially with mitigation of the problems you discribe. i
+want this done in the most robust way with as much information as we can".
+Implementation followed, not preceded, that.
+
+--------------------------------------------------------------------------------
+THE GRAPH QUESTION, ANSWERED
+--------------------------------------------------------------------------------
+
+    "is there a way to apply network theory and or graph learning to solv
+     this problem of annotation?"
+
+YES, AND IT IS THE SAME ALGORITHM. The third premise of the sudoku
+description -- cells that look alike carry alike, wherever they sit -- IS a
+graph statement. Written as one it becomes label propagation on a
+k-nearest-neighbour graph (Zhu & Ghahramani 2003, Zhou et al. 2004), and the
+well constraint becomes the class-mass normalisation step from that same
+literature.
+
+Two lines of reasoning that arrived independently turned out to be one
+method, which is the best evidence available that it is the right one.
+
+The other graph reading -- cells and `(well, guide)` slots as a bipartite
+min-cost flow -- is what `assign_well` already does per well. It is kept as
+the PROJECTION rather than the whole method because a hard assignment cannot
+abstain, and abstention is a requirement.
+
+A GRAPH NEURAL NETWORK WAS CONSIDERED AND REJECTED: the labels are noisy
+pseudo-labels from anchors, the sample is thousands not millions, and the
+result would be uninterpretable in a way that matters for a method deciding
+what every downstream number means. Label propagation has no trained
+weights, is convex, and its answer traces back to the anchors that made it.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/sudoku.py`
+
+  * `anchors_for` -- anchors from wells where the guide is a large share,
+    because a top-scoring cell in a 70% well is probably that guide and in a
+    5% well is probably not.
+  * `similarity_graph` -- MUTUAL kNN with a self-tuning heat kernel. Mutual
+    so an outlier can end up with no edges at all, which is the honest
+    answer; self-tuning because a screen's cells do not have one density.
+  * `propagate` -- Zhou's iteration, returning UNNORMALISED mass so that a
+    cell which received almost nothing stays visibly so.
+  * `constrain_to_fractions` -- the sudoku step, IPF onto the counts.
+  * `sudoku` / `sudoku_all` -- with both scores kept apart and abstention on
+    two distinct grounds: unlike every anchor, or a coin flip.
+
+THE MITIGATIONS ARE IN THE CODE, not in a comment about future work. The
+score is excluded from the graph by default and the report says so when it
+is not, which is the circularity mitigation. Order sensitivity is measured
+rather than argued about. Abstention is on two grounds because one number
+cannot express both.
+
+--------------------------------------------------------------------------------
+AND THE VALIDATION, WHICH FOUND TWO REAL BUGS
+--------------------------------------------------------------------------------
+
+`spacr/annotation_validation.py` scores every strategy on the same screens,
+against two baselines that use no cell measurement at all, and against a
+permutation null.
+
+IT EARNED ITS PLACE IMMEDIATELY, twice:
+
+  1. The FIRST version of the generator emitted each guide's cells as a
+     contiguous block, so the row order carried the answer. It was caught by
+     the `no_effect` scenario -- features containing nothing -- reporting 85%
+     precision, which is impossible. Every earlier number was worthless.
+  2. `sudoku_all` scored at the null: gain +0.00. Running the per-round call
+     with ONE guide made the well constraint normalise each row over a
+     single column, so every posterior was exactly 1.0 and the first guide
+     claimed the whole screen. A posterior is a comparison, and comparing a
+     guide against nothing returns the prior.
+
+Measured after both fixes, precision on annotated cells:
+
+    scenario      majority baseline    sudoku      sudoku_all
+    clean               46%             70%           71%
+    no_effect           44%             47%           48%
+    realistic           33%             46%           45%
+
+The `no_effect` row is the one that matters most: with no signal in the
+features, sudoku does NOT beat the fractions. A method that did would be
+reading its own anchors.

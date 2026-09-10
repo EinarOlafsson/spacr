@@ -157,6 +157,11 @@ class RegionOfInterest:
     name: str = ''
 
     def __post_init__(self) -> None:
+        """Normalize the fields and reject geometry that cannot enclose area.
+
+        :raises RoiError: if the shape kind is open or unknown, vertices are
+            not a finite ``(M, 2)`` array, or too few vertices are supplied.
+        """
         kind = str(self.kind).strip().lower()
         if kind not in ('polygon', 'rectangle', 'ellipse'):
             raise RoiError(
@@ -203,7 +208,10 @@ class RegionOfInterest:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> 'RegionOfInterest':
-        """Rebuild one from :meth:`as_dict`."""
+        """Rebuild one from :meth:`as_dict`.
+
+        :param payload: serialized ROI mapping.
+        """
         try:
             return cls(kind=payload['kind'], vertices=payload['vertices'],
                        name=payload.get('name', ''))
@@ -259,6 +267,12 @@ class RoiSet:
     on_missing: str = 'error'
 
     def __post_init__(self) -> None:
+        """Copy and validate the region mapping and filtering rules.
+
+        :raises RoiError: if a field contains a non-ROI value, the axes are
+            invalid, or any mode, overlap, object type, or missing-field rule
+            is unsupported.
+        """
         fields: Dict[str, Tuple[RegionOfInterest, ...]] = {}
         for name, rois in dict(self.fields).items():
             entries = tuple(rois)
@@ -320,15 +334,21 @@ class RoiSet:
 
     # -- queries ---------------------------------------------------------
     def __len__(self) -> int:
+        """Return the total number of ROIs assigned across all fields."""
         return sum(len(v) for v in self.fields.values())
 
     def covers(self, file_name: str) -> bool:
-        """Whether this set has anything to say about ``file_name``."""
+        """Whether this set has anything to say about ``file_name``.
+
+        :param file_name: merged-field filename or stem to test.
+        """
         return self.rois_for(file_name) is not None
 
     def rois_for(self, file_name: str
                  ) -> Optional[Tuple[RegionOfInterest, ...]]:
         """The ROIs that apply to a field, or ``None`` when none do.
+
+        :param file_name: merged-field filename or stem to resolve.
 
         The field's own entry wins over :data:`ANY_FIELD`; a field entry that
         is present but empty means "this field has an ROI and it encloses
@@ -417,13 +437,16 @@ class RoiSet:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> 'RoiSet':
-        """Rebuild a set from :meth:`as_dict`."""
+        """Rebuild a set from :meth:`as_dict`.
+
+        :param payload: serialized ROI-set mapping.
+        """
         data = dict(payload)
         try:
             fields = {str(name): tuple(RegionOfInterest.from_dict(entry)
                                        for entry in entries)
                       for name, entries in dict(data.get('fields') or {}).items()}
-        except (TypeError, AttributeError) as exc:
+        except (TypeError, AttributeError, ValueError) as exc:
             raise RoiError(
                 f"the 'fields' entry must map a field name to a list of ROIs, "
                 f"got {data.get('fields')!r}") from exc
@@ -439,6 +462,8 @@ class RoiSet:
     def save(self, path: str) -> str:
         """Write this set to ``path`` as JSON; returns the absolute path.
 
+        :param path: destination JSON file.
+
         JSON rather than ``.npz`` on purpose: an ROI is a few dozen numbers and
         a human being should be able to read the file that decided which cells
         were measured. Creates the parent folder.
@@ -448,8 +473,7 @@ class RoiSet:
         target = os.path.abspath(str(path))
         try:
             parent = os.path.dirname(target)
-            if parent:
-                os.makedirs(parent, exist_ok=True)
+            os.makedirs(parent, exist_ok=True)
             with open(target, 'w', encoding='utf-8') as handle:
                 json.dump(self.as_dict(), handle, indent=2)
         except OSError as exc:
@@ -462,6 +486,8 @@ class RoiSet:
     @classmethod
     def load(cls, path: str) -> 'RoiSet':
         """Read a set back from :meth:`save`.
+
+        :param path: ROI-set JSON file to read.
 
         :raises RoiError: if the file is missing or is not an ROI file. Loudly,
             because a worker that cannot load the ROI must not go on to measure
@@ -525,6 +551,16 @@ class RoiRegionFilter:
     """
 
     def __init__(self, roi_set: RoiSet, *, on_missing: Optional[str] = None):
+        """Validate the rules and initialize cumulative counters and cache.
+
+        :param roi_set: regions and object-selection rules to apply.
+        :param on_missing: optional missing-field policy overriding
+            :attr:`RoiSet.on_missing`.
+        :raises RoiError: if ``roi_set`` or the override is invalid.
+
+        ``stats['fields']`` counts distinct raster/cache misses; fields that
+        are uncovered, empty, or waved through do not increment it.
+        """
         if not isinstance(roi_set, RoiSet):
             raise RoiError(
                 f"an ROI filter needs a RoiSet, got {type(roi_set).__name__}")
@@ -567,6 +603,13 @@ class RoiRegionFilter:
         return keep
 
     def _missing(self, context, labels: np.ndarray) -> np.ndarray:
+        """Apply the configured policy to a field without an ROI.
+
+        :param context: region context whose filename is used in an error.
+        :param labels: label array defining the decision-vector shape.
+        :returns: an all-true or all-false decision vector.
+        :raises RoiError: when the policy is ``'error'``.
+        """
         if self.on_missing == 'error':
             raise RoiError(
                 f"no ROI covers field {context.file_name!r}. The ROI set names "
@@ -580,6 +623,10 @@ class RoiRegionFilter:
         return keep
 
     def _record(self, keep: np.ndarray) -> None:
+        """Add one boolean decision vector to kept and dropped totals.
+
+        :param keep: boolean vector whose true entries were retained.
+        """
         self.stats['kept'] += int(np.count_nonzero(keep))
         self.stats['dropped'] += int(keep.size - np.count_nonzero(keep))
 

@@ -112,14 +112,13 @@ DEFAULT_MAX_SETS = 20
 #: Hover help for the "how many image sets" box that sits immediately left of
 #: every preview's sets dropdown. Shared, so all four panels say it once.
 MAX_SETS_TOOLTIP = (
-    "Maximum image sets the preview loads.\n\n"
-    "A large experiment is never listed whole — its file names are grouped "
-    "into image sets (one field of view, all its channels) and this many are "
-    "drawn at random from across the plate. Nothing outside the sample is "
-    "opened.\n\n"
-    "The draw is reproducible: the same folder at the same maximum always "
-    "gives the same sets. Changing this number draws a new sample; simply "
-    "re-rendering never does.")
+    "Maximum number of image sets loaded by the preview.\n\n"
+    "For large experiments, filenames are grouped into image sets comprising "
+    "one field of view and all of its channels. The specified number of sets "
+    "is sampled across the plate; files outside the sample are not opened.\n\n"
+    "Sampling is deterministic: the same folder and maximum produce the same "
+    "sets. Changing the maximum selects a new sample, whereas re-rendering "
+    "with the same settings preserves the selection.")
 
 #: Acquisition-naming dialect handed to :func:`spacr.utils._get_regex`.
 #: ``cellvoyager`` is the Yokogawa layout this project converts everything
@@ -181,12 +180,21 @@ class _FlatStyleMixin:
     _flat_selector = "QWidget"
 
     def _apply_flat_style(self) -> None:
+        """Apply the flat sheet for this control's own selector."""
         self.setStyleSheet(_flat_qss(self._flat_selector))
 
     def showEvent(self, event):      # noqa: N802 (Qt naming)
         # Preferences can change the theme while this panel is hidden; the
         # widget stylesheet keeps whatever palette it was born with until it
         # is rebuilt, so rebuild it every time the panel comes back.
+        """Rebuild the flat style each time the control comes back on screen.
+
+        Preferences can change the theme while the panel is hidden, and a
+        per-widget stylesheet keeps whatever palette it was born with until it
+        is rebuilt.
+
+        :param event: the show event.
+        """
         self._apply_flat_style()
         super().showEvent(event)
 
@@ -202,6 +210,16 @@ class FlatComboBox(_FlatStyleMixin, QComboBox):
     _flat_selector = "QComboBox"
 
     def __init__(self, parent=None, tooltip: str = ""):
+        """Build a flat combo box whose entries are data, not prose.
+
+        The language pass is kept off the items deliberately: they are file
+        names and channel indices, and letting them be rewritten breaks every
+        lookup that reads ``currentText()`` back -- the trap that silently
+        reverted the live preview's outline colour to its default.
+
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        """
         super().__init__(parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -216,11 +234,24 @@ class FlatComboBox(_FlatStyleMixin, QComboBox):
 
 
 class FlatButton(_FlatStyleMixin, QPushButton):
-    """Text-only push button styled like the **Live** toggle."""
+    """Text-only push button styled like the **Live** toggle.
+
+    :param text: the caption.
+    :param parent: parent widget.
+    :param tooltip: hover text. An empty string leaves the button with no
+        tooltip rather than an empty one, which would otherwise show as a
+        blank box on hover.
+    """
 
     _flat_selector = "QPushButton"
 
     def __init__(self, text: str = "", parent=None, tooltip: str = ""):
+        """Build a flat button.
+
+        :param text: the label.
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        """
         super().__init__(text, parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -238,11 +269,27 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
     carried in the box's *suffix*, so the control states ``20 of 24576 sets``
     in one place and a sampled preview can never be mistaken for the whole
     plate.
+
+    :param parent: parent widget.
+    :param tooltip: hover text.
+    :param value: the cap to open on. The minimum is 1, and the maximum is
+        left wide open until a folder has been enumerated --
+        ``configure_max_sets_box`` then clamps it to the number of sets that
+        exist, so the box cannot ask for more than there are.
     """
 
     _flat_selector = "QSpinBox"
 
     def __init__(self, parent=None, tooltip: str = "", value: int = 20):
+        """Build a flat spin box.
+
+        The maximum starts wide open and is clamped once a folder has been
+        enumerated -- until then there is no honest ceiling to impose.
+
+        :param parent: parent widget, or ``None``.
+        :param tooltip: hover text.
+        :param value: starting value.
+        """
         super().__init__(parent)
         self.setObjectName(FLAT_CONTROL_NAME)
         self.setCursor(Qt.PointingHandCursor)
@@ -361,6 +408,10 @@ def populate_fov_combo(combo: QComboBox, sources: Sequence[Path],
     Each entry stores its full path as item data, so the caller never has to
     reconstruct a path from the (deliberately short) visible label.
 
+    :param combo: field-of-view dropdown to clear and refill while its signals
+        are temporarily blocked.
+    :param sources: ordered source paths; each becomes one item whose data is
+        the full string path.
     :param labels: visible text per entry; defaults to each path's file name.
         Set-based enumeration passes ``A01 f003`` style labels so the entry
         names the *field of view* rather than one of its channel files.
@@ -674,9 +725,20 @@ class ImageSetSampler:
     (folder, total, cap, nonce), so re-rendering after any settings change
     returns the identical sets. The sample changes only when the user changes
     the cap or calls :meth:`reshuffle`.
+
+    :param max_sets: how many image sets a preview may load at once. It is
+        the ``cap`` in the sampling described above, so changing it changes
+        the sample -- which is why it is a constructor argument rather than
+        something read per render.
     """
 
     def __init__(self, max_sets: int = DEFAULT_MAX_SETS):
+        """Create the sampler that hands out a bounded slice of a plate.
+
+        :param max_sets: how many image sets to offer at most. The dropdown
+            never lists a whole plate, so the sample is bounded and -- being
+            seeded from the folder -- reproducible.
+        """
         self.max_sets = int(max_sets)
         #: The folder itself — what the seed is drawn from.
         self._directory: Optional[str] = None
@@ -779,6 +841,10 @@ class ImageSetSampler:
 
     @property
     def directory(self) -> Optional[str]:
+        """The folder this sampler draws its images from.
+
+        :returns: the directory path.
+        """
         return self._directory
 
     @property

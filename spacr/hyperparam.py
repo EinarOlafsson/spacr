@@ -201,10 +201,14 @@ ACTIVATION_CRITERIA: Dict[str, str] = {
 #: Criteria each app's search can rank by, first entry being the default.
 APP_CRITERIA: Dict[str, List[str]] = {
     "umap": [
-        "trustworthiness", "continuity", "silhouette", "multi_objective",
+        "multi_objective", "trustworthiness", "continuity", "silhouette",
     ],
     "classify": ["accuracy", "prauc", "loss"],
     "ml_analyze": ["accuracy", "roc_auc", "f1"],
+    # THE MERGED SCREEN SEARCHES EITHER FAMILY. The criteria both halves
+    # share come first, so a user who switches `classifier_family` keeps
+    # the one they picked.
+    "classify_merged": ["accuracy", "prauc", "roc_auc", "f1", "loss"],
     "activation": ["deletion_auc", "insertion_auc", "pointing_game",
                    "sanity_gap"],
 }
@@ -226,6 +230,12 @@ DEFAULT_SPACES: Dict[str, Dict[str, List[Any]]] = {
     "ml_analyze": {
         "learning_rate": [0.001, 0.01, 0.1],
         "n_estimators": [100, 500, 1000],
+    },
+    # Learning rate is the one knob both families take, so it is the
+    # default grid for the merged screen whichever one is selected.
+    "classify_merged": {
+        "learning_rate": [1e-4, 3e-4, 1e-3],
+        "dropout_rate": [0.0, 0.1, 0.3],
     },
     # One representative of each attribution family, because agreement within
     # a family is nearly worthless and disagreement across families is the
@@ -350,13 +360,15 @@ class SearchSpace:
 class Trial:
     """One evaluated configuration, successful or not.
 
-    :ivar params: the configuration that was evaluated.
-    :ivar score: the primary metric, or None when the trial failed.
-    :ivar extra_metrics: any other numbers the fit function reported
-        (per-fold scores, alternative criteria, runtime counters).
-    :ivar duration: wall-clock seconds spent on this trial.
-    :ivar error: the failure message, or None when the trial succeeded.
-    :ivar index: position in the deterministic trial order, from zero.
+    :param params: parameter configuration that was evaluated.
+    :param score: primary metric value, or ``None`` when no usable score was
+        produced.
+    :param extra_metrics: additional fit outputs such as fold scores,
+        alternate criteria, embeddings, or runtime counters.
+    :param duration: wall-clock seconds spent evaluating the trial.
+    :param error: failure message, or ``None`` when evaluation succeeded.
+    :param index: position in deterministic trial order; ``-1`` means an order
+        has not yet been assigned.
     """
 
     params: Dict[str, Any]
@@ -662,6 +674,19 @@ class _UmapCheckpoint:
 
     def __init__(self, path: str, signature: Mapping[str, Any],
                  resume: bool, keep_embeddings: bool) -> None:
+        """Create the checkpoint store and record embedding retention.
+
+        :param path: where the checkpoint is written.
+        :param signature: what the search is, as a mapping. THE RESUME
+            CONTRACT: a checkpoint is only reloaded when its signature
+            matches, so a search resumed after its parameters changed starts
+            over rather than mixing two searches into one result.
+        :param resume: whether to reload a compatible checkpoint at all.
+        :param keep_embeddings: whether each trial's embedding is kept.
+            Off, only the scores survive -- which is the difference between
+            a checkpoint that can redraw a trial and one that can only say
+            how it scored.
+        """
         self.store = CheckpointStore(
             path, workflow="umap_hyperparameter_search",
             signature=signature, boundary="trial", resume=resume)
@@ -1179,6 +1204,7 @@ class WalkAxis:
     resolution: int = 2
 
     def __post_init__(self) -> None:
+        """Normalize the axis and reject unusable names, choices, or ranges."""
         if not str(self.name).strip():
             raise ValueError("A Walk axis needs a parameter name.")
         self.name = str(self.name)
@@ -1440,6 +1466,9 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
     parameter the fit function accepts can be an axis, and each axis
     carries its own step and resolution.
 
+    :param fit_fn: callable invoked with each candidate parameter mapping. It
+        returns a number, ``(score, metrics)`` pair, or mapping containing a
+        ``score`` key, exactly as :func:`_normalise_outcome` accepts.
     :param start: one value per axis, plus any parameters held fixed --
         anything not named by an axis is passed to every fit unchanged.
     :param axes: the search space. Empty raises.
@@ -1521,6 +1550,7 @@ def walk_search(fit_fn: Callable[[Dict[str, Any]], Any],
     rounds_completed = int(state.get("rounds_completed", 0) or 0)
 
     def _persisted_state() -> Dict[str, Any]:
+        """Return a fresh walk checkpoint with legacy two-axis centre keys."""
         # `centre_n`/`centre_d` are written alongside the general `centre`
         # so a checkpoint from this build stays readable by the 1.5.x
         # two-axis reader. Dropping them would make an in-flight search
@@ -1776,15 +1806,20 @@ def local_direction_search(
         raise ValueError(
             "Local UMAP optimization steps must be positive and the minimum "
             "improvement must be zero or greater.")
+    # The conversion is inside the guard and the comparison is outside it.
+    # With the comparison inside, its own ValueError was caught by the very
+    # except that was meant for a non-numeric value, and a user who typed a
+    # negative threshold was told their numbers were not numbers.
     try:
-        if float(min_improvement) < 0:
-            raise ValueError(
-                "Local UMAP optimization steps must be positive and the "
-                "minimum improvement must be zero or greater.")
+        improvement = float(min_improvement)
     except (TypeError, ValueError) as exc:
         raise ValueError(
             "Local UMAP optimization requires numeric n_neighbors, min_dist, "
             "and step sizes.") from exc
+    if improvement < 0:
+        raise ValueError(
+            "Local UMAP optimization steps must be positive and the "
+            "minimum improvement must be zero or greater.")
     if maximum_n is not None and maximum_n < 2:
         raise ValueError("n_neighbors_max must be at least 2.")
     try:
@@ -1936,10 +1971,6 @@ def embedding_stability(
             [int(value) for value in row if int(value) != int(index)][:k]
             for index, row in enumerate(raw)
         ], dtype=int)
-        if cleaned.shape != (shape[0], k):
-            raise RuntimeError(
-                "Could not construct a complete nearest-neighbour graph for "
-                "stability scoring.")
         neighbourhoods.append(cleaned)
     pair_scores = []
     for left_index in range(len(neighbourhoods) - 1):
@@ -2337,9 +2368,9 @@ def umap_search(features,
             if hasattr(value, "get"):
                 value = value.get()
             return np.asarray(value)
-    elif requested_backend == "cpu":
-        # An injected embedder is neither umap-learn nor cuML. Naming it CPU
-        # would be false provenance in saved checkpoints and table rows.
+    else:
+        # An injected embedder is neither umap-learn nor cuML. Reusing either
+        # requested label would be false provenance in checkpoints and rows.
         requested_backend = "custom"
 
     notes = [
@@ -2457,26 +2488,25 @@ def umap_search(features,
                 from .umap_search import walk_clusters
                 cluster_walk = walk_clusters(
                     embedding, min_cluster_sizes=cluster_sizes)
-                if cluster_walk:
-                    chosen = cluster_walk[0]
-                    extra.update({
-                        "cluster_labels": chosen.labels,
-                        "cluster_min_size": chosen.min_cluster_size,
-                        "cluster_silhouette": chosen.silhouette,
-                        "cluster_score": chosen.score,
-                        "n_clusters": chosen.n_clusters,
-                        "cluster_noise_fraction": chosen.noise_fraction,
-                        "cluster_walk": [
-                            {
-                                "min_cluster_size": row.min_cluster_size,
-                                "silhouette": row.silhouette,
-                                "score": row.score,
-                                "n_clusters": row.n_clusters,
-                                "noise_fraction": row.noise_fraction,
-                            }
-                            for row in cluster_walk
-                        ],
-                    })
+                chosen = cluster_walk[0]
+                extra.update({
+                    "cluster_labels": chosen.labels,
+                    "cluster_min_size": chosen.min_cluster_size,
+                    "cluster_silhouette": chosen.silhouette,
+                    "cluster_score": chosen.score,
+                    "n_clusters": chosen.n_clusters,
+                    "cluster_noise_fraction": chosen.noise_fraction,
+                    "cluster_walk": [
+                        {
+                            "min_cluster_size": row.min_cluster_size,
+                            "silhouette": row.silhouette,
+                            "score": row.score,
+                            "n_clusters": row.n_clusters,
+                            "noise_fraction": row.noise_fraction,
+                        }
+                        for row in cluster_walk
+                    ],
+                })
             except Exception as exc:
                 # Clustering is an optional second analysis of a valid map.
                 # Its failure must stay on that row, not erase the embedding.
@@ -2740,7 +2770,7 @@ def activation_fit_fn(data: ActivationSearchData,
                    if criterion == "pointing_game" else
                    "the randomisation sanity check was disabled for this "
                    "sweep."))
-        if keep_maps and maps:
+        if keep_maps:
             scores["attribution"] = maps[0]
         scores["criterion"] = criterion
         return float(scores[criterion]), scores
@@ -2858,7 +2888,9 @@ def load_activation_data(settings: Mapping[str, Any],
             f"No trained model to explain: model_path={model_path!r} is not a "
             f"file. Point it at a model saved by Classify before searching "
             f"attribution settings.")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    from .accelerator import torch_device
+
+    device = torch_device()
     model = torch.load(str(model_path), map_location=device,
                        weights_only=False)
     model.to(device)
@@ -2929,8 +2961,19 @@ def load_activation_data(settings: Mapping[str, Any],
     steps = [transforms.ToTensor(),
              transforms.CenterCrop(size=(image_size, image_size))]
     if settings.get("normalize_input", True):
-        steps.append(transforms.Normalize(mean=(0.5, 0.5, 0.5),
-                                          std=(0.5, 0.5, 0.5)))
+        # WHICH statistics is `input_statistics`, the same setting the
+        # training and inference loaders read. A hard-coded 0.5/0.5 here
+        # attributes a model under statistics it was not trained with: the
+        # saliency is computed on inputs shifted away from the ones the
+        # weights learned, so the peak it reports need not be the peak the
+        # model would produce in a real run.
+        from .normalization import normalization_stats
+        stats = normalization_stats(
+            settings.get("input_statistics", "symmetric"),
+            mean=settings.get("input_mean"), std=settings.get("input_std"),
+            channels=len(channels))
+        if stats is not None:
+            steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
     steps.append(SelectChannels(channels))
     ds = TarImageDataset(str(dataset), transform=transforms.Compose(steps))
     images, names = [], []
@@ -3443,6 +3486,24 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
     return data
 
 
+def _calibrated_svm(seed: int):
+    """Build the probabilistic SVM without an unowned joblib process pool.
+
+    ``CalibratedClassifierCV(n_jobs=-1)`` creates one reusable Loky worker per
+    CPU and deliberately keeps that global executor alive after ``fit``.  The
+    calibration has only three folds, and sweeps already parallelise complete
+    trials, so nested process fan-out adds memory and shutdown cost without
+    owning a useful lifecycle.  Serial calibration keeps the estimator
+    pickleable while making the caller the sole owner of parallelism.
+    """
+    from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.svm import SVC
+
+    return CalibratedClassifierCV(
+        estimator=SVC(random_state=seed), method="sigmoid", cv=3,
+        n_jobs=1, ensemble=False)
+
+
 def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                         seed: int = 42, n_jobs: int = -1):
     """Construct the classical-ML classifier ``model_type`` names.
@@ -3522,9 +3583,7 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                                   l2_leaf_reg=reg_lambda, random_state=seed,
                                   verbose=False)
     if mt == "svm":
-        from sklearn.svm import SVC
-        return SVC(probability=True, C=1.0 / max(reg_lambda, 1e-9),
-                   random_state=seed)
+        return _calibrated_svm(seed)
     if mt == "mlp":
         from sklearn.neural_network import MLPClassifier
         return MLPClassifier(max_iter=max(200, n_estimators),
@@ -3772,7 +3831,14 @@ def run_search_for_app(app_key: str,
             run_sanity_check=bool(settings.get("sanity_check", True)),
             on_trial=on_trial, should_stop=should_stop)
 
-    if app_key == "classify":
+    # THE MERGED SCREEN TAKES THIS ARM WHEN IT IS THE TORCH FAMILY. Its
+    # `classifier_family` says which classifier it is about to fit, and
+    # the cross-validated image path is the one `classify` used to own;
+    # a gradient-boosting family falls through to the measured-feature
+    # path below, which is what `ml_analyze` used.
+    family = str(settings.get("classifier_family", "cv") or "cv").lower()
+    if app_key == "classify" or (
+            app_key == "classify_merged" and family in ("cv", "torch", "dl")):
         fit = classify_cv_fit_fn(settings, criterion=criterion,
                                  n_folds=n_folds)
         notes = [

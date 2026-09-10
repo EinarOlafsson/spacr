@@ -1,4 +1,4 @@
-"""#16j: maturity as a colour, a legend for it, a rim, and the dock.
+"""#16j: maturity as a colour, its legend, interaction edges, and the dock.
 
 Four claims, all of them things the user asked for in words and none of
 them checkable by reading widget structure alone:
@@ -11,8 +11,8 @@ them checkable by reading widget structure alone:
    structural assertion there is.
 2. **A legend under the right-hand tiles says what the colours mean**,
    in words as well as in swatches — colour alone fails WCAG 1.4.1.
-3. **Every tile carries a thin rim** in the theme's ink: white on the
-   dark themes, near-black on the light one.
+3. **Resting module tiles carry no decorative rim.** Hover and keyboard
+   focus still draw an edge because those states carry meaning.
 4. **The dock obeys the preference**: revealed on hover, locked open as
    a real column, or not there at all.
 
@@ -26,13 +26,14 @@ from __future__ import annotations
 
 import pytest
 
-from PySide6.QtCore import QPoint, QPointF
-from PySide6.QtGui import QColor, QEnterEvent
+from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QColor, QEnterEvent, QImage
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel
 
 from spacr.qt import theme
-from spacr.qt.app import APPS, MainWindow, app_stage, make_home_page
+from spacr.qt.app import (APPS, MainWindow, app_stage, make_home_page,
+                          tiled_apps)
 from spacr.qt.widgets.home import AppTile, StageLegend
 
 
@@ -108,6 +109,7 @@ def _hover(qtbot, tile) -> None:
     "the cursor is already there".
     """
     _close_stray_popups()
+    _scroll_into_view(tile)
     window = tile.window()
     window.raise_()
     window.activateWindow()
@@ -115,23 +117,43 @@ def _hover(qtbot, tile) -> None:
     qtbot.wait(1)
     QTest.mouseMove(tile, QPoint(tile.width() // 2, 6))
     qtbot.wait(1)
-    if not tile.underMouse():
-        # Xdist's offscreen QApplication processes share one platform cursor:
-        # another worker can move it between QTest.mouseMove and this check.
-        # Delivering QEnterEvent exercises QAbstractButton's actual hover
-        # state machine (unlike forcing WA_UnderMouse) without that global
-        # race, and is exactly what the platform plugin would have delivered.
-        local = QPointF(tile.width() / 2, 6)
-        window_pos = QPointF(tile.mapTo(tile.window(), local.toPoint()))
-        screen_pos = QPointF(tile.mapToGlobal(local.toPoint()))
-        from PySide6.QtWidgets import QApplication
-        QApplication.sendEvent(
-            tile, QEnterEvent(local, window_pos, screen_pos))
-        QApplication.processEvents()
+    # Xdist's offscreen QApplication processes share one platform cursor:
+    # another worker can move it after QTest.mouseMove while Qt still reports
+    # this tile's previous underMouse state. Deliver the platform-equivalent
+    # enter unconditionally so the QAbstractButton/QSS hover state and the
+    # pixel sampled below describe the same event.
+    local = QPointF(tile.width() / 2, 6)
+    window_pos = QPointF(tile.mapTo(tile.window(), local.toPoint()))
+    screen_pos = QPointF(tile.mapToGlobal(local.toPoint()))
+    from PySide6.QtWidgets import QApplication
+    QApplication.sendEvent(
+        tile, QEnterEvent(local, window_pos, screen_pos))
+    QApplication.processEvents()
+    qtbot.wait(10)
     assert tile.underMouse(), (
         f"the synthetic pointer never reached {tile.text_label} — "
         "something else in this process is holding the mouse, and the "
         "pixels below would be measuring the un-hovered tile")
+
+
+def _scroll_into_view(tile) -> None:
+    """Bring ``tile`` inside the scrolled viewport before hovering it.
+
+    The Home tab is taller than the window, and a tile below the fold is
+    rendered nowhere: the pixel sampled at its mid-height comes back as
+    the panel underneath and reads as "the hover rule never fired". It
+    only started to matter when Core was cut back to the six pipeline
+    modules -- the first beta tile used to be near the top of the page
+    and is now most of a screen further down.
+    """
+    from PySide6.QtWidgets import QApplication, QScrollArea
+    parent = tile.parentWidget()
+    while parent is not None:
+        if isinstance(parent, QScrollArea):
+            parent.ensureWidgetVisible(tile, 0, 0)
+            QApplication.processEvents()
+            return
+        parent = parent.parentWidget()
 
 
 def _visible_tiles(page) -> list:
@@ -157,7 +179,9 @@ def _rim_pixel(page, tile) -> QColor:
     From the page, the rim is composited over the panel it sits on,
     which is what the eye sees.
     """
-    image = page.grab().toImage()
+    image = QImage(page.size(), QImage.Format_ARGB32_Premultiplied)
+    image.fill(Qt.transparent)
+    page.render(image)
     origin = tile.mapTo(page, QPoint(0, 0))
     y = origin.y() + tile.height() // 2
     # The tile's own first column, at mid-height where the corner radius
@@ -173,22 +197,6 @@ def _rim_pixel(page, tile) -> QColor:
     # still than the expectation because it is composited over the
     # backdrop rather than over `surface`).
     return image.pixelColor(origin.x(), y)
-
-
-def _rim_and_behind(page, tile):
-    """``(rim, behind)`` for one tile, from a SINGLE grab.
-
-    One grab because the backdrop is animated. Sampling the rim from one
-    frame and what it composites over from the next compares a rim
-    against a background that had already drifted -- the numbers came out
-    tens of points apart and moved every run.
-    """
-    image = page.grab().toImage()
-    origin = tile.mapTo(page, QPoint(0, 0))
-    y = origin.y() + tile.height() // 2
-    rim = image.pixelColor(origin.x(), y)
-    behind = image.pixelColor(max(0, origin.x() - 3), y)
-    return rim, behind
 
 
 def _near(a: QColor, b: str, tol: int = 6) -> bool:
@@ -214,7 +222,10 @@ def test_every_tile_carries_the_stage_the_registry_gave_it(qtbot,
     seen = {}
     for tile in page.findChildren(AppTile):
         seen.setdefault(tile.text_label, set()).add(tile.stage)
-    expected = {name: {app_stage(key)} for key, name, *_r in APPS}
+    # TILED apps. The stage is read from the registry for every app,
+    # folded or not -- but this compares against what is DRAWN, and a
+    # folded module draws no tile to carry one.
+    expected = {name: {app_stage(key)} for key, name, *_r in tiled_apps()}
     assert seen == expected
     for tile in page.findChildren(AppTile):
         assert tile.property("stage") == tile.stage, (
@@ -288,89 +299,51 @@ def test_the_three_hover_colours_are_the_ones_that_were_asked_for():
 
 
 @pytest.mark.parametrize("theme_name", THEMES)
-def test_a_tile_that_is_not_hovered_shows_the_rim_instead(qtbot, monkeypatch,
-                                                          theme_name):
-    """"there should always be a thin white rim (black in white mode)".
-
-    Always: the un-hovered state is the one this is about. It used to be
-    ``border: 1px solid transparent``, i.e. nothing at all until you
-    hovered, which with the descriptions gone would leave the tiles as
-    floating icons with no edges.
-    """
+def test_a_resting_tile_has_no_decorative_rim(qtbot, monkeypatch,
+                                               theme_name):
+    """A module rests on the pane; only hover/focus earns an outline."""
     page = _themed_page(qtbot, monkeypatch, theme_name)
-    palette = theme.palette_for(theme_name)
-    # The rim IS the theme's ink — white on dark, near-black on light —
-    # painted at 35 %. Derived, never a literal: a theme added later
-    # gets a visible rim without anyone remembering to write one down.
-    assert theme.rim_colour(theme_name) == palette["fg"]
-    panel = QColor(palette["surface"])
-
     for tile in _visible_tiles(page)[:6]:
-        rim, behind = _rim_and_behind(page, tile)
-        # The ink at 35 % over WHATEVER IS BEHIND the tile, sampled rather
-        # than assumed. That used to be `surface`, and is not any more:
-        # the Home page shows the ambient backdrop between tiles, so the
-        # rim composites over a drifting blue-purple and lands at, say,
-        # #8a698d where `surface` would have given #626264. Sampling the
-        # backdrop keeps the assertion exact -- it still fails for a rim
-        # painted at the wrong alpha, or in some other colour.
-        ink = QColor(palette["fg"])
-        assert not _near(rim, panel.name(), tol=8), (
-            f"{theme_name}: {tile.text_label} has no visible rim "
-            f"({rim.name()} is the panel colour)")
-        if theme_name == "light":
-            assert rim.lightness() < panel.lightness(), (
-                f"a light-theme rim must be darker ink, got {rim.name()}")
-        else:
-            assert rim.lightness() > panel.lightness(), (
-                f"a dark-theme rim must be lighter ink, got {rim.name()}")
-        # …and it is a BLEND of the ink, not the ink itself and not the
-        # background. This used to assert the exact 35 % composite over
-        # `surface`, which no longer describes the pixel: the rim is
-        # translucent ink over a translucent tile over an animated
-        # backdrop, so the value moves with the animation and sits tens
-        # of points off any fixed expectation. Measured #786d7f against
-        # a "35 % over surface" of #626264, and neither number is wrong.
-        #
-        # What still holds, and is what the request was about, is that
-        # the rim is visibly the ink and visibly not the panel.
-        floor = min(behind.lightness(), panel.lightness())
-        ceiling = max(behind.lightness(), panel.lightness())
-        if theme_name == "light":
-            assert ink.lightness() < rim.lightness() < ceiling, (
-                f"light: rim {rim.name()} is not a blend between the ink "
-                f"{ink.name()} and the background")
-        else:
-            assert floor < rim.lightness() < ink.lightness(), (
-                f"{theme_name}: rim {rim.name()} is not a blend between the "
-                f"background and the ink {ink.name()}")
-        assert abs(rim.lightness() - panel.lightness()) >= 25, (
-            f"{theme_name}: rim {rim.name()} is too close to the panel "
-            f"{panel.name()} to be seen")
+        image = tile.grab().toImage()
+        y = tile.height() // 2
+        assert image.pixelColor(0, y) == image.pixelColor(1, y), (
+            f"{theme_name}: {tile.text_label} still paints a resting rim")
 
 
 # ===========================================================================
 # 3. The legend
 # ===========================================================================
 
-def test_the_legend_sits_under_the_right_hand_tiles(qtbot, qt_theme_applied):
-    """"a legend under the right side tiles indicating color and module
-    state (alpha, beta, stable)" — the user.
+def test_the_legend_is_no_longer_in_the_aside_column(qtbot,
+                                                     qt_theme_applied):
+    """"you can remove modual state" — the maintainer, 2026-09-03.
 
-    Under: it is the last thing in the aside column, after the panels of
-    numbers, because it explains the tiles rather than reporting on the
-    machine."""
+    It used to be the last thing in the aside, under the panels of numbers,
+    because it explains the tiles rather than reporting on the machine. It
+    is not built into the page any more.
+
+    The legend OBJECT survives, and `HomePage.legend` still answers, which
+    is deliberate rather than left over: the tiles' hover colours are drawn
+    from `StageLegend.swatch_colour`, and the tests below keep the swatch
+    and the tile it stands for from drifting apart. Removing the class
+    would have taken that check with it."""
     page = make_home_page()
     qtbot.addWidget(page)
     legend = page.legend
     assert isinstance(legend, StageLegend)
+    assert legend.parent() is None, (
+        "the legend is still parented into the page")
 
-    aside = legend.parent()
-    order = [aside.layout().itemAt(i).widget()
-             for i in range(aside.layout().count())]
-    widgets = [w for w in order if w is not None]
-    assert widgets[-1] is legend, (
-        f"the legend is not last in the aside: {widgets}")
+    aside = page._news.parent()
+    widgets = [aside.layout().itemAt(i).widget()
+               for i in range(aside.layout().count())]
+    assert legend not in widgets, "the legend is still in the aside"
+    # And SYSTEM is last, which is the other half of the same request:
+    # "system is fine but should be at the bottom".
+    present = [w for w in widgets if w is not None]
+    assert present[-1] is page._system, (
+        "System is not at the bottom of the aside: "
+        f"{[w.header.text() for w in present]}")
 
 
 def test_the_legend_names_every_stage_and_draws_its_colour(qtbot,
@@ -529,10 +502,11 @@ class TestPaneOpacity:
             page = make_home_page()
             qtbot.addWidget(page)
             qss = page._tabs.styleSheet()
-            # Only the pane rule: the selected tab paints the surface
-            # colour on purpose, so it blends into the pane's edge.
+            # Only the pane rule: the selected tab paints its own surface and
+            # indicator, but the transparent container has no decorative rim.
             pane = qss.split("QTabWidget#HomeTabs::pane {", 1)[1].split("}", 1)[0]
             assert "background: transparent" in pane
+            assert "border: none" in pane
             assert palette["surface"] not in pane
             assert qss == _tab_qss(palette, prefs.effective_pane_alpha())
 
@@ -589,21 +563,35 @@ class TestDockModes:
     rather than build a second one.
     """
 
-    def test_the_default_is_locked_open(self, tmp_settings):
+    def test_the_default_is_hidden(self, tmp_settings):
+        """A first run does not spend 220 px on navigation nobody asked for.
+
+        Every app in the dock is already reachable from the spaCR menu,
+        Ctrl+1..9 and Ctrl+K, and the "All apps" action says where to turn
+        the column on.
+        """
         from spacr.qt import preferences as prefs
-        assert prefs.DEFAULT_DOCK_MODE == "locked"
-        assert prefs.get_dock_mode() == "locked"
+        assert prefs.DEFAULT_DOCK_MODE == "hidden"
+        assert prefs.get_dock_mode() == "hidden"
 
     def test_an_unknown_mode_falls_back_rather_than_raising(self,
                                                             tmp_settings):
         from spacr.qt import preferences as prefs
         prefs._settings().setValue(prefs._KEY_DOCK_MODE, "sideways")
-        assert prefs.get_dock_mode() == "locked"
+        assert prefs.get_dock_mode() == prefs.DEFAULT_DOCK_MODE
         with pytest.raises(ValueError):
             prefs.set_dock_mode("sideways")
 
-    def test_an_unreadable_preference_also_falls_back_to_locked(
+    def test_an_unreadable_preference_falls_back_to_a_VISIBLE_dock(
             self, monkeypatch):
+        """Not to the default, and the difference is deliberate.
+
+        The default is hidden because a first run has not asked for a column.
+        An unreadable settings file is a different situation: the user's wish
+        cannot be read, and they cannot change the preference either -- so the
+        safe answer is the dock they can see rather than one they would have
+        to find Preferences to restore.
+        """
         from spacr.qt import preferences as prefs
 
         def unreadable():
@@ -612,20 +600,25 @@ class TestDockModes:
         monkeypatch.setattr(prefs, "get_dock_mode", unreadable)
         assert MainWindow.dock_mode(object()) == "locked"
 
-    def test_auto_keeps_the_sidebar_in_the_drawer(self, qtbot,
-                                                  qt_theme_applied,
-                                                  tmp_settings):
+    def test_a_stored_auto_becomes_a_locked_column(self, qtbot,
+                                                   qt_theme_applied,
+                                                   tmp_settings):
+        """The withdrawn reveal-on-hover mode migrates rather than breaking.
+
+        A settings file written before the reveal was removed still names
+        ``auto``. It must not be refused and must not leave the window with
+        no dock: it reads as ``locked``, which is the column the reveal was
+        an overlay version of.
+        """
         from spacr.qt import preferences as prefs
         prefs.set_dock_mode("auto")
+        assert prefs.get_dock_mode() == "locked"
         win = MainWindow()
         qtbot.addWidget(win)
-        assert win.dock_mode() == "auto"
-        assert win._sidebar.parent() is win._app_drawer
-        assert win._app_drawer.is_enabled()
-        assert not win._dock_slot.isVisible()
+        assert win.dock_mode() == "locked"
+        assert win._sidebar.parent() is win._dock_slot
+        assert not win._app_drawer.is_enabled()
         assert win._act_all_apps.isEnabled()
-        win.toggle_app_drawer()
-        assert win._app_drawer.is_open()
 
     def test_locked_makes_it_a_column_that_never_slides(self, qtbot,
                                                         qt_theme_applied,
@@ -671,52 +664,77 @@ class TestDockModes:
         assert not win._app_drawer.is_open()
         win.toggle_app_drawer()
         assert not win._app_drawer.is_open(), (
-            "Ctrl+B opened a dock the user asked not to have")
+            "Ctrl+Shift+A opened a dock the user asked not to have")
         assert not win._act_all_apps.isEnabled()
         assert "Preferences" in win._act_all_apps.toolTip()
 
     def test_hiding_the_dock_leaves_every_app_reachable(self, qtbot,
                                                         qt_theme_applied,
                                                         tmp_settings):
-        """A dock you cannot summon must not be a dead end."""
+        """A dock you cannot summon must not be a dead end.
+
+        The walk descends one level since 2026-08-23: the spaCR menu
+        groups its apps into a submenu per section, so a flat read of
+        its actions sees six section names and no apps at all.
+        """
         from spacr.qt import preferences as prefs
         prefs.set_dock_mode("hidden")
         win = MainWindow()
         qtbot.addWidget(win)
         labels: set = set()
+
+        def collect(menu):
+            for act in menu.actions():
+                if act.isSeparator():
+                    continue
+                if act.menu() is not None:
+                    collect(act.menu())
+                else:
+                    labels.add(act.text())
+
         for top in win.menuBar().actions():
             if top.text().replace("&", "") != "spaCR":
                 continue
-            for act in top.menu().actions():
-                if not act.isSeparator():
-                    labels.add(act.text())
+            collect(top.menu())
             break
-        assert {name for _k, name, *_r in APPS} <= labels
+        # The MODULE MENU and the tiles both show the tiled apps. A folded
+        # module is deliberately in neither: it is reached from a button
+        # on its host, from Help, or from the command palette -- and the
+        # palette covering every module, folded or not, is pinned by
+        # `test_the_drawer_is_not_the_only_way_to_reach_every_app`, which
+        # is where "no dead end" is actually guaranteed.
+        assert {name for _k, name, *_r in tiled_apps()} <= labels
         drawn = {t.text_label
                  for t in win._startup._tabs.widget(0).findChildren(AppTile)}
-        assert drawn == {name for _k, name, *_r in APPS}
+        assert drawn == {name for _k, name, *_r in tiled_apps()}
 
-    def test_switching_modes_moves_the_same_widget_back_and_forth(
+    def test_switching_modes_keeps_the_same_widget(
             self, qtbot, qt_theme_applied, tmp_settings):
+        """One Sidebar object across every mode, and the drawer stays shut.
+
+        Hiding the dock and showing it again must not build a second
+        sidebar: the rows carry state, and a duplicate would leave the
+        window holding one that nothing updates.
+        """
         from spacr.qt import preferences as prefs
-        prefs.set_dock_mode("auto")
+        prefs.set_dock_mode("locked")
         win = MainWindow()
         qtbot.addWidget(win)
         sidebar = win._sidebar
 
+        win.apply_dock_mode("hidden")
+        assert win._sidebar is sidebar
+        assert not win._dock_slot.isVisible()
+        assert not win._app_drawer.is_enabled()
+
         win.apply_dock_mode("locked")
         assert win._sidebar is sidebar
         assert sidebar.parent() is win._dock_slot
-
-        win.apply_dock_mode("auto")
-        assert win._sidebar is sidebar
-        assert sidebar.parent() is win._app_drawer
-        assert win._app_drawer.is_enabled()
-        assert not win._dock_slot.isVisible()
+        assert not win._app_drawer.is_enabled()
 
         # Idempotent: applying the same mode twice changes nothing.
-        win.apply_dock_mode("auto")
-        assert sidebar.parent() is win._app_drawer
+        win.apply_dock_mode("locked")
+        assert sidebar.parent() is win._dock_slot
 
     def test_a_disarmed_drawer_ignores_the_hot_strip(self, qtbot,
                                                      qt_theme_applied,
@@ -851,3 +869,41 @@ def tmp_settings(tmp_path, monkeypatch):
 
     monkeypatch.setattr(prefs, "_settings", _fake)
     yield path
+
+
+def test_one_backdrop_sits_behind_the_dock_and_the_page(qtbot,
+                                                        qt_theme_applied,
+                                                        tmp_path, monkeypatch):
+    """A flat strip beside an animated page reads as a box.
+
+    The backdrop is installed PER SCREEN, inside the stack, and the dock slot
+    is a sibling of the stack -- so the animation never reached behind the
+    dock. That, and not the dock's own paint, is what four attempts at
+    colouring the rectangle were chasing. The column gets its own.
+    """
+    from spacr.qt import preferences as prefs
+
+    if not prefs.get_ambient_enabled():
+        pytest.skip("the backdrop is switched off in this configuration")
+    prefs.set_dock_mode("locked")
+    win = MainWindow()
+    qtbot.addWidget(win)
+    assert win.window_backdrop() is not None, (
+        "nothing is animating behind the central area")
+    # ONE container, holding the dock AND the page. Two -- one per container
+    # -- run out of step and the seam between them shows.
+    assert win.window_backdrop().parent() is win.centralWidget()
+
+
+def test_the_dock_backdrop_is_installed_once(qtbot, qt_theme_applied):
+    """Asking twice must not build a second animation for the same strip."""
+    from spacr.qt import preferences as prefs
+
+    if not prefs.get_ambient_enabled():
+        pytest.skip("the backdrop is switched off in this configuration")
+    prefs.set_dock_mode("locked")
+    win = MainWindow()
+    qtbot.addWidget(win)
+    first = win._dock_backdrop
+    win._backdrop_the_dock_column()
+    assert win._dock_backdrop is first

@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Control Charts: undersøg en forsøgsserie med tydelige kontroller og grænser",
+  "description": "Åbn værktøjet i QC, indlæs en klart syntetisk serie med tredive plader, kontrollér den valgte kontrol og referenceperiode, og eksportér uafhængigt efterprøvede datapunkter.",
+  "objectives": [
+    "Find Control Charts i QC, og indlæs den medfølgende syntetiske CSV.",
+    "Skeln mellem inputrækker for brønde og pladegennemsnit, og vælg præcis én kontrol.",
+    "Sammenlign regelsæt, skift og gendan kontrol og referenceperiode, og læs advarslerne.",
+    "Eksportér den faktiske punkttabel uden at hævde billedeksport eller biologisk validering."
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv er helt syntetisk og tilpasset fra en apptest med fast seed: tredive fiktive plader, tre brønde pr. kontroltype pr. plade og en programmeret opadgående drift efter plade tyve. Datoerne er illustrative rækkefølgemærker, ikke optagelsesdata. Specialpanelet har aktuelt ingen Load test data-knap; der bruges ingen mikroskopidownloads, modeller, GPU-analyse eller AI-forespørgsler. Den gamle optagelse med to plader blev afvist, fordi appen ikke ville estimere grænser. Den smalle indstillingskolonne afkorter lange lukkede valg; de åbne rullemenuer viser hele navnet. Z-prime og genestimering afprøves ikke her.",
+  "scenes": [
+    "Åbn QC og derefter knappen Control Charts. Dette specialværktøj viser gentagne kontroller gennem en forsøgsserie. Den medfølgende CSV er udtrykkeligt syntetisk, også dens drift. Den demonstrerer softwaren, ikke et faktisk målt eksperiment eller et valideret assay.",
+    "Vælg Load table, og åbn eksempel-CSV'en. Den indeholder to hundrede og halvfjerds rækker på brøndniveau: tredive plader med hver tre negative kontrolbrønde, tre positive kontrolbrønde og tre prøvebrønde. Grafen viser ét gennemsnit for den valgte kontrol pr. plade, ikke ét punkt pr. celle.",
+    "Kontrollér Plate, Run order, Measurement og Control column mod de viste navne. Vælg kun neg i Control is. Listen tillader flere valg; hvis intet niveau er valgt, bruges alle rækker. Antag derfor aldrig, at indlæsningen allerede har valgt den ønskede kontrol.",
+    "Åbn Sigma from for at læse alle valgmuligheder. Auto vælger undergruppeestimatoren her, fordi hver plade har tre valgte brønde. Grænserne bruger variationen inden for referenceperiodens plader, justeret efter gennemsnittets stikprøvestørrelse, ikke standardafvigelsen for hele serien med drift.",
+    "Rules tilbyder de sædvanlige fire regler, alle otte eller Limits only. Flere regler giver også flere muligheder for falske alarmer. Vi vælger Limits only for at isolere tre-sigma-reglen. Ændring af rullemenuen genberegner grafen uden en særskilt Run-knap.",
+    "Baseline plates er tyve: P nul ét til P tyve bestemmer grænserne, som anvendes på de resterende plader. Ni punkter, P toogtyve til P tredive, ligger over den øvre grænse. Rapporten og regeltabellen identificerer dem; de programmerede signaler er ikke biologiske opdagelser.",
+    "Fravælg neg, og vælg kun pos. Grafen viser nu den anden kontrols gennemsnit og egne referencegrænser, uden brud på regel ét i dette eksempel. En rolig graf beviser ikke i sig selv, at et assay er gyldigt. Gendan neg, før du fortsætter.",
+    "Skift Baseline plates til tolv, se centrum og grænser ændre sig, og gendan derefter tyve. Appen kræver mindst otte referenceplader, men minimumskravet er ikke en anbefaling. Planlæg og begrund referenceperioden; tilpas den ikke blot for at fjerne uønskede alarmer.",
+    "Når den oprindelige kontrol og referenceperioden på tyve plader er gendannet, vælg Export points og gem en separat CSV. De tredive rækker indeholder pladeidentitet, rækkefølge, gennemsnit, undergruppestørrelse og spredning, grænser, standardiseret afstand, tilhørsforhold til referenceperioden og udløste regler. Det er hverken et grafbillede eller en fuld konfigurationseksport.",
+    "Alle eksporterede identiteter og talfelter er kontrolleret mod kilde-CSV'en, også regel-ét-markeringerne. Det oprindelige input er uændret. Til scripts tilbyder kontrolkortets widgetmodul ControlChartSpec og control_chart; resultatet har points_frame. Opbevar input, indstillinger og optagelsesnoter samlet, når du undersøger virkelige alarmer."
+  ]
+}

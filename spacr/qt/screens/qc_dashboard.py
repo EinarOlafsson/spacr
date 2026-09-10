@@ -19,7 +19,10 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -33,6 +36,7 @@ from .app_screen import ModuleHeader
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
+from ..app_catalog import declared_app, register_declared
 
 __all__ = [
     "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
@@ -43,31 +47,21 @@ __all__ = [
 #: Stable app id. Chosen once; saved user state and the registry key off it.
 APP_KEY = "qc_dashboard"
 
-APP_NAME = "QC Dashboard"
-APP_DESCRIPTION = (
-    "Segmentation, units, leakage, plate effects and annotator agreement in "
-    "one place, with the verdict they add up to."
-)
-APP_INTRO = (
-    "Every verdict here was written by the run that produced it -- this "
-    "screen reads them, it does not score anything, so opening it costs a "
-    "directory listing rather than minutes of mask loading. A card whose "
-    "inputs are newer than it is says OUT OF DATE rather than pretending to "
-    "describe them. A card that says 'missing' means the check has not been "
-    "run, which is not the same as clean."
-)
-APP_CLI_NOTE = (
-    "The QC Dashboard is a GUI screen: it aggregates verdicts other runs "
-    "wrote so they can be read together. Headless, call "
-    "spacr.qt.widgets.qc_summary.read_dashboard(src) and "
-    "format_dashboard() instead -- that is the same code this screen runs."
-)
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 #: sv, de, es, zh_CN, pt, hi, ko, is, fr
-APP_TRANSLATIONS: Tuple[str, ...] = (
-    "QC-panel", "QC-Übersicht", "Panel de control de QC", "质控面板",
-    "Painel de QC", "QC डैशबोर्ड", "QC 대시보드", "Gæðayfirlit",
-    "Tableau de bord QC",
-)
+#: All nine identical: "QC" is declared technical identity text (see
+#: `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`, beside PNG and RGB),
+#: so it must stay byte-identical in every language.
+APP_TRANSLATIONS: Tuple[str, ...] = ("QC",) * 9
 
 LOG = logging.getLogger(__name__)
 
@@ -166,17 +160,55 @@ class QCDashboardScreen(QWidget):
         the same order, so a test can drive the screen synchronously.
     :param reader: substitute for
         :func:`spacr.qt.widgets.qc_summary.read_dashboard`, for tests.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  src: Any = "", threaded: bool = True, reader=None) -> None:
+        """Build the dashboard and arm its drop zone.
+
+        The registry key is named here rather than inherited: screens that build
+        themselves rather than being the generic ``AppScreen`` had none, and
+        fold installation dispatches on exactly that -- so this screen could
+        declare folds and never be handed them.
+
+        Its job runner is marked not user-visible, because it never runs
+        anything: it reads verdicts already on disk, plus the folder check and
+        the fingerprint, on every visit including the ones where nothing has
+        changed. Visible, each of those would flash "QC - running" on Home for
+        a read the user never started.
+
+        :param parent: parent widget, or ``None``.
+        :param src: project or plate folder to open with.
+        :param threaded: read on a worker thread. Set ``False`` in tests so
+            ``refresh`` finishes before it returns.
+        :param reader: an alternative verdict reader, for tests.
+        """
         super().__init__(parent)
+        # ITS OWN REGISTRY KEY. Screens that build themselves rather
+        # than being the generic `AppScreen` had no `app_key`, and
+        # `install_folds_on` dispatches on exactly that -- so this screen
+        # could declare folds (it does, below) and never be handed them.
+        # Every other consumer of `app_key` reads it the same way the
+        # generic screen sets it, so naming it here is the screen
+        # answering a question it always could.
+        self.app_key = "qc_dashboard"
         self.setObjectName("QCDashboardScreen")
-        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        # `user_visible=False`: this runner never runs anything. It reads
+        # verdicts that are already on disk, and it now also takes the
+        # folder check and the fingerprint that used to sit inline in
+        # `refresh` -- so it fires on every visit, including the ones
+        # where nothing has changed. Visible, each of those would flash
+        # "QC - running" on Home for a read the user never started.
+        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY,
+                               user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
         self._reader = reader
         self._dashboard: Optional[Dashboard] = None
         self._cache_key: Any = None
+        #: What the last `refresh` turned out to do, reported back by
+        #: `_on_read` so an inline read still answers exactly.
+        self._read_started = False
         self._card_labels: List[QLabel] = []
         self._build()
         if src:
@@ -189,6 +221,7 @@ class QCDashboardScreen(QWidget):
     # -- construction -----------------------------------------------------
 
     def _build(self) -> None:
+        """Lay out the source row, the verdict line and the scrolling card column."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                  SPACING["md"], SPACING["md"])
@@ -288,6 +321,12 @@ class QCDashboardScreen(QWidget):
         re-parse ten times, while a re-mask that rewrites a scorecard is
         picked up on the next visit. ``None`` forces a read rather than
         trusting a cache that could not be verified.
+
+        WORKER-ONLY. Cheap is relative to parsing a plate, not to a Qt
+        repaint: `find_scorecards` lists the qc folder and this stats every
+        file it names, all under a root the user typed. :meth:`refresh`
+        calls it from the submitted job and nowhere else -- see that method
+        for what it cost when it ran inline.
         """
         try:
             from ...seg_qc import find_scorecards
@@ -308,35 +347,90 @@ class QCDashboardScreen(QWidget):
         return tuple(out)
 
     def refresh(self, *, force: bool = False) -> bool:
-        """Re-read the verdicts. Off the GUI thread.
+        """Re-read the verdicts. Off the GUI thread -- all of it, now.
+
+        SPLIT IN TWO, and the split is the fix for a frozen application.
+        Only the parse used to be handed to the runner; the two decisions in
+        front of it -- "is this a folder?" and "has anything changed?" --
+        were taken inline, and both of them touch the disk at a path the
+        user typed. `os.path.isdir` was one call, and `_fingerprint` is a
+        `find_scorecards` listing plus a stat per artifact.
+
+        Measured on one workstation: a single
+        `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was
+        asleep, had not returned after TWENTY SECONDS -- the stat is what
+        triggers the automount. A project folder on that mount is exactly
+        what this screen is for, and the whole interface stopped the moment
+        one was dropped on it, browsed to, or simply refreshed. It left no
+        traceback, because a stalled event loop is not a crash.
+
+        `path_probe` is deliberately NOT used for the folder guard. It
+        answers optimistically, so it could only ever say "go on and read",
+        which the worker then decides properly anyway; a second guard on the
+        GUI thread would add a way for the two answers to disagree and buy
+        nothing. Every message the screen showed still appears -- a moment
+        later, and that is the only difference the user can see.
 
         :param force: read even when the fingerprint says nothing changed.
-        :returns: whether a read was started.
+        :returns: whether a read of the disk was started. Reading inline
+            (``threaded=False``) that is exact, because the worker half has
+            already run and reported by the time this returns. Threaded, it
+            means the job was started: the fingerprint is not taken yet, so
+            "nothing changed" arrives later, on the status line.
         """
         src = self.source()
         if not src:
             self._verdict.setText("No folder set.")
             self._set_status("Pick a project folder to read its verdicts.")
             return False
-        if not os.path.isdir(src):
-            self._verdict.setText("That folder does not exist.")
-            self._set_status(f"{src} is not a folder.", is_error=True)
-            return False
-
-        key = (src, self._fingerprint(src))
-        if not force and self._dashboard is not None and key == self._cache_key \
-                and key[1]:
-            self._draw(self._dashboard)
-            self._set_status("Nothing on disk has changed since the last read.")
-            return False
-        self._cache_key = key
 
         reader = self._reader or read_dashboard
+
+        def work(s=src, r=reader, force=force, previous=self._cache_key,
+                 had_one=self._dashboard is not None):
+            """Off the GUI thread. Touches no widget -- returns a verdict.
+
+            The cache comparison comes with it rather than staying behind:
+            the key it compares IS the walk of the disk, so leaving the
+            comparison on the GUI thread would leave the walk there too.
+            """
+            if not os.path.isdir(s):
+                return ("missing", s, None)
+            key = (s, self._fingerprint(s))
+            if not force and had_one and key == previous and key[1]:
+                return ("unchanged", key, None)
+            return ("read", key, r(s))
+
         self._jobs.cancel()
         self._set_status("Reading...")
-        return self._jobs.submit(lambda s=src, r=reader: r(s), self._on_read)
+        # Assumed started, then corrected by `_on_read` -- which has already
+        # run by the time `submit` returns when the screen reads inline.
+        self._read_started = True
+        started = bool(self._jobs.submit(work, self._on_read))
+        return started and self._read_started
 
-    def _on_read(self, dashboard) -> None:
+    def _on_read(self, result) -> None:
+        """Paint what the worker decided. GUI thread only.
+
+        ``None`` is a read that produced nothing (a cancelled or failed job),
+        and it must leave a screen that is showing real verdicts alone.
+        """
+        if not result:
+            return
+        outcome, payload, dashboard = result
+        if outcome == "missing":
+            self._read_started = False
+            self._verdict.setText("That folder does not exist.")
+            self._set_status(f"{payload} is not a folder.", is_error=True)
+            return
+        self._cache_key = payload
+        if outcome == "unchanged":
+            self._read_started = False
+            if self._dashboard is not None:
+                self._draw(self._dashboard)
+            self._set_status(
+                "Nothing on disk has changed since the last read.")
+            return
         if dashboard is None:
             return
         self._dashboard = dashboard
@@ -354,6 +448,13 @@ class QCDashboardScreen(QWidget):
     # -- drawing ----------------------------------------------------------
 
     def _draw(self, dashboard: Dashboard) -> None:
+        """Rebuild the verdict line and the cards from a dashboard.
+
+        A missing card also prints how to produce what it is missing, so the
+        dashboard says what to do next rather than only what is absent.
+
+        :param dashboard: the read verdicts.
+        """
         self._verdict.setText(
             f"{dashboard.verdict.upper()} — {dashboard.headline}")
         self._verdict.setProperty("spacrQCVerdictLevel", dashboard.verdict)
@@ -403,6 +504,11 @@ class QCDashboardScreen(QWidget):
         return format_dashboard(self._dashboard)
 
     def _set_status(self, text: str, *, is_error: bool = False) -> None:
+        """Write the status line and repolish it so the error style takes effect.
+
+        :param text: message to show.
+        :param is_error: style the line as an error.
+        """
         self._status.setText(text)
         self._status.setProperty("spacrError", "true" if is_error else "false")
         style = self._status.style()
@@ -417,11 +523,16 @@ class QCDashboardScreen(QWidget):
     # -- events -----------------------------------------------------------
 
     def _on_browse(self) -> None:
+        """Ask for a project folder and read it."""
         folder = QFileDialog.getExistingDirectory(self, "Project folder")
         if folder:
             self.set_source(folder)
 
     def _on_job_failed(self, message: str) -> None:
+        """Report a failed verdict read on the status line.
+
+        :param message: the failure text from the job runner.
+        """
         self._set_status(f"Could not read the verdicts: {message}",
                          is_error=True)
 
@@ -436,6 +547,10 @@ class QCDashboardScreen(QWidget):
         return self._jobs.is_busy()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 
@@ -447,17 +562,74 @@ def make_qc_dashboard_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add the QC Dashboard to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_qc_dashboard_screen, stage=STAGE_ALPHA,
-        title=APP_NAME, intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/qc_dashboard",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+HOST_KEY = "qc_dashboard"
+
+#: Registry keys of the modules folded into QC, in strip order. Asked
+#: for as "make one QC module": the dashboard reports stored checks,
+#: layer viewer is how you LOOK at the images behind a failing one, and
+#: control charts are the same checks over time. Three tiles for one
+#: activity is three places to look for it.
+#:
+#: `control_chart` is declared in `app_catalog` rather than registered,
+#: so its button takes its name from there -- see `fold_description`.
+FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart',
+                                'outliers')
+
+
+def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
+    """Layer Viewer, as the window builds it."""
+    # IMPORTED HERE. This module used `build_registered_screen`
+    # without importing it, so every folded module it hosts raised
+    # NameError the moment its button was pressed.
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("layer_viewer", host_window)
+
+
+def _build_control_chart(host_window: Optional[QWidget] = None) -> QWidget:
+    """Control Chart, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("control_chart", host_window)
+
+
+def _build_outliers(host_window: Optional[QWidget] = None) -> QWidget:
+    """Outliers, as the window builds it.
+
+    A QC question -- "which wells or objects do not look like the
+    others" -- so it belongs behind QC rather than beside it on Home.
+    """
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("outliers", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "layer_viewer": _build_layer_viewer,
+    "control_chart": _build_control_chart,
+    "outliers": _build_outliers,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put qc_dashboard's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

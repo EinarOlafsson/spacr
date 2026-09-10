@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Pipeline Graph: granska verkligt ursprung och saknade artefakter",
+  "description": "Läs faktiska artefaktposter, skilj saknade filer från odokumenterat ursprung, filtrera grafen och kopiera hela Graphviz-representationen utan att köra analysen igen.",
+  "objectives": [
+    "Öppna Pipeline graph under Help och välj ett befintligt projekt.",
+    "Jämför registrerat ursprung med befintliga filer och förstå beroenden som inte registrerats.",
+    "Använd Current, Stale och Missing utan att förväxla dolda noder med saknade poster.",
+    "Läs om med Redraw, kopiera hela grafen och undersök vidare med rätt arbetsflöde."
+  ],
+  "prerequisite": "Använd det verkliga External Masks-projektet och den slutförda rensningsdemonstrationen i Data Manager. Inspelningen läser en bytekontrollerad kopia av den arkiverade ögonblicksbilden efter rensning, på den historiska projektsökvägen i en isolerad miljö; originaldata och registerposter skrivs inte om. En separat verklig Batch Runner-konvertering visar saknad ursprungsdokumentation, inte ett obearbetat experiment. Alla 131 originalfiler, 26 arkivfiler och sju konverteringsfiler förblir oförändrade. Tre historiska poster har inga registrerade ingående kanter; den fjärde hör till en annan projektsökväg. Här sker ingen radering, analys, särskild nedladdning, direkt bildförhandsvisning, Plot-användning, AI-förfrågan eller återställningskörning.",
+  "scenes": [
+    "Öppna Help och sedan Pipeline graph. Den här vyn granskar registrerade utdata och deras beroenden; den kör inte pipelinen. Vi använder privata kopior av resultat från insamlade data i External Masks och det verkliga rensningsexemplet i Data Manager. Följ de lektionerna för att producera och hantera data säkert.",
+    "Välj först mappen med konverterade bilder via Browse. Dess Batch Runner-konvertering slutfördes, men ingen utdataartefakt registrerades här, så grafen är tom. Det är saknad ursprungsdokumentation, inte bevis för att ingen bearbetning skett. Declared order beskriver möjliga modulberoenden, inte historiken över slutförda körningar.",
+    "Välj mätprojektets ögonblicksbild efter rensning. Tre historiska poster visas: en mätdatabas, bildutsnitt och en resurslogg. Två sökvägar finns kvar, medan mappen med bildutsnitt verkligen togs bort under den tidigare privata rensningen. Den här inspelningen tar inte bort något, och det ursprungliga experimentprojektet är intakt.",
+    "Klicka på mätdatabasens ruta och bredda detaljerna med avdelaren. Läs sökväg, roll, körningsidentifierare, produktionstid, spaCR-version och inställningarnas hashvärde. Det är ett fingeravtryck, inte de fullständiga inställningarna eller en återställningsknapp. Current fastställer varken vetenskaplig giltighet eller fullständigt ursprung.",
+    "Välj den röda rutan för bildutsnitt. Missing betyder att den registrerade sökvägen saknas. Registrerad storlek anger fortfarande omkring tre komma fyra megabyte i hundrafyra filer: hundratre bildutsnitt och deras formatpost. Det är historisk storlek, inte dagens diskutrymme och inte hundrafyra celler.",
+    "Resursloggen är en separat artefakt utanför projektmappen. Sökvägen finns fortfarande, men den flyttades inte till arkivet. Grafen har inga registrerade ingående kanter. Nothing was derived from this betyder att inget nedströms beroende registrerats här, inte att de vetenskapliga utdata var oberoende.",
+    "Stäng av Current för att isolera den saknade artefakten med bildutsnitt. Current, Stale och Missing är visningsfilter, inte filåtgärder. Stale är en varning om registrerat ursprung; det här exemplet har ingen inaktuell artefakt. Vyn har inga separata filter för modul, artefakttyp eller arbetsflödesgren.",
+    "Stäng också av Missing. Inga rutor syns, men meddelandet anger fortfarande att en av tre artefakter saknas. I denna version säger den tomma ritytan felaktigt att inget är registrerat, och föregående detaljtext kan ligga kvar. Kontrollera filtren innan du tolkar meddelandena: dolt betyder inte raderat.",
+    "Copy Graphviz lägger hela grafen i urklipp, inklusive dolda noder. Vi kontrollerade att alla tre verkliga artefaktidentifierare finns med och att inga beroendepilar är påhittade. Det är Graphviz DOT-text för användning i andra verktyg, inte en sparad bild eller en export av endast det synliga urvalet.",
+    "Slå på Current och sedan Missing igen: först återkommer två rutor, sedan alla tre. Välj en ruta igen så att detaljerna hör till den synliga grafen. Visningsfilter reparerar inte saknade filer, ändrar inte ursprung och väljer inte en modul att köra igen. Undersök den registrerade sökvägen och föregående arbetsflöde innan du agerar.",
+    "Redraw läser registret igen och kontrollerar artefakterna på nytt. Våra poster och filernas byteinnehåll förblir oförändrade. Använd Run History för sparade inställningar och körningsloggar eller Data Manager för uttrycklig rensning. I Python erbjuder spacr.pipeline_graph build_graph och to_dot. Granskningen utför varken återskapande eller vetenskaplig validering."
+  ]
+}

@@ -1,7 +1,7 @@
 """Every Image UMAP setting, live-editable against the STATIC figure.
 
-Instruction 26 gave the LIVE explorer a settings window whose display half
-applies to the figure on screen. This is the same idea for the other half of
+The live explorer has a settings window whose display options apply to the
+figure on screen. This module provides the equivalent for
 the screen -- the ordinary, non-live figure the run leaves in
 :class:`spacr.qt.widgets.figure_queue.FigureQueue`::
 
@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 
 from .toggle import Toggle
+from ...hyperparam import UMAP_METRICS
 
 LOG = logging.getLogger("spacr.qt.umap_figure_settings")
 
@@ -73,9 +74,7 @@ class Field(NamedTuple):
 #: The display half is exactly the "UMAP Display" group the settings panel
 #: builds (``settings_model._regroup`` for ``umap``), so the two surfaces
 #: cannot drift into offering different sets of knobs. The rest are the
-#: reduction and clustering settings, which are here because the user asked
-#: for "all the image UMAP settings" and a window that silently omitted the
-#: ones that matter most would be answering a different question.
+#: reduction and clustering settings needed to reproduce or rerun the view.
 IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
     # -- applies to the artists already drawn ------------------------------
     Field("dot_size",        "Dot size",        "int",   1, 4000, TIER_STYLE),
@@ -95,10 +94,30 @@ IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
     Field("black_background", "Black background", "bool", 0, 0,   TIER_REDRAW),
     # -- changes the embedding: next run -----------------------------------
     Field("reduction_method", "Reduction", "choice", 0, 0, TIER_RERUN,
-          ("umap", "tsne")),
+          ("umap", "tsne", "pca", "isomap", "spectral")),
     Field("n_neighbors",     "Neighbours",      "int",   2, 1000000, TIER_RERUN),
     Field("min_dist",        "Minimum distance", "float", 0.0, 1.0, TIER_RERUN),
-    Field("metric",          "Metric",          "text",  0, 0,    TIER_RERUN),
+    Field("tsne_perplexity", "t-SNE perplexity", "float", 0.01, 1000000,
+          TIER_RERUN),
+    Field("tsne_learning_rate", "t-SNE learning rate", "float", 0.01,
+          1000000, TIER_RERUN),
+    Field("tsne_early_exaggeration", "t-SNE early exaggeration", "float",
+          0.01, 1000000, TIER_RERUN),
+    Field("tsne_max_iter", "t-SNE iterations", "int", 250, 10000000,
+          TIER_RERUN),
+    Field("pca_whiten", "PCA whiten", "bool", 0, 0, TIER_RERUN),
+    Field("pca_svd_solver", "PCA solver", "choice", 0, 0, TIER_RERUN,
+          ("auto", "full", "covariance_eigh", "arpack", "randomized")),
+    Field("isomap_n_neighbors", "Isomap neighbours", "int", 2, 1000000,
+          TIER_RERUN),
+    Field("isomap_path_method", "Isomap path method", "choice", 0, 0,
+          TIER_RERUN, ("auto", "FW", "D")),
+    Field("spectral_affinity", "Spectral affinity", "choice", 0, 0,
+          TIER_RERUN, ("nearest_neighbors", "rbf")),
+    Field("spectral_n_neighbors", "Spectral neighbours", "int", 2, 1000000,
+          TIER_RERUN),
+    Field("metric", "Metric", "choice", 0, 0, TIER_RERUN,
+          tuple(UMAP_METRICS)),
     Field("clustering",      "Clustering",      "choice", 0, 0,   TIER_RERUN,
           ("dbscan", "kmeans")),
     Field("eps",             "DBSCAN eps",      "float", 0.0, 1000.0, TIER_RERUN),
@@ -226,6 +245,8 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
     labels = payload.get("plot_labels")
     if labels is None:
         labels = payload.get("labels")
+    if labels is None:
+        return False
     labels = np.asarray(labels)
     if len(labels) != len(embedding):
         return False
@@ -235,6 +256,7 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
                           _style_plot_axes)
 
     def _get(key, fallback):
+        """One figure setting, or the fallback when it is unset."""
         value = values.get(key)
         return fallback if value is None else value
 
@@ -309,11 +331,15 @@ def apply_to_figure(fig, payload: Dict[str, Any], values: Dict[str, Any],
 # ---------------------------------------------------------------------------
 
 class UmapFigureSettings(QWidget):
-    """The Image UMAP half of the non-live figure-settings window.
+    """Edit Image UMAP figure settings with debounced live application.
 
-    Emits :attr:`settings_changed` with every value, debounced, as soon as
-    the user changes one -- there is no Apply button, because "you should see
-    changes in the graph directly" is the requirement.
+    Each change emits :attr:`settings_changed` with the complete settings
+    dictionary after :data:`APPLY_DEBOUNCE_MS`. The containing figure-settings
+    window applies style and redraw tiers immediately; rerun-tier values are
+    retained for the next embedding run. No separate Apply action is required.
+
+    :param values: the settings to open on. ``None`` opens on the defaults.
+    :param parent: parent widget.
     """
 
     #: Debounced, and carries the WHOLE value dict rather than the delta: the
@@ -322,6 +348,16 @@ class UmapFigureSettings(QWidget):
     settings_changed = Signal(dict)
 
     def __init__(self, values: Optional[Dict[str, Any]] = None, parent=None):
+        """Build the Image UMAP settings panel, grouped by when a change applies.
+
+        The three tiers are the point: settings that restyle the points already
+        drawn, settings that redraw the graph from the same embedding so no
+        point moves, and settings that only take effect on the next run.
+
+        :param values: the settings to open with; ``None`` entries fall back to
+            the module defaults.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._editors: Dict[str, QWidget] = {}
         self._timer = QTimer(self)
@@ -360,14 +396,59 @@ class UmapFigureSettings(QWidget):
                 editor.setProperty("umapSettingTier", field.tier)
                 self._editors[field.key] = editor
                 form.addRow(field.label, editor)
+                editor._spacr_setting_label = form.labelForField(editor)
             root.addLayout(form)
+        reducer = self._editors.get("reduction_method")
+        if isinstance(reducer, QComboBox):
+            reducer.currentTextChanged.connect(self._refresh_reducer_fields)
+        affinity = self._editors.get("spectral_affinity")
+        if isinstance(affinity, QComboBox):
+            affinity.currentTextChanged.connect(self._refresh_reducer_fields)
+        self._refresh_reducer_fields()
         self._applied: Dict[str, Any] = dict(self.values())
         self._initial: Dict[str, Any] = dict(self._applied)
 
     # -- construction ------------------------------------------------------
 
+    def _refresh_reducer_fields(self, *_args) -> None:
+        """Grey reducer settings the selected static-figure recipe ignores."""
+        reducer = self._editors.get("reduction_method")
+        method = reducer.currentText() if isinstance(reducer, QComboBox) \
+            else "umap"
+        families = {
+            "umap": {"n_neighbors", "min_dist"},
+            "tsne": {
+                "tsne_perplexity", "tsne_learning_rate",
+                "tsne_early_exaggeration", "tsne_max_iter",
+            },
+            "pca": {"pca_whiten", "pca_svd_solver"},
+            "isomap": {"isomap_n_neighbors", "isomap_path_method"},
+            "spectral": {"spectral_affinity", "spectral_n_neighbors"},
+        }
+        owned = set().union(*families.values())
+        active = families.get(method, set())
+        for key in owned:
+            editor = self._editors.get(key)
+            if editor is None:
+                continue
+            enabled = key in active
+            if key == "spectral_n_neighbors" and method == "spectral":
+                affinity = self._editors.get("spectral_affinity")
+                enabled = not isinstance(affinity, QComboBox) or \
+                    affinity.currentText() == "nearest_neighbors"
+            editor.setEnabled(enabled)
+            label = getattr(editor, "_spacr_setting_label", None)
+            if label is not None:
+                label.setEnabled(enabled)
+
     @staticmethod
     def _defaults() -> Dict[str, Any]:
+        """Read the Image UMAP defaults.
+
+        :returns: the defaults, or an empty mapping when they cannot be read --
+            the panel then seeds from the passed values alone rather than
+            failing to build.
+        """
         from ...settings import set_default_umap_image_settings
         try:
             return set_default_umap_image_settings({})
@@ -376,6 +457,17 @@ class UmapFigureSettings(QWidget):
             return {}
 
     def _editor(self, field: Field, value) -> QWidget:
+        """Build the control for one setting.
+
+        ``row_limit`` and the other nullable fields get a text box rather than a
+        spin box: ``None`` means "every row", and a spin box has no way to say
+        that, so it is typed rather than clamped.
+
+        :param field: the setting's declaration.
+        :param value: its current value; an unparseable one leaves the control
+            at its own default rather than raising.
+        :returns: the control.
+        """
         if field.kind == "bool":
             box = Toggle()
             box.setChecked(bool(value))
@@ -383,6 +475,9 @@ class UmapFigureSettings(QWidget):
             return box
         if field.kind == "choice":
             combo = QComboBox()
+            combo.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            combo.setMinimumContentsLength(12)
             combo.addItems(list(field.choices))
             text = str(value or "").strip().lower()
             if text in field.choices:
@@ -455,6 +550,13 @@ class UmapFigureSettings(QWidget):
     # -- change plumbing ---------------------------------------------------
 
     def _schedule(self, *_args) -> None:
+        """Queue an emit after a control changed.
+
+        Debounced, so dragging a spin box costs one redraw rather than one per
+        step.
+
+        :param _args: whatever the emitting control passes; ignored.
+        """
         self._timer.start()
 
     def flush(self) -> None:
@@ -464,6 +566,12 @@ class UmapFigureSettings(QWidget):
             self._emit_changed()
 
     def _emit_changed(self) -> None:
+        """Announce the settings, unless nothing actually changed.
+
+        Comparing against what was last applied is what stops a debounce that
+        fired on a value the user typed and then undid from redrawing the graph
+        for no change.
+        """
         values = self.values()
         if values == self._applied:
             return

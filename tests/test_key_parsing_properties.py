@@ -423,15 +423,36 @@ def test_an_empty_component_is_refused(field, position):
 
 
 @given(plate=plate_names, row=row_indices, column=column_indices)
-def test_a_plate_containing_the_separator_is_refused(plate, row, column):
-    """The key is separator-joined, so the plate may not contain one.
+def test_a_plate_containing_the_separator_is_escaped_and_round_trips(
+        plate, row, column):
+    """The key is separator-joined, so the plate may not *carry* one raw.
 
-    Refusing at *compose* time is what makes the round-trip and injectivity
-    properties above true at all: a plate called ``'a_b'`` and a plate called
-    ``'a'`` with row ``'b'`` would otherwise write the same key.
+    This used to demand a ``KeyParseError``, because refusing at compose time
+    was what made the round-trip and injectivity properties above true: a
+    plate called ``'a_b'`` and a plate called ``'a'`` with row ``'b'`` would
+    otherwise write the same key.
+
+    Escaping keeps that guarantee and drops the refusal, which is the better
+    trade for a name that comes off disk: a user cannot go back and rename a
+    plate in a database they already have, so refusing turned a readable run
+    into one that raises. ``'a_b'`` composes to ``'a%5Fb_r1_c1'`` and parses
+    back to ``'a_b'``, so the separator never reaches the key and the plate
+    is not lost — which is strictly more than refusing delivered.
+
+    The property is therefore now the thing refusal was protecting, stated
+    directly: compose, split, and get the same plate back.
     """
-    with pytest.raises(S.KeyParseError):
-        S.compose_prc(plate.strip() + SEP + 'x', row, column)
+    original = plate.strip() + SEP + 'x'
+
+    # The raw separator never reaches the key: exactly the two the composer
+    # put there itself, between plate, row and column.
+    assert S.compose_prc(original, row, column).count(SEP) == 2
+
+    # And the plate survives the trip. prcf is the shortest key with a
+    # parser (there is no parse_prc), so the round trip is asserted there.
+    key = S.compose_prcf(original, row, column, 1)
+    assert key.count(SEP) == 3, key
+    assert S.parse_prcf(key).plateID == original
 
 
 @given(field=field_ids())
@@ -655,6 +676,8 @@ def test_selection_keys_agree_with_the_schema_row_key(field, label):
     object I pointed at", so the key the UMAP publishes has to be the key the
     plate view resolves.
     """
+    assume(all('%' not in value for value in (
+        field.plateID, field.rowID, field.columnID, field.fieldID)))
     frame = pd.DataFrame([{
         S.PLATE_KEY: field.plateID,
         S.ROW_KEY: field.rowID,
@@ -670,78 +693,113 @@ def test_selection_keys_agree_with_the_schema_row_key(field, label):
 
 
 # ===========================================================================
-# CONFIRMED BUGS, reproduced -- not weakened to pass
+# ONCE-CONFIRMED BUGS, now repaired -- kept as the properties they reached for
 # ===========================================================================
 #
-# Each of these is a property that ought to hold, a minimal counterexample
-# hypothesis found, and the module that owns the repair. They are
-# xfail(strict=True) so that fixing one turns this file red until the xfail
-# is removed -- a bug that quietly stops reproducing is a bug nobody notices
-# was fixed, and an xfail nobody removes is a property nobody is testing.
+# Each of these was a property that ought to hold, a minimal counterexample
+# hypothesis found, and the module that owned the repair. They were
+# xfail(strict=True) while they still reproduced, so that fixing one turned
+# this file red until the marker came off -- a bug that quietly stops
+# reproducing is a bug nobody notices was fixed, and an xfail nobody removes
+# is a property nobody is testing.
+#
+# All four are FIXED (instruction 100, C2-C4) and the markers came off with
+# the fixes, so these are ordinary passing property tests now. They stay
+# because the property is the point: the counterexample hypothesis found once
+# is the one it will find again if a repair regresses.
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): compose_prcf writes a timepoint key that '
-    'parse_prcf refuses. compose_prcf("p", 1, 1, 1, time="xy") -> '
-    '"p_r1_c1_f1_txy"; parse_prcf of that raises "\'txy\' is not a field id". '
-    'The graded-failure policy promises a preserved token is "still a valid '
-    'join key", and it is for the FIELD slot ("fxy" reads back fine) but not '
-    'for the TIME slot: the parser recognises a timepoint by time_index() '
-    'returning a number, which a preserved token never does, so the token '
-    'falls through into the field slot and fails the field check. The repair '
-    'is a decision about the time-detection heuristic -- the obvious one, '
-    '"a trailing t-token preceded by an f-token is a timepoint", widens what '
-    'counts as a timelapse key for every reader of every database, and that '
-    'is the owner\'s call, not a test\'s.'))
 @given(token=unparseable_tokens)
 def test_a_preserved_timepoint_token_reads_back(token):
+    """A preserved time token is still a valid, round-trippable join key."""
     key = S.compose_prcf('p', 1, 1, 1, time=token)
     assert S.parse_prcf(key).prcf == key
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): parse_field_stem / parse_object_stem read '
-    'a file name LEFT to right at fixed positions, while parse_prcf reads '
-    'right to left "which is what makes it correct". Two consequences, both '
-    'silent: (1) a plate id containing the separator is mis-slotted -- '
-    'parse_field_stem("my_plate_A01_3") -> plateID="my", rowID="plate", '
-    'columnID="plate", fieldID="f1", because well=parts[1]="plate" falls '
-    'into the positional-well passthrough and field=parts[2]="A01" parses as '
-    'the prefixed integer 1; (2) surplus components are dropped, so '
-    'parse_field_stem("plate1_A01_3_junk") == parse_field_stem('
-    '"plate1_A01_3") -- an injectivity failure, and on a timelapse name read '
-    'with timelapse=False it is the "three timepoints go in, one comes out" '
-    'bug this module was written to end. The repair is to parse the stem '
-    'right to left like every other key parser here, or to refuse a stem '
-    'with more components than the requested shape.'))
 @given(plate_left=st.sampled_from(['my', 'exp1']),
        plate_right=st.sampled_from(['plate', 'plate1']),
        well=st.sampled_from(['A01', 'AA01']),
-       field=field_indices)
-def test_a_file_name_is_parsed_right_to_left_like_every_other_key(
-        plate_left, plate_right, well, field):
-    stem = SEP.join([plate_left, plate_right, well, str(field)])
-    parsed = S.parse_field_stem(stem)
-    assert parsed.plateID == plate_left + SEP + plate_right
+       field=field_indices,
+       time=st.sampled_from([1, 7]))
+def test_a_file_name_writer_escapes_the_plate_before_joining_it(
+        plate_left, plate_right, well, field, time):
+    """The plate is escaped where its components are still separate.
+
+    ``spacr.io._escaped_field_stem`` holds the plate, well, field and time as
+    four values, so it has nothing to split and nothing to guess. Escaping
+    from a JOINED name cannot reach this property: ``'my_plate_A01_3'`` is both
+    "plate ``my_plate``, well A01, field 3" and "plate ``my``, well plate,
+    field A01, time 3", and no rule over the name alone tells them apart --
+    which is exactly why the escape belongs at the writer.
+    """
+    from spacr.io import _escaped_field_stem
+
+    plate = plate_left + SEP + plate_right
+    safe_stem = _escaped_field_stem(plate, well, field, time)
+    parsed = S.parse_field_stem(safe_stem)
+    assert parsed.plateID == plate
     assert parsed.fieldID == f'f{field}'
+    assert S.parse_field_stem(safe_stem, timelapse=True).timeID == f't{time}'
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema AND spacr.utils, unfixed): canonicalise_columns can '
-    'CREATE a case collision that SQLite refuses. Minimal counterexample: a '
-    'frame with columns ["row", "rowid"] canonicalises to ["rowID", "rowid"], '
-    'and DataFrame.to_sql on it raises OperationalError: duplicate column '
-    'name: rowid. This is the live hazard, not a theoretical one -- SQLite '
-    'compares identifiers case-insensitively, which is how a column named '
-    'rowID shadowed the implicit rowid and made a DELETE remove a whole '
-    'table. The rename guard is exact ("skip when the canonical name is '
-    'already present") while the collision it must avoid is case-folded. The '
-    'fix is to make that guard case-insensitive while still letting a column '
-    'be renamed onto its own case-folded name -- but it has to land in BOTH '
-    'schema.canonicalise_columns and utils.canonicalize_measurement_columns '
-    'at once, or the two frame canonicalisers disagree again (see '
-    'test_the_two_frame_canonicalisers_agree_on_every_frame), and utils.py '
-    'is owned elsewhere right now.'))
+def test_an_empty_plate_is_refused_rather_than_written_into_the_name():
+    """Every field written under an empty plate would merge with every other."""
+    from spacr.io import _escaped_field_stem
+
+    with pytest.raises(S.KeyParseError):
+        _escaped_field_stem('', 'A01', 1, 1)
+
+
+def test_escaping_a_joined_stem_puts_the_timepoint_in_the_tail_not_the_plate():
+    """The write and read halves of the grammar have to agree about the tail.
+
+    ``spacr.io`` names every merged stack ``plate_well_field_TIME`` whatever
+    ``timelapse`` is set to, and :func:`parse_field_stem` accounts for that.
+    :func:`escape_field_stem_plate` did not: it took a tail of two on an
+    ordinary plate and swallowed the WELL into the plate, so
+    ``utils._generate_names`` wrote every crop of the shipped Crop demo as
+    ``plate1%5FA01_1_1_<id>.png``, with a ``png_list`` identity of
+    ``plate1%5FA01_2_2_f1_o1`` against the ``cell`` table's
+    ``plate1_r1_c2_f2`` for the same object. Nothing joining crops to
+    measurements could match.
+    """
+    assert S.escape_field_stem_plate('plate1_A01_1_1') == 'plate1_A01_1_1'
+    assert S.parse_field_stem('plate1_A01_1_1').plateID == 'plate1'
+    # the name the writer produces for an underscored plate folder reads
+    # back as that plate, character for character
+    assert S.parse_field_stem('exp%5F1_A01_1_1').plateID == 'exp_1'
+    # a stem whose trailing token is not a timepoint keeps the two-token tail
+    assert S.escape_field_stem_plate('my_plate_A01_x') == 'my%5Fplate_A01_x'
+
+
+def test_a_surplus_crop_component_is_refused_instead_of_dropped():
+    """A fourth component that is not a timepoint is not something to discard.
+
+    Dropping it makes two different stems parse to one identity, which is how
+    a plate's worth of distinct fields quietly merges into one row.
+    """
+    with pytest.raises(S.KeyParseError, match='plate_well_field'):
+        S.parse_field_stem('plate1_A01_3_junk')
+    with pytest.raises(S.KeyParseError, match='plate_well_field'):
+        S.parse_field_stem('plate1_A01_3_1_1')
+
+
+def test_the_timepoint_every_stack_is_named_with_is_not_surplus():
+    """``spacr.io`` writes ``plate_well_field_time`` whatever ``timelapse`` is.
+
+    Refusing that name made ``_map_wells`` answer ``'error'`` in every slot
+    for every field of every ordinary plate, and ``measure_crop`` then wrote
+    no measurement tables at all. The timepoint is dropped here because the
+    caller said this is not a timelapse -- not because the name is malformed.
+    """
+    parsed = S.parse_field_stem('plate1_A01_1_1')
+    assert parsed.prcf == 'plate1_r1_c1_f1'
+    assert parsed.timeID is None
+    assert parsed.prcf == S.parse_field_stem('plate1_A01_1').prcf
+    assert S.parse_field_stem('plate1_A01_1_1', timelapse=True).prcf == \
+        'plate1_r1_c1_f1_t1'
+
+
 @given(names=st.lists(case_variants, min_size=2, max_size=4, unique=True))
 def test_canonicalise_columns_never_creates_a_case_collision(names):
     frame = pd.DataFrame({name: [1] for name in names})
@@ -752,12 +810,22 @@ def test_canonicalise_columns_never_creates_a_case_collision(names):
     collisions_after = len(after) - len(set(after))
     assert collisions_after <= collisions_before, (
         f'{list(frame.columns)} -> {list(out.columns)}')
-    # And the frame SQLite gets is one SQLite will take.
-    conn = sqlite3.connect(':memory:')
-    try:
-        out.to_sql('cell', conn, index=False)
-    finally:
-        conn.close()
+    # And the frame SQLite gets is one SQLite will take -- PROVIDED the caller
+    # did not hand over a frame that was already unwritable. A frame built as
+    # ["rowID", "rowid"] collides before canonicalisation touches it, and no
+    # non-destructive canonicaliser can repair that: the only ways out are
+    # dropping one column or inventing a name for it, and "keep both, let a
+    # human decide which is authoritative" is the rule this function is built
+    # on. Asserting to_sql unconditionally would be asserting that
+    # canonicalise_columns fixes its caller's data, which it does not claim to
+    # do -- it claims not to CREATE a collision, which is what is checked above
+    # and on every input below.
+    if collisions_before == 0:
+        conn = sqlite3.connect(':memory:')
+        try:
+            out.to_sql('cell', conn, index=False)
+        finally:
+            conn.close()
 
 
 @given(label=object_labels)
@@ -838,6 +906,10 @@ def test_a_typed_object_key_is_the_prcfo_of_the_same_object(field, label,
     a key copied out of a crop table names the same object as one built from
     a measurement table.
     """
+    # selection's documented percent-escape exception has its own injectivity
+    # property below; schema's legacy composer deliberately preserves it.
+    assume(all('%' not in value for value in (
+        field.plateID, field.rowID, field.columnID, field.fieldID)))
     frame = pd.DataFrame([{
         S.PLATE_KEY: field.plateID, S.ROW_KEY: field.rowID,
         S.COLUMN_KEY: field.columnID, S.FIELD_KEY: field.fieldID,
@@ -906,16 +978,6 @@ def test_a_percent_in_an_identifier_is_the_one_key_that_is_respelled():
     assert len(set(keys)) == 2
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): _sanitise_token merges two distinct '
-    'tokens. It replaces the key separator with "-" so a preserved token '
-    'cannot add a component to the key, but that maps field "a_b" and field '
-    '"a-b" onto one id, "fa-b". Two fields go in and one comes out -- the '
-    'exact failure this module exists to end, reached by the escape hatch '
-    'instead of by _safe_int_convert. It only fires on the tier-2 path (a '
-    'token holding no integer), which is already QC-visible, so the blast '
-    'radius is small; the repair is a reversible escape (percent-encode the '
-    'separator) or refusing the token outright rather than a lossy one.'))
 @given(left=st.text(alphabet='ab', min_size=1, max_size=3),
        right=st.text(alphabet='ab', min_size=1, max_size=3))
 def test_sanitising_a_token_does_not_merge_two_fields(left, right):

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.metadata_resolution.MetadataDecision#0",
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "source": "One all-at-once answer returned by a UI or a saved setting.",
+      "context": "One all-at-once answer returned by a UI or a saved setting.",
+      "translation": "Eine einzige, vollständige Antwort, die von einer UI oder einer gespeicherten Einstellung zurückgegeben wird."
+    },
+    {
+      "label": "spacr.regression_diagnostics#4",
+      "source_sha256": "446105c18536eb5c64a23e7f93294d51781f34f059d1df481d1f5035521501c1",
+      "source": "``residual_report`` / ``plot_residual_diagnostics`` Properties of a *fitted* model: the residual-versus-fitted, scale-location, QQ and leverage panels, plus Cook's distance.",
+      "context": "``residual_report`` / ``plot_residual_diagnostics`` Properties of a *fitted* model: the residual-versus-fitted, scale-location, QQ and leverage panels, plus Cook's distance.",
+      "translation": "``residual_report`` / ``plot_residual_diagnostics`` Eigenschaften eines *angepassten* Modells: Diagramme der Residuen gegen die angepassten Werte, der Streuung gegen die Lage, QQ- und Leverage-Diagramme sowie Cook-Abstände."
+    }
+  ]
+}

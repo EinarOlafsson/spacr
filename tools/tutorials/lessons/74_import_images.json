@@ -1,0 +1,77 @@
+{
+  "id": "74_import_images",
+  "number": 74,
+  "slug": "import_images",
+  "title": "Import Images: inspect the plan before importing",
+  "series": 2,
+  "app_key": "import_images",
+  "host_app_key": "foreign",
+  "section": "spaCR",
+  "description": "Open Import Images inside Import, check a real microscopy subset before writing, and save a reusable plan. The example explicitly distinguishes unsupported raw naming from prepared copies.",
+  "objectives": [
+    "Find Import Images inside the Import module and distinguish it from importing existing measurements and masks.",
+    "Check image identities and unresolved filename tokens before writing a project.",
+    "Choose copying or linking, save and reload a plan, and verify the completed import."
+  ],
+  "prerequisite": "Download Mask's real example first. This recording uses copied E01/F001 and L01/F009 fields, four C channels each. Prepared copies omit only the A token immediately before Z; originals remain unchanged. This is a specifically checked example, not a general instruction to delete unfamiliar filename metadata.",
+  "scenes": [
+    {
+      "visual": "02_import_fold",
+      "narration": "Open Import from Home's Data category, then choose Import Images. This nested tool prepares raw image files. Import Project, Format Converter, and External Masks are related workflows with their own tutorials.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": ["36_import", "35_converter", "31_external_masks"]
+    },
+    {
+      "visual": "04_source_options",
+      "narration": "Our eight images are real microscopy data from Mask's downloadable example: one field from each of two wells, with four channels per field. We work on separate copies and leave the downloaded originals untouched.",
+      "hold_after": 0.7,
+      "related_lessons": ["07_mask"]
+    },
+    {
+      "visual": "04a_unresolved_acquisition_token",
+      "narration": "Scan reveals an unresolved acquisition token in these raw names. Import stays disabled and nothing is written. Do not guess a channel mapping: two different channels share this acquisition value, so that answer would corrupt their identities.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_scan_proposal",
+      "narration": "For this checked example, prepared copies omit only the redundant acquisition token. Their well, field, and channel names remain intact. Scan now shows eight rows, two wells, two field numbers, and four channels. This does not mean the original naming was accepted.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_check_filename",
+      "narration": "Compare the proposal with the filenames before importing. Read inside each file checks embedded axis metadata as well as names. Sample limits the files inspected; ensure the proposal includes the images you intend to import. Resolve questions from acquisition records, not guesses.",
+      "hold_after": 0.7,
+      "focus": [350, 665, 1770, 675]
+    },
+    {
+      "visual": "07_copy_destination",
+      "narration": "Choose a destination outside the input folder and set the plate name. We turn off Link instead of copy for an independent project. Links save disk space, but depend on the originals staying accessible at their existing locations.",
+      "hold_after": 0.7,
+      "focus": [345, 1600, 3420, 210]
+    },
+    {
+      "visual": "07_copy_destination",
+      "narration": "These example files are not tiles. For tiled acquisitions, read the Tiles choice carefully: stitching assembles fields, keeping tiles separately changes what a field means, and skipping loses those images. Check the report and any unverified seams before measuring.",
+      "hold_after": 0.7,
+      "related_lessons": ["32_align_stitch"]
+    },
+    {
+      "visual": "09_saved_plan",
+      "narration": "Save plan writes a JSON record of the source and your mapping answers, not a backup of the images. Keep it with the acquisition notes. The same plan can be read through the Python image import API.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api"]
+    },
+    {
+      "visual": "11_reloaded_plan",
+      "narration": "Load plan reads the source folder again and reuses the saved answers. Check the new proposal before importing; a saved plan does not guarantee that a changed acquisition is correct. Here it restores the same eight checked image identities.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_import_complete",
+      "narration": "Press Import and read the summary. This run wrote eight independent image copies with no skipped files; their contents match the source. Next, point Mask at the project and inspect its live preview before segmentation. Importing alone does not generate masks or measurements.",
+      "hold_after": 0.7,
+      "related_lessons": ["07_mask", "08_measure"]
+    }
+  ]
+}

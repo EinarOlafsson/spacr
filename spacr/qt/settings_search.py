@@ -59,6 +59,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .i18n import tr
 from .widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.settings_search")
@@ -88,6 +89,10 @@ ALL = "all"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_QSETTINGS_ORG, _QSETTINGS_APP)
 
@@ -122,6 +127,32 @@ def forget_disclosure(app_key: Optional[str] = None) -> None:
         store.remove(f"{_KEY_DISCLOSURE}/{app_key}")
 
 
+def _localize(widget: QWidget, setter_name: str, property_name: str,
+              source: str) -> None:
+    """Apply ``source`` in the user's language, keeping the English behind it.
+
+    The strip is built from ``stack.currentChanged``, which fires after the
+    window has run its one language pass over the screen, so every caption
+    here has to translate itself. That alone is not enough:
+    :func:`spacr.qt.i18n.retranslate_widget_tree` reads a widget's English
+    back out of two properties — the source it should translate, and the
+    rendering it last put on screen. Text written straight out in the user's
+    language leaves both unset, so the *next* language switch would translate
+    a translation; text re-applied by a handler looks instead like live data
+    the translator must leave alone. Writing both makes either safe.
+
+    :param widget: the widget to caption.
+    :param setter_name: the Qt setter, e.g. ``"setToolTip"``.
+    :param property_name: the i18n source property that setter reads, e.g.
+        ``"_spacr_i18n_tooltip"``.
+    :param source: the English string, exactly as the catalog keys it.
+    """
+    rendered = tr(source)
+    widget.setProperty(property_name, source)
+    widget.setProperty(f"{property_name}_last_rendered", rendered)
+    getattr(widget, setter_name)(rendered)
+
+
 # ---------------------------------------------------------------------------
 # The strip
 # ---------------------------------------------------------------------------
@@ -133,9 +164,30 @@ class SettingsSearchBar(QWidget):
     ``SettingsWidgets`` model and shows or hides rows that already exist.
     Hiding rather than rebuilding is what keeps a half-typed value alive
     across a filter change, which a rebuild would silently discard.
+
+    :param screen: the module screen to filter. The bar owns no settings
+        state -- it reads that screen's `SettingsWidgets` model and shows or
+        hides rows that already exist, which is what keeps a half-typed value
+        alive across a filter change.
+    :param parent: parent widget.
     """
 
     def __init__(self, screen: QWidget, parent: Optional[QWidget] = None):
+        """Build the settings search strip above a module's form.
+
+        Fixed height, explicitly: the strip is two rows tall and the scroll area
+        under it wants everything else, so without a policy the two share the
+        pane by stretch factor and the search box lands 800 pixels high on the
+        first layout.
+
+        The key-to-section index is built once from the rendered form, so
+        filtering never has to guess which section a setting ended up in, and
+        which sections the user had open is remembered -- clearing the box puts
+        the form back rather than leaving it splayed.
+
+        :param screen: the module screen whose settings this filters.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(BAR_NAME)
         # Fixed height, explicitly. The strip is two rows tall and the scroll
@@ -168,27 +220,35 @@ class SettingsSearchBar(QWidget):
         self._input = QLineEdit(self)
         self._input.setObjectName(INPUT_NAME)
         self._input.setClearButtonEnabled(True)
-        self._input.setPlaceholderText("Search settings…")
-        self._input.setToolTip(
+        _localize(self._input, "setPlaceholderText",
+                  "_spacr_i18n_placeholder", "Search settings…")
+        _localize(
+            self._input, "setToolTip", "_spacr_i18n_tooltip",
             "Search every setting in this module by name, by label, or by "
             "what its description says it does.")
-        self._input.setAccessibleName("Search settings")
+        _localize(self._input, "setAccessibleName",
+                  "_spacr_i18n_accessible_name", "Search settings")
         self._input.textChanged.connect(self._on_query_changed)
         row.addWidget(self._input, 1)
 
         # A `Toggle`, not a QCheckBox: every boolean control in the shell is
         # a switch, and `tests/qt/test_widgets.py` bans the plain checkbox
         # outright so one panel cannot quietly reintroduce it.
-        self._modified_label = QLabel("Modified", self)
+        self._modified_label = QLabel(self)
+        _localize(self._modified_label, "setText", "_spacr_i18n_text",
+                  "Modified")
         self._modified_label.setObjectName(MODIFIED_NAME + "Label")
         row.addWidget(self._modified_label, 0)
 
         self._modified = Toggle(parent=self)
         self._modified.setObjectName(MODIFIED_NAME)
-        self._modified.setToolTip(
+        _localize(
+            self._modified, "setToolTip", "_spacr_i18n_tooltip",
             "Show only the settings that no longer hold this module's "
             "default value.")
-        self._modified.setAccessibleName("Show modified settings only")
+        _localize(self._modified, "setAccessibleName",
+                  "_spacr_i18n_accessible_name",
+                  "Show modified settings only")
         self._modified.toggled.connect(self._on_modified_toggled)
         row.addWidget(self._modified, 0)
 
@@ -287,6 +347,30 @@ class SettingsSearchBar(QWidget):
         total = len(self._index)
         wanted = set(self._index)
 
+        # THE OBJECT RULE OUTRANKS THE INDEX, and is subtracted BEFORE the
+        # level and the query rather than undone afterwards. This strip
+        # indexed every row on the panel, including rows belonging to
+        # objects the run does not have, so "All settings" filled Mask with
+        # nucleus and pathogen settings while every channel was None -- the
+        # maintainer's report, and what
+        # `test_the_object_rows_stay_off_the_form` guards.
+        #
+        # SUBTRACTED, NOT RE-HIDDEN. Showing them and hiding them again in
+        # the same pass leaves `visible_keys()` disagreeing with the form
+        # for as long as it takes the second write to land, and it is the
+        # strip's own index that answers that question. Removing them from
+        # `wanted` means the row is never shown, so there is one answer
+        # throughout.
+        #
+        # Asked of the model, because the strip has no idea which objects a
+        # run has and teaching it would put the same rule in two places.
+        hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
+        if callable(hidden_by_run):
+            try:
+                wanted -= set(hidden_by_run())
+            except Exception:                                # noqa: BLE001
+                pass
+
         query = self._input.text().strip()
         if query:
             try:
@@ -327,12 +411,24 @@ class SettingsSearchBar(QWidget):
 
     # -- wiring -------------------------------------------------------
     def _on_query_changed(self, _text: str) -> None:
+        """Re-apply the filter after the search text changed.
+
+        :param _text: the new text; re-read from the box, so it is not used.
+        """
         self.apply()
 
     def _on_modified_toggled(self, _on: bool) -> None:
+        """Re-apply the filter after the modified-only switch changed.
+
+        :param _on: the switch's new state; re-read, so it is not used.
+        """
         self.apply()
 
     def _on_disclosure_toggled(self, on: bool) -> None:
+        """Switch between essential and all settings, and remember the choice.
+
+        :param on: ``True`` for all settings, ``False`` for the essentials.
+        """
         self._level = ALL if on else ESSENTIALS
         remember_disclosure(self._app_key, self._level)
         self._refresh_disclosure_text()
@@ -340,16 +436,24 @@ class SettingsSearchBar(QWidget):
 
     # -- internals ----------------------------------------------------
     def _refresh_disclosure_text(self) -> None:
+        """Caption the switch for the level it is now on.
+
+        Re-applied on every level change, which is why the captions go
+        through :func:`_localize`: a raw English literal here would put the
+        button back into English the first time somebody switched between
+        Essentials and All, undoing an otherwise successful language pass.
+        """
         if self._level == ALL:
-            self._disclosure.setText("All settings")
-            self._disclosure.setToolTip(
-                "Showing every setting. Click for the essentials only.")
+            caption = "All settings"
+            hint = "Showing every setting. Click for the essentials only."
         else:
-            self._disclosure.setText("Essentials")
-            self._disclosure.setToolTip(
-                "Showing the settings this module cannot run without. "
-                "Click for all of them.")
-        self._disclosure.setAccessibleName(self._disclosure.text())
+            caption = "Essentials"
+            hint = ("Showing the settings this module cannot run without. "
+                    "Click for all of them.")
+        _localize(self._disclosure, "setText", "_spacr_i18n_text", caption)
+        _localize(self._disclosure, "setToolTip", "_spacr_i18n_tooltip", hint)
+        _localize(self._disclosure, "setAccessibleName",
+                  "_spacr_i18n_accessible_name", caption)
 
     def _build_index(self) -> None:
         """Map each setting key to the section and field widget showing it.
@@ -371,6 +475,18 @@ class SettingsSearchBar(QWidget):
                 if field is None:
                     continue
                 key = by_widget.get(id(field))
+                if key is None:
+                    # THE FIELD IN THE ROW IS NOT ALWAYS THE FIELD. A setting
+                    # that takes a Cellpose checkpoint sits in a little
+                    # holder beside its "Model zoo…" button, so the form's
+                    # row is the HOLDER and matching on it alone left
+                    # `cell_model_name` out of the index entirely -- typing
+                    # "model" on Mask found nothing and the row could not be
+                    # reached from the search at all.
+                    for child in field.findChildren(QWidget):
+                        key = by_widget.get(id(child))
+                        if key is not None:
+                            break
                 if key is not None:
                     self._index[key] = (section, field)
 
@@ -420,19 +536,36 @@ class SettingsSearchBar(QWidget):
 
     def _compose_count(self, shown: int, total: int,
                        essentials: int) -> str:
+        # COMPOSED FROM TRANSLATED PARTS. The catalog is keyed on the
+        # sentence with its numbers as placeholders; a line built out of
+        # f-strings first and looked up after matches nothing, and this
+        # line sits under every settings panel in the program.
+        """Build the line under the form saying how much of it is showing.
+
+        Composed from translated parts rather than assembled and then looked up:
+        the catalogue is keyed on the sentence with its numbers as placeholders,
+        so an f-string built first matches nothing -- and this line sits under
+        every settings panel in the program.
+
+        :param shown: settings currently visible.
+        :param total: settings this module has.
+        :param essentials: how many are marked essential.
+        :returns: the line, ending in a full stop.
+        """
         if shown == total:
             if self._level == ESSENTIALS and essentials:
-                return f"Showing all {total} settings."
-            return f"{total} settings."
-        parts = [f"Showing {shown} of {total} settings"]
+                return tr("Showing all {total} settings.", total=total)
+            return tr("{total} settings.", total=total)
+        parts = [tr("Showing {shown} of {total} settings",
+                    shown=shown, total=total)]
         if self._level == ESSENTIALS and essentials:
-            parts.append(
-                f"{total - essentials} more under All settings")
+            parts.append(tr("{n} more under All settings",
+                            n=total - essentials))
         if self._modified.isChecked():
-            parts.append("modified only")
+            parts.append(tr("modified only"))
         if shown == 0:
-            return ("No setting matches. Clear the search box, or switch to "
-                    "All settings.")
+            return tr("No setting matches. Clear the search box, or switch "
+                      "to All settings.")
         return " — ".join(parts) + "."
 
 
@@ -446,6 +579,12 @@ class SettingsSearchBar(QWidget):
 # outside the section can do by hand.
 
 def _form_of(section: QWidget) -> Optional[QFormLayout]:
+    """Find the form layout a settings section lays its rows out with.
+
+    :param section: the section.
+    :returns: the layout, found by attribute first and by search second, or
+        ``None`` when the section has none.
+    """
     form = getattr(section, "_form", None)
     if isinstance(form, QFormLayout):
         return form
@@ -453,6 +592,16 @@ def _form_of(section: QWidget) -> Optional[QFormLayout]:
 
 
 def _set_row_visible(section: QWidget, field: QWidget, visible: bool) -> None:
+    """Show or hide a settings row, label and all.
+
+    Qt before 6.4 has no ``setRowVisible``; there the field alone is hidden,
+    which leaves an orphaned label -- a far smaller problem than a settings
+    panel that will not draw.
+
+    :param section: the section holding the row.
+    :param field: the row's field widget.
+    :param visible: whether to show it.
+    """
     form = _form_of(section)
     if form is None:
         field.setVisible(visible)
@@ -467,6 +616,13 @@ def _set_row_visible(section: QWidget, field: QWidget, visible: bool) -> None:
 
 
 def _row_is_visible(section: QWidget, field: QWidget) -> bool:
+    """Report whether a settings row is showing.
+
+    :param section: the section holding the row.
+    :param field: the row's field widget.
+    :returns: the row's visibility, falling back to the field's own on a Qt
+        that cannot answer for the row.
+    """
     form = _form_of(section)
     if form is None:
         return field.isVisible()
@@ -510,7 +666,17 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         index = parent.indexOf(scroll)
         sizes = list(parent.sizes())
         bar = SettingsSearchBar(screen)
-        container = QWidget(parent)
+        # NO PARENT HERE. `insertWidget` below parents this container to the
+        # splitter, and handing it the same parent at construction parents
+        # it twice -- Shiboken then releases the wrapper twice when the
+        # screen's children are deleted, and the process dies inside
+        # QObjectPrivate::deleteChildren.
+        #
+        # It is a SEGFAULT, so it does not arrive as a failing assertion:
+        # the test body passes and the process dies afterwards, which xdist
+        # reports as a failed test with no message and which takes the rest
+        # of that shard with it.
+        container = QWidget()
         container.setObjectName(PANE_NAME)
         column = QVBoxLayout(container)
         column.setContentsMargins(0, 0, 0, 0)
@@ -535,6 +701,17 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         LOG.debug("could not install the settings search strip", exc_info=True)
         return None
     screen._settings_search = bar
+    # The strip captions itself in the user's language, but it is also an
+    # extension point — `spacr.qt.recipes` hangs a button on it — and it is
+    # built from `stack.currentChanged`, long after the window has run its
+    # one language pass over this screen. A pass over the finished strip is
+    # idempotent and means nothing added here can be left in English.
+    try:
+        from .i18n import retranslate_widget_tree
+        retranslate_widget_tree(bar)
+    except Exception:
+        LOG.debug("could not translate the settings search strip",
+                  exc_info=True)
     return bar
 
 
@@ -547,6 +724,13 @@ class _StackWatcher(QObject):
     """
 
     def __init__(self, window: QMainWindow):
+        """Watch a window's stack and install into each screen as it is shown.
+
+        :param window: the main window. Its stack is read at install time,
+            not here, so this works for screens created after the watcher --
+            and it is the QObject PARENT, so a currentChanged arriving during
+            teardown cannot reach a watcher holding a deleted stack.
+        """
         super().__init__(window)
         self._window = window
 
@@ -656,8 +840,12 @@ QToolButton#{DISCLOSURE_NAME}:checked {{
 """
 
 
-try:  # pragma: no cover - present in every real launch
+# AT IMPORT TIME, so the failure is not a missing background --
+# it is the module not importing, which takes down whatever
+# imports it. Driven in
+# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(BAR_NAME, _bar_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOG.debug("could not register the settings-search QSS", exc_info=True)

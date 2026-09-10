@@ -251,6 +251,7 @@ class RunLedger:
     """
 
     def __init__(self, name: str = 'run', logger: Optional[logging.Logger] = None):
+        """Initialize an empty, uniquely identified run ledger."""
         self.name = str(name)
         self.run_id = uuid.uuid4().hex[:12]
         self.started_utc = _utcnow()
@@ -304,6 +305,7 @@ class RunLedger:
         return not self._failures
 
     def __repr__(self) -> str:
+        """Return a compact run name, status, and item-count summary."""
         return (f'<RunLedger {self.name!r} status={self.status} '
                 f'attempted={self.n_attempted} failed={self.n_failed}>')
 
@@ -701,18 +703,20 @@ def read_run_status(artifact: Union[str, os.PathLike],
     if target.suffix.lower() in DB_SUFFIXES:
         if not target.is_file():
             return []
-        conn = None
         try:
             from .database_concurrency import connect
 
             conn = connect(target, readonly=True, timeout=timeout)
-            if not _has_run_status_table(conn):
-                # Never stamped. The artifact predates stamping, or was
-                # written by a code path that does not stamp yet.
-                return []
-            rows = conn.execute(
-                f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
-                'ORDER BY rowid').fetchall()
+            try:
+                if not _has_run_status_table(conn):
+                    # Never stamped. The artifact predates stamping, or was
+                    # written by a code path that does not stamp yet.
+                    return []
+                rows = conn.execute(
+                    f'SELECT {", ".join(_STATUS_COLUMNS)} FROM {RUN_STATUS_TABLE} '
+                    'ORDER BY rowid').fetchall()
+            finally:
+                conn.close()
         except sqlite3.Error as exc:
             raise RunStatusUnreadable(
                 f'{target} exists but its run status cannot be read: {exc}. '
@@ -720,9 +724,6 @@ def read_run_status(artifact: Union[str, os.PathLike],
                 f'or one truncated by a crash, fails here — so this is "the '
                 f'run may not have finished", not "the run finished". Wait '
                 f'for the writer to exit, or check the file.') from exc
-        finally:
-            if conn is not None:
-                conn.close()
         records = []
         for row in rows:
             record = dict(zip(_STATUS_COLUMNS, row))
@@ -779,12 +780,10 @@ def assert_run_complete(artifact: Union[str, os.PathLike],
                         timeout: float = RUN_STATUS_READ_TIMEOUT) -> None:
     """Raise :class:`DataIntegrityError` if ``artifact`` is stamped partial.
 
-    The one-liner for downstream code that must not silently analyse a
-    subset. An artifact whose status cannot be read raises
-    :class:`RunStatusUnreadable`, which is a
-    :class:`DataIntegrityError` too — so ``except DataIntegrityError``
-    catches both "this run failed items" and "I cannot tell whether it
-    did", which are the two cases a caller must not proceed past.
+    This guard prevents downstream analysis of incomplete output. An
+    unreadable status raises :class:`RunStatusUnreadable`, a subclass of
+    :class:`DataIntegrityError`, so callers may handle failed runs and
+    unverifiable run status with one exception type.
 
     :param artifact: path of a spaCR output.
     :param timeout: seconds to wait for a locked database.

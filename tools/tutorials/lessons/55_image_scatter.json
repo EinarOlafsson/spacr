@@ -1,0 +1,142 @@
+{
+  "id": "55_image_scatter",
+  "number": 55,
+  "slug": "image_scatter",
+  "series": 5,
+  "app_key": "image_scatter",
+  "host_app_key": "umap",
+  "section": "Explore",
+  "title": "Image Scatter: real measurements and the crop behind each point",
+  "description": "Explore the Image Scatter submodule inside Image UMAP with real downloaded cell measurements, checked hover previews and an exact one-cell handoff to Annotate.",
+  "objectives": [
+    "Find Image Scatter inside Image UMAP and load the correct cell table.",
+    "Inspect raw measurement pairs and understand missing or constant coordinates.",
+    "Connect a plotted cell to its real crop without changing labels or source data."
+  ],
+  "prerequisite": "Reuse the downloadable Annotate example, including its measurements database, cell crops and crop-format markers. This lesson uses a private byte-identical copy of 2,341 cells and all 2,341 source PNGs. The independent SQLite checks cover every source value, full-field cell identity and crop path; displayed coordinates and RGB thumbnail pixels are checked. These are cell-only crop mappings: nucleus/pathogen mappings are not validated. Inspecting an unusual point is not evidence of phenotype, infection, treatment or segmentation accuracy. No UMAP fit, training, GPU computation, file export or source label edit is performed. Image Scatter has no dedicated downloader, image-column picker, colour/grouping controls, axis transform, export control or AI console. Its Plot button loads the selected table; axis choices redraw it. The loader caps tables at 200,000 rows, which is not random sampling or proof that larger tables lose no information. Shared filtering is not established by this lesson. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame and ScatterCanvas.point_position.",
+  "scenes": [
+    {
+      "visual": "01_image_umap_host",
+      "narration": "Open Image UMAP from Home, then choose Image Scatter. This nested view plots two existing measurements; it does not fit a UMAP embedding. We reuse the real downloadable Annotate example, with its measurements database and cell crops kept together. The Annotate tutorial shows where to obtain it.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "03_choose_real_measurements",
+      "narration": "Choose Browse and open the copied measurements database. Keep the data folder and crop-format markers when moving a project, because a table alone does not contain the images. The displayed example uses private copies; the original measurements and crop pixels remain unchanged.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_choose_cell_not_children",
+      "narration": "Choose cell in the table selector, then Plot. Plot reads this table; it is not a segmentation or training job. Our example has two thousand three hundred forty-one cells with matching cell crops. Selecting a different table requires Plot again; a changed selector alone does not load its rows.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_real_measurement_scatter",
+      "narration": "Set x to cell_area and y to cell_channel_1_mean_intensity. Axis changes redraw the loaded rows immediately. These are raw measurements, not transformed embedding coordinates. The dots describe individual cells, not independent experimental replicates, and a pattern in this picture is not a statistical test.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "62_feature_dictionary"
+      ],
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "06_genuine_large_cell_preview",
+      "narration": "Rest the pointer on the far-right cell. Its crop appears beside the scatter, with the full plate, row, column, field and cell identity. This thumbnail is a saved crop, not the full microscope field or a new segmentation. Looking unusual does not by itself establish a phenotype.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "08_cached_same_cell",
+      "narration": "Move away from the canvas: the temporary preview clears. Return to the same point and the cached crop appears again without another decode. Hover is temporary image inspection, not an annotation or a persistent selection. No source labels are changed.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "09_swapped_raw_axes",
+      "narration": "Swap the two measurements between x and y. The same cell keeps its identity and crop even though its screen position changes. Choose meaningful axes rather than accepting the first numeric columns automatically; numeric identifiers and acquisition metadata are also offered in these selectors.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "11_missing_texture_not_plotted",
+      "narration": "Restore cell_area on x and choose cell_channel_0_homogeneity_distance_32 on y. Seven cells lack this measurement, so only two thousand three hundred thirty-four coordinate pairs can be drawn. The loaded row count still says two thousand three hundred forty-one. Missing values are not zeros, and hidden coordinates do not renumber object identities.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "12_constant_axis_is_centred",
+      "narration": "Choose measurement_ndim on y. Every row has the value two, so the points sit on a horizontal line. This is a constant metadata column, not biological agreement. Restore cell_channel_1_mean_intensity before inspecting another cell.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "16_real_annotate_grid",
+      "narration": "To inspect a clicked crop in Annotate, first open Annotate and load this same copied project. Return through Home, Image UMAP and its existing Image Scatter tab. The annotation page must know the correct project; a plot and an unrelated open dataset are not a valid handoff.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "17c_native_point_click_target",
+      "narration": "Click the point itself, then switch to Annotate. Hover alone only previews the image. The click sends the exact cell key, together with the two axis names, to the annotation view. It does not automatically switch pages, assign a label or prove that the object is an outlier.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "18_verified_clicked_cell_in_annotate",
+      "narration": "Annotate now shows exactly the clicked cell, with the same saved crop. Inspect its image before deciding whether to annotate it; this demonstration leaves every label unchanged. Image Scatter has no dedicated plot or selection export. Use Database Browser for table exports, or the PCA tutorial for component analysis and its documented CSV outputs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "34_database",
+        "60_pca",
+        "09_annotate"
+      ],
+      "focus": [
+        410,
+        330,
+        550,
+        410
+      ]
+    }
+  ]
+}

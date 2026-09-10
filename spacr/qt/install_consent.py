@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QLabel,
+    QSizePolicy,
     QVBoxLayout,
 )
 
@@ -22,22 +23,55 @@ _KEY_APPLIED = "installer/consent_applied"
 
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_ORG, _APP)
 
 
 def _as_bool(value: Any) -> bool:
+    """Read a stored value as a boolean.
+
+    ``QSettings`` returns strings on some platforms and real booleans on
+    others, so both are accepted -- anything unrecognised is ``False``,
+    which is the safe answer for a consent flag.
+
+    :param value: the stored value.
+    :returns: whether it means yes.
+    """
     if isinstance(value, bool):
         return value
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
 
 class InstallerConsentDialog(QDialog):
-    """One first-launch page whose three optional choices start off."""
+    """One first-launch page whose three optional choices start off.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent=None):
+        """Build the privacy and optional-account dialog.
+
+        Sized in scaled pixels rather than raw ones: a size set from Python does
+        not grow with the stylesheet's font size, and at the 200% scale the
+        prose inside wrapped to more height than the window had.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("spaCR privacy and optional account setup"))
-        self.setMinimumWidth(640)
+        from .preferences import scaled_px
+
+        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
+        # Python does not grow when the stylesheet's font size does, so at
+        # the 200%% font scale the prose inside this window wrapped to more
+        # height than the window had and the last line was cut off. The
+        # size-policy fix on the label was necessary and not sufficient:
+        # a policy stops a parent handing a label less than it asks for, but
+        # it cannot make a window grow that has no room to give.
+        self.setMinimumWidth(scaled_px(640))
         layout = QVBoxLayout(self)
         explanation = QLabel(tr(
             "Crash reports go to the PUBLIC spaCR GitHub repository. They "
@@ -49,6 +83,14 @@ class InstallerConsentDialog(QDialog):
             "optional and revocable in Preferences."
         ))
         explanation.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        explanation.setSizePolicy(QSizePolicy.Preferred,
+                                     QSizePolicy.Minimum)
         layout.addWidget(explanation)
 
         self.share_diagnostics = Toggle(tr(
@@ -104,6 +146,10 @@ def apply_choices(choices: Mapping[str, Any]) -> bool:
 
 
 def _open_account_setup(parent) -> None:
+    """Open the AI providers dialog, for the optional account step.
+
+    :param parent: the dialog to parent it to.
+    """
     from .widgets.ai_chat_panel import _ProvidersDialog
 
     _ProvidersDialog(parent).exec()

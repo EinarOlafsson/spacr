@@ -97,16 +97,13 @@ import os
 import re
 import sqlite3
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
-from spacr.database_concurrency import (
-    connect as connect_database,
-    transaction,
-)
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 import pandas as pd
-
 from PySide6.QtCore import (
     QAbstractTableModel,
     QItemSelection,
@@ -134,15 +131,23 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from ..widgets.toggle import Toggle
 
-from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
-                          with_object_type)
+from spacr.database_concurrency import connect as connect_database
+from spacr.database_concurrency import transaction
+
+from ...selection import (
+    OBJECT_KEY_COLUMNS,
+    DataFilter,
+    Selection,
+    with_object_type,
+)
 from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.toggle import Toggle
+from .app_screen import ModuleHeader
 
 __all__ = [
     "DB_FILENAME",
@@ -234,6 +239,9 @@ def quote_ident(name: str) -> str:
     Only ever called with a name that has already been matched against
     the live schema; the quoting is belt-and-braces for identifiers that
     are legal but awkward (``cell_channel_1 (raw)``).
+
+    :param name: schema-validated table or column identifier.
+    :returns: identifier surrounded by SQL double quotes.
     """
     return '"' + str(name).replace('"', '""') + '"'
 
@@ -329,6 +337,11 @@ def validate_raw_predicate(text: str) -> str:
     AND well LIKE 'A%'``). We refuse statement separators, comments and
     DDL/DML keywords so it stays a *predicate*; the read-only connection
     plus ``PRAGMA query_only`` guarantee the rest.
+
+    :param text: raw WHERE-clause fragment entered by the user.
+    :returns: stripped predicate after the safety checks.
+    :raises ValueError: when the fragment is empty or contains statement
+        syntax, comments, or a forbidden SQL keyword.
     """
     t = "" if text is None else str(text).strip()
     if not t:
@@ -368,6 +381,10 @@ def column_affinity(decl_type: Optional[str]) -> str:
     REAL, otherwise NUMERIC. Knowing the affinity is what lets
     :func:`coerce_for_column` refuse a value SQLite would otherwise
     store with the wrong type.
+
+    :param decl_type: declared SQLite column type, or ``None``/an empty string
+        when untyped.
+    :returns: ``INTEGER``, ``TEXT``, ``BLOB``, ``REAL``, or ``NUMERIC``.
     """
     t = str(decl_type or "").upper()
     if "INT" in t:
@@ -399,6 +416,9 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
       else ``str`` (which is exactly what SQLite itself would store).
     * anything declared BLOB → refused; binary is not editable as text.
 
+    :param text: editor value to convert before binding it to SQLite.
+    :param decl_type: declared type of the destination column.
+    :param column: destination column name used in actionable error messages.
     :raises ValueError: when ``text`` cannot be represented in the
         column's type.
     """
@@ -444,6 +464,10 @@ def build_update(table: str, column: str,
     the exact SQL before it runs, and so tests can assert on it without
     a database.
 
+    :param table: schema-validated table to update.
+    :param column: schema-validated column whose value will be replaced.
+    :param key_columns: rowid alias or primary-key columns identifying one row.
+    :returns: parameterized single-cell UPDATE statement.
     :raises EditRefused: when there is no row address at all. An UPDATE
         without a unique key would match on values and could rewrite
         thousands of rows.
@@ -474,6 +498,10 @@ class ReadOnlyDb:
     """
 
     def __init__(self, path: str):
+        """Open a database for reading only.
+
+        :param path: the database file.
+        """
         self.path = resolve_db_path(path)
         self.uri = _read_only_uri(self.path)
         #: SQL of the most recent statement — handy in tests + bug reports.
@@ -494,6 +522,14 @@ class ReadOnlyDb:
 
     @contextlib.contextmanager
     def _con(self):
+        """The connection for THIS thread, opened on first use.
+
+        PER-THREAD BECAUSE SQLITE CONNECTIONS ARE NOT SHAREABLE: the browser
+        reads on workers, and one connection handed between them is a crash
+        rather than a slow query.
+
+        :returns: the connection.
+        """
         con = self.connect()
         try:
             yield con
@@ -501,13 +537,22 @@ class ReadOnlyDb:
             con.close()
 
     def _execute(self, con: sqlite3.Connection, sql: str, params: Sequence = ()):
+        """Run one statement on this thread's connection.
+
+        :param sql: the statement.
+        :param params: its parameters.
+        :returns: the cursor.
+        """
         self.last_sql = sql
         return con.execute(sql, tuple(params))
 
     # -- schema ------------------------------------------------------------
 
     def tables(self, refresh: bool = False) -> List[str]:
-        """Return the user tables + views, alphabetically."""
+        """Return the user tables and views alphabetically.
+
+        :param refresh: bypass the cached schema inventory when true.
+        """
         if self._tables is None or refresh:
             with self._con() as con:
                 rows = self._execute(con,
@@ -522,13 +567,20 @@ class ReadOnlyDb:
 
         This is the gate that keeps identifiers out of the "user input"
         category: a name that isn't in ``sqlite_master`` never reaches SQL.
+
+        :param table: candidate user-table or view name.
+        :returns: ``table`` unchanged after validation.
+        :raises ValueError: when the live schema has no such table or view.
         """
         if table not in self.tables():
             raise ValueError(f"No table named {table!r} in {os.path.basename(self.path)}.")
         return table
 
     def table_info(self, table: str) -> List[tuple]:
-        """Raw ``PRAGMA table_info`` rows for ``table``."""
+        """Return raw ``PRAGMA table_info`` rows for ``table``.
+
+        :param table: validated user-table or view name.
+        """
         self.check_table(table)
         with self._con() as con:
             # PRAGMA takes no bound parameters; `table` is schema-validated
@@ -537,7 +589,10 @@ class ReadOnlyDb:
                 con, f"PRAGMA table_info({quote_ident(table)})").fetchall()
 
     def columns(self, table: str) -> List[str]:
-        """Return the column names of ``table`` in declaration order."""
+        """Return the column names of ``table`` in declaration order.
+
+        :param table: validated user-table or view name.
+        """
         return [r[1] for r in self.table_info(table)]
 
     def column_types(self, table: str) -> Dict[str, str]:
@@ -545,6 +600,8 @@ class ReadOnlyDb:
 
         Cached: the edit path asks for this on every keystroke-committed
         cell, and the schema cannot change under a read-only connection.
+
+        :param table: validated user-table or view name.
         """
         if table not in self._types:
             self._types[table] = {r[1]: str(r[2] or "")
@@ -554,7 +611,13 @@ class ReadOnlyDb:
     def check_columns(self, table: str, columns: Optional[Sequence[str]]) -> List[str]:
         """Return the requested columns, validated against the schema.
 
-        ``None`` means "all of them".
+        ``None`` or an empty sequence means "all of them".
+
+        :param table: validated user-table or view name.
+        :param columns: requested names, or ``None``/an empty sequence for the
+            complete schema.
+        :returns: validated names in requested or declaration order.
+        :raises ValueError: when any requested name is absent.
         """
         real = self.columns(table)
         if columns is None:
@@ -577,10 +640,28 @@ class ReadOnlyDb:
 
         Two things hang off this: paging (keyset needs an ordered key)
         and editing (an UPDATE without a unique address is refused).
+
+        :param table: validated table or view whose identity is inspected.
         """
         if table in self._row_keys:
             return self._row_keys[table]
         key: Tuple[str, List[str]]
+        # A view has no intrinsic row address. Probing ``SELECT _rowid_`` is
+        # not portable discovery: newer SQLite releases may accept that
+        # expression on a view and return NULL, which made CI arm editing for
+        # a result set that no UPDATE can address uniquely. Determine the
+        # schema object kind first; only a real table gets the rowid probe.
+        self.check_table(table)
+        with self._con() as con:
+            object_row = self._execute(
+                con,
+                "SELECT type FROM sqlite_master WHERE name = ? LIMIT 1",
+                (table,),
+            ).fetchone()
+        if object_row is None or str(object_row[0]).lower() != "table":
+            key = ("", [])
+            self._row_keys[table] = key
+            return key
         # SQLite identifiers are case-insensitive, and a table that DECLARES a
         # column named `rowid` makes the bare name resolve to that column
         # rather than to the implicit row id. png_list declares `rowID`, so
@@ -608,7 +689,13 @@ class ReadOnlyDb:
 
     def select_sql(self, table: str, columns: Sequence[str],
                    where: Optional[str] = None) -> str:
-        """Build the unbounded SELECT used by the CSV export."""
+        """Build the unbounded SELECT used by the CSV export.
+
+        :param table: schema-validated source table or view.
+        :param columns: schema-validated columns to export.
+        :param where: optional validated predicate without the ``WHERE`` word.
+        :returns: SELECT statement containing no user-formatted values.
+        """
         col_sql = ", ".join(quote_ident(c) for c in columns)
         sql = f"SELECT {col_sql} FROM {quote_ident(table)}"
         if where:
@@ -650,6 +737,16 @@ class ReadOnlyDb:
           progressively slower, which is a real cost and the reason it is
           not the default; it is bounded here because a sort is an explicit
           act on a table the user is looking at.
+
+        :param table: schema-validated source table or view.
+        :param columns: visible data columns to select after the key columns.
+        :param key_columns: stable row-address columns prepended to each row.
+        :param where: optional validated predicate without ``WHERE``.
+        :param after: whether to add the next-page key comparison.
+        :param use_offset: use OFFSET paging when no single key is available.
+        :param order_by: optional ``(column, descending)`` whole-table order.
+        :returns: parameterized SELECT containing a bounded ``LIMIT`` and,
+            when required, ``OFFSET``.
         """
         col_sql = ", ".join(quote_ident(c)
                             for c in list(key_columns) + list(columns))
@@ -688,8 +785,18 @@ class ReadOnlyDb:
         ``rows[i]`` uniquely (or is ``None`` when the table has no key,
         in which case the caller must refuse to edit it).
 
+        :param table: validated user-table name to page through. Its schema
+            determines both the returned columns and each row's stable key.
+        :param columns: requested schema columns, or ``None``/an empty
+            sequence for every column.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by predicate placeholders.
+        :param limit: maximum number of rows requested for this chunk.
+        :param after: stable key tuple of the last row already loaded, or
+            ``None`` for the first chunk.
         :param loaded: only used by the ``OFFSET`` fallback for tables
             with no single-column key.
+        :param order_by: optional ``(column, descending)`` whole-table order.
         """
         self.check_table(table)
         cols = self.check_columns(table, columns)
@@ -728,6 +835,8 @@ class ReadOnlyDb:
         gaps — so every caller must label it as one.
 
         ``None`` when the table has no rowid, or is empty.
+
+        :param table: validated table or view to estimate.
         """
         self.check_table(table)
         key_kind, key_cols = self.row_key(table)
@@ -750,6 +859,9 @@ class ReadOnlyDb:
         touches a single row — so a typo costs a parse, not a full scan
         of a 400 000-row measurement table.
 
+        :param table: schema-validated table or view used for name resolution.
+        :param where: predicate fragment for SQLite to parse.
+        :param params: bound values consumed by the predicate placeholders.
         :raises sqlite3.Error: with SQLite's own message (``no such
             column: cell_are``, ``near ">": syntax error``, …).
         """
@@ -764,6 +876,10 @@ class ReadOnlyDb:
 
         This one *is* a full scan — never call it on the path that
         paints the first chunk.
+
+        :param table: schema-validated table or view to count.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by the predicate placeholders.
         """
         self.check_table(table)
         sql = f"SELECT COUNT(*) FROM {quote_ident(table)}"
@@ -783,6 +899,12 @@ class ReadOnlyDb:
         out, so exporting a 400 k-row table costs a constant amount of
         memory.
 
+        :param out_path: destination CSV path; missing parent folders are made.
+        :param table: schema-validated table or view to export.
+        :param columns: selected columns, or ``None`` for every column.
+        :param where: optional validated predicate without ``WHERE``.
+        :param params: bound values consumed by predicate placeholders.
+        :param chunk: cursor batch size used while streaming rows.
         :returns: number of data rows written (header excluded).
         """
         self.check_table(table)
@@ -815,13 +937,17 @@ class WritableDb:
 
     Deliberately tiny: it knows how to write **one cell of one row** and
     nothing else. There is no ``execute()``, no DDL, no multi-row
-    update — the class simply has no method that could touch more than
+    update — the class has no method that could touch more than
     a single row.
 
     :param path: database file, or a run folder — see :func:`resolve_db_path`.
     """
 
     def __init__(self, path: str):
+        """Open a database for reading and writing.
+
+        :param path: the database file.
+        """
         self.path = resolve_db_path(path)
         #: SQL of the last statement that ran (or was about to).
         self.last_sql: str = ""
@@ -851,6 +977,12 @@ class WritableDb:
         4. the UPDATE itself must report ``rowcount == 1``, or the
            transaction is rolled back.
 
+        :param table: real schema table receiving the change.
+        :param column: existing table column whose value will be replaced.
+        :param value: already-coerced value to bind to the UPDATE.
+        :param key_columns: rowid alias or primary-key columns addressing it.
+        :param key_values: bound address values paired with ``key_columns``.
+        :returns: exact parameterized SQL statement that ran.
         :raises EditRefused: when any guard fires — nothing was written.
         :raises sqlite3.Error: when SQLite refuses the write itself
             (constraint violation, read-only file, locked database).
@@ -957,9 +1089,12 @@ class PreviewModel(QAbstractTableModel):
     changes which of them are mapped into the view. Typing in the search
     box therefore never re-queries the database — which is what makes it
     usable on a table with 500 feature columns.
+
+    :param parent: optional Qt owner responsible for the model's lifetime.
     """
 
     def __init__(self, parent=None):
+        """Build an empty preview."""
         super().__init__(parent)
         self._columns: List[str] = []
         self._rows: List[tuple] = []
@@ -977,7 +1112,13 @@ class PreviewModel(QAbstractTableModel):
     def set_page(self, columns: Sequence[str], rows: Sequence[Sequence[Any]],
                  row_offset: int = 0,
                  keys: Optional[Sequence[Optional[tuple]]] = None) -> None:
-        """Replace the model contents, keeping the current column search."""
+        """Replace the model contents, keeping the current column search.
+
+        :param columns: schema-order column names represented by every row.
+        :param rows: complete values for the newly loaded page.
+        :param row_offset: zero-based database offset used for row headings.
+        :param keys: stable row addresses, or ``None`` for uneditable rows.
+        """
         self.beginResetModel()
         self._columns = list(columns)
         self._rows = [tuple(r) for r in rows]
@@ -989,7 +1130,12 @@ class PreviewModel(QAbstractTableModel):
 
     def append_rows(self, rows: Sequence[Sequence[Any]],
                     keys: Optional[Sequence[Optional[tuple]]] = None) -> int:
-        """Add a fetched chunk to the end. Returns how many rows landed."""
+        """Add a fetched chunk to the end and return how many rows landed.
+
+        :param rows: complete schema-order rows to append.
+        :param keys: stable row addresses paired with ``rows``; ``None``
+            supplies an uneditable ``None`` key for every appended row.
+        """
         new = [tuple(r) for r in rows]
         if not new:
             return 0
@@ -1002,9 +1148,14 @@ class PreviewModel(QAbstractTableModel):
         return len(new)
 
     def clear(self) -> None:
+        """Drop every row and column."""
         self.set_page([], [], 0)
 
     def all_columns(self) -> List[str]:
+        """Every column the table has, filtered or not.
+
+        :returns: the column names.
+        """
         return list(self._columns)
 
     def rows(self) -> List[tuple]:
@@ -1012,19 +1163,32 @@ class PreviewModel(QAbstractTableModel):
         return list(self._rows)
 
     def row_key(self, row: int) -> Optional[tuple]:
-        """The key tuple addressing ``row``, or ``None`` when it has none."""
+        """Return the key tuple addressing ``row``, or ``None``.
+
+        :param row: zero-based model row index.
+        """
         if 0 <= row < len(self._keys):
             return self._keys[row]
         return None
 
     def value(self, row: int, column: str) -> Any:
-        """The stored (unformatted) value at ``row`` / ``column``."""
+        """Return the stored, unformatted value at ``row`` / ``column``.
+
+        :param row: zero-based model row index.
+        :param column: schema column name.
+        """
         if not (0 <= row < len(self._rows)) or column not in self._columns:
             return None
         return self._rows[row][self._columns.index(column)]
 
     def set_value(self, row: int, column: str, value: Any) -> bool:
-        """Write a value back into the in-memory page after a real UPDATE."""
+        """Write a value into the in-memory page after a real UPDATE.
+
+        :param row: zero-based model row index.
+        :param column: schema column whose displayed value changed.
+        :param value: already-coerced value written to the database.
+        :returns: whether the addressed cell exists and was updated.
+        """
         if not (0 <= row < len(self._rows)) or column not in self._columns:
             return False
         col = self._columns.index(column)
@@ -1037,15 +1201,25 @@ class PreviewModel(QAbstractTableModel):
         return True
 
     def visible_columns(self) -> List[str]:
+        """The columns the filter is currently letting through.
+
+        :returns: the visible column names.
+        """
         return [self._columns[i] for i in self._visible]
 
     def column_filter(self) -> str:
+        """The text currently filtering the columns.
+
+        :returns: the filter text.
+        """
         return self._filter
 
     def set_column_filter(self, text: str) -> None:
         """Show only columns whose name contains ``text`` (case-insensitive).
 
         An empty string restores every column.
+
+        :param text: case-insensitive substring required in visible names.
         """
         self._filter = "" if text is None else str(text)
         self.beginResetModel()
@@ -1053,6 +1227,7 @@ class PreviewModel(QAbstractTableModel):
         self.endResetModel()
 
     def _recompute_visible(self) -> None:
+        """Re-apply the column filter and tell the view what moved."""
         needle = self._filter.strip().lower()
         if not needle:
             self._visible = list(range(len(self._columns)))
@@ -1063,17 +1238,31 @@ class PreviewModel(QAbstractTableModel):
     # -- incremental fetching -----------------------------------------------
 
     def set_fetch_hook(self, hook: Optional[Callable[[], Any]]) -> None:
-        """Set what :meth:`fetchMore` calls to ask for the next chunk."""
+        """Set what :meth:`fetchMore` calls to ask for the next chunk.
+
+        :param hook: zero-argument fetch request, or ``None`` to disconnect it.
+        """
         self._fetch_hook = hook
 
     def set_more(self, more: bool) -> None:
-        """Say whether another chunk can be fetched right now."""
+        """Say whether another chunk can be fetched right now.
+
+        :param more: true only while an unfetched chunk remains available.
+        """
         self._more = bool(more)
 
-    def canFetchMore(self, parent=QModelIndex()) -> bool:  # noqa: N802
+    def canFetchMore(self, parent=QModelIndex()) -> bool:  # noqa: N802, B008
+        """Return whether the root model can request another chunk.
+
+        :param parent: Qt parent index; valid child indexes cannot fetch.
+        """
         return (not parent.isValid()) and self._more
 
-    def fetchMore(self, parent=QModelIndex()) -> None:  # noqa: N802
+    def fetchMore(self, parent=QModelIndex()) -> None:  # noqa: N802, B008
+        """Request the next chunk through the configured fetch hook.
+
+        :param parent: Qt parent index; valid child indexes are ignored.
+        """
         if parent.isValid() or not self._more or self._fetch_hook is None:
             return
         self._fetch_hook()
@@ -1082,11 +1271,17 @@ class PreviewModel(QAbstractTableModel):
 
     def set_commit_hook(self,
                         hook: Optional[Callable[[int, str, Any], bool]]) -> None:
-        """Set what :meth:`setData` calls to actually write a cell."""
+        """Set what :meth:`setData` calls to actually write a cell.
+
+        :param hook: ``(row, column, value)`` writer, or ``None`` to disable it.
+        """
         self._commit_hook = hook
 
     def set_editable(self, editable: bool) -> None:
-        """Turn cell editing on or off (and tell the view to repaint flags)."""
+        """Turn cell editing on or off and repaint the item flags.
+
+        :param editable: whether valid cells advertise Qt's editable flag.
+        """
         editable = bool(editable)
         if editable == self._editable:
             return
@@ -1095,23 +1290,48 @@ class PreviewModel(QAbstractTableModel):
         self.endResetModel()
 
     def is_editable(self) -> bool:
+        """Whether this preview allows edits.
+
+        OFF UNLESS CHOSEN. The browser reads a project's real measurements,
+        and an accidental edit there is a silent change to data a run already
+        produced.
+
+        :returns: True when editing is enabled.
+        """
         return self._editable
 
     # -- QAbstractTableModel ------------------------------------------------
 
-    def rowCount(self, parent=QModelIndex()) -> int:  # noqa: N802
+    def rowCount(self, parent=QModelIndex()) -> int:  # noqa: N802, B008
+        """Return loaded rows for the root model and zero for children.
+
+        :param parent: Qt parent index whose child-row count is requested.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
-    def columnCount(self, parent=QModelIndex()) -> int:  # noqa: N802
+    def columnCount(self, parent=QModelIndex()) -> int:  # noqa: N802, B008
+        """Return visible columns for the root model and zero for children.
+
+        :param parent: Qt parent index whose child-column count is requested.
+        """
         return 0 if parent.isValid() else len(self._visible)
 
     def flags(self, index):
+        """Return Qt item flags for ``index``, including armed editability.
+
+        :param index: model index whose interaction flags are requested.
+        """
         base = super().flags(index)
         if index.isValid() and self._editable:
             base |= Qt.ItemIsEditable
         return base
 
     def data(self, index, role=Qt.DisplayRole):
+        """Return the display, tooltip, or exact editor value for a cell.
+
+        :param index: model index identifying the requested cell.
+        :param role: Qt data role; unsupported roles return ``None``.
+        """
         if not index.isValid() or role not in (Qt.DisplayRole, Qt.ToolTipRole,
                                                Qt.EditRole):
             return None
@@ -1133,6 +1353,13 @@ class PreviewModel(QAbstractTableModel):
         return str(value)
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:  # noqa: N802
+        """Commit an editor value through the guarded screen callback.
+
+        :param index: valid editable model index.
+        :param value: raw editor value passed to the commit hook.
+        :param role: Qt role, which must be :attr:`Qt.EditRole`.
+        :returns: whether the commit hook accepted and wrote the change.
+        """
         if (role != Qt.EditRole or not index.isValid() or not self._editable
                 or self._commit_hook is None):
             return False
@@ -1143,6 +1370,12 @@ class PreviewModel(QAbstractTableModel):
         return bool(self._commit_hook(index.row(), column, value))
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):  # noqa: N802
+        """Return a column name or one-based absolute row number.
+
+        :param section: zero-based visible column or row-header section.
+        :param orientation: horizontal for names, vertical for row numbers.
+        :param role: Qt data role; only :attr:`Qt.DisplayRole` is served.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -1158,6 +1391,10 @@ class PreviewModel(QAbstractTableModel):
         loaded, so this never sorts a partial result and calls it the
         table's order. Keys travel with their rows, so an edit after a
         sort still addresses the row it looks like it addresses.
+
+        :param column: zero-based visible column to sort by.
+        :param order: Qt sort order, defaulting to
+            :attr:`Qt.AscendingOrder`.
         """
         if not (0 <= column < len(self._visible)) or not self._rows:
             return
@@ -1189,6 +1426,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     shared filter is a lens over the page in memory, and the row-count label
     keeps saying how much of the table that page is.
 
+    :param parent: optional Qt owner responsible for the screen's lifetime.
     :param threaded: run queries on a worker thread (the default). Tests
         pass ``False`` to get deterministic, synchronous behaviour.
     :ivar last_error: text of the most recent failure, ``""`` when the
@@ -1221,7 +1459,18 @@ class DbBrowserScreen(LinkedView, QWidget):
     _thread_retired = Signal(int)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the browser: the table list, the preview and the controls.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
+        # ITS OWN REGISTRY KEY. `install_folds_on` dispatches on this, so
+        # without it the folds declared at the foot of this module could
+        # never be handed to the screen that declares them. Passing
+        # `app_key` to `ModuleHeader` is not the same thing -- that tells
+        # the HEADER which module it titles; this tells the SCREEN what it
+        # is.
+        self.app_key = "db_browser"
         self._threaded = bool(threaded)
         self._db: Optional[ReadOnlyDb] = None
         self._table: str = ""
@@ -1240,6 +1489,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         #: The sort happens in SQL over the WHOLE table, so it is correct
         #: however little of the table the view has loaded.
         self._sort: Optional[Tuple[str, bool]] = None
+        #: A column a seed asked to show that no chunk has arrived for yet.
+        #: The first chunk is what defines the column set, so a seed handled
+        #: before it lands has nothing to scroll to; it is consumed once the
+        #: columns exist. Synchronous loads never set it.
+        self._seed_column: Optional[str] = None
         self._loaded: int = 0
         self._last_key: Optional[tuple] = None
         self._exhausted: bool = False
@@ -1310,18 +1564,35 @@ class DbBrowserScreen(LinkedView, QWidget):
         # After the UI: both hooks paint into the view, and a filter can
         # already be set by the time this screen opens.
         self.link_selection("db_browser")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the table list, the preview grid and the action row."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel("Database Browser")
-        title.setObjectName("DisplayHeading")
-        outer.addWidget(title)
+        # A ModuleHeader RATHER THAN A BARE LABEL. It draws the same
+        # `DisplayHeading` this used to build by hand, and it is what
+        # every other module page wears -- but the reason for the change
+        # is `add_trailing`: the fold strip declared at the foot of this
+        # module is hung on a masthead, and a plain QLabel is not one, so
+        # Lineage and Tabulate had nowhere to appear.
+        header = ModuleHeader(
+            "Database Browser",
+            description="Browse, filter and export tables from "
+                        "measurements.db",
+            app_key="db_browser",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         subtitle = QLabel(
             "Read-only by default. spaCR opens the file with mode=ro and "
@@ -1405,6 +1676,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._model.set_fetch_hook(self.fetch_more)
         self._model.set_commit_hook(self.edit_cell)
         self._view = QTableView(right)
+        # Named so the sorting sweep can tell this one view apart: it is the
+        # only table in the application that must NOT take Qt's model sort,
+        # because it sorts in SQL over rows it has not loaded.
+        self._view.setObjectName("DbBrowserPreview")
         self._view.setModel(self._model)
         # Read-only in the UI as well as on the connection, until edit
         # mode says otherwise.
@@ -1546,6 +1821,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- database selection ------------------------------------------------
 
     def _pick_database(self) -> None:
+        """Ask for a database file and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open measurements database", "",
             "SQLite databases (*.db *.sqlite *.sqlite3);;All files (*)")
@@ -1553,11 +1829,13 @@ class DbBrowserScreen(LinkedView, QWidget):
             self.set_database(path)
 
     def _pick_run_folder(self) -> None:
+        """Ask for a run folder and open the database inside it."""
         path = QFileDialog.getExistingDirectory(self, "Choose a run folder", "")
         if path:
             self.set_database(path)
 
     def _on_open_typed_path(self) -> None:
+        """Open whatever path the user typed."""
         self.set_database(self._path_edit.text())
 
     def set_database(self, path: str, explicit: bool = True) -> bool:
@@ -1570,6 +1848,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         Always resets edit mode to off: a database the user armed for
         editing is *that* database, never the next one.
 
+        :param path: SQLite database file or run ``src`` directory containing
+            one; paths are expanded and resolved by :class:`ReadOnlyDb`.
         :param explicit: True when the user chose this database
             themselves. Pass False when spaCR opens one on their behalf
             (a remembered path, a folder handed over by another screen);
@@ -1646,12 +1926,17 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- table selection ---------------------------------------------------
 
     def _on_table_selected(self, current, _previous=None) -> None:
+        """Load the first page of the selected table."""
         if current is None:
             return
         self.select_table(current.text())
 
     def select_table(self, name: str) -> bool:
-        """Make ``name`` the previewed table; resets the load and the filter."""
+        """Make ``name`` the previewed table and reset load and filter state.
+
+        :param name: live table or view name from the open database.
+        :returns: whether the schema was read and the table load was started.
+        """
         if self._db is None:
             self._set_status("No database open.", error=True)
             return False
@@ -1685,6 +1970,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def current_table(self) -> str:
+        """Which table the browser is showing.
+
+        :returns: the table's name, or ``""`` when none is open.
+        """
         return self._table
 
     # -- column search -----------------------------------------------------
@@ -1695,6 +1984,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         Purely a view operation — no re-query — so it stays instant on a
         table with hundreds of feature columns. An empty string restores
         every column.
+
+        :param text: case-insensitive substring required in visible names.
         """
         if self._col_search.text() != (text or ""):
             self._col_search.setText(text or "")
@@ -1725,6 +2016,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._view.resizeColumnsToContents()
 
     def _update_column_count(self) -> None:
+        """Say how many columns the filter is letting through."""
         total = len(self._model.all_columns())
         shown = len(self._model.visible_columns())
         if not total:
@@ -1793,11 +2085,27 @@ class DbBrowserScreen(LinkedView, QWidget):
             # Scroll the column into view rather than sorting by it: arriving
             # on a re-sorted table would hide which rows were just annotated,
             # which is the thing the user came here to look at.
-            try:
-                section = self.visible_columns().index(str(column))
-            except (ValueError, AttributeError):
-                return
-            self._view.scrollTo(self._model.index(0, section))
+            if not self._scroll_column_into_view(column):
+                # No columns yet means the first chunk is still in flight,
+                # which is the normal case for a threaded browser: the seed
+                # is handled the moment the table is selected and the rows
+                # arrive later. Remember it and scroll when they do, or the
+                # scroll silently never happens.
+                if not self.visible_columns():
+                    self._seed_column = str(column)
+
+    def _scroll_column_into_view(self, column) -> bool:
+        """Bring ``column`` into view. False when this table has no such column.
+
+        :param column: column name to reveal.
+        :returns: whether the column was found and scrolled to.
+        """
+        try:
+            section = self.visible_columns().index(str(column))
+        except (ValueError, AttributeError):
+            return False
+        self._view.scrollTo(self._model.index(0, section))
+        return True
 
     def _clear_sort(self) -> None:
         """Forget the sort. Called when the TABLE changes, not on refresh.
@@ -1812,6 +2120,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         header.setSortIndicator(-1, Qt.AscendingOrder)
 
     def _reset_load_state(self) -> None:
+        """Forget the current page, count and cursor.
+
+        Called when the TABLE changes: a row count belonging to the previous
+        table would be shown against this one until the new count arrives.
+        """
         self._loaded = 0
         self._last_key = None
         self._exhausted = False
@@ -1819,6 +2132,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._estimate = None
 
     def _on_page_size_changed(self, _value: int) -> None:
+        """Reload with a different number of rows per page.
+
+        :param _value: the new page size; re-read from the widget.
+        """
         self.refresh()
 
     def refresh(self) -> None:
@@ -1863,6 +2180,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def _fetch_chunk(self, token: int, first: bool) -> None:
+        """Read the next page on a worker."""
         db, table = self._db, self._table
         where, params = self._where, self._params
         limit = self.page_size()
@@ -1874,6 +2192,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         want_estimate = first and not where
 
         def _job() -> Dict[str, Any]:
+            """Read one chunk of the table. Off the GUI thread."""
             cols, rows, keys = db.chunk(table, where=where, params=params,
                                         limit=limit, after=after,
                                         loaded=loaded, order_by=order_by)
@@ -1911,6 +2230,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         if first:
             self._update_column_count()
             self._autosize_columns()
+            if self._seed_column is not None:
+                pending, self._seed_column = self._seed_column, None
+                self._scroll_column_into_view(pending)
         self._update_rows_label()
         self._update_sort_state()
         self._report_table_status()
@@ -1924,15 +2246,30 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._start_count(self._token)
 
     def _start_count(self, token: int) -> None:
+        """Count the table's rows on a worker.
+
+        SEPARATE FROM THE PAGE FETCH because a COUNT on a large table is slow
+        and the first page is not: waiting for the count to show any rows
+        would make a fast read feel like a hang.
+        """
         db, table = self._db, self._table
         where, params = self._where, self._params
 
         def _job() -> Dict[str, Any]:
+            """Count the matching rows, carrying the token that ordered it.
+
+            The token comes back with the answer so a slow count from a query the
+            user has since changed can be recognised and dropped.
+            """
             return {"token": token, "count": db.count(table, where, params)}
 
         self._run_job(_job, self._apply_count, kind="count", token=token)
 
     def _apply_count(self, result: Dict[str, Any]) -> None:
+        """Show a row count that has come back.
+
+        :param result: the finished count.
+        """
         if not result or result.get("token") != self._token:
             return                      # cancelled
         self._exact_count = int(result.get("count", 0))
@@ -1952,6 +2289,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         return "an unknown number of rows (counting…)"
 
     def _update_rows_label(self) -> None:
+        """Say which rows are on screen, and out of how many."""
         if self._db is None or not self._table:
             self._rows_label.setText("")
             return
@@ -1989,11 +2327,18 @@ class DbBrowserScreen(LinkedView, QWidget):
             "clear.")
 
     def _on_header_clicked(self, section: int) -> None:
-        """Cycle the clicked column: ascending, descending, unsorted.
+        """Cycle the clicked column: descending, ascending, unsorted.
 
-        A third state matters here. Sorting forces OFFSET paging, which gets
-        slower the further the user scrolls, so there has to be a way back to
-        the table's natural keyset-paged order without reloading the screen.
+        The same cycle every other table in the application follows -- see
+        :mod:`spacr.qt.widgets.sortable_table`. Descending first because a
+        measurement table is read from the top and the top is where the
+        largest value belongs; ascending second; and a third click back to
+        the table's own order.
+
+        That third state matters more here than anywhere else: sorting forces
+        OFFSET paging, which gets slower the further the user scrolls, so
+        there has to be a way back to the keyset-paged order without
+        reloading the screen.
         """
         columns = self._model.visible_columns()
         if not (0 <= section < len(columns)):
@@ -2001,9 +2346,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         column = columns[section]
 
         if self._sort is None or self._sort[0] != column:
-            self._sort = (column, False)
-        elif not self._sort[1]:
             self._sort = (column, True)
+        elif self._sort[1]:
+            self._sort = (column, False)
         else:
             self._sort = None
 
@@ -2020,6 +2365,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self.refresh()
 
     def _report_table_status(self) -> None:
+        """Say what the current table is doing: loading, counted, or failed."""
         bits = [f"{self._table}: {self._count_text()}",
                 f"{len(self._model.all_columns())} columns"]
         if self._filter_label:
@@ -2103,6 +2449,11 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._report_table_status()
 
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Apply a newly published shared filter to the loaded rows.
+
+        :param data_filter: current process-wide filter; the linked-view state
+            already owns it, so this callback only refreshes row visibility.
+        """
         self._apply_linked_filter()
 
     def hidden_rows(self) -> List[int]:
@@ -2121,7 +2472,9 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Empty — not an error — for a table with no object identity in it
         (``png_list`` keyed on a path, a summary, a view). A shared selection
-        simply has nothing to say about those rows.
+        does not identify those rows.
+
+        :param selection: shared object identity selection to match.
         """
         if not selection.is_active or not self._model.rowCount():
             return []
@@ -2141,6 +2494,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def select_rows(self, rows: Sequence[int]) -> List[int]:
         """Select ``rows`` as a user would, publishing them to every view.
 
+        :param rows: zero-based model row indices requested by the caller.
         :returns: the rows that were in range and got selected.
         """
         model = self._view.selectionModel()
@@ -2192,6 +2546,8 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Nothing is hidden: rows the selection does not name stay exactly
         where they are. Only the shared *filter* removes rows from view.
+
+        :param selection: process-wide object selection published elsewhere.
         """
         model = self._view.selectionModel()
         if model is None or not self._model.columnCount():
@@ -2261,7 +2617,13 @@ class DbBrowserScreen(LinkedView, QWidget):
         return where, params, label
 
     def set_filter(self, column: str, op: str, value: Any = "") -> bool:
-        """Programmatic equivalent of filling in the filter row + Apply."""
+        """Programmatic equivalent of filling in the filter row and applying.
+
+        :param column: live schema column to filter.
+        :param op: structured operator label from :data:`OPERATORS`.
+        :param value: raw filter value; operators such as ``is null`` ignore it.
+        :returns: whether validation succeeded and the reload was started.
+        """
         self._raw_toggle.setChecked(False)
         idx = self._filter_col.findText(column)
         if idx < 0:
@@ -2271,13 +2633,20 @@ class DbBrowserScreen(LinkedView, QWidget):
             return False
         self._filter_col.setCurrentIndex(idx)
         op_idx = self._filter_op.findText(op)
-        if op_idx >= 0:
-            self._filter_op.setCurrentIndex(op_idx)
+        if op_idx < 0:
+            self._set_status(
+                f"Filter error: Unknown operator {op!r}.", error=True)
+            return False
+        self._filter_op.setCurrentIndex(op_idx)
         self._filter_value.setText("" if value is None else str(value))
         return self.apply_filter()
 
     def set_raw_filter(self, predicate: str) -> bool:
-        """Programmatic equivalent of the raw-SQL box + Apply."""
+        """Programmatic equivalent of the raw-SQL box and Apply.
+
+        :param predicate: lone read-only WHERE-clause fragment.
+        :returns: whether validation succeeded and the reload was started.
+        """
         self._raw_toggle.setChecked(True)
         self._raw_edit.setText(predicate or "")
         return self.apply_filter()
@@ -2356,6 +2725,10 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_edit_check(False)
 
     def _set_edit_check(self, checked: bool) -> None:
+        """Turn editing on or off, and say so.
+
+        :param checked: True to allow edits.
+        """
         self._suppress_edit_signal = True
         try:
             self._edit_check.setChecked(bool(checked))
@@ -2395,7 +2768,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         return True
 
     def disable_edit_mode(self, quiet: bool = False) -> None:
-        """Drop back to read-only. Safe to call when already read-only."""
+        """Drop back to read-only. Safe to call when already read-only.
+
+        :param quiet: suppress the read-only status message when true.
+        """
         was_on = self._edit_mode
         self._edit_mode = False
         self._edit_path = ""
@@ -2412,6 +2788,12 @@ class DbBrowserScreen(LinkedView, QWidget):
         This is the only path in the screen that can write, and it is
         also what :meth:`PreviewModel.setData` calls when a cell editor
         closes.
+
+        :param row: zero-based loaded model row to address.
+        :param column: schema column whose value the user edited.
+        :param text: raw editor value to coerce against the declared type.
+        :returns: whether exactly one database row was updated or already held
+            the requested value.
         """
         if not self._edit_mode:
             self._set_status(
@@ -2529,6 +2911,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- export ------------------------------------------------------------
 
     def _pick_export_path(self) -> None:
+        """Ask where to write the exported table."""
         default = f"{self._table or 'export'}.csv"
         path, _ = QFileDialog.getSaveFileName(
             self, "Export filtered rows to CSV", default,
@@ -2542,6 +2925,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         Runs off the GUI thread and streams the result, so a
         400 000-row export neither freezes the window nor loads the table
         into memory. Reports inline on failure and returns ``False``.
+
+        :param out_path: destination CSV path selected by the user.
+        :returns: whether the export job was accepted for execution.
         """
         if self._db is None or not self._table:
             self._set_status("Open a database and pick a table first.",
@@ -2556,12 +2942,14 @@ class DbBrowserScreen(LinkedView, QWidget):
         columns = self._model.visible_columns() or self._all_columns
 
         def _job() -> Dict[str, Any]:
+            """Write the CSV. Off the GUI thread."""
             n = db.export_csv(out_path, table, columns=columns,
                               where=where, params=params)
             return {"exported": n, "path": out_path,
                     "columns": len(columns)}
 
         def _done(result: Dict[str, Any]) -> None:
+            """Say how many rows were exported, and where."""
             self._set_status(
                 f"Exported {result['exported']:,} row"
                 f"{'s' if result['exported'] != 1 else ''} × "
@@ -2572,6 +2960,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- job plumbing ------------------------------------------------------
 
     def _acquire(self, kind: str) -> None:
+        """Take the database handle for a job, refusing a second one."""
         if kind == "export":
             self._export_busy = True
             return
@@ -2580,6 +2969,7 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._chunk_jobs += 1
 
     def _release(self, kind: str) -> None:
+        """Give the database handle back."""
         if kind == "export":
             self._export_busy = False
             return
@@ -2803,6 +3193,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._set_status(f"Query failed: {line}", error=True)
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed background read without closing the browser.
+
+        :param exc: what went wrong.
+        """
         self._set_status(f"Query failed: {exc}", error=True)
 
     def is_busy(self) -> bool:
@@ -2812,6 +3206,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         has_db = self._db is not None
         has_table = has_db and bool(self._table)
         raw = self._raw_toggle.isChecked()
@@ -2840,9 +3235,11 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Destroying a QThread that is still running aborts the process, so
         we wait (briefly) rather than hope. Jobs that have not started yet
-        are simply dropped — nothing has been spawned for them.
+        are dropped — nothing has been spawned for them.
 
         The shared link outlives this screen, so let go of it too.
+
+        :param event: Qt close event forwarded after worker cleanup.
         """
         try:
             self.unlink_selection()
@@ -2860,3 +3257,54 @@ class DbBrowserScreen(LinkedView, QWidget):
             except RuntimeError:
                 pass
         super().closeEvent(event)
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+HOST_KEY = "db_browser"
+
+#: Registry keys of the modules folded into Database Browser, in strip
+#: order. Both are READS OF THE SAME TABLES the browser is already
+#: pointed at -- lineage walks the containment columns, tabulate pivots
+#: and counts them -- so each is a second view of the open database
+#: rather than a separate errand.
+FOLDED_APPS: Tuple[str, ...] = ('lineage', 'tabulate')
+
+
+def _build_lineage(host_window: Optional[QWidget] = None) -> QWidget:
+    """Lineage, as the window builds it."""
+    # IMPORTED HERE. This module used `build_registered_screen`
+    # without importing it, so every folded module it hosts raised
+    # NameError the moment its button was pressed.
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("lineage", host_window)
+
+
+def _build_tabulate(host_window: Optional[QWidget] = None) -> QWidget:
+    """Tabulate, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("tabulate", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "lineage": _build_lineage,
+    "tabulate": _build_tabulate,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put db_browser's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

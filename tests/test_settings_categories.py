@@ -41,13 +41,13 @@ KEYS_BEFORE_REGROUP = frozenset({
     "CP_prob", "Signal_to_noise", "adjust_cells", "agg_type", "all_to_mip", "alpha", "amsgrad",
     "analyze_clusters", "annotated_classes", "annotation_column", "apply_model_to_dataset",
     "augment", "background", "backgrounds", "barcodes", "batch_size", "black_background",
-    "calculate_correlation", "cam_type", "cell_CP_prob", "cell_FT", "cell_Signal_to_noise",
+    "calculate_correlation", "cam_type", "cell_cellprob_threshold", "cell_flow_threshold", "cell_signal_to_noise",
     "cell_area_multiplier", "cell_background", "cell_chann_dim", "cell_channel",
     "cell_diameter", "cell_intensity_merge", "cell_intensity_percentile",
     "cell_intensity_range", "cell_intensity_split", "cell_intensity_threshold_method",
     "cell_loc", "cell_mask_dim", "cell_max_area", "cell_max_intensity_percentile",
     "cell_min_area", "cell_min_distance", "cell_min_intensity_percentile",
-    "cell_min_object_area", "cell_min_size", "cell_perimeter_fraction", "cell_plate_metadata",
+    "cell_min_split_area", "cell_min_size", "cell_perimeter_fraction", "cell_plate_metadata",
     "cell_remove_border_objects", "cell_size_range", "cell_types", "cells", "cells_per_well",
     "channel_dims", "channel_of_interest", "channels", "chunk_size", "class_balance",
     "class_metadata", "classes", "clustering", "cmap", "col_to_compare", "color_by",
@@ -90,15 +90,15 @@ KEYS_BEFORE_REGROUP = frozenset({
     "model_type", "model_type_ml", "motility_analysis", "motility_xlim", "motility_ylim",
     "n_epochs", "n_estimators", "n_jobs", "n_neighbors", "n_repeats", "nc", "nc_loc", "neg",
     "negative_control", "normalize", "normalize_by", "normalize_input", "normalize_plots",
-    "nr_imgs", "nuclei_limit", "nucleus_CP_prob", "nucleus_FT", "nucleus_Signal_to_noise",
+    "nr_imgs", "nuclei_limit", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "nucleus_signal_to_noise",
     "nucleus_area_multiplier", "nucleus_background", "nucleus_chann_dim", "nucleus_channel",
     "nucleus_diameter", "nucleus_intensity_merge", "nucleus_intensity_percentile",
     "nucleus_intensity_range", "nucleus_intensity_split", "nucleus_intensity_threshold_method",
     "nucleus_loc", "nucleus_mask_dim", "nucleus_max_area", "nucleus_max_intensity_percentile",
     "nucleus_min_area", "nucleus_min_distance", "nucleus_min_intensity_percentile",
-    "nucleus_min_object_area", "nucleus_min_size", "nucleus_perimeter_fraction",
+    "nucleus_min_split_area", "nucleus_min_size", "nucleus_perimeter_fraction",
     "nucleus_remove_border_objects", "nucleus_size_range", "offset", "offset_start",
-    "optimizer_type", "organelle_CP_prob", "organelle_FT", "organelle_adaptive_block_size",
+    "optimizer_type", "organelle_cellprob_threshold", "organelle_flow_threshold", "organelle_adaptive_block_size",
     "organelle_adaptive_offset", "organelle_area_multiplier", "organelle_chann_dim",
     "organelle_channel", "organelle_clahe", "organelle_clahe_clip_limit", "organelle_diameter",
     "organelle_dog_sigma_high", "organelle_dog_sigma_low", "organelle_fill_holes",
@@ -107,9 +107,9 @@ KEYS_BEFORE_REGROUP = frozenset({
     "organelle_intensity_threshold_method", "organelle_log_max_sigma",
     "organelle_log_min_sigma", "organelle_log_num_sigma", "organelle_log_threshold",
     "organelle_mask_dim", "organelle_mask_within_cells", "organelle_max_area",
-    "organelle_max_intensity_percentile", "organelle_max_size", "organelle_method",
+    "organelle_max_intensity_percentile", "organelle_max_area", "organelle_method",
     "organelle_min_area", "organelle_min_distance", "organelle_min_intensity_percentile",
-    "organelle_min_object_area", "organelle_min_size", "organelle_model_name",
+    "organelle_min_split_area", "organelle_min_area", "organelle_model_name",
     "organelle_morph_radius", "organelle_morphology", "organelle_network_threshold",
     "organelle_perimeter_fraction", "organelle_remove_border",
     "organelle_remove_border_objects", "organelle_resample", "organelle_ridge_filter",
@@ -117,14 +117,14 @@ KEYS_BEFORE_REGROUP = frozenset({
     "organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_rolling_ball",
     "organelle_rolling_ball_radius", "organelle_skeletonize", "organelle_tophat_radius",
     "organelle_unet_model_path", "organelle_unet_threshold", "organelle_watershed_spots",
-    "other", "outlier_detection", "overlay", "pathogen_CP_prob", "pathogen_FT",
-    "pathogen_Signal_to_noise", "pathogen_area_multiplier", "pathogen_background",
+    "other", "outlier_detection", "overlay", "pathogen_cellprob_threshold", "pathogen_flow_threshold",
+    "pathogen_signal_to_noise", "pathogen_area_multiplier", "pathogen_background",
     "pathogen_chann_dim", "pathogen_channel", "pathogen_diameter", "pathogen_intensity_merge",
     "pathogen_intensity_percentile", "pathogen_intensity_range", "pathogen_intensity_split",
     "pathogen_intensity_threshold_method", "pathogen_limit", "pathogen_loc",
     "pathogen_mask_dim", "pathogen_max_area", "pathogen_max_intensity_percentile",
     "pathogen_min_area", "pathogen_min_distance", "pathogen_min_intensity_percentile",
-    "pathogen_min_object_area", "pathogen_min_size", "pathogen_model",
+    "pathogen_min_split_area", "pathogen_min_size", "pathogen_model",
     "pathogen_perimeter_fraction", "pathogen_plate_metadata", "pathogen_remove_border_objects",
     "pathogen_size_range", "pathogen_types", "pathogens", "pc", "pc_loc", "percentiles",
     "pin_memory", "pixels_per_um", "plate", "plot", "plot_by_cluster", "plot_cluster_grids",
@@ -169,6 +169,27 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
+    # 364. The boolean sat beside the step count and could contradict it:
+    # `gradient_accumulation: false` with the default four steps says two
+    # things at once, and `steps = 1` already IS the off position.
+    # `spacr.settings._fold_gradient_accumulation` migrates a stored
+    # `false` to one step, and `validate.RETIRED_SETTINGS` tells an old
+    # settings CSV what replaced it.
+    "gradient_accumulation",
+    # MERGED into `min_cell_count` on 2026-08-23, at the maintainer's
+    # instruction ("Merge the names, and fix whatever breaks, never mind
+    # old runs"). The two were one idea under two names that differ by
+    # four letters: drop a well that holds too few cells. `min_cell_count`
+    # did it before a regression fit, `minimum_cell_count` before the
+    # machine-learning plate heatmap. They never appeared on the same
+    # screen, so nobody could see they were different -- which is what made
+    # the pair a trap rather than a choice.
+    #
+    # The surviving name is the one with the wider reach and the better
+    # reading. Each module keeps its own default: 100 for a well entering a
+    # fit, 25 for a heatmap tile.
+    "minimum_cell_count",
     "all_to_mip", "barecode_length_1", "barecode_length_2",
     "class_1_threshold", "custom_measurement", "gene_weights_csv",
     "metadata_types", "nc", "nc_loc", "nucleus_loc", "pc", "pc_loc",
@@ -190,10 +211,244 @@ KEYS_RETIRED = frozenset({
     # -- whose DEFAULT VALUE is the string 'infection_xgb_proba'. The value
     # had been pasted into the category list beside the key it belongs to.
     "infection_xgb_proba",
+    # Retired 2026-08-17 with instruction 132. `volcano` chose WHICH
+    # coefficient table the volcano plot drew, genes or guides -- a question
+    # the interactive volcano now answers by right-click, on every tab at
+    # once, from `level`. `set_default_*` pops it, nothing reads it, and it
+    # has neither an expected_types entry nor a default, so leaving its name
+    # in a category made the panel offer a control that could not be built.
+    "volcano",
+    # RENAMED, not removed, on 2026-08-17 with instruction 133: "change the
+    # toxo settings to Toxoplasma". `get_perform_regression_default_settings`
+    # migrates an old CSV's value onto the new key and pops this one, so the
+    # panel offers one control for one question. `ml._toxoplasma_is_on` still
+    # accepts either spelling, so a caller handing ml.py a raw dict with the
+    # old key keeps working.
+    "toxo",
+    # NOTE ON THE 230 SUPERSESSIONS: `crop_source`, `file_metadata`,
+    # `file_type` and `coordinate_columns` are NOT here. They are superseded
+    # as CONTROLS and hidden from the panel by `_APP_HIDDEN_KEYS`, but the
+    # runtime still reads them -- so they stay in the settings dict and in
+    # the category map, because an uncategorised key renders ungrouped
+    # rather than not at all. Retired means GONE, and these are not.
+    #
+    # `png_type` was already the older half of the path-filter pair and is
+    # popped from the defaults; it left the category map with the 230
+    # rename that retired the rest of that pair.
+    "png_type",
+    # REMOVED 2026-08-21 with instruction 229. `metadata_type_by` named the
+    # column a class is defined by, which is the Classes editor's own column
+    # field; `measurement_rules` was a second vocabulary for "a class is a
+    # rule about a column", written as hand-edited JSON because it had no
+    # editor. `io._class_column` honours the first as a fallback so an old
+    # CSV runs unchanged.
+    "metadata_type_by", "measurement_rules",
+    # REMOVED 2026-08-21 with instruction 211. The page size is a
+    # consequence of the container size and the image size, so a configured
+    # count could only contradict the geometry.
+    "cells_per_page",
+    # REPLACED 2026-08-21 by `train_channels` (230 A): the channels that
+    # matter are the ones the model sees. `deep_spacr_defaults` moves an old
+    # file's value across before any default lands.
+    "extract_channels",
+    # RETIRED 2026-08-22. Five keys that were offered and read by nothing:
+    # each was checked against expected_types, the set_default_* helpers and
+    # a grep of spacr/ (Tk included) before being named here.
+    #   compartments      -- superseded by the per-role object settings; a
+    #                        measure run derives what it measures from the
+    #                        masks it was given.
+    #   compression       -- an HDF5 argument from a storage backend spaCR
+    #                        stopped writing.
+    #   split_axis_lims   -- one of the plot-axis settings that went with
+    #                        instruction 135, when the limits stopped being
+    #                        settings and became something you change on the
+    #                        plot.
+    #   upscale, upscale_factor -- a Cellpose-1 resize that Cellpose 4 does
+    #                        itself from `diameter`.
+    "compartments", "compression", "split_axis_lims",
+    "upscale", "upscale_factor",
 })
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # ---- optical pooled screening, folded onto Align & Stitch ----------
+    # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
+    # are declared as one block rather than reasoned about one at a time:
+    # they are a whole module's settings, not a regrouping of existing
+    # ones, and every one of them is new to the map.
+    #
+    # `src`, `plate`, `dry_run`, `score_threshold` and `verbose` are NOT
+    # here, and that is the point of the list. OPS shares those five with
+    # the rest of spaCR and they keep their existing homes; listing a
+    # setting under two headings is not a display preference, because Tk
+    # renders each copy and Qt drops all but the first.
+    "all_scores", "allow_rotation", "allow_scale", "arr_axes", "blend",
+    "blur_sigma", "canny", "cellpose_diameter", "cellpose_model",
+    "channel_index", "channel_indices", "collision", "detector",
+    "dilate_ksize", "do_multichannel", "do_nuc_stitch", "do_organize",
+    "downsample", "dst_root", "exts", "feature_cache_dir",
+    "feature_cache_mode", "genotype_source", "line_thickness",
+    "max_keypoints", "max_ram_features", "max_site_gap", "meta_regex",
+    "mip", "mosaic", "mosaic_csv_out", "mosaic_min_score", "mosaic_out",
+    "n_workers", "n_workers_features", "nfeatures", "on_missing",
+    # `ops_gpu` arrived after the other 57, on 2026-09-09: OPS shipped with
+    # no hardware control at all, and both its GPU-capable steps -- the tile
+    # registration's FFTs and the Cellpose outlines -- were deciding for
+    # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
+    # owns `gpu` with a different meaning.
+    "ops_gpu",
+    "opencv_threads", "out_png", "out_tif", "outline_alpha",
+    "outline_source", "pair_batch_size", "phenotype_source",
+    "preview_downsample", "ransac_thresh_px", "recursive",
+    "relative_scale", "save_qc", "save_stitched_default",
+    "squeeze_singleton", "stitch", "stream_csv", "t_index", "tmp_dir",
+    "well_group", "write_mosaic", "z_index",
+
+    # ---- the plaque assay's models and its physical ruler --------------
+    # `plaque_model` selects the segmenter, so it sits with `custom_model`
+    # under Cellpose. The rest are filed under Plate Layout & Controls
+    # rather than a new "Wells" section, deliberately: a new category needs
+    # a curated SECTION_HINT in spacr/qt/screens/app_screen.py or it draws
+    # the generic fallback tooltip, and well geometry IS plate layout.
+    #
+    # `plate_format` and `well_diameter_mm` are the ruler. A plaque area in
+    # pixels is a property of the microscope; the well is a manufactured
+    # object of known size in the same image, so dividing by its measured
+    # diameter is what lets areas from two scopes be pooled at all.
+    "plaque_model",
+    "well_detection", "well_confidence", "well_pad",
+    "plate_format", "well_diameter_mm",
+
+    # ---- the regression input/model layout (instruction 342) -----------
+    # A count table may arrive one row per (well, guide) or one guide per
+    # column, and the shape handed to a fixed-effects estimator is a second,
+    # separate choice. All three are read by `spacr.ml.perform_regression`.
+    "independent_variable_layout", "model_data_layout",
+    "wide_predictor_columns",
+
+    # ---- added when Illumination was folded into Measure -------------
+    # The flat-field correction is applied before any intensity feature is
+    # computed, so it has to be settable on the measure run it changes.
+    # These are the nine keys `spacr.illumination.illumination_settings`
+    # owns beyond `src` and `channels`, which Measure already had; they are
+    # filed under one "Illumination Correction" heading rather than the four
+    # the Illumination screen splits them across.
+    "illumination_correction", "illumination_model",
+    "illumination_estimator", "illumination_degree", "illumination_dark",
+    "illumination_per_plate", "illumination_max_fields",
+    "illumination_qc", "illumination_on_missing",
+    # ---- added 2026-08-23 -------------------------------------------
+    # THE SPATIAL DISTANCES, asked for as "the spatial distances between
+    # everything measurable within and between all objects captured".
+    # `object_distances` is the switch; the other two add the parts that
+    # cost real time -- per-channel intensity maxima, and the offset
+    # between an object's centroid and its intensity centre.
+    "object_distances", "object_distance_maxima", "object_distance_intensity",
+    # The neighbourhood radius the spatial block counts in. It was read from
+    # `settings.get` and declared nowhere, so the size of the neighbourhood
+    # was reachable only by editing measure.py -- and the radius is baked
+    # into the column name (`neighbors_within_50`), which makes it the one
+    # spatial parameter a screen has to agree on.
+    "spatial_neighbor_radius",
+    # The upper bound each object filter was missing. `cell_min_size` had
+    # no partner, so a segmentation that merged two cells into one blob
+    # could only be filtered by hand afterwards.
+    "cell_max_size", "nucleus_max_size", "pathogen_max_size",
+    # `annotation_source` supersedes the `Toxoplasma` boolean: an organism
+    # name, taxon id or accession instead of one hard-coded parasite.
+    "annotation_source",
+    # MEASURE THE CUT-OFF INSTEAD OF NAMING IT. `fraction_threshold` is a
+    # number with no obvious right value; the control wells can answer it,
+    # and this is the switch that asks them to. Offered rather than
+    # defaulted, because turning it on changes which gRNAs survive in
+    # every well of the screen.
+    "calibrate_fraction_threshold",
+    # WHAT THE INTERCEPT IS, and the number the fourth mode pins it at.
+    # A fitted intercept is the response of a well with every predictor at
+    # its reference level, which for a one-hot gene design is whichever
+    # gene patsy dropped -- so the screen's usual question, "how far from
+    # the controls", had no setting that asked it until these two.
+    "intercept", "intercept_value",
+    # How many mismatches a barcode may carry and still be counted, and the
+    # plate held out of a regression fit so a hit list can be checked
+    # against a plate the model never saw.
+    "barcode_mismatches", "holdout_plate",
+    # ---- added 2026-08-22 -------------------------------------------
+    # Mixed precision. The training loop had no autocast and no gradient
+    # scaler at all, so there was nothing for a setting to switch; the
+    # `amp` key a caller could pass was dropped by check_settings before it
+    # reached anything. It sits in Computer Vision Training beside
+    # `gradient_accumulation`, which is the other way to fit a larger
+    # effective batch into the same VRAM and the thing a user weighs it
+    # against.
+    "mixed_precision",
+    # ---- added 2026-08-21 -------------------------------------------
+    # 227/224: the control wells the mixed-ratio calibration is anchored on,
+    # the contaminant exclusion, the permutation statistic, and the
+    # renormalisation that follows the fraction threshold.
+    "positive_control_wells", "negative_control_wells", "mixed_control_wells",
+    "exclude_grnas", "grna_statistic", "normalise_fraction",
+    # 210: optional outlier removal, one per object measure, all off by
+    # default because they change which cells EXIST.
+    "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+    "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
+    # 230: where the training images come from, how the streamed ones are
+    # chosen, and what each method reads.
+    "image_source", "load_path_regex", "stream_method", "channel_arrays",
+    "mask_array", "bounding_box",
+    # The two readable front ends for choices that were previously side
+    # effects of other keys: `inference` selects analysis_mode (and 'auto'
+    # picks it from whether the design can support a simultaneous fit), and
+    # `analysis_unit` spells out the per-well/per-cell switch that agg_type
+    # used to make silently by being set to None.
+    "inference", "analysis_unit", "paired_data",
+    # Instruction 182, 2026-08-20 -- "for 182 i want both options to be
+    # available". Which of the two defensible fixes for a link stacked on a
+    # response transform a glm run should apply. It was not a setting before
+    # because spaCR did neither, and the combination it did instead is not
+    # defensible under either reading.
+    "glm_transform_conflict",
+    # `toxo` renamed to `Toxoplasma` on 2026-08-17 (instruction 133). The old
+    # name is in KEYS_RETIRED below; this is the same control under the name
+    # the maintainer asked for.
+    "Toxoplasma",
+    # Instruction 133 and 135, 2026-08-18. Two new backends' knobs
+    # (group_lasso_lambda, rra_alpha, rra_permutations); the pair that decides
+    # what the significance LINE is drawn at and whether it is raw or adjusted
+    # p, which the plot could already choose and the run could not; and the
+    # two count-table column names, which spacr/ml.py hardcoded and raised a
+    # bare ValueError about.
+    "group_lasso_lambda", "rra_alpha", "rra_permutations",
+    "p_threshold_alpha", "p_threshold_kind",
+    "count_grna_column", "count_value_column",
+    # Instruction 143: whether plate row and column enter the model at all.
+    # It defaults ON, by measurement -- on the TSG101 screen the 35 position
+    # terms are jointly significant at p=6.7e-23 and dropping them loses 8.4
+    # points of R2 and swaps named genes in and out of the hit list.
+    "model_plate_position",
+    # Instruction 141: WHO fits the model, as opposed to which model is
+    # fitted. Defaults to statsmodels, because every existing result was
+    # produced with it and a default that changes the numbers is not a
+    # default.
+    "regression_backend",
+    # Plate-blocked marginal guide analysis added to the regression workflow.
+    "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
+    "guide_permutations", "guide_permutation_seed",
+    "guide_permutation_block", "guide_nuisance_columns",
+    "guide_presence_threshold", "guide_permutation_batch_size",
+    "guide_permutation_plot", "multiple_testing_method", "fdr_alpha",
+    # The regression QC suite's on/off switch, under a "Regression:
+    # Diagnostics" heading of its own -- "does this fit deserve to be
+    # believed" is a different question from "what counts as a hit", and the
+    # answer had no home in the six workflow groups. Read for every
+    # regression_type, so it is deliberately outside REGRESSION_SETTINGS_USED
+    # and is not policed by _reject_unused_settings.
+    "regression_qc",
+    # Image UMAP's reducer families and the one shared GPU execution switch.
+    "gpu", "tsne_perplexity", "tsne_learning_rate",
+    "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten",
+    "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method",
+    "spectral_affinity", "spectral_n_neighbors",
     # The one visible choice instruction 72 adds in front of the other 53.
     "organelle_type",
     # Instruction 71's two opt-in measurements. Both were added to the
@@ -335,8 +590,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # The robust and regularised regression fits: knobs that belong to one
     # estimator rather than to all of them.
     "l1_ratio", "quantile", "huber_t",
+    "spline_knots", "spline_degree",
     "hinge_threshold", "hinge_n_boot",
     "lasso_n_boot", "lasso_selection_threshold",
+    # HOW MANY ORGANELLE SLOTS the run has. The slots stopped being a fixed
+    # four: their keys are generated from this number, so it is the one
+    # organelle setting that belongs to no slot and it leads the heading
+    # whose size it decides.
+    "number_of_organelles",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -528,7 +789,7 @@ def test_no_category_name_is_declared_twice():
     # Two more sources of live categories that are not in the literal:
     # modules registering through `register_defaults`, and instruction 73's
     # regroup, which creates its family headings from the keys it moves.
-    derived = S.REGISTERED_CATEGORIES | {n for n, _ in S._ADVANCED_FAMILIES}
+    derived = S.REGISTERED_CATEGORIES | {n for n, *_rest in S._ADVANCED_FAMILIES}
     assert set(declared) == set(S.categories) - derived
 
 
@@ -560,11 +821,22 @@ def test_the_legacy_ghost_list_has_not_grown():
 
 @pytest.mark.parametrize("app_key", sorted(GUI_MODULE_DEFAULTS))
 def test_every_setting_a_module_offers_has_a_category(app_key):
-    """An uncategorised key is ungrouped: pinned to the top in Tk, dumped in
-    the trailing "Other" section in Qt. Every module's panel must be fully
-    grouped."""
+    """An uncategorised key is ungrouped, and lands in the trailing "Other"
+    section. Every module's panel must be fully grouped.
+
+    HIDDEN KEYS ARE NOT OFFERED. A key in `_APP_HIDDEN_KEYS` gets no
+    widget, so it cannot appear in "Other" and it needs no category -- and
+    requiring one forces a superseded setting to keep a place on the panel
+    it was removed from. `Toxoplasma` is the case: `annotation_source`
+    replaced it, the boolean is still read out of old settings files, and
+    it is drawn nowhere.
+    """
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     categorised = set(_all_categorised_keys())
-    orphans = sorted(set(_defaults_for(app_key)) - categorised)
+    hidden = _APP_HIDDEN_KEYS.get(app_key, frozenset())
+    offered = set(_defaults_for(app_key)) - set(hidden)
+    orphans = sorted(offered - categorised)
     assert not orphans, (
         f"the {app_key!r} settings panel offers ungrouped settings: {orphans}"
     )
@@ -601,14 +873,25 @@ def test_no_organelle_key_is_in_both_headings():
 
 
 def test_the_basic_heading_is_short_enough_to_be_the_point():
-    """The deliverable is a NUMBER: 53 settings became 6 visible by default.
+    """The deliverable is a NUMBER: 53 settings became 3 per slot.
 
     A split that left thirty settings under the first heading would satisfy
     every other test here and none of the request.
+
+    Counted PER SLOT rather than against the whole heading, because the
+    heading is generated for every slot `number_of_organelles` can name and
+    a panel shows only the slots the count reaches. The number a user is
+    faced with is one slot's, which is what this measures; the count itself
+    is the heading's one shared row.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    assert len(S.categories["Organelle"]) <= 3 * len(ORGANELLE_ROLES), \
-        S.categories["Organelle"]
+    from spacr.organelle_types import organelle_role_of
+
+    per_slot = [key for key in S.categories["Organelle"]
+                if organelle_role_of(key) == "organelle"]
+    assert len(per_slot) <= 3, per_slot
+    shared = [key for key in S.categories["Organelle"]
+              if organelle_role_of(key) is None]
+    assert shared == ["number_of_organelles"], shared
     assert S.categories["Organelle"], "the basic heading emptied entirely"
 
 
@@ -618,9 +901,13 @@ def test_the_one_visible_choice_is_in_the_basic_heading():
 
 #: Headings instruction 73 pulls the shared families into. An organelle key
 #: may legitimately live here instead of under an Organelle heading -- the
-#: whole point of that regroup is that `organelle_min_size` and
+#: whole point of that regroup is that `organelle_min_area` and
 #: `cell_min_size` are one decision, not two.
-ADVANCED_FAMILY_HEADINGS = ("Object filtration", "Intensity handling")
+#:
+#: Read off `CATEGORY_PARENTS` rather than listed again: that table is what
+#: says which headings are advanced families, and a third one was added the
+#: moment the per-object preprocessing group existed.
+ADVANCED_FAMILY_HEADINGS = tuple(S.CATEGORY_PARENTS)
 
 
 def _organelle_homes():
@@ -683,9 +970,14 @@ def test_the_organelle_trigger_reveals_both_organelle_categories():
     Splitting the category would otherwise leave "Organelle advanced"
     showing on a run that does no organelle segmentation at all -- the
     trigger has to reveal everything it gates.
+
+    The trigger spans every slot `number_of_organelles` can name, not a
+    fixed four: a channel set on any slot is what the two headings are
+    gated on, and a slot missing from the trigger would be a slot whose
+    channel revealed nothing.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    trigger = tuple(key for role in ORGANELLE_ROLES
+    from spacr.organelle_types import ALL_ORGANELLE_ROLES
+    trigger = tuple(key for role in ALL_ORGANELLE_ROLES
                     for key in (f"{role}_channel", f"{role}_mask_dim"))
     assert S.category_integer_dependencies[trigger] == [
         "Organelle", "Organelle advanced"]
@@ -827,6 +1119,13 @@ def test_every_category_has_a_qt_section_hint():
 def test_every_qt_section_hint_names_a_real_category():
     hints = _section_hints()
     known = {c.upper().strip() for c in S.categories}
+    # Power contributes its legacy/defaults category lazily rather than at
+    # settings-module import. Discover that registered category through the
+    # public registration seam so its live section hint is not mistaken for
+    # an orphan merely because this test ran before the Power screen opened.
+    from spacr.qt.screens import power as power_screen
+    power_screen.register_settings()
+    known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).
     # Classify is the reason this list has to be exhaustive rather than
@@ -834,6 +1133,23 @@ def test_every_qt_section_hint_names_a_real_category():
     # `_APP_CATEGORY_SPECS`-style Qt regroups and appear nowhere in
     # `S.categories`, so leaving it out reported all nine as dead.
     from spacr.qt.screens.settings_model import categories_for_app
+
+    # A MODULE THAT REGISTERS ITS OWN CATEGORY HAS TO HAVE REGISTERED IT.
+    # `power.register_settings` merges "Power analysis" into `S.categories`
+    # -- the single heading it groups all fifteen of its keys under, and the
+    # one its blurb describes. In the running application the screen does
+    # that on import; in a test process that never touched the module, the
+    # category simply does not exist yet and its live blurb reads as dead.
+    #
+    # Registering it here asks the question the test means to ask: is this
+    # blurb reachable, rather than has this process happened to import the
+    # module that makes it so.
+    try:
+        from spacr.qt.screens.power import register_settings as _register_power
+        _register_power()
+    except Exception:                                    # noqa: BLE001
+        pass
+
     for app_key in (
         "measure", "external_masks", "map_barcodes", "umap", "ml_analyze", "mask",
         "timelapse", "motility", "regression", "activation", "replication",
@@ -846,12 +1162,17 @@ def test_every_qt_section_hint_names_a_real_category():
         # Barcode QC and Illumination register settings that are in no
         # shared category at all, and Power draws its own screen; leaving
         # any of the four out reports all of their blurbs as dead.
-        "barcode_qc", "illumination", "anndata_export", "power",
+            "barcode_qc", "illumination", "anndata_export", "power",
+            "explain_cv", "investigate_hit",
     ):
         known.update(
             c.upper().strip()
             for c in categories_for_app(app_key, S.categories)
         )
+    # The umbrella headings are synthesised by `build_sections` when it nests
+    # the advanced families, so they appear on no module's category map and
+    # would read as dead blurbs without this.
+    known.update(p.upper().strip() for p in S.CATEGORY_PARENTS.values())
     dead = sorted(set(hints) - known)
     assert not dead, (
         f"SECTION_HINTS entries that match no settings section: {dead}"
@@ -865,9 +1186,7 @@ def test_every_qt_section_hint_names_a_real_category():
 #
 # "Other" is what Qt calls the trailing bucket for keys in no category, and
 # what utils.pretty_print_settings calls the same leftovers. It is not a
-# heading anyone chose -- it is the absence of one. Classify (CV) rendered it
-# holding exactly one setting, `custom_model`, because that key was filed
-# under "Cellpose" and Classify hides Cellpose.
+# heading anyone chose -- it is the absence of one.
 
 def _rendered_sections(app_key):
     """(title, keys) per section, exactly as SettingsWidgets.build_sections
@@ -917,28 +1236,49 @@ def _rendered_sections(app_key):
             "Output & Database", "Plots & Heatmaps",
             "Runtime & Reliability",
         ]),
-        ("mask", [
-            "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
-            "Cell Segmentation", "Nucleus Segmentation",
+            ("mask", [
+                "Input & Metadata", "Workflow & Test Run", "Image Preprocessing",
+                "Illumination Correction",
+                "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # The three advanced families, in the order the layout writes
+            # them. They nest under one "Advanced settings" umbrella in
+            # `build_sections`; this mirror is the FLAT category map, which
+            # is where they are declared.
+            "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Intensity Handling (all objects)",
             "Quality Control", "Volumetric Processing (Beta)",
             "Time Axes & Tracking (Beta)", "Visualization & Diagnostics",
             "Output & Storage", "Runtime & Reliability",
         ]),
+        # "Illumination Correction" joined the Measure panel when the
+        # illumination settings were folded into the measure defaults. The
+        # correction rewrites the pixels every intensity feature is computed
+        # from, so it is set on the run it affects; before, `measure`'s
+        # defaults held none of its keys and
+        # `prepare_illumination_correction` returned None on every GUI run.
+        # It sits after the channel mapping and before the features for the
+        # same reason: that is the order the run executes them in.
         ("measure", [
             "Input & Experiment", "Mask & Channel Mapping",
+            "Illumination Correction",
             "Measurement Features", "Object Filtering", "Crop Output",
             "Preview & Diagnostics", "3D Calibration (Beta)",
             "Runtime & Reliability",
         ]),
-        ("timelapse", [
-            "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
-            "Cell Segmentation", "Nucleus Segmentation",
+            ("timelapse", [
+                "Input & Metadata", "Acquisition & Axes", "Image Preprocessing",
+                "Illumination Correction",
+                "Cell Segmentation", "Nucleus Segmentation",
             "Pathogen Segmentation", "Organelle Segmentation",
             "Organelle Segmentation (advanced)",
+            # The three advanced families, in the order the layout writes
+            # them. They nest under one "Advanced settings" umbrella in
+            # `build_sections`; this mirror is the FLAT category map, which
+            # is where they are declared.
+            "Image Preprocessing (per object)",
             "Object Filtration (all objects)",
             "Intensity Handling (all objects)",
             "Quality Control", "Tracking Setup", "Tracking Backends",
@@ -953,15 +1293,35 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
         ("regression", [
-            "Input Tables", "Controls & Plate Design",
-            "Plate & Batch Correction", "Model & Covariates",
+            "Input Tables",
+            # "Controls & Plate Design" + "Quality Filters" merged here on
+            # 2026-08-17 (instruction 135): controls and filters are one
+            # question -- which rows reach the model -- and they were two
+            # sections with the response, the estimator and the hit-calling
+            # rules between them.
+            "Controls & Filters",
+            "Plate & Batch Correction",
+            # The response is asked for before the model, and the permutation
+            # test's settings are one section instead of being split across
+            # the model, the estimator knobs and the hit-calling rules.
+            "Response",
+            # "Significance & Hit Calling" merged in on the same day: which
+            # correction, at what level, above which effect size IS how the
+            # model's output becomes a claim.
+            "Model & Inference",
             # Added when the robust and regularised fits brought knobs that
             # belong to one estimator rather than to all of them. Until they
             # were named, they landed in "Additional Settings" — the bucket
             # this whole test exists to keep empty.
             "Estimator Tuning",
-            "Hit Calling & Outliers", "Regression Plots",
-            "Runtime & Reliability",
+            # "Regression Plots" and "Runtime & Reliability" were DELETED on
+            # 2026-08-18 with instruction 135. The plot settings stopped being
+            # settings -- the QC suite and the permutation plot are always on,
+            # the log axes always off, and the limits are chosen automatically
+            # and changed on the plot. Runtime & Reliability is how the whole
+            # application behaves, not a regression setting, so it moved to
+            # the general preferences.
+            "Permutation Test",
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
@@ -1003,14 +1363,14 @@ def test_no_module_renders_an_other_section(app_key):
     )
 
 
-def test_the_model_a_module_runs_is_filed_under_model_training():
-    """`custom_model` and `model_name` answer the same question `model_type`
-    does. Under "Cellpose" they were invisible to Classify, which hides that
-    category, and mis-titled for Train Cellpose, which does not."""
-    assert "custom_model" in S.categories["Computer Vision Model"]
+def test_cellpose_and_classifier_custom_model_paths_are_distinct():
+    """The shared-looking names have different consumers and value types."""
+    assert "custom_model" not in S.categories["Computer Vision Model"]
     assert "model_name" in S.categories["Computer Vision Model"]
-    assert "custom_model" not in S.categories["Cellpose"]
+    assert "custom_model" in S.categories["Cellpose"]
     assert "model_name" not in S.categories["Cellpose"]
+    assert S.expected_types["custom_model"] == (str, type(None))
+    assert S.expected_types["custom_model_path"] is str
 
 
 def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():
@@ -1021,7 +1381,11 @@ def test_the_cv_dataset_class_keys_are_grouped_with_the_dataset():
                 "metadata_item_2_name", "metadata_item_2_value"):
         assert key in training, key
     assert "class_metadata" in training
-    assert "metadata_type_by" in training
+    # `metadata_type_by` was here and is RETIRED (instruction 229): it named
+    # the column a class is defined by, which is the Classes editor's own
+    # column field. What replaced it is `classes`, and that is grouped here
+    # too -- so the grouping this test protects is intact.
+    assert "classes" in training
 
 
 def test_dataset_shaping_settings_are_not_filed_as_advanced():
@@ -1073,9 +1437,15 @@ def test_the_regroup_does_not_change_which_keys_a_module_offers():
     settings dict -- the phantom-setting failure mode this project already
     has eleven of.
     """
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     categorised = set(_all_categorised_keys())
     for app_key in GUI_MODULE_DEFAULTS:
-        offered = set(_defaults_for(app_key))
+        # A HIDDEN KEY IS NOT OFFERED, so losing its category loses nothing:
+        # it draws no widget either way, and it is still in the settings
+        # dict, which is what this test exists to protect.
+        hidden = _APP_HIDDEN_KEYS.get(app_key, frozenset())
+        offered = set(_defaults_for(app_key)) - set(hidden)
         lost = sorted(offered - categorised - ORGANELLE_KEYS_KEPT_IN_GENERAL)
         assert not lost, f"{app_key!r} offers uncategorised settings: {lost}"
 

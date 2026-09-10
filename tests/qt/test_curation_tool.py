@@ -222,6 +222,74 @@ def test_saving_the_log_writes_it_beside_the_mask(qtbot, qt_theme_applied,
     assert [e.kind for e in CurationLog.read(written).edits] == ["paint"]
 
 
+def test_the_panel_writes_the_corrected_mask_and_not_only_the_ledger(
+        qtbot, qt_theme_applied, tmp_path):
+    """"Save log" alone leaves a record beside pixels nobody edited.
+
+    The standalone Curate screen could paint, record and be believed --
+    ``is_curated`` answers True off the ledger -- while the mask on disk was
+    still exactly what the pipeline wrote. The panel needs a control that
+    writes the labels, and it has to write the ledger with them, or the file
+    swaps one half-truth for the other.
+    """
+    import tifffile
+
+    mask_path = tmp_path / "plate1_A01_1.tif"
+    tifffile.imwrite(str(mask_path), np.zeros((64, 64), np.uint16))
+    stack = _stack()
+    canvas = _canvas(qtbot, stack)
+    panel = _panel(qtbot, canvas, artifact=str(mask_path))
+    panel.label_spin.setValue(7)
+    panel.radius_spin.setValue(3.0)
+    panel.start_painting()
+    QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(60, 45))
+
+    with qtbot.waitSignal(panel.saved, timeout=1000) as caught:
+        written = panel.save_mask()
+
+    assert written == caught.args[0]
+    on_disk = tifffile.imread(written)
+    assert 7 in set(np.unique(on_disk)), (
+        "the painted label never reached the file")
+    assert is_curated(written), "the labels were written without their ledger"
+    assert [e.kind for e in
+            CurationLog.read(str(written) + ".curation.json").edits] == ["paint"]
+
+
+def test_the_save_mask_button_is_the_one_the_user_presses(qtbot,
+                                                          qt_theme_applied,
+                                                          tmp_path):
+    """The capability has to be on the panel, not only on the method.
+
+    Make Masks reaches ``session.save_mask()`` through its own "Save mask"
+    action, so the write worked from the fold and nowhere else. This asserts
+    the standalone panel offers it too, through a button a hand can find.
+    """
+    import tifffile
+
+    mask_path = tmp_path / "plate1_B02_1.tif"
+    tifffile.imwrite(str(mask_path), np.zeros((64, 64), np.uint16))
+    canvas = _canvas(qtbot, _stack())
+    panel = _panel(qtbot, canvas, artifact=str(mask_path))
+    panel.start_painting()
+    QTest.mouseClick(canvas, Qt.LeftButton, Qt.NoModifier, QPoint(60, 45))
+
+    assert panel.save_mask_button.text() == "Save mask"
+    QTest.mouseClick(panel.save_mask_button, Qt.LeftButton)
+    assert is_curated(mask_path)
+    assert np.any(tifffile.imread(str(mask_path)))
+
+
+def test_saving_a_mask_with_nowhere_to_write_says_so_rather_than_raising(
+        qtbot, qt_theme_applied):
+    """A panel opened on a bare layer has no path, and pressing must not crash."""
+    canvas = _canvas(qtbot, _stack())
+    panel = _panel(qtbot, canvas)
+    panel._session.artifact = ""
+    assert panel.save_mask() is None
+    assert "Could not write the mask" in panel.badge.text()
+
+
 def test_the_undo_button_is_off_until_there_is_something_to_undo(
         qtbot, qt_theme_applied):
     canvas = _canvas(qtbot)

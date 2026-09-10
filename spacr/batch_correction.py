@@ -45,25 +45,31 @@ feeds an unsupervised embedding with no contrast to protect.
 class BatchCorrectionReport:
     """Diagnostics for one correction operation.
 
-    :ivar method: correction method actually applied.
-    :ivar batch_column: metadata column represented by ``batch``.
-    :ivar batches: normalized batch labels seen.
-    :ivar features: corrected feature names.
-    :ivar rows: input row count.
-    :ivar controls: number of rows used as reference controls.
-    :ivar centroid_spread_before: mean across-feature standard deviation of
-        batch centers before correction.
-    :ivar centroid_spread_after: same diagnostic after correction.
-    :ivar covariate_columns: biological covariates protected by ``combat``.
-    :ivar covariate_terms: design-matrix column names those covariates expanded
-        to, so a reader can tell a 3-level factor from a continuous dose.
-    :ivar covariate_spread_before: the same centroid-spread diagnostic computed
-        across *covariate* groups instead of batches, before correction. This
-        is the number that must **survive**: batch spread should fall and this
-        one should not. It is ``None`` when the covariate is continuous or when
-        no covariate was supplied.
-    :ivar covariate_spread_after: same diagnostic after correction.
-    :ivar warnings: explicit fallbacks or limitations.
+    :param method: Normalized correction method requested for the operation; it
+        remains recorded when a one-batch operation becomes a warned no-op.
+    :param batch_column: Human-readable metadata-column name used to identify
+        the supplied batch labels.
+    :param batches: Sorted distinct batch labels after conversion to strings.
+    :param features: Numeric feature-column names returned by the operation,
+        whether corrected or left unchanged by a no-op.
+    :param rows: Number of input feature rows considered.
+    :param controls: Total rows matching the reference controls used by
+        ``control_center``; zero for other methods.
+    :param centroid_spread_before: Mean across-feature standard deviation of
+        batch centroids before correction, or ``None`` when unavailable.
+    :param centroid_spread_after: The same batch-centroid diagnostic after
+        correction or a no-op, or ``None`` when unavailable.
+    :param covariate_columns: Source biological-covariate columns supplied to
+        ComBat.
+    :param covariate_terms: Design-matrix terms expanded from those covariates
+        when ComBat was fitted; empty when no fit was performed.
+    :param covariate_spread_before: Batch-centroid-style spread across
+        categorical covariate groups before correction, or ``None`` for no or
+        continuous covariates.
+    :param covariate_spread_after: The same categorical-covariate spread after
+        correction or a no-op, or ``None`` when unavailable.
+    :param warnings: Explicit no-op, fallback, unchanged-batch,
+        constant-feature, or ComBat limitation messages.
     """
 
     method: str
@@ -86,13 +92,35 @@ class BatchCorrectionReport:
 
 
 def _as_controls(values: Any) -> List[Any]:
-    """Normalize a scalar or iterable control specification."""
+    """Normalize a scalar or iterable control specification.
+
+    ``None`` and blank strings produce an empty list. Comma-separated strings
+    are split into trimmed values, including when such a string is nested one
+    level inside an iterable. Other scalar values become one-element lists.
+    """
     if values is None:
         return []
-    if isinstance(values, (str, bytes)):
-        return [values]
+    if isinstance(values, bytes):
+        values = values.decode(errors="replace")
+    if isinstance(values, str):
+        text = values.strip()
+        if not text:
+            return []
+        if "," in text:
+            return [part.strip() for part in text.split(",") if part.strip()]
+        return [text]
     if isinstance(values, Iterable):
-        return list(values)
+        # The same rule one level in: a LIST holding one comma-separated
+        # string is what a settings CSV round-trip produces, and it fails
+        # exactly the same way.
+        out: List[Any] = []
+        for value in values:
+            if isinstance(value, str) and "," in value:
+                out.extend(part.strip() for part in value.split(",")
+                           if part.strip())
+            else:
+                out.append(value)
+        return out
     return [values]
 
 
@@ -253,20 +281,53 @@ def _covariate_key(covariate: Optional[pd.DataFrame]) -> Optional[pd.Series]:
     return key
 
 
+def _prior_width(estimates: np.ndarray) -> float:
+    """Across-feature variance of one parameter -- the prior's room to move.
+
+    A single feature, or a set of features whose estimates all coincide, gives
+    a variance that is undefined or zero: there is no spread to learn a prior
+    from. Both answer 0.0, which the posterior reads as "no shrinkage room"
+    and resolves to the prior mean. Returning NaN instead would carry
+    straight through the fixed point into the corrected table.
+    """
+    if estimates.size < 2:
+        return 0.0
+    variance = float(np.var(estimates, ddof=1))
+    return variance if np.isfinite(variance) and variance > 0.0 else 0.0
+
+
+def _degenerate_scale_prior(delta_hat: np.ndarray) -> bool:
+    """True when the inverse-gamma prior on the scale carries no information.
+
+    ``_a_prior``/``_b_prior`` signal this by answering infinity, which is the
+    honest limit but not something the closed-form posterior can be evaluated
+    with -- see :func:`_eb_fixed_point`.
+    """
+    return _prior_width(delta_hat) <= 0.0
+
+
 def _a_prior(delta_hat: np.ndarray) -> float:
-    """Inverse-gamma shape from the method of moments (``sva::aprior``)."""
+    """Inverse-gamma shape from the method of moments (``sva::aprior``).
+
+    Infinity means the estimates carry no spread, so the prior is infinitely
+    precise; :func:`_eb_fixed_point` takes that as its limit rather than
+    substituting it into the posterior.
+    """
     mean = float(np.mean(delta_hat))
-    variance = float(np.var(delta_hat, ddof=1))
-    if not np.isfinite(variance) or variance <= 0:
+    variance = _prior_width(delta_hat)
+    if variance <= 0.0:
         return np.inf
     return (2.0 * variance + mean ** 2) / variance
 
 
 def _b_prior(delta_hat: np.ndarray) -> float:
-    """Inverse-gamma scale from the method of moments (``sva::bprior``)."""
+    """Inverse-gamma scale from the method of moments (``sva::bprior``).
+
+    Infinity carries the same meaning as in :func:`_a_prior`.
+    """
     mean = float(np.mean(delta_hat))
-    variance = float(np.var(delta_hat, ddof=1))
-    if not np.isfinite(variance) or variance <= 0:
+    variance = _prior_width(delta_hat)
+    if variance <= 0.0:
         return np.inf
     return (mean * variance + mean ** 3) / variance
 
@@ -288,6 +349,18 @@ def _eb_fixed_point(
     form under the normal/inverse-gamma pair, so each round is two vectorized
     expressions over all features at once.
 
+    A prior with no width is handled as its limit rather than by evaluating
+    the closed form. When the per-feature scale estimates all coincide -- two
+    features that are linear copies of each other is enough -- the method of
+    moments sends both inverse-gamma hyper-parameters to infinity, and
+    ``(ss / 2 + inf) / (n / 2 + inf - 1)`` is ``inf / inf``: NaN for every
+    feature, and every row of that batch lost from whatever is fitted next.
+    The limit is exact and finite: an infinitely precise prior leaves the
+    posterior at the prior mean, which for this method-of-moments pair is
+    ``mean(delta_hat)`` -- full shrinkage to the pooled scale. The same
+    reasoning covers ``tau2``: a zero-width normal prior puts gamma at
+    ``gamma_bar``, which the closed form already yields.
+
     :param standardized: ``(n_features, n_rows_in_batch)`` standardized data.
     :param gamma_hat: per-feature additive batch effect, the fixed-point seed.
     :param delta_hat: per-feature multiplicative batch effect.
@@ -296,6 +369,9 @@ def _eb_fixed_point(
     :returns: ``(gamma_star, delta_star)`` posterior means.
     """
     n = standardized.shape[1]
+    tau2 = tau2 if np.isfinite(tau2) and tau2 > 0.0 else 0.0
+    pooled_delta = float(np.mean(delta_hat))
+    flat_prior = not (np.isfinite(a_prior) and np.isfinite(b_prior))
     gamma_old = gamma_hat.copy()
     delta_old = delta_hat.copy()
     gamma_new = gamma_old
@@ -305,9 +381,13 @@ def _eb_fixed_point(
             (tau2 * n * gamma_hat + delta_old * gamma_bar)
             / (tau2 * n + delta_old)
         )
-        residual = standardized - gamma_new.reshape(-1, 1)
-        sum_squares = np.einsum("ij,ij->i", residual, residual)
-        delta_new = (0.5 * sum_squares + b_prior) / (n / 2.0 + a_prior - 1.0)
+        if flat_prior:
+            delta_new = np.full_like(delta_old, pooled_delta)
+        else:
+            residual = standardized - gamma_new.reshape(-1, 1)
+            sum_squares = np.einsum("ij,ij->i", residual, residual)
+            delta_new = ((0.5 * sum_squares + b_prior)
+                         / (n / 2.0 + a_prior - 1.0))
         delta_new = np.maximum(delta_new, _COMBAT_MIN_DELTA)
         change = max(
             float(np.max(np.abs(gamma_new - gamma_old)
@@ -436,20 +516,22 @@ def _combat(
     delta_hat = np.maximum(delta_hat, _COMBAT_MIN_DELTA)
 
     adjusted = standardized.copy()
+    flat_priors = 0
     for index in range(n_batch):
         rows = batch_design[:, index] > 0
         if empirical_bayes and not mean_only:
+            flat_priors += int(_degenerate_scale_prior(delta_hat[index]))
             gamma_star, delta_star = _eb_fixed_point(
                 standardized[:, rows],
                 gamma_hat[index],
                 delta_hat[index],
                 float(np.mean(gamma_hat[index])),
-                float(np.var(gamma_hat[index], ddof=1)),
+                _prior_width(gamma_hat[index]),
                 _a_prior(delta_hat[index]),
                 _b_prior(delta_hat[index]),
             )
         elif empirical_bayes:
-            tau2 = float(np.var(gamma_hat[index], ddof=1))
+            tau2 = _prior_width(gamma_hat[index])
             n_in_batch = int(rows.sum())
             gamma_star = (
                 (tau2 * n_in_batch * gamma_hat[index]
@@ -463,6 +545,15 @@ def _combat(
         adjusted[:, rows] = (
             (standardized[:, rows] - gamma_star.reshape(-1, 1))
             / np.sqrt(np.maximum(delta_star, _COMBAT_MIN_DELTA)).reshape(-1, 1)
+        )
+
+    if flat_priors:
+        report.warnings.append(
+            f"{flat_priors} batch(es) gave the same scale estimate for every "
+            "feature -- a single feature, or features that are linear copies "
+            "of one another -- so the empirical-Bayes prior carried no "
+            "information and those batches were shrunk fully to the pooled "
+            "scale."
         )
 
     restored = adjusted * scale.reshape(-1, 1) + standard_mean
@@ -490,8 +581,8 @@ def correct_batch_effects(
 
     ``center`` removes per-batch mean shifts while preserving the global mean.
     ``zscore`` aligns per-batch means and variances to the global distribution.
-    ``robust_zscore`` does the same with median/MAD and is the safest default
-    for heavy-tailed single-cell measurements. ``control_center`` estimates
+    ``robust_zscore`` does the same with median/MAD and is less sensitive to
+    heavy-tailed single-cell measurements. ``control_center`` estimates
     only a location shift from negative/reference controls in every batch,
     preserving treatment dispersion and usually best preserving biology.
 
@@ -656,9 +747,20 @@ def correct_batch_effects(
         report.controls = int(control_mask.sum())
         pooled = numeric.loc[control_mask]
         if len(pooled) < min_samples:
+            # SAY WHAT IS ACTUALLY THERE. "matched nothing" with no sight of
+            # the column is a message that sends the user to the wrong place;
+            # the commonest cause is a control name that is not one of the
+            # values the column holds.
+            try:
+                present = sorted({str(v) for v in control.dropna().unique()})
+            except Exception:                                    # noqa: BLE001
+                present = []
+            seen = (f" The column holds {present[:12]}"
+                    + (" and more." if len(present) > 12 else ".")
+                    if present else "")
             raise ValueError(
                 f"Only {len(pooled)} total reference-control row(s) matched "
-                f"{controls!r}; need at least {min_samples}."
+                f"{controls!r}; need at least {min_samples}.{seen}"
             )
         pooled_center = pooled.median(axis=0)
         missing_batches = []
@@ -868,7 +970,11 @@ def correction_kwargs(
 
 
 def write_report(report: BatchCorrectionReport, path: Any) -> Path:
-    """Write a correction report as stable JSON and return its path."""
+    """Write a correction report as stable JSON and return its path.
+
+    :param report: completed batch-correction report to serialize.
+    :param path: destination JSON path to replace atomically.
+    """
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_name(f".{destination.name}.tmp")

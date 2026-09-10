@@ -116,6 +116,8 @@ def test_gene_of_maps_a_gene_term_and_its_guides_to_one_key():
     assert gene_of("gene_fraction:gene[T.233460]") == "233460"
     assert gene_of("fraction:grna[233460_1]") == "233460"
     assert gene_of("fraction:grna[T.233460_12]") == "233460"
+    assert gene_of("gene_fraction:gene[TGGT1_231640]") == "TGGT1_231640"
+    assert gene_of("fraction:grna[TGGT1_231640_3]") == "TGGT1_231640"
 
 
 def test_gene_of_returns_none_for_a_term_that_names_no_gene():
@@ -126,12 +128,8 @@ def test_gene_of_returns_none_for_a_term_that_names_no_gene():
     assert gene_of("") is None
 
 
-def test_gene_of_matches_the_rule_the_shipped_metadata_merge_uses():
-    """The join key must be the same one ``spacr.utils`` derives.
-
-    Two different rules would attach the right annotation to the wrong row
-    for every gene id that contains an underscore.
-    """
+def test_gene_of_matches_the_numeric_rule_the_metadata_merge_uses():
+    """Numeric identifiers use the established metadata-merge key."""
     import re
 
     def shipped(feature):

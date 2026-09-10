@@ -1,0 +1,28 @@
+{
+  "lesson": "32_align_stitch",
+  "language": "sv",
+  "english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
+  "review": {"kind": "Editorial caption translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "Align & Stitch: granska en faktisk plan och verifiera den skrivna mosaiken",
+  "description": "Kör det aktuella gränssnittet för bildsammanfogning på bevarade, verkliga mikroskopipixlar, granska den beräknade placeringen, skriv bildremsor med begränsad buffertstorlek och verifiera både mosaiken och dess koordinatposter.",
+  "objectives": [
+    "Skilj detta exempel med utsnitt och känd geometri från ett experiment med oberoende insamlade bildrutor.",
+    "Ställ in rutnät, överlappning, ordning och referenskanal i det aktuella gränssnittet.",
+    "Granska registreringen före skrivning och skilj budgeten för bildremsebufferten från den totala minnesanvändningen.",
+    "Behåll den sammanfogade bilden, koordinatposterna och dokumentationen om källans ursprung tillsammans."
+  ],
+  "prerequisite": "Förbered bildrutor med känd ordning och överlappning samt en användbar registreringskanal för din egen körning; dina antal och resultat kommer att skilja sig. Inspelningen återanvänder nio bevarade, exakta utsnitt på 800 × 800 × 4 från ett verkligt bildfält på 2 000 × 2 000 × 4 med en förskjutning på 600 pixlar. De efterliknar en 3 × 3-insamling, inte nio oberoende insamlade bildfält. Namnen tutorial_A01 är demonstrationskoordinater, inte den ursprungliga plattan och brunnen. Align & Stitch har ingen separat knapp för att ladda ned ett exempel.",
+  "scenes": [
+    "Öppna Align & Stitch i kategorin Tools på Home. Planering och skrivning är separata åtgärder, så du kan granska en placering innan du skapar dess mosaik. Den här vyn visar bildrutornas placering och en textrapport; de färgade rektanglarna är ingen förhandsvisning av mikroskopibilderna.",
+    "Välj mappen med de bevarade bildrutorna för handledningen. De nio rutorna är exakta utsnitt från en verklig fyrkanalsbild, avsiktligt placerade för att efterlikna en insamling med känd geometri. De är inte nio oberoende bildfält, och handledningens platt- och brunnsnamn är demonstrationsidentifierare.",
+    "Ställ in Grid på 3 × 3, Order på row-major och Overlap på 0,25. Dessa bildrutor på 800 pixlar förskjuts med 600 pixlar. Använd den faktiska insamlingsordningen och den nominella överlappningen för egna data; en ormliknande skanning får inte beskrivas som row-major.",
+    "Ställ in Ref. channel på 1, det andra planet i detta exempel med nollbaserad indexering. Registreringen använder strukturen i det planet och tillämpar en gemensam placering på alla fyra kanaler. Välj en meningsfull registreringskanal; detta är inte en oberoende kromatisk justering av varje kanal.",
+    "Använd Min confidence 0,3, Neighbour radius 1 och Blend feather. Ställ in RAM budget (MB), budgeten för bildremsebufferten, på 8 för detta avgränsade exempel. Inställningen begränsar bildremsorna som används vid skrivning; den sätter inget tak för varje minnesallokering eller programmets totala minnesanvändning.",
+    "Tryck på Plan. Alla nio exempelrutor registreras utan att falla tillbaka på nominella positioner, och den föreslagna bildytan är 2 000 × 2 000 pixlar med fyra kanaler. Ingen utdatabild har skrivits ännu. Granska antalen registrerade, nominellt placerade och oplacerade rutor i stället för att betrakta varje färdig plan som godtagbar.",
+    "Klicka på den mittersta bildrutan för att granska dess koordinater, konfidens, residual och bidragande par. Här ligger dess origo vid 600 pixlar i vardera riktningen, vilket stämmer med den kända placeringen av utsnitten. Perfekt matchande överlappningar i detta konstruerade exempel förutsäger inte registreringskvaliteten vid en ny insamling.",
+    "Välj en ny utdatamapp och en separat koordinatdatabas och låt Overwrite vara avstängt. Write stack aktiveras först när en plan finns och en destination har angetts. Behåll källrutorna oförändrade; att ange en utdatasökväg ersätter inte en granskning av registreringen.",
+    "Tryck på Write stack. Faktiska utdata innehåller alla nio bildrutor, och varje pixel i alla fyra kanaler stämmer med det ursprungliga bildfältet i detta exempel. Resultatet anger utdatasökvägen och användningen av bildremsebufferten. Detta är ett uppmätt resultat för dessa kända utsnitt, inte ett löfte om förlustfri registrering av godtyckliga bilder.",
+    "Koordinatdatabasen innehåller nio poster. Vi kontrollerar varje källfil, demonstrationsplatta och demonstrationsbrunn, bildfältsidentifierare, position på bildytan och sökväg till utdatastacken, inte bara radantalet. Bevara posterna tillsammans med bilden och källmanifestet så att koordinaterna går att tolka vid senare användning.",
+    "I Python läser spacr.align.scan_tiles bildrutornas placering och estimate_offsets bygger planen. write_stack skapar mosaiken; save_coordinates och read_coordinates skriver och läser tillbaka dess koordinattabell. Det separata OPS-arbetsflödet valideras inte av denna lilla sammanfogning. Granska den faktiska insamlingsgeometrin innan du använder något av arbetsflödena för vetenskapliga slutsatser."
+  ]
+}

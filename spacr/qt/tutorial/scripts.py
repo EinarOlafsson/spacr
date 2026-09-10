@@ -5,9 +5,9 @@ engine handles narration synthesis + capture + mux; these functions
 only choose the narration text, the UI actions, and the cursor
 targets.
 
-Every script exercises the same core motion: land on the app, load
-a synthetic demo dataset (via the Demos menu we shipped), highlight
-the interesting parts of the settings form, then click Run.
+Every script follows the same core sequence: open the application, load
+a synthetic dataset through the Demos menu, highlight the relevant settings,
+and start the run.
 
 Two rules keep a script from quietly pointing at nothing:
 
@@ -27,7 +27,7 @@ Two rules keep a script from quietly pointing at nothing:
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, List, Optional
+from typing import Any, List
 
 from .engine import Step
 
@@ -35,6 +35,8 @@ LOG = logging.getLogger("spacr.qt.tutorial")
 
 AVAILABLE_TUTORIALS = [
     "home", "mask", "measure", "crop", "classify", "timelapse",
+    "map_barcodes", "regression",
+    "train_compare", "profiler", "investigate_hit",
 ]
 
 
@@ -45,12 +47,28 @@ def build_steps(app_key: str, window) -> List[Step]:
     :param window: live MainWindow instance the steps drive.
     :raises ValueError: when ``app_key`` is not a known tutorial.
     """
-    if app_key == "home":       return _build_home_steps(window)
-    if app_key == "mask":       return _build_mask_steps(window)
-    if app_key == "measure":    return _build_measure_steps(window)
-    if app_key == "crop":       return _build_crop_steps(window)
-    if app_key == "classify":   return _build_classify_steps(window)
-    if app_key == "timelapse":  return _build_timelapse_steps(window)
+    if app_key == "home":
+        return _build_home_steps(window)
+    if app_key == "mask":
+        return _build_mask_steps(window)
+    if app_key == "measure":
+        return _build_measure_steps(window)
+    if app_key == "crop":
+        return _build_crop_steps(window)
+    if app_key == "classify":
+        return _build_classify_steps(window)
+    if app_key == "timelapse":
+        return _build_timelapse_steps(window)
+    if app_key == "map_barcodes":
+        return _build_map_barcodes_steps(window)
+    if app_key == "regression":
+        return _build_regression_steps(window)
+    if app_key == "train_compare":
+        return _build_train_compare_steps(window)
+    if app_key == "profiler":
+        return _build_profiler_steps(window)
+    if app_key == "investigate_hit":
+        return _build_investigate_hit_steps(window)
     raise ValueError(f"unknown tutorial: {app_key}. "
                        f"Choose from {AVAILABLE_TUTORIALS}")
 
@@ -60,13 +78,28 @@ def build_steps(app_key: str, window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _go_home(window):
+    """Build an action that navigates Home.
+
+    :param window: the main window.
+    :returns: a callable the director fires when its step runs. A closure
+        rather than a direct call: a step's action must not have happened by
+        the time the script is written.
+    """
     def _do():
+        """Navigate Home."""
         window._on_nav_selected("__home__")
     return _do
 
 
 def _nav_to(window, app_key: str):
+    """Build an action that navigates to one module.
+
+    :param window: the main window.
+    :param app_key: the module to open.
+    :returns: a callable the director fires when its step runs.
+    """
     def _do():
+        """Navigate to the bound module."""
         window._on_nav_selected(app_key)
     return _do
 
@@ -77,6 +110,7 @@ def _load_demo(window, demo_key: str, tmp_root: str):
     from pathlib import Path
 
     def _do():
+        """Make the demo folder and point the screen at it."""
         dst = str(Path(tmp_root) / demo_key)
         Path(dst).mkdir(parents=True, exist_ok=True)
         layout = window._run_demo_generator(demo_key, dst)
@@ -114,6 +148,11 @@ def _sidebar_button(window, key: str):
 
 
 def _menu_bar(window):
+    """Return the window's menu bar, for a step that highlights it.
+
+    :param window: the main window.
+    :returns: the menu bar widget.
+    """
     return window.menuBar()
 
 
@@ -131,6 +170,22 @@ def _find_menu(window, title: str):
     Delegates to :func:`spacr.qt.first_run.find_menu`, which is the same
     lookup; a second copy is a second thing to get wrong.
     """
+    # Demos is a Help submenu and MainWindow deliberately retains the QMenu
+    # wrapper that owns its actions. Qt may reparent that submenu when it is
+    # inserted under Help, so it is not reliably returned by the menu bar's
+    # child walk on every PySide6 version. Use the retained owner first.
+    if title == "Demos":
+        menu = getattr(window, "_demo_menu", None)
+        try:
+            # ``_demo_menu`` is the semantic owner, independent of the
+            # currently selected language. Comparing its rendered title to
+            # the English lookup key made the tutorial lose the menu after a
+            # retranslation within the same application session.
+            if menu is not None:
+                menu.title()  # prove that the retained Qt wrapper is live
+                return menu
+        except RuntimeError:
+            pass
     try:
         from ..first_run import find_menu
     except Exception:
@@ -158,9 +213,76 @@ def _menu_target(window, title: str):
     menu = _find_menu(window, title)
     if menu is not None:
         rect = mb.actionGeometry(menu.menuAction())
-        return (mb, (rect.center().x(), rect.center().y()))
+        if rect.isValid() and rect.width():
+            return (mb, (rect.center().x(), rect.center().y()))
+        # A SUBMENU HAS NO PLACE ON THE BAR. Demos moved under Help on
+        # 2026-08-23, so its own geometry is empty and the cursor would aim
+        # at (0, 0). Point at the top-level menu you actually click to
+        # reach it, which is where a user's hand goes.
+        parent = _top_level_menu_containing(window, menu)
+        if parent is not None:
+            rect = mb.actionGeometry(parent.menuAction())
+            return (mb, (rect.center().x(), rect.center().y()))
+    if title == "Demos":
+        # The target users click is Help, not the submenu itself. During a
+        # long tutorial-test session Qt can briefly detach the submenu action
+        # while pages are being rebuilt even though ``_demo_menu`` remains
+        # live. Target the stable top-level Help action directly in that
+        # state. The final-action fallback is language-independent; spaCR and
+        # Help are the only top-level menus in the current compact bar.
+        actions = list(mb.actions())
+        help_action = next(
+            (action for action in actions
+             if action.text().replace("&", "") == "Help"),
+            actions[-1] if actions else None,
+        )
+        if help_action is not None:
+            rect = mb.actionGeometry(help_action)
+            if rect.isValid() and rect.width():
+                return (mb, (rect.center().x(), rect.center().y()))
     LOG.warning("tutorial: menu bar has no %r menu", title)
     return (mb, None)
+
+
+def _top_level_menu_containing(window, menu):
+    """The menu-bar menu that ``menu`` is a submenu of, or None."""
+    mb = window.menuBar()
+    try:
+        # A real rectangle on the bar proves this is already a top-level
+        # menu.  Check that first: during long PySide test sessions a
+        # released submenu wrapper can be recycled and acquire the same
+        # rendered title as an unrelated menu, so title-only relation scans
+        # must never be allowed to reclassify a bar menu as its own child.
+        rect = mb.actionGeometry(menu.menuAction())
+        if rect.isValid() and rect.width():
+            return None
+    except RuntimeError:
+        return None
+    try:
+        target_title = menu.title().replace("&", "")
+    except RuntimeError:
+        return None
+    for action in mb.actions():
+        # Retrieve the bar-owned QMenu wrapper through the same stable lookup
+        # used elsewhere. Returning ``action.menu()`` directly can leave the
+        # caller with a deleted temporary PySide wrapper after ``action`` is
+        # released.
+        top = _find_menu(window, action.text().replace("&", ""))
+        if top is None:
+            continue
+        for entry in top.actions():
+            try:
+                nested = entry.menu()
+                # Compare semantic titles only. Temporary PySide wrappers can
+                # be recycled after Qt releases them, so Python object
+                # identity is not a safe submenu relation across event-loop
+                # turns.
+                if (nested is not None and
+                        nested.title().replace("&", "") == target_title):
+                    return top
+            except RuntimeError:
+                continue
+    return None
 
 
 def _find_button(screen, label: str):
@@ -190,6 +312,15 @@ def _find_button(screen, label: str):
 # ---------------------------------------------------------------------------
 
 def _build_home_steps(window) -> List[Step]:
+    """Build the Home tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     return [
         Step(
             "Welcome to spaCR — a modern desktop application "
@@ -201,32 +332,32 @@ def _build_home_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "The left sidebar gives you quick access to every "
-            "pipeline in spaCR — grouped into Core, Analysis, "
-            "Cellpose, and Sequencing.",
+            "The sidebar groups modules by scientific role: Core, Data, "
+            "Segmentation models, Results and quality control, Explore, "
+            "Assays, and Design.",
             target=(window._sidebar, None),
             highlight=window._sidebar,
             hold_ms=300,
         ),
         Step(
-            "The home page shows every app as a large clickable "
-            "tile. Hovering makes each tile pop, and clicking "
-            "opens the module.",
+            "Home provides one tile for each primary module. Related "
+            "workflows that were consolidated into a module are available "
+            "from icon buttons in that module's header.",
             target=(window._stack, None),
             highlight=window._stack,
             hold_ms=500,
         ),
         Step(
-            "Every pipeline in spaCR ships with a one-click "
-            "synthetic demo dataset. From the Demos menu you can "
-            "generate a working example for any module.",
+            "The Help menu contains Demos for selected core workflows. "
+            "Each entry generates a small synthetic dataset, writes its "
+            "settings, and opens the corresponding module.",
             action=lambda: _open_demos_menu(window),
             target=_menu_target(window, "Demos"),
             highlight=_menu_bar(window),
             hold_ms=800,
         ),
         Step(
-            "Let's jump into the mask module to see it in action.",
+            "Open Mask to examine the first image-analysis stage.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
             highlight=_sidebar_button(window, "mask"),
@@ -263,17 +394,36 @@ def _open_demos_menu(window):
 # ---------------------------------------------------------------------------
 
 def _build_mask_steps(window) -> List[Step]:
+    """Build the Mask tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    The screen is captured into a one-element list by an earlier step's
+    action rather than looked up here: it does not exist when the script is
+    written, and reading ``window._screens`` inside a later step's lambda
+    resolves too early.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("mask")
     screen_ref: List[Any] = [None]
 
     def _capture_screen():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("mask")
 
     return [
         Step(
-            "This is the mask module — spaCR's front door for "
-            "segmenting cells, nuclei, and pathogens using "
-            "Cellpose.",
+            "Mask generates per-object masks for cells, nuclei, pathogens, "
+            "and configured organelles from microscopy images using Cellpose "
+            "and, for organelles, classical or custom-model methods.",
             action=_nav_to(window, "mask"),
             target=(_sidebar_button(window, "mask"), None),
             highlight=_sidebar_button(window, "mask"),
@@ -281,10 +431,9 @@ def _build_mask_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Rather than pointing you at your own data, we'll load "
-            "a synthetic demo from the Demos menu — this generates "
-            "a small dataset in the correct format and fills in "
-            "every setting.",
+            "Load Mask demo from Help, Demos. The command generates a "
+            "small synthetic acquisition, writes a compatible settings "
+            "file, and applies those settings to this screen.",
             action=lambda: (_load_demo(window, "mask", tmp_root)(),
                              _capture_screen()),
             target=_menu_target(window, "Demos"),
@@ -294,33 +443,33 @@ def _build_mask_steps(window) -> List[Step]:
         ),
         Step(
             "The settings panel on the left is now populated. "
-            "Notice the source folder, the channel layout, "
-            "and each object's Cellpose model — cyto for cells, "
-            "nuclei for nuclei.",
+            "Verify the source, metadata parser, channel assignments, object "
+            "diameters, and each object's segmentation method. Confirm the "
+            "model or checkpoint wherever that method requires one.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "The console on the right will stream every log "
-            "record — from spaCR itself, from Cellpose, and from "
-            "any warnings raised during the run.",
+            "The console on the right records validation, segmentation "
+            "progress, warnings, and output paths. Resolve validation "
+            "errors before interpreting a completed run.",
             target=(lambda: _console_panel(screen_ref[0]), None),
             highlight=lambda: _console_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "When you hit Run, spaCR converts your images to a "
-            "Yokogawa-style stack, normalises each channel, and "
-            "then hands each field to Cellpose to segment.",
+            "Selecting Run parses the acquisition metadata, assembles each "
+            "field and channel stack, applies the configured preprocessing, "
+            "and generates the requested object masks.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=600,
         ),
         Step(
-            "Once the run finishes, the masks land in a masks "
-            "subfolder next to your images, ready to feed into "
-            "the measure module.",
+            "The run writes label images under masks and merged image-mask "
+            "arrays under merged. Review segmentation quality before using "
+            "those arrays in Measure.",
             hold_ms=400,
         ),
     ]
@@ -331,17 +480,31 @@ def _build_mask_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_measure_steps(window) -> List[Step]:
+    """Build the Measure tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("measure")
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("measure")
 
     return [
         Step(
-            "The measure module extracts single-object features "
-            "from your segmented images — intensity, morphology, "
-            "co-localization, texture, and radial distribution.",
+            "Measure computes per-object intensity, morphology, texture, "
+            "colocalization, radial-distribution, and spatial features from "
+            "merged image-mask arrays.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
             highlight=_sidebar_button(window, "measure"),
@@ -349,9 +512,8 @@ def _build_measure_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load the measure demo — this ships pre-built masks "
-            "and a measurements database seeded with the correct "
-            "schema.",
+            "Load Measure demo from Help, Demos. It provides representative "
+            "merged arrays and applies a valid measurement configuration.",
             action=lambda: (_load_demo(window, "measure", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -361,24 +523,25 @@ def _build_measure_steps(window) -> List[Step]:
         ),
         Step(
             "The demo populates the source folder, the channel "
-            "layout, and every measurement toggle. The cell, "
-            "nucleus, and pathogen channels can be tuned "
-            "independently.",
+            "layout, object tables, and measurement controls. Confirm each "
+            "cell, nucleus, pathogen, cytoplasm, and organelle role before "
+            "measuring intensities or relationships.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "Optionally, measure will also crop each object into "
-            "a PNG for classify — enable Save PNG and pick a size.",
+            "Measure can optionally export object-centred PNG crops for "
+            "annotation or image classification. Enable crop export, select "
+            "the object types and channels, and record the crop dimensions.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=400,
         ),
         Step(
-            "Hitting Run walks every mask, computes features, and "
-            "appends rows to measurements.db — one row per object, "
-            "per timepoint if you're doing timelapse.",
+            "Selecting Run computes the requested features and writes one "
+            "database row per measured object, with time-indexed rows when "
+            "the source contains tracked frames.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=500,
@@ -391,17 +554,31 @@ def _build_measure_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_crop_steps(window) -> List[Step]:
+    """Build the Crop tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("crop")
     screen_ref: List[Any] = [None]
 
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("measure")
 
     return [
         Step(
-            "The crop demo lands you in the measure module — "
-            "in spaCR, cropping is one of the outputs of measure, "
-            "not a standalone step.",
+            "Crop export is part of Measure rather than a standalone module. "
+            "The exported images retain object identifiers that connect "
+            "them to measurements and annotations.",
             action=_nav_to(window, "measure"),
             target=(_sidebar_button(window, "measure"), None),
             highlight=_sidebar_button(window, "measure"),
@@ -409,9 +586,8 @@ def _build_crop_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Load the crop demo — this pre-fills a set of "
-            "settings that turn measure into a pure crop-and-save "
-            "job.",
+            "Load Crop demo from Help, Demos. It configures Measure to "
+            "export object crops from the supplied merged arrays.",
             action=lambda: (_load_demo(window, "crop", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -420,17 +596,17 @@ def _build_crop_steps(window) -> List[Step]:
             hold_ms=800,
         ),
         Step(
-            "Save PNG is on, PNG size is 64, and PNG dims picks "
-            "which channels get baked into the crop. You'll get "
-            "one folder of thumbnails per object type.",
+            "The crop controls specify the object types, dimensions, channel "
+            "composition, and optional contextual dilation. Measure writes "
+            "one identified crop collection per selected object type.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "The crops are what feed into classify — once you "
-            "annotate them, you have a labelled training set for "
-            "your own CNN.",
+            "After review and annotation, these crops can train the Computer "
+            "Vision workflow in Classify. Preserve plate or well groups so "
+            "related objects cannot leak across validation splits.",
             hold_ms=400,
         ),
     ]
@@ -441,17 +617,43 @@ def _build_crop_steps(window) -> List[Step]:
 # ---------------------------------------------------------------------------
 
 def _build_classify_steps(window) -> List[Step]:
+    """Build the Classify tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("classify")
     screen_ref: List[Any] = [None]
 
+    classify_ref: List[Any] = [None]
+
     def _capture():
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
         screen_ref[0] = window._screens.get("annotate")
+
+    def _capture_classify():
+        """Remember Classify's screen, once this script has opened it.
+
+        CAPTURED RATHER THAN LOOKED UP, and the difference is not academic:
+        reading `window._screens` inside the target would resolve as soon as
+        ANY earlier lesson had opened Classify, and the engine's contract is
+        that a deferred target is dead until its own step has run.
+        """
+        classify_ref[0] = window._screens.get("classify_merged")
 
     return [
         Step(
-            "Classify starts in the annotate module — this is "
-            "where you label the crops that measure produced, so "
-            "that classify has a training set.",
+            "Image classification requires reviewed labels. Begin in "
+            "Annotate to assign classes to the object crops produced by "
+            "Measure, then hand the labelled project to Classify.",
             action=_nav_to(window, "annotate"),
             target=(_sidebar_button(window, "annotate"), None),
             highlight=_sidebar_button(window, "annotate"),
@@ -459,9 +661,9 @@ def _build_classify_steps(window) -> List[Step]:
             hold_ms=400,
         ),
         Step(
-            "Loading the classify demo generates a small folder "
-            "of pre-labelled synthetic crops so we can see the "
-            "labelling grid without needing real data.",
+            "Load Classify demo from Help, Demos. It generates a small "
+            "synthetic crop collection with example labels and opens the "
+            "annotation grid.",
             action=lambda: (_load_demo(window, "classify", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -470,51 +672,511 @@ def _build_classify_steps(window) -> List[Step]:
             hold_ms=1000,
         ),
         Step(
-            "Each tile is a single-cell crop. Left-click cycles "
-            "through class labels — none, one, two, and back to "
-            "none — so you can label a whole plate very quickly.",
+            "Each tile represents one identified object crop. Assign the "
+            "reviewed class with the annotation controls and inspect image "
+            "context before resolving ambiguous examples.",
             target=(lambda: screen_ref[0], None),
             highlight=lambda: screen_ref[0],
             hold_ms=500,
         ),
+        # ONE BUTTON NOW, NOT TWO. "Train CV" and "Train XG" were merged
+        # into a single `Train...` with a menu, and this step was not moved
+        # with them -- so its target resolved to None and the tutorial
+        # pointed at nothing. The narration named both old buttons too.
         Step(
-            "When you're done, the Train CV and Train XG buttons "
-            "hand your annotations off to classify — either as a "
-            "CNN or as an XGBoost model.",
-            target=(lambda: _find_button(screen_ref[0], "Train CV"), None),
-            highlight=lambda: _find_button(screen_ref[0], "Train CV"),
+            "Train opens a menu with the two destinations: on the images "
+            "trains a Torch CNN or Transformer on the crops themselves, on "
+            "the measured features trains XGBoost on what Measure recorded. "
+            "Both open in the consolidated Classify module.",
+            target=(lambda: _find_button(screen_ref[0], "Train"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Train"),
             hold_ms=500,
+        ),
+        # AND THEN IT OPENS CLASSIFY. Until 2026-09-04 the tutorial called
+        # "classify" stopped here, at Annotate's Train button, having said
+        # "both open in the consolidated Classify module" and never opened
+        # it. That is the stale module boundary instruction 358 was filed
+        # about: a polished lesson teaching a structure the application no
+        # longer has.
+        Step(
+            "Classify is where the training runs. The settings column carries "
+            "the model, the split and the training schedule; the actions row "
+            "runs it and the console below reports each epoch.",
+            action=lambda: (_nav_to(window, "classify_merged")(),
+                             _capture_classify()),
+            target=(_sidebar_button(window, "classify_merged"), None),
+            highlight=_sidebar_button(window, "classify_merged"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        # FIVE MODULES WERE FOLDED IN HERE, and instruction 358 asks that each
+        # one be named and located rather than left for the reader to find.
+        # The specialist lessons that still explain them accurately are kept
+        # and pointed at rather than re-narrated.
+        Step(
+            "Five modules that used to be their own tiles now live on this "
+            "masthead. Classifier Evaluation judges the trained model, "
+            "Explain CV asks which measured features it keyed on, and "
+            "Activation Maps shows where in the image it looked.",
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "classifier_evaluation"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "classifier_evaluation"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+        Step(
+            "Training Runs compares two runs against each other, and Feature "
+            "Explorer ranks measured features before anything is trained. "
+            "Both are appended to the reading sequence rather than inserted "
+            "into it, because neither is a step in it.",
+            target=(lambda: _fold_button(classify_ref[0],
+                                         "train_compare"), None),
+            highlight=lambda: _fold_button(classify_ref[0],
+                                           "train_compare"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+
+# ---------------------------------------------------------------------------
+# Map Barcodes tutorial — the one Core module that reads sequencing, not images
+# ---------------------------------------------------------------------------
+# THE ODD ONE OUT, and the tutorial has to say so early. Every other Core
+# module takes microscopy; this one takes FASTQ and produces the table that
+# tells Regression which well got which perturbation. A reader who arrives
+# expecting images needs that said before anything else.
+
+def _build_map_barcodes_steps(window) -> List[Step]:
+    """Build the Map Barcodes tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
+    tmp_root = _tutorial_scratch("map_barcodes")
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("map_barcodes")
+
+    return [
+        Step(
+            "Map Barcodes is the one Core module that reads sequencing rather "
+            "than microscopy. It takes the FASTQ from a pooled screen and "
+            "works out which perturbation landed in which well, which is what "
+            "lets a later regression attribute a phenotype to a gene.",
+            action=_nav_to(window, "map_barcodes"),
+            target=(_sidebar_button(window, "map_barcodes"), None),
+            highlight=_sidebar_button(window, "map_barcodes"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "Load Map Barcodes demo from Help, Demos. It writes a small FASTQ "
+            "and the barcode references that go with it, then points the "
+            "module at them, so the run below is real work on real reads "
+            "rather than a walkthrough of an empty form.",
+            action=lambda: (_load_demo(window, "map_barcodes", tmp_root)(),
+                             _capture()),
+            target=_menu_target(window, "Demos"),
+            highlight=_menu_bar(window),
+            show_pointer=True,
+            hold_ms=1000,
+        ),
+        Step(
+            "Sequencing Input names the reads. Barcode References names the "
+            "three things a read has to be resolved against: the row, the "
+            "column, and the guide library. Read Parsing is where the layout "
+            "of the read itself is described, and it is the setting most "
+            "worth checking before a long run.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Run counts every read that resolves to a row, a column and a "
+            "guide, and writes one row per well. The console reports reads "
+            "that matched nothing, and that number is the one to look at "
+            "first: a parse that is subtly wrong usually fails cleanly rather "
+            "than producing plausible nonsense.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
+            show_pointer=True,
+            hold_ms=800,
         ),
     ]
 
 
 # ---------------------------------------------------------------------------
-# Timelapse module tutorial — the standalone Timelapse module
+# Regression tutorial — the module that consumes what everything else produces
 # ---------------------------------------------------------------------------
+# NO DEMO OF ITS OWN, and that is honest rather than a gap: regression needs a
+# measured screen AND a barcode mapping, so its live data is the OUTPUT of the
+# two tutorials before it. The script says which ones and in what order,
+# rather than pretending a synthetic single-module dataset would teach the
+# thing that matters here.
+
+def _build_regression_steps(window) -> List[Step]:
+    """Build the Regression tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("regression")
+
+    return [
+        Step(
+            "Regression is where a screen becomes a result. It takes the "
+            "per-object measurements from Measure and the well-level "
+            "perturbations from Map Barcodes, and asks which perturbations "
+            "moved the phenotype.",
+            action=lambda: (_nav_to(window, "regression")(), _capture()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "This module has no demo dataset of its own, and that is the "
+            "point rather than an omission: it needs a measured screen and a "
+            "barcode mapping. Run the Measure and Map Barcodes lessons first "
+            "and their outputs are what you drop here.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=900,
+        ),
+        Step(
+            "Input Tables takes those two outputs. Controls and Filters names "
+            "which wells are the reference the rest are judged against, and "
+            "getting that wrong invalidates everything downstream of it.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Plate and Batch Correction is not optional on a multi-plate "
+            "screen. A plate effect is indistinguishable from a real one "
+            "unless it is modelled, and a hit list built without it will "
+            "rank whichever plate ran best.",
+            target=(lambda: _settings_panel(screen_ref[0]), None),
+            highlight=lambda: _settings_panel(screen_ref[0]),
+            hold_ms=800,
+        ),
+        Step(
+            "Model and Inference chooses the estimator; the Permutation Test "
+            "beside it is what turns a coefficient into a claim, by asking "
+            "how often a shuffled label produces an effect this large. Run "
+            "writes the fitted table, and the Prediction Profiler and "
+            "Investigate Hit modules read it from there.",
+            target=(lambda: _find_button(screen_ref[0], "Run"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Run"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+
+# ---------------------------------------------------------------------------
+# The three downstream readers: Training Runs, Prediction Profiler,
+# Investigate Hit
+# ---------------------------------------------------------------------------
+# NONE OF THEM HAS A DEMO, and none of them should. Each reads an artefact an
+# earlier module WROTE -- a set of training runs, a fitted model, a regression
+# hit -- so a synthetic single-module dataset would teach a workflow nobody
+# has. Each lesson therefore names the module that produces its input, in the
+# same way the Regression lesson does.
+#
+# Two of the three are also reachable from Classify's masthead. Instruction
+# 358 asks that a folded action be named and located rather than narrated
+# twice, so these lessons say where the button is instead of the Classify
+# lesson explaining what the module does.
+
+def _build_train_compare_steps(window) -> List[Step]:
+    """Build the Train and Compare tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
+    screen_ref: List[Any] = [None]
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("train_compare")
+
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Classify, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("classify_merged")
+
+    return [
+        # NOT IN THE SIDEBAR, and the lesson has to open by saying so. This
+        # module has no sidebar row: it is reached from Classify's masthead,
+        # because comparing runs is something you do while working on a
+        # model rather than a place you navigate to.
+        Step(
+            "Training Runs has no sidebar row. It hangs on Classify's "
+            "masthead, because comparing two runs is something you do while "
+            "working on a model rather than somewhere you go.",
+            action=lambda: (_nav_to(window, "classify_merged")(),
+                             _capture_host()),
+            target=(_sidebar_button(window, "classify_merged"), None),
+            highlight=_sidebar_button(window, "classify_merged"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "This is the button. It compares finished runs against each "
+            "other: the curves side by side, and a diff of the settings that "
+            "produced them. It answers the question a single run cannot, "
+            "which is whether a change helped.",
+            action=lambda: (_nav_to(window, "train_compare")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "train_compare"), None),
+            highlight=lambda: _fold_button(host_ref[0], "train_compare"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Choose folder points it at where your runs were written, and "
+            "Scan finds them. There is no demo here on purpose: the input is "
+            "whatever Classify has already trained, so run the Classify "
+            "lesson first and scan its output folder.",
+            target=(lambda: _find_button(screen_ref[0], "Scan"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Scan"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Tick two runs and Overlay selected puts their curves on one "
+            "axis. The settings diff underneath is the half worth reading "
+            "slowly: two runs usually differ in more places than the one you "
+            "changed, and a curve that improved for a reason you did not "
+            "intend is the commonest way a screen goes wrong quietly.",
+            target=(lambda: _find_button(screen_ref[0], "Overlay selected"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Overlay selected"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+def _build_profiler_steps(window) -> List[Step]:
+    """Build the Profiler tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
+    screen_ref: List[Any] = [None]
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Regression, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("regression")
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("profiler")
+
+    return [
+        Step(
+            "Prediction Profiler asks how a fitted model's prediction moves "
+            "as one input variable changes, holding the rest still. It is how "
+            "you find out whether a model learned the thing you meant or "
+            "something correlated with it.",
+            action=lambda: (_nav_to(window, "regression")(), _capture_host()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "It has no sidebar row of its own. It hangs on Regression's "
+            "masthead, with the volcano, the hit list and the write-up, "
+            "because it is something you reach from a result rather than "
+            "somewhere you go first.",
+            action=lambda: (_nav_to(window, "profiler")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "profiler"), None),
+            highlight=lambda: _fold_button(host_ref[0], "profiler"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Browse takes a model that has already been fitted, so there is "
+            "no demo dataset: run Regression or Classify first and point this "
+            "at what it wrote.",
+            target=(lambda: _find_button(screen_ref[0], "Browse"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Browse"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "The profile sweeps one variable and holds the rest still. Reset "
+            "held values puts those back to where they started, which matters "
+            "because the curve you get depends on where the others are "
+            "pinned. A curve that is flat everywhere means the model is not "
+            "using that variable at all -- a result rather than a failure, "
+            "and usually a more useful one than a curve that rises.",
+            target=(lambda: _find_button(screen_ref[0], "Reset held values"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Reset held values"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+def _build_investigate_hit_steps(window) -> List[Step]:
+    """Build the Investigate Hit tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
+    screen_ref: List[Any] = [None]
+    host_ref: List[Any] = [None]
+
+    def _capture_host():
+        """Remember Regression, which is where this module is reached from."""
+        host_ref[0] = window._screens.get("regression")
+
+    def _capture():
+        """Remember the screen, once the step before this one has built it."""
+        screen_ref[0] = window._screens.get("investigate_hit")
+
+    return [
+        Step(
+            "Investigate Hit takes one gene a regression flagged and asks "
+            "which individual cells carry the evidence for it. A hit is a "
+            "well-level number; this is where it becomes something you can "
+            "look at.",
+            action=lambda: (_nav_to(window, "regression")(), _capture_host()),
+            target=(_sidebar_button(window, "regression"), None),
+            highlight=_sidebar_button(window, "regression"),
+            show_pointer=True,
+            hold_ms=700,
+        ),
+        Step(
+            "It has no sidebar row of its own. It hangs on Regression's "
+            "masthead, with the volcano, the hit list and the write-up, "
+            "because it is something you reach from a result rather than "
+            "somewhere you go first.",
+            action=lambda: (_nav_to(window, "investigate_hit")(), _capture()),
+            target=(lambda: _fold_button(host_ref[0], "investigate_hit"), None),
+            highlight=lambda: _fold_button(host_ref[0], "investigate_hit"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Browse takes the measurements and the regression output "
+            "together, and the screen records which run the claim came from. "
+            "There is no demo: the input is a hit, so run the Regression "
+            "lesson first and bring one here.",
+            target=(lambda: _find_button(screen_ref[0], "Browse"), None),
+            highlight=lambda: _find_button(screen_ref[0], "Browse"),
+            show_pointer=True,
+            hold_ms=800,
+        ),
+        Step(
+            "Investigate hit runs it. The attribution model is cross-fitted "
+            "on purpose: scoring cells with a model fitted on the same cells "
+            "finds the evidence it was trained to find, which is how a hit "
+            "gets confirmed by its own noise.",
+            target=(lambda: _find_button(screen_ref[0], "Investigate hit"),
+                    None),
+            highlight=lambda: _find_button(screen_ref[0], "Investigate hit"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+        Step(
+            "Open candidate crops shows the cells themselves, and Compare in "
+            "Image UMAP puts them among the rest. Promote calls to annotation "
+            "records the claim against the attribution run, so it keeps its "
+            "provenance rather than becoming a note someone has to trust -- "
+            "and Undo promotion withdraws it.",
+            target=(lambda: _find_button(screen_ref[0],
+                                         "Promote calls to annotation"), None),
+            highlight=lambda: _find_button(screen_ref[0],
+                                           "Promote calls to annotation"),
+            show_pointer=True,
+            hold_ms=900,
+        ),
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Timelapse tutorial — the tracking switch on Mask Generation
+# ---------------------------------------------------------------------------
+# Timelapse has no destination of its own: it is the mask pipeline with
+# tracking turned on, so what is its own is a couple of settings CATEGORIES
+# and a switch on the Mask masthead that reveals them. The script therefore
+# lands on Mask, loads the timelapse demo -- whose settings file carries
+# `timelapse=True`, which moves the switch as it is applied -- and narrates
+# the switch and the categories it just revealed.
 
 def _build_timelapse_steps(window) -> List[Step]:
+    """Build the Timelapse tutorial's steps.
+
+    Returned as data rather than run: the director walks the list, narrating
+    each step and firing its action, so a step is a description of what the
+    viewer should see and not a call that has already happened.
+
+    :param window: the main window the tutorial drives.
+    :returns: the steps, in order.
+    """
     tmp_root = _tutorial_scratch("timelapse")
     screen_ref: List[Any] = [None]
 
     def _capture():
-        screen_ref[0] = window._screens.get("timelapse")
+        """Remember the screen this step is about, once it exists.
+
+        The screen is built by the step BEFORE this one, so it cannot be looked
+        up when the script is written -- only when the step runs.
+        """
+        screen_ref[0] = window._screens.get("mask")
 
     return [
         Step(
-            "spaCR handles timelapse natively — every module "
-            "understands the T dimension in the Yokogawa filename "
-            "convention.",
-            action=_nav_to(window, "timelapse"),
-            target=(_sidebar_button(window, "timelapse"), None),
-            highlight=_sidebar_button(window, "timelapse"),
+            "Timelapse is a tracking mode within Mask. It generates a mask "
+            "for each time point and links selected objects across frames "
+            "using acquisition metadata that includes a time axis.",
+            action=_nav_to(window, "mask"),
+            target=(_sidebar_button(window, "mask"), None),
+            highlight=_sidebar_button(window, "mask"),
             show_pointer=True,
             hold_ms=400,
         ),
         Step(
-            "Loading the timelapse demo generates eight frames "
-            "per field. Every downstream module then handles "
-            "tracking, motion, and per-frame analysis "
-            "automatically.",
+            "Load Timelapse demo from Help, Demos. It generates eight frames "
+            "per field and applies settings with tracking enabled, which "
+            "activates the Timelapse switch and reveals its categories.",
             action=lambda: (_load_demo(window, "timelapse", tmp_root)(),
                              _capture()),
             target=_menu_target(window, "Demos"),
@@ -523,18 +1185,26 @@ def _build_timelapse_steps(window) -> List[Step]:
             hold_ms=800,
         ),
         Step(
-            "The Timelapse tab in the settings panel holds the "
-            "tracking knobs — which objects to link, the linking "
-            "mode, and how far an object may travel between "
-            "frames.",
+            "The Timelapse icon in the Mask header is a persistent switch. "
+            "It remains highlighted while tracking is enabled and hides the "
+            "tracking categories when disabled.",
+            target=(lambda: _fold_button(screen_ref[0], "timelapse"), None),
+            highlight=lambda: _fold_button(screen_ref[0], "timelapse"),
+            show_pointer=True,
+            hold_ms=600,
+        ),
+        Step(
+            "The revealed categories specify which objects are linked, the "
+            "tracking backend, frame range, displacement and gap constraints, "
+            "lifetime filters, diagnostics, and movie outputs.",
             target=(lambda: _settings_panel(screen_ref[0]), None),
             highlight=lambda: _settings_panel(screen_ref[0]),
             hold_ms=500,
         ),
         Step(
-            "Run will then generate a per-frame mask stack, and "
-            "measure will produce a longitudinal database with "
-            "one row per object per timepoint.",
+            "Run generates per-frame labels and stable track identities. "
+            "Use the Motility workflow from Measure when calibrated trajectory "
+            "and velocity measurements are required from the finished tracks.",
             target=(lambda: _find_button(screen_ref[0], "Run"), None),
             highlight=lambda: _find_button(screen_ref[0], "Run"),
             hold_ms=400,
@@ -572,9 +1242,36 @@ def _settings_panel(screen):
 
 
 def _console_panel(screen):
+    """Find a screen's console, for a step that points at it.
+
+    :param screen: the module screen, or ``None`` before it is built.
+    :returns: the console panel, or ``None`` when the screen has none.
+    """
     if screen is None:
         return None
     return getattr(screen, "_console", None)
+
+
+def _fold_button(screen, key: str):
+    """The masthead switch a folded module hangs on ``screen``, or ``None``.
+
+    Asked of the strip rather than found by caption: a fold button IS the
+    module's icon and carries no text, so a text search cannot see it.
+    Resolved at capture time like every other deferred target, because the
+    strip is built with the screen and the screen is built by an earlier
+    step.
+    """
+    if screen is None:
+        return None
+    strip = getattr(screen, "_fold_strip", None)
+    if strip is None or not hasattr(strip, "button_for"):
+        LOG.warning("tutorial: %r carries no fold strip — the switch step "
+                      "will highlight nothing", key)
+        return None
+    button = strip.button_for(key)
+    if button is None:
+        LOG.warning("tutorial: no fold switch for %r on this screen", key)
+    return button
 
 
 def _tutorial_scratch(name: str) -> str:

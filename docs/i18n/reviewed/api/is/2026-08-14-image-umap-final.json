@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.UmapAppearanceDialog#0",
+      "source_sha256": "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee",
+      "source": "Non-modal point renderer controls for one embedding view.",
+      "context": "Non-modal point renderer controls for one embedding view.",
+      "translation": "Óhamlandi stýringar punktateiknara fyrir eina innfellingarsýn."
+    }
+  ]
+}

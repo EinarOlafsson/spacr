@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "context": "GPU / VRAM / Disk, read on build and on every Home revisit.",
+      "label": "spacr.qt.widgets.home.SystemPanel#0",
+      "source": "GPU / VRAM / Disk, read on build and on every Home revisit.",
+      "source_sha256": "e544ae5c2f5d7f0be43b82fecce1460fd2261041ebde1c1e2754cae45703cbd8",
+      "translation": "GPU / VRAM / Festplatte, beim Aufbau und bei jedem erneuten Aufruf der Startseite ausgelesen."
+    },
+    {
+      "context": "Every reading degrades to a string rather than vanishing — a blank row reads as \"broken\", while ``n/a`` honestly says the lightweight system probe could not measure a device.  Home must not import a model runtime merely to decorate the dashboard.",
+      "label": "spacr.qt.widgets.home.SystemPanel#1",
+      "source": "Every reading degrades to a string rather than vanishing — a blank row reads as \"broken\", while ``n/a`` honestly says the lightweight system probe could not measure a device.  Home must not import a model runtime merely to decorate the dashboard.",
+      "source_sha256": "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3",
+      "translation": "Jeder Messwert wird in eine Zeichenfolge umgewandelt, statt zu verschwinden — eine leere Zeile wird als \"broken\" angezeigt, während ``n/a`` ehrlich angibt, dass die leichtgewichtige Systemabfrage ein Gerät nicht messen konnte. Die Startseite darf nicht allein zur Dekoration des Dashboards eine Modell-Laufzeitumgebung importieren."
+    }
+  ]
+}

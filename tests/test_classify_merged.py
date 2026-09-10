@@ -52,6 +52,8 @@ def test_the_families_do_not_claim_each_others_settings():
     cv = set(classify.FAMILY_SETTINGS["cv"])
     ml = set(classify.FAMILY_SETTINGS["ml"])
     assert cv.isdisjoint(ml), sorted(cv & ml)
+    assert "custom_model" not in cv
+    assert "custom_model_path" in cv
 
 
 @pytest.mark.parametrize("family", classify.CLASSIFIER_FAMILIES)
@@ -111,6 +113,73 @@ def test_the_ml_pipeline_still_gets_the_names_it_reads(monkeypatch):
     assert s["test_split"] == 0.25
 
 
+def test_merged_ml_payload_uses_ml_model_not_cv_backbone(monkeypatch):
+    """Regression for GitHub #98's exact conflicting model keys."""
+    seen = {}
+    import spacr.ml as ml
+    monkeypatch.setattr(ml, "generate_ml_scores",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "ml",
+        "model_type_ml": "xgboost",
+        "model_type": "maxvit_t",
+    })
+
+    assert seen["settings"]["model_type_ml"] == "xgboost"
+    # The inactive CV selection remains intact for a later family switch.
+    assert seen["settings"]["model_type"] == "maxvit_t"
+
+
+def test_legacy_ml_payload_migrates_model_type(monkeypatch):
+    """Shared-vocabulary ML files used model_type before the controls split."""
+    seen = {}
+    import spacr.ml as ml
+    monkeypatch.setattr(ml, "generate_ml_scores",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "ml",
+        "model_type": "random_forest",
+    })
+
+    assert seen["settings"]["model_type_ml"] == "random_forest"
+
+
+def test_unknown_ml_model_is_rejected_before_pipeline_dispatch(monkeypatch):
+    called = False
+    import spacr.ml as ml
+
+    def _must_not_run(_settings):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(ml, "generate_ml_scores", _must_not_run)
+    with pytest.raises(ValueError, match="Unsupported model_type_ml.*not-a-model"):
+        classify.classify({
+            "classifier_family": "ml",
+            "model_type_ml": "not-a-model",
+            "model_type": "maxvit_t",
+        })
+    assert not called
+
+
+def test_cv_dispatch_keeps_its_model_when_ml_choice_is_also_present(
+        monkeypatch):
+    seen = {}
+    import spacr.deep_spacr as ds
+    monkeypatch.setattr(ds, "deep_spacr",
+                        lambda settings: seen.setdefault("settings", settings))
+
+    classify.classify({
+        "classifier_family": "cv",
+        "model_type_ml": "xgboost",
+        "model_type": "maxvit_t",
+    })
+
+    assert seen["settings"]["model_type"] == "maxvit_t"
+
+
 def test_the_training_basis_survives_dispatch(monkeypatch):
     seen = {}
     import spacr.deep_spacr as ds
@@ -132,8 +201,16 @@ def test_the_merged_module_is_registered_everywhere_it_has_to_be():
     from spacr.qt.screens import app_screen
 
     keys = {row[0] for row in APPS}
-    assert {"classify_merged", "classify", "ml_analyze"} <= keys, (
-        "the merged module must be registered AND both originals kept")
+    assert "classify_merged" in keys, "the merged module must be registered"
+    # ONE Classify screen. The two originals were kept beside the merged one
+    # while a saved settings CSV still needed a screen of its own; they are
+    # gone from the registry now, because three entries for one job is three
+    # places to look and two of them are the same run with half the choices.
+    # The ENTRY POINTS are untouched -- `classify.classify` dispatches to
+    # `deep_spacr` and `generate_ml_scores` by `classifier_family` -- and
+    # that is asserted by the dispatch tests above, not by a registry row.
+    assert not ({"classify", "ml_analyze"} & keys), (
+        "an old Classify key is back in the registry; there is one screen")
 
     row = next(r for r in APPS if r[0] == "classify_merged")
     assert row[1] == "Classify"
@@ -147,6 +224,56 @@ def test_the_merged_module_is_registered_everywhere_it_has_to_be():
     assert not others, f"icon collides with {others}"
     assert app_screen.APP_TITLES.get("classify_merged") == "Classify"
     assert app_screen.APP_INTROS.get("classify_merged")
+
+
+def test_an_old_ml_settings_file_keeps_the_wells_it_named(qtbot):
+    """The control-well trio has no widget on the merged screen, so loading
+    an old Classify (ML) settings file used to drop all three.
+
+    ``location_column``/``positive_control``/``negative_control`` said which
+    wells the two classes are. The merged module says it once, in the Classes
+    editor -- and with nothing translating the old keys on the way in, the
+    editor stayed EMPTY and the run fell back to the module's own default
+    wells (columnID c1/c2) instead of the ones the file named. Silently, and
+    reporting success: exactly the INVARIANTS 6 trap, with the wrong labels.
+    """
+    from spacr.io import _class_column
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.settings import (set_default_analyze_screen,
+                                set_generate_training_dataset_defaults)
+
+    old = set_default_analyze_screen(settings={})
+    old.update({"src": "/data/exp", "dataset_mode": "metadata",
+                "location_column": "rowID",
+                "positive_control": "r5", "negative_control": "r6"})
+
+    screen = AppScreen("classify_merged")
+    qtbot.addWidget(screen)
+    screen.apply_settings_dict(dict(old))
+
+    loaded = screen._settings_model.collect()
+    assert loaded["classes"] == {
+        "negative control": {"column": "rowID", "value": "r6"},
+        "positive control": {"column": "rowID", "value": "r5"},
+    }, loaded["classes"]
+
+    # ...and the run that settings dict describes selects the same wells the
+    # old module selected, rather than the defaults.
+    run = set_generate_training_dataset_defaults(dict(loaded))
+    assert _class_column(run) == "rowID"
+    assert sorted(v for pair in run["class_metadata"] for v in pair) == \
+        ["r5", "r6"]
+
+
+def test_a_saved_run_under_an_old_classify_key_still_finds_a_screen():
+    """Dropping the two tiles must not orphan a settings CSV saved under
+    either old key: navigating to a key with no tile builds a page with no
+    sidebar row and no way back to it."""
+    from spacr.qt import chaining
+
+    assert chaining.screen_for_module("classify") == "classify_merged"
+    assert chaining.screen_for_module("ml_analyze") == "classify_merged"
+    assert chaining.screen_for_module("classify_merged") == "classify_merged"
 
 
 def test_the_merged_defaults_are_the_union_of_both():
@@ -172,9 +299,7 @@ def test_the_merged_defaults_are_the_union_of_both():
 
 
 def test_the_retired_keys_are_gone_from_every_classify_module():
-    """annotated_classes and custom_measurement were collected by the form
-    and read by nothing. Carrying a dead key into a new module is how it
-    survives another five years."""
+    """Dead controls do not survive in either classifier settings family."""
     from spacr.settings import (
         deep_spacr_defaults, set_default_analyze_screen, set_default_classify,
     )
@@ -184,6 +309,22 @@ def test_the_retired_keys_are_gone_from_every_classify_module():
         keys = set(factory(settings={}))
         assert "annotated_classes" not in keys, factory.__name__
         assert "custom_measurement" not in keys, factory.__name__
+        assert "custom_model" not in keys, factory.__name__
+
+
+def test_the_retired_custom_model_boolean_is_removed_from_legacy_inputs():
+    from spacr.settings import (
+        deep_spacr_defaults,
+        get_train_test_model_settings,
+        set_default_classify,
+        set_default_train_test_model,
+    )
+
+    for factory in (deep_spacr_defaults, get_train_test_model_settings,
+                    set_default_classify, set_default_train_test_model):
+        resolved = factory({"custom_model": False})
+        assert "custom_model" not in resolved, factory.__name__
+        assert "custom_model_path" in resolved, factory.__name__
 
 
 # ---------------------------------------------------------------------------
@@ -241,6 +382,13 @@ def test_the_merged_panel_still_has_no_leftovers(qtbot):
     """Reordering the groups must not drop a key into "Additional Settings",
     the bucket these layouts exist to keep empty."""
     names, host = _sections("classify_merged")
+    qtbot.addWidget(host)
+    assert "Additional Settings" not in names, names
+
+
+def test_the_cv_panel_still_has_no_leftovers(qtbot):
+    """Canonical crop-source controls are categorized in Classify (CV)."""
+    names, host = _sections("classify")
     qtbot.addWidget(host)
     assert "Additional Settings" not in names, names
 

@@ -82,7 +82,7 @@ Reaching worker processes
 :func:`spacr.measure.measure_crop` measures fields in a
 :class:`multiprocessing.Pool`. Under ``fork`` (the Linux default) a worker
 inherits this module's registries from the parent and hooks registered with
-:func:`register_preprocessing_hook` simply work. Under ``spawn`` /
+:func:`register_preprocessing_hook` work without additional setup. Under ``spawn`` /
 ``forkserver`` (Windows, macOS, or ``SPACR_START_METHOD``) a worker is a fresh
 interpreter that has never seen them, so an in-process registration would be a
 **silent no-op in every worker**. For that case set
@@ -158,13 +158,14 @@ class MeasurementHookError(ConfigurationError):
 class RegisteredHook(NamedTuple):
     """One entry in a hook registry.
 
-    :ivar name: unique key; pass it to the matching ``unregister_*``.
-    :ivar func: the callable itself.
-    :ivar priority: lower runs first; ties break on ``sequence``.
-    :ivar sequence: monotonic registration counter, for stable ordering.
-    :ivar source: ``'api'`` for :func:`register_preprocessing_hook` and
-        friends, ``'env'`` for anything installed via :data:`HOOKS_ENV_VAR`.
-        Only ``'api'`` hooks fail to reach a non-``fork`` worker pool.
+    :param name: unique registry key accepted by the corresponding unregister
+        function.
+    :param func: registered preprocessing or region-filter callable.
+    :param priority: execution priority; lower values run first.
+    :param sequence: monotonic registration number used to preserve order
+        between equal priorities.
+    :param source: ``"api"`` for direct registration or ``"env"`` for
+        installation through :data:`HOOKS_ENV_VAR`.
     """
 
     name: str
@@ -195,13 +196,23 @@ class PreprocessingContext:
     def __init__(self, *, file_name: str, channels: Sequence[int],
                  settings: Mapping[str, Any], volumetric: bool = False,
                  spacing: Optional[Sequence[float]] = None) -> None:
+        """Build the context passed to one preprocessing hook.
+
+        :param file_name: field stem identifying the source array.
+        :param channels: source channel indices in array-axis order.
+        :param settings: run settings to expose through a read-only view.
+        :param volumetric: whether the source has a leading Z dimension.
+        :param spacing: voxel spacing in array-index order, or ``None`` for
+            unscaled 2-D measurements.
+        """
         self.file_name = file_name
         self.channels = tuple(int(c) for c in channels)
         self.settings = _read_only(settings)
         self.volumetric = bool(volumetric)
         self.spacing = None if spacing is None else tuple(spacing)
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
+        """Return a concise field, channel, and dimensionality description."""
         return (f'PreprocessingContext(file_name={self.file_name!r}, '
                 f'channels={self.channels!r}, volumetric={self.volumetric!r})')
 
@@ -240,6 +251,14 @@ class RegionContext:
     def __init__(self, *, object_type: str, file_name: str, mask: np.ndarray,
                  settings: Mapping[str, Any],
                  spacing: Optional[Sequence[float]] = None) -> None:
+        """Build the context passed to one region-filter hook.
+
+        :param object_type: object class represented by the mask.
+        :param file_name: field stem identifying the source array.
+        :param mask: label mask to expose through a read-only array view.
+        :param settings: run settings to expose through a read-only view.
+        :param spacing: voxel spacing in mask-index order, or ``None`` in 2-D.
+        """
         self.object_type = object_type
         self.file_name = file_name
         mask = np.asarray(mask)
@@ -284,7 +303,8 @@ class RegionContext:
                     len(labels), self.ndim)
         return self._centroids
 
-    def __repr__(self) -> str:  # pragma: no cover - debugging aid
+    def __repr__(self) -> str:
+        """Return a concise object type, field, and mask-shape description."""
         return (f'RegionContext(object_type={self.object_type!r}, '
                 f'file_name={self.file_name!r}, shape={self.mask.shape!r})')
 

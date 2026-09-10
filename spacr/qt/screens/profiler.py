@@ -72,6 +72,8 @@ from ..job_runner import JobRunner
 from ..theme import (SPACING, active_palette, block_surface,
                      mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
+from ..widgets.sortable_table import install_sorting, tree_item
+from ..app_catalog import declared_app, register_declared
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
            "make_profiler_screen", "register"]
@@ -79,44 +81,21 @@ __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
 #: The app key this screen is registered under.
 APP_KEY = "profiler"
 
-#: Sidebar / tile name.
-APP_NAME = "Prediction Profiler"
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
-#: One-line summary; the tooltip and status tip.
-APP_DESCRIPTION = (
-    "Move one input of a fitted model and watch the prediction move")
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
-APP_INTRO = (
-    "Interrogate a fitted regression: sweep one input across its range, hold "
-    "every other input wherever you choose, and see what the model predicts. "
-    "The inputs are ranked by how far each one actually moves the prediction, "
-    "so a design with thousands of gRNA terms still tells you which one to "
-    "look at first. Nothing is re-fitted — the coefficients a run already "
-    "wrote are the model — and the axis always says which scale it is on, "
-    "because a probability, a rate and a hinge margin are not the same curve.")
 
-#: Why there is no ``spacr-run profiler``; reaches ``cli.INTERACTIVE_ONLY``.
-APP_CLI_NOTE = (
-    "The Prediction Profiler is an interactive sweep of one model input; "
-    "headless, call spacr.profiler.profile(model, design, variable) for the "
-    "same curve and spacr.profiler.sensitivity(model, design) for the same "
-    "ranking.")
 
-#: "Prediction Profiler" in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr.
-APP_TRANSLATIONS = (
-    "Prediktionsprofilerare",
-    "Vorhersage-Profiler",
-    "Perfilador de predicciones",
-    "预测剖析器",
-    "Analisador de previsões",
-    "पूर्वानुमान प्रोफ़ाइलर",
-    "예측 프로파일러",
-    "Spágreinir",
-    "Profileur de prédiction",
-)
 
 #: The range each input is swept over when no design matrix is available.
 #: A spaCR design column is a per-well gRNA fraction, which lives in [0, 1].
@@ -210,6 +189,10 @@ class CurveCanvas(QWidget):
     """
 
     def __init__(self, parent=None):
+        """Create the empty profile canvas.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._curve: Optional[Profile] = None
         self._message = "Load a coefficient table to profile a model."
@@ -306,6 +289,19 @@ class ProfilerScreen(QWidget):
     def __init__(self, parent=None, coefficients: str = "",
                  model: Any = None, design: Optional[pd.DataFrame] = None,
                  threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        A model can arrive three ways and they are tried in order: an
+        already-fitted model, a coefficients CSV to read one from, or nothing --
+        in which case the screen says which file to choose.
+
+        :param parent: parent widget, or ``None``.
+        :param coefficients: a results CSV to load the model from.
+        :param model: an already-fitted model, which wins over ``coefficients``.
+        :param design: the design matrix the model was fitted on.
+        :param threaded: profile on a worker thread. Set ``False`` in tests so a
+            profile finishes before it returns.
+        """
         super().__init__(parent)
         self._model: Any = None
         self._design: Optional[pd.DataFrame] = design
@@ -332,6 +328,11 @@ class ProfilerScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "profiler")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction -----------------------------------------------------
 
@@ -392,6 +393,7 @@ class ProfilerScreen(QWidget):
         splitter = QSplitter(Qt.Horizontal)
 
         self._inputs = QTreeWidget()
+        install_sorting(self._inputs)
         self._inputs.setHeaderLabels(["Input", "Coef.", "Moves by"])
         self._inputs.setRootIsDecorated(False)
         self._inputs.setMinimumWidth(260)
@@ -508,7 +510,7 @@ class ProfilerScreen(QWidget):
     def _on_model_ready(self, model: Any) -> None:
         """Take a model, rank its inputs, draw the top one."""
         self._model = model
-        if model is None:                             # pragma: no cover
+        if model is None:
             self._set_status("The model could not be read.", problem=True)
             return
         # A live fitted object carries its own link and applies it inside
@@ -530,7 +532,7 @@ class ProfilerScreen(QWidget):
             self._set_status("That model has no inputs to profile.",
                              problem=True)
             self._inputs.clear()
-            self._canvas.set_curve(None, "No inputs to profile.")
+            self._show_curve(None, "No inputs to profile.")
             return
         self._ranked = sensitivity(model, design)
         self._fill_inputs()
@@ -548,7 +550,7 @@ class ProfilerScreen(QWidget):
                   if not movable else
                   "nothing to sweep: every input is constant in this design, "
                   "so no value of it would change the prediction.")
-        self._canvas.set_curve(None, reason.capitalize())
+        self._show_curve(None, reason.capitalize())
         self._set_status(f"There is {reason}", problem=True)
 
     def _fill_inputs(self) -> None:
@@ -557,7 +559,7 @@ class ProfilerScreen(QWidget):
         for record in self._ranked:
             coefficient = ("—" if math.isnan(record.coefficient)
                            else f"{record.coefficient:.4g}")
-            item = QTreeWidgetItem([record.variable, coefficient,
+            item = tree_item([record.variable, coefficient,
                                     f"{record.span:.4g}"])
             item.setData(0, Qt.UserRole, record.variable)
             item.setToolTip(
@@ -664,6 +666,16 @@ class ProfilerScreen(QWidget):
         """The profile currently drawn, or ``None``."""
         return self._curve
 
+    def _show_curve(self, curve: Optional[Profile], message: str = "") -> None:
+        """Draw a curve and remember it, in that one place.
+
+        ``curve()`` promises the profile *currently drawn*, so the canvas and
+        the remembered curve have to move together; clearing one without the
+        other leaves the accessor describing a plot nobody can see.
+        """
+        self._curve = curve
+        self._canvas.set_curve(curve, message)
+
     def ranked_inputs(self) -> List[Any]:
         """Every input, ranked by how far it moves the prediction."""
         return list(self._ranked)
@@ -691,16 +703,16 @@ class ProfilerScreen(QWidget):
         held = {name: value for name, value in self._held.items()
                 if name != variable}
         try:
-            self._curve = profile(
+            curve = profile(
                 self._model, self.design(), variable, at=held,
                 n=int(self._points.value()))
         except (KeyError, ValueError, TypeError) as exc:
             self.last_error = str(exc)
-            self._canvas.set_curve(None, str(exc))
+            self._show_curve(None, str(exc))
             self._set_status(f"Could not profile {variable}: {exc}",
                              problem=True)
             return
-        self._canvas.set_curve(self._curve)
+        self._show_curve(curve)
         assumed = self._design is None or self._design.empty
         message = (
             f"{variable}: {self._curve.values[0]:.4g} → "
@@ -722,7 +734,7 @@ class ProfilerScreen(QWidget):
         """Load whatever was typed into the path box."""
         self.load_coefficients(self._path_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a coefficient CSV and load it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a coefficient table", "", "CSV (*.csv)")
@@ -770,17 +782,7 @@ def make_profiler_screen(app_key: Optional[str] = None) -> QWidget:
 
 def register() -> bool:
     """Add Prediction Profiler to the app registry. Idempotent."""
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_profiler_screen, stage=STAGE_ALPHA,
-        title="Prediction Profiler", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/profiler",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

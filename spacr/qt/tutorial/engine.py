@@ -1,6 +1,6 @@
-"""Tutorial rendering engine — narration, cursor overlay, capture, mux.
+"""Tutorial rendering engine for narration, cursor overlays and video capture.
 
-The pipeline is intentionally linear and easy to reason about:
+The pipeline executes the following stages:
 
   1. Synthesize each Step's narration through Piper → WAV, know duration
   2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080
@@ -13,8 +13,8 @@ The pipeline is intentionally linear and easy to reason about:
   5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4`
   6. Emit matching .srt sidecar
 
-The engine has no Qt-specific business logic — that lives in per-app
-`scripts.py` functions that return a list of Steps.
+Qt-specific application behavior is defined by per-application functions in
+``scripts.py`` that return lists of :class:`Step` objects.
 """
 from __future__ import annotations
 
@@ -144,6 +144,15 @@ class Narrator:
 
 
 def _wav_duration(path: Path) -> float:
+    """Return a WAV file's duration in seconds.
+
+    Read from the header rather than the file size, so a format with a
+    different sample width or rate still measures correctly -- the subtitles
+    are timed off this.
+
+    :param path: the WAV file.
+    :returns: its duration in seconds.
+    """
     with wave.open(str(path), "rb") as w:
         return w.getnframes() / float(w.getframerate())
 
@@ -235,6 +244,14 @@ class Recorder:
     def __init__(self, window, frames_dir: Path,
                   fps: int = FRAME_RATE,
                   size: Tuple[int, int] = VIDEO_SIZE):
+        """Set up a frame recorder over a window.
+
+        :param window: the window to grab frames from.
+        :param frames_dir: where the numbered PNG frames are written; created if
+            it does not exist.
+        :param fps: frame rate the frames are meant to be played back at.
+        :param size: ``(width, height)`` every frame is rendered at.
+        """
         self.window = window
         self.frames_dir = Path(frames_dir)
         self.frames_dir.mkdir(parents=True, exist_ok=True)
@@ -252,7 +269,21 @@ class Recorder:
         from PySide6.QtGui import QPixmap
 
         self.window.repaint()
-        pm = self.window.grab().scaled(
+        # A VIDEO FRAME IS MEASURED IN FILE PIXELS, not screen ones, so this
+        # is the one picture in the application that does NOT go through
+        # `hidpi.scaled_for`: the recording must come out the same size on
+        # every machine.
+        #
+        # `grab()` does come back carrying the window's device pixel ratio,
+        # and a pixmap that says it is dense draws at a fraction of its size
+        # on the plain canvas below -- a quarter-size picture in the corner
+        # of every frame on a retina display. Declaring the grab plain
+        # before scaling keeps the extra pixels a HiDPI window really has
+        # (they make the downscale sharper) and drops the claim that would
+        # halve the frame.
+        pm = self.window.grab()
+        pm.setDevicePixelRatio(1.0)
+        pm = pm.scaled(
             self.size[0], self.size[1],
             Qt.KeepAspectRatio, Qt.SmoothTransformation,
         )
@@ -339,6 +370,15 @@ class Director:
                   out_dir: Path,
                   narrator: Optional[Narrator] = None,
                   fps: int = FRAME_RATE):
+        """Set up a tutorial render.
+
+        :param window: the window the tutorial drives.
+        :param steps: the steps to perform, in order.
+        :param out_dir: where the finished video and subtitles are written;
+            created if it does not exist.
+        :param narrator: the voice; ``None`` builds a default :class:`Narrator`.
+        :param fps: frame rate of the rendered video.
+        """
         self.window = window
         self.steps = steps
         self.out_dir = Path(out_dir)
@@ -365,12 +405,26 @@ class Director:
 
     # -- step frame budgets --------------------------------------------------
     def _frames_for(self, step_idx: int) -> int:
+        """Return how many frames one step needs.
+
+        :param step_idx: the step's position.
+        :returns: enough frames to cover its narration plus its hold, and never
+            fewer than one -- a step with no audio still has to appear.
+        """
         dur, _, _ = self._audio_wavs[step_idx]
         hold = self.steps[step_idx].hold_ms / 1000.0
         return max(1, math.ceil((dur + hold) * self.fps))
 
     # -- capture loop --------------------------------------------------------
     def _run_capture(self) -> None:
+        """Play every step through the window and record the frames.
+
+        The window is resized to the video size first, so every frame is the
+        same shape. A step's action is followed by a few event-loop turns and a
+        fresh keyframe, so what the action changed is what gets captured; an
+        action that raises is logged and the render continues, since losing the
+        whole tutorial to one stale step is worse than a step that does nothing.
+        """
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
 
@@ -466,6 +520,14 @@ class Director:
                 VIDEO_SIZE[1] / max(1, wsize.height()))
 
     def _resolve_target(self, step: Step) -> Optional[Tuple[float, float]]:
+        """Locate the point a step's cursor should move to.
+
+        :param step: the step to read the target from.
+        :returns: the point in video coordinates, or ``None`` when the step has
+            no target or the widget could not be resolved. A failure is logged
+            rather than swallowed: a silent ``None`` here is exactly how a
+            tutorial ends up pointing at nothing.
+        """
         if step.target is None:
             return None
         widget, offset = (step.target if isinstance(step.target, tuple)
@@ -495,6 +557,13 @@ class Director:
 
     def _resolve_highlight_rect(self, step: Step
                                   ) -> Optional[Tuple[int, int, int, int]]:
+        """Locate the rectangle a step highlights.
+
+        :param step: the step to read the highlight from.
+        :returns: ``(x, y, width, height)`` in video coordinates, or ``None``
+            when the step highlights nothing or the widget could not be
+            resolved -- which is logged rather than swallowed.
+        """
         widget = self._deref(step.highlight)
         if widget is None:
             return None
@@ -516,6 +585,16 @@ class Director:
                           highlight_rect: Optional[Tuple[int, int, int, int]],
                           dim_background: bool = True,
                          ) -> None:
+        """Glide the cursor to a point over a fixed number of frames.
+
+        :param target: where to arrive, in video coordinates.
+        :param frames: how many frames the move takes; the path is eased in and
+            out rather than linear, so the pointer reads as moved rather than
+            teleported.
+        :param highlight_rect: the rectangle to keep highlighted throughout, or
+            ``None``.
+        :param dim_background: dim everything outside the highlight.
+        """
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         start = self._recorder.cursor_pos
@@ -559,6 +638,14 @@ class Director:
 
     def _make_silence(self, path: Path, seconds: float) -> None:
         # Match Piper's sample rate (22050) + mono + 16-bit
+        """Write a silent audio file.
+
+        :param path: where to write it.
+        :param seconds: how long it should be. The format matches Piper's
+            output -- 22.05 kHz mono 16-bit -- so silence can be concatenated
+            with narration without a resample.
+        :raises subprocess.CalledProcessError: if ffmpeg fails.
+        """
         subprocess.run(
             ["ffmpeg", "-y",
              "-f", "lavfi", "-i",
@@ -570,6 +657,14 @@ class Director:
         )
 
     def _mux_video(self, audio: Path, name: str) -> Path:
+        """Combine the captured frames and the narration into one MP4.
+
+        :param audio: the assembled narration track.
+        :param name: base name for the output file.
+        :returns: the path to the MP4.
+        :raises RuntimeError: if ffmpeg fails, carrying the tail of its stderr --
+            the useful part of an ffmpeg failure is always at the end.
+        """
         frames_dir = self._workdir / "frames"
         mp4 = self.out_dir / f"{name}.mp4"
         cmd = [
@@ -596,6 +691,14 @@ class Director:
 
     # -- SRT sidecar ---------------------------------------------------------
     def _write_srt(self, name: str) -> Path:
+        """Write the subtitle track matching the narration.
+
+        Each step's hold is added after its own caption, so the subtitles stay
+        in step with the video through the pauses.
+
+        :param name: base name for the output file.
+        :returns: the path to the SRT.
+        """
         srt = self.out_dir / f"{name}.srt"
         with open(srt, "w") as f:
             t = 0.0

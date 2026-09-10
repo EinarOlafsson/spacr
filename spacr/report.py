@@ -25,7 +25,7 @@ is worse than no report:
 **Failure goes at the top.**
     :mod:`spacr.errors` stamps every artifact with a ``run_status``
     recording how many items failed. If anything failed — or if nothing was
-    stamped at all, so completeness is simply unknown — that is the first
+    stamped at all, so completeness is unknown — that is the first
     thing in the document, not an appendix entry.
 
 **Nothing is recomputed.**
@@ -79,6 +79,7 @@ from __future__ import annotations
 import base64
 import csv
 import html as _html
+import importlib
 import io
 import json
 import logging
@@ -221,14 +222,41 @@ def _esc(value: Any) -> str:
     return _html.escape(str(value), quote=True)
 
 
+def _failure_record_text(value: Any, width: int = 500) -> str:
+    """One safe, stable line for a legacy unstructured failure record.
+
+    Strings are already the error message older sidecars wrote. Other JSON
+    shapes use sorted JSON so the same record has the same representation on
+    every run; an unexpected in-memory object is named by type without calling
+    its potentially unsafe or unstable ``repr``. The report remains bounded
+    when a hand-written sidecar contains a whole traceback in one value.
+    """
+    if isinstance(value, str):
+        rendered = value
+    else:
+        try:
+            rendered = json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                default=lambda item: f"<{type(item).__name__}>",
+            )
+        except (TypeError, ValueError, OverflowError):
+            rendered = f"<{type(value).__name__}>"
+    rendered = " ".join(str(rendered).split())
+    if not rendered:
+        rendered = "(empty failure record)"
+    return rendered if len(rendered) <= width else rendered[: width - 1] + "…"
+
+
 def _fmt_bytes(n: Any) -> str:
     """Render a byte count as ``1.4 MB``."""
     try:
         size = float(n)
     except (TypeError, ValueError):
         return "-"
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if size < 1024 or unit == "TB":
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024:
             return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
         size /= 1024.0
     return f"{size:.1f} TB"
@@ -397,13 +425,13 @@ def _read_csv_head(path: Path, max_rows: int,
 class Figure:
     """One figure found under ``src``.
 
-    :ivar path: where the figure lives on disk.
-    :ivar title: caption shown above it.
-    :ivar mime: MIME type of :attr:`data`.
-    :ivar data: the bytes embedded in the HTML, or ``None`` when the figure
-        was found but not embedded.
-    :ivar reason: why it was not embedded, when it was not.
-    :ivar n_bytes: size of the file on disk.
+    :param path: location of the discovered figure on disk.
+    :param title: caption displayed with the figure.
+    :param mime: MIME type used for embedded ``data``.
+    :param data: embedded image bytes, or ``None`` when the figure was only
+        listed.
+    :param reason: explanation for why a discovered figure was not embedded.
+    :param n_bytes: size of the source file on disk.
     """
     path: Path
     title: str = ""
@@ -431,10 +459,12 @@ class Figure:
 class Table:
     """A rectangle of already-stringified cells.
 
-    :ivar columns: header row.
-    :ivar rows: body rows, already truncated to what will be shown.
-    :ivar caption: one line above the table.
-    :ivar n_total_rows: rows the source had, so truncation can be stated.
+    :param columns: header cells, already converted to display strings.
+    :param rows: displayed body rows, already converted to strings and
+        truncated to what will be shown.
+    :param caption: optional line rendered above the table.
+    :param n_total_rows: original source-row count; zero defaults to the
+        number of retained rows during initialization.
     """
     columns: List[str] = field(default_factory=list)
     rows: List[List[str]] = field(default_factory=list)
@@ -442,6 +472,10 @@ class Table:
     n_total_rows: int = 0
 
     def __post_init__(self) -> None:
+        """Default the source-row count to the number of retained rows.
+
+        :returns: ``None``.
+        """
         if not self.n_total_rows:
             self.n_total_rows = len(self.rows)
 
@@ -459,16 +493,20 @@ class Section:
     whose :attr:`status` is :data:`STATUS_MISSING` renders with its heading
     and a sentence explaining what was looked for and not found.
 
-    :ivar title: heading text.
-    :ivar body_html: pre-escaped HTML for the section body.
-    :ivar figures: embedded (or listed) figures.
-    :ivar table: the section's primary table, if it has one.
-    :ivar notes: caveats rendered as a bullet list under the body.
-    :ivar key: stable id, one of :data:`SECTION_KEYS`.
-    :ivar status: :data:`STATUS_OK`, :data:`STATUS_MISSING` or
+    :param title: section heading shown in rendered reports.
+    :param body_html: ready-to-render HTML fragment; callers must escape
+        dynamic values before supplying it.
+    :param figures: figures embedded in or listed by this section.
+    :param table: primary tabular result, or ``None`` when the section has no
+        table.
+    :param notes: caveats rendered as a bullet list beneath the section body.
+    :param key: stable section identifier; built-in sections use
+        :data:`SECTION_KEYS`, while plugins use their registered contribution
+        key.
+    :param status: :data:`STATUS_OK`, :data:`STATUS_MISSING`, or
         :data:`STATUS_PROBLEM`.
-    :ivar text_lines: plain-text rendering used for the PDF, so the PDF is
-        not a re-parse of the HTML.
+    :param text_lines: plain-text rendering used by text and PDF output
+        without reparsing ``body_html``.
     """
     title: str
     body_html: str = ""
@@ -489,16 +527,24 @@ class Section:
 class Report:
     """Everything :func:`collect_report` gathered.
 
-    :ivar src: the run folder the report describes.
-    :ivar title: document title.
-    :ivar generated_utc: ISO timestamp of collection.
-    :ivar sections: chapters in reading order, one per :data:`SECTION_KEYS`.
-    :ivar status: ``complete`` / ``partial`` / ``failed`` / ``unknown`` /
-        ``empty``.
-    :ivar status_detail: one line expanding on :attr:`status`.
-    :ivar spacr_version: version of the spaCR that wrote the report.
-    :ivar n_figures_found: figures discovered under ``src``.
-    :ivar n_figures_embedded: figures actually in the file.
+    :param src: resolved run or plate directory described by the report; an
+        unresolvable input path is retained so its failure can be reported.
+    :param title: document title shown by the HTML, text, and PDF renderers.
+    :param generated_utc: timezone-aware ISO timestamp recording when
+        collection completed, or ``""`` on a manually constructed report.
+    :param sections: report chapters in reading order: the core
+        :data:`SECTION_KEYS` sections followed or interleaved with registered
+        plugin contributions.
+    :param status: overall collection verdict: ``"complete"``, ``"partial"``,
+        ``"failed"``, ``"unknown"``, or ``"empty"``.
+    :param status_detail: human-readable sentence expanding the overall
+        :attr:`status`.
+    :param spacr_version: version of spaCR running report collection, or
+        ``"unknown"`` when it cannot be read.
+    :param n_figures_found: number of raster and vector figures discovered
+        during the bounded artifact scan.
+    :param n_figures_embedded: number of raster figures whose bytes were
+        retained for embedding in rendered output.
     """
     src: Path
     title: str = "spaCR report"
@@ -511,7 +557,10 @@ class Report:
     n_figures_embedded: int = 0
 
     def section(self, key: str) -> Optional[Section]:
-        """Return the section with ``key``, or None."""
+        """Return the section with ``key``, or None.
+
+        :param key: stable report-section key to locate.
+        """
         for sec in self.sections:
             if sec.key == key:
                 return sec
@@ -617,7 +666,7 @@ def _load_journal_runs(src: Path, run_dirs: Optional[Sequence[Any]],
     problems: List[str] = []
     records: List[Dict[str, Any]] = []
     try:
-        from . import run_journal as journal
+        journal = importlib.import_module(".run_journal", __package__)
     except Exception as exc:
         return records, [f"run journal unavailable ({exc.__class__.__name__})"]
 
@@ -813,6 +862,12 @@ def _collect_run_status(src: Path, artifacts: Dict[str, Any],
                     body.append(
                         f"<li class='sub'><code>{_esc(failure.get('item'))}</code> "
                         f"[{_esc(failure.get('stage'))}] {_esc(failure.get('error'))}</li>")
+                else:
+                    rendered = _failure_record_text(failure)
+                    body.append(
+                        "<li class='sub'><code>failure record</code> "
+                        f"{_esc(rendered)}</li>")
+                    lines.append(f"    failure record: {rendered}")
         body.append("</ul>")
         section.status = STATUS_PROBLEM
 
@@ -1679,6 +1734,19 @@ def _collect_appendix(src: Path, artifacts: Dict[str, Any],
                             rows=entries, n_total_rows=n_total)) + "</details>")
             lines.append(f"  feature dictionary: {n_total} column(s) across "
                          f"{len(families)} family/families")
+        else:
+            # THE FILE EXISTS, BUT MEASURE WROTE NO FEATURES. This is neither
+            # an absent database nor a describer error, and omitting it makes a
+            # run interrupted before its first table look complete.
+            have_something = True
+            body.append("<h3>Measured features</h3>")
+            body.append(
+                "<p class='muted'><strong>No measured features were found.</strong> "
+                f"<code>{_esc(_figure_title(db, src))}</code> exists, but "
+                "contains no measured feature columns.</p>")
+            lines.append(
+                f"  feature dictionary: {_figure_title(db, src)} exists, but "
+                "contains no measured features")
 
         columns, n_annotated, ann_error = _annotation_summary(db)
         if ann_error:
@@ -2398,6 +2466,10 @@ def write_pdf(report: Report, path: Any) -> Path:
                 except Exception:
                     axes.text(0.5, 0.5, f"[{payload.title} could not be drawn]",
                               ha="center", va="center", fontsize=9)
+            # `PdfPages.savefig`, NOT a Figure's (108 point 6). These are
+            # pages appended to a multi-page book, and the book's format is
+            # named by the caller that asked for a report; there is no single
+            # file here for a format preference to rename.
             pdf.savefig(figure)
         if not specs:
             figure = MplFigure(figsize=(8.27, 11.69))

@@ -12,12 +12,18 @@ Structure (horizontal splitter):
 from __future__ import annotations
 
 import logging
+import re
+import os
+import shutil
 import sys
 from functools import partial
 from html import escape
-from typing import Optional
+from typing import Callable, Optional
+from weakref import WeakMethod
 
-from PySide6.QtCore import QSize, QEvent, Qt, QTimer, QThread, Signal
+from PySide6.QtCore import (
+    QEvent, QObject, QSize, Qt, QThread, QTimer, Signal,
+)
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -27,23 +33,36 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSlider,
     QSplitter,
+    QStackedWidget,
+    QTabWidget,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
 
 from ..bridge import make_thread, resolve_pipeline_entry
+from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
-from ..widgets import Card, Divider, InfoLink, Section, UsageBar
+from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
+from ..widgets.flow import FlowLayout
 from .settings_model import (
     CATEGORY_TOOLTIPS,
     SettingsWidgets,
     category_tooltip,
+    object_of_setting,
+    object_switch_keys,
+    section_tooltip,
 )
 
 LOG = logging.getLogger(__name__)
+
+#: `organelleb_model_name`, `organellec_model_name`, ... -- the
+#: per-organelle model fields generated when a run has more than one.
+_ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 
 
 #: Object name the settings column carries, and what the block below keys
@@ -55,47 +74,41 @@ SETTINGS_PANEL_NAME = "SettingsBox"
 EMPTY_STATE_NAME = "EmptyStateBanner"
 
 
+class _ExplainerBrowser(QTextBrowser):
+    """Text browser that asks its screen to rerender after a locale change.
+
+    :param refresh: the screen's rerender, held as a WEAK method. The
+        browser is a child of the screen, so a strong reference would be a
+        cycle through a QObject; a dead one simply means there is nothing
+        left to rerender.
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(
+        self,
+        refresh: Callable[[Optional[str]], None],
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        """Hold the screen's rerender weakly and take it as parent."""
+        super().__init__(parent)
+        self._refresh_explainers = WeakMethod(refresh)
+
+    def retranslate_dynamic_content(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Invoke the owning screen's exact-template renderer."""
+        refresh = self._refresh_explainers()
+        if refresh is not None:
+            refresh(language)
+
+
 def _settings_panel_qss(palette: dict, opacity=None) -> str:
-    """The settings column paints nothing. The categories are the panels.
+    """Return transparent styling for the settings column and empty state.
 
-    Three positions were tried on this column, and the third is the one
-    that was asked for:
-
-    1. **An opaque slab.** A ``QScrollArea``'s viewport auto-fills with the
-       palette's **Window** brush — not a surface — so no page-opacity
-       setting could reach it and the column sat as a black rectangle over
-       the animated backdrop.
-    2. **A panel of its own.** Turning the auto-fill off left the column
-       with nothing, so it was given the console box's treatment: a
-       dark-grey rounded surface at the page opacity. That put a box round
-       a column of boxes, and every category then composited two
-       translucent greys — 0.51 at a requested 30 %, a shade no position of
-       the slider can produce.
-    3. **Nothing at all**, which is this. The categories float directly on
-       the theme as separate rounded panels with the backdrop visible in
-       the gaps between them. Most module screens are a list of categories
-       and a list needs no box round it; a container would be a box around
-       a box.
-
-    So the rules here are all subtractive, and the surface the user sees is
-    ``QFrame#SectionCard`` in the shared stylesheet, which already goes
-    through the page-opacity roles. Removing the column's fill is what lets
-    the slider reach the categories: they were never broken, they were
-    composited onto things that were.
-
-    An ID selector on the column anyway, rather than leaving it unstyled —
-    an unstyled ``QScrollArea`` inherits the blanket
-    ``QWidget {{ background-color: bg }}``, the WINDOW colour, which is
-    exactly position 1. Saying it explicitly also keeps the decision
-    findable, and the viewport keeps the container sweep's transparent tag.
-
-    The banner is the same story one layer in. "Point <module> at some
-    data" is an :class:`~spacr.qt.widgets.EmptyState` — a ``QWidget``
-    subclass, so the sweep's ``type(w) is QWidget`` test skips it — renamed
-    to ``EmptyStateBanner``, which also takes it out of the ``QFrame#Card``
-    rule it would otherwise have matched. Between the two it had no rule at
-    all and painted the window colour: a black box at the top of the
-    column. It is a line of type on the page, so it paints nothing.
+    Category cards provide the visible surfaces and apply the configured
+    page opacity. Explicit rules keep the surrounding scroll area, viewport,
+    and empty-state banner from inheriting the opaque window background.
     """
     return f"""
 QScrollArea#{SETTINGS_PANEL_NAME} {{
@@ -120,6 +133,152 @@ register_widget_qss(SETTINGS_PANEL_NAME, _settings_panel_qss, replace=True)
 DEFAULT_INSTRUCTION = "Configure settings, then press Run."
 
 
+# ---------------------------------------------------------------------------
+# A SETTING APPEARS WHEN THE DATA HAS THE DIMENSION IT IS ABOUT
+# ---------------------------------------------------------------------------
+#
+# Two switches sit in the action row immediately left of Live: 3D and Time.
+# Neither runs anything. Each says which dimension the plate actually has,
+# and the settings that only mean something in that dimension appear with
+# it. A plate of single-plane fields has no z axis, so "how far apart are
+# two planes" is a question about nothing, and a form that asks it anyway is
+# a form the user has to learn to ignore.
+#
+# THEY ARE STATES, so they stay lit while on, exactly as the checkable fold
+# switches on Mask Generation do. They do NOT share those switches' second
+# half: a fold switch also sets its module's pipeline gate, because a folded
+# module has no control for that gate anywhere else. These two do nothing to
+# the run. `z_stack` and `t_stack` are ordinary controls INSIDE the
+# categories they reveal, and those controls are what say whether the run
+# uses the dimension -- so a switch that also set them would be the second
+# source of truth this project keeps finding and removing.
+#
+# HIDDEN, NOT DELETED. A hidden row keeps its widget and its value:
+# `SettingsWidgets.collect` walks `_widgets`, never the visible rows, so a
+# volumetric answer typed before the switch went off is still in the dict
+# handed to the run and still written to the settings CSV.
+
+#: ``(dimension, label, tooltip)``, in the order the switches are drawn.
+#:
+#: The labels are the words the request used, and they are drawn as
+#: :class:`spacr.qt.widgets.AiToggleLabel` -- the same lit-while-on toggle
+#: Live and AI in this row already are, and the only state toggle in the
+#: project that can carry a WORD. A fold button is the shape being matched,
+#: but it is an icon and nothing else: it derives its picture, its name and
+#: its maturity colour from a registry key, and "3D" is not a module, so it
+#: has neither an icon nor a row to read. Reusing it would have put two
+#: buttons labelled "3" and "T" on the masthead.
+DIMENSION_TOGGLES = (
+    ("z", "3D",
+     "Click to show the volumetric settings — the ones that mean nothing "
+     "until a field has a z axis: which axis it is, how the stack is "
+     "segmented or projected, and the voxel geometry that says how far "
+     "apart two planes really are. Hiding them keeps their values: they "
+     "still reach the run and the settings file."),
+    ("t", "Time",
+     "Click to show the timelapse settings — the ones that mean nothing "
+     "until a field has a time axis: the time axis itself, the frame "
+     "interval, and how objects are linked from one frame to the next. "
+     "Hiding them keeps their values: they still reach the run and the "
+     "settings file."),
+)
+
+#: Screens that carry the switches. Mask Generation and Measure are the two
+#: modules that read a plate off disk and decide what its axes are.
+DIMENSION_TOGGLE_APPS = frozenset({"mask", "measure"})
+
+#: The widest these two may force the action row -- and so the window -- to be.
+#:
+#: A QHBoxLayout cannot go below the sum of its children's minimum widths, and
+#: the action row's minimum is the module screen's minimum, which the body
+#: splitter then has to satisfy out of whatever the window is. So every pixel
+#: a toggle demands here is a pixel taken off the settings column at any
+#: window narrower than about 1500. Measured on Mask Generation at 1200x720:
+#: 3D asks for 69 px and Time for 92 px unaided, which took the row from 899
+#: to 1076 and the settings column from 260 px to 83 px -- a 624 px settings
+#: card in an 83 px viewport, with the labels hanging out of the right of it.
+#: That is the failure :data:`spacr.qt.widgets.ai_toggle_label
+#: .ELIDE_ABOVE_PX` exists for, arriving from two short labels rather than
+#: one long one, and a secondary control must not be able to starve the
+#: primary.
+#:
+#: 24 px is a click target, not a word: the label still ASKS for its full
+#: width through ``sizeHint``, so a row with room to spare draws "3D" and
+#: "Time" in full and only a squeezed one clips them. The row comes out at
+#: 963 and the settings column at 196 px, which is where the setting labels
+#: fit inside their card again.
+DIMENSION_TOGGLE_MIN_PX = 24
+
+#: ``dimension -> the settings that ANNOUNCE it in a loaded settings file``.
+#:
+#: These are the keys whose whole job is to say the data has the dimension:
+#: ``z_stack`` refuses to run unless the array has a real z axis, ``t_stack``
+#: unless each field is a (T, Z, Y, X) volume, and ``timelapse`` is what
+#: makes a mask run group its plate into time stacks. A CSV that sets one of
+#: them is a CSV about that dimension, so loading it lights the switch --
+#: without which importing a volumetric settings file would hide the very
+#: settings it had just filled in.
+DIMENSION_GATE_KEYS = {
+    "z": ("z_stack",),
+    "t": ("t_stack", "timelapse"),
+}
+
+#: Cache for :func:`dimension_settings`, filled on first use.
+_DIMENSION_SETTINGS: Optional[dict] = None
+
+
+def dimension_settings() -> dict:
+    """``dimension -> the setting keys that only mean something in it``.
+
+    READ OFF THE SETTINGS, NOT LISTED HERE. :data:`spacr.settings.categories`
+    already carries the answer, because the split was made deliberately when
+    the experimental axes were added:
+
+    * ``"3D Settings (Beta)"`` is every key that presumes a z axis --
+      ``z_stack``, the segmentation mode, the projection, the two voxel
+      sizes and the ``anisotropy`` they derive (all three of which answer
+      "how far apart are two planes"), and ``stitch_threshold``, which links
+      labels BETWEEN planes.
+    * ``"4D Settings (Beta)"`` is the time half of the same split, and the
+      source says so where the split is written: ``z_axis`` is filed under
+      3D "because 4D builds on the same z plan", which leaves the 4D list
+      holding "only time-axis and inter-frame tracking controls".
+    * the Timelapse and Motility modules' own key lists join the time set,
+      because every key in them is a per-frame or between-frame quantity --
+      the frame rate, which tracker links the frames, how far an object may
+      move between two of them, how long it may vanish for.
+
+    A key in neither set is dimension-free and stays visible whatever the
+    switches say.
+
+    :returns: a fresh dict of ``str -> frozenset``; callers may keep it.
+    """
+    global _DIMENSION_SETTINGS
+    if _DIMENSION_SETTINGS is None:
+        from ...settings import (categories, motility_advanced_settings,
+                                 motility_settings, timelapse_settings)
+        _DIMENSION_SETTINGS = {
+            "z": frozenset(categories.get("3D Settings (Beta)", ())),
+            "t": (frozenset(categories.get("4D Settings (Beta)", ()))
+                  | frozenset(timelapse_settings) | {"timelapse"}
+                  | frozenset(motility_settings)
+                  | frozenset(motility_advanced_settings)),
+        }
+    return dict(_DIMENSION_SETTINGS)
+
+
+def setting_dimension(key: str) -> str:
+    """The dimension ``key`` depends on -- ``"z"``, ``"t"`` or ``""``.
+
+    Blank for the great majority of settings, which mean the same thing
+    whatever axes the plate has.
+    """
+    for dimension, keys in dimension_settings().items():
+        if key in keys:
+            return dimension
+    return ""
+
+
 class ModuleHeader(QWidget):
     """The masthead every module page wears: name, description, instruction.
 
@@ -137,34 +296,38 @@ class ModuleHeader(QWidget):
     go on the same row through :meth:`add_trailing`, right-aligned past
     the stretch, so a screen that had its own header row keeps it.
 
-    This was written inline inside :class:`AppScreen` and stayed there,
-    which is the whole of the defect it now fixes. Roughly twenty-five
-    screens arrived in two days, none of them an ``AppScreen``, and each
-    rolled its own header: a ``QLabel`` tagged ``ScreenTitle`` — an object
-    name with **no rule anywhere in the stylesheet**, so it rendered at
-    body size — or, on four of them, a bare paragraph with no title at
-    all. Copying the styling into each of them would have set the same
-    trap for the twenty-sixth; a shared component cannot drift.
-
-    Transparent by construction. A header is a page region, not a card,
-    and an untagged ``QWidget`` inherits the blanket
-    ``QWidget {{ background-color: bg }}`` — the WINDOW colour, which no
-    page-opacity setting can reach — so it would sit as an opaque band
-    across the backdrop. ``AppScreen`` used to tag its header by hand in
-    ``_clear_page_surfaces``; every screen gets it here instead.
+    The shared component keeps headings and actions consistent across screens.
+    It is transparent because a header is a page region rather than a card;
+    this allows the configured page backdrop to remain visible.
 
     :param title: the module name, shown large.
     :param description: one line to the right of the name. Never wrapped —
       it may shrink below its ideal width rather than force the window
-      wider — and repeated as a tooltip so a truncated one is readable.
+      wider — and repeated in its own hover help so a truncated one is
+      readable.
     :param instruction: one line under the name. Omitted if empty.
-    :param app_key: registry key. Given one, the description gets the
-      module's API documentation link beside it.
+    :param app_key: registry key. Given one, the module's API documentation
+      link is the last line of the description's hover help. NOTHING IS
+      DRAWN BESIDE THE DESCRIPTION: a dot used to be, and a masthead reads
+      as one sentence rather than a sentence and a mark. The link is not
+      lost with it -- see :class:`spacr.qt.widgets.ApiHelpLabel`, which
+      carries the same help every setting's label carries.
+    :param parent: parent widget; ownership only.
     """
 
     def __init__(self, title: str, description: str = "",
                  instruction: str = "", *, app_key: Optional[str] = None,
                  parent: Optional[QWidget] = None):
+        """Build the shared module masthead.
+
+        :param title: the module's name, set at display size.
+        :param description: one-line blurb; with an ``app_key`` it becomes the
+            link into that module's API help.
+        :param instruction: what to do first, shown under the title.
+        :param app_key: the module the description links to; without it the
+            blurb is plain text.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ModuleHeader")
         from ..theme import make_transparent
@@ -187,13 +350,17 @@ class ModuleHeader(QWidget):
         title_col.addWidget(self.instruction_label)
         row.addLayout(title_col)
 
-        self.description_label: Optional[QLabel] = None
-        self.info_link = None
+        self.description_label: Optional[ApiHelpLabel] = None
+        #: The description, when it carries an API link; ``None`` otherwise.
+        #: A screen that serves two modules from one masthead repoints it --
+        #: see :meth:`ApiHelpLabel.set_api_app_key`.
+        self.api_help: Optional[ApiHelpLabel] = None
         if description:
-            intro_row = QHBoxLayout()
-            intro_row.setContentsMargins(0, 0, 0, 0)
-            intro_row.setSpacing(SPACING["sm"])
-            blurb = QLabel(str(description))
+            # Straight onto the header row: the blurb used to share a nested
+            # row with the dot, and a container for one widget is a container
+            # for nothing.
+            blurb = ApiHelpLabel(str(description), str(app_key or ""),
+                                 parent=self)
             blurb.setObjectName("Muted")
             # One line, flush left. The label may shrink below its ideal
             # width so a long blurb never forces the window wider.
@@ -201,18 +368,10 @@ class ModuleHeader(QWidget):
             blurb.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             blurb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
             blurb.setMinimumWidth(0)
-            blurb.setToolTip(str(description))
-            intro_row.addWidget(blurb)
+            row.addWidget(blurb)
             self.description_label = blurb
             if app_key:
-                from .settings_model import api_docs_url
-                info = InfoLink(api_docs_url(app_key),
-                                tooltip=str(description), parent=self)
-                info.setObjectName("ModuleInfoLink")
-                info.setProperty("moduleApiAppKey", app_key)
-                intro_row.addWidget(info)
-                self.info_link = info
-            row.addLayout(intro_row)
+                self.api_help = blurb
 
         row.addStretch(1)
         self._row = row
@@ -233,6 +392,48 @@ class ModuleHeader(QWidget):
 # are enough to scan the curated setting descriptions while the full rich
 # tooltip remains available beside the field.
 HINT_STRIP_LINES = 4
+
+
+def _fit_to_lines(text: str, label, lines: int) -> str:
+    """``text`` shortened until it wraps into at most ``lines`` of ``label``.
+
+    Qt elides a single line for you and does nothing for a wrapped one, so a
+    four-line strip silently clipped anything longer. This walks back to a word
+    boundary and ends with an ellipsis, so the cut reads as deliberate.
+
+    Falls back to the original text when the label has no usable width yet --
+    during construction it has none, and a guess there would trim against a
+    width that is about to change.
+    """
+    from PySide6.QtGui import QFontMetrics
+
+    text = " ".join(str(text).split())
+    width = max(0, label.width() - 8)
+    if width <= 0 or not text:
+        return text
+    metrics = QFontMetrics(label.font())
+
+    def wrapped_lines(candidate: str) -> int:
+        """How many lines ``candidate`` wraps to at the measured width.
+
+        Measured against the font Qt is actually painting, so it stays right at
+        any font scale rather than at the one this was written on.
+        """
+        rect = metrics.boundingRect(
+            0, 0, width, 0, Qt.TextWordWrap, candidate)
+        return max(1, round(rect.height() / max(1, metrics.lineSpacing())))
+
+    if wrapped_lines(text) <= lines:
+        return text
+    words = text.split(" ")
+    low, high = 0, len(words)
+    while low < high:
+        middle = (low + high + 1) // 2
+        if wrapped_lines(" ".join(words[:middle]) + "…") <= lines:
+            low = middle
+        else:
+            high = middle - 1
+    return (" ".join(words[:low]) + "…") if low else text[:1] + "…"
 
 # The category strip sits above it and holds a shorter blurb, so three lines
 # is enough. Fixed, for the same reason: the runtime controls above must not
@@ -264,6 +465,13 @@ SECTION_HINTS = CATEGORY_TOOLTIPS
 COLUMN_TABLES = {
     "annotation_column":  "png_list",
     "annotation_columns": "png_list",
+    # `classes` is a COMPOSITE, and its button goes on the column combo
+    # inside it -- see `_attach_column_picker`. It is here because it is a
+    # setting that names a column, and the whole point of this table is that
+    # such a setting should never have to be typed blind. Without it the one
+    # setting that decides every class in the module was the one setting with
+    # no way to fill it in when no table had been loaded yet.
+    "classes":            "png_list",
     # custom_measurement is gone: it was collected and never read, so a SQL
     # column picker for it offered to fill in a control that did nothing.
     "measurement":        None,
@@ -278,6 +486,39 @@ COLUMN_TABLES = {
 }
 
 
+def module_maturity(app_key: str) -> str:
+    """The stage ``app_key`` is drawn in, registry row or not.
+
+    ``app_stage`` answers ``stable`` for a key it has never heard of, which
+    is the right answer for a typo and the wrong one for a module that was
+    folded into a host and had its row deleted: its settings would go from
+    beta-tinted to unmarked on the day the row went, claiming a maturity
+    nobody signed off. So a key with no row is asked of the fold tables,
+    which record what its tile said.
+
+    :param app_key: the module's registry key.
+    :returns: ``"alpha"``, ``"beta"`` or ``"stable"``.
+    """
+    from ..app import APPS, app_stage
+
+    stage = app_stage(app_key)
+    if any(row and row[0] == app_key for row in APPS):
+        return stage
+    try:
+        # Every host's table, not one host's: the modules folded into the
+        # segmentation workbench keep what their tiles said in
+        # `make_masks.FOLD_FALLBACK`, and asking Map Barcodes about them
+        # answers "" -- which reads as stable and drops the beta mark off
+        # the Cellpose Workbench's settings sections.
+        from ..widgets.fold_strip import folded_fallback
+        folded = folded_fallback(app_key)[2]
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fold tables for %r", app_key,
+                  exc_info=True)
+        folded = ""
+    return folded or stage
+
+
 def settings_section_maturity(app_key: str, title: str) -> str:
     """Return the least-mature stage applying to one settings section.
 
@@ -285,9 +526,7 @@ def settings_section_maturity(app_key: str, title: str) -> str:
     module can still contain an explicitly experimental ``(Beta)``/``(Alpha)``
     category, in which case that section receives the more cautious stage.
     """
-    from ..app import app_stage
-
-    module_stage = app_stage(app_key)
+    module_stage = module_maturity(app_key)
     normalized = str(title or "").strip().lower()
     section_stage = "stable"
     if normalized == "alpha" or "(alpha)" in normalized:
@@ -308,7 +547,6 @@ APP_TITLES = {
     "umap":            "Image UMAP",
     "train_cellpose":  "Train Cellpose",
     "cellpose_masks":  "Cellpose Masks",
-    "cellpose_all":    "Cellpose (All)",
     "map_barcodes":    "Map Barcodes",
     "queue":           "Plate Queue",
     "ml_analyze":      "Classify (ML)",
@@ -335,6 +573,19 @@ APP_TITLES = {
     "classifier_evaluation": "Classifier Evaluation",
     "run_history":     "Run History",
     "distributed_jobs": "Distributed Jobs",
+    # FOLDED MODULES THAT STILL OPEN THIS SCREEN. Barcode QC, AnnData
+    # Export and Illumination Correction have no screen class of their own
+    # -- every knob each has is a registered settings key, so the generic
+    # form IS the module -- and all three are now pages on a host rather
+    # than tiles. They used to reach this table through
+    # `register_app(..., title=...)`; with the row gone that push never
+    # happens, and the page would be headed "Barcode_Qc" with no sentence
+    # under it.
+    "barcode_qc":      "Barcode QC",
+    "anndata_export":  "AnnData Export",
+    # Not "Illumination": the module corrects the field, and the heading
+    # over its form is what says so.
+    "illumination":    "Illumination Correction",
 }
 
 
@@ -345,12 +596,12 @@ APP_INTROS = {
     "motility":        "Rebuild per-frame tracks, score velocity and straightness per object, and split them by infection state.",
     "measure":         "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
     "annotate":        "Review single-object image crops on a grid and label them; annotations save back to the database.",
-    "classify_merged": "Train a classifier on single objects. Pick the training basis - metadata, annotation or measurement - and the classifier family: Torch on object crops, or gradient boosting on measured features. Classify (CV) and Classify (ML) remain available separately.",
+    "classify_merged": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
     "classify":        "Train and test Torch computer-vision models (CNNs / transformers) to classify single-object images.",
     "ml_analyze":      "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
     "map_barcodes":    "Map sequencing reads to gRNA barcodes and link them to screen wells.",
     "regression":      "Regress screen phenotypes against guide/gene effects across plates.",
-    "make_masks":      "Fine-tune a Cellpose model interactively on your own images.",
+    "make_masks":      "Inspect and edit segmentation masks with brush, flood-fill, relabel, fill and object-removal tools; train, apply, compare and select segmentation models from the integrated workbench.",
     "train_cellpose":  "Train a custom Cellpose model from a labelled dataset.",
     "cellpose_masks":  "Run a Cellpose model over images to generate masks.",
     "activation":      "Generate activation / attention maps to see what a trained model focuses on.",
@@ -367,14 +618,18 @@ APP_INTROS = {
     "convert":         "Turn ND2, CZI, LIF or OME-TIFF acquisitions into Yokogawa-named TIFFs spaCR can read, after showing you exactly which source file becomes which target — and write a map file so the original metadata can be joined back onto the measurements afterwards.",
     "batch":           "Stack any combination of modules, plates and settings into a queue and run it unattended — each job is validated when you add it, runs in its own process, and reports what failed, what was skipped because an upstream job failed, and what finished only partly.",
     "model_zoo":       "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its bytes check out against a published checksum, and what it does to three of your fields.",
-    "train_compare":   "Overlay the loss and accuracy curves of several training runs on one axis and see, beside them, exactly which settings differed — with environment drift bucketed away from the knobs you actually turned.",
+    "train_compare":   "Compare loss and accuracy curves from multiple training runs on shared axes. The adjacent settings comparison separates model and training changes from differences in the software environment.",
     "classifier_evaluation": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
     "run_history":     "Search every recorded job and inspect its exact settings, hashed inputs and outputs, warnings, failure traceback, software versions, seeds and performance.",
     "distributed_jobs": "Submit resolved spaCR settings to SSH workstations, Slurm clusters or cloud/HPC command profiles and monitor them locally.",
     "analyze_plaques": "Detect and quantify plaques in plaque-assay images.",
     "recruitment":     "Quantify recruitment of a marker to a compartment across conditions.",
-    "invasion":        "Score every parasite attached or invaded from a two-colour outside/inside stain, with the threshold derived per field and flagged when the two populations it assumes are not actually there.",
+    "invasion":        "Classify attached and invaded parasites from two-colour differential staining. Estimate the intensity threshold per field and flag fields that lack two distinguishable populations.",
     "replication":     "Count the parasites in every vacuole and turn that into a replication rate: endodyogeny doubles a vacuole 1 -> 2 -> 4 -> 8, so the distribution of counts per vacuole is the readout, not the mean.",
+    # The two folded modules whose page is this screen — see APP_TITLES.
+    "barcode_qc":      "Evaluate a completed barcode-mapping run using read depth per well, low-depth wells, unmapped reads, barcode collisions, positional effects and library coverage. Given the intended number of gRNAs per well, estimate and report the abundance threshold and its sensitivity.",
+    "anndata_export":  "Export the measurement tables as AnnData (.h5ad) - N objects x M features with per-object metadata, feature definitions, embeddings and provenance - so scanpy, scvi-tools and squidpy can read a spaCR run directly.",
+    "illumination":    "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner \u2014 routinely 10\u201340% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
 }
 
 try:
@@ -497,6 +752,10 @@ def _theme_wallpaper():
 #: point a dict meets the widgets, rather than in every producer.
 _RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
 
+#: ``organelleb_min_size`` -> role ``organelleb``, suffix ``min_size``.
+_ORGANELLE_SLOT_KEY = re.compile(
+    r"^(?P<role>organelle[a-z]*)_(?P<suffix>.+)$")
+
 
 def _translate_legacy_setting_keys(settings: dict) -> dict:
     """Rename retired setting keys so their values still reach a widget.
@@ -520,7 +779,595 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         if old in out:
             value = out.pop(old)
             out.setdefault(new, value)
+    # AND EVERY RENAME THE VALIDATOR ALREADY KNOWS ABOUT. `RETIRED_SETTINGS`
+    # is where a rename is recorded, and it was consulted when a file was
+    # CHECKED but not when one was LOADED -- so `spacr-doctor` said "renamed
+    # to X" about the very file the panel had just dropped the value from.
+    for key in list(out):
+        replacement = _surviving_name_of(key)
+        if replacement and replacement != key:
+            out.setdefault(replacement, out.pop(key))
     return out
+
+
+def _surviving_name_of(key: str):
+    """What a retired setting is called now, or ``None`` if it is current.
+
+    :param key: the key a settings file carries.
+    :returns: the name that is read today, or ``None``.
+    """
+    from spacr.validate import RETIRED_SETTINGS
+
+    direct = RETIRED_SETTINGS.get(key)
+    if direct:
+        return direct
+    # THE GENERATED ORGANELLE SLOTS. The table names the first slot only --
+    # `organelle_min_size` -- but a run declares as many organelles as it
+    # likes and each slot repeats the same suffix, so a table of literals
+    # would migrate `organelleb` and silently miss `organellez`. The rename
+    # belongs to the SUFFIX, so it is looked up on the first slot's spelling
+    # and put back on the slot the key actually names.
+    match = _ORGANELLE_SLOT_KEY.match(key or "")
+    if match is None:
+        return None
+    suffix = match.group("suffix")
+    renamed = RETIRED_SETTINGS.get(f"organelle_{suffix}")
+    if not renamed or not renamed.startswith("organelle_"):
+        return None
+    return f"{match.group('role')}_{renamed[len('organelle_'):]}"
+
+
+def _elapsed_words(seconds: float) -> str:
+    """``473.0`` -> ``"7 min 53 s"``. What the heartbeat says out loud.
+
+    WHOLE UNITS ONLY, and never a bare float. "473.0 s" is a number a reader
+    has to divide before it means anything, and the question the heartbeat
+    answers -- has this been going long enough to worry -- is asked in
+    minutes and hours.
+    """
+    total = int(max(0.0, float(seconds)))
+    hours, rest = divmod(total, 3600)
+    minutes, secs = divmod(rest, 60)
+    if hours:
+        return f"{hours} h {minutes} min"
+    if minutes:
+        return f"{minutes} min {secs} s"
+    return f"{secs} s"
+
+
+class _LateCaptionTranslator(QObject):
+    """Runs the language pass over a subtree that arrives after the screen.
+
+    A screen is translated ONCE, by ``MainWindow`` when it builds it. What
+    is parented into it afterwards has never met the pass and never will,
+    so on a non-English screen it sits in English beside translated text.
+    The declared preview :mod:`spacr.qt.preview_registry` installs, and the
+    settings strip that :mod:`spacr.qt.settings_search` inserts, are both
+    that: built the first time a module is opened, which is after the pass.
+
+    A FOLDED MODULE IS THE THIRD, and the largest: its page is a whole
+    module screen built by a fold button rather than by the window, so
+    nothing routes it through the one call that runs the pass. Every
+    caption on it -- masthead, instruction and each of its several hundred
+    settings rows -- and the tab it arrived on opened in English inside a
+    translated window.
+
+    Installed as an event filter on the hosts those land in.
+    ``QEvent.ChildAdded`` is the moment of parenting, and the pass is
+    deferred one turn of the event loop from there: a widget can be
+    parented before its own children exist, and
+    :func:`spacr.qt.i18n.retranslate_widget_tree` caches whatever caption a
+    widget holds the first time it sees one as that widget's English
+    source, so a pass that ran too early would record an empty caption and
+    opt the control out for good.
+    """
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Schedule a pass over ``watched``, WITHOUT touching the new child.
+
+        THE ARRIVING CHILD MUST NOT BE ASKED FOR HERE -- no `child` call on
+        this event -- and the reason is not
+        style. `ChildAdded` is delivered synchronously from inside the
+        child's C++ constructor, before Shiboken has registered the wrapper
+        for the Python class being built. Asking for the child at that
+        instant mints a BARE QWidget wrapper and registers THAT under the
+        child's pointer; Shiboken never overwrites an existing key, so the
+        real wrapper is never registered, and when the bare one is released
+        the pointer is left mapped to nothing for the rest of the process.
+
+        The child then loses its whole dynamic metaobject: its own signals
+        vanish from it, so emitting one is a silent no-op, and
+        `findChildren()` by type cannot see it. That is what produced
+        "libpyside: addMetaMethod: ... No Wrapper found." once per screen
+        built -- see Part 5 of `tools/diagnose_pyside_slot_warning.py`,
+        which reproduces it and this fix in isolation.
+
+        THE KEEPING IS WHAT DOES THE DAMAGE, not the call: a bare wrapper
+        that is dropped immediately is collected again before the real
+        registration and costs nothing, which is why deferring with
+        `partial(..., child)` -- holding it for exactly one turn -- was the
+        shape that broke it. So `watched` is deferred instead. It is
+        already fully wrapped, and a turn later every child of it is too.
+        """
+        if event.type() != QEvent.ChildAdded:
+            return False
+        QTimer.singleShot(0, partial(self._on_arrivals_in, watched))
+        return False
+
+    #: Marks a child this filter has already run its pass over. A Qt
+    #: dynamic property rather than a Python attribute or an id() set,
+    #: because it has to survive the Python wrapper being collected and
+    #: recreated, and id()s of dead widgets get reused.
+    _HANDLED = "_spacr_late_caption_seen"
+
+    def _on_arrivals_in(self, host) -> None:
+        """Run the pass over children of ``host`` that have not had one.
+
+        Scans rather than being handed the child, because the arrival is
+        the one moment the child cannot safely be touched -- see
+        :meth:`eventFilter`. A turn later they are ordinary widgets of
+        their real classes.
+        """
+        try:
+            children = [child for child in host.children()
+                        if isinstance(child, QWidget)]
+        except RuntimeError:
+            # The host itself went away before the turn came round.
+            return
+        for widget in children:
+            try:
+                if widget.property(self._HANDLED):
+                    continue
+                widget.setProperty(self._HANDLED, True)
+            except RuntimeError:
+                continue
+            self._on_arrival(widget)
+
+    def _on_arrival(self, widget) -> None:
+        """Follow and translate a subtree, a turn after it was parented.
+
+        The widget arrives here as its REAL class, because nothing wrapped
+        it while it was still being constructed. That is why the strip
+        below is recognised with `isinstance` rather than by asking Qt with
+        `inherits`: the bare-QWidget wrapper that made `isinstance`
+        useless here no longer happens.
+        """
+        try:
+            if isinstance(widget, QTabWidget):
+                # A PAGE STRIP. Its own captions are its tabs, and the pass
+                # sets those through `QTabWidget` methods, so the walk
+                # starts at what the strip was parented into.
+                self._watch_pages_of(widget)
+                self._translate(widget.parent() or widget)
+                return
+            self._translate(self._pass_root(widget))
+        except RuntimeError:
+            # Gone again before the turn came round. Nothing to translate
+            # is not a failure.
+            pass
+
+    def _watch_pages_of(self, strip) -> None:
+        """Watch the widget ``strip`` parents its pages into.
+
+        A page is parented into the ``QStackedWidget`` INSIDE a tab widget
+        rather than into the tab widget itself, so a filter that saw the
+        strip arrive would never see a page land on it. The strip arrives
+        empty and every module that becomes a page on it comes later, so
+        without this only the first fold a user opens is translated.
+        """
+        for stack in strip.findChildren(QStackedWidget,
+                                        options=Qt.FindDirectChildrenOnly):
+            stack.removeEventFilter(self)
+            stack.installEventFilter(self)
+
+    @staticmethod
+    def _pass_root(widget):
+        """The subtree a pass for ``widget`` has to cover.
+
+        A page carries a caption that is not its own: the tab it arrived on
+        belongs to the strip above it, and translating the page alone
+        leaves that tab in English over a translated page. So the strip is
+        the root whenever the new widget is a page on one -- one walk that
+        reaches the page and the tabs together.
+        """
+        parent = widget.parent()
+        strip = parent.parent() if parent is not None else None
+        if isinstance(strip, QTabWidget) and strip.indexOf(widget) >= 0:
+            return strip
+        return widget
+
+    @staticmethod
+    def _translate(widget) -> None:
+        """Translate ``widget`` and its descendants, if it is still alive."""
+        try:
+            from ..i18n import retranslate_widget_tree
+
+            retranslate_widget_tree(widget)
+            # AND THE HELP GOES BACK ONTO THE NAMES. The pass above walks
+            # every widget carrying a `settingKey` and re-applies its
+            # tooltip, which is what kept putting the help back on the
+            # field: this runs on ARRIVAL, so it lands after the panel was
+            # built and after any earlier move. Doing it here, immediately
+            # after, means a row that arrives late is treated exactly like
+            # one that was there from the start.
+            from .settings_model import retarget_field_tooltips
+
+            retarget_field_tooltips(widget)
+        except RuntimeError:
+            # The panel was closed again before the pass ran. Nothing to
+            # translate is not a failure.
+            pass
+        except Exception:
+            LOG.exception("could not translate a late settings panel")
+
+
+class _CaptionsBuiltWhenTheyAreAskedFor(dict):
+    """``AppScreen._hint_map``, with the captions still waiting still to come.
+
+    A caption is what carries a setting's key, its help and its hover
+    behaviour, and this is the panel's index of them. A row the object rule
+    has already hidden does not have one yet, so WALKING this index has to
+    hand over the rest first -- the check that every setting's caption names
+    its setting reads exactly this, and an index holding a fraction of the
+    panel would pass it while checking almost nothing.
+
+    LOOKING ONE UP DOES NOT BUILD ANYTHING, which is the whole reason the two
+    are separated: a lookup is what a pointer moving across the panel does,
+    several times a second, and the answer for a widget that is not a caption
+    is "no hint" whatever else exists.
+    """
+
+    def __init__(self, caption_the_rest):
+        """:param caption_the_rest: called once, to caption the waiting rows."""
+        super().__init__()
+        self._caption_the_rest = caption_the_rest
+
+    def _complete(self) -> None:
+        """Caption the rows that are still waiting. Idempotent."""
+        build, self._caption_the_rest = self._caption_the_rest, None
+        if build is not None:
+            build()
+
+    def __iter__(self):
+        """Build the deferred rows first, then answer as a normal mapping.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty mapping and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__iter__()
+
+    def __len__(self) -> int:
+        """Build the deferred rows first, then answer as a normal mapping.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty mapping and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__len__()
+
+    def keys(self):
+        """The widgets that have a caption, building any still waiting."""
+        self._complete()
+        return super().keys()
+
+    def items(self):
+        """Every widget and its caption, building any still waiting."""
+        self._complete()
+        return super().items()
+
+    def values(self):
+        """Every caption, building any still waiting."""
+        self._complete()
+        return super().values()
+
+
+class _RowsBuiltWhenTheyAreAskedFor(list):
+    """A heading's rows, with the ones the run has no object for still to come.
+
+    `AppScreen._build_settings_section` leaves a row's caption unbuilt when
+    the object rule has already decided the row must not be on screen, which
+    on Mask is most of the panel. The rows that ARE captioned go in here as
+    usual, so the list is a real list holding real rows; what it adds is that
+    ASKING for its contents builds the rest first.
+
+    That is the whole reason it exists. Several checks find a settings row by
+    walking ``Section._row_widgets`` -- the module smoke test reads every entry
+    as a labelled setting row and asserts what it carries -- and a list that
+    quietly held a twentieth of the panel's rows would let each of them pass
+    while checking almost nothing. Deferring the work is only worth doing if
+    nothing can tell the difference except by being faster.
+
+    ``append`` is deliberately NOT one of the methods that builds: it is what
+    ``Section.add_row`` calls while the rest of the rows are being built, and
+    the callback is dropped before that starts, so the pass cannot re-enter.
+    """
+
+    def __init__(self, build_the_rest):
+        """:param build_the_rest: called once, to lay out the waiting rows."""
+        super().__init__()
+        self._build_the_rest = build_the_rest
+
+    def _complete(self) -> None:
+        """Build the rows that have not been laid out yet. Idempotent."""
+        build, self._build_the_rest = self._build_the_rest, None
+        if build is not None:
+            build()
+
+    def __len__(self) -> int:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__len__()
+
+    def __iter__(self):
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__iter__()
+
+    def __getitem__(self, index):
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__getitem__(index)
+
+    def __bool__(self) -> bool:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__len__() > 0
+
+    def __contains__(self, item) -> bool:
+        """Build the deferred rows first, then answer as a normal list.
+
+        EVERY access point has to force the build, not just the obvious one. A
+        reader that took ``len`` for a cheap check and ``in`` for a cheap test
+        would see an empty list and conclude there is nothing here, which is
+        the failure mode a lazy container has and a list does not.
+        """
+        self._complete()
+        return super().__contains__(item)
+
+    def __repr__(self) -> str:
+        """Build the deferred rows, then show them.
+
+        Forces the build like every other access: a repr that showed an empty
+        list in a debugger would be a lie about a container that has contents.
+        """
+        self._complete()
+        return super().__repr__()
+
+#: Top-level section containing each module's example-data control. Modules
+#: omitted from this mapping do not expose an example-data action.
+EXAMPLE_DATA_SECTIONS = {
+    "regression": "Input Tables",
+    "mask": "Input & Metadata",
+    # Measure's example data is the MASK OUTPUT, not raw acquisition: the
+    # merged arrays with their label masks, so Measure can be run end to end
+    # without segmenting anything first.
+    "measure": "Input & Experiment",
+    # Classify's example data is the MEASURE output plus real labels: 2,341
+    # crops of which 88 are annotated. Unlabelled crops would exercise the
+    # viewer and nothing else -- a training example needs labels.
+    #
+    # ABOVE src, in the section that names the sources, asked for on
+    # 2026-09-01. It had sat under Labels & Classes, which is where the
+    # labels it brings are configured but not where the path it sets is --
+    # so the control that fills `src` was two sections away from `src`.
+    # BOTH KEYS, and `classify_merged` is the one that matters: it is the
+    # module in the Core section that a user actually opens. `classify` is not
+    # in APPS and is not folded onto any host, so it is unreachable from the
+    # UI -- which means this entry named only the dead key and the Classify
+    # screen has never shown an example-data control at all. Found on
+    # 2026-09-01 while checking which core modules have test data.
+    "classify": "Plate Sources & Workflow",
+    "classify_merged": "Plate Sources & Workflow",
+    # Map Barcodes reads FASTQ, and the example is the paper's own: NCBI
+    # BioProject PRJNA1261935, the four sequenced plates. Above `src`,
+    # in the section that names it.
+    "map_barcodes": "Sequencing Input",
+}
+
+
+
+def _each_fractal_backdrop(screen):
+    """Yield every fractal backdrop reachable from ``screen``.
+
+    Walks the window rather than holding a reference: the backdrop belongs
+    to whichever screen is showing, and a reference captured once would go
+    stale the first time the user changed module.
+    """
+    window = screen.window() if hasattr(screen, "window") else None
+    if window is None:
+        return
+    for child in window.findChildren(QWidget):
+        if hasattr(child, "pause") and hasattr(child, "backend_name"):
+            yield child
+
+
+def _pause_the_fractal(screen) -> int:
+    """Stop the spaceout fractal for the duration of a run.
+
+    :returns: how many backdrops were paused, so a test can assert on a
+        number rather than on a screenshot.
+
+    Never raises: a run must not fail because a decoration would not stop.
+    """
+    paused = 0
+    try:
+        for backdrop in _each_fractal_backdrop(screen):
+            try:
+                if backdrop.pause():
+                    paused += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not pause the fractal", exc_info=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the fractal", exc_info=True)
+    return paused
+
+
+def _resume_the_fractal(screen) -> int:
+    """Start it again once the run is over. Returns how many resumed."""
+    resumed = 0
+    try:
+        for backdrop in _each_fractal_backdrop(screen):
+            try:
+                if backdrop.resume():
+                    resumed += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not resume the fractal", exc_info=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not reach the fractal", exc_info=True)
+    return resumed
+
+
+class _WrappingButtonStrip(FlowLayout):
+    """The action row's buttons, laid out so they wrap rather than squeeze.
+
+    WHY THIS EXISTS, WITH THE NUMBERS. The action buttons want 651 px of
+    caption in English, 836 in German and 741 in Icelandic,
+    and with the progress bar and the switches beside them a single
+    ``QHBoxLayout`` made the whole row's MINIMUM width 908 / 1092 / 1068 px
+    in those three locales. A minimum that large does damage two ways, and
+    both were measured on Measure with the layout settled:
+
+    * AT 1200x850 IT TOOK THE WIDTH FROM ITS NEIGHBOUR. The screen asks its
+      body splitter for ``setSizes([400, 800])``; what it got instead was a
+      settings column of 251 px in English, 91 in Icelandic and 67 in
+      German, because the runtime side could not be narrower than the row.
+      67 px of settings column is not a settings column.
+    * AND IN A WINDOW THAT CANNOT GROW, THE CAPTIONS WENT. A page in a
+      ``QStackedWidget`` gets whatever the window has, its own minimum
+      included, and Qt's answer to a box it cannot satisfy is to shrink
+      every child below its hint. At 1000x850 that cut four captions in
+      German ("Einstellungen importieren…" 106 px against a 192 hint), four
+      in Icelandic, and one in ENGLISH. Asked to be 1000 px wide as a
+      top-level window the screen simply refused, and came up 1193 px in
+      German -- which is the same defect wearing the other face.
+
+    English very nearly fits, which is the only reason this shipped: the
+    developers' locale is the one where the row is 908 and not 1092.
+
+    :class:`~spacr.qt.widgets.flow.FlowLayout` already wraps, and it is used
+    here AS A SUB-LAYOUT of the row rather than inside a ``FlowHost`` widget
+    of its own. Both of those choices were forced, and both are worth reading
+    twice before anyone "simplifies" this:
+
+    * THE ROW IS NOT A ROW OF BUTTONS. It is eight buttons and an activity
+      spinner, then ``addStretch(1)``, then the progress bar and the 3D /
+      Time / Live / GPU / sweep / hyperparameter / interactive / AI
+      switches, and the stretch is load-bearing -- it is what holds the switches against the
+      right edge while the buttons stay left. ``FlowLayout`` has no
+      ``addStretch``, so the row itself cannot become one; an earlier attempt
+      swapped the layout wholesale and died immediately on ``AttributeError:
+      'FlowLayout' object has no attribute 'addStretch'``.
+    * A WIDGET ADDED TO A SUB-LAYOUT IS PARENTED TO THE WIDGET THAT OWNS THE
+      TOP-LEVEL ONE, so every button is still a Qt child of ``_actions_row``
+      and nothing that reaches into this row had to move.
+      ``tests/qt/test_chaining_gui.py`` asserts exactly that
+      (``screen._btn_run.parent() is screen._actions_row``), six test files
+      reach into the row by attribute, ``findChildren`` from the screen still
+      finds every button, and ``_clear_page_surfaces`` still has ONE widget
+      to tag -- a nested ``FlowHost`` would have broken the first and the
+      third, and added a second anonymous container to keep transparent.
+
+    THE ONE THING ``FlowLayout`` DOES NOT DO for this use is ask for a whole
+    line, and that is what this subclass adds. Its ``sizeHint`` is its
+    ``minimumSize`` -- the widest single chip -- which is right for a chip
+    strip in a column that hands it all the width there is, and wrong inside
+    a ``QHBoxLayout``, where a 192 px hint would let the stretch swallow
+    everything else and wrap eight buttons onto five lines in a row with room
+    for one. ``sizeHint`` below asks for the single line instead, so the box
+    layout keeps the strip on one line while it can and wraps it only when it
+    cannot -- which is the behaviour the row already had in English and now
+    has in every locale.
+    """
+
+    def __init__(self, spacing: int) -> None:
+        """Build the strip and remember its gap.
+
+        :param spacing: the gap between buttons in px. KEPT SEPARATELY as
+            well as passed down, because ``FlowLayout`` holds its gap
+            privately and never calls ``setSpacing`` -- so ``spacing()``
+            would answer the style's default, and :meth:`sizeHint` needs
+            the real number.
+        """
+        super().__init__(None, spacing=spacing)
+        # ``FlowLayout`` keeps its gap in a private attribute and never calls
+        # ``setSpacing``, so ``QLayout.spacing()`` would answer the style's
+        # default rather than this one. ``sizeHint`` needs the real number.
+        self._gap = int(spacing)
+
+    def sizeHint(self) -> QSize:                # noqa: N802 (Qt override)
+        """Every button on ONE line: the shape the row prefers when it fits.
+
+        Deliberately counts the gap after every item except the first even
+        when that item is empty -- a hidden ``_btn_file_issue`` reports a
+        zero-width hint through ``QWidgetItem`` while
+        ``FlowLayout._do_layout`` still advances by the spacing. Matching
+        that arithmetic exactly is what keeps "the width this hint asks for"
+        and "the width one line actually needs" the same number, to the
+        pixel; a hint one gap short would wrap the last button for nothing.
+        """
+        width = 0
+        height = 0
+        for index in range(self.count()):
+            hint = self.itemAt(index).sizeHint()
+            width += hint.width() + (self._gap if index else 0)
+            height = max(height, hint.height())
+        margins = self.contentsMargins()
+        return QSize(width + margins.left() + margins.right(),
+                     height + margins.top() + margins.bottom())
+
+
+#: The strip's Animation word, as a link target.
+#:
+#: A PRIVATE SCHEME, not a URL: the strip has `setOpenExternalLinks(True)`
+#: so its API link works, and anything that looks like a real address would
+#: be handed to a browser.
+_HINT_ANIMATION_HREF = "spacr:animation"
+
+
+def _setting_has_an_animation(key: str) -> bool:
+    """Whether this setting has an animation to offer. Never raises.
+
+    A missing or unreadable catalogue means "no animation", not a broken
+    screen: the strip is help, and help that can take the form down is
+    worse than help that is absent.
+    """
+    if not key:
+        return False
+    try:
+        from ..setting_animations import animation_for_setting
+
+        return animation_for_setting(str(key)) is not None
+    except Exception:                                        # noqa: BLE001
+        return False
 
 
 class AppScreen(QWidget):
@@ -530,6 +1377,7 @@ class AppScreen(QWidget):
     figures card, and actions row on the right.
 
     :param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).
+    :param parent: parent widget; ownership only.
     :ivar error_explain_requested: emitted with ``(traceback, app_key)``
         when the user clicks "Explain error"; MainWindow routes it to
         the AI Console for backward compatibility.
@@ -551,14 +1399,66 @@ class AppScreen(QWidget):
     _ambient = None
     _ambient_applied = None
     _backdrop_applied = None
+    _backdrops_ready = False
     _dna_rain = None
 
     def __init__(self, app_key: str, parent=None):
+        """Build one module page: the settings column beside the runtime panel.
+
+        Ordering matters throughout and is the reason for the length. The live
+        preview watches ``src`` and can only be wired once both panels exist,
+        because the settings panel owns the field and the runtime panel owns the
+        preview. The category hints have the same constraint in reverse. The
+        page-surface sweep runs on every route, not only where a backdrop was
+        installed: with the ambient preference off, skipping it left every
+        layout container carrying the blanket window fill, which is what made
+        the settings half a solid slab.
+
+        :param app_key: which module this page is; it selects the title, the
+            blurb, the settings schema, the drop handler and the backdrop.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.app_key = app_key
+        # Qt can deliver show/palette events from nested layout activation
+        # before this constructor reaches the backdrop section.  Keep those
+        # events from installing against a half-built widget tree; the normal
+        # install below is the single point where backdrop ownership begins.
+        self._ambient = None
+        self._ambient_applied = None
+        self._backdrop_applied = None
+        self._backdrops_ready = False
+        self._dna_rain = None
         self._last_error_text: str = ""
-        self._hint_map: dict = {}       # widget → plain-text hint
+        # widget → plain-text hint. Walking it hands over every caption,
+        # including the ones the object rule left waiting; see the class.
+        self._hint_map: dict = _CaptionsBuiltWhenTheyAreAskedFor(
+            self._caption_every_waiting_row)
         self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
+        # The Model & Inference explainer (instruction 132). Only the
+        # regression panel builds one; every other screen leaves it None.
+        self._model_explainer = None
+        # THE HEARTBEAT (140). Named here rather than created lazily so a
+        # screen that never runs anything still answers `_stop_the_heartbeat`
+        # -- `_on_finished` calls it on every module, not only the two that
+        # start one.
+        self._heartbeat = None
+        self._heartbeat_said = 0.0
+        self._slow_fit = False
+        #: {section title: its prose box}. Born here for the same reason
+        #: everything else in this block is: a screen that has not built its
+        #: settings pane yet still answers "which sections carry a box".
+        self._section_explainers = {}
+        #: ``dimension -> is it on``. Born BEFORE the settings panel, which
+        #: is what reads it: the panel's first `refresh_maturity_visibility`
+        #: runs while the action row that carries the switches does not
+        #: exist yet, so the state has to live on the screen rather than in
+        #: the widgets. Off to begin with, which is the point -- a plate is
+        #: flat and single-shot until its user says otherwise.
+        self._dimension_on = {name: False for name, _label, _tip
+                              in DIMENSION_TOGGLES}
+        #: ``dimension -> the toggle in the action row``, once there is one.
+        self._dimension_switches = {}
 
         # This module is imported lazily by `app.py`, long after the launch
         # stylesheet was generated, so the block registered above is not in
@@ -592,7 +1492,20 @@ class AppScreen(QWidget):
         body.setChildrenCollapsible(False)
 
         # Settings panel (left)
-        body.addWidget(self._build_settings_panel())
+        self._settings_body = body
+        # THE WIDGET ACTUALLY MOUNTED, which is not `_settings_scroll`: the
+        # panel builder wraps the scroll area, so looking the scroll up in
+        # the splitter answered -1 and the rebuild returned having done
+        # nothing.
+        self._settings_panel = self._build_settings_panel()
+        body.addWidget(self._settings_panel)
+        self.the_name_carries_the_help()
+        # Record the shape of an ordinary first-open screen too.  Rebuilt
+        # screens already get this stamp in ``MainWindow.rebuild_app_screen``;
+        # without the matching first-open stamp, merely leaving an unchanged
+        # watched field rebuilt the whole page once and stole focus.
+        self._form_shape_on_screen = self._form_shape()
+        self._watch_the_settings_that_decide_the_form()
         # Runtime panel (right)
         body.addWidget(self._build_runtime_panel())
 
@@ -613,6 +1526,17 @@ class AppScreen(QWidget):
         # runtime panel, so the two can only be connected once both exist.
         self._wire_category_hints()
 
+        # WHAT ARRIVES AFTER THE LANGUAGE PASS. `MainWindow` translates a
+        # screen once, when it builds it; anything parented into the screen
+        # afterwards arrives in English and nothing ever asks it again. The
+        # declared preview is exactly that -- `spacr.qt.preview_registry`
+        # installs it the first time the module is opened, which is after
+        # the pass, so on a Swedish screen its whole panel and the toggle it
+        # puts on the settings strip stay English, and so does every page a
+        # fold button opens. Watching the hosts they land in translates each
+        # new subtree as it arrives.
+        self._watch_for_late_captions()
+
         # Two runners, not one, and the split is deliberate. Both of these are
         # background work — the usage poll shells out to nvidia-smi, filing an
         # issue shells out to `gh` and then talks to api.github.com — but they
@@ -627,11 +1551,16 @@ class AppScreen(QWidget):
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
 
         # Timer to poll RAM/GPU/CPU periodically
+        self._usage_generation = 0
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
         self._usage_timer.timeout.connect(self._refresh_usage)
-        self._usage_timer.start()
-        self._refresh_usage()
+        # A stacked module page may be constructed hours before the user
+        # opens it.  Polling every hidden page wastes a thread and a
+        # ``nvidia-smi`` subprocess every two seconds; in a long-lived Qt
+        # process those orphan polls also made GPUtil's subprocess boundary
+        # eventually segfault.  showEvent starts the one page the user can
+        # actually see, and hideEvent stops it again.
 
         # Threading state
         self._thread: Optional[QThread] = None
@@ -654,7 +1583,6 @@ class AppScreen(QWidget):
         # button beside the AI toggle — they used to be a permanent bar
         # across the bottom of the page, which is more chrome than a
         # backdrop is worth.
-        self._dna_rain = None
         if self.app_key in DNA_RAIN_APPS:
             try:
                 from ..widgets.dna_rain import install_dna_rain
@@ -687,11 +1615,10 @@ class AppScreen(QWidget):
         # whenever this screen is not visible — these screens stay open
         # while the pipeline runs on another tab, so an animation that
         # kept ticking off-screen would cost a core for nobody.
-        self._ambient = None
         #: (theme, palette) last pushed at — or attempted on — the
         #: widget, so a tab switch that changed nothing neither restarts
         #: the animation nor retries an install that already failed.
-        self._ambient_applied = None
+        self._backdrops_ready = True
         if uses_ambient_background(self.app_key):
             self._install_ambient()
 
@@ -717,17 +1644,68 @@ class AppScreen(QWidget):
         # the page is supposed to show between the floating category panels.
         # `clear_container_surfaces` is idempotent, so the calls inside the
         # two install paths stay where they are for their own ordering
-        # reasons and this one costs a second pass over the tree.
-        self._clear_page_surfaces()
+        # reasons.
+        #
+        # SKIPPED ONLY WHEN THE AMBIENT INSTALL ALREADY SWEPT THIS EXACT
+        # TREE. `_install_ambient` sweeps AFTER it parents the backdrop, and
+        # nothing is added to the screen between it returning and here, so a
+        # second sweep would visit the same widgets and reach the same
+        # answer -- and it is not free: `clear_container_surfaces` walks
+        # every descendant with `findChildren`, which on the Mask screen is
+        # about 50 ms of the build. Every other route still sweeps here, and
+        # each of them needs to: the preference off, the install failed, or
+        # the DNA rain, which sweeps BEFORE it parents its widget and so
+        # leaves one container this pass is the only one to see. `_ambient`
+        # is set only by an install that got as far as its own sweep, which
+        # is what makes it the right question to ask.
+        if self._ambient is None:
+            self._clear_page_surfaces()
         # The page colour follows whether a backdrop got installed, so
         # it is resolved wherever that is decided -- and it has to reach
         # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
         # still uses `bg` and flashes black. See _sync_page_palette.
         self._sync_page_palette()
+        # Instruction 180: enrol with the workspace registry, so a run that
+        # finishes can record what this screen had open. LAST, and by
+        # callable, so a panel this screen may or may not build is asked for
+        # at collection time rather than captured now.
+        try:
+            self.register_workspace()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not enrol the workspace sections", exc_info=True)
+        # 178 D: no overflow arrows. The two ways along a bar the ask named --
+        # the wheel and the arrow keys -- were driven before this shipped and
+        # both work, which is the condition under which removing a control is
+        # safe. See `take_the_scroll_arrows_off`.
+        try:
+            from ..theme import take_the_scroll_arrows_off
+            take_the_scroll_arrows_off(self)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not take the tab scroll arrows off",
+                      exc_info=True)
 
     # ------------------------------------------------------------------
     # Ambient backdrop
     # ------------------------------------------------------------------
+    def _heavy_lock_is_free(self) -> bool:
+        """Whether the heavy-import lock could be taken right now.
+
+        Asked without blocking and released immediately: this is a peek,
+        not a reservation. The backdrop's own constructor still takes the
+        lock properly, so the guarantee that a GL context is never built
+        while the preloader is bringing CUDA up is unchanged -- all this
+        decides is whether to try at all on this event-loop turn.
+
+        A tree with no lock to ask (the widget module is absent, or its
+        import failed) answers yes, so a machine without the backdrop
+        behaves exactly as it did before.
+        """
+        try:
+            from ..widgets.ambient import _the_heavy_import_lock_is_free
+        except Exception:                                    # noqa: BLE001
+            return True
+        return _the_heavy_import_lock_is_free()
+
     def _install_ambient(self) -> None:
         """Build the ambient backdrop for this screen, if it is wanted.
 
@@ -759,7 +1737,22 @@ class AppScreen(QWidget):
         palette event, which a stylesheet re-apply raises. A preference
         change moves the pair and the attempt happens again.
         """
-        if self._ambient is not None:
+        if not self._backdrops_ready or self._ambient is not None:
+            return
+        # NOT WHILE SOMEBODY IS HOLDING THE HEAVY LOCK. The GPU backdrop
+        # takes HEAVY_IMPORT_LOCK to build its GL context, and the startup
+        # preloader holds that lock for a whole module import. Installing
+        # here regardless is what made opening a module soon after launch
+        # freeze the GUI thread: 83% of a measured 3148 ms block was the
+        # backdrop's constructor waiting for a lock the preloader held.
+        #
+        # The backdrop is decoration and the module is not, so the
+        # decoration is what waits. If the lock is busy this comes back on
+        # a timer and the screen opens now, undecorated for a moment.
+        if not self._heavy_lock_is_free():
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(120, self._install_ambient)
             return
         widget = None
         try:
@@ -767,6 +1760,22 @@ class AppScreen(QWidget):
                                        get_ambient_palette,
                                        get_ambient_theme)
             if not get_ambient_enabled():
+                return
+            # ONE BACKDROP FOR THE WINDOW, and it is not this screen's. When
+            # the central area carries one it is already behind this screen
+            # AND behind the dock beside it; building a second here puts two
+            # animations over each other, out of step, with the seam showing
+            # wherever the two containers meet.
+            #
+            # The page surfaces are still cleared, because that is what lets
+            # the window's backdrop through this screen's opaque containers.
+            # Skipping the install and skipping the clear are different
+            # things, and skipping both is a screen with an animation behind
+            # it that nobody can see.
+            window = self.window()
+            shared = getattr(window, "window_backdrop", None)
+            if callable(shared) and shared() is not None:
+                self._clear_page_surfaces()
                 return
             wanted = (get_ambient_theme(), get_ambient_palette())
             if wanted == self._ambient_applied:
@@ -777,16 +1786,53 @@ class AppScreen(QWidget):
                                      palette=wanted[1],
                                      backdrop=_theme_wallpaper())
             self._clear_page_surfaces()
+            # THE BACKDROP IS RECORDED BEFORE THE PAGE COLOUR IS RESOLVED,
+            # because `page_fill` reads `self._ambient` to decide whether
+            # this screen still has to paint a page of its own. Assigning
+            # afterwards meant the sync ran against a screen that still
+            # looked backdrop-less: it applied the flat page colour and its
+            # `AppScreen { background-color: ... }` stylesheet to a widget
+            # about to be covered by the animation, and the unconditional
+            # sync at the end of `__init__` -- by then seeing the backdrop --
+            # took both straight off again. The user saw nothing for it and
+            # the tree was restyled twice, which on the Mask screen is a
+            # full re-polish of 1,538 widgets for a colour that never showed.
+            self._ambient = widget
             # The page colour follows whether a backdrop got installed, so
             # it is resolved wherever that is decided -- and it has to reach
             # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
             # still uses `bg` and flashes black. See _sync_page_palette.
             self._sync_page_palette()
-            self._ambient = widget
-        except Exception:
+        except Exception as error:
             self._ambient = None
             _discard_widget(widget)
             self._discard_orphan_ambient()
+            # "NOT YET" IS NOT "NEVER". The spaceout backdrop refuses
+            # rather than blocking the GUI thread when a heavy import
+            # holds the lock its GL context needs, and the peek above
+            # cannot rule that out -- it is a check, not a reservation,
+            # and the preloader re-takes the lock between two imports.
+            #
+            # Without this the refusal would land in `_ambient_applied`
+            # as an attempt already made, and the screen would stay
+            # undecorated for the life of the session because a module
+            # was opened while the preloader happened to be running.
+            # Forgetting the attempt and coming back is what the peek
+            # does for the case it can see, so it is what this does too.
+            # DEFENSIVELY, because this handler's whole job is that a
+            # backdrop can never stop a screen opening -- and "the widget
+            # module is absent" is one of the failures it is here to
+            # absorb, so asking that module to classify the failure has to
+            # tolerate its being the thing that is missing.
+            try:
+                from ..widgets.ambient import _the_backdrop_wants_a_retry
+            except Exception:                                # noqa: BLE001
+                return
+            if _the_backdrop_wants_a_retry(error):
+                self._ambient_applied = None
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
 
     def _discard_orphan_ambient(self) -> None:
         """Remove an ambient widget an aborted install left parented here.
@@ -912,14 +1958,58 @@ class AppScreen(QWidget):
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
             return
+        # A nested layout activation can deliver this while ``__init__`` is
+        # still building the two page columns.  Skipping only the ambient
+        # install is not enough: syncing the page palette here first paints a
+        # flat page for a screen that is about to gain a backdrop, then the
+        # real install has to withdraw that style again.  The finished build
+        # installs/re-themes the backdrop and syncs the page once below, so no
+        # palette work is lost by deferring the construction-time event.
+        if not self._backdrops_ready:
+            return
         self.refresh_ambient_background()
         self._retheme_backdrops()
+        # THE EXPLAINER BOXES PAINT WITH PALETTE TOKENS (instruction 144), so
+        # a theme switch has to re-render them -- rich text stores the colour
+        # it was given, and re-applying the stylesheet cannot reach inside a
+        # QTextDocument's character formats.
+        self._retheme_section_explainers()
         # The page colour is resolved at paint time from the live theme,
         # so a theme switch has to ask for a repaint — nothing else on
         # this screen invalidates it. The palette moves with it, or Qt
         # keeps erasing to the OLD theme's page between the two.
         self._sync_page_palette()
         self.update()
+
+    def _retheme_section_explainers(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Re-render every prose box in the live theme and language."""
+        from ..theme import active_palette
+        from .settings_model import section_explainer_html
+
+        boxes = getattr(self, "_section_explainers", {}) or {}
+        if not boxes:
+            return
+        try:
+            palette = active_palette()
+        except Exception:                                        # noqa: BLE001
+            return
+        for title, box in boxes.items():
+            if box is None:
+                continue
+            try:
+                if box is getattr(self, "_model_explainer", None):
+                    self._refresh_model_explainer(language)
+                else:
+                    box.setHtml(section_explainer_html(
+                        self.app_key, title, palette=palette,
+                        language=language))
+            except (RuntimeError, AttributeError):
+                # A box whose C++ side has gone, on a screen being torn down.
+                LOG.debug("could not re-theme the %s box", title,
+                          exc_info=True)
 
     def _retheme_backdrops(self) -> None:
         """Re-apply the current theme's fill + wallpaper to both backdrops.
@@ -1003,7 +2093,13 @@ class AppScreen(QWidget):
         Never raises: a page that cannot resolve its colour falls back to
         the rendering it had before this existed.
         """
-        if self._ambient is not None or self._dna_rain is not None:
+        # A backdrop the WINDOW owns counts as "a backdrop is installed".
+        # Without this the guard that declines to build a second one would
+        # leave `_ambient` None, `page_fill` would return the flat page
+        # colour, and the screen would paint that colour straight over the
+        # window's animation -- the black slab, reported three times.
+        if (self._ambient is not None or self._dna_rain is not None
+                or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
             from ..preferences import resolve_effective_theme
@@ -1156,6 +2252,25 @@ class AppScreen(QWidget):
     # Panels
     # ------------------------------------------------------------------
     def _build_settings_panel(self) -> QWidget:
+        """Build the settings column, with the UI language resolved once.
+
+        Everything the layout below asks for is rendered in the UI
+        language -- every tooltip body, type hint, label and
+        documentation URL, several times per row -- and each of those
+        asks reads the preference store. `language_resolved_once` makes
+        the panel ask once instead. It is re-entrant, so `build_sections`
+        opening its own scope inside this one shares this cache rather
+        than starting a second.
+
+        :returns: the scroll area holding the settings form.
+        """
+        from .settings_model import language_resolved_once
+
+        with language_resolved_once():
+            return self._lay_out_the_settings_panel()
+
+    def _lay_out_the_settings_panel(self) -> QWidget:
+        """Build the settings column itself. See `_build_settings_panel`."""
         scroll = QScrollArea()
         self._settings_scroll = scroll
         # The column paints nothing — see `_settings_panel_qss`. The name is
@@ -1164,6 +2279,12 @@ class AppScreen(QWidget):
         scroll.setObjectName(SETTINGS_PANEL_NAME)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        if self.app_key == "umap":
+            # The action strip now carries GPU, search, interactive and AI
+            # toggles. Never satisfy their combined width by crushing the
+            # reducer settings into an unreadable sliver; the top-level window
+            # may grow, while the splitter remains user-resizable.
+            scroll.setMinimumWidth(280)
         # A QScrollArea's viewport auto-fills by default, and what it fills
         # with is the WINDOW colour -- not a surface -- so no opacity setting
         # can reach it and the settings column reads as an opaque slab over
@@ -1183,7 +2304,27 @@ class AppScreen(QWidget):
         layout.setContentsMargins(0, 0, SPACING["sm"], 0)
         layout.setSpacing(SPACING["sm"])
 
-        self._settings_model = SettingsWidgets(self.app_key, parent=content)
+        # THE VALUES ON SCREEN DECIDE THE FORM, not the module's shipped
+        # defaults -- otherwise a nucleus channel the user has just typed
+        # would build a form that still says the run has no nucleus.
+        self._settings_model = SettingsWidgets(
+            self.app_key, parent=content,
+            current=AppScreen.values_the_next_screen_is_built_for)
+        # ``key -> the heading it belongs to``, for every row the object rule
+        # has already decided must not be on the form. `_build_settings_section`
+        # fills it and `_lay_out_the_rows_that_are_back` empties it as the rule
+        # changes its mind. Reset per panel: a screen may build a second one.
+        self._rows_awaiting_layout = {}
+        self._run_has_no_object_for = None
+        #: Headings that gained a caption since the last pass, so the language
+        #: pass reaches them and nothing else.
+        self._captioned_late = set()
+        # THE MODEL ASKS THE PANEL FOR A ROW IT IS ABOUT TO SHOW. The rule
+        # decides visibility; only the panel can build a row, and a rule that
+        # showed a field with no row would put a bare control in no layout at
+        # all. See `SettingsWidgets.refresh_object_visibility`.
+        self._settings_model.rows_are_laid_out_by = \
+            self._lay_out_the_rows_that_are_back
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -1204,6 +2345,38 @@ class AppScreen(QWidget):
             layout.addWidget(self._empty_state_card)
 
         self._settings_sections = []
+        # Sections pruned from the rendered tree can still own form rows that
+        # collect, search and a later object-visibility pass must reach.  They
+        # therefore stay in the complete section registry, but live under an
+        # explicitly hidden, screen-owned host: unlike ``setParent(None)``,
+        # that cannot turn their headers into stray top-level windows.
+        self._discarded_settings_host = QWidget(content)
+        self._discarded_settings_host.setObjectName(
+            "DiscardedSettingsSections")
+        self._discarded_settings_host.hide()
+        self._discarded_settings_sections = []
+        # Heading text -> the blurb its PATH resolved to, so the strip under
+        # the actions row can answer for a sub-heading whose bare word means
+        # something else somewhere else in the tool.
+        self._category_blurbs = {}
+        # CATEGORIES AS TABS, where a screen has enough of them to be a wall.
+        # Asked for 2026-08-19: "in measure i dont like the black categories.
+        # can we make them into measurement subtabs?" -- and Measure is the
+        # screen with the most: stacked, its categories are a column of
+        # headers taller than the panel, and the expanded one paints a slab
+        # of `surface_alt` that reads as black.
+        #
+        # THE RENDERED SECTIONS THEMSELVES ARE UNCHANGED. Each still knows
+        # its own maturity, hint and rows. ``_settings_sections`` is the
+        # complete form/search registry; ``rendered_settings_sections`` is
+        # the subset mounted in this layout. (Both retain the deepest-first
+        # order `_build_settings_section` explains.)
+        self._settings_tabs = None
+        if str(self.app_key) in self.SETTINGS_AS_TABS and len(sections) > 2:
+            self._settings_tabs = QTabWidget()
+            self._settings_tabs.setObjectName("SettingsCategoryTabs")
+            self._settings_tabs.setDocumentMode(True)
+            layout.addWidget(self._settings_tabs)
         self._maturity_notice = QLabel()
         self._maturity_notice.setObjectName("MaturityVisibilityNotice")
         self._maturity_notice.setWordWrap(True)
@@ -1215,104 +2388,3021 @@ class AppScreen(QWidget):
         # Map widget → plain-text hint so the bottom hint strip AND our
         # sticky HoverTooltip can look up the description for the object
         # under the cursor. Initialized in __init__.
-        for title, rows in sections:
-            section = Section(title)
-            section.set_maturity(
-                settings_section_maturity(self.app_key, title)
-            )
-            self._settings_sections.append(section)
-            # The category blurb. Its primary home is the strip under the
-            # actions row (see `_wire_category_hints`); `set_hint` keeps the
-            # same text on the header for screen readers and for the
-            # beta/alpha caution note it appends. `category_tooltip` resolves
-            # the module's own override first, then the shared table, then a
-            # generic sentence, so a section is never left without text.
-            section.set_hint(category_tooltip(self.app_key, title))
-            for label, widget in rows:
-                lbl_widget = QLabel(label)
-                # Give the label a subtle affordance so users know
-                # it's the hover target for tooltips (fields can be
-                # focused / clicked — tooltips on labels are calmer).
-                lbl_widget.setCursor(Qt.WhatsThisCursor)
-                field_key = None
-                for key, w in getattr(self._settings_model, "_widgets", {}).items():
-                    if w is widget:
-                        field_key = key
-                        html = widget.toolTip()
-                        hint = self._settings_model.plain_tooltip_for(key)
-                        body_source = widget.property(
-                            "apiTooltipDescriptionSource") or ""
-                        lbl_widget.setProperty("settingsAppKey", self.app_key)
-                        lbl_widget.setProperty("settingKey", key)
-                        lbl_widget.setProperty(
-                            "apiTooltipDescriptionSource", body_source)
-                        lbl_widget.setProperty(
-                            "apiTooltipDescription", body_source)
-                        lbl_widget.setProperty("apiTooltipHtml", html)
-                        lbl_widget.setProperty(
-                            "apiTooltipDisplayRole", "tooltip")
-                        # Tooltips live on the LABEL only — hovering
-                        # the input field itself is left alone so
-                        # focus / edit interactions aren't disturbed.
-                        widget.setToolTip("")
-                        self._hint_map[lbl_widget] = hint
-                        self._html_tip_map[lbl_widget] = html
-                        lbl_widget.installEventFilter(self)
-                        break
-                # No API link dot on the settings form. It sat between the
-                # label and the field and carried a tooltip of its own, so
-                # the help popped when the pointer was over the row's
-                # right-hand side -- which reads as "the field has a
-                # tooltip", because from the user's side of the screen that
-                # is exactly what it looks like. 191 of them on the Mask
-                # form alone.
-                #
-                # Nothing is lost but the mark: the API link is still in the
-                # label's tooltip HTML (the `href=` several tests assert on),
-                # so the reference is one hover and one click away, and the
-                # help itself is unchanged and still on the label.
-                #
-                # The host stays, though, and is built here rather than by
-                # `Section.add_row` (which only makes one when there is an
-                # info widget to put in it). It is what right-aligns the
-                # label against the field: dropping it left the label
-                # left-aligned and half the row's width was suddenly the
-                # page showing through rather than the category surface.
-                section.add_row(lbl_widget, widget, info_widget=None,
-                                wrap_label=True)
-                self._attach_column_picker(field_key, widget)
-            layout.addWidget(section)
+        for section_order, spec in enumerate(sections):
+            section = self._build_settings_section(spec)
+            section._settings_top_level_order = section_order
+            # A CATEGORY WITH NOTHING IN IT IS NOT SHOWN. Asked for
+            # 2026-08-28: "this will help not overwhelm the user."
+            #
+            # An empty heading is worse than an absent one. It reads as a
+            # section that failed to load rather than one that does not
+            # apply, and it invites the user to expand it and find out --
+            # which is the cost the request is about. Mask showed "Organelle
+            # segmentation" and "Organelle segmentation advanced" with
+            # nothing under them whenever the run had no organelles.
+            #
+            # DECIDED HERE, over the finished section, rather than by each
+            # thing that can empty one: a heading emptied by the organelle
+            # count, by the maturity filter, or by a rule added later is the
+            # same empty heading.
+            if not self._section_holds_anything(section):
+                self._discard_settings_section(section)
+                continue
+            if self._settings_tabs is not None:
+                page = QWidget()
+                page_layout = QVBoxLayout(page)
+                page_layout.setContentsMargins(0, 0, 0, 0)
+                page_layout.addWidget(section)
+                page_layout.addStretch(1)
+                holder = QScrollArea()
+                holder.setWidgetResizable(True)
+                holder.setFrameShape(QScrollArea.NoFrame)
+                holder.setWidget(page)
+                self._settings_tabs.addTab(
+                    holder, str(section.property("settingsCategorySource")))
+                # A TAB IS ALREADY THE DISCLOSURE, so the header inside it
+                # would be a second one saying the same thing. It stays
+                # expanded and keeps its hint for screen readers.
+                section.set_expanded(True)
+            else:
+                layout.addWidget(section)
 
+        # KEPT, so the preference can be turned on after this panel is
+        # built. Without it the only way to mount the grid was to build the
+        # panel, and the switch appeared dead until the module was reopened.
+        # `addStretch` goes in below, so the grid is inserted at the index
+        # the stretch will take rather than appended after it.
+        self._settings_layout = layout
+        self._mount_the_object_grid(layout)
         self.refresh_maturity_visibility()
+
+        # THE OBJECT RULE, NOW THAT THE ROWS EXIST. `SettingsWidgets` cannot
+        # apply it while it is handing the rows back -- there is no ROW to
+        # hide yet, only a field, and hiding the field alone leaves its name
+        # behind on an empty row -- so it schedules the pass on a zero-delay
+        # timer instead. That timer lands on the next turn of the event loop.
+        #
+        # WHICH IS TOO LATE FOR ANYONE WHO LOOKS FIRST. A caller that builds
+        # a panel and reads it without spinning the loop sees every gated row
+        # VISIBLE, because the only pass that would have hidden them has not
+        # run. That did not show while an unset object's keys were also being
+        # dropped from the build: rows that do not exist cannot be visible,
+        # so the deferral was invisible behind the skip. Take the skip away
+        # -- which is what 356 needs, see 382 -- and the deferral is the
+        # defect on its own.
+        #
+        # Run here, synchronously, at the point the rows are on the form and
+        # the panel is about to be returned. The timer stays: it is what
+        # re-asserts the rule after a later route puts a row back, and it is
+        # cheap when there is nothing to do.
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            try:
+                model.refresh_object_visibility()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not decide the object rows at build",
+                          exc_info=True)
+
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
 
+    #: How many shared questions a module needs before the per-object table
+    #: is offered at all. Below this the flat form is the smaller control;
+    #: see :meth:`_mount_the_object_grid`.
+    MIN_GRID_QUESTIONS = 3
+
+    def _mount_the_object_grid(self, layout) -> None:
+        """Show the per-object settings as one table, if preferences ask.
+
+        78 of Mask's 201 settings are the same twenty-odd questions asked once
+        per object type. This puts them in a grid -- one row per question, one
+        column per object -- and hides the flat rows they came from.
+
+        OFF UNLESS CHOSEN. This is the most-used screen in the application, so
+        the grid arrives as an offer rather than as a change to what everyone
+        already knows: `get_object_grid_enabled` is False by default and this
+        method returns before touching anything.
+
+        NOTHING DOWNSTREAM LEARNS THE GRID EXISTS. It writes through to the
+        same widgets the flat rows do, so `collect()` is unchanged and a
+        settings file written with this on is the same file written with it
+        off. The flat rows are HIDDEN, not dropped, so the settings search
+        still indexes them and every check that walks the form still finds
+        them holding their values.
+
+        A PROSE ROW, not a setting row: `Section.add_row` records the pair in
+        `_row_widgets`, and the module smoke test takes every entry there to
+        BE a labelled setting with its own `settingKey` and API help. A grid
+        is neither, and `add_prose_row` is the seam that exists for exactly
+        that distinction.
+        """
+        try:
+            from ..preferences import get_object_grid_enabled
+
+            if not get_object_grid_enabled():
+                return
+            model = getattr(self, "_settings_model", None)
+            if model is None or not getattr(model, "_widgets", None):
+                return
+
+            from ..widgets.object_grid_binding import ObjectGridBinding
+            from ..widgets.object_settings_grid import ObjectSettingsGrid
+            from ..widgets.section import Section
+
+            section = Section("Per-object settings", self)
+            grid = ObjectSettingsGrid(section)
+            # WHICH MODULE'S API THE TOOLTIPS LINK TO. The table cannot work
+            # this out -- it is a widget, not a screen -- and a guess would
+            # send a reader to another module's page.
+            grid.set_app_key(self.app_key)
+            binding = ObjectGridBinding(grid, model, self)
+            binding.seed()
+            owned = binding.owned_keys()
+            # A TABLE HAS TO EARN ITS PLACE. The grid exists to collapse the
+            # repeated SEGMENTATION settings -- twenty-odd questions asked
+            # once per object, which as a flat form is 78 rows. A module with
+            # two shared questions has a four-row form, and replacing four
+            # rows with a table, a header, an Add button and a resize grip is
+            # a heavier control than the thing it replaces.
+            #
+            # Regression is the case that prompted this: it shares
+            # `area_outlier_mads` and `intensity_outlier_mads` between cell
+            # and nucleus, which is genuinely per-object and genuinely not
+            # worth a table. Classify has none at all. Measure has three
+            # questions over four objects and Mask has twenty over three,
+            # which are.
+            if len(grid.questions()) < self.MIN_GRID_QUESTIONS or not owned:
+                section.deleteLater()
+                return
+            section.add_prose_row("", grid)
+            self._object_grid = grid
+            self._object_grid_binding = binding
+            model.hide_the_rows_the_grid_speaks_for(owned)
+            # BEFORE THE TRAILING STRETCH, not after it. On the first build
+            # there is no stretch yet and this is an append; mounted later
+            # from the preference switch there is one, and appending would
+            # put the table below a spring that pushes it off the bottom of
+            # a scrolling panel.
+            layout.insertWidget(self._index_before_the_stretch(layout),
+                                section)
+            self._settings_sections.append(section)
+            section.set_expanded(True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not mount the per-object grid", exc_info=True)
+
+    def apply_object_grid_preference(self) -> bool:
+        """Mount or unmount the per-object table to match preferences.
+
+        WHAT THIS FIXES: the switch in Preferences was read once, while the
+        settings panel was being built, so turning it on did nothing to a
+        module already open and turning it off left the table on screen with
+        the rows it speaks for still hidden. The preference is a view of the
+        same settings either way -- nothing downstream knows the grid exists
+        -- so there is no reason it should need the module reopened.
+
+        IDEMPOTENT, and safe on a screen whose panel was never built: both
+        directions check what is actually mounted rather than trusting a
+        flag, so a repeated call is a no-op and the two states cannot drift
+        apart.
+
+        :returns: True if the screen changed, False if it was already right.
+        """
+        try:
+            from ..preferences import get_object_grid_enabled
+
+            wanted = get_object_grid_enabled()
+        except Exception:                                    # noqa: BLE001
+            return False
+        grid = getattr(self, "_object_grid", None)
+        # A grid whose C++ side is gone is not a mounted grid. `deleteLater`
+        # on the section takes the table with it, and the dangling Python
+        # wrapper would otherwise read as "already mounted" forever.
+        try:
+            mounted = grid is not None and grid.parent() is not None
+        except RuntimeError:
+            mounted = False
+        if wanted == mounted:
+            return False
+        if wanted:
+            layout = getattr(self, "_settings_layout", None)
+            if layout is None:
+                return False
+            self._mount_the_object_grid(layout)
+            return getattr(self, "_object_grid", None) is not grid
+        self._unmount_the_object_grid()
+        return True
+
+    @staticmethod
+    def _index_before_the_stretch(layout) -> int:
+        """Where a widget goes to stay above ``layout``'s trailing spring.
+
+        :param layout: the settings column's layout.
+        :returns: the index of the trailing stretch, or the end of the
+            layout when it has not been given one yet.
+        """
+        for index in range(layout.count() - 1, -1, -1):
+            item = layout.itemAt(index)
+            if item is not None and item.spacerItem() is not None:
+                return index
+        return layout.count()
+
+    def _unmount_the_object_grid(self) -> None:
+        """Take the table off the screen and give the flat rows back.
+
+        THE ROWS COME BACK FIRST. They were hidden, not dropped, so all it
+        takes is telling the model the grid speaks for nothing -- but if the
+        section were deleted first and that call then raised, the settings it
+        holds would be on no screen at all: not in a table, and not in a
+        form. Neither the values nor `collect()` are touched either way.
+        """
+        model = getattr(self, "_settings_model", None)
+        unhide = getattr(model, "hide_the_rows_the_grid_speaks_for", None)
+        if callable(unhide):
+            try:
+                unhide(())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not give the flat rows back", exc_info=True)
+        grid = getattr(self, "_object_grid", None)
+        section = None
+        try:
+            section = grid.parent() if grid is not None else None
+            while section is not None and not hasattr(
+                    section, "add_prose_row"):
+                section = section.parent()
+        except RuntimeError:
+            section = None
+        self._object_grid = None
+        self._object_grid_binding = None
+        if section is None:
+            return
+        try:
+            self._settings_sections.remove(section)
+        except (AttributeError, ValueError):
+            pass
+        section.setParent(None)
+        section.deleteLater()
+
+    def _widget_key_index(self) -> dict:
+        """``id(widget) -> setting key`` for this panel's settings model.
+
+        ``SettingsWidgets._widgets`` is keyed the other way round, and the
+        panel needs the reverse: given the field it is about to lay out,
+        which setting is it? Answering that by scanning is quadratic in the
+        number of settings, and Mask has 1,538 of them.
+
+        Rebuilt whenever the model is replaced or has gained settings.
+        ``setdefault`` keeps the first key for a widget registered under two
+        names, which is the answer the scan this replaced gave.
+
+        The index is keyed by ``id`` and is therefore only ever as good as
+        its stamp; :meth:`_key_of_field` is what consumers should call,
+        because it checks the answer against the model before returning it.
+
+        :returns: the index, empty when there is no model yet.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        stamp = (id(model), len(widgets))
+        if getattr(self, "_widget_key_stamp", None) != stamp:
+            index: dict = {}
+            for key, widget in widgets.items():
+                index.setdefault(id(widget), key)
+            self._widget_key_cache = index
+            self._widget_key_stamp = stamp
+        return self._widget_key_cache
+
+    def _key_of_field(self, field) -> Optional[str]:
+        """The setting ``field`` is, or ``None`` if the model does not own it.
+
+        What the panel used to answer by scanning every entry of
+        ``_widgets``. The index does it in one lookup, and the answer is
+        CHECKED against the model before it is returned: an ``id`` is only
+        unique among live objects, so an index built against a different
+        ``_widgets`` -- or one holding a widget that has since been freed --
+        could otherwise name the wrong setting. A disagreement rebuilds the
+        index once and asks again, which is the same answer the scan gave
+        and still not a scan.
+
+        :param field: the widget laid out in a settings row.
+        :returns: its setting key, or ``None``.
+        """
+        widgets = getattr(
+            getattr(self, "_settings_model", None), "_widgets", None) or {}
+        key = self._widget_key_index().get(id(field))
+        if key is not None and widgets.get(key) is field:
+            return key
+        self._widget_key_stamp = None
+        key = self._widget_key_index().get(id(field))
+        return key if key is not None and widgets.get(key) is field else None
+
+    @staticmethod
+    def _section_holds_anything(section) -> bool:
+        """Whether ``section`` has a row, a child heading, or prose.
+
+        :param section: a built :class:`~spacr.qt.widgets.section.Section`.
+        :returns: ``False`` when it would render as a heading over nothing.
+
+        A NESTED HEADING COUNTS ONLY IF IT HOLDS SOMETHING ITSELF, or an
+        umbrella over three empty sub-headings would survive as four empty
+        headings instead of none.
+        """
+        from ..widgets.section import Section
+
+        def already_built_rows(owner):
+            """Iterate registered rows without forcing deferred captions."""
+            rows = getattr(owner, "_row_widgets", None)
+            if rows is None:
+                return iter(())
+            if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+                # ``bool``, ``len`` and normal iteration are the public
+                # completeness seam of this list and deliberately build all
+                # waiting rows.  Empty-section pruning only needs to inspect
+                # rows that are already laid out; materialising hidden object
+                # rows here defeats the caption-saving optimisation it is
+                # meant to preserve.
+                return list.__iter__(rows)
+            return iter(rows)
+
+        def holds_an_active_slot(owner) -> bool:
+            """Whether deferred rows belong to a count-requested organelle."""
+            from ...organelle_types import organelle_role_of
+
+            # The organelle COUNT settles the form's shape before a channel
+            # is chosen.  Its requested slots therefore own their categories
+            # already, even though channel-gated detail rows still wait for a
+            # caption.  Counting the declarations keeps that category in the
+            # tree without iterating the lazy row list; nucleus/pathogen rows
+            # do not match this role vocabulary and remain prunable while
+            # their switches are empty.
+            return any(
+                key is not None and organelle_role_of(key) is not None
+                for key, _label, _widget in
+                (getattr(owner, "_spacr_declared_rows", None) or ())
+            )
+
+        if any(widget is not None for _label, widget
+               in already_built_rows(section)):
+            return True
+        if holds_an_active_slot(section):
+            return True
+        for child in section.findChildren(Section):
+            if any(widget is not None for _label, widget
+                   in already_built_rows(child)):
+                return True
+            if holds_an_active_slot(child):
+                return True
+        return False
+
+    def rendered_settings_sections(self) -> tuple:
+        """The section widgets actually mounted in the settings panel.
+
+        ``_settings_sections`` deliberately also contains dormant forms for
+        object-gated settings.  Visual consumers -- maturity and category
+        hints in particular -- must use this subset instead.
+        """
+        return tuple(
+            section for section in getattr(self, "_settings_sections", ())
+            if not section.property("settingsSectionDiscarded")
+        )
+
+    def _discard_settings_section(self, section, restore_parent=None) -> None:
+        """Keep a pruned section's form indexed without making its header live.
+
+        Settings controls are also the model's value store, so deleting an
+        empty section would leave ``SettingsWidgets._widgets`` pointing at
+        deleted Qt objects.  Search and delayed captions likewise need its
+        form and model row registration.  Park the whole tree under a hidden
+        owned widget instead; visual consumers explicitly ignore it.
+        """
+        from ..widgets.section import Section
+
+        section._settings_restore_parent = restore_parent
+        for member in (section, *section.findChildren(Section)):
+            member.setProperty("settingsSectionDiscarded", True)
+            member.hide()
+        if restore_parent is None:
+            section.setParent(self._discarded_settings_host)
+        section.hide()
+        self._discarded_settings_sections.append(section)
+
+    def _restore_settings_section(self, section) -> bool:
+        """Mount a dormant heading whose object-gated rows now apply."""
+        if not section.property("settingsSectionDiscarded"):
+            return False
+
+        parent = getattr(section, "_settings_restore_parent", None)
+        if parent is not None:
+            self._restore_settings_section(parent)
+        else:
+            # Top-level dormant sections are the only ones moved to the host.
+            # Put one back at its declaration-order position amongst the
+            # other top-level cards. The notice stays above every category
+            # and the stretch stays below them, just as on the first build.
+            layout = self._settings_content.layout()
+            section.setParent(self._settings_content)
+            order = getattr(section, "_settings_top_level_order", -1)
+            before = [
+                layout.indexOf(other)
+                for other in self.rendered_settings_sections()
+                if getattr(other, "_settings_restore_parent", None) is None
+                and getattr(other, "_settings_top_level_order", -1) > order
+                and layout.indexOf(other) >= 0
+            ]
+            if before:
+                at = min(before)
+            else:
+                at = layout.count()
+                if at and layout.itemAt(at - 1).spacerItem() is not None:
+                    at -= 1
+            layout.insertWidget(at, section)
+
+        section.setProperty("settingsSectionDiscarded", False)
+        self._discarded_settings_sections[:] = [
+            dormant for dormant in self._discarded_settings_sections
+            if dormant is not section
+        ]
+        return True
+
+    #: What the screen ABOUT TO BE BUILT should be shaped for.
+    #:
+    #: A class attribute rather than something read off the window, because
+    #: a screen is constructed BEFORE it is parented: inside
+    #: `_build_settings_panel`, `self.window()` answers with the screen
+    #: itself, so anything left on the MainWindow is invisible there. That
+    #: is why the first attempt rebuilt the form to exactly the shape it
+    #: already had.
+    #:
+    #: Set by `MainWindow.rebuild_app_screen` and cleared by it, so an
+    #: ordinary module open -- which is every other caller -- builds from
+    #: the module's own defaults as it always did.
+    values_the_next_screen_is_built_for = None
+
+    #: Settings whose value decides which OTHER settings exist on every
+    #: applicable panel. Object switches are added from the widgets the panel
+    #: actually owns by :meth:`_form_shaping_keys`: Mask uses ``*_channel``,
+    #: Measure uses ``*_mask_dim``, and each active organelle slot has its own
+    #: switch. Cell is deliberately excluded because its family is never
+    #: gated.
+    FORM_SHAPING_KEYS = ("number_of_organelles",)
+
+    def _form_shaping_keys(self) -> tuple[str, ...]:
+        """Return every committed value that shapes this panel's form.
+
+        The list must follow the live widget inventory rather than a fixed
+        trio of Mask keys. Measure owns mask-plane switches instead of image
+        channels, and organelle switches appear only after the count creates
+        their slots. A missing switch cannot shape this panel; the cell switch
+        never shapes one because cell settings always remain available.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = [key for key in self.FORM_SHAPING_KEYS if key in widgets]
+        for key in widgets:
+            role = object_of_setting(key)
+            if role is None or role == "cell":
+                continue
+            if key in object_switch_keys(role):
+                keys.append(key)
+        return tuple(dict.fromkeys(keys))
+
+    def _object_switches_on_this_form(self) -> tuple[str, ...]:
+        """The committed values that only decide which objects are SHOWN.
+
+        THE OTHER HALF OF :meth:`_form_shaping_keys`, and the distinction
+        that matters: a channel number toggles the visibility of the
+        categories it belongs to WITHOUT reloading the module. It does not
+        add or remove a single row -- the panel already built
+        a control for every object it can name -- so the rule that decides
+        which of them are on screen is the whole of the work.
+
+        `number_of_organelles` is deliberately NOT here. Its rows do not
+        exist until it is raised, so they have to be spawned, which is the
+        one case a rebuild is accepted for.
+        """
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) or {}
+        keys = []
+        for key in self._form_shaping_keys():
+            if key in self.FORM_SHAPING_KEYS:
+                continue
+            if key in widgets:
+                keys.append(key)
+        return tuple(keys)
+
+    def _show_the_objects_the_run_has(self, *_args) -> None:
+        """Reveal or hide one object's settings, in place.
+
+        WHAT THIS REPLACED, measured on Mask before it existed: committing a
+        value into `nucleus_channel` called `rebuild_app_screen`, which took
+        455 ms and put a DIFFERENT SCREEN OBJECT in the window's stack -- to
+        change which rows are visible. Everything the user had not committed,
+        every scroll position and every expanded fold went with it, and it is
+        the same startup cost the screen works to avoid, being paid on a
+        keystroke.
+
+        `refresh_object_visibility` is what the rebuild was reaching for the
+        long way round. It decides EVERY gated row and hides the headings of
+        the slots the run lacks, so calling it is the whole of the change --
+        and it lays out any row that was left unbuilt while it was hidden
+        before it shows it.
+
+        The remembered shape is refreshed too, so a later `number_of_
+        organelles` change still compares like with like and rebuilds.
+        """
+        self._run_has_no_object_for = None
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        try:
+            model.refresh_object_visibility()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-decide which objects the run has",
+                      exc_info=True)
+        try:
+            self._form_shape_on_screen = self._form_shape()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not remember the form shape", exc_info=True)
+
+    def _watch_the_settings_that_decide_the_form(self) -> None:
+        """Rebuild the form when a value that shapes it is COMMITTED.
+
+        NOT ON EVERY KEYSTROKE. That is what made the Mask module hang: the
+        old rule ran a full pass over 1,551 widgets per character typed. A
+        commit is one event per value the user actually settled on -- Enter,
+        or leaving the field -- so typing "1" costs one rebuild rather than
+        one per digit.
+
+        The pair is deliberate. `editingFinished` is the commit for a field
+        somebody types into; `valueChanged` is the commit for a spin box or
+        a combo, where every change is already a decision. A field that has
+        both fires once, because `_rebuild_the_form` compares the shape it
+        would build against the one on screen and returns when they agree.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return
+        # TWO SLOTS, NOT ONE. A key that adds or removes ROWS needs the form
+        # built again; a key that only decides which of the rows already on
+        # the form are SHOWN does not, and connecting both to the rebuild is
+        # what made typing a channel number reload the module.
+        switches = set(self._object_switches_on_this_form())
+        for key in self._form_shaping_keys():
+            widget = getattr(model, "_widgets", {}).get(key)
+            if widget is None:
+                continue
+            slot = (self._show_the_objects_the_run_has if key in switches
+                    else self._rebuild_the_form)
+            done = getattr(widget, "editingFinished", None)
+            if done is not None:
+                try:
+                    done.connect(slot)
+                    continue
+                except Exception:                            # noqa: BLE001
+                    pass
+            for name in ("valueChanged", "currentIndexChanged"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(slot)
+                    break
+                except Exception:                            # noqa: BLE001
+                    continue
+
+    def _form_shape(self) -> tuple:
+        """What the form's shape currently depends on.
+
+        :returns: the committed form-shaping key/value pairs.
+
+        Compared before rebuilding so a signal that did not actually change
+        the shape -- a second commit of the same value, or the two signals a
+        spin box emits -- costs nothing.
+        """
+        model = getattr(self, "_settings_model", None)
+        values = dict((model.collect() if model is not None else {}) or {})
+        return tuple((key, str(values.get(key, "")).strip())
+                     for key in self._form_shaping_keys())
+
+    def _worker_thread_is_running(self) -> bool:
+        """Whether this screen still owns a live pipeline QThread."""
+        thread = getattr(self, "_thread", None)
+        if thread is None:
+            return False
+        try:
+            return bool(thread.isRunning())
+        except (AttributeError, RuntimeError):
+            return False
+
+    def _rebuild_the_form(self, *_args) -> None:
+        """Rebuild this screen for the shape the values now describe.
+
+        THE WHOLE SCREEN, not the settings panel in place. Swapping the
+        panel inside the splitter is the cheaper move and it is the one that
+        did not work: the widget mounted there is not the scroll area the
+        panel builder records, so the lookup answered -1 and the rebuild
+        returned having done nothing at all. Asking the window to build the
+        screen again is the path that already runs on every module open, and
+        Mask opens in 1.45 s -- which is a fine price for a deliberate
+        change to one value, and no price at all for the typing that used to
+        trigger the old rule.
+
+        WHAT THE USER HAS TYPED SURVIVES. Every current value is collected
+        first and applied to the new screen, so a form that gains twenty
+        nucleus settings does not lose the twelve already filled in.
+
+        A RUN OWNS THIS SCREEN UNTIL ITS QTHREAD HAS STOPPED. A shaping edit
+        made during a run is remembered and rebuilt afterwards; closing the
+        screen here would request cancellation before ``closeEvent`` could
+        decide to refuse the replacement.
+        """
+        if getattr(self, "_rebuilding_the_form", False):
+            return
+        model = getattr(self, "_settings_model", None)
+        if getattr(model, "_applying_settings", False):
+            return
+        if self._worker_thread_is_running():
+            # Preserve values a bulk import supplied for controls this form
+            # has not built yet, then let later on-screen edits win for every
+            # key the current form does hold.
+            deferred = dict(getattr(self, "_deferred_form_values", None) or {})
+            try:
+                deferred.update(dict((model.collect() if model else {}) or {}))
+            except Exception:                               # noqa: BLE001
+                pass
+            self._deferred_form_values = deferred
+            self._form_rebuild_deferred = True
+            return
+        deferred_values = getattr(self, "_deferred_form_values", None)
+        if deferred_values is not None:
+            # The deferred snapshot may be minutes old. Values supplied for
+            # controls absent from this shape stay in it; every value the live
+            # form can collect is refreshed now so next-run edits made after
+            # the import are never rolled back when the worker finishes.
+            merged = dict(deferred_values)
+            try:
+                merged.update(dict((model.collect() if model else {}) or {}))
+            except Exception:                               # noqa: BLE001
+                pass
+            deferred_values = self._deferred_form_values = merged
+        shape = self._form_shape()
+        if (deferred_values is None
+                and shape == getattr(self, "_form_shape_on_screen", None)):
+            self._form_rebuild_deferred = False
+            return
+        window = self.window()
+        rebuild = getattr(window, "rebuild_app_screen", None)
+        if not callable(rebuild):
+            self._form_rebuild_deferred = False
+            return
+        self._rebuilding_the_form = True
+        try:
+            keep = (dict(deferred_values) if deferred_values is not None
+                    else dict((self._settings_model.collect() or {})))
+            deferred_bulk = getattr(self, "_deferred_bulk_settings", None)
+            rebuild(self.app_key, keep)
+            fresh = getattr(window, "_screens", {}).get(self.app_key)
+            if (deferred_bulk is not None and fresh is not None
+                    and fresh is not self):
+                # The target mapping already populated the replacement. What
+                # still needs provenance is a sparse Type preset: only the
+                # originally supplied keys tell us which recommended values
+                # were missing and which advanced values were explicit.
+                fresh._refresh_after_bulk_apply(deferred_bulk)
+            self._deferred_form_values = None
+            self._deferred_bulk_settings = None
+            self._form_rebuild_deferred = False
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not rebuild the settings form")
+        finally:
+            self._rebuilding_the_form = False
+
+    def _build_settings_section(self, spec, depth: int = 0):
+        """Build one heading of the settings TREE, and everything under it.
+
+        ``SettingsWidgets.build_sections`` returns a
+        :class:`~spacr.qt.screens.settings_model.SettingsSection`: still the
+        ``(title, rows)`` pair it always was, with ``own_rows`` for the rows
+        this heading owns itself and ``children`` for the headings nested
+        below it. Reading only the pair draws every control exactly once but
+        FLAT -- the umbrella renders as a single heading holding every
+        advanced row, and the sub-headings that say which object a row
+        belongs to are nowhere. This walks the tree instead: ``own_rows``
+        here, a nested :class:`Section` per child, added with ``add_prose``
+        because a heading is not a labelled setting row and
+        ``tests/qt/test_all_module_smoke.py`` reads every ``_row_widgets``
+        entry as one.
+
+        Sections are recorded in ``_settings_sections`` DEEPEST FIRST, so
+        everything that searches that list for the section holding a widget
+        -- the command palette, the search strip -- finds the innermost
+        heading rather than the umbrella two levels above it.
+
+        :param spec: a ``SettingsSection`` or a plain ``(title, rows)`` pair.
+        :param depth: 0 for a top-level category; deeper for a sub-heading.
+        :returns: the built :class:`Section` widget.
+        """
+        title = getattr(spec, "title", None)
+        if title is None:
+            title = spec[0]
+        title = str(title)
+        own_rows = getattr(spec, "own_rows", None)
+        rows = spec[1] if own_rows is None else own_rows
+        children = tuple(getattr(spec, "children", ()) or ())
+        section = Section(title)
+        # The category name as the layout writes it. Everything that
+        # looks a category up -- the blurb tables and the catalogs --
+        # is keyed on that spelling, and the header answers with the
+        # uppercased caption it draws, so the written name is kept
+        # where `_wire_category_hints` can read it back.
+        section.setProperty("settingsCategorySource", title)
+        section.set_maturity(
+            settings_section_maturity(self.app_key, title)
+        )
+        # The category blurb. Its primary home is the strip under the
+        # actions row (see `_wire_category_hints`); `set_hint` keeps the
+        # same text on the header for screen readers and for the
+        # beta/alpha caution note it appends. `section_tooltip` resolves a
+        # nested heading by its PATH -- "Cell" under "Object filtration" is
+        # not the "Cell" segmentation category -- and falls through to
+        # `category_tooltip` for a top-level one, which resolves the
+        # module's own override first, then the shared table, then a
+        # generic sentence, so a section is never left without text.
+        blurb = section_tooltip(self.app_key, spec)
+        section.set_hint(blurb)
+        # The strip under the actions row is fed by TITLE, because that is
+        # what a hovered header carries. A sub-heading's blurb is recorded
+        # here so the strip can answer with the one its path resolved
+        # rather than looking the bare word up again; `setdefault` leaves a
+        # top-level category owning its own name.
+        self._category_blurbs.setdefault(title, blurb)
+        # A ROW THE RUN HAS NO OBJECT FOR COSTS NO CAPTION UNTIL IT HAS ONE.
+        #
+        # The panel builds a control for every organelle slot that CAN be
+        # named, because a control that was never built cannot be revealed --
+        # so on Mask the great majority of its controls belong to objects the
+        # run does not have, and are hidden before the panel is ever painted.
+        # Each was still given a caption and the host that right-aligns it:
+        # two widgets and two style repolishes apiece, for a caption nobody
+        # can read, on a panel where a style recalculation walks every widget
+        # alive.
+        #
+        # THE ROW IS STILL ON THE FORM, spanning, holding its field. That is
+        # what everything that walks the form goes on finding: the row can be
+        # hidden and asked whether it is hidden, the settings search indexes
+        # it, and `SettingsWidgets` reaches it exactly as before. What waits
+        # is the CAPTION, and `_lay_out_one_waiting_row` gives the row one --
+        # in place, in the same form row -- the moment the object rule says
+        # the run has that object after all.
+        declared = tuple((self._key_of_field(widget), label, widget)
+                         for label, widget in rows)
+        no_object = self._keys_the_run_has_no_object_for()
+        waiting = {key for key, _label, _widget in declared
+                   if key is not None and key in no_object}
+        section._spacr_declared_rows = declared
+        # WHAT THIS HEADING HOLDS, told to the model rather than left to be
+        # worked out again. `SettingsWidgets` needs the same answer to decide
+        # which slot headings belong to objects the run does not have, and it
+        # used to get it by walking every heading's form and asking each
+        # heading whether anything nests inside it -- a `findChildren` per
+        # heading, on a panel that has a heading per object slot.
+        try:
+            self._settings_model.remember_section_rows(
+                section,
+                [key for key, _label, _widget in declared if key],
+                bool(children))
+        except AttributeError:
+            pass
+        if waiting:
+            # ANYTHING THAT READS THE ROWS BACK GETS ALL OF THEM. Several
+            # checks walk `Section._row_widgets` -- the module smoke test
+            # reads every entry as a labelled setting row -- and a list that
+            # quietly held a fraction of the panel's rows would let them pass
+            # while checking almost nothing.
+            section._row_widgets = _RowsBuiltWhenTheyAreAskedFor(
+                partial(self._lay_out_every_waiting_row, section))
+        for key, label, widget in declared:
+            if key in waiting:
+                self._rows_awaiting_layout[key] = section
+                # `add_prose`, for the one thing it does that `add_widget`
+                # does not: it leaves `_row_widgets` alone. A field with no
+                # caption is not yet the labelled setting row every reader of
+                # that list takes each entry to be, and
+                # `_RowsBuiltWhenTheyAreAskedFor` is what hands one over --
+                # captioned -- to anybody who asks.
+                section.add_prose(widget)
+                continue
+            self._lay_out_setting_row(section, label, widget)
+        # THE HEADINGS BELOW THIS ONE, each a Section of its own inside this
+        # one's body. `add_prose`, not `add_widget`: the second registers
+        # what it is handed in `_row_widgets`, where every entry is taken to
+        # BE a labelled setting row by
+        # `tests/qt/test_all_module_smoke.py::_setting_row_contract`, and a
+        # heading is neither a setting nor labelled.
+        for child in children:
+            nested = self._build_settings_section(child, depth + 1)
+            # AND A NESTED HEADING WITH NOTHING IN IT GOES TOO. Pruning only
+            # at the top left an empty sub-heading inside a category that
+            # was itself kept for its other children -- "Organelle
+            # Segmentation (advanced)" survived a run with no organelles
+            # that way. Deepest first, because this runs inside the
+            # recursion: a child is pruned before its parent is judged, so
+            # an umbrella over nothing but empty sub-headings is empty by
+            # the time the parent asks.
+            if not self._section_holds_anything(nested):
+                # Keep the dormant heading in its intended place in the
+                # hierarchy. It remains explicitly hidden, but can be
+                # revealed in place if its object switch changes before the
+                # normal committed-value screen rebuild.
+                section.add_prose(nested)
+                self._discard_settings_section(nested, section)
+                continue
+            section.add_prose(nested)
+            # A HEADING OPENED FROM OUTSIDE OPENS ITS ANCESTORS. The search
+            # strip and the command palette expand the section holding a
+            # match; expanding one that sits inside a collapsed umbrella
+            # shows the user nothing at all.
+            nested.toggled.connect(
+                partial(self._open_the_headings_above, section))
+        # THE EXPLAINER GOES AT THE TOP OF THE SECTION IT EXPLAINS.
+        #
+        # Asked for on 2026-08-17: "just ad the text box i asked for (at
+        # the top)". It used to be appended to the PANE after
+        # `layout.addWidget(section)`, which put it BELOW every control it
+        # describes -- so a user read eleven settings and then found out
+        # what they were choosing between.
+        #
+        # `Section.add_prose`, not `Section.add_widget`: the second
+        # registers the widget in `_row_widgets`, where every entry is
+        # taken to BE a labelled setting row by
+        # `tests/qt/test_all_module_smoke.py::_setting_row_contract`. A
+        # prose box is neither a setting nor labelled.
+        #
+        # TOP LEVEL ONLY, both of these. Both tables are keyed on the
+        # heading's text alone, and a sub-heading shares its word with a
+        # category somewhere else in the tool -- "Cell" under "Object
+        # filtration" is not the Cell segmentation category.
+        from .settings_model import has_section_explainer
+
+        if depth == 0 and has_section_explainer(self.app_key, title):
+            self._install_section_explainer(section, title)
+        # Place each example-data action beside the settings it populates.
+        # Regression fills paired tables; Mask Generation fills ``src`` with
+        # a downloaded example image directory.
+        if depth == 0 and title == EXAMPLE_DATA_SECTIONS.get(self.app_key):
+            # OPEN, because a control nobody can see is not a control. Every
+            # settings section starts collapsed, so the test-data button was
+            # inside a hidden SectionBody on every module that has one --
+            # reported on 2026-09-01 as "there is no Load test data in the
+            # classify module that i can see", and true of Mask and Measure
+            # too for anyone who did not already know where to look.
+            #
+            # Only THIS section, and only because it carries the one action a
+            # user with no data of their own has to take first.
+            section.set_expanded(True)
+            if self.app_key == "regression":
+                self._install_example_data_button(section)
+            elif self.app_key == "measure":
+                self._install_measure_example_button(section)
+            elif self.app_key in ("classify", "classify_merged"):
+                self._install_annotate_example_button(section)
+            elif self.app_key == "map_barcodes":
+                self._install_sequencing_example_button(section)
+            else:
+                self._install_example_images_button(section)
+        # DEEPEST FIRST. Recorded after the children so the list a consumer
+        # scans for "which section holds this widget" answers with the
+        # innermost heading; the umbrella is an ancestor of every one of
+        # them and would otherwise always win.
+        self._settings_sections.append(section)
+        return section
+
+    def _keys_the_run_has_no_object_for(self) -> set:
+        """The settings whose object this run does not have, right now.
+
+        Asked once per panel build and remembered for it, because every
+        heading asks the same question and the answer cannot change while
+        the panel is being laid out.
+
+        :returns: setting keys, empty when the model cannot answer.
+        """
+        answer = getattr(self, "_run_has_no_object_for", None)
+        if answer is not None:
+            return answer
+        model = getattr(self, "_settings_model", None)
+        answer = set()
+        if model is not None:
+            try:
+                answer = set(model.keys_whose_object_the_run_lacks())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not decide which objects the run has",
+                          exc_info=True)
+        self._run_has_no_object_for = answer
+        return answer
+
+    def _lay_out_the_rows_that_are_back(self, hidden) -> None:
+        """Caption every waiting row the object rule no longer hides.
+
+        THE MODEL CALLS THIS BEFORE IT DECIDES ROW VISIBILITY, which is what
+        makes the deferral invisible: a setting the rule is about to show is
+        given its caption in the same pass, so the row the rule shows is a
+        finished one rather than a field with its name missing.
+
+        :param hidden: the keys the rule has just decided must stay off the
+            form.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        hidden = set(hidden or ())
+        back = [key for key in waiting if key not in hidden]
+        if not back:
+            return
+        owners = {waiting[key] for key in back}
+        for key in back:
+            self._lay_out_one_waiting_row(key)
+        restored = False
+        for section in owners:
+            restored = self._restore_settings_section(section) or restored
+        if restored:
+            self.refresh_maturity_visibility()
+            if getattr(self, "_category_hint", None) is not None:
+                self._wire_category_hints()
+        # NOT the object rule again: this IS the object rule, and it decides
+        # every row it has just been handed the moment this returns.
+        self._the_rows_moved(judge_them=False)
+
+    def _lay_out_every_waiting_row(self, section) -> None:
+        """Caption every one of ``section``'s rows, run or no run.
+
+        What :class:`_RowsBuiltWhenTheyAreAskedFor` calls when something reads
+        the heading's rows back, so that everything walking that list is
+        handed the whole heading. The object rule is re-run afterwards and
+        hides again everything it hid before, so ASKING what a heading holds
+        cannot put a setting for an absent object on screen.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        mine = [key for key, owner in waiting.items() if owner is section]
+        if not mine:
+            return
+        for key in mine:
+            self._lay_out_one_waiting_row(key)
+        self._the_rows_moved(judge_them=True)
+
+    def _caption_every_waiting_row(self) -> None:
+        """Give every row still waiting its caption, on every heading.
+
+        What the checks that walk the panel's captions ask for, and the
+        coarsest of the three ways a waiting row is built. The object rule is
+        re-run afterwards, so this cannot put a setting for an absent object
+        on screen -- it only makes sure there is nothing left to find.
+        """
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        if not waiting:
+            return
+        for key in list(waiting):
+            self._lay_out_one_waiting_row(key)
+        self._the_rows_moved(judge_them=True)
+
+    def _lay_out_one_waiting_row(self, key: str) -> None:
+        """Give ``key``'s row its caption, in the form row it already holds.
+
+        The field is on the form already, spanning a row of its own. Taking
+        that row out, laying the pair out properly and moving the result back
+        to the same index is what keeps a revealed setting where the module
+        wrote it -- ``Section.add_row`` appends, and a row that appeared under
+        the sub-headings instead of among its own would be a worse answer than
+        the caption it was waiting for.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        waiting = getattr(self, "_rows_awaiting_layout", None)
+        section = (waiting or {}).pop(key, None)
+        if section is None:
+            return
+        row = next(((k, label, widget)
+                    for k, label, widget in
+                    getattr(section, "_spacr_declared_rows", ()) or ()
+                    if k == key), None)
+        if row is None:
+            return
+        form = getattr(section, "_form", None)
+        if not isinstance(form, QFormLayout):
+            return
+        late = getattr(self, "_captioned_late", None)
+        if late is None:
+            late = self._captioned_late = set()
+        late.add(section)
+        try:
+            at, _role = form.getWidgetPosition(row[2])
+            if at >= 0:
+                form.takeRow(at)
+            self._lay_out_setting_row(section, row[1], row[2])
+            last = form.rowCount() - 1
+            if 0 <= at < last:
+                taken = form.takeRow(last)
+                label_item = getattr(taken, "labelItem", None)
+                field_item = getattr(taken, "fieldItem", None)
+                if field_item is None:
+                    return
+                if label_item is None:
+                    form.insertRow(at, field_item.widget())
+                else:
+                    form.insertRow(at, label_item.widget(),
+                                   field_item.widget())
+        except RuntimeError:
+            # The heading went away with the screen that owned it.
+            LOG.debug("no heading left to caption %s on", key, exc_info=True)
+
+    def _the_rows_moved(self, judge_them: bool = True) -> None:
+        """Put the panel's row-shaped answers back in step after a build.
+
+        A row that arrives after the panel was laid out has to be judged by
+        everything that judges a row -- the object rule and the dimension
+        switches decide whether it is on screen, the settings search has to be
+        able to find it, and the section's own list of rows goes back into the
+        order it was declared in rather than the order the rule got round to.
+
+        :param judge_them: run the object rule over the new rows. False when
+            the rule is what asked for them, because it decides every gated
+            row itself the moment this returns -- and running it from inside
+            itself would be a second pass saying the same thing.
+        """
+        for section in getattr(self, "_settings_sections", []) or []:
+            rows = section.__dict__.get("_row_widgets")
+            declared = getattr(section, "_spacr_declared_rows", None)
+            if not isinstance(rows, list) or not declared:
+                continue
+            order = {id(widget): index
+                     for index, (_k, _l, widget) in enumerate(declared)}
+            # ONLY WHEN EVERY ROW IS ONE THIS CAN PLACE. A handful of settings
+            # sit in a little holder with a button beside them, and it is the
+            # holder the row records -- so a heading with one of those cannot
+            # be ordered from the declared fields, and guessing would be worse
+            # than the order it already has.
+            if all(id(pair[1]) in order for pair in rows):
+                rows.sort(key=lambda pair: order[id(pair[1])])
+        if judge_them:
+            # A ROW BUILT BECAUSE SOMETHING READ THE HEADING BACK IS NOT A ROW
+            # THE RUN HAS AN OBJECT FOR. Asking what a heading holds must not
+            # put settings for an absent object on screen, so the rule that
+            # kept them off decides them again now that they exist.
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                try:
+                    model.refresh_object_visibility()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not re-decide the object rows",
+                              exc_info=True)
+        try:
+            self._apply_dimension_visibility()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-apply the dimension switches",
+                      exc_info=True)
+        # THE CAPTION ARRIVES IN THE LANGUAGE THE PANEL WAS WRITTEN IN, which
+        # is English: every other caption on the form was translated by the
+        # pass that runs once the panel is built, and one that did not exist
+        # then would sit in English inside a translated window. The pass is
+        # idempotent, so re-running it over the headings that changed costs
+        # the rest of the panel nothing.
+        late = getattr(self, "_captioned_late", None) or set()
+        self._captioned_late = set()
+        if late:
+            try:
+                from ..i18n import retranslate_widget_tree
+
+                for section in late:
+                    retranslate_widget_tree(section)
+            except RuntimeError:
+                pass
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not translate a caption that arrived late",
+                          exc_info=True)
+        bar = getattr(self, "_settings_search", None)
+        if bar is None:
+            return
+        try:
+            # THE STRIP INDEXES THE RENDERED FORM -- specifically, whatever
+            # widget the form holds for each row. A row that has just been
+            # captioned may hold a different one: the few settings with a
+            # button beside them sit in a holder, and the holder is what the
+            # form ends up with. Re-indexing is keyed by setting, so it
+            # replaces those entries rather than adding to them.
+            bar._build_index()
+            bar.apply()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-index the settings search", exc_info=True)
+
+    def the_name_carries_the_help(self) -> int:
+        """Move every settings tooltip off its field and onto its NAME.
+
+        :returns: how many were moved, so a test can assert a number.
+
+        THE HOVER TARGET IS THE SETTING'S NAME. Hovering the box you type
+        in pops the help over the value you are reading or editing, and a
+        field can be focused and clicked, so the popup fights the
+        interaction. The name is inert, which makes it the calm target.
+
+        `retarget_field_tooltips` is how the rest of the tool does this --
+        every dialog and side panel calls it at the end of its `__init__`
+        -- and the main settings form was the one place that never did.
+        Measured on Mask: 1,538 fields carried their own tooltip and 13
+        labels had one. `_lay_out_setting_row` moves the help for a row it
+        lays out itself, which is 77 of that screen's 1,657; the rest
+        arrive from the lazy row builder, the deferred "rows that are
+        back" pass, and a fold mounting another module's categories.
+
+        Run again after rows appear later, since it only ever moves a
+        tooltip that is still on a field: it is idempotent by
+        construction, and a second pass over rows already moved finds
+        nothing to do.
+        """
+        from .settings_model import retarget_field_tooltips
+
+        # THE WHOLE SCREEN, not just the settings column. A module's own
+        # panels -- the regression sweep's group boxes, for one -- sit
+        # outside that scroll area and have names of their own to move the
+        # help onto; sweeping only the column left them popping from the
+        # control.
+        try:
+            return int(retarget_field_tooltips(self))
+        except Exception:
+            # Help that failed to move is a blemish, never a reason for a
+            # module not to open.
+            return 0
+
+    def _lay_out_setting_row(self, section, label, widget) -> None:
+        """Put one setting on ``section``'s form: its label, then its field.
+
+        Split out of :meth:`_build_settings_section` because a row is not
+        always laid out while the panel is being built: a setting whose
+        object the run does not have waits here until the rule says the
+        run has it. See :meth:`_lay_out_the_rows_that_are_back`.
+
+        :param section: the heading the row belongs to.
+        :param label: the caption as the module wrote it. The language pass
+            translates it afterwards, here as everywhere else.
+        :param widget: the field ``SettingsWidgets`` built for the key.
+        """
+        # THE KEY, NOT THE LABEL. `build_sections` hands out
+        # `('Control wells', widget)` -- a title-cased sentence for a
+        # human -- and both wrappers below match on the SETTING NAME.
+        # Passing the label meant `control_wells` was never equal to
+        # 'Control wells' and the plate map (185) appeared on nothing
+        # at all. Its tests passed because they called
+        # `pick_wells_for` directly rather than driving the row the
+        # user actually sees.
+        setting_key = self._key_of(widget)
+        # A PLATE MAP BESIDE THE FIELDS THAT TAKE WELLS (185).
+        # "to the right of the field should be a button they can
+        # press that spawns a window". Only the settings whose value
+        # is ONLY wells: the picker writes the whole field, and one
+        # that overwrote `classes` or `negative_control` -- which
+        # mix wells with another vocabulary -- would destroy a value
+        # it does not understand.
+        # THE INNER FIELD IS KEPT, because everything below binds to
+        # IT and not to the row it now sits in: the tooltip is read
+        # off it, the label is bound to it, and `_widgets` still
+        # holds it. Losing this reference is what made a wrapped row
+        # lose its `settingKey` and its help the moment the wrapper
+        # stopped being a no-op.
+        field = widget
+        widget = self._with_a_plate_map(widget, setting_key)
+        # AND THE ADVISOR BESIDE `inference` (192). "a button to the
+        # left of inference alligned with the text box to the left in
+        # model & inference".
+        widget = self._with_a_settings_advisor(widget, setting_key)
+        # AND THE MODEL ZOO BESIDE A CHECKPOINT FIELD. Same wrapper shape as
+        # the two above, and the same rule: the inner field is what the panel
+        # collects from, so typing a path by hand is unchanged.
+        widget = self._with_a_model_zoo_button(widget, setting_key)
+        if widget is not field:
+            # THE ROW IS THE FIELD AS FAR AS THE PANEL IS CONCERNED.
+            # `Section._row_widgets` records what it is handed, and
+            # the module smoke test reads `settingKey` off that -- so
+            # the holder has to carry it too, or a row with a button
+            # beside it reads as a field belonging to no setting.
+            widget.setProperty("settingKey", setting_key)
+            widget.setProperty("settingsAppKey", self.app_key)
+        lbl_widget = QLabel(label)
+        # Give the label a subtle affordance so users know
+        # it's the hover target for tooltips (fields can be
+        # focused / clicked — tooltips on labels are calmer).
+        lbl_widget.setCursor(Qt.WhatsThisCursor)
+        field_key = None
+        # MATCHED ON THE INNER FIELD, not on `widget`: `widget` may
+        # now be the row that holds it, which `_widgets` has never
+        # heard of.
+        #
+        # THROUGH AN INDEX, not by scanning. This used to walk the whole
+        # of `_widgets` looking for the row's own field, once per row --
+        # 1,538 rows against 1,538 widgets on the Mask screen, which is
+        # over a million identity comparisons to answer 1,538 questions
+        # that a dictionary answers outright. `_widget_key_index` is
+        # built once per panel and preserves the scan's answer exactly:
+        # first key wins, for the vanishingly rare case of one widget
+        # registered under two names.
+        key = self._key_of_field(field)
+        if key is not None:
+            field_key = key
+            html = field.toolTip()
+            hint = self._settings_model.plain_tooltip_for(key)
+            body_source = field.property(
+                "apiTooltipDescriptionSource") or ""
+            lbl_widget.setProperty("settingsAppKey", self.app_key)
+            lbl_widget.setProperty("settingKey", key)
+            lbl_widget.setProperty(
+                "apiTooltipDescriptionSource", body_source)
+            lbl_widget.setProperty(
+                "apiTooltipDescription", body_source)
+            lbl_widget.setProperty("apiTooltipHtml", html)
+            lbl_widget.setProperty(
+                "apiTooltipDisplayRole", "tooltip")
+            # Tooltips live on the LABEL only — hovering
+            # the input field itself is left alone so
+            # focus / edit interactions aren't disturbed.
+            # Keep the field's semantic metadata for language refreshes, but
+            # mark it quiet before clearing the native tooltip. Otherwise a
+            # later object-visibility refresh restores the help on hidden
+            # fields after this row has already moved it to the label.
+            field.setProperty("apiTooltipDisplayRole", "metadata")
+            field.setToolTip("")
+
+            # SettingsWidgets may already have disabled an
+            # algorithm-specific field before this visual label
+            # exists. Bind them now and mirror the state; later
+            # reducer switches update both through the same link.
+            #
+            # ON THE FIELD, not on the row: the reducer that
+            # later enables and disables this setting reaches it
+            # through `_widgets`, which holds the field, so a
+            # label bound to the holder would never be told.
+            field._spacr_setting_label = lbl_widget
+            lbl_widget.setEnabled(field.isEnabled())
+            self._hint_map[lbl_widget] = hint
+            self._html_tip_map[lbl_widget] = html
+            lbl_widget.installEventFilter(self)
+        # No API link dot on the settings form. It sat between the
+        # label and the field and carried a tooltip of its own, so
+        # the help popped when the pointer was over the row's
+        # right-hand side -- which reads as "the field has a
+        # tooltip", because from the user's side of the screen that
+        # is exactly what it looks like. 191 of them on the Mask
+        # form alone.
+        #
+        # Nothing is lost but the mark: the API link is still in the
+        # label's tooltip HTML (the `href=` several tests assert on),
+        # so the reference is one hover and one click away, and the
+        # help itself is unchanged and still on the label.
+        #
+        # The host stays, though, and is built here rather than by
+        # `Section.add_row` (which only makes one when there is an
+        # info widget to put in it). It is what right-aligns the
+        # label against the field: dropping it left the label
+        # left-aligned and half the row's width was suddenly the
+        # page showing through rather than the category surface.
+        section.add_row(lbl_widget, widget, info_widget=None,
+                        wrap_label=True)
+        # THE FIELD, for the same reason as the tooltip above: the
+        # column picker fills the setting's own widget, and handing
+        # it the row would give it something with no `setText`.
+        self._attach_column_picker(field_key, field)
+
+    @staticmethod
+    def _open_the_headings_above(parent, expanded: bool) -> None:
+        """Open ``parent`` when a heading inside it is opened.
+
+        Collapsing a sub-heading deliberately leaves the umbrella open: the
+        user still has the rest of the group in front of them.
+        """
+        if not expanded:
+            return
+        try:
+            if not parent.is_expanded():
+                parent.set_expanded(True)
+        except (AttributeError, RuntimeError):
+            pass
+
+    def _install_section_explainer(self, section, title) -> None:
+        """Add a section's read-only explanatory panel above its controls.
+
+        Sections listed in ``settings_model.SECTION_EXPLAINERS`` receive a
+        selectable rich-text panel. Prose wraps normally, formulas remain
+        unwrapped in ``<pre>`` blocks, and the object name supplies the
+        monospace styling through QSS.
+        """
+        from PySide6.QtGui import QFontDatabase, QFontMetrics
+        from PySide6.QtWidgets import QTextEdit
+
+        from .settings_model import explainer_width
+
+        # A QTextBrowser RATHER THAN A BARE QTextEdit, and the difference is
+        # the one thing instruction 144 D needs: `setOpenExternalLinks` is
+        # QTextBrowser's. A QTextEdit renders the same HTML and its links do
+        # nothing when clicked, which is worse than a module name -- a module
+        # name can at least be searched. Everything else is inherited, so
+        # read-only, selectable and the wrap mode are unchanged.
+        box = _ExplainerBrowser(self._retheme_section_explainers)
+        box.setObjectName("ModelExplainer")
+        box.setReadOnly(True)
+        box.setOpenExternalLinks(True)
+        # WRAP AT THE BOX'S OWN WIDTH. Asked for on 2026-08-18, once per box:
+        # "the text in the text box should span the width of the textbox".
+        #
+        # It was NoWrap over text `_wrap_block` had already hard-wrapped to 54
+        # columns, so the paragraph was 54 characters wide whatever the pane
+        # was and the right-hand side of the box sat empty. The prose is one
+        # logical line per paragraph now and this wraps it, so it reflows when
+        # the pane is resized.
+        #
+        # A FORMULA STILL CANNOT BREAK, and that is why the minimum width
+        # below is `explainer_width()` -- the longest unbreakable line in any
+        # explainer, measured from them rather than declared. The widget is
+        # never narrow enough to wrap one.
+        box.setLineWrapMode(QTextEdit.WidgetWidth)
+
+        # MONOSPACE HAS TO COME THROUGH QSS, NOT setFont().
+        #
+        # The theme opens with a global `QWidget { font-family: "Open Sans",
+        # ... }` rule, and in Qt a stylesheet font beats a programmatic one.
+        # Measured under the real theme: a read-only QPlainTextEdit given
+        # setFont(systemFont(FixedFont)) reports a rendered QFontInfo family
+        # of 'Open Sans' with fixedPitch False -- proportional, so the
+        # formulas do not align and the box is monospace in intention only.
+        # Setting the document's default font loses the same way, because
+        # polishing pushes the widget font back into the document.
+        # `qt/widgets/regression_results.py`'s Summary tab has the same
+        # defect; it is not this slice's file to change.
+        #
+        # setFont stays too, so anything reading font() rather than the
+        # rendered QFontInfo still gets the fixed font.
+        #
+        # THE RULE NAMES THE FONT AND NOTHING ELSE, deliberately. Colours are
+        # left to the app-wide stylesheet. Baking palette values in here would
+        # PIN them at construction, so the box would keep the old colours
+        # after a runtime theme switch while the screen around it re-themed.
+        # Checked on the composited screen rather than on a widget grab: a
+        # bare `box.grab()` writes the transparent page background as
+        # transparent pixels, which an image viewer shows as white -- that
+        # artefact reads exactly like white-on-white text and is not.
+        fixed = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        box.setFont(fixed)
+        box.setStyleSheet(
+            "QTextBrowser#ModelExplainer {"
+            f' font-family: "{fixed.family()}", "DejaVu Sans Mono", "Menlo",'
+            " \"Consolas\", monospace; }")
+        # Read-only, but NOT unselectable: TextSelectableByMouse and
+        # ByKeyboard are what make Ctrl+A / Ctrl+C work in a disabled-looking
+        # box.
+        box.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+        # WIDE ENOUGH FOR THE WRAP COLUMN, measured from the font actually
+        # rendered rather than guessed. The settings pane opens at about
+        # 400px, which holds ~46 monospace characters -- narrower than the
+        # 62-character mixed formula, so the one line that most needs to stay
+        # intact was the first to soft-wrap. Asking for the width here lets
+        # the splitter give the pane what this content needs.
+        advance = QFontMetrics(box.font()).horizontalAdvance("M") or 8
+        box.setMinimumWidth(advance * (explainer_width() + 3))
+        box.setMinimumHeight(220)
+        section.add_prose(box, at_top=True)
+        self._section_explainers[title] = box
+        if title == "Model & Inference":
+            self._model_explainer = box
+        else:
+            # A STATIC BOX NEEDS NO REFRESH. Only the model box depends on
+            # the panel's current values; the permutation box says what the
+            # test does, which does not change with a setting.
+            from ..theme import active_palette
+            from .settings_model import section_explainer_html
+
+            box.setHtml(section_explainer_html(self.app_key, title,
+                                               palette=active_palette()))
+            return
+
+        # Follow the two settings it describes. Bound methods, not lambdas:
+        # INVARIANTS 4 is about QThread.finished specifically, but the same
+        # lifetime reasoning applies to any connection that outlives the call
+        # that made it.
+        widgets = getattr(self._settings_model, "_widgets", {})
+        # `inference` and `analysis_mode` are on the list because the box now
+        # describes the PERMUTATION path when one is chosen -- a box that did
+        # not follow them would go on explaining a model the run will not fit.
+        for key in ("regression_type", "level", "model_plate_position",
+                    "random_row_column_effects", "inference",
+                    "analysis_mode"):
+            # `level` is a NEW setting and may not be on the panel yet; the
+            # box still has to render for the model that IS there.
+            widget = widgets.get(key)
+            if widget is None:
+                continue
+            # `toggled` FIRST-CLASS, not an afterthought. Two of the four
+            # settings this box follows are `Toggle`, which is a QCheckBox and
+            # therefore has NONE of the combo/text signals below -- so no
+            # connection was made at all and the formula never moved when the
+            # plate settings did. Silent, because a `for/else` that finds
+            # nothing simply finds nothing.
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "toggled", "stateChanged",
+                                "textChanged", "value_changed"):
+                signal = getattr(widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_model_selection_changed)
+                    break
+        self._refresh_model_explainer()
+
+    def _on_model_selection_changed(self, *_args) -> None:
+        """Re-render the explainer when the model or the level moves."""
+        self._refresh_model_explainer()
+
+    def _refresh_model_explainer(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Render the selected model in the current palette and language."""
+        box = self._model_explainer
+        if box is None:
+            return
+        from ..theme import active_palette
+        from .settings_model import regression_model_explainer_html
+
+        widgets = getattr(self._settings_model, "_widgets", {})
+        read = self._settings_model._read_widget
+
+        def value(key, fallback):
+            """One widget's value, or the fallback when there is no such widget."""
+            widget = widgets.get(key)
+            if widget is None:
+                return fallback
+            try:
+                return read(widget)
+            except Exception:
+                return fallback
+
+        # THE PLATE SETTINGS REACH THE FORMULA. Without them the box printed
+        # `+ rowID + columnID` however they were set, so a user who turned
+        # plate position off still read it in the formula -- the display
+        # asserting something the run does not do.
+        # SELECTION KEPT ACROSS THE RE-RENDER. `setHtml` replaces the whole
+        # document, so a user part-way through dragging out a formula to
+        # paste loses it; the scroll position goes with it. Both are put back.
+        scroll = box.verticalScrollBar().value()
+        # INFERENCE REACHES THE BOX (2026-08-20): "non parametric should be
+        # represented in the Text box above ... when chosen the text should
+        # explain nonparametric." Without it the box described whatever
+        # `regression_type` held, which under nonparametric is a model that
+        # is read, saved and never fitted.
+        box.setHtml(regression_model_explainer_html(
+            value("regression_type", "auto"), value("level", "both"),
+            plate_position=value("model_plate_position", False),
+            random_row_column=value("random_row_column_effects", False),
+            palette=active_palette(),
+            language=language,
+            inference=value("inference", "auto"),
+            analysis_mode=value("analysis_mode", "")))
+        box.verticalScrollBar().setValue(scroll)
+
+    #: The grid key the gene tile answers to. Not a figure index -- see below.
+    GENE_TILE_KEY = "gene"
+
+    def _gene_tile_entry(self, panel) -> list:
+        """Return the selected gene panel as a figure-grid tile.
+
+        The tile uses a stable live key instead of a figure index, so adding it
+        does not shift saved-figure positions. A pixmap snapshot keeps grid
+        resizing responsive; activating the tile opens the live gene panel.
+        An empty list is returned when no gene is selected or rendering fails.
+        """
+        gene = getattr(panel, "gene", None)
+        if gene is None or not hasattr(gene, "to_pixmap"):
+            return []
+        # NO GENE, NO TILE -- and `to_pixmap` cannot be the test for that. It
+        # renders a placeholder when nothing is selected, so a null-pixmap
+        # check never fired and the grid grew a tile saying "nothing
+        # selected" on every run. `feature()` is what the panel is showing.
+        showing = getattr(gene, "feature", None)
+        if not callable(showing) or not str(showing() or "").strip():
+            return []
+        try:
+            pixmap = gene.to_pixmap()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not photograph the gene tile", exc_info=True)
+            return []
+        if pixmap is None or pixmap.isNull():
+            return []
+        return [(self.GENE_TILE_KEY, pixmap, "Gene")]
+
+    def _with_a_plate_map(self, widget, key):
+        """``widget``, with a plate-map button beside it when it takes wells.
+
+        The button goes on `well_spec.WELL_ONLY_SETTINGS` -- the settings
+        whose COMPLETE value is a well specification -- because pressing Done
+        replaces the field. Every other setting gets the original widget
+        untouched, including the mixed-vocabulary ones that may hold a well
+        or a gene or a treatment name: replacing one of those would discard
+        whatever else the user had typed.
+        """
+        from ...well_spec import WELL_ONLY_SETTINGS
+
+        if str(key) not in WELL_ONLY_SETTINGS:
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(widget, 1)
+        button = QPushButton("Plate…", holder)
+        button.setToolTip(
+            "Pick the wells off a plate map. Rows (r1), columns (c1) and "
+            "wells (A01) all read, and what it writes reads back.")
+        # NO FIXED WIDTH (193). It was 58 px, chosen by eye against the
+        # English "Plate…" -- and every translation is longer, so the label
+        # was elided to "Plat…" in languages the author does not read. A
+        # button's width is a CONSEQUENCE of its text, never an input to it:
+        # `sizeHint()` already accounts for the label, the icon, the padding
+        # and the current font, so the layout is given that instead.
+        button.clicked.connect(
+            lambda *_, w=widget, k=str(key): self.pick_wells_for(w, k))
+        row.addWidget(button)
+        # THE FIELD IS STILL THE WIDGET the panel collects from. `_widgets`
+        # already holds it, and wrapping it in a row must not change which
+        # object `collect()` reads -- a picker that made the value
+        # unreadable would be worse than no picker.
+        holder._spacr_field = widget
+        return holder
+
+    def _key_of(self, widget) -> str:
+        """The setting name a widget holds, or ``''``.
+
+        The panel is built from `(label, widget)` pairs and every rule that
+        acts on a particular SETTING needs the key. Read off `_widgets`,
+        which is the one place that maps the two -- through
+        :meth:`_key_of_field`, so this is a lookup rather than the second
+        full scan of that table per row.
+        """
+        key = self._key_of_field(widget)
+        return "" if key is None else str(key)
+
+    #: Settings whose value is a path to a Cellpose checkpoint, and which
+    #: therefore get the model-zoo button. Named explicitly rather than
+    #: matched on a suffix: `custom_model_path` in Classify holds a torch
+    #: classifier, not a Cellpose model, and offering cpsam checkpoints there
+    #: would offer something that screen cannot load.
+    #: Settings whose value is a Cellpose checkpoint, named explicitly.
+    #:
+    #: Not matched on a suffix alone: `custom_model_path` in Classify holds a
+    #: torch classifier, and offering cpsam checkpoints there would offer
+    #: something that screen cannot load.
+    _MODEL_ZOO_KEYS = (
+        "pathogen_model", "pathogen_model_name",
+        "cell_model_name", "nucleus_model_name", "organelle_model_name",
+        "custom_model", "plaque_model",
+    )
+
+    @classmethod
+    def _takes_a_cellpose_checkpoint(cls, key: str) -> bool:
+        """Whether ``key`` names a Cellpose checkpoint field.
+
+        THE SECOND ORGANELLE ONWARDS IS NOT IN THE LIST ABOVE, and cannot be:
+        with more than one organelle the settings are generated per organelle
+        as `organelleb_model_name`, `organellec_model_name` and so on
+        (:data:`spacr.settings.DYNAMIC_ORGANELLE_SETTINGS`). A fixed tuple gave
+        the button to organelle 1 and silently withheld it from every organelle
+        after it, which is the shape of bug a list of literal names always
+        eventually has when the names are generated.
+        """
+        name = str(key)
+        if name in cls._MODEL_ZOO_KEYS:
+            return True
+        return bool(_ORGANELLE_MODEL_KEY.match(name))
+
+    def _with_a_model_zoo_button(self, widget, key):
+        """Add the model-zoo button beside a Cellpose-checkpoint field.
+
+        Other settings are returned unchanged.
+
+        A model setting takes a filesystem path, which is exact and unhelpful:
+        the user has to already know a model exists, find where it lives, and
+        type it. The button is the other way in -- browse what spaCR knows
+        about, download one, and have its path written into this field.
+
+        THE FIELD IS STILL WHAT THE PANEL COLLECTS FROM, the same rule the
+        plate map and the advisor follow: a wrapper that made the value
+        unreadable would be worse than no button. Typing a path by hand keeps
+        working exactly as before; this only adds a second way in.
+        """
+        if not self._takes_a_cellpose_checkpoint(key):
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(widget, 1)
+        button = QPushButton("Model zoo…", holder)
+        button.setToolTip(
+            "Browse the models spaCR knows about, see what each was trained "
+            "on, download one and fill in this field. You can still type a "
+            "path yourself. "
+            "API: spacr.qt.widgets.model_zoo_picker.choose_model.")
+        button.clicked.connect(
+            lambda *_, f=widget: self._choose_a_model_for(f))
+        row.addWidget(button)
+        holder._spacr_field = widget
+        return holder
+
+    def _choose_a_model_for(self, field) -> None:
+        """Open the picker and write the chosen path into ``field``.
+
+        ``kinds`` is restricted to Cellpose checkpoints: the zoo also carries
+        the YOLO well detector, and offering that here would offer something
+        ``CellposeModel`` cannot load -- a choice that fails at segmentation
+        time, long after the click that caused it.
+        """
+        from ..widgets.model_zoo_picker import choose_model
+
+        path = choose_model(self, kinds=("cellpose",))
+        if not path:
+            return
+        # setText for a line edit, set_value for spaCR's own path widgets --
+        # the panel builds more than one shape of field for a path.
+        if hasattr(field, "set_value"):
+            field.set_value(path)
+        elif hasattr(field, "setText"):
+            field.setText(path)
+        else:
+            LOG.warning("no way to write a model path into %s",
+                        type(field).__name__)
+
+    def _with_a_settings_advisor(self, widget, key):
+        """Add the regression settings-advisor button beside ``inference``.
+
+        Other settings and application screens are returned unchanged.
+        """
+        if str(key) != "inference" or self.app_key != "regression":
+            return widget
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        holder = QWidget()
+        row = QHBoxLayout(holder)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        button = QPushButton("Settings for my data…", holder)
+        button.setToolTip(
+            "Read the attached tables, ask the few things they cannot "
+            "answer, and propose settings with the reason beside each "
+            "one and the current value beside the new one. Nothing is "
+            "written until you accept it. "
+            "API: spacr.settings_advisor.advise_the_screen.")
+        button.clicked.connect(lambda *_: self.settings_for_my_data())
+        row.addWidget(button)
+        row.addWidget(widget, 1)
+        # THE FIELD IS STILL THE WIDGET the panel collects from -- the same
+        # rule the plate map follows, and for the same reason: a wrapper that
+        # made the value unreadable would be worse than no button.
+        holder._spacr_field = widget
+        self._advisor_button = button
+        return holder
+
+    def the_advisor_can_run(self) -> str:
+        """Return an empty string when the advisor can run, otherwise why not."""
+        values = {}
+        try:
+            values = dict(self._settings_model.collect() or {})
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not collect the settings", exc_info=True)
+        counts, scores = self._tables_for_the_advisor(values)
+        if not counts and not scores:
+            return ("No count or score table is attached yet. Fill in Input "
+                    "Tables — or press 'Load test data…' there — "
+                    "and this can read them.")
+        return ""
+
+    @staticmethod
+    def _tables_for_the_advisor(values: dict):
+        """The count and score paths, out of either input spelling.
+
+        `paired_data` is the current shape -- one row per plate, naming both
+        files -- and `count_data`/`score_data` are the legacy lists. Both are
+        read, because a panel filled from an old settings CSV has the second.
+        """
+        counts, scores = [], []
+        for row in values.get("paired_data") or ():
+            if not isinstance(row, dict):
+                continue
+            if row.get("count"):
+                counts.append(str(row["count"]))
+            if row.get("score"):
+                scores.append(str(row["score"]))
+        for key, into in (("count_data", counts), ("score_data", scores)):
+            got = values.get(key)
+            if isinstance(got, str):
+                got = [got]
+            for path in got or ():
+                if path and str(path) not in into:
+                    into.append(str(path))
+        return counts, scores
+
+    def settings_for_my_data(self, *, answers: Optional[dict] = None) -> dict:
+        """Propose settings from the attached tables and apply accepted values.
+
+        Parameters
+        ----------
+        answers : dict, optional
+            Answers to questions the data cannot resolve. Supplying this
+            mapping skips the interactive question page.
+
+        Returns
+        -------
+        dict
+            Settings written to the panel, or an empty mapping when the
+            advisor cannot run or the proposal is declined.
+        """
+        from PySide6.QtWidgets import QDialog
+
+        from ...settings_advisor import advise_that_runs, read_the_screen
+        from ..widgets.settings_advisor_dialog import SettingsAdvisorDialog
+
+        why_not = self.the_advisor_can_run()
+        if why_not:
+            self._console.append_stdout(why_not + "\n")
+            return {}
+        values = dict(self._settings_model.collect() or {})
+        counts, scores = self._tables_for_the_advisor(values)
+        self._console.append_stdout(
+            f"Reading {len(counts)} count table(s) and {len(scores)} score "
+            f"table(s) to work out the settings…\n")
+        reading = read_the_screen(
+            counts, scores, str(values.get("dependent_variable") or ""))
+        # AND THE LAST RUN, IF THERE IS ONE (instruction 226). Everything
+        # above is knowable before a fit; the residuals of one that happened
+        # are what the assumptions are actually about, and a response can be
+        # skewed while the residuals are fine. An ADDITION and never a
+        # requirement: with no run this changes nothing at all.
+        reading = self._reading_with_the_last_run(reading, values)
+        for trouble in reading.trouble:
+            self._console.append_stdout(f"  {trouble}\n")
+        if reading.run_note:
+            self._console.append_stdout(f"  {reading.run_note}\n")
+        elif reading.run_folder:
+            self._console.append_stdout(
+                f"  Also reading the diagnostics of {reading.run_folder}\n")
+
+        if answers is not None:
+            # THE HEADLESS ROUTE, and it still goes through the same
+            # advisor rather
+            # than a second rule -- one advisor, whether a person or a test
+            # is asking.
+            chosen = advise_that_runs(reading, answers).as_settings()
+        else:
+            dialog = SettingsAdvisorDialog(reading, values, parent=self)
+            if dialog.exec() != QDialog.Accepted:
+                self._console.append_stdout(
+                    "Nothing was changed.\n")
+                return {}
+            chosen = dialog.accepted_settings()
+        if not chosen:
+            self._console.append_stdout(
+                "The proposal was never shown, so nothing was written.\n")
+            return {}
+        applied = self.apply_settings_dict(chosen)
+        self._console.append_stdout(
+            f"{applied} setting(s) written from the data.\n")
+        return chosen
+
+    def _console_folded(self, shut: bool) -> None:
+        """Give the released height to whatever is above the console.
+
+        MEASURED, NOT EYEBALLED. The console lives in a vertical splitter, and
+        a splitter keeps its own sizes -- hiding the widget alone leaves the
+        handle where it was and the space simply unused, which is the failure
+        this instruction is actually about.
+        """
+        wrap = getattr(self, "_console_wrap", None)
+        if wrap is None:
+            return
+        # The wrapper's minimum is the console's while it is open, and the
+        # heading's alone once it is folded.
+        wrap.setMinimumHeight(0 if shut else 180)
+        splitter = getattr(self, "_console_splitter", None)
+        if splitter is None:
+            for parent in (wrap.parentWidget(),):
+                if isinstance(parent, QSplitter):
+                    splitter = parent
+                    break
+        if splitter is None:
+            return
+        index = splitter.indexOf(wrap)
+        if index < 0:
+            return
+        sizes = list(splitter.sizes())
+        if shut:
+            self._console_height = sizes[index]
+            freed = sizes[index] - wrap.sizeHint().height()
+            sizes[index] -= freed
+            # To the pane above, which is the one holding the figures, the
+            # montage or the results -- the things a log line was crowding.
+            above = index - 1 if index > 0 else (1 if len(sizes) > 1 else -1)
+            if above >= 0:
+                sizes[above] += freed
+        else:
+            back = getattr(self, "_console_height", 0)
+            if back:
+                freed = back - sizes[index]
+                sizes[index] = back
+                above = index - 1 if index > 0 else (1 if len(sizes) > 1
+                                                     else -1)
+                if above >= 0:
+                    sizes[above] = max(0, sizes[above] - freed)
+        splitter.setSizes(sizes)
+
+    def _reading_with_the_last_run(self, reading, values):
+        """Fold a finished run's diagnostics into ``reading``.
+
+        SILENT WHEN THERE IS NO RUN, which is the ordinary case and the whole
+        point of the button -- it answers before anything has been fitted.
+        """
+        from dataclasses import replace
+
+        from ...settings_advisor import Reading, read_the_last_run
+
+        folder = ""
+        for source in (getattr(self, "_last_run_folder", ""),
+                       self._results_panel.run_folder()
+                       if getattr(self, "_results_panel", None) else ""):
+            if source:
+                folder = str(source)
+                break
+        if not folder:
+            return reading
+        try:
+            extra = read_the_last_run(folder, values)
+        except Exception:                                       # noqa: BLE001
+            # The advisor is worth more than the extra: a run folder that
+            # cannot be read must not cost the user the advice they asked for.
+            return reading
+        known = set(Reading.__dataclass_fields__)
+        extra = {k: v for k, v in extra.items() if k in known}
+        return replace(reading, **extra) if extra else reading
+
+    def pick_wells_for(self, field, key: str = "") -> str:
+        """Open the plate map on ``field``'s value. Returns what was written.
+
+        :returns: the new specification, or ``""`` when the user closed
+            without choosing -- in which case the field is untouched.
+        """
+        from ..widgets.plate_map_picker import PlateMapPicker
+
+        reader = getattr(field, "text", None)
+        before = str(reader() if callable(reader) else "")
+        picker = PlateMapPicker(before, parent=self)
+        if not picker.exec():
+            return ""
+        chosen = picker.value()
+        setter = getattr(field, "setText", None)
+        if callable(setter):
+            setter(chosen)
+        self._console.append_stdout(
+            f"{key or 'wells'}: {chosen or 'nothing'} chosen from the "
+            f"{picker._layout_size}-well map.\n")
+        return chosen
+
+    def _install_example_data_button(self, section) -> None:
+        """A button that fetches the example screen and fills the two slots.
+
+        `add_prose`, not `add_widget`: `_row_widgets` is taken to hold
+        LABELLED SETTING ROWS by the module smoke test, and a button is
+        neither a setting nor labelled -- the same reason the explainer boxes
+        go in that way.
+        """
+        from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+        # THREE BUTTONS, ONE PER THING TO FETCH. Counts are 16 MB and scores
+        # are 19 MB; a user checking one of them should not wait for the
+        # other, and a user who wants both still presses one button.
+        #
+        # In a ROW AT THE TOP rather than above each field. `add_prose` puts a
+        # widget above or below the section's controls, and inserting between
+        # two setting rows would put a non-setting into `_row_widgets`, which
+        # the module smoke test reads as a labelled setting row.
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        for label, kind, tip in (
+                ("Score", "scores",
+                 "Fetch the four score tables (about 19 MB) into the scores "
+                 "slot."),
+                ("Count", "counts",
+                 "Fetch the four count tables (about 16 MB) into the counts "
+                 "slot."),
+        ):
+            one = QPushButton(label)
+            one.setToolTip(tip + " Cached afterwards, so pressing it again is "
+                                 "instant.")
+            one.clicked.connect(
+                lambda _checked=False, _k=kind: self.load_the_example_screen(
+                    kind=_k))
+            layout.addWidget(one)
+            setattr(self, f"_example_{kind}_button", one)
+
+        # TWO THAT COST GIGABYTES ASK FIRST. Each opens a picker holding only
+        # its own kind, with what it costs said above the list.
+        # NAMED FOR THE FILE IT FETCHES. It was "Feature", which is what the
+        # tables hold rather than what the button gets you, and a user asking
+        # for "the measurements.db button" could not find it.
+        feature = QPushButton("Measurements (.db)")
+        feature.setToolTip(
+            "Choose which of the screen's measurement databases to download. "
+            "These are what the measurement and cell functions read. About "
+            "0.5 GB per plate.")
+        feature.clicked.connect(
+            lambda: self.load_the_screen_data(kind="measurements"))
+        self._screen_feature_button = feature
+        layout.addWidget(feature)
+
+        crops = QPushButton("Image crops")
+        crops.setToolTip(
+            "Choose which of the screen's crop folders to download. Only "
+            "needed to display images — the measurement functions do not "
+            "read them. About 8 GB per plate.")
+        crops.clicked.connect(
+            lambda: self.load_the_screen_data(kind="crops"))
+        self._screen_crops_button = crops
+        layout.addWidget(crops)
+
+        layout.addStretch(1)
+
+        # A LABELLED ROW, ALIGNED WITH THE SETTINGS IT FILLS. A row of buttons
+        # floating above the form reads as unrelated to it; one whose label
+        # sits in the same right-aligned column reads as part of the same
+        # form. `add_prose_row` rather than `add_row`, because `_row_widgets`
+        # is taken to hold labelled SETTINGS by the module smoke test and a
+        # row of buttons is not one.
+        #
+        # AT THE TOP since 2026-09-02: "the input tables sould start with
+        # download buttons not end wit them". It fills the fields below it,
+        # and sitting under them read as a footer to a form it actually
+        # feeds. The whole-screen button below inserts at 0 afterwards, so
+        # the final order is: Load test data, then Download, then the
+        # fields -- broadest action first.
+        section.add_prose_row("Download", row, at_top=True)
+
+        # The whole-screen button keeps its place ABOVE the form: it fills
+        # both slots at once, so it belongs beside neither of them.
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(
+            "Fetch the four-plate example screen and put its count tables "
+            "and score tables into the two slots below. About 35 MB the "
+            "first time; cached afterwards, so pressing it again is instant.")
+        button.clicked.connect(lambda: self.load_the_example_screen())
+        self._example_data_button = button
+        section.add_prose(button, at_top=True)
+
+    #: Settings files an example dataset may ship, per module, best first.
+    #:
+    #: SEVERAL NAMES PER MODULE because the published sets were written by
+    #: different runs at different times: a mask run saves
+    #: `gen_mask_settings.csv`, the older pack shipped `gen_masks_settings.csv`,
+    #: and the measure settings have been called both `measure_crop_settings`
+    #: and `crop_measure_settings`. Trying each in turn is what makes an older
+    #: archive still fill the form in, rather than silently filling in nothing.
+    _EXAMPLE_SETTINGS_FILES = {
+        "mask": ("gen_mask_settings.csv", "gen_masks_settings.csv"),
+        "measure": ("measure_crop_settings.csv", "crop_measure_settings.csv"),
+        "classify": ("classify_settings.csv",),
+        "regression": ("regression_settings.csv",),
+        "umap": ("umap_settings.csv",),
+    }
+
+    @staticmethod
+    def reanchor_example_paths(loaded, destination) -> dict:
+        """Re-root every absolute path in ``loaded`` onto ``destination``.
+
+        A shipped example settings file records the paths of the machine
+        that GENERATED it, which on any other machine names a user that does
+        not exist::
+
+            gen_masks_settings.csv    src,/home/carruthers/datasets/plate1
+            crop_measure_settings.csv src,/home/carruthers/datasets/plate1/merged
+
+        Both lines matter. The first is why the path is wrong; the second is
+        why substituting the destination outright is not the fix -- the Measure
+        set points at a SUBFOLDER, and collapsing it to the plate root would
+        quietly measure the wrong directory rather than fail.
+
+        LISTS AND TUPLES ARE NOT A CORNER CASE. Classify's ``src`` is
+        list-valued and regression's ``count_data``, ``score_data`` and
+        ``paired_data`` are too, and ``utils.load_settings`` turns any CSV cell
+        starting with ``[``, ``(`` or ``{`` into a real Python container. An
+        earlier version of this method tested ``isinstance(value, str)`` and
+        skipped everything else, which skipped exactly the two modules whose
+        loaders never write a local path as a fallback -- so for those the
+        publisher's path was the panel's only source of truth. Containers are
+        walked.
+
+        Most of the per-path work is not new. :func:`spacr.portable_paths.reroot_crop_path`
+        already picks the deepest recorded suffix that EXISTS below the current
+        root, so a rewrite is only made when the reconstructed path is really
+        there; it is tried first and its answer preferred. What it cannot do is
+        the root itself -- its resolution needs a suffix to match, and ``src``
+        pointing at the plate folder has none, which is the reported case. That
+        one gap is filled by matching the destination's own folder name.
+
+        A path that already resolves on this machine is left ALONE: a user who
+        imported an example, edited ``src`` to their own data and saved would
+        otherwise have that edit undone by the next example load.
+
+        :param loaded: the settings as read from the shipped file.
+        :param destination: the local folder the example actually unpacked to.
+        :returns: a new mapping; the input is not modified.
+        """
+        from pathlib import Path, PurePosixPath, PureWindowsPath
+
+        from ...portable_paths import reroot_crop_path
+
+        destination = Path(destination)
+        anchor = destination.name
+
+        def rehome_text(text: str):
+            """Repoint one path string at the folder the example now lives in."""
+            stripped = text.strip()
+            if not stripped:
+                return text
+            # Both separators: the file may have been written on Windows and
+            # read here, or the other way round.
+            pure = (PureWindowsPath(stripped) if "\\" in stripped
+                    else PurePosixPath(stripped))
+            if not pure.is_absolute():
+                return text
+            if Path(stripped).exists():
+                return text
+
+            try:
+                rerooted = reroot_crop_path(stripped, str(destination))
+            except Exception:                                # noqa: BLE001
+                rerooted = stripped
+            if rerooted and rerooted != stripped:
+                return rerooted
+
+            parts = list(pure.parts)
+            if anchor in parts:
+                tail = parts[len(parts) - 1 - parts[::-1].index(anchor) + 1:]
+                candidate = destination.joinpath(*tail) if tail else destination
+                # NOT conditional on the candidate existing, unlike
+                # portable_paths. Some of these are OUTPUT paths -- a
+                # measurements.db a first run has not written yet -- and
+                # requiring existence would leave the publisher's path on
+                # exactly the settings a first run needs.
+                return str(candidate)
+            # Nothing to hang the tail on. A bare re-point at the destination
+            # would be a guess, and a wrong path that LOOKS local is worse than
+            # one that is obviously foreign, so it is left for the user to see.
+            return text
+
+        def rehome(value):
+            """Repoint every path in a value, whatever shape it is.
+
+            Recurses through lists and tuples: a settings value may be one path or a
+            list of them, and rehoming only the string case leaves the list pointing
+            at a folder that is not there.
+            """
+            if isinstance(value, str):
+                return rehome_text(value)
+            if isinstance(value, (list, tuple)):
+                return type(value)(rehome(item) for item in value)
+            return value
+
+        return {key: rehome(value) for key, value in loaded.items()}
+
+    def apply_settings_that_came_with(self, folder) -> int:
+        """Load the settings a downloaded example shipped, for THIS module.
+
+        The point of shipping settings beside data: a user who has to work out
+        which column holds the labels, what the mask dimensions are and which
+        channels were measured has done most of the work the example was meant
+        to save. With them applied, Run is the next action.
+
+        Through the same two calls "Import settings…" makes, so a shipped file
+        lands exactly as the user's own would -- a second reader would drift
+        from it, and then an example would configure the panel differently
+        from an import of the very same file.
+
+        :param folder: the unpacked dataset folder.
+        :returns: how many settings were applied; 0 when no file was found.
+        """
+        from pathlib import Path
+
+        folder = Path(folder)
+        for name in self._EXAMPLE_SETTINGS_FILES.get(self.app_key, ()):
+            path = folder / "settings" / name
+            if not path.is_file():
+                continue
+            try:
+                loaded = self._load_settings_csv(str(path))
+                # BEFORE applying, not after: the panel must never hold the
+                # publisher's path, not even for a repaint.
+                #
+                # GUARDED SEPARATELY from the load. The surrounding handler
+                # turns any failure into "0 settings applied", so a fault in
+                # the re-homing would silently cost the user every setting the
+                # example shipped -- trading a wrong path for no configuration
+                # at all. A foreign path is the lesser failure and is at least
+                # visible, so it is what happens if this cannot run.
+                try:
+                    loaded = self.reanchor_example_paths(loaded, folder)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not re-home %s", path, exc_info=True)
+                applied = self.apply_settings_dict(loaded)
+            except Exception as exc:                         # noqa: BLE001
+                LOG.debug("could not apply %s", path, exc_info=True)
+                self._console.append_notice(
+                    "[example] {name} could not be applied: {detail}\n",
+                    name=name, detail=exc)
+                return 0
+            self._console.append_notice(
+                "[example] {count} settings loaded from {name}\n",
+                count=applied, name=name)
+            return applied
+        return 0
+
+    def screen_data_destination(self):
+        """The shared example plate folder the screen pieces unpack into."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def load_the_screen_data(self, *, kind=None, ask=None,
+                             choose=None) -> dict:
+        """Ask which pieces of the screen to fetch, then fetch them.
+
+        :param kind: ``"measurements"`` or ``"crops"``, so the Feature and
+            Image-crops buttons each show only their own. Filtered rather than
+            greyed: a Feature download listing eight rows and refusing four of
+            them would be four chances to start a 30 GB transfer by mistake.
+        :param choose: replaces the picker, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: what was set on the panel, or an empty mapping.
+        """
+        from ...screen_data import SCREEN_REPO
+
+        destination = self.screen_data_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        picker = choose
+        if picker is None:
+            from ..widgets.screen_data_picker import choose_screen_data as picker
+        chosen = picker(self, destination, kind) or []
+        if not chosen:
+            return {}
+
+        # The button that was pressed, so the other one does not look busy.
+        was = {"measurements": ("_screen_feature_button", "Feature"),
+               "crops": ("_screen_crops_button", "Image crops")}.get(
+                   kind, ("_screen_data_button", "Screen measurements\u2026"))
+        button = getattr(self, was[0], None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching\u2026"))
+
+        placed: dict = {}
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr(was[1]))
+            if result is None:
+                self._console.append_notice(
+                    "[screen] not downloaded: {detail}\n",
+                    detail=error or "cancelled")
+                return
+            self._console.append_stdout(
+                tr("Screen data ready: {path}", path=str(destination)) + "\n")
+            self.apply_settings_that_came_with(destination)
+            placed["src"] = str(destination)
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_chosen_screen_data as download
+        download(self, destination, [a.archive for a in chosen],
+                 SCREEN_REPO, _done)
+        return placed
+
+    def _install_example_images_button(self, section) -> None:
+        """Add the example-image control that populates ``src``."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download the approximately 400 MB toxo_mito example plate and "
+            "set its image directory as the source (src). Later requests "
+            "reuse the cached files. The download includes compatible "
+            "example settings."))
+        button.clicked.connect(lambda: self.load_the_example_images())
+        self._example_images_button = button
+        section.add_prose(button, at_top=True)
+
+    def _install_measure_example_button(self, section) -> None:
+        """Add the example-data control that populates Measure's ``src``."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download about 370 MB of example data for Measure: sixteen "
+            "fields across four wells, already segmented, so Measure can be "
+            "run without generating masks first. Cached afterwards, so "
+            "pressing it again is instant."))
+        button.clicked.connect(lambda: self.load_the_measure_example())
+        self._measure_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def measure_example_destination(self):
+        """The shared example plate folder.
+
+        The same one Mask and Annotate use: `merged/` and
+        `measurements/measurements.db` are two halves of one plate, and
+        downloading them into separate trees meant they could not be opened
+        together.
+        """
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def load_the_measure_example(self, *, ask=None) -> dict:
+        """Download Measure's example plate and point ``src`` at it.
+
+        :param ask: optional download function used in place of
+            :func:`spacr.qt.hf_download.download_measure_example`.
+        :returns: a mapping with the source directory, or empty when the
+            download failed or was cancelled.
+        """
+        destination = self.measure_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # `merged/` holding at least one array is the test. The folder itself
+        # is shared with the other example sets now, so its existence says
+        # nothing about whether THIS one has been fetched -- and a cancelled
+        # download leaves it behind too.
+        merged = destination / "merged"
+        if merged.is_dir() and any(merged.glob("*.npy")):
+            return self._put_the_measure_example_in_place(destination)
+
+        button = getattr(self, "_measure_example_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+
+        placed: dict = {}
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+            if result is None:
+                self._console.append_notice(
+                    "[example] the measure example data was not "
+                    "downloaded: {detail}\n", detail=error or "cancelled")
+                return
+            placed.update(self._put_the_measure_example_in_place(destination))
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_measure_example as download
+        download(self, destination, _done)
+        return placed
+
+    def keep_the_src_openable(self, destination) -> str:
+        """Take back a shipped ``src`` the panel cannot open. Return the value.
+
+        THE RULE, once, for every route that applies example settings.
+
+        A shipped settings file records the machine that GENERATED it, and
+        `reanchor_example_paths` re-homes what it can. What it cannot resolve
+        it deliberately leaves alone -- a template token, or a path whose
+        folder name matches nothing here -- and that value then reaches the
+        field verbatim -- which is how Mask Generation came to show the
+        literal token ``<src>`` after loading the example images.
+
+        A MORE SPECIFIC SHIPPED VALUE IS KEPT. Measure's example points `src`
+        at the plate's `merged/` subfolder, and
+        :meth:`reanchor_example_paths` records that collapsing that to the
+        plate root "would quietly measure the wrong directory rather than
+        fail". So this only ever replaces a value that is not a directory --
+        never one that merely differs from ``destination``.
+
+        `Path("")` IS THE WORKING DIRECTORY and its ``is_dir()`` is True, so
+        an empty cell has to be rejected before the filesystem is asked or the
+        run reads the cwd.
+
+        :param destination: the folder the example was unpacked into.
+        :returns: the value the field ends up holding.
+        """
+        from pathlib import Path
+
+        fallback = str(Path(destination))
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is None or not hasattr(control, "setText"):
+            return fallback
+        applied = str(control.text() if hasattr(control, "text") else "")
+        if applied.strip() and Path(applied).is_dir():
+            return applied
+        control.setText(fallback)
+        self._console.append_stdout(
+            tr("The example's recorded source does not exist here; "
+               "using {path}", path=fallback) + "\n")
+        return fallback
+
+    def _put_the_measure_example_in_place(self, destination) -> dict:
+        """Point ``src`` at the downloaded example and say so."""
+        from pathlib import Path
+
+        source = str(Path(destination))
+        # Through the WIDGET, the same way the mask example does it: the
+        # settings model has no setter, and writing a value the widget does
+        # not show would leave the panel disagreeing with the run.
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is not None and hasattr(control, "setText"):
+            control.setText(source)
+        self._console.append_stdout(
+            tr("Source directory (src): {path}", path=source) + "\n")
+        # AND THE SETTINGS THAT CAME WITH IT, so Run is the next action.
+        self.apply_settings_that_came_with(destination)
+
+        # THE SHIPPED `src` IS ALLOWED TO WIN HERE, UNLIKE THE IMAGES ROUTE,
+        # and only a BROKEN one is taken back.
+        #
+        # Measure's example records `src` as the `merged/` SUBFOLDER of the
+        # plate, which is more specific than the folder downloaded into and is
+        # the directory Measure must actually read --
+        # `reanchor_example_paths` says in its own docstring that collapsing
+        # it to the plate root "would quietly measure the wrong directory
+        # rather than fail". So this route deliberately does NOT re-assert the
+        # destination the way the images route does (instruction 349).
+        #
+        # What it does refuse is a value that is not a directory at all: a
+        # template token, or a publisher's path that could not be re-homed.
+        # That is the failure reported on 2026-09-02 for Mask, and nothing
+        # about it is specific to Mask -- it just showed up there first.
+        # Falling back to the folder we downloaded into is strictly better
+        # than a path that cannot be opened.
+        return {"src": self.keep_the_src_openable(destination)}
+
+    def _install_sequencing_example_button(self, section) -> None:
+        """Add Map Barcodes' control for the published reads."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download raw reads from the published screen (NCBI BioProject "
+            "PRJNA1261935, four sequenced plates). You choose which runs and "
+            "how many reads from each — the full set is about 20 GB, while a "
+            "hundred thousand reads from each file is about 30 MB."))
+        button.clicked.connect(lambda: self.load_the_sequencing_example())
+        self._sequencing_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def sequencing_example_destination(self):
+        """Where the FASTQ goes: a reads folder beside the other examples."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder().parent / "sequencing"
+
+    def load_the_sequencing_example(self, *, picker=None) -> dict:
+        """Fetch published reads and point ``src`` at the folder they land in.
+
+        :param picker: replaces the dialog, for tests.
+        :returns: ``{"src": folder}`` when something was downloaded, else {}.
+        """
+        destination = self.sequencing_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        if picker is None:
+            from ..widgets.sra_picker import SraPicker
+            picker = SraPicker(destination, self)
+        if hasattr(picker, "exec"):
+            picker.exec()
+        written = list(getattr(picker, "written", ()) or ())
+        if not written:
+            return {}
+
+        source = str(destination)
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is not None and hasattr(control, "setText"):
+            control.setText(source)
+        self._console.append_stdout(
+            tr("{count} read files ready: {path}",
+               count=len(written), path=source) + "\n")
+        return {"src": source, "files": written}
+
+    def _install_annotate_example_button(self, section) -> None:
+        """Add the example-data control for the Annotate/Classify set."""
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download about 280 MB of example data: 2,341 single-cell crops "
+            "with a measurements database, of which 88 are already labelled. "
+            "Settings are filled in with it, so the module can be run "
+            "straight away. Cached afterwards."))
+        button.clicked.connect(lambda: self.choose_the_test_data())
+        self._annotate_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def choose_the_test_data(self, *, chooser=None, ask=None) -> dict:
+        """Ask which half of the example plate to fetch, then fetch it.
+
+        The same two routes Annotate offers, through the same dialog: the
+        crops that are already cut, or the merged arrays they were cut from.
+        Classify can train from either, and they differ by 110 MB, so the
+        choice is worth describing before it is made rather than after.
+
+        :param chooser: replaces the dialog, for tests.
+        :param ask: replaces the downloader, for tests.
+        :returns: the settings that were applied, or an empty mapping.
+        """
+        from ..widgets.test_data_chooser import TestDataChooser
+
+        dialog = chooser if chooser is not None else TestDataChooser(self)
+        if hasattr(dialog, "exec"):
+            dialog.exec()
+        route = str(getattr(dialog, "chosen", "") or "")
+        if not route:
+            return {}
+        self._test_data_route = route
+        if route == "stream":
+            return self.load_the_measure_example(ask=ask)
+        return self.load_the_annotate_example(ask=ask)
+
+    def annotate_example_destination(self):
+        """The shared example plate folder, which is where `data/` belongs."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def load_the_annotate_example(self, *, ask=None) -> dict:
+        """Download the annotation example and fill this module's settings in.
+
+        :param ask: optional download function used in place of
+            :func:`spacr.qt.hf_download.download_annotate_example`.
+        :returns: the settings that were applied, or an empty mapping.
+        """
+        destination = self.annotate_example_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # THIS SET'S OWN PART IS THE TEST, not the folder. Every example now
+        # unpacks into one shared plate directory, so "the folder exists" is
+        # true as soon as any of them has been fetched -- and a cancelled
+        # download leaves the folder behind as well.
+        if (destination / "measurements" / "measurements.db").is_file():
+            return self._apply_the_example_settings(destination)
+
+        button = getattr(self, "_annotate_example_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+
+        applied: dict = {}
+
+        def _done(result, error):
+            """Restore the button whether the load worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+            if result is None:
+                self._console.append_notice(
+                    "[example] the annotation example was not downloaded: "
+                    "{detail}\n", detail=error or "cancelled")
+                return
+            applied.update(self._apply_the_example_settings(destination))
+
+        download = ask
+        if download is None:
+            from ..hf_download import download_annotate_example as download
+        download(self, destination, _done)
+        return applied
+
+    def _apply_the_example_settings(self, destination) -> dict:
+        """Load this module's example settings into the panel.
+
+        THE POINT OF SHIPPING SETTINGS WITH THE DATA. The dataset is useless
+        without knowing which column holds the labels, what size the crops are
+        and which classes exist; making the user find that out first is most of
+        the work the example was meant to save. The published file carries the
+        answers, and this puts them in the panel so Run is the next action.
+        """
+        from pathlib import Path
+
+        destination = Path(destination)
+        # Through the shared applier, so every module's example fills its own
+        # form the same way and there is one place that knows which file each
+        # module ships.
+        applied = self.apply_settings_that_came_with(destination)
+        if not applied:
+            self._console.append_notice(
+                "[example] no settings file for {app} in the example data\n",
+                app=self.app_key)
+        self._console.append_stdout(
+            tr("Example data ready: {path}", path=str(destination)) + "\n")
+        # THIS ROUTE NEVER WROTE `src` AT ALL, so the panel held whatever the
+        # shipped file said and the mapping below claimed the destination
+        # regardless -- a caller could believe `src` was the download folder
+        # while the form showed a path from another machine. Same guard,
+        # stated once.
+        return {"src": self.keep_the_src_openable(destination)}
+
+    def example_images_destination(self):
+        """The shared example plate folder. See `hf_download.example_plate_folder`."""
+        from ..hf_download import example_plate_folder
+
+        return example_plate_folder()
+
+    def load_the_example_images(self, *, ask=None) -> dict:
+        """Download the example plate and populate the ``src`` setting.
+
+        :param ask: Optional download function used in place of
+            :func:`spacr.qt.hf_download.download_toxo_mito_demo`.
+        :returns: A mapping containing the selected source directory and the
+            downloaded settings path. Returns an empty mapping if the
+            download fails or has not completed.
+        """
+        destination = self.example_images_destination()
+        destination.mkdir(parents=True, exist_ok=True)
+
+        # THE IMAGES THEMSELVES are the test. The destination is the plate
+        # directory now and is shared with the other example sets, so
+        # "the folder is not empty" is true as soon as any of them has been
+        # fetched -- it would have skipped the download and pointed `src` at a
+        # folder with no images in it.
+        plate = destination
+        if plate.is_dir() and any(plate.glob("*.tif")):
+            return self._put_the_example_images_in_place(plate, None)
+
+        button = getattr(self, "_example_images_button", None)
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+
+        placed = {}
+
+        def done(result, error):
+            """Re-enable the button whether the download worked or failed."""
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+            if result is None:
+                self._console.append_stdout(
+                    tr(
+                        "The example images could not be downloaded: "
+                        "{error}",
+                        error=error or tr("unknown error"),
+                    ) + "\n"
+                )
+                return
+            placed.update(self._put_the_example_images_in_place(
+                result.dataset_path, result.settings_path))
+
+        if ask is None:
+            from ..hf_download import _MaskTarWorker, download_toxo_mito_demo
+
+            # THE TAR, asked for here rather than made the shared default.
+            # `download_toxo_mito_demo` is driven by tests that patch the
+            # per-file worker's own helpers to prove the offline failure path
+            # stays on the GUI thread; changing what they get sent them to the
+            # network for real and aborted the process. A shared entry point's
+            # default is part of its contract with everything already calling
+            # it, so the new behaviour is requested rather than imposed.
+            def ask(parent, dest, on_done):
+                """Start the demo download with the tar-aware worker."""
+                download_toxo_mito_demo(parent, dest, on_done,
+                                        worker_factory=_MaskTarWorker)
+        ask(self, str(destination), done)
+        return placed
+
+    def _put_the_example_images_in_place(self, images, settings) -> dict:
+        """Write the fetched folder into `src` and say so."""
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        self._console.append_stdout(
+            tr("Source directory (src): {path}", path=str(images)) + "\n"
+        )
+        if settings is not None:
+            self._console.append_stdout(
+                tr(
+                    "Compatible example settings: {path}",
+                    path=str(settings),
+                ) + "\n"
+            )
+        # NAMING THE FILE WAS NEVER ENOUGH. It said where compatible settings
+        # were and left the user to import them, which is the work the example
+        # exists to save -- so they are applied.
+        self.apply_settings_that_came_with(images)
+
+        # `src` IS WRITTEN LAST, AND THAT ORDER IS THE FIX.
+        #
+        # Reported 2026-09-02: "loade test images dosnt loade the right path
+        # into src in mask generation it loads <src>". It was written FIRST
+        # and then overwritten -- `apply_settings_that_came_with` loads the
+        # shipped CSV and applies every key in it, `src` included, so whatever
+        # the publisher recorded won. `reanchor_example_paths` re-homes a
+        # recorded ABSOLUTE path onto this folder, but a value it cannot
+        # resolve -- a template token, or a path whose folder name does not
+        # match -- is deliberately left alone by every branch of it, and then
+        # lands in the field verbatim.
+        #
+        # THE FOLDER WE JUST UNPACKED INTO IS GROUND TRUTH, and it is known
+        # to exist. It beats anything the file can say about a machine that is
+        # not this one.
+        #
+        # ONLY ON THIS ROUTE. Measure's shipped `src` points at a SUBFOLDER
+        # (`merged/`) and collapsing that to the plate root would quietly
+        # measure the wrong directory -- `reanchor_example_paths` says so in
+        # its own docstring. This method is the example-IMAGES route only,
+        # where `src` is the plate folder by construction.
+        if control is not None and hasattr(control, "setText"):
+            control.setText(str(images))
+        return {"src": str(images),
+                "settings": str(settings) if settings else ""}
+
+    def load_the_example_screen(self, *, download: bool = True,
+                               kind=None) -> dict:
+        """Fetch the example screen and fill `count_data` and `score_data`.
+
+        :param download: If ``True``, download files that are not already in
+            the local cache.
+        :returns: A mapping of populated setting names to their file paths.
+        """
+        from ...example_data import ExampleDataError, fetch, missing
+
+        # THE BUTTON THAT WAS PRESSED, so a counts fetch does not disable
+        # and relabel the "load everything" button while leaving its own
+        # looking idle.
+        button = getattr(self, f"_example_{kind}_button", None) if kind else None
+        if button is None:
+            button = getattr(self, "_example_data_button", None)
+        absent = missing(kind=kind)
+        if absent and button is not None:
+            button.setEnabled(False)
+            # The count is substituted AFTER the lookup, so the catalog
+            # holds a sentence rather than one sentence per possible count.
+            button.setText(tr("Fetching {count} file(s)\u2026",
+                              count=len(absent)))
+        try:
+            got = fetch(download=download, kind=kind,
+                        progress=self._say_the_download_is_moving)
+        except ExampleDataError as error:
+            self._console.append_stdout(f"{error}\n")
+            return {}
+        finally:
+            if button is not None:
+                button.setEnabled(True)
+                # Restored through `tr`: the language pass rendered this
+                # caption once, and putting the English source back would
+                # both show the wrong word and opt the button out of every
+                # later pass.
+                button.setText(tr("Load test data…"))
+
+        # `paired_data`, NOT `count_data`/`score_data`. The regression panel
+        # holds ONE ROW PER PLATE -- its score CSV beside its count CSV --
+        # and the two flat lists are the legacy shape that
+        # `_migrate_paired_data` converts. Filling the flat keys put the
+        # paths somewhere the panel does not show: measured, `collect()` came
+        # back with neither key on it.
+        #
+        # `add_paths_for_side` is the widget's own door and it RE-PROPOSES
+        # the whole table from filename tokens on every arrival, so
+        # plate_1_unique_combinations.csv pairs itself with plate1_dv.csv
+        # whichever side arrives first.
+        table = self._settings_model._widgets.get("paired_data")
+        added = 0
+        if table is not None and hasattr(table, "add_paths_for_side"):
+            added += int(table.add_paths_for_side(list(got.scores), "score"))
+            added += int(table.add_paths_for_side(list(got.counts), "count"))
+        else:                                                # pragma: no cover
+            added = self.apply_settings_dict(
+                {"count_data": list(got.counts),
+                 "score_data": list(got.scores)})
+        self._console.append_stdout(
+            f"{got.note()} Paired {len(got.scores)} score table(s) with "
+            f"{len(got.counts)} count table(s) in Input Tables.\n")
+        return {"counts": got.counts, "scores": got.scores,
+                "applied": added, "folder": got.folder}
+
+    def _say_the_download_is_moving(self, name, seen, total) -> None:
+        """Progress on the button itself, which is where the user is looking."""
+        button = getattr(self, "_example_data_button", None)
+        if button is None or not total:
+            return
+        button.setText(f"{name} — {100 * seen // max(total, 1)}%")
+        from PySide6.QtWidgets import QApplication
+
+        QApplication.processEvents()
+
     def refresh_maturity_visibility(self) -> None:
-        """Show/hide Alpha and Beta settings without discarding typed values."""
+        """Show/hide Alpha and Beta settings without discarding typed values.
+
+        ALSO THE ONE PLACE A SECTION'S VISIBILITY IS DECIDED. Maturity is not
+        the only reason a category is not on the form -- a category every one
+        of whose settings needs a z axis is not on a flat plate's form
+        either -- and two functions each calling ``setVisible`` on the same
+        card is how a card comes back the next time Preferences is saved.
+        So the dimension switches are answered here as well, and the settings
+        search hands visibility back to this method for the same reason.
+
+        The notice below still speaks only for maturity: a category the 3D
+        switch is holding back is not "hidden by Preferences", and saying so
+        would send the user to a dialog that cannot bring it back.
+        """
         from ..preferences import maturity_is_visible
 
         hidden_stages = set()
-        for section in getattr(self, "_settings_sections", []):
+        gated = self._dimension_hidden_sections()
+        for section in self.rendered_settings_sections():
             visible = maturity_is_visible(section.maturity())
-            section.setVisible(visible)
+            section.setVisible(visible and id(section) not in gated)
             if not visible:
                 hidden_stages.add(section.maturity())
+        self._apply_dimension_visibility()
 
         notice = getattr(self, "_maturity_notice", None)
         if notice is None:
             return
         if hidden_stages:
-            labels = " and ".join(stage.title()
-                                  for stage in ("alpha", "beta")
-                                  if stage in hidden_stages)
-            notice.setText(
-                f"{labels} settings are hidden by Preferences. "
-                "Enable them in Preferences → Feature maturity."
-            )
+            # COMPOSED FROM TRANSLATED PARTS, not translated after being
+            # composed. The finished sentence names one stage or two, so it
+            # is a phrase no catalog can hold; the stage names and the
+            # sentence around them are looked up separately and joined.
+            stages = [stage for stage in ("alpha", "beta")
+                      if stage in hidden_stages]
+            labels = (tr("Alpha and Beta") if len(stages) > 1
+                      else tr(stages[0].title()))
+            notice.setText(tr(
+                "{stages} settings are hidden by Preferences. Enable them "
+                "in Preferences \u2192 Feature maturity.", stages=labels))
             notice.show()
         else:
             notice.hide()
+
+    # ------------------------------------------------------------------
+    # 3D and Time
+    # ------------------------------------------------------------------
+    def _install_dimension_switches(self, row, toggle_cls) -> dict:
+        """Put the 3D and Time switches in the action row, left of Live.
+
+        A switch is built only where it has something to reveal: the screen
+        is one of :data:`DIMENSION_TOGGLE_APPS` and its form actually renders
+        at least one setting of that dimension. A toggle whose press changes
+        nothing on screen is worse than no toggle, and the check is asked of
+        the built form rather than of a list, so the day Measure stops
+        offering voxel geometry its 3D switch stops being drawn.
+
+        :param row: the action row's layout.
+        :param toggle_cls: :class:`spacr.qt.widgets.AiToggleLabel`, passed in
+            because the caller has already imported it.
+        :returns: ``dimension -> toggle`` for the switches that were built.
+        """
+        self._dimension_switches = {}
+        if str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            return self._dimension_switches
+        # `_dimension_rows` yields only rows that HAVE a dimension, so every
+        # answer here is one of the two and none is blank.
+        offered = {setting_dimension(key)
+                   for _section, key, _field in self._dimension_rows()}
+        for dimension, label, tooltip in DIMENSION_TOGGLES:
+            if dimension not in offered:
+                continue
+            switch = toggle_cls(text=label, tooltip=tooltip)
+            # See DIMENSION_TOGGLE_MIN_PX: unaided, these two take 177 px off
+            # the settings column at every window narrower than about 1500.
+            switch.setMinimumWidth(DIMENSION_TOGGLE_MIN_PX)
+            switch.setChecked(bool(self._dimension_on.get(dimension)))
+            switch.toggled.connect(partial(self._on_dimension_switch,
+                                           dimension))
+            row.addWidget(switch)
+            self._dimension_switches[dimension] = switch
+        if self._dimension_switches:
+            # THE FORM IS GATED ONLY ONCE THERE IS SOMETHING TO UNGATE IT.
+            # The settings panel is built before this row, and its first
+            # `refresh_maturity_visibility` therefore ran while no switch
+            # existed -- so nothing was hidden then, on purpose. This is
+            # the pass that hides it, now that a user can bring it back.
+            self.refresh_maturity_visibility()
+        return self._dimension_switches
+
+    def _dimension_is_gated(self, dimension: str) -> bool:
+        """Whether ``dimension``'s settings are being held back right now.
+
+        A dimension is held back only by a switch that EXISTS and is off.
+        Nothing is ever hidden on a screen with no switch to show it again:
+        the Timelapse module's own screen renders the same z and t settings
+        Mask does, and without this its acquisition categories would go
+        with nothing on the page able to bring them back.
+        """
+        return bool(self.dimension_switch(dimension) is not None
+                    and not self.dimension_is_on(dimension))
+
+    def dimension_switch(self, dimension: str):
+        """The 3D or Time toggle, or None on a screen that carries neither."""
+        return (getattr(self, "_dimension_switches", None) or {}).get(
+            str(dimension))
+
+    def dimension_is_on(self, dimension: str) -> bool:
+        """Whether this screen is showing ``dimension``'s settings now."""
+        return bool((getattr(self, "_dimension_on", None) or {}).get(
+            str(dimension)))
+
+    def set_dimension(self, dimension: str, on: bool) -> None:
+        """Switch a dimension's settings on or off.
+
+        Driven through the toggle where there is one, so the switch never
+        shows a state the form does not have; a screen built without the
+        action row still moves, which is what lets the settings panel be
+        gated before the row that gates it exists.
+        """
+        dimension = str(dimension)
+        if dimension not in (getattr(self, "_dimension_on", None) or {}):
+            return
+        switch = self.dimension_switch(dimension)
+        if switch is not None:
+            # Comes back through `_on_dimension_switch`, so a programmatic
+            # move takes the path a click takes.
+            switch.setChecked(bool(on))
+            return
+        self._on_dimension_switch(dimension, on)
+
+    def _on_dimension_switch(self, dimension: str, on: bool) -> None:
+        """Record the new state and re-decide what the form shows."""
+        self._dimension_on[str(dimension)] = bool(on)
+        self.refresh_maturity_visibility()
+
+    def _dimension_rows(self) -> list:
+        """``[(section, key, field), …]`` for each dimensional form row.
+
+        Built from the model's ``key -> widget`` map and the sections the
+        screen kept, the way the settings search builds its own index: the
+        screen has already decided which key went where, and a second
+        opinion here would be a second thing to keep in sync.
+
+        Only the rows that HAVE a dimension are returned -- the answer is a
+        few dozen rows out of several hundred, and every caller wants that
+        subset.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", None) or {}
+        if not widgets or str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            # Every other screen keeps the form it always had. The walk is
+            # skipped rather than run and discarded: this is called from
+            # `refresh_maturity_visibility`, which every module runs while
+            # it is being built.
+            return []
+        by_widget = {id(widget): key for key, widget in widgets.items()}
+        found = []
+        for section in getattr(self, "_settings_sections", []) or []:
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            for index in range(form.rowCount()):
+                item = form.itemAt(index, QFormLayout.FieldRole)
+                field = item.widget() if item is not None else None
+                key = by_widget.get(id(field)) if field is not None else None
+                if key and setting_dimension(key):
+                    found.append((section, key, field))
+        return found
+
+    def _dimension_hidden_sections(self) -> set:
+        """``id()`` of every category the switches are holding back.
+
+        A category is held back only when EVERY row it has is dimensional
+        and every one of those dimensions is off -- the Volumetric
+        Processing card, which is nothing but z settings. A category that
+        merely contains a few of them, as Measure's Mask & Channel Mapping
+        contains ``timelapse``, keeps its card and loses those rows; hiding
+        the whole card would take the channel mapping with it.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        by_section: dict = {}
+        for section, key, _field in self._dimension_rows():
+            by_section.setdefault(id(section), [section, []])[1].append(key)
+        hidden = set()
+        for marker, (section, keys) in by_section.items():
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            if form.rowCount() != len(keys):
+                continue
+            if all(self._dimension_is_gated(setting_dimension(key))
+                   for key in keys):
+                hidden.add(marker)
+        return hidden
+
+    def _apply_dimension_visibility(self) -> None:
+        """Show or hide each dimensional ROW to match the switches.
+
+        Rows rather than whole cards, because the dimensional settings are
+        not all in dimensional cards: Measure keeps ``timelapse`` and
+        ``timelapse_objects`` beside the channel mapping, where they belong
+        for every other purpose.
+
+        Hidden through ``QFormLayout.setRowVisible``, which is what reaches
+        the label as well as the field -- a section builds the label side
+        into a wrapper it does not hand back, so hiding the field alone
+        leaves the caption stranded on an empty row. The two helpers come
+        from the settings search, which hides rows for its own reason: one
+        implementation, so a row hidden by a filter and a row hidden by a
+        dimension are hidden the same way.
+
+        Never touches a row that has no dimension, so anything else that
+        decides a row's visibility keeps its own answers.
+        """
+        try:
+            from ..settings_search import _set_row_visible
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no row-visibility helper; leaving the form alone",
+                      exc_info=True)
+            return
+        for section, key, field in self._dimension_rows():
+            _set_row_visible(
+                section, field,
+                not self._dimension_is_gated(setting_dimension(key)))
+
+    def setting_row_is_visible(self, key: str) -> bool:
+        """Whether ``key``'s row is currently on the form.
+
+        The read-back the switches are checked against: "visible" for a
+        setting is the state of its ROW, not of its widget, because the
+        widget of a hidden row is still there holding the value it had.
+        False for a key this screen does not render at all.
+
+        ASKED OF THE FORM, NOT OF THE SCREEN. ``isVisible`` is false for
+        everything on a page that has not been shown yet, which would make
+        this answer "hidden" for the entire settings panel of a module the
+        user has not opened. ``isHidden`` and ``QFormLayout.isRowVisible``
+        answer what was hidden ON PURPOSE, which is the question.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        model = getattr(self, "_settings_model", None)
+        field = (getattr(model, "_widgets", None) or {}).get(str(key))
+        if field is None:
+            return False
+        for section in getattr(self, "_settings_sections", []) or []:
+            form = getattr(section, "_form", None)
+            if not isinstance(form, QFormLayout):
+                continue
+            for index in range(form.rowCount()):
+                item = form.itemAt(index, QFormLayout.FieldRole)
+                if item is not None and item.widget() is field:
+                    from ..settings_search import _row_is_visible
+                    return bool(not section.isHidden()
+                                and _row_is_visible(section, field))
+        return False
+
+    def _sync_dimension_switches(self, settings: dict) -> tuple:
+        """Move the 3D and Time switches to match settings just applied.
+
+        A settings file that turns ``z_stack`` on is a file about a
+        volumetric run, and applying it with the 3D switch off would fill in
+        every voxel size and then hide all of them -- the import would read
+        as having done nothing. See :data:`DIMENSION_GATE_KEYS` for why
+        these particular keys are the announcement.
+
+        A file that says nothing about a dimension leaves that switch where
+        the user put it: absence is not a request to hide anything.
+
+        :param settings: the dict that was just applied.
+        :returns: the dimensions the settings switched on.
+        """
+        turned_on = []
+        for dimension, gate_keys in DIMENSION_GATE_KEYS.items():
+            if dimension not in (getattr(self, "_dimension_on", None) or {}):
+                continue
+            named = [key for key in gate_keys if key in settings]
+            if not named:
+                continue
+            wanted = any(self._truthy(settings.get(key)) for key in named)
+            self.set_dimension(dimension, wanted)
+            if wanted:
+                turned_on.append(dimension)
+        return tuple(turned_on)
 
     def _attach_column_picker(self, key, widget) -> None:
         """Give a column-name field its "SQL" button; a no-op for anything else.
@@ -1321,6 +5411,37 @@ class AppScreen(QWidget):
         :param widget: the input widget already installed in its Section.
         """
         if key not in COLUMN_TABLES:
+            return
+        # NOT BOTH BUTTONS. A field that already carries a CSV column picker
+        # has answered this question from the right file, and the SQL button
+        # beside it would answer it from the wrong one.
+        #
+        # Asked for on 2026-08-17: "for the filter column there is an SQL
+        # buton this should be a csv buton that can read the input csvs". In
+        # the regression module `filter_column` names a column of the INPUT
+        # CSVs; the SQL picker opens the run's measurements.db, which a
+        # regression run need not even have. Two buttons on one row, offering
+        # two different column lists for one setting, is worse than either
+        # alone -- and the SQL one could no longer write into the field once
+        # the CSV field wrapped it, so it was a control that did nothing.
+        #
+        # Detected from the WIDGET rather than from a second per-module table:
+        # whoever gave the field a CSV picker has already decided which file
+        # the setting reads, and a table here would be a second place for that
+        # decision to be made differently.
+        from .settings_model import _CsvColumnField
+
+        if isinstance(widget, _CsvColumnField):
+            return
+        # A COMPOSITE PUTS ITS OWN BUTTON. The Classes editor's column combo
+        # is several widgets down; wrapping the composite would place the
+        # button beside the whole table rather than beside the field it
+        # fills, and could not write into it either.
+        from ..widgets.class_editor import ClassEditorWidget
+
+        if isinstance(widget, ClassEditorWidget):
+            widget.attach_sql_picker(self._settings_src_path,
+                                     COLUMN_TABLES[key] or "png_list")
             return
         from ..widgets.column_picker import attach_column_picker
         attach_column_picker(widget, self._settings_src_path,
@@ -1375,15 +5496,30 @@ class AppScreen(QWidget):
         # If src already points at a real path, don't show the banner.
         # `path`, `""` and None are all placeholders the settings dicts
         # use as "no src set yet".
-        existing = ""
-        if isinstance(src_widget, QLineEdit):
-            existing = (src_widget.text() or "").strip()
+        #
+        # ASKED OF `_settings_src_path`, NOT of `isinstance(src, QLineEdit)`.
+        # Instruction 109 gave the merging modules a `DatabaseSetWidget` for
+        # `src`, and this test read a text box that no longer existed there:
+        # `existing` stayed "" whatever was loaded, so Image UMAP showed
+        # "Point image umap at some data" over three loaded databases.
+        # `_settings_src_path` already knows how to read both shapes, and
+        # asking it is what keeps the next control that replaces a QLineEdit
+        # from reintroducing this.
+        existing = self._settings_src_path()
         placeholders = {"", "path", "/path/to/src", "/path"}
         if existing and existing not in placeholders:
             return None
 
-        # Human-friendly title varies per app; the body is the same.
-        title = f"Point {APP_TITLES.get(self.app_key, self.app_key).lower()} at some data"
+        # Human-friendly title varies per app; the body is the same. THE
+        # MODULE NAME IS A VALUE, NOT PART OF THE KEY: baking it into the
+        # sentence first asks the catalog for "Point measure at some data"
+        # and every other module's variant of it, none of which any catalog
+        # can hold. The sentence is looked up as a template and the name --
+        # itself translated -- put in afterwards.
+        title = tr(
+            "Point {module} at some data",
+            module=tr(APP_TITLES.get(self.app_key, self.app_key)).lower(),
+        )
         # ...and so does the demo. This named "Demos → Mask demo…" on
         # every screen, so Measure, Timelapse, Classify and Sequencing all
         # offered a dataset that opens a DIFFERENT module: following the
@@ -1396,22 +5532,62 @@ class AppScreen(QWidget):
             demo = demo_label_for_app(self.app_key)
         except Exception:
             demo = None
-        offer = (f"use Demos → {demo} for a synthetic dataset"
-                 if demo else "pick a dataset from the Demos menu")
-        subtitle = (
-            f"Drop a folder of images anywhere on this window, or {offer}. "
-            "You can also type a path into the src field below."
+        # Same reason as the title above: the clause and the sentence are
+        # each looked up on their own, so the demo's name is the only part
+        # that is interpolated and the catalog is never asked for a key that
+        # contains it.
+        offer = (
+            tr("use Demos → {demo} for a synthetic dataset", demo=tr(demo))
+            if demo else tr("pick a dataset from the Demos menu")
+        )
+        subtitle = tr(
+            "Drop a folder of images anywhere on this window, or {offer}. "
+            "You can also type a path into the Source field below.",
+            offer=offer,
         )
         card = EmptyState(
             title=title, subtitle=subtitle,
-            cta_label="Open Demos menu",
-            on_action=lambda: self._open_demos_menu(),
+            # THE BUTTON DOES THE THING THE CARD IS ABOUT. It opened the
+            # Demos menu, which is one way to get data and not the way most
+            # people arrive: somebody who already has images wanted the card
+            # to take them to their images, and instead it offered them a
+            # synthetic dataset. The demo is still offered -- in the sentence
+            # above, which names the one that lands on THIS screen -- and the
+            # button now sets the source folder.
+            cta_label="Choose source data",
+            on_action=lambda: self.choose_source_folder(),
         )
-        # Auto-hide once the user sets src
+        # Auto-hide once the user sets src -- through whichever signal the
+        # control has. A set of databases has no `textChanged`, so without
+        # this arm the card stayed on screen for the whole session however
+        # many plates were added.
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
+        else:
+            changed = getattr(src_widget, "value_changed", None)
+            if changed is not None and hasattr(changed, "connect"):
+                # A BOUND METHOD, not a closure over `src_widget` (INVARIANTS
+                # 4), and it re-reads the control rather than being told: the
+                # signal carries no payload and the answer is "does src hold
+                # anything", which only the control knows.
+                changed.connect(self._refresh_empty_state)
         card.setObjectName(EMPTY_STATE_NAME)
         return card
+
+    def _refresh_empty_state(self) -> None:
+        """Show or hide the card from what ``src`` holds right now.
+
+        Both directions, unlike :meth:`_maybe_hide_empty_state`, because a
+        set can be emptied: removing the last database returns the screen to
+        exactly the state the card describes, and leaving it hidden would
+        leave a user with no data and nothing telling them how to get some.
+        """
+        card = getattr(self, "_empty_state_card", None)
+        if card is None:
+            return
+        existing = self._settings_src_path()
+        placeholders = {"", "path", "/path/to/src", "/path"}
+        card.setVisible(not existing or existing in placeholders)
 
     def _wire_live_preview_autoload(self) -> None:
         """Feed the first tile under ``src`` into the live-preview panel.
@@ -1440,6 +5616,12 @@ class AppScreen(QWidget):
         src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
 
     def _maybe_hide_empty_state(self, text: str) -> None:
+        """Hide the empty-state card once the source field names something real.
+
+        :param text: the field's current text. The placeholders it ships with
+            do not count as a source -- hiding the card for ``/path/to/src``
+            would take the instruction away while nothing had been chosen.
+        """
         card = getattr(self, "_empty_state_card", None)
         if card is None:
             return
@@ -1463,7 +5645,41 @@ class AppScreen(QWidget):
             return
         panel.load_source_async(s)
 
+    def choose_source_folder(self) -> str:
+        """Ask for the run's source folder and put it in the src field.
+
+        :returns: the folder chosen, or ``""`` if the dialog was cancelled
+            or the screen has no src field to write to.
+        """
+        from PySide6.QtWidgets import QFileDialog, QLineEdit
+
+        widgets = getattr(self._settings_model, "_widgets", None) or {}
+        if "src" not in widgets:
+            return ""
+        chosen = QFileDialog.getExistingDirectory(
+            self, tr("Choose source data"), self._settings_src_path() or "")
+        if not chosen:
+            return ""
+        # THROUGH THE MODEL, not by poking the widget. `src` is a plain line
+        # edit on most screens and a list of plates on Classify, and the
+        # model is what knows the difference -- writing text into the second
+        # one would put a folder where a set of databases goes.
+        setter = getattr(self._settings_model, "set_value_for_key", None)
+        if callable(setter):
+            setter("src", chosen)
+        else:                                                # pragma: no cover
+            widget = widgets.get("src")
+            if isinstance(widget, QLineEdit):
+                widget.setText(chosen)
+        self._refresh_empty_state()
+        return chosen
+
     def _open_demos_menu(self) -> None:
+        """Drop the window's Demos menu down at the top-left of the window.
+
+        Guarded throughout: a screen built without a menu bar -- a test, or a
+        panel used on its own -- simply does nothing.
+        """
         try:
             mw = self.window()
             if mw is None:
@@ -1480,19 +5696,50 @@ class AppScreen(QWidget):
 
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave."""
-        from PySide6.QtCore import QEvent
+        # THE EVENT TYPE IS THE FIRST QUESTION, and it used to be the third.
+        # This filter is installed on every settings LABEL -- 1,538 of them on
+        # the Mask screen -- so it is handed every event those labels receive
+        # while the panel is assembling itself: polish, style change, palette
+        # change, show. Measured on a Mask build, 14,472 calls before the
+        # pointer has moved at all, each paying for two module lookups and a
+        # `QObject.property` round trip to answer a question about hovering.
+        # Nothing below this line is reachable for any other event type, so
+        # asking first is free and costs those 14,472 calls a single integer
+        # comparison instead.
+        event_type = event.type()
+        if event_type == QEvent.ToolTip:
+            # SWALLOW THE NATIVE ONE, before the fast path below sends it on.
+            # Removing the sticky popup would otherwise just hand the job to
+            # Qt's own tooltip, which appears a moment later over the same
+            # form -- the box the maintainer asked not to see. Returning True
+            # is what stops it being drawn.
+            #
+            # `toolTip()` is left SET on the widget: that property is what the
+            # accessibility tree reads, so suppressing the DRAWING costs no
+            # assistive text. The same trade `module_hints` makes for the
+            # sidebar, and the reason this is a suppression rather than a
+            # deletion.
+            #
+            # A ToolTip event arrives only after Qt's hover delay, so this
+            # costs the hot path nothing: the 14,472 assembly-time events
+            # counted below are polish and style changes, never this.
+            if hasattr(self, "_hint_strip") and (
+                    obj in self._hint_map or obj.property("settingKey")):
+                return True
+        if event_type not in (QEvent.Enter, QEvent.Leave):
+            return super().eventFilter(obj, event)
         from ..widgets.hover_tooltip import HoverTooltip
         # A settings CATEGORY header writes its own strip and nothing else:
         # it has no setting key, so falling through would blank the
         # per-setting strip every time the pointer crossed a header.
         category = obj.property("settingsCategory")
         if category:
-            if event.type() == QEvent.Enter:
+            if event_type == QEvent.Enter:
                 self.show_category_hint(str(category))
-            elif event.type() == QEvent.Leave:
+            else:
                 self.clear_category_hint()
             return super().eventFilter(obj, event)
-        if event.type() == QEvent.Enter:
+        if event_type == QEvent.Enter:
             key = obj.property("settingKey")
             if key:
                 from .settings_model import refresh_api_tooltips
@@ -1504,20 +5751,142 @@ class AppScreen(QWidget):
             else:
                 hint = self._hint_map.get(obj)
                 html = self._html_tip_map.get(obj)
-            if hint and hasattr(self, "_hint_strip"):
-                self._hint_strip.setText(hint)
-            if html:
+            # THE TWO SURFACES ARE NOW SWITCHES, instruction 371. Before
+            # this the strip always won and the popup appeared only where
+            # there was no strip -- the 2026-09-01 request, "i dont need the
+            # popup box if the tooltip is shown on the bottom of the window".
+            # 371 asks for both to be choosable, so that preference stops
+            # being wired in and becomes a cleared checkbox: `Tooltips box`
+            # off reproduces it exactly.
+            from ..preferences import (get_tooltips_bottom_enabled,
+                                       get_tooltips_box_enabled)
+            want_bottom = get_tooltips_bottom_enabled()
+            want_box = get_tooltips_box_enabled()
+            shown_at_the_bottom = False
+            if hint and want_bottom and hasattr(self, "_hint_strip"):
+                link = ""
+                if key:
+                    try:
+                        from .settings_model import api_docs_url
+                        link = api_docs_url(self.app_key, str(key))
+                    except Exception:                        # noqa: BLE001
+                        link = ""
+                # REMEMBERED SO THE LINK HAS SOMETHING TO ACT ON. The strip
+                # outlives the hover by ten seconds (371 part 3), so by the
+                # time an Animation press arrives the pointer is long gone
+                # from the widget the animation belongs to.
+                self._hinted_widget = obj
+                self._hinted_html = html
+                self._write_hint(hint, link, hold=True,
+                                 animated=_setting_has_an_animation(key))
+                shown_at_the_bottom = True
+            # ONE PLACE, NOT TWO. Asked for on 2026-09-01: "i dont need the
+            # popup box if the tooltip is shown on the bottom of the window".
+            # The strip and the popup carried the same sentence, so the popup
+            # was a second copy drawn over the form the user was reading -- the
+            # same objection that moved the module blurbs to the bottom.
+            #
+            # The popup still appears where there is no strip to write to,
+            # so a screen without one does not silently lose its help -- and
+            # that fallback survives BOTH switches being cleared, because
+            # "no tooltips" is a choice about the two surfaces and not a
+            # request to make a screen that has neither say nothing at all.
+            if html and (want_box or not shown_at_the_bottom):
                 HoverTooltip.instance().show_for(obj, html)
-        elif event.type() == QEvent.Leave:
-            if hasattr(self, "_hint_strip"):
-                self._hint_strip.setText(self._default_hint())
+        else:
+            # THE STRIP IS NOT CLEARED ON LEAVE, and that is the whole point
+            # of instruction 371's third part: "for the user to be able to
+            # press the botom tooltip API link ... the last setting the mouse
+            # hovered over should be shown, not only when the mouse hovers
+            # the setting. this way the user can hover then move the mouse to
+            # the link and click it, which is otherwise not possible."
+            #
+            # Blanking here made the link unreachable by construction: it
+            # appeared only while the pointer was on the setting, and moving
+            # toward it removed it. The hold started in `_write_hint` clears
+            # the strip instead, ten seconds later or when another setting is
+            # hovered.
             HoverTooltip.instance().start_hide()
         return super().eventFilter(obj, event)
 
+    def show_module_hint(self, key: str, summary: str = "") -> bool:
+        """Explain a MODULE in this screen's strip, for a dock hover.
+
+        The window routes a dock hover to whichever page is in front (see
+        `MainWindow._show_module_hint`), so on a module screen it arrives
+        here. The strip is the same one the per-setting help writes to --
+        deliberately, because it is the bottom of the window either way and a
+        second strip stacked under it would be two places to look.
+
+        THE HOLD IS THE MODULE ONE, not the setting one: thirty seconds
+        rather than ten, because these links leave the application. A hovered
+        SETTING overwrites this the moment the pointer reaches the form, and
+        that is the right precedence -- the reader has moved on.
+
+        :param key: the module to explain.
+        :param summary: the sentence, already resolved and translated by
+            `MainWindow._show_module_hint`. It has to arrive from there:
+            `module_summary` falls back to the registry's English
+            description, and a screen has no registry to look one up in.
+        :returns: whether anything was written.
+        """
+        key = str(key or "")
+        strip = getattr(self, "_hint_strip", None)
+        summary = str(summary or "").strip()
+        if not key or strip is None or not summary:
+            return False
+        try:
+            from ..tutorials import tutorial_url
+            from .settings_model import api_docs_url
+        except Exception:                                        # noqa: BLE001
+            return False
+        from html import escape as _escape
+
+        from ..i18n import tr as _tr
+        words = []
+        api = api_docs_url(key)
+        if api:
+            words.append(f'<a href="{_escape(api, quote=True)}">'
+                         f'{_escape(_tr("API"))}</a>')
+        lesson = tutorial_url(key)
+        if lesson:
+            words.append(f'<a href="{_escape(lesson, quote=True)}">'
+                         f'{_escape(_tr("Tutorial"))}</a>')
+        lines = HINT_STRIP_LINES - (1 if words else 0)
+        fitted = _fit_to_lines(summary, strip, max(1, lines))
+        strip.setText(
+            f"{_escape(fitted)}<br>{'&nbsp;&nbsp;'.join(words)}" if words
+            else _escape(fitted))
+        strip.setToolTip(summary)
+        self._hold_the_hint(True, self.MODULE_HINT_HOLD_MS)
+        return True
+
+    #: How long a MODULE stays in the strip, in milliseconds. Thirty seconds -- three times the per-setting hold
+    #: because the API and Tutorial words open a browser, which is a larger
+    #: decision than reaching for an animation.
+    MODULE_HINT_HOLD_MS = 30_000
+
     def _default_hint(self) -> str:
-        return "Hover any setting for details, or select ⓘ for documentation."
+        """The prompt the per-setting strip falls back to, in the UI language.
+
+        Translated HERE rather than left to the language pass, because a
+        pointer leaving a setting writes this back over whatever the pass
+        rendered: the strip was Swedish until the first hover and English
+        from then on.
+        """
+        # NO LONGER NAMES THE DOT. The information dots were removed
+        # (instruction 258, "i like simplisity!"), so half of this sentence
+        # pointed at a control that is not drawn any more -- in ten
+        # languages. The API link did not go anywhere: it is in the hover
+        # tooltip, which is what the sentence now says.
+        return tr("Hover any setting for details and a link to its "
+                  "documentation.")
 
     def _build_runtime_panel(self) -> QWidget:
+        """Build the right-hand column: figures, live preview, console and actions.
+
+        :returns: the panel widget, ready to go into the body splitter.
+        """
         wrap = QWidget()
         self._runtime_wrap = wrap
         layout = QVBoxLayout(wrap)
@@ -1535,7 +5904,438 @@ class AppScreen(QWidget):
         from ..widgets.figure_queue import FigureQueue
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
-        self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+
+        # THE REGRESSION MODULE OPENS INTO ITS RESULTS, NOT INTO PICTURES.
+        #
+        # A finished regression used to be a stack of matplotlib figures whose
+        # last one -- the volcano -- cost ~115 ms per redraw and made the
+        # window lag, with the numbers behind it available only in a CSV. The
+        # Results tab draws the same volcano with Qt in ~4 ms, puts the
+        # coefficient table beside it, and links the two: click a dot to
+        # select its row, select a row to identify its dot.
+        #
+        # THE RESULTS ARE BESIDE THE FIGURES, NOT BEHIND A TAB.
+        #
+        # "the results for the regression shoild pop up in a container to the
+        # left of the figures" and "figures should pop up in a grid above the
+        # console ... if a figure is clicked it should fill the container".
+        # Both halves have to be on screen AT ONCE: picking a row changes one
+        # point in the volcano, which nobody can see if the table and the
+        # figure are two pages of one tab stack.
+        #
+        #     +----------------------+---------------------------------+
+        #     |  results             |  figure grid   (pressable tiles)|
+        #     |  volcano + table     |     or one figure, filling it   |
+        #     +----------------------+---------------------------------+
+        #     |                    console                             |
+        #
+        # Deliberately NOT the shape the parameter search gets (116): its runs
+        # are a tab, because picking a run replaces the whole grid. One is
+        # navigation between runs, the other is reading within a run.
+        self._results_panel = None
+        # THE SECOND RUN, when the user has deliberately asked for one, and
+        # the stills of the runs that are not live (instruction 116).
+        self._results_page = None
+        self._results_split = None
+        self._compare_panel = None
+        self._run_photographs = {}
+        self._figures_stack = None
+        #: Cell-montage tab, when this screen supports regression results.
+        #: Initialised before tab-change handlers can read it.
+        self._cell_montage = None
+        if self.app_key == "regression":
+            try:
+                from ..widgets.regression_results import RegressionResultsPanel
+                from ..preferences import get_figure_grid_size
+                from ..widgets.figure_grid_view import (
+                    MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
+
+                self._results_panel = RegressionResultsPanel(
+                    self._figures_card, external_volcano=True)
+                # RE-FIT FROM THE PLOT. The panel decides what to run; this
+                # screen owns the worker, the console and the Stop button, so
+                # it is the one that can actually start it.
+                self._results_panel.refit_requested.connect(self._on_refit)
+
+                # ALL of them at once, each at its own aspect ratio. A run
+                # makes seventeen figures and they are meant to be read
+                # together -- the fraction histogram explains the volcano --
+                # which one-at-a-time navigation hides.
+                self._figure_grid = FigureGridView(self._figures_card)
+                self._figure_grid.figure_activated.connect(
+                    self._open_figure_from_grid)
+                # "all gigures should be editable by right clicking". The
+                # queue owns the matplotlib objects and already knows how to
+                # build the menu, so the tile just says which one and where.
+                self._figure_grid.figure_menu_requested.connect(
+                    self._figure_grid_menu)
+
+                # A clicked tile fills the container: same widget as before,
+                # wrapped so it is a PAGE of the stack rather than the stack's
+                # own child. _on_figure_ready calls _figure_queue.show(), and
+                # a bare show() on a stacked page draws it over the grid.
+                detail = QWidget(self._figures_card)
+                detail_layout = QVBoxLayout(detail)
+                detail_layout.setContentsMargins(0, 0, 0, 0)
+                detail_layout.setSpacing(4)
+                back = QPushButton("← All figures")
+                back.setFlat(True)
+                back.setToolTip("Back to the grid of every figure this run "
+                                "produced.")
+                back.clicked.connect(self._show_figure_grid)
+                row = QHBoxLayout()
+                row.addWidget(back)
+                row.addStretch(1)
+                detail_layout.addLayout(row)
+                detail_layout.addWidget(self._figure_queue, 1)
+                self._figure_detail = detail
+
+                # THE REGRESSION GRAPH GETS THE BIG HALF, AND IT IS THE LIVE
+                # ONE. "that is the slowest graph and the one i want to be
+                # interactive." Left inside the results panel it was a
+                # thumbnail above its own table, while the pipeline's DEAD
+                # copy of the same plot took a full tile on the right -- two
+                # volcanoes on screen and the big one not clickable.
+                volcano_page = QWidget(self._figures_card)
+                volcano_layout = QVBoxLayout(volcano_page)
+                volcano_layout.setContentsMargins(0, 0, 0, 0)
+                volcano_layout.setSpacing(4)
+                back_to_grid = QPushButton("← All figures")
+                back_to_grid.setFlat(True)
+                back_to_grid.clicked.connect(self._show_figure_grid)
+                volcano_row = QHBoxLayout()
+                volcano_row.addWidget(back_to_grid)
+                volcano_row.addStretch(1)
+                volcano_layout.addLayout(volcano_row)
+                # THE GENE TILE APPEARS WITH THE GRAPH. Instruction 121:
+                # "when a gene is clicked a tile should appear with all the
+                # information on that gene" -- appear, beside the point that
+                # was clicked. A tile behind a tab the user has to go and
+                # find is a tile they will not look at. It starts collapsed
+                # and opens itself on the first click, so an unclicked screen
+                # is all graph.
+                gene_split = QSplitter(Qt.Vertical, volcano_page)
+                gene_split.setChildrenCollapsible(True)
+                gene_split.addWidget(self._results_panel.volcano)
+                gene_split.addWidget(self._results_panel.gene)
+                gene_split.setStretchFactor(0, 3)
+                gene_split.setStretchFactor(1, 1)
+                gene_split.setSizes([1000, 0])
+                self._gene_split = gene_split
+                volcano_layout.addWidget(gene_split, 1)
+                self._volcano_page = volcano_page
+
+                # THE FIGURE SIZE IS THE USER'S (169 B). Reported: "cant
+                # control the height of the containers in the figures
+                # container in the measurements tab. i need to be able to
+                # make each taller". The grid has had `set_target_cell_width`
+                # all along and NOTHING CALLED IT -- a setter with no caller
+                # is a control that does not exist. This is the caller.
+                #
+                # Width, not height, because the tiles keep each figure's own
+                # aspect ratio: setting the width IS setting the height, and
+                # a separate height control would either fight the aspect or
+                # distort the figure.
+                grid_page = QWidget(self._figures_card)
+                grid_layout = QVBoxLayout(grid_page)
+                grid_layout.setContentsMargins(0, 0, 0, 0)
+                grid_layout.setSpacing(4)
+                size_row = QHBoxLayout()
+                size_row.addWidget(QLabel("Figure size"))
+                self._figure_size = QSlider(Qt.Horizontal, grid_page)
+                self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
+                self._figure_size.setValue(get_figure_grid_size())
+                self._figure_size.setMaximumWidth(220)
+                self._figure_size.setToolTip(
+                    "How wide each figure is drawn, which is also how tall: "
+                    "the tiles keep each figure's own aspect ratio. Fewer, "
+                    "bigger figures per row to the right.")
+                self._figure_size.valueChanged.connect(self._on_figure_size)
+                size_row.addWidget(self._figure_size)
+                size_row.addStretch(1)
+                grid_layout.addLayout(size_row)
+                grid_layout.addWidget(self._figure_grid, 1)
+                self._figure_grid.set_target_cell_width(
+                    self._figure_size.value())
+
+                self._figures_stack = QStackedWidget(self._figures_card)
+                self._figures_stack.addWidget(grid_page)           # index 0
+                self._figures_stack.addWidget(detail)              # index 1
+                self._figures_stack.addWidget(volcano_page)        # index 2
+                self._figure_grid.pinned_activated.connect(
+                    self._show_regression_graph)
+                self._figure_grid.pinned_menu_requested.connect(
+                    self._pinned_menu)
+                # EVERY LIVE TILE, not only the volcano (199). The grid
+                # emits `live_tile_activated` for all nine panels it
+                # photographs; connecting only the pinned signal is what left
+                # eight tiles clickable and inert.
+                self._figure_grid.live_tile_activated.connect(
+                    self._open_live_tile)
+                self._figure_grid.live_tile_menu_requested.connect(
+                    self._live_tile_menu)
+                # The pinned signal stays connected for the volcano's sake --
+                # it is the route that already works and the one older tests
+                # name -- and `_open_live_tile` returns early on that key so
+                # the graph is not raised twice.
+                # Picking a guide raises the graph its ring was drawn on.
+                # Highlighting a point on a view nobody is looking at is the
+                # same as not highlighting it.
+                self._results_panel.table.key_selected.connect(
+                    self._on_guide_selected)
+
+                # The parameter search is the main module setup plus one
+                # extra tab for the runs -- instruction 116, corrected by
+                # the maintainer, whose exact words are in that file. Not a
+                # bespoke screen with its own copies of the table, the queue
+                # and the results panel -- this screen, with one more tab.
+                # Picking a run swaps the figures on the right, which is the
+                # substance of that request and the only part unchanged.
+                from ..widgets.sweep_runs import SweepRunsPanel
+                self._sweep_runs = SweepRunsPanel(self._figures_card)
+                self._sweep_runs.trial_activated.connect(self._show_trial)
+                # WHICH RUN IS LOADED IS WHICH RUN IS ON SCREEN. Instruction
+                # 157, reported 2026-08-18: "even if the ols model is marked
+                # as loaded i still see the mixed results and no summary".
+                # `loaded_run_changed` was emitted from four places in the
+                # Runs tab and connected in none, so the mark moved and the
+                # coefficients, the figures and the summary stayed on the
+                # previous run -- and the empty summary was the same fault,
+                # the panel still holding the run the user had left.
+                #
+                # THE SAME FUNCTION AS THE CLICK, deliberately. Two entry
+                # points into two loaders is how a run that becomes loaded by
+                # FINISHING ended up on a path nothing drove. `_show_trial`
+                # returns early for the run already on screen, so the two
+                # signals the Runs tab emits together cost one load.
+                self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+                # AND THE TWO TABS THAT READ THE RUN'S FOLDER. Both take
+                # zero-argument providers precisely so they can be re-read --
+                # the scan panel's own docstring says "the tab must not go on
+                # showing the previous run's inputs" -- but the only thing
+                # that re-read them was OPENING the tab. Change the loaded
+                # run while the Cells tab is in front and it went on showing
+                # the previous run's cells, under the new run's name.
+                self._sweep_runs.loaded_run_changed.connect(
+                    self._on_loaded_run_changed_refresh_tabs)
+                # A RUN THAT LEAVES THE TABLE LEAVES THE OTHER VIEWS
+                # (instruction 146). The panel keeps a plot state per run and
+                # the results tab may be showing the very run being removed.
+                self._sweep_runs.runs_removed.connect(self._on_runs_removed)
+                # TWO RUNS ON SCREEN AT ONCE, deliberately (116).
+                self._sweep_runs.compare_requested.connect(
+                    self.open_run_beside)
+                # PUT BACK WHAT THAT RUN HAD OPEN (180).
+                self._sweep_runs.workspace_restore_requested.connect(
+                    self.restore_run_workspace)
+                # AND SHOW THE STILL OF A RUN THAT IS NOT LIVE (116). The
+                # photograph is taken when a run beside is closed; this is
+                # where it is finally seen.
+                self._sweep_runs.set_photo_provider(self.run_photograph)
+                left = QTabWidget(self._figures_card)
+                # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
+                # 2026-08-17: "the run tab should be before the results tab
+                # and results should be shown for the chosen run". The order
+                # is the reading order of the screen: pick a run on the left
+                # tab, read that run on the next one. Results was first while
+                # it was the only thing a finished fit had to show; now that
+                # picking a run re-points it (`_show_trial`), Results is the
+                # DETAIL of whatever Runs has selected, and a detail tab
+                # ahead of the thing it details reads backwards.
+                left.addTab(self._sweep_runs, "Runs")
+                # THE RESULTS PAGE IS A SPLITTER, not the panel itself
+                # (instruction 116). A second run opened deliberately for
+                # comparison goes in beside this one, and a tab page cannot
+                # gain a sibling. Empty until somebody asks, so a screen that
+                # never compares pays for one child widget and no layout.
+                self._results_split = QSplitter(Qt.Horizontal)
+                self._results_split.setChildrenCollapsible(False)
+                self._results_split.addWidget(self._results_panel)
+                self._results_page = self._results_split
+                left.addTab(self._results_split, "Results")
+                left.setTabToolTip(0, "Every run: this session's own, its "
+                                      "re-fits, and every trial the parameter "
+                                      "sweep ran. Pick one to see its results "
+                                      "and its figures.")
+                left.setTabToolTip(1, "The selected run's coefficient table, "
+                                      "its volcano and its diagnostics. "
+                                      "Picking a row in Runs re-points this "
+                                      "at that run.")
+
+                # WHICH MEASUREMENT HAS GENES WITH A CLEAR EFFECT (122).
+                # Structurally the same thing as the sweep, with the
+                # DEPENDENT VARIABLE varying instead of the settings -- so it
+                # sits beside the runs rather than in a screen of its own.
+                from ..widgets.measurement_scan_panel import (
+                    MeasurementScanPanel)
+                self._scan_panel = MeasurementScanPanel(
+                    frame_provider=self._scan_source_frame,
+                    # THE DATABASES THE USER DROPPED ON THE INPUT TABLE.
+                    # Without this the tab builds and shows nothing, which is
+                    # indistinguishable from having attached none.
+                    database_provider=self._attached_database_rows,
+                    # STEP 3's ARTEFACT AND STEP 4's SETTINGS (154 F). The
+                    # merged frame is written once, and each column fit is
+                    # this screen's own run with one thing changed: the
+                    # response. Anything else varying would make the runs
+                    # incomparable, which is the whole point of putting them
+                    # in one table.
+                    destination_provider=self._measurements_destination,
+                    settings_provider=self._column_fit_settings,
+                    parent=left)
+                # ONE ROW PER COLUMN, PUT UP AS EACH FIT STARTS. A queue of
+                # twelve that showed nothing until it ended would be the
+                # freeze this instruction was filed about, one screen along.
+                self._column_run_handles = {}
+                self._scan_panel.regression.fit_started.connect(
+                    self._on_column_fit_started)
+                self._scan_panel.regression.fit_finished.connect(
+                    self._on_column_fit_finished)
+                # EVERY GENE AGAINST EVERY MEASUREMENT (175), beside the
+                # scan because it is the same question asked of the whole
+                # screen at once. The three providers it needs -- the merged
+                # frame, the counts and the scores -- are all already on this
+                # screen; the panel was written to take them rather than to
+                # go looking, so it stays testable without any of this.
+                from ..widgets.sweep_panel import SweepPanel
+                self._sweep_panel = SweepPanel(
+                    cells_provider=self._scan_panel.databases_frame,
+                    counts_provider=self._sweep_counts,
+                    scores_provider=self._sweep_scores,
+                    parent=left)
+                # ITS OWN SECTION, not appended to the layout: a widget
+                # added to the layout takes its height out of the others,
+                # which is how the tab came to overlap.
+                # THE GRID GOES BESIDE THE RUN (186 A). `SweepResult.effects`
+                # lived only in this panel's memory: the montage's
+                # multivariate picker takes an `effects_grid` and nothing had
+                # ever set it, so it fell back to the single-score
+                # attribution every time -- in this session and in every
+                # other. Written to the run folder, it is there for the next
+                # session too, which a panel-to-panel handover cannot manage.
+                self._sweep_panel.finished.connect(self._keep_the_effects_grid)
+                self._scan_panel.add_section(self._sweep_panel,
+                                             "Gene × measurement sweep")
+                # AFTER the last section is added, not in the panel's
+                # constructor: a fold restored before the sweep section
+                # exists cannot be applied to it (169 C).
+                try:
+                    self._scan_panel.restore_section_layout()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not restore the measurements layout",
+                              exc_info=True)
+
+                left.addTab(self._scan_panel, "Measurements")
+                left.setTabToolTip(
+                    2, "Hold the model fixed and sweep the dependent "
+                       "variable. Corrected ACROSS the scan, not only within "
+                       "each measurement -- a measurement that passes alone "
+                       "and fails across the scan is the one worth knowing "
+                       "about.")
+                # THE CELLS BEHIND A DOT ON THE VOLCANO (131). "there should
+                # be an option to visualize the cells most likely to represent
+                # dots on the regression plot ... to show to the user in a new
+                # tab where the figures are."
+                #
+                # A TAB, NOT A DIALOG, and it is always present. Instruction
+                # 131 C and 129 both settled that: one tab per view, named,
+                # and a tab that cannot be filled SAYS WHY rather than being
+                # absent -- which for this one is the common case, because
+                # most runs have no measurement database attached and the
+                # montage needs per-object rows.
+                #
+                # REACHED FROM THE SELECTION THAT ALREADY EXISTS. The panel's
+                # `table.key_selected` is the funnel every plot and the table
+                # pass through -- volcano -> table.select_key -> selection
+                # change -> re-emit -- and the gene tile is already on it. A
+                # second selection mechanism here would mean a montage of a
+                # different gene from the one the volcano is ringing, which is
+                # the plausible-and-wrong output this module is most careful
+                # about.
+                from ..widgets.cell_montage_view import CellMontageView
+                self._cell_montage = CellMontageView(
+                    frame_provider=self._results_panel.results_frame,
+                    results_provider=self._results_source_path,
+                    database_provider=self._attached_database_rows,
+                    parent=left)
+                # THE INDEX `addTab` RETURNS, not the literal the tabs above
+                # it use. This is the last tab, so anything inserted ahead of
+                # it moves it -- and a tooltip on the wrong tab is not a
+                # visible failure, it is a sentence about the Measurements
+                # tab appearing over the Cells one.
+                cells_tab = left.addTab(self._cell_montage, "Cells")
+                left.setTabToolTip(
+                    cells_tab,
+                    "The cells most consistent with the selected "
+                    "coefficient. This screen is POOLED: the sequencing says "
+                    "what fraction of a well carried a guide, never which "
+                    "cells did, so these are candidates consistent with the "
+                    "effect and the caption says so.")
+                self._results_panel.table.key_selected.connect(
+                    self._cell_montage.set_coefficient)
+                # AND THE WHOLE SELECTION (instruction 206). `set_coefficients`
+                # holds all of them and shows the most recent, so the count in
+                # this tab is the count on the volcano; without it a band over
+                # four guides would leave the Cells tab describing one with
+                # nothing saying the other three were picked.
+                self._results_panel.table.keys_selected.connect(
+                    self._cell_montage.set_coefficients)
+
+                # Read the table when the tab is OPENED, not on a timer. A
+                # sweep writes each trial as it finishes, so the answer is
+                # different every time somebody looks -- and nobody is looking
+                # while the tab is behind another one.
+                left.currentChanged.connect(self._on_results_tab_changed)
+                self._results_tabs = left
+                # AND RESULTS IS STILL WHAT OPENS. 128 J changed the ORDER of
+                # the tabs, not which one a finished regression lands on --
+                # "a finished regression opens into its results, not into a
+                # run list" is the property `test_results_is_what_opens_first`
+                # has held since the Runs tab arrived, and nothing in J asks
+                # for it back. Set explicitly because QTabWidget's own default
+                # is index 0, which is now Runs.
+                left.setCurrentWidget(self._results_page)
+
+                split = QSplitter(Qt.Horizontal, self._figures_card)
+                split.setChildrenCollapsible(False)
+                split.addWidget(left)
+                split.addWidget(self._figures_stack)
+                # THE RESULTS SIDE IS THE WIDER ONE NOW. Asked for on
+                # 2026-08-17 -- "the left panel should be wider" -- and it is
+                # the side that grew: it holds a coefficient table with a
+                # dozen columns, the volcano, and a row of diagnostic tabs,
+                # while the grid opposite reflows to whatever it is given.
+                #
+                # An EQUAL stretch rather than a reversed one, so a wider
+                # window still feeds both. The divider stays the user's to
+                # move; these are starting sizes, not a layout.
+                split.setStretchFactor(0, 1)
+                split.setStretchFactor(1, 1)
+                # Floors, not preferences -- neither side survives being
+                # handed a size hint. The results floor went up with the
+                # share: a coefficient table under 520 px shows its index and
+                # one column.
+                left.setMinimumWidth(520)
+                self._figures_stack.setMinimumWidth(360)
+                split.setSizes([780, 620])
+                self._figures_split = split
+                self._figures_card.body_layout.addWidget(split, 1)
+
+                # ONE REBUILD PER BURST. A pipeline streams seventeen figures
+                # in one at a time and the grid is now always on screen, so
+                # rebuilding per arrival is seventeen full relayouts. The
+                # timer collapses a burst into a single one.
+                self._grid_refresh = QTimer(self)
+                self._grid_refresh.setSingleShot(True)
+                self._grid_refresh.setInterval(250)
+                self._grid_refresh.timeout.connect(self._refresh_figure_grid)
+            except Exception:
+                LOG.debug("no fast results panel", exc_info=True)
+                self._results_panel = None
+                self._figures_stack = None
+                self._cell_montage = None
+        if self._results_panel is None:
+            self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
         # setting, live against the figure on screen (instruction 75), and a
         # Propagate button. Propagate means the same thing here as everywhere
@@ -1563,9 +6363,16 @@ class AppScreen(QWidget):
             self._umap_explorer._settings_getter = self._umap_display_defaults
             self._figures_card.body_layout.addWidget(
                 self._umap_explorer, 1)
-        self._figures_card.setMinimumHeight(360)
+        # 360 was the height of a card holding ONE figure. It now holds a
+        # coefficient table, a volcano and a grid of tiles side by side, and
+        # at 360 every one of them is a scrollbar with a sliver of content
+        # behind it -- measured on the real screen before this was raised.
+        self._figures_card.setMinimumHeight(
+            560 if self._results_panel is not None else 360)
         self._figures_card.hide()
-        layout.addWidget(self._figures_card, 1)
+        # NOT added to the layout here. It goes into the vertical splitter
+        # built below, so the figures can be dragged taller at the console's
+        # expense -- a volcano needs the room a log line does not.
 
         # Live-preview segmentation — Mask app only. The card + the
         # console below live in a vertical QSplitter so the user can
@@ -1582,6 +6389,7 @@ class AppScreen(QWidget):
         console_header = QLabel("Console")
         console_header.setObjectName("CardTitle")
         console_col.addWidget(console_header)
+        self._console_header = console_header
         # `persist_key` is what lets the console remember where the user put
         # the divider between its output box and the AI chat box, per screen:
         # a tall chat box on Mask does not force one on Sequencing.
@@ -1589,6 +6397,16 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_col.addWidget(self._console, 1)
+        # CLICKING "Console" FOLDS IT (instruction 228), which the maintainer
+        # asked for in those words. The minimum height has to go with it: a
+        # hidden widget contributes nothing to a layout, but a minimum on the
+        # WRAPPER would hold the strip 180px tall over nothing.
+        from ..widgets.foldable import make_foldable
+
+        self._console_folder = make_foldable(
+            console_header, self._console, name="Console",
+            on_change=self._console_folded,
+            persist_key=f"{self.app_key}/Console")
 
         # Exactly one of these cards occupies the slot above the console.
         # Nulled here rather than in every branch: the chain has grown to six
@@ -1597,6 +6415,7 @@ class AppScreen(QWidget):
         self._live_preview = self._live_preview_card = None
         self._measure_preview = self._measure_preview_card = None
         self._hyperparam = self._hyperparam_card = None
+        self._sweep = self._sweep_card = None
         self._timelapse_preview = self._timelapse_preview_card = None
         self._motility_preview = self._motility_preview_card = None
         self._runtime_splitter = None
@@ -1611,12 +6430,18 @@ class AppScreen(QWidget):
             self._live_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._live_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "timelapse":
             # Timelapse takes the same slot Mask and Measure use for Live
             # Preview. Segmenting the sequence is the expensive half and is
@@ -1630,12 +6455,18 @@ class AppScreen(QWidget):
             self._timelapse_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._timelapse_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "motility":
             from ..widgets.motility_preview import build_motility_preview_card
             splitter = QSplitter(Qt.Vertical)
@@ -1645,12 +6476,18 @@ class AppScreen(QWidget):
             self._motility_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._motility_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
@@ -1659,12 +6496,40 @@ class AppScreen(QWidget):
             self._measure_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._measure_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
+        elif _sweepable(self.app_key):
+            # The regression module gets a Parameter sweep card in the same
+            # place, behind the same kind of toggle, as the Hyperparameter
+            # search the other modules have. Same feature, same shape.
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            from .parameter_sweep import build_parameter_sweep_card
+            self._sweep, self._sweep_card = build_parameter_sweep_card(self)
+            splitter.insertWidget(0, self._figures_card)
+            splitter.addWidget(self._sweep_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 2)
+            splitter.setStretchFactor(2, 1)
+            # The figures slot carries the results table AND the figure grid
+            # on the regression screen, so it opens with room for both. The
+            # sweep card is collapsed behind a toggle until asked for, and
+            # the divider is the user's to move.
+            splitter.setSizes([720, 300, 220] if self._results_panel is not None
+                              else [480, 360, 240])
+            layout.addWidget(splitter, 1)
+            self._remember_runtime_splitter(splitter)
         elif _hyperparam_searchable(self.app_key):
             # umap / classify / ml_analyze get a Hyperparameter search card in
             # the slot Mask and Measure use for Live Preview: same shape, same
@@ -1678,14 +6543,30 @@ class AppScreen(QWidget):
             self._hyperparam.set_settings_provider(
                 lambda model=self._settings_model: model.collect())
             splitter.addWidget(self._hyperparam_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         else:
-            layout.addWidget(console_wrap, 1)
+            # A plain vertical splitter so the figures/console divider is
+            # draggable here too, which is where the regression module lives.
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            splitter.addWidget(self._figures_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([560, 240])
+            layout.addWidget(splitter, 1)
+            self._remember_runtime_splitter(splitter)
 
         # Route the verbose logger (if the user turned it on in
         # Preferences) at THIS screen's console. Only the last-focused
@@ -1697,8 +6578,12 @@ class AppScreen(QWidget):
         except Exception:
             pass
 
-        # Usage card
-        usage_card = Card(title="System")
+        # Usage card. FOLDABLE: clicking "System" folds it, which the
+        # maintainer asked for in those words, and it sits directly under the
+        # container that wants the room.
+        usage_card = Card(title="System", foldable=True,
+                          fold_key=f"{self.app_key}/System")
+        self._usage_card = usage_card
         self._usage_ram = UsageBar("RAM")
         self._usage_gpu = UsageBar("GPU")
         self._usage_vram = UsageBar("VRAM")
@@ -1748,24 +6633,37 @@ class AppScreen(QWidget):
         row = QHBoxLayout(actions)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
+
+        # THE CAPTIONED BUTTONS WRAP; NOTHING ELSE DOES. See
+        # `_WrappingButtonStrip` for the measurement and for why this is a
+        # sub-layout rather than a widget of its own -- in one line: the
+        # buttons stay Qt children of `_actions_row`, which is what everything
+        # that reaches into this row already depends on. Copy console and the
+        # Preferences gear enter it as ONE item, so a wrap cannot separate
+        # them (see below), and everything after `row.addStretch(1)` -- the
+        # progress bar and the switches -- stays in the horizontal row it was
+        # always in, held against the right edge by that stretch.
+        buttons = _WrappingButtonStrip(SPACING["sm"])
+        row.addLayout(buttons)
+
         self._btn_run = QPushButton("Run")
         self._btn_run.setObjectName("PrimaryButton")
         self._btn_run.setCursor(Qt.PointingHandCursor)
         self._btn_run.clicked.connect(self._on_run)
-        row.addWidget(self._btn_run)
+        buttons.addWidget(self._btn_run)
 
         self._btn_stop = QPushButton("Stop")
         self._btn_stop.setObjectName("DangerButton")
         self._btn_stop.setCursor(Qt.PointingHandCursor)
         self._btn_stop.setEnabled(False)
         self._btn_stop.clicked.connect(self._on_stop)
-        row.addWidget(self._btn_stop)
+        buttons.addWidget(self._btn_stop)
 
         self._btn_import = QPushButton("Import settings…")
         self._btn_import.setObjectName("GhostButton")
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
-        row.addWidget(self._btn_import)
+        buttons.addWidget(self._btn_import)
 
         self._btn_remote = QPushButton("Submit remote…")
         self._btn_remote.setObjectName("PrimaryButton")
@@ -1776,13 +6674,33 @@ class AppScreen(QWidget):
             "cloud/HPC command."
         )
         self._btn_remote.clicked.connect(self._on_remote_submit)
-        row.addWidget(self._btn_remote)
+        buttons.addWidget(self._btn_remote)
 
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(lambda: self._console.clear())
-        row.addWidget(self._btn_clear)
+        buttons.addWidget(self._btn_clear)
+
+        # THE BACKGROUND-ACTIVITY SPINNER, BUILT HERE RATHER THAN FOUND
+        # LATER, and this is a consequence of the split above rather than a
+        # preference. `activity_spinner.attach_activity_spinner` normally
+        # installs it lazily from the global button filter, by asking
+        # `_btn_clear.parentWidget().layout().indexOf(_btn_clear)` and
+        # inserting at index + 1. Every part of that contract survives the
+        # buttons moving into a sub-layout except one: `QLayout.indexOf` does
+        # not descend into a sub-layout, so it would answer -1 and the helper
+        # would return None -- the spinner silently never installed, and in
+        # the real application only, because every test of that helper builds
+        # its own flat row and would have gone on passing.
+        #
+        # Building it here puts it exactly where the helper would have (
+        # immediately right of Clear console) and sets the attribute the
+        # helper checks BEFORE it touches any layout, so the lazy path finds
+        # this one and returns it instead of trying to insert a second.
+        from ..widgets.activity_spinner import ActivitySpinner
+        self._activity_spinner = ActivitySpinner(actions)
+        buttons.addWidget(self._activity_spinner)
 
         # Beside Clear, because the two are the same kind of act on the same
         # thing — and because the console is what a bug report is made of.
@@ -1792,7 +6710,8 @@ class AppScreen(QWidget):
         self._btn_copy_console.setToolTip(
             "Copy everything in the console, section headers included.")
         self._btn_copy_console.clicked.connect(self._on_copy_console)
-        row.addWidget(self._btn_copy_console)
+        # NOT ADDED HERE. It enters the strip welded to the Preferences gear
+        # a few lines below -- see the comment there.
 
         # Preferences, to the right of Copy console. Every module screen
         # gets it because every module screen is somewhere a user notices
@@ -1817,10 +6736,40 @@ class AppScreen(QWidget):
         self._btn_preferences.setIconSize(
             QSize(scaled_px(18), scaled_px(18)))
         self._btn_preferences.setCursor(Qt.PointingHandCursor)
-        self._btn_preferences.setToolTip("Open Preferences (Ctrl+,).")
+        self._btn_preferences.setToolTip("Open Preferences (Ctrl+P).")
         self._btn_preferences.setAccessibleName("Preferences")
         self._btn_preferences.clicked.connect(self._open_preferences_dialog)
-        row.addWidget(self._btn_preferences)
+
+        # COPY CONSOLE AND THE GEAR TRAVEL TOGETHER, as ONE item of the
+        # wrapping strip, and this pair exists because a wrap can otherwise
+        # separate them. The gear was asked for BY POSITION -- "to the right
+        # of Copy console" -- and `tests/qt/test_preferences_gear.py` checks
+        # exactly that, as `gear.x() > copy.x()` with both on one parent. Left
+        # as two independent items the wrap put them on different lines the
+        # moment the strip ran short: on Mask at 1400x900 the strip has 678 px
+        # and one line of buttons wants 699, so the gear went to line two and
+        # its x fell from 661 to 0. It is a 46 px icon at the end of a 605 px
+        # run of captions, so it is always the item the wrap reaches first.
+        #
+        # The alternative was to take the gear out of the strip entirely and
+        # make it a fixed item of the row. That also satisfies the position,
+        # and was rejected on two measurements: it left the gear floating at
+        # mid-height beside a two-line stack of buttons instead of sitting
+        # among them, and its 46 px came off the strip's width at every window
+        # size -- Measure in German at 1000 px went from three lines of
+        # buttons to four, and the console under it from 208 px to 180.
+        #
+        # An anonymous QWidget on purpose: `theme.clear_container_surfaces`
+        # tags exactly that -- a plain QWidget with no object name is
+        # scaffolding -- so this cannot become another opaque strip over the
+        # backdrop the way an untagged container does.
+        copy_and_gear = QWidget()
+        pair = QHBoxLayout(copy_and_gear)
+        pair.setContentsMargins(0, 0, 0, 0)
+        pair.setSpacing(SPACING["sm"])
+        pair.addWidget(self._btn_copy_console)
+        pair.addWidget(self._btn_preferences)
+        buttons.addWidget(copy_and_gear)
 
         # (The manual "Explain error" button was removed — errors now route to
         # the AI automatically when AI is enabled; see _on_pipeline_error.)
@@ -1841,7 +6790,7 @@ class AppScreen(QWidget):
         self._btn_file_issue.setEnabled(False)
         self._btn_file_issue.setVisible(False)
         self._btn_file_issue.clicked.connect(self._on_file_issue)
-        row.addWidget(self._btn_file_issue)
+        buttons.addWidget(self._btn_file_issue)
 
         row.addStretch(1)
 
@@ -1856,22 +6805,31 @@ class AppScreen(QWidget):
         # in the shared actions row prevents Timelapse, Motility and Measure
         # from permanently taking half the console merely because their
         # preview card exists.
-        from PySide6.QtWidgets import QMenu, QToolButton
         from ..widgets import AiToggleLabel
+
+        # 3D and Time — "to the left of the Live button which sitts to the
+        # left of the AI button". Built here, before the preview toggle, so
+        # the row reads 3D · Time · Live · … · AI whether or not this module
+        # has a preview to switch on.
+        self._install_dimension_switches(row, AiToggleLabel)
+
         preview_controls = {
             "mask": (
                 "_live_preview_card",
-                "Click to toggle Live Preview. When ON (blue), the "
-                "interactive Cellpose preview appears above the console."),
+                "Show or hide the interactive Cellpose segmentation "
+                "preview above the console."),
             "timelapse": (
                 "_timelapse_preview_card",
-                "Click to toggle Track Preview for the timelapse."),
+                "Show or hide a preview of linked object tracks across "
+                "the selected time-series frames."),
             "motility": (
                 "_motility_preview_card",
-                "Click to toggle Track Preview for the motility analysis."),
+                "Show or hide the track preview used to inspect velocity, "
+                "straightness and infection-state assignments."),
             "measure": (
                 "_measure_preview_card",
-                "Click to toggle Measurement Preview."),
+                "Show or hide a preview of selected measurement overlays "
+                "before processing the full dataset."),
         }
         preview_control = preview_controls.get(self.app_key)
         if preview_control is not None:
@@ -1888,8 +6846,55 @@ class AppScreen(QWidget):
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
 
+        # OPS -- Mask Generation only, beside Live and the dimension
+        # switches and in the same format, as asked. Optical pooled
+        # screening is folded onto this screen: it opens as a page rather
+        # than mounting settings on this form, so it is a switch here
+        # rather than a button on the masthead strip, which carries the
+        # folds that ARE settings. See `spacr.qt.screens.mask.PAGE_FOLDS`.
+        self._ops_switch = None
+        if self.app_key == "mask":
+            try:
+                from .mask import (OPS_TOGGLE_TEXT, OPS_TOGGLE_TOOLTIP,
+                                   install_ops_switch)
+
+                self._ops_switch = AiToggleLabel(
+                    text=OPS_TOGGLE_TEXT, tooltip=OPS_TOGGLE_TOOLTIP)
+                row.addWidget(self._ops_switch)
+                install_ops_switch(self, self._ops_switch)
+            except Exception:                            # noqa: BLE001
+                # A screen without the switch is a smaller screen; an
+                # exception here would be no Mask Generation at all.
+                LOG.debug("Could not install the OPS switch", exc_info=True)
+
+        # Image UMAP has one GPU switch for both its main run and its search.
+        # It deliberately lives in the action strip instead of being repeated
+        # in the settings form, and precedes Hyperparameter search as requested.
+        self._gpu_switch = None
+        if self.app_key == "umap" and getattr(
+                self, "_hyperparam", None) is not None:
+            self._gpu_switch = AiToggleLabel(
+                text="GPU",
+                tooltip=(
+                    "Use the RAPIDS cuML backend for both the main "
+                    "dimensionality-reduction run and hyperparameter search. "
+                    "CPU and GPU reducers may produce different embeddings, "
+                    "so compare search results only within the same backend."),
+            )
+            self._gpu_switch.toggled.connect(self._on_umap_gpu_switch)
+            row.addWidget(self._gpu_switch)
+
         # Same slot, same behaviour, for the apps that have a hyperparameter
         # search instead of a live preview.
+        if getattr(self, "_sweep", None) is not None:
+            from .parameter_sweep import (SWEEP_TOGGLE_TEXT,
+                                          SWEEP_TOGGLE_TOOLTIP)
+            self._sweep_switch = AiToggleLabel(text=SWEEP_TOGGLE_TEXT,
+                                               tooltip=SWEEP_TOGGLE_TOOLTIP)
+            self._sweep_switch.toggled.connect(self._on_sweep_switch)
+            row.addWidget(self._sweep_switch)
+            self._on_sweep_switch(False)        # start collapsed, like the rest
+
         if getattr(self, "_hyperparam", None) is not None:
             from .hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
             self._hp_switch = AiToggleLabel(text=TOGGLE_TEXT,
@@ -1914,10 +6919,9 @@ class AppScreen(QWidget):
             self._interactive_switch = AiToggleLabel(
                 text="Interactive",
                 tooltip=(
-                    "Toggle the interactive image UMAP. When ON (blue), "
-                    "click a point to preview its image, draw around a "
-                    "cluster, and write manual or automatic labels to the "
-                    "database."
+                    "Enable the interactive Image UMAP view. Select a point "
+                    "to preview its image, draw a region around a cluster, "
+                    "and write manual or model-assisted labels to the database."
                 ),
             )
             self._interactive_switch.toggled.connect(
@@ -1941,15 +6945,17 @@ class AppScreen(QWidget):
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
 
-        self._ai_menu_btn = QToolButton()
-        self._ai_menu_btn.setPopupMode(QToolButton.InstantPopup)
-        self._ai_menu_btn.setCursor(Qt.PointingHandCursor)
-        self._ai_menu_btn.setToolTip("Pick provider · Providers…")
-        self._ai_menu_btn.setText("▾")
-        self._ai_menu = QMenu(self._ai_menu_btn)
-        self._ai_menu_btn.setMenu(self._ai_menu)
-        row.addWidget(self._ai_menu_btn)
-        self._refresh_ai_menu()
+        # NO PROVIDER CHEVRON HERE ANY MORE. A "▾" beside the AI switch
+        # opened a provider picker on the actions row of every module, which
+        # put a PREFERENCE -- which assistant do I use -- in the place where
+        # per-run choices are made, and repeated it on each screen. It moved
+        # to Preferences → AI, where the answer is given once.
+        #
+        # "AI assistant on at launch" IS WHAT THIS CONTROLS. The preference
+        # was written by the setup screen and read by nothing, so a user who
+        # turned it on met a grey AI switch on every module and a setting
+        # that had done nothing.
+        self._apply_ai_default()
 
         layout.addWidget(actions)
 
@@ -1984,9 +6990,179 @@ class AppScreen(QWidget):
         self._sync_hint_strip_height()
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
+        # `linkActivated` still fires for a scheme Qt will not open, which is
+        # what makes the private href above work beside the real API URL.
+        self._hint_strip.linkActivated.connect(self._on_hint_link)
         layout.addWidget(self._hint_strip)
 
         return wrap
+
+    #: Where a runtime splitter's state is stored. Distinct from the console
+    #: splitter's key, which `console_panel` already persists under the bare
+    #: app key -- two splitters on one screen would otherwise restore each
+    #: other's blob, and `restoreState` on a mismatched one silently does
+    #: nothing, which is a layout that ignores the user with no message.
+    RUNTIME_SPLIT_SUFFIX = "::runtime"
+
+    def _remember_runtime_splitter(self, splitter) -> None:
+        """Restore this screen's pane heights and persist each resize.
+
+        Saving on every splitter move preserves the layout even when the
+        application does not reach its normal shutdown path.
+        """
+        self._runtime_splitter = splitter
+        if splitter is None:
+            return
+        key = f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}"
+        try:
+            from ..widgets.console_panel import get_split_state, set_split_state
+        except Exception:                                        # noqa: BLE001
+            return
+        try:
+            state = get_split_state(key)
+            if state is not None:
+                splitter.restoreState(state)
+        except Exception:                                        # noqa: BLE001
+            # A blob from an older layout restores nothing rather than
+            # raising; the default split is the right fallback.
+            pass
+
+        def _save(*_args):
+            """Store this splitter's layout under its key."""
+            try:
+                set_split_state(key, splitter.saveState())
+            except Exception:                                    # noqa: BLE001
+                pass
+
+        splitter.splitterMoved.connect(_save)
+
+    def _write_hint(self, text: str, url: str = "",
+                    hold: bool = False, animated: bool = False) -> None:
+        """Put ``text`` in the strip, trimmed to the lines the strip has.
+
+        ``url`` adds the documentation link on its own line. Suppressing the
+        popup would otherwise have taken the link with it -- the strip's own
+        prompt promises "details AND a link to its documentation", and the
+        link only ever lived in the popup. It is the per-setting target, so
+        it points at the function that READS the setting rather than at the
+        module page.
+
+        The strip is a FIXED four lines so the panel below it does not move
+        every time the pointer crosses a setting. A description longer than
+        that used to be clipped mid-word by the layout, which reads as a
+        rendering fault rather than as "there is more". Text always fits its
+        container.
+
+        Measured against the font Qt is actually painting and the width the
+        strip actually has, so it stays correct at any font scale rather than
+        at the one this was written on.
+        """
+        strip = getattr(self, "_hint_strip", None)
+        if strip is None:
+            return
+        # The link costs a line, so the body is fitted into what is left.
+        lines = HINT_STRIP_LINES - (1 if url else 0)
+        fitted = _fit_to_lines(str(text), strip, max(1, lines))
+        if url:
+            from html import escape as _escape
+
+            from ..i18n import tr as _tr
+            # "API", not "Open spaCR API documentation". Instruction 371:
+            # "which should also just say API". The long form repeated on
+            # every setting and the strip has four lines to spend.
+            # "Animation" BESIDE "API", which instruction 371 asks for on
+            # both surfaces: "an API link and Annimation link text ... same
+            # for the botom tooltips". Only when this setting HAS one --
+            # 141 do, and a word that visibly does nothing is worse than no
+            # word, which is the rule the popup's own footer already
+            # follows.
+            #
+            # The href is a private scheme rather than a URL. The strip has
+            # `setOpenExternalLinks(True)` for the API link, and a real
+            # scheme here would hand the animation to a browser.
+            animation_link = (
+                f"&nbsp;&nbsp;<a href=\"{_HINT_ANIMATION_HREF}\">"
+                f"{_escape(_tr('Animation'))}</a>" if animated else "")
+            strip.setText(
+                f"{_escape(fitted)}<br>"
+                f"<a href=\"{_escape(str(url), quote=True)}\">"
+                f"{_escape(_tr('API'))}</a>{animation_link}")
+        else:
+            strip.setText(fitted)
+        # The untrimmed text stays reachable: the tooltip is what a reader who
+        # wants the rest, or a screen reader, asks for.
+        strip.setToolTip(str(text))
+        # `hold` IS PASSED, NOT INFERRED. Inferring it from "the text is not
+        # empty" starts the timer on the DEFAULT prompt too, and since
+        # `_release_the_hint` writes that prompt, the strip would restart its
+        # own hold forever. Only a hovered setting holds.
+        self._hold_the_hint(hold)
+
+    #: How long the strip keeps the LAST hovered setting, in milliseconds.
+    #:
+    #: Ten seconds, and it is not a round number to
+    #: tune down because it feels long while reading code. It is the budget
+    #: for noticing the strip, crossing the window and pressing the link --
+    #: the reach the hold exists to make possible. If a measurement ever says
+    #: the reach takes longer, raise it and say so.
+    HINT_HOLD_MS = 10_000
+
+    def _hold_the_hint(self, holding: bool,
+                       duration_ms: Optional[int] = None) -> None:
+        """Start, restart or stop the strip's hold.
+
+        RESTARTED ON EACH NEW SETTING, so reading down a form is not a race
+        against a clock started by the first row. Stopped outright when the
+        strip is being put back to its default, or the timer would blank a
+        strip that is already blank and fight whatever wrote it next.
+
+        :param duration_ms: how long to hold. ``None`` is the per-setting
+            :data:`HINT_HOLD_MS`; a dock hover passes the longer module hold
+            instead, because its links leave the application.
+        """
+        timer = getattr(self, "_hint_hold_timer", None)
+        if timer is None:
+            from PySide6.QtCore import QTimer
+
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self._release_the_hint)
+            self._hint_hold_timer = timer
+        timer.stop()
+        if holding:
+            timer.start(self.HINT_HOLD_MS if duration_ms is None
+                        else int(duration_ms))
+
+    def _on_hint_link(self, href: str) -> None:
+        """Open the box for the setting the strip is showing, animation out.
+
+        THE STRIP CANNOT PLAY THE ANIMATION ITSELF and should not try: it is
+        four lines at the bottom of the window, and the popup already has a
+        column sized for the square and the code to decode it once. So the
+        word hands off rather than duplicating, and it does so for the
+        setting the STRIP names -- which, ten seconds after the hover, is no
+        longer the widget under the pointer.
+
+        Deliberately ignores the `Tooltips box` preference. That switch says
+        whether a box appears UNASKED; this is a press.
+        """
+        if href != _HINT_ANIMATION_HREF:
+            return
+        widget = getattr(self, "_hinted_widget", None)
+        html = getattr(self, "_hinted_html", "")
+        if widget is None or not html:
+            return
+        from ..widgets.hover_tooltip import HoverTooltip
+
+        popup = HoverTooltip.instance()
+        popup.show_for(widget, html)
+        popup.toggle_animation()
+
+    def _release_the_hint(self) -> None:
+        """Put the strip back to its prompt once the hold has run out."""
+        if getattr(self, "_hint_strip", None) is None:
+            return
+        self._write_hint(self._default_hint())
 
     def _sync_hint_strip_height(self) -> None:
         """Reserve four lines using the font Qt is actually painting."""
@@ -2009,9 +7185,57 @@ class AppScreen(QWidget):
         strip.setFixedHeight(
             strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
 
+    def _watch_for_late_captions(self) -> None:
+        """Translate any subtree parented into this screen after it was built.
+
+        `MainWindow._on_nav_selected` runs one language pass over a screen,
+        once, when the screen is first constructed. Two things arrive after
+        that and never see a pass of their own: the preview
+        :mod:`spacr.qt.preview_registry` declares for a module -- built and
+        inserted into the runtime panel the first time the module is opened
+        -- and the toggle it puts on the settings strip. Measured on a
+        Swedish cold start, that left the whole Plaque analysis preview and
+        its toggle in English: 112 captions, on one screen.
+
+        `ChildAdded` is the moment a widget is parented, and by then the
+        widget it carries is fully built, so translating that subtree alone
+        costs a walk of the new panel rather than of the screen. The pass is
+        deferred by one turn of the event loop: a widget can be parented
+        before its own children exist, and a pass that ran now would cache
+        an empty caption as that child's English source.
+        """
+        # The runtime panel is where a preview CARD is inserted, and the
+        # body splitter is where the settings strip -- which the toggle
+        # beside it goes on -- is inserted. The strip does not exist yet:
+        # it is installed on the screen's first show, one hook before the
+        # preview, so by the time this pass runs the toggle is already
+        # inside the pane it arrived in and is translated with it.
+        # The screen itself is the third host, and it is where a fold page
+        # strip arrives: `spacr.qt.screens.map_barcodes.host_pages` wraps
+        # this screen's body in a `QTabWidget` parented HERE, and folded
+        # modules become pages on it. The outer layout is finished long
+        # before this hook runs, so watching the screen costs nothing on a
+        # module that folds nothing.
+        hosts = (getattr(self, "_runtime_wrap", None),
+                 getattr(self, "_body_splitter", None),
+                 self)
+        watcher = _LateCaptionTranslator(self)
+        self._late_caption_watcher = watcher
+        for host in hosts:
+            if host is None:
+                continue
+            host.removeEventFilter(watcher)
+            host.installEventFilter(watcher)
+
     def _default_category_hint(self) -> str:
-        return ("Hover a settings category for what the group decides, "
-                "or open one to keep it here.")
+        """The prompt the category strip falls back to, in the UI language.
+
+        Same reason as :meth:`_default_hint`: leaving a header writes this
+        back, so an untranslated literal here turns a translated strip
+        English on the first hover and leaves it that way.
+        """
+        return tr("Hover a settings category for what the group decides, "
+                  "or open one to keep it here.")
 
     def _wire_category_hints(self) -> None:
         """Route every category header at the strip under the actions row.
@@ -2026,11 +7250,18 @@ class AppScreen(QWidget):
         each installation separately — two installs on one header means one
         hover writing the strip twice.
         """
-        for section in getattr(self, "_settings_sections", []):
+        for section in self.rendered_settings_sections():
             header = section.header()
             if header is None or header.property("categoryHintWired"):
                 continue
-            title = section.title()
+            # THE CATEGORY AS IT IS WRITTEN, not as the header shows it.
+            # `Section.title()` answers with the uppercased caption, and a
+            # catalog keyed on "Preview & Diagnostics" has nothing under
+            # "PREVIEW & DIAGNOSTICS" — so the strip would head a translated
+            # blurb with an English title. The written name is kept on the
+            # section for exactly this, and uppercased after the lookup.
+            title = (section.property("settingsCategorySource")
+                     or section.title())
             header.setProperty("settingsCategory", title)
             header.setProperty("categoryHintWired", True)
             header.removeEventFilter(self)
@@ -2048,12 +7279,25 @@ class AppScreen(QWidget):
             self.clear_category_hint()
 
     def show_category_hint(self, title: str) -> None:
-        """Show one category's blurb in the strip under the actions row."""
+        """Show one category's blurb in the strip under the actions row.
+
+        The strip is fed by TITLE, because a hovered header carries its own
+        name and nothing else. A heading nested under another resolves its
+        help by PATH -- "Cell" under "Object filtration" is not the "Cell"
+        segmentation category -- so what that resolved to when the section
+        was built is read back here rather than looked up again by the bare
+        word, which would hand a filtration sub-heading the blurb about
+        Cellpose models.
+        """
         strip = getattr(self, "_category_hint", None)
         if strip is None:
             return
-        text = category_tooltip(self.app_key, title)
-        heading = str(title or "").upper().strip()
+        text = (getattr(self, "_category_blurbs", None) or {}).get(
+            str(title)) or category_tooltip(self.app_key, title)
+        # Translated first, uppercased second. The other order asks the
+        # catalog for a caption nobody wrote and leaves an English word in
+        # bold at the head of a translated sentence.
+        heading = tr(str(title or "")).upper().strip()
         strip.setText(
             f"<b>{escape(heading)}</b> — {escape(text)}"
             if heading else escape(text)
@@ -2086,14 +7330,43 @@ class AppScreen(QWidget):
         :meth:`refresh_ambient_background`.
         """
         super().showEvent(event)
+        usage_timer = getattr(self, "_usage_timer", None)
+        if usage_timer is not None and not usage_timer.isActive():
+            usage_timer.start()
+            self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
         self.refresh_ambient_background()
 
+    def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
+        # Keep this Qt lifecycle hook out of the documented spaCR API: it is
+        # only the inverse of the showEvent timer activation above.
+        """Let the screen stop paying for things nobody can see.
+
+        :param event: the Qt hide event.
+        """
+        self._usage_generation += 1
+        usage_timer = getattr(self, "_usage_timer", None)
+        if usage_timer is not None:
+            usage_timer.stop()
+        super().hideEvent(event)
+
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
-    def _on_run(self):
+    def _on_run(self, _checked=False, *, override=None):
+        """Start the pipeline.
+
+        :param _checked: swallows the bool a ``clicked`` signal passes.
+        :param override: run THESE settings instead of what the panel holds.
+            Keyword-only, so the clicked bool can never land in it.
+
+        The override is what the re-fit uses. It builds its settings from the
+        run already on screen rather than from the widgets, because the
+        widgets may have been edited since -- and a re-fit of "what I am
+        looking at" that quietly picked those up would compare two runs
+        differing in more ways than the one the user chose.
+        """
         from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
@@ -2101,19 +7374,32 @@ class AppScreen(QWidget):
                 f"{self.app_key}.Run",
                 {"result": "not_runnable"})
             QMessageBox.information(
-                self, "Not runnable",
-                f"The '{self.app_key}' app is interactive-only in this Qt build. "
-                f"Use the classic Tk GUI (`spacr`) for now.",
+                self, tr("Not runnable"),
+                tr("The '{app}' app is interactive-only in this Qt build. "
+                   "Use the classic Tk GUI (`spacr`) for now.",
+                   app=self.app_key),
             )
             return
         try:
-            settings = self._settings_model.collect()
+            settings = (dict(override) if override is not None
+                        else self._settings_model.collect())
         except Exception as e:
             log_button_press(
                 f"{self.app_key}.Run",
                 {"result": "bad_settings", "error": str(e)})
-            QMessageBox.warning(self, "Bad settings", str(e))
+            QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
+
+        # WHAT THE CROP SETTINGS WILL COST, said before the run rather than
+        # after it. Both of these quietly change what every downstream model
+        # sees, and neither is recoverable without measuring again -- which is
+        # twenty minutes a plate.
+        if self.app_key == "measure" and not self._confirm_crop_choices(
+                settings):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "cancelled_at_crop_warning"})
+            return
+
         if self.app_key == "umap":
             # Resolve GUI colours on the GUI thread and pass plain strings to
             # the worker. The UMAP canvas sits inside a Card, whose material is
@@ -2167,6 +7453,34 @@ class AppScreen(QWidget):
         # the run journal + the OS notification.
         import time as _time
         self._run_started_at = _time.time()
+        # WIND THE BACKDROP DOWN. Under spaceout the fractal holds nineteen
+        # Numba threads, which is exactly the machine the run wants. Stopping
+        # is better than slowing: a thinner fractal still owns the threads.
+        # The last frame stays on screen, so nothing blinks out.
+        _pause_the_fractal(self)
+        # EACH RUN IS ITS OWN SECTION ON THE GRID, AND A ROW IN THE RUNS TAB.
+        # Marked at the START rather than when the first figure arrives, so a
+        # run that draws nothing still appears as a section that drew nothing
+        # -- which is a fact worth seeing rather than a gap.
+        #
+        # ONE LABEL FOR BOTH. The grid heading and the runs row name the same
+        # run, and two labels generated separately are two clocks: a user
+        # looking at "run 14:32:05" on the grid has to be able to find it in
+        # the table.
+        import datetime as _dt
+        from ..widgets.sweep_runs import SOURCE_REFIT, SOURCE_RUN
+        # A RE-FIT IS A RUN, AND SAYS SO. `override` is what the re-fit passes
+        # and nothing else does (see the docstring above), so this is the one
+        # place that can tell the two apart -- by the time the worker starts
+        # they are the same call.
+        source = SOURCE_REFIT if override is not None else SOURCE_RUN
+        label = _dt.datetime.now().strftime(f"{source}  %H:%M:%S")
+        try:
+            self._figure_queue.mark_run(label)
+        except Exception:
+            LOG.debug("could not mark the run on the figure grid",
+                      exc_info=True)
+        self._run_handle = self._record_run_in_runs_tab(label, source, settings)
 
         # The one preference the PIPELINE needs to know about, passed as an
         # ordinary setting. The pipeline must never read QSettings -- a
@@ -2178,6 +7492,11 @@ class AppScreen(QWidget):
             settings.setdefault("hash_inputs", get_hash_inputs())
         except Exception:
             LOG.debug("could not read the hashing preference", exc_info=True)
+
+        # A LONG FIT SAYS IT WILL BE LONG (instruction 140). Before the
+        # worker is even built, so the sentence is on screen ahead of the
+        # first line the run prints.
+        self._announce_the_fit(settings)
 
         self._thread, worker = make_thread(entry, settings)
         # Keep a strong reference to the worker on ``self``. PySide6
@@ -2191,6 +7510,11 @@ class AppScreen(QWidget):
         worker.line_ready.connect(self._console.append_stdout)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
+        # THE RUN HANDS BACK ITS OWN RESULTS. Reading the CSV meant guessing
+        # which of four nested folders the run had written to, and a guess is
+        # how a screen shows last month's table or an empty one.
+        worker.result_ready.connect(self._on_pipeline_result)
+        self._results_loaded_in_memory = False
         worker.finished.connect(self._on_finished)
         # Clear our Python references only once the QThread has genuinely
         # stopped (its event loop exited). Dropping them from _on_finished —
@@ -2199,6 +7523,254 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    # ------------------------------------------------------------------
+    # A long fit says it will be long, and says where it has got to (140)
+    # ------------------------------------------------------------------
+    #
+    # Reported 2026-08-18, twice, while a fit was running correctly: "im
+    # running the mixed model now and it is taking much longer than before is
+    # that normal?" ... "it is still going, cpu at 100 percent". AN HOUR OF
+    # SILENCE AT 100% CPU IS INDISTINGUISHABLE FROM A HANG, and that is the
+    # whole of the report -- the run was healthy and had no way to say so.
+
+    #: When the heartbeat speaks, in seconds since the run started.
+    #:
+    #: SPARSE AND WIDENING, not a fixed tick. A line every thirty seconds is
+    #: 120 lines in the hour this exists for, and a console holding 120
+    #: identical lines is the same silence with more scrolling. The early
+    #: entries are close together because that is when a user is deciding
+    #: whether anything is happening at all.
+    HEARTBEAT_SCHEDULE = (30, 60, 120, 300, 600, 1200, 1800, 2700, 3600)
+
+    #: And every this many seconds after the last scheduled one.
+    HEARTBEAT_INTERVAL = 1800
+
+    #: How often the timer wakes to check the schedule. Cheap, and finer than
+    #: the schedule so no entry is skipped by a slow event loop.
+    HEARTBEAT_TICK_MS = 5000
+
+    @staticmethod
+    def _it_will_permute(settings) -> bool:
+        """Return whether the settings explicitly select permutation inference.
+
+        ``inference='auto'`` is intentionally excluded because its resolution
+        depends on guide and well counts that are not available until the
+        design scan completes.
+        """
+        settings = settings or {}
+        inference = str(settings.get("inference") or "").strip().lower()
+        mode = str(settings.get("analysis_mode") or "").strip().lower()
+        return inference == "nonparametric" or mode == "guide_permutation"
+
+    def _say_what_the_permutation_will_do(self, settings) -> str:
+        """Display and return the configuration of a guide permutation run.
+
+        The banner reports the statistic, blocking variable, output level,
+        permutation count, and minimum attainable empirical P value. Invalid
+        counts are reported without attempting to calculate a P-value floor;
+        pre-flight validation then prevents the run from starting.
+
+        :param settings: Regression settings associated with the pending run.
+        :returns: The message appended to the run console.
+        """
+        from ..i18n import tr
+        from .settings_model import normalise_regression_level
+
+        settings = settings or {}
+        raw_permutations = settings.get("guide_permutations", 200000)
+        try:
+            permutations = int(raw_permutations)
+        except (TypeError, ValueError):
+            permutations = 0
+        if permutations < 1:
+            note = tr(
+                "→ Guide permutation test configuration is invalid: "
+                "guide_permutations={value}. Enter an integer of at least 1 "
+                "before running the analysis.",
+                value=repr(raw_permutations),
+            )
+            self._console.append_notice("{note}\n", note=note)
+            return note
+
+        floor = 1.0 / (permutations + 1)
+        level = normalise_regression_level(settings.get("level"))
+        statistic = str(settings.get("grna_statistic") or "pearson")
+        block = str(settings.get("guide_permutation_block") or "plateID")
+        note = tr(
+            "→ Guide permutation test: {permutations} within-{block} "
+            "permutations per guide using the {statistic} statistic; "
+            "reported level: {level}. No regression model is fitted, so "
+            "regression_type is not used. Minimum attainable empirical P "
+            "value: {floor} (1/(permutations+1)).",
+            permutations=f"{permutations:,}",
+            block=block,
+            statistic=statistic,
+            level=level,
+            floor=f"{floor:.3g}",
+        )
+        self._console.append_notice("{note}\n", note=note)
+        return note
+
+    def _announce_the_fit(self, settings) -> None:
+        """Say what is about to run, what it costs, and how big it is.
+
+        THREE SENTENCES, IN THIS ORDER, and each is a different question:
+
+        * WHAT IS RUNNING -- the model, its level and its backend, read off
+          the settings the run was actually started with rather than off the
+          widgets, so a re-fit describes the re-fit.
+        * WHAT IT COSTS -- the measurement from
+          :func:`~spacr.qt.screens.settings_model.mixed_cost_note`, which the
+          model box states too. One source, so the two cannot drift.
+        * HOW BIG THE DESIGN IS -- and that one needs the count files read,
+          so it goes through the screen's `JobRunner` and arrives when it
+          arrives. Reading a 500,000-row count CSV on the GUI thread to warn
+          somebody about a slow fit would be its own freeze.
+
+        A no-op outside the regression screens: no other module has a
+        measured cost to quote, and "still running" over a segmentation is
+        what the progress bar is already for.
+        """
+        if self.app_key not in ("regression", "sweep"):
+            return
+        from .settings_model import (SLOW_MODELS, mixed_cost_note,
+                                     normalise_regression_level,
+                                     regression_design_scan)
+
+        model = str((settings or {}).get("regression_type") or "auto").lower()
+        # Explicit permutation runs use a dedicated banner because they do
+        # not fit a regression model or use ``regression_type``. Automatic
+        # inference retains the model banner until the design scan resolves
+        # the method from the guide and well counts.
+        if self._it_will_permute(settings):
+            self._say_what_the_permutation_will_do(settings)
+            self._slow_fit = False
+            self._start_the_heartbeat()
+            return
+        self._console.append_notice(
+            "→ Model: {model}, level {level}, backend {backend}.\n",
+            model=model,
+            level=normalise_regression_level((settings or {}).get("level")),
+            backend=str((settings or {}).get("regression_backend")
+                        or "statsmodels (CPU)"),
+        )
+        if model == "mixed":
+            self._console.append_notice("■ {note}\n", note=mixed_cost_note())
+        self._slow_fit = model in SLOW_MODELS
+        self._start_the_heartbeat()
+
+        # THE DESIGN, off the GUI thread. `submit` returns before the read
+        # starts; the sentence lands a moment after the run's own first line
+        # and says which it is.
+        scan = dict(settings or {})
+        try:
+            self._jobs.submit(lambda: regression_design_scan(scan),
+                              self._on_design_scanned)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not scan the design", exc_info=True)
+
+    def _on_design_scanned(self, design) -> None:
+        """Print the unfiltered count-file design size to the console.
+
+        These counts precede score merging, read-fraction filtering, and well
+        filtering, so they remain distinguishable from the run's cleaned
+        design counts.
+        """
+        if not isinstance(design, dict):
+            return
+        genes, guides = design.get("genes"), design.get("guides")
+        wells, note = design.get("wells"), str(design.get("note") or "")
+        if genes is not None and guides is not None and wells is not None:
+            self._console.append_notice(
+                "■ The design in the count files: {genes} genes and {guides} "
+                "guides over {wells} wells, from {rows} rows in {files} "
+                "file(s). That is BEFORE the merge with the scores and "
+                "before the filters — the run's own counts follow.\n",
+                genes=genes, guides=guides, wells=wells,
+                rows=design.get("rows", 0), files=design.get("files", 0))
+        elif guides is not None:
+            self._console.append_notice(
+                "■ The count files hold {guides} distinct gRNAs in {rows} "
+                "rows. {why}\n",
+                guides=guides, rows=design.get("rows", 0),
+                why=note or "The rest of the design could not be read.")
+        else:
+            self._console.append_notice(
+                "■ Could not size the design from the count files: {why}\n",
+                why=note or "nothing readable in them")
+
+    def _start_the_heartbeat(self) -> None:
+        """Begin reporting where a long run has got to."""
+        self._heartbeat_said = 0.0
+        timer = getattr(self, "_heartbeat", None)
+        if timer is None:
+            timer = QTimer(self)
+            timer.setInterval(self.HEARTBEAT_TICK_MS)
+            timer.timeout.connect(self._on_heartbeat)
+            self._heartbeat = timer
+        timer.start()
+
+    def _stop_the_heartbeat(self) -> None:
+        """The run is over: stop talking about it."""
+        timer = getattr(self, "_heartbeat", None)
+        if timer is not None:
+            timer.stop()
+
+    def _due_heartbeat(self, elapsed: float) -> bool:
+        """Whether the schedule has passed a mark this run has not spoken at.
+
+        Kept apart from the timer so the schedule can be driven directly: a
+        test that had to wait 3,600 real seconds to check the last entry
+        would not be written, and the entry nobody checks is the one that is
+        wrong.
+        """
+        said = float(getattr(self, "_heartbeat_said", 0.0))
+        due = [mark for mark in self.HEARTBEAT_SCHEDULE
+               if said < mark <= elapsed]
+        if due:
+            self._heartbeat_said = float(due[-1])
+            return True
+        last = self.HEARTBEAT_SCHEDULE[-1]
+        if elapsed < last + self.HEARTBEAT_INTERVAL:
+            return False
+        steps = int((elapsed - last) // self.HEARTBEAT_INTERVAL)
+        mark = last + steps * self.HEARTBEAT_INTERVAL
+        if said >= mark:
+            return False
+        self._heartbeat_said = float(mark)
+        return True
+
+    def _on_heartbeat(self) -> None:
+        """One scheduled line saying the run is alive and where it has got to.
+
+        NOT A SPINNER WITH NO CONTENT. The line names the elapsed time and,
+        for a fit that holds one core by design, says that holding one core
+        is what healthy looks like -- because "cpu at 100 percent" was the
+        observation the user could not interpret.
+        """
+        import time as _time
+
+        thread = getattr(self, "_thread", None)
+        if thread is None or not thread.isRunning():
+            self._stop_the_heartbeat()
+            return
+        started = getattr(self, "_run_started_at", None)
+        if not started:
+            return
+        elapsed = _time.time() - float(started)
+        if not self._due_heartbeat(elapsed):
+            return
+        if getattr(self, "_slow_fit", False):
+            self._console.append_notice(
+                "■ Still fitting — {elapsed} so far. This model is a "
+                "single-threaded optimisation, so one core at 100% and the "
+                "others idle is what a healthy fit looks like. Stop is "
+                "live.\n", elapsed=_elapsed_words(elapsed))
+        else:
+            self._console.append_notice(
+                "■ Still running — {elapsed} so far.\n",
+                elapsed=_elapsed_words(elapsed))
 
     def _open_preferences_dialog(self) -> None:
         """Open Preferences from this screen.
@@ -2234,11 +7806,20 @@ class AppScreen(QWidget):
             self._console.append_error(f"Could not copy the console: {exc}\n")
             return
         lines = text.count("\n")
-        self._btn_copy_console.setText("Copied")
+        # TRANSLATED AT THE MOMENT OF WRITING, all three. The language pass
+        # ran when the screen was built and does not run again, so an
+        # English literal set by a handler is English for the rest of the
+        # session -- and worse, `retranslate_widget_tree` reads a caption it
+        # did not render as data and opts the widget out of every later
+        # pass. Pressing Copy console on a Swedish screen used to leave the
+        # button reading "Copy console" for good.
+        self._btn_copy_console.setText(tr("Copied"))
         QTimer.singleShot(
-            1200, lambda: self._btn_copy_console.setText("Copy console"))
+            1200,
+            lambda: self._btn_copy_console.setText(tr("Copy console")))
         try:
-            self.statusBar().showMessage(f"Copied {lines} lines", 3000)
+            self.statusBar().showMessage(
+                tr("Copied {count} lines", count=lines), 3000)
         except Exception:
             pass
 
@@ -2247,7 +7828,7 @@ class AppScreen(QWidget):
         try:
             settings = dict(self._settings_model.collect())
         except Exception as exc:
-            QMessageBox.warning(self, "Bad settings", str(exc))
+            QMessageBox.warning(self, tr("Bad settings"), str(exc))
             return
         self.remote_submit_requested.emit(self.app_key, settings)
 
@@ -2302,7 +7883,7 @@ class AppScreen(QWidget):
         Opening it also seeds the panel from the form, once. Before that,
         this screen wired only the push direction — ``set_propagate_callback``
         — so all four previews ran at their own hardcoded defaults. A user
-        set ``cell_FT``, opened Live preview to check the segmentation, and
+        set ``cell_flow_threshold``, opened Live preview to check the segmentation, and
         the preview segmented at 0.4 regardless: the preview is consulted to
         make a decision, which is the worst place for it to disagree with
         the run.
@@ -2355,6 +7936,43 @@ class AppScreen(QWidget):
             if model is not None:
                 self._hyperparam.apply_settings(model.collect())
 
+    def _on_sweep_switch(self, on: bool) -> None:
+        """Show/hide the Parameter sweep card when its toggle flips."""
+        card = getattr(self, "_sweep_card", None)
+        if card is None:
+            return
+        card.setVisible(on)
+        if on:
+            # Seed the sweep from what is in the settings panel, so it starts
+            # from the user's inputs rather than from defaults they would have
+            # to retype.
+            model = getattr(self, "_settings_model", None)
+            panel = getattr(self, "_sweep", None)
+            if model is not None and panel is not None:
+                try:
+                    panel.apply_settings(model.collect())
+                except Exception:
+                    LOG.debug("could not seed the parameter sweep",
+                              exc_info=True)
+
+    def _on_umap_gpu_switch(self, on: bool) -> None:
+        """Keep one truthful GPU state across the main and search pipelines."""
+        panel = getattr(self, "_hyperparam", None)
+        model = getattr(self, "_settings_model", None)
+        if panel is None or self.app_key != "umap":
+            return
+        # THE SWITCH IS THE ANCHOR, so the panel opens under the control the
+        # user just pressed rather than under the search panel it belongs to.
+        enabled = bool(panel.request_gpu_enabled(
+            bool(on), anchor=getattr(self, "_gpu_switch", None)))
+        if model is not None:
+            model.set_hidden_value("gpu", enabled)
+        switch = getattr(self, "_gpu_switch", None)
+        if switch is not None and switch.isChecked() != enabled:
+            switch.blockSignals(True)
+            switch.setChecked(enabled)
+            switch.blockSignals(False)
+
 
     def _on_static_figure_clicked(self) -> None:
         """A click on the static UMAP opens the interactive explorer.
@@ -2399,7 +8017,38 @@ class AppScreen(QWidget):
         if queue.count():
             queue.show()
 
+    def _apply_ai_default(self) -> None:
+        """Turn the AI switch on at launch when the preference says to.
+
+        Only ON is applied. The preference is "start with it on", not "keep
+        it on": a user who turns the switch off mid-session means it, and
+        re-asserting the default on the next screen would fight them.
+
+        Never raises: a preference that cannot be read is not a reason for a
+        module screen to fail to build.
+        """
+        try:
+            from ..preferences import get_ai_on_by_default
+
+            if not bool(get_ai_on_by_default()):
+                return
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the AI default", exc_info=True)
+            return
+        try:
+            self._ai_switch.setChecked(True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not turn the AI switch on", exc_info=True)
+
     def _on_ai_switch(self, on: bool) -> None:
+        """Turn the console's AI on or off, picking a provider if none is set.
+
+        With no vendor CLI installed the switch turns itself back off and says
+        where to configure one, rather than leaving an armed toggle that cannot
+        answer.
+
+        :param on: the switch's new state.
+        """
         self._console.set_ai_active(on)
         if on:
             # Auto-pick first available provider if none selected yet.
@@ -2407,53 +8056,42 @@ class AppScreen(QWidget):
             if not self._console._current_provider_name:
                 configured = ai_module.configured_providers()
                 if configured:
-                    self._console.set_ai_provider(configured[0].name)
-                    self._refresh_ai_menu()
+                    self._console.set_ai_provider(
+                        self._wanted_provider() or configured[0].name)
                 else:
                     self._console.append_notice(
-                        "[AI] No vendor CLI installed. Click ▾ next "
-                        "to the AI switch → Providers…\n"
+                        "[AI] No vendor CLI installed. "
+                        "Preferences → AI → Providers…\n"
                     )
                     self._ai_switch.setChecked(False)
 
-    def _refresh_ai_menu(self) -> None:
-        """Rebuild the provider dropdown next to the AI switch."""
+    def _wanted_provider(self):
+        """The provider Preferences asks for, if it is actually installed.
+
+        :returns: the chosen provider's name, or ``""`` to let the console
+            take the first available one.
+        """
         from .. import ai as ai_module
-        self._ai_menu.clear()
-        configured = ai_module.configured_providers()
-        current = self._console._current_provider_name
-        if configured:
-            for p in configured:
-                act = self._ai_menu.addAction(p.label)
-                act.setCheckable(True)
-                act.setChecked(p.name == current)
-                act.triggered.connect(
-                    lambda _c=False, name=p.name: self._on_pick_provider(name)
-                )
-            self._ai_menu.addSeparator()
-        else:
-            source = "(no vendor CLI installed)"
-            unavailable = self._ai_menu.addAction(tr(source))
-            unavailable.setProperty("_spacr_i18n_text", source)
-            unavailable.setEnabled(False)
-            self._ai_menu.addSeparator()
-        source = "Providers…"
-        act_providers = self._ai_menu.addAction(tr(source))
-        act_providers.setProperty("_spacr_i18n_text", source)
-        act_providers.triggered.connect(self._on_open_providers_dialog)
+        from ..preferences import get_preferred_provider
 
-    def _on_pick_provider(self, name: str) -> None:
-        self._console.set_ai_provider(name)
-        self._refresh_ai_menu()
-
-    def _on_open_providers_dialog(self) -> None:
-        from ..widgets.ai_chat_panel import _ProvidersDialog
-        from PySide6.QtWidgets import QDialog
-        dlg = _ProvidersDialog(self)
-        if dlg.exec() == QDialog.Accepted:
-            self._refresh_ai_menu()
+        wanted = get_preferred_provider()
+        if not wanted:
+            return ""
+        # A PREFERENCE IS A WISH, NOT A GUARANTEE. The CLI it names can be
+        # uninstalled between sessions, and honouring the name regardless
+        # would route every question to something that is not there.
+        try:
+            names = {p.name for p in ai_module.configured_providers()}
+        except Exception:                                    # noqa: BLE001
+            return ""
+        return wanted if wanted in names else ""
 
     def _on_explain_error(self):
+        """Send the last traceback to the console's error flow.
+
+        The legacy signal is emitted as well, for ``MainWindow``'s older dock
+        path. Nothing happens when no error has been seen.
+        """
         if not self._last_error_text:
             return
         # Route the traceback into our own merged console — no more
@@ -2523,13 +8161,28 @@ class AppScreen(QWidget):
         from ..ai.issue_report import build_report, submit_report
         from ..preferences import get_share_diagnostic_logs
 
+        # THE AI'S OWN ANALYSIS RIDES ALONG when spaCR AI is switched on and
+        # has already answered THIS error -- which, in the flow that files
+        # these reports, it usually has, because the console offers to explain
+        # a crash the moment it happens. Empty when the AI is off, when it has
+        # not answered, or when its last answer was about something else; see
+        # `ConsolePanel.ai_explanation_of`.
+        try:
+            ai_analysis = self._console.ai_explanation_of(self._last_error_text)
+        except Exception:                                    # noqa: BLE001
+            ai_analysis = ""
         report = build_report(
             self._last_error_text,
             active_app=self.app_key,
             settings=settings_snapshot,
             include_log_tail=get_share_diagnostic_logs(),
+            ai_response=ai_analysis,
         )
-        preview = IssuePreviewDialog(report, self)
+        # The console and the raw traceback go with it, so its Diagnose
+        # button can ask spaCR AI about this error and add the answer.
+        preview = IssuePreviewDialog(
+            report, self, console=self._console,
+            traceback_text=self._last_error_text)
         if preview.exec() != QDialog.Accepted:
             self._console.append_notice(
                 "[issue] cancelled — nothing was sent.\n")
@@ -2542,6 +8195,12 @@ class AppScreen(QWidget):
             # "[issue] auto-file failed"; once the call is asynchronous that
             # `except` can no longer see it, and a report that silently fails
             # to send is worse than one that fails loudly.
+            """Submit the report, returning the failure AS DATA rather than raising.
+
+            The call is asynchronous, so an ``except`` around the caller can no
+            longer see it -- and a report that silently fails to send is worse than
+            one that fails loudly.
+            """
             try:
                 return {"url": submit_report(approved_report)}
             except Exception as exc:      # noqa: BLE001 - reported, not hidden
@@ -2562,6 +8221,59 @@ class AppScreen(QWidget):
             "[issue] report handoff completed.\n{url}...\n",
             url=str((outcome or {}).get("url") or "")[:100],
         )
+
+    def _crop_choice_warnings(self, settings) -> list:
+        """What is worth saying about this run's crop settings, in order.
+
+        Returned as a list rather than shown from here, so WHAT is warned
+        about is testable without a dialog in the way.
+        """
+        notes = []
+        if settings.get("normalize"):
+            notes.append(
+                "NORMALISING THE CROPS LOSES INFORMATION THAT CANNOT BE "
+                "RECOVERED.\n\n"
+                "The annotation viewer and the training pipeline each apply "
+                "their own normalisation, at the point they display or learn "
+                "from an image. Normalising here as well rescales the raw "
+                "pixels before either of them sees them, so intensity "
+                "differences between cells -- often the phenotype itself -- "
+                "are flattened into one displayed range, and the crops on "
+                "disk cannot be un-normalised afterwards.")
+        if settings.get("use_bounding_box"):
+            notes.append(
+                "A BOUNDING BOX INCLUDES WHAT IS AROUND THE OBJECT, NOT ONLY "
+                "THE OBJECT.\n\n"
+                "The crop becomes the rectangle enclosing the mask, so "
+                "neighbouring cells, debris and background inside that "
+                "rectangle are kept. A classifier trained on those crops can "
+                "learn the neighbourhood rather than the cell.")
+        if notes:
+            notes.append(
+                "YOU DO NOT HAVE TO DECIDE THIS NOW.\n\n"
+                "Once Measure has finished you can build a training or "
+                "annotation set by streaming crops straight from the merged "
+                "arrays, or from the coordinate columns in measurements.db, "
+                "without measuring again. Streaming from the database gives "
+                "BOUNDING-BOX crops only, because coordinates are all it "
+                "stores; streaming from the arrays uses the object masks, so "
+                "it can cut to the object itself.")
+        return notes
+
+    def _confirm_crop_choices(self, settings) -> bool:
+        """Ask before a crop setting that changes every downstream image.
+
+        :returns: whether the run should go ahead. ``True`` when there is
+            nothing to warn about, so an ordinary run is never interrupted.
+        """
+        notes = self._crop_choice_warnings(settings)
+        if not notes:
+            return True
+        answer = QMessageBox.question(
+            self, tr("Check the crop settings"),
+            "\n\n".join(notes) + "\n\n" + tr("Run with these settings?"),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return answer == QMessageBox.Yes
 
     def _umap_display_defaults(self) -> dict:
         """The display settings the run is currently configured with.
@@ -2626,6 +8338,9 @@ class AppScreen(QWidget):
         if not interactive_open:
             self._figure_queue.show()
         self._figures_card.show()
+        # The grid is on screen while the run streams, so it has to grow with
+        # it. Debounced, so seventeen arrivals are one relayout.
+        self._queue_figure_grid_refresh()
 
     def closeEvent(self, event):
         """Cancel and join this screen's worker before destroying widgets.
@@ -2634,6 +8349,10 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
         """
+        # The heartbeat outlives the run it describes unless it is stopped:
+        # a QTimer parented to this widget keeps firing until the widget is
+        # destroyed, and its slot touches the console.
+        self._stop_the_heartbeat()
         th = getattr(self, "_thread", None)
         if th is not None:
             try:
@@ -2661,6 +8380,7 @@ class AppScreen(QWidget):
         # Stop polling before shutting the runner down, or the 2 s timer can
         # start one more job while `shutdown` is draining the last.
         try:
+            self._usage_generation += 1
             self._usage_timer.stop()
         except (AttributeError, RuntimeError):
             pass
@@ -2675,11 +8395,42 @@ class AppScreen(QWidget):
                     jobs.shutdown()
                 except RuntimeError:
                     pass
+        # THE CELLS TAB HAS A WORKER OF ITS OWN, and for the same reason the
+        # exclusion editor below does: it is a child widget, so navigation
+        # destroying this screen never gives it a close event to shut its
+        # loader down from -- and a QThread destroyed while running aborts
+        # the process, which a seconds-long merged-source montage makes an
+        # ordinary case rather than a rare one.
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None:
+            try:
+                montage.shutdown()
+            except RuntimeError:
+                pass
+        # Classify's FlowView footer owns a refresh timer and a graphics
+        # scene.  It is a direct child of the settings content rather than a
+        # SettingsWidgets field, so the generic settings shutdown below does
+        # not see it; close it explicitly while its Qt objects are still
+        # alive.
+        flowview = getattr(self, "_flowview_section", None)
+        if flowview is not None:
+            try:
+                flowview.shutdown()
+            except RuntimeError:
+                pass
         # The settings panel's own background work goes with the screen. The
         # exclusion editor reads distinct values off a worker, and it is a
         # child widget, so navigation destroying the panel never gives it a
         # close event of its own to shut that down from.
         self._shutdown_settings_widgets()
+        # Instruction 180: a screen that is gone contributes nothing to a
+        # saved run. Withdrawn HERE and not left to the registry's own
+        # callables to fail, because a provider that raises every time is
+        # reported as a problem in every workspace document afterwards.
+        try:
+            self.unregister_workspace()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not withdraw the workspace sections", exc_info=True)
         # Clean up the figure queue's temp dir if present.
         fq = getattr(self, "_figure_queue", None)
         if fq is not None:
@@ -2693,6 +8444,18 @@ class AppScreen(QWidget):
                 explorer.close()
             except Exception:
                 pass
+        # pyqtgraph deliberately makes PlotItem/ViewBox context menus
+        # parentless top-level windows. The ordinary QWidget close cascade
+        # cannot reach them, so one closed regression screen otherwise leaves
+        # hundreds of live widgets for every later palette/style pass. Retire
+        # only menus found in this screen's own graphics scenes; a global
+        # QApplication sweep or gc.collect over live Qt wrappers is unsafe.
+        try:
+            from ..widget_cleanup import retire_pyqtgraph_menus
+
+            retire_pyqtgraph_menus(self)
+        except (ImportError, RuntimeError):
+            pass
         super().closeEvent(event)
 
     def _shutdown_settings_widgets(self) -> None:
@@ -2719,7 +8482,23 @@ class AppScreen(QWidget):
                     pass
 
     def _on_finished(self, ok: bool):
+        """Return the page to its resting state when a run ends.
+
+        The heartbeat is stopped before anything else: one firing after the run
+        would print "still fitting" under "Finished", and the last console
+        line is the one a user reads. The backdrop gets its cores back here too,
+        since this is the single door both a finished and a failed run take.
+
+        :param ok: whether the run succeeded.
+        """
         from ..button_roles import set_button_busy
+        # BEFORE ANYTHING ELSE. A heartbeat that fires after the run has
+        # finished says "still fitting" underneath "Finished", and the last
+        # line of a console is the one a user reads.
+        self._stop_the_heartbeat()
+        # AND GIVE THE BACKDROP ITS CORES BACK, whether the run finished or
+        # failed -- `_on_finished` is the one door both take.
+        _resume_the_fractal(self)
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         set_button_busy(self._btn_run, False)
@@ -2727,6 +8506,15 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        # THE RUNS TAB LEARNS HOW IT WENT. Its row said "running" from the
+        # moment the run started; leaving it there would make every finished
+        # run look like one still in flight, and picking it would be refused
+        # for a run whose results are sitting on disk.
+        import time as _elapsed_time
+        self._update_run_in_runs_tab(
+            status=("stopped" if cancelled else ("ok" if ok else "failed")),
+            seconds=round(_elapsed_time.time() - getattr(
+                self, "_run_started_at", _elapsed_time.time()), 1))
         if cancelled:
             self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
@@ -2740,6 +8528,16 @@ class AppScreen(QWidget):
         # destroy the still-running QThread and abort the process. The
         # references are cleared from _clear_thread_refs, wired to the
         # QThread's own finished signal.
+        # A finished regression has a coefficient table on disk; open into it
+        # rather than leaving the user to find the CSV.
+        if (ok and not cancelled and getattr(self, "_results_panel", None)
+                and not getattr(self, "_results_loaded_in_memory", False)):
+            try:
+                self._load_regression_results()
+            except Exception:
+                LOG.debug("could not open the regression results",
+                          exc_info=True)
+
         # OS-level notification (libnotify / osascript / win10toast) so
         # users don't have to sit and watch. Always safe — the notify
         # module fails silently on any error.
@@ -2756,6 +8554,1430 @@ class AppScreen(QWidget):
         except Exception:
             pass
 
+    # ------------------------------------------------------------------
+    # The Runs tab: every run, not only the sweep's trials
+    # ------------------------------------------------------------------
+    def _record_run_in_runs_tab(self, label, source, settings):
+        """Record a starting regression run on the Runs tab.
+
+        Return the run handle, or ``None`` when this screen has no Runs tab.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is None:
+            return None
+        try:
+            return runs.record_run(label, source, settings)
+        except Exception:
+            LOG.debug("could not record the run in the Runs tab",
+                      exc_info=True)
+            return None
+
+    def _update_run_in_runs_tab(self, **fields) -> bool:
+        """Update the row for the run this screen last started."""
+        runs = getattr(self, "_sweep_runs", None)
+        handle = getattr(self, "_run_handle", None)
+        if runs is None or handle is None:
+            return False
+        try:
+            return bool(runs.update_run(handle, **fields))
+        except Exception:
+            LOG.debug("could not update the run in the Runs tab",
+                      exc_info=True)
+            return False
+
+    def _refresh_figure_grid(self) -> None:
+        """Rebuild the grid from whatever the queue is holding.
+
+        Called on the debounce timer rather than per figure: a run streams
+        seventeen in and the grid is on screen the whole time, so one rebuild
+        per arrival is seventeen full relayouts of the same view.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        if grid is None:
+            return
+        try:
+            grid.set_figures(self._figure_queue.all_pixmaps(),
+                             self._figure_queue.figure_titles(),
+                             sections=self._figure_queue.run_sections())
+        except Exception:
+            LOG.debug("could not build the figure grid", exc_info=True)
+        self._pin_regression_graph()
+
+    #: What the live tile is captioned. It has to distinguish itself from the
+    #: run's own `volcano` panel, which is a cell of the same grid: they are
+    #: the same numbers drawn twice on purpose -- one is the publication panel
+    #: and one is the tool -- and a reader who cannot tell which is which has
+    #: two identical-looking tiles and no reason to press either.
+    LIVE_TILE_TITLE = "regression — interactive"
+
+    def _pin_regression_graph(self) -> None:
+        """Put the LIVE regression graph on the all-figures grid.
+
+        "the regression plot isnt shown in all figures (i want it also shown
+        there)". It was not, and there was no route to it from the grid at
+        all: every tile opens a saved picture, and the only other way back to
+        the interactive volcano was to select a row in the coefficient table.
+        A view you can leave and not return to is the trap the "← All figures"
+        button exists to avoid, pointing the other way.
+
+        THE TILE WAS TRIED ONCE AND REMOVED, and the reason it was removed was
+        not the tile. It grabbed a widget sitting on a stacked page nobody had
+        opened, which on the real screen is 100x9 pixels inside a collapsed
+        splitter, so `grab()` returned a one-colour rectangle -- the "blank
+        box with a caption under it". :meth:`FastPlot.snapshot` sizes the
+        widget and lays it out before grabbing, and the same widget yields a
+        readable picture. Measured: 1 distinct colour before, 260 after.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        panel = getattr(self, "_results_panel", None)
+        if grid is None or panel is None:
+            return
+        try:
+            frame = panel.results_frame()
+            # NOTHING FITTED, NO TILE. An empty plot tile invites a click that
+            # opens an empty plot, and before a run there is nothing on the
+            # volcano to photograph anyway -- `snapshot` returns None for that
+            # too, but asking here keeps the grid from flickering a tile in
+            # and out while a run streams its first figures.
+            if frame is None or not len(frame):
+                # NOTHING FITTED, NO TILES.
+                grid.set_pinned(None, "")
+                return
+
+            # EVERY LIVE PANEL, not only the volcano.
+            #
+            # "i would like you to generate all plots with the pyqtgraph and
+            # have each represented as a tab under results" and "i would still
+            # like to retain the grid to the right ... same grid overview but
+            # pyqtgraph versions". The tabs landed first; this is the grid
+            # half.
+            #
+            # PHOTOGRAPHS, NOT LIVE WIDGETS, and that was measured rather than
+            # assumed: per window-drag frame at 18 tiles, live pyqtgraph
+            # widgets cost 74.99 ms against 5.19 ms for pictures, on a 16.7 ms
+            # budget -- six live tiles already miss the frame. The live widget
+            # is what a tile OPENS, not what the grid holds.
+            from ..widgets.figure_grid_view import live_tiles_from_panels
+
+            grid.set_live_tiles(live_tiles_from_panels([
+                ("regression", self.LIVE_TILE_TITLE, panel.volcano),
+                ("effect_rank", "Effect ranking", panel.effect_rank),
+                ("p_values", "p-values", panel.p_values),
+                ("qq", "Q-Q", panel.qq),
+                ("controls", "Controls", panel.controls),
+                ("agreement", "Guide support", panel.agreement),
+                ("residuals", "Residuals", panel.residuals),
+                ("scale_location", "Scale-location", panel.scale_location),
+                ("influence", "Influence", panel.influence),
+            ]) + self._gene_tile_entry(panel))
+        except Exception:
+            LOG.debug("could not pin the live regression graph", exc_info=True)
+
+    #: Live-tile key -> the panel attribute holding the live widget, for
+    #: the right-click menu. Only panels that HAVE a style menu appear:
+    #: absent here means the tile opens on a left click and has no menu,
+    #: which is the honest state, not a bug.
+    _LIVE_TILE_WIDGETS = {
+        "regression": "volcano",
+        "effect_rank": "effect_rank",
+        "p_values": "p_values",
+        "qq": "qq",
+        "controls": "controls",
+        "agreement": "agreement",
+        "residuals": "residuals",
+        "scale_location": "scale_location",
+        "influence": "influence",
+    }
+
+    def _open_live_tile(self, key: str) -> None:
+        """A live tile was pressed: raise the panel it photographs.
+
+        THE MISSING DOOR (199). "i am able to click on the colcano plot to
+        open it but not the other pyqtgraphs" -- because the grid emits
+        `live_tile_activated` for all nine live tiles and this screen was
+        connected only to `pinned_activated`, which the grid emits for the
+        volcano alone. Eight tiles were drawn, took a click, and reached a
+        signal with no receiver.
+
+        A TILE THAT DOES NOT OPEN IS WORSE THAN NO TILE: the user clicks
+        twice and concludes the application is broken rather than that this
+        particular picture has no door.
+        """
+        from ..widgets.figure_grid_view import PINNED_KEY
+
+        # The volcano keeps its own route. It is not in the results panel's
+        # tabs at all on this screen -- it is a PAGE of the figures stack,
+        # because the gene tile goes beside it -- so the tab lookup below
+        # would correctly find nothing for it.
+        if str(key) == PINNED_KEY:
+            # Already handled: the grid emits `pinned_activated` alongside
+            # this signal for the volcano, and that connection is what
+            # raises it. Acting here too would raise it twice.
+            return
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        if not panel.show_panel(str(key)):
+            # THE TILE SAID SO RATHER THAN GOING QUIET. A key with no tab in
+            # this panel is the one case that still ends in nothing visible
+            # happening, so it is the one case that has to be said out loud.
+            self._console.append_notice(
+                "■ That panel has no tab in this run's results.\n")
+            return
+        self._raise_the_results_tab()
+
+    def _live_tile_menu(self, key: str, position) -> None:
+        """Right-click on any live tile: that graph's OWN menu, in place.
+
+        The general form of :meth:`_pinned_menu`, and missing for the same
+        reason the open route was: `live_tile_menu_requested` had no
+        receiver, so the gesture worked on the volcano and nowhere else.
+        """
+        from ..widgets.figure_grid_view import PINNED_KEY
+
+        if str(key) == PINNED_KEY:
+            return                      # `pinned_menu_requested` has it.
+        panel = getattr(self, "_results_panel", None)
+        attribute = self._LIVE_TILE_WIDGETS.get(str(key))
+        if panel is None or attribute is None:
+            return
+        widget = getattr(panel, attribute, None)
+        builder = getattr(widget, "build_style_menu", None)
+        if builder is None:
+            return
+        try:
+            builder().exec(position)
+        except Exception:
+            LOG.debug("could not open the live tile's menu", exc_info=True)
+        # The menu may have restyled the graph and the tile is a photograph
+        # of it, so the photograph has to be retaken.
+        self._pin_regression_graph()
+
+    def _pinned_menu(self, position) -> None:
+        """Right-click on the live tile: the graph's OWN menu, in place.
+
+        Not the figure queue's menu. The queue builds one from a matplotlib
+        figure at an index, and this tile is neither -- it is a photograph of
+        a live widget that has its own right-click menu with its own restyle,
+        baselines, colour-by and re-fit on it. Showing that one means the
+        gesture does the same thing on the tile as on the graph itself.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        try:
+            panel.volcano.build_style_menu().exec(position)
+        except Exception:
+            LOG.debug("could not open the live tile's menu", exc_info=True)
+        # The menu may have restyled or recoloured the graph, and the tile is
+        # a photograph of it, so the photograph has to be retaken.
+        self._pin_regression_graph()
+
+    def _show_publication_sheet(self) -> None:
+        """Draw every panel as ONE publication-ready figure, and open it.
+
+        "the all figures section should look like a publication ready
+        figure". The tile grid answers "what did this run draw"; the sheet
+        answers "what did this run FIND", which is a different question and
+        the one a reader has.
+
+        Built on demand rather than on every refresh: it is seven panels of
+        matplotlib and the grid is rebuilt on a debounce while a run streams.
+        """
+        panel = getattr(self, "_results_panel", None)
+        frame = panel.results_frame() if panel is not None else None
+        if frame is None or not len(frame):
+            self._console.append_stdout(
+                "No coefficient table loaded, so there is nothing to draw a "
+                "figure from. Open a finished run first.\n")
+            return
+        try:
+            from ...figures import build_sheet
+        except Exception:
+            from spacr.figures import build_sheet
+        try:
+            sheet = build_sheet(frame, width="double")
+        except Exception as error:      # noqa: BLE001 - never take the GUI down
+            LOG.debug("could not build the sheet", exc_info=True)
+            self._console.append_stdout(
+                f"Could not draw the publication figure: {error}\n")
+            return
+        # Into the ordinary figure queue, so it restyles, exports and saves
+        # through exactly the same path as every other figure. A bespoke
+        # viewer for one figure is a second set of those bugs.
+        self._figure_queue.add_figure(sheet.figure)
+        self._figure_queue.show_index(self._figure_queue.count() - 1)
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None and getattr(self, "_figure_detail", None):
+            stack.setCurrentWidget(self._figure_detail)
+        if sheet.skipped:
+            self._console.append_stdout(
+                "Publication figure: "
+                + "; ".join(f"{p.title} not shown ({p.reason})"
+                            for p in sheet.skipped) + "\n")
+        self._console.append_stdout(sheet.legend() + "\n")
+
+    def _queue_figure_grid_refresh(self) -> None:
+        """Ask for a rebuild soon. Coalesces a burst into one."""
+        timer = getattr(self, "_grid_refresh", None)
+        if timer is not None:
+            timer.start()
+
+    def _attached_database_rows(self):
+        """The regression input table's rows, for the Measurements tab.
+
+        A zero-argument callable rather than a snapshot, because the user
+        drops databases AFTER the panel is built and a list captured at
+        construction would never grow.
+
+        Returns [] rather than raising when this screen has no paired-data
+        widget -- the Measurements tab is built on the regression screen and
+        the provider must not assume it.
+        """
+        model = getattr(self, "_settings_model", None)
+        widget = getattr(model, "_widgets", {}).get("paired_data") \
+            if model is not None else None
+        if widget is None:
+            return []
+        try:
+            return list(widget.get_value() or [])
+        except Exception:                                        # noqa: BLE001
+            return []
+
+    def _measurements_destination(self) -> str:
+        """Where the Measurements tab writes its merged frame.
+
+        THE SAME ROOT THE RUNS WRITE UNDER, in a folder of its own, so the
+        artefact sits beside the results it produced rather than in a
+        temporary directory the user cannot find.
+
+        THE RULE IS `spacr.refit.destination`'s RULE, in the same order, so
+        the merged frame and the runs fitted from it cannot end up in
+        different projects: ``src`` when the module has one -- the regression
+        screen does NOT, checked, which is why the count file is the live
+        branch here -- then the first count file's folder, then the plate
+        folder of the first attached database for a project whose counts are
+        not named yet.
+        """
+        import os as _os
+
+        model = getattr(self, "_settings_model", None)
+        settings = {}
+        if model is not None:
+            try:
+                settings = model.collect() or {}
+            except Exception:                                    # noqa: BLE001
+                settings = {}
+        root = str(settings.get("src") or "").strip()
+        if root in ("path", "/path", "/path/to/src"):
+            root = ""
+        if not root:
+            root = _os.path.dirname(_first_count_file(settings))
+        if not root:
+            for row in self._attached_database_rows():
+                database = (row.get("database") or row.get("db") or "") \
+                    if isinstance(row, dict) else ""
+                if database:
+                    # THE PLATE FOLDER, which is where the score and count
+                    # CSVs of that plate sit. spaCR writes the database as
+                    # ``<plate>/measurements/measurements.db``, so that is
+                    # two levels up -- but only when the parent IS
+                    # ``measurements``. A loose database is one level up, and
+                    # assuming the deep layout for it would put the merged
+                    # frame in the plate's PARENT, which on a project root is
+                    # everybody's folder. The same rule
+                    # `AnnotateDropHandler` follows for the same reason.
+                    folder = _os.path.dirname(str(database))
+                    root = (_os.path.dirname(folder)
+                            if _os.path.basename(folder) == "measurements"
+                            else folder)
+                    break
+        return _os.path.join(root, "measurements") if root else ""
+
+    def _column_fit_settings(self) -> dict:
+        """This screen's settings, for one fit of the column queue.
+
+        Read LIVE and copied by the queue at the moment Run is pressed --
+        never per fit, which would let a user editing the panel mid-queue fit
+        twelve different models and compare them as though only the response
+        had changed.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return {}
+        try:
+            return dict(model.collect() or {})
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not read the settings for a column fit",
+                      exc_info=True)
+            return {}
+
+    def _on_column_fit_started(self, column: str, settings: dict) -> None:
+        """A column's fit began: give it a row in the Runs tab."""
+        import datetime as _dt
+
+        from ..widgets.sweep_runs import SOURCE_MEASUREMENT
+
+        label = _dt.datetime.now().strftime(f"{column}  %H:%M:%S")
+        handle = self._record_run_in_runs_tab(label, SOURCE_MEASUREMENT,
+                                              settings)
+        if handle is not None:
+            self._column_run_handles[str(column)] = handle
+
+    def _on_column_fit_finished(self, column: str, outcome: dict) -> None:
+        """A column's fit is decided: say so on ITS row.
+
+        Its OWN handle, not `_run_handle`. A queue puts several rows up at
+        once and `_update_run_in_runs_tab` only knows about the last run this
+        screen started -- using it here would move every outcome onto one row
+        and the other eleven would say "running" for ever.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        handle = self._column_run_handles.pop(str(column), None)
+        if runs is None or handle is None:
+            return
+        ok = bool((outcome or {}).get("ok"))
+        try:
+            runs.update_run(
+                handle,
+                status="ok" if ok else "failed",
+                folder=str((outcome or {}).get("folder") or "") or None,
+                n_results=(outcome or {}).get("n_results") if ok else None,
+                error_type=None if ok else
+                str((outcome or {}).get("error") or "did not fit"))
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not update the column fit's row", exc_info=True)
+
+    # ------------------------------------------------------------------
+    # Two runs on screen at once -- deliberate, and BOUNDED (116)
+    # ------------------------------------------------------------------
+    #
+    # "every regression run should have its own interactive volcano plot".
+    # The state half shipped in d4113297: each run keeps its level, its
+    # colouring, its axis pins, its effect cut and its selection, and gets
+    # them back. This is the other half, and the bound is the substance of it
+    # rather than a caveat on it.
+    #
+    # WHY THE ANSWER IS NOT "N LIVE VOLCANOES". 129 measured live pyqtgraph
+    # tiles at 74.99 ms per window-drag frame against 5.19 ms for
+    # photographs, on a 16.7 ms budget. Two runs is what a comparison needs;
+    # twelve is what makes the screen unusable, and a user who discovers the
+    # bound by their machine stopping has been told nothing.
+
+    #: How many runs may be LIVE at once. Two: a comparison needs two, and
+    #: every one after that is bought at 74.99 ms a frame.
+    MAX_LIVE_RUNS = 2
+
+    #: Said out loud when the bound refuses. A bound discovered through a
+    #: refusal with no reason is indistinguishable from a broken button.
+    LIVE_RUNS_NOTE = (
+        "Two runs can be live at once. A live plot costs about 75 ms a frame "
+        "against 5 ms for a still, on a 17 ms budget, so a third would be "
+        "paid for on every drag of the window. Close the run beside this one "
+        "to open another.")
+
+    def live_run_count(self) -> int:
+        """How many runs have a live, interactive plot on screen right now."""
+        count = 1 if getattr(self, "_results_panel", None) is not None else 0
+        if getattr(self, "_compare_panel", None) is not None:
+            count += 1
+        return count
+
+    def open_run_beside(self, record) -> bool:
+        """Open a second run's results beside the loaded one.
+
+        DELIBERATE, NOT THE DEFAULT. Reached from the Runs
+        tab's context menu; nothing opens a second run on its own.
+
+        :param record: a Runs-tab row, or a run folder.
+        :returns: whether a second run is now live.
+        """
+        folder = (str(record.get("folder") or "") if isinstance(record, dict)
+                  else str(record or ""))
+        if self._results_panel is None or self._results_split is None:
+            return False
+        if not folder:
+            self._console.append_notice(
+                "■ That run has no folder on disk, so there is nothing "
+                "to open beside this one.\n")
+            return False
+        if self._same_run_folder(self._results_panel.run_folder(), folder):
+            # ALREADY THE LIVE ONE. Opening a run beside itself is two views
+            # of one run, which is not the comparison that was asked for.
+            self._console.append_notice(
+                "■ That run is the one already on screen.\n")
+            return False
+        if self.live_run_count() >= self.MAX_LIVE_RUNS:
+            self._console.append_notice("■ {note}\n",
+                                        note=self.LIVE_RUNS_NOTE)
+            return False
+
+        from ..widgets.regression_results import RegressionResultsPanel
+
+        # ITS OWN VOLCANO, which is the whole request. The loaded run's plot
+        # is placed externally (`external_volcano=True`, in the figures
+        # stack); this one keeps its own, so the two are on screen at the
+        # same time and each answers its own hover and its own click.
+        panel = RegressionResultsPanel(self._results_split)
+        if not panel.load(folder):
+            panel.setParent(None)
+            panel.deleteLater()
+            self._console.append_notice(
+                "■ No results in {folder} to open beside this run.\n",
+                folder=folder)
+            return False
+        self._compare_panel = panel
+        self._results_split.addWidget(panel)
+        self._results_split.setSizes([1, 1])
+        self._raise_the_results_tab()
+        self._console.append_notice(
+            "■ {name} is open beside the loaded run. {note}\n",
+            name=panel.run_name(), note=self.LIVE_RUNS_NOTE)
+        return True
+
+    def close_run_beside(self) -> bool:
+        """Take the second run's live plot away, keeping its PHOTOGRAPH.
+
+        A still stands in for a run that is not live. The picture stays at
+        about 5 ms a frame instead of 75, and the
+        run's plot STATE was never in the widget -- so making it live again
+        is cheap, and that is what the bound buys.
+        """
+        panel = getattr(self, "_compare_panel", None)
+        if panel is None:
+            return False
+        folder = panel.run_folder()
+        photo = None
+        try:
+            photo = panel.volcano.grab()
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not photograph the run beside", exc_info=True)
+        if folder and photo is not None and not photo.isNull():
+            self._run_photographs[os.path.abspath(folder)] = photo
+        self._compare_panel = None
+        panel.setParent(None)
+        panel.deleteLater()
+        return True
+
+    def run_photograph(self, folder):
+        """The still kept for a run that is no longer live, or ``None``."""
+        if not folder:
+            return None
+        return self._run_photographs.get(os.path.abspath(str(folder)))
+
+    def _raise_the_results_tab(self) -> None:
+        """Bring the Results page forward, whatever is sharing it.
+
+        The page is a SPLITTER rather than the panel, since a second run can
+        be opened beside the first, and `setCurrentWidget` only accepts a
+        widget the tab bar itself owns -- so a call naming the panel becomes
+        a silent no-op the moment the panel stops being the page.
+        """
+        tabs = getattr(self, "_results_tabs", None)
+        page = (getattr(self, "_results_page", None)
+                or getattr(self, "_results_panel", None))
+        if tabs is None or page is None:
+            return
+        try:
+            tabs.setCurrentWidget(page)
+        except (RuntimeError, TypeError):
+            # A deleted page raises RuntimeError and one of the wrong
+            # type raises TypeError. Failing to raise a tab is a blemish;
+            # raising out of the slot that tries would lose whatever
+            # called it. Covered by
+            # tests/qt/test_cov_r8_app_screen_tails.py -- the pragma here
+            # was simply wrong, not merely unexplained.
+            LOG.debug("could not raise the results tab", exc_info=True)
+
+    def _on_runs_removed(self, records) -> None:
+        """Discard retained views for runs removed from the Runs tab.
+
+        This prevents a later run at the same path from inheriting the removed
+        run's level, colors, limits, thresholds, selection, or figure tiles.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None or not records:
+            return
+        beside = getattr(self, "_compare_panel", None)
+        for record in records:
+            folder = str((record or {}).get("folder") or "")
+            if not folder:
+                continue
+            # A DELETED RUN TAKES ITS STILL WITH IT TOO. A photograph of a
+            # run that no longer exists is the same stale answer its plot
+            # state would have been.
+            self._run_photographs.pop(os.path.abspath(folder), None)
+            if beside is not None and self._same_run_folder(
+                    beside.run_folder(), folder):
+                self.close_run_beside()
+                self._run_photographs.pop(os.path.abspath(folder), None)
+                beside = None
+            try:
+                panel.forget_run(folder)
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not forget the run in %s", folder,
+                          exc_info=True)
+
+            # AND ITS FIGURES (instruction 146's last open half). The queue
+            # sections its tiles by run label, and until `forget_run` existed
+            # there was no way to drop ONE section -- `clear()` is
+            # all-or-nothing, so removing a run would have taken every other
+            # run's figures with it. A grid still showing a deleted run's
+            # tiles is the same stale answer its plot state would have been.
+            queue = getattr(self, "_figure_queue", None)
+            label = str((record or {}).get("run") or "")
+            if queue is not None and label:
+                try:
+                    if queue.forget_run(label):
+                        self._queue_figure_grid_refresh()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not forget %s's figures", label,
+                              exc_info=True)
+
+    def _on_loaded_run_changed_refresh_tabs(self, _record=None) -> None:
+        """Re-read the Cells and Measurements tabs when the run changes.
+
+        Opening a tab already re-reads it. That is not enough: the tab a user
+        is LOOKING AT when they load another run is never opened again, so it
+        kept the previous run's content while every other view moved. Showing
+        one run's cells under another run's name is the plausible-and-wrong
+        output this screen is most careful about.
+
+        The montage's grid is emptied rather than rebuilt. Its contents
+        answer a coefficient selected from the previous run's table, which
+        means nothing for the new one; the selection that arrives with the
+        new table fills it again. Never raises -- a tab that cannot refresh
+        must not take the run change down with it.
+        """
+        # ONE TRY PER CALL, and that is the whole repair as much as the
+        # names are. These were one block: `montage.clear()` raised
+        # AttributeError, so `montage.refresh()` never ran either, and both
+        # halves of the Cells tab went stale on a single typo. Reported as
+        # issue 116 -- "show the cells still not able to pull images" after
+        # re-running regression -- with the AttributeError in the attached
+        # log, logged at DEBUG where nothing showed it to the user.
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None:
+            for step, call in (("empty", getattr(montage, "clear", None)),
+                               ("re-read", getattr(montage, "refresh", None))):
+                try:
+                    if call is not None:
+                        call()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not %s the cells tab", step,
+                              exc_info=True)
+        scan = getattr(self, "_scan_panel", None)
+        if scan is not None:
+            try:
+                # `refresh_databases`, not `refresh`: this panel has no
+                # method by that name, so the Measurements tab never
+                # re-attached the databases when the run changed -- which is
+                # what the Cells tab then reads to find its images.
+                scan.refresh_databases()
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not refresh the measurements tab",
+                          exc_info=True)
+
+    def _on_results_tab_changed(self, index: int) -> None:
+        """Opening a tab re-reads what it shows.
+
+        The Runs tab re-reads the sweep's table; the Measurements tab
+        re-reads the databases attached to the input table, which is the
+        whole reason it needs an on-open refresh -- they are dropped while it
+        is not the visible tab.
+
+        It used to return early unless the widget was the Runs tab, so the
+        Measurements tab never refreshed at all.
+        """
+        tabs = getattr(self, "_results_tabs", None)
+        if tabs is None:
+            return
+        current = tabs.widget(index)
+
+        # THE CELLS TAB, for the same reason as the Measurements tab and one
+        # more: the databases it needs are attached to the input table while
+        # it is behind another tab, and so is the results table it reads the
+        # fitted effect from. Nothing signals either, so opening the tab is
+        # when it can learn what it is now able to do.
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None and current is montage:
+            try:
+                montage.refresh()
+            except Exception:
+                LOG.debug("could not refresh the cells tab", exc_info=True)
+            return
+
+        scan = getattr(self, "_scan_panel", None)
+        if scan is not None and current is scan:
+            try:
+                scan.refresh_databases()
+            except AttributeError:
+                pass
+            except Exception:
+                LOG.debug("could not refresh the measurements tab",
+                          exc_info=True)
+            return
+
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is None or current is not runs:
+            return
+        folder = self._sweep_destination()
+        if folder:
+            runs.load(folder)
+
+    def _results_source_path(self) -> str:
+        """Return the folder for the regression run shown on this screen.
+
+        Prefer the selected Runs-tab entry so every view follows the active
+        run. Fall back to the results panel for tables loaded directly from
+        disk without a Runs-tab entry.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is not None:
+            try:
+                folder = runs.loaded_run_folder()
+            except Exception:                                    # noqa: BLE001
+                folder = ""
+            if folder:
+                return str(folder)
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return ""
+        try:
+            return str(panel.run_folder() or "")
+        except AttributeError:
+            return str(getattr(panel, "_path", "") or "")
+
+    def _keep_the_effects_grid(self, result) -> None:
+        """Write a finished sweep's effects grid beside the run.
+
+        Failure is logged and never raised: a sweep that produced its answer
+        has not failed because the montage could not be told about it.
+        """
+        import os
+
+        effects = getattr(result, "effects", None)
+        if effects is None or not len(effects):
+            return
+        try:
+            from ...cell_montage import write_effects_grid
+
+            source = str(self._results_source_path() or "")
+            folder = source if os.path.isdir(source) else os.path.dirname(source)
+            if folder:
+                write_effects_grid(effects, folder)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not keep the sweep's effects grid", exc_info=True)
+
+    def _sweep_counts(self):
+        """The per-well guide fractions the sweep needs.
+
+        The SAME reader the montage uses, from the SAME input table -- the
+        count CSVs the run was fitted on. A second way of turning counts into
+        fractions would be a second answer to what a fraction is.
+        """
+        from ...cell_montage import fractions_from_counts
+
+        try:
+            paths = [row.get("count", "") for row in
+                     (self._attached_database_rows() or [])
+                     if isinstance(row, dict)]
+            paths = [p for p in paths if p]
+            return fractions_from_counts(paths) if paths else None
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not build the sweep's counts", exc_info=True)
+            return None
+
+    def _sweep_scores(self):
+        """The per-object classification scores, for the circularity column.
+
+        The merged measurements frame has NO score column -- it is the
+        measurement tables -- so without these the column is NaN and the sweep
+        says so rather than reporting zeros.
+        """
+        import pandas as pd
+
+        try:
+            frames = []
+            for row in (self._attached_database_rows() or []):
+                path = row.get("score", "") if isinstance(row, dict) else ""
+                if path and os.path.isfile(str(path)):
+                    frames.append(pd.read_csv(str(path)))
+            if not frames:
+                return None
+            joined = pd.concat(frames, ignore_index=True, sort=False)
+            from ...utils import correct_metadata_column_names
+
+            return correct_metadata_column_names(joined)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not read the sweep's scores", exc_info=True)
+            return None
+
+    def _scan_source_frame(self):
+        """The well-level frame the measurement scan should run on.
+
+        Taken from the regression's own merged data when a run has written
+        one, because that frame already carries the gene assignment beside
+        the measurements -- which is exactly what the scan needs and what
+        nothing else in the app assembles.
+        """
+        import os as _os
+
+        # THE RUN'S FOLDER, asked of the run. `_path` was read directly here
+        # and passed through `dirname`, which is right for the CSV a load off
+        # disk leaves behind and WRONG for the directory a live run leaves --
+        # it climbed to `results/` and looked for regression_data.csv beside
+        # the other runs, where there is none. Same fault as 155 A, one view
+        # over.
+        folder = self._results_source_path()
+        if not folder:
+            return None
+        folder = _os.path.abspath(folder)
+        # `regression_data.csv` is what perform_regression writes after the
+        # merge: one row per well, the guides and the response together.
+        for name in ("regression_data.csv", "merged_data.csv"):
+            candidate = _os.path.join(folder, name)
+            if _os.path.isfile(candidate):
+                import pandas as _pd
+                try:
+                    return _pd.read_csv(candidate)
+                except Exception:
+                    LOG.debug("could not read %s", candidate, exc_info=True)
+                    return None
+        return None
+
+    def _sweep_destination(self) -> str:
+        """Where the sweep card was told to write, if it exists.
+
+        Asked of the card rather than stored, so the two cannot disagree
+        about which folder the sweep is filling.
+        """
+        sweep = getattr(self, "_sweep", None)
+        field = getattr(sweep, "destination", None)
+        try:
+            return field.text().strip()
+        except Exception:
+            return ""
+
+    def _show_trial(self, record: dict) -> None:
+        """Show a selected run's saved results, figures, and retained view.
+
+        Saved output is loaded without refitting. The Results tab is raised
+        only after a table loads successfully; failed or incomplete trials
+        remain visible in the Runs tab with their diagnostic message.
+        """
+        from ..widgets.sweep_runs import STATUS_RUNNING
+
+        if not isinstance(record, dict):
+            return
+        # NAMED THE WAY THE ROW NAMES ITSELF. The tab now holds this session's
+        # runs beside the sweep's trials, and calling an ordinary run "Trial
+        # nan" is how a mixed table stops being readable. `isinstance` rather
+        # than truthiness: a missing cell in a concatenated frame is NaN, and
+        # NaN is truthy -- it would name the run "nan" without failing.
+        named = record.get("run")
+        trial = (named.strip() if isinstance(named, str) and named.strip()
+                 else f"Trial {record.get('trial_id', '?')}")
+        status = str(record.get("status", "ok"))
+        if status == STATUS_RUNNING:
+            # Not "did not produce a regression" -- it has not finished trying.
+            self._console.append_stdout(
+                f"{trial} is still going. Its results appear here when it "
+                "finishes.\n")
+            self._the_run_did_not_open(f"{trial} is still going.")
+            return
+        if status != "ok":
+            self._console.append_stdout(
+                f"{trial} did not produce a regression: "
+                f"{record.get('error_type', '')} "
+                f"{record.get('error', 'no reason recorded')}\n")
+            self._the_run_did_not_open(
+                f"{trial} did not produce a regression.")
+            return
+        folder = record.get("folder")
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        # ALREADY ON SCREEN: SHOW IT, DO NOT RE-READ IT. The run that has just
+        # finished arrives here twice -- `_on_pipeline_result` puts its table,
+        # its fitted model, its diagnostics and its statsmodels summary in the
+        # panel straight from the run, and a moment later the Runs tab
+        # announces the same run as loaded. Re-reading the folder would replace
+        # every one of those with what could be recovered off disk: `set_frame`
+        # clears the diagnostics by design, and the summary would fall back to
+        # the saved text. The model is the better answer and this is the only
+        # place that can keep it.
+        #
+        # It is also what makes the two signals the Runs tab emits together
+        # cost one load rather than two.
+        if folder and self._same_run_folder(panel.run_folder(), folder):
+            self._figures_card.show()
+            # AND THE TAB STILL DOES NOT MOVE (190). Re-opening the run that
+            # is already on screen is the one path that never reaches
+            # `_on_trial_loaded`, so it says so here instead: the results
+            # being ready is worth announcing, being carried to them is not.
+            self._console.append_stdout(
+                f"{trial} is already loaded — open the Results tab to "
+                "see it.\n")
+            return
+        # A FOLDER THAT IS NAMED BUT GONE IS THE SAME ANSWER AS NO FOLDER.
+        # The record keeps whatever path the trial wrote to, and that path
+        # outlives the directory -- a cleaned scratch disk, a run copied
+        # between machines, a results tree moved. Checked HERE, where the
+        # answer is one sentence, rather than left to the off-thread load to
+        # discover: the load reports it a second later, through a different
+        # path, after the run has already been marked loaded.
+        if folder and not os.path.isdir(str(folder)):
+            folder = ""
+        if not folder:
+            self._console.append_stdout(
+                f"{trial} has no saved results on disk. Re-run it from "
+                "the sweep panel to draw them.\n")
+            # AND THE MARK GOES BACK WHERE IT WAS. A run marked loaded whose
+            # results are not on screen is the disagreement of instruction
+            # 157 pointing the other way: the run the user IS looking at
+            # would then be named nowhere.
+            self._the_run_did_not_open(
+                f"{trial} has no saved results on disk.")
+            return
+        # OFF THE GUI THREAD (instruction 159). Reading a run walks its folder
+        # and parses its table, and doing that here stopped the window --
+        # reported as "i tried to load another run and this seemed to hang
+        # spacr". The answer arrives at `_on_trial_loaded`, so everything that
+        # depends on SUCCESS moves there: the mark can only be rolled back
+        # once the read has actually failed, which is later than this line.
+        self._pending_trial = (trial, str(folder))
+        if not getattr(self, "_trial_load_wired", False):
+            panel.load_finished.connect(self._on_trial_loaded)
+            self._trial_load_wired = True
+        if not panel.start_load(folder):
+            # A load is already running. The mark stays where the running load
+            # will put it; starting a second read of a different folder is how
+            # two answers arrive out of order.
+            return
+        self._figures_card.show()
+        # NOT `_raise_the_results_tab` (190). The read has only just been
+        # STARTED here, and raising the tab would move the user off whatever
+        # they were reading to watch an empty panel fill in. `_on_trial_loaded`
+        # says the run opened once it actually has.
+
+    def _on_trial_loaded(self, ok: bool) -> None:
+        """The asynchronous half of :meth:`_show_trial`.
+
+        Split off because the read is on a worker now: success is not known
+        when `_show_trial` returns, so the figures and the rollback both have
+        to wait for the answer rather than assuming it.
+        """
+        pending = getattr(self, "_pending_trial", None)
+        if not pending:
+            return
+        trial, folder = pending
+        self._pending_trial = None
+        if not ok:
+            self._console.append_stdout(
+                f"{trial} has no saved results on disk. Re-run it from "
+                "the sweep panel to draw them.\n")
+            self._the_run_did_not_open(
+                f"{trial} has no saved results on disk.")
+            return
+        # THE LOAD REPORTED SUCCESS, so the undo it was holding is spent. A
+        # refusal arriving after this is answering an announcement that is over
+        # (instruction 159, and 157's rule about the mark).
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is not None and hasattr(runs, "the_load_succeeded"):
+            runs.the_load_succeeded()
+        # Its figures too, so the grid on the right is that trial's and not
+        # whatever the last run left there.
+        if not self._load_trial_figures(str(folder)):
+            self._console.append_stdout(
+                f"{trial} saved a results table but no figures, so the grid "
+                "is empty rather than showing the last run's.\n")
+        self._figures_card.show()
+        # THE TAB DOES NOT MOVE ON ITS OWN (190). Reported 2026-08-20: "the
+        # user should have to click the results tab to go there, no auto
+        # switching tabs." A view that moves by itself takes the user
+        # somewhere they did not ask to go and loses whatever they were
+        # reading. The results arriving is fine; being MOVED to them is not.
+        #
+        # SO IT HAS TO SAY SO INSTEAD. Nothing raises the tab now, and a load
+        # that finished silently while the user is on another tab would look
+        # like a load that did not happen.
+        self._console.append_stdout(
+            f"{trial} is loaded — open the Results tab to see it.\n")
+
+    @staticmethod
+    def _same_run_folder(one, other) -> bool:
+        """Whether two paths name the same run folder.
+
+        Both ends are noisy: the panel holds a CSV for a run opened off disk
+        and a directory for one handed straight over by `perform_regression`
+        (`run_folder` reconciles that), and a row's folder comes off a
+        concatenated frame, so it can be NaN rather than a string.
+        """
+        try:
+            if not one or not other:
+                return False
+            return (os.path.abspath(os.path.expanduser(str(one)))
+                    == os.path.abspath(os.path.expanduser(str(other))))
+        except (TypeError, ValueError):
+            return False
+
+    def _the_run_did_not_open(self, why: str) -> None:
+        """Tell the Runs tab its newly-marked run could not be shown.
+
+        THE MARK IS A CONSEQUENCE OF THE RUN BEING SHOWN (157). The tab moves
+        it and asks; this is the other half of that conversation, and without
+        it a failed load leaves a mark pointing at nothing on screen.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is None:
+            return
+        try:
+            runs.the_load_failed(why)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not hand the mark back to the Runs tab",
+                      exc_info=True)
+
+    @staticmethod
+    def _figure_names_under(folder: str, recursive: bool = True):
+        """Relative names of every picture in ``folder``, sorted.
+
+        :param recursive: walk subfolders. True for a RUN folder, because most
+            of a run's figures are in one (~19 QC panels, the permutation
+            plots, a summary per measurement). False for the SCREEN folder,
+            because its subfolders are the other runs -- recursing it would
+            pull every sibling run's figures into the grid under the heading
+            of this one, which is worse than missing them.
+        """
+        names = []
+        try:
+            if recursive:
+                for root, _dirs, files in os.walk(folder):
+                    for name in sorted(files):
+                        names.append(os.path.relpath(
+                            os.path.join(root, name), folder))
+            else:
+                for name in sorted(os.listdir(folder)):
+                    if os.path.isfile(os.path.join(folder, name)):
+                        names.append(name)
+        except OSError:
+            return []
+        return sorted(name for name in names
+                      if name.lower().endswith((".png", ".pdf")))
+
+    #: The folder a run's own results directory sits inside.
+    #: `perform_regression` builds `<src>/results/<kind>_<n>`, so a run folder
+    #: whose parent is named this has the SCREEN folder one level further up.
+    SCREEN_RESULTS_DIRNAME = "results"
+
+    @classmethod
+    def _screen_folders_above(cls, folder: str):
+        """The per-screen folders a run's shared figures were written into.
+
+        The same two :func:`spacr.ml._screen_figure_folders` names, reached
+        from the other end. A sequencing helper writes
+        ``<src>/results/fraction_threshold.pdf`` and
+        ``<src>/results/cell_min_threshold.pdf``, but
+        ``plot_plates(dst=<src>)`` writes
+        ``<src>/plate_heatmap_unique_counts.pdf`` -- the screen ROOT, one
+        level further up again. Two of the three are in the same place and
+        the third is not, which is why this returns a list rather than a
+        parent.
+
+        THE CLIMB STOPS AT A FOLDER NAMED ``results``, and that is what keeps
+        it from wandering. Reaching a second level up is only meaningful for
+        the layout `_next_results_folder` actually builds; handed some other
+        folder -- a bare run directory a user pointed at -- this returns its
+        parent alone rather than guessing that its grandparent is a screen.
+        """
+        folder = os.path.normpath(folder)
+        parent = os.path.dirname(folder)
+        if not parent or parent == folder:
+            return []
+        folders = [parent]
+        if os.path.basename(parent) == cls.SCREEN_RESULTS_DIRNAME:
+            screen = os.path.dirname(parent)
+            if screen and screen != parent:
+                folders.append(screen)
+        return folders
+
+    @staticmethod
+    def _pictures_from(folder: str, names):
+        """``(pixmaps, titles)`` for ``names`` under ``folder``.
+
+        A name that will not decode is skipped rather than left as a null
+        pixmap: the grid drops nulls anyway, and a null in the list shifts
+        every index after it away from the caption beside it.
+        """
+        from PySide6.QtGui import QPixmap
+
+        pixmaps, titles = [], []
+        for name in names:
+            path = os.path.join(folder, name)
+            pixmap = QPixmap()
+            if name.lower().endswith(".pdf"):
+                try:
+                    from ..widgets.figure_queue import render_pdf_to_image
+                    image = render_pdf_to_image(path)
+                    if image is not None:
+                        pixmap = QPixmap.fromImage(image)
+                except Exception:
+                    continue
+            elif not pixmap.load(path):
+                continue
+            if pixmap.isNull():
+                continue
+            pixmaps.append(pixmap)
+            # The SUBFOLDER is part of the name now, because "residuals"
+            # under regression_qc/ and "residuals" under results/ are two
+            # different pictures and a grid captioning both the same is a
+            # grid you cannot navigate.
+            titles.append(os.path.splitext(name)[0].replace(os.sep, " / "))
+        return pixmaps, titles
+
+    def _load_trial_figures(self, folder: str) -> int:
+        """Load a trial's saved figures into the grid and return their count.
+
+        Run-specific figures are loaded recursively from the run folder.
+        Shared preprocessing figures are loaded non-recursively from the
+        screen-level folders and placed in a separate section. Basenames
+        already found in the run are skipped to prevent duplicates, and the
+        grid is cleared when the selected trial has no figures.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        if grid is None:
+            return 0
+
+        run_names = self._figure_names_under(folder, recursive=True)
+        pixmaps, titles = self._pictures_from(folder, run_names)
+        sections = []
+        if pixmaps:
+            sections.append((os.path.basename(os.path.normpath(folder))
+                             or str(folder), 0, len(pixmaps)))
+
+        # One section for both screen folders, not one each: a reader is being
+        # told "these are not this run's", and which of the two directories
+        # above the run a shared figure happens to sit in is not a distinction
+        # they can act on. `already` grows as it goes, so a name present in
+        # both folders is shown once, nearest the run.
+        already = {os.path.basename(name) for name in run_names}
+        extra, extra_titles = [], []
+        for screen in self._screen_folders_above(folder):
+            names = [name for name
+                     in self._figure_names_under(screen, recursive=False)
+                     if os.path.basename(name) not in already]
+            found, found_titles = self._pictures_from(screen, names)
+            already.update(os.path.basename(name) for name in names)
+            extra.extend(found)
+            extra_titles.extend(found_titles)
+        if extra:
+            sections.append(("the screen's own figures — not this run's",
+                             len(pixmaps), len(extra)))
+            pixmaps.extend(extra)
+            titles.extend(extra_titles)
+
+        grid.set_figures(pixmaps, titles, sections=sections)
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            stack.setCurrentIndex(0)
+        return len(pixmaps)
+
+    def _figure_grid_menu(self, index: int, position) -> None:
+        """Right-click on a tile: restyle or save THAT figure, in place.
+
+        Deliberately without switching to the detail view first. The point of
+        a grid is comparing figures, and navigating away to change one of them
+        loses the comparison you were making.
+        """
+        try:
+            self._figure_queue.show_figure_menu(position, int(index),
+                                                navigate=False)
+        except Exception:
+            LOG.debug("could not open the tile menu", exc_info=True)
+            return
+        # The restyle rewrote that figure's picture; the grid is built from
+        # pictures, so it has to be rebuilt or the tile keeps showing the old
+        # one and the menu looks broken.
+        self._refresh_figure_grid()
+
+    def _on_figure_size(self, pixels: int) -> None:
+        """Redraw the grid at this tile width, and remember it.
+
+        Remembered because it is a reading preference, not a property of the
+        run: a user who wants big figures wants them on the next run too.
+        """
+        from ..preferences import set_figure_grid_size
+
+        grid = getattr(self, "_figure_grid", None)
+        if grid is not None:
+            grid.set_target_cell_width(int(pixels))
+        try:
+            set_figure_grid_size(int(pixels))
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not store the figure grid size", exc_info=True)
+
+    #: Screens whose settings categories are TABS rather than a stack. Named
+    #: rather than inferred from the count: a screen with many categories may
+    #: still read better as a column, and this is a judgement about the
+    #: screen and not about arithmetic.
+    # EMPTY, AND THE MECHANISM STAYS. Measure was the one screen filed
+    # here, on 2026-08-19: "in measure i dont like the black categories. can
+    # we make them into measurement subtabs?" Reversed on 2026-08-23 --
+    # "the measure module settings categories are for some reason in Tabs
+    # that seem like they are cut off half way when opened. please fix this,
+    # make it normal, or the same structure as the other core modules like
+    # mask with settings categories."
+    #
+    # The set is kept rather than the code deleted: the tabs are a real
+    # answer to a real complaint about a wall of categories, and the next
+    # screen that grows one can be added here without rebuilding it. What
+    # was wrong was the tab BAR at Measure's width, not the idea.
+    SETTINGS_AS_TABS = frozenset()
+
+    @staticmethod
+    def _is_the_page(container, widget) -> bool:
+        """Return whether ``widget`` is visible on the container's page.
+
+        The target may be the page itself or a descendant of a wrapper page,
+        such as a grid inside a scroll area or results inside a splitter.
+        """
+        if container is None or widget is None:
+            return False
+        page = container.currentWidget()
+        if page is None:
+            return False
+        return page is widget or page.isAncestorOf(widget)
+
+    def showing_the_figure_grid(self) -> bool:
+        """Whether the grid of every figure is the page on screen."""
+        return self._is_the_page(getattr(self, "_figures_stack", None),
+                                 getattr(self, "_figure_grid", None))
+
+    def showing_the_live_graph(self) -> bool:
+        """Whether the interactive volcano is the page on screen."""
+        return self._is_the_page(getattr(self, "_figures_stack", None),
+                                 getattr(self, "_volcano_page", None))
+
+    def showing_the_results(self) -> bool:
+        """Whether the coefficient results are the tab on screen."""
+        return self._is_the_page(getattr(self, "_results_tabs", None),
+                                 getattr(self, "_results_panel", None))
+
+    def _show_figure_grid(self) -> None:
+        """Back to every figure at once."""
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            self._refresh_figure_grid()
+            stack.setCurrentIndex(0)
+
+    def _show_regression_graph(self) -> None:
+        """Fill the results container with the interactive volcano plot."""
+        stack = getattr(self, "_figures_stack", None)
+        page = getattr(self, "_volcano_page", None)
+        if stack is not None and page is not None:
+            stack.setCurrentWidget(page)
+
+    def _on_guide_selected(self, _key: str) -> None:
+        """A guide was picked: raise the graph, and open the gene tile.
+
+        Drawing a ring on a view nobody is looking at is the same as not
+        drawing one, and a tile that stays collapsed is the same as no tile.
+        """
+        self._show_regression_graph()
+        split = getattr(self, "_gene_split", None)
+        if split is None:
+            return
+        # Only the FIRST click opens it. Reasserting a size on every click
+        # would fight anyone who had dragged the tile bigger to read it, or
+        # shut to see the whole plot.
+        if not getattr(self, "_gene_opened", False) and split.sizes()[1] == 0:
+            self._gene_opened = True
+            total = sum(split.sizes()) or split.height() or 600
+            split.setSizes([int(total * 0.6), int(total * 0.4)])
+
+    def _open_figure_from_grid(self, index: int) -> None:
+        """A pressed tile fills the container with that figure."""
+        try:
+            self._figure_queue.show_index(int(index))
+        except Exception:
+            return
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            stack.setCurrentWidget(self._figure_detail)
+
+    def _on_refit(self, settings) -> bool:
+        """Run the same screen again through the model the user just picked.
+
+        :returns: True if a run was started.
+
+        REFUSED WHILE A RUN IS GOING. Two regressions writing at once is not
+        a comparison, it is two runs competing for the same folder counter --
+        `_next_results_folder` claims a name by looking, so both would look
+        before either wrote and both would claim it.
+        """
+        if settings is None:
+            return False
+        if getattr(self, "_thread", None) is not None and self._thread.isRunning():
+            self._console.append_notice(
+                "■ A run is already going. Wait for it to finish, or stop it, "
+                "before re-fitting.\n")
+            return False
+        self._console.append_notice(
+            "→ Re-fitting: {model}, {correction}. This is a NEW run — the "
+            "results you are looking at are not touched.\n",
+            model=repr(settings.get("regression_type")),
+            correction=repr(settings.get("multiple_testing_method")),
+        )
+        self._on_run(override=settings)
+        return True
+
+    def _on_pipeline_result(self, payload) -> None:
+        """Take the coefficient table straight from the run that made it.
+
+        `perform_regression` returns {'results': coef_df, 'res_folder': ...}.
+        Using it directly is both faster and CORRECT: there is no path to
+        guess, no newest-run heuristic, and no chance of reading a different
+        run's table than the one that just finished.
+
+        The on-disk search stays as the fallback for opening an old run.
+        """
+        if not isinstance(payload, dict):
+            return
+        # WHERE THIS RUN WROTE, ON THE RUN'S OWN ROW. Recorded before the
+        # results panel is even consulted, because it is what makes the Runs
+        # tab navigable: `_show_trial` opens a row by its folder, and a row
+        # with no folder is a row that can only be looked at.
+        self._update_run_in_runs_tab(
+            folder=str(payload.get("res_folder") or "") or None,
+            n_results=(len(payload["results"])
+                       if payload.get("results") is not None else None))
+        # THE QC VERDICT, ON SCREEN (instruction 115). The suite computes it,
+        # the manifest carries it and the report writes it to a text file that
+        # nobody opens. A run whose design is rank deficient has coefficients
+        # that are ONE of infinitely many solutions, and a screen that shows
+        # the volcano without saying so is showing a picture of an arbitrary
+        # answer.
+        self._say_the_qc_verdict(payload)
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        frame = payload.get("results")
+        if frame is None or not len(frame):
+            return
+        folder = payload.get("res_folder") or ""
+        # WHERE THIS SCREEN'S LAST RUN WROTE. 142 C: a Force restart names the
+        # folders that hold whatever reached disk, so a user knows where to
+        # look rather than assuming everything is gone or everything is fine.
+        if folder:
+            self._last_run_folder = str(folder)
+        try:
+            if panel.set_frame(frame, source=str(folder)):
+                # THE RUN'S OWN SETTINGS, handed over after the frame so they
+                # win over whatever `set_frame` read off disk. The shared
+                # settings/ copy is overwritten by every later run of the
+                # same screen, so on a second run the file describes the
+                # wrong one -- and a re-fit seeded from it would offer a
+                # model this table was never fitted with.
+                try:
+                    panel.set_run_settings(payload.get("settings"))
+                except Exception:
+                    LOG.debug("could not hand the run's settings to the "
+                              "results panel", exc_info=True)
+                # THE FITTED MODEL, WHICH ONLY THIS PATH HAS. The residual,
+                # scale-location and influence tabs are computed from the fit
+                # itself, and `perform_regression` hands it back here and
+                # nowhere else -- a results CSV read off disk is one row per
+                # guide and says nothing about the wells. Handed over AFTER
+                # the frame, because `set_frame` clears the diagnostics on the
+                # principle that a new table is a new fit.
+                try:
+                    panel.set_diagnostics(
+                        payload.get("model"),
+                        regression_type=payload.get("regression_type"))
+                    # The same model, the same moment: the statsmodels
+                    # summary the maintainer asked for on 2026-08-17.
+                    panel.set_summary(
+                        payload.get("model"),
+                        regression_type=payload.get("regression_type"))
+                except Exception:
+                    LOG.debug("could not hand the run's model to the results "
+                              "panel", exc_info=True)
+                self._results_loaded_in_memory = True
+                self._show_figure_grid()
+                self._figures_card.show()
+                self._console.append_stdout(
+                    f"{len(frame)} coefficients loaded from the run itself"
+                    + (f"; its files are in {folder}" if folder else "")
+                    + ".\n")
+        except Exception:
+            LOG.debug("could not show the returned results", exc_info=True)
+
+    def _load_regression_results(self) -> bool:
+        """Point the Results tab at what the run just wrote.
+
+        The settings' ``src`` is where the run was told to write, so it is
+        searched first; the folder holding the count data is the fallback,
+        because that is where output landed before the caller's choice was
+        honoured and older runs are still there.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return False
+        model = getattr(self, "_settings_model", None)
+        settings = model.collect() if model is not None else {}
+
+        candidates = []
+        source = settings.get("src")
+        if isinstance(source, str) and source.strip():
+            candidates.append(source.strip())
+        for key in ("count_data", "score_data"):
+            value = settings.get(key)
+            if isinstance(value, (list, tuple)) and value:
+                candidates.append(os.path.dirname(str(value[0])))
+            elif isinstance(value, str) and value.strip():
+                candidates.append(os.path.dirname(value.strip()))
+
+        # THE NEWEST RUN ACROSS ALL THE ROOTS, not the first root that happens
+        # to contain any results at all. `src` and the count-data folder are
+        # different places and both can hold a table, so "the first one that
+        # loads" can be last month's.
+        from ..widgets.regression_results import find_results_tables
+
+        ranked = []
+        for candidate in candidates:
+            tables = find_results_tables(candidate)
+            if tables:
+                try:
+                    ranked.append((os.path.getmtime(tables[0]), candidate))
+                except OSError:          # vanished between listing and stat
+                    continue
+        ranked.sort(reverse=True)
+
+        for _stamp, candidate in ranked:
+            if panel.load(candidate):
+                # The results are always on screen now -- they are the left
+                # half, not a tab -- so there is nothing to switch to. Show
+                # the grid rather than whichever single figure was last open,
+                # because a finished run is read as a whole.
+                self._show_figure_grid()
+                self._figures_card.show()
+                return True
+
+        # NOTHING LOADED, AND THAT USED TO BE SILENT: the panel sat there with
+        # its columns and no rows, which reads as a run that produced nothing.
+        if ranked:
+            pass                      # panel.load already said why, on screen
+        elif candidates:
+            panel.load(candidates[0])         # leaves its own reason on screen
+        else:
+            panel.say(
+                "The run finished, but its settings name no output folder -- "
+                "src, count_data and score_data are all empty -- so there is "
+                "nowhere to look for a results table. Use \u201cLoad "
+                "results\u2026\u201d to point at one.")
+        self._figures_card.show()
+        return False
+
     def _clear_thread_refs(self):
         """Release worker/thread references once the QThread has stopped.
 
@@ -2765,6 +9987,10 @@ class AppScreen(QWidget):
         """
         self._thread = None
         self._worker = None
+        if getattr(self, "_form_rebuild_deferred", False):
+            # Leave the QThread.finished delivery before replacing this
+            # screen. The next event-loop turn is both safe and imperceptible.
+            QTimer.singleShot(0, self._rebuild_the_form)
 
     def _on_stop(self):
         """Stop the run, asking first whether to wait or to kill.
@@ -2788,7 +10014,7 @@ class AppScreen(QWidget):
         if self._thread is None:
             return
         from ..button_roles import set_button_busy
-        from ..shutdown import (CANCEL, FORCE, GracefulQuitWatcher,
+        from ..shutdown import (CANCEL, FORCE, RESTART, GracefulQuitWatcher,
                                 ask_how_to_quit)
 
         name = APP_TITLES.get(self.app_key, self.app_key)
@@ -2796,8 +10022,17 @@ class AppScreen(QWidget):
             self, what=name, verb="Stop",
             detail="This run is still working. Stopping cooperatively lets "
                    "it finish the field, trial or job it is on and stop at "
-                   "the next point it can do so safely.")
+                   "the next point it can do so safely.",
+            # 142: the last resort, and offered from HERE rather than from the
+            # Quit dialog because this is the button somebody presses when a
+            # fit will not stop.
+            offer_restart=True,
+            restart_detail=self._restart_warning())
         if choice == CANCEL:
+            return
+
+        if choice == RESTART:
+            self.force_restart()
             return
 
         if choice == FORCE:
@@ -2887,10 +10122,20 @@ class AppScreen(QWidget):
                 "a while. The window is yours again.\n")
 
     def _on_import_settings(self):
+        """Load a settings CSV into the form and report what was applied.
+
+        The dialog's caption and filter are translated here rather than by the
+        application-wide dialog pass: it is built and executed in one
+        expression, so that pass never sees it before it is on screen.
+        """
         from PySide6.QtWidgets import QFileDialog
+        # A file dialog is built and executed in one expression, so the
+        # application-wide dialog pass in `spacr.qt.i18n` never sees it
+        # before it is on screen: its caption and filter are translated
+        # here instead.
         path, _ = QFileDialog.getOpenFileName(
-            self, "Import settings CSV",
-            filter="Settings (*.csv);;All files (*)",
+            self, tr("Import settings CSV"),
+            filter=f"{tr('Settings')} (*.csv);;{tr('All files')} (*)",
         )
         if not path:
             return
@@ -2903,7 +10148,7 @@ class AppScreen(QWidget):
             )
             self._warn_about_moved_settings(loaded)
         except Exception as e:
-            QMessageBox.warning(self, "Import failed", str(e))
+            QMessageBox.warning(self, tr("Import failed"), str(e))
 
     #: Key/value column-name pairs a spaCR settings CSV can use, in the order
     #: they are tried. Mirrors ``spacr.cli._CSV_COLUMNS``: ``Key,Value`` is
@@ -2953,40 +10198,495 @@ class AppScreen(QWidget):
         return bool(val)
 
     def _warn_about_moved_settings(self, loaded: dict) -> None:
-        """Tell the user, in the console, when an imported CSV enables a
-        setting this module no longer owns.
+        """Say, in the console, what an imported CSV did to the fold switches.
 
-        Timelapse and the automated motility assay left the Mask module for
-        modules of their own; an old mask CSV with ``timelapse=True`` would
-        otherwise be applied minus that flag with nothing to show for it.
+        Tracking is a set of settings CATEGORIES on this form rather than a
+        module of its own, and its pipeline gate has no control for a bulk
+        apply to land in — the switch on the masthead is the control.
+        :meth:`apply_settings_dict` moves it, and this reports what moved,
+        so a user who loaded a Timelapse settings file can see that tracking
+        became part of the run rather than being left to wonder.
+
+        A gate the file asks for that no switch answered is reported as
+        ignored, because that is what it is: nothing on this screen collects
+        it and it will not reach the run. That covers the automated motility
+        assay, which reads finished masks and writes a measurements table and
+        so is a module Measure opens, not a category here.
+
         Console text, never a modal — a QMessageBox here would hang headless
         runs.
         """
         if self.app_key != "mask":
             return
+        switched = set(getattr(self, "_folds_last_switched_on", ()))
         notes = []
         if self._truthy(loaded.get("timelapse", False)):
-            notes.append(
-                "timelapse=True was ignored — tracking now lives in the "
-                "Timelapse module (sidebar > Core > Timelapse).")
+            if "timelapse" in switched:
+                notes.append(
+                    "timelapse=True switched Timelapse on — its tracking "
+                    "categories are on the form and the run links objects "
+                    "across frames.")
+            else:
+                notes.append(
+                    "timelapse=True was ignored — this screen is carrying no "
+                    "Timelapse switch, so the tracking categories are not on "
+                    "the form and the flag will not reach the run.")
         if self._truthy(loaded.get("motility_analysis", False)):
             notes.append(
-                "motility_analysis=True was ignored — the assay now lives in "
-                "the Motility Assay module (sidebar > Core > Motility Assay).")
+                "motility_analysis=True was ignored — the assay runs on masks "
+                "that already exist, so it is a module of its own that Measure "
+                "opens (Measure masthead > Motility Assay).")
         for note in notes:
             self._console.append_notice(
                 "[settings] {note}\n", note=note)
 
+    def running_modules(self) -> list:
+        """Return active modules across the application.
+
+        Each result contains the module label, its application key, and the
+        elapsed run time in seconds when that information is available. The
+        list is used to identify work that a forced restart will interrupt.
+        """
+        import time
+
+        out = []
+        for screen in self._sibling_screens():
+            thread = getattr(screen, "_thread", None)
+            if thread is None or not thread.isRunning():
+                continue
+            started = getattr(screen, "_run_started_at", None)
+            out.append({
+                "module": APP_TITLES.get(screen.app_key, screen.app_key),
+                "app_key": screen.app_key,
+                "seconds": (None if started is None
+                            else max(0.0, time.time() - float(started))),
+            })
+        return out
+
+    def _sibling_screens(self) -> list:
+        """Every AppScreen in this application, including this one."""
+        from PySide6.QtWidgets import QApplication
+
+        screens = []
+        for widget in QApplication.allWidgets():
+            if isinstance(widget, AppScreen):
+                screens.append(widget)
+        return screens or [self]
+
+    def _restart_warning(self) -> str:
+        """What Force restart will cost, in the dialog's own words."""
+        from ...restart_state import warning_text
+
+        folders = []
+        for screen in self._sibling_screens():
+            folder = getattr(screen, "_last_run_folder", "") or ""
+            if folder:
+                folders.append(str(folder))
+        try:
+            return warning_text(
+                [entry for entry in self.running_modules()
+                 if entry.get("app_key") != self.app_key],
+                folders)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not describe the restart", exc_info=True)
+            return ""
+
+    def force_restart(self, *, launcher=None, exiter=None) -> bool:
+        """Save this module and its settings, then restart spaCR.
+
+        Parameters
+        ----------
+        launcher, exiter
+            Optional process hooks forwarded to
+            :func:`spacr.qt.shutdown.restart_spacr`.
+
+        Returns
+        -------
+        bool
+            ``True`` when a replacement process was started. If saving fails,
+            returns ``False`` without stopping the current process.
+        """
+        from ..shutdown import restart_spacr
+
+        try:
+            settings = dict(self._settings_model.collect() or {})
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not collect the settings to restart with",
+                      exc_info=True)
+            settings = {}
+        folders = [str(getattr(screen, "_last_run_folder", "") or "")
+                   for screen in self._sibling_screens()]
+        started = restart_spacr(
+            self.app_key, settings,
+            running=self.running_modules(),
+            run_folders=[f for f in folders if f],
+            launcher=launcher, exiter=exiter)
+        if not started:
+            self._say(
+                "spaCR did NOT restart: the module and its settings could not "
+                "be saved, and restarting without them would lose more than "
+                "the stuck run. Nothing was stopped. The log says why.")
+        return started
+
+    def _say_the_qc_verdict(self, payload) -> str:
+        """Put the run's worst QC verdict on the console. Returns what it said.
+
+        THE WORST, not a summary and not a count. Nineteen panels passing and
+        one saying the design is rank deficient is a run whose coefficients
+        are one of infinitely many solutions, and "95% passed" is a sentence
+        that hides exactly the panel the suite was run for --
+        `regression_qc.worst_verdict` says so where it is computed and this
+        is the other end of that.
+
+        SILENT WHEN THERE IS NOTHING TO SAY. A run with QC turned off, or one
+        whose suite could not build, has no verdict -- and printing "unknown"
+        after every such run would train a reader to skip the line that
+        matters.
+        """
+        if not isinstance(payload, dict):
+            return ""
+        verdict = payload.get("qc_verdict")
+        level = str(payload.get("qc_verdict_level") or "").lower()
+        if verdict is None:
+            return ""
+        detail = str(getattr(verdict, "detail", "") or verdict)
+        name = str(getattr(verdict, "name", "") or "")
+        where = f" ({name})" if name else ""
+        if level in ("fail", "failed", "bad"):
+            said = (f"\nREGRESSION QC: {level.upper()}{where} — {detail}\n"
+                    f"The full report is in the run folder as "
+                    f"regression_qc_report.txt.\n")
+        elif level in ("warn", "warning", "caution"):
+            said = (f"\nRegression QC: {level}{where} — {detail}\n")
+        else:
+            said = f"\nRegression QC: {level or 'ok'}{where} — {detail}\n"
+        self._say(said)
+        return said
+
+    def restore_run_workspace(self, record) -> dict:
+        """Restore the workspace recorded for a saved run.
+
+        The console reports sections that could not be restored and files
+        that have moved or changed.
+
+        Parameters
+        ----------
+        record
+            Run record or run-folder path accepted by
+            :func:`spacr.workspace.load`.
+
+        Returns
+        -------
+        dict
+            Restore report with ``restored``, ``skipped``, and ``files``
+            entries.
+        """
+        from ...workspace import load, providers, report_text, restore
+
+        folder = str((record or {}).get("folder") or "") if isinstance(
+            record, dict) else str(record or "")
+        empty = {"restored": [], "skipped": [], "files": []}
+        if not folder:
+            return empty
+        document = load(folder)
+        if document is None:
+            self._say(f"{folder} carries no saved workspace.")
+            return empty
+        report = restore(providers(), document, run_dir=folder)
+        self._say(f"Restored the workspace of {os.path.basename(folder)}:\n"
+                  f"{report_text(report)}")
+        return report
+
+    def _say(self, message: str) -> None:
+        """Put a sentence on the console, or in the log if there is none."""
+        console = getattr(self, "_console", None)
+        writer = getattr(console, "append_stdout", None)
+        if callable(writer):
+            try:
+                writer(str(message))
+                return
+            except Exception:                               # noqa: BLE001
+                LOG.debug("could not write to the console", exc_info=True)
+        LOG.info("%s", message)
+
+    # -- instruction 180: the screen contributes, and enrols its panels -----
+
+    #: The workspace sections this screen owns, ``{name: attribute}``. Named
+    #: rather than discovered so a saved run's section names are stable
+    #: across releases -- a document written by one version is read back by
+    #: another, and a section keyed by a widget's class name would go missing
+    #: the first time a class was renamed.
+    _WORKSPACE_PANELS = {
+        "regression": "_results_panel",
+        "montage": "_cell_montage",
+        "figures": "_figure_grid",
+    }
+
+    def register_workspace(self) -> None:
+        """Enrol this screen and its panels with the workspace registry.
+
+        Registered as CALLABLES returning the attribute, never as the widget:
+        `_results_panel` is rebuilt when the module changes, and a captured
+        reference would hand a run journal a deleted C++ peer to ask.
+        """
+        from ...workspace import register
+
+        key = str(self.app_key)
+        register(f"{key}:settings", lambda: self)
+        for name, attribute in self._WORKSPACE_PANELS.items():
+            register(f"{key}:{name}",
+                     lambda attribute=attribute: getattr(self, attribute, None))
+
+    def unregister_workspace(self) -> None:
+        """Withdraw this screen's sections. Called when it is torn down."""
+        from ...workspace import unregister
+
+        key = str(self.app_key)
+        unregister(f"{key}:settings")
+        for name in self._WORKSPACE_PANELS:
+            unregister(f"{key}:{name}")
+
+    def workspace_state(self) -> dict:
+        """The settings AS EDITED, which is a superset of the run's dict.
+
+        `open_run` writes the settings the PIPELINE was given. Keys the run
+        did not consume -- a path typed into a module the user then switched
+        away from, a threshold set for the next run -- are still the user's
+        work and are not in that file. This is the screen's whole state.
+        """
+        try:
+            values = dict(self._settings_model.collect() or {})
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not collect the settings state", exc_info=True)
+            return {"app_key": str(self.app_key), "settings": {}}
+        return {"app_key": str(self.app_key), "settings": values}
+
+    def apply_workspace_state(self, state) -> bool:
+        """Put a screen's settings back. Returns whether any key applied.
+
+        Only into the module it came from. Settings keys are shared across
+        modules by name and mean different things -- `level` is the
+        regression's fit level and the proportion plots' unit -- so replaying
+        a measure screen's state into a regression screen would set keys that
+        happen to collide and leave the rest.
+        """
+        if not isinstance(state, dict):
+            return False
+        if str(state.get("app_key") or self.app_key) != str(self.app_key):
+            return False
+        settings = state.get("settings")
+        if not isinstance(settings, dict) or not settings:
+            return False
+        return bool(self.apply_settings_dict(settings))
+
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings
-        widgets this app exposes. Silently skips keys the current app
-        does not have — the same dict can safely be applied across
-        several apps. Returns the count of keys actually applied."""
+        widgets this app exposes.
+
+        A bulk load is one transaction. If it changes the form's shape, the
+        complete merged mapping builds one replacement screen before values
+        are applied; no signal may replace the screen halfway through the
+        loop. Silently skips keys the current app does not have — the same
+        dict can safely be applied across several apps. Returns the count of
+        keys actually applied.
+        """
         settings = _translate_legacy_setting_keys(settings)
+        settings = self._migrate_control_wells(settings)
+        model = getattr(self, "_settings_model", None)
+        settings = self._infer_legacy_organelle_count(settings, model)
+        try:
+            current = dict((model.collect() if model is not None else {}) or {})
+        except Exception:                                   # noqa: BLE001
+            current = {}
+        target = dict(current)
+        target.update(settings)
+
+        if self._bulk_apply_changes_form_shape(settings, current):
+            window = self.window()
+            rebuild = getattr(window, "rebuild_app_screen", None)
+            if callable(rebuild):
+                if self._worker_thread_is_running():
+                    # The run keeps its screen. Values that have no widget on
+                    # the old shape wait here and are carried into the one
+                    # replacement made after QThread.finished.
+                    self._deferred_form_values = target
+                    deferred_bulk = dict(getattr(
+                        self, "_deferred_bulk_settings", None) or {})
+                    deferred_bulk.update(settings)
+                    self._deferred_bulk_settings = deferred_bulk
+                    self._form_rebuild_deferred = True
+                else:
+                    rebuild(self.app_key, target)
+                    fresh = getattr(window, "_screens", {}).get(self.app_key)
+                    if fresh is not None and fresh is not self:
+                        return fresh.apply_settings_dict(settings)
+
+        applied = 0
+        # ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a
+        # rule that reads other settings must not act on it. See
+        # `_show_the_value_it_will_have`.
+        if model is not None:
+            model._applying_settings = True
+        try:
+            applied = self._apply_each_setting(settings)
+        finally:
+            if model is not None:
+                model._applying_settings = False
+        self._refresh_after_bulk_apply(settings)
+        return applied
+
+    def _refresh_after_bulk_apply(self, settings: dict) -> None:
+        """Apply cross-setting rules once, after a complete bulk mapping."""
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            try:
+                model.apply_organelle_presets_from_mapping(settings)
+                model._refresh_setting_dependencies()
+            except Exception:                               # noqa: BLE001
+                LOG.debug("could not refresh dependencies after a bulk "
+                          "apply", exc_info=True)
+        self._sync_folded_switches(settings)
+        # And the two switches that decide which DIMENSIONS the form is
+        # about, for the same reason: a file that asks for a volumetric run
+        # must not land on a form that is hiding the volumetric settings.
+        try:
+            self._sync_dimension_switches(settings)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sync the dimension switches after a bulk "
+                      "apply", exc_info=True)
+
+    @staticmethod
+    def _infer_legacy_organelle_count(settings: dict, model) -> dict:
+        """Add the count implied by slots in a pre-count settings file."""
+        from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
+                                        organelle_role_of)
+
+        defaults = getattr(model, "_defaults", {}) if model is not None else {}
+        if (NUMBER_OF_ORGANELLES not in defaults
+                or NUMBER_OF_ORGANELLES in settings
+                or not any(organelle_role_of(key) is not None
+                           for key in settings)):
+            return settings
+        migrated = dict(settings)
+        migrated[NUMBER_OF_ORGANELLES] = organelle_count(settings)
+        return migrated
+
+    def _bulk_apply_changes_form_shape(
+            self, settings: dict, current: dict) -> bool:
+        """Whether supplied values require a differently shaped form."""
+        from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
+                                        organelle_number)
+        from ..settings_diff import _values_equal
+
+        supports_organelles = NUMBER_OF_ORGANELLES in current
+        target = dict(current)
+        target.update(settings)
+        target_count = organelle_count(target) if supports_organelles else 0
+        for key, value in settings.items():
+            key = str(key)
+            if key == NUMBER_OF_ORGANELLES and supports_organelles:
+                if not _values_equal(current.get(key), value):
+                    return True
+                continue
+            role = object_of_setting(key)
+            if role is None or role == "cell":
+                continue
+            if key not in object_switch_keys(role):
+                continue
+            if role not in ("nucleus", "pathogen"):
+                if not supports_organelles:
+                    continue
+                try:
+                    if organelle_number(role) > target_count:
+                        continue
+                except ValueError:
+                    continue
+            if not _values_equal(current.get(key), value):
+                return True
+        return False
+
+    def _sync_folded_switches(self, settings: dict) -> tuple:
+        """Move this screen's fold switches to match settings just applied.
+
+        A module folded in as settings CATEGORIES contributes its pipeline
+        GATE — ``timelapse`` on Mask Generation — and a gate has no widget
+        on the form, because the masthead switch is its one control. The
+        bulk apply above therefore fills in every tracking knob a Timelapse
+        settings file names and leaves tracking switched off, which is a run
+        the file did not ask for.
+
+        Safe on every screen: one with no category folds returns an empty
+        tuple, and a failure here costs the switch position rather than the
+        import.
+
+        :param settings: the dict that was just applied.
+        :returns: the folded keys the settings switched on.
+        """
+        try:
+            from .mask import sync_folds
+            switched = tuple(sync_folds(self, settings))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sync the fold switches after a bulk apply",
+                      exc_info=True)
+            switched = ()
+        # Remembered so `_warn_about_moved_settings` can report what moved
+        # instead of guessing, and so a screen with no switches can say the
+        # flag was ignored rather than claiming it landed.
+        self._folds_last_switched_on = switched
+        return switched
+
+    def _migrate_control_wells(self, settings: dict) -> dict:
+        """Turn a retired control-well trio into the Classes rows it means.
+
+        ``location_column``, ``positive_control`` and ``negative_control``
+        were how Classify (ML) said "these two wells are my classes". The
+        merged Classify module says it once, in the Classes editor, so it
+        renders no widget for any of the three -- and a settings file written
+        by the old module therefore lost all three on load, leaving the
+        Classes editor empty and the run using the module's OWN default wells
+        instead of the ones the file named. Silently, and reporting success.
+
+        The run path already performs exactly this translation
+        (:func:`spacr.classify_classes.normalize_settings`); doing it here is
+        what lets the user SEE the wells the file asked for before starting.
+
+        :param settings: settings about to be applied, not modified.
+        :returns: the same dict, or a copy carrying an equivalent ``classes``.
+        """
+        trio = ("location_column", "positive_control", "negative_control")
+        if not any(key in settings for key in trio):
+            return settings
+        model = getattr(self, "_settings_model", None)
+        widgets = getattr(model, "_widgets", {}) if model is not None else {}
+        if any(key in widgets for key in trio) or "classes" not in widgets:
+            return settings          # a screen that holds the trio itself
+        if settings.get("classes"):
+            return settings          # the file already says it the new way
+        try:
+            from ...classify_classes import normalize_settings
+            classes = normalize_settings(dict(settings)).get("classes")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not migrate the control wells", exc_info=True)
+            return settings
+        if not classes:
+            return settings
+        settings = dict(settings)
+        settings["classes"] = classes
+        return settings
+
+    def _apply_each_setting(self, settings: dict) -> int:
+        """Push each key into its widget. Returns how many landed."""
         applied = 0
         for key, val in settings.items():
             w = self._settings_model._widgets.get(key)
             if w is None:
+                if self._settings_model.set_hidden_value(key, val):
+                    # Preserve every known off-form value, but keep the
+                    # historical return contract: only dedicated hidden
+                    # controls count as exposed/applied rows.
+                    from .settings_model import _APP_HIDDEN_KEYS
+                    if key in _APP_HIDDEN_KEYS.get(self.app_key, set()):
+                        applied += 1
                 continue
             try:
                 self._apply_value(w, val)
@@ -2997,6 +10697,17 @@ class AppScreen(QWidget):
         return applied
 
     def _apply_value(self, widget, val):
+        """Write one loaded value into whichever kind of control holds it.
+
+        A double spin box that also offers ``auto`` is set through the shared
+        helper: ``float("auto")`` raises, and a swallowed failure would leave
+        the control showing 1 -- the one value that cannot mean an unpenalised
+        model.
+
+        :param widget: the control to write into.
+        :param val: the value as read from the settings file; coerced to the
+            control's own type, and left alone when it cannot be.
+        """
         from PySide6.QtWidgets import QCheckBox, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit
         if isinstance(widget, QCheckBox):
             widget.setChecked(str(val).lower() in ("true", "1", "yes"))
@@ -3006,15 +10717,35 @@ class AppScreen(QWidget):
             except (ValueError, TypeError):
                 pass
         elif isinstance(widget, QDoubleSpinBox):
-            try:
-                widget.setValue(float(val))
-            except (ValueError, TypeError):
-                pass
+            # A BOX THAT ALSO SAYS "auto" (181). `float("auto")` raises, and
+            # the `except` above would have swallowed it and left the control
+            # showing 1 -- the one value that cannot fit a penalised model.
+            # Two writers for one widget is why this needed saying twice; the
+            # spelling is shared so they cannot answer differently.
+            from .settings_model import AUTO_TEXT, _set_auto_or_number
+
+            if str(widget.specialValueText() or "") == AUTO_TEXT:
+                _set_auto_or_number(widget, val)
+            else:
+                try:
+                    widget.setValue(float(val))
+                except (ValueError, TypeError):
+                    pass
         elif isinstance(widget, QComboBox):
-            for i in range(widget.count()):
-                if widget.itemText(i) == str(val):
-                    widget.setCurrentIndex(i)
-                    break
+            # THE STORED VALUE FIRST, THEN THE TEXT. A combo built from
+            # (value, label) pairs shows the SENTENCE and stores the KEY --
+            # 'load images' for 'png' (171), 'guide permutation — test each
+            # guide on its own' for 'guide_permutation' (134) -- so matching
+            # on `itemText` alone silently ignored every settings CSV that
+            # named the key, which is every settings CSV there is. The
+            # selection simply did not move, and nothing said so.
+            index = widget.findData(val)
+            if index < 0 and val is not None:
+                index = widget.findData(str(val))
+            if index < 0:
+                index = widget.findText(str(val))
+            if index >= 0:
+                widget.setCurrentIndex(index)
         elif hasattr(widget, "set_value"):
             # _ListEditor / _ListEdit / _ScalarEdit all round-trip their own
             # value. Importing a settings CSV used to go through the plain
@@ -3064,11 +10795,23 @@ class AppScreen(QWidget):
         # at one.
         per_core = bool(self._btn_cpu_toggle.isChecked()
                         and self._per_core_bars)
-        self._usage_jobs.submit(lambda: _sample_usage(per_core),
-                                self._apply_usage)
+        generation = self._usage_generation
+        self._usage_jobs.submit(
+            lambda: _sample_usage(per_core),
+            lambda sample, generation=generation: self._apply_usage(
+                sample, generation),
+        )
 
-    def _apply_usage(self, sample: dict) -> None:
+    def _apply_usage(self, sample: dict,
+                     request_generation: Optional[int] = None) -> None:
         """Paint one worker-taken usage sample. GUI thread only."""
+        # A page can be hidden while the worker is sampling. hideEvent bumps
+        # the generation, invalidating only that in-flight result. Explicit
+        # refreshes remain useful on a hidden test/diagnostic screen and the
+        # next showEvent requests a fresh generation immediately.
+        if (request_generation is not None
+                and request_generation != self._usage_generation):
+            return
         if not sample:
             return
         ram = sample.get("ram")
@@ -3110,9 +10853,9 @@ def _sample_usage(per_core: bool) -> dict:
 
     Module-level and widget-free on purpose: this is the whole of what
     :meth:`AppScreen._refresh_usage` sends off the GUI thread, so it must be
-    impossible for it to reach a widget. A missing psutil or GPUtil, or a
-    machine with no GPU, leaves that key out rather than failing the sample --
-    the bars keep their last value, which is a truer picture than zero.
+    impossible for it to reach a widget. A missing psutil leaves those keys
+    out rather than failing the sample. A CPU-only machine reports zero GPU
+    and VRAM use without entering GPUtil's subprocess boundary.
 
     :param per_core: whether the per-core panel is open and wants its own
         reading. Decided by the caller, on the GUI thread, from the toggle.
@@ -3127,40 +10870,104 @@ def _sample_usage(per_core: bool) -> dict:
             sample["per_core"] = psutil.cpu_percent(interval=None, percpu=True)
     except Exception:
         pass
-    try:
-        import GPUtil
-        gpus = GPUtil.getGPUs()
-        if gpus:
-            sample["gpu"] = gpus[0].load * 100
-            sample["vram"] = gpus[0].memoryUtil * 100
-        else:
-            sample["gpu"] = 0
-            sample["vram"] = 0
-    except Exception:
-        pass
+    # GPUtil shells out to nvidia-smi.  Calling it when the executable does
+    # not exist is both pointless and, after hundreds of short-lived worker
+    # threads in a Qt process, has crashed in CPython's subprocess boundary
+    # (CI run 31869225004).  The cheap executable check keeps CPU-only hosts
+    # entirely outside that native boundary.  A real NVIDIA host still uses
+    # GPUtil's established parsing and reports the same values as before.
+    if _nvidia_smi_available():
+        try:
+            import GPUtil
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                sample["gpu"] = gpus[0].load * 100
+                sample["vram"] = gpus[0].memoryUtil * 100
+            else:
+                sample["gpu"] = 0
+                sample["vram"] = 0
+        except Exception:
+            pass
+    else:
+        sample["gpu"] = 0
+        sample["vram"] = 0
     return sample
 
 
-def QtGui_QListWidgetItem_helper(fig, idx: int):
-    """Build a :class:`QListWidgetItem` with a low-DPI thumbnail render
-    of ``fig`` — used in the figures panel's history strip."""
+def _nvidia_smi_available() -> bool:
+    """Return whether GPU telemetry can invoke an actual ``nvidia-smi``."""
+    if shutil.which("nvidia-smi"):
+        return True
+    if sys.platform == "win32":
+        drive = os.environ.get("SystemDrive", "C:")
+        candidate = os.path.join(
+            drive, "Program Files", "NVIDIA Corporation", "NVSMI",
+            "nvidia-smi.exe",
+        )
+        return os.path.isfile(candidate)
+    return False
+
+
+#: The history strip's thumbnail, in LOGICAL pixels.
+STRIP_THUMB_PX = (140, 90)
+
+#: Matplotlib dots per inch for a strip thumbnail on an ordinary display.
+#: Multiplied by the device pixel ratio, because a render is only as sharp
+#: as the raster it came from -- scaling a 32-dpi picture up to a dense
+#: panel enlarges the blur rather than removing it.
+STRIP_THUMB_DPI = 32
+
+
+def QtGui_QListWidgetItem_helper(fig, idx: int, target=None):
+    """Build a :class:`QListWidgetItem` with a thumbnail render of ``fig``.
+
+    Used in the figures panel's history strip. ``target`` is the widget the
+    strip is on; the render is sized for that screen's pixel density, and
+    falls back to the primary screen when no widget is given.
+    """
     from io import BytesIO
     from PySide6.QtWidgets import QListWidgetItem
     item = QListWidgetItem()
     item.setText(f"#{idx + 1}")
     item.setTextAlignment(Qt.AlignCenter)
     try:
+        ratio = device_ratio(target)
         buf = BytesIO()
-        fig.savefig(buf, format="png", dpi=32, bbox_inches="tight",
-                     facecolor=fig.get_facecolor())
+        fig.savefig(buf, format="png", dpi=STRIP_THUMB_DPI * ratio,
+                    bbox_inches="tight", facecolor=fig.get_facecolor())
         pix = QPixmap()
         pix.loadFromData(buf.getvalue(), "PNG")
         if not pix.isNull():
-            item.setIcon(QIcon(pix.scaled(
-                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            item.setIcon(QIcon(scaled_for(pix, target, STRIP_THUMB_PX)))
     except Exception:
         pass
     return item
+
+
+def _first_count_file(settings: dict) -> str:
+    """Return the first sgRNA-count CSV selected by ``settings``.
+
+    Inspect paired score/count rows before the legacy flat ``count_data``
+    list. Return an empty string when neither source contains a count file.
+    """
+    for row in (settings.get("paired_data") or []):
+        count = (row.get("count") if isinstance(row, dict)
+                 else (list(row)[1] if len(list(row)) > 1 else ""))
+        if str(count or "").strip():
+            return str(count).strip()
+    counts = settings.get("count_data")
+    if isinstance(counts, (list, tuple)):
+        counts = counts[0] if counts else ""
+    return str(counts or "").strip()
+
+
+def _sweepable(app_key: str) -> bool:
+    """Whether ``app_key`` has a parameter sweep. Import-guarded like its twin."""
+    try:
+        from .parameter_sweep import sweepable
+        return sweepable(app_key)
+    except Exception:  # pragma: no cover - sweep module unavailable
+        return False
 
 
 def _hyperparam_searchable(app_key: str) -> bool:

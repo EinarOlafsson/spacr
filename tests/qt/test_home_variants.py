@@ -35,8 +35,6 @@ its own process, which owns its own QApplication and can do it properly.
 """
 from __future__ import annotations
 
-
-
 import importlib.util
 import json
 import os
@@ -61,76 +59,46 @@ N_VARIANTS = 30
 #: fitting without one is the finding these renders exist to make.
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
-#: The variants that do NOT fit 1440x900 at the reference zoom, measured
-#: at a registry of fifty-four apps. Eighteen of the thirty are clean and
-#: this is the record of the other twelve.
+#: The variants that do not fit 1440x900 at the reference zoom, measured
+#: against the current visible registry after the module consolidation.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
-#: overflows`` compares the audit against this table with ``==``, so all
+#: overflows`` compares the audit against the two exact profiles, so all
 #: three things fail: a defect appearing in a clean variant, a listed one
 #: getting worse, and a listed one getting BETTER. The last is the point —
 #: a fix has to delete its line here, which is what stops a known-red
 #: ledger from becoming a place defects go to be forgotten.
 #:
-#: Why these twelve are recorded rather than fixed. They are a review
-#: surface: thirty candidate home screens rendered from the real widgets so
-#: a human can pick one, and nothing in ``_generators/`` is installed into
-#: the app. Each entry is a design decision that a person has to take, and
-#: v02's own comment in ``variants.py`` spells its afternoon of measurement
-#: out: the fourteen — now nineteen — elided names are not a consequence of
-#: the overflow, the cause is the 190 px tile, 190 is already the widest a
-#: seven-column grid allows, six columns would need a row the page has no
-#: room for, and shrinking the icon to 26 px leaves a caption with a bullet
-#: beside it. There is no tuning left; the surface either shows fewer apps,
-#: gets a taller canvas, or accepts elision with tooltips.
-#:
-#: The registry going from thirty-four to forty-nine — and now to
-#: fifty-four in the bands, with sixty-three registered — is what did this.
-#: Every count below is a fact about that growth against a fixed 1440x900,
-#: and the three shapes it takes are: names too long for a tile (elided),
-#: a description given fewer pixels of height than it needs (clipped), and
-#: a page taller than the canvas (overflow).
-#:
-#: Updated for the four apps that joined since the last record (PCA,
-#: Tabulate, Small Multiples, Gate Editor and the rest of the
-#: self-registering set). The decision each entry is asking for has not
-#: changed and is not taken here: these thirty candidates are a review
-#: surface, nothing in ``_generators/`` is installed into the app, and the
-#: answer for every one of them is the same three-way choice in the
-#: paragraph above — fewer apps, a taller canvas, or elision with
-#: tooltips. What the record is for is making the growth visible when it
-#: happens rather than at the end, so the counts move with it.
-#:
-#: Re-measured 2026-08-10 at fifty-four apps, the merged Classify module
-#: having joined the registry on 2026-08-06 (2d4da7df). Exactly one number
-#: moved and it is v22's, which is the interesting part: v22 is the A-to-Z
-#: index, a flat alphabetical list over every key with no category table
-#: at all, split into three fixed columns. It has nowhere to absorb a
-#: fifty-fourth row, so the row it gained is a description clipped against
-#: the fixed 900 px canvas. Every other variant filed the new app inside a
-#: band it already had room for — including v04, which stayed at ten only
-#: because the same commit filed ``classify_merged`` in the generator
-#: category tables; unfiled it falls to the tail bucket and v04 reads 17.
+#: These are review surfaces rather than installed UI. A recorded entry is a
+#: design measurement, not permission to add more clipping: the exact profile
+#: fails if a defect appears, worsens, or is fixed without updating the
+#: ledger. The three measured forms are elided names, clipped descriptions
+#: and content taller than the fixed canvas. Module folds reduce this set;
+#: longer labels or new visible apps can increase it.
 KNOWN_LAYOUT_DEFECTS: dict = {
-    # New since the last record: v01 clips four descriptions and overflows.
-    1:  {"clipped": 4, "overflow": 1},
-    # Five bands of seven, all five now wrapping to a second row.
-    2:  {"elided": 21, "overflow": 1},
-    3:  {"elided": 6, "overflow": 1},
-    # Not names: ten one-line descriptions given 6-9 px of a 15 px need.
-    4:  {"clipped": 10},
-    5:  {"elided": 7},
-    # 1 -> 10: the extra apps push nine more descriptions under their need.
-    13: {"clipped": 10},
-    17: {"overflow": 1},
-    19: {"clipped": 1},
-    20: {"elided": 1, "overflow": 1},
-    # New at fifty-four apps: the A-to-Z index has no bands to grow into,
-    # so the fifty-fourth row is one DenseRow past what 1440x900 holds.
-    22: {"clipped": 1},
-    28: {"elided": 5, "overflow": 1},
-    30: {"elided": 5},
+    # VARIANT 1 LEFT THIS LEDGER ON 2026-09-08, and deleting its line is the
+    # ledger's own rule: a fix has to remove its entry or the record stops
+    # being one.
+    #
+    # It joined on 2026-09-07 for a reason that has since been undone. The
+    # cause was registry growth, not layout: `train_compare`, `profiler` and
+    # `investigate_hit` had joined Core, the tallest column got three rows
+    # longer, and variant 01's minimum height passed 900. Those three moved
+    # to Tools the next day on the maintainer's instruction -- for an
+    # unrelated reason, that taking the host's section put them on Home
+    # twice -- and the column is three rows shorter again.
+    #
+    # Worth keeping as a note rather than a line: the shipped Home was never
+    # affected either way. Measured through a real `MainWindow` at 1440x900,
+    # HomePage's layout minimum is 814x662, because the real screen puts its
+    # categories in a scroll area and these generators draw them flat.
+    # The stage-banded review candidate still needs one vertical scrollbar.
+    # All earlier clipping and elision disappeared after the module folds and
+    # the QSS/layout work; retaining those old entries would hide a real win.
+    2: {"overflow": 1},
 }
+
+KNOWN_LAYOUT_DEFECT_PROFILES = (KNOWN_LAYOUT_DEFECTS,)
 
 
 def _load(name: str, module_name: str):
@@ -230,8 +198,8 @@ def frozen_home_panels():
     build a HomePage would silently be told the GPU is at 41%. Snapshot
     and restore around anything that builds variant 01.
     """
-    from spacr.qt.widgets import home as H
     import spacr.run_journal as J
+    from spacr.qt.widgets import home as H
     saved = [
         (H.SystemPanel, "gpu_util", H.SystemPanel.__dict__["gpu_util"]),
         (H.SystemPanel, "gpu_vram", H.SystemPanel.__dict__["gpu_vram"]),
@@ -334,6 +302,18 @@ def test_n_apps_is_read_from_the_registry(gen_common):
     assert gen_common.n_apps() == len(APPS)
 
 
+def test_n_sections_is_read_from_the_non_empty_registry_sections(gen_common):
+    """Current-section prose must change with the sidebar, not a literal."""
+    assert gen_common.n_sections() == len(gen_common.cats_current())
+
+
+def test_retired_tiles_cannot_hide_inside_a_generator_fallback(gen_common):
+    """A folded module must not survive as a standalone candidate tile."""
+    with pytest.raises(AssertionError, match="retired app keys"):
+        gen_common._with_late_registrations(
+            [("Fallback", ["activation"])], fallback="Fallback")
+
+
 def test_the_three_late_apps_are_categorised(gen_common):
     """Regression guard for the gap this file exists to have caught.
 
@@ -342,8 +322,16 @@ def test_the_three_late_apps_are_categorised(gen_common):
     so every proposed home screen was a screen three apps were missing
     from. ``check_coverage`` catches that generically; this names them,
     because the generic failure sat red without being acted on.
+
+    Two of the three are left. Classifier Evaluation folded onto Classify
+    and its registry row went with the tile, so a home screen that drew
+    it would be drawing a module the sidebar no longer offers -- the
+    opposite defect, and the one it must now be absent from.
     """
-    late = {"classifier_evaluation", "distributed_jobs", "run_history"}
+    assert "classifier_evaluation" not in set(gen_common.all_keys()), (
+        "Classifier Evaluation is a button on Classify now, so no home "
+        "variant may place a tile for it")
+    late = {"distributed_jobs", "run_history"}
     assert late <= set(gen_common.all_keys())
     assert late <= set(gen_common.USE_COUNTS)
     for name in ("CATS_BROAD3", "CATS_STAGE5", "CATS_NARROW8",
@@ -355,67 +343,25 @@ def test_the_three_late_apps_are_categorised(gen_common):
 
 def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
         gen_common):
-    """``CATS_STAGE5`` bands are drawn seven-wide; a band may wrap ONCE.
+    """``CATS_STAGE5`` is drawn seven-wide and may wrap only once.
 
-    Variants 02 and 23 lay every band out as one seven-column grid, so a
-    band of eight takes a second row and a band of fifteen would take
-    three. Five bands of seven was thirty-five slots for a registry of
-    thirty-four; Illumination, Barcode QC, Layer Viewer and Graph
-    Builder took it to thirty-eight, and Power / Design, AnnData Export
-    and Run Compare to forty-two.
-
-    Neither way out was ever available. A sixth band is not: variants 13,
-    15 and 16 lay these out as exactly five columns and solve the gap
-    between them from that count, which is asserted below so the next
-    person to reach for it finds out here. A wider grid is not either:
-    at eight columns the tile is 166 px, and at that width thirty-four
-    of the names elide however small the font is set.
-
-    So the cap is the number of tiles that fits in TWO rows of seven,
-    and it was written as ``8`` while eight was the largest band there
-    was. Forty-two apps do not go into five bands of eight — nine is the
-    arithmetic floor — so it became nine, and Pipeline Graph, Hit List,
-    Prediction Profiler and Methods & Results take the registry to
-    forty-six, whose floor is TEN. Ten is still one wrapped row (seven,
-    then three) and not two. Fourteen is where a third row starts; the
-    cap stays below it, so that filling a band remains a decision
-    somebody takes rather than a page that quietly gets taller.
-
-    The cap moving is not the same as the bands drifting, which is what
-    the floor below is for: the number is always the SMALLEST that can
-    hold the registry, so slack cannot accumulate quietly, and raising it
-    forces the four new apps to be filed rather than piled into the
-    fallback band.
-
-    Curate and Lineage then took the registry to forty-nine and this went
-    red at "Report has 12", which is the failure working exactly as it was
-    written to: they had been piled into the fallback band rather than
-    filed. The cap did NOT move again and nothing left Report. Neither app
-    belonged there — fixing a mask by hand is producing a mask, and a
-    containment tree is a measurement — so they went to Segment and
-    Measure, the two bands that still had room. Forty-nine over five is
-    ten, so the floor below is met exactly with the cap where it was. A
-    fallback overflow is usually this: not a band that is too small, but a
-    key filed nowhere.
-
-    Experiment Design and the QC Dashboard then took it to fifty-one,
-    which is where the cap genuinely had to move: fifty-one over five is
-    ELEVEN however the bands are shared out, so no filing decision could
-    have avoided it. Both were still filed on their merits first --
-    Experiment Design beside Power in Acquire, the QC Dashboard in Report
-    -- and the result is 11/9/10/10/11, the floor exactly. Eleven is
-    seven, then four. Fifteen is where a third row starts.
+    A band of fifteen would create a third row. The exact current widest
+    band is pinned as well, so removing standalone tiles cannot leave a
+    historical, over-wide allowance behind.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
         assert len(keys) <= 11, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
-    # ...and the floor is real: any cap below it would be unsatisfiable.
-    total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 11, (
-        f"{total} apps over five bands no longer needs an eleven-wide band; "
-        f"tighten the cap above rather than leaving the slack unused")
+    # ...AND THE FLOOR IS THE WIDEST BAND, not the average one.
+    #
+    # The widest band, rather than the arithmetic average, is the actual
+    # width the fixed grid must accommodate.
+    widest = max(len(keys) for _title, keys in gen_common.CATS_STAGE5)
+    assert widest == 11, (
+        f"the widest band is {widest}; the cap above is the width the "
+        f"grid must accommodate, so move them together")
 
 
 def test_check_coverage_names_what_is_wrong(gen_common):
@@ -483,8 +429,9 @@ def test_ctx_icon_uses_a_glyph_for_forced_keys(gen, ctx, monkeypatch):
     re-inked PNG — the same rule the app applies. Untested, the branch
     would only be discovered the first time a key was added to the set.
     """
-    import spacr.qt.app as A
     from PySide6.QtGui import QIcon
+
+    import spacr.qt.app as A
     from spacr.qt import iconset
     seen = []
 
@@ -606,6 +553,7 @@ def test_apply_theme_as_the_owner_styles_the_application(gen, monkeypatch):
 def _texts(widget) -> list:
     """Every string a widget tree shows, elided ones unabridged."""
     from PySide6.QtWidgets import QLabel, QPushButton
+
     from spacr.qt.widgets.eliding import ElidingLabel, ElidingPushButton
     out = []
     for child in widget.findChildren(QLabel):
@@ -665,11 +613,16 @@ def test_text_label_upper_and_colour_reach_the_widget(gen, ctx):
 
 
 def test_htile_shows_the_real_name_and_blurb(gen, ctx):
-    """The tile is the app's own ``HTile``, carrying registry text."""
-    tile = gen.parts.htile(ctx, "classifier_evaluation", width=260,
-                           icon_px=40)
-    assert gen.common.name_of("classifier_evaluation") in _texts(tile)
-    assert gen.common.blurb_of("classifier_evaluation") in tile.toolTip()
+    """The tile is the app's own ``HTile``, carrying registry text.
+
+    Asked of a key the registry actually holds, taken from the generator
+    itself: it used to name Classifier Evaluation, which folded onto
+    Classify and has no row to read a name or a blurb out of any more.
+    """
+    key = gen.common.all_keys()[0]
+    tile = gen.parts.htile(ctx, key, width=260, icon_px=40)
+    assert gen.common.name_of(key) in _texts(tile)
+    assert gen.common.blurb_of(key) in tile.toolTip()
     assert tile.width() == 260
     assert tile.height() == gen.parts.htile_height(40)
 
@@ -948,6 +901,7 @@ def test_audit_reports_a_clean_page_clean(gen, ctx):
 
 def test_audit_catches_clipped_elided_and_overflowing_text(gen, ctx):
     from PySide6.QtWidgets import QLabel
+
     from spacr.qt.widgets.eliding import ElidingLabel
     page = gen.parts.Page(ctx)
     clipped = QLabel("a name far too long for the box it was given")
@@ -1127,9 +1081,8 @@ def _counts_in(text: str):
 def test_write_markdown_never_types_an_app_count(gen, sandbox):
     """Every "N apps" in the document must be the live registry size.
 
-    This is the regression that let three shipped apps go missing: the
-    prose said "29 apps" while ``APPS`` held 34, and nothing compared
-    the two.
+    A previous derivative retained an old app count after the registry grew;
+    nothing compared the prose with the source registry.
 
     The guard reads spelled-out and hyphenated counts too. Its first
     version did not, and "the whole 29-app taxonomy collapses into five
@@ -1146,8 +1099,8 @@ def test_write_markdown_never_types_an_app_count(gen, sandbox):
         whole - 8,                                   # v06 shows eight
     }
     # A variant is also allowed to state the size of one of its own
-    # bands ("Nine apps, and a door to the other 25", "two apps in the
-    # Measure column"). Those are facts about a category table, so the
+    # bands ("N apps behind the Core door", "two apps in the Measure
+    # column"). Those are facts about a category table, so the
     # table is what says whether they are still true; nothing here has
     # to agree with a literal.
     for table in (gen.common.CATS_STAGE5, gen.common.CATS_BROAD3,
@@ -1155,13 +1108,8 @@ def test_write_markdown_never_types_an_app_count(gen, sandbox):
                   gen.common.CATS_INTENT4):
         allowed |= {len(keys) for _title, keys in table}
     allowed.add(len(gen.common.PINNED))
-    # The point of the set is that every member of it is DERIVED from the
-    # live registry, so none of them can drift the way a typed literal
-    # did. This used to be spelled `29 not in allowed` -- the exact stale
-    # number the file was written about. That sentinel had to go, and its
-    # going is the same lesson twice: with 38 apps and 9 Core ones, "the
-    # other 29" is a true sentence, so the guard was itself pinned to a
-    # registry size.
+    # Every member is derived from the live registry. A fixed sentinel would
+    # itself become stale after the next consolidation.
     assert whole in allowed
     assert allowed and all(0 < n <= whole for n in allowed), (
         f"a number the prose may print is not a size anything has: "
@@ -1179,6 +1127,24 @@ def test_write_markdown_never_types_an_app_count(gen, sandbox):
         f"app counts in VARIANTS.md that the registry cannot produce: "
         f"{stale}. Either the prose typed a number, or it derived a new "
         f"one that belongs in `allowed` above.")
+
+
+def test_markdown_does_not_restore_the_preconsolidation_taxonomy(gen,
+                                                                  sandbox):
+    """Current-section and Core claims must follow the visible registry."""
+    path = gen.render.write_markdown(
+        gen.variants.VARIANTS, ("dark",), gen.render.load_audit(), 1356, 850)
+    text = open(path, encoding="utf-8").read().casefold()
+    stale = (
+        "today's five categories",
+        "five section headings",
+        "nine core-pipeline apps",
+        "the nine steps of a screen",
+        "door to the other 25",
+    )
+    assert not [phrase for phrase in stale if phrase in text]
+    assert f"{gen.common.n_sections()} current sections" in text
+    assert "v18_core-workflow-only" in text
 
 
 def test_write_markdown_never_types_a_variant_count(gen, sandbox):
@@ -1375,9 +1341,9 @@ def test_measure_sidebar_measures_the_scrolled_content(gen):
     need, avail = gen.render.measure_sidebar(gen.app)
     assert avail == CANVAS[1] - 26 - 24
     from spacr.qt.app import APPS
-    # One row per app plus five headings plus Home, at 20 px a row, is a
-    # deliberately generous floor: the point is that it is nothing like
-    # the ~85 px the outer layout reports.
+    # One row per app plus the live section headers and Home is deliberately
+    # much taller than the ~85 px outer layout. The exact header count comes
+    # from the registry rather than this test's prose.
     assert need > 20 * len(APPS), (
         f"measure_sidebar reports {need} px for {len(APPS)} app rows — it "
         "is measuring the viewport, not the rows inside it")
@@ -1388,9 +1354,16 @@ def test_measure_sidebar_measures_the_scrolled_content(gen):
 
 def test_main_check_and_md_only_never_render(gen, sandbox, capsys):
     """The two cheap CLI paths. Neither may write a PNG."""
+    from spacr.qt import preferences
+
+    preference_module = preferences
+    assert os.path.samefile(gen.common.repo_root(), REPO_ROOT), (
+        "redirecting render output also redirected the checkout identity")
     assert gen.render.main(["--check", "--themes", "dark"]) == 0
     assert "self-check" in capsys.readouterr().out
     assert gen.render.main(["--md-only", "--themes", "dark"]) == 0
+    assert sys.modules.get("spacr.qt.preferences") is preference_module, (
+        "the render command replaced spaCR modules already used by its host")
     assert os.path.isfile(os.path.join(str(sandbox), "VARIANTS.md"))
     assert not [name
                 for _root, _dirs, files in os.walk(str(sandbox))
@@ -1436,7 +1409,7 @@ def test_main_renders_only_what_it_was_asked_for(gen, sandbox, capsys):
     written = {os.path.relpath(os.path.join(root, name), str(sandbox))
                for root, _dirs, files in os.walk(str(sandbox))
                for name in files if name.endswith(".png")}
-    assert written == {os.path.join("v18_core-nine-only", "dark.png"),
+    assert written == {os.path.join("v18_core-workflow-only", "dark.png"),
                        "_sheet.png"}
     assert os.path.isfile(os.path.join(str(sandbox), "VARIANTS.md"))
     # A partial run keeps every variant's prose but only re-audits the
@@ -1537,12 +1510,19 @@ def test_the_variant_set_is_thirty_uniquely_slugged_pages(gen):
         assert callable(spec["build"])
 
 
-def test_shortcuts_map_ctrl_1_to_9_onto_the_core_pipeline(gen):
+def test_shortcuts_map_ctrl_1_to_9_onto_the_first_nine_apps(gen):
+    """The mock's shortcut hints must name the apps the real binding opens.
+
+    Rewritten on 2026-08-23: this used to assert the nine keys land on
+    the nine Core apps, which stopped being true when Core was cut back
+    to the six pipeline modules. ``shortcuts._nav_by_index`` has always
+    indexed into ``APPS`` as a whole, so that is what the hint has to
+    agree with -- Core first, then whatever the registry lists next.
+    """
     shortcuts = gen.variants._shortcuts()
     assert list(shortcuts.values()) == [f"Ctrl+{i}" for i in range(1, 10)]
-    from spacr.qt.app import APPS, SECTION_CORE
-    assert list(shortcuts) == [k for k, _n, _d, s in APPS
-                               if s == SECTION_CORE][:9]
+    from spacr.qt.app import APPS
+    assert list(shortcuts) == [row[0] for row in APPS][:9]
 
 
 def test_every_variant_builds_and_draws_real_registry_text(
@@ -1673,17 +1653,14 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     Every one of the thirty, in the theme and the widget order a real
     render uses — not the two that happened to be sampled before.
 
-    It asserted zero everywhere, which is what it should assert and what
-    it did for as long as thirty-four apps fitted. The registry is at
-    fifty-four and twelve of the thirty do not fit any more, so a bare
-    "assert nothing is wrong" stopped on the first of them and said
-    nothing about the other twenty-nine — a red test that measured one
-    variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
-    down for all thirty instead, compared with ``==`` so that a defect
-    appearing, worsening OR being fixed all fail here.
+    A bare "assert nothing is wrong" stops on the first problem and says
+    nothing about the other candidates. :data:`KNOWN_LAYOUT_DEFECTS` records
+    the complete current measurement, with exact supported-font profiles, so
+    a defect appearing, worsening or being fixed all require review here.
 
     Nothing is excused by being listed. See the note on the table for why
-    these twelve are a design decision rather than a defect to tune away.
+    these recorded entries are a design decision rather than a defect to tune
+    away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1709,35 +1686,35 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
         # The whole picture at once, so the message names every variant
         # that moved rather than the lowest-numbered one.
-        assert measured == KNOWN_LAYOUT_DEFECTS, (
+        assert measured in KNOWN_LAYOUT_DEFECT_PROFILES, (
             "the variant layouts moved.\n"
             f"  measured: {measured}\n"
-            f"  recorded: {KNOWN_LAYOUT_DEFECTS}\n"
+            f"  recorded profiles: {KNOWN_LAYOUT_DEFECT_PROFILES}\n"
             "A new entry, or a bigger count, means a layout stopped "
             "fitting 1440x900 — decide what that variant does about it. "
             "A smaller count or a vanished entry means one was FIXED: "
             "delete or lower its line here in the same commit, or the "
             "record stops being one.")
 
-        # The other half of "nothing is excused by being listed": the
-        # variants with no line in the table carry no defect at all, which
-        # is the property the test was written for and still holds. Nine
-        # and twenty-one when the registry held forty-nine apps; eleven
-        # and nineteen at fifty-three in the bands; twelve and eighteen
-        # since the merged Classify module took it to fifty-four on
-        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas. Both
-        # numbers are asserted rather than derived so that a variant
-        # quietly joining the defective set is a failure and not a
-        # subtraction that still adds up.
-        assert len(measured) == 12 and N_VARIANTS - len(measured) == 18
+        # The other half of "nothing is excused by being listed": variants
+        # with no line in the table carry no defect at all. Exact totals stop
+        # a new defect hiding inside a subtraction that still sums to thirty.
+        #
+        # TWO SINCE 2026-09-07, up from one: variant 01 joined when three
+        # modules joined Core. Derived from the ledger rather than written as
+        # a literal, so adding a line above cannot leave this number saying
+        # something the table contradicts -- which is exactly what the
+        # literal `1` did.
+        assert (len(measured),
+                N_VARIANTS - len(measured)) == (len(KNOWN_LAYOUT_DEFECTS),
+                                                N_VARIANTS
+                                                - len(KNOWN_LAYOUT_DEFECTS))
     finally:
         _prefs.set_font_scale(_original_zoom)
 
 
 def test_only_the_documented_variants_need_a_scrollbar(subprocess_audit):
-    """"Twenty-seven of the thirty fit 1440x900 with no scrollbar at
-    all" is the finding these renders exist to make. It stops being true
-    silently otherwise."""
+    """Only explicitly documented candidates may need a scrollbar."""
     scrolling = {n for n, flags in subprocess_audit.items()
                  if flags.get("scrollbars")}
     assert scrolling <= SCROLLBARS_ALLOWED, \

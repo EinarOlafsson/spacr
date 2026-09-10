@@ -23,6 +23,7 @@ from pathlib import Path
 import pytest
 
 from spacr import cli
+from tests.child_env import child_env
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -125,8 +126,7 @@ def _subprocess_modules(code: str) -> dict:
     proc = subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True, text=True, timeout=180,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": str(REPO_ROOT),
-             "HOME": "/tmp", "MPLBACKEND": "Agg"},
+        env=child_env(pythonpath=str(REPO_ROOT)),
     )
     assert proc.returncode == 0, f"subprocess failed:\n{proc.stdout}\n{proc.stderr}"
     return json.loads(proc.stdout.strip().splitlines()[-1])
@@ -356,7 +356,7 @@ ROUND_TRIP = {
     "src": "/data/plate01",
     "experiment": "exp1",
     "magnification": 20,
-    "cell_CP_prob": -1.5,
+    "cell_cellprob_threshold": -1.5,
     "preprocess": True,
     "masks": False,
     "channels": [0, 1, 2, 3],
@@ -481,8 +481,8 @@ def test_file_values_beat_defaults(tmp_path):
     ("magnification", "40.0", 40),
     ("cell_min_size", "-1", -1),
     # float — declared float, so a bare int becomes one
-    ("nucleus_Signal_to_noise", "10", 10.0),
-    ("nucleus_Signal_to_noise", "3.5", 3.5),
+    ("nucleus_signal_to_noise", "10", 10.0),
+    ("nucleus_signal_to_noise", "3.5", 3.5),
     # list, as a literal and as the bare comma form
     ("channels", "[0, 1, 2]", [0, 1, 2]),
     ("channels", "0,1,2", [0, 1, 2]),
@@ -1117,10 +1117,34 @@ def test_noshow_survives_a_matplotlib_that_raises(monkeypatch):
 
 
 def test_setup_logging_replaces_its_handler():
-    """Called twice, the CLI logger keeps exactly one handler, not two."""
-    cli.setup_logging(False)
-    cli.setup_logging(True)
-    assert len(cli.LOG.handlers) == 1
+    """Called twice, the CLI logger keeps exactly one handler, not two.
+
+    AND PUTS THE LOGGER BACK, which it did not until 2026-09-07.
+    `cli.setup_logging` is right to set `propagate = False` and install its
+    own stdout handler -- a batch run must not print every line twice -- but
+    that is a PROCESS-GLOBAL, PERMANENT change, and this test made it on
+    behalf of the whole session.
+
+    What it cost was invisible here and showed up elsewhere: with propagation
+    off, `caplog` attaches at the root and never sees a `spacr.cli` record
+    again, so `test_cov_8_cli_registry` reported an empty `caplog.text` for a
+    message the code emits correctly and prints to stderr. That file passes
+    alone and failed in a full run, which is the signature of exactly this.
+
+    Same shape as the QSettings value another session left switched off: a
+    global mutated for one assertion and never restored.
+    """
+    before_handlers = list(cli.LOG.handlers)
+    before_propagate = cli.LOG.propagate
+    before_level = cli.LOG.level
+    try:
+        cli.setup_logging(False)
+        cli.setup_logging(True)
+        assert len(cli.LOG.handlers) == 1
+    finally:
+        cli.LOG.handlers[:] = before_handlers
+        cli.LOG.propagate = before_propagate
+        cli.LOG.setLevel(before_level)
 
 
 def test_run_with_an_unknown_module_exits_2(capsys, fake_settings):

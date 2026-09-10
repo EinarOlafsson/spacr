@@ -1,0 +1,1418 @@
+{
+  "schema": 1,
+  "workspace": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials",
+  "files": [
+    {
+      "path": "tools/apply_lesson_override.py",
+      "sha256": "95b03311d721e7aeddfdf218668b01172793754d7ea063e0ab12a73941543dfd",
+      "bytes": 953
+    },
+    {
+      "path": "tools/build_full_catalog.py",
+      "sha256": "99ecd2edd60027b630e97cdcb4721749972b672672221735786cc39657d8f4cc",
+      "bytes": 116146
+    },
+    {
+      "path": "tools/build_visual_specs.py",
+      "sha256": "894c0c94f9aaef6d3d1564138eb2df7c9a1f3d2d4a329aeac3eacd0f74dd2960",
+      "bytes": 15325
+    },
+    {
+      "path": "tools/build_web_catalog.py",
+      "sha256": "e086bcac51b16f8bb671eaef6b7b071d7f7473c164474d8f8c8ec714c6d7fce7",
+      "bytes": 1177
+    },
+    {
+      "path": "tools/capture_agreement_experiment.py",
+      "sha256": "80963282f3adb6a58b8ef65109f20b7d395dbe1e6b7d9c41bf27d40a72c4442f",
+      "bytes": 5843
+    },
+    {
+      "path": "tools/capture_align_stitch_experiment.py",
+      "sha256": "f60f9330c39547d436c1379faaf6c8f4c4e60381fecbd9dc134198ab2acadb5e",
+      "bytes": 9182
+    },
+    {
+      "path": "tools/capture_all_modules.py",
+      "sha256": "ee62b839297b226980f9f0347976f41f7a322599a29c55559a1ca83ac22c8f05",
+      "bytes": 32503
+    },
+    {
+      "path": "tools/capture_annotate_experiment.py",
+      "sha256": "e3099e609e5e23414a2e2593dee4c35a665957a921d21389ff961ba12b034825",
+      "bytes": 17083
+    },
+    {
+      "path": "tools/capture_app_settings_experiment.py",
+      "sha256": "2ddd562932c5d0fbdca3b183d8e61606c4bf93b150f2ed0dbca0170a1582e7b3",
+      "bytes": 20854
+    },
+    {
+      "path": "tools/capture_batch_runner_experiment.py",
+      "sha256": "9c4e0ba07cfc49e678fa9be0ae232a84400371bb90f532416c14dd22a932dd4d",
+      "bytes": 15246
+    },
+    {
+      "path": "tools/capture_classify_cv_experiment.py",
+      "sha256": "f587f5c44f38cdda15c47f8f48877cadeca444d8f8733d73c064f76fbeac7d52",
+      "bytes": 18831
+    },
+    {
+      "path": "tools/capture_database_browser_experiment.py",
+      "sha256": "bea139310458581aa4835aa9ecbad10c0d8036d18528bb74815616a5f981505c",
+      "bytes": 11959
+    },
+    {
+      "path": "tools/capture_external_masks_experiment.py",
+      "sha256": "45418268f157ef007958bfa17e23428360a7abe9bcfc02a41ba06e68d9ade47b",
+      "bytes": 10401
+    },
+    {
+      "path": "tools/capture_format_converter_experiment.py",
+      "sha256": "97611c8ed817d1acb8e24a38094a982d36f6c0bb295ebb42a790342da0f3e503",
+      "bytes": 10575
+    },
+    {
+      "path": "tools/capture_gate_editor_experiment.py",
+      "sha256": "d2942ddbc16c932e76c747367c16da25074e14e9e13ad70f4bfff1e6ae791a4f",
+      "bytes": 12692
+    },
+    {
+      "path": "tools/capture_import_project_experiment.py",
+      "sha256": "e40ce0bc30cfd6f5836f588ba44864a9491ebd46a9d4e269a8ae35e15490fd5b",
+      "bytes": 17510
+    },
+    {
+      "path": "tools/capture_install_web.py",
+      "sha256": "46045e0ffe9cac644f0fa37bf4503de9c50406d2d237a9ca025bee19b3259aed",
+      "bytes": 18248
+    },
+    {
+      "path": "tools/capture_make_masks_experiment.py",
+      "sha256": "112e05b3fa695970f6092ca7c86487d847ec508b4b112fff1406f79a03080b6f",
+      "bytes": 9200
+    },
+    {
+      "path": "tools/capture_map_barcodes_experiment.py",
+      "sha256": "295fcd7225360adf24b38444f07af4b22f07c6739e61f5482f71c61fac0d7ed1",
+      "bytes": 13280
+    },
+    {
+      "path": "tools/capture_mask_experiment.py",
+      "sha256": "c27ede237064ab89b4542bbf9387365e2ec7d23e78ac2d3623068179c1055728",
+      "bytes": 29582
+    },
+    {
+      "path": "tools/capture_measure_experiment.py",
+      "sha256": "4e46a405bd6fb89463316e959b75f2dd9f0bcf924f7196e5c8dd13681fb91260",
+      "bytes": 16146
+    },
+    {
+      "path": "tools/capture_model_compare_experiment.py",
+      "sha256": "6eb016fafaa14c40bccb4c953a27a86ddfa2576ad1ef9c20aa863b67ad14650e",
+      "bytes": 6282
+    },
+    {
+      "path": "tools/capture_model_zoo_experiment.py",
+      "sha256": "e60de5ed42bb8c2eba99d2c680c87ddabf37f8697df018c27396ce5547c42489",
+      "bytes": 7026
+    },
+    {
+      "path": "tools/capture_plate_queue_experiment.py",
+      "sha256": "be49736a41323902ed3f0d045bf3721055fc6af763fe56257481abcbc15cb601",
+      "bytes": 10663
+    },
+    {
+      "path": "tools/capture_plate_viewer_experiment.py",
+      "sha256": "0154bbe96d4452f7e8d8e27c499784a9dce11989986bd0329dd92b11132a6bcd",
+      "bytes": 11682
+    },
+    {
+      "path": "tools/capture_report_experiment.py",
+      "sha256": "c0aa649bd524b4652804bbf3f513035b81742129d6c4de9e6a53f6ae3728f4c1",
+      "bytes": 7998
+    },
+    {
+      "path": "tools/capture_training_runs_experiment.py",
+      "sha256": "a759a17445a023fd251b7fb5f2989f805254875dccae3bb88fc895344244e678",
+      "bytes": 8062
+    },
+    {
+      "path": "tools/capture_workflow_modules.py",
+      "sha256": "d2bf33d42cfc1e035af77d5dd9d5e611a3be949e57dfc696439ade1f52374fc9",
+      "bytes": 22929
+    },
+    {
+      "path": "tools/english_scene_cadence.json",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008
+    },
+    {
+      "path": "tools/generate_regression_tutorial_data.py",
+      "sha256": "3d439e2e0ecfe83ee5600660589832fe9653333c2d49ad47ffbbe577daf433d2",
+      "bytes": 3240
+    },
+    {
+      "path": "tools/narration_audio.py",
+      "sha256": "72834195038ec073f95ddaf7da40f7d6fc8ab5f0170023fbb7bb854d10c614a1",
+      "bytes": 21060
+    },
+    {
+      "path": "tools/polish_localized_catalogs.py",
+      "sha256": "bbdff61243af430e9e6972bfca7542ae3758e1fe009996fa30d50ca17f1e1705",
+      "bytes": 19085
+    },
+    {
+      "path": "tools/prepare_activation_tutorial_data.py",
+      "sha256": "f206686e394d0b2f73ef213fd91bed01e4ba4b4c4c34deed0c91e252ea94a15c",
+      "bytes": 2650
+    },
+    {
+      "path": "tools/prepare_align_stitch_tutorial_data.py",
+      "sha256": "5872f51239a5367f21006b06d9fdda6ee115d9429ce5fe4b3e0597e7b99a8610",
+      "bytes": 2960
+    },
+    {
+      "path": "tools/prepare_cellpose_masks_tutorial_data.py",
+      "sha256": "749e0d9ab1e4a61f718a63f5847540d4f6b3f9192b438ead6982af28f29a904e",
+      "bytes": 2638
+    },
+    {
+      "path": "tools/prepare_external_masks_tutorial_data.py",
+      "sha256": "41f4d27cfcc826d46c32bf7a6af1ad6445bca9fd35e5d4b9b10c564535baf569",
+      "bytes": 3267
+    },
+    {
+      "path": "tools/prepare_invasion_tutorial_data.py",
+      "sha256": "874ae7b456ce2cc7e7b3ae11b5c5cca7beb346f59d830df5a65a1fe168ef7721",
+      "bytes": 3994
+    },
+    {
+      "path": "tools/prepare_make_masks_tutorial_data.py",
+      "sha256": "6ea9d00017232fe50ab9f3858d30939f3af3da15a07c883298aec6d290e67c29",
+      "bytes": 2411
+    },
+    {
+      "path": "tools/prepare_motility_tutorial_data.py",
+      "sha256": "ff067b8134185a5efdd5f4754bcd4361e0db2140209438e58df05dfa2b0dce75",
+      "bytes": 2417
+    },
+    {
+      "path": "tools/prepare_plaque_tutorial_data.py",
+      "sha256": "897915fe5192f2fcf59c45042fcfbcd8b170330eca6ba6c1366702040d53e8dc",
+      "bytes": 2669
+    },
+    {
+      "path": "tools/prepare_replication_tutorial_data.py",
+      "sha256": "71da7a54dc4ab8b620937dea5a8e7f489808f420d4c326e09718a89ad4f0c787",
+      "bytes": 3298
+    },
+    {
+      "path": "tools/prepare_timelapse_tutorial_data.py",
+      "sha256": "90a1df6e6456f6529cdc0ea7d5f6df97fcca4c4dca59fec7734a78233d1e511a",
+      "bytes": 1865
+    },
+    {
+      "path": "tools/prepare_train_cellpose_tutorial_data.py",
+      "sha256": "f404c0e5cdaa83b25709d36ccb6b892e945ec08bae3c8880310c5e783b3914dc",
+      "bytes": 3763
+    },
+    {
+      "path": "tools/prepare_training_runs_tutorial_data.py",
+      "sha256": "a58354bafbda3b3ab1cdb2771a876af8d3e24664b0a38eaa349209816edd574c",
+      "bytes": 6112
+    },
+    {
+      "path": "tools/prepare_web_media.py",
+      "sha256": "7b2b9ba15ee42533f8a0ca8d7ad0725104493a811a2444b3b7fe22232d4d4e0a",
+      "bytes": 1650
+    },
+    {
+      "path": "tools/pronunciation.py",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    {
+      "path": "tools/publish_tutorials.py",
+      "sha256": "8ff8af6394d46a2cf8afd8eca7a06d53136c50c819422968b6025750e7a3149d",
+      "bytes": 13546
+    },
+    {
+      "path": "tools/render_all_visuals.py",
+      "sha256": "b7975c76752f3528b20c51cd8fb1343a6be92a1dd656934a3d39b764962f8c13",
+      "bytes": 2067
+    },
+    {
+      "path": "tools/render_all_voices.py",
+      "sha256": "1f0fe2aa8d9c6ea85bbc0fd7346395e45b858f153ef24b8d4fa34ebfc2960081",
+      "bytes": 27402
+    },
+    {
+      "path": "tools/render_install_keyframes.py",
+      "sha256": "3bb70011a3e685a8734bdc0ec8509b83a1d26587fd7c00a8fa4cbf31985ced3a",
+      "bytes": 24108
+    },
+    {
+      "path": "tools/render_keyframe_video.py",
+      "sha256": "18a57ae71d63485ca65d05fa4b6d43956e60192d44b823b9e75a8d29e6cf6f2c",
+      "bytes": 8711
+    },
+    {
+      "path": "tools/render_kokoro_narration.py",
+      "sha256": "7f4f050bee204deb0da5ce0ab4647c001820a946812482eefc92e325e3eb7139",
+      "bytes": 15353
+    },
+    {
+      "path": "tools/render_live_mask_keyframes.py",
+      "sha256": "540f40dc99e0010308530a55608b4c5342373514baaad0e71e3f004dd74c21ae",
+      "bytes": 8348
+    },
+    {
+      "path": "tools/render_visual_master.py",
+      "sha256": "fc74239a4479a530f7b36358a56aee0532e323e8a77ff763abede3ad726b5d6c",
+      "bytes": 8656
+    },
+    {
+      "path": "tools/translate_catalog.py",
+      "sha256": "384c9f4ea3db7be44127fbbfd39e275f0c098abb498708f8ca1391bc74f40234",
+      "bytes": 6076
+    },
+    {
+      "path": "tools/translate_pre_app.py",
+      "sha256": "33cd3aab3f1398e9e2dd4946dc19fc8e113383d8c9a0c4e5c247ee0b98fc55ef",
+      "bytes": 32810
+    },
+    {
+      "path": "tools/verify_audio_release.py",
+      "sha256": "75609e215ac9355445ef2629b4a9fbb1f449831c8e28dc75464c124509aab9bd",
+      "bytes": 39343
+    },
+    {
+      "path": "tools/verify_tutorial_release.py",
+      "sha256": "c3d96f60c709f22b5dc41353a8d219ff9260b707b6bdf9ec7394a5a737f057a1",
+      "bytes": 10166
+    },
+    {
+      "path": "tests/test_capture_routes.py",
+      "sha256": "c370bcb35390247c092da1fea588d2ada41500d332f86d7bc958fd7c635ea557",
+      "bytes": 3667
+    },
+    {
+      "path": "tests/test_catalog_routes.py",
+      "sha256": "4889853e18c57042ed1992fc38dc5f35677343a28641ae216557ed8606d7ba04",
+      "bytes": 22901
+    },
+    {
+      "path": "tests/test_narration_audio.py",
+      "sha256": "e59be88e1ccdff9267848da82596507af75ecbeb9fbc441af74f942982b9abde",
+      "bytes": 21855
+    },
+    {
+      "path": "tests/test_pronunciation.py",
+      "sha256": "e73eb6dbf780ae5ecddadd26e6a3ef9f00f0ffd42c417952518cd74d259eb9ae",
+      "bytes": 10293
+    },
+    {
+      "path": "tests/test_verify_audio_release.py",
+      "sha256": "35d456666ce26369e2868bc5bf581370e21fd1b612c02a382af1b222b4f288bb",
+      "bytes": 18197
+    },
+    {
+      "path": "tests/test_visual_master.py",
+      "sha256": "12c6a09717f45ce83b7f26096897fe804b88e555a2cffaf4e17d402ff9fea76e",
+      "bytes": 1030
+    },
+    {
+      "path": "tests/test_visual_selection.py",
+      "sha256": "ac0dfb3565cc3f99b4e9abf0ed51f55599f4fadf4a1cdaa11862452f1e828716",
+      "bytes": 4237
+    },
+    {
+      "path": "tests/test_web_player_contract.py",
+      "sha256": "30745626c0e011f4499d593709c5ab96cf7c70827c7de17d77cebfddb5e80888",
+      "bytes": 12130
+    },
+    {
+      "path": "catalog/10_classify_cv_override.json",
+      "sha256": "56c9ce4d2a50a9b1a6db7b2c82465f74ad406a81f01a2920d0c3a70fbb6503a8",
+      "bytes": 13323
+    },
+    {
+      "path": "catalog/11_classify_ml_override.json",
+      "sha256": "21a8768da26761c20c87355586562a23926e607309c99245ddd9cce329b8d6a8",
+      "bytes": 12774
+    },
+    {
+      "path": "catalog/12_map_barcodes_override.json",
+      "sha256": "0c642f65b20995064a33ff69e52659103a5dc40eb46284786a2ffde15be9a6bf",
+      "bytes": 11799
+    },
+    {
+      "path": "catalog/14_make_masks_override.json",
+      "sha256": "25fd5e47fdec5f6fb0a1aa2cb99cfe04751fbd72089bda2e49e637adc0cdc161",
+      "bytes": 9123
+    },
+    {
+      "path": "catalog/15_image_umap_override.json",
+      "sha256": "8c9ea9a34824261d7edcf7e712130f4744d135188a4b240dd93037f70fb1e71b",
+      "bytes": 12801
+    },
+    {
+      "path": "catalog/16_activation_override.json",
+      "sha256": "d06e35eed9b708adf3fdc1790e1f45191d830a541afa9383c11b3f657d424a2f",
+      "bytes": 11727
+    },
+    {
+      "path": "catalog/17_timelapse_override.json",
+      "sha256": "ba36eb22319c994c6681c8cccd417563083085505c2a4ad5c816db1e05849c19",
+      "bytes": 16040
+    },
+    {
+      "path": "catalog/18_motility_override.json",
+      "sha256": "efb250b071779f17b560e2af6499860c42fa42a738400aabac3108f47b31dd38",
+      "bytes": 14242
+    },
+    {
+      "path": "catalog/19_train_cellpose_override.json",
+      "sha256": "48f6224e2687913c91c5d502bf22a2fc985accf071f7b6abf4b6ea54988f77d3",
+      "bytes": 11431
+    },
+    {
+      "path": "catalog/20_cellpose_masks_override.json",
+      "sha256": "fb0f1bcb7c6ccde9e37fe13d002b10975604cc425c51202e2018a20b614e4f35",
+      "bytes": 11379
+    },
+    {
+      "path": "catalog/21_model_compare_override.json",
+      "sha256": "f3525337768f807d50b46fd7c25111a9d8e116e891c9bc9f2b5688652679cc93",
+      "bytes": 6076
+    },
+    {
+      "path": "catalog/22_model_zoo_override.json",
+      "sha256": "66ed97c164e8d08614d863518bac534e119a0e8827821ec3078314e7c1bed5ab",
+      "bytes": 7117
+    },
+    {
+      "path": "catalog/23_agreement_override.json",
+      "sha256": "2baedd5011bbdd74a689e7f0357d31ce9a024d0e3fe4468d11316642ed0fa4fb",
+      "bytes": 6851
+    },
+    {
+      "path": "catalog/24_plaque_override.json",
+      "sha256": "ecbeacee45f1e188b9fdd294203c1b77a6eab5fcca07116fe9176f200dd5b105",
+      "bytes": 13622
+    },
+    {
+      "path": "catalog/24_plaque_settings.json",
+      "sha256": "4c598bbed8671dd9ddcfda5b99c268f2e99c4f8ab6875f4fe2be57abaa49d108",
+      "bytes": 418
+    },
+    {
+      "path": "catalog/25_recruitment_override.json",
+      "sha256": "7da98db7ae5598576c765fdce0f84c74188d3f9b3a46047c3d52df4ea2ccdca6",
+      "bytes": 13735
+    },
+    {
+      "path": "catalog/25_recruitment_settings.json",
+      "sha256": "2592bba420090bb3c4486aa43f5a27ecce3a7b08dfcfd12a8126379dd9313cf0",
+      "bytes": 1063
+    },
+    {
+      "path": "catalog/26_invasion_override.json",
+      "sha256": "327a5ac8ba5358c3ce8365768a0f36d2c3f1b3b388862106571e468f73472b38",
+      "bytes": 15704
+    },
+    {
+      "path": "catalog/26_invasion_settings.json",
+      "sha256": "83f09f131eac38e9e1c55d4e1dc4dc2e206550f6fe5aa1f66c17e49b595edd1b",
+      "bytes": 1182
+    },
+    {
+      "path": "catalog/27_replication_override.json",
+      "sha256": "1a098c6a1284ebcdcf48b64581e33f4f422d470cc0d306925b88a942476bcdd9",
+      "bytes": 14725
+    },
+    {
+      "path": "catalog/27_replication_settings.json",
+      "sha256": "a285b5d9be54556bb27ab2299b25f6b9a6218bc42018be29a7ea175320d62561",
+      "bytes": 803
+    },
+    {
+      "path": "catalog/28_training_runs_override.json",
+      "sha256": "7ce0e4c386a02bd1968882964bf129c937fb829a5fc871a82d82de241a5a0987",
+      "bytes": 10210
+    },
+    {
+      "path": "catalog/29_report_override.json",
+      "sha256": "b1e29d2f0a03543e8592ff8dfbd7b066f7980fa91853708b9079d5e8b527cf06",
+      "bytes": 8971
+    },
+    {
+      "path": "catalog/30_plate_queue_override.json",
+      "sha256": "d28ea7edc2fcfde72992602a1dc6ad5a0ed54c29f4433179160a620514cd8e11",
+      "bytes": 9356
+    },
+    {
+      "path": "catalog/31_external_masks_override.json",
+      "sha256": "aee77a4e50fd955ba076f6ab81c0d76c566c42c9621f998aaf1a822162c90005",
+      "bytes": 12854
+    },
+    {
+      "path": "catalog/32_align_stitch_override.json",
+      "sha256": "0e05522e6566e1c3841c889b897bfc103cd36578eeb188cbd8d27c0dae215844",
+      "bytes": 8289
+    },
+    {
+      "path": "catalog/33_plate_viewer_override.json",
+      "sha256": "f40270c224e84b992fdb95c258db9345c1017e976115dd60883c91543d7e586b",
+      "bytes": 10750
+    },
+    {
+      "path": "catalog/34_database_override.json",
+      "sha256": "7bd5eac5fb844224499bd61b48a307d1b29403308a643bbbb3e7cefcd2b29901",
+      "bytes": 9481
+    },
+    {
+      "path": "catalog/35_converter_override.json",
+      "sha256": "bf3a2bde1dcd3e062b4045e408d188a269e795deae2d25dc157bc9001a6975bc",
+      "bytes": 7736
+    },
+    {
+      "path": "catalog/36_import_override.json",
+      "sha256": "59c5d71d1c45399af65790247817d624876df333950dc1a60fd120c77d10ba44",
+      "bytes": 10022
+    },
+    {
+      "path": "catalog/37_batch_override.json",
+      "sha256": "0e5a445b765dd0b9ebea2eea6aca5e0493b4163eb66e94c6816313491eaedb8e",
+      "bytes": 9792
+    },
+    {
+      "path": "catalog/captions_da.json",
+      "sha256": "b0c32d955fb21862c276245e8d029f544e980c5734f37aae48f37297eade2968",
+      "bytes": 106068
+    },
+    {
+      "path": "catalog/captions_de.json",
+      "sha256": "4ff4aafa15b24f852558e5ff39e6d1519289d759130daedd9b09ee26fbc1b67b",
+      "bytes": 117639
+    },
+    {
+      "path": "catalog/captions_is.json",
+      "sha256": "5482764b17a27f45b2312f1eab5dfe2c7e621c8e90611b103cc9489b01ec3b29",
+      "bytes": 105814
+    },
+    {
+      "path": "catalog/captions_ko.json",
+      "sha256": "09d0f2c5d3741fb5c952f9bebff301c20a6d2ff1dfd92453368f014d04257a54",
+      "bytes": 116461
+    },
+    {
+      "path": "catalog/captions_nb.json",
+      "sha256": "b32e18a67b36e1d6d7a3b5892c57279ccbe5acc6cd2e5a234ba6c0b05515f0b8",
+      "bytes": 104084
+    },
+    {
+      "path": "catalog/captions_sv.json",
+      "sha256": "740da59c454dbe3ed744e8e915d7dbee5cc918761fb9867d1a481acb77eb4cce",
+      "bytes": 107070
+    },
+    {
+      "path": "catalog/lessons_en.json",
+      "sha256": "c0beb392ca790d295533a3acfd25ecacc2e55aa934f714903e0e9da434672536",
+      "bytes": 276068
+    },
+    {
+      "path": "catalog/lessons_es.json",
+      "sha256": "31f5b939f0bf59cadfe12203b1292d1aa7a8d0808790b88bf3ff91a96cab3114",
+      "bytes": 323433
+    },
+    {
+      "path": "catalog/lessons_fr.json",
+      "sha256": "13d1a219c9f4c5b70a2158321ba1fdf46c44ed3b83bdc98ae476fdcb265e3ba6",
+      "bytes": 333296
+    },
+    {
+      "path": "catalog/lessons_hi.json",
+      "sha256": "7e8ce2e37903a76fcd5ab457f858c9fc3d2cbfbcb5380867608d6c189d2fc9a2",
+      "bytes": 495284
+    },
+    {
+      "path": "catalog/lessons_it.json",
+      "sha256": "dba18a51b400dd18f59f8aa52341c32c2bcd484e304c91f1a3fc7abb4b1c494b",
+      "bytes": 319973
+    },
+    {
+      "path": "catalog/lessons_ja.json",
+      "sha256": "b543e02ab35dbd28d0adff304be531086eb4aa1fccb3c5f93ab147da988f2862",
+      "bytes": 348907
+    },
+    {
+      "path": "catalog/lessons_pt-BR.json",
+      "sha256": "06d79fe62c0c62126a17c792c105c5bb1a4c9d0b49ab5b55a91702207b7f0a99",
+      "bytes": 316553
+    },
+    {
+      "path": "catalog/lessons_zh-CN.json",
+      "sha256": "3b3ad43dab354d1235564b9c1b38065ae7dd097a0d041aa3df11afa355111809",
+      "bytes": 271858
+    },
+    {
+      "path": "web/README.md",
+      "sha256": "2d7650a7e7f6105483ba26324a6f2564fd6b6caaead4e6ed0515f5f80cf6d828",
+      "bytes": 1886
+    },
+    {
+      "path": "web/TUTORIAL_MEDIA_NOTICE.md",
+      "sha256": "98f4beeba0d78e025629de745073b763c135be06219a1530565c0ebe61a82f8b",
+      "bytes": 577
+    },
+    {
+      "path": "web/app.js",
+      "sha256": "b2954298e915470e1bfb927cb841966c5868bbd4f8fce63aac65e3e5d1c748af",
+      "bytes": 32608
+    },
+    {
+      "path": "web/app_v2.js",
+      "sha256": "2863f16dc6c214f477861edde70cabdf51bcf9e16ecc61dc4fd4d8dabc4d0106",
+      "bytes": 84337
+    },
+    {
+      "path": "web/catalog/captions_da.json",
+      "sha256": "b0c32d955fb21862c276245e8d029f544e980c5734f37aae48f37297eade2968",
+      "bytes": 106068
+    },
+    {
+      "path": "web/catalog/captions_de.json",
+      "sha256": "4ff4aafa15b24f852558e5ff39e6d1519289d759130daedd9b09ee26fbc1b67b",
+      "bytes": 117639
+    },
+    {
+      "path": "web/catalog/captions_is.json",
+      "sha256": "5482764b17a27f45b2312f1eab5dfe2c7e621c8e90611b103cc9489b01ec3b29",
+      "bytes": 105814
+    },
+    {
+      "path": "web/catalog/captions_ko.json",
+      "sha256": "09d0f2c5d3741fb5c952f9bebff301c20a6d2ff1dfd92453368f014d04257a54",
+      "bytes": 116461
+    },
+    {
+      "path": "web/catalog/captions_nb.json",
+      "sha256": "b32e18a67b36e1d6d7a3b5892c57279ccbe5acc6cd2e5a234ba6c0b05515f0b8",
+      "bytes": 104084
+    },
+    {
+      "path": "web/catalog/captions_sv.json",
+      "sha256": "740da59c454dbe3ed744e8e915d7dbee5cc918761fb9867d1a481acb77eb4cce",
+      "bytes": 107070
+    },
+    {
+      "path": "web/catalog/lessons_en.json",
+      "sha256": "c0beb392ca790d295533a3acfd25ecacc2e55aa934f714903e0e9da434672536",
+      "bytes": 276068
+    },
+    {
+      "path": "web/catalog/lessons_es.json",
+      "sha256": "31f5b939f0bf59cadfe12203b1292d1aa7a8d0808790b88bf3ff91a96cab3114",
+      "bytes": 323433
+    },
+    {
+      "path": "web/catalog/lessons_fr.json",
+      "sha256": "13d1a219c9f4c5b70a2158321ba1fdf46c44ed3b83bdc98ae476fdcb265e3ba6",
+      "bytes": 333296
+    },
+    {
+      "path": "web/catalog/lessons_hi.json",
+      "sha256": "7e8ce2e37903a76fcd5ab457f858c9fc3d2cbfbcb5380867608d6c189d2fc9a2",
+      "bytes": 495284
+    },
+    {
+      "path": "web/catalog/lessons_it.json",
+      "sha256": "dba18a51b400dd18f59f8aa52341c32c2bcd484e304c91f1a3fc7abb4b1c494b",
+      "bytes": 319973
+    },
+    {
+      "path": "web/catalog/lessons_ja.json",
+      "sha256": "b543e02ab35dbd28d0adff304be531086eb4aa1fccb3c5f93ab147da988f2862",
+      "bytes": 348907
+    },
+    {
+      "path": "web/catalog/lessons_pt-BR.json",
+      "sha256": "06d79fe62c0c62126a17c792c105c5bb1a4c9d0b49ab5b55a91702207b7f0a99",
+      "bytes": 316553
+    },
+    {
+      "path": "web/catalog/lessons_zh-CN.json",
+      "sha256": "3b3ad43dab354d1235564b9c1b38065ae7dd097a0d041aa3df11afa355111809",
+      "bytes": 271858
+    },
+    {
+      "path": "web/index.html",
+      "sha256": "ab0ef720157beb7e30c7a7e3e99351556ec7e869154e9015c4b786c8367b4ba9",
+      "bytes": 15931
+    },
+    {
+      "path": "web/lesson_catalog.js",
+      "sha256": "4be85245d22abec7e99c4fea7000c44471c5a51c838de054212df0ba064b4423",
+      "bytes": 235412
+    },
+    {
+      "path": "web/module_navigation.js",
+      "sha256": "9a6676f82b68f0753d99bce1a045311e54b83f7ce039b46d1fe278d68cf65524",
+      "bytes": 20067
+    },
+    {
+      "path": "web/styles.css",
+      "sha256": "8bb0f367a8809199610d3b12c5853b721dffa8055d45962caf6ae58d34a2262f",
+      "bytes": 35337
+    },
+    {
+      "path": "web/voice_catalog.js",
+      "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4",
+      "bytes": 4947
+    },
+    {
+      "path": "localization/reviewed/01_02_auxiliary_captions.json",
+      "sha256": "597696f5e60d1ff5dfcd384d024fcea1b77986db3cac69bb6253743c5fac9d50",
+      "bytes": 15788
+    },
+    {
+      "path": "localization/reviewed/01_04_asia.json",
+      "sha256": "82f0d7eec944f95ba0885fae739c43d069f35e296c07bf5e29c04569af3ed64a",
+      "bytes": 17365
+    },
+    {
+      "path": "localization/reviewed/01_pypi_github.json",
+      "sha256": "e4019ef4318d6a9db3739dd6c00e579181a2868789bf9ac8b1a74eef9270bcc9",
+      "bytes": 7908
+    },
+    {
+      "path": "localization/reviewed/02_conda_install.json",
+      "sha256": "4a7f2437de0121f2417fbdd1b2d1bb2d4d2aacd98e2c6e11f077934795fdf2ec",
+      "bytes": 13040
+    },
+    {
+      "path": "localization/reviewed/03_pip_install.json",
+      "sha256": "001cf1ce239a64eb31e33a1f6c92236ab71f4da209af6d77d7eca865a670ec27",
+      "bytes": 12498
+    },
+    {
+      "path": "localization/reviewed/04_05_auxiliary_captions.json",
+      "sha256": "59eb9866365f51854bba86e0e470f41925726bd6d1c3e54482cf558080c7e42a",
+      "bytes": 16987
+    },
+    {
+      "path": "localization/reviewed/04_platform_installers.json",
+      "sha256": "40d091b43ee1bc14dbf0087f5fcb77f065e80ed31a23a66c88ce335661d4dd3c",
+      "bytes": 11442
+    },
+    {
+      "path": "localization/reviewed/05_home.json",
+      "sha256": "46649c62eb4e952dcfc79b8c85cb0fb6105fb28727b99b22c513d234f98c03b8",
+      "bytes": 11842
+    },
+    {
+      "path": "localization/reviewed/06_api.json",
+      "sha256": "96267010a1fb4c3b9d52e7a5a6f299068e3211941ce0dfca742f02b77cb8637c",
+      "bytes": 11834
+    },
+    {
+      "path": "localization/reviewed/07_mask.json",
+      "sha256": "73ab4e29797fdee62fa5c1da1a2c088729dc898a1becfb97edf7fd92a781dfa6",
+      "bytes": 25048
+    },
+    {
+      "path": "localization/reviewed/08_measure.json",
+      "sha256": "9203e3cd06e6da636b4f4e454301a4b6c449965bcb7a1c390a13043a8c918512",
+      "bytes": 11475
+    },
+    {
+      "path": "localization/reviewed/09_annotate.json",
+      "sha256": "fd1ca6ecbe895ef8b5e232705f75a84966dfad9570f2234bf718b1f48673e08b",
+      "bytes": 11911
+    },
+    {
+      "path": "localization/reviewed/10_classify_cv.json",
+      "sha256": "238ec2b3245e4e058c86312946ca26d0a2e44e3766e66cde35d95034969cdac8",
+      "bytes": 15227
+    },
+    {
+      "path": "localization/reviewed/11_classify_ml.json",
+      "sha256": "b30dc81e976203472ea5142b372279f765f3a810663eb756dbc125f98441c814",
+      "bytes": 13821
+    },
+    {
+      "path": "localization/reviewed/11_classify_ml_hi.json",
+      "sha256": "6eeb0fb836d04ea6835a9e36ebfd6e9bc5b951a049f42cf0e982ba308de2b929",
+      "bytes": 6682
+    },
+    {
+      "path": "localization/reviewed/12_map_barcodes.json",
+      "sha256": "6a1d3335d44e9e765d1a0895727acda0f2084304527fae5c7eaa882115bbe8ba",
+      "bytes": 9263
+    },
+    {
+      "path": "localization/reviewed/13_regression_asia.json",
+      "sha256": "369368303427b0558c70f69407e5556401184ee7f98f5a6bdf66f5bef4f792cd",
+      "bytes": 18154
+    },
+    {
+      "path": "localization/reviewed/13_regression_auxiliary_captions.json",
+      "sha256": "09b0973f2d7c909b73a158d45dc0f06410d35be26e5f2a478478a5ae04f0df98",
+      "bytes": 17253
+    },
+    {
+      "path": "localization/reviewed/13_regression_latn.json",
+      "sha256": "b0101e00f7f1981f334524a342536d69c4559a58521d6e0ef47c520c2c02d9f7",
+      "bytes": 11961
+    },
+    {
+      "path": "localization/reviewed/14_make_masks.json",
+      "sha256": "1867138459f235ea1897aae657389eb4a1ca2425f60d31bb4f4fc3e426cd654b",
+      "bytes": 9105
+    },
+    {
+      "path": "localization/reviewed/15_image_umap.json",
+      "sha256": "059f0d9c23fe48ce89eb42fc736ec057f42700201011bd88c1690e18f7afc867",
+      "bytes": 21936
+    },
+    {
+      "path": "localization/reviewed/16_activation.json",
+      "sha256": "df09a20511f34771e4067ef823d3ad02665e6a4e210ba674d4b1ba1c5a52d7e4",
+      "bytes": 10018
+    },
+    {
+      "path": "localization/reviewed/17_timelapse.json",
+      "sha256": "03ce3bcb127d6a70302e979f8f0faaa7944e573c996a22c7acfd5256d039fe08",
+      "bytes": 11929
+    },
+    {
+      "path": "localization/reviewed/18_motility.json",
+      "sha256": "fb0b997b4be39ef3dde3c955dd5715e557a9799c1c390d372d8879137a13d937",
+      "bytes": 10260
+    },
+    {
+      "path": "localization/reviewed/18_motility_hi.json",
+      "sha256": "49943a57fdef1a4867449c5e1e9aafaa2e18a72f41d9b4fdc852b1f9368c1b0a",
+      "bytes": 6403
+    },
+    {
+      "path": "localization/reviewed/19_train_cellpose.json",
+      "sha256": "09e388d83ce74d5c86d80a3f027992a5ce31b099922cd4b09af4ed461e7cfb3e",
+      "bytes": 9435
+    },
+    {
+      "path": "localization/reviewed/20_cellpose_masks.json",
+      "sha256": "42ce88e19f67334ae80c2e2722fed4db32b1f0145eaad5014462c458264876f2",
+      "bytes": 9107
+    },
+    {
+      "path": "localization/reviewed/21_model_compare.json",
+      "sha256": "3f3994e2d9b0493ea6e009141a02b577246ab30a7741892b501a1f717d104c49",
+      "bytes": 7729
+    },
+    {
+      "path": "localization/reviewed/22_model_zoo.json",
+      "sha256": "e5b4a67b154dc64c8d7139c1c3bc85f21c80416dc4eaf02d4d13ea7e22c9dbac",
+      "bytes": 6501
+    },
+    {
+      "path": "localization/reviewed/22_model_zoo_hi.json",
+      "sha256": "05eeb7632f988468a16efec4244c03e5afb36dd472b1b0cc727bb5d96362dfc1",
+      "bytes": 4274
+    },
+    {
+      "path": "localization/reviewed/23_agreement.json",
+      "sha256": "df33c122e726b69692028239883a7b8d6db2955cf862e5c2392d380bb4cc1977",
+      "bytes": 6155
+    },
+    {
+      "path": "localization/reviewed/24_plaque.json",
+      "sha256": "0cc002e048cd8d78dcde0d81534ca1c6c429a8f98365be537606c5c41758a28f",
+      "bytes": 2322
+    },
+    {
+      "path": "localization/reviewed/25_recruitment.json",
+      "sha256": "251dea2bac019c718926a8514d29ce7d0dd7f98b5294947281ae4dd448a96376",
+      "bytes": 2227
+    },
+    {
+      "path": "localization/reviewed/26_invasion.json",
+      "sha256": "1dd2f99f48063f0e10f726d42c2be3c6e8f431589ea85b69b7935cd4a4fd7086",
+      "bytes": 2212
+    },
+    {
+      "path": "localization/reviewed/27_replication.json",
+      "sha256": "efe279ff99f60cd95a25ff0496493fab441a5ea57e3c26cc3be094ba65b9e523",
+      "bytes": 2051
+    },
+    {
+      "path": "localization/reviewed/28_training_runs.json",
+      "sha256": "5f3fdc177df717b7b08af47cb52882687eb458a9028d5522a507eee273fbc31f",
+      "bytes": 1953
+    },
+    {
+      "path": "localization/reviewed/29_report.json",
+      "sha256": "62d9ec07bf16969bee0480ddb64dfd6f82f90befc668813fc9b922780b49f8ce",
+      "bytes": 1732
+    },
+    {
+      "path": "localization/reviewed/30_plate_queue.json",
+      "sha256": "4b365256f46588b6f141a7792ca3b8715f9573d58a4d37d51c37063b3692c7ca",
+      "bytes": 1719
+    },
+    {
+      "path": "localization/reviewed/31_external_masks.json",
+      "sha256": "dd2e302b8f8d72c70c1d89115efa58ae37ffdc38beac922e3cda0d8dc1b16d6c",
+      "bytes": 1932
+    },
+    {
+      "path": "localization/reviewed/32_align_stitch.json",
+      "sha256": "81728c22634125ad54276293a5da913387f0693e1ffe74c1c9142d20a62de88d",
+      "bytes": 1920
+    },
+    {
+      "path": "localization/reviewed/33_plate_viewer.json",
+      "sha256": "b87a49a3ffe949ea98171e892a3e7553417ba18707580f55c78dd8d13d5010f0",
+      "bytes": 1867
+    },
+    {
+      "path": "localization/reviewed/34_database.json",
+      "sha256": "7a689e26782bbbf662f19a0b97d6c19821e6027419598507d03864bc8713738d",
+      "bytes": 1730
+    },
+    {
+      "path": "localization/reviewed/35_converter.json",
+      "sha256": "c6345bbfda2b44d54db98919c439f7d5c63ba52d790dc7c30b3c42c9d869862f",
+      "bytes": 2050
+    },
+    {
+      "path": "localization/reviewed/36_import.json",
+      "sha256": "ca0ce0394449c1084545211ff56362a3fe1f393957e8e1d4894eeb48ad05f8b2",
+      "bytes": 1832
+    },
+    {
+      "path": "localization/reviewed/37_batch.json",
+      "sha256": "0c68c7bb875cf66936d465c38205c1cd9dca1ce6856f7109fb5b11409fea7231",
+      "bytes": 5553
+    },
+    {
+      "path": "localization/reviewed/37_batch_asia.json",
+      "sha256": "27c2ac955693baf61893958ad6379345bfe5706487d2acc550a31a4b86a9e035",
+      "bytes": 20899
+    },
+    {
+      "path": "localization/reviewed/38_distributed_jobs.json",
+      "sha256": "c95987eb2ba204200c796c5716cdfd4d3d4cff5e0e47b284fe0a8473cd85dcfe",
+      "bytes": 1670
+    },
+    {
+      "path": "localization/reviewed/39_classifier_evaluation.json",
+      "sha256": "c82839c07a1aeb4d7fa1019e17dc327d05b6ef3ecaa14bea646fdd8cea24bf02",
+      "bytes": 1711
+    },
+    {
+      "path": "localization/reviewed/40_run_history.json",
+      "sha256": "9952567189f26b3d214b8e179ed3aa213d7bec063dfa1b0445c0dc207ef99571",
+      "bytes": 1546
+    },
+    {
+      "path": "localization/reviewed/41_classify.json",
+      "sha256": "4526c52ed8f8b5e01ba868dcbe6a6bc87b6cc2a10b56e030074df95f3c1e14eb",
+      "bytes": 1792
+    },
+    {
+      "path": "localization/reviewed/42_curate.json",
+      "sha256": "98ad886944bdff0ed3e4a650464efe23d66f68cea184299f81b8217200092385",
+      "bytes": 1611
+    },
+    {
+      "path": "localization/reviewed/43_illumination.json",
+      "sha256": "91361e1f1847be0c05e78e2db389ba5f34f0c77b72c4d9f3236706fe1bf37662",
+      "bytes": 1492
+    },
+    {
+      "path": "localization/reviewed/44_data_manager.json",
+      "sha256": "958aba014fbf252caeda239590781dae207828a4a17fe039d56d66dffd19773d",
+      "bytes": 1623
+    },
+    {
+      "path": "localization/reviewed/45_project_browser.json",
+      "sha256": "24456ffeea2f1cf974875117313cdd476691261c79b00066ce528cc78092cf64",
+      "bytes": 1508
+    },
+    {
+      "path": "localization/reviewed/46_napari_bridge.json",
+      "sha256": "035be537bad963c9c5f8a5d2f44df99383d0bb2cfa4faee4246623f7ffe2d7f9",
+      "bytes": 1450
+    },
+    {
+      "path": "localization/reviewed/47_barcode_qc.json",
+      "sha256": "b93f764f8f5d261d6fb41c1904e3a61c583551640ea0533805d6e87ba8f6465c",
+      "bytes": 1657
+    },
+    {
+      "path": "localization/reviewed/48_hit_list.json",
+      "sha256": "f1f7ea9c8239b40df20e9b49d8c98f8230c69122924c2ceb63fedcf3b6efc329",
+      "bytes": 1596
+    },
+    {
+      "path": "localization/reviewed/49_methods_results.json",
+      "sha256": "5309f5d3293f4be7131ba06b57acc6aa95aaf32a0c0fbad18e9703bc8bfdeb2e",
+      "bytes": 1640
+    },
+    {
+      "path": "localization/reviewed/50_run_compare.json",
+      "sha256": "5d0c9d1e1f7655db48ee45daa1b4d4ad13a83893114c3f2f1a4e497291ab957e",
+      "bytes": 1501
+    },
+    {
+      "path": "localization/reviewed/51_control_charts.json",
+      "sha256": "0c28a3af3789e99df7b7d531c6fa5ccd2e9b201cde835657d39dd97bafde3baf",
+      "bytes": 1516
+    },
+    {
+      "path": "localization/reviewed/52_pipeline_graph.json",
+      "sha256": "aff62b6d56f9b016a84d875570a79ccffd77a90c8612e5af56d00db2e10eeccc",
+      "bytes": 1490
+    },
+    {
+      "path": "localization/reviewed/53_prediction_profiler.json",
+      "sha256": "2bfaff77c738819bb37be57fd0e5976b0e639ec0935634f2c95a58fb293d9c1a",
+      "bytes": 1499
+    },
+    {
+      "path": "localization/reviewed/54_qc_dashboard.json",
+      "sha256": "b105ec2c0470d823134118aad0acadadf47361a343170a1abb484bdce02f9fcf",
+      "bytes": 1516
+    },
+    {
+      "path": "localization/reviewed/55_image_scatter.json",
+      "sha256": "23703c704fa73b7874dfa00854a8a92b7062f737b3ed01ab4fd3c7c0b05452f9",
+      "bytes": 1553
+    },
+    {
+      "path": "localization/reviewed/56_lineage.json",
+      "sha256": "df7adcc78930aaf339fe7f14bc7cab832995d2c9793b78615ff36aec1bf60278",
+      "bytes": 1478
+    },
+    {
+      "path": "localization/reviewed/57_layer_viewer.json",
+      "sha256": "749d2713e5074280aaa75dd8aaefe2435643c08d7b9b34111edfe97db63f759f",
+      "bytes": 1467
+    },
+    {
+      "path": "localization/reviewed/58_graph_builder.json",
+      "sha256": "df00011cf41e4d57eaba31d52c76cb88fac30df5333b11da851ae31a2312b83b",
+      "bytes": 1506
+    },
+    {
+      "path": "localization/reviewed/59_anndata_export.json",
+      "sha256": "dc70bf8affecde260aa2de0f5aff5c4d58c65ed3c9dd9b76c6a0db0b2136867e",
+      "bytes": 1501
+    },
+    {
+      "path": "localization/reviewed/60_pca.json",
+      "sha256": "1b6108b6b7de63df51256f62071e0b64de653c487d0f467d5913f6c3a6debf54",
+      "bytes": 1558
+    },
+    {
+      "path": "localization/reviewed/61_tabulate.json",
+      "sha256": "7ef9185846e0fe2267446278e17eb9434e7e9eba74763490a4e45062df635398",
+      "bytes": 1476
+    },
+    {
+      "path": "localization/reviewed/62_feature_dictionary.json",
+      "sha256": "2124677bf39266b74c4a3e13c34da87063b5c2d35530e585323c1a79413840dd",
+      "bytes": 1491
+    },
+    {
+      "path": "localization/reviewed/63_small_multiples.json",
+      "sha256": "af7d10bdd5ff6e45e940255bd22eed6d0a2c0aa7d522ec99424e988c210125d3",
+      "bytes": 1492
+    },
+    {
+      "path": "localization/reviewed/64_gate_editor.json",
+      "sha256": "2dce647189f92da5c390cfd77b2ae63ed40a4c4133456499ebb79545d7c2b42f",
+      "bytes": 15668
+    },
+    {
+      "path": "localization/reviewed/65_feature_explorer.json",
+      "sha256": "0d03dd6a140961aa10175ee1425b3c3e29616e19690125ffe17dbe1f95ac9a7b",
+      "bytes": 1646
+    },
+    {
+      "path": "localization/reviewed/66_outliers.json",
+      "sha256": "27b1e630ac1a350e82ac7e28b70d765d627a67e5f3b62d92813a11dde0e0c9a2",
+      "bytes": 1471
+    },
+    {
+      "path": "localization/reviewed/67_experiment_design.json",
+      "sha256": "ea84526224f1cd27cb90fde1d5f6fa40fd307251959b25eae1aace5f0b3da7f0",
+      "bytes": 1456
+    },
+    {
+      "path": "localization/reviewed/68_power_design.json",
+      "sha256": "f9ecdd3e076c3c1afb17e5dcc3a7bc6aa5c5a39868165a2a1c8ac4845b81a879",
+      "bytes": 1551
+    },
+    {
+      "path": "localization/reviewed/69_dose_response.json",
+      "sha256": "217f35484ffbfcc3c875e0fd42cf29b3b3a7eba84433259e354d6769cd0115f1",
+      "bytes": 1526
+    },
+    {
+      "path": "localization/reviewed/70_explain_cv.json",
+      "sha256": "6cec969acc017feb9cfe2fec9fb4319fb2d95e36aa72f9f441497535d0443917",
+      "bytes": 11954
+    },
+    {
+      "path": "localization/reviewed/71_investigate_hit.json",
+      "sha256": "7b85bb19f37e18f4167c4a170e2ccc0d4361ef245eb22f552a8d5ae29b7111f2",
+      "bytes": 11718
+    },
+    {
+      "path": "localization/reviewed/72_volcano_explorer.json",
+      "sha256": "6eb48919d971be1c0a2c02757157e0a8741de41041eec0d0b9d186b5488ed397",
+      "bytes": 10696
+    },
+    {
+      "path": "localization/reviewed/73_parameter_sweep.json",
+      "sha256": "acafa201394a7650f88be6e44524aff2e94e6a87a624976e9ab3f576bcab483e",
+      "bytes": 10684
+    },
+    {
+      "path": "localization/reviewed/core_08_12_hi.json",
+      "sha256": "4ea4595bfa1024cec02528fde40e7f69bd063c4fa0fe32764eff5af1d56bda96",
+      "bytes": 23367
+    },
+    {
+      "path": "localization/reviewed/core_08_12_ja.json",
+      "sha256": "8f95d8373f2deb94dbb8feba7da622a89c4f35545154f24c937445b5b18eeb4b",
+      "bytes": 17515
+    },
+    {
+      "path": "localization/reviewed/core_08_12_zh-CN.json",
+      "sha256": "489304994bfa858b923aba2537c6b082b74ed8dbd3ca864ea6a0c9c0ac7dc201",
+      "bytes": 12694
+    },
+    {
+      "path": "localization/reviewed/core_14_17_hi.json",
+      "sha256": "1003728d49381614b81b6a8827fcb7e684dd5ca9424a4805fab976d06d90ea90",
+      "bytes": 19269
+    },
+    {
+      "path": "localization/reviewed/core_14_18_ja.json",
+      "sha256": "2d22547c1816cab92878a4b6c79b61958d0c3452b04fe609d19dfece7667a5c3",
+      "bytes": 14138
+    },
+    {
+      "path": "localization/reviewed/core_14_18_zh-CN.json",
+      "sha256": "42bff47f470f5dfc9eb9baf5f5aedce0bb372b0f044e143b8ac6d880e01771a9",
+      "bytes": 10746
+    },
+    {
+      "path": "localization/reviewed/core_19_21_hi.json",
+      "sha256": "1cbe33f127b0c5d0ef03f4d1b13aae957153a2efa61d13dcdd5c41c0d38b946b",
+      "bytes": 15958
+    },
+    {
+      "path": "localization/reviewed/core_19_22_ja.json",
+      "sha256": "877bc3ab545b9508abb568d2b2afed5003285ffd353731c7843331c9be96992f",
+      "bytes": 11329
+    },
+    {
+      "path": "localization/reviewed/core_19_22_zh-CN.json",
+      "sha256": "34d7c6c78815f13f781bb9dcb8a1e4c0600d5c037748ef377b8770e9f53363d8",
+      "bytes": 8528
+    },
+    {
+      "path": "localization/reviewed/generic_41_54_hi.json",
+      "sha256": "91c5281368c2c2f0fecfd0616f9a43317a8c34ea27e47ab015469cddde567d3d",
+      "bytes": 19987
+    },
+    {
+      "path": "localization/reviewed/generic_41_54_ja.json",
+      "sha256": "9f5bf047671b361013bda6bbb813bc13786d33a83b4fe87864fdfb4172af1419",
+      "bytes": 15606
+    },
+    {
+      "path": "localization/reviewed/generic_41_54_zh-CN.json",
+      "sha256": "63e14aba9df03302fa27aed6c1161503ffca279a1e97128d127a703086a00d71",
+      "bytes": 11240
+    },
+    {
+      "path": "localization/reviewed/generic_55_69_hi.json",
+      "sha256": "16fb0e6ce4158f3da945ceb83ebb0db2da252f8c6837b653b171dcb272b3a0ab",
+      "bytes": 18001
+    },
+    {
+      "path": "localization/reviewed/generic_55_69_ja.json",
+      "sha256": "f22429c17f714345e88ed7e203379585dc85e3a4f883d48c322bc48ae232512b",
+      "bytes": 14488
+    },
+    {
+      "path": "localization/reviewed/generic_55_69_zh-CN.json",
+      "sha256": "525a3ed9731168508412222309de11f23a0e9219ad13aa596590bb4a22cb6d54",
+      "bytes": 10731
+    },
+    {
+      "path": "localization/reviewed/hard_tail_asia.json",
+      "sha256": "91a3dfe91a232234151423555a564c8ccca070ad13364971e36c8a15718f61a1",
+      "bytes": 7082
+    },
+    {
+      "path": "localization/reviewed/hard_tail_zh-CN.json",
+      "sha256": "1d84c698b7c308d94530bc2df9a644dee8a578bcc82cefab88dd2d72286e5f15",
+      "bytes": 12815
+    },
+    {
+      "path": "localization/reviewed/latn_05_07.json",
+      "sha256": "5095d7eedb456a4b4af19aa1b464ea8dd9d2422d53d0b7cba0d4e61b847fff87",
+      "bytes": 16136
+    },
+    {
+      "path": "localization/reviewed/latn_15_70_73_metadata.json",
+      "sha256": "5172f930523da67978be468a45adc4bf67bc796504fc973c2813580aab8da24b",
+      "bytes": 6221
+    },
+    {
+      "path": "localization/reviewed/latn_24_27.json",
+      "sha256": "f07de24e84f79aa8bbf216861e2cb681d72b70124f470302ed116ce8f82ad313",
+      "bytes": 23910
+    },
+    {
+      "path": "localization/reviewed/latn_28_32.json",
+      "sha256": "a50c39880dcf40010afd675abcc3c1f36dc0f674ba8ca7155c73650c4e845d98",
+      "bytes": 24721
+    },
+    {
+      "path": "localization/reviewed/latn_33_36.json",
+      "sha256": "7dc4ceb85073a6247beb06d2ab7a57cde1ea16805916a8ae12cc379d2757cf57",
+      "bytes": 20464
+    },
+    {
+      "path": "localization/reviewed/latn_37_batch.json",
+      "sha256": "e5a1e0d54ebc6fb633003fe1aaae775c5620d0ec2cdb7ddf7e321e564a3c4f0e",
+      "bytes": 16866
+    },
+    {
+      "path": "localization/reviewed/latn_38_45.json",
+      "sha256": "d5a54fa34515c27525f06ac9fe52bd24a331b55f89b7b1b4464d10dcb766ee4f",
+      "bytes": 31283
+    },
+    {
+      "path": "localization/reviewed/latn_46_53.json",
+      "sha256": "b9e759d4f4dc665b9de8c2a8f001fa0d84e03a9d36dae08e2e23eb170320f7f5",
+      "bytes": 29170
+    },
+    {
+      "path": "localization/reviewed/latn_54_61.json",
+      "sha256": "561f38329ba8b03f388c9a944d374af1eee894f4a5b26c9d62c5813d067fbaf4",
+      "bytes": 28197
+    },
+    {
+      "path": "localization/reviewed/latn_62_69.json",
+      "sha256": "a70eebf00df1a074861d057d31cc10feae150fe0fd2a5d3fa225d4eddd9525b8",
+      "bytes": 27151
+    },
+    {
+      "path": "localization/reviewed/pt-BR_12_23.json",
+      "sha256": "4fd6a10fc71bcf5fedf1eb9ff2563e15054014b2d5d4879870a6741ddae10acf",
+      "bytes": 29146
+    },
+    {
+      "path": "localization/reviewed/route_tail_asia.json",
+      "sha256": "6aa9f3551391defe457557e58092b31cafc76a0fe5496de789c55b6376fc453d",
+      "bytes": 19159
+    },
+    {
+      "path": "localization/reviewed/specialized_23_30_hi.json",
+      "sha256": "90edc4d91dd5abed11e2668d699add71b278fb8e40b455fa96643c0f56f134dd",
+      "bytes": 19584
+    },
+    {
+      "path": "localization/reviewed/specialized_23_30_ja.json",
+      "sha256": "6f27c8faddaaa834378d3653f1e3f0f8937db7b275ea12ac972d5c0bbfdd2433",
+      "bytes": 16216
+    },
+    {
+      "path": "localization/reviewed/specialized_23_30_zh-CN.json",
+      "sha256": "3e49c4c625b0337117093c8b2dde04ca4a5c6d7abf3391516d55f6921d626994",
+      "bytes": 11750
+    },
+    {
+      "path": "localization/reviewed/specialized_31_40_hi.json",
+      "sha256": "e3c96265b1e8627f6f896ee9f59037855387ebe12ebc231788ff34d3e7ecd82f",
+      "bytes": 17712
+    },
+    {
+      "path": "localization/reviewed/specialized_31_40_ja.json",
+      "sha256": "d4798ad0d971a70336ee1dd506d5a77ed1cb4db027c2273e4aeafea4971ad773",
+      "bytes": 16192
+    },
+    {
+      "path": "localization/reviewed/specialized_31_40_zh-CN.json",
+      "sha256": "f564e2ccdfd4930c9dfb21c7da09877a94ea8ae24203a9414740f8b11dcd1462",
+      "bytes": 10961
+    },
+    {
+      "path": "TUTORIAL_ROADMAP.md",
+      "sha256": "9d6f4257444dc58a01ccd7032a7bb09d3947df5283f20be6d3c457994b058b32",
+      "bytes": 8264
+    }
+  ],
+  "published_differences": [
+    {
+      "source": "catalog/captions_da.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_da.json",
+      "published_sha256": "0ec70ecb22122d363a8e32105119f19ee46834563682bd2384b22b4eb25aa73b"
+    },
+    {
+      "source": "catalog/captions_de.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_de.json",
+      "published_sha256": "20ab7692f7ecd9709853c7c01860ebb7851ff0341ce806b6e1636c7cd2ffecad"
+    },
+    {
+      "source": "catalog/captions_is.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_is.json",
+      "published_sha256": "042f8f3845ed6953d96b1facb44d3759b6e01c8394c27cf2a87f10c99f4afadf"
+    },
+    {
+      "source": "catalog/captions_ko.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_ko.json",
+      "published_sha256": "c03f7eceb263d0ae37a44a6a7c8327825337a83512ae695c6b49f71a0e602cb7"
+    },
+    {
+      "source": "catalog/captions_nb.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_nb.json",
+      "published_sha256": "ac205dfe78c886b5d55a8aa17bfe7e5d9f2b9540b4f82dc3063436bd0e03dbb6"
+    },
+    {
+      "source": "catalog/captions_sv.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_sv.json",
+      "published_sha256": "94923ca3151cc74d7d5045cd7d657724879f12c26fe8d832711b75f3d12a66e0"
+    },
+    {
+      "source": "catalog/lessons_en.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_en.json",
+      "published_sha256": "a8bc42a93ceacc2008e832413b2043b27b4a93e57d05551c40d44c0c2a7de45b"
+    },
+    {
+      "source": "catalog/lessons_es.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_es.json",
+      "published_sha256": "407cea8db3b8495501c3014245c00f02c5222fda1f9d2b998f83cea812343b0e"
+    },
+    {
+      "source": "catalog/lessons_fr.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_fr.json",
+      "published_sha256": "7f6540e46fe4f11e68cebce7e3ed9c9f69eae1d3424585f63b899efb32e004e0"
+    },
+    {
+      "source": "catalog/lessons_hi.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_hi.json",
+      "published_sha256": "e5293f2f2bbca40bb455f8367f229335f13192a27da50e763144a781005e0eb4"
+    },
+    {
+      "source": "catalog/lessons_it.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_it.json",
+      "published_sha256": "cc05a1db46f91c66786f32906bd0f85e60fc08b95fc60857e4450570fbf571e8"
+    },
+    {
+      "source": "catalog/lessons_ja.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_ja.json",
+      "published_sha256": "5da729aff0239f11913c8fe1820ecd1024fcd18353074390a8bd67179db31c73"
+    },
+    {
+      "source": "catalog/lessons_pt-BR.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_pt-BR.json",
+      "published_sha256": "4a4ab34bbc4f0ce078e79d6173148e865853201d13b44db2acad8bb62944bd0a"
+    },
+    {
+      "source": "catalog/lessons_zh-CN.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
+      "published_sha256": "af385356b4473a2d56bb93768fb2d1727585898279fee5be6d4501180716581c"
+    },
+    {
+      "source": "web/catalog/captions_da.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_da.json",
+      "published_sha256": "0ec70ecb22122d363a8e32105119f19ee46834563682bd2384b22b4eb25aa73b"
+    },
+    {
+      "source": "web/catalog/captions_de.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_de.json",
+      "published_sha256": "20ab7692f7ecd9709853c7c01860ebb7851ff0341ce806b6e1636c7cd2ffecad"
+    },
+    {
+      "source": "web/catalog/captions_is.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_is.json",
+      "published_sha256": "042f8f3845ed6953d96b1facb44d3759b6e01c8394c27cf2a87f10c99f4afadf"
+    },
+    {
+      "source": "web/catalog/captions_ko.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_ko.json",
+      "published_sha256": "c03f7eceb263d0ae37a44a6a7c8327825337a83512ae695c6b49f71a0e602cb7"
+    },
+    {
+      "source": "web/catalog/captions_nb.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_nb.json",
+      "published_sha256": "ac205dfe78c886b5d55a8aa17bfe7e5d9f2b9540b4f82dc3063436bd0e03dbb6"
+    },
+    {
+      "source": "web/catalog/captions_sv.json",
+      "published": "docs/source/_extra/tutorials/catalog/captions_sv.json",
+      "published_sha256": "94923ca3151cc74d7d5045cd7d657724879f12c26fe8d832711b75f3d12a66e0"
+    },
+    {
+      "source": "web/catalog/lessons_en.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_en.json",
+      "published_sha256": "a8bc42a93ceacc2008e832413b2043b27b4a93e57d05551c40d44c0c2a7de45b"
+    },
+    {
+      "source": "web/catalog/lessons_es.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_es.json",
+      "published_sha256": "407cea8db3b8495501c3014245c00f02c5222fda1f9d2b998f83cea812343b0e"
+    },
+    {
+      "source": "web/catalog/lessons_fr.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_fr.json",
+      "published_sha256": "7f6540e46fe4f11e68cebce7e3ed9c9f69eae1d3424585f63b899efb32e004e0"
+    },
+    {
+      "source": "web/catalog/lessons_hi.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_hi.json",
+      "published_sha256": "e5293f2f2bbca40bb455f8367f229335f13192a27da50e763144a781005e0eb4"
+    },
+    {
+      "source": "web/catalog/lessons_it.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_it.json",
+      "published_sha256": "cc05a1db46f91c66786f32906bd0f85e60fc08b95fc60857e4450570fbf571e8"
+    },
+    {
+      "source": "web/catalog/lessons_ja.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_ja.json",
+      "published_sha256": "5da729aff0239f11913c8fe1820ecd1024fcd18353074390a8bd67179db31c73"
+    },
+    {
+      "source": "web/catalog/lessons_pt-BR.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_pt-BR.json",
+      "published_sha256": "4a4ab34bbc4f0ce078e79d6173148e865853201d13b44db2acad8bb62944bd0a"
+    },
+    {
+      "source": "web/catalog/lessons_zh-CN.json",
+      "published": "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
+      "published_sha256": "af385356b4473a2d56bb93768fb2d1727585898279fee5be6d4501180716581c"
+    },
+    {
+      "source": "web/index.html",
+      "published": "docs/source/_extra/tutorials/index.html",
+      "published_sha256": "bd282466f59bd7226365beb6e6f4444798813e18dbb6f5814b1a812ffeda6cbe"
+    },
+    {
+      "source": "web/lesson_catalog.js",
+      "published": "docs/source/_extra/tutorials/lesson_catalog.js",
+      "published_sha256": "2f1d8b2a842708ca8c3b299573bad52e18099bc1584d5dd9230c1fc013bab163"
+    }
+  ]
+}

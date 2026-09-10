@@ -21,6 +21,12 @@ The second half of the same problem, also covered here: crops are 16-bit PNGs
 and PIL narrows them two different ways -- the high byte for an RGB image, a
 *clip* at 255 for a single-channel one, which returns solid white for any
 crop brighter than 255/65535. spaCR now narrows them itself, one way, always.
+
+ONE TEST IS GONE: the Tk ``AnnotateApp.load_single_image`` half of the pair
+that checked both annotate loaders read a legacy folder identically. The
+class is deleted with the Tk interface; the Qt loader it was paired against,
+``spacr.qt.annotate_engine.load_crop_image``, is still asserted immediately
+above where it stood, and is now the only annotate reader there is.
 """
 
 import json
@@ -1035,37 +1041,6 @@ def test_annotate_engine_loader_reads_a_legacy_crop_as_it_stands(tmp_path):
     img = load_crop_image(os.path.join(folder, name))
     assert img.mode == "RGB"
     assert np.array_equal(np.array(img), legacy_png_view(arr))
-
-
-def test_tk_annotate_app_loader_reads_a_legacy_crop_as_it_stands(tmp_path):
-    """The Tk AnnotateApp reads through the same reader (no Tk needed).
-
-    Inverted for the same reason as the Qt loader above.
-    """
-    from spacr.gui_elements import AnnotateApp
-
-    folder, arrays = _legacy_folder(tmp_path, n=1, seed=61)
-    name, arr = next(iter(arrays.items()))
-
-    app = AnnotateApp.__new__(AnnotateApp)     # no Tk root, no window
-    app.db_path = None
-    app.image_size = (32, 32)
-    app.percentiles = (1, 99)
-    app.normalize_channels = None
-    app.channels = None
-    app.outline = None
-    img, ann = app.load_single_image((os.path.join(folder, name), 1))
-    assert ann == 1
-    assert img.size == (32, 32)
-    # Resized for display, so compare against the corrected crop resized the
-    # same way -- the point is the channel order, not the interpolation.
-    assert np.array_equal(
-        np.array(img),
-        np.array(Image.fromarray(legacy_png_view(arr)).resize((32, 32))))
-
-    # A missing crop is still a blank tile, not an exception.
-    blank, _ = app.load_single_image((os.path.join(folder, "absent.png"), None))
-    assert blank.size == (32, 32)
 
 
 def test_legacy_png_view_handles_every_shape_it_used_to(tmp_path):

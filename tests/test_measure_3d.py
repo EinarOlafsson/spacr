@@ -387,7 +387,8 @@ def test_measure_crop_core_reads_channels_from_a_4d_array(tmp_path):
         experiment='exp', voxel_size_z_um=1.0, voxel_size_xy_um=0.25,
         homogeneity=False, radial_dist=False, calculate_correlation=False)
 
-    index, avg, cells, figs = M._measure_crop_core(0, [], 'plate1_A01_f1.npy', s)
+    index, avg, cells, figs, _error = M._measure_crop_core(
+        0, [], 'plate1_A01_f1.npy', s)
     assert not isinstance(cells, int), 'the field failed inside _measure_crop_core'
 
     db = tmp_path / 'measurements' / 'measurements.db'
@@ -744,10 +745,11 @@ def test_mixing_2d_and_3d_rows_in_one_table_is_refused(tmp_path):
 
     # And through the pipeline the 3-D field is recorded as a failure rather
     # than silently contributing rows.
-    _index, _avg, cells, _figs = _run_field(
+    _index, _avg, cells, _figs, error_text = _run_field(
         tmp_path, volumetric=True, name='plate1_A01_f3',
         voxel_size_z_um=1.0, voxel_size_xy_um=0.25)
     assert cells == 0
+    assert 'MeasurementUnitsMismatch' in error_text
     assert len(_read(tmp_path)) == 2
 
 
@@ -837,7 +839,8 @@ def test_single_plane_volume_measures_identically_to_the_2d_path(tmp_path):
 
     for d in (flat_dir, vol_dir):
         s = _settings(src=str(d / 'merged'), **common)
-        _i, _a, cells, _f = M._measure_crop_core(0, [], 'plate1_A01_f1.npy', s)
+        _i, _a, cells, _f, _error = M._measure_crop_core(
+            0, [], 'plate1_A01_f1.npy', s)
         assert not isinstance(cells, int), f'{d} failed inside _measure_crop_core'
 
     flat = _read(flat_dir).sort_values('object_label').reset_index(drop=True)
@@ -861,12 +864,13 @@ def test_single_plane_volume_measures_identically_to_the_2d_path(tmp_path):
 # --------------------------------------------------------------------------
 
 def test_3d_field_writes_measurements_but_refuses_crops(tmp_path, capsys):
-    _index, _avg, cells, _figs = _run_field(
+    _index, _avg, cells, _figs, error_text = _run_field(
         tmp_path, volumetric=True, voxel_size_z_um=1.0, voxel_size_xy_um=0.25,
         save_png=True, png_size=[32, 32], png_dims=[0, 1, 2],
         normalize=False, normalize_by='png', crop_mode=['cell'],
         dialate_pngs=False, dialate_png_ratios=[0.2], use_bounding_box=False)
     assert not isinstance(cells, int)
+    assert error_text == ''
     assert len(_read(tmp_path)) == 2
 
     out = capsys.readouterr().out

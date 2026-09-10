@@ -1,0 +1,51 @@
+{
+  "lesson": "35_converter",
+  "status": "Real image conversion and complete-field Resume verified; multilingual media pending",
+  "app_commit": "d80be5420a0c0b12a301df353369ebc26b62099f",
+  "version": "1.5.0.4",
+  "capture": "refresh_2026-09-09/captures/converter_readable",
+  "private_destination": "refresh_2026-09-09/converter_runs/example-txlxxtxn/converted",
+  "canonical_english_sha256": "1421e92b000cf817acdc77701e253d0dc5f85cae67edcd6abb0c5058935d24eb",
+  "scene_count": 16,
+  "real_inputs": {
+    "reused_verified_capture": "foreign_release_v2",
+    "names": ["fov01_C1.tif", "fov02_C1.tif"],
+    "shape_each": [1994, 1994], "dtype": "uint16",
+    "original_seven_plane_array_index": 1,
+    "single_channel_tiff_array_index": 0,
+    "assigned_output_channel_one_based": 1,
+    "neutral_names_preserve_original_acquisition_coordinates": false,
+    "new_download": false, "new_artificial_images": false
+  },
+  "actual_gui_checks": [
+    "Import parent and actual Format Converter fold opened",
+    "Real source and new destination directory pickers accepted",
+    "Flat layout, keep Z planes, indexed plate naming, first-run Resume off",
+    "Preview identifies both exact sources and two planned targets without writing outputs",
+    "Read-only preview mappings include source and target field, channel, time and Z identities",
+    "Convert writes exactly two TIFFs without failed or skipped mappings",
+    "Every output pixel, shape and dtype compared independently against the source TIFF",
+    "Mapping CSV checked for exact source, target, acquisition and reader metadata",
+    "Resume enabled through its real control; two complete fields reused with zero new writes",
+    "Native summary scrollbar End reaches maximum 1, exposing the entire resumed-fields message",
+    "Original array, TIFF and provenance hashes remain unchanged"
+  ],
+  "new_write_ledger": {"status": "complete", "attempted": 2, "succeeded": 2, "failed": 0},
+  "resume_ledger": {
+    "entries": 2, "original_entry_preserved": true,
+    "latest_status": "empty", "attempted": 0, "succeeded": 0, "failed": 0,
+    "accepted_only_with_exact_reused_field_and_output_identity_checks": true,
+    "application_checks": "Readable TIFF metadata/pages, not every pixel",
+    "recorder_checks": "Every output pixel, dtype, shape and source identity"
+  },
+  "small_helper_tests": {"passed": 28, "disabled_real_pixel_evidence_guard_failed_cases": 3, "restored_green": true},
+  "important_limits": [
+    "Assigned plate1/A01 fields 1 and 2 are demonstration coordinates, not recovered original wells",
+    "Two-dimensional single-channel TIFFs do not validate vendor readers, Z projection or time series",
+    "The on-screen table retains planned status after conversion; inspect the actual summary and mapping CSV",
+    "An empty latest ledger entry is not an empty or missing ledger file",
+    "The parent Import controls are not Format Converter controls"
+  ],
+  "english_and_visual_peer_review": "Editorial checks, not native-speaker or human-listening approval",
+  "app_source_modified": false, "published": false
+}

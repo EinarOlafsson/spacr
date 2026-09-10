@@ -88,7 +88,6 @@ YOKOGAWA_1536_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=YOKOGAWA_1536_BUG)
 def test_a_1536_well_export_keeps_one_tile_per_field(tmp_path):
     """Four fields of well AA01 are four stage positions, not one.
 
@@ -125,7 +124,6 @@ CROSS_WELL_MERGE_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=CROSS_WELL_MERGE_BUG)
 def test_two_wells_never_become_two_channels_of_one_site(tmp_path):
     """Fields of different wells are different sites, whatever the plate is called.
 
@@ -193,7 +191,6 @@ REFERENCE_CHANNEL_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=REFERENCE_CHANNEL_BUG)
 def test_the_reference_channel_chosen_at_scan_time_drives_registration(tmp_path):
     """Asking for channel 2 must register on channel 2, blank or not.
 
@@ -236,7 +233,6 @@ PER_WELL_GRID_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=PER_WELL_GRID_BUG)
 def test_grid_describes_one_wells_acquisition_not_the_whole_folder(tmp_path):
     """``grid=(2, 2)`` on a two-well plate means 2x2 *per well*.
 
@@ -279,7 +275,6 @@ TINY_READER_CACHE_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=TINY_READER_CACHE_BUG)
 def test_a_tiny_reader_cache_does_not_silently_unregister_the_plate(tmp_path):
     """A memory knob may cost speed. It may not change the answer.
 

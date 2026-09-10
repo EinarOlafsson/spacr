@@ -127,6 +127,11 @@ from .run_journal import (
     values_equal,
 )
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 __all__ = [
     "TrainingRun",
     "Series",
@@ -211,6 +216,8 @@ DEFAULT_SCAN_DEPTH = 6
 def metric_direction(name: Any) -> Optional[str]:
     """Return ``'max'``, ``'min'`` or ``None`` for a metric column name.
 
+    :param name: metric column name whose optimisation direction is requested.
+
     ``None`` means "no meaningful best" — ``optimal_threshold`` and
     ``train_time`` are recorded per epoch but neither has a direction, and
     calling the largest one "best" would be a fabrication.
@@ -233,26 +240,27 @@ def metric_direction(name: Any) -> Optional[str]:
 class TrainingRun:
     """One training run's curves, settings and complaints.
 
-    :ivar run_id: short human id, unique within a :func:`find_runs` result.
-    :ivar path: the run folder (``dst``) — the folder holding ``train.csv`` /
-        ``validation.csv``, or the folder holding the ``fold_<i>/`` subfolders.
-    :ivar settings: the settings dict recovered from
-        ``<src>/settings/*.csv`` (or a journal ``settings.json``); ``{}`` when
-        none was found, which is recorded in :attr:`notes`.
-    :ivar curves: long-form per-epoch metrics with identity columns
-        ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged
-        epoch. Empty (with the identity columns present) when the run logged
-        nothing.
-    :ivar folds: fold folder names (``['fold_1', ...]``), empty for a run that
-        used a single train/validation split.
-    :ivar final_metrics: ``{series_label: {...}}`` — per split and fold, the
-        epoch count and **both** the last-epoch and best-epoch value of every
-        metric. See :func:`format_comparison` for why both.
-    :ivar notes: everything wrong with, or worth knowing about, this folder.
-        A run with notes is still comparable.
-    :ivar settings_path: where the settings came from, or ``''``.
-    :ivar manifest: a run-journal ``manifest.json`` when the folder happens to
-        be one; ``{}`` for an ordinary training ``dst``.
+    :param run_id: human-readable run identifier; :func:`find_runs` makes it
+        unique within the returned scan.
+    :param path: training-output directory containing progress CSVs or
+        numbered fold subdirectories.
+    :param settings: settings recovered from run-local ``settings.json`` or
+        ``settings.csv``, or from a matching ancestor ``settings/*.csv``;
+        empty when none is usable.
+    :param curves: long-form per-epoch metrics with ``run_id``, ``split``,
+        ``fold``, and ``epoch`` identity columns; empty with those columns
+        present when no usable curves were logged.
+    :param folds: numerically ordered fold-directory names, empty for a
+        non-cross-validated run.
+    :param final_metrics: per-series summaries containing identity, epoch
+        count and range, last finite observations, and direction-aware best
+        observations when defined.
+    :param notes: non-fatal discovery or data-quality messages; notes do not
+        prevent the run from being compared.
+    :param settings_path: path of the settings snapshot used, or ``""`` when
+        none was found.
+    :param manifest: parsed run-journal manifest mapping, or an empty mapping
+        when absent, unreadable, or not an object.
     """
     run_id: str
     path: Path
@@ -273,10 +281,12 @@ class TrainingRun:
 
     @property
     def has_curves(self) -> bool:
+        """Return whether at least one usable curve row was loaded."""
         return not self.curves.empty
 
     @property
     def is_cv(self) -> bool:
+        """Return whether one or more fold directories were discovered."""
         return bool(self.folds)
 
     def metrics(self) -> List[str]:
@@ -308,11 +318,18 @@ class TrainingRun:
 class Series:
     """One line on the plot: a run, a split and (for k-fold) a fold.
 
-    :ivar kind: ``'single'`` (one train/val split), ``'fold'`` (one fold of a
-        k-fold run) or ``'mean'`` (the fold mean, with ``__sd`` columns and an
-        ``n_folds`` column recording how many folds reached each epoch).
-    :ivar frame: ``epoch`` plus the numeric metric columns, in epoch order and
-        **at this series' own length** — never resampled onto a shared axis.
+    :param run_id: identifier of the training run that produced this series.
+    :param split: logged data split, normally ``"train"`` or ``"val"``.
+    :param fold: fold name, an empty string for a single split, or ``"mean"``
+        for a fold aggregate.
+    :param kind: ``"single"``, ``"fold"``, or ``"mean"``, describing how
+        the series was assembled.
+    :param label: complete legend label for the plotted line.
+    :param frame: epoch-ordered, unresampled frame containing ``epoch`` and
+        this series' numeric metrics.
+    :param n_folds: total folds represented by the series; one for an
+        individual split or fold. For a mean, per-epoch support is retained
+        separately in ``frame["n_folds"]``.
     """
     run_id: str
     split: str
@@ -324,27 +341,38 @@ class Series:
 
     @property
     def epochs(self) -> np.ndarray:
+        """Return the epoch column coerced to a NumPy numeric array."""
         return pd.to_numeric(self.frame["epoch"], errors="coerce").to_numpy()
 
     @property
     def n_epochs(self) -> int:
+        """Return the number of rows in this series."""
         return int(len(self.frame))
 
     def values(self, metric: str) -> np.ndarray:
-        """This series' values for ``metric`` (empty array when absent)."""
+        """This series' values for ``metric`` (empty array when absent).
+
+        :param metric: metric column whose numeric values are requested.
+        """
         if metric not in self.frame.columns:
             return np.array([], dtype=float)
         return pd.to_numeric(self.frame[metric], errors="coerce").to_numpy()
 
     def sd(self, metric: str) -> Optional[np.ndarray]:
-        """Fold-to-fold sd for a ``'mean'`` series, else ``None``."""
+        """Fold-to-fold sd for a ``'mean'`` series, else ``None``.
+
+        :param metric: base metric whose ``__sd`` column is requested.
+        """
         col = f"{metric}__sd"
         if col not in self.frame.columns:
             return None
         return pd.to_numeric(self.frame[col], errors="coerce").to_numpy()
 
     def has(self, metric: str) -> bool:
-        """True when this series has at least one finite value for ``metric``."""
+        """True when this series has at least one finite value for ``metric``.
+
+        :param metric: metric column to check for finite observations.
+        """
         vals = self.values(metric)
         return bool(vals.size) and bool(np.isfinite(vals).any())
 
@@ -370,6 +398,7 @@ class Series:
         return int(self.epochs[idx])
 
     def epoch_range(self) -> Tuple[int, int]:
+        """Return the minimum and maximum finite epochs, or ``(0, 0)``."""
         eps = self.epochs
         finite = eps[np.isfinite(eps)]
         if not finite.size:
@@ -378,6 +407,8 @@ class Series:
 
     def best(self, metric: str) -> Optional[Dict[str, Any]]:
         """``{'epoch', 'value', 'direction'}`` for the best epoch, or ``None``.
+
+        :param metric: metric whose direction-aware optimum is requested.
 
         ``None`` when the metric is absent, entirely NaN, or has no meaningful
         direction (see :func:`metric_direction`).
@@ -392,7 +423,10 @@ class Series:
                 "direction": direction}
 
     def last(self, metric: str) -> Optional[Dict[str, Any]]:
-        """``{'epoch', 'value'}`` for the last epoch with a finite value."""
+        """``{'epoch', 'value'}`` for the last epoch with a finite value.
+
+        :param metric: metric whose last finite observation is requested.
+        """
         if not self.has(metric):
             return None
         vals = self.values(metric)
@@ -406,14 +440,16 @@ class Series:
 class Comparison:
     """The result of :func:`compare_runs` — series to plot plus the diff.
 
-    :ivar series: every line that will be drawn, in run order.
-    :ivar settings_diff: the bucketed diff (see :func:`diff_settings`).
-    :ivar metrics: metric columns available on at least one series, sorted with
-        the common ones first.
-    :ivar problems: ``[{'run_id', 'note'}]`` — every note from every run,
-        flattened so a caller can show them all in one place.
-    :ivar fold_mode: which of ``per_fold`` / ``mean`` / ``both`` produced
-        :attr:`series`, so the caller can state it.
+    :param runs: source training runs in comparison order.
+    :param series: plot-ready series in run order.
+    :param settings_diff: bucketed settings comparison produced by
+        :func:`diff_settings`.
+    :param metrics: metric names available on at least one series, with shared
+        metrics ordered first.
+    :param problems: flattened ``{'run_id', 'note'}`` records collected from
+        all runs.
+    :param fold_mode: ``"per_fold"``, ``"mean"``, or ``"both"``, identifying
+        how ``series`` was assembled.
     """
     runs: List[TrainingRun]
     series: List[Series]
@@ -423,20 +459,28 @@ class Comparison:
     fold_mode: str = "per_fold"
 
     def labels(self) -> List[str]:
+        """Return the plot-series labels in comparison order."""
         return [s.label for s in self.series]
 
     def series_for(self, label: str) -> Optional[Series]:
-        """The series with this label, or ``None``."""
+        """The series with this label, or ``None``.
+
+        :param label: exact legend label to look up.
+        """
         for s in self.series:
             if s.label == label:
                 return s
         return None
 
     def series_with(self, metric: str) -> List[Series]:
-        """Series that actually have finite values for ``metric``."""
+        """Series that actually have finite values for ``metric``.
+
+        :param metric: metric each returned series must contain.
+        """
         return [s for s in self.series if s.has(metric)]
 
     def epoch_ranges(self) -> Dict[str, Tuple[int, int]]:
+        """Return each series label mapped to its finite epoch span."""
         return {s.label: s.epoch_range() for s in self.series}
 
     def lengths_differ(self) -> bool:
@@ -445,6 +489,7 @@ class Comparison:
         return len(spans) > 1
 
     def splits(self) -> List[str]:
+        """Return the distinct split names in sorted order."""
         return sorted({s.split for s in self.series})
 
 
@@ -453,6 +498,7 @@ class Comparison:
 # ---------------------------------------------------------------------------
 
 def _empty_curves() -> pd.DataFrame:
+    """Return an empty curve frame with the required identity columns."""
     return pd.DataFrame(columns=["run_id", "split", "fold", "epoch"])
 
 
@@ -484,6 +530,7 @@ def _fold_dirs(path: Path) -> List[Path]:
 
 
 def _has_curve_file(path: Path) -> bool:
+    """Return whether ``path`` contains a recognized split-progress CSV."""
     return any((path / f).is_file() for f in SPLIT_FILES.values())
 
 
@@ -704,6 +751,7 @@ def _run_shape_from_path(path: Path) -> Tuple[str, str]:
 
 
 def _settings_stems(model_type: str, epochs: str) -> List[str]:
+    """Return plausible settings-file stems for the model and epoch count."""
     if not model_type or not epochs:
         return []
     return [f"train_test_{model_type}_{epochs}",
@@ -712,6 +760,7 @@ def _settings_stems(model_type: str, epochs: str) -> List[str]:
 
 
 def _exact_settings_name(path: Path, model_type: str, epochs: str) -> bool:
+    """Return whether ``path`` exactly names a plausible run settings file."""
     return path.stem in _settings_stems(model_type, epochs)
 
 
@@ -732,6 +781,7 @@ def _pick_settings_file(cands: Sequence[Path], model_type: str,
 
 
 def _load_manifest(path: Path) -> Dict[str, Any]:
+    """Return the run manifest mapping, or an empty mapping when unusable."""
     mp = path / "manifest.json"
     if not mp.is_file():
         return {}
@@ -941,6 +991,7 @@ def find_runs(root: Any, max_depth: int = DEFAULT_SCAN_DEPTH,
 
 
 def _folder_mtime(path: Path) -> float:
+    """Return the folder modification time, or ``0.0`` when unavailable."""
     try:
         return path.stat().st_mtime
     except OSError:
@@ -1052,6 +1103,8 @@ def available_metrics(runs: Sequence[TrainingRun],
                       folds: str = "per_fold") -> List[str]:
     """Metric columns these runs logged, common ones first.
 
+    :param runs: training runs whose plottable metrics are requested.
+
     Lets a caller populate a metric picker before anything is compared.
     """
     series = [s for r in runs for s in _series_from_run(r, folds)]
@@ -1060,6 +1113,8 @@ def available_metrics(runs: Sequence[TrainingRun],
 
 def render_setting_value(value: Any, width: int = 40) -> str:
     """One-line, length-capped rendering of a settings value.
+
+    :param value: settings value to render.
 
     Thin public wrapper over :func:`spacr.run_journal._render_value` so the GUI
     renders settings exactly the way the console report does.
@@ -1090,6 +1145,8 @@ def _ordered_metrics(series: Sequence[Series]) -> List[str]:
 def is_env_key(key: Any, env_keys: Sequence[str] = ()) -> bool:
     """True when a settings key records the machine, not a modelling decision.
 
+    :param key: settings key to classify.
+
     Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not.
     ``src`` deliberately does **not** match — a run on a different dataset is a
     real difference and belongs in ``changed``, even though it is a path.
@@ -1103,6 +1160,8 @@ def is_env_key(key: Any, env_keys: Sequence[str] = ()) -> bool:
 def diff_settings(runs: Sequence[TrainingRun],
                   env_keys: Sequence[str] = ()) -> Dict[str, Any]:
     """Bucket the settings differences across N runs.
+
+    :param runs: training runs whose settings are compared.
 
     Generalises :func:`spacr.run_journal.diff_runs` from two runs to many and
     reuses its comparison (:func:`spacr.run_journal.values_equal`) and its
@@ -1248,6 +1307,7 @@ _SPLIT_STYLE = {"train": "--", "val": "-"}
 
 
 def _run_colours(run_ids: Sequence[str]) -> Dict[str, str]:
+    """Assign run identifiers colors from Matplotlib's active cycle."""
     from matplotlib import pyplot as plt
     cycle = plt.rcParams["axes.prop_cycle"].by_key().get("color") or ["#4A9EFF"]
     return {rid: cycle[i % len(cycle)] for i, rid in enumerate(run_ids)}
@@ -1260,7 +1320,7 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     """Overlay every series' ``metric`` on one axes and return the figure.
 
     Each series is drawn **over its own epochs**. Runs of different lengths are
-    not truncated to the shortest or padded to the longest: the lines simply
+    not truncated to the shortest or padded to the longest: the lines
     end where the runs ended, and the axes annotation says so.
 
     Colour identifies the run, line style the split (train dashed, validation
@@ -1287,7 +1347,12 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     from matplotlib import pyplot as plt
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=figsize)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
 
@@ -1388,6 +1453,8 @@ def _table(rows: Sequence[Sequence[str]], indent: str = "  ") -> List[str]:
 def format_comparison(comparison: Comparison, metric: str = "accuracy",
                       max_drift_names: int = 6) -> str:
     """Render a :class:`Comparison` as a console report.
+
+    :param comparison: completed run comparison to render.
 
     Ordering mirrors :func:`spacr.run_journal.format_run_diff`: the runs, then
     the curves, then the settings that changed (the signal), then environment

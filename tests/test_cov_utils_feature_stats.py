@@ -505,6 +505,24 @@ def test_perform_statistical_tests_splits_normal_and_non_normal():
     assert "cluster" not in set(anova_df["Feature"]) | set(kruskal_df["Feature"])
 
 
+def test_one_cluster_keeps_features_without_inventing_a_group_test():
+    """A valid one-population clustering has no between-group statistic."""
+    from spacr.utils import cluster_feature_analysis, perform_statistical_tests
+
+    df = _clustered_df()
+    df["cluster"] = 0
+
+    anova_df, kruskal_df = perform_statistical_tests(
+        df, cluster_col="cluster")
+    tested = pd.concat([anova_df, kruskal_df], ignore_index=True)
+    assert set(tested["Feature"]) == {"signal", "noise"}
+    assert tested.filter(regex="Statistic|pValue").isna().all().all()
+
+    combined = cluster_feature_analysis(df, cluster_col="cluster")
+    assert set(combined["Feature"]) == {"signal", "noise"}
+    assert combined.filter(regex="Statistic|pValue").isna().all().all()
+
+
 def test_combine_results_left_joins_on_feature():
     from spacr.utils import combine_results
     rf = pd.DataFrame({"Feature": ["a", "b"], "Importance": [0.7, 0.3]})

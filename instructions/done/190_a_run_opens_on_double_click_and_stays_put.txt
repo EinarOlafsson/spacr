@@ -1,0 +1,106 @@
+================================================================================
+A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
+================================================================================
+
+Status:    DONE 2026-08-20. See the closing section.
+Requested: 2026-08-20 -- "for some reason clicking once on a run shows the
+           results. double click should loade the results, but the user
+           should have to click the results tab to go there, no auto
+           switching tabs."
+Owner:     Qt GUI (Runs tab)
+
+THREE SEPARATE BEHAVIOURS, and the report names all three:
+
+  SINGLE CLICK      selects. It must not load anything. Selecting a row to
+                    read its name, or to arrow down through a list, currently
+                    loads a whole run's results.
+  DOUBLE CLICK      loads. The standard gesture for "open this", and the one
+                    that should cost time.
+  NEITHER SWITCHES  the tab. "no auto switching tabs" -- a view that moves on
+  THE TAB           its own takes the user somewhere they did not ask to go,
+                    and loses whatever they were looking at.
+
+WHY IT IS WORTH DOING PROPERLY. Loading on selection means arrowing through
+five runs loads five runs; on a large screen that is five multi-second reads
+nobody asked for. And a tab that changes under you is the specific complaint
+-- the results arriving is fine, being MOVED to them is not.
+
+SAY IT LANDED, since the tab no longer moves to prove it. A run whose results
+have loaded while the user is on another tab needs to say so somewhere they
+will see -- the Results tab's own label, or the status line.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Selecting a run with one click, or with the arrow keys, loads nothing.
+* Double-clicking loads it.
+* The current tab is the same before and after, in both cases.
+* Something says the results are ready without moving the user to them.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- DONE, AND THE THREE TESTS IT LEFT BEHIND ARE FIXED.
+--------------------------------------------------------------------------------
+
+The behaviour shipped at `ecbc0410`: selection shows the run's photograph and
+its detail and costs nothing, double-click loads, and nothing raises the
+Results tab. The console says the run opened, since the tab no longer moves
+to prove it.
+
+WHAT WAS NOT DONE THEN was the tests that described the old behaviour, and
+each was wrong differently:
+
+  * `_pick` did `selectRow` and called it a click. It selects and
+    double-clicks now.
+  * The read is OFF THE GUI THREAD (159), so asserting on the next line
+    asserts against a run that has not finished being read. Two helpers spin
+    for it and fail saying what they actually got.
+  * One test asserted that picking a run RAISED the Results tab, which is the
+    exact opposite of what this instruction asks for. Inverted, with the
+    supersession written into it so the next reader does not put it back.
+
+AND TWO THAT WERE NOT ABOUT 190 AT ALL, found while fixing those. A menu
+order test read `verbs[1] == "remove"` -- a claim about how many entries the
+menu has -- and broke when 180 D's Restore entry landed between Load and
+Remove, on a menu whose ordering rule still held. And `all(isEnabled())`
+turned instruction 106 into a failure: `restore` is deliberately greyed with
+a reason for a run that saved no workspace.
+
+54 pass across the four runs-tab suites.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: "NOTHING RAISES THE RESULTS TAB" WAS TRUE OF ONE CALL
+              OUT OF THREE.
+--------------------------------------------------------------------------------
+
+The closing section above says the tab no longer moves. It moved.
+
+`_show_trial` held THREE `_raise_the_results_tab()` calls and the 190 change
+removed one -- the one at the end of `_on_trial_loaded`, after a successful
+read. Two survived:
+
+  * the ALREADY-ON-SCREEN fast path, taken when the double-clicked run is the
+    one the panel already holds; and
+  * the line immediately after `panel.start_load(folder)` succeeds, which is
+    every double-click that actually starts a read.
+
+WHY THE TEST DID NOT SEE IT. `test_opening_a_run_leaves_the_user_where_they_
+were` opens `ols_11` -- which the fixture's own `record_run` has already
+loaded through `_rebuild`. `_show_trial` then finds a load already running,
+returns early, and never reaches either surviving call. The one run the test
+picks is the one run that takes neither branch.
+
+Measured: standing on Runs and opening the OTHER run moved the user to
+Results, and so did re-opening the run already on screen.
+
+Both calls are gone. The fast path now says "<run> is already loaded — open
+the Results tab to see it", since it is the one path that never reaches
+`_on_trial_loaded` and so was the one that would have gone silent.
+
+The two calls OUTSIDE `_show_trial` are left alone and are not this
+instruction's business: raising Results when the user clicks a pinned tile,
+and when they explicitly open a run beside the loaded one, are answers to a
+request to see results rather than a tab moving on its own.
+
+Two tests added to `tests/test_results_follows_the_selected_run.py`, one per
+surviving call; both fail against the old code.

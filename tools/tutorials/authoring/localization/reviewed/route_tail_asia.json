@@ -1,0 +1,115 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Sparse human-reviewed Asian-language repairs for navigation scenes whose older machine translations dropped settings, changed scientific terms, or became ungrammatical. Scene indices are one-based and follow lessons_en.json."
+  },
+  "lessons": {
+    "10_classify_cv": {"languages": {
+      "hi": {"narrations": {"2": "Core अनुभाग से Classify, computer vision खोलें। Plate Sources and Workflow में मापे गए प्रोजेक्ट और चलाए जाने वाले चरण चुने जाते हैं: डेटा विभाजन बनाना, प्रशिक्षण देना, मूल्यांकन करना या मौजूदा चेकपॉइंट लागू करना।"}},
+      "ja": {"narrations": {"2": "Core セクションから Classify, computer vision を開きます。Plate Sources and Workflow では、測定済みプロジェクトと、データ分割の作成、学習、評価、既存チェックポイントの適用のうち実行する段階を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Core 部分打开 Classify, computer vision。Plate Sources and Workflow 用于选择已测量的项目及要执行的阶段：构建数据划分、训练、评估或应用现有检查点。"}}
+    }},
+    "11_classify_ml": {"languages": {
+      "hi": {"narrations": {"2": "Core अनुभाग से Classify, machine learning खोलें। Labels and Classes में मापन प्रोजेक्ट, लेबल फ़ील्ड, धनात्मक और ऋणात्मक मान तथा प्रयोगात्मक समूह चुने जाते हैं। मॉडल फ़िट करने से पहले इस मैपिंग के जैविक अर्थ की पुष्टि करें।"}},
+      "ja": {"narrations": {"2": "Core セクションから Classify, machine learning を開きます。Labels and Classes では、測定プロジェクト、ラベルフィールド、陽性値と陰性値、実験グループを選択します。モデルを適合する前に、このマッピングの生物学的な意味を確認してください。"}},
+      "zh-CN": {"narrations": {"2": "从 Core 部分打开 Classify, machine learning。Labels and Classes 用于选择测量项目、标签字段、阳性值和阴性值以及实验分组。拟合模型之前，请确认该映射的生物学含义。"}}
+    }},
+    "14_make_masks": {"languages": {
+      "hi": {"narrations": {"2": "Segmentation models अनुभाग से Make Masks खोलें। Tools कार्ड में पेंट, इरेज़, तीव्रता-संवेदी वैंड और ज़ूम मोड व्यवस्थित हैं। दिखाई देने वाली मास्क त्रुटि को ठीक करने वाला सबसे छोटा उपयुक्त ऑपरेशन चुनें।"}},
+      "ja": {"narrations": {"2": "Segmentation models セクションから Make Masks を開きます。Tools カードには、描画、消去、輝度に応じて選択するワンド、ズームの各モードがあります。観察されたマスクの誤りを修正できる最小限の操作を選択してください。"}},
+      "zh-CN": {"narrations": {"2": "从 Segmentation models 部分打开 Make Masks。Tools 卡片包含绘制、擦除、强度感知魔棒和缩放模式。请选择能够修正所观察掩膜错误的最小操作。"}}
+    }},
+    "16_activation": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Activation maps खोलें। Model and Data में क्रॉप आर्काइव, प्रशिक्षित मॉडल फ़ाइल, आर्किटेक्चर, इनपुट आकार, ऑब्जेक्ट प्रकार और चैनल क्रम चुने जाते हैं। ये सभी प्रशिक्षण विन्यास से मेल खाने चाहिए, अन्यथा प्रत्येक अट्रिब्यूशन अमान्य होगा।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Activation maps を開きます。Model and Data では、クロップアーカイブ、学習済みモデルファイル、アーキテクチャ、入力サイズ、オブジェクト種別、チャネル順序を選択します。これらが学習時の設定と一致しない場合、すべてのアトリビューションが無効になります。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Activation maps。Model and Data 用于选择裁剪图归档、已训练模型文件、架构、输入大小、对象类型和通道顺序。这些设置必须与训练时一致，否则所有归因结果都无效。"}}
+    }},
+    "23_agreement": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Annotator Agreement खोलें। measurements डेटाबेस या रन फ़ोल्डर खोलें। spaCR उन एनोटेशन और पूर्वानुमान कॉलम का पता लगाता है जो समान ऑब्जेक्ट को संदर्भित करते हैं।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Annotator Agreement を開きます。measurements データベースまたは実行フォルダーを開きます。spaCR は、同じオブジェクトを参照するアノテーション列と予測列を検出します。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Annotator Agreement。打开 measurements 数据库或运行文件夹。spaCR 会查找引用相同对象的标注列和预测列。"}}
+    }},
+    "24_plaque": {"languages": {
+      "hi": {"narrations": {"2": "Toxoplasma assays अनुभाग से Plaque Assay खोलें। प्लाक-इमेज फ़ोल्डर चुनें और तय करें कि स्रोत छवियों को विभाजित करना है या सही नाम वाले लेबल मास्क का पुनः उपयोग करना है।"}},
+      "ja": {"narrations": {"2": "Toxoplasma assays セクションから Plaque Assay を開きます。プラーク画像のフォルダーを選択し、元画像を分割するか、正しく命名されたラベルマスクを再利用するかを決めます。"}},
+      "zh-CN": {"narrations": {"2": "从 Toxoplasma assays 部分打开 Plaque Assay。选择菌斑图像文件夹，并决定是分割源图像，还是重复使用名称正确的标签掩膜。"}}
+    }},
+    "26_invasion": {"languages": {
+      "hi": {"narrations": {"2": "Toxoplasma assays अनुभाग से Invasion Assay खोलें। ऐसा प्रयोग चुनें जिसमें परजीवी माप, रंगाई चैनल, नियंत्रण और प्लेट मेटाडेटा उपलब्ध हों।"}},
+      "ja": {"narrations": {"2": "Toxoplasma assays セクションから Invasion Assay を開きます。寄生虫の測定値、染色チャネル、対照、プレートメタデータを含む実験を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Toxoplasma assays 部分打开 Invasion Assay。选择包含寄生虫测量值、染色通道、对照和板元数据的实验。"}}
+    }},
+    "27_replication": {"languages": {
+      "hi": {"narrations": {"2": "Toxoplasma assays अनुभाग से Replication Assay खोलें। प्रयोग का रूट फ़ोल्डर चुनें और पुष्टि करें कि मेज़बान कोशिकाओं, वैक्यूल और परजीवियों के पहचानकर्ता स्थिर हैं।"}},
+      "ja": {"narrations": {"2": "Toxoplasma assays セクションから Replication Assay を開きます。実験ルートを選択し、宿主細胞、液胞、寄生虫に安定した識別子があることを確認します。"}},
+      "zh-CN": {"narrations": {"2": "从 Toxoplasma assays 部分打开 Replication Assay。选择实验根目录，并确认宿主细胞、液泡和寄生虫具有稳定的标识符。"}}
+    }},
+    "28_training_runs": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Training Runs खोलें। संगत प्रशिक्षण रन वाला फ़ोल्डर या रजिस्ट्री चुनें और उसे स्कैन करें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Training Runs を開きます。互換性のある学習実行を含むフォルダーまたはレジストリを選択してスキャンします。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Training Runs。选择包含兼容训练运行的文件夹或注册表，然后进行扫描。"}}
+    }},
+    "29_report": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Report खोलें। पूरा हुआ प्रोजेक्ट या रन फ़ोल्डर चुनें और उसमें उपलब्ध साक्ष्य स्कैन करें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Report を開きます。完了済みのプロジェクトまたは実行フォルダーを選択し、利用可能なエビデンスをスキャンします。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Report。选择已完成的项目或运行文件夹，并扫描其中可用的证据。"}}
+    }},
+    "30_plate_queue": {"languages": {
+      "hi": {"narrations": {"2": "Data and batch runs अनुभाग से Plate Queue खोलें। वर्तमान में विन्यस्त मॉड्यूल या तैयार प्लेट स्रोत को कतार में जोड़ें।"}},
+      "ja": {"narrations": {"2": "Data and batch runs セクションから Plate Queue を開きます。現在設定されているモジュールまたは準備済みのプレートソースをキューに追加します。"}},
+      "zh-CN": {"narrations": {"2": "从 Data and batch runs 部分打开 Plate Queue。将当前已配置的模块或准备好的板数据源添加到队列。"}}
+    }},
+    "31_external_masks": {"languages": {
+      "hi": {"narrations": {"2": "Data and batch runs अनुभाग से External Masks खोलें। छवि और मास्क स्रोत जोड़ें, फिर पुष्टि करें कि spaCR ने उनकी अपेक्षित भूमिकाएँ सही पहचानी हैं।"}},
+      "ja": {"narrations": {"2": "Data and batch runs セクションから External Masks を開きます。画像とマスクのソースを追加し、spaCR が意図した役割を検出したことを確認します。"}},
+      "zh-CN": {"narrations": {"2": "从 Data and batch runs 部分打开 External Masks。添加图像和掩膜来源，然后确认 spaCR 检测到预期的角色。"}}
+    }},
+    "32_align_stitch": {"languages": {
+      "hi": {"narrations": {"2": "Data and batch runs अनुभाग से Align and Stitch खोलें। स्रोत अधिग्रहण को बदले बिना टाइल फ़ोल्डर और गंतव्य चुनें।"}},
+      "ja": {"narrations": {"2": "Data and batch runs セクションから Align and Stitch を開きます。元の取得データを変更せずに、タイルフォルダーと出力先を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Data and batch runs 部分打开 Align and Stitch。选择图块文件夹和目标位置，同时保持原始采集数据不变。"}}
+    }},
+    "33_plate_viewer": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Plate Viewer खोलें। measurements डेटाबेस या रन फ़ोल्डर खोलें। स्रोत से केवल पढ़ने योग्य क्वेरी की जाती है।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Plate Viewer を開きます。measurements データベースまたは実行フォルダーを開きます。ソースへのクエリは読み取り専用です。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Plate Viewer。打开 measurements 数据库或运行文件夹。系统仅以只读方式查询数据源。"}}
+    }},
+    "38_distributed_jobs": {"languages": {
+      "hi": {"narrations": {"2": "Data and batch runs अनुभाग से Distributed Jobs खोलें। रिमोट प्रोफ़ाइल, कनेक्शन विधि, कार्य निर्देशिका, वातावरण और डेटा पथ विन्यस्त करें।"}},
+      "ja": {"narrations": {"2": "Data and batch runs セクションから Distributed Jobs を開きます。リモートプロファイル、接続方法、作業ディレクトリ、環境、データパスを設定します。"}},
+      "zh-CN": {"narrations": {"2": "从 Data and batch runs 部分打开 Distributed Jobs。配置远程配置文件、连接方式、工作目录、运行环境和数据路径。"}}
+    }},
+    "39_classifier_evaluation": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Classifier Evaluation खोलें। ऐसे पूर्वानुमान चुनें जिनके साथ ग्राउंड-ट्रुथ, विभाजन मेटाडेटा, प्लेट पहचानकर्ता, प्रायिकताएँ और मॉडल-रन रिकॉर्ड उपलब्ध हों।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Classifier Evaluation を開きます。グラウンドトゥルース、分割メタデータ、プレート識別子、確率、モデル実行記録を含む予測結果を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Classifier Evaluation。选择包含真实标签、数据划分元数据、板标识符、预测概率和模型运行记录的预测结果。"}}
+    }},
+    "40_run_history": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Run History खोलें। वर्तमान कार्यक्षेत्र या चुने गए प्रोजेक्ट रूट की रन रजिस्ट्री खोलें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Run History を開きます。現在のワークスペースまたは選択したプロジェクトルートの実行レジストリを開きます。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Run History。打开当前工作区或所选项目根目录的运行注册表。"}}
+    }},
+    "47_barcode_qc": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Barcode QC खोलें। प्लेट और लाइब्रेरी मेटाडेटा वाला पूरा हुआ बारकोड-मैपिंग रन खोलें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Barcode QC を開きます。プレートとライブラリのメタデータを含む完了済みバーコードマッピング実行を開きます。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Barcode QC。打开包含板和文库元数据的已完成条码映射运行。"}}
+    }},
+    "48_hit_list": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Hit List खोलें। पूरा हुआ विश्लेषण और वे परिणाम कॉलम चुनें जो स्क्रीनिंग परिणाम को परिभाषित करते हैं।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Hit List を開きます。完了済みの解析と、スクリーニング結果を定義する結果列を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Hit List。选择已完成的分析，以及用于定义筛选结果的结果列。"}}
+    }},
+    "49_methods_results": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Methods & Results खोलें। दस्तावेज़ के समर्थन में उपयोग किए जाने वाले प्रोजेक्ट और पूरे हुए रन चुनें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Methods & Results を開きます。文書の根拠として使用するプロジェクトと完了済みの実行を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Methods & Results。选择用于支持文档内容的项目和已完成运行。"}}
+    }},
+    "51_control_charts": {"languages": {
+      "hi": {"narrations": {"2": "Results and quality control अनुभाग से Control Charts खोलें। प्लेट क्रम और बेसलाइन मेटाडेटा सहित बार-बार मापे गए नियंत्रण चुनें।"}},
+      "ja": {"narrations": {"2": "Results and quality control セクションから Control Charts を開きます。プレート順序とベースラインのメタデータを含む、反復測定された対照を選択します。"}},
+      "zh-CN": {"narrations": {"2": "从 Results and quality control 部分打开 Control Charts。选择包含板顺序和基线元数据的重复对照测量。"}}
+    }}
+  }
+}

@@ -17,7 +17,7 @@ record fires mid-toggle.
 Design:
 
 * One :class:`_ConsoleForwarder` handler is added to the root ``spacr``
-  logger (and to ``spacr.qt``). Its emit() hands the formatted line to
+  logger. Its emit() hands the formatted line to
   :class:`_ConsoleRelay`, which delivers it to whatever ConsolePanel is
   registered via :func:`register_console_target`.
 * Registration is a weak reference to avoid keeping a closed screen
@@ -70,6 +70,7 @@ _console_ref: "Optional[weakref.ReferenceType[Any]]" = None
 _handler: "Optional[_ConsoleForwarder]" = None
 _relay: "Optional[_ConsoleRelay]" = None
 _file_handler: "Optional[RotatingFileHandler]" = None
+_SINK_LOGGER = "spacr"
 _ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
                         "spacr.qt.plate_queue", "spacr.qt.hf_download",
                         "spacr.updater", "spacr.trace")
@@ -173,7 +174,7 @@ def current_log_file() -> Path:
 
 
 def _ensure_file_handler() -> RotatingFileHandler:
-    """Attach a rotating file handler to every attached spaCR logger.
+    """Attach a rotating file handler once at the spaCR package root.
 
     Idempotent. The handler writes to ``~/.spacr/logs/spacr-YYYYMMDD.log``,
     rotates at 5 MB, and keeps 5 backups. Always attached — this is
@@ -200,15 +201,22 @@ def _ensure_file_handler() -> RotatingFileHandler:
         # If we can't open the file, don't crash — just skip file
         # logging so the app still runs.
         return None                                                       # type: ignore[return-value]
-    handler.setFormatter(logging.Formatter(
-        fmt="%(asctime)s %(name)s %(levelname)s  %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    ))
+    # COMPACT FOR THE TRACE, ordinary for everything else. See
+    # `_CompactTraceFormat`: on a trace line the level is always DEBUG, the
+    # logger is always `spacr.trace`, and the date is the same on every line
+    # of one run -- so the prefix was longer than the message it introduced.
+    from ..logging_util import _CompactTraceFormat
+
+    handler.setFormatter(_CompactTraceFormat(
+        "%(asctime)s %(name)s %(levelname)s  %(message)s"))
     handler.setLevel(logging.INFO)
+    sink = logging.getLogger(_SINK_LOGGER)
+    if handler not in sink.handlers:
+        sink.addHandler(handler)
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
-        if handler not in logger.handlers:
-            logger.addHandler(handler)
+        if name != _SINK_LOGGER and handler in logger.handlers:
+            logger.removeHandler(handler)
         # Ensure records propagate to the root logger's format if any.
         logger.setLevel(min(logger.level or logging.INFO, logging.INFO))
     _file_handler = handler
@@ -240,6 +248,7 @@ class _ConsoleRelay(QObject):
     line = Signal(str)
 
     def __init__(self) -> None:
+        """Connect the line signal so records reach the GUI thread."""
         super().__init__()
         self.line.connect(self._deliver)
         app = QCoreApplication.instance()
@@ -301,6 +310,18 @@ class _ConsoleForwarder(logging.Handler):
         # this thread is inside a console write is a record *about* that
         # write. Formatting and emitting it would run more spaCR code, which
         # under the function-trace profile hook produces more records still.
+        """Forward one record to the console, unless that would recurse.
+
+        The feedback loop is cut as early as possible: a record emitted while
+        this thread is inside a console write is a record ABOUT that write, and
+        formatting it would run more spaCR code -- which under the function-trace
+        profile hook produces more records still.
+
+        A logging failure never escapes into the application: a broken log line
+        is not worth a crash.
+
+        :param record: the log record.
+        """
         if console_write_in_progress():
             return
         if _console_ref is None or _console_ref() is None:
@@ -313,9 +334,58 @@ class _ConsoleForwarder(logging.Handler):
             pass
 
 
+class _NotAlreadyShownByTheRootSink(logging.Filter):
+    """Drop records the always-on console sink is going to render anyway.
+
+    THE SAME ARGUMENT AS :func:`_ensure_handler`'S, ONE LEVEL UP. That
+    docstring already says attaching a handler to both a child and its
+    ancestors delivers one record repeatedly as logging walks upward. Nobody
+    applied it ACROSS modules: this forwarder sits on ``spacr`` while
+    ``spacr.qt.logging_util`` puts its ``QtLogHandler`` on the ROOT, and every
+    ``ConsolePanel`` subscribes to both. A record from ``spacr.qt`` therefore
+    walked spacr -> root and was rendered twice, in two different formats:
+
+        [13:48:12] spacr.qt WARNING  Qt warning: ...     <- this forwarder
+        13:48:12 [WARNING] spacr.qt: Qt warning: ...     <- QtLogHandler
+
+    which is exactly what was seen on macOS. Neither copy is
+    the raw stderr print in ``_install_quiet_qt_logging``; both are formatted
+    records, which is why looking at that print explained nothing.
+
+    Verbose mode exists to ADD the detail the ordinary sink filters out -- the
+    DEBUG and trace records below its level -- not to restate what it already
+    showed. So the rule is: render a record only when the root sink will not.
+    When there is no Qt sink (a headless or non-Qt process) this passes
+    everything, which is the behaviour verbose logging had before.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+        """Pass only records the root console sink will not already show.
+
+        Without this, a record above the root sink's level reaches the console
+        twice -- once from each handler -- and the duplicate reads as the
+        pipeline having done something twice.
+
+        :param record: the log record.
+        :returns: ``True`` to let it through; ``True`` also when the root sink
+            cannot be found, because one line is better than none.
+        """
+        try:
+            from .logging_util import get_signal_handler
+            root_sink = get_signal_handler()
+        except Exception:                                    # noqa: BLE001
+            return True
+        if root_sink not in logging.getLogger().handlers:
+            return True
+        return record.levelno < root_sink.level
+
+
 def _ensure_handler() -> _ConsoleForwarder:
-    """Attach the single :class:`_ConsoleForwarder` to every spaCR
-    logger. Idempotent — safe to call from anywhere."""
+    """Attach the console sink once at ``spacr``'s package logger.
+
+    Descendants propagate there. Attaching the same handler to both a child
+    and its ancestors delivers one record repeatedly as logging walks upward.
+    """
     global _handler
     if _handler is None:
         _handler = _ConsoleForwarder()
@@ -323,10 +393,14 @@ def _ensure_handler() -> _ConsoleForwarder:
             fmt="[%(asctime)s] %(name)s %(levelname)s  %(message)s",
             datefmt="%H:%M:%S",
         ))
+        _handler.addFilter(_NotAlreadyShownByTheRootSink())
+    sink = logging.getLogger(_SINK_LOGGER)
+    if _handler not in sink.handlers:
+        sink.addHandler(_handler)
     for name in _ATTACHED_LOGGERS:
         logger = logging.getLogger(name)
-        if _handler not in logger.handlers:
-            logger.addHandler(_handler)
+        if name != _SINK_LOGGER and _handler in logger.handlers:
+            logger.removeHandler(_handler)
     return _handler
 
 
@@ -409,17 +483,11 @@ def apply_verbose_logging(on: bool) -> None:
         file_handler.setLevel(level)
     for name in _ATTACHED_LOGGERS:
         logging.getLogger(name).setLevel(level)
-    # Cover internal helpers and class methods too.  Entry-point decorators
-    # alone miss most of a pipeline; the package-level profiler filters to
-    # spacr source files and is completely removed when verbose mode is off.
-    from ..logging_util import (
-        disable_function_trace,
-        enable_function_trace,
-    )
-    if on:
-        enable_function_trace()
-    else:
-        disable_function_trace()
+    # Keep the interpreter-wide profiler an explicit developer tool. Even a
+    # filtered profile hook runs for every Python call in every thread, so it
+    # cannot be part of an always-on GUI preference. Decorated entry points,
+    # button presses, and ordinary DEBUG records still provide the useful
+    # verbose trail without imposing that process-wide cost.
     if on:
         # Nudge cellpose's own logger to INFO so its "loaded model X"
         # breadcrumbs come through. We deliberately DO NOT touch
@@ -455,6 +523,11 @@ def log_call(fn: Callable) -> Callable:
     """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
+        """Call the function, logging it only when verbose is on.
+
+        The check is INSIDE rather than at decoration time, so switching verbose
+        on mid-session takes effect without rebuilding anything.
+        """
         if not is_verbose():
             return fn(*args, **kwargs)
         label = _label_for(fn, args)

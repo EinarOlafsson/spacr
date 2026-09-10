@@ -1,0 +1,40 @@
+{
+  "lesson": "36_import",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "8f584353448403fe7ae7b043ea0b34938bf2ea0698159097f70bff6f161ed3f2",
+  "scene_count_per_catalog": 16,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 8990,
+    "duration_seconds": 299.666667, "audio_streams": 0, "bytes": 21242396,
+    "sha256": "5f9cee3a80f45281ed088e93eccd87e5f12f315eea16004090d0c79cce7bd26e"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Retained specialist scene links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "recording": {
+    "application_commit": "8ba3c6b2a678e97b97fc93d255cf19945822bad7",
+    "package_version": "1.5.0.4",
+    "capture_directory": "refresh_2026-09-09/captures/foreign_release_v2",
+    "actual_import": "Two fields, one intensity channel and cell masks; 103 measured objects, stored in each of two tables",
+    "source": "Unchanged TIFF planes from Measure's genuine downloaded example; exact pixel areas and means computed from those same masks",
+    "checks": ["Real pickers and F2 mapping edits", "Inferred foreign prefixes", "Actual reserved-name refusal and recovery", "103/103 mask-object joins", "Saved mapping restores an unsaved target change", "Converted and merged image/label pixels unchanged", "Area and mean verified by source-image/object identity", "All original inputs unchanged"],
+    "folds": ["import_images", "convert", "external_masks"],
+    "spacr_measurement_pipeline_run": false,
+    "physical_calibration": null,
+    "neutral_fov_names_recover_original_acquisition_wells_automatically": false,
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 582, "refreshed": 9, "unselected_lessons_unchanged": 66, "unselected_media_replaced": false},
+  "synthesis": "One CUDA synthesis process at a time, capped to 10% of video memory, two CPU threads and the 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/36_import and refresh_2026-09-09/browser/36_import in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and actual import results; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

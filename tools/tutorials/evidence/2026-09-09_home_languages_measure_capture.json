@@ -1,0 +1,39 @@
+{
+  "application_commit": "2171264a618a997567c1ae98e275644992989464",
+  "home": {
+    "editorially_reviewed_translation_languages": ["es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "de", "sv", "is", "nb", "ko", "da"],
+    "catalogs_with_nine_current_scenes_and_matching_specialist_links": 14,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "fully_decoded_freshness_checked_tracks": 33,
+    "verified_audio_languages": ["en", "es", "fr", "it", "pt-BR"],
+    "audio_errors": 0,
+    "spanish_browser": {
+      "voice": "ef_dora", "passed": true, "loaded_bytes_match_generated_file": true,
+      "audio_sha256": "29c2b36a263e72633e33ad8bbc596da8e2a74151e78055f379c677b3edc951b0",
+      "scene_count": 9, "video_duration_seconds": 147.4,
+      "audio_duration_seconds": 162.4,
+      "seek_audio_seconds": 85.096489, "seek_video_seconds": 79.465714,
+      "expected_video_seconds": 79.40614650077005,
+      "mobile_viewport_width": 390
+    },
+    "remaining_voices": 17,
+    "published": false
+  },
+  "measure": {
+    "real_downloaded_merged_data": true,
+    "preview_crop_counts": [38, 19, 38],
+    "preview_minimum_area_pixels": [8000, 26767, 8000],
+    "source_array_unchanged": true,
+    "propagation_off_preserves_form": true,
+    "propagation_on_updates_form": true,
+    "normalization_warning_shown_and_declined": true,
+    "saved_crops_normalized": false,
+    "test_fields": 1, "workers": 1, "plot": true,
+    "figures": 3, "worker_ok": true, "partial_output_markers": false,
+    "form_changes_between_start_and_finish": {},
+    "remaining_ui_issue": "The successor strip reports stale measurements despite an unchanged form; reported to application owners.",
+    "lesson_media_generated": false,
+    "evidence_directory": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/measure"
+  }
+}

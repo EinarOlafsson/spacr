@@ -71,12 +71,32 @@ class TrellisCanvas(GraphCanvas):
     linked selection, brushing, the large-data policy, the colour order — with
     the layout and the scales taken from
     :class:`~spacr.qt.widgets.trellis_spec.TrellisSpec`.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
     """
 
     #: Emitted after every render with the :class:`Trellis` that was drawn.
     trellis_rendered = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
+        """Create the trellis canvas with an empty spec.
+
+        The spec is set after the base constructor, which builds the figure and
+        subscribes to the link but does not render -- so nothing reads these
+        before they exist.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link.
+        :param source: this view's name in the link, so its own publications can
+            be told from everyone else's.
+        """
         super().__init__(parent, link=link, source=source)
         # After the base constructor, which builds the figure and subscribes
         # to the link but does not render — so nothing reads these before
@@ -87,6 +107,10 @@ class TrellisCanvas(GraphCanvas):
     # -- the spec ---------------------------------------------------------
     @property
     def trellis_spec(self) -> TrellisSpec:
+        """The grid this canvas is drawing.
+
+        :returns: the trellis spec.
+        """
         return self._trellis_spec
 
     @property
@@ -114,6 +138,11 @@ class TrellisCanvas(GraphCanvas):
                               immediate=immediate)
 
     def set_channel(self, channel: str, column: Optional[str]) -> None:
+        """Rebind one of the graph's channels and redraw.
+
+        :param channel: the channel's name, such as ``x`` or ``facet_row``.
+        :param column: the column to bind, or None to clear it.
+        """
         self.set_spec(self._spec.with_channel(channel, column))
 
     # -- rendering --------------------------------------------------------
@@ -255,6 +284,15 @@ class TrellisCanvas(GraphCanvas):
             ax.set_title(title, color=colour, fontsize=8, pad=3)
 
     def _trellis_notice(self, result: Trellis) -> str:
+        """Compose the line under the trellis.
+
+        It states what was drawn, then anything that limits how it should be
+        read: a table with no object keys cannot publish a brush, an active
+        filter is narrowing it, and how many points are highlighted.
+
+        :param result: the computed trellis.
+        :returns: the notice, parts joined by a middle dot.
+        """
         parts = [result.summary()]
         if not self._keyed:
             parts.append("no object keys in this table — brushing cannot "
@@ -316,11 +354,28 @@ class TrellisPanelWidget(QWidget):
     :class:`~spacr.qt.widgets.graph_builder.DropZone` unchanged, so a column
     dragged here and a column dragged in the Graph Builder are the same
     gesture with the same payload type.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        view joins, so selecting here selects in every other view on it.
+        ``None`` joins the shared one; pass a private one in a test so the
+        selection does not reach the rest of the application.
+    :param source: this view's name on that link, stamped onto everything it
+        publishes -- which is how a view knows not to answer its own
+        selection.
+
+    The three are handed straight to the :class:`TrellisCanvas` this builds.
     """
 
     spec_changed = Signal(object)
 
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
+        """Build the channel shelf beside the trellis canvas.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the canvas.
+        :param source: this view's name in the link.
+        """
         super().__init__(parent)
         self.setObjectName("TrellisPanel")
         self._zones: Dict[str, DropZone] = {}
@@ -414,36 +469,74 @@ class TrellisPanelWidget(QWidget):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setSizes([300, 900])
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the panel at a new table.
+
+        :param frame: the rows to plot, or None to clear.
+        """
         self.well.set_frame(frame)
         self.canvas.set_frame(frame)
         self._sync()
 
     @property
     def spec(self) -> TrellisSpec:
+        """The grid the canvas is drawing.
+
+        :returns: the trellis spec.
+        """
         return self.canvas.trellis_spec
 
     def set_spec(self, spec: TrellisSpec) -> None:
+        """Draw a different grid.
+
+        :param spec: the trellis spec.
+        """
         self.canvas.set_trellis_spec(spec)
         self._sync()
 
     def zone(self, channel: str) -> DropZone:
+        """One channel's drop zone, for a caller that needs to drive it.
+
+        :param channel: the channel's name.
+        :returns: the zone widget, or None when there is no such channel.
+        """
         return self._zones[channel]
 
     def clear_channels(self) -> None:
+        """Empty every drop zone, leaving the table loaded."""
         for zone in self._zones.values():
             zone.set_column(None)
 
     # -- wiring -----------------------------------------------------------
     def _on_zone_changed(self, channel: str, column: str) -> None:
+        """Set a channel to a newly dropped column and announce the spec.
+
+        Suppressed while the panel is filling its own zones from a spec, which
+        would otherwise read as the user re-dropping every column.
+
+        :param channel: which channel changed.
+        :param column: the column now in it; ``""`` clears the channel.
+        """
         if self._building:
             return
         self.canvas.set_channel(channel, column or None)
         self.spec_changed.emit(self.canvas.trellis_spec)
 
     def _on_controls_changed(self, *_args) -> None:
+        """Rebuild the spec from the plot controls and announce it.
+
+        Suppressed while the panel is filling its own controls.
+
+        :param _args: whatever the emitting control passes; ignored, since every
+            control is re-read either way.
+        """
         if self._building:
             return
         spec = self.canvas.trellis_spec
@@ -462,19 +555,34 @@ class TrellisPanelWidget(QWidget):
             spec = self.canvas.trellis_spec
             for channel, zone in self._zones.items():
                 zone.set_column(spec.graph.column_for(channel))
+            # A CONTROL THAT CANNOT SHOW THE SPEC FALLS BACK, it does not keep
+            # the last thing it happened to be showing. Leaving the previous
+            # value made the picker disagree with the spec, and
+            # `_on_controls_changed` reads the PICKER -- so the next touch of
+            # any control silently rewrote the spec to whatever the shelf was
+            # displaying. Instruction 310 A51..A57, entry A56: a spec restored
+            # from a saved layout with kind "empty" left the picker reading
+            # "Histogram", and moving the Bins box turned the spec into a
+            # histogram without the user choosing one.
+            #
+            # Index 0 is the honest answer in both cases: "Automatic" for the
+            # plot kind, "shared" for a scale. Neither claims a specific kind
+            # the spec did not ask for.
             index = self._kind.findData(spec.graph.kind or "")
-            if index >= 0:
-                self._kind.setCurrentIndex(index)
+            self._kind.setCurrentIndex(index if index >= 0 else 0)
             self._bins.setValue(spec.graph.bins)
             for box, mode in ((self._scale_x, spec.scale_x),
                               (self._scale_y, spec.scale_y)):
                 position = box.findData(mode)
-                if position >= 0:
-                    box.setCurrentIndex(position)
+                box.setCurrentIndex(position if position >= 0 else 0)
             self._wrap.setValue(spec.wrap)
         finally:
             self._building = False
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Close the canvas first, so it can unlink from the shared selection.
+
+        :param event: the Qt close event.
+        """
         self.canvas.close()
         super().closeEvent(event)

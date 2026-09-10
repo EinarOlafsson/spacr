@@ -31,6 +31,16 @@ class _WrappedLabel(QLabel):
     correct height and pin the label to that exact size.
     """
     def __init__(self, text: str, wrap_width: int = 560, parent=None):
+        """Build a label whose height is measured, not left to the layout.
+
+        :param text: the sentence to wrap.
+        :param wrap_width: the width to wrap at, and the label's fixed
+            width. THE HEIGHT IS COMPUTED FROM IT rather than requested: a
+            wrapping label that asks the layout for its height gets one
+            answer before the layout runs and another after, which is how an
+            empty state ends up clipped to a single line.
+        :param parent: parent widget.
+        """
         super().__init__(text, parent)
         self._wrap_width = wrap_width
         self.setWordWrap(True)
@@ -58,6 +68,18 @@ class EmptyState(QWidget):
     """Centered vertical stack: icon → title → subtitle → CTA button.
 
     Any element can be omitted by passing an empty string / None.
+
+    :param title: heading, in the page's title weight. Omitted when empty.
+    :param subtitle: one or two sentences under the title saying what the
+        reader can do about the emptiness. Omitted when empty.
+    :param icon: mark above the title. Omitted when ``None``.
+    :param cta_label: caption for the action button. No button is built
+        when this is empty, so a state with nothing to offer costs no
+        widget rather than showing a disabled one.
+    :param on_action: called when that button is pressed. The
+        :attr:`action_triggered` signal is emitted either way, so a host may
+        connect to it instead.
+    :param parent: owning widget, or ``None``.
     """
 
     action_triggered = Signal()
@@ -71,6 +93,15 @@ class EmptyState(QWidget):
         on_action: Optional[Callable[[], None]] = None,
         parent: Optional[QWidget] = None,
     ):
+        """Build the placeholder shown where content would be.
+
+        :param title: the headline.
+        :param subtitle: the sentence under it, saying what to do.
+        :param icon: an icon above the text, or ``None``.
+        :param cta_label: the action button's label; empty shows no button.
+        :param on_action: called when that button is pressed.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["xxl"], SPACING["xxl"],

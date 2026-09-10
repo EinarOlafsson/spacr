@@ -32,7 +32,31 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-from . import convert as cv
+class _LazyConvert:
+    """``spacr.convert``, imported on first attribute access.
+
+    THIS MODULE IS ON THE STARTUP PATH, three links down: the settings model
+    imports the external-mask widget, which imports this, and `convert`
+    imports pandas. The packaged smoke test asserts Home crosses no
+    operation-only import boundary and was failing on pandas for exactly that
+    chain.
+
+    A proxy rather than sixteen function-level imports, so every existing
+    ``cv.something`` reads the same. Safe because this module declares
+    ``from __future__ import annotations``: the annotations that name
+    ``cv.ConversionPlan`` are strings and never evaluated at import.
+    """
+
+    __slots__ = ()
+
+    def __getattr__(self, name: str):
+        """Forward to :mod:`spacr.convert`, imported on first use."""
+        from . import convert
+
+        return getattr(convert, name)
+
+
+cv = _LazyConvert()
 from . import crops
 from .errors import ConfigurationError
 
@@ -61,7 +85,21 @@ _OBJECT_PATTERNS = (
 
 @dataclass
 class InputGroup:
-    """A set of files sharing one proposed role and object type."""
+    """A set of files sharing one proposed role and object type.
+
+    :param key: stable identifier derived from the input root, proposed role,
+        and detected file family.
+    :param root: absolute directory from which the files were detected and
+        later scanned.
+    :param paths: absolute paths assigned to this group.
+    :param role: reviewed ``"image"``, ``"mask"``, or ``"ignore"`` role.
+    :param object_type: proposed spaCR object type for a mask group, or
+        ``None`` when no mask type is assigned.
+    :param confidence: confidence score for the automatic role proposal;
+        detected multi-file groups retain their lowest member score.
+    :param reason: pixel or filename evidence supporting the automatic
+        proposal.
+    """
 
     key: str
     root: str
@@ -72,23 +110,32 @@ class InputGroup:
     reason: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return every group field as a recursively copied plain mapping."""
         return asdict(self)
 
     @classmethod
     def from_value(cls, value: Any) -> "InputGroup":
+        """Normalize a group instance or serialized mapping.
+
+        :param value: existing :class:`InputGroup` or mapping carrying its
+            serialized fields.
+        """
         if isinstance(value, cls):
             return value
         if not isinstance(value, Mapping):
             raise ConfigurationError(
                 "Each external-mask input must be an InputGroup or mapping.")
+        raw_object_type = (
+            str(value["object_type"]) if value.get("object_type") else None)
+        object_type = (
+            raw_object_type if raw_object_type in OBJECT_TYPES else None)
         return cls(
             key=str(value.get("key") or ""),
             root=os.path.abspath(str(value.get("root") or ".")),
             paths=[os.path.abspath(str(path))
                    for path in value.get("paths", [])],
             role=str(value.get("role") or "ignore"),
-            object_type=(str(value["object_type"])
-                         if value.get("object_type") else None),
+            object_type=object_type,
             confidence=float(value.get("confidence") or 0.0),
             reason=str(value.get("reason") or ""),
         )
@@ -98,10 +145,14 @@ class InputGroup:
 class MaskMatch:
     """One label-mask file matched to an intensity-image field.
 
-    :ivar path: Absolute mask-file path.
-    :ivar object_type: spaCR object role such as ``cell`` or ``nucleus``.
-    :ivar stem: Canonical field stem shared with the intensity image.
-    :ivar match: Description of the matching rule that succeeded.
+    :param path: absolute path of the matched source label-mask file; the
+        importer reads this file and reports it in validation errors.
+    :param object_type: valid spaCR object role assigned to the mask group,
+        such as ``cell`` or ``nucleus``.
+    :param stem: canonical ``<plate>_<well>_<field>`` stem of the intensity
+        field to which the mask was paired.
+    :param match: pairing rule that succeeded, currently ``"exact"`` or
+        ``"normalised"`` after stripping mask/object-role suffixes.
     """
 
     path: str
@@ -112,7 +163,21 @@ class MaskMatch:
 
 @dataclass
 class ExternalMaskPlan:
-    """Read-only preview of an external-mask import."""
+    """Read-only preview of an external-mask import.
+
+    :param groups: normalized image, mask, and ignored input groups reviewed for
+        this import.
+    :param images: proposed intensity-image conversion plan.
+    :param masks: spaCR object types mapped to canonical field stems and their
+        matched label-mask files.
+    :param destination: root of the spaCR project that would be written.
+    :param n_channels: number of intensity-image channels in each generated
+        merged field.
+    :param mask_dims: merged-array plane index assigned to each supplied mask
+        type.
+    :param errors: blocking problems that make the preview unrunnable.
+    :param warnings: non-blocking ambiguities shown before the import proceeds.
+    """
 
     groups: List[InputGroup]
     images: cv.ConversionPlan
@@ -125,19 +190,23 @@ class ExternalMaskPlan:
 
     @property
     def stems(self) -> List[str]:
+        """Return sorted field stems covered by every supplied mask type."""
         return sorted(set.intersection(
             *(set(per_stem) for per_stem in self.masks.values())
         )) if self.masks else []
 
     @property
     def object_types(self) -> List[str]:
+        """Return supplied mask roles in canonical object-type order."""
         return [name for name in OBJECT_TYPES if name in self.masks]
 
     @property
     def ok(self) -> bool:
+        """Return whether images, shared fields, and importer checks are valid."""
         return bool(self.images.ok and self.stems and not self.errors)
 
     def summary(self) -> str:
+        """Return a multiline read-only preview of mappings and problems."""
         lines = [
             "External masks → Measure project (preview; nothing written)",
             f"  intensity mappings: {len(self.images)}",
@@ -163,12 +232,12 @@ class ExternalMaskPlan:
 class ExternalMaskResult:
     """Files and database produced by :func:`prepare_external_masks`.
 
-    :ivar destination: Root of the generated spaCR project.
-    :ivar merged: Paths of merged image/mask arrays.
-    :ivar db_path: Generated measurements database.
-    :ivar tables: Measurement tables written to the database.
-    :ivar data_dir: Generated annotation-crop directory.
-    :ivar plan: Validated read-only plan used for the import.
+    :param destination: root of the generated spaCR project.
+    :param merged: paths of generated merged image-and-mask arrays.
+    :param db_path: path of the generated measurements database.
+    :param tables: measurement-table names written to that database.
+    :param data_dir: generated annotation-crop directory.
+    :param plan: validated read-only import plan used to produce these outputs.
     """
 
     destination: str
@@ -179,6 +248,7 @@ class ExternalMaskResult:
     plan: ExternalMaskPlan
 
     def summary(self) -> str:
+        """Return one line naming materialized fields and output locations."""
         return (
             f"Prepared {len(self.merged)} field(s) in {self.destination}. "
             f"measurements.db tables: {', '.join(self.tables) or 'none'}. "
@@ -187,6 +257,11 @@ class ExternalMaskResult:
 
 
 def _all_files(path: Path, recursive: bool) -> List[Path]:
+    """Collect supported files from a file or directory input.
+
+    :param path: input file or directory; missing paths produce no files.
+    :param recursive: descend through directory children when true.
+    """
     if path.is_file():
         return [path] if _supported(path) else []
     if not path.is_dir():
@@ -197,11 +272,17 @@ def _all_files(path: Path, recursive: bool) -> List[Path]:
 
 
 def _supported(path: Path) -> bool:
+    """Return whether a path has a supported suffix, case-insensitively."""
     name = path.name.lower()
     return any(name.endswith(suffix) for suffix in SUPPORTED_SUFFIXES)
 
 
 def _suggest_object(name: str) -> Optional[str]:
+    """Infer the first matching spaCR object role from path-name tokens.
+
+    :param name: filename or path whose stem and parent tokens are inspected.
+    :returns: canonical object type, or ``None`` when no pattern matches.
+    """
     # Include parent folders: externally generated masks are commonly named
     # ``cell_masks/fov001.tif`` rather than ``fov001_cell_mask.tif``.
     stem = cv._split_ext(str(name))[0]
@@ -246,6 +327,8 @@ def detect_inputs(paths: Sequence[Any], *, recursive: bool = True
                   ) -> List[InputGroup]:
     """Detect image and mask groups without writing anything.
 
+    :param paths: input files or directories to inspect and group.
+
     Filename evidence wins when a path explicitly says ``mask``/``labels``.
     Otherwise a bounded pixel sample distinguishes compact integer label
     planes from intensity images.  Every result remains editable in the GUI.
@@ -284,6 +367,12 @@ def detect_inputs(paths: Sequence[Any], *, recursive: bool = True
 
 
 def _coerce_groups(value: Any, *, recursive: bool) -> List[InputGroup]:
+    """Normalize path-like or serialized inputs into reviewed groups.
+
+    :param value: absent input, one path, path sequence, group instances, or
+        serialized group mappings.
+    :param recursive: directory traversal rule used when detecting paths.
+    """
     if value is None:
         return []
     if isinstance(value, (str, os.PathLike)):
@@ -306,6 +395,7 @@ def _scan_group(group: InputGroup, *, layout: str = "auto"
 
 
 def _stem(mapping: cv.Mapping) -> str:
+    """Return the canonical ``plate_well_integer-field`` destination stem."""
     return f"{mapping.plate}_{mapping.well}_{int(mapping.field)}"
 
 
@@ -314,6 +404,16 @@ def _pair_masks(image_plan: cv.ConversionPlan,
                 *,
                 layout: str = "auto",
                 ) -> Tuple[Dict[str, Dict[str, MaskMatch]], List[str], List[str]]:
+    """Pair reviewed mask sources to image fields by canonical identity.
+
+    Exact source identities are preferred before normalized loose-field
+    matching. The return tuple contains mappings by object type, blocking
+    errors, and non-blocking ambiguity warnings.
+
+    :param image_plan: reviewed intensity-image conversion plan.
+    :param groups: reviewed inputs, including zero or more mask groups.
+    :param layout: filename-layout rule forwarded while scanning each group.
+    """
     errors: List[str] = []
     warnings: List[str] = []
     source_to_stem: Dict[Tuple[str, str, str], str] = {}
@@ -502,6 +602,12 @@ def plan_external_masks(settings: Optional[Mapping[str, Any]] = None
 
 
 def _save_npy(path: str, array: np.ndarray) -> str:
+    """Atomically replace one NumPy destination through a PID-specific file.
+
+    :param path: destination ``.npy`` path.
+    :param array: array to serialize.
+    :returns: ``path`` after replacement succeeds.
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     temporary = f"{path}.tmp-{os.getpid()}.npy"
     np.save(temporary, array)
@@ -510,6 +616,7 @@ def _save_npy(path: str, array: np.ndarray) -> str:
 
 
 def _tables(path: str) -> List[str]:
+    """Return sorted SQLite table names, or none for a missing database."""
     if not os.path.isfile(path):
         return []
     with sqlite3.connect(path, timeout=30) as connection:
@@ -726,9 +833,88 @@ def prepare_external_masks(settings: Optional[Mapping[str, Any]] = None
     return result
 
 
+def register_settings(replace: bool = False) -> bool:
+    """Publish this module's settings help through the shared registry.
+
+    External Masks predates the module-registration seam, so its seven
+    importer-specific controls were the only displayed settings in the app
+    registry without authored help.  Registering beside the defaults keeps
+    the inventory, validation types, and tooltip prose together; the Measure
+    settings returned by :func:`default_settings` retain their existing
+    shared declarations.
+
+    :param replace: replace this module's existing defaults registration.
+    :returns: whether a new registration was made.
+    """
+    from .settings import has_registered_defaults, register_defaults
+    from .settings import tooltips as shared_tooltips
+
+    if has_registered_defaults("external_masks") and not replace:
+        return False
+    types = {
+        "inputs": list,
+        "recursive": bool,
+        "layout": str,
+        "z_handling": str,
+        "plate_naming": str,
+        "overwrite": bool,
+        "preview_only": bool,
+    }
+    tips = {
+        "inputs":
+            "(list) - Image and external label-mask files or folders to "
+            "import. The preview groups them by source and proposes whether "
+            "each group is an intensity image, an object mask, or ignored. "
+            "Default [].",
+        "recursive":
+            "(bool) - Search inside subfolders of every input folder. Turn "
+            "this off when only files directly inside each selected folder "
+            "belong to the import. Default True.",
+        "layout":
+            "(str) - Naming-layout hint used to read plate, well, field, "
+            "channel, Z, and time identifiers from source files. 'auto' "
+            "detects the supported layout from the filenames. Default "
+            "'auto'.",
+        "z_handling":
+            "(str) - How multiple Z planes become a 2-D Measure input. "
+            "'max' takes a maximum-intensity projection and 'first' keeps "
+            "only the first plane; inputs that still contain separate planes "
+            "are rejected. Default 'max'.",
+        "plate_naming":
+            "(str) - How imported plates are named when the source does not "
+            "provide one. 'index' assigns stable plate numbers in discovered "
+            "input order. Default 'index'.",
+        "overwrite":
+            "(bool) - Allow the importer to replace files in an existing "
+            "destination project. Leave this off to stop before previously "
+            "written images, masks, or measurements can be replaced. Default "
+            "False.",
+        "preview_only":
+            "(bool) - Build and print the complete input-to-mask assignment "
+            "plan without writing a project or running Measure. Use this to "
+            "review automatic role and object-type detection first. Default "
+            "False.",
+    }
+    # A future shared importer may establish canonical prose first. Preserve
+    # it instead of making module import order decide which wording wins.
+    tips = {key: value for key, value in tips.items()
+            if key not in shared_tooltips}
+    register_defaults(
+        "external_masks", default_settings, replace=replace,
+        expected_types=types, tooltips=tips,
+        description=(
+            "Import images and externally generated label masks as a "
+            "measured spaCR project ready for annotation."),
+    )
+    return True
+
+
+register_settings()
+
+
 __all__ = [
     "InputGroup", "MaskMatch", "ExternalMaskPlan", "ExternalMaskResult",
     "SUPPORTED_SUFFIXES", "OBJECT_TYPES", "ROLES",
     "detect_inputs", "default_settings", "plan_external_masks",
-    "run_external_masks", "prepare_external_masks",
+    "run_external_masks", "prepare_external_masks", "register_settings",
 ]

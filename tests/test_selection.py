@@ -100,7 +100,11 @@ def test_object_keys_on_an_empty_frame_is_empty_not_an_error():
 
 def test_range_filter_keeps_the_closed_interval():
     df = _frame(5, area=[1.0, 5.0, 10.0, 15.0, 20.0])
-    keep = RangeFilter("area", low=5.0, high=15.0).mask(df)
+    rule = RangeFilter("area", low=5.0, high=15.0)
+    assert ":param low:" in (RangeFilter.__doc__ or "")
+    assert ":param high:" in (RangeFilter.__doc__ or "")
+    assert (rule.low, rule.high) == (5.0, 15.0)
+    keep = rule.mask(df)
     assert list(df.loc[keep, "area"]) == [5.0, 10.0, 15.0]
 
 
@@ -121,6 +125,24 @@ def test_nan_never_passes_a_range():
     df = _frame(3, area=[1.0, np.nan, 3.0])
     keep = RangeFilter("area", low=0.0, high=10.0).mask(df)
     assert keep.tolist() == [True, False, True]
+
+
+def test_range_filter_owns_the_mask_it_refines(monkeypatch):
+    """Pandas may return read-only views unless ``copy=True`` is requested."""
+    original = pd.Series.to_numpy
+
+    def read_only_view_by_default(series, *args, **kwargs):
+        array = original(series, *args, **kwargs)
+        if not kwargs.get("copy", False):
+            array.setflags(write=False)
+        return array
+
+    monkeypatch.setattr(pd.Series, "to_numpy", read_only_view_by_default)
+    df = _frame(4, area=[1.0, 5.0, np.nan, 20.0])
+
+    keep = RangeFilter("area", low=2.0, high=10.0).mask(df)
+
+    assert keep.tolist() == [False, True, False, False]
 
 
 def test_a_non_numeric_column_coerces_rather_than_crashing():
@@ -177,6 +199,8 @@ def test_clauses_are_anded():
     f = (DataFilter()
          .add(RangeFilter("area", low=3.0))
          .add(CategoryFilter("rowID", ("r1",))))
+    assert ":param clauses:" in (DataFilter.__doc__ or "")
+    assert len(f.clauses) == 2
     out = f.apply(df)
     assert (out["area"] >= 3.0).all()
     assert set(out["rowID"]) == {"r1"}
@@ -235,6 +259,8 @@ def test_selection_round_trips_through_keys():
     df = _frame(6)
     chosen = df.iloc[[1, 3]]
     sel = Selection.from_frame(chosen, source="umap")
+    assert ":param keys:" in (Selection.__doc__ or "")
+    assert ":param source:" in (Selection.__doc__ or "")
     mask = sel.mask_for(df)
     assert mask.tolist() == [False, True, False, True, False, False]
     assert sel.source == "umap"

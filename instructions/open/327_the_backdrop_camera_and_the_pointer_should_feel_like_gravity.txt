@@ -1,0 +1,416 @@
+327 — THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
+==================================================================
+
+Status:    (2), (3) AND (4) ARE DONE. (3) was wired by the OTHER session on
+           2026-09-09 as `TourPilot`, offered in Preferences as "Tour the
+           interesting places". What is left is ONE thing: the GPU renderer
+           cannot shed work, so a weak integrated GPU asked to draw this
+           fullscreen has nothing to give up. `target_render_size` and the
+           user's `scale` are read only by the CPU widget.
+
+           A SECOND IMPLEMENTATION OF (3) WAS WRITTEN HERE ON 2026-09-10 AND
+           REMOVED ON MERGE. See the note at the foot of this file; the
+           short version is that `git log -12 origin/nightly` showed only
+           the tutorial lane's commits and the two that mattered were
+           further back in the hundred-and-one this session was behind.
+
+           NOT THE DEFAULT: `path` stays "fixed". Turning the tour on for
+           everyone changes what every user sees and is the maintainer's
+           call -- Q-327-A in 357.
+
+ASKED FOR (2026-08-31), four things, in the user's words
+--------------------------------------------------------
+1. "the fullscreen mode fractal is super choppy while the normal
+   background one is super smoothe."
+2. "when the user scrolls and changes the speed the manderbrot should not
+   jump arround and just stay on the sure defined trajectory... the
+   jumping should be changed to gently and smoothely mooving between
+   points, it ruins the immersion when it jumps."
+3. "map out which coordinates show interesting visuals like spirals and
+   texture and have say 20 regions on the image that the camera will
+   automatically smoothely float towards."
+4. "the mouse gravity really only pushes the camera abit and then if the
+   mouse is to close to the sides of the screen the camera snapps back.
+   I was more looking for the visual feature itself being centered on the
+   mouse or for instance stars in space mode being pulled towards the
+   mouse... (like gravity)."
+
+Plus: port the CPU orbit fold to the GPU as a second entry, and put its
+spiral under the pointer.
+
+--------------------------------------------------------------------------------
+1. FULLSCREEN IS CHOPPY AND THE BACKDROP IS NOT
+--------------------------------------------------------------------------------
+Same renderer, same machine, different frame rate -- so the difference is
+in what changes between the two, not in the shader. Measure BEFORE
+changing anything, and measure the RIGHT thing: frames actually painted,
+not the timer interval. `AmbientWidget` already counts `frames_painted`
+for exactly this reason.
+
+Candidates, in the order they are cheap to rule out:
+
+  * AREA. Fullscreen is several times the pixels of a backdrop panel at
+    the same supersampling. If the cost is quadratic in the long edge,
+    this is the whole answer and the fix is to scale resolution or
+    supersampling with area rather than hold it constant.
+  * SUPERSAMPLING. `FractalSupersampling` squares its cost. A value fine
+    for a panel is four or nine times the work fullscreen.
+  * WHAT ELSE IS ON SCREEN. The backdrop draws behind a settled window;
+    fullscreen may be compositing over more, or without the same
+    occlusion.
+  * THE REFERENCE ORBIT. `fractal_mandelbrot.py` rebuilds it on the CPU
+    when the camera moves far enough; if fullscreen moves the camera
+    faster, it rebuilds more often, and that cost is not in the shader
+    at all.
+
+State which one it was, with numbers, before writing a fix.
+
+--------------------------------------------------------------------------------
+2. THE CAMERA MUST NOT JUMP
+--------------------------------------------------------------------------------
+Two separate jumps, and they need different fixes.
+
+SPEED CHANGES MUST NOT MOVE THE CAMERA. Scrolling changes how fast the
+trajectory is travelled; it must not change WHERE on the trajectory the
+camera is. If speed is applied by scaling a time value that also
+positions the camera, a change of speed teleports it. Keep a phase that
+only ever advances, and let speed change the RATE that phase advances --
+never the phase itself.
+
+ARRIVING SOMEWHERE NEW MUST BE A MOVE, NOT A CUT. Interpolate position
+and zoom, and interpolate zoom in LOG SPACE: a linear ramp through a
+magnification of 1e6 spends almost all its time at one end and arrives
+as a jump anyway. Ease in and out; a constant-velocity move still reads
+as mechanical.
+
+"WITHOUT PIXELING OUT FOR AS LONG AS POSSIBLE" is a real constraint and
+it has a hard floor: `fractal_mandelbrot.py:31` records that the
+REFERENCE ORBIT's precision sets the end of the zoom. Do not fight that
+-- detect the approach and turn the camera before the detail dissolves,
+so the limit is never reached in view.
+
+--------------------------------------------------------------------------------
+3. TWENTY PLACES WORTH LOOKING AT
+--------------------------------------------------------------------------------
+The Mandelbrot set is deterministic, so the interesting coordinates can
+be found ONCE and written down rather than searched at runtime.
+
+FIND THEM WITH A SCRIPT, KEEP THE SCRIPT. `tools/` already holds
+`draw_volcano_explorer_icon.py` on the same principle: the artefact is
+generated, the generator is committed, and the values are reproducible
+rather than mysterious. A candidate is a point where the escape-time
+gradient is high over a range of zooms -- that is what a spiral or a
+filament is, numerically -- and not a point that dissolves into uniform
+colour two zoom levels in.
+
+Store them as data, with a name and the zoom range each is good at, so a
+reader can tell why a coordinate is in the list. Twenty is the number
+asked for; the structure should not care how many there are.
+
+DRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a
+statement about where they want to be, and a tour that resumes over it is
+the application arguing. Restart the tour on Ctrl+R, as asked, and say so
+somewhere a user can find it.
+
+--------------------------------------------------------------------------------
+4. THE POINTER SHOULD BEND THE PICTURE, NOT TOW THE CAMERA
+--------------------------------------------------------------------------------
+THIS IS THE ONE THAT CHANGES A DESIGN DECISION, so it is worth being
+explicit. `fractal_travel.py:87` says today's behaviour outright: "The
+pointer pulls the pattern toward it, and a click shoves it away."
+Moving the CAMERA is what produces the reported snap-back -- the camera
+is pulled off its path, the pull cannot continue past the widget edge,
+and it returns.
+
+What is wanted instead is a LOCAL DISTORTION centred on the pointer,
+with the camera left alone:
+
+  * the feature under the pointer is what moves, not the viewport;
+  * in space mode, stars near the pointer are drawn toward it, and get
+    faster as they get closer -- an inverse-square falloff, which is what
+    makes it read as gravity rather than as a magnet;
+  * nothing snaps back, because nothing was displaced from a path.
+
+The CPU orbit fold ALREADY DOES THIS and the user likes it: "the orbit
+fold cpu effect is like a magnigying glass, which looks cool". Read that
+implementation first -- it is the reference for what is wanted, and it is
+the one renderer excluded from the complaint.
+
+--------------------------------------------------------------------------------
+5. ORBIT FOLD ON THE GPU
+--------------------------------------------------------------------------------
+Port the CPU orbit fold to the GPU list. "Orbit fold" is taken, so it
+needs its own name -- the user suggested "Orbit fold 2"; something
+descriptive would be better if one fits.
+
+With the pointer behaviour from section 4: the SPIRAL under the pointer,
+rather than the camera being dragged and snapping back.
+
+--------------------------------------------------------------------------------
+DONE MEANS
+--------------------------------------------------------------------------------
+* Fullscreen and windowed frame rates measured and reported, the cause
+  named, and fullscreen no longer choppy on the machine that reported it.
+* Changing speed does not move the camera -- asserted by sampling the
+  camera position across a speed change, not by eye.
+* Transitions are interpolated, zoom in log space, with no discontinuity
+  at either end.
+* The interesting coordinates are generated by a committed script, stored
+  as named data, and each has a zoom range.
+* User drag disables the tour; Ctrl+R restarts it; both tested.
+* The pointer distorts locally and moves no camera, on every GPU pattern
+  and every CPU one except the orbit fold, which already behaves.
+* Orbit fold is available on the GPU under a new name.
+* NO REGRESSION IN THE BACKDROP. It is described as "super smoothe"
+  today, and it is on screen behind every module -- a change that makes
+  fullscreen better and the backdrop worse is a bad trade. Measure both.
+
+WATCH
+-----
+`fractal_travel.py` and the fractal modules are large and shared with the
+backdrop that every screen draws. A frame-rate regression here is felt
+everywhere, and `spacr/qt/widgets/fractal_travel.py` already carries a
+heavy-import lock whose contention caused a two-second freeze once. Do
+not hold it longer, and do not move work into the paint path.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: ALL FIVE NUMBERED PARTS HAVE SHIPPED. ~95%.
+--------------------------------------------------------------------------------
+
+This file reads as not-started and is not. Every numbered request above has a
+commit:
+
+    (1) a6c945995  the adaptive resolution loop was disconnected
+    (2) bc03767b3  a speed change no longer teleports the camera
+    (3) 92297788c  twenty places worth looking at, and a tour that floats
+                   between them
+    (4) 9adfcbb2d  the pointer bends the picture instead of towing the camera
+    (5) bfaa02a5a  the orbit fold on the GPU, and one pattern list instead
+                   of two
+
+WHAT IS ACTUALLY LEFT is the evidence half of DONE MEANS, not the code:
+
+  * Fullscreen and windowed frame rates MEASURED AND REPORTED HERE, with the
+    cause named. (1) fixed a disconnected adaptive-resolution loop, which is
+    the plausible cause of "super choppy", but this file carries no
+    before/after number.
+  * NO REGRESSION IN THE BACKDROP, measured on both surfaces. This was the
+    explicit trade to avoid and it has not been demonstrated either way.
+
+So the remaining work is one measurement session on a real display, writing
+two numbers into this file. Do not re-implement any of the five; read the
+commits first.
+
+--------------------------------------------------------------------------------
+2026-09-05 — THE MEASUREMENT SESSION, AND ONE THING THE AUDIT MISSED
+--------------------------------------------------------------------------------
+
+MEASURED ON THE MACHINE THAT REPORTED IT (32 logical CPUs, 19 render
+threads, an RTX 3090 on a 4.6 GLX context), with
+`tools/measure_the_backdrop.py`, which is committed so these numbers can
+be re-run rather than believed.
+
+1. FULLSCREEN AGAINST WINDOWED. THE CAUSE IS THE AREA, AND IT IS THE CPU
+   RENDERER THAT FEELS IT.
+
+   Pixels first. At render scale 1.0 a 2560x1440 fullscreen shades 6.83x
+   a 900x600 backdrop panel, and a 4K one 15.36x. Cost is LINEAR in that,
+   not quadratic in the long edge:
+
+     the CPU orbit fold, median shader time, 19 threads, 33.3 ms budget
+       backdrop panel 900x600      540,000 px    4.77 ms   210 fps
+       windowed 1600x1000        1,600,000 px   14.22 ms    70 fps
+       fullscreen 2560x1440      3,686,400 px   32.41 ms    31 fps
+       fullscreen 3840x2160      8,294,400 px   74.63 ms    13 fps
+
+   And the whole pipeline -- FRAMES ACTUALLY DELIVERED by the real
+   widget over eight seconds, worker thread and QImage conversion and
+   paint included, which is what "choppy" is about:
+
+       backdrop panel 900x600    29.0 fps, 900x600,     5.7 ms a frame
+       fullscreen 2560x1440      23.4 fps, 2560x1440,  37.4 ms a frame
+
+   That is the report: the panel sits at its 30 fps cap and fullscreen
+   cannot reach it, because one frame costs more than the budget.
+
+   AFTER (1) RECONNECTED THE ADAPTIVE LOOP, same run, same machine:
+
+       backdrop panel 900x600    29.2 fps, 900x600,     5.6 ms a frame
+       fullscreen 2560x1440      28.1 fps, 2100x1180,  25.3 ms a frame
+
+   Fullscreen sheds resolution and keeps the frame rate; the backdrop is
+   untouched, which is the trade this file said not to get wrong. NO
+   REGRESSION IN THE BACKDROP: 29.0 -> 29.2 fps is the same number twice.
+
+   THE GPU IS NOT WHERE THE CHOPPINESS WAS, on this machine. Every GPU
+   pattern, drawn into an offscreen framebuffer at fullscreen 2560x1440:
+   orbit_gpu 1.29 ms, cascade 0.69 ms, space 2.44 ms, the shared orbit
+   shader 0.73 ms; the Mandelbrot 2.08 ms at the surface and 5.37 ms
+   twelve decades down. All of them fit a 60 fps budget several times
+   over even at 4K.
+
+   STILL OPEN, and not part of (1): the GPU path has NO adaptive
+   resolution at all. `target_render_size` and the user's `scale` are
+   read only by the CPU widget; the GPU canvas shades native pixels and
+   adapts `_detail` instead -- and for `orbit_gpu` and `space`,
+   `base_detail == detail_floor`, so that loop cannot turn anything down
+   either. On this GPU there is a 12x margin at 1440p and it does not
+   matter. On a weak integrated GPU fullscreen there is nothing to shed.
+   The comment in `_make_gpu_widget` that says "resolution is what gives
+   way instead, through the adaptive render scale" describes the CPU
+   path, not this one.
+
+2. THE SPEED CHANGE STILL TELEPORTED FOUR PATTERNS OUT OF FIVE.
+
+   (2) built `DepthPhase` and gave it to the Mandelbrot's depth. It was
+   never asked anything by the renderers: the CPU widget CONSTRUCTED a
+   DepthPhase in `__init__` and then sent the worker `t = the sim clock,
+   speed = the control`, and the GPU canvas fed the shaders `u_time =
+   elapsed, u_speed = the control`. Every pattern but the Mandelbrot
+   positions itself with `t * speed` -- the cascade's and the flight's
+   depth, the orbit fold's radial phase -- so the picture still moved the
+   whole elapsed time in one frame when the speed changed.
+
+   Measured with the CPU kernels at t=57.3s, as mean absolute change per
+   pixel over a frame, a scroll from speed 1 to 2 against ordinary travel:
+
+       orbit    26.8, where one frame moves  4.97  -- ~1.0s at once
+       cascade  25.2, where one frame moves  3.49  -- ~2s at once
+       space     8.4, where one frame moves  0.14  -- more than 30s
+
+   And with `variable_speed` on, which changes the speed EVERY FRAME:
+   1,066 of 3,000 frames ran BACKWARDS over 100 seconds, the worst single
+   step being 29 frames' worth of travel. The "how gradually" sweep was
+   not a change of pace at all; it was a permanent stutter.
+
+   FIXED by handing the renderers the phase as their clock and a speed of
+   1.0: the rate is in the clock, so a speed change is continuous by
+   construction and applying it twice is impossible. At speed 1 the phase
+   and the wall clock are the same number, so nothing about the default
+   backdrop changes. Measured after, through the real widget's own
+   request stream: the frame a scroll lands on differs from the one
+   before it by 7.47 levels per pixel, against 7.43 for an ordinary frame
+   at the new speed -- indistinguishable, where the same scroll used to
+   arrive as a second of travel.
+
+   `state_at_seconds` was also still handed the wall clock for the drift,
+   rotation and stretch while the depth used the phase, so one camera was
+   moving at two rates; it takes the phase now too.
+
+   Covered by `tests/qt/test_a_speed_change_does_not_teleport_the_camera.py`,
+   which fails in three places with the fix reverted.
+
+STILL OPEN AFTER THIS SESSION
+  * The GPU path cannot shed work (above). It needs the same treatment as
+    the CPU path -- shade into a smaller framebuffer and blit up -- before
+    a machine with a weak GPU is asked to draw this fullscreen.
+  * (3)'s `RegionTour` is built and tested and NOTHING CALLS IT. Nothing
+    in `spacr/` imports it or `fractal_regions.REGIONS`, so the twenty
+    places worth looking at are not on screen and the camera never floats
+    between them. The pieces are there; the wire is not.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE TOUR IS WIRED. (3) IS ON SCREEN FOR THE FIRST TIME.
+--------------------------------------------------------------------------------
+
+The 2026-09-05 audit's second open item, verbatim: "(3)'s `RegionTour` is
+built and tested and NOTHING CALLS IT. Nothing in `spacr/` imports it or
+`fractal_regions.REGIONS`, so the twenty places worth looking at are not on
+screen and the camera never floats between them. The pieces are there; the
+wire is not."
+
+The wire is `TourPilot`, in `fractal_travel.py` beside `RegionTour`, and
+the door is a third Path mode in Preferences: "Tour the interesting
+places", alongside "Straight down" and "Search as it goes".
+
+IT IS A PLAIN OBJECT, for the reason `SteeringCamera` is one and this file
+already records: logic that lives inside the GPU canvas can only be argued
+about, because the canvas needs a GL context to exist, and three "fixed"
+reports in a row were wrong that way. `TourPilot` is driven frame by frame
+in `tests/qt/test_the_camera_tours_the_twenty_regions.py`.
+
+IT WRITES THE TARGET AND NOTHING ELSE. The camera's own exponential follow
+is what moves it, so two smooth things compose rather than fight: the
+tour's smoothstep out of one region and into the next, and the camera's
+constant-rate approach to wherever the target currently is. Neither starts
+nor stops, which is this file's own account of what stops motion reading
+as jerking.
+
+Asserted rather than described: over a 1,200-frame circuit at 50 fps the
+largest single step is inside 25x the median one, which is the numeric form
+of "gently and smoothely mooving between points". A tour that cut between
+regions fails it.
+
+THE USER WINS, BOTH WAYS ROUND, which is the other half of what (3) asked:
+a drag calls `take_over()` and the tour never argues again; Ctrl+R -- which
+already sends the dive back to the surface -- calls `restart()` and hands
+the camera back. Both are tested, and both are wired at the two places in
+the canvas that already handle a drag and a restart token.
+
+AND IT KNOWS WHERE ITS ITINERARY ENDS. Each region carries the half-width
+it was measured to stay interesting down to; the pilot stops steering once
+the view is narrower than the widest of those, because steering toward the
+next region at a magnification where the current one has already dissolved
+would fly the picture past at a scale where nothing is recognisable. The
+floor is READ FROM THE DATA, so nobody has to keep a constant in step with
+a generated file.
+
+STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget, and for `orbit_gpu`
+and `space` `base_detail == detail_floor`, so the adaptive loop has nothing
+to turn down. On the reporting machine there is a 12x margin at 1440p and
+it does not matter; on a weak integrated GPU fullscreen there is nothing to
+shed. That one needs a GPU to measure honestly and is not touched here.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- (3) WAS WIRED TWICE. THE SECOND ONE IS GONE, AND WHY IT HAPPENED
+IS WORTH MORE THAN THE CODE WAS.
+--------------------------------------------------------------------------------
+
+The other session shipped `TourPilot` at 23:50 on 2026-09-09. This session
+built a second wiring for the same thing overnight -- `tour_leg_seconds`,
+`tour_offset`, `_tour_centre`, a `tour_travel_seconds` setting across three
+files and eight tests -- and removed all of it on merge. THEIRS IS BETTER,
+in two specific ways worth recording rather than conceding vaguely:
+
+  * IT WRITES THE CAMERA'S TARGET, not its centre. The tour's smoothstep
+    out of one region and the camera's existing exponential approach to
+    wherever the target currently is then compose into ONE motion with no
+    start and no stop. Mine assigned the centre directly every frame, which
+    makes the tour the only thing moving the camera and throws away the
+    follow `SteeringCamera` already had.
+  * IT STOPS STEERING FROM THE DATA. The pilot gives up once the view is
+    narrower than the widest half-width the regions carry, read out of
+    `fractal_regions` so nobody has to keep a constant in step with a
+    generated file. Mine tied the tour's leg length to the dive length by
+    an arithmetic rule, which is a second place for the two to disagree.
+
+HOW THE DUPLICATION HAPPENED, because it is a process defect and not bad
+luck. 325 exists to prevent exactly this and was READ at the start of the
+session. What was not done was reading the RANGE: `git log -12
+origin/nightly` showed twelve commits, all from the tutorial lane, and the
+two that mattered were further back in the hundred-and-one this session was
+behind. TWELVE IS NOT A RANGE.
+
+    THE RULE: before starting an instruction item, run
+    `git log --oneline HEAD..origin/<branch> -- <the files it touches>`.
+    One command, bounded by the FILES rather than by a count, and it would
+    have printed both commits.
+
+AND IT COST MORE THAN THE HOURS. Both sessions' work lands in one catalog
+lane: the symbols removed here and the ones `TourPilot` adds each move the
+API manifest, so the nine-language rebuild that finished at 04:00 has to run
+again. That is the real price of not pushing, and it is why the merge was
+done the moment the duplication was found rather than at the end of the
+night.
+
+WHAT SURVIVED FROM THE SECOND ATTEMPT, because not all of it was waste: the
+same run found the test-isolation leak in
+`test_cov_r8_fractal_travel_tails.py` independently, and generalised it --
+`tests/qt/test_zz_a_reimported_module_is_put_back_properly.py` now fails on
+ANY test that re-imports a spacr submodule and restores only `sys.modules`,
+rather than on that one file. Their fix is the one that ships; the detector
+is the one that stops a third.
+
+STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget.

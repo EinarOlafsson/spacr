@@ -141,3 +141,56 @@ collected artifacts and README links.
 Local/focused evidence around the final build: 236 consent/updater/installer
 tests passed together; the installed smoke and static native contracts then
 passed 65 tests. The final native jobs all passed from build through upload.
+
+--------------------------------------------------------------------------------
+2026-08-26 - RE-AUDIT: THE FROZEN BUNDLES LAUNCHED A FRONT END THAT NO LONGER
+             EXISTS
+--------------------------------------------------------------------------------
+
+The native matrix above is real and the run is still green (31796262489,
+three platform jobs, all success). What it does not cover is the OTHER
+installer family this file names in its first paragraph: the PyInstaller
+bundles built by `packaging/build_windows.ps1` and `packaging/build_macos.sh`
+through `packaging/spacr.spec`.
+
+    spacr.spec        ENTRY = packaging/spacr_launcher.py
+    spacr_launcher.py from spacr.gui import gui_app   <-- deleted with Tk
+
+`spacr/gui.py` went with the Tk interface. The launcher's own `except`
+turned that into `print("failed to import spacr: ...")` and `return 2`, so a
+bundle built from this spec started, wrote a line to a console a
+double-clicked app does not have, and exited without a window. Nothing
+imported the file -- no console script points at it and no test touched it --
+which is how it stayed wrong through the whole Tk removal.
+
+FIXED. The launcher now calls `spacr.qt.run()`, the same function the `spacr`
+console script uses, so a frozen bundle and a pip install open the same
+window. The spec's Tk-era leftovers went with it: the tkagg matplotlib
+backend is now qtagg, `PIL._tkinter_finder` and the `collect_data_files
+("tkinter")` block are gone, and PySide6's three core modules are named as
+hidden imports.
+
+tests/test_packaging_launcher.py is new -- 4 tests, and two of them failed
+against the old launcher before the change (the stubbed `spacr.qt.run` was
+never reached, and the source still named `spacr.gui`). It is the only test
+that covers the frozen entry point at all.
+
+NOT DONE, and it is the same gap this file has always had: no PyInstaller
+bundle was built or launched here. The fix is verified by import and by test,
+not by a .app or a .exe. A build machine is what closes that.
+
+AND THE SPEC IS NOT IN THE REPOSITORY. `.gitignore:33` is a bare `*.spec`,
+written for PyInstaller's generated specs, and it swallows the hand-written
+`packaging/spacr.spec` that `build_windows.ps1` and `build_macos.sh` both
+invoke by name. `git check-ignore -v packaging/spacr.spec` names the rule.
+So a fresh clone cannot build either bundle, and the Tk-era hidden imports
+corrected above live only in this working tree.
+
+    hiddenimports   matplotlib.backends.backend_tkagg -> _qtagg,
+                    PIL._tkinter_finder dropped, PySide6.QtCore/QtGui/
+                    QtWidgets added
+    datas           the collect_data_files("tkinter") block dropped
+
+NEEDS A DECISION, NOT A PATCH: narrowing the ignore rule (to `/*.spec`, or
+to the build directory) and committing the spec changes what the repository
+ships, so it is the coordinator's call rather than an audit's.

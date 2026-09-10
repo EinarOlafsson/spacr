@@ -19,6 +19,7 @@ assertion, because "it ran" is what every one of the bugs above also did.
 from __future__ import annotations
 
 import os
+import re
 
 import numpy as np
 import pandas as pd
@@ -115,6 +116,11 @@ def settings_for(score, count, **over):
         "score_data": [score],
         "count_data": [count],
         "dependent_variable": "pred",
+        # This suite exercises each regression backend. The application
+        # default is nonparametric, which intentionally does not read
+        # ``regression_type`` or fit a model, so the backend contract must
+        # request parametric inference explicitly.
+        "inference": "parametric",
         "min_cell_count": 3,
         "fraction_threshold": 0.01,
         "metadata_files": [],
@@ -171,6 +177,23 @@ def assert_recovers_the_planted_gene(results, regression_type):
     assert ranked[0] == HIT_GENE, (
         f"{regression_type}: the planted gene {HIT_GENE} is not the top "
         f"coefficient; ranking was {[(g, round(coefficients[g], 4)) for g in ranked]}")
+    if regression_type == "hinge":
+        # NO SIGN ASSERTION FOR hinge, and the reason is measured rather than
+        # assumed. `hinge` is a LinearSVC: its coefficients are margin
+        # weights, not effects on the response, and the whole vector rides on
+        # whichever class the intercept favours. On this fixture the intercept
+        # is -1.32 and EVERY gene coefficient is negative -- the planted gene
+        # least so, at -0.069 against -0.128, -0.158, -0.280 and -0.388 -- so
+        # the ranking is right and the sign is a property of the classifier.
+        #
+        # It used to pass because the gene column shared its effect with the
+        # gene's own guide columns in one design, and instruction 132 removed
+        # that design: `gene_fraction` is the SUM of those guide fractions, so
+        # the two blocks were exactly collinear and the split between them was
+        # the regulariser's choice, not the data's.
+        assert coefficients[HIT_GENE] > max(
+            value for gene, value in coefficients.items() if gene != HIT_GENE)
+        return
     assert coefficients[HIT_GENE] > 0, (
         f"{regression_type}: planted effect came back with the wrong sign "
         f"({coefficients[HIT_GENE]})")
@@ -185,6 +208,11 @@ def assert_recovers_the_planted_gene(results, regression_type):
 #: 'horseshoe' needs spacr.power_model and has its own test below.
 END_TO_END = [
     ("ols", "fraction", {}),
+    # `spline` fits OLS on a design whose COVARIATES carry a spline basis
+    # and whose guide columns are untouched, so it must recover a planted
+    # effect exactly as ols does -- that is the claim that puts it in
+    # instruction 254's category A rather than among the diagnostics.
+    ("spline", "fraction", {}),
     ("wls", "fraction", {}),
     ("rlm", "fraction", {}),
     ("huber", "fraction", {}),
@@ -224,16 +252,46 @@ def test_every_regression_type_runs_and_recovers_the_planted_effect(
     results = out["results"]
     assert len(results) > 0
     assert results["coefficient"].notna().all()
-    assert results["p_value"].notna().all()
-    assert (results["p_value"].between(0.0, 1.0)).all()
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): `mixed` is now
+    # y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID, and a
+    # guide's output from it is a BLUP -- a shrunken prediction of a random
+    # effect -- which has no null hypothesis to reject and therefore no
+    # p-value. Neither does a variance component. Asserting notna() over
+    # every row would force one to be manufactured, which is exactly what the
+    # instruction forbids. Every row that IS a test still has one.
+    tested = results.get("term_type")
+    if tested is None:
+        testable = pd.Series(True, index=results.index)
+    else:
+        testable = tested.astype(str).eq("fixed")
+    assert results.loc[testable, "p_value"].notna().all()
+    assert results.loc[testable, "p_value"].between(0.0, 1.0).all()
+    if tested is not None and (~testable).any():
+        assert results.loc[~testable, "p_value"].isna().all(), (
+            "a random effect or a variance component was given a p-value")
     # One coefficient per gRNA that survived the fraction threshold, plus one
     # per gene, plus the intercept.
     assert results["feature"].str.contains(r"grna\[").sum() > 0
     assert_recovers_the_planted_gene(results, regression_type)
-    # The results folder is named for the model that was actually fitted.
-    assert os.path.isfile(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", regression_type,
-        "list", "results.csv"))
+    # THE RESULTS FOLDER IS NAMED FOR THE MODEL THAT WAS ACTUALLY FITTED,
+    # and it is asked for rather than spelled out here.
+    #
+    # This assertion spelled out `results/screen_scores/<type>/list/` --
+    # the four-level path from before the output rule changed to
+    # `<count folder>/results/<type>`, with `_1`, `_2` for a repeat. It went
+    # stale the day the rule changed and stayed red for every one of the
+    # seventeen types, which is a lot of noise for a suite to carry and is
+    # exactly how a real failure gets skipped over.
+    folder = out["res_folder"]
+    assert os.path.isfile(os.path.join(folder, "results.csv"))
+    # The repeat suffix is `_1`, `_2` -- stripped by matching DIGITS at the
+    # end, never by splitting on "_": `quasi_binomial` and
+    # `guide_permutation` contain the separator, so a left-to-right split
+    # reads the type as "quasi". The same trap as the plate keys.
+    assert re.sub(r"_\d+$", "", os.path.basename(folder)) == regression_type, \
+        folder
+    assert os.path.dirname(folder) == os.path.join(
+        os.path.dirname(count), "results"), folder
 
 
 def test_every_advertised_type_has_a_coefficient_branch():
@@ -263,9 +321,18 @@ def test_the_entry_point_whitelist_is_the_dispatcher_list(tmp_path, stubs):
 
     from spacr.ml import REGRESSION_TYPES, perform_regression
 
-    source = inspect.getsource(perform_regression)
+    # BOTH HALVES OF THE ENTRY POINT. `perform_regression` became a thin
+    # wrapper that reports actionable detail on failure and delegates to
+    # `_perform_regression`; reading only the wrapper's source found no
+    # mention of REGRESSION_TYPES and reported a regression that had not
+    # happened. What the test is about is that NO hand-written list exists
+    # anywhere on the path, so it reads the path.
+    from spacr.ml import _perform_regression
+
+    source = "\n".join(inspect.getsource(fn)
+                       for fn in (perform_regression, _perform_regression))
     assert "reg_types = [" not in source, (
-        "perform_regression is carrying its own whitelist again")
+        "the entry point is carrying its own whitelist again")
     assert "REGRESSION_TYPES" in source
 
     score, count = write_screen(tmp_path)
@@ -477,34 +544,73 @@ def test_gene_fraction_counts_each_grna_once_in_the_cross_join():
         assert np.isclose(values[0], expected), (well, gene, values)
 
 
-def test_mixed_model_refuses_a_single_plate_instead_of_returning_zeros(
+def test_mixed_model_fits_a_single_plate_because_the_cluster_is_the_gene(
         tmp_path, stubs):
-    """One plate leaves nothing for a random intercept to describe.
+    """CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17).
 
-    Grouping on the well - which is what this used to do - fitted, wrote
-    results.csv, and put ~1e-11 with p ~ 1 in every coefficient, because the
-    random intercept sat at the same level as the covariates.
+    This used to assert that a one-plate screen was REFUSED, because `mixed`
+    grouped on `plateID` and one plate is one cluster. The model is different
+    now:
+
+        y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
+
+    The cluster is the GENE and the guide is nested inside it, so a one-plate
+    screen is perfectly fittable -- which matters, because the maintainer made
+    `mixed` the DEFAULT and most screens are one plate.
+
+    The original worry has not been dropped, only re-aimed: a random intercept
+    must sit ABOVE the unit its covariates vary at, and the gene sits above the
+    guide. What is still refused is a screen with ONE cluster, and at this
+    level that means one gene.
     """
     from spacr.ml import perform_regression
 
     score, count = write_screen(tmp_path, plates=("plate1",))
     settings = settings_for(score, count, regression_type="mixed")
-    with pytest.raises(ValueError, match="needs at least two clusters"):
-        perform_regression(settings)
+
+    out = perform_regression(settings)
+
+    results = out["results"]
+    assert len(results) > 0
+    assert results["feature"].str.startswith("gene_fraction:gene[").any()
+    # ...and the guides came back as BLUPs, not as a second fixed block.
+    assert results["feature"].str.startswith("blup:grna[").any()
+    assert not results["feature"].str.startswith("fraction:grna[").any()
 
 
 def test_a_penalty_that_zeroes_every_coefficient_is_an_error(tmp_path, stubs):
     """An all-zero lasso reaches the user as "no hits", which is a real result.
 
-    The default alpha=1 does exactly this to a fraction-scale design, so the
-    stock settings used to produce an empty hit list rather than a complaint.
+    THE PENALTY HAS TO BE ONE SOMEBODY CHOSE. `alpha=1` is what the panel
+    posts when nobody has touched the field -- it is the UNPENALISED
+    families' default -- so it is now rewritten to 'auto' before the fit
+    (see the test below). A number nobody could have posted by accident is
+    what this guard is for.
+    """
+    from spacr.ml import perform_regression
+
+    score, count = write_screen(tmp_path)
+    settings = settings_for(score, count, regression_type="lasso", alpha=25.0)
+    with pytest.raises(ValueError, match="shrank all .* to exactly zero"):
+        perform_regression(settings)
+
+
+def test_the_stock_settings_cross_validate_the_penalty_instead_of_failing(
+        tmp_path, stubs):
+    """alpha=1 used to be a guaranteed refusal on a fraction-scale design,
+    and the refusal was an improvement on the silent empty hit list it
+    replaced. Choosing the penalty is the improvement on the refusal.
+
+    Driven on the tsg101 screen (instruction 236 C7): lasso and elasticnet
+    both refused the maintainer's own saved settings, in which alpha had
+    never been touched.
     """
     from spacr.ml import perform_regression
 
     score, count = write_screen(tmp_path)
     settings = settings_for(score, count, regression_type="lasso", alpha=1.0)
-    with pytest.raises(ValueError, match="shrank all .* to exactly zero"):
-        perform_regression(settings)
+    perform_regression(settings)
+    assert settings["alpha"] == "auto"
 
 
 def test_wls_actually_weights_by_the_cell_count():
@@ -604,9 +710,28 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
     assert_recovers_the_planted_gene(out["results"], "horseshoe")
     coefficients = gene_coefficients(out["results"])
     others = [abs(v) for g, v in coefficients.items() if g != HIT_GENE]
-    assert abs(coefficients[HIT_GENE]) > 5 * max(others), (
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the gene fit is its
+    # own model now, with five candidate columns instead of the twenty of the
+    # old combined design, and a horseshoe shrinks less hard when it has fewer
+    # candidates to shrink. Measured on this fixture: the hit is +0.0673 and
+    # the widest null is -0.0190, a ratio of 3.55 where the old collinear
+    # design gave more than 5 -- but the old design's gene coefficients were
+    # one arbitrary solution out of infinitely many, because gene_fraction is
+    # the SUM of the gene's guide fractions.
+    #
+    # THE SEPARATION IS NOW ASSERTED WHERE THE HORSESHOE ACTUALLY MAKES IT --
+    # in the posterior. The hit's tail mass is 0.000 and every null's is above
+    # 0.1, which is a cleaner statement than a magnitude ratio and is the
+    # quantity a reader would report.
+    assert abs(coefficients[HIT_GENE]) > 3 * max(others), (
         "the horseshoe did not separate the hit from the nulls: "
         f"{coefficients}")
+    genes = out["results"]
+    genes = genes[genes["feature"].str.startswith("gene_fraction:gene[")]
+    hit = genes[genes["feature"].str.contains(HIT_GENE)]
+    nulls = genes[~genes["feature"].str.contains(HIT_GENE)]
+    assert float(hit["p_value"].iloc[0]) < 0.01, hit.to_dict("records")
+    assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
     # p_value here is a posterior tail mass, so it must still be a probability.
     assert out["results"]["p_value"].between(0.0, 1.0).all()
 
@@ -635,3 +760,62 @@ def test_horseshoe_refuses_a_run_with_no_cell_counts():
     y = pd.Series([1.0, 4.0, 9.0, 2.0])
     with pytest.raises(ValueError, match="needs the per-well cell count"):
         regression_model(X, y, regression_type="horseshoe")
+
+
+# ---------------------------------------------------------------------------
+# The count families and the default transform
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("regression_type", ["poisson", "horseshoe"])
+def test_a_count_model_does_not_get_its_response_logged(regression_type):
+    """``log(count)`` is not a count, and every entry point defaulted to it.
+
+    ``transform`` defaults to ``'log'`` because screen responses are fractions
+    and skew hard. ``ml.process_scores`` already knows the count families are
+    different -- it overrides ``agg_type`` to take the well's SUM for exactly
+    these two -- and then transforms that sum like any other response. The
+    integer becomes a float and ``_validate_poisson_response`` refuses it with
+    "Poisson regression requires integer count data", at the very end of a run
+    that had already read both CSVs.
+
+    Since all three dispatchers build their settings from this one function,
+    the effect was that neither count family could be started from Tk, Qt or
+    the CLI without knowing to turn ``transform`` off by hand.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
+    settings = get_perform_regression_default_settings(
+        {"regression_type": regression_type})
+
+    assert settings["transform"] is None, (
+        f"{regression_type} is fitted as Npositive ~ ... + "
+        f"offset(log(Ntotal)); it already has a log link, so transforming the "
+        f"response logs it twice and stops it being integral")
+
+
+@pytest.mark.parametrize("regression_type", ["poisson", "horseshoe"])
+def test_an_explicit_log_is_overridden_for_a_count_model_too(regression_type):
+    """Asking for it directly cannot produce a response the model refuses.
+
+    The same shape as the quantile rule above it, which forces ``agg_type`` to
+    None however the caller left it: a model choice that decides how the
+    response must be prepared wins over the preparation setting, because the
+    alternative is a run that dies at the end with a message about the data
+    rather than about the combination.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
+    settings = get_perform_regression_default_settings(
+        {"regression_type": regression_type, "transform": "log"})
+
+    assert settings["transform"] is None
+
+
+def test_a_continuous_model_keeps_the_log_default():
+    """The rule is narrow: only the two count families lose the transform."""
+    from spacr.settings import get_perform_regression_default_settings
+
+    assert get_perform_regression_default_settings(
+        {"regression_type": "ols"})["transform"] == "log"
+    assert get_perform_regression_default_settings(
+        {"regression_type": "glm", "transform": "sqrt"})["transform"] == "sqrt"

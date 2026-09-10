@@ -151,9 +151,10 @@ if [[ "$PLATFORM" != "linux" && "$PLATFORM" != "macos" ]]; then
     exit 2
 fi
 
-# Choose the accelerated wheel only when the machine identifies a supported
-# accelerator. An explicit environment variable or --torch-backend always
-# wins, which keeps unattended and reproducible installs possible.
+# Record detected hardware for validation and the install profile. Automatic
+# backend selection is the user-facing default: uv chooses CUDA on compatible
+# NVIDIA systems and falls back to the portable wheel elsewhere. An explicit
+# environment variable or --torch-backend always wins.
 if [[ "$PLATFORM" == "linux" ]]; then
     if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
         DETECTED_ACCELERATOR="nvidia"
@@ -166,11 +167,7 @@ else
     DETECTED_ACCELERATOR="none"
 fi
 if [[ -z "$TORCH_BACKEND" ]]; then
-    if [[ "$DETECTED_ACCELERATOR" == "nvidia" || "$DETECTED_ACCELERATOR" == "apple-silicon" ]]; then
-        TORCH_BACKEND="auto"
-    else
-        TORCH_BACKEND="cpu"
-    fi
+    TORCH_BACKEND="auto"
 fi
 
 # llvmlite 0.46+ no longer publishes Intel macOS wheels. Without this
@@ -443,12 +440,13 @@ Name=spaCR
 Comment=$desktop_comment
 Exec=$LAUNCHER
 Icon=$icon_path
+StartupWMClass=spaCR
 Terminal=false
 Categories=Science;Education;
 StartupNotify=true
 EOF
     chmod 644 "$desktop_tmp"
-    mv "$desktop_tmp" "$DESKTOP_DIR/spacr.desktop"
+    mv "$desktop_tmp" "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 
     uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
     removed_message="$(spacr_say removed)"
@@ -456,7 +454,7 @@ EOF
 #!/usr/bin/env sh
 set -eu
 rm -f "$LAUNCHER"
-rm -f "$DESKTOP_DIR/spacr.desktop"
+rm -f "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 rm -rf "$INSTALL_ROOT"
 echo "$removed_message"
 EOF

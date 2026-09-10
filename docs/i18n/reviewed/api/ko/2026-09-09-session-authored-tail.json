@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.accelerator#8",
+      "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
+      "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "translation": "감지됨과 사용 가능함은 따로 보고된다. spaCR 가 결코 디스패치하지 않을 가속기를 알리는 설정 화면은 아무 말도 하지 않는 화면보다 나쁘다. 사용자가 CPU 속도를 자기 하드웨어 탓으로 돌리게 되기 때문이다. 이 구분이 여기 존재하는 이유는 전적으로 뉴럴 엔진에 있다. Apple Neural Engine, Intel AI Boost, Qualcomm Hexagon 은 모두 실재하는 실리콘이지만 이식 가능한 torch 장치가 없으므로, 발견된 것으로만 이름이 적히고 결코 선택되지는 않는다."
+    },
+    {
+      "label": "spacr.accelerator.Accelerator#6",
+      "source_sha256": "16b10a5f716e3dc5775c54550b941ff1ec21d6b028157374ba387f7b00e2d64b",
+      "source": "spaCR will actually dispatch to it. Never true unless ``detected``; false for accelerators with no torch device.",
+      "context": "spaCR will actually dispatch to it. Never true unless ``detected``; false for accelerators with no torch device.",
+      "translation": "spaCR 가 실제로 여기에 디스패치한다. ``detected`` 가 아니면 결코 참이 아니며, torch 장치가 없는 가속기에 대해서는 거짓이다."
+    },
+    {
+      "label": "spacr.align#10",
+      "source_sha256": "5ecff9d17f14c7cbd42d4bfc20ecfd1870433691c186dc1d8ff48149a54fce18",
+      "source": "**z is not stitched.** Tiles are 2-D ``(H, W)`` or channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z-plane at a time by calling this module per plane; a 4-D array is refused with a message that says so rather than being silently reinterpreted.",
+      "context": "**z is not stitched.** Microscope image fields are 2-D ``(H, W)`` or image-channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z image layer at a time by calling this module for each image layer; a 4-D array is refused with a message that says so rather than being silently reinterpreted.",
+      "translation": "**z 축은 이어 붙이지 않는다.** 시야 이미지는 2차원 ``(H, W)`` 이거나 채널이 뒤에 오는 3차원 ``(H, W, C)`` 이며, 이는 spaCR 의 ``merged/*.npy`` 가 이미 쓰고 있는 배치다. z 스택은 먼저 투영하거나, 각 z 층마다 이 모듈을 호출하여 한 층씩 정렬해야 한다. 4차원 배열은 그 사실을 알리는 메시지와 함께 거부되며, 조용히 다르게 해석되지 않는다."
+    },
+    {
+      "label": "spacr.batch_correction.BatchCorrectionReport#13",
+      "source_sha256": "b2b718afdda749f6568161f247a90762e5e4a5637a2e7c79df13c1b9e2f1daab",
+      "source": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "context": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "translation": "명시적인 무동작, 대체 동작, 배치 변화 없음, 상수 특징, 또는 ComBat 제약에 관한 메시지."
+    },
+    {
+      "label": "spacr.core#10",
+      "source_sha256": "21224c0d3c71799799f2dc5429cde994c157515dd97c55716a802c7f3d8aa547",
+      "source": "After Mask finishes, inspect overlays and segmentation-QC flags before running :func:`spacr.measure.measure_crop`; inaccurate masks make every downstream feature inaccurate.  After measurement, use Image UMAP to inspect phenotype structure, colour by plate or condition to expose batch effects, and validate clusters against their representative crops before treating them as biology. Use the Mask tile for :func:`preprocess_generate_masks` and the Image UMAP tile for :func:`generate_image_umap` until those tiles receive separate API pages.",
+      "context": "After Mask finishes, inspect overlays and segmentation-QC flags before running :func:`spacr.measure.measure_crop`; inaccurate masks make every downstream feature inaccurate.  After measurement, use Image UMAP to inspect phenotype structure, colour by laboratory microplate or condition to expose batch effects, and validate clusters against their representative extracted image regions before treating them as biology. Use the Mask tile for :func:`preprocess_generate_masks` and the Image UMAP tile for :func:`generate_image_umap` until those tiles receive separate API pages.",
+      "translation": "Mask 가 끝난 뒤에는 :func:`spacr.measure.measure_crop` 를 실행하기 전에 오버레이와 분할 QC 플래그를 점검하라. 부정확한 마스크는 이후의 모든 특징을 부정확하게 만든다.  측정이 끝난 뒤에는 Image UMAP 으로 표현형 구조를 살피고, 플레이트나 조건으로 색을 입혀 배치 효과를 드러내며, 군집을 생물학으로 받아들이기 전에 그 대표 크롭들과 대조하여 검증하라. 해당 타일들이 별도의 API 페이지를 갖게 되기 전까지는 :func:`preprocess_generate_masks` 에는 Mask 타일을, :func:`generate_image_umap` 에는 Image UMAP 타일을 사용하라."
+    },
+    {
+      "label": "spacr.image_stitch#1",
+      "source_sha256": "25cff0de10dddebadaf5a210144003569766e9862aa98ecf7e3b0218ac89769f",
+      "source": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split into four tiles produces four images with ONE canonical name and three of them would be overwritten. Three answers were possible: grow the convention a tile slot, give each tile its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off, and that is the right answer: a stitched field IS one image with one name, so nothing downstream has to learn what a tile is.",
+      "context": "spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no microscope image field slot, so a field split into four microscope image fields produces four images with ONE canonical name and three of them would be overwritten. Three answers were possible: grow the convention a microscope image field slot, give each microscope image field its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off, and that is the right answer: a stitched field IS one image with one name, so nothing downstream has to learn what a microscope image field is.",
+      "translation": "spaCR 의 파일 이름 규칙 -- ``plate_well_T####F###L##A##Z##C##`` -- 에는 타일 자리가 없으므로, 네 조각으로 나뉜 시야는 정식 이름 하나를 공유하는 네 장의 이미지를 만들어 내고 그중 셋은 덮어써지게 된다. 가능한 답은 셋이었다. 규칙에 타일 자리를 추가하거나, 각 타일에 고유한 필드 번호를 주거나, 시야를 다시 하나로 합치는 것이다. spaCR 는 가져오기 단계에서 이어 붙이며 이를 끌 수 있는 선택지를 둔다. 그것이 옳은 답이다. 이어 붙인 시야는 이름이 하나인 이미지 하나이므로, 하위 단계의 무엇도 타일이 무엇인지 배울 필요가 없다."
+    },
+    {
+      "label": "spacr.measure#9",
+      "source_sha256": "3b26b2cc94e9e2ab4b48cf39602d8044ae66e0c2cfd49878df7db59f99e2d624",
+      "source": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D field is measured in real units or refused. A 2-D field takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "context": "THE 2-d PATH is bit-identical and deliberately so. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D microscope field of view is measured in real units or refused. A 2-D microscope field of view takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "translation": "2-d PATH 는 비트 단위로 동일하며 그것은 의도된 것이다. 이제 Mask 는 ``(Z, Y, X)`` 라벨 볼륨을 낼 수 있고(:mod:`spacr.zstack` 참조), 복셀 간격과 부피 열, 단위 표기에 관한 모든 것은 3차원 시야가 실제 단위로 측정되거나 아니면 거부되도록 하기 위해 존재한다. 2차원 시야는 ``spacing=None`` 과 함께 예전과 똑같은 코드를 그대로 탄다. 작년에 측정한 스크린을 오늘 다시 측정하면 같은 숫자가 나온다."
+    },
+    {
+      "label": "spacr.omero#1",
+      "source_sha256": "e34a5752b1c521e5ac3237fa779b3f1f0d02e23dd1d0643c369f133a3a8a62aa",
+      "source": "A large share of imaging labs never see a filesystem. Their images live in an OMERO server, they are addressed by *id*, and the only way anyone looks at a result is the right-hand panel in OMERO.web. spaCR, by contrast, is built around a flat folder of Yokogawa-named TIFFs. This module is the bridge, in both directions, and it is deliberately two directions rather than one: a one-way copy out of OMERO leaves the answers stranded in a folder nobody on the microscope side will ever open.",
+      "context": "A large share of imaging labs never see a filesystem. Their images live in an OMERO server, they are addressed by *id*, and the only way anyone looks at a result is the right-hand panel in OMERO.web. spaCR, by contrast, is built around a flat folder of Yokogawa-named TIFFs. This module is the bridge, in both directions, and it is deliberately two directions rather than one: a one-way copy out of OMERO leaves the answers stranded in a folder nobody on the microscope side will ever open.",
+      "translation": "상당수의 이미징 실험실은 파일 시스템을 볼 일이 없다. 그들의 이미지는 OMERO 서버에 있고 *id* 로 지정되며, 결과를 들여다보는 유일한 방법은 OMERO.web 의 오른쪽 패널이다. 반면 spaCR 는 Yokogawa 이름 규칙을 따르는 TIFFs 가 평평하게 담긴 폴더를 전제로 만들어졌다. 이 모듈은 그 둘을 잇는 다리이며, 한 방향이 아니라 일부러 양방향이다. OMERO 밖으로 한 번 복사해 내기만 하면, 답은 현미경 쪽 사람이 결코 열어 보지 않을 폴더에 고립된다."
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "여기서 쓰는 방법은 brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology) 를 따르며, 위의 세 가지 요점은 그 단계 이름에서 재구성한 것이 아니라 소스를 직접 읽어 확인한 것이다."
+    },
+    {
+      "label": "spacr.plate_qc.EdgeEffectReport#14",
+      "source_sha256": "4321bd078e9bb54e7579e8eaecfdcd7796a108c1189d932f0029a98e1d180fa7",
+      "source": "two-sided Mann-Whitney U p-value comparing outer-ring and interior wells, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing outer-ring and interior microplate sample positions, or ``None`` when the comparison is unavailable.",
+      "translation": "바깥 고리와 안쪽 웰을 비교하는 양측 Mann-Whitney U 의 p 값, 또는 비교가 불가능할 때 ``None``."
+    },
+    {
+      "label": "spacr.plate_qc.RingStats#7",
+      "source_sha256": "16003b161e364809542aa5577cc1cb41480707881f43abc26cc0b40565b216c1",
+      "source": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "translation": "이 고리를 선택된 중심부와 비교하는 양측 Mann-Whitney U 의 p 값, 또는 비교가 불가능할 때 ``None``."
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog#2",
+      "source_sha256": "a79b163d9e4318d469b9aaca2e21e2193c849ad9a65c46db8c3604758c144003",
+      "source": "IT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "context": "It fills in two stages, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of extracted image regions must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the main GUI execution path, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on application view — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "translation": "이것은 두 단계로 채워지며, 그 이유가 이 작업의 요점 전부다. 파일 목록은 계획에 저장되지 않는다. ``file_list`` 를 호출할 때마다 모든 후보 디렉터리에 대해 ``os.walk`` 가 도는데, 수백만 개의 크롭이 있는 프로젝트의 계획이 수백만 개의 문자열을 지고 다녀서는 안 되기 때문이다. 그것을 ``__init__`` 에서 하면 사용자의 프로젝트 전체를 재귀적으로 훑는 일이 메인 GUI 실행 경로에 놓이게 된다. 하필 창이 뜨기를 기다리는 바로 그 순간에 말이다. 그리고 잠들어 있는 공유 폴더에서는 마운트를 깨우느라 이십 초를 쓰는 것은 훑기 전체가 아니라 그 첫 번째 stat 이다. 그래서 대화 상자는 디스크가 전혀 필요 없는 절반(합계, 모든 후보, 유지되는 각 항목과 그 이유)으로 먼저 열리고 파일 목록은 그 뒤에 도착한다. 버려지는 것은 없다. 사용자는 무엇이 지워지기 전에 여전히 모든 경로를 읽으며, 그래서 확인은 목록이 화면에 나타날 때까지 -- 혹은 훑기가 실패하면 :meth:`_on_listing_failed` 가 목록 자리에 그 사실을 알릴 때까지 -- 비활성으로 붙들려 있다. 결코 일어나지 않는 단 한 가지는 그 확인란이 자리 표시자 위에서 활성화되는 일이다."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.object_label#1",
+      "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
+      "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "translation": "사용자에게 글자는 보이지 않는다. 2026-09-02 에 그대로 요청된 바다. \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". 슬롯은 글자를 붙여 저장된다 -- ``organelle``, ``organelleb``, ``organellec`` -- 역할 이름이 그 역할이 소유한 모든 설정 이름의 접두사이고, ``organelle2`` 는 2 번으로 라벨된 객체와 부딪히지 않고서는 ``prcfo`` 키를 왕복할 수 없기 때문이다. 그것은 저장에 관한 결정이며 화면과는 아무 상관이 없다. 화면에서 슬롯은 숫자다. Organelle 1, Organelle 2."
+    },
+    {
+      "label": "spacr.qt.settings_pack#0",
+      "source_sha256": "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
+      "source": "Read a downloaded settings pack into settings this spaCR can run.",
+      "context": "Read a downloaded settings pack into settings this spaCR can execute.",
+      "translation": "내려받은 설정 꾸러미를 이 spaCR 가 실행할 수 있는 설정으로 읽어 들인다."
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.EffectDistribution#2",
+      "source_sha256": "ff9e4f7491664f58efd44f22af1dd4b734d0bd6b32009a998579ca3152aaff14",
+      "source": "σ IS A MAD, NOT A STANDARD DEVIATION, and that is the point of the panel rather than a detail of it: a standard deviation is inflated by exactly the outliers a screen exists to find, so a cut measured from one is pulled outwards by the hits and then fails to call them. The median absolute deviation is not, and ×1.4826 makes it the consistent estimator for a normal -- the same statistic :func:`spacr.figures.panels.control_threshold` measures the effect-size cut from, so the dashed lines here and the lines on the volcano cannot disagree about where three sigmas is.",
+      "context": "σ IS A MAD, not a standard deviation, and that is the point of the panel rather than a detail of it: a standard deviation is inflated by exactly the outliers a screen exists to find, so a cut measured from one is pulled outwards by the hits and then fails to call them. The median absolute deviation is not, and ×1.4826 makes it the consistent estimator for a normal -- the same statistic :func:`spacr.figures.panels.control_threshold` measures the effect-size cut from, so the dashed lines here and the lines on the volcano cannot disagree about where three sigmas is.",
+      "translation": "σ 는 표준편차가 아니라 MAD 이며, 그것은 이 패널의 세부 사항이 아니라 요점이다. 표준편차는 스크린이 찾아내려는 바로 그 이상치에 의해 부풀려지므로, 표준편차로 잰 컷오프는 히트에 이끌려 바깥으로 밀려나고 결국 그 히트를 잡아내지 못한다. 중앙값 절대 편차는 그렇지 않으며, ×1.4826 을 곱하면 정규분포에 대한 일치추정량이 된다. 이는 :func:`spacr.figures.panels.control_threshold` 가 효과 크기 컷오프를 재는 바로 그 통계량이므로, 여기의 점선과 볼케이노 위의 선이 3 시그마의 위치를 두고 어긋날 수 없다."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_settings.GateSettingsDialog#2",
+      "source_sha256": "2b4d0333febd1f0d63e42fd024ceaa3d50ffc9db32d2bb158b7dd9b2992749ee",
+      "source": "the settings to edit. Held, not copied -- the dialog is live and emits :attr:`settings_changed` as controls move, so a caller wanting cancel-to-revert keeps its own copy.",
+      "context": "the settings to edit. Held, not copied -- the dialog is live and emits :attr:`settings_changed` as controls move, so a caller wanting cancel-to-revert keeps its own copy.",
+      "translation": "편집할 설정. 복사가 아니라 그대로 붙들고 있다 -- 이 대화 상자는 살아 있어서 컨트롤이 움직이는 대로 :attr:`settings_changed` 를 내보내므로, 취소로 되돌리기를 원하는 호출자는 자기 사본을 따로 두어야 한다."
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel#1",
+      "source_sha256": "48131e8a6f7384e1f7a4404de10925e80c53f14817203d995dc7956cc0c14e84",
+      "source": "A live view like the other three, and since the shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it wears their vocabulary: the same **Run preview** button, the same **Cancel** beside it, and a sentence on the status line whenever it cannot preview. It used to be alone in every one of those columns — its button said \"Refresh crops\", nothing could be cancelled, and a press with no array loaded did nothing and said nothing.",
+      "context": "A live view like the other three, and since the shared contract (:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) it wears their vocabulary: the same **Run preview** button, the same **Cancel** beside it, and a sentence on the status line whenever it cannot preview. It used to be alone in every one of those columns — its button said \"Refresh crops\", nothing could be cancelled, and a press with no array loaded did nothing and said nothing.",
+      "translation": "다른 셋과 마찬가지로 살아 있는 미리보기이며, 공유 계약(:class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`) 이후로는 그들의 어휘를 그대로 입는다. 같은 **Run preview** 버튼, 그 옆의 같은 **Cancel**, 그리고 미리 보여 줄 수 없을 때마다 상태 줄에 나타나는 한 문장이다. 예전에는 그 모든 항목에서 혼자였다 — 버튼에는 \"Refresh crops\" 라고 적혀 있었고, 아무것도 취소할 수 없었으며, 배열을 불러오지 않은 채 누르면 아무 일도 일어나지 않고 아무 말도 없었다."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel.shutdown#1",
+      "source_sha256": "aaea74280af6c08cb19bf5dfe5c748fd682ef0d3c3c80e38ccc7fcbb7d1238c5",
+      "source": "BOTH runners -- the plate scan and the plane-count read. Qt aborts the process when a running QThread is destroyed, so a runner left out of here is a crash at teardown rather than a leak.",
+      "context": "BOTH runners -- the plate scan and the image layer-count read. Qt aborts the process when an executing QThread is destroyed, so a runner left out of here is a crash at teardown rather than a leak.",
+      "translation": "두 실행기 모두 -- 플레이트 훑기와 층 수 읽기. 실행 중인 QThread 가 파괴되면 Qt 가 프로세스를 중단시키므로, 여기서 빠뜨린 실행기는 누수가 아니라 종료 시점의 크래시다."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierSpec.__post_init__#1",
+      "source_sha256": "602eb700ae6dd751535a6b8bfeb8660da68e792b8530c4c8a833fa90a8919a4d",
+      "source": "if the method or transform is not one this module offers; if ``k`` or ``c`` is not positive -- they are how many robust SDs and how many IQRs place the fence; if ``alpha`` is not a per-object false-positive rate in ``(0, 1)``; if ``min_well_objects`` is below 1, since a well with no objects has no median; or if ``support_fraction`` is given and is not in ``(0, 1]`` -- ``None`` picks sklearn's maximum-breakdown default.",
+      "context": "if the method or transform is not one this module offers; if ``k`` or ``c`` is not positive -- they are how many robust SDs and how many IQRs place the fence; if ``alpha`` is not a per-object false-positive rate in ``(0, 1)``; if ``min_well_objects`` is below 1, since a microplate sample position with no objects has no median; or if ``support_fraction`` is given and is not in ``(0, 1]`` -- ``None`` picks sklearn's maximum-breakdown default.",
+      "translation": "방법이나 변환이 이 모듈이 제공하는 것이 아닐 때. ``k`` 나 ``c`` 가 양수가 아닐 때 -- 이들은 로버스트 표준편차 몇 배, IQRs 몇 배로 울타리를 세울지를 정한다. ``alpha`` 가 ``(0, 1)`` 안의 객체별 위양성률이 아닐 때. ``min_well_objects`` 가 1 미만일 때 -- 객체가 하나도 없는 웰에는 중앙값이 없기 때문이다. 또는 ``support_fraction`` 이 주어졌는데 ``(0, 1]`` 안에 있지 않을 때 -- ``None`` 은 sklearn 의 최대 분해점 기본값을 고른다."
+    },
+    {
+      "label": "spacr.roi.RoiRegionFilter.__call__#3",
+      "source_sha256": "85dd96932ca8f93b8ce875c8169e3abe8648bac0f43357094fe781b4ac023384",
+      "source": "if the field is not covered and ``on_missing`` is ``'error'``, or if the ROI cannot be placed on this mask.",
+      "context": "if the microscope field of view is not covered and ``on_missing`` is ``'error'``, or if the ROI cannot be placed on this mask.",
+      "translation": "시야가 덮이지 않았고 ``on_missing`` 이 ``'error'`` 일 때, 또는 이 마스크 위에 ROI 를 놓을 수 없을 때."
+    },
+    {
+      "label": "spacr.roi.install#3",
+      "source_sha256": "00160810a628f3c6f3f7f49b11df9f6b9a6f5e6b2261afe2fd12eda574e9980f",
+      "source": "if the environment does not name a readable ROI file. Refusing loudly is the point — a worker that cannot load the ROI must not go on to measure every object in the field.",
+      "context": "if the environment does not name a readable ROI file. Refusing loudly is the point — a worker that cannot load the ROI must not go on to measure every object in the microscope field of view.",
+      "translation": "환경이 읽을 수 있는 ROI 파일을 지정하지 않을 때. 소리 내어 거부하는 것이 요점이다 — ROI 를 불러오지 못한 작업자가 그대로 시야 안의 모든 객체를 측정해서는 안 된다."
+    },
+    {
+      "label": "spacr.run_journal.recent_runs#3",
+      "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
+      "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
+      "context": "Each dictionary contains ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` dictionary when available.",
+      "translation": "각 딕셔너리는 ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO 문자열), ``elapsed_s`` (float), 그리고 사용할 수 있을 때의 원본 ``manifest`` 딕셔너리를 담는다."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#9",
+      "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
+      "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "context": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "translation": "파싱된 run-journal 매니페스트 매핑, 또는 없거나 읽을 수 없거나 객체가 아닐 때 빈 매핑."
+    },
+    {
+      "label": "spacr.zstack.TStackSpec.__post_init__#2",
+      "source_sha256": "8888caefd22d362e2e063d1078f6c3d664095e9ae203f9c40d052b3320db3ae9",
+      "source": "if t, z and channel do not name distinct axes; if the tracking backend is not one this build offers; if the link threshold is not an IoU in ``[0, 1]``; if the maximum displacement is given in both pixels and microns -- the same gate in two units, and spaCR will not pick one -- or if a displacement or frame interval is not finite and positive.",
+      "context": "if t, z and channel do not name distinct axes; if the tracking backend is not one this build offers; if the link threshold is not an IoU in ``[0, 1]``; if the maximum displacement is given in both pixels and microns -- the same data-selection boundary in two units, and spaCR will not pick one -- or if a displacement or frame interval is not finite and positive.",
+      "translation": "t, z, 채널이 서로 다른 축을 가리키지 않을 때. 추적 백엔드가 이 빌드가 제공하는 것이 아닐 때. 연결 임계값이 ``[0, 1]`` 안의 IoU 가 아닐 때. 최대 변위가 픽셀과 마이크로미터 양쪽으로 함께 주어졌을 때 -- 같은 경계를 두 단위로 말한 것이며 spaCR 는 어느 쪽도 고르지 않는다 -- 또는 변위나 프레임 간격이 유한하고 양수가 아닐 때."
+    }
+  ]
+}

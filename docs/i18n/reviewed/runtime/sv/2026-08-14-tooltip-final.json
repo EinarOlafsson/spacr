@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "batch_covariate_column",
+      "source_sha256": "ef1da37a6df496997f04e8e080d89f814318b92e686117d56d8a1556051340c4",
+      "source": "Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
+      "translation": "Metadatakolumn(er) som anger de biologiska effekter som ComBat måste bevara, till exempel 'condition' eller 'condition,timepoint'. ComBat skattar batcheffekten från residualerna efter att dessa termer har anpassats, så effekter som inte anges kan tas bort tillsammans med platteffekten. Inkludera varje behandlingseffekt som ska finnas kvar i de korrigerade data. Se spacr.batch_correction.correct_batch_effects. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_loc",
+      "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
+      "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
+      "translation": "En lista med brunnsidentifierare för varje post i cells anger varje värdcellinjes position på plattan, till exempel [['c1','c2'],['c3']]. Identifierare måste börja med 'r' för en rad eller 'c' för en kolumn; andra värden ignoreras och motsvarande brunnar förblir oannoterade. None märker varje rad med den första posten i cells. Inget standardvärde är angivet: annotate_filter_vision läser settings['cell_loc'] direkt, så nyckeln måste finnas i ordlistan och uttryckligen anges som None när platsmappning inte behövs."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_plate_metadata",
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "Brunnar som upptas av varje post i cell_types, med en inre lista per celltyp i samma ordning, till exempel [['c2','c3'],['c4']]. Varje identifierare måste börja med 'c' (kolumn) eller 'r' (rad); ogiltiga identifierare hoppas över utan undantag och dessa brunnar får ingen host_cells-etikett. Eftersom 'condition' kombinerar befintliga etiketter ändrar ett skrivfel jämförelsen utan att utlösa ett fel. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cells",
+      "source_sha256": "f2cb12d71feca339630d7678d7c81143ae8f53cc6f6fee6b071498bb9482df02",
+      "source": "Names of the host cell lines on the plate, e.g. ['HeLa']. Each name is written to the host_cells column and becomes part of the combined condition label used for grouping in plots and statistics. With cell_loc set the names are mapped well by well; with cell_loc None only the first name is used, applied to every row. No default is set: no set_default_* function fills this key and its readers index settings['cells'] directly, so it must be present - use None to skip host-cell annotation.",
+      "translation": "Namn på värdcellinjerna på plattan, t.ex. ['HeLa']. Varje namn skrivs till kolumnen host_cells och blir en del av den kombinerade tillståndsetikett som används för gruppering i diagram och statistik. När cell_loc är satt mappas namnen brunn för brunn; med cell_loc None används endast det första namnet på varje rad. Inget standardvärde är satt: ingen set_default_*-funktion fyller i nyckeln och läsarna indexerar settings['cells'] direkt, så den måste finnas – använd None för att hoppa över värdcellsannotering."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "color_by",
+      "source_sha256": "4085fb8f1ccbf86564d3f1efd551f6c34e3d98ba530195697e4941bace13e4f9",
+      "source": "Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
+      "translation": "Namnet på en kolumn i den sammanfogade mättabellen (t.ex. 'cond', 'columnID', 'plateID') som används för att färga inbäddningspunkter i stället för klusteretiketterna. Ange den för att se hur en känd gruppering, såsom tillstånd eller plattkolumn, fördelas över kartan; lämna den som None för färgning efter klustringsresultatet. Inställningen inaktiverar även remove_cluster_noise, plot_outlines och smooth_lines. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "coordinate_columns",
+      "source_sha256": "0cc61317e6a9fe0d058bf09cb34ee85f03e6d98dd180f8027c22f2f10aaee75d",
+      "source": "Database columns used to locate an object for on-demand cropping. Two columns may give a centroid row and column; one column may identify a labeled object whose mask supplies its extent. Coordinate-backed routes support only bounding-box crops. None uses the configured mask plane instead. Default None. Merged Classifier derives one identifier from object_array, initially ['cell_id'], so the single-column form is valid rather than an incomplete coordinate pair.",
+      "translation": "Databaskolumner som används för att hitta ett objekt för bildutsnitt på begäran. Två kolumner kan ange centroidens rad och kolumn; en kolumn kan identifiera ett märkt objekt vars mask anger dess utsträckning. Koordinatbaserade vägar stöder endast bildutsnitt med begränsningsruta. None använder i stället det konfigurerade maskplanet. Standard None. Merged Classifier härleder en identifierare från object_array, inledningsvis ['cell_id'], så formen med en kolumn är giltig och inte ett ofullständigt koordinatpar."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dependent_variable",
+      "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
+      "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
+      "translation": "Namnet på kolumnen i score_data som modelleras som respons, t.ex. 'pred'/'predictions' från ML-poängsteget eller en uppmätt egenskap som 'pathogen_nucleus_shortest_distance'. Den aggregeras per brunn med agg_type och transformeras därefter valfritt. Körningen avbryts om kolumnen saknas i poängfilen i CSV-format. Standard 'pred'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_metadata",
+      "source_sha256": "2b83c44d8152c5fd52cf26572f61d09f11a643b076b7655c3ecbaf67e3a5f7a3",
+      "source": "Substring filter applied to png_path when retrieving crops from the database. Only paths containing the supplied string are included; a list matches any entry rather than requiring all entries. Use this setting to restrict a dataset to one plate, well, or object type, for example 'plate1_' or 'cell_png'. None includes every crop. Default None.",
+      "translation": "Delsträngsfilter som tillämpas på png_path när bildutsnitt hämtas från databasen. Endast sökvägar som innehåller den angivna strängen tas med; en lista matchar valfri post och kräver inte samtliga. Använd inställningen för att begränsa en datamängd till en platta, brunn eller objekttyp, till exempel 'plate1_' eller 'cell_png'. None tar med alla bildutsnitt. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "filter_min_max",
+      "source_sha256": "5e56f6ccc65b1297a808103991c48f7f8ae1e0fb5e26c5b217921e806b4a3046",
+      "source": "Display-only size filter for plot_merged: one [min_area, max_area] pair in pixels per mask dimension, in the order cell, nucleus, pathogen, e.g. [[500,50000],[100,5000],[10,2000]]. Objects outside a pair are erased from that mask before the overlay is drawn. None (default) keeps every object.",
+      "translation": "Storleksfilter enbart för visning i plot_merged: ett par [min_area, max_area] i pixlar per maskdimension, i ordningen cell, cellkärna, patogen, t.ex. [[500,50000],[100,5000],[10,2000]]. Objekt utanför ett par raderas från masken innan överlagringen ritas. None (standard) behåller alla objekt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "heatmap_feature",
+      "source_sha256": "c9587c62a045c9043589a1650164acb6dc1b2bdbc00f53390dd739996d5655a3",
+      "source": "Numeric column that is aggregated per well and color-mapped in the plate heatmap after ML scoring, e.g. 'predictions' for the classifier score or 'recruitment' for the pathogen/cytoplasm intensity ratio. Must be a numeric column of the scored dataframe or the run raises ValueError listing the valid names. Default 'predictions'.",
+      "translation": "Numerisk kolumn som aggregeras per brunn och färgmappas i plattans värmekarta efter ML-poängsättning, t.ex. 'predictions' för klassificerarens poäng eller 'recruitment' för intensitetskvoten patogen/cytoplasma. Den måste vara en numerisk kolumn i den poängsatta dataramen, annars utlöser körningen ValueError med en lista över giltiga namn. Standard 'predictions'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metric",
+      "source_sha256": "f0bcc1ac52b07a9d5f15ed998187b4b65ed317c436f482bac445bd29dad8067d",
+      "source": "Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
+      "translation": "Avståndsmått som används både av reduceraren (UMAP eller t-SNE) och av DBSCAN-klustringen, t.ex. 'euclidean', 'manhattan', 'cosine' eller 'correlation'. Korrelationsmått jämför egenskapsprofiler oberoende av storlek och separerar ofta fenotyper bättre än euklidiskt avstånd för skalade data. Standard 'euclidean'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "negative_control",
+      "source_sha256": "d4ad22ab908cdd34ab6d58d288b1918e8efcd8444e8105f8ec5578bddeb5be18",
+      "source": "Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
+      "translation": "Identifierare för den negativa kontrollklassen. Vid ML-screening är detta värdet i location_column (t.ex. 'c1') vars objekt märks som klass 0 för träning; vid gRNA-regression är det en delsträng i gen-/gRNA-ID (t.ex. '233460') som matchas mot koefficientnamn för att märka dem 'nc' i resultatet och vulkandiagrammet. Standardvärdena är 'c1' respektive '233460'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "path_string",
+      "source_sha256": "ab9508713fe61c4b57be76f8430878c6f738e991f30572ee773a129ea74767d2",
+      "source": "Substring that must occur in a crop path for that crop to enter the dataset, for example 'cell_png' or 'nucleus_png'. The legacy name png_type remains accepted, although the setting performs only path filtering. Default 'cell_png'.",
+      "translation": "Delsträng som måste förekomma i sökvägen till ett bildutsnitt för att bildutsnittet ska ingå i datamängden, till exempel 'cell_png' eller 'nucleus_png'. Det äldre namnet png_type godtas fortfarande, även om inställningen endast filtrerar sökvägar. Standardvärde 'cell_png'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "positive_control",
+      "source_sha256": "2756812b188101d4307d8ffdf0a5ee28de6f92292b079dee2c93b84912009f16",
+      "source": "Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
+      "translation": "Identifierare för den positiva kontrollklassen. Vid ML-screening är detta värdet i location_column (t.ex. 'c2') vars objekt märks som klass 1 för träning; vid gRNA-regression är det en delsträng i gen-/gRNA-ID (t.ex. '239740') som matchas mot koefficientnamn för att märka dem 'pc' i resultatet och vulkandiagrammet. Standardvärdena är 'c2' respektive '239740'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "target_layer",
+      "source_sha256": "dee64f9d73a7f757e5a080b5fc247bf94f82fbdfb45280618f16c92f0c4f4d13",
+      "source": "Dotted attribute path to the convolutional layer whose activations and gradients Grad-CAM hooks, e.g. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) lists valid names. Later layers give class-specific but coarse maps, earlier ones finer detail. Required for 'gradcam'/'gradcam_pp' - it is auto-filled only when model_type is exactly 'maxvit', and left None it raises. Default None.",
+      "translation": "Punktavgränsad attributsökväg till det konvolutionslager vars aktiveringar och gradienter Grad-CAM kopplar in sig på, t.ex. 'base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b'; utils.recommend_target_layers(model) listar giltiga namn. Senare lager ger klasspecifika men grova kartor, tidigare lager finare detaljer. Krävs för 'gradcam'/'gradcam_pp' – fylls automatiskt endast när model_type är exakt 'maxvit', och om None lämnas utlöses ett fel. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_frame_limits",
+      "source_sha256": "4e711cc329f7be0784d255b050d14fb3ce411dbb1ad794694d33f6a8f3fb3025",
+      "source": "Slice of frame indices [start, end] kept from each batch before tracking, e.g. [0,10] to work on the first ten frames while tuning settings. The list is ignored unless it has at least two elements, which is why the shipped default [5,] has no effect. Default [5,].",
+      "translation": "Intervall av bildruteindex [start, end] som behålls från varje batch före spårning, t.ex. [0,10] för att arbeta med de första tio bildrutorna medan inställningarna finjusteras. Listan ignoreras om den inte har minst två element, vilket är anledningen till att det levererade standardvärdet [5,] inte har någon effekt. Standard [5,]."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "treatment_loc",
+      "source_sha256": "6b45bd8c496316758a102d96173497bc1d24557bd8fe4f6d2c8cdff4dbecbe2b",
+      "source": "Plate wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2'],['r3']]. Identifiers must start with 'r' (row) or 'c' (column); wells you do not list get no treatment label. Used by the vision-score annotation step. No default - supply it alongside treatments.",
+      "translation": "Plattbrunnar som fick varje post i treatments, med en inre lista per behandling i samma ordning, t.ex. [['r1','r2'],['r3']]. Identifierare måste börja med 'r' (rad) eller 'c' (kolumn); brunnar som inte anges får ingen behandlingsetikett. Används av annoteringssteget för bildpoäng. Inget standardvärde – ange det tillsammans med treatments."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "treatments",
+      "source_sha256": "a13f1910bf847c50b438a43e85de7503d1d3ac6019d5529e182b48fa403e78a6",
+      "source": "Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin']. Invasion and Replication start at None, so they add no treatment condition until names and matching well groups are supplied.",
+      "translation": "Namn på läkemedels- eller behandlingsvillkoren i experimentet, t.ex. ['dmso','lovastatin']. Varje namn skrivs i kolumnen treatment och infogas i den kombinerade tillståndsetikett som används för gruppering och diagram; det paras positionsvis med treatment_plate_metadata (eller treatment_loc), som listar brunnarna för respektive behandling. Standard ['cm','lovastatin']. Invasion och Replication börjar med None, så ingen behandlingsbetingelse läggs till förrän namn och motsvarande brunngrupper har angetts."
+    }
+  ]
+}

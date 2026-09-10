@@ -1,21 +1,22 @@
 """Screen widgets — one per spacr app.
 
-Screens that own their registry row (:func:`spacr.qt.app.register_app`) rather
-than appearing in the table inside ``app.py`` have to be *imported* for that
-row to exist, so they are imported here — this package is on the path of every
-screen the window builds.
+NOTHING IS IMPORTED HERE. This package used to import nine screens at the top,
+because a screen that owned its registry row had to be executed for the row to
+exist, and this package is on the path of every screen the window builds — so
+importing one screen imported nine, and with them pandas and everything under
+it, before the window had drawn.
 
-Each import is wrapped: a new screen with an import-time bug must not take
-every other screen down with it. The same posture ``app.py`` takes towards
-plugin registrations, for the same reason.
+A row does not need the screen any more. :mod:`spacr.qt.app_catalog` declares
+the key, the name, the sentence, the section, the stage and the NAME of the
+screen factory, and :func:`spacr.qt.app_catalog.register_declared` registers
+all of that without importing anything; the screen is imported the first time
+somebody opens it. A screen that contributes a stylesheet block registers it
+at that import, and ``MainWindow`` applies missing registered blocks to the
+new screen's own QSS scope before inserting it into the visible stack.
+:data:`spacr.qt.theme.WIDGET_QSS_MODULES` remains the inventory used when an
+exhaustive/static stylesheet is explicitly requested.
+
+So: to add a screen, declare its row in ``app_catalog`` and — if it registers
+a QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain
+complete. Do not import it here merely for startup styling.
 """
-import logging as _logging
-
-for _module in ("data_manager", "pipeline_graph", "hit_list", "profiler",
-                "methods_export", "experiment_design", "qc_dashboard"):
-    try:
-        __import__(f"{__name__}.{_module}")
-    except Exception:  # pragma: no cover - defensive, per-module
-        _logging.getLogger(__name__).exception(
-            "Could not register the %s screen", _module)
-del _module

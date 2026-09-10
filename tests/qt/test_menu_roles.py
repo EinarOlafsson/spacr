@@ -117,9 +117,14 @@ def test_home_preferences_and_quit_come_first(window):
     # Home first, then the two Qt relocates on macOS. Asked for in that
     # order: the thing you reach for most often should not sit below
     # thirty app names. "All apps" was removed from the menu at the same
-    # time -- its Ctrl+B shortcut is still registered on the window, and
-    # `test_ctrl_b_survives_leaving_the_menu` covers that.
-    assert texts[:3] == ["Home", "Preferences…", "Quit"], texts[:5]
+    # time -- its Ctrl+Shift+A shortcut is still registered on the window,
+    # and `test_drawer_shortcut_survives_leaving_the_menu` covers that.
+    # Minimise and Maximise sit between Preferences and Quit, asked for on
+    # 2026-08-31: "add maximize minimize to the spacr menue above quit".
+    # They are the SAME two QActions the Window submenu holds, added to a
+    # second menu rather than rebuilt.
+    assert texts[:5] == ["Home", "Preferences…", "Minimise", "Maximise",
+                         "Quit"], texts[:6]
     assert "All apps" not in texts, (
         "the drawer toggle is back in the menu; it was removed because the "
         "name does not say what it does")
@@ -134,8 +139,8 @@ def test_an_unknown_role_name_is_refused():
         set_menu_role(host, "preference")      # missing the s
 
 
-def test_ctrl_b_survives_leaving_the_menu(qtbot):
-    """"All apps" left the menu; Ctrl+B must not have left with it.
+def test_drawer_shortcut_survives_leaving_the_menu(qtbot):
+    """"All apps" left the menu; Ctrl+Shift+A must not have left with it.
 
     The edge drawer is otherwise reachable only by hovering a 6 px strip,
     which is not a route a keyboard user has. Deleting the QAction would
@@ -150,6 +155,6 @@ def test_ctrl_b_survives_leaving_the_menu(qtbot):
     qtbot.addWidget(window)
 
     bound = [a for a in window.actions()
-             if a.shortcut() == QKeySequence("Ctrl+B")]
-    assert bound, "Ctrl+B is no longer registered on the window"
+             if a.shortcut() == QKeySequence("Ctrl+Shift+A")]
+    assert bound, "Ctrl+Shift+A is no longer registered on the window"
     assert bound[0].text() == "All apps"

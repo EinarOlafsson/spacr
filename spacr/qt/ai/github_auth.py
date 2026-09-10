@@ -32,8 +32,20 @@ _APP = "qt"
 _KEY_TOKEN = "github/pat"
 _EPHEMERAL_TOKEN = ""
 
+# The HTTP seam used by every GitHub API request.  Production leaves this at
+# the real stdlib transport.  Offline tests replace the seam itself, which is
+# materially different from setting an environment variable that says a real
+# write is allowed: the replacement is process-local, cannot be inherited by a
+# subprocess, and any late teardown call still lands in the fake transport.
+_REAL_HTTP_OPEN = urllib.request.urlopen
+_HTTP_OPEN = _REAL_HTTP_OPEN
+
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_ORG, _APP)
 
 
@@ -64,6 +76,11 @@ def set_stored_token(token: str) -> None:
 
 
 def _env_token() -> str:
+    """Read a GitHub token from the environment.
+
+    :returns: the token, or ``""`` when none is set -- checked before the
+        stored one so a CI run can override what a developer saved.
+    """
     for var in ("GITHUB_TOKEN", "GH_TOKEN"):
         v = os.environ.get(var, "").strip()
         if v:
@@ -149,40 +166,57 @@ def _refuse_writes_under_test() -> Optional[str]:
     which is how ``[auto 54a0e8] [mask] Error: boom`` (#75) arrived on the
     public tracker from a test fixture.
 
-    Mocking is the caller's job and most of the suite does it; this is the
-    backstop for the ones that forget, because the cost of forgetting is
-    public and cannot be undone by fixing the test afterwards.
-
-    ``SPACR_ALLOW_GITHUB_WRITES=1`` re-enables writing for a test that is
-    genuinely exercising the network path against a scratch repository.
+    ``PYTEST_CURRENT_TEST`` is not sufficient: pytest removes it between
+    phases and at session teardown.  The root conftest therefore installs
+    ``SPACR_PYTEST_SESSION`` before collection; ordinary subprocesses inherit
+    it.  There is deliberately no environment-variable escape hatch.
     """
     import os
 
-    if os.environ.get("SPACR_ALLOW_GITHUB_WRITES") == "1":
-        return None
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        return ("refusing to write to GitHub from inside a test run; set "
-                "SPACR_ALLOW_GITHUB_WRITES=1 if that is really intended")
+    if (os.environ.get("SPACR_PYTEST_SESSION") == "1"
+            or "PYTEST_CURRENT_TEST" in os.environ):
+        return "refusing GitHub network access from inside a test run"
+    return None
+
+
+def _transport_refusal() -> Optional[str]:
+    """Refuse real GitHub transport in tests, while admitting a fake seam.
+
+    Offline transport tests replace :data:`_HTTP_OPEN`, so exercising request
+    construction remains possible without an escape hatch.  A subprocess
+    imports this module afresh and therefore gets :data:`_REAL_HTTP_OPEN`; a
+    fixture teardown restores it.  Both cases remain refused for the lifetime
+    of the pytest session.
+    """
+    reason = _refuse_writes_under_test()
+    if reason and _HTTP_OPEN is _REAL_HTTP_OPEN:
+        return reason
     return None
 
 
 def find_issue_by_fingerprint(repo: str, fingerprint: str
                               ) -> Tuple[bool, Optional[dict]]:
-    """Find an OPEN issue whose body carries ``fingerprint``.
+    """Find an open GitHub issue containing a diagnostic fingerprint.
 
-    The fingerprint is the whole point of `_traceback_hash`: the same bug
-    hashes the same across runs and machines. Without this lookup nothing
-    consumes it, and one crash becomes one issue per occurrence -- ten of
-    them in a single day on 2026-08-11 (#79-#81, #84-#90), which buries the
-    reports that matter.
+    Parameters
+    ----------
+    repo : str
+        Repository slug in ``owner/name`` form.
+    fingerprint : str
+        Short diagnostic hash stored in the issue body.
 
-    :param repo: ``owner/name`` slug.
-    :param fingerprint: the short hash from the report body.
-    :returns: ``(True, issue_dict)`` when one is found, ``(True, None)`` when
-        the search ran and found nothing, ``(False, None)`` when it could not
-        run. The three are distinct because "no match" means CREATE and
-        "could not search" means fall back rather than risk losing the report.
+    Returns
+    -------
+    search_completed : bool
+        ``True`` when GitHub returned a search result, including no matches.
+        ``False`` when authentication is unavailable or the search fails.
+    issue : dict or None
+        First matching issue, or ``None`` when no issue was found or the
+        search could not be completed.
     """
+    if _transport_refusal():
+        return False, None
+
     token, _src = resolve_token()
     if not token:
         return False, None
@@ -199,7 +233,7 @@ def find_issue_by_fingerprint(repo: str, fingerprint: str
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with _HTTP_OPEN(req, timeout=20) as resp:
             info = json.loads(resp.read().decode("utf-8"))
         items = info.get("items") or []
         return True, (items[0] if items else None)
@@ -215,6 +249,10 @@ def comment_on_issue(repo: str, number: int, body: str) -> Tuple[bool, str]:
     :param body: markdown comment body.
     :returns: ``(True, comment_html_url)`` on success, else ``(False, error)``.
     """
+    refusal = _transport_refusal()
+    if refusal:
+        return False, refusal
+
     token, _src = resolve_token()
     if not token:
         return False, "Not signed in to GitHub (no token available)."
@@ -232,7 +270,7 @@ def comment_on_issue(repo: str, number: int, body: str) -> Tuple[bool, str]:
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with _HTTP_OPEN(req, timeout=20) as resp:
             info = json.loads(resp.read().decode("utf-8"))
             return True, info.get("html_url", "")
     except Exception as exc:
@@ -249,6 +287,10 @@ def create_issue(repo: str, title: str, body: str,
     :param labels: labels to attach (created lazily by GitHub if new).
     :returns: ``(True, issue_html_url)`` on success, else ``(False, error)``.
     """
+    refusal = _transport_refusal()
+    if refusal:
+        return False, refusal
+
     token, _src = resolve_token()
     if not token:
         return False, "Not signed in to GitHub (no token available)."
@@ -269,7 +311,7 @@ def create_issue(repo: str, title: str, body: str,
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with _HTTP_OPEN(req, timeout=20) as resp:
             body_out = resp.read().decode("utf-8")
             info = json.loads(body_out)
             return True, info.get("html_url", "")

@@ -5,8 +5,10 @@ pytest-qt is not installed so the rest of the suite still runs.
 """
 from __future__ import annotations
 
-from importlib.util import find_spec
+import gc
+
 import os
+from importlib.util import find_spec
 
 import pytest
 
@@ -24,6 +26,49 @@ collect_ignore_glob = (
     if any(find_spec(module) is None for module in _QT_TEST_DEPENDENCIES)
     else []
 )
+
+# NOT the reason this file's fixtures can go missing, though it is the first
+# thing anybody suspects. Interleaving a non-Qt file between two Qt ones once
+# made every fixture below disappear -- "fixture 'qt_theme_applied' not found"
+# for a whole file, while the summary line still counted the first two as
+# passes -- and this glob, computed once at import, had nothing to do with it.
+# The cause was two collection nodes for one directory; the fix and the guard
+# that keeps it fixed live in tests/conftest.py, under "One collection node
+# per directory". This module is imported exactly once either way.
+
+
+def pytest_configure(config):
+    """Point the preference store at a throwaway directory, before anything.
+
+    THE TESTS WROTE TO THE USER'S REAL CONFIG, and on 2026-09-09 they left
+    `font_scale=2` in ~/.config/spacr/qt.conf. Opening spaCR after that gave
+    a 200 % interface nobody chose, and two tests in
+    `test_every_picture_is_drawn_for_the_screen_it_is_on` failed for a whole
+    session because the masthead logo follows the font scale -- they measured
+    144 px for a 72 px mark and read as a device-pixel-ratio regression.
+
+    `_restore_font_scale` below was supposed to prevent exactly that and
+    cannot: it is a TEARDOWN, and a run that is killed -- a timeout, a
+    segfault, a Ctrl-C, a `pkill` -- never reaches it. Every one of those
+    happened during a single afternoon of measuring, and each left whatever
+    scale the last test had set.
+
+    So the store is moved instead of restored. `QSettings(org, app)` resolves
+    through XDG_CONFIG_HOME on Linux and the equivalent elsewhere, and this
+    runs in `pytest_configure`, before any test or fixture has constructed
+    one. A killed process now leaves a temporary directory behind rather than
+    a changed preference.
+    """
+    import tempfile
+
+    if os.environ.get("SPACR_TEST_KEEP_REAL_CONFIG"):
+        return
+    home = tempfile.mkdtemp(prefix="spacr-test-config-")
+    os.environ["XDG_CONFIG_HOME"] = home
+    # APPDATA and the macOS default are resolved from HOME, which Qt reads
+    # for the native formats those platforms use.
+    os.environ.setdefault("APPDATA", home)
+    config._spacr_test_config_home = home
 
 
 @pytest.fixture(scope="session")
@@ -148,7 +193,28 @@ def _restore_font_scale(deferred_deletions_flushed):
         except Exception:
             pass
         if app.styleSheet() != original_stylesheet:
-            _PENDING_STYLESHEET = original_stylesheet
+            # NEVER QUEUE AN EMPTY SHEET FOR RESTORE. This restores whatever
+            # was there when the test STARTED, and if that was "" it blanks
+            # the application for everything after it -- then the next test
+            # snapshots "" as well, so the emptiness is self-perpetuating.
+            # A one-way ratchet to nothing, which is the same shape
+            # `_widget_qss_registrars_loaded` exists to stop one level up.
+            #
+            # `qt_theme_applied` is SESSION-scoped and applies the sheet once,
+            # so once it is blanked nothing puts it back and later files test
+            # an unstyled app: "0.0% unpainted and 47.1% is the window colour"
+            # is what that looks like from `test_settings_column_never_black`.
+            #
+            # An empty snapshot is never a state worth restoring, so the
+            # session baseline is restored instead of the hole.
+            if original_stylesheet:
+                _PENDING_STYLESHEET = original_stylesheet
+            else:
+                try:
+                    from spacr.qt.theme import stylesheet as _canonical
+                    _PENDING_STYLESHEET = _canonical()
+                except Exception:                            # noqa: BLE001
+                    _PENDING_STYLESHEET = None
 
 
 @pytest.fixture(autouse=True)
@@ -213,6 +279,24 @@ def _restore_app_registry():
         # A side table that was only imported DURING the test is restored on
         # the next test instead; the snapshot above cannot hold what did not
         # exist yet, and re-snapshotting every teardown would defeat the point.
+
+
+@pytest.fixture(autouse=True)
+def _sandbox_remote_execution_state(monkeypatch, tmp_path):
+    """Keep Qt screen smoke tests out of the operator's persistent state.
+
+    Several screens construct the distributed-execution profile store during
+    ordinary navigation.  Without an explicit test directory, those smoke
+    tests try to lock ``~/.local/state/spacr/remote/profiles.json``.  That is
+    both an unintended write to user state and unreliable in read-only CI
+    homes.  The production resolver already exposes this override precisely
+    for tests and managed deployments, so apply it consistently to every Qt
+    test rather than relying on individual screen tests to anticipate which
+    constructors touch the store.
+    """
+    monkeypatch.setenv(
+        "SPACR_REMOTE_STATE_DIR", str(tmp_path / "remote-execution-state")
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -346,13 +430,35 @@ def deferred_deletions_flushed(qapp):
 
 
 @pytest.fixture(autouse=True)
+def _qt_catalog_matches_test_language(
+        deferred_deletions_flushed, _isolated_qsettings_store):
+    """Start each test with Qt's native catalog in its declared language.
+
+    The QApplication is session-scoped while both the environment and the
+    QSettings store are isolated per test.  A test that explicitly renders a
+    widget in Swedish therefore used to leave Qt's own Swedish translator
+    installed for the next test even though :func:`current_language` had
+    returned to English.  Reset at the next test's setup, after deferred
+    widget deletion, because installing a translator emits application-wide
+    ``LanguageChange`` events and teardown is still destroying widgets.
+    """
+    from spacr.qt.i18n import current_language, install_qt_translations
+
+    app = deferred_deletions_flushed
+    code = current_language()
+    if getattr(app, "_spacr_qt_translator_code", None) != code:
+        install_qt_translations(app, code)
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _skip_first_launch_tour():
     """The first-launch tour attaches a modal overlay to the MainWindow
     the first time it opens. Left alone, it steals focus + adds widgets
     that break test isolation. Mark it "seen" for every Qt test so
     MainWindow constructs without the overlay."""
     try:
-        from spacr.qt.first_run import mark_tour_seen, reset_tour_state
+        from spacr.qt.first_run import mark_tour_seen
         mark_tour_seen()
         yield
         # Leave the "seen" flag alone — tests that specifically want
@@ -518,3 +624,110 @@ def _no_unguarded_modals(monkeypatch):
             _refuse_static._spacr_modal_guard = True
             monkeypatch.setattr(cls, name, staticmethod(_refuse_static),
                                 raising=False)
+
+
+@pytest.fixture(autouse=True)
+def no_job_outlives_the_test_that_started_it(deferred_deletions_flushed):
+    """Nobody inherits a job the previous test left in the run registry.
+
+    ``bridge.make_thread`` registers a ``RunHandle`` in the PROCESS-WIDE
+    registry and relies on ``thread.finished`` to take it out again. A test
+    that stubs ``QThread.start``, or that builds a thread it never starts,
+    never emits ``finished`` — so the handle stays registered for the rest of
+    the process, holding its worker and its QThread with it.
+
+    What that costs is not the memory. ``registry().is_busy()`` answers True
+    from then on, the activity spinner turns for a job nobody started, and any
+    test that asks whether spaCR is running anything gets the previous file's
+    answer. It is the same shape as ``_restore_app_registry`` above: process
+    state one caller mutates and every later test reads.
+
+    Only handles with NO LIVE THREAD are removed — never started, finished, or
+    a QThread whose C++ half is already gone. A running job is left exactly
+    where it is: the fixture that reached across live Qt objects at teardown
+    is documented above as having crashed this suite three ways, and the whole
+    difference here is that this touches nothing that is still working.
+
+    At setup rather than teardown for the same reason ``linked_filter_starts_
+    empty`` is: ``unregister`` emits, subscribed views answer, and doing that
+    part-way through Qt teardown is the hazard. By the next test's setup the
+    previous test's widgets are already gone.
+    """
+    try:
+        from spacr.qt import bridge
+    except Exception:
+        yield
+        return
+    try:
+        for handle in list(bridge.registry().active()):
+            if bridge.thread_has_stopped(getattr(handle, "thread", None)):
+                bridge.registry().unregister(handle)
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(autouse=True)
+def linked_filter_starts_empty(deferred_deletions_flushed):
+    """Nobody inherits the population another test narrowed.
+
+    `DataFilterPanel` publishes into the PROCESS-WIDE
+    :class:`~spacr.qt.linked_selection.LinkedSelection` -- a module singleton
+    -- and every `LinkedView` reads its filter through `linked_visible`
+    whether or not it ever subscribed. So one `add_column("area")` anywhere
+    narrows every canvas built afterwards, for the rest of the process. It is
+    published on a debounce timer as well, so the test that set it has usually
+    finished by the time it lands, and the failure surfaces in an unrelated
+    file: a `GateCanvas` with a real table and a real Axes3D that renders no
+    axes at all, because zero of its rows survived a filter written for a
+    different table's units.
+
+    Cleared at SETUP rather than teardown, and after `deferred_deletions_
+    flushed`, for the reason recorded above the removal of `_drain_job_
+    runners`: `clear_filter` emits, subscribed views answer, and doing that
+    part-way through Qt teardown is how that fixture crashed the run three
+    ways. At setup the previous test's widgets are already gone.
+    """
+    try:
+        from spacr.qt.linked_selection import linked_selection
+        linked_selection().clear_filter()
+    except Exception:
+        pass
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _the_live_backdrop_controls_do_not_leak():
+    """Restore ``fractal_travel._LIVE_CONTROLS`` around every test.
+
+    Every backdrop that gets installed appends its ``RuntimeControls`` to
+    that module-level list, and the list is what Ctrl+R, the wheel and the
+    arrow keys act on -- so a widget installed by one test is still being
+    steered by the next.
+
+    That is not theoretical. Five tests failed in a full run and passed
+    alone, and the evidence was in the assertion messages: one reported
+    ``RuntimeControls(speed=4.0, ...)`` when the default has been 1.0
+    since 2026-09-01, and another found ``restart_token`` already at 0
+    after a Ctrl+R it had just sent. Both were reading a previous test's
+    object.
+
+    The list is capped at eight entries by ``del _LIVE_CONTROLS[:-8]``,
+    which bounds the leak without stopping it -- eight tests' worth of
+    stale controls is still stale.
+
+    Snapshotted on the way IN as well as restored on the way out, for the
+    reason this suite keeps rediscovering: restoring alone leaves a test
+    running BEFORE this one deciding the answer.
+    """
+    try:
+        from spacr.qt.widgets import fractal_travel
+    except Exception:                                    # noqa: BLE001
+        yield
+        return
+    before = list(fractal_travel._LIVE_CONTROLS)
+    fractal_travel._LIVE_CONTROLS[:] = []
+    try:
+        yield
+    finally:
+        fractal_travel._LIVE_CONTROLS[:] = before

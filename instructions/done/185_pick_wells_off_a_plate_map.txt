@@ -1,0 +1,168 @@
+================================================================================
+PICK WELLS OFF A PLATE MAP, INSTEAD OF TYPING THEM
+================================================================================
+
+Status:    DONE 2026-08-20. See the closing section.
+Requested: 2026-08-20 -- "for every option where the user is choosing one or
+           several well possitions to the right of the field should be a
+           button they can press that spawns a window with three buttons in
+           the bottom right: plate, Done, Close.
+
+           when the user clicks plate (384 is default) they get prompted with
+           plate layout options (6, 12, 24, 96, 385, 1536) and they should be
+           able to click and drag over the wells which get blue fill if cosen.
+           and if they are chosen and the user clicks done these wells get
+           added to the field. this means that the underlying function(s)
+           needs to be able to handle row (e.g. r1), column (e.g. c1) and
+           well (A01)."
+Owner:     Qt GUI + settings
+
+--------------------------------------------------------------------------------
+THE DIALOG
+--------------------------------------------------------------------------------
+
+A button to the RIGHT of every settings field that takes well positions.
+Pressing it opens a modal plate map with three buttons at the BOTTOM RIGHT:
+
+    [ Plate ]   [ Done ]   [ Close ]
+
+  Plate   prompts for the layout: 6, 12, 24, 96, 384, 1536. DEFAULT 384.
+          (The ask says "385"; that is a typo for the standard 384 and is
+          read as such -- there is no 385-well plate. Say so if it matters.)
+  Done    writes the chosen wells into the field and closes.
+  Close   closes and changes nothing.
+
+Selection is CLICK AND DRAG over a rectangular region of wells. A chosen well
+fills BLUE. Dragging over already-chosen wells should be decided: proposed is
+that a drag starting on an unchosen well selects, and one starting on a
+chosen well deselects, which is the spreadsheet idiom.
+
+--------------------------------------------------------------------------------
+THE HARD HALF, AND IT IS NOT THE DIALOG
+--------------------------------------------------------------------------------
+
+"the underlying function(s) needs to be able to handle row (e.g. r1), column
+(e.g. c1) and well (A01)."
+
+Today these fields take different vocabularies in different places and a
+value in the wrong one silently matches nothing. The dialog can only write a
+value the readers already understand, so the READERS come first:
+
+A. ONE PARSER for a well specification, accepting all three forms in one
+   list, mixed:
+
+       r1        a whole ROW
+       c1        a whole COLUMN
+       A01       one WELL
+       A1        the same well, unpadded
+       r1c1      the same well again
+
+   and returning a canonical set of (row, column) pairs given the plate
+   layout. Case-insensitive. It must be ONE function -- there are several
+   settings that take these and they must agree.
+
+B. THE LAYOUT DECIDES WHAT IS LEGAL. `A01` is a well on every layout; `H12`
+   is a well on a 96 and beyond, and not on a 24. A specification naming a
+   well the layout does not have is an error that says which layout it was
+   read against, not a silent drop.
+
+C. WHICH SETTINGS TAKE WELLS -- audit and list them before building anything.
+   Candidates seen so far: the control/`nc`/`pc` fields, the annotation app's
+   well filters, the timelapse well selection, and the montage's well filter.
+   The audit is part of the deliverable: a button next to only some of them
+   is worse than none.
+
+D. ROUND TRIP. A value the dialog writes must parse back to the same
+   selection, so re-opening the dialog on a filled field SHOWS that selection
+   already blue rather than starting empty.
+
+--------------------------------------------------------------------------------
+WHAT IS UNCERTAIN
+--------------------------------------------------------------------------------
+
+  * How the chosen wells are WRITTEN back. A drag over a whole row could be
+    written as `r1` or as `A01..A24`. Proposed: collapse to the compact form
+    (`r1`, `c1`) when a full row or column is selected, otherwise list the
+    wells -- and say which, because it is what the user will read.
+  * Whether "added to the field" means REPLACE or APPEND when the field
+    already has a value. Proposed: the dialog opens showing the current
+    selection (per D), so Done REPLACES with whatever is blue -- append and
+    replace are then the same gesture and there is nothing to explain.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The parser takes `r1, c1, A01` in one string and returns the union, on any
+  of the six layouts.
+* A well outside the layout errors, naming the layout.
+* Every settings field that takes wells has the button, and the audit in C is
+  written down.
+* Dragging a full row and pressing Done puts a value in the field that the
+  parser reads back to exactly that row.
+* Re-opening the dialog on a filled field shows those wells blue.
+* The dialog is testable without a human: the drag is a method that takes two
+  cells, so a test can select a region and assert the written value.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. THE CLOSING SECTION THE STATUS LINE POINTS AT.
+--------------------------------------------------------------------------------
+
+Recovered after the fact: the status line said "see the closing section" and
+there was none, so what shipped -- and the two places it deliberately differs
+from the checklist -- was recorded only in the code.
+
+THE PARSER IS `spacr/well_spec.py`, one function for every caller. `parse`
+takes `r1, c1, A01` mixed in one string on any of the six layouts
+(`LAYOUTS` = 6, 12, 24, 96, 384, 1536, `DEFAULT_LAYOUT` = 384) and returns
+one-based ``(row, column)`` pairs. `A1`, `A01` and `r1c1` are the same well,
+and the whole vocabulary is case-insensitive. `to_text` is its inverse and
+COLLAPSES: a full row is written `r1`, a full column `c1`, everything else
+listed -- which is the uncertain question this file left open, answered the
+way it proposed.
+
+OUT OF THE LAYOUT IS AN ERROR THAT NAMES THE LAYOUT. `WellSpecError` on
+`H12` against a 24: "'H12' is outside a 24-well plate, which has 4 row(s) and
+6 column(s) (A01 to D06). Choose the layout the plate actually is."
+
+THE DIALOG IS `spacr/qt/widgets/plate_map_picker.py::PlateMapPicker`, with
+Plate / Done / Close at the bottom right and 384 as the layout it opens on.
+It is DRIVEN WITHOUT A HUMAN: `select_region(start, end, choosing=None)`
+takes two cells and does the drag, `begin_drag`/`drag_to`/`finish_drag` are
+the mouse path over the same code, and `selection()` / `set_selection()` /
+`value()` are what a test asserts on. Passing `choosing=None` inverts the
+state of the anchor well, which is the spreadsheet idiom this file proposed.
+
+RE-OPENING IS THE ROUND TRIP. `AppScreen.pick_wells_for` constructs the
+picker on the field's CURRENT text, so the wells already in the field come up
+blue, and Done REPLACES with whatever is blue -- append and replace are the
+same gesture, as proposed. Closing writes nothing and leaves the field
+untouched.
+
+TWO DELIBERATE NARROWINGS, neither of them recorded until now:
+
+  * THE AUDIT IN C LIVES IN THE CODE, not in this file. `well_spec.WELL_SETTINGS`
+    is the audit -- every setting whose documented value MAY contain rows,
+    columns or wells, derived from the setting descriptions rather than from
+    key-name patterns, which is how a generic field like `filter_value` got
+    onto it. It is a list a reader can check, which is what "written down"
+    was asking for.
+
+  * THE BUTTON GOES ON THE WELL-ONLY SUBSET, not on all of them.
+    `WELL_ONLY_SETTINGS` is the settings whose COMPLETE value is a well
+    specification, and it is a strict subset of `WELL_SETTINGS`. The
+    checklist says "every settings field that takes wells has the button";
+    that is not what shipped, and the reason is that Done REPLACES the whole
+    field. On a mixed-vocabulary field -- one that may hold a well OR a gene
+    OR a treatment name -- replacing the value with the picker's answer
+    throws away whatever else was in it. A button that silently discards the
+    user's typing is worse than no button, which is the same argument this
+    file makes for not putting one next to only some fields, applied one
+    level down. 221 later added the three control blocks to both lists, and
+    the subset relation is what caught them being added to one and not the
+    other.
+
+Tests: `tests/test_wells_are_picked_off_a_plate_map.py`,
+`tests/test_cov_3_well_spec.py`, and
+`tests/qt/test_the_plate_map_button_is_on_the_panel.py`, which drives the
+button on the panel rather than the picker on its own.

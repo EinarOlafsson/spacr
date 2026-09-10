@@ -115,6 +115,8 @@ BREAKDOWN_LEVELS: Tuple[str, ...] = ("field", "well", "plate")
 def confidence_threshold(n_classes: int) -> float:
     """Where "the model was sure" starts, for a ``n_classes``-way problem.
 
+    :param n_classes: number of mutually exclusive classifier classes.
+
     ``confidence`` is the probability of the class the model *chose*, so it
     can never fall below ``1 / n_classes`` — a two-class model is at 0.5 when
     it is maximally undecided, and a ten-class model is at 0.1. A fixed 0.5
@@ -137,6 +139,7 @@ def confidence_threshold(n_classes: int) -> float:
 
 
 def _require(frame: pd.DataFrame, columns: Sequence[str]) -> None:
+    """Raise :class:`ConfusionError` naming required columns that are absent."""
     missing = [c for c in columns if c not in frame.columns]
     if missing:
         raise ConfusionError(
@@ -147,6 +150,8 @@ def _require(frame: pd.DataFrame, columns: Sequence[str]) -> None:
 
 def object_key_column(frame: pd.DataFrame) -> str:
     """Which column of ``frame`` names the objects, best first.
+
+    :param frame: evaluated-object table to route back to crops.
 
     :raises ConfusionError: when none of :data:`KEY_COLUMNS` is present, which
         means the rows cannot be routed anywhere and a "show me these crops"
@@ -181,6 +186,8 @@ def object_keys_for(frame: pd.DataFrame,
                     *, column: Optional[str] = None) -> pd.Index:
     """The object keys of ``frame``'s rows, in frame order, de-duplicated.
 
+    :param frame: evaluated-object rows whose crop keys are requested.
+
     Order is load-bearing — it is what carries "worst error first" through
     :func:`spacr.qt.linked_selection.open_objects` — so this preserves it
     rather than sorting or using a set.
@@ -207,6 +214,8 @@ def key_collisions(frame: pd.DataFrame,
                    *, column: Optional[str] = None) -> int:
     """How many rows of ``frame`` share a key with an earlier row.
 
+    :param frame: evaluated-object rows whose crop keys are checked.
+
     Zero for a healthy prediction table. Non-zero means the crop grid will
     hold fewer objects than the confusion cell counted, and the difference is
     this number — worth saying on screen rather than leaving as an unexplained
@@ -224,6 +233,11 @@ def key_collisions(frame: pd.DataFrame,
 def cell_rows(predictions: pd.DataFrame, true_class: Any,
               predicted_class: Any) -> pd.DataFrame:
     """The rows one confusion-matrix cell counted, in the table's own order.
+
+    :param predictions: evaluated-object table carrying true and predicted
+        class columns.
+    :param true_class: annotated class naming the matrix row.
+    :param predicted_class: model class naming the matrix column.
 
     Compared as text, deliberately. A confusion matrix read back from CSV has
     string class names in its index and header, while the prediction table may
@@ -306,6 +320,8 @@ def confusion_counts(predictions: pd.DataFrame,
     a filtered prediction table silently produced a matrix nobody could
     reproduce.
 
+    :param predictions: one row per evaluated object, including
+        :data:`TRUE_COLUMN` and :data:`PREDICTED_COLUMN`.
     :param classes: the class order. Defaults to every class appearing as a
         true label or a prediction, sorted, so a class the model never chose
         still gets its column rather than vanishing from the matrix.
@@ -332,15 +348,13 @@ def confusion_counts(predictions: pd.DataFrame,
 class Confusion:
     """One off-diagonal cell, ranked against the others.
 
-    :ivar true_class: what it really was.
-    :ivar predicted_class: what the model said.
-    :ivar count: how many objects.
-    :ivar share_of_errors: this cell's share of *all* mistakes. The number
-        that says where to spend the next hour.
-    :ivar rate_within_true: this cell as a fraction of the true class's whole
-        row. The number that says how bad it is for that class — a cell can
-        be 45% of all errors and still only 2% of a huge class, or 8% of the
-        errors and 60% of a small one, and those are different problems.
+    :param true_class: annotated class naming the confusion-matrix row.
+    :param predicted_class: model-assigned class naming the confusion-matrix
+        column.
+    :param count: number of objects in this off-diagonal cell.
+    :param share_of_errors: this cell's fraction of all off-diagonal errors.
+    :param rate_within_true: this cell's fraction of the complete row for
+        ``true_class``.
     """
 
     true_class: str
@@ -410,6 +424,8 @@ def describe_confusions(counts: pd.DataFrame, *, limit: int = 3) -> str:
     the only part of it anybody acts on. This says it: *"Your worst confusion
     is uninfected → infected: 43 object(s), 45% of all errors…"*
 
+    :param counts: square true-by-predicted count table accepted by
+        :func:`rank_confusions`.
     :param limit: how many confusions to name before summarising the rest.
     :returns: one or more lines, no trailing newline. Never empty — a perfect
         classifier gets a sentence saying so, because a blank panel reads as
@@ -476,6 +492,10 @@ _CONCENTRATION_FLOOR = 5
 def describe_breakdown(rows: pd.DataFrame, level: str) -> str:
     """One cell's origin, in words, with the verdict spelled out.
 
+    :param rows: evaluated-object rows belonging to one confusion cell.
+    :param level: identity column, such as ``well`` or ``plate``, used to
+        group the rows.
+
     The point of this line is to stop wasted work. If all 43 errors come from
     well A01, re-labelling any of them corrects nothing that will recur — the
     fix is a staining or a focus problem at the bench, and the crops are
@@ -514,11 +534,15 @@ class ConfusionCell:
     everything it draws — the two lists, the keys to route, and the sentences
     — rather than orchestrating five functions in a mouse handler.
 
-    :ivar rows: every object in the cell, in table order.
-    :ivar high: confidence ``>= threshold``, most confident first. Suspect the
-        label.
-    :ivar low: confidence ``< threshold``, least confident first. Suspect the
-        boundary.
+    :param true_class: annotated class naming the confusion-matrix row.
+    :param predicted_class: model class naming the confusion-matrix column.
+    :param threshold: confidence boundary separating the two review queues.
+    :param rows: every object in this matrix cell, retained in source-table
+        order.
+    :param high: rows with confidence at least ``threshold``, ordered most
+        confident first.
+    :param low: rows below ``threshold``—including missing confidence—ordered
+        least confident first.
     """
 
     true_class: str
@@ -535,6 +559,12 @@ class ConfusionCell:
               n_classes: Optional[int] = None) -> "ConfusionCell":
         """Resolve a cell and split it.
 
+        :param predictions: evaluated-object table containing the true and
+            predicted class columns. A non-empty resolved cell must also carry
+            confidence; identity columns are retained when present but are not
+            required.
+        :param true_class: annotated class naming the matrix row to resolve.
+        :param predicted_class: model class naming the matrix column to resolve.
         :param threshold: where "sure" starts. Defaults to
             :func:`confidence_threshold` of ``n_classes``, or of the number of
             distinct classes in ``predictions`` when that is not given.
@@ -558,6 +588,7 @@ class ConfusionCell:
         return self.true_class != self.predicted_class
 
     def __len__(self) -> int:
+        """Return the number of evaluated objects represented by this cell."""
         return len(self.rows)
 
     def keys(self, which: str = "all", *,

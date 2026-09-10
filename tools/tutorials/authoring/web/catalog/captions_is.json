@@ -1,0 +1,1899 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Veldu opinbera dreifingarleið áður en spaCR er sett upp. PyPI og conda-forge bjóða útgefna pakka, en GitHub býður frumkóða, uppsetningarforrit fyrir skjáborð og útgáfuskrá."
+        },
+        {
+          "narration": "Útgáfuhausinn á PyPI sýnir núverandi stöðugu útgáfu og skipunina pip install spacr."
+        },
+        {
+          "narration": "Project links hlutinn opnar skjölin, heimasíðuna, verkbeiðnakerfið og frumkóðasafnið."
+        },
+        {
+          "narration": "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda."
+        },
+        {
+          "narration": "Í GitHub Release skaltu opna Assets til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða gátsummulistann."
+        },
+        {
+          "narration": "Opinberi conda-forge pakkinn setur spaCR og skjáborðsháð þess upp í virka Conda-umhverfinu. Notaðu nákvæmlega skipunina conda install conda-forge::spacr."
+        },
+        {
+          "narration": "Notaðu conda-forge eða PyPI fyrir stýrt Python-umhverfi, GitHub Releases fyrir skjáborðsuppsetningarforrit og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarkennsluna fyrir þína leið."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Settu spaCR upp úr conda-forge í sérstöku Conda-umhverfi. Pakkinn inniheldur skjáborðsviðmótið og tilgreinir hugbúnaðarhæði spaCR."
+        },
+        {
+          "narration": "Opnaðu Conda-virka skipanalínu og búðu til umhverfi sem heitir spacr með Python 3.12."
+        },
+        {
+          "narration": "Virkjaðu umhverfið. Staðfestu að Python tilheyri spacr-umhverfinu áður en nokkuð er sett upp."
+        },
+        {
+          "narration": "Settu opinbera pakkann upp með conda install conda-forge::spacr. Skipunin tilgreinir rásina og velur því conda-forge-smíðina sérstaklega."
+        },
+        {
+          "narration": "Staðfestu að Conda skrái spaCR í umhverfinu; flyttu það síðan inn og birtu uppsettu útgáfuna."
+        },
+        {
+          "narration": "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst."
+        },
+        {
+          "narration": "Þegar spacr-doctor stenst allar athuganir skaltu ræsa spaCR með skipuninni spacr. Hafðu umhverfið virkt í hvert sinn sem þú keyrir spaCR."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Uppsetning með pip virkar á Windows, macOS og Linux. Notaðu alltaf einangrað sýndarumhverfi í stað þess að breyta Python-uppsetningu stýrikerfisins."
+        },
+        {
+          "narration": "Á macOS eða Linux skaltu búa til umhverfið með Python 3.12 og virkja það síðan úr bin-möppunni."
+        },
+        {
+          "narration": "Á Windows skaltu nota Python-ræsiforritið til að búa til umhverfið og virkja það úr Scripts-möppunni."
+        },
+        {
+          "narration": "Uppfærðu pip í virka umhverfinu. Skipunin python -m pip tengir uppsetninguna við Python-útgáfuna sem var virkjuð."
+        },
+        {
+          "narration": "Settu upp venjulega spacr-pakkann fyrir notkun án grafísks viðmóts eða spacr með qt-viðbótinni fyrir skjáborðsviðmótið."
+        },
+        {
+          "narration": "Staðfestu innfluttu útgáfuna og keyrðu spacr-doctor. Lagfærðu öll próf sem ekki standast áður en tilraunagögn eru opnuð."
+        },
+        {
+          "narration": "Umhverfið er nú tilbúið. Hafðu það virkt þegar spaCR er notað og notaðu python -m pip install --upgrade spacr þegar þú ætlar sérstaklega að uppfæra forritið."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "Léttu innbyggðu uppsetningarforritin búa til einkarekinn Python 3.12 keyrsluumhverfi og sækja síðan Qt, PyTorch, spaCR og hugbúnaðarhæði þess."
+        },
+        {
+          "narration": "Sæktu uppsetningarforrit aðeins úr nýjustu spaCR-útgáfunni á GitHub. Veldu skrána fyrir þitt stýrikerfi og notaðu útgefnu SHA-256-skrána þegar staðfesta þarf niðurhalið."
+        },
+        {
+          "narration": "Í Windows 10 eða 11 skaltu opna netuppsetningarskrána. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið og setur upp CUDA-stuðning á samhæfum NVIDIA-vélbúnaði. Afveldu hana aðeins ef minni uppsetning eingöngu fyrir CPU er nauðsynleg."
+        },
+        {
+          "narration": "Á macOS 11 eða nýrra skaltu opna alhliða pakkann fyrir Intel- og Apple Silicon-vélar. Ef Gatekeeper lokar óstaðfesta pakkanum skaltu velja Privacy & Security, síðan Open Anyway og keyra pakkann aftur."
+        },
+        {
+          "narration": "Í 64-bita Linux skaltu gera sóttu .run-skrána keyranlega og ræsa hana úr skipanalínu. Sjálfvirkt val á backend er sjálfgefið og setur upp CUDA-stuðning þegar samhæft NVIDIA-vélbúnaður er tiltækur."
+        },
+        {
+          "narration": "Ef krafist er minni Linux-uppsetningar eingöngu fyrir CPU skaltu nota --torch-backend cpu. Annars skaltu halda sjálfvirka sjálfgefna valinu svo CUDA-hröðun sé notuð þegar hún er studd."
+        },
+        {
+          "narration": "Hvert uppsetningarforrit staðfestir nýju uppsetninguna áður en skipt er yfir í hana. Ef uppfærsla rofnar helst fyrra umhverfið óbreytt og install.log varðveitist í einkarekinni spaCR-uppsetningarmöppu."
+        },
+        {
+          "narration": "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum."
+        },
+        {
+          "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Þegar öll þroskastig eru sýnileg birtir Home allar fjörutíu og fjórar skráðar spaCR-einingar. Home-flipinn flokkar þær undir Core, Data, Results & QC, Explore, Assays og Design; hver flokkaflipi síar sömu skrá."
+        },
+        {
+          "narration": "Í vinstri hliðarstikunni eru Home og sýnilegu Core-einingarnar beint aðgengilegar. Þegar öll þroskastig eru virk er þetta sex þrepa Core-röðin. Veldu flokkafyrirsögn til að opna þær sýnilegu einingar sem eftir eru."
+        },
+        {
+          "narration": "Core-bandið fylgir verkflæðisröðinni: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Haltu bendlinum yfir einingareit til að sjá lýsingu einingarinnar og þroskalit hennar, Alpha, Beta eða Stable. Í Preferences má fela Alpha- eða Beta-einingar á Home og í yfirlitsstikunni; Stable-einingar eru áfram sýnilegar."
+        },
+        {
+          "narration": "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum."
+        },
+        {
+          "narration": "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Fylgdu inn á spaCR og prentaðu útgáfu þess til að staðfesta að virkt Python umhverfi getur notað pakkann."
+        },
+        {
+          "narration": "Kynntu spacr-run með valmyndinni lista til að sjá fyrirkomandi innrásarstaði í pípulaginu, þar á meðal maski, mæli, athugasemdir, flokkun og skýrslu."
+        },
+        {
+          "narration": "Byrjaðu á mótun með spacr-run, nafni mótunnar og útflutnings skrá. spaCR staðfestir leiðir, leiðir, starfsmenn og vélbúnaðarvalkostir áður en vinna hefst."
+        },
+        {
+          "narration": "Til viðbótar við prófvalkostinn til að vinna með litla fulltrúa undirsetningu fyrst. Skoðaðu forsýninguna og vistað log áður en þú sendir inn fullt óeftirlit."
+        },
+        {
+          "narration": "Fjarlægja prófvalkostinn fyrir fullt hlaup. Starf sem er ekki með höfuð geymir sömu útfærslur, stillingar, útgáfu skrá og skrá og vinnuflæði skrifborðsins."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Mask setur stillingar til vinstri og rekstrartækið til hægri. Konsólinn skýrir staðfestingu, framfarir, viðvörun og sparað útgáfu."
+        },
+        {
+          "narration": "Fylgdu upprunamyndaskrá í Mask. Staðfestir upptekin skránafn mynstur og metadata, síðan kort hver afla kanal til líffræðilega merki. Í þessu dæmi innihalda fjórir leiðir kjarna, endoplasma reticulum, lípídtröppur og paraþíur."
+        },
+        {
+          "narration": "Aðalatriði sýnir stjórnun sem þarf til venjulegs reksturs. Nota All aðeins þegar þú þarft háþróaðar valkosti, Breytt til að skoða breytt gildi, og Uppskriftir til að vista stillingu sem þú munt nota aftur."
+        },
+        {
+          "narration": "Input og Metadata, staðfesta uppspretta möppuna, kanalaskipti, stækkun og skránafn metadata áður en skipting."
+        },
+        {
+          "narration": "Vinnuflóð og prófunargerðir stjórna því hvaða grímur eru stofnuð, hvort núverandi vinna hefst aftur og hversu mörg fulltrúa völl eru notuð í prófunni."
+        },
+        {
+          "narration": "Frumurinn, kjarninn, sjúkdómsfrumurinn og líffæraflokkinn skipta sérhverri hópi fyrirmyndina, leiðina, kjarnaþröskurnar og fyrirbærafiltrar fyrir þann geim. Breyttu aðeins stillingum sem nauðsynlegar eru fyrir núverandi myndir."
+        },
+        {
+          "narration": "Leyfaðu Live Preview, hlaða umboðssviði og veldu hlutinn sem þú ert að stilla upp. Þessi dæmi sýnir fyrirsýn á sílueftirliti."
+        },
+        {
+          "narration": "Í Live stillingum staðfestir þú hlutinn og kanalinn fyrst. Breyttu þvermál, flæði eða líkindum frumu aðeins þegar forsýningin gefur þér ástæðu."
+        },
+        {
+          "narration": "Kveiktu á útbreiðslu stillingar svo gildi sem þú staðfestir hér verða stillingar notaðar af fullri hlaup."
+        },
+        {
+          "narration": "Kynntu forsýninguna og skoðaðu yfirlaginn við borð. Landamærin ættu að fylgja sýnilegum frumum án þess að tengjast nágrannum eða sakna hreinna hlutum."
+        },
+        {
+          "narration": "Breyttu yfir á Flæði til að skoða stefnusvæðið sem Cellpose notar. Óreglulegar flæði mynstur geta hjálpað til við að útskýra grímur sem skiptast eða sameinast ranglega."
+        },
+        {
+          "narration": "Grímur einangrar síðari merkingar gegn svörtu bakgrunni. Notaðu hana til að athuga aðfang og aðskildingu fyrirbæra án uppruna myndinni hér að neðan."
+        },
+        {
+          "narration": "Efnisfiltrar uppfæra fyrirsjáinn strax. Hækkaðu lágmarksvæðið aðeins nóg til að fjarlægja augljósa brot; rétta niðurskurðurinn fer eftir myndaskáli."
+        },
+        {
+          "narration": "Samanberðu síað yfirborð við upprunalegu forsýninguna. Alvöru frumur ættu að vera til staðar; ef þeir hverfa, lækkaðu lágmarksvæðið."
+        },
+        {
+          "narration": "Veldu grímurnar og milli skrá sem þú þarft í Útgáfu og Geymslu. Fyrst gerðu litla próf og vinndu síðan fullri uppspretta eftir að fyrirsýn og konsólustökur hafa liðið."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Mæra staðsetningar vinstri og rekstrartækið til hægri. Konsólinn skýrir staðfestingu uppruna, framfarir, viðvörun og sparað mælingarútgang."
+        },
+        {
+          "narration": "Veldu samsett verkefni möpp sem Mask hefur framleitt. Matar lesir geymd mynd, grím og verkefni metadata beint."
+        },
+        {
+          "narration": "Byrjađu á nauðsynjum. Notaðu All fyrir háþróaðar stjórnir, Breytt til að endurskoða breytt gildi og uppskriftir þegar sama mælingartilsetning verður endurnýtt."
+        },
+        {
+          "narration": "Í Mask and Channel Mapping skaltu staðfesta myndasmiðjur og merkingarflug fyrir frumur, kjarn, sjúkdómsfrum, líffæri og afleiðslutíma."
+        },
+        {
+          "narration": "Mælingarkenningar velur út áfang, morfologi, textúr, staðsetningu og rúmlega samantekt sem þarf til greiningar. Láttu ónotaðar einkenni fjölskyldur ekki."
+        },
+        {
+          "narration": "Með fyllingun á hlutum er fjarlægð þekkt listaverk en úrgangur úrskurðar stjórnar því hvort fyrirmyndandi hlutmyndir séu vistaðar til greiningar eða flokkunar. Veldu sía og skammta úr tilrauninni í stað þess að afrita fasta gildi."
+        },
+        {
+          "narration": "Forsýn og greiningargrein skilgreinir litla próf sýnishorn. Notađu hana áður en ūú mælir alla tilrauna."
+        },
+        {
+          "narration": "Hægt að hafa Live Preview og hlaða lokið sameinuð rað. Gallerið flokkar raunveruleg hlut afgræður svo þú getur athugað ásetningar af grímum, efni á kanáli og framleiðslu afgræða."
+        },
+        {
+          "narration": "Skipta um galleríkanal til að skoða hvert lífrænt merki. Þessi sýningarkjör hjálpar til við gæðastjórnun og takmarkar ekki hvaða uppfærðar leiðir eru mæltar."
+        },
+        {
+          "narration": "Eftir að prófið hefur tekist vel skaltu hlaupa upp alla uppspretta. Með mælingu er vistað sporanlegt hlutarlínur í mælingum db og allar óskaðar ávextir við hliðar afkomu verkefnisins."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Annotate setur framgangsröðun á gróðri. Opnaðu spilavélina aðeins þegar þú þarft upplýsingar í gagnagrunn, vista stöðu, viðvörun eða aðstoð á staðnum, og fela hana svo til að skila plássi í myndirnar."
+        },
+        {
+          "narration": "Opnaðu mælað verkefni, veldu eða búa til athugasemda dálk og staðfesta að væntanlegt hlut fyllir. Defineðu hvað hverja flokk þýðir áður en merkingu byrjar."
+        },
+        {
+          "narration": "Stillingar stjórna sýndu leiðum, útlit ágræðslu, hlutfiltrar og valfrjáls óvissa kö. Höldum skoðuninni samræmdu fyrir alla sem leggja fram merkingar."
+        },
+        {
+          "narration": "Opnaðu lyklaborðmiðuna fyrir litla sett af aðgerðum sem notaðir eru ítrekað: tilskipuðu flokki, færa áherslu, hoppa, afnema og vista eða framfara."
+        },
+        {
+          "narration": "Tilskilið merkingar með tölulýsingum eða músunni. Fólkslitinn hring staðfestir sparað merki og fókusinn færst svo mikið fyrirbæri hægt að skoða skilvirkt."
+        },
+        {
+          "narration": "Notaðu leiðsendingu og felldu í veg fyrir að laga nýlega val án þess að hreinsa annað sparað. Sparaðu áður en þú færð þig á aðra síðu eða lokar tímabilið."
+        },
+        {
+          "narration": "Umfjöllun sýnir hvort merkingar nái yfir kennslur, plötur, brunnur, heimildir og vinnufund. Leggðu til dæmi frá saknar hópa áður en þjálfun er gerð."
+        },
+        {
+          "narration": "Þegar nægilega fulltrúarmerki eru til, getur Retrain skorað eftirfarandi ræktun og sett fram fram óvissa dæmi. Fylgstu þessu sem valfrjálsu endurskoðunarsubætur en ekki í stað tryggingar."
+        },
+        {
+          "narration": "Þjónustukerfið sendir myndakreppur og þessa athugasemda til myndatækjaskipta. Train XG sendir sömu merkingar til einkennslustöðvarinnar; báðir opna uppstillda lífrun án þess að byrja æfingu sjálfkrafa."
+        },
+        {
+          "narration": "Annotations eru í mælingum dot db með fyrirbæra auðkenningum og uppruna ómeðhöndla. Framhald þar til nærri umfjöllun er fullnægjandi fyrir fyrirhugaða líkan eða ákvörðun um gæðastjórnun."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Einstaklaðu myndmyndamódel á CV-þjálfun á viðmerktum hlutföllum. Konsóllin skýrir um gögn, framfarir í þjálfun, framhaldandi mælikvarða, niðurstöður, viðvörun og útgáfuleiðir."
+        },
+        {
+          "narration": "Plate Sources and Workflow velur upp mæluð verkefni og stig til að framkvæma: byggja upp skiptingu, þjálfa, meta eða beita til staðar staðgreiðslu."
+        },
+        {
+          "narration": "Byrjaðu á nauðsynlegum, notaðu Modified til að endurskoða tilvitað breytingar og opnuðu All aðeins fyrir stjórn sem tilraun krefst. Gefðu uppskrift þegar uppsetningin verður endurtekin."
+        },
+        {
+          "narration": "Labels and Classes velur viðmerki eða metadata-svæðið sem notað er sem staðreynd og kortar sparað gildi í skjalfestum flokksnafnöfnum. Veriđ ađ kortið sé veriđ áður en ūjálfun er gerđ."
+        },
+        {
+          "narration": "Crops and Dataset Split velur hlutmyndirnar, leiðir, jafnvægi og haldin brot. Stíkur sem tengjast hópnum eftir plötu eða brunn svo að næstum duplicates geta ekki lekkað milli þjálfunar og mats."
+        },
+        {
+          "narration": "Model arkitektúr velur netinu, innleiðslukana og stærð, fyrirfram þjálfað þyngd og eðlileika sem myndirnar búast við. Byrjaðu á einu skynsamlegu upphafssetningu."
+        },
+        {
+          "narration": "Optimization and Loss felur í sér læringshraða, aukning, flokka, tímabil og snemma stöðvun. Breyta litlum fjölda stjórna í einu og dæma þau eftir staðfestingarhegðun."
+        },
+        {
+          "narration": "Ritskoðun Vinnubækurinn bætir við hópnum eða hnúðuð metningu, útfærslu og ströngum auðkenni og efni-leakage-eftirlit. Gefðu síðustu geymslustöðu frá sér frá valmyndinni."
+        },
+        {
+          "narration": "Full Dataset and Inference beitir valinn stað, skrifar líkindum og flokkstal og geymir fulltrúlegar dæmi með miklum traust til endurskoðunar."
+        },
+        {
+          "narration": "Hægt að hafa Hyperparameter Search þegar nokkrar trúverðugar uppfærslur þurfa samanburði. Minnir vinnubækurinn rekur hópaðar prófanir og sýnir hvert stig, flokkabreytingu, mælikvarða og stöðu."
+        },
+        {
+          "narration": "Leitartiltökur skilgreina einbeitt umsækjenda pláss, raðfestingar mælikvarða, hópað fold og próf fjárhagsáætlun. Forðast að leita að víðtækum leitum sem eyða tölvunni á val sem tilraun getur ekki greint frá."
+        },
+        {
+          "narration": "Run staðfestir fyrst merkingar og skiptingar, svo fer og metur upp módelinn sem settur er upp. Skoðaðu haldnar mælikvarða og dæmi áður en þú notar það víða; spaCR geymir eftirlitsstaðinn, spá, stillingar og rekstur."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Einstakla ML þjálfar klassískt líkan á mælingum fyrir hlut. Konsólinn skýrir frá upptöku gagnagrunnar, aðgerð, staðfestingu, mikilvægi, spá og mistökum."
+        },
+        {
+          "narration": "Gögn og stjórnvaldi velur mælingarverkefni, merkingarvið, jákvæð og neikvæð gildi og tilraunaþættingu. Gakktu úr skugga um lífræna merkingu þessarar kortunar áður en þú setur upp líkan."
+        },
+        {
+          "narration": "Byrjaðu á nauðsynlegum og athuga breytingar í breytt. Opna All aðeins fyrir stjórn á greiningarþörf og vista uppskrift fyrir endurteknar hlaup."
+        },
+        {
+          "narration": "Lögð fram aðgerð velur áhugaverða kanalinn og fjarlægir útilokaðar, ógildandi, lítil afbrigði, mjög tengd eða illa styðjuð mælingar fyrir þjálfun."
+        },
+        {
+          "narration": "Platt- og batch-rétting getur eðlilegt hver platta gegn stjórnunum. Notað er leiðréttingu sem varðveitir líffræðilegan kontrast og er hægt að beita henni samkvæmt gögnum í framtíðinni."
+        },
+        {
+          "narration": "Einstaklingur og staðfesting velur áætlunarfræðinginn, flókið, hólfð skipting og kross staðfestingarhegðun. Hlutfall á tengdum hlutum eftir plötu eða brunn til að forðast lek."
+        },
+        {
+          "narration": "Líkindavali og mikilvægi prunnar lokasettinn og metingar sem mælingar styðja við flokkun. Það er viðkvæmt að þýðingu sé túlkað aðeins eftir að framkvæmdir hafi verið haldnar."
+        },
+        {
+          "narration": "Útgangur og gagnagrunn stjórnar hvort líkindum, flokkstalum, fyrirmyndasögnum og valdu eiginleikum er geymt eða skrifað aftur í mælingarverkefnið."
+        },
+        {
+          "narration": "Hyperparameter Search er lítið vinnuborð til að bera saman einbeittar samsetur af líkanum val með hópaðum falda. Niðurstöður töflunnar raða lokið rannsóknir og sýnir breytileika þeirra."
+        },
+        {
+          "narration": "Leitartiltökur skilgreina valdi frambjóðenda, kostnað við próf, flokka, fræ og raðfestingarmetrik. Höldum leitarsvæðið nógu lítið til að útskýra og endurskapa."
+        },
+        {
+          "narration": "Run staðfestir stjórn, undirbýr eiginleika, beitir allar plötutilfæringar, metur flokkunarann, reiknar mikilvægi og geymir virktuð útgáfu. Skoðaðu viðhorf og hegðun fyrir plötu áður en þú notar spáfræðilega."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Kort stígmerki dekóða sekúeningar lesast í plötur stöðum og leiðsögn persónuleika. Konsólinn skýrir frá sýnishornum, staðfestingu á sniðgefandi, framsetningu, útgáfuleiðum og mistökum."
+        },
+        {
+          "narration": "Sequencing Input velur FASTQ möppuna og hvort sameiginleg lesningur sé sameiginlegur eða einn lesningsháttur er meðhöndlaður einn. Stađfestir nafnmyndina fyrir stór hlaup."
+        },
+        {
+          "narration": "Essentials inniheldur innlegg og greiningarstjórnir sem þarf til fyrstu hlaup. Notaðu Modified til að skoða breytingar á bókasafnum, All fyrir háþróaðar stjórnsýnir og Recipes fyrir endurtekjanlegt skipulag."
+        },
+        {
+          "narration": "Barcode References vísar til leitarborða fyrir leiðarvísir, plötur röður og plötur dálkar. Hver borð þarf að setja sérstakt nafn í par með væntanlegu röð."
+        },
+        {
+          "narration": "Lestu Parsing finnur þekkt ankr, tekur út stígmerki glugga og skipar nöfn röð, stöng og leiðarhóp. Fylgi þessu mynstri úr hönnun bókasafnsins og staðfesta það á dæmi lesur."
+        },
+        {
+          "narration": "Kynningartíma og áreiðanleiki ákveður stærð hlutar, starfsmenn og prófleiða. Byrjaðu á litlum prófshluta; minnkaðu þunginn eða starfsmannatalinn þegar minni er takmarkað."
+        },
+        {
+          "narration": "Run staðfestir leiðir og vísbendingar, uppgötvar sýni, telur lesur og byrjar stykki kartlagningu. Stoppsskjallar um skipulögð afbrot eftir núverandi öruggan punkt."
+        },
+        {
+          "narration": "Horfðu á virkan sýn, fjölda flokka, samræmda brot og viðvörun í framfarasýningunni og þættinum. Rannsóknaðu slæma kortun áður en þú samþykkir að hlaupa í heild."
+        },
+        {
+          "narration": "Á vellíðan hlaup skrifar einstök stígmerki samsetningar með röð, stöng, leiðsögn og tal auk gæðastjórnastaðla, stillingar og manifest sem gera kortuninni endurnýjanleg."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Regression tengir svipgerðarskor við magn leiðsöguraða sem er leitt af raðgreiningu. Stjórnborðið sýnir samsvörun taflna, síun, valda ályktunaraðferð, greiningar, niðurstöður og gögn um endurgeranleika."
+        },
+        {
+          "narration": "Input Tables velur svipgerðarskor, talningar úr raðgreiningu, valfrjáls genalýsigögn og áfangastað niðurstaðna. Skildu áfangastaðinn eftir auðan til að skrifa við hlið fyrstu talningatöflunnar; staðfestu samsvarandi auðkenni platna og brunna fyrir greiningu."
+        },
+        {
+          "narration": "Essentials inniheldur þau inntök og ályktunarviðföng sem þarf fyrir fyrstu greiningu. Notaðu Modified til að yfirfara vísvitandi breytingar, All til að skoða ítarleg viðföng og Recipes til að vista endurnýtanlega greiningarhönnun."
+        },
+        {
+          "narration": "Controls and Filters tilgreinir jákvæðar, neikvæðar og hlutlausar viðmiðanir, útilokar tilteknar leiðsöguraðir, brunna eða töflulínur og setur sönnunar- og stöðlunarreglur sem ráða hvaða mælingar fara í greininguna."
+        },
+        {
+          "narration": "Plate and Batch Correction getur fjarlægt tæknilegar hliðranir með miðjun, þolinni kvörðun, viðmiðunarstýringum eða lotulíkönum. Beittu leiðréttingu aðeins þegar tilraunahönnunin styður hana."
+        },
+        {
+          "narration": "Response velur svipgerðardálk, greiningareiningu, samantekt, valfrjálsa formerkisbreytingu og umbreytingu. Þessi val skilgreina stærðina sem tengd er magni leiðsöguraða."
+        },
+        {
+          "narration": "Model and Inference velur óparametrískt próf fyrir leiðsöguraðir, parametríska samtímis aðhvarfsgreiningu eða sjálfvirkt val. Þar eru einnig skilgreind framsetningarstig, líkanafjölskylda þegar við á, leiðrétting fyrir fjölprófun og marktækniregla."
+        },
+        {
+          "narration": "Estimator Tuning inniheldur viðföng fyrir samdreifni, reglun, þolna aðlögun, fjórðunga, bootstrap og samantekt raða. Aðeins stillingar sem valdi metillinn notar hafa áhrif á greininguna."
+        },
+        {
+          "narration": "Permutation Test stillir tölfræði leiðsöguraða, lágmarksstuðning brunna, fjölda umröðunarprófa og slembifræ, skiptanleikablokk, truflandi breytur, viðveruþröskuld og lotustærð sem takmarkast af minni."
+        },
+        {
+          "narration": "Run sannreynir töfluskemu og brunnalykla, beitir útilokunum og leiðréttingu, tekur saman svörunina og keyrir valda ályktunaraðferð. Sjálfgefna óparametríska aðferðin notar Freedman–Lane-umraðanir sem eru blokkaðar eftir plötu og aðlagar ekki aðhvarfslíkan."
+        },
+        {
+          "narration": "Lokaverkefnið inniheldur samræmd greiningargögn, áhrifamat á stigi leiðsöguraða og gena, reynslu- eða líkanabyggðar marktæknitöflur, greiningarmyndir, vistaðar stillingar og keyranlegt birtingarskjal."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Opnaðu mappu af fulltrúlegum sýnishornmyndum. Samræmda merkingar hlaða úr möskulýsingunni sem litin yfirborð, en myndir án fylgdarmosknar byrja að vera tómar."
+        },
+        {
+          "narration": "Tools kortin hertast í málningu, eyðslu, mikilli hrif og stækkunartilfar. Veldu minnstu aðgerðina sem leiðrétti upptektuna af maskubreytingu."
+        },
+        {
+          "narration": "Brush bætir við frammi með stillanlegum geislun. Notaðu stutta streik til að laga saknar mörk eða hlutir án þess að mála yfir nágrannastruktur."
+        },
+        {
+          "narration": "Skildu fjarlægir aðeins málað pixlar, en Skildu hlut fjarlægir eitt heill merking. Afsenda strax ef valið svæði var gild."
+        },
+        {
+          "narration": "Wand plus og Wand minus fylgja tengdum myndarstyrkjum. Byrjaðu á viðhaldsþol og pikslamörk og skoðaðu síðan valinn svæði áður en þú heldur áfram."
+        },
+        {
+          "narration": "Stærðu í erfið mörk og stillaðu normalisering sýndar aðeins þegar það hjálpar sýni. Kontraststjórnir breyta ekki myndatökunum eða grípa geometri, svo veldu þá úr núverandi sviði frekar en fastar kennslu hlutfall."
+        },
+        {
+          "narration": "Undo og Redo fara í gegnum breytingar á grímunni óháð stækkun og kontrast, sem gerir það óhætt að bera saman leiðréttingu við fyrri merkinguna."
+        },
+        {
+          "narration": "Með aðgerðum við hlut getur verið hægt að fylla holum, merkja aftur tengd forsíðu, snúa merkjum á móti eða hreinsa grímuna. Notaðu aðeins svæðisfiltrun með þröskulærum sem réttlætanir eru af myndaskáli og væntanlegri stærð fyrirbæra."
+        },
+        {
+          "narration": "Save mask endurmerkir tengd hluti og skrifar merkishmyndina undir kjarnstenginu. Færðu í gegnum mappan skipulaglega svo hvert námsvið sé skoðað."
+        },
+        {
+          "narration": "Fyrir mynd án merkingar skaltu búa til hluti með Brush eða Wand plus, hreinsa mörkin og vista nýja myndaskáppa fyrir módelþjálfun."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Mynd UMAP minnkar hávíddar hlutmælingar til tveggja samræminga og setur mikroskópsgróður á kortið. Spjöldin á spilakönnunni eru sameinuð, fyrirvinnslu, innbyggingu, hópun og útgáfur."
+        },
+        {
+          "narration": "Paths velur mæld verkefni. Mynd UMAP staðfestir mælingar dot db og notar núverandi gróðurmyndir eða byggir gróður úr sameinuðum röðum þegar það er stutt."
+        },
+        {
+          "narration": "Mælingar velur samanbundnar hlutborðsborð og eiginleikafjölskyldur, fjarlægir augljósar útilokaðir og getur sleppt óflýðandi tengdum eiginleikum. Þessir valkostir skilgreina geometri kortsins."
+        },
+        {
+          "narration": "Plate Layout and Controls útilokar misheppnuð brunn, stjórn eða metadata hópa sem eiga ekki að móta þessa rannsóknar innbyggingu."
+        },
+        {
+          "narration": "Tölvuþjónusta gagnaútgangur velur hvort myndatökuð atriði bæta við mæluð atriði og hvaðan ræktun þeirra kemur. Notaðu þau aðeins þegar myndin er hluti af spurningunni."
+        },
+        {
+          "narration": "Embedding og Clustering velur UMAP eða t-SNE, hverfi hegðun, fjarlægð mælikvarða, hólf og valfrjálsan hólf. Samanberðu endurnýjanlegar stillingar og líttu ekki á eina skipulagningu sem staðreynd."
+        },
+        {
+          "narration": "UMAP Display stjórnar stili staða, uppskera glyph tal og stækka, bakgrunn og vistað tölur. Höldum gróðurglyfum aðeins stærri en punktanir svo innbyggingin sést; þessi sýningarval breytir ekki settum samræmdum."
+        },
+        {
+          "narration": "Áður en fullur rekstur, notaðu Hyperparameter Search til að bera saman einbeitt sett af UMAP valkostum. Lítil og margvísleg niðurstöður þess sýna upp skipulag sem eru óstöðugir eða fela gagnlega uppbyggingu."
+        },
+        {
+          "narration": "Veldu skoðaðu leitarniðurstöð og veldu síðan Fræðslu stillingar. Þetta kopið stærð hverfisins, lágmarks fjarlægð og mælikvarða í aðalmynd UMAP form áður en fullri hlaup."
+        },
+        {
+          "narration": "Rennur staðfestir gagnagrunninn og uppruna ávöxtunar, fylgir og sía tölulíf, sýnatölur röður, passar í minkandi og valfrjálsan klúster og skrifar síðan samræmda niðurstöðurskrá."
+        },
+        {
+          "narration": "Lögð út kortið heldur UMAP-punktaflóðinni sýnilegri og yfirborgar litla gagnsæla mikroskópsgróður á fulltrúlegum stöðum. Sparað framleiðsla felur í sér samhæfingar, klúster merkingar, mynd, stillingar og endurnýjanleika manifest."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Virkjunar kort spyr hvaða myndar svæði hafa áhrif á spá sýnistaðilsins. Konsólinn skráir upptökur um upptöku, tilnefningarflokka, framfarir, útgöngur og endurskapaðleikaupplýsingar."
+        },
+        {
+          "narration": "Model og gögn velur uppgróðurskjalasafn, þjálfað erfðagrein, arkitektúr, innlögstærð, hlutartíp og kanalskrá. Ūeir þurfa að vera í samræmi við þjálfun annars er hver áskrift ónýtt."
+        },
+        {
+          "narration": "Essentials inniheldur stjórnkerfi sem þarf til að reka í fyrsta skipti. Notaðu Breytt til að endurskoða breytingar, Allt til staðfestingar og kvantifikationsstjórn og uppskriftir til endurteknalegra samanburða."
+        },
+        {
+          "narration": "Tillagaaðferð velur Grad-CAM, framúrskarandi, samþættan gradient, okklússun eða aðra skráða aðferð auk samhæfða lags eða sýnatökueftirlit."
+        },
+        {
+          "narration": "Tilgreiðslustýringu veitir eyðingar, innsetningar, útgangslínur og staðal-tilviljunarpróf. Maður sem er sjónlega skemmtilegur er ekki gagnlegur ef hann verður óbreyttur eftir að myndatökin eru eyðileggðar."
+        },
+        {
+          "narration": "Map Display beitir fyrirvinnslu innleiðinga sem er samhæft við þjálfun og stjórnar yfirborðum og netum. Sýningskonar breytir kynningu, ekki sönnun þess að módelið hafi lært gild líffræði."
+        },
+        {
+          "narration": "Kvantífikun kort getur borið innleiðslukana saman við ávísunarstyrk og geymt samanhæfingar. Að leyfa því aðeins þegar tölfræði svarar ákveðinni spurningu."
+        },
+        {
+          "narration": "Útgang og Runtime stjórnir geymdu kort, röð, flokka og starfsmenn. Minnkaðu afhlutaþyngd þegar hraðabúnaður er takmarkaður og haldið ákveðnum röðun fyrir samanburði."
+        },
+        {
+          "narration": "Run staðfestir módel og uppskeru, endurskapa þjálfun fyrirvinnslu, reiknar spá og kort, gengur fyrirspurð net og skráir stillingarnar."
+        },
+        {
+          "narration": "Skoða kort í réttum, rangum, háum og lágum tilvörum dæmi, ásamt staðfestingarprófum. Að taka lífrænar niðurstöður aðeins úr staðfestri þjálfaðri flokkunargreiningu."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Tímasnúningur skipar hverri rammu og tengir valdu hlutunum í stöðugar sparki. Konsólinn skráir fyrirvinnslu, grímur, sporunartilraunir, gæðastjórn, myndir og endurskonarhæfur skrár."
+        },
+        {
+          "narration": "Input og Metadata velur myndaskrá, skipar upptakandi leiðir til hlutartípa og skilgreinir hvernig plötu-, brunn-, svið-, tími-, dýpd- og leiðarkenningar eru greind."
+        },
+        {
+          "narration": "Essentials inniheldur stjórn sem þarf til að koma í fyrsta röð. Notaðu breytt til að endurskoða breytingar, Allt fyrir valfrjáls ar axs og backends, og uppskriftir fyrir endurteknuð kaup hönnun."
+        },
+        {
+          "narration": "Myndfyrirvinnsla beitir eðlilegri, bakgrunnshandlun, eyðileggingu og um stærð. Notaðu eina samræma umbreytingu á öllum ramma svo að fyrirvinnsla ekki skapa gervi hreyfingu."
+        },
+        {
+          "narration": "Skipuleggðu skiptingarskipulagið fyrir hvert hlut sem þarf að vera fyrirhöndlað eða fylgt. Gakktu staðfest model, kanal, skala og kjarnafiltar á fulltrúlegum snemma, miðju og seinna ramma."
+        },
+        {
+          "narration": "Gæðastjórnunarpróf eru tilgreindar, stærðir, mörk, forsjáþekking, skiptingar og viðunandi sviðsvik. Byrjaðu á skýrsluleiđinu svo grunsamar rammar séu sýnilegar."
+        },
+        {
+          "narration": "Tracking Setup velur hlutartípur, ramma umfang, lífstíðarfiltar og kvikmynd hraða. Haltu stuttum sporum á meðan staðfesting stendur svo að mistök séu ekki falin."
+        },
+        {
+          "narration": "Tracking Backends býður upp á nokkrar tengsl með mismunandi flutning, munur, skipting og starfsmannstýringu. Veldu einfaldasta baksíðuna sem samsvarar hreyfingu og staðfesta auðkenni hennar sjónlega."
+        },
+        {
+          "narration": "Visualization and Diagnostics skapar dæmi um að athuga skiptingu og fylgjast með stöðugleika, en Output and Storage velur grímur, sameinuð matris, myndir og haldið miðlungs."
+        },
+        {
+          "narration": "Kynningartíma og áreiðanleika felur í sér prófstíl, starfsmenn, endurnýjanlega pöntun, endurnýjun, þurra rekstur og mistök stefnu. Ráðfæra eitt fulltrúarvið áður en skálinn er í fullri tíma röð."
+        },
+        {
+          "narration": "Run staðfestir skránafn og leiðir, skipta fyrirspurnuðum hlutum, tengir grímur, reiknar gæðastjórnun og skrifar myndir og röð. Skoðaðu lokið spor fyrir swaps, bilur og ólíklegar hops áður en greining."
+        },
+        {
+          "narration": "Á árangursríkum verkefni er að finna tímavísunartengd grímur, stöðugir sporkenningar, gæðastjórnarskrár, myndir, sameinuð röð, vistað stillingar og endurnýjanlegt manifest."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Motility Assay byggir upp mælingar úr rekjaðum röðum og reiknar út afbragð, hraða, leiðlengd og beint. Í spilakönnunum voru borin borin töflur, gæðakönnun og tölur."
+        },
+        {
+          "narration": "Hlutverk og sendingar velur eftirlit með uppruna, hreyfanlegt hlut og sendingar sem bera frumur, kjarn og sýklaefni. Rænt kortlagning gerir áhrif á áhrif á smit og áhrif."
+        },
+        {
+          "narration": "Hlutfallinn er með þeim stjórnmálum sem þarf til að fara í fyrstu próf. Notaðu breytt til að endurskoða breytingar, Allt fyrir valfrjálsa flokkunar og innbyggingar og uppskriftir fyrir endurteknar kaup."
+        },
+        {
+          "narration": "Rými og tímabilinn útfærsla veitir ramma millibilið og piksla skalan. Verið bæði frá metadata afla vegna þess að mistök mæla hverja líkamlega fluttingu og hraða."
+        },
+        {
+          "narration": "Hreyfingarfiltrun fjarlægir ólíklega hoppa, brotnar spor og valfrjálsan eiginleika eða hraða útláta. Skoðaðu útneitun leiða svo raunverulegur hraðra hreyfingar ekki er kastað."
+        },
+        {
+          "narration": "Smitflokkun getur farið frá því að sjúkling- og sýklafræðin yfirlapa og mögulega endurbæta óvissa spor með vísbendingu um mikilli mikilli. Notaðu einfaldasta regluna sem styrkir."
+        },
+        {
+          "narration": "Valfrjáls XGBoost, klústursetning og innbyggingar deildir veita aðra flokkunar sýkingar þegar beint grímur eru ófullnægjandi. Gakktu úr skugga um allar lærðar reglur á merkjum sem eru ekki til."
+        },
+        {
+          "narration": "Motility Plots og QC velur braut, mikilli, stöðu, hraða og sýkingar pönn. Límar á myndskrá breytast á kynningu en ekki undirliggjandi mælingar."
+        },
+        {
+          "narration": "Renndu mælingar, sléttir og sía spor, tilskili sýkingarstöðu, reiknar út út út útgerðar samantektir og samræður og geymir töflur og tölur."
+        },
+        {
+          "narration": "Skoðaðu töflur fyrir ramma og fyrir braut ásamt braut- og gæðaeftirlits tölum. Staðfestir stöðugleika brautar, klúðunareiningar og flokksmerki áður en skilyrði eru samanburð."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Train Cellpose passar á skiptað mynd úr parum mikroskópíu myndum og öryggismerki. Konsólinn skýrir staðfestingu gagna, framfarir, vegleiðingar og endurskráningar."
+        },
+        {
+          "narration": "Veldu rót gagnasettsins sem inniheldur samsvarandi þjálfunarmyndir og grímur. Endurskoða merkjuvörun og geyma fyrirstaðavaldsviði sem ekki verða notaðir til að passa til líkan."
+        },
+        {
+          "narration": "Essentials inniheldur stjórnkerfi sem nauðsynlegt er til að fara í fyrsta útfærslu. Notaðu breytt til að endurskoða breytingar, Allt fyrir fyrirvinnslu og hlauptíma valkosti, og uppskriftir fyrir endurtekjanlegt þjálfunargerð."
+        },
+        {
+          "narration": "Starfstaða velur fyrirmyndasambandið, fyrirfram þjálfaðan eftirlitsstaða, fínt aðlaga eða þjálfun frá grunni og útgáfu nafnið. Að stinga í fínt stytti þarf oftast færri endurskoðaðar myndir en tilviljunarstarf."
+        },
+        {
+          "narration": "Námskrá setur kennsluhraða, reglulegast, flokka, aukningu og tímabil. Færðu aðeins þjálfun eftir að myndaskýrslur og framhaldsmat eru rétt."
+        },
+        {
+          "narration": "Myndfræðilega mynd skráir uppspretta og markmið stærð, væntanlegt hlut skála og um stærð. Myndir og grímur þurfa að fá sömu rúmlega breytingu og varðveita merki."
+        },
+        {
+          "narration": "Hjól og afneitun er valfrjáls hreinsun á mikilli hætti fyrir æfingu. Notaðu það aðeins þegar sama fyrirvinnslu getur verið endurnýjað í gerð fyrirmyndar."
+        },
+        {
+          "narration": "Run staðfestir samræmda skránafn, sýnir fyrirsjáin parraðar sviði og byrjar æfingar. Skoðaðu myndina yfir grímunni í myndaskrá áður en þú treystir langri hætti."
+        },
+        {
+          "narration": "Eftir þjálfun skal prófað prófaðili yfirvegar á þolandi völlum og skoða mistök, ekki aðeins tap. spaCR geymir innlit, staðsetningar, hlaupa manifestu og parrað sviði forskoðanir saman."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Cellpose Masks notar pakkað fyrirmynd eða sérsniðna stað til sýndarmyndanna í sýnishornum. Konsólinn skráir upplausn módelsins, fyrirvinnslu, framfarir, greiningar og útgáfu leiðir."
+        },
+        {
+          "narration": "Input and Channels velur myndarglæðin, flatar, gráa skála eða snúning hegðun og valfrjálsan eðlilegingu. Verið fyrst kanalinn; notað skal fyrirvinnslu aðeins þegar myndirnar krefjast þess."
+        },
+        {
+          "narration": "Essentials inniheldur þær stjórnir sem þarf til að koma í notkun í fyrsta skipti. Notaðu breytt til að endurskoða núverandi líkan og fyrirvinnslu, allt fyrir geometri og rekstrartíma og uppskriftir fyrir endurtekjandi niðurstöðu."
+        },
+        {
+          "narration": "Ljósmyndin velur pakkað þyngd eða sérsniðna eftirlitsstað og skráir væntanlega hlutastærð. Skilstöðvar og kanalinn á að vera í samræmi við myndir sem notaðar eru í æfingu."
+        },
+        {
+          "narration": "Upptektarþróunarríki stjórna líkindum, flæði samning, endurskoðun, endurmyndun og lyfjafyllingu. Breyttu þeim aðeins eftir að hafa staðfest myndina, kanalinn, líkan og stærð."
+        },
+        {
+          "narration": "Myndfræðilega mynd getur breytt stærð sviða til að draga af og endurreisa grímur til upprunalegu stærð. Höldum hlutfalli og haldið pixla skalan samræmi við þjálfun."
+        },
+        {
+          "narration": "Útgang og reksturstímar stjórna geymdu grímur, flokka stærð og greiningar tölur. Minnkaðu á hlutanum þegar hraðasamsýning er takmarkað."
+        },
+        {
+          "narration": "Knútið hlaðar inn eftirlitsstaðnum, beitir fyrirvinnslu sem búið er að setja upp, spáir grímur og flæði, gerir valinn hreinsun og geymir hvern mynd á merkinu."
+        },
+        {
+          "narration": "Skoðaðu fulltrúar frumvarp, yfirrit af vörum og flæðingarveldi í myndaskránni áður en mælingar eru gerðar í eftirrás. Veldu eðlilegingu og þröskulendur úr þeim fyrirsýn en ekki afrita kennslustömdir."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Samtalsmyndin samanber hlutalög, fyrirliðinn samning, samsvarandi, brotastöku og hlið við hlið yfirlagningar þannig að tveir flokkunarhæfingar geta verið metnir á sömu sviðum."
+        },
+        {
+          "narration": "Veldu litla en fulltrúlega myndaskrá og takmarkaðu fjölda sviða til að bera saman við samskipti. Lögðu fram auðveld og erfið dæmi í stað þess að aðeins hreinsa vel."
+        },
+        {
+          "narration": "Skipuleggja A- og B-mynd. Haldið fyrir að leiðar, stærð, fyrirvinnslu og sameiginleg þröskulær séu samsettir nema sú stilling sé ætlað munur."
+        },
+        {
+          "narration": "Samanburður á sviðum á hverju valdu velli með báðum löndum stillingum. Framfarin rök eru skráðar og óstuðluð parametrar eru greind um í stað þess að þöggt meðhöndla sem árangursrík."
+        },
+        {
+          "narration": "Áætlunarmiðlar sem náðu til hvers líkaskilda skilur virðismælir frá óþekktum eða vanræðum stjórnmálum. Staðfest að samanburðurinn sé í raun öðruvísi en ætlað er."
+        },
+        {
+          "narration": "Fylgtabla skýrslur telja, forgrunns samning, samsvarandi yfirlagningu, splits, sameiningar, ósamþykkt hlutir og sjálfstæðar mask gæðakönnun. Enginn metrikur tekur öll mistök."
+        },
+        {
+          "narration": "Veldu röð til að skoða bæði forsýningar. Leitaðu eftir nýjum greiningum, missum, breytingum á mörkum, skiptingum og sameiningum og endurtakið á milli fulltrúarsviða."
+        },
+        {
+          "narration": "Veldu einungis fyrirmynd þegar sjónrænar munir og mælikvarða bæta mistök sem skipta máli í niðurstreymslunni. Samtalsvirk niðurstöður eru upplýsandi og sýna ekki úrbætur."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Listið á lífrænum dýralífsins er hægt að nota til endurtekningar lífræn sem er aðgengileg úr bundiðum, staðbundnum eða lýstum kjarnasafnum. Byrjaðu á að passa verkefnið, leiðir, hlutastöðu og væntanlega fyrirvinnslu."
+        },
+        {
+          "narration": "Veldu fyrirmynd mappa og skanna það. Í skráinni eru staðbundin leiðir og fjarskipta metadata saman og ekki er hægt að duplíta."
+        },
+        {
+          "narration": "Veldu fyrirmynd til að skoða uppruna, leyfi, hlutarum, þjálfunarsamþykki og væntanlega geometri. Ein módel sem hlaðir sig vel er ekki sjálfkrafa hentugur fyrir myndir þínar."
+        },
+        {
+          "narration": "Veldu lítið samanlag af fulltrúlegum sviðum fyrir takmörkuð viðmiðunarmerki, þar með talið erfið dæmi."
+        },
+        {
+          "narration": "Prófaðu eina uppsett fyrirmynd. Viðmiðunarmiðillinn skýrir hraða, hlutalög, gæðaflakar og forsjá án þess að líta á þessar athuganir sem nákvæmni á grundvelli sannleikans."
+        },
+        {
+          "narration": "Skoðaðu borðið og forsýning á grímunni saman. Rannsóknaðu viðvörun í myndasambandi áður en þú samþykkir eða hafnar módel."
+        },
+        {
+          "narration": "Veldu tvö samhæf staðbundin módel þegar þú þarft að hafa stjórn á hlutverki."
+        },
+        {
+          "narration": "Samtalsmyndin samræmist fær bæði stað og sömu sviði, þannig að munir á grímum og gæðametrikum geta verið dæmt á sömu innfærslum."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Annotator Agreement samanber flokksmerki spjaldur án þess að breyta gagnagrunni. Notaðu hana fyrir endurskoðendur, athugasemdir eða endurskoðandi versus-snið."
+        },
+        {
+          "narration": "Opnaðu mælingar gagnagrunn eða keyra mappuna. spaCR uppgötvar annotation og spá stólur sem vísa til sömu hlutanna."
+        },
+        {
+          "narration": "Veldu að minnsta kosti tvær dálkur. Viðbótarsviður leyfa parið samanburði og samantekt með mörgum mælikvarða."
+        },
+        {
+          "narration": "Tölvunarráðstafan hlífir merkjum eftir hlut. Fánar merkingar eru greindar sem afstöðu en ekki þögugt taldar sem ósamræmi."
+        },
+        {
+          "narration": "Lestu rau samning, flokks jafnvægi, afstæðingar og kappa saman. Kappa getur verið óskilgreind þegar stólinn inniheldur aðeins eina flokk; það er forvitnun um tíðni, ekki núll samning."
+        },
+        {
+          "narration": "Notaðu ruglmatrikuna til að sjá hvaða flokkar eru rugl og hvort ójafnvægi ræður yfir samantektinu."
+        },
+        {
+          "narration": "Í tabellinu um ósamræmi er greint nákvæmlega þau atriði sem þurfa að endurskoða."
+        },
+        {
+          "narration": "Skoðaðu fulltrúargróður áður en merkingar eða flokksskilgreiningar breytast. Samtalsstaða getur ekki útskýrt hvers vegna endurskoðendur voru ósammála."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Plaque Assay mælir hreinsaðar svæði í plötmyndum. Konsólinn skráir lausnar stillingar, framfarir, viðvörun og útgáfu leiðir."
+        },
+        {
+          "narration": "Veldu möppuna á myndaskrá og ákveðið hvort þú vilt skipta upp upprunamyndum eða nota aftur rétt nöfnun merkimaskur."
+        },
+        {
+          "narration": "Essentials inniheldur stjórnkerfi sem þarf til að reka í fyrsta skipti. Breyttar endurskoðunar gera ráð fyrir breytingum en All kemur fram með auknum afgreiningarreglum."
+        },
+        {
+          "narration": "Samræma líkan og væntanlega plakkastiga við fulltrúarmyndir í stað þess að afrita kennslukjöl."
+        },
+        {
+          "narration": "Upptökustörfin hafa áhrif á tiltekna svæði, mótarsamleika, endurmyndun og hreinsun. Stengdu þeim úr nokkrum stjórn- og meðferðarbrunnum."
+        },
+        {
+          "narration": "Notaðu bakgrunnsréttu eða aflýsingar aðeins þegar forskoðun sýnir að kaupin krefst þess."
+        },
+        {
+          "narration": "Kynntu eftir að hafa athugað uppspretta, módel, stærð og útgáfu hegðun. Byrjaðu á litlum staðfestingarsetti þegar skipting er að endurræða."
+        },
+        {
+          "narration": "Skoðaðu yfirborð og dreifingu á plötu áður en skilyrði eru samanburð. Gagnasafn, samantektir, tölfræði og gæðaeftirlit eru samt tengd rekstri."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Við ráðningar er að lesa fyrirliggjandi mælingar og reikna út merkisþríka á örverum sem tengjast. Hún skipta ekki myndum aftur."
+        },
+        {
+          "narration": "Veldu tilrauna rótin sem inniheldur mælingar gagnagrunn og sameinuð feldi."
+        },
+        {
+          "narration": "Það er nauðsynlegt að finna uppspretta, kanalmyndun, sía, plötumerki og greiningar. Modified veitir þéttar eftirlit fyrir framkvæmd."
+        },
+        {
+          "narration": "Settu á kort hverrar mikils og settu álit á flugvélinni og veldu þá áhugaverða kanalinn. Gildur en rangur kanalvísitölu getur samt gefið tillitleg hlutfall."
+        },
+        {
+          "narration": "Fyltrar úr hlutunum fjarlægja ótrúlegar frumur, kjarna og parazitum. Veldu gates úr dreifingum og yfirborðum í stað fasta kennslustöður."
+        },
+        {
+          "narration": "Hringun á skilyrðum og stjórn á réttum skilgreindum fyrir að túlka hópsmunir."
+        },
+        {
+          "narration": "Run tekur saman mælingar, applies endurskoðaðar hliðar, reiknar út ráðningar, hópar kjarna, og framleiðir greiningar."
+        },
+        {
+          "narration": "Skoðaðu skiptingu á skiptum og stjórna dreifingum áður en þú treystir samantektum á skilyrði. Efnis- og vel-útgangur halda upp úrgangsaðilinn."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Invasion Assay mælir parazitum úr tveggja litra litun. Konsólinn skráir stillingar, gæðakönnun og útgáfur."
+        },
+        {
+          "narration": "Veldu tilraun sem inniheldur mælingar á parazitum, blettakönn, stjórnun og metadata á plötum."
+        },
+        {
+          "narration": "Essentials sýnir innlegg, kanalmyndun, þröskulær, stjórnir, sía og útgöngur sem þarf til fyrstu greiningar."
+        },
+        {
+          "narration": "Mæta utan stafið og algengasta flauganna í réttri röð. Að skipta um þau snýr líffræðilega túlkuninni á milli án þess að það veldur mistökum."
+        },
+        {
+          "narration": "Fylgi flokkunarþrógvum af viðeigandi stjórn og skoðaðu viðkvæmni í kringum valinn mörk."
+        },
+        {
+          "narration": "Skilgreina litunarstjórn og lágmarksgögn fyrir veldi og brunnir svo að veik hópar séu greind frekar en of túlkuð."
+        },
+        {
+          "narration": "Kynntu eftir að hafa staðfest staðkortið, stjórnun, hlutfiltrar og staðfestingarmetadata."
+        },
+        {
+          "narration": "Skoða fylgdar, innrásar og óvissa dæmi saman með vel staðsettum samantektum. Útflutningsúrslit hafa sett sett settar fyrir próf og kjaraskilgreinar."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Repsíun Ritskipti skora parazitalög fyrir hverja rúmstöð frá fyrirliggjandi samskiptum og mælingum. Konsólinn skráir stillingar, sía og útgáfur."
+        },
+        {
+          "narration": "Veldu prófunarrótin og staðfesta að gististafrumur, vacuolar og parazitar hafa stöðug kennitökur."
+        },
+        {
+          "narration": "Essentials sýnir verkefni, ástandi, sía, stig og útgáfu stjórnir. Notaðu Modified til að endurskoða tilheyrðulegar breytingar."
+        },
+        {
+          "narration": "Veldu hvernig parazitum er skipt í þurrkjar og hvernig óþekktar eða fjarlæg samskipti eru handfarin."
+        },
+        {
+          "narration": "Skilyrði á að þvinga skiptingu úr yfirfærðum dreifingum og myndum án þess að eyða óvenjulegum en gildandi svölum."
+        },
+        {
+          "narration": "Skilgreina paraþíuflutningsflokkana og samantekningar sem svara lífrænu spurningunni áður en tölfræði er sett í gang."
+        },
+        {
+          "narration": "Kanna eftir að hafa skoðað verkefni, skilyrði, sía og einkunnarskilgreiningar."
+        },
+        {
+          "narration": "Skoðaðu prófvörur á öllum talsviðinu og skoðaðu sameinuð eða flokkað grímur. Sparaðar dreifingar og tölfræði eru samt tengd gögn á hlutastöðum."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Þjálfunarferðir samanberar fleiri viðgerðir án þess að minnka val módelsins í einn tapgildi."
+        },
+        {
+          "narration": "Veldu möppu eða skráning sem inniheldur samhæfan þjálfunarstörf og skannaðu hana."
+        },
+        {
+          "narration": "Skoða uppgötvað hlaup, til staðar mælikvarða, ófullkomnar skrár og viðvörun áður en þú velur frambjóðendur."
+        },
+        {
+          "narration": "Veldu mælikvarða, sléttingu, falda sýningu og stillingar sviði sem ætti að bera saman."
+        },
+        {
+          "narration": "Overlay valiðunarhegðun til að bera saman samræmi, stöðugleika og ofhæð á sömu axla."
+        },
+        {
+          "narration": "Samanberðu bestu eftirlitsstaðinn og loka eftirlitsstaðinn þegar seint þjálfun getur verið með niðurfelldum almenningu."
+        },
+        {
+          "narration": "Fold samantektir sýna breytingar sem leynast af einni samanlagningu curva."
+        },
+        {
+          "narration": "Notaðu per-fold curves og mismunandi stillingar með haldin út árangur til að velja endurstætt hlaup."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Ríkisskýrsla samanber rekjanlega verkefnisfarsöfnun í stað þess að biðja þig um að afrita tölur og stillingar handvirkt."
+        },
+        {
+          "narration": "Veldu lokið verkefni eða keyrið mapp og skannað fyrirliggjandi gögn."
+        },
+        {
+          "narration": "Skoðaðu álit á því sem er fundið fyrir um gæði og saknað innlegg áður en þú velur greinardeildir."
+        },
+        {
+          "narration": "Færðu aðeins til með þeim gæðaeftirlitum, tölum, tölum, stillingum og uppruna sem áhorfendur þurfa."
+        },
+        {
+          "narration": "Settu titil, höfundur, útgáfuformat, tölulími og allar persónuverndarsensíverðar útiloka."
+        },
+        {
+          "narration": "Fylgi eftir að hafa leyst saknar skrár og ekki náð gæðakönnun sem myndi gera skjalinn villandi."
+        },
+        {
+          "narration": "Skoðaðu lokið skýrslu og staðfesta niðurstöður, útfærslur og tengsl áður en þú deilir henni."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Plate Queue beitir einum staðfestum vinnuflæði á margvíslegum plötum en heldur stöðu hvers plötu aðskilin."
+        },
+        {
+          "narration": "Bæta núverandi mótun sem er stillt eða tilbúinn plötuforði við röðina."
+        },
+        {
+          "narration": "Bætið við frekari plötur og skoðaðu uppspretta, áfangastað, stillingar og röð þeirra í töflu."
+        },
+        {
+          "narration": "Veldu starfsmannahæri, hætttu við hegðun og endurreistðu stefnu. Lögreglan er áfram að standa svo að truflun eyðir ekki áætluninni."
+        },
+        {
+          "narration": "Prófaðu vinnuflæði á takmörkuðum plötu eða sviði áður en þú byrjar eftirfarandi röð."
+        },
+        {
+          "narration": "Á framkvæmdinni fylgjast með framfarinu á hvern plötu og opnuðu skrá þegar eitt atriði varnar eða fellur."
+        },
+        {
+          "narration": "Ferðir plötur geyma einangrað afkomu og rekstur; stöðvaðir eða ekki gengið er að finna og endurtaka."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "Ytri Mask innfertir heimild og merkjur sem eru gerðar af ytri og undirbýr síðan verkefnið fyrir venjulegt mæling og athugasemdir spaCR."
+        },
+        {
+          "narration": "Bæta myndum og grímum úrlöndum og staðfesta síðan að spaCR hafi fundið fyrirhugaða hlutverk."
+        },
+        {
+          "narration": "Hringdu alla innfærslur í hlutaklassa. Skoðaðu skránafn, stærðir og sviðsparningar í stað þess að treysta á niðurstöður."
+        },
+        {
+          "narration": "Input Mapping stjórnar kanal og mask-flána skipulagningu, nafn og áfangastað skipulag."
+        },
+        {
+          "narration": "Mælingarskilyrði skilgreina hvaða hlutir og eiginleikar eiga að framleiða eftir innflutning."
+        },
+        {
+          "narration": "Haltu fyrirsjáaðkenningu virk fyrir fyrstu ferðina og veldu nýja áfangastað."
+        },
+        {
+          "narration": "Skoðaðu pörun, kanaltali, hlutasafn, viðvörun og blokkingabrot áður en þú skrifar eitthvað."
+        },
+        {
+          "narration": "Kynntu innflutninginn sem hefur verið endurskoðað. Myndirnar, grímurnar, mælingar og uppruna eru tilbúnar til að nota niður."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Align og Stitch skilur skráningaráætlun frá skriflegri þannig að staðsetningar og auðlindarmatar geta verið endurskoðaðar fyrst."
+        },
+        {
+          "narration": "Veldu flísapallinn og áfangastaðinn og geymdu ekki breytingar á upptöku."
+        },
+        {
+          "narration": "Lýstu röð rásar, yfirlagningu, stigatöku og vísitöl sem inniheldur gagnlega uppbyggingu."
+        },
+        {
+          "narration": "Stilla samræmi traust, nágrennandi takmörk, blending, og minni fjárhagsáætlun fyrir útgáfu band."
+        },
+        {
+          "narration": "Skipulag skartar millifærslum í pari og leysir samþykktar takmörk án þess að skapa mosaikinn."
+        },
+        {
+          "narration": "Skoðaðu skráðar og fallback flísur, eftirlifandi, traust, linsins stærð og skrifa áætlun."
+        },
+        {
+          "narration": "Veldu veik eða einangrað flís til að skilja laus stöðu þeirra áður en þú gerir útganginn."
+        },
+        {
+          "narration": "Skrifaðu aðeins eftir að áætluninni sé samþykkt. spaCR geymir mosaikinn, breytir, samræmdir og skráningarskýrsla."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Plate Viewer breytir mælingum fyrirbæra í heitumappi með rúmlega gæðakönnun við hliðina."
+        },
+        {
+          "narration": "Opnaðu mælingar gagnagrunn eða keyra mappuna. Upphafstofa er aðeins hægt að lesa."
+        },
+        {
+          "narration": "Veldu hlutatafluna, tölulíf og plötu til að sýna."
+        },
+        {
+          "narration": "Veldu samanburði, litum og lágmarksgögn sem þarf til brunnar. Tölgun er gagnleg til að finna skiptingu eða sáðmunarmunir."
+        },
+        {
+          "narration": "Sækja sýninguna og samanbera síðan hitamappinn með röð, stöng, hring og kantar greiningar."
+        },
+        {
+          "narration": "Veldu brunn til að skoða kennitölu, hlutalög, sýnt gildi og stöðu þess."
+        },
+        {
+          "narration": "Fyllir undir prófmarki verða skýrt leysir í stað þess að villandi núllur."
+        },
+        {
+          "narration": "Útflutningur á núverandi hreinsaðu brunngridir með talum og rúmlegum athugasemdum til endurskoðunar eða endurskrá."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Database Browser skoðar stórar databases spaCR í takmörkuðu, aðeins lesandi sýningu."
+        },
+        {
+          "narration": "Veldu mælingar gagnagrunn eða hlaupapollinn og opna hann."
+        },
+        {
+          "narration": "Veldu töflu eftir að hafa skoðað tilganginn og stöðu þess til að lesa aðeins."
+        },
+        {
+          "narration": "Í fyrirsýninni er sett út meðmarkaða síðu en þar er greint frá öllum röðum og stólum."
+        },
+        {
+          "narration": "Leitaðu í dálkum til að gera breiðar einkenni töflur lesbar án þess að breyta undirliggjandi röðum."
+        },
+        {
+          "narration": "Búðu til skipulagsfiltra. Til að hafa staðfestar stöngnafn og aðgerðir eru gildir og gildi tengt örugglega."
+        },
+        {
+          "narration": "Nánar filteraðar tölur lýsa öllu fyrirspurninu þótt aðeins ein síða sé teiknað."
+        },
+        {
+          "narration": "Útflutningur á heild sinni núverandi sía og sýnilega stöng val. Upphafsgögn er óbreytt."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Format Converter notar fyrirsjá-fyrsta vinnuflæði svo nafn og víddaskráning eru sýnileg áður en skrár eru skrifaðar."
+        },
+        {
+          "narration": "Veldu uppspretta skrá og sérstaka áfangastað."
+        },
+        {
+          "narration": "Lýstu möppunarritun, röð, tíma, dýpd, plötnaheiti og endurnýjun hegðun. Ávalið á sýningunni er að kasta frá sér upplýsingar, svo veldu þær meðvitað."
+        },
+        {
+          "narration": "Formynd skansar höfuðstöðvar og byggir umbreytingaráætlun án þess að skrifa myndir."
+        },
+        {
+          "narration": "Skoðaðu hverja heimild við hliðina á markmiðskjölunni, brunn, vettvang, kanal, tíma og dýpdina."
+        },
+        {
+          "narration": "Umbreyttu aðeins þegar kortun er rétt og kollisionarpróf eru liðnar. Heimildir eru aldrei breytt eða skipt út."
+        },
+        {
+          "narration": "Niðurstaðan felur í sér staðalinn TIFF og upprunafræðikort til hverrar upprunalegrar skrá og auðkenni."
+        },
+        {
+          "narration": "Formanútgáfa staðfestir lokið vettvangar eftirlit áður en þeir sleppa þeim, svo saknar eða skemmdir útgöngur eru endurbyggðar."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Import Project skilur niðurstöður frá skoðuðum ákvörðunum áður en unnið er að spaCR verkefni."
+        },
+        {
+          "narration": "Veldu ytri myndir og nýtt áfangastað, varðveitt upprunalegu skrár."
+        },
+        {
+          "narration": "Bæta hverri grímuklausu og staðfesta að hvert svið hefur væntanlega samsvarandi merkingar."
+        },
+        {
+          "narration": "Bæta við mælingum, útfærslu, auðkenningum og samræmisstefnu fyrir erlendar stöngnafn."
+        },
+        {
+          "narration": "Formynd skoðar höfuðstöðvar, pörun á sviðum, merkingar, sameiningar, einingar og nafn ágreiningar án þess að skrifa verkefnadata."
+        },
+        {
+          "narration": "Skoðaðu hverja tillaga markmið kolumnu, umbreyttu, eining, og sameina viðvörun."
+        },
+        {
+          "narration": "Rættir niðurstöður kortunar beint og endurtaka staðfestingu þar til áætlun endurspeglar upphaf tilraun."
+        },
+        {
+          "narration": "Aðeins innflutningur á endurskoðaðu áætlun. spaCR skrifar kanónísk myndir, grímur, mælingar og uppruna en heldur áfram að hafa ytri kennitökur."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Batch Runner hrífir sjálfgefnar spaCR móðul og stillingar í eina óvörðuðu röð. Ólíkt Plate Queue, sem beitir einum píplínu til margra pláta, getur Batch Runner blandað upp móðulum, innlögum, yfirskiptum og treysti. Starfsgreinarnir eru ein í einu svo þeir keppa ekki um einn GPU."
+        },
+        {
+          "narration": "Veldu höfuðlaus modul og nákvæmlega stillingar skrá sem starf ætti að fá. Bæta yfir lýsandi merking, valfrjálsan skilyrði fyrir starf og valfrjálsan lykil-urð-verðmæti yfirvaldi. Þessi fyrri vinna gerir raunverulega taplaus breytingu á einum fjórkanal sviði. Smelltu á Að bæta við starfi."
+        },
+        {
+          "narration": "Starfið fær stöðuginn kennara convert-1 og er strax skoðað. Batch Runner leysir sjálfgefið modul, greinar stillingar skrá og yfirlýsir, staðfestir leiðir og gildi, og neita til ógildan starf núna í stað þess að uppgötva það á yfir nótt run."
+        },
+        {
+          "narration": "Annað raunverulegt umbreytingar nöfn umbreyta-1 í After, svo það fer aðeins ef það forsenda tekst. Plat_naming er jafnt við nafn yfirval er lagður yfir sparaðar stillingar án þess að afrita skráina. Ef konverter-1 bregst er þetta verkefni merkt skiptu frekar en að hlaupa á ófullkomnum uppström útgáfu. Smelltu á Að bæta við starfi."
+        },
+        {
+          "narration": "Þriðja raunverulega umbreyting hefur engin forsenda og getur enn verið framkvæmd þegar ótengd starf fellur í veg fyrir áframhaldandi áfallastefnu. Leggđu ūađ til sem sjálfstætt starf. Í þessari kennslu eru þrjú flutningsmikroskópisvæði sem eru afritað byte-for-byte í einangra möppum. Hver röð fer fram á raunverulega umbreytingu."
+        },
+        {
+          "narration": "Tafurinn sýnir nú rekstraröð, stöðugar starfsskil, módelar, merkingar, háðstæður, ástand, tíma og eigin dagskrá hvers starfs. Veldu röð til að skoða stillingar og skrá. Duplicate, Remove og Move stjórnir byggja upp og skipuleggja aftur stærri nótt vinnunnar."
+        },
+        {
+          "narration": "Veldu sjálfstæða þriðja starf og smelltu á Flytja upp. Endurskipti eru öruggar hér vegna þess að háð umbreyting er undir convert-1. Að færa forsenda undir háðandi myndu koma til sýnilegs staðfestingarskorts og útiloka reksturinn."
+        },
+        {
+          "narration": "Smelltu á Greiðslur eftir að hafa breytt eða hlaðið í röð. Gildistöku tilkynnar öll mistök og viðvörun saman: saknar stillingar, óþekktar móðlar, ógildandi leiðir eða gildi, tvíbreyttir auðkenningar, síðar áætlaðir forsendur og treystihringur. Knappið \"Run\" verður slökkt á meðan einhverjar blokkunarvandamál eru til staðar."
+        },
+        {
+          "narration": "Allir ūeirir eru gildir. Að halda áfram með mislökkun leyfir sjálfstæðum störfum að halda áfram meðan háð fólk er sleppt; Stop í fyrstu mislökkun stöðvar allt síðar. Þrekkinn þrengingarmarki stöðvar röð sem er ítrekað að falla í veg fyrir sama kerfisbundna ástæðu. Hættu að bíða eftir að verkið sé lokið í öruggu stað þess að drepa það á miðju skrifunar."
+        },
+        {
+          "narration": "Smelltu á Spara röðina áður en þú lætur hana vera óvörðuð. Lesanlegur JSON geymir röð, háðstæður, yfirborgun og stöðu. Batch Runner uppfærir það sjálfkrafa eftir hverja breytingu, svo að endurbyrjun getur tekið upp á ókeypis eða ekki-útgerðar störf án þess að endurrita lokið starf. Ladd-líða endurheimtir sama bókhald síðar."
+        },
+        {
+          "narration": "Þegar yfirsjáan röð er vistað skaltu smella á Renntu röð. Hver starf starfar sem eigin rúmþjálfunarferli með þessu spaCR umhverfi. Skemmti á að skipta upp myndu enda þetta starf frekar en viðtöluna eða síðar sjálfstætt starf, og staðlaður útgangur auk mistaka fara inn í sérstaka dagskrá þessarar vinnu."
+        },
+        {
+          "narration": "Allir þrír veraldir í undirvinnslu eru lokið. Framfarastöðinn er þrír af þremur, töfluð geymir hver stöðu og tímabil, samantektin greinar árangur, mislög, skip, ekki hlaupi og hlutfall og dagskrá valsins verkefnis inniheldur nákvæmlega skipun og umbreytingarskýrslu. Hver áfangastaður hefur fjögur TIFF og upprunafræðikort; allir kjarnahashar eru óbreyttir."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um dreifð störf. Senda og fylgjast með vinnu spaCR á SSH vinnustaðum, slurm klústrum eða ský og HPC skipanum."
+        },
+        {
+          "narration": "Skipuleggja fjarlæg prófíll, tengingarhátt, vinnufélagi, umhverfi og gögn leiðar."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði, skilgreina skipulags auðlindir, skipunarskjald, skrá samræming, trúnaðarmerki og stöðu könnun."
+        },
+        {
+          "narration": "Sendaðu inn smá staðfestingarstarf áður en þú færð dýrar greiningar."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið, staðbundin skráir rekja fjarlæg starf auðkenningar, dagskrá, ástand, fluttar ritgerðir og mistök."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um mat á flokkunum. Rannsóknir á framkvæmdum spá, hnúðuð viðtöl, útfærslu, lekki og árangri á hverri plötu."
+        },
+        {
+          "narration": "Veldu spá með staðreynd, skiptum metadata, plötunarsetningar, líkindum og fyrirmynd rekstri."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal setja upp flokksskrá, þröskulær, klúðvarp, hópa, óvissa um upptöku og lækkunarpróf."
+        },
+        {
+          "narration": "Gætaðu útlit og hegðun á plötunni áður en þú notar flokkunarfræðilega niðurstöðu."
+        },
+        {
+          "narration": "Þegar vinnuflökunin er lokið, gefur spaCR fram mismunun, útfærslu, rugl, lekki og styrktarskýrslur."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Run History. Leitaðu í stillingar, skrár, viðvörun, mistök og árangur hvers og eins."
+        },
+        {
+          "narration": "Opnaðu rekstrarskrá fyrir núverandi vinnustað eða valda verkefnastöð."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu er að sía eftir stýri, stöðu, dagsetningu, verkefni, útgáfu, viðvörun, tímabil eða auðlindatöku."
+        },
+        {
+          "narration": "Opna hlaup til að skoða óbreyttar stillingar, skrá, útgöngur og mislög samhengi."
+        },
+        {
+          "narration": "Þegar vinnuflökunin er lokið geturðu endurgefið, borið saman, haldið áfram eða tilkynnt frá fyrri vinnu án þess að giska á hvernig hún var unnin."
+        }
+      ]
+    },
+    {
+      "id": "41_classify",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Hlutfall. Veldu einn flokkunarstarfshreyfingu fyrir myndargróður eða mælaðar eiginleikar og mettu hana án þess að tengd hlutir leki yfir splits."
+        },
+        {
+          "narration": "Veldu verkefnið, merkingar og annaðhvort mynd eða eiginleika vinnuflóð."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði, endurskoða hópað skiptingar, flokkar jafnvægi, líkan stjórn og mælikvarða sem samsvara ákvörðun sem þú þarft að gera."
+        },
+        {
+          "narration": "Ráðfæra lítið hópað staðfestingu áður en þú leggur þig í dýrt þjálfun; sérstakar kennslur Classify CV og Classify ML sýna út ummörkuð Hyperparameter Search vinnustaði."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, líkan, spá, skiptir skrár, mælikvarða og stillingar eru áfram tengd rekstri."
+        }
+      ]
+    },
+    {
+      "id": "42_curate",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Curate. Réttu skiptingarmaskar og spor með hendi og geymdu álit á öllum breytingum."
+        },
+        {
+          "narration": "Opna verkefni og veldu sviði, grímu flokkur eða spor sem þurfa að endurskoða."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði skaltu velja ritgerðin, merkingarviðferð, leiðsögn og endurskoðunarsvið áður en þú breytir gögnum."
+        },
+        {
+          "narration": "Gerðu smá leiðréttingu, skoðaðu nágrannar ramma eða hluti og sparið aðeins þegar breytingin er rétt."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið eru leiðréttir merkingar og breytingar á brautinni geymdar með uppruna til að hægt sé að endurnýja mælingar í eftirrás."
+        }
+      ]
+    },
+    {
+      "id": "43_illumination",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um lýsingu. Gera mat á flatum velli og staðfesta það áður en mikillni einkenni eru mæltar."
+        },
+        {
+          "narration": "Veldu fulltrúar sameinuð feldi og kanallar sem þurfa að leiðréttingu."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal farið yfir valkosti um sýnatöku, sléttingu, útiloka og gæðastjórnun fyrir hvern rás."
+        },
+        {
+          "narration": "Skoðaðu fyrirfram áætlaða ljósasvæði og hafnið leiðréttingum sem fylgja líffræðilegu uppbyggingu."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið eru samþykktar leiðréttingarfelda og greiningar geymdar til endurnýjanlegrar fyrirvinnslu."
+        }
+      ]
+    },
+    {
+      "id": "44_data_manager",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Data Manager. Skoðaðu geymslu verkefnisins og endurheimtu leidd gögn án þess að hafa áhrif á upprunalega kaup."
+        },
+        {
+          "narration": "Veldu verkefni eða vinnustað og láttu spaCR skrá upp ritgerðin."
+        },
+        {
+          "narration": "Í aðalmyndunar svæðinu, endurskoða gerðartípu, stærð, uppruna, endurbyggingar, og háð viðvörun áður en þú velur eitthvað."
+        },
+        {
+          "narration": "Skoðaðu hreinsunaráætlunina og fjarlægðu aðeins afleiðslutökin sem þú ert tilbúinn að endurbyggja."
+        },
+        {
+          "narration": "Þegar vinnuflökunin er lokið sýnir uppfært lager og hreinsunarskrá hvað er eftir og hvað er hægt að endurnýja."
+        }
+      ]
+    },
+    {
+      "id": "45_project_browser",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Project Browser. Finndu verkefni spaCR og sjáðu svið þeirra, stærð, nýjustu rekstur og gamlar útgöngur í einum borði."
+        },
+        {
+          "narration": "Veldu ræturnar sem innihalda verkefnin og skannaðu þær."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu er hægt að sía og flokka eftir stigi, stærð, aldri, stöðu módúlunnar eða gömlu gerðum."
+        },
+        {
+          "narration": "Opnaðu valinn verkefni eða nýjustu rekstur hans eftir að hafa skoðað stöðufrásögnina."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið tengir vafra þig við viðkomandi skrár og módelar án þess að breyta verkefnadata."
+        }
+      ]
+    },
+    {
+      "id": "46_napari_bridge",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Napari Bridge. Skoðaðu grímuna í napari og skila leiðréttum merkingum til spaCR með uppruna."
+        },
+        {
+          "narration": "Veldu verkefni, vettvang og grímurflugvél til að skoða."
+        },
+        {
+          "narration": "Í aðalmyndasvæðinu skal staðfestast merkjaklausu, kjarnmyndaslag, áfangastað og yfirskrifa öryggisráð."
+        },
+        {
+          "narration": "Breyta merkjum í napari, skila þeim til spaCR og endurskoða breytinguna áður en samþykkt er."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið eru leiðréttir grímur og skráningarskrárinn tengdir upprunalegu sviði."
+        }
+      ]
+    },
+    {
+      "id": "47_barcode_qc",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Barcode QC. Skoðaðu kortmyndun dýpdina, næringu, kollisionir, staðaáhrif og sönnunarbundinn fjöldaþrók."
+        },
+        {
+          "narration": "Opnaðu lokið stígmerki kortlagningu run með plötu og bókasafn metadata."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal endurskoðaðar ætlaðar leiðarmyndun, stjórnun, hópur og þröskulýsingarvallar."
+        },
+        {
+          "narration": "Gerðu sýningar á gæðastjórnun og skoðaðu veikar brunnur, óskráðar lestrar og bókasafnþekning saman."
+        },
+        {
+          "narration": "Þegar vinnuflökun er lokið skráir skýrslan valinn mikið af, stuðningsgreiningar og áhrif brunnanna."
+        }
+      ]
+    },
+    {
+      "id": "48_hit_list",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Hit List. Hlutlægja og endurskoða skjá skjá skjá með því að nota áhrif stærð, óvissa, rangt uppgötvun hlutfall og leiðbeining samning."
+        },
+        {
+          "narration": "Veldu lokið greiningu og niðurstöðukjölur sem skilgreina útkomuna á skjánum."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skaltu stillta stjórn, stefnu, merkingu, áhrifstærð, athugasemdir og samningarsvið."
+        },
+        {
+          "narration": "Skoðaðu fyrirsjáaðila flokkunarborðsins og skoðaðu einstakra umsækjendur áður en lokaliðinn er útflutnaður."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið, er álitinn á álitinn sem er síaður geymdur til einkunnanna, sönnun, athugasemdir og auðkenningar á heimildinni."
+        }
+      ]
+    },
+    {
+      "id": "49_methods_results",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um aðferðir og niðurstöður. Ráðleggja sporhæfar aðferðir og niðurstöður texta úr upptekinni rekstur í stað þess að endurbyggja stillingar úr minni."
+        },
+        {
+          "narration": "Veldu verkefnin og lokið rekstur sem ætti að styðja við skjalinn."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skaltu velja kafla, samanburði, tölur, tölur, vitnisburðsstil og friðhelgi friðhelgisins."
+        },
+        {
+          "narration": "Gerðu drög og fylgdu hverri fullyrðingu aftur til stillingar, skrá eða reikningarefnis."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið er útflutningslegan aðferð og niðurstöður með samantekt um uppruna."
+        }
+      ]
+    },
+    {
+      "id": "50_run_compare",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Run Compare. Settu tvær hlaupir hlið við hlið til að skilja breytingar á stillingum, talum, útgáfum og slá."
+        },
+        {
+          "narration": "Veldu tvö samhæfða rekstur."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal valið hvaða stillingar, ritgerðir, tal og niðurstöðublaði eiga að vera samanburðar."
+        },
+        {
+          "narration": "Gerðu tölur samanburðarins og skoðaðu efnismunir áður en þú ákveður að einn hlaup hafi bætt greininguna."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið tengir samanburðarskýrslan hverja mismun aftur til báða kjarnaskiptinga."
+        }
+      ]
+    },
+    {
+      "id": "51_control_charts",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um stjórnunarskrá. Fylgstu við stjórn á yfir plötur og finnu að þríflingur er á staðnum."
+        },
+        {
+          "narration": "Veldu endurteknar mælingar með staðsetningu plötu og grunnupplýsingum."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði skal skilgreind vera grunnlínan, hópun, miðlínan, takmörk og viðvörunarstefna."
+        },
+        {
+          "narration": "Sendu út greinina og rannsakaðu breytingar, þróun eða óstjórnunarplötur í samhengi."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið er hægt að flytja út graf, viðvörun og útgangsskilgreiningu til að fylgjast með herferðinni."
+        }
+      ]
+    },
+    {
+      "id": "52_pipeline_graph",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Pipeline Graph. Sjáðu hvaða verkfæri leiddu til hvers árangurs og hvaða útgöngur í eftirrás eru gamlar eða saknar."
+        },
+        {
+          "narration": "Opnaðu verkefni spaCR eða skráðu rekstrarsafnið."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skaltu sía greinina eftir stýri, gerðartípu, stöðu eða vinnuflóð greinar."
+        },
+        {
+          "narration": "Veldu hnúta og kantir til að skoða stillingar þeirra, skrár, afhæðir og forna ástæður."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, greinar grafinn nákvæmlega móðul sem ætti að vera runnið aftur til að endurheimta samræmi."
+        }
+      ]
+    },
+    {
+      "id": "53_prediction_profiler",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um spáspár. Breyttu innfærslum á einni líkanum og fylgdu með hvernig viðhengi við viðhæðandi spá."
+        },
+        {
+          "narration": "Veldu hentað líkan, fulltrúarlínuna og aðstæðurnar að breytast."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal setja upp varnarlega einkenniviðfang þegar annað innlegg er haldið eða sýnt með tilvitu."
+        },
+        {
+          "narration": "Gerðu prófíllinn og samanberðu hann á milli viðeigandi flokkanna eða viðmiðunarfjarða."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið lýsir viðbrögðskurvan samdráttarviðferð, ekki orsaksfræðilega áhrif og er hægt að flytja út með stillingum hennar."
+        }
+      ]
+    },
+    {
+      "id": "54_qc_dashboard",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um QC Dashboard. Sameinast aðgerðir um skipta, einingu, lek, plötuáhrif og athugasemdir í eina yfirborð."
+        },
+        {
+          "narration": "Veldu verkefnið og rekur sem gæðafrásögn ætti að taka saman."
+        },
+        {
+          "narration": "Í aðalmyndunarölu skal farið yfir hvaða athugunar eru til staðar, umfang þeirra og viðmið sem standa að baki hverri dómi."
+        },
+        {
+          "narration": "Freyjaðu stjórnborðið og opnuðu viðvörunarkortin til að skoða undirliggjandi sönnunargögn."
+        },
+        {
+          "narration": "Þegar vinnuflökunin er lokið er samsett dómgreiningin eftir að vera rekin til einstakra skýrsla í stað þess að skipta þeim út."
+        }
+      ]
+    },
+    {
+      "id": "55_image_scatter",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um myndasprengingu. Fylgdu á myndina á bak við hvert staði."
+        },
+        {
+          "narration": "Veldu mælingastað, x og y einkenni og myndarstöðvun á ávextum eða sviði."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu er hægt að setja upp lit, hópa, sía, taka sýni og breyta axlum án þess að fela út útilokaðar röður."
+        },
+        {
+          "narration": "Skildu út út út, svæðið fyrir samhengi myndarinnar og smelltu á hlutfall eða óvenjulegt."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið er hægt að flytja út valda hluti og plótið með stöðugum kjarnorðkenningum."
+        }
+      ]
+    },
+    {
+      "id": "56_lineage",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um ættleiðingar. Skoðaðu þéttingar tengsl eins og frumur, kjarn, sjúkdómsfrumur og líffæra tilskipun."
+        },
+        {
+          "narration": "Opnaðu mæluð hlut með tengslum."
+        },
+        {
+          "narration": "Í aðal uppsetningar svæði veldu foreldra og barn flokkar, sía, sviði og samband atriði til að sýna."
+        },
+        {
+          "narration": "Skoðaðu óvænt saknað, duplicated eða milli landamæra tengsl á fulltrúar myndir."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið hjálpar yfirlitin tengslatafla til að greina lífræna mannvirki frá verkefnasvikum."
+        }
+      ]
+    },
+    {
+      "id": "57_layer_viewer",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Layer Viewer. Skoðaðu myndir, grímur, staði og svæði sem áhugavert er sem álaga."
+        },
+        {
+          "narration": "Opnaðu verkefni eða samhæfða mynd- og athugasemdsslag."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði skaltu velja lag sýnileika, leiðir, litum, óþéttni, kontrast og leiðsögn."
+        },
+        {
+          "narration": "Fylgdu á lag og skoðaðu mörk og samhæfingar áður en þú kemur að niðurstöðum úr yfirlagningu."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið er hægt að flytja út sýn og valda svæði án þess að breyta heimildum nema búið sé að vista útritun."
+        }
+      ]
+    },
+    {
+      "id": "58_graph_builder",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Graph Builder. Byggðu uppsjáabók með því að skipta töflum á myndverkefni."
+        },
+        {
+          "narration": "Veldu mælingastað og dragtu aðgerðir á x, y, lit, stærð eða hliðar hlutverk."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal valið geometri, samsetning, sía, umbreytingar og hópa sem hentar spurningunni."
+        },
+        {
+          "narration": "Sendu út grafinn og skoðaðu tal, saknar gildi og uppruna röður á bak við mynstur."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið er hægt að endurnýta grafsspecifikasöfnun og gagnavalið eða flytja það út."
+        }
+      ]
+    },
+    {
+      "id": "59_anndata_export",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um AnnData útflutning. Skrifaðu spaCR mælingar sem AnnData skrá fyrir scanpy eða scvi-verkum."
+        },
+        {
+          "narration": "Veldu mælingatalinn, hlutartípan, eiginleikar, athugasemdir og metadata dálkur."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði, endurskoðun sameina, saknar gildi, stærðunarkenning, sparsam geymsla og stöðugir auðkenningar."
+        },
+        {
+          "narration": "Skoðaðu stærðir og metadata áður en skrá er ritað."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, h5ad skrá varðveitir valið matrix, athugasemdir og uppruna til niðurstreymis."
+        }
+      ]
+    },
+    {
+      "id": "60_pca",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um PCA. Lögðu saman samantekt við stærðarefni og skoðaðu einkenni þeirra."
+        },
+        {
+          "narration": "Veldu mælingastað, tölulíf og valfrjáls merki eða hópa."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal setja upp sía, meðhöndlun við saknað gildi, skálun, hluti og sýnatöku."
+        },
+        {
+          "narration": "Fitt PCA og athuga stig, útskýrt variance, hlaða og mynd tengd útbrot saman."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út merkin, innlagningar, stillingar og plottur til að endurnýja sig."
+        }
+      ]
+    },
+    {
+      "id": "61_tabulate",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Tabulate. Talsmiðningar í hópaðar samantektir en halda þátttökutalið sýnilegt."
+        },
+        {
+          "narration": "Veldu töflu og skipuðu hópunarfeldi, gildi dálkar og samsetningar."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal skoða sía, saknað gildi, flokksskrá, heildarfjöldi og tal á bak við hverja frumur."
+        },
+        {
+          "narration": "Búið er að setja upp borðið og skoða sjaldgæfar eða óvænt tómar hópar áður en útflutningur er gerður."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið, er snúandi borð og tilgreiningin á henni tengd upphafsaðvalinu."
+        }
+      ]
+    },
+    {
+      "id": "62_feature_dictionary",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Feature Dictionary. Finndu hvað mæluð kenni þýðir með nafni eða hugtökum."
+        },
+        {
+          "narration": "Leitaðu eftir kennileiti, mælingu, hlutartípu eða lífrænu hugmynd."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu er sniðgefning eftir sviði, kanáli, einingu, útreikningi eða tilgengni í núverandi verkefni."
+        },
+        {
+          "narration": "Opnaðu færslu til að skoða skilgreiningu hennar, væntanlegar einingar, háðstæður og varnarákvæði."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið er hægt að afrita valdu skilgreiningar eða flytja þær út ásamt greiningu."
+        }
+      ]
+    },
+    {
+      "id": "63_small_multiples",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Smá margvísla. Samanberðu sama graf á milli hópa á rás með heiðarlegum sameiginlegum axlum."
+        },
+        {
+          "narration": "Veldu töflu, greinarbreytni og svið sem skilgreinir hvert paneli."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skaltu setja upp skipulag, sameiginlegar eða sjálfstæðar skálur, samsetning, sía og pönnulagsskrá."
+        },
+        {
+          "narration": "Sækja út gírinn og athuga sýnishædd og stærð og stærðval áður en þú samanberar pönnurnar."
+        },
+        {
+          "narration": "Þegar vinnufljósið er lokið er hægt að flytja út út út útferðarmerki og mynd með valiðum gögnum."
+        }
+      ]
+    },
+    {
+      "id": "64_gate_editor",
+      "scenes": [
+        {
+          "narration": "Gate Editor breytir svæðum af mælingastafula í nöfn, endurteknar íbúaförur. Vinnustaðurinn heldur einkenniasunum, teikningartækjum, fullri gagnasýningu og gateherarki saman."
+        },
+        {
+          "narration": "Í 2D veldu X og Y fyrir streyptingu eða láttu Y tóm fyrir histogram. Veldu þröskul eða formverkefni og teikniðu um ætlaða mannfjölda. Fullt skýið er enn sýnilegt á meðan innihaldandi hlutir eru áberandi."
+        },
+        {
+          "narration": "Veldu 3D og Z mælingar til að skoða snúanlegt magn. Aksaþykkið stjórnar snúningsháttinni og Box gatinn skráir mörkin á öllum þremur sýndu mælingum."
+        },
+        {
+          "narration": "Veldu xD til að sýna fyrirmæli um hæfða mælingar í meginhluta. Upplýsingar um uppspretta merkingar skýruðu frábrigði og PC1, PC2 og PC3 urðu venjuleg axlar fyrir sömu gating verkfæri."
+        },
+        {
+          "narration": "Gátarskráin gefur frá sér hlutfallsnúmer, hlutfall móðurins og hlutfall allra röða. Skildu á sniðskjal í gatunni til að sýna eða fela hana og veldu gatuna áður en þú teiknar hvenær næsta íbúð ætti að vera í henni."
+        },
+        {
+          "narration": "Gefðu hverri íbúu merkisvert nafn og geymdu síðan gatastráfiđ. Hlaða það á samhæfan borð til að nota sömu eiginleika nöfn, mörk og röð, og staðfesta nýjar tal áður en áfram."
+        },
+        {
+          "narration": "Cluster Walk leitar eftir meðmörkuðum röð DBSCAN-sjára á sýndu mælingum og skýrir frá valdu sjári, fjölda fólks og útilokaðri brotinu. Skoðaðu niðurstaðan gates, svo athuga eða útflutningur aðeins eftir að íbúðirnar samsvara við sýnilegar gögn."
+        }
+      ]
+    },
+    {
+      "id": "65_feature_explorer",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um Feature Explorer. Hlutfall einkennir af því hversu vel þeir skilja valda flokka og skoða sönnun fyrir aftan hliðstæðið."
+        },
+        {
+          "narration": "Veldu töflu, flokkssvif, samanburðarhópa og tilnefndu tölulíf."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu er hægt að skoða stigtöku, staðfestingu, sía, sýnatöku og fjölda samanburðarstýringu."
+        },
+        {
+          "narration": "Teldu út röðun og skoðaðu dreifingar og myndir tengd dæmi fyrir leiðandi eiginleika."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið lýsir röðabók og plotti tengsl við flokkana, ekki orsaksverði."
+        }
+      ]
+    },
+    {
+      "id": "66_outliers",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um útlátt. Merkið óvenjulegt hlut eða brunn með öflugum reglum og varðveitt hverja röð."
+        },
+        {
+          "narration": "Veldu töflu, greiningarstuðul, hópa og eiginleika til að meta."
+        },
+        {
+          "narration": "Í aðalmyndunarvæðinu skal valið öflugt aðferð, stefna, þröskul, meðferð við saknað gildi og viðmiðunarhópar."
+        },
+        {
+          "narration": "Skoðaðu fyrirfram merktar röður og skoðaðu mælingar og myndir þeirra áður en þú samþykkir regluna."
+        },
+        {
+          "narration": "Þegar vinnuflökunin er lokið skrifar spaCR útlagandi flagg og greiningu í stað þess að eyða athugasemdum í þögnu máli."
+        }
+      ]
+    },
+    {
+      "id": "67_experiment_design",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um tilraunarkönnun. Settu skilyrði, stjórnir og afrit áður en kaupin er."
+        },
+        {
+          "narration": "Veldu plötulíf, skilyrði, stjórnun, afritun áætlun og takmörkun."
+        },
+        {
+          "narration": "Í aðalmyndunar svæði, endurskoða tilviljun, blokkingu, kantum handtaka, jafnvægi, geymd brunnur og metadata merkingar."
+        },
+        {
+          "narration": "Fylgi og skoðaðu fyrirhugaða skipulag og endurskoða síðan ágreiningar eða ójafnvægi."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið má staðfestan plötukort og metadata flytja út til að afla og síðar greina spaCR."
+        }
+      ]
+    },
+    {
+      "id": "68_power_design",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um kraft / hönnun. Áætlaðu frumur og brunnur sem nauðsynlegar eru til að greina áhrif samkvæmt framangreindum forsendum."
+        },
+        {
+          "narration": "Fylgstu inn á niðurstöðustípu, væntanlega áhrif, breytileika, hópa og áætlaða greiningu."
+        },
+        {
+          "narration": "Í aðalmyndunarölu skal endurskoðaðar þýðingar, markmiðmagn, klúster, þreytu og óvissa."
+        },
+        {
+          "narration": "Gerðu útreikning á hönnuninni og notaðu viðkvæmni sýningar til að sjá hvaða álit eru til þess að taka tillit til sýnisháttarstærð."
+        },
+        {
+          "narration": "Þegar vinnuflæði er lokið skráir skýrslan gát og mælt með sýnatöku í stað þess að koma fram einn tölur án samhengi."
+        }
+      ]
+    },
+    {
+      "id": "69_dose_response",
+      "scenes": [
+        {
+          "narration": "Þessi námskeið fjallar um DoseResponse. Hægt að taka við skammta- og viðbrögðskurvi á sama tíma og tilkynna óvissa og hafna ekki styrktum EC50 mati."
+        },
+        {
+          "narration": "Veldu einbeiting, viðbrögð, afrit, ástandi og stjórn spjald."
+        },
+        {
+          "narration": "Í aðalmyndunarölu skal endurskoðað vera eðlileiki, stefna, mörk, vægi, hópur og lágmarksviðskipti til sönnunar."
+        },
+        {
+          "narration": "Fylgdu og skoðaðu beygjuna, eftirlifaraflokkinn, trúarskilinn og ef einhverja neita eða einhliða mörk."
+        },
+        {
+          "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út bökurparametrar, óvissa, greiningar og heimildatökur saman."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Explain CV Model. Endurskapið spár tölvusjónar út frá mældum eiginleikum og metið hvort skýringarnar sem fást séu áreiðanlegar og án gagnaleka."
+        },
+        {
+          "narration": "Veljið spáskrána fyrir hvern hlut, tengdan mælingagagnagrunn, spáðan flokk eða stig og hópun eftir brunni örplötu eða plötu sem verður að haldast óskipt."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu bakenda staðgengilslíkansins, frátekna sannprófunarhópa, eiginleika sem á að útiloka, fjölda umstokkunarendurtekninga og afmarkað SHAP-útreikningsmagn."
+        },
+        {
+          "narration": "Sannreynið útilokanir gegn gagnaleka og hópaskipta gagnaskiptingu. Aðlagið síðan staðgengilslíkanið og berið samsvörun þess á sannprófunargögnum saman við grunnviðmið meirihlutaflokks áður en mikilvægi eiginleika er túlkað."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir það samsvörun, umstokkunarmikilvægi á sannprófunarsafninu, SHAP-yfirlit, útilokaða dálka, hópun, bakenda og uppruna; lítil samsvörun er tilgreind í stað þess að vera falin."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Investigate Hit. Rekið valda niðurstöðu aðhvarfsgreiningar aftur til mögulegra frumna og megindlegrar stoðar úr brunnnum örplötu án þess að yfirskrifa yfirfarnar merkingar."
+        },
+        {
+          "narration": "Veljið aðhvarfsgreiningarkeyrsluna, valda niðurstöðu á gena- eða stýriraðastigi, stefnu svipgerðar, þröskuld falskra uppgötvana, stuðning stýriraða og samsvarandi mælingagagnagrunn."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir hlutatöfluna, stigadálkinn, hópun eftir brunni örplötu, sönnunarþröskulda, skýribreytur og valfrjálsa þveraðlagaða stigskipta blöndulíkanið."
+        },
+        {
+          "narration": "Forskoðið mögulegar frumur raðaðar eftir stigum og yfirlit brunna örplötu. Keyrið þveraðlagaða líkanið aðeins þegar valda niðurstaðan og skilyrði fyrir stoð eru rétt."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur vistar spaCR raðaðar mögulegar frumur, samanburð óháðra brunna, valfrjálsar líkur á að hver fruma samsvari valinni svipgerð, óvissu og útgáfustýrða flokkun sem kemur aldrei í stað handvirkra merkinga."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Volcano Explorer. Opnið lokið aðhvarfsgreiningarverk, skoðið hvert gagnapunkt, breytið útliti myndarinnar og flytjið út vigurmynd í birtingarstærð án þess að keyra greininguna aftur."
+        },
+        {
+          "narration": "Veljið möppu með lokinni aðhvarfsgreiningu eða CSV-niðurstöðuskrá og staðfestið útkomuna, töfluna á stýriraðastigi, stuðningsfjölskylduna, áhrifadálkinn og dálkinn með leiðréttum P-gildum."
+        },
+        {
+          "narration": "Farið í aðalstillingasvæðinu yfir marktektar- og áhrifaþröskulda, ásabreytingar, merkingar, liti, form, skýringar, ásrof, leturgerðir og stærð úttaks."
+        },
+        {
+          "narration": "Smellið á dæmigerða punkta til að skoða allar upplýsingar í röðum þeirra, sameinið valfrjálsar merkingar og sannreynið að breytingar á útliti varðveiti undirliggjandi gildi og þröskulda."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur eru PDF- og PNG-skrár endurgerðar úr skráðum gögnum og útliti í umbeðinni stærð, en upprunalegar niðurstöður aðhvarfsgreiningarinnar haldast óbreyttar."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Þetta kennsluefni fjallar um Parameter Sweep. Keyrið afmarkaða leit yfir stillingar aðhvarfsgreiningar og berið saman hvaða ályktanir standast verjandi val á greiningaraðferðum."
+        },
+        {
+          "narration": "Parið CSV-skrár með stigum fyrir hvern hlut og fjölda stýriraða fyrir hverja plötu, veljið svardálkinn og tilgreinið sérstaka úttaksmöppu."
+        },
+        {
+          "narration": "Veljið í aðalstillingasvæðinu hvaða víddir eru breytilegar, festið öll önnur gildi, veljið grindar- eða slembiúrtak, takmarkið fjölda tilrauna, skráið slembifræið og samþykkið fjölda vinnsluþráða sem er takmarkaður af minni."
+        },
+        {
+          "narration": "Notið fyrst Estimate til að skoða stærð og kostnað leyfilega leitarrýmisins. Hefjið síðan litla, afmarkaða leit og fylgist með heppnuðum, höfnuðum og misheppnuðum tilraunum."
+        },
+        {
+          "narration": "Þegar verkflæðinu lýkur skráir endurheimtanlega niðurstöðutaflan stillingar, stöðu, fjölda uppgötvana, sæti jákvæðrar viðmiðunar, keyrslutíma, úttaksmöppu og ástæðu bilunar fyrir hverja tilraun."
+        }
+      ]
+    }
+  ]
+}

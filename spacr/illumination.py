@@ -44,7 +44,7 @@ fields of the plate, followed by a fit of a smooth low-order surface.
 minority of the fields on a plate, so the across-field median at that pixel
 sees background almost every time and the objects drop out. Each field is
 first divided by its own median, so a densely-seeded field does not pull the
-estimate up simply because it has more cells in it -- what is being averaged
+estimate up because it has more cells in it -- what is being averaged
 is the *relative* profile, not the brightness.
 
 *Why the surface fit on top.* Illumination is a physically smooth,
@@ -110,24 +110,34 @@ or explicitly::
 Nothing in this module runs unless one of those calls is made, and
 :func:`disable_illumination_correction` returns the process to a state where
 ``measure_crop`` measures exactly what it measured before.
+
+In the GUI the same two routes exist and end here: the "Illumination
+Correction" category on the Measure panel, which is the switch thrown on the
+run whose numbers it changes, and the Illumination button on that screen's
+masthead, which opens this module's own settings form and Run button so the
+field can be estimated and QC'd without measuring the plate. Neither is a
+tile: the module folded into Measure and left the app registry with it.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
+import tempfile
 import time
-from dataclasses import dataclass, field as _dataclass_field
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
+from dataclasses import dataclass
+from dataclasses import field as _dataclass_field
+from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
 from .errors import ConfigurationError
 from .measure_hooks import (
     HOOKS_ENV_VAR,
-    register_preprocessing_hook,
     preprocessing_hooks,
+    register_preprocessing_hook,
     unregister_preprocessing_hook,
 )
 
@@ -142,6 +152,8 @@ __all__ = [
     'IlluminationField',
     'IlluminationModel',
     'IlluminationCorrector',
+    'PreparedIllumination',
+    'SegmentationIlluminationSession',
     'estimate_illumination',
     'load_illumination_model',
     'plate_of_field',
@@ -151,7 +163,11 @@ __all__ = [
     'disable_illumination_correction',
     'worker_delivery_status',
     'install',
+    'prepare_illumination_model',
     'prepare_illumination_correction',
+    'prepare_segmentation_illumination',
+    'load_segmentation_illumination_resume',
+    'validate_segmentation_illumination_resume',
     'illumination_settings',
     'register_illumination_settings',
 ]
@@ -216,24 +232,24 @@ class IlluminationError(ConfigurationError):
 class IlluminationField:
     """The illumination estimate for one plate, for one or more channels.
 
-    :ivar plate: the plate key, or :data:`ALL_PLATES` when the model was
+    :param plate: the plate key, or :data:`ALL_PLATES` when the model was
         estimated across every plate at once.
-    :ivar channels: source channel indices, in the order they index
+    :param channels: source channel indices, in the order they index
         :attr:`flatfield`'s first axis. These are indices into the *merged
         stack*, i.e. exactly the values in ``settings['channels']``.
-    :ivar flatfield: ``(C, Y, X)`` float32 multiplicative field, normalised so
+    :param flatfield: ``(C, Y, X)`` float32 multiplicative field, normalised so
         each channel's mean is 1.0. ``corrected = (observed - dark) /
         flatfield``.
-    :ivar dark: per-channel additive offset subtracted before dividing. Zero
+    :param dark: per-channel additive offset subtracted before dividing. Zero
         unless the user supplied a measured camera offset -- see the module
         docstring for why it is not estimated.
-    :ivar n_fields: how many fields the estimate was made from.
-    :ivar estimator: ``'polynomial'`` or ``'smooth'``.
-    :ivar degree: polynomial degree, or 0 for the smooth estimator.
-    :ivar bin_size: the binning factor the per-pixel median was computed at.
+    :param n_fields: how many fields the estimate was made from.
+    :param estimator: ``'polynomial'`` or ``'smooth'``.
+    :param degree: polynomial degree, or 0 for the smooth estimator.
+    :param bin_size: the binning factor the per-pixel median was computed at.
         Illumination is low-frequency, so binning costs nothing and buys both
         the memory to hold many fields at once and a quieter statistic.
-    :ivar floored: pixels the fitted surface had to be floored at (see
+    :param floored: pixels the fitted surface had to be floored at (see
         :data:`FLAT_FLOOR_FRACTION`). Non-zero means the fit went negative
         somewhere and the estimate should be looked at before it is trusted.
     """
@@ -285,7 +301,11 @@ class IlluminationField:
         return np.stack(gains, axis=-1).astype(np.float32, copy=False)
 
     def dark_stack(self, channels: Sequence[int]) -> np.ndarray:
-        """``(C,)`` additive offsets for ``channels``, ready to broadcast."""
+        """``(C,)`` additive offsets for ``channels``, ready to broadcast.
+
+        :param channels: source channel indices in the order required by the
+            array being corrected.
+        """
         return np.asarray([self.dark[self.index_of(c)] for c in channels],
                           dtype=np.float32)
 
@@ -323,10 +343,10 @@ class IlluminationField:
 class IlluminationModel:
     """Estimated illumination fields for every plate in a source folder.
 
-    :ivar fields: plate key -> :class:`IlluminationField`. A model estimated
+    :param fields: plate key -> :class:`IlluminationField`. A model estimated
         with ``per_plate=False`` holds the single key :data:`ALL_PLATES`,
         which matches every plate.
-    :ivar meta: provenance -- source folders, channels, when it was estimated,
+    :param meta: provenance -- source folders, channels, when it was estimated,
         the settings it was estimated with. Written into the ``.npz`` and read
         back, so a model on disk can always say what produced it.
     """
@@ -342,6 +362,7 @@ class IlluminationModel:
     def field_for(self, plate: str) -> IlluminationField:
         """The :class:`IlluminationField` that applies to ``plate``.
 
+        :param plate: plate key whose estimated illumination field is needed.
         :raises IlluminationError: when nothing in the model covers it. This
             is deliberately not a fall back to "some other plate's field":
             illumination differs between acquisition sessions, which is the
@@ -376,8 +397,7 @@ class IlluminationModel:
         """
         path = os.path.abspath(path)
         parent = os.path.dirname(path)
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         arrays = {}
         index = {}
         for key, item in self.fields.items():
@@ -810,6 +830,9 @@ def estimate_illumination(src, channels: Sequence[int], *,
         'grid': int(grid),
         'dark': float(dark),
         'created': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'application_contract_version': 1,
+        'channel_index_space': 'persisted-intensity-axis',
+        'estimated_from_intensity_state': 'raw',
     }
     return IlluminationModel(fields=fields, meta=meta)
 
@@ -857,6 +880,15 @@ class IlluminationCorrector:
 
     def __init__(self, model: IlluminationModel, *, on_missing: str = 'error',
                  verbose: bool = True) -> None:
+        """Arm a corrector over a fitted illumination model.
+
+        :param model: the fitted model to divide fields by.
+        :param on_missing: what to do with a field the model has no profile for
+            -- ``'error'`` fails the field, ``'skip'`` measures it uncorrected
+            and counts it.
+        :param verbose: report the first few clipping events.
+        :raises IlluminationError: if ``on_missing`` is neither of the two.
+        """
         if on_missing not in ('error', 'skip'):
             raise IlluminationError(
                 f"on_missing={on_missing!r}; use 'error' (fail the field) or "
@@ -959,6 +991,611 @@ class IlluminationCorrector:
                 f"corrected, {self.stats['skipped']} skipped, "
                 f"{self.stats['clipped_pixels']} pixel(s) clipped across "
                 f"{self.stats['clipped_fields']} field(s)")
+
+
+@dataclass(frozen=True)
+class PreparedIllumination:
+    """One fitted/loaded model and the stage-neutral objects derived from it.
+
+    The saved model is deliberately not tagged ``measurement`` or
+    ``segmentation``: both stages may reuse the same optical estimate.  The
+    stage that *applies* it owns that provenance separately.
+
+    :param model: loaded or newly estimated illumination model.
+    :param corrector: corrector configured with the requested missing-plate
+        policy, but not registered as a Measure preprocessing hook.
+    :param model_path: absolute path of the saved model.
+    :param model_sha256: digest of the exact saved bytes at ``model_path``.
+    :param qc_artifacts: QC figure paths written while preparing the model.
+    """
+
+    model: IlluminationModel
+    corrector: IlluminationCorrector
+    model_path: str
+    model_sha256: str
+    qc_artifacts: Tuple[str, ...] = ()
+
+
+def _file_sha256(path: str) -> str:
+    """Return the SHA-256 digest of ``path`` without loading it into memory."""
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+_SEGMENTATION_MODEL_META = {
+    'application_contract_version': 1,
+    'channel_index_space': 'persisted-intensity-axis',
+    'estimated_from_intensity_state': 'raw',
+}
+
+_SEGMENTATION_IMMUTABLE_RECORD_KEYS = (
+    'schema_version', 'model_path', 'model_sha256', 'pipeline_style',
+    'source_intensity_state', 'target_scope', 'correction_depth',
+    'raw_persisted_intensities_modified',
+)
+
+
+def _segmentation_pipeline_style(pipeline_style: str) -> str:
+    """Validate and normalise the segmentation pipeline style.
+
+    :param pipeline_style: the style.
+    :returns: it, lowercased.
+    :raises IlluminationError: if it is neither ``'v1'`` nor ``'v2'`` -- the
+        two write different provenance, so a third value would produce a
+        record nothing can read back.
+    """
+    style = str(pipeline_style).strip().lower()
+    if style not in {'v1', 'v2'}:
+        raise IlluminationError(
+            "segmentation illumination pipeline_style must be 'v1' or "
+            f"'v2', not {style!r}.")
+    return style
+
+
+def _validate_segmentation_model(prepared: PreparedIllumination) -> None:
+    """Check a prepared illumination model may be applied to segmentation inputs.
+
+    :param prepared: the prepared model and its QC artefacts.
+    :raises IlluminationError: if it was not prepared for this use. The
+        correction is applied to segmentation INPUTS only and never to the
+        persisted intensities, and a model prepared under other terms would
+        silently break that guarantee.
+    """
+    try:
+        saved_digest = _file_sha256(prepared.model_path)
+    except OSError as exc:
+        raise IlluminationError(
+            'segmentation illumination cannot verify its saved model: '
+            f'{prepared.model_path}: {exc}') from exc
+    if saved_digest != prepared.model_sha256:
+        raise IlluminationError(
+            'segmentation illumination model bytes changed after preparation; '
+            'the saved SHA-256 no longer matches. Re-load the recorded model '
+            'or start a clean mask run.')
+    incompatible = [
+        key for key, value in _SEGMENTATION_MODEL_META.items()
+        if prepared.model.meta.get(key) != value
+    ]
+    if incompatible:
+        raise IlluminationError(
+            'segmentation illumination cannot use this legacy or '
+            'incompatible model because its saved provenance does not prove '
+            'raw persisted-intensity-axis inputs '
+            f'({", ".join(incompatible)} missing or changed). Re-estimate '
+            'the illumination model from raw merged fields and start a clean '
+            'mask run.')
+
+
+def _segmentation_application_record(
+        prepared: PreparedIllumination, provenance_path: str,
+        pipeline_style: str, completed_fields: Iterable[str],
+        application_state: str,
+        ) -> Dict[str, Any]:
+    """Build the provenance record for a segmentation-illumination session.
+
+    :param prepared: the prepared model.
+    :param provenance_path: where the record lives.
+    :param pipeline_style: which segmentation pipeline this corrects for.
+    :param completed_fields: the fields corrected so far.
+    :param application_state: where the session has got to.
+    :returns: the record.
+    """
+    model_path = os.path.relpath(
+        prepared.model_path, os.path.dirname(provenance_path))
+    return {
+        'schema_version': 1,
+        'model_path': model_path,
+        'model_sha256': prepared.model_sha256,
+        'pipeline_style': pipeline_style,
+        'source_intensity_state': 'raw',
+        'target_scope': 'segmentation-input-only',
+        'correction_depth': 1,
+        'raw_persisted_intensities_modified': False,
+        'application_state': application_state,
+        'completed_fields': sorted({str(item) for item in completed_fields}),
+        'qc_artifacts': list(prepared.qc_artifacts),
+    }
+
+
+def _read_segmentation_application(
+        prepared: PreparedIllumination, provenance_path: str,
+        pipeline_style: str) -> Tuple[Dict[str, Any], set]:
+    """Read a previous session's record and check it describes this one.
+
+    The immutable keys -- the model hash, the pipeline style, the scope --
+    are compared rather than trusted: resuming against a record written for
+    a DIFFERENT model would report fields as corrected that were corrected
+    by something else.
+
+    :param prepared: the prepared model.
+    :param provenance_path: where the record lives.
+    :param pipeline_style: this session's pipeline style.
+    :returns: the record and the set of fields it says are complete.
+    :raises IlluminationError: if the record describes a different run.
+    """
+    existing = _load_segmentation_application(provenance_path)
+    wanted = _segmentation_application_record(
+        prepared, provenance_path, pipeline_style, (), 'prepared')
+    mismatched = [
+        key for key in _SEGMENTATION_IMMUTABLE_RECORD_KEYS
+        if existing.get(key) != wanted[key]
+    ]
+    if mismatched:
+        raise IlluminationError(
+            'cannot resume segmentation illumination with different '
+            f'provenance ({", ".join(mismatched)} changed); re-run '
+            'preprocessing as a clean mask run.')
+    completed = existing.get('completed_fields', [])
+    if not isinstance(completed, list):
+        raise IlluminationError(
+            'segmentation illumination provenance completed_fields must be '
+            'a list.')
+    application_state = existing.get('application_state')
+    if application_state not in {'prepared', 'running', 'complete'}:
+        raise IlluminationError(
+            'segmentation illumination provenance application_state must be '
+            "'prepared', 'running', or 'complete'.")
+    return existing, {str(field_id) for field_id in completed}
+
+
+def _load_segmentation_application(
+        provenance_path: str) -> Dict[str, Any]:
+    """Load a provenance record from disk.
+
+    :param provenance_path: the record file.
+    :returns: the parsed record.
+    :raises IlluminationError: if it is missing or unreadable -- a resume
+        with no record to resume from is a mistake worth stopping for, not a
+        fresh start.
+    """
+    try:
+        with open(provenance_path, encoding='utf-8') as handle:
+            existing = json.load(handle)
+    except FileNotFoundError as exc:
+        raise IlluminationError(
+            'preprocess=False with segmentation illumination requires an '
+            'existing compatible segmentation_application.json; no record '
+            f'exists at {provenance_path}. Re-run preprocessing cleanly.') \
+            from exc
+    except (OSError, json.JSONDecodeError) as exc:
+        raise IlluminationError(
+            f"segmentation illumination provenance is unreadable: "
+            f"{provenance_path}: {exc}") from exc
+    if not isinstance(existing, dict):
+        raise IlluminationError(
+            'segmentation illumination provenance must be a JSON object.')
+    return existing
+
+
+def validate_segmentation_illumination_resume(
+        prepared: PreparedIllumination, *, provenance_path: str,
+        pipeline_style: str, expected_fields: Iterable[str]
+        ) -> Dict[str, Any]:
+    """Validate a ``preprocess=False`` mask resume without writing anything.
+
+    Normalised mask NPZ files cannot prove which intensity state Cellpose saw.
+    A bypassed preprocessing stage therefore proceeds only when a prior
+    application record names the same model bytes and pipeline style and
+    covers exactly the fields already on disk.  This function never fits a
+    model, creates a record, corrects pixels, or updates the run journal.
+
+    :returns: the validated existing application record.
+    :raises IlluminationError: for an absent or incompatible record, model,
+        pipeline style, or completed-field set.
+    """
+    _validate_segmentation_model(prepared)
+    style = _segmentation_pipeline_style(pipeline_style)
+    path = os.path.abspath(str(provenance_path))
+    existing, completed = _read_segmentation_application(
+        prepared, path, style)
+    if existing['application_state'] != 'complete':
+        raise IlluminationError(
+            'preprocess=False cannot trust an illumination application that '
+            f"is only {existing['application_state']!r}; finish the mask "
+            'preprocessing run or start it cleanly.')
+    expected = {str(field_id) for field_id in expected_fields}
+    if completed != expected:
+        missing = sorted(expected - completed)
+        extra = sorted(completed - expected)
+        raise IlluminationError(
+            'preprocess=False illumination provenance does not cover exactly '
+            f'the existing mask fields: missing={missing}, unexpected={extra}. '
+            'Re-run preprocessing as a clean mask run.')
+    return existing
+
+
+def load_segmentation_illumination_resume(
+        settings: Mapping[str, Any], *, provenance_path: str,
+        pipeline_style: str, expected_fields: Iterable[str],
+        verbose: Optional[bool] = None) -> PreparedIllumination:
+    """Read and validate prior segmentation illumination without side effects.
+
+    This is the ``preprocess=False`` entry point.  The application record is
+    authoritative: its exact model path is loaded and its digest, metadata,
+    pipeline style, and completed-field set are checked before the caller may
+    trust existing normalised mask NPZ files.  No model is fitted, no QC or
+    application record is written, no pixels are corrected, and no Measure
+    hook is installed.
+    """
+    if not settings.get('illumination_correction', False):
+        raise IlluminationError(
+            'load_segmentation_illumination_resume requires '
+            'illumination_correction=True.')
+    style = _segmentation_pipeline_style(pipeline_style)
+    path = os.path.abspath(str(provenance_path))
+    existing = _load_segmentation_application(path)
+    recorded_model = existing.get('model_path')
+    if not isinstance(recorded_model, str) or not recorded_model.strip():
+        raise IlluminationError(
+            'segmentation illumination provenance has no usable model_path; '
+            're-run preprocessing as a clean mask run.')
+    model_path = recorded_model
+    if not os.path.isabs(model_path):
+        model_path = os.path.join(os.path.dirname(path), model_path)
+    model_path = os.path.abspath(model_path)
+    requested_model = str(settings.get('illumination_model', '') or '').strip()
+    if (requested_model and
+            os.path.abspath(requested_model) != model_path):
+        raise IlluminationError(
+            "settings['illumination_model'] does not name the model recorded "
+            'for these masks; use the recorded model or re-run preprocessing '
+            'as a clean mask run.')
+    try:
+        digest = _file_sha256(model_path)
+    except OSError as exc:
+        raise IlluminationError(
+            f'the recorded segmentation illumination model cannot be read: '
+            f'{model_path}: {exc}') from exc
+    if digest != existing.get('model_sha256'):
+        raise IlluminationError(
+            'the recorded segmentation illumination model hash does not '
+            'match the model bytes on disk; re-run preprocessing as a clean '
+            'mask run.')
+    qc_artifacts = existing.get('qc_artifacts', [])
+    if not isinstance(qc_artifacts, list):
+        raise IlluminationError(
+            'segmentation illumination provenance qc_artifacts must be a '
+            'list.')
+    talk = settings.get('verbose', True) if verbose is None else verbose
+    model = IlluminationModel.load(model_path)
+    prepared = PreparedIllumination(
+        model=model,
+        corrector=IlluminationCorrector(
+            model,
+            on_missing=str(settings.get('illumination_on_missing', 'error')),
+            verbose=talk,
+        ),
+        model_path=model_path,
+        model_sha256=digest,
+        qc_artifacts=tuple(str(item) for item in qc_artifacts),
+    )
+    validate_segmentation_illumination_resume(
+        prepared,
+        provenance_path=path,
+        pipeline_style=style,
+        expected_fields=expected_fields,
+    )
+    return prepared
+
+
+def validate_measurement_illumination_inputs(
+        settings: Mapping[str, Any], *, src=None
+        ) -> Dict[str, Dict[str, Any]]:
+    """Fail closed before Measure corrects pixels a second time.
+
+    Segmentation is allowed to correct only its private model input.  If a
+    mask run ever records that it instead changed the persisted intensities,
+    Measure must not install another gain over those pixels: doing so squares
+    the optical field while producing entirely plausible numbers.  A missing
+    application record is the legacy/raw case and remains valid; a present
+    record must prove the current ``segmentation-input-only`` contract.
+
+    This check is deliberately read-only.  It neither creates an illumination
+    folder nor repairs a malformed record, and it does nothing when Measure's
+    own illumination correction is off.
+
+    :param settings: resolved Measure settings.
+    :param src: optional merged-folder override; defaults to
+        ``settings['src']`` and accepts the same folder-or-list shape.
+    :returns: absolute application-record paths mapped to their validated
+        JSON objects; an empty dict means no segmentation record was present.
+    :raises IlluminationError: when a present record is unreadable or cannot
+        prove that persisted intensity pixels remain raw.
+    """
+    if not settings.get('illumination_correction', False):
+        return {}
+    source = src if src is not None else settings.get('src')
+    if not source:
+        return {}
+
+    records: Dict[str, Dict[str, Any]] = {}
+    seen = set()
+    for folder in _source_folders(source):
+        path = os.path.abspath(os.path.join(
+            os.path.dirname(folder), 'illumination',
+            'segmentation_application.json'))
+        if path in seen:
+            continue
+        seen.add(path)
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding='utf-8') as handle:
+                record = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise IlluminationError(
+                'Measure cannot verify whether segmentation left persisted '
+                f'intensities raw because {path} is unreadable: {exc}. '
+                'Refusing a possible double correction; repair or remove the '
+                'invalid mask-run provenance before measuring.') from exc
+        if not isinstance(record, dict):
+            raise IlluminationError(
+                'Measure cannot verify whether segmentation left persisted '
+                f'intensities raw because {path} is not a JSON object. '
+                'Refusing a possible double correction.')
+
+        safe = (
+            type(record.get('schema_version')) is int and
+            record.get('schema_version') == 1 and
+            record.get('source_intensity_state') == 'raw' and
+            record.get('target_scope') == 'segmentation-input-only' and
+            type(record.get('correction_depth')) is int and
+            record.get('correction_depth') == 1 and
+            record.get('raw_persisted_intensities_modified') is False
+        )
+        if not safe:
+            raise IlluminationError(
+                'Measure refused a possible double correction: the '
+                f'segmentation record at {path} does not prove schema 1, raw '
+                'persisted input, segmentation-input-only scope, correction '
+                'depth 1, and raw_persisted_intensities_modified=false. '
+                'Rebuild masks with in-memory-only illumination or measure '
+                'without another illumination correction.')
+        records[path] = record
+    return records
+
+
+class SegmentationIlluminationSession:
+    """Apply one illumination model exactly once per segmentation field.
+
+    Correction always receives a private copy.  :meth:`correct` records that
+    an in-memory input was corrected; :meth:`mark_completed` is deliberately
+    separate and is the only operation that persists a field id.  A pipeline
+    therefore marks a field only *after* its durable NPZ/mask output exists.
+
+    :param prepared: model/corrector returned by
+        :func:`prepare_illumination_model`.
+    :param provenance_path: destination ``segmentation_application.json``.
+    :param pipeline_style: ``'v1'`` or ``'v2'`` for the audit record.
+    :param resume: restore explicitly completed fields from an existing
+        compatible record without rewriting it; absence is an error. False
+        starts a fresh regenerated-output session and atomically replaces any
+        old completion claim with an explicit ``prepared`` record.
+    """
+
+    STAGE_ID = 'illumination.segmentation_input'
+    STAGE_LABEL = 'Illumination correction — segmentation input'
+
+    def __init__(self, prepared: PreparedIllumination, *,
+                 provenance_path: str, pipeline_style: str,
+                 resume: bool = False) -> None:
+        """Open a segmentation-input correction session and stamp its provenance.
+
+        :param prepared: the validated illumination model and its QC artefacts.
+        :param provenance_path: where the application record is written.
+        :param pipeline_style: which segmentation pipeline this corrects for.
+        :param resume: continue a previous session, reading back which fields it
+            already completed. Without it a fresh record is written stating that
+            no field has yet been corrected -- a new preprocessing run
+            invalidates any earlier completion claim, and saying so explicitly
+            is what stops a half-finished run being read as a finished one.
+        """
+        _validate_segmentation_model(prepared)
+        pipeline_style = _segmentation_pipeline_style(pipeline_style)
+        self.prepared = prepared
+        self.provenance_path = os.path.abspath(str(provenance_path))
+        self.pipeline_style = pipeline_style
+        self._applied_fields = set()
+        self._completed_fields = set()
+        self._duplicate_attempts = 0
+        self._application_state = 'prepared'
+        if resume:
+            self._load_completed_fields()
+        else:
+            # A fresh preprocessing run invalidates any previous completion
+            # claim immediately, but the explicit state says no field has yet
+            # been corrected or made durable.
+            self._write_provenance(self._completed_fields, 'prepared')
+        self._record_stage('running')
+
+    @property
+    def completed_fields(self) -> Tuple[str, ...]:
+        """Durably completed field ids in stable order."""
+        return tuple(sorted(self._completed_fields))
+
+    @property
+    def applied_fields(self) -> Tuple[str, ...]:
+        """Field ids corrected during this process, in stable order."""
+        return tuple(sorted(self._applied_fields))
+
+    def correct(self, field_id: str, channel_arrays: np.ndarray,
+                context) -> np.ndarray:
+        """Correct a private copy of one raw field, refusing a second pass."""
+        field_id = str(field_id)
+        if (field_id in self._applied_fields or
+                field_id in self._completed_fields):
+            self._duplicate_attempts += 1
+            self._record_stage('failed')
+            raise IlluminationError(
+                f"illumination correction was requested twice for segmentation "
+                f"field {field_id!r}; correction_depth must remain 1.")
+        private = np.array(channel_arrays, copy=True)
+        skipped_before = int(self.prepared.corrector.stats['skipped'])
+        corrected = self.prepared.corrector(private, context)
+        if int(self.prepared.corrector.stats['skipped']) > skipped_before:
+            self._record_stage('failed')
+            raise IlluminationError(
+                f"segmentation field {field_id!r} has no illumination model; "
+                "an uncorrected field cannot be recorded as correction_depth=1. "
+                "Use illumination_on_missing='error' or estimate a model that "
+                'covers every segmentation plate.')
+        self._applied_fields.add(field_id)
+        self._application_state = 'running'
+        self._record_stage('running')
+        return corrected
+
+    def mark_completed(self, field_id: str) -> bool:
+        """Persist ``field_id`` after its corrected pipeline output is durable.
+
+        :returns: ``True`` when the record changed, ``False`` when the same
+            completed field was marked again.
+        """
+        field_id = str(field_id)
+        if field_id in self._completed_fields:
+            return False
+        if field_id not in self._applied_fields:
+            raise IlluminationError(
+                f"cannot mark segmentation field {field_id!r} complete before "
+                f"its illumination correction was applied.")
+        completed = set(self._completed_fields)
+        completed.add(field_id)
+        # Assign only after os.replace succeeds: the in-memory state must not
+        # claim durability that the filesystem refused to record.
+        self._write_provenance(completed, 'running')
+        self._completed_fields = completed
+        self._application_state = 'running'
+        self._record_stage('running')
+        return True
+
+    def finish(self, expected_fields: Iterable[str]) -> None:
+        """Mark the journal stage done after every expected field is durable."""
+        expected = {str(field_id) for field_id in expected_fields}
+        if expected != self._completed_fields:
+            missing = sorted(expected - self._completed_fields)
+            extra = sorted(self._completed_fields - expected)
+            raise IlluminationError(
+                'cannot finish segmentation illumination provenance: '
+                f'missing={missing}, unexpected={extra}.')
+        self._write_provenance(self._completed_fields, 'complete')
+        self._application_state = 'complete'
+        self._record_stage('done')
+
+    def _record(self, completed_fields: Iterable[str],
+                application_state: str) -> Dict[str, Any]:
+        """Build the provenance record for a set of completed fields.
+
+        :param completed_fields: the fields corrected so far.
+        :param application_state: where the session has got to.
+        :returns: the record, ready to serialise.
+        """
+        return _segmentation_application_record(
+            self.prepared,
+            self.provenance_path,
+            self.pipeline_style,
+            completed_fields,
+            application_state,
+        )
+
+    def _load_completed_fields(self) -> None:
+        """Read back which fields a previous session already corrected.
+
+        The record is validated against this session's model and pipeline style,
+        so a resume cannot silently adopt another run's completions.
+        """
+        existing, completed = _read_segmentation_application(
+            self.prepared, self.provenance_path, self.pipeline_style)
+        self._completed_fields = completed
+        self._application_state = existing['application_state']
+
+    def _write_provenance(self, completed_fields: Iterable[str],
+                          application_state: str) -> None:
+        """Write the provenance record atomically.
+
+        Written to a temporary file in the same directory, flushed and fsynced,
+        then renamed over the target -- a crash mid-write must not leave a
+        truncated record that reads as a valid claim about which fields were
+        corrected. The temporary file is removed on any failure.
+
+        :param completed_fields: the fields corrected so far.
+        :param application_state: where the session has got to.
+        """
+        parent = os.path.dirname(self.provenance_path)
+        os.makedirs(parent, exist_ok=True)
+        descriptor, temporary = tempfile.mkstemp(
+            prefix='.segmentation_application_', suffix='.json', dir=parent)
+        try:
+            with os.fdopen(descriptor, 'w', encoding='utf-8') as handle:
+                json.dump(self._record(completed_fields, application_state), handle,
+                          indent=2, sort_keys=True)
+                handle.write('\n')
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, self.provenance_path)
+        except BaseException:
+            try:
+                os.remove(temporary)
+            except OSError:
+                pass
+            raise
+
+    def _record_stage(self, state: str) -> None:
+        """Report this stage to the run journal, if a run is open.
+
+        Every failure is swallowed: provenance must not replace a scientific
+        result or the error that would otherwise have been raised.
+
+        :param state: the stage state to record.
+        """
+        try:
+            from .run_journal import current_run
+            run = current_run()
+            if run is None:
+                return
+            run._record_stage(
+                self.STAGE_ID,
+                label=self.STAGE_LABEL,
+                state=state,
+                metrics={
+                    'applied': bool(
+                        self._applied_fields or self._completed_fields),
+                    'application_state': self._application_state,
+                    'model_sha256': self.prepared.model_sha256,
+                    'pipeline_style': self.pipeline_style,
+                    'source_intensity_state': 'raw',
+                    'target_scope': 'segmentation-input-only',
+                    'correction_depth': 1,
+                    'raw_persisted_intensities_modified': False,
+                    'fields_corrected_once': len(self._completed_fields),
+                    'duplicate_attempts': self._duplicate_attempts,
+                    'qc_artifacts': list(self.prepared.qc_artifacts),
+                },
+            )
+        except Exception:
+            # Provenance must not replace a scientific result or its error.
+            return
 
 
 # ---------------------------------------------------------------------------
@@ -1174,7 +1811,8 @@ def illumination_qc(model: IlluminationModel, src, *,
                     channels: Optional[Sequence[int]] = None,
                     save_dir: Optional[str] = None,
                     max_fields: int = 25,
-                    verbose: bool = True) -> Dict[str, Any]:
+                    verbose: bool = True,
+                    stage: Optional[str] = None) -> Dict[str, Any]:
     """Show that the correction worked, and say by how much.
 
     Three things, per plate and per channel:
@@ -1196,6 +1834,9 @@ def illumination_qc(model: IlluminationModel, src, *,
         compute only the numbers.
     :param max_fields: fields per plate to measure the trend over.
     :param verbose: print the per-channel summary.
+    :param stage: optional consumer label such as ``'segmentation_input'``.
+        When supplied it appears in the figure title and filename, preventing
+        segmentation and measurement QC artifacts from being confused.
     :returns: ``{plate: {channel: {...metrics...}}}`` with, per channel,
         ``slope_before``, ``slope_after``, ``bias_removed_pct``,
         ``nonuniformity_pct``, ``gain_min``, ``gain_max`` and ``n_fields``;
@@ -1214,6 +1855,9 @@ def illumination_qc(model: IlluminationModel, src, *,
         save_dir = os.path.join(os.path.dirname(sources[0]), 'illumination')
 
     report: Dict[str, Any] = {}
+    stage = str(stage or '').strip() or None
+    if stage is not None:
+        report['_stage'] = stage
     for plate in sorted(plates):
         item = model.field_for(plate)
         wanted = [int(c) for c in (channels if channels is not None
@@ -1265,12 +1909,13 @@ def illumination_qc(model: IlluminationModel, src, *,
         report[plate] = metrics
         if save_dir:
             report.setdefault('_figures', {})[plate] = _write_qc_figure(
-                plate, item, wanted, panels, metrics, save_dir, factor)
+                plate, item, wanted, panels, metrics, save_dir, factor,
+                stage=stage)
     return report
 
 
 def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
-                     factor) -> str:
+                     factor, *, stage: Optional[str] = None) -> str:
     """Render one figure per plate: field, trend before/after, residual.
 
     Uses the object-oriented matplotlib API rather than pyplot: this can be
@@ -1282,6 +1927,8 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
     os.makedirs(save_dir, exist_ok=True)
     rows = max(len(channels), 1)
     figure = Figure(figsize=(13, 3.4 * rows), dpi=120)
+    if stage:
+        figure.suptitle(f'Illumination correction — {stage.replace("_", " ")}')
     for index, channel in enumerate(channels):
         plane, observed, corrected = panels[int(channel)]
         stats = metrics[int(channel)]
@@ -1321,10 +1968,24 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
         axis.set_xticks([])
         axis.set_yticks([])
         figure.colorbar(image, ax=axis, fraction=0.046)
-    figure.tight_layout()
-    path = os.path.join(save_dir, f'illumination_qc_{plate}.png')
-    figure.savefig(path)
-    return path
+    figure.tight_layout(rect=(0, 0, 1, 0.97) if stage else None)
+    safe_stage = (''.join(character if character.isalnum() else '_'
+                          for character in stage).strip('_')
+                  if stage else '')
+    infix = f'{safe_stage}_' if safe_stage else ''
+    path = os.path.join(save_dir, f'illumination_qc_{infix}{plate}.png')
+    # 108 point 6: through the one writer for the resolution rule and the
+    # repaint for paper -- but `fmt` STAYS PNG. This path is RETURNED and
+    # recorded in the QC metrics under a name ending `.png`, and a format
+    # preference that renamed it would rename a value other code reads back.
+    #
+    # THE PATTERN, since this is the fourth: routing a save through
+    # `save_figure` always gains the DPI and the paper repaint; the FORMAT
+    # follows the preference only where nothing depends on the filename. A
+    # figure whose name is part of a contract keeps its extension.
+    from .plot import save_figure
+
+    return save_figure(figure, path, fmt="png")
 
 
 def _radial_profile(image: np.ndarray, factor: int,
@@ -1351,16 +2012,103 @@ def _radial_profile(image: np.ndarray, factor: int,
 
 
 # ---------------------------------------------------------------------------
-# The settings-driven entry point
+# Settings-driven preparation and stage entry points
 # ---------------------------------------------------------------------------
+
+def prepare_illumination_model(
+        settings: Mapping[str, Any], *, src=None,
+        channels: Optional[Sequence[int]] = None,
+        qc_stage: Optional[str] = None,
+        verbose: Optional[bool] = None) -> Optional[PreparedIllumination]:
+    """Prepare one reusable optical model without installing a Measure hook.
+
+    This is the direct consumer of all nine ``illumination_*`` settings.  It
+    estimates or loads the model once, ensures a fitted model is saved, hashes
+    the exact saved bytes, optionally writes stage-labelled QC, and builds a
+    corrector.  Applying that corrector belongs to the caller's stage.
+
+    :param settings: settings carrying the nine illumination controls.
+    :param src: optional raw field folder override. Defaults to ``settings['src']``.
+    :param channels: optional persisted intensity-axis positions. Defaults to
+        ``settings['channels']``.
+    :param qc_stage: optional stage label included in QC filenames/titles.
+    :param verbose: override ``settings['verbose']``.
+    :returns: a prepared model/corrector, or ``None`` when correction is off.
+    """
+    talk = settings.get('verbose', True) if verbose is None else verbose
+    if not settings.get('illumination_correction', False):
+        if talk:
+            print("illumination correction is OFF (illumination_correction "
+                  "is False), so no field was estimated and every intensity "
+                  "feature keeps its position-dependent bias.")
+        return None
+
+    source = src if src is not None else settings.get('src')
+    if not source:
+        raise IlluminationError(
+            "illumination_correction is on but settings['src'] is empty; "
+            "there is nothing to estimate the illumination field from.")
+    wanted = (list(channels) if channels is not None
+              else list(settings.get('channels') or []))
+    folder = os.path.join(
+        os.path.dirname(_source_folders(source)[0]), 'illumination')
+    existing = str(settings.get('illumination_model', '') or '').strip()
+    if existing:
+        model = IlluminationModel.load(existing)
+        model_path = os.path.abspath(existing)
+    else:
+        model = estimate_illumination(
+            source,
+            channels=wanted,
+            per_plate=bool(settings.get('illumination_per_plate', True)),
+            estimator=str(settings.get('illumination_estimator', 'polynomial')),
+            degree=int(settings.get('illumination_degree', 4)),
+            max_fields=int(settings.get('illumination_max_fields', 50)),
+            dark=float(settings.get('illumination_dark', 0.0)),
+            verbose=talk)
+        # Keep Measure's established failure boundary: QC runs against the
+        # in-memory estimate, and only a successful QC leaves a reusable model
+        # on disk. ``enable_illumination_correction`` used to perform this save
+        # after QC; the stage-neutral preparer preserves that ordering.
+        model_path = os.path.join(folder, 'illumination_model.npz')
+    qc_artifacts = ()
+    if settings.get('illumination_qc', True):
+        report = illumination_qc(
+            model, source, channels=wanted, save_dir=folder, verbose=talk,
+            stage=qc_stage)
+        qc_artifacts = tuple(sorted(
+            str(path) for path in report.get('_figures', {}).values()))
+    if not existing:
+        model_path = model.save(model_path)
+
+    on_missing = str(settings.get('illumination_on_missing', 'error'))
+    corrector = IlluminationCorrector(
+        model, on_missing=on_missing, verbose=talk)
+    return PreparedIllumination(
+        model=model,
+        corrector=corrector,
+        model_path=model_path,
+        model_sha256=_file_sha256(model_path),
+        qc_artifacts=qc_artifacts,
+    )
+
 
 def prepare_illumination_correction(settings: Mapping[str, Any], *,
                                     verbose: Optional[bool] = None):
-    """Estimate, save, enable and QC the correction from a settings dict.
+    """Estimate, save, enable and QC the Measure correction.
 
-    The one call a pipeline makes before ``measure_crop``. It does nothing at
-    all -- and returns None -- unless ``settings['illumination_correction']``
-    is True, which is the shipped default.
+    The one call a pipeline makes before ``measure_crop``, and the one the
+    Illumination button on the Measure masthead runs on its own -- the model
+    and its QC figures in minutes, before committing hours to the measure run
+    that will reuse them through ``illumination_model``.
+
+    It does nothing at all -- and returns None -- unless
+    ``settings['illumination_correction']`` is True, which is NOT the shipped
+    default: the correction is opt-in, so a run that never mentions it is
+    measured uncorrected. Being asked to run with the switch off is a
+    no-op worth hearing about rather than a silent one, because from a
+    settings form it looks exactly like a Run button that does nothing, so a
+    verbose call says which switch was not thrown.
 
     :param settings: a ``measure_crop`` settings dict. Reads
         ``illumination_correction``, ``illumination_model``,
@@ -1371,39 +2119,46 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
     :param verbose: overrides ``settings['verbose']``.
     :returns: the :class:`IlluminationModel` that was enabled, or None.
     """
-    if not settings.get('illumination_correction', False):
-        return None
     talk = settings.get('verbose', True) if verbose is None else verbose
-    src = settings.get('src')
-    if not src:
-        raise IlluminationError(
-            "illumination_correction is on but settings['src'] is empty; "
-            "there is nothing to estimate the illumination field from.")
-    existing = str(settings.get('illumination_model', '') or '').strip()
-    if existing:
-        model = IlluminationModel.load(existing)
-        model_path: Optional[str] = existing
-    else:
-        model = estimate_illumination(
-            src,
-            channels=settings.get('channels') or [],
-            per_plate=bool(settings.get('illumination_per_plate', True)),
-            estimator=str(settings.get('illumination_estimator', 'polynomial')),
-            degree=int(settings.get('illumination_degree', 4)),
-            max_fields=int(settings.get('illumination_max_fields', 50)),
-            dark=float(settings.get('illumination_dark', 0.0)),
-            verbose=talk)
-        model_path = None
-    folder = os.path.join(os.path.dirname(_source_folders(src)[0]),
-                          'illumination')
-    if settings.get('illumination_qc', True):
-        illumination_qc(model, src, save_dir=folder, verbose=talk)
+    prepared = prepare_illumination_model(settings, verbose=verbose)
+    if prepared is None:
+        return None
     enable_illumination_correction(
-        model_path if model_path else model,
-        path=os.path.join(folder, 'illumination_model.npz'),
+        prepared.model_path,
         on_missing=str(settings.get('illumination_on_missing', 'error')),
         verbose=talk)
-    return model
+    return prepared.model
+
+
+def prepare_segmentation_illumination(
+        settings: Mapping[str, Any], *, src=None,
+        channels: Optional[Sequence[int]] = None,
+        pipeline_style: str,
+        verbose: Optional[bool] = None
+        ) -> Optional[SegmentationIlluminationSession]:
+    """Prepare correction for segmentation inputs without changing raw data.
+
+    The returned session is not a Measure hook.  V1/V2 adapters hand it raw
+    field copies, then explicitly mark fields complete after their durable
+    segmentation output exists.  The application record is stored beside the
+    current run's source folder, even when the optical model is shared from an
+    external path, so two runs cannot overwrite one another's completion set.
+    """
+    prepared = prepare_illumination_model(
+        settings, src=src, channels=channels,
+        qc_stage='segmentation_input', verbose=verbose)
+    if prepared is None:
+        return None
+    source = src if src is not None else settings.get('src')
+    run_root = os.path.dirname(_source_folders(source)[0])
+    provenance_path = os.path.join(
+        run_root, 'illumination',
+        'segmentation_application.json')
+    return SegmentationIlluminationSession(
+        prepared,
+        provenance_path=provenance_path,
+        pipeline_style=pipeline_style,
+    )
 
 
 def illumination_settings(settings=None):
@@ -1431,10 +2186,11 @@ def illumination_settings(settings=None):
 _TOOLTIPS = {
     'illumination_correction': (
         '(bool) - Estimate the uneven illumination of the microscope from the '
-        'fields themselves and divide it out before any intensity feature is '
-        'measured. Off by default. On, the same cell measures the same '
-        'wherever it sits in the field of view, which is what removes the '
-        'position-dependent bias behind plate edge effects. Default False.'),
+        'fields themselves and divide it out of the pixels at every '
+        'enabled stage. Off by default. On, the same cell looks and measures '
+        'the same wherever it sits in the field of view, which is what '
+        'removes the position-dependent bias behind plate edge effects. '
+        'Default False.'),
     'illumination_model': (
         '(str) - Path to an illumination model saved earlier. Empty means '
         'estimate a fresh one from the fields in src, which is what you want '
@@ -1465,7 +2221,7 @@ _TOOLTIPS = {
         '(float) - Camera dark offset in raw counts, subtracted before the '
         'gain is applied. Leave at zero unless you measured it from a dark '
         'frame: it is not identifiable from the images themselves, and '
-        'guessing it subtracts real background signal. Default 0.0.'),
+        'an estimated value can subtract genuine background signal. Default 0.0.'),
     'illumination_on_missing': (
         "(str) - What to do with a field whose plate the model does not "
         "cover: 'error' fails that field and stamps the run incomplete, "
@@ -1475,7 +2231,8 @@ _TOOLTIPS = {
         '(bool) - Write the QC figure beside the model: the estimated field '
         'as an image, the intensity-versus-position trend before and after, '
         'and the percentage of the position bias the correction removed. '
-        'Cheap, and the only way to see that it worked. Default True.'),
+        'The figure has low computational cost and provides direct '
+        'verification of the correction. Default True.'),
 }
 
 _TYPES = {
@@ -1492,9 +2249,9 @@ _TYPES = {
 
 _DESCRIPTION = (
     'Illumination / flat-field correction. Estimates the microscope\'s '
-    'uneven illumination from the fields of a plate and divides it out '
-    'before any intensity feature is measured, so the same cell measures '
-    'the same wherever it sat in the field of view.'
+    'uneven illumination once from the fields of a plate and divides it '
+    'out of the pixels at every enabled stage, so the same cell looks '
+    'and measures the same wherever it sat in the field of view.'
 )
 
 
@@ -1511,10 +2268,15 @@ def register_illumination_settings(replace: bool = False) -> bool:
     an exact-equality test against a hand-kept list. A key contributed at
     *import* time is in that map only in a session that imported this module,
     so contributing categories would make that test's result depend on which
-    files pytest was pointed at. No shipped panel offers these keys yet
-    either; the commit that adds an Illumination screen is the one that
-    should file them under a heading, and can then declare the growth
-    honestly.
+    files pytest was pointed at.
+
+    The nine keys ARE filed under a heading -- "Illumination Correction" in
+    ``spacr.settings.categories`` -- and Measure's panel offers every one of
+    them, because ``measure_crop`` calls
+    :func:`prepare_illumination_correction` itself and these are the keys
+    that call reads. The heading is written in that map by hand for the
+    reason above: it has to exist for every process that groups the Measure
+    settings, not only for one that happened to import this module.
 
     :param replace: re-register over an existing registration.
     :returns: True if it registered, False if it was already registered.

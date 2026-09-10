@@ -52,6 +52,12 @@ MENU_TITLE = "Walkthroughs"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    Imported inside the call so this module can be read without Qt.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_ORG, _APP)
 
@@ -134,6 +140,13 @@ def unregister_steps(app_key: str) -> bool:
 
 
 def _module_name(app_key: str) -> str:
+    """Return a module's display name.
+
+    :param app_key: the registry key.
+    :returns: the name the registry gives it, falling back to the key --
+        a walkthrough that says ``map_barcodes`` is worse than one that says
+        nothing, but better than one that fails to build.
+    """
     try:
         from .app import APPS
         for row in APPS:
@@ -145,6 +158,12 @@ def _module_name(app_key: str) -> str:
 
 
 def _sentence(names: List[str]) -> str:
+    """Join names into readable English.
+
+    :param names: the names to join.
+    :returns: ``""``, one name, or a comma list ending in "and" -- so a
+        sentence about three modules reads as prose rather than as a list.
+    """
     if not names:
         return ""
     if len(names) == 1:
@@ -236,6 +255,13 @@ def build_steps(app_key: str) -> List[WalkStep]:
 
 
 def _first_section(screen: QWidget) -> Optional[QWidget]:
+    """Find the settings category a walkthrough should point at.
+
+    :param screen: the module screen.
+    :returns: the first VISIBLE section, falling back to the first of any --
+        pointing at a section the user cannot see would highlight nothing.
+        ``None`` when the screen has no sections.
+    """
     sections = getattr(screen, "_settings_sections", None) or []
     for section in sections:
         if section.isVisible():
@@ -244,10 +270,24 @@ def _first_section(screen: QWidget) -> Optional[QWidget]:
 
 
 def _search_bar(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's settings search strip.
+
+    :param screen: the module screen.
+    :returns: the strip, or ``None`` when the screen has none.
+    """
     return getattr(screen, "_settings_search", None)
 
 
 def _run_button(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's Run button.
+
+    The known attribute names are tried first and a search by label second,
+    because screens that build themselves rather than being the generic
+    ``AppScreen`` name the button whatever suited them.
+
+    :param screen: the module screen.
+    :returns: the button, or ``None`` when the screen has none to point at.
+    """
     for attr in ("_btn_run", "_run_btn", "_btn_start"):
         widget = getattr(screen, attr, None)
         if widget is not None:
@@ -262,6 +302,33 @@ def _run_button(screen: QWidget) -> Optional[QWidget]:
 # ---------------------------------------------------------------------------
 # Showing one
 # ---------------------------------------------------------------------------
+
+def _already_current(window, app_key: str) -> bool:
+    """Whether ``app_key``'s screen is the one the window is already showing.
+
+    ``QStackedWidget.currentChanged`` fires AFTER the screen has been made
+    current, and the automatic walkthrough listens to it -- so navigating
+    unconditionally re-entered ``_on_nav_selected`` for the module already on
+    screen. That second trip ran BEFORE the outer call had installed its
+    readiness watcher, so the outer call then replaced the nested probe.
+
+    FAILS TOWARD NAVIGATING. A window that cannot say what it is showing gets
+    navigated to, which costs one redundant trip; skipping on a bad reading
+    would leave the walkthrough highlighting a screen nobody is looking at,
+    which is the more expensive mistake.
+
+    :param window: the live main window.
+    :param app_key: the module about to be walked through.
+    :returns: True only when the stack says that module is current.
+    """
+    try:
+        current = window._stack.currentWidget()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the current screen; navigating anyway",
+                  exc_info=True)
+        return False
+    return current is not None and getattr(current, "app_key", None) == app_key
+
 
 def show_walkthrough(window: QMainWindow, app_key: str,
                      *, force: bool = True) -> Optional[_TourOverlay]:
@@ -282,7 +349,7 @@ def show_walkthrough(window: QMainWindow, app_key: str,
     screen = None
     try:
         nav = getattr(window, "_on_nav_selected", None)
-        if callable(nav):
+        if callable(nav) and not _already_current(window, app_key):
             nav(app_key)
         screen = window._screens.get(app_key)
     except Exception:
@@ -313,9 +380,14 @@ class _Seen:
     A tiny object rather than a lambda so the overlay's finish callback is a
     bound method — a closure over ``app_key`` would keep whatever else was
     in that frame alive for as long as the overlay lived.
+
+    :param app_key: which module to mark. THE ONLY STATE THIS HOLDS, which
+        is the point -- a closure over it would keep the rest of the frame
+        alive for as long as the overlay.
     """
 
     def __init__(self, app_key: str):
+        """Hold the module key and nothing else."""
         self._app_key = app_key
 
     def mark(self) -> None:
@@ -325,13 +397,25 @@ class _Seen:
 
 class _Highlight:
     """Bound-method adapter from a step's screen-taking highlight to the
-    window-taking one :class:`spacr.qt.first_run.TourStep` expects."""
+    window-taking one :class:`spacr.qt.first_run.TourStep` expects.
+
+    :param fn: the step's highlight, which takes a screen.
+    :param target: the screen to hand it. Bound HERE rather than resolved
+        when called, so the step highlights the screen the tour was built
+        for even if another is on top by the time it runs.
+    """
 
     def __init__(self, fn, target):
+        """Bind the step's highlight to the screen it was built for."""
         self._fn = fn
         self._target = target
 
     def __call__(self, _window):
+        """Highlight the bound screen, swallowing any failure.
+
+        A decoration that raises would stop the tour, and a tour that cannot get
+        past a step is worse than one that misses a highlight.
+        """
         try:
             return self._fn(self._target)
         except Exception:
@@ -339,6 +423,14 @@ class _Highlight:
 
 
 def _bind_highlight(fn, target):
+    """Bind a highlight resolver to its target.
+
+    :param fn: the resolver, or ``None``.
+    :param target: what to resolve against.
+    :returns: the bound highlight, or ``None`` when there is no resolver --
+        so a step without one is a step that highlights nothing rather than
+        one that raises.
+    """
     if fn is None:
         return None
     return _Highlight(fn, target)
@@ -364,6 +456,13 @@ class _WalkthroughHandler(QObject):
     """Bound-method targets for the menu entries and the screen stack."""
 
     def __init__(self, window: QMainWindow):
+        """Watch a window's stack for the first visit to each module.
+
+        :param window: the main window. ALSO THE QOBJECT PARENT, so the
+            handler cannot outlive the window whose stack it reads -- a
+            ``currentChanged`` arriving after teardown would otherwise reach
+            a handler holding a deleted stack.
+        """
         super().__init__(window)
         self._window = window
 
@@ -392,6 +491,14 @@ class _MenuTrigger(QObject):
     """One module's Help-menu entry."""
 
     def __init__(self, window: QMainWindow, app_key: str):
+        """Bind one Help-menu entry to one module's walkthrough.
+
+        :param window: the main window the walkthrough is shown over; also
+            the QObject parent.
+        :param app_key: which module's walkthrough this entry runs. Fixed at
+            construction, so the entry runs ITS module rather than whatever
+            happens to be on screen when it is chosen.
+        """
         super().__init__(window)
         self._window = window
         self._app_key = app_key
@@ -431,6 +538,14 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     for key, name, desc, _section in rows:
         action = QAction(str(name), submenu)
         action.setStatusTip(str(desc))
+        # Carry the module identity so the retranslation pass rebuilds this
+        # status tip through the reviewed per-module summaries instead of
+        # translating the sentence word by word. Two thirds of the module
+        # descriptions have no catalog row of their own, so the word-level
+        # fallback leaves them wholly English; the summaries cover them all.
+        action.setProperty("moduleAppKey", key)
+        action.setProperty("moduleNameSource", str(name))
+        action.setProperty("moduleSummarySource", str(desc))
         trigger = _MenuTrigger(window, key)
         action.triggered.connect(trigger.on_triggered)
         action._spacr_walkthrough_trigger = trigger

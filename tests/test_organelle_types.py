@@ -255,33 +255,73 @@ def test_every_maintainer_category_is_present():
 # ---------------------------------------------------------------------------
 
 def test_the_visible_count_went_down_and_this_is_the_number():
-    """53 settings under one heading became 3 visible by default.
+    """53 settings under one heading became 3 per slot, plus the count.
 
     Instruction 72 took it to 6; instruction 73 then pulled the shared
-    families -- object filtration and intensity handling -- out to headings
-    of their own, because `organelle_min_size` and `cell_min_size` are one
-    decision applied to two objects rather than two unrelated knobs. What is
-    left under Organelle is the channel-shaped choices only.
+    families -- object filtration, intensity handling and the per-object
+    image preprocessing -- out to headings of their own, because
+    `organelle_min_area` and `cell_min_size` are one decision applied to two
+    objects rather than two unrelated knobs. What is left under Organelle is
+    the channel-shaped choices only.
+
+    The advanced count dropped by four per slot when the third family was
+    added: rolling-ball and CLAHE, with their two parameters, are what
+    organelle does to its CHANNEL before anything is segmented, which is the
+    same question the other objects' background floor answers.
+
+    The per-slot arithmetic is unchanged and the multiplier is what moved:
+    the headings are generated for every slot `number_of_organelles` CAN
+    name rather than for a fixed four, because a category is what makes a
+    key reachable -- a settings file written at seven slots is opened by a
+    session set to two, and its seventh slot has to be filed under a heading
+    then, not only once the number is raised again. How many slots a panel
+    SHOWS is the count, which leads the heading it decides the size of.
     """
-    from spacr.object_roles import ORGANELLE_ROLES
-    assert len(categories["Organelle"]) == 3 * len(ORGANELLE_ROLES)
+    from spacr.organelle_types import MAX_ORGANELLES, organelle_role_of
+
+    assert categories["Organelle"][0] == "number_of_organelles"
+    per_slot = [key for key in categories["Organelle"]
+                if organelle_role_of(key) == "organelle"]
+    assert len(per_slot) == 3
+    assert len(categories["Organelle"]) == 1 + 3 * MAX_ORGANELLES
     # summarize_organelles_by is shared, while every detection knob is cloned
     # once per slot.
-    assert len(categories["Organelle advanced"]) == \
-        35 + 34 * (len(ORGANELLE_ROLES) - 1)
-    # Still 53 + organelle_type, just spread across four headings now.
-    total = sum(len(categories[c]) for c in
-                ("Organelle", "Organelle advanced",
-                 "Object filtration", "Intensity handling"))
+    #
+    # WRITTEN AS 1 + 31 * MAX, not 31 + 30 * (MAX - 1). The old form said
+    # the first slot has 31 keys and every later one has 30, which was a
+    # way of writing "30 cloned knobs plus the one shared key" that only
+    # worked while the knob count happened to be one less than the first
+    # slot's total. There are 31 cloned knobs now, and the old form was
+    # 702 short without naming which of its two numbers had moved.
+    # Measured: 702 roles of exactly 31 keys each, plus
+    # summarize_organelles_by, which belongs to no slot.
+    advanced = categories["Organelle advanced"]
+    shared = [key for key in advanced if organelle_role_of(key) in (None, "")]
+    assert shared == ["summarize_organelles_by"]
+    assert len(advanced) == len(shared) + 31 * MAX_ORGANELLES
+    # Still 53 + organelle_type, just spread across five headings now.
+    total = sum(len(categories[c]) for c in ORGANELLE_HOME_HEADINGS)
     assert total >= 54
+
+
+#: Every heading an ``organelle_*`` setting may legitimately live under.
+#:
+#: The advanced families are here because that is the whole point of the
+#: instruction-73 regroup: an organelle key filed under "Object filtration"
+#: has not gone missing, it has been filed with the same decision taken for
+#: the other objects.
+ORGANELLE_HOME_HEADINGS = (
+    "Organelle", "Organelle advanced",
+    "Image preprocessing (per object)", "Object filtration",
+    "Intensity handling",
+)
 
 
 def test_everything_is_still_reachable():
     """MOVED, NOT HIDDEN -- a setting that leaves the panel while staying in
     the settings dict is how a run gets a value nobody can see."""
     offered = set()
-    for heading in ("Organelle", "Organelle advanced",
-                    "Object filtration", "Intensity handling"):
+    for heading in ORGANELLE_HOME_HEADINGS:
         offered |= set(categories.get(heading, ()))
     defaults = {k for k in _set_organelle_defaults({})
                 if k.startswith("organelle_")}
@@ -303,61 +343,49 @@ def test_no_detection_parameter_leaked_into_the_basic_heading():
 
 
 # ---------------------------------------------------------------------------
-# the measure-stage gate, and the regression instruction 72 caused there
+# measure-stage non-gating contract from instruction 72
 # ---------------------------------------------------------------------------
-# `_spatial_organelle_eligible` read `organelle_type` FIRST and tested the raw
-# string for membership of {'network','reticular','cisternal'}. Adding
-# organelle_type broke it two ways at once, silently:
-#
-#   * the new default 'custom' is not in that set, so a run that said
-#     organelle_morphology='network' and meant it had its explicit choice
-#     SHADOWED by a default it never set;
-#   * 'filamentous' and 'tubular' are not in the set either, though the preset
-#     maps both to `network`.
-#
-# Both turned the spatial block back on for a single connected network, whose
-# neighbour statistics are not a measurement of anything. The type is now
-# resolved to a morphology before the test.
+# Type may make a requested measurement family doubtful, but it must never
+# switch that family off or silently remove its output columns. The caveat and
+# journal paths say what is doubtful; Measure still writes the measurements.
 
 from spacr.measure import (_morphology_of_organelle_type,
                            _spatial_organelle_eligible)
 
 
 @pytest.mark.parametrize("settings", [
+    {},
     {"organelle_morphology": "network"},
     {"organelle_type": "custom", "organelle_morphology": "network"},
+    {"organelle_type": "punctate", "organelle_morphology": "network"},
     {"organelle_type": "filamentous"},
     {"organelle_type": "tubular"},
     {"organelle_type": "reticular"},
-])
-def test_a_connected_network_never_gets_neighbour_statistics(settings):
-    assert _spatial_organelle_eligible(settings) is False, settings
-
-
-@pytest.mark.parametrize("settings", [
     {"organelle_morphology": "spots"},
     {"organelle_type": "punctate"},
     {"organelle_type": "vesicular", "organelle_diameter": 8},
     {"organelle_type": "vesicular", "organelle_diameter": 40},
     {"organelle_type": "spherical", "organelle_diameter": 40},
     {"organelle_type": "toroidal"},
+    {"organelle_type": "filamentous", "organelle_morphology": "spots"},
 ])
-def test_separable_objects_still_get_them(settings):
+def test_type_never_switches_off_requested_spatial_measurements(settings):
     assert _spatial_organelle_eligible(settings) is True, settings
 
 
 def test_the_default_type_does_not_shadow_an_explicit_morphology():
-    """The regression, stated as the thing that must hold.
+    """The explicit choice survives defaults and still does not gate output.
 
     Every run now carries organelle_type='custom' whether the user chose it
-    or not, so 'custom' must have NO opinion here.
+    or not, so 'custom' must have no opinion about the chosen morphology.
     """
     from spacr.settings import _set_organelle_defaults
 
     settings = _set_organelle_defaults({"organelle_morphology": "network",
                                         "organelle_method": "ridge"})
     assert settings["organelle_type"] == "custom"
-    assert _spatial_organelle_eligible(settings) is False
+    assert settings["organelle_morphology"] == "network"
+    assert _spatial_organelle_eligible(settings) is True
 
 
 def test_custom_and_unknown_types_defer_to_the_morphology():
@@ -374,10 +402,7 @@ def test_the_type_is_resolved_not_string_matched():
         {"organelle_type": "tubular"}) == "network"
 
 
-def test_a_measure_only_run_still_assumes_the_shipped_default(capsys):
-    """Neither key reaches a measure-only run; the assumption is printed."""
-    import spacr.measure as M
-
-    M._SPATIAL_ORGANELLE_ASSUMED = False
+def test_a_measure_only_run_needs_no_shape_assumption(capsys):
+    """A sparse mapping remains eligible without inventing a morphology."""
     assert _spatial_organelle_eligible({}) is True
-    assert "assumes the shipped default" in capsys.readouterr().out
+    assert capsys.readouterr().out == ""

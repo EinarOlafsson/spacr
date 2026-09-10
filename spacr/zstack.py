@@ -74,9 +74,9 @@ projecting when the settings are on but no z axis survived ingest.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field as _dc_field
-from typing import (Any, Callable, Dict, Iterator, List, Optional, Sequence,
-                    Tuple)
+from dataclasses import dataclass
+from dataclasses import field as _dc_field
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -287,6 +287,97 @@ MEASUREMENT_MEANING_3D: Dict[str, Dict[str, str]] = {
             "major/minor_axis_length carry the shape information instead."
         ),
     },
+    "nearest_neighbor_distance": {
+        "kind": "same", "means": "nearest centroid distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D KD-tree includes z and scales every centroid by the "
+            "voxel spacing. -1 remains the sentinel for no neighbour."
+        ),
+    },
+    "second_neighbor_distance": {
+        "kind": "same", "means": "second-nearest centroid distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D KD-tree includes z and scales every centroid by the "
+            "voxel spacing. -1 remains the sentinel when no second neighbour "
+            "exists."
+        ),
+    },
+    "percent_touching": {
+        "kind": "same", "means": "percent of expanded boundary touching",
+        "units_2d": "percent", "units_3d": "percent",
+        "note": (
+            "The boundary is a perimeter in 2-D and a surface in 3-D. Label "
+            "expansion honours voxel spacing before the fraction is taken."
+        ),
+    },
+    "touching_neighbors": {
+        "kind": "same", "means": "number of adjacent objects",
+        "units_2d": "count", "units_3d": "count",
+        "note": "Adjacency is checked across every axis of the label array.",
+    },
+    "distance_to_own_boundary": {
+        "kind": "same", "means": "centroid to own boundary distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": (
+            "The 3-D distance transform uses voxel spacing, so z contributes "
+            "its physical distance rather than its plane count."
+        ),
+    },
+    "relative_radial_position": {
+        "kind": "same", "means": "relative centroid depth inside object",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": (
+            "One minus centroid-to-boundary distance divided by the deepest "
+            "interior distance, evaluated over the complete volume."
+        ),
+    },
+    "distance_to_field_edge": {
+        "kind": "renamed", "means": "minimum centroid coordinate to a face",
+        "units_2d": "px", "units_3d": "voxel indices",
+        "note": (
+            "The 3-D value considers the z faces as well as y and x, but the "
+            "current calculation is not spacing-scaled. Do not interpret this "
+            "column as micrometres even when the row's unit stamp says um."
+        ),
+    },
+}
+
+#: Meaning templates for emitted names whose radius or partner object is part
+#: of the column name. Keeping these out of ``MEASUREMENT_MEANING_3D`` avoids
+#: pretending that a literal wildcard is itself a measurement column.
+_MEASUREMENT_FAMILY_MEANING_3D: Dict[str, Dict[str, str]] = {
+    "neighbors_within": {
+        "kind": "renamed", "means": "objects inside a 3-D radius",
+        "units_2d": "count inside a radius in px",
+        "units_3d": "count inside a radius in measurement units",
+        "note": (
+            "The suffix records the radius. A 2-D circle becomes a 3-D sphere, "
+            "and spacing-scaled centroids make the radius physical when voxel "
+            "sizes are known."
+        ),
+    },
+    "centre_to_surface": {
+        "kind": "same", "means": "centroid to nearest partner surface",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D distance transform includes z and uses voxel spacing.",
+    },
+    "surface_to_surface": {
+        "kind": "same", "means": "nearest surface-to-surface distance",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D distance transform includes z and uses voxel spacing.",
+    },
+    "centre_to_nearest_centre": {
+        "kind": "same", "means": "centroid to nearest partner centroid",
+        "units_2d": "px", "units_3d": "measurement units",
+        "note": "The 3-D KD-tree includes z and scales coordinates by spacing.",
+    },
+    "overlap_fraction": {
+        "kind": "same", "means": "fraction overlapping a partner object",
+        "units_2d": "ratio", "units_3d": "ratio",
+        "note": "The numerator and denominator are voxel counts in a 3-D run.",
+    },
 }
 
 #: Measurements a 3-D run writes that a 2-D run does not.
@@ -338,6 +429,25 @@ def describe_3d_measurement(name: str) -> Dict[str, str]:
     for key in (text, _bare_property(text)):
         if key in MEASUREMENT_MEANING_3D:
             return dict(MEASUREMENT_MEANING_3D[key])
+    bare = _bare_property(text)
+    if (bare.startswith("neighbors_within_")
+            and bare.removeprefix("neighbors_within_").isdigit()):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["neighbors_within"])
+    object_names = tuple(prefix[:-1] for prefix in _OBJECT_PREFIXES)
+    if (bare.startswith("centre_to_nearest_") and bare.endswith("_centre")
+            and bare[len("centre_to_nearest_"):-len("_centre")]
+            in object_names):
+        return dict(
+            _MEASUREMENT_FAMILY_MEANING_3D["centre_to_nearest_centre"])
+    if (bare.startswith("centre_to_") and bare.endswith("_surface")
+            and bare[len("centre_to_"):-len("_surface")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["centre_to_surface"])
+    if (bare.startswith("surface_to_") and bare.endswith("_surface")
+            and bare[len("surface_to_"):-len("_surface")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["surface_to_surface"])
+    if (bare.endswith("_overlap_fraction")
+            and bare[:-len("_overlap_fraction")] in object_names):
+        return dict(_MEASUREMENT_FAMILY_MEANING_3D["overlap_fraction"])
     return {
         "kind": "unknown", "means": "-", "units_2d": "-", "units_3d": "-",
         "note": (
@@ -447,6 +557,14 @@ class ZStackSpec:
     resample_to_isotropic: bool = False
 
     def __post_init__(self):
+        """Validate the z-stack settings before anything reads a field.
+
+        :raises ZStackError: if the segmentation mode or the projection is not
+            one this build offers; if ``anisotropy`` is not positive -- it is the
+            ratio dz/dxy, so 1.0 is isotropic voxels and 5.0 means the z step is
+            five times the xy pixel; or if ``stitch_threshold`` is not an IoU in
+            ``[0, 1]``.
+        """
         if self.mode not in SEGMENTATION_MODES:
             raise ZStackError(
                 f"z_segmentation_mode={self.mode!r} is not one of "
@@ -820,7 +938,7 @@ def stitch_planes(masks_2d_stack, iou_threshold: float = 0.25) -> np.ndarray:
     Unlike ``cellpose.utils.stitch3D``, new labels are always drawn from a
     single monotonically increasing counter. Cellpose resets its counter after
     an empty plane, so ``[objects] [empty] [objects]`` there silently reuses
-    label ids and merges unrelated objects; here an empty plane simply links
+    label ids and merges unrelated objects; here an empty plane links
     nothing.
 
     :param masks_2d_stack: ``(Z, Y, X)`` array, or a sequence of 2-D arrays,
@@ -1599,6 +1717,12 @@ class AxisOrder:
     source: str = "explicit"
 
     def __post_init__(self):
+        """Reject an axis order that names one array axis twice.
+
+        :raises TStackError: if any two of t, z, y, x and channel share an index.
+            One array axis cannot be two things at once, and the failure it
+            causes downstream names neither of them.
+        """
         axes = [self.t_axis, self.y_axis, self.x_axis]
         if self.z_axis is not None:
             axes.append(self.z_axis)
@@ -1705,6 +1829,14 @@ def detect_axes(
         )
 
     def _order(t_axis: int, z_axis: int, source: str) -> AxisOrder:
+        """Build one axis-order candidate with captured image axes.
+
+        :param t_axis: proposed time-axis index.
+        :param z_axis: proposed depth-axis index.
+        :param source: evidence label explaining how the proposal was chosen.
+        :returns: an axis order combining the proposal with the captured Y, X,
+            and normalized optional channel axes.
+        """
         return AxisOrder(t_axis=t_axis, z_axis=z_axis, y_axis=ay, x_axis=ax,
                          channel_axis=c_axis, source=source)
 
@@ -1915,6 +2047,20 @@ class TStackSpec:
     project_for_tracking: bool = False
 
     def __post_init__(self):
+        """Validate the timelapse settings, including the z settings it carries.
+
+        The z spec is constructed here rather than on first use, so an
+        impossible z mode, projection or anisotropy is refused when the spec is
+        built rather than after the first field has been read.
+
+        :raises TStackError: if t, z and channel do not name distinct axes; if
+            the tracking backend is not one this build offers; if the link
+            threshold is not an IoU in ``[0, 1]``; if the maximum displacement is
+            given in both pixels and microns -- the same gate in two units, and
+            spaCR will not pick one -- or if a displacement or frame interval is
+            not finite and positive.
+        :raises ZStackError: from the z spec it builds.
+        """
         if self.z_axis is not None and int(self.t_axis) == int(self.z_axis):
             raise TStackError(
                 f"t_axis and z_axis are both {self.t_axis}; one array axis "
@@ -2313,7 +2459,7 @@ def project_labels(labels_3d) -> np.ndarray:
 
     Taking a maximum along z -- what :func:`spacr.zstack.project` does to
     *intensities* -- is meaningless for labels, because label values are
-    arbitrary ids and the maximum simply picks the highest-numbered object.
+    arbitrary ids and the maximum picks the highest-numbered object.
     This instead gives each pixel the label that occupies the most planes in
     that column, which is the only projection that answers "which object is
     here?".
@@ -2880,7 +3026,7 @@ def format_4d(result) -> str:
         lines.append(f"  backend         : {result.backend}")
         lines.append(f"  tracks          : {result.n_tracks}")
         lines.append(
-            f"  anisotropy      : "
+            "  anisotropy      : "
             + (f"{result.anisotropy:g} (dz/dxy)" if result.anisotropy is not None
                else "not used by this backend")
         )
@@ -3053,6 +3199,13 @@ def plan_4d_from_settings(settings) -> Optional[TStackSpec]:
                 f"t_track_backend='{spec.track_backend}' links by distance but "
                 f"neither t_max_displacement_px nor t_max_displacement_um is "
                 f"set. Set one; spaCR will not pick a default gate."
+            )
+        if spec.max_displacement_um is not None and spec.voxel_size_um is None:
+            raise TStackError(
+                "t_max_displacement_um is set but the voxel size is not known, "
+                "so pixels cannot be converted to micrometres. Set "
+                "voxel_size_z_um and voxel_size_xy_um, or express the gate in "
+                "pixels with t_max_displacement_px."
             )
         if (spec.z_axis is not None and spec.z_mode != MODE_PROJECT
                 and spec.max_displacement_um is None):

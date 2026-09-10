@@ -29,6 +29,7 @@ from PySide6.QtCore import Qt, QRectF
 from PySide6.QtGui import QColor, QPainter, QPixmap, QFont
 from PySide6.QtWidgets import QWidget
 
+from ..hidpi import logical_size, scaled_for
 from ..preferences import scaled_px
 from ..iconset import RESOURCE_DIR
 
@@ -56,7 +57,11 @@ def _role(name: str, fallback: str) -> str:
         from ..theme import palette_for
         value = palette_for().get(name)
         return str(value) if value else fallback
-    except Exception:          # pragma: no cover - the splash must not fail
+    except Exception:
+        # THE SPLASH MUST NOT FAIL. It is the first thing painted,
+        # sometimes before the theme has resolved and always before
+        # anything else could report a problem, so a palette lookup that
+        # raised would replace it with a traceback.
         return fallback
 
 
@@ -84,10 +89,22 @@ def _rgba(spec: str, fallback: "QColor") -> "QColor":
 
 
 def _role_color(name: str, fallback: str = "#000000") -> "QColor":
+    """Resolve a splash palette role to a colour.
+
+    :param name: the role.
+    :param fallback: the colour to use when the role is unknown -- the
+        splash is shown before the theme is loaded, so it cannot assume one.
+    :returns: the colour.
+    """
     return _rgba(_role(name, fallback), QColor(fallback))
 
 
 def _role_brush(name: str) -> "QColor":
+    """Resolve a splash palette role to a colour, defaulting to white.
+
+    :param name: the role.
+    :returns: the colour.
+    """
     return _role_color(name, "#FFFFFF")
 
 
@@ -132,7 +149,7 @@ class LoadingScreen(QWidget):
     """Full-window cover shown until the pipeline modules are imported.
 
     :param total: how many steps will be reported. Zero or negative means
-        "unknown", and the phases simply stay dim rather than dividing by it.
+        "unknown", and the phases stay dim rather than dividing by it.
     :param parent: the window this fills. It is sized to the parent and
         resizes with it, rather than being a separate top-level -- a second
         window would earn its own taskbar entry and could be dragged off the
@@ -140,6 +157,15 @@ class LoadingScreen(QWidget):
     """
 
     def __init__(self, total: int = 0, parent: Optional[QWidget] = None):
+        """Build the splash that covers the window while it is being assembled.
+
+        Opaque by construction: it covers a partly-built window, and any
+        transparency would show the thing it exists to hide.
+
+        :param total: how many steps the progress bar counts to; ``0`` shows no
+            proportion.
+        :param parent: the window to cover; its geometry is adopted.
+        """
         super().__init__(parent)
         self.setObjectName("LoadingScreen")
         self._total = max(0, int(total))
@@ -148,6 +174,7 @@ class LoadingScreen(QWidget):
         # Opaque: this covers a partly-built window, and any transparency
         # would show the thing it exists to hide.
         self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
         if parent is not None:
             self.setGeometry(parent.rect())
@@ -185,6 +212,11 @@ class LoadingScreen(QWidget):
 
     # -- painting ----------------------------------------------------------
     def _load_logo(self) -> None:
+        """Load the splash logo, tolerating its absence.
+
+        A missing logo must not stop the application starting: the screen still
+        covers the window and still reports progress.
+        """
         try:
             import os
             path = os.path.join(RESOURCE_DIR, LOGO_FILE)
@@ -197,10 +229,18 @@ class LoadingScreen(QWidget):
             self._logo = None
 
     def resizeEvent(self, event) -> None:
+        """Re-centre the message for the new size.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         self.update()
 
     def paintEvent(self, event) -> None:
+        """Draw the loading state.
+
+        :param event: the Qt paint event.
+        """
         painter = QPainter(self)
         try:
             painter.setRenderHint(QPainter.Antialiasing, True)
@@ -226,10 +266,13 @@ class LoadingScreen(QWidget):
             y = self.height() / 2.0
 
             if self._logo is not None:
-                scaled = self._logo.scaled(
-                    side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # Scaled inside the paint, so it asks the ratio again on
+                # every frame and a splash dragged between screens is right
+                # on the next repaint with nothing to subscribe to.
+                scaled = scaled_for(self._logo, self, side)
+                drawn = logical_size(scaled)
                 painter.drawPixmap(
-                    int(x), int(y - scaled.height() / 2.0), scaled)
+                    int(x), int(y - drawn.height() / 2.0), scaled)
 
             # The sentence, one phase at a time.
             lit = self.lit_phases()

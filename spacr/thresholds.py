@@ -1,0 +1,171 @@
+"""Calculate effect-size thresholds for regression coefficients.
+
+The estimators describe the spread around the coefficient centre. When
+negative-control guides are available, callers should estimate that spread
+from the controls so biological effects do not widen the null distribution.
+Each estimator returns a width in coefficient units except ``var``, which is
+retained for compatibility and returns squared units.
+"""
+
+from __future__ import annotations
+
+from typing import Dict, Optional, Sequence, Tuple
+
+import numpy as np
+
+#: The consistent scale estimator for a normal distribution. MAD x this is
+#: an estimate of sigma that, unlike the standard deviation, is not inflated
+#: by the outliers a screen exists to find.
+MAD_TO_SIGMA = 1.4826
+
+
+def _finite(values) -> np.ndarray:
+    """Flatten numeric values and discard NaN and infinite entries."""
+    array = np.asarray(values, dtype=float).ravel()
+    return array[np.isfinite(array)]
+
+
+def _std(values) -> float:
+    """Return the sample standard deviation of the finite values."""
+    return float(np.std(_finite(values), ddof=1))
+
+
+def _var(values) -> float:
+    """Return the sample variance of the finite values, in squared units."""
+    return float(np.var(_finite(values), ddof=1))
+
+
+def _mad(values) -> float:
+    """Estimate normal-distribution sigma from the finite values' MAD."""
+    array = _finite(values)
+    return float(np.median(np.abs(array - np.median(array))) * MAD_TO_SIGMA)
+
+
+def _iqr(values) -> float:
+    """Return the interquartile range of the finite values."""
+    array = _finite(values)
+    return float(np.percentile(array, 75) - np.percentile(array, 25))
+
+
+def _abs_percentile(values) -> float:
+    """The 95th percentile of |value|, as a width."""
+    return float(np.percentile(np.abs(_finite(values)), 95))
+
+
+def _range(values) -> float:
+    """Return the maximum minus minimum of the finite values."""
+    array = _finite(values)
+    return float(array.max() - array.min())
+
+
+#: ``{name: (spread function, one-line description)}``.
+#:
+#: Each is a WIDTH in the units of the coefficient, so `centre + k * width`
+#: is a coefficient -- with one deliberate exception, noted below.
+METHODS: Dict[str, Tuple[Optional[object], str]] = {
+    "none": (None,
+             "no effect-size cut; significance alone decides"),
+    "std": (_std,
+            "standard deviation of the control coefficients"),
+    "var": (_var,
+            "VARIANCE of the control coefficients -- squared units, see "
+            "below"),
+    "mad": (_mad,
+            "median absolute deviation x 1.4826, the robust sigma"),
+    "iqr": (_iqr,
+            "interquartile range of the control coefficients"),
+    "percentile": (_abs_percentile,
+                   "95th percentile of |control coefficient|"),
+    "range": (_range,
+              "full range of the control coefficients, max - min"),
+}
+
+#: Spellings accepted for the same method, so an old settings CSV still loads.
+ALIASES = {
+    "standard_deveation": "std",     # spaCR's own historical misspelling
+    "standard_deviation": "std",
+    "variance": "var",
+    "median_absolute_deviation": "mad",
+    "interquartile_range": "iqr",
+    "quantile": "percentile",
+    "": "none",
+}
+
+#: `var` returns a width in SQUARED units, so `mean + k * var` adds a variance
+#: to a coefficient and is dimensionally wrong. It is kept because it is what
+#: spaCR shipped and what a saved settings file may carry, but it is the one
+#: method whose number cannot be read as "k spreads away from the centre".
+#: Below a spread of 1 it is narrower than std and above it much wider.
+DIMENSIONALLY_ODD = ("var",)
+
+
+def canonical(method) -> str:
+    """The canonical name for ``method``.
+
+    :param method: threshold method name or accepted alias; falsey values mean
+        ``"none"``.
+    :raises ValueError: naming every method, rather than falling back to a
+        default the caller did not ask for.
+    """
+    key = str(method or "none").strip().lower().replace(" ", "_")
+    key = ALIASES.get(key, key)
+    if key not in METHODS:
+        raise ValueError(
+            f"Unsupported threshold method {method!r}. Choose one of: "
+            f"{', '.join(METHODS)}.")
+    return key
+
+
+def describe(method) -> str:
+    """One line saying what a method measures.
+
+    :param method: threshold method name or accepted alias to describe.
+    """
+    key = canonical(method)
+    text = METHODS[key][1]
+    if key in DIMENSIONALLY_ODD:
+        text += (" -- k x variance is not k spreads from the centre, so this "
+                 "cut is narrower than 'std' below a spread of 1 and much "
+                 "wider above it")
+    return text
+
+
+def coefficient_threshold(values: Sequence[float], method="mad",
+                          multiplier: float = 3.0,
+                          centre: Optional[float] = None) -> Tuple[Optional[float], str]:
+    """``(threshold, sentence)`` for a set of control coefficients.
+
+    :param values: the control coefficients -- the null.
+    :param method: one of :data:`METHODS`, or an alias.
+    :param multiplier: how many spreads wide the cut is.
+    :param centre: what to measure from; the MEDIAN of ``values`` by default,
+        which is not moved by one control guide with a real phenotype. This
+        screen has one -- `000000_22` is a non-targeting control and the
+        strongest effect in the run at +4.37.
+    :returns: ``(None, reason)`` when no cut can be made, never a silent 0.
+
+    The sentence is not decoration: a threshold a reader cannot attribute is
+    a threshold they cannot report, and it goes on the panel beside the line.
+    """
+    key = canonical(method)
+    if key == "none":
+        return None, "no effect-size cut"
+
+    array = _finite(values)
+    if array.size < 2:
+        return None, (f"{array.size} control coefficient(s) is not enough to "
+                      f"measure a spread")
+
+    spread = METHODS[key][0](array)
+    if not np.isfinite(spread) or spread <= 0:
+        return None, (f"the control coefficients have no {key} spread "
+                      f"(every one is the same value)")
+
+    origin = float(np.median(array)) if centre is None else float(centre)
+    threshold = abs(origin) + float(multiplier) * spread
+    return threshold, (f"{multiplier:g}x {key} of {array.size} controls "
+                       f"= {threshold:.3g}")
+
+
+__all__ = ["ALIASES", "DIMENSIONALLY_ODD", "MAD_TO_SIGMA", "METHODS",
+           "canonical", "coefficient_threshold", "describe"]

@@ -1,0 +1,597 @@
+================================================================================
+THE REGRESSION PANEL: DEFAULTS, COLOURING, THE GRID, MORE TABS, PLOT TYPES,
+AND A WIDER LEFT PANEL
+================================================================================
+
+Status:    filed 2026-08-17, in progress.
+Requested: 2026-08-17 --
+
+           "in regression make gene the default of volcano"
+           "the color by dosnt include condition"
+           "the regression plot isnt shown in all figures (i want it also
+            shown there)"
+           "in the tabs Q-Q and Controls, there should be Tabs like residuals
+            showing the residuals and regression controll graphs like that."
+           "for the live plots id like to be able to right click and change
+            the plot type like show guide support as a violin, box, bar,
+            jitter plot"
+           "the left panel should be wider"
+           "lopit should be in color by"
+
+Related:  124 closed the regression figures; 125 is the runs tab and the old
+          volcano; 119 is the figure surface index.
+
+--------------------------------------------------------------------------------
+A. `volcano` DEFAULTS TO GENE
+--------------------------------------------------------------------------------
+
+`spacr/settings.py:1902` does `settings.setdefault('volcano', 'grna')`.
+
+The DOCSTRING for the same setting, at settings.py:3529, already says
+"'gene' (default)". So the code and its own documentation disagree, and the
+maintainer's request is for the documented behaviour. Change the code, not
+the doc.
+
+Worth checking whether anything reads `volcano` expecting 'grna' before
+flipping it -- the gene table is the smaller one and is what the phenotype
+and heatmap reports are keyed on, so this should be the cheaper default too.
+
+--------------------------------------------------------------------------------
+B. "COLOUR BY" MUST OFFER condition -- AND SAY WHY WHEN IT CANNOT
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, because the obvious diagnosis was wrong. On a synthetic
+1,200-row table with nc/pc/other, `condition` IS offered:
+
+    colour-by offers: [('nothing', None), ('condition (3)', 'condition')]
+
+So the filter is not blanket-excluding it. The rule in `set_frame` is
+
+    dtype is object/category AND 1 < distinct <= max(40, len(frame) // 20)
+
+and the two ways a real screen falls out of it are:
+
+  * `distinct == 1`. Every row is 'other' -- which happens when the
+    negative/positive control NAMES do not match any feature, so nothing is
+    labelled. `1 < 1` is False and the column vanishes.
+  * the column is absent, on a table loaded from a gene/grna split CSV.
+
+BOTH ARE SILENT TODAY, and that is the actual defect: a column the user
+expects to see simply is not in the list, with nothing saying why. A
+one-value `condition` is ALSO a finding -- it means the control names did not
+match -- and hiding it hides that.
+
+    So: offer it, or say why it is not offered. Never omit in silence.
+
+--------------------------------------------------------------------------------
+C. LOPIT IN "COLOUR BY"
+--------------------------------------------------------------------------------
+
+`spacr/localisation.py` already joins a coefficient table to the TAGM/LOPIT
+compartments (`of`, `present`, `mask`) and the volcano's right-click submenu
+uses it. It is not a COLUMN, so the colour-by combo -- which walks
+`frame.columns` -- cannot see it.
+
+Add it as a DERIVED option. The house rule caps how it is drawn (one
+compartment against grey, 26 hues is what the rule forbids), but as a
+colour-by category on the interactive plot the existing categorical path
+already handles it; `present()` gives the ones this screen actually has.
+
+--------------------------------------------------------------------------------
+D. THE REGRESSION PLOT BELONGS ON THE ALL-FIGURES GRID
+--------------------------------------------------------------------------------
+
+The interactive volcano is built with `external_volcano=True` and placed by
+the caller, so the grid -- which shows the run's matplotlib figures -- does
+not carry it. The maintainer wants it there too.
+
+TRAP, already written down in 121: `_FigureCell.index` is the enumerate index
+over the pixmap list and `figure_activated` forwards it straight to
+`FigureQueue.show_index()`, so anything inserted into that list SHIFTS EVERY
+FIGURE AFTER IT. Whatever is added has to keep that mapping honest.
+
+The house-style volcano (`figures/panels.volcano`) is already drawn and saved
+by a run, so check first whether the ask is "the saved one is missing from
+the grid" rather than "put the live widget on the grid" -- they are different
+jobs and the first may already be a bug.
+
+--------------------------------------------------------------------------------
+E. MORE DIAGNOSTIC TABS BESIDE Q-Q AND CONTROLS
+--------------------------------------------------------------------------------
+
+"in the tabs Q-Q and Controls, there should be Tabs like residuals showing
+the residuals and regression controll graphs like that."
+
+`spacr/qt/widgets/fast_plots.py` already has `ResidualPlot`, and
+`spacr/regression_qc.py` has ~19 panels. The panel shows five of them. The
+ask is for the residual diagnostics to be reachable live, as tabs, the way
+Q-Q and Controls are.
+
+Pick from what regression_qc already computes rather than writing new
+statistics -- the module is 3,444 lines and its panels are already the ones
+the run saves.
+
+--------------------------------------------------------------------------------
+F. RIGHT-CLICK A LIVE PLOT TO CHANGE ITS TYPE
+--------------------------------------------------------------------------------
+
+"show guide support as a violin, box, bar, jitter plot".
+
+The right-click menu already restyles (point size, colour, opacity, axis
+labels, legend) and offers baselines and the re-fit. This adds the MARK.
+
+FOLLOW THE SKILL'S RULE rather than offering four equal options: for n <= 8
+per group it is individual points with a mean line, never a bar; a box plot
+hides n; a violin on few points draws a distribution that is not there. So
+offer them, and let the panel say when the chosen one is misleading for the
+data in front of it rather than silently drawing it.
+
+--------------------------------------------------------------------------------
+G. THE LEFT PANEL IS WIDER
+--------------------------------------------------------------------------------
+
+A splitter size, not a fixed width -- the divider stays the user's to move.
+Whatever is set has to survive a restart if the app already remembers
+splitter state, and must not fight the minimum widths the results panel
+sets (`volcano.setMinimumHeight(240)`, `table.setMinimumHeight(150)` are the
+existing precedent for "floors, not preferences").
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run that says nothing about `volcano` draws the GENE volcano.
+* `condition` is in the colour-by list, or the panel says why it is not.
+* LOPIT compartment is in the colour-by list on a Toxoplasma screen.
+* The regression plot appears on the all-figures grid, and clicking any tile
+  still opens the figure that tile shows.
+* Residual diagnostics are a tab beside Q-Q and Controls.
+* Right-clicking the guide-support plot offers violin / box / bar / jitter,
+  and says when the choice misleads for this n.
+* The left panel is wider on first open, and the divider still moves.
+
+================================================================================
+2026-08-17 - SIX MORE, AFTER RUNNING IT
+================================================================================
+
+Requested, after the Runs tab landed and was confirmed working ("i do see the
+runs, in the run tab! thats great!"):
+
+    "i wtill dont see the residuals tab and graph"
+    "where do i set the intercept?"
+    "the run tab should be before the results tab and results should be shown
+     for the chosen run"
+    "the figures are still not colapsable into runs in the figure view"
+    "the adjusted p value from the FDR should be in teh Coefficients table"
+    "i should be able to right click on the coeffisients table and only see
+     grna or genes and this should also filer the subsequent data/graphs in
+     the subsequent tabs"
+
+--------------------------------------------------------------------------------
+H. THE RESIDUALS TAB -- NOT A BUG, NOT SHIPPED YET
+--------------------------------------------------------------------------------
+
+Item E of this file. It is in flight, not landed. Nothing to diagnose.
+
+--------------------------------------------------------------------------------
+I. "WHERE DO I SET THE INTERCEPT?" -- IT IS BUILT AND UNDISCOVERABLE
+--------------------------------------------------------------------------------
+
+It ships (124 M, commit 2aee63e5): RIGHT-CLICK THE VOLCANO -> "Measured
+from" -> "zero (no dose-response)" or "the non-targeting controls".
+
+That the maintainer had to ask is the finding. Three separate things now live
+on that one right-click menu -- the baseline, the LOPIT compartment, the
+re-fit -- and two more are queued (F's mark types, A's gene/guide filter).
+A menu is where a feature goes to not be found.
+
+    So this is a DISCOVERABILITY item, not a missing feature. Options, and
+    the choice must be stated: a visible control in the panel header beside
+    "colour by"; or a Statistics/Model tab; or leaving it on the menu and
+    saying in the caption where it was set. The caption already names the
+    baseline on every panel, which is the half that works.
+
+--------------------------------------------------------------------------------
+J. RUNS BEFORE RESULTS, AND RESULTS FOLLOW THE SELECTED RUN
+--------------------------------------------------------------------------------
+
+Two changes, and the second is the substantive one.
+
+  * tab ORDER: Runs, then Results.
+  * SELECTING a run in the Runs tab points Results at THAT run -- its
+    coefficient table, its figures, its diagnostics.
+
+`_show_trial` already opens a run's folder into the results panel and the
+grid, so the wiring exists; what is missing is that the Results tab is not
+bound to the Runs selection, and the tab order says Results is the primary.
+
+TRAP: the panel's `set_frame` resets the baseline, the compartment, the
+gene/guide filter and the selection, deliberately -- a new table is a new
+experiment. Switching runs SHOULD reset those. Switching BACK should not be
+expected to restore them.
+
+--------------------------------------------------------------------------------
+K. THE ADJUSTED P-VALUE BELONGS IN THE COEFFICIENTS TABLE
+--------------------------------------------------------------------------------
+
+The correction is the whole point of the multiple-testing work and the table
+shows the raw p. The panel already PREFERS a corrected column when it cuts
+("q_value", "adjusted_p_value", "p_value" -- in that order) so the column
+exists in the frame; it is simply not surfaced as a column a reader can read
+and sort.
+
+Check what the run actually writes before assuming: `perform_regression`
+sets `multiple_testing_method` on the frame, so the column NAME and the
+method should both be visible -- a q with no method beside it is not
+reportable.
+
+--------------------------------------------------------------------------------
+L. THE GENE/gRNA FILTER IS GLOBAL, AND DRIVEN FROM THE TABLE TOO
+--------------------------------------------------------------------------------
+
+129 A put genes/guides/both on the VOLCANO's right-click menu. This extends
+it in two directions:
+
+  * the same gesture on the COEFFICIENTS TABLE;
+  * and it filters EVERY tab -- the table, the p-histogram, the Q-Q, the
+    controls, the guide support, and whatever 129 B adds.
+
+ONE PIECE OF STATE, not one per plot. The panel already owns `_level`; the
+work is that every draw path reads it and every entry point sets it. A filter
+that reaches four of six tabs is worse than one that reaches none, because
+the two disagree on screen at the same time.
+
+    The Q-Q and the p-histogram are the ones to think about: filtering the
+    family CHANGES THE CALIBRATION being shown. A Q-Q of the guides only is a
+    different diagnostic from a Q-Q of the whole fit, and the panel must say
+    which it is drawing rather than leaving the reader to assume.
+
+--------------------------------------------------------------------------------
+M. RESIDUAL AND HOMOGENEITY PLOTS IN THE REGRESSION MODULE TAB
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "to the instructions list add to generate reisdual and
+homogenisity plots in the regression modual tab".
+
+Item E landed the Residuals, Scale-location and Influence tabs. This asks for
+the pair a reader checks BEFORE believing a coefficient, together, in the
+module's own tab:
+
+  * RESIDUALS -- fitted against residual, which is already there.
+  * HOMOGENEITY OF VARIANCE -- scale-location is the plot for it, and it is
+    there, but the QUESTION it answers is not asked anywhere: is the residual
+    spread constant across the fitted range? A trend in that plot is
+    heteroscedasticity, and OLS standard errors are wrong when it is present
+    -- which changes every p-value in the table.
+
+So the work is not another plot. It is:
+
+  * a VERDICT beside them. `regression_qc` already computes the statistics
+    (Breusch-Pagan / White, and the residual-spread trend); the tab shows the
+    picture and not the answer. Say "constant spread" or "spread grows with
+    the fitted value; the standard errors above are optimistic" -- the second
+    sentence is the one that changes what a reader does.
+  * and the LINK to the fix: `cov_type='HC3'` is a sandwich estimator that is
+    valid under heteroscedasticity, is already a supported setting, and is
+    exactly what a user should reach for when this plot says so. The panel
+    should name it.
+
+DO NOT RE-DERIVE THE STATISTICS. `spacr/regression_qc.py` is 3,444 lines and
+already computes them for the saved PDF; the live tab must read the same
+numbers or the two will disagree about the same fit.
+
+--------------------------------------------------------------------------------
+N. THE STATSMODELS SUMMARY, AS A TAB
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "statmodels provides a summary, please generate a tab
+for the regression summary".
+
+The model already reaches the panel -- `set_diagnostics(model, ...)` is how
+the residual tabs are filled -- so this is a rendering job, not a plumbing
+one. THREE THINGS IT MUST HANDLE, all of which this screen actually hits:
+
+  * NOT EVERY BACKEND HAS ONE. `.summary()` is a statsmodels method; the
+    sklearn-backed types (lasso, ridge, elasticnet, hinge) have no such
+    thing, and `horseshoe` is spaCR's own. The tab says which backend was
+    fitted and that it reports no summary, rather than being absent or
+    empty.
+  * IT IS ENORMOUS. This screen fits 827 parameters, so the coefficient
+    block is 800-odd rows. Monospace, scrollable, and SELECTABLE -- the
+    reason to want it is usually to paste a number into a methods section.
+  * THE HEADER IS THE USEFUL PART and it is the part that scrolls away:
+    R-squared, F-statistic, AIC, log-likelihood, Df Residuals, and the
+    condition-number warning statsmodels appends. Keep it reachable.
+
+AND THE ONE THING THAT MAKES IT DANGEROUS HERE. On this screen the fit is
+NOT IDENTIFIABLE -- the run already says so: "610 analysed wells are being
+used to estimate 827 parameters". statsmodels will still print a full
+summary with a standard error and a P value for every guide, and it looks
+exactly like a summary of a well-posed fit. The tab must carry the same
+warning the run prints, next to the table rather than in the log above it.
+
+A summary a reader pastes into a paper from an unidentifiable fit is the
+worst outcome this panel can produce, and it is one click away.
+
+--------------------------------------------------------------------------------
+O. THE FULL RESTYLE MENU: DIMENSIONS, CMAP, MARKER, FONT, LINES, TYPE
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "when right clicking a graph i should also be able to
+choose its dimensions the cmap of the datapoints and their shape, font size
+color, line color and width (sometimes not applicable on certain graph
+types). as well as graph type when applicable".
+
+Some of this ships: point size, point colour, opacity, axis labels, font
+size, grid, legend, the mark type on the grouped plots (F), the baseline, the
+compartment, the effect-size cut and the p-value axis. What is NOT there:
+
+  * FIGURE DIMENSIONS -- width and height. On the interactive plots this is
+    the widget's size and the splitter's; on a SAVED figure it is the
+    figsize, and those are different things. The menu must say which it is
+    changing, or a user sets "dimensions" and finds the exported PDF
+    unchanged.
+  * A COLORMAP for the points, as opposed to the categorical palette that is
+    there. A cmap is for a CONTINUOUS quantity -- colour the volcano by
+    effect size or by well count -- and offering one for a nominal category
+    is the mistake the house style warns about, so the menu should offer it
+    only where the colouring column is numeric.
+  * MARKER SHAPE.
+  * FONT COLOUR (size is there; colour is only on the matplotlib dialog).
+  * LINE COLOUR AND WIDTH -- the reference lines, the threshold lines, the
+    trend on the Q-Q.
+  * GRAPH TYPE where one makes sense. F did this for the grouped plots
+    (violin/box/bar/jitter/points); the request generalises it.
+
+"(sometimes not applicable on certain graph types)" is the design constraint
+and it is the same one instruction 106 solved for settings: AN ENTRY THAT
+CANNOT DO ANYTHING IS GREYED OUT AND SAYS WHY, never silently absent and
+never present-but-inert. A cmap on a categorical colouring, a marker shape on
+a histogram, a line width on a plot with no lines -- each should appear
+disabled with a one-line reason.
+
+DO NOT BUILD A SECOND STYLE SYSTEM. Instruction 127 finding 3 already records
+that `spacr/figure_style.py` (the user's preference, general and per-graph)
+and `spacr/figures/style.py` (the house style) are two systems unaware of
+each other, and that a preference cannot currently reach a house-style panel.
+This menu is the third place that would want the same vocabulary. Merge
+first, or this becomes the reason the merge never happens.
+
+--------------------------------------------------------------------------------
+O (continued) - THE REST OF THE RESTYLE MENU, AND TWO REGRESSIONS
+--------------------------------------------------------------------------------
+
+Added to O, 2026-08-17: "axis limits, axis labels, aspect ratio, cmap (choose
+any column), font size, point shape (choose any column)".
+
+Axis labels and font size ship. NOT there: axis LIMITS, aspect ratio, and --
+the two that are more than restyling --
+
+  * CMAP OVER ANY COLUMN, and
+  * POINT SHAPE OVER ANY COLUMN.
+
+Both are "choose any column", which is a different control from the ones
+above them: they MAP A COLUMN to a visual channel rather than setting one
+value. The colour-by combo already does exactly that for the categorical
+palette, so the menu should reuse its column list rather than build a second
+one -- and a cmap belongs only on a NUMERIC column, a shape only on a
+low-cardinality one. Offer them where they apply and grey them where they do
+not, with the reason, per 106.
+
+  * EXPORT: PDF landed 2026-08-17 (pyqtgraph ships no PDF exporter, so the
+    scene is painted into a QPdfWriter -- true vector, not a bitmap in a PDF
+    wrapper). NOTE: pyqtgraph's own SVGExporter raises
+    `ValueError: not enough values to unpack` from its `correctCoordinates`
+    on this scene. Pre-existing, in the library, and it means the SVG option
+    is currently broken while PDF and PNG work.
+
+    SVG IS NO LONGER BROKEN (checked 2026-08-25). `correctCoordinates` is
+    pyqtgraph's, not spaCR's -- module-level in
+    `pyqtgraph/exporters/SVGExporter.py`, present in the installed 0.14.0 --
+    so nothing in this tree was ever going to fix it. It is not called any
+    more: `FastPlot._export_svg` (`spacr/qt/widgets/fast_plots.py`) renders
+    the item straight into a `QSvgGenerator`, which keeps paths and text as
+    vector elements and sidesteps the exporter's path normalisation on every
+    installation. The SVG option works alongside PDF and PNG; the eight
+    export tests in tests/test_the_restyle_menu_is_complete.py pass.
+
+--------------------------------------------------------------------------------
+P. TWO THINGS REPORTED AS REGRESSIONS, NOT YET DIAGNOSED
+--------------------------------------------------------------------------------
+
+Reported 2026-08-17 and NOT investigated -- recorded so the next session
+starts from the evidence rather than from scratch:
+
+  1. "for some reason now i dont see the grna threshold graph". The run log
+     shows it written to `<src>/results/fraction_threshold.pdf` -- which is
+     the SCREEN folder, NOT the run folder (`results/ols_12/`). The recursive
+     grid loader added the same day walks the RUN folder, so it would not
+     pick this one up. Establish first whether it was ever streamed through
+     `plt.show()` (and so reached the queue) or only ever saved; the fix
+     differs.
+
+  2. "the thumbnail iage of the volcano plot looks like several volcano plot
+     itterations pasted on top of each other". Candidates, in the order
+     worth checking: the live tile's `snapshot()` exports
+     `plot.plotItem`'s SCENE, so anything left in that scene accumulates --
+     check `_reset_scene` is reached on every redraw path, including the new
+     baseline/level/compartment ones added this week, each of which returns
+     a COPY of the frame and re-enters `set_results`. Reproduce by
+     redrawing three times and counting `plot.listDataItems()`.
+
+     RULED OUT 2026-08-17: the LIVE plot's scene does not accumulate.
+     Measured across five consecutive redraws through the baseline, level and
+     threshold paths, `plot.listDataItems()` went 1, 1, 0, 0, 0 -- never
+     upward. So `_reset_scene` is reached and the pyqtgraph scene is clean.
+     Look instead at the MATPLOTLIB side: the house-style volcano and
+     whatever the figure queue holds across the twelve runs this screen has
+     done (ols_11, ols_12, guide_permutation, guide_permutation_1). A queue
+     that never cleared between runs would stack thumbnails exactly this
+     way.
+
+--------------------------------------------------------------------------------
+Q. THE RIGHT-CLICK MENU IS TOO LONG, AND ONE ENTRY LIES BY DOING NOTHING
+--------------------------------------------------------------------------------
+
+Reported 2026-08-17: "there are way to many settings in the right click now
+they need to be organized into dropdowns", "guide only and gene only does
+nothing", "my data say 1612 gRNAs and 0 genes".
+
+**Q1. SUBMENUS.** The menu now carries: point size, point colour, opacity,
+axis labels, font size, grid, legend, reset view, export, mark type, the
+p-value axis, the effect-size cut (seven methods plus a multiplier), show
+genes/guides, measured-from, colour by localisation, re-fit -- plus whatever
+the restyle work adds. That is well past what a flat list can carry.
+
+Group them, and group them by WHAT THEY CHANGE rather than by type, because
+that distinction is the one the menu already makes with its section headings
+and it is the one that matters:
+
+    Appearance      size, colour, opacity, font, lines, grid, legend, cmap,
+                    marker shape, dimensions, aspect
+    Axes            labels, limits, the p-value axis
+    What is shown   genes/guides, colour by localisation
+    Hit calling     the effect-size cut and its multiplier, measured-from
+    Run             re-fit
+    Export          ...
+
+The last three change what the plot MEANS; the first two change how it looks.
+A user reaching for "point size" must not be one slip from a re-fit, which is
+why the re-fit already sits under its own heading -- submenus should preserve
+that separation rather than flatten it back.
+
+**Q2. THE GENE/GUIDE FILTER DOES NOTHING ON A PERMUTATION RUN, AND IT IS
+RIGHT TO.** Diagnosed: `ml.py:3422` builds every permutation row's feature as
+`'fraction:grna[' + guide + ']'`. There are no `gene_fraction:gene[...]` rows
+because THE PERMUTATION TEST TESTS GUIDES -- it is a per-guide marginal
+association -- and the compatibility dict writes `results.csv`,
+`results_grna.csv` and `results_significant.csv` with NO `results_gene.csv`,
+unlike the parametric path.
+
+So 1612 gRNAs / 0 genes is CORRECT. "Guides only" changes nothing and "genes
+only" empties the plot. That is honest and useless, and it is what
+instruction 106 forbids by name: a control that cannot do anything is greyed
+out and SAYS WHY, never silently inert. Grey both entries on a table with
+only one level in it, with the reason.
+
+**Q3. THE REAL QUESTION, AND IT IS THE MAINTAINER'S TO ANSWER.** Should a
+permutation run have gene-level results at all? The parametric run gives
+`gene_fraction:gene[244480]` at p = 2.9e-13 AND the guide-support table that
+says which genes rest on a single guide. The permutation run gives neither,
+so the two runs are not comparable and a user switching inference loses the
+gene view without being told.
+
+Aggregating per-guide permutation results to genes is a real statistical
+choice with more than one defensible answer -- combine the per-guide P values
+(Fisher, Stouffer), test the gene's guides as a SET against the same
+permutation null, or report the gene only through guide agreement. They
+answer different questions and one of them has to be chosen deliberately.
+DO NOT PICK ONE SILENTLY.
+
+--------------------------------------------------------------------------------
+R. EVERY RUN PRODUCES BOTH GENE AND gRNA RESULTS, FITTED SEPARATELY
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "for every run i want both gene and grna results. it
+does not seem statistically sound to mix them together. so split them and
+then do the regression twice once on the grna level and once on the gene
+level."
+
+AND THE MAINTAINER IS RIGHT THAT MIXING THEM IS UNSOUND. The parametric
+formula puts `fraction:grna` and `gene_fraction:gene` in ONE design:
+
+    y ~ fraction:grna + gene_fraction:gene + rowID + columnID
+
+so a gene's coefficient and its guides' coefficients are estimated
+simultaneously from the same wells, competing for the same variance. That is
+why a gene with ONE guide comes out with a coefficient and a p-value
+IDENTICAL to that guide's -- 244480 and 244480_3 are both 3.389291 at
+2.873149e-13 on the real screen -- and it is why they plot on top of each
+other. Two rows, one dot, and neither is independent evidence of the other.
+It is also part of why the fit is not identifiable: the gene terms are 452
+more parameters on top of the 823 guide terms, against 610 wells.
+
+SO: TWO FITS, NOT ONE.
+
+    the gRNA fit    y ~ fraction:grna + rowID + columnID
+    the gene fit    y ~ gene_fraction:gene + rowID + columnID
+
+Each is its own model, its own multiple-testing family, its own effect-size
+cut and its own results table. Neither borrows the other's variance and
+neither inflates the other's parameter count. It should also make the
+identifiability warning much rarer -- the guide fit drops 452 parameters and
+the gene fit drops 823.
+
+APPLIES TO EVERY INFERENCE MODE, and the maintainer said so plainly when
+asked whether nonparametric needed gene results: "why would i not want gene
+level results from pnon parametric? that makes no sense?" The permutation
+path today reports guides only (see Q2), so it needs a gene-level pass as
+well -- and for a permutation test the natural one is to test each GENE'S
+GUIDES AS A SET against the same permutation null, which needs no
+independence assumption. Combining per-guide P values (Fisher, Stouffer)
+does assume independence, and guides sharing a well are not independent.
+
+THINGS THIS CHANGES, all of which have to be said out loud rather than
+discovered:
+
+  * `results.csv` gains a sibling rather than changing shape -- there is
+    already `results_gene.csv` / `results_grna.csv` on the parametric path,
+    so the names exist; what changes is that each comes from ITS OWN FIT.
+  * a gene's p-value will MOVE. Today a single-guide gene inherits its
+    guide's p exactly; under its own fit it will not.
+  * the guide-support table stays and becomes more useful, because "the
+    gene is significant and its guides are not" is now a comparison of two
+    independent fits rather than an artefact of one design.
+  * the volcano's gene/guide filter (129 A) becomes a choice between two
+    RESULT SETS rather than a filter on rows of one -- and that is the
+    honest version of what the maintainer asked for.
+
+
+================================================================================
+FOUND 2026-08-18: A CLICK ON THE AGREEMENT PLOT CAN LAND NOWHERE
+================================================================================
+
+The gene/guide filter reaches every tab, which is what L asked for. The
+guide-agreement plot is ONE ROW PER GENE by construction -- it is the plot
+that answers "do this gene's guides agree" -- so while the filter is on
+`grna`, the coefficient table holds no row for anything drawn on it.
+
+Clicking a dot there therefore does nothing at all: no ring, no selected row,
+no gene tile, and nothing anywhere saying why. That is worse than either
+behaviour alone, because the plot still looks clickable.
+
+THE FIX THAT WAS TRIED AND REVERTED: let the click move the filter to the
+level that contains the key, on the reasoning that a click is more specific
+than a standing filter. `set_level` rebuilds every view from inside the
+click's own signal, which invalidated the point objects mid-dispatch and broke
+ten other round-trips. It needs a DEFERRED re-selection -- move the level,
+then re-apply the key on the next event-loop turn -- which is its own change
+and should not be squeezed into a test-repair commit.
+
+The other honest option is instruction 106's rule: if the agreement plot
+cannot be clicked at the current level, it should SAY so rather than accept
+clicks that go nowhere.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST FINDING IS FIXED, AND BY THE ROUTE THIS FILE PREFERRED.
+--------------------------------------------------------------------------------
+
+"A CLICK ON THE AGREEMENT PLOT CAN LAND NOWHERE" is closed, and by the option
+this file named as the right one rather than the fallback: the click MOVES THE
+FILTER, because a click is more specific than a standing filter.
+
+DEFERRED, WHICH IS THE WHOLE TRICK, and it is the thing the first attempt got
+wrong. Calling `set_level` inline rebuilds every view from INSIDE the click's
+own signal, invalidating the point objects Qt is still dispatching through --
+which is what broke ten other round-trips and got that attempt reverted. The
+level moves and the key is re-applied on the NEXT event-loop turn, after the
+rebuild has finished and the signal has unwound.
+
+Driven on a real panel: filter on `grna`, nothing selected, one click on a
+gene dot in the agreement plot -> level `gene`, key
+`gene_fraction:gene[100003]` selected. And nothing twitches on the ordinary
+path -- a click on the volcano, the Q-Q, the effect ranking or the control
+panel at its usual level finds its row already visible.
+
+WITH THAT, A THROUGH R ARE ALL SHIPPED, each recorded above with what it did.
+128 is closed; anything later wanted on this surface is a new instruction.

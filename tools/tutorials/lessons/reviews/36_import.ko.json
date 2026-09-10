@@ -1,0 +1,27 @@
+{
+  "lesson": "36_import", "language": "ko",
+  "english_sha256": "8f584353448403fe7ae7b043ea0b34938bf2ea0698159097f70bff6f161ed3f2",
+  "review": {"kind": "Editorial caption translation checked against English and the actual real-data import", "native_speaker_signoff": false, "corrections": ["Keep imported features distinct from a new measurement run and count objects separately from duplicated table rows.", "Preserve unknown calibration, exact object joins, conservative inferred names, the real reserved-name refusal and explicit acquisition-identity limitations."]},
+  "title": "Import Project: 실제 마스크, 측정값과 출처 검토",
+  "description": "실제 현미경 시야 두 개를 가져오고, 쓰기 전에 객체 대응과 열 이름을 검토하며, 가져온 측정값과 spaCR에서 새로 측정한 결과를 구분합니다.",
+  "objectives": ["Import Project와 세 가지 하위 입력 도구를 찾습니다.", "명확한 단위와 객체 식별 정보로 이미지, 인스턴스 마스크와 측정표를 연결합니다.", "제안된 이름을 검토하고 예약 이름 충돌과 해결을 시연한 뒤 매핑을 저장하고 다시 불러옵니다.", "가져오기를 재측정이라고 설명하지 않으면서 픽셀, 객체별 값과 출처를 검증합니다."],
+  "prerequisite": "먼저 Measure 예제를 다운로드하세요. tools/tutorials/capture_foreign.py의 prepare_inputs는 plate1_E01_1_1과 plate1_L02_9_1에서 ER 강도 평면 1과 세포 라벨 평면 4를 변경 없이 추출합니다. 같은 라벨에서 정확한 픽셀 면적과 원시 평균 강도를 다시 계산해 실제 103행을 만듭니다. 중립적인 fov01/fov02 TIFF 이름은 저장된 출처 목록과 함께 확인해야 원래 촬영 웰을 찾을 수 있으며, 플레이트 배치를 자동으로 보존하지 않습니다. 픽셀의 물리적 보정을 주장하지 않습니다.",
+  "scenes": [
+    "Home의 Data 범주에서 Import를 엽니다. 이 부모 작업은 기존 이미지, 인스턴스 마스크와 측정값을 받아들입니다. 현미경 원시 파일로 시작해 spaCR에서 새 마스크와 측정값을 만드는 작업과는 다릅니다.",
+    "헤더에는 이제 Import Images, Format Converter와 External Masks가 있습니다. 원시 촬영 자료에는 Import Images, 지원되는 형식 변환에는 Format Converter, 기존 분할 라벨에는 External Masks를 사용하세요. 전문 강의는 Submodules 섹션의 Import 아래에 유지됩니다.",
+    "이 녹화는 Measure에서 다운로드한 예제의 실제 시야 두 개를 재사용합니다. 별도의 TIFF 사본은 원래 강도와 라벨 픽셀을 보존합니다. 준비 절차는 바로 그 라벨에서 픽셀 면적과 평균 강도를 측정하며, 마스크와 별도로 버전이 관리된 측정표를 섞지 않습니다.",
+    "이미지 폴더를 선택하고 Cell 마스크 폴더를 고른 뒤 Add를 누릅니다. 이것은 인스턴스 라벨이지 이진 전경 이미지가 아닙니다. 예제에는 강도 채널 하나와 마스크 클래스 하나가 있습니다. 다른 클래스는 실제로 해당 시야를 설명할 때만 추가하세요.",
+    "실제 측정 CSV를 선택합니다. ImageNumber는 준비된 각 이미지, ObjectNumber는 그 시야 안의 라벨을 식별합니다. 라벨 번호만으로는 여러 이미지에서 유일한 객체를 구분할 수 없습니다. 표에는 측정된 백삼 개 객체가 있으며, 대응 검사를 통과시키려고 만든 합성 행은 없습니다.",
+    "보정값을 모르면 픽셀당 마이크로미터를 비워 두세요. 면적 열은 명시적으로 제곱 픽셀을 사용하며 강도는 이미지 원시값의 평균입니다. 임의의 배율을 만들지 마세요. 물리 단위 열은 별도로 검토해야 하며, 보정되지 않은 값을 픽셀 단위로 변환된 측정값이라고 설명해서는 안 됩니다.",
+    "Preview는 프로젝트 데이터를 쓰지 않습니다. 현재 가져오기 도구는 보수적으로 foreign 접두사가 있는 열 이름을 제안합니다. 원래 cell_area라는 열도 foreign_cell_area로 제안합니다. 이 설명은 작업을 막는 오류가 아닙니다. 추론은 spaCR 특징 덮어쓰기를 피했지만 과학적 의미는 여전히 검토해야 합니다.",
+    "대상 셀을 선택하고 에프 이를 눌러 편집합니다. 여기서는 면적의 대상을 의도적으로 예약 이름 cell_area로 바꿉니다. Refuse the import를 선택하면 이 실제 충돌 때문에 Import가 비활성화됩니다. 아직 아무것도 쓰지 않았습니다. 시연용 대상을 권장 매핑으로 받아들이지 마세요.",
+    "Rename 정책을 선택하면 spaCR 특징을 덮어쓰지 않고 충돌이 해결됩니다. 대응 보고서를 읽어 보세요. 백삼 행 모두 실제 마스크 객체와 일치하며 이 부분집합에는 측정되지 않은 객체가 없습니다. 행 수만으로는 다른 시야나 라벨에 잘못 배정된 값을 찾을 수 없습니다.",
+    "면적에 명시적으로 검토한 대상 foreign_reviewed_area_px2를 지정합니다. 매핑은 그 자리에서 갱신됩니다. 원본, 대상, 변환과 단위를 함께 검토하세요. 열 이름을 바꿨다는 사실만으로 두 실험실이 같은 생물학적 양을 측정했다고 판단할 수는 없습니다.",
+    "Save mapping은 검토된 열 정의를 CSV에 저장합니다. 이미지 백업도 완전한 촬영 목록도 아닙니다. 나중에 결정 내용을 감사할 수 있도록 매핑뿐 아니라 원본 파일과 식별 기록도 보존하세요.",
+    "Load mapping은 그 정의를 현재 계획에 읽어 들입니다. 먼저 대상을 임시로 변경하고 저장하지 않습니다. 이후 저장한 CSV를 선택하면 검토된 이름이 복원됩니다. 파일, 라벨이나 단위가 달라지면 계획을 다시 확인하세요. 재사용 가능한 매핑이 새 실험을 자동 승인하는 것은 아닙니다.",
+    "검토한 계획의 Import를 누르고 실제 보고서를 살펴봅니다. 이 실행은 이미지 두 개를 변환하고 마스크 두 개와 병합 배열 두 개를 쓰며, 객체 테이블 두 개에 각각 백삼 행을 저장합니다. 상태의 이백육 행은 두 테이블을 합친 수이지 서로 다른 객체가 두 배가 되었다는 뜻이 아닙니다.",
+    "요약에는 spaCR가 측정값을 다시 추출하지 않았다고 명시되어 있습니다. foreign_columns 테이블은 어떤 값이 이 가져오기에서 왔는지 기록합니다. 검사 결과 픽셀, 라벨과 각 객체의 면적 및 평균 강도가 보존되었습니다. 이것은 생물학적 해석의 타당성을 검증한 것과 다릅니다.",
+    "중립적인 fov 이름은 에이 영 일의 새 시야가 되며 원래 촬영 웰을 재구성하지 않습니다. 준비 목록과 변환 매핑을 보존하세요. 실제 플레이트 실험에서는 새로 배정한 좌표를 원본 메타데이터로 간주하지 말고, 후속 분석 전에 촬영 데이터의 식별 정보를 확정해야 합니다.",
+    "Python의 spacr.foreign은 plan_import, save_column_map, load_column_map과 run_import로 동일한 검토와 적용의 구분을 제공합니다. 완성된 프로젝트와 검토한 매핑을 함께 보존하세요. 실제로 spaCR에서 새 특징을 계산하려면 Measure를 사용하고 가져오기가 이미 그 작업을 했다고 가정하지 마세요."
+  ]
+}

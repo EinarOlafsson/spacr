@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "da",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between rejected original names and prepared copies, plus every operational caveat."]},
+  "title": "Import Images: kontrollér planen før import",
+  "description": "Åbn Import Images i Import, kontrollér et lille udsnit af rigtige mikroskopibilleder før filer skrives, og gem en genbrugelig plan. Eksemplet skelner mellem oprindelige navne, der ikke understøttes, og forberedte kopier.",
+  "objectives": ["Find Import Images i Import, og skeln det fra import af eksisterende målinger og masker.", "Kontrollér billedidentiteter og uafklarede navneled, før projektet skrives.", "Vælg kopier eller links, gem og genindlæs en plan, og kontrollér importen."],
+  "prerequisite": "Hent først det rigtige Mask-eksempel. Optagelsen bruger kopier af billedfelterne E01/F001 og L01/F009 med fire C-kanaler hver. I de forberedte kopier udelades kun A-leddet umiddelbart før Z; originalerne ændres ikke. Det er et specifikt kontrolleret eksempel, ikke en generel anvisning om at slette ukendte metadata.",
+  "scenes": [
+    "Åbn Import fra kategorien Data på Home, og vælg Import Images. Dette indlejrede værktøj forbereder rå billedfiler. Import Project, Format Converter og External Masks er beslægtede arbejdsgange med egne vejledninger.",
+    "Vores otte billeder er rigtige mikroskopidata fra Mask-eksemplet, som kan downloades: ét billedfelt fra hver af to brønde med fire kanaler pr. felt. Vi arbejder med separate kopier og lader de downloadede originaler være urørte.",
+    "Scan finder et uafklaret optagelsesled i de oprindelige navne. Import er fortsat deaktiveret, og intet skrives. Gæt ikke på en kanalkobling: To forskellige kanaler deler denne optagelsesværdi, så den kobling ville forvanske deres identiteter.",
+    "I dette kontrollerede eksempel udelader de forberedte kopier kun det overflødige optagelsesled. Navnene for brønd, billedfelt og kanal bevares. Scan viser nu otte rækker, to brønde, to feltnumre og fire kanaler. Det betyder ikke, at de oprindelige navne blev accepteret.",
+    "Sammenlign forslaget med filnavnene før import. Read inside each file kontrollerer indlejrede aksemetadata ud over navnene. Sample begrænser antallet af undersøgte filer; kontrollér, at forslaget omfatter de ønskede billeder. Afklar spørgsmål ud fra optagelsesnoterne, ikke ved at gætte.",
+    "Vælg en destination uden for inputmappen, og angiv pladens navn. Vi slår Link instead of copy fra for at få et selvstændigt projekt. Links sparer diskplads, men kræver, at originalerne forbliver tilgængelige på deres nuværende placeringer.",
+    "Disse eksempelfiler er ikke mosaikfelter. Læs Tiles omhyggeligt ved mosaikoptagelser: Sammenføjning gendanner billedfelter, separate delbilleder ændrer betydningen af et felt, og overspringning mister disse billeder. Kontrollér rapporten og ubekræftede samlinger før måling.",
+    "Save plan skriver kilden og dine koblingssvar til en JSON-fil, ikke en sikkerhedskopi af billederne. Gem den sammen med optagelsesnoterne. Den samme plan kan læses gennem Pythons API til billedimport.",
+    "Load plan læser kildemappen igen og genbruger de gemte svar. Kontrollér det nye forslag før import; en gemt plan garanterer ikke, at en ændret optagelse er korrekt. Her genskabes de samme otte kontrollerede billedidentiteter.",
+    "Tryk Import, og læs oversigten. Denne kørsel skrev otte selvstændige billedkopier uden at springe filer over; indholdet svarer til kilderne. Vælg derefter projektet i Mask, og undersøg livevisningen før segmentering. Import alene genererer hverken masker eller målinger."
+  ]
+}

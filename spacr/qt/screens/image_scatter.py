@@ -58,7 +58,7 @@ __all__ = [
     "ScatterCanvas",
     "ImageScatterScreen",
     "load_scatter_frame",
-    "register",
+    "make_image_scatter_screen",
     "APP_KEY",
     "LINK_SOURCE",
 ]
@@ -94,6 +94,8 @@ def load_scatter_frame(db_path: str, table: str,
     Deliberately a module-level function taking strings: it must never touch a
     widget, and the surest way to guarantee that is for it not to have one.
 
+    :param db_path: path to the SQLite measurements database.
+    :param table: measurement table to read from the database.
     :param limit: a hard row cap. A million-row table plotted at three pixels
         a point is a solid rectangle, so the cap costs no information and
         keeps a mis-click on the wrong table from being a two-minute freeze.
@@ -178,6 +180,8 @@ class ScatterCanvas(QFrame):
     Kept separate from the screen so the hit-testing and the caching can be
     tested without a database, and so a second consumer (a facetted view, a
     comparison grid) can reuse it.
+
+    :param parent: parent widget.
     """
 
     #: The point under the cursor changed. Carries its index, or ``-1``.
@@ -186,6 +190,10 @@ class ScatterCanvas(QFrame):
     point_clicked = Signal(int)
 
     def __init__(self, parent=None):
+        """Create an empty scatter canvas with mouse tracking on.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName(CANVAS_OBJECT)
         self.setMouseTracking(True)
@@ -245,10 +253,17 @@ class ScatterCanvas(QFrame):
         return self._hover
 
     def __len__(self) -> int:
+        """Return the number of plotted points."""
         return int(len(self._x))
 
     # -- geometry -----------------------------------------------------------
     def _invalidate(self) -> None:
+        """Drop the cached point cloud and the screen coordinates, then repaint.
+
+        Called whenever the data or the axes change: the cloud is rendered once
+        into a pixmap and reused across repaints, so it has to be thrown away
+        rather than drawn over.
+        """
         self._cloud = None
         self._px = np.zeros(0, dtype=float)
         self._py = np.zeros(0, dtype=float)
@@ -300,11 +315,19 @@ class ScatterCanvas(QFrame):
         return pixmap
 
     def resizeEvent(self, event) -> None:
+        """Re-lay the points for the new size.
+
+        :param event: the Qt resize event.
+        """
         self._invalidate()
         super().resizeEvent(event)
 
     # -- painting -----------------------------------------------------------
     def paintEvent(self, event) -> None:
+        """Draw the points and the hovered thumbnail.
+
+        :param event: the Qt paint event.
+        """
         super().paintEvent(event)
         painter = QPainter(self)
         try:
@@ -385,6 +408,12 @@ class ScatterCanvas(QFrame):
         return best if distance[best] <= HIT_RADIUS else -1
 
     def _set_hover(self, index: int) -> None:
+        """Move the hover to a point and announce it.
+
+        :param index: the point now under the cursor, or ``-1`` for none.
+            Setting the index it already holds does nothing, so a mouse moving
+            within one point does not emit per pixel.
+        """
         if index == self._hover:
             return
         self._hover = int(index)
@@ -392,14 +421,29 @@ class ScatterCanvas(QFrame):
         self.hover_changed.emit(self._hover)
 
     def mouseMoveEvent(self, event) -> None:
+        """Track which point is under the pointer, for the thumbnail.
+
+        :param event: the Qt mouse event.
+        """
         position = event.position()
         self._set_hover(self.index_at(position.x(), position.y()))
 
     def leaveEvent(self, event) -> None:
+        """Clear the hover when the pointer leaves the canvas.
+
+        OTHERWISE THE THUMBNAIL STICKS: the last hovered point stays drawn
+        over a canvas the pointer has left, which reads as a selection.
+
+        :param event: the Qt leave event.
+        """
         self._set_hover(-1)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event) -> None:
+        """Select the point under the pointer.
+
+        :param event: the Qt mouse event.
+        """
         if event.button() != Qt.LeftButton:
             return
         position = event.position()
@@ -418,12 +462,19 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     :param threaded: ``False`` loads inline, so a test drives the screen
         without a worker thread and gets the same signals in the same order.
+    :param parent: parent widget; ownership only.
     """
 
     #: A point's crop was shown. Carries the object key.
     crop_shown = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen, join the shared selection and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run reads on a worker thread. Set ``False`` in tests so
+            a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ImageScatterScreen")
         self._jobs = JobRunner(self, threaded=bool(threaded),
@@ -449,6 +500,7 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- construction -------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the source row, the axis pickers, the scatter and the crop preview."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -533,12 +585,37 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- source -------------------------------------------------------------
     def _choose_db(self) -> None:
+        """Ask for a measurements database and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurements database", self._db.text().strip(),
             "SQLite (*.db *.sqlite);;All files (*)")
         if path:
             self._db.setText(path)
             self.open_source()
+
+    def database(self) -> str:
+        """The measurements database this screen is pointed at, or ""."""
+        return self._db.text().strip()
+
+    def set_database(self, path: str) -> bool:
+        """Point the screen at ``path`` and list its tables.
+
+        The supported way for a caller to seed the source. Image Scatter is
+        opened from Image UMAP as one of the views of the same objects, and a
+        view that made the user retype the database the screen beside it is
+        already reading would be a second module rather than a second view.
+
+        An empty path is ignored rather than clearing the box: "no path
+        known" must not throw away a path the user typed.
+
+        :returns: True when the path was taken and the table listing started.
+        """
+        path = str(path or "").strip()
+        if not path:
+            return False
+        self._db.setText(path)
+        self.open_source()
+        return True
 
     def open_source(self) -> None:
         """List the tables in the chosen database, off the GUI thread."""
@@ -588,6 +665,10 @@ class ImageScatterScreen(LinkedView, QWidget):
                        paths=payload["paths"], note=payload.get("table", ""))
 
     def _on_job_failed(self, message: str) -> None:
+        """Show a failed job on the status line, in the error colour.
+
+        :param message: the failure text from the job runner.
+        """
         self.status.setText(message)
         self.status.setStyleSheet(f"color: {active_palette()['error']};")
 
@@ -598,6 +679,7 @@ class ImageScatterScreen(LinkedView, QWidget):
                   x: str = "", y: str = "", note: str = "") -> None:
         """Plot ``frame``. The seam a test — or another screen — goes through.
 
+        :param frame: measurement rows to display in the scatter plot.
         :param keys: one object key per row. Derived from the frame when it
             carries :data:`spacr.selection.OBJECT_KEY_COLUMNS` and omitted.
             Without keys the plot still draws, but a click cannot open
@@ -667,11 +749,9 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- hover --------------------------------------------------------------
     def _on_hover(self, index: int) -> None:
-        """The cursor moved onto (or off) a point.
+        """Update the crop preview when the cursor enters or leaves a point.
 
-        A crop that is already decoded is shown immediately — waiting 70 ms to
-        blit a pixmap that is sitting in memory is a lag nobody asked for. One
-        that is not is left to the timer.
+        Decoded crops appear immediately; uncached crops use the hover timer.
         """
         self._pending_hover = int(index)
         if index < 0:
@@ -698,6 +778,14 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._show_crop(index, self._thumbs.prime(path))
 
     def _show_crop(self, index: int, pixmap: Optional[QPixmap]) -> None:
+        """Show one object's crop beside the scatter.
+
+        :param index: the point the crop belongs to.
+        :param pixmap: the decoded crop, or ``None``/null when there is none --
+            which is said in words rather than left as a blank panel, since a
+            point with no crop and a point still decoding look the same
+            otherwise.
+        """
         key = self.key_at(index)
         if pixmap is not None and not pixmap.isNull():
             self.preview.setPixmap(pixmap)
@@ -711,6 +799,7 @@ class ImageScatterScreen(LinkedView, QWidget):
             self.crop_shown.emit(key)
 
     def _clear_preview(self) -> None:
+        """Return the preview pane to its resting state."""
         self.preview.clear()
         self.preview.setText("Hover a point")
         self.caption.setText("")
@@ -759,6 +848,10 @@ class ImageScatterScreen(LinkedView, QWidget):
             return None
 
     def _open_hovered(self) -> Any:
+        """Open the crop for the point under the cursor.
+
+        :returns: whatever :meth:`open_point` returns.
+        """
         return self.open_point(self.canvas.hovered)
 
     # -- the shared selection ------------------------------------------------
@@ -767,6 +860,15 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._apply_linked_selection(selection)
 
     def _apply_linked_selection(self, selection=None) -> None:
+        """Light up the points named by the shared selection.
+
+        Keys are matched by specificity rather than by equality: a view that
+        states no object type still has to light up for one that does, and the
+        other way round -- see :func:`spacr.selection.match_keys`.
+
+        :param selection: the selection to apply; ``None`` reads the link's
+            current one.
+        """
         selection = selection if selection is not None else self.link.selection
         if selection.keys is None or not self._keys:
             self.canvas.set_selected([])
@@ -789,6 +891,10 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._replot()
 
     def closeEvent(self, event) -> None:
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._hover_timer.stop()
         self.unlink_selection()
         self._jobs.cancel()
@@ -809,33 +915,40 @@ APP_INTRO = (
     "debris fragment or two cells segmented as one. Clicking a point opens "
     "its crop in the annotation grid and highlights it in every other open "
     "view.")
+#: Why there is no ``spacr-run image_scatter``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than reached
+#: from there. It used to travel as the row's ``cli_note=``; the row is gone,
+#: and ``spacr.cli`` answers ``--list`` on clusters with no PySide6 at all, so
+#: it cannot import this module to read the sentence. A test asserts the two
+#: copies are the same string.
 APP_CLI_NOTE = (
-    "Image Scatter is an interactive plot — the hover preview is the whole "
-    "feature; run it in the GUI (spacr-qt). Headless, read the same table "
-    "with pandas.")
+    "Image Scatter is an interactive plot — the hover "
+    "preview is the whole feature; run it in the GUI "
+    "(spacr-qt), where it is a button on Image UMAP. "
+    "Headless, read the same table with pandas.")
+
+#: The display name in the nine languages the catalogs carry, in their
+#: order. Kept beside the name they translate now that no registration
+#: hands them to :func:`spacr.qt.i18n.add_translation`.
+APP_TRANSLATIONS = ("Bildspridning", "Bild-Streudiagramm",
+                    "Dispersión de imágenes", "图像散点图",
+                    "Dispersão de imagens", "छवि स्कैटर", "이미지 산점도",
+                    "Myndadreifing", "Nuage de points d'images")
 
 
 def make_image_scatter_screen(**_kwargs) -> ImageScatterScreen:
-    """Build the screen. The ``factory=`` for :func:`spacr.qt.app.register_app`."""
+    """Build the screen. The one constructor every caller goes through."""
     return ImageScatterScreen()
 
 
-def register(*, section: Optional[str] = None, stage: Optional[str] = None,
-             key: str = APP_KEY):
-    """Put Image Scatter in the app registry. Idempotent.
-
-    :returns: the registry row, or ``None`` when the key was already there.
-    """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == key for row in APPS):
-        return None
-    return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_EXPLORE,
-        factory=make_image_scatter_screen,
-        stage=STAGE_ALPHA if stage is None else stage,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/image_scatter",
-        translations=("Bildspridning", "Bild-Streudiagramm",
-                      "Dispersión de imágenes", "图像散点图",
-                      "Dispersão de imagens", "छवि स्कैटर", "이미지 산점도",
-                      "Myndadreifing", "Nuage de points d'images"))
+# NO REGISTRY ROW. The scatter is reached as a button on Image UMAP's
+# masthead -- :data:`spacr.qt.screens.image_umap.FOLDED_APPS` -- which builds
+# it through :func:`make_image_scatter_screen` and then points it at the
+# measurements database the UMAP screen is already reading. That seeding is
+# what makes the fold a superset of the tile: a standalone tile opened on an
+# empty path and made the user find the same file again.
+#
+# The strings above are kept because they are this module's public
+# description -- the fold button's name and sentence are asserted against
+# them, and the i18n catalogs carry the translations.

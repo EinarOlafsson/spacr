@@ -35,12 +35,17 @@ import logging
 import re
 import sqlite3
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from .object_roles import (ANCHOR_COLUMN, ORGANELLE_ROLES, anchor_column,
-                           is_one_row_per_cell)
+
+from .object_roles import (
+    ANCHOR_COLUMN,
+    ORGANELLE_ROLES,
+    anchor_column,
+    is_one_row_per_cell,
+)
 
 LOG = logging.getLogger("spacr.merge_tables")
 
@@ -132,6 +137,10 @@ class MergePolicy:
     :param overrides: column -> aggregation, beating the rules. The rules are
         right most of the time, and a default that is right most of the time
         is a wrong answer nobody can find the rest of it.
+    :param consolidate_on_cell: whether many-per-cell child tables restrict
+        output to cells that contributed a child.
+    :param keep_uninfected: preserve cells without pathogens or organelles as
+        the uninfected control population even while consolidating.
     """
 
     primary: str = DEFAULT_PRIMARY
@@ -141,6 +150,7 @@ class MergePolicy:
     keep_uninfected: bool = True
 
     def __post_init__(self) -> None:
+        """Validate the NA policy and retain a private copy of overrides."""
         if self.na not in NA_POLICIES:
             raise MergeError(
                 f"na={self.na!r} is not one of {list(NA_POLICIES)}")
@@ -149,8 +159,10 @@ class MergePolicy:
     def how_for(self, table: str) -> str:
         """Whether ``table`` keeps cells it contributed no rows for.
 
-        THE CARDINALITY IS WHY THIS IS NOT ONE ANSWER. A cell has exactly one
-        cytoplasm, and MANY nuclei, pathogens and organelles. The
+        :param table: child object table whose join mode is requested.
+
+        A cell has exactly one cytoplasm and may have multiple nuclei,
+        pathogens, or organelles. The
         many-per-cell tables are rolled up to one row per cell first (see
         :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to
         a cell the roll-up found nothing for:
@@ -160,14 +172,9 @@ class MergePolicy:
             consolidate_on_cell=False  keep the cell and leave the child's
                                        columns NA
 
-        WITH ONE EXCEPTION, which is instruction 77 item (c) in full: an
-        UNINFECTED cell is a cell, and in a screen it is usually the control
-        population. Making pathogen inner silently conditions every result on
-        infection and deletes the comparison group from the denominator --
-        measured there as object p = 4e-39 against well p = 0.25 on the same
-        data. So pathogen and organelle follow ``keep_uninfected``, which
-        exists for exactly this and defaults to keeping them; setting it
-        False is how a caller deliberately restricts to infected cells.
+        Pathogen and organelle tables follow ``keep_uninfected`` so the
+        default retains uninfected control cells. Set it to ``False`` to
+        restrict the merged table to infected cells.
 
         A one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW`
         declares, because there is no consolidation to decide about.
@@ -184,6 +191,8 @@ def aggregation_for(column: str, *, numeric: bool = True,
                     overrides: Optional[Mapping[str, str]] = None) -> str:
     """How ``column`` combines when several children roll up into one parent.
 
+    :param column: measurement column name matched against the ordered
+        :data:`AGGREGATION_RULES`.
     :param numeric: text columns take the first value whatever their name.
     :param overrides: explicit choices, which always win.
     :returns: one of :data:`AGGREGATIONS`.
@@ -209,6 +218,8 @@ def aggregation_plan(frame: pd.DataFrame, *,
                      skip: Sequence[str] = ()) -> Dict[str, str]:
     """The aggregation chosen for every column -- what the user gets shown.
 
+    :param frame: child-object table whose columns will be rolled up.
+
     Returned rather than applied silently so the settings panel can display
     it and the user can override any of it.
     """
@@ -223,6 +234,7 @@ def aggregation_plan(frame: pd.DataFrame, *,
 
 
 def _connect(db_path: str) -> sqlite3.Connection:
+    """Open a measurement database through SQLite's read-only URI."""
     return sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
 
 
@@ -239,23 +251,30 @@ def table_names(db_path: str) -> Tuple[str, ...]:
 
 
 def mergeable_tables(db_path: str) -> Tuple[str, ...]:
-    """The object tables in this database, in preference order."""
+    """The object tables in this database, in preference order.
+
+    :param db_path: path to the SQLite database to inspect.
+    """
     present = set(table_names(db_path))
     return tuple([t for t in OBJECT_TABLES if t in present]
                  + ([PNG_TABLE] if PNG_TABLE in present else []))
 
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
+    """Read every row and column from one quoted database table."""
     with _connect(db_path) as db:
         return pd.read_sql_query(f'SELECT * FROM "{table}"', db)
 
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:
+    """Return canonical identity columns present, in identity order."""
     return [c for c in IDENTITY if c in frame.columns]
 
 
 def object_keys(values: pd.Series) -> pd.Series:
     """Object identifiers as integers, whatever spelling they arrived in.
+
+    :param values: object-label series to coerce to nullable integers.
 
     The object key is an integer in every object table and TEXT in
     ``png_list`` -- ``'o5'`` -- so merging the two raised
@@ -267,7 +286,7 @@ def object_keys(values: pd.Series) -> pd.Series:
     The ``'o5'`` form is translated by the one function that already knows
     every way it goes wrong (``'omulti'``, ``'onone'``, ``'error'``, NULL);
     plain numeric text is converted directly. Anything left becomes NA, so
-    those rows simply do not match rather than taking the merge down.
+    those rows do not match rather than causing the merge to fail.
     """
     if pd.api.types.is_numeric_dtype(values):
         return pd.to_numeric(values, errors="coerce").astype("Int64")
@@ -304,9 +323,11 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
             name: str, policy: MergePolicy) -> pd.DataFrame:
     """Aggregate ``child`` onto its parent, one rule per column.
 
+    :param child: child-object rows to group and aggregate.
     :param keys: the parent's identity in the child -- the identity columns
         plus the parent link.
     :param name: the child table's name, used to prefix its columns.
+    :param policy: merge policy supplying per-column aggregation overrides.
     :returns: one row per parent, columns prefixed with ``name``.
     :raises MergeError: the child has none of the keys.
     """
@@ -382,9 +403,49 @@ CONFLICT_POLICIES: Tuple[str, ...] = ("warn", "raise")
 #: ``area`` are SUPPOSED to differ, and reporting that as a conflict would
 #: bury the real ones.
 MUST_AGREE: Tuple[str, ...] = IDENTITY + (
-    "prc", "prcf", "prcfo", "object_label", "cell_id", "timeID", "time_id",
+    "prc", "prcf", "prcfo", "cell_id", "timeID", "time_id",
     "plate_name", "row_name", "column_name", "field_name",
 )
+
+
+#: Columns that must agree only between tables sharing one LABEL SPACE.
+#:
+#: `object_label` was in MUST_AGREE and should not have been. A cell's
+#: object_label is its label in the CELL mask and a pathogen's is its label
+#: in the PATHOGEN mask -- two separate labellings of two separate objects,
+#: with no reason on earth to coincide. Joining cell to pathogen therefore
+#: warned about nearly every row of every healthy screen:
+#:
+#:     'object_label': 60095 of 60816 objects disagree between cell and
+#:     pathogen (e.g. prcfo 0, 1, 2, 3, 4)
+#:
+#: which says "a defect in the data no analysis should quietly average
+#: over" about data that is exactly right. A warning that fires on the
+#: normal case teaches its reader to ignore it, and the real conflicts it
+#: was built for go with it.
+#:
+#: Cytoplasm is the exception and the reason the column is not simply
+#: dropped from the check: it is the cell minus its nucleus, carries the
+#: CELL's label, and a disagreement there is a genuine mismatch.
+SAME_LABEL_SPACE: Dict[str, Tuple[str, ...]] = {
+    "object_label": ("cell", "cytoplasm"),
+}
+
+
+def _shares_a_label_space(column: str, left_name: str, right_name: str) -> bool:
+    """Whether ``column`` has to agree between these two tables in particular.
+
+    :data:`MUST_AGREE` is a flat list and cannot express "these two columns
+    are the same fact only when the tables are related". `object_label` is
+    that case -- see :data:`SAME_LABEL_SPACE`.
+
+    :returns: True when both table names are in the column's label space.
+    """
+    space = SAME_LABEL_SPACE.get(str(column))
+    if not space:
+        return False
+    return all(any(name in str(side) for name in space)
+               for side in (left_name, right_name))
 
 
 class ColumnConflict(MergeError):
@@ -392,12 +453,23 @@ class ColumnConflict(MergeError):
 
 
 def _columns_agree(left: pd.Series, right: pd.Series) -> pd.Series:
-    """Row-wise equality that treats two missing values as agreement.
+    """Row-wise equality where a missing value cannot disagree with anything.
 
     ``NaN != NaN`` is right for arithmetic and wrong here: a column absent
     from both tables for a given object is not a disagreement about it.
+
+    EITHER side missing, not only both. An UNINFECTED CELL is a cell kept on
+    purpose -- ``keep_uninfected=True`` -- that has no pathogen row, so every
+    column from the pathogen table is absent for it. Comparing a present
+    plateID against that absence counted as a conflict, and plate1 reported
+
+        'plateID': 172 of 553 objects disagree between cell and pathogen
+
+    where 172 is exactly the number of cells with no pathogen in them. The
+    data is right, the cells were kept deliberately, and the identity columns
+    were being compared against nothing at all.
     """
-    both_missing = left.isna() & right.isna()
+    both_missing = left.isna() | right.isna()
     if (pd.api.types.is_numeric_dtype(left)
             and pd.api.types.is_numeric_dtype(right)):
         # Two tables can reach the same number by different arithmetic, so
@@ -453,7 +525,8 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
         if bool(agree.all()):
             drop.append(right_col)
             continue
-        if left_col not in MUST_AGREE:
+        if left_col not in MUST_AGREE and not _shares_a_label_space(
+                left_col, left_name, right_name):
             # Two measurements that happen to share a name. They describe
             # different objects, so they differ by design and both are kept.
             continue
@@ -487,6 +560,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
     pathogen on a third" possible: each table's columns arrive prefixed with
     the object they measure, so they can be told apart and picked separately.
 
+    :param db_path: path to the SQLite measurements database.
     :param tables: which object tables to include. The primary must be one of
         them, and is added if it is not.
     :param policy: how to aggregate and what to do with childless parents.
@@ -694,6 +768,8 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
     gate on PC1 vs PC2 is the same kind of object as a gate on area vs
     intensity, and saves, re-applies and exports identically.
 
+    :param frame: object-by-measurement table to project. The returned frame is
+        reindexed to this table's complete index.
     :param columns: the measurements to reduce. At least two.
     :param method: ``pca`` always available; umap and t-SNE if installed.
     :param scale: standardise first. Without it a measurement whose numbers
@@ -786,7 +862,7 @@ def reduce_dimensions(frame: pd.DataFrame, columns: Sequence[str], *,
             # and spaCR's standing rule is that nothing drags TF in. The
             # loader imports umap.umap_ with the TF-backed roots blocked.
             from .utils import umap
-            umap.UMAP
+            _ = umap.UMAP
         except Exception as exc:
             raise ReductionError(
                 "UMAP is not installed in this environment; PCA is always "
@@ -841,26 +917,23 @@ def group_variance_share(frame: pd.DataFrame,
                          groups: Dict[str, Sequence[str]], *,
                          scale: bool = True,
                          min_coverage: float = 0.5) -> pd.DataFrame:
-    """How much of the projected variance each group of columns carries.
+    """Calculate each column group's share of variance in the input matrix.
 
-    Answers "I ticked morphology and intensity -- which one is the picture
-    about?". A group contributing 2% is a group the user believes is in the
-    projection and effectively is not.
+    The matrix is prepared with the same missing-value and scaling procedure
+    used by :func:`reduce_dimensions`. The result therefore characterizes the
+    inputs supplied to PCA, UMAP, t-SNE, and other reducers without requiring
+    method-specific loadings.
 
-    Describes the INPUT matrix, prepared exactly as
-    :func:`reduce_dimensions` prepares it, so it is valid for every method
-    rather than only for PCA -- UMAP and t-SNE have no loadings to inspect,
-    but they see this same matrix.
-
+    :param frame: Measurement frame containing the candidate feature columns.
     :param groups: ``{group_name: columns}``. A column named by two groups is
-        counted in both, because it genuinely informs both -- shares
-        therefore need not sum to 1, and the frame says so in ``attrs``.
-    :param scale: standardise first, matching ``reduce_dimensions``. With it
-        off, a measurement whose numbers are larger dominates the share for
-        that reason alone -- which is the same trap the reducer's own
-        ``scale`` exists for.
-    :returns: a frame indexed by group with a ``share`` column and a
-        ``columns`` count, largest share first.
+        counted in both; shares may therefore sum to more than one, and this
+        condition is recorded in ``result.attrs['overlapping']``.
+    :param scale: Whether to standardize features before calculating variance,
+        matching the corresponding reducer option.
+    :param min_coverage: Minimum non-missing fraction required for a feature to
+        enter the prepared matrix.
+    :returns: DataFrame indexed by group with ``share`` and ``columns`` fields,
+        sorted by decreasing share.
     """
     prepared, used = _prepared_matrix(frame, [c for cols in groups.values()
                                               for c in cols],
@@ -900,6 +973,8 @@ def missingness_leak(components: pd.DataFrame, frame: pd.DataFrame,
     is exactly the kind of split a user would otherwise write up.
 
     :param components: the reducer's output, indexed like ``frame``.
+    :param frame: original measurement table used to determine which component
+        rows had or lacked each input measurement.
     :param columns: the columns that went into the projection.
     :param min_objects: skip a column unless both sides have at least this
         many objects. A gap computed from four objects is noise, and

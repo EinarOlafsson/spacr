@@ -1,0 +1,143 @@
+================================================================================
+THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
+================================================================================
+
+Status:    DONE 2026-08-21. See the closing section.
+Requested: 2026-08-21 -- "the plate map should be made up of squares that are
+           clickable nad the user should be able to drag and select. and the
+           elements should be fixed to each other now if i change the size of
+           the window the elements drift appart"
+Owner:     Qt GUI (PlateMapPicker, 185)
+
+--------------------------------------------------------------------------------
+A. SQUARES, AND A DRAG SELECTS A BLOCK
+--------------------------------------------------------------------------------
+
+The wells are already `setFixedSize(18, 18)` checkable buttons, so they are
+square and they are clickable. WHAT IS MISSING IS THE DRAG.
+
+`select_region(start, end, choosing=None)` exists and is tested -- 185 built
+it as a method precisely so a test could select a rectangle without a human
+-- and NOTHING CALLS IT FROM THE MOUSE. The rectangle a user would expect
+from press-move-release is implemented and unreachable, which is the same
+shape of fault as 185's own button being unreachable.
+
+WHAT THE GESTURE HAS TO DO:
+
+    press on a well        starts a selection, anchored there
+    move                   previews the rectangle from the anchor to the
+                           well under the pointer -- SHOWN while dragging,
+                           because a selection you cannot see until you let
+                           go is one you have to undo to correct
+    release                commits it
+    the modifier           press alone REPLACES the selection; with Ctrl it
+                           ADDS to it, which is what every other grid in
+                           this application does
+
+AND THE ANCHOR IS A WELL, NOT A PIXEL. A drag that starts on the gap between
+two wells should anchor on the nearer one rather than doing nothing.
+
+--------------------------------------------------------------------------------
+B. THE GRID IS FIXED TO ITSELF                                    [REPORTED]
+--------------------------------------------------------------------------------
+
+    "the elements should be fixed to each other now if i change the size of
+     the window the elements drift appart"
+
+The wells have a fixed SIZE but the layout that holds them does not have a
+fixed SHAPE: resize the window and the grid's spacing grows with it, so the
+squares separate and the plate stops reading as a plate. A 96-well map is a
+picture of a physical object, and the whole point of the picture is that its
+proportions are the object's.
+
+THE GRID KEEPS ITS OWN SIZE AND IS CENTRED IN WHATEVER IT IS GIVEN. The
+column and row stretch belong to the space AROUND the map, not between the
+wells: `QGridLayout.setSpacing` fixed, every column and row stretch 0, and
+the whole map in a container that takes the slack.
+
+A LARGER WINDOW MAY MAKE THE WELLS LARGER -- that is a different and
+legitimate answer -- but if it does, every well grows by the same amount and
+the gaps stay proportional. What must not happen is the gaps growing while
+the squares do not.
+
+--------------------------------------------------------------------------------
+C. THE ROW AND COLUMN HEADERS TRAVEL WITH IT
+--------------------------------------------------------------------------------
+
+Whatever B settles, the A/B/C row letters and the 1..24 column numbers are
+part of the grid and move with it. A header that drifts away from the column
+it labels is worse than no header, because it is still readable and now
+wrong.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Press, move and release across a rectangle of wells selects exactly that
+  rectangle, and the preview is visible during the drag.
+* Ctrl-drag adds a second rectangle; a plain drag replaces the first.
+* The value written back is the same one `select_region` produces, so the
+  mouse and the API cannot disagree.
+* Resizing the window by 400 px moves no well relative to any other well:
+  the pixel distance between two adjacent wells is identical before and
+  after, and a test measures it rather than a person looking at it.
+* The headers stay aligned with their rows and columns at every size.
+
+--------------------------------------------------------------------------------
+2026-08-21 -- DONE. AND THE DRIFT WAS IN A DIFFERENT PLATE MAP.
+--------------------------------------------------------------------------------
+
+THERE ARE TWO, and this file assumed one. 185's `PlateMapPicker` -- the one
+the "Plate…" button opens -- does not drift: its wells are `setFixedSize`,
+and measured at 600, 1000 and 1600 px wide the origin-to-origin distance is
+20 px every time, headers included.
+
+THE ONE THAT DRIFTS IS THE EXPERIMENT DESIGN SCREEN'S. Its wells were
+`QLabel`s with `setMinimumSize(22, 18)` and no maximum, so every one stretched
+with the window. Measured:
+
+    900 x 600    well 65 x 18    step 67
+    1500 x 900   well 111 x 18   step 113
+    1900 x 1100  well 141 x 18   step 143
+
+At 141 x 18 it is not a plate any more, and "the elements drift appart" is
+exactly what a reader sees. They are `WELL_SIDE` square now, and the grid's
+slack goes to one trailing row and column far past any real plate rather than
+being handed to the cells: 24 px step at every window size, headers aligned.
+
+A. THE GESTURE, ON BOTH MAPS.
+
+`select_region` has been in `PlateMapPicker` since 185 and NOTHING CALLED IT
+FROM THE MOUSE -- written as a method so a test could select a rectangle
+without a human, and that is all it was ever used for. The gesture a user
+expects was implemented and unreachable, which is the same fault 185's own
+button had, in the same widget, found twice.
+
+    press      anchors, and selects that well
+    move       previews the rectangle from the anchor -- SHOWN while
+               dragging, because a selection you cannot see until you let go
+               is one you have to undo to correct
+    release    commits
+    Ctrl       adds a second block; a plain drag replaces
+
+THE PRESSED WIDGET KEEPS THE MOUSE GRAB, so a sibling's `enterEvent` never
+fires mid-drag and the well under the pointer is found by asking the grid
+with a GLOBAL point rather than by waiting to be entered. That is why
+`well_at` takes a global position and not a local one.
+
+AND THE PREVIEW REDRAWS FROM THE STATE AT THE PRESS, not from the last frame,
+so growing a rectangle and then shrinking it leaves nothing behind. A test
+drives exactly that.
+
+C. THE SELECTION IS AN OUTLINE, NOT A FILL. The fill already says what the
+well IS -- control, treatment, blank -- and replacing it would trade the
+information the map exists for against the one thing the user can see for
+themselves, which is where they just dragged. The rule is last in the sheet
+so it wins over the role and edge rules, and a test asserts that order.
+
+AND EVERY WELL KNOWS ITS NAME NOW, assigned or not. A name is a COORDINATE,
+and it was being set only on the assigned branch -- so a user selecting an
+empty block got a selection that could not say which wells it held.
+
+30 tests in tests/qt/test_the_plate_map_is_squares_you_drag_across.py; 306
+pass across the design, plate-map and well-spec suites.

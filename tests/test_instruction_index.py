@@ -9,6 +9,7 @@ files that were wrong about their own state.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -33,7 +34,10 @@ def _tool():
 
 def test_the_committed_index_matches_the_instruction_files():
     """If this fails, run tools/build_instruction_index.py."""
-    assert _tool().main(["--check"]) == 0
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--check"], cwd=str(REPO),
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_every_open_instruction_appears():
@@ -60,6 +64,31 @@ def test_the_counts_are_the_real_counts():
     assert f"{n_done} done / {n_open} open" in text
 
 
+def test_duplicate_instruction_numbers_are_ordered_by_filename():
+    """A duplicate numeric id must not inherit filesystem iteration order."""
+    tool = _tool()
+    rows = tool._entries("done")
+    assert rows == sorted(rows, key=lambda row: (int(row[0]), row[2]))
+
+
+def test_titles_are_read_from_both_instruction_formats():
+    """Recent concise records must not become blank index rows."""
+    tool = _tool()
+    assert tool._instruction_title(
+        ["=" * 80, "A STRUCTURED TITLE", "=" * 80], "305", "fallback"
+    ) == "A STRUCTURED TITLE"
+    assert tool._instruction_title(
+        ["304 — Release 1.5.0.5, archived on Zenodo", "", "Asked today"],
+        "304", "fallback"
+    ) == "Release 1.5.0.5, archived on Zenodo"
+
+
+def test_rendered_index_has_no_trailing_whitespace():
+    tool = _tool()
+    assert not [line for line in tool.render().splitlines()
+                if line != line.rstrip()]
+
+
 def test_codex_owned_open_files_are_marked_do_not_touch():
     """Two sessions editing one file is how work gets lost."""
     tool = _tool()
@@ -68,7 +97,13 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
         path.name.split("_", 1)[0]
         for path in (INSTRUCTIONS / "open").glob("*.txt")
     }
-    assert set(tool.OWNERS) <= open_numbers
+    # An owner whose instruction has since been DONE is the normal end state.
+    # Asserting every owner is still open made the index fail for work being
+    # finished, which is the opposite of what this guard is for.
+    stale = {n for n in tool.OWNERS if n not in open_numbers}
+    assert not stale, (
+        f"OWNERS names {sorted(stale)}, which are no longer open; remove "
+        f"them so the marking tracks the folder")
     for number in tool.OWNERS:
         paths = list((INSTRUCTIONS / "open").glob(f"{number}_*.txt"))
         assert len(paths) == 1, number
@@ -92,3 +127,44 @@ def test_the_index_points_at_the_handoff():
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
     assert "HANDOFF.md" in text
     assert (INSTRUCTIONS / "HANDOFF.md").exists()
+
+
+def test_an_open_status_line_does_not_contradict_its_own_body():
+    """A Status of "not started" over a body recording the work landing.
+
+    TWICE IN ONE DAY on 2026-09-08/09. Instruction 383's header read "not
+    started" while three of its four items were done and recorded below it;
+    382's read the same while the body carried the commit that closed it.
+    Both were found by a person reading the file, which is the check that
+    does not scale -- the header is what a session reads to decide what to
+    work on, so a stale one costs a whole session or duplicates work
+    another one has already finished.
+
+    The rule is narrow on purpose: it fires only when the header claims
+    NOTHING has happened and the body says otherwise in the form this
+    ledger actually uses -- a dated entry announcing the work as done. It
+    does not police percentages, partial progress, or the many honest ways
+    a status can lag its body by a little.
+    """
+    import re
+
+    stale = []
+    for path in sorted((INSTRUCTIONS / "open").glob("*.txt")):
+        text = path.read_text(encoding="utf-8")
+        header = re.search(r"^Status:\s*(.+?)(?=^\w+:|\Z)", text,
+                           re.M | re.S)
+        if not header:
+            continue
+        claim = " ".join(header.group(1).split()).lower()
+        if not claim.startswith("not started"):
+            continue
+        # A dated section announcing completion, which is how this ledger
+        # records it: "2026-09-09 -- ... DONE" or "... IS DONE".
+        landed = re.search(r"^\d{4}-\d{2}-\d{2}[^\n]*\b(IS DONE|DONE)\b",
+                           text, re.M)
+        if landed:
+            stale.append(f"{path.name}: says 'not started', body says "
+                         f"{landed.group(0)[:60]!r}")
+    assert not stale, (
+        "an open instruction's Status contradicts its own body:\n  "
+        + "\n  ".join(stale))

@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "ui",
+      "key": "No usable display/OpenGL context is available in this session, so the CPU renderer runs instead. Installing VisPy cannot enable GPU rendering in a headless session.",
+      "source_sha256": "7ba074e02191cfc8e474419b97815b2af7b6958099a9dc32933a00be22365799",
+      "source": "No usable display/OpenGL context is available in this session, so the CPU renderer runs instead. Installing VisPy cannot enable GPU rendering in a headless session.",
+      "translation": "Ingen användbar bildskärms-/OpenGL-kontext är tillgänglig i den här sessionen, så CPU-renderaren används i stället. Att installera VisPy kan inte aktivera GPU-rendering i en huvudlös session."
+    },
+    {
+      "table": "ui",
+      "key": "VisPy is not installed, so the CPU renderer runs instead. Install the GPU renderer with pip install \"spacr[fractal]\".",
+      "source_sha256": "4cba2d85cd1dc64b88ee6b2ad4f5e5e69c12107cd54f1042b73583a058f9de57",
+      "source": "VisPy is not installed, so the CPU renderer runs instead. Install the GPU renderer with pip install \"spacr[fractal]\".",
+      "translation": "VisPy är inte installerat, så CPU-renderaren används i stället. Installera GPU-renderaren med pip install \"spacr[fractal]\"."
+    },
+    {
+      "table": "ui",
+      "key": "Automatic: this machine will use the {renderer} renderer.",
+      "source_sha256": "b595abe2520ae0af7edd5afbff601e1190eb2437f240efc1a8a9d5d3654a2c8e",
+      "source": "Automatic: this machine will use the {renderer} renderer.",
+      "translation": "Automatiskt: den här datorn kommer att använda {renderer}-renderaren."
+    },
+    {
+      "table": "ui",
+      "key": "The {renderer} renderer.",
+      "source_sha256": "0832cace69a617920b366cc7d5467dc9978ed6ee1fd284c2c7e10fc4dc3ef81c",
+      "source": "The {renderer} renderer.",
+      "translation": "{renderer}-renderaren."
+    }
+  ]
+}

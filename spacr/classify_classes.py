@@ -1,49 +1,33 @@
-"""What defines a training class: a dict of name -> (column, value).
+"""Define classification classes from annotation or plate-metadata values.
 
-``settings['classes']`` was a list of names -- ``['nc', 'pc']`` -- and
-everything about which OBJECTS those names referred to lived somewhere else:
-``annotation_column`` said where to look, ``annotated_classes`` said which
-values counted, ``write_random_annotation_column`` invented a comparison group,
-and in metadata mode ``location_column`` plus ``positive_control`` and
-``negative_control`` said it all again in different words.
-
-Four settings to say one thing, and none of them able to say "class A is
-value 1 of column X and class B is value 3 of column Y". So:
+Each class maps a display name to either a source-column/value pair or a
+random-complement rule. For example::
 
     {"infected": {"column": "annot_1", "value": 1},
      "uninfected": {"column": "annot_2", "value": 0}}
 
-The name is the key, because the name is what the user picks. Each rule names
-the VALUE and the COLUMN it came from, which is what makes more than one
-annotation column usable at once -- the thing the old shape could not express
-at all.
-
-**The random complement.** Annotating one class is the normal case: a user
-marks the infected cells and stops. The second class is then "everything not
-annotated", chosen at random, and that is a KIND OF RULE rather than a button
-pressed beforehand -- ``{"control": {"random_complement": true}}``. This
-replaces ``write_random_annotation_column``.
-
-**Metadata mode changes only which columns are on offer.** Under
-``dataset_mode='metadata'`` the same dict is filled from plate / row / column /
-field / well instead of user-defined annotation columns, which is why
-``location_column``, ``positive_control`` and ``negative_control`` are no
-longer needed: "positive control is column 3" is exactly a rule.
-
-**Old settings keep working.** Every retired key is translated here, once, by
-:func:`normalize_settings` -- the same discipline as
-:mod:`spacr.training_basis`. A settings CSV written before this exists in
-every user's project folder, and a run from one has to produce the same
-training set it did before.
+This representation supports classes derived from different annotation
+columns. In metadata mode, the same rules may reference plate, row, column,
+field, or well identifiers. :func:`normalize_settings` converts supported
+legacy classification settings to this representation without mutating the
+input mapping.
 """
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import (
+    Any,
+    Dict,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 import numpy as np
-import pandas as pd
 
 LOG = logging.getLogger("spacr.classify_classes")
 
@@ -78,6 +62,16 @@ class ClassDefinitionError(ValueError):
 class ClassRule:
     """One class: its name, and what makes an object a member.
 
+    :param name: nonblank class label written to matched rows and retained as
+        the ordered training and folder name.
+    :param column: source-table column compared by an explicit rule; leave it
+        blank only for a random-complement rule.
+    :param value: exact value selected by equality in ``column`` for an
+        explicit rule.
+    :param random_complement: when true, sample unclaimed rows with
+        :func:`assign_classes`'s seed, up to the largest explicit class size;
+        it cannot be combined with ``column`` or ``value``.
+
     Either a ``column``/``value`` pair, or ``random_complement`` -- never
     both. A rule that says both would have two answers for the same object and
     no way to choose between them.
@@ -91,6 +85,7 @@ class ClassRule:
     random_complement: bool = False
 
     def __post_init__(self) -> None:
+        """Reject blank names and contradictory or incomplete selectors."""
         if not str(self.name).strip():
             raise ClassDefinitionError("a class must have a name")
         if self.random_complement:
@@ -105,6 +100,7 @@ class ClassRule:
                 f"comes from, so it cannot select objects")
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return the serializable selector shape stored in ``classes``."""
         if self.random_complement:
             return {"random_complement": True}
         return {"column": self.column, "value": self.value}
@@ -119,6 +115,8 @@ def candidate_columns(settings: Mapping[str, Any],
     the dict's keys from the VALUES of the chosen column, so this is the first
     half of "you set the column then the keys of this dict get populated".
 
+    :param settings: classification settings whose resolved dataset basis
+        decides whether coordinate metadata or annotation columns are offered.
     :param available: the table's columns, used to filter the metadata list --
         a database with no ``well`` column must not offer one.
     """
@@ -133,13 +131,15 @@ def candidate_columns(settings: Mapping[str, Any],
     return tuple(str(c) for c in available)
 
 
-def values_in(frame: pd.DataFrame, column: str,
+def values_in(frame: Any, column: str,
               *, limit: int = 100) -> Tuple[Any, ...]:
     """The distinct values of ``column`` -- the keys the dict is populated with.
 
     Nulls are excluded: "not annotated" is the absence of a class, and
     offering it as one is how a user ends up training on their own blanks.
 
+    :param frame: table containing the candidate class column.
+    :param column: column whose distinct non-null values define class choices.
     :param limit: refuse to enumerate a free-form column. Past this many
         distinct values it is a measurement, not a label, and the Gate Editor
         is what turns a measurement into a class.
@@ -164,6 +164,8 @@ def values_in(frame: pd.DataFrame, column: str,
 
 def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
     """The classes a settings dict defines, in the order they were given.
+
+    :param settings: classification settings containing the class definitions.
 
     Order matters: it is the label order the model is trained with, so it has
     to be stable rather than whatever a set iterates in.
@@ -224,6 +226,8 @@ def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
 def class_names(settings: Mapping[str, Any]) -> List[str]:
     """The class names, in order -- what ``settings['classes']`` used to be.
 
+    :param settings: classification settings whose class names are requested.
+
     Downstream (``deep_spacr``, ``model_zoo``, the evaluation code) reads a
     list of names and should keep doing so. This is what
     :func:`normalize_settings` writes back under
@@ -240,32 +244,24 @@ def class_names(settings: Mapping[str, Any]) -> List[str]:
 
 
 def folder_names(settings: Mapping[str, Any]) -> List[str]:
-    """The ordered TRAINING FOLDER names -- the other contract on ``classes``.
+    """Return ordered class-folder names for model training.
 
-    ``classes`` was carrying two unrelated meanings at once, which is what
-    made its default undecidable:
+    Current settings derive folder names from the ordered keys of the
+    ``classes`` definition. For compatibility, a legacy list-valued
+    ``classes`` setting takes precedence. When no class definitions are
+    present, the function uses ``class_folder_names``, which records the
+    folders written by dataset generation. Invalid or absent definitions
+    produce an empty list unless that recorded folder list is available.
 
-    * the class DEFINITIONS -- ``name -> {column, value}``, which objects
-      belong to which class. That is what ``classes`` means now.
-    * the ordered TRAINING FOLDER names -- each must match a subfolder under
-      ``src/train`` and ``src/test``, a name's position is its integer
-      label, and ``generate_training_dataset`` overwrites the list with what
-      it actually wrote to disk. That is :data:`CLASS_FOLDER_NAMES`.
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
 
-    They are usually the same words, which is exactly why the collision went
-    unnoticed: one is what a class MEANS and the other is where its crops
-    were written.
-
-    Read through this function rather than off the key, so a settings file
-    written before the split keeps training. Precedence:
-
-    1. ``classes`` when it is still a list -- every settings CSV in the wild.
-       Dataset generation retires that legacy spelling after it writes the
-       actual folder names, so it cannot shadow the generated result.
-    2. ``class_folder_names`` -- the explicit answer, including ``[]``.
-    3. the names of the defined classes, in order.
-
-    :returns: the ordered folder names; ``[]`` when nothing declares any.
+    Returns
+    -------
+    list of str
+        Folder names in class-label order.
     """
     legacy = settings.get(CLASSES)
     if isinstance(legacy, (list, tuple)):
@@ -281,6 +277,21 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
         # written silently trained on ['nc','pc'] instead of its own
         # classes, which is the opposite of what the split is for.
         return [str(n) for n in legacy]
+
+    # Current class definitions take precedence over the recorded output of a
+    # previous dataset-generation run.
+    #
+    # Only when classes are actually DEFINED. An empty definition means "this
+    # settings file says nothing about classes", and must not shadow a
+    # recorded folder list -- that would break every settings file written
+    # before the Classes editor existed.
+    if isinstance(settings.get(CLASSES), Mapping) and settings.get(CLASSES):
+        try:
+            defined = class_names(settings)
+        except ClassDefinitionError:
+            defined = []
+        if defined:
+            return defined
 
     raw = settings.get(CLASS_FOLDER_NAMES)
     if isinstance(raw, (list, tuple)):
@@ -376,6 +387,8 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
 def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """Return ``settings`` with :data:`CLASSES` as a dict. Never mutates.
 
+    :param settings: current or legacy classification settings to normalize.
+
     The translation happens ONCE, here, so no downstream reader has to know
     both shapes. A settings CSV written before this produces the same classes
     it did before -- which is the whole requirement, and what the tests
@@ -434,8 +447,8 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
 # Applying it
 # ---------------------------------------------------------------------------
 
-def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
-                   seed: Optional[int] = 0) -> pd.Series:
+def assign_classes(frame: Any, settings: Mapping[str, Any], *,
+                   seed: Optional[int] = 0) -> Any:
     """Label every row with its class name, or NA.
 
     The random complement is drawn from the rows NO rule claimed, sized to
@@ -443,6 +456,10 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
     accident -- a comparison group ten times the size of the class it is
     compared against teaches the model the prior, not the difference.
 
+    :param frame: object table whose rows are to be labelled. Rule column names
+        are resolved against this table.
+    :param settings: classification settings containing the ordered
+        :data:`CLASSES` definitions.
     :param seed: fixes the random complement. A training set that changes
         every time it is built cannot be compared with the run before it.
     :returns: a Series of class names aligned to ``frame``.
@@ -452,6 +469,13 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
     if not rules:
         raise ClassDefinitionError(
             "no classes are defined; set the column and name its values")
+
+    # IMPORTED HERE, NOT AT MODULE SCOPE. Everything else in this file is an
+    # annotation, and `from __future__ import annotations` makes those
+    # strings -- so a module-level import cost 0.30 s to load pandas for two
+    # lines that only run when classes are actually assigned. The Home page
+    # reaches this module through the class editor, so every launch paid it.
+    import pandas as pd
 
     labels = pd.Series(pd.NA, index=frame.index, dtype="object")
     claimed = pd.Series(False, index=frame.index)
@@ -486,3 +510,84 @@ def assign_classes(frame: pd.DataFrame, settings: Mapping[str, Any], *,
         labels.loc[chosen] = complement.name
 
     return labels
+
+
+# ---------------------------------------------------------------------------
+# Compatibility values derived from class definitions
+# ---------------------------------------------------------------------------
+
+def annotation_column_of(settings) -> str:
+    """Return the annotation column represented by class settings.
+
+    The first non-empty ``column`` in the ordered ``classes`` mapping is
+    returned. If no class rule supplies a column, the legacy
+    ``annotation_column`` value is used.
+
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
+
+    Returns
+    -------
+    str
+        Annotation column name, or an empty string when none is defined.
+    """
+    raw = settings.get(CLASSES)
+    if isinstance(raw, Mapping):
+        for rule in raw.values():
+            if isinstance(rule, Mapping):
+                column = str(rule.get("column") or "").strip()
+                if column:
+                    return column
+    return str(settings.get("annotation_column") or "").strip()
+
+
+def class_metadata_of(settings) -> list:
+    """Return legacy-shaped metadata values derived from class rules.
+
+    Parameters
+    ----------
+    settings : mapping
+        Classification settings in current or legacy form.
+
+    Returns
+    -------
+    list
+        Class values as ``[[value], ...]`` in class order. The legacy
+        ``class_metadata`` list is returned when no current class rule has a
+        value; otherwise an empty list is returned.
+    """
+    raw = settings.get(CLASSES)
+    if isinstance(raw, Mapping) and raw:
+        out = []
+        for rule in raw.values():
+            if isinstance(rule, Mapping) and rule.get("value") is not None:
+                out.append([rule["value"]])
+        if out:
+            return out
+    value = settings.get("class_metadata")
+    return list(value) if isinstance(value, (list, tuple)) else []
+
+
+def fold_into_classes(settings) -> dict:
+    """Populate compatibility keys from current class definitions.
+
+    Parameters
+    ----------
+    settings : mutable mapping
+        Classification settings to update in place.
+
+    Returns
+    -------
+    dict
+        The same mapping, with non-empty ``annotation_column`` and
+        ``class_metadata`` values derived from ``classes``.
+    """
+    column = annotation_column_of(settings)
+    if column:
+        settings["annotation_column"] = column
+    values = class_metadata_of(settings)
+    if values:
+        settings["class_metadata"] = values
+    return settings

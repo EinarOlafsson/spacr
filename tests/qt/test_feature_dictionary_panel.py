@@ -174,15 +174,35 @@ def test_register_adds_the_app_through_the_seam(registered):
     rows = [row for row in app_mod.APPS if row[0] == fd.APP_KEY]
     assert len(rows) == 1
     assert rows[0][1] == fd.APP_NAME
-    assert rows[0][3] == app_mod.SECTION_EXPLORE
+    # Sections were restructured into Core/Data/Tools/Assays on
+    # 2026-08-31; the old names survive only as legacy aliases that
+    # test_registration_seams asserts are NOT in SECTIONS.
+    assert rows[0][3] == app_mod.SECTION_TOOLS
     # A screen factory, so the panel is the screen rather than a settings form
     assert app_mod.registered_factory(fd.APP_KEY) is fd.make_screen
 
 
-def test_registering_makes_the_explore_section_appear(registered):
+def test_register_declares_the_browser_interactive_only(registered):
+    """A self-registered GUI row must not masquerade as a pipeline entry."""
+    from spacr.cli import INTERACTIVE_ONLY
+
     app_mod = registered
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTION_NOTES
+    assert app_mod.APP_META[fd.APP_KEY]["cli_note"] == fd.APP_CLI_NOTE
+    assert INTERACTIVE_ONLY[fd.APP_KEY] == fd.APP_CLI_NOTE
+
+
+def test_registering_makes_its_section_appear(registered):
+    """TOOLS now, not Explore.
+
+    Sections were restructured into Core/Data/Tools/Assays on
+    2026-08-31. Asserting on SECTION_EXPLORE here contradicted
+    test_registration_seams, which asserts that legacy alias is NOT in
+    SECTIONS -- so one of the two had to be failing whichever way the
+    code went.
+    """
+    app_mod = registered
+    assert app_mod.SECTION_TOOLS in app_mod.SECTIONS
+    assert app_mod.SECTION_TOOLS in app_mod.SECTION_NOTES
 
 
 def test_register_is_idempotent(registered):
@@ -215,6 +235,14 @@ def test_the_module_is_declared_in_the_self_registering_list():
     """The wiring that makes `register()` run in a real launch."""
     from spacr.qt import SELF_REGISTERING_MODULES
     assert "spacr.qt.widgets.feature_dictionary" in SELF_REGISTERING_MODULES
+
+
+def test_feature_dictionary_help_links_to_its_api_module():
+    """The self-registering Help application must not fall back to the index."""
+    from spacr.qt.screens.settings_model import _APP_API_MODULE, api_docs_url
+
+    assert _APP_API_MODULE[fd.APP_KEY] == "feature_dict"
+    assert "/spacr/feature_dict/" in api_docs_url(fd.APP_KEY)
 
 
 # ---------------------------------------------------------------------------

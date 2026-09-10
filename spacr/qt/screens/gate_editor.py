@@ -24,20 +24,25 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QVBoxLayout, QWidget, QTabWidget,
+    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSplitter, QVBoxLayout, QWidget, QTabWidget,
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.gate_search_panel import GateSearchPanel
 from ..widgets.formula_editor import FormulaPanel
+from ..widgets.gate_canvas import (
+    AxisCutoffs, CutoffError, apply_cutoffs, axis_at, axis_menu_items,
+    parse_cutoff, AXIS_NAMES,
+)
 from ..widgets.gate_editor import GateEditorPanel
 from ..widgets.gate_spec import GateError, GateSet
 from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
@@ -46,29 +51,148 @@ from ..widgets.gate_console import GateConsole
 from ..widgets.table_chip import TableChip
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
 __all__ = ["GateEditorScreen", "make_gate_editor_screen", "register",
            "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
-           "APP_CLI_NOTE", "APP_NAME_TRANSLATIONS"]
+           "APP_CLI_NOTE", "APP_NAME_TRANSLATIONS", "SIDE_TABS_NAME"]
 
 APP_KEY = "gate_editor"
 
+#: objectName of the Filter/Search tab strip, and the key its QSS block is
+#: registered under. The two must stay the same string: the rule is matched by
+#: objectName, and a tab strip with no rule falls through to the blanket
+#: ``QWidget { background-color: bg }`` -- #000000 on dark -- which is a black
+#: slab beside the plot rather than an unstyled one.
+SIDE_TABS_NAME = "GateSidePanel"
+
+
+def _side_tabs_qss(palette: dict, opacity) -> str:
+    """QSS for the Filter/Search tab strip, through the theme seam.
+
+    Registered HERE, at import, rather than from `GateEditorScreen.__init__`.
+    The screen used to ask the theme for a `register_qss` that has never
+    existed -- the name is `register_widget_qss` -- and hand it a one-argument
+    lambda where the seam calls ``fn(palette, opacity)``. The ImportError
+    landed in the except beside it, whose comment says the styling "is not
+    worth taking the screen down for", so the block was never registered and
+    nothing said so. Registering at import is also what puts the rule in the
+    FIRST stylesheet of a session; see `theme.WIDGET_QSS_MODULES`, which this
+    module is now listed in.
+
+    ``replace=True``: this module owns the name, so a reimport re-registers
+    rather than raising and leaving the tabs unstyled.
+    """
+    return page_tabs_qss(SIDE_TABS_NAME, palette, opacity)
+
+
+register_widget_qss(SIDE_TABS_NAME, _side_tabs_qss, replace=True)
+
+
+class _AxisCutoffDialog(QDialog):
+    """Ask for the lowest and highest value one axis should show.
+
+    Two boxes rather than one range, and a BLANK box is a value: it means
+    "let the data decide this end". Cutting a long tail off the bottom while
+    leaving the top alone is the common case, and demanding both ends would
+    make the user invent a number for the end they did not care about.
+    """
+
+    def __init__(self, title: str, column: str, cutoff, parent=None):
+        """Ask for one axis's drawing limits.
+
+        :param title: the axis's name, used for the window title.
+        :param column: the measurement being limited, named in the
+            explanation so the reader knows which numbers to think in.
+        :param cutoff: the current ``(low, high)``, either end of which may
+            be empty for "let the data decide".
+        :param parent: parent widget.
+
+        CUTOFFS CHANGE THE VIEW ONLY. A gate keeps the objects it already
+        holds, so nothing chosen here removes data -- which is why both ends
+        may be left empty without the dialog refusing.
+        """
+        super().__init__(parent)
+        self.setWindowTitle(f"{title} cutoffs")
+        form = QFormLayout(self)
+        self._explain = QLabel(
+            f"How much of {column} to draw. Leave a box empty to let the "
+            f"data decide that end.\n"
+            f"Cutoffs change the VIEW only -- a gate keeps the objects it "
+            f"already holds.", self)
+        self._explain.setWordWrap(True)
+        form.addRow(self._explain)
+        self._low = QLineEdit("" if cutoff.low is None else f"{cutoff.low:g}",
+                              self)
+        self._low.setPlaceholderText("the smallest value drawn")
+        self._high = QLineEdit(
+            "" if cutoff.high is None else f"{cutoff.high:g}", self)
+        self._high.setPlaceholderText("the largest value drawn")
+        form.addRow("Lowest", self._low)
+        form.addRow("Highest", self._high)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+                                   parent=self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        form.addRow(buttons)
+
+    def values(self) -> Tuple[Optional[float], Optional[float]]:
+        """``(low, high)`` as typed, with a blank box meaning ``None``.
+
+        :raises spacr.qt.widgets.gate_canvas.CutoffError: for text that is
+            neither blank nor a number.
+        """
+        return (parse_cutoff(self._low.text()),
+                parse_cutoff(self._high.text()))
+
 
 class GateEditorScreen(QWidget):
-    """A table, two axis pickers, the gating surface, and save/load."""
+    """A table, two axis pickers, the gating surface, and save/load.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this
+        screen's views join, so a selection made here reaches the others.
+        ``None`` joins the shared one; pass a private one in a test.
+    :param threaded: whether the work runs off the GUI thread. False runs it
+        inline, which is what makes a test deterministic.
+    """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: header, working-set chips, axis pickers, plot and side panels.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed through to the gate panel and
+            the filter panel so both answer to the same selection.
+        :param threaded: run loads and exports on a worker thread. Set ``False``
+            in tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("GateEditorScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         self._table: Optional[str] = None
+        #: The plan for a multi-database load, or None for a single file.
+        #: Kept so the screen can say what the merge cost -- which columns
+        #: were dropped and which plates were qualified.
+        self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
+        #: The OTHER working set: every database those tables are read from.
+        #: A screen acquired as three plates is three databases, and the
+        #: comparison uses all three in one gate. One database is not a special
+        #: case -- it is a set of one.
+        self._paths: List[str] = []
+        #: What was decided about the last merge, as recorded. Held so the
+        #: screen can say it and a test can read it.
+        self._merge_decision = None
         self._settings = GateEditorSettings()
         self._settings_dialog: Optional[GateSettingsDialog] = None
+        #: Per-measurement display cutoffs, set by right-clicking an axis.
+        #: They narrow what is DRAWN and never which rows a gate holds, so a
+        #: population cannot come to depend on how far the plot was cut down.
+        self._cutoffs = AxisCutoffs()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -138,9 +262,9 @@ class GateEditorScreen(QWidget):
 
         self._annotate = QPushButton("Annotate…", self)
         self._annotate.setToolTip(
-            "Turn the SHOWN gates into one annotation column. Binary marks "
-            "objects inside every one of them; multi-class gives each "
-            "combination that actually occurs its own class.")
+            "Write the displayed gates to one annotation column. Binary mode "
+            "marks objects inside all gates; multi-class mode assigns a "
+            "separate class to each observed gate combination.")
         self._annotate.clicked.connect(self.annotate_from_gates)
         head.addWidget(self._annotate)
 
@@ -167,6 +291,20 @@ class GateEditorScreen(QWidget):
         # Cluster, where the rest of the gating controls are. Two buttons
         # opening one window is one too many.
         outer.addLayout(head)
+
+        # The DATABASE working set, one removable chip per source. Same idiom
+        # as the table chips below it, because it is the same idea: a
+        # combination the user assembled, which has to be visible and has to
+        # be editable a member at a time (instruction 109, point 1).
+        self._db_chips = QHBoxLayout()
+        self._db_chips.setContentsMargins(0, 0, 0, 0)
+        self._db_chips.setSpacing(SPACING["xs"])
+        self._db_chips_label = QLabel("Databases", self)
+        self._db_chips_label.setObjectName("GateDatabaseChipsLabel")
+        self._db_chips_label.setVisible(False)
+        self._db_chips.addWidget(self._db_chips_label)
+        self._db_chips.addStretch(1)
+        outer.addLayout(self._db_chips)
 
         # The working set, one removable chip per table.
         self._chips = QHBoxLayout()
@@ -275,7 +413,7 @@ class GateEditorScreen(QWidget):
         # meant neither could be checked while using the other. Search is a
         # different job, which is what makes it a different tab.
         self.side_tabs = QTabWidget(self)
-        self.side_tabs.setObjectName("GateSidePanel")
+        self.side_tabs.setObjectName(SIDE_TABS_NAME)
         self.side_tabs.addTab(filter_scroll, "Filter")
         self.search = GateSearchPanel(self)
         self.search.settings_changed.connect(self._on_search_settings)
@@ -285,14 +423,9 @@ class GateEditorScreen(QWidget):
         search_scroll.setWidgetResizable(True)
         search_scroll.viewport().setAutoFillBackground(False)
         self.side_tabs.addTab(search_scroll, "Search")
-        try:
-            from ..theme import register_qss, page_tabs_qss
-            register_qss("GateSidePanel",
-                         lambda palette: page_tabs_qss("GateSidePanel", palette))
-        except Exception:
-            # The tabs work without the accent styling; the styling is not
-            # worth taking the screen down for.
-            LOG.debug("could not register the side-tab styling", exc_info=True)
+        # The tab strip's QSS is registered at import -- see `_side_tabs_qss`.
+        # It used to be registered from here, against a name the theme has
+        # never exported, so it never was.
 
         side = self.side_tabs
         side.setSizePolicy(QSizePolicy.Policy.Preferred,
@@ -322,9 +455,18 @@ class GateEditorScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "gate_editor")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
+        """Point the screen at a table to gate.
+
+        :param frame: the rows, or None to clear.
+        """
         self._frame = frame
         self.formulas.set_frame(frame)
         self._push_frame()
@@ -342,6 +484,15 @@ class GateEditorScreen(QWidget):
         self._refill_axis_pickers(frame)
 
     def _refill_axis_pickers(self, frame: pd.DataFrame) -> None:
+        """Repopulate X, Y and Z from a frame's plottable columns.
+
+        A pick that still exists in the new frame is kept -- adding a table to
+        the working set must not throw away the axes already chosen. Y and Z
+        offer a blank entry: an empty Y is the one-parameter histogram a
+        threshold gate is drawn on.
+
+        :param frame: the frame whose columns the pickers should offer.
+        """
         columns = list(plottable_columns(frame))
         current_z = self._z.currentText()
         self._z.blockSignals(True)
@@ -363,9 +514,15 @@ class GateEditorScreen(QWidget):
         self._on_axes_changed()
 
     def _on_formulas_changed(self) -> None:
+        """Recompute derived columns and push the frame back to the plot."""
         self._push_frame()
 
     def _on_axes_changed(self, *_args) -> None:
+        """Send the current X and Y to the gate panel.
+
+        :param _args: whatever the emitting signal passes; ignored, since both
+            boxes are re-read either way.
+        """
         self.gates.set_spec(GraphSpec(x=self._x.currentText() or None,
                                       y=self._y.currentText() or None))
 
@@ -390,21 +547,154 @@ class GateEditorScreen(QWidget):
                 box.setCurrentIndex(index)
 
     def _on_gates_changed(self) -> None:
+        """Update the gate count on the source label.
+
+        The previous count is stripped first, so repeated edits replace the
+        suffix rather than stacking more of them.
+        """
         self._source.setText(self._source.text().split(" · gates")[0]
                              + f" · gates: {len(self.gates.gates)}")
 
     # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Open a measurement table", "",
+        # getOpenFileNames, plural: a screen acquired as three plates is three
+        # databases, and comparing them used to mean three sessions
+        # (instruction 109). One file behaves exactly as it did before.
+        """Ask which table in the project to gate."""
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "Open one or more measurement tables", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
-        if path:
-            self.load_path(path)
+        if len(paths) == 1:
+            self.load_path(paths[0])
+        elif paths:
+            self.load_paths(paths)
+
+    def load_paths(self, paths, table: Optional[str] = None) -> None:
+        """Load several measurement databases as one frame.
+
+        Every decision that can go quietly wrong -- plate-id collisions,
+        mismatched column sets, provenance -- is delegated to
+        :mod:`spacr.multi_database`, so this screen and Image UMAP cannot
+        disagree about them.
+
+        A collision is REPORTED, not resolved. Two databases that each hold a
+        plate called ``plate1`` are two experiments, and pooling them would
+        compute every per-well number over both at once with nothing on screen
+        to say so. The user is told which plate ids clash, because they are
+        the only one who can say whether they are the same plate.
+        """
+        from ...multi_database import (
+            SOURCE_COLUMN, MergeRefused, describe_merge, read_merged)
+
+        paths = [str(p) for p in paths]
+        if not paths:
+            return
+        self._path = paths[0]
+        names: List[str] = []
+        chosen = table
+        try:
+            names = table_names(paths[0])
+        except Exception as exc:
+            self._source.setText(f"could not read {paths[0]}: {exc}")
+            return
+        if chosen is None:
+            chosen = names[0] if names else None
+        if not chosen:
+            self._source.setText("no table to merge in the chosen files")
+            return
+
+        # The plan first and on its own, because it is the thing that has to
+        # survive a refusal: a merge that is refused still has to be able to
+        # say WHICH plates clashed and in which databases, and that answer
+        # comes from the plan rather than from the read that refused.
+        plan = None
+        try:
+            plan = describe_merge(paths, chosen)
+            frame = read_merged(paths, chosen, plan=plan)
+        except MergeRefused as exc:
+            # REFUSED, AND WRITTEN DOWN. The refusal is the screen telling the
+            # user; the record is what makes the decision they then take --
+            # dropping one of the two databases, usually -- answerable six
+            # months later, when the surviving frame can no longer say which
+            # plate1 it is.
+            self._source.setText(str(exc))
+            LOG.info("merge refused for %s: %s", paths, exc)
+            self._record_merge(plan, "refused", str(exc),
+                               paths=paths, table=chosen)
+            return
+        except Exception as exc:
+            self._source.setText(f"could not merge {len(paths)} files: {exc}")
+            LOG.info("merge failed for %s", paths, exc_info=True)
+            return
+
+        self._merge_plan = plan
+        self._paths = paths
+        # The table pickers follow the merge. Without this a multi-database
+        # session had no table working set at all: the picker was never
+        # filled, so nucleus could not be added to a merged frame, and a
+        # later reload would have read only the FIRST database.
+        self._table_picker.blockSignals(True)
+        self._table_picker.clear()
+        self._table_picker.addItems(names)
+        self._table_picker.setVisible(bool(names))
+        if chosen in names:
+            self._table_picker.setCurrentText(chosen)
+        self._table_picker.blockSignals(False)
+        self._table = chosen
+        self._tables = [chosen]
+        self._rebuild_chips()
+        self._rebuild_database_chips()
+        self.set_frame(
+            frame,
+            label=(f"{len(plan.sources)} databases · {chosen} · "
+                   f"{len(frame):,} rows × {len(frame.columns)} columns · "
+                   f"colour by {SOURCE_COLUMN}"))
+        if plan.partial_columns:
+            LOG.info("merge kept only shared columns; %d were present in some "
+                     "sources only: %s", len(plan.partial_columns),
+                     sorted(plan.partial_columns))
+        self._record_merge(plan, "merged",
+                           f"merged {len(plan.sources)} databases into the "
+                           f"Gate Editor")
+
+    def _record_merge(self, plan, outcome: str, resolution: str, *,
+                      paths=None, table: str = "") -> None:
+        """Persist a merge decision and retain it for the current view.
+
+        The record preserves collision resolutions that cannot be recovered
+        from the merged table itself.
+        """
+        from ...multi_database import (MergeDecision, decision_for,
+                                       record_decision)
+
+        try:
+            if plan is not None:
+                decision = decision_for(plan, outcome=outcome,
+                                        resolution=resolution)
+            else:
+                decision = MergeDecision(
+                    table=table, sources=tuple(paths or ()), labels=(),
+                    rows={}, columns="common", dropped_columns=(),
+                    colliding_plates={}, outcome=outcome,
+                    resolution=resolution,
+                    when="")
+            self._merge_decision = decision
+            record_decision(decision)
+        except Exception:
+            # An audit line must never be the reason a screen fails to load.
+            LOG.info("could not record the merge decision", exc_info=True)
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
         thread."""
         self._path = path
+        # One database is a working set of one, not a different mode. Keeping
+        # the two in one list is what lets `_reload_working_set` stay a single
+        # code path -- and what stopped a merged session silently reloading
+        # only its first database when a table was added to it.
+        if self._paths != [path]:
+            self._paths = [path]
+            self._rebuild_database_chips()
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
             try:
@@ -455,12 +745,24 @@ class GateEditorScreen(QWidget):
         return read_sampled(path, table, fraction=fraction, limit=cap)
 
     def _on_frame_loaded(self, payload) -> None:
+        """Show a freshly loaded frame and label it with what it actually is.
+
+        A merge of three databases is labelled by the count, not by one file
+        name -- naming one file after a merge would be the screen saying
+        something untrue about the numbers on it.
+
+        :param payload: the worker's ``(table_name, frame)`` pair.
+        """
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
+        # WHAT THE FRAME ACTUALLY IS. Naming one file after a merge of three
+        # would be the screen saying something untrue about the numbers on it.
+        head = (f"{len(self._paths)} databases" if len(self._paths) > 1
+                else os.path.basename(path))
         self.set_frame(
             frame,
-            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
+            label=f"{head}{suffix} · {len(frame):,} rows "
                   f"× {len(frame.columns)} columns")
 
     # -- settings ---------------------------------------------------------
@@ -482,6 +784,12 @@ class GateEditorScreen(QWidget):
             return
         canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         canvas.customContextMenuRequested.connect(self._show_graph_menu)
+        # Cutoffs are re-applied after EVERY render, because a render is what
+        # undoes them: the limits are computed from the data each time, and a
+        # render happens on every gate edit. Riding the canvas's own
+        # `rendered` signal is what makes a cutoff a state of the view rather
+        # than a gesture that survives until the next click.
+        canvas.rendered.connect(self._narrow_to_cutoffs)
 
     def graph_menu_items(self):
         """The plot menu as data: ``[(label, enabled, callback, why)]``.
@@ -516,12 +824,234 @@ class GateEditorScreen(QWidget):
         ]
         return items
 
-    def _show_graph_menu(self, point) -> None:
-        """Build and show the plot menu at ``point``."""
+    # -- the axis gesture --------------------------------------------------
+    def axis_column(self, axis: str) -> str:
+        """The measurement drawn on ``"x"`` or ``"y"``, or ``""``."""
+        box = {"x": self._x, "y": self._y}.get(str(axis))
+        return "" if box is None else box.currentText()
+
+    def axis_under(self, point) -> Optional[str]:
+        """Which axis a right-click at ``point`` landed on, or ``None``.
+
+        ``point`` is in the canvas widget's own coordinates, which is what
+        Qt hands a custom context menu. Getting from there to the figure
+        means two conversions and both are easy to get wrong: the matplotlib
+        canvas is a CHILD of the gate canvas rather than the same widget, and
+        matplotlib's display coordinates count upward from the BOTTOM while
+        Qt counts downward from the top.
+
+        Returns ``None`` for a click inside the plotting rectangle, which is
+        where the plot's own menu belongs.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return None
+        try:
+            figure = canvas.figure()
+            axes = figure.get_axes()
+            widget = figure.canvas
+        except Exception:
+            return None
+        if not axes or widget is None:
+            return None
+        local = widget.mapFrom(canvas, point)
+        ratio = float(getattr(widget, "device_pixel_ratio", 0)
+                      or widget.devicePixelRatioF())
+        box = axes[0].bbox
+        return axis_at((local.x() * ratio,
+                        figure.bbox.height - local.y() * ratio),
+                       (box.x0, box.y0, box.x1, box.y1))
+
+    def axis_menu_items(self, axis: str):
+        """The axis menu as data, so its CONTENTS can be tested offscreen.
+
+        Separated from the QMenu for the same reason
+        :meth:`graph_menu_items` is: an offscreen Qt cannot grab for a popup,
+        so a test that builds a real menu hangs.
+        """
+        column = self.axis_column(axis)
+        return axis_menu_items(
+            axis, column,
+            scale=self._settings.scale_for(axis),
+            cutoff=self._cutoffs.get(column),
+            positive=self._axis_is_positive(column),
+            on_scale=lambda value: self.set_axis_scale(axis, value),
+            on_cutoffs=lambda: self.ask_axis_cutoffs(axis),
+            on_clear=lambda: self.clear_axis_cutoffs(axis))
+
+    def _axis_is_positive(self, column: str) -> bool:
+        """Whether every finite value of ``column`` stays above zero.
+
+        Asked of the canvas, which already answers it for the drawing code,
+        so the menu cannot grey a scale the plot would have applied or offer
+        one the plot would silently skip.
+        """
+        canvas = getattr(self.gates, "canvas", None)
+        asked = getattr(canvas, "_column_is_positive", None)
+        if not column or asked is None:
+            return True
+        try:
+            return bool(asked(column))
+        except Exception:
+            return True
+
+    def set_axis_scale(self, axis: str, scale: str) -> None:
+        """Lay ``axis`` out on ``scale``, from the menu or from the window.
+
+        The menu is a second ROUTE to the scale the settings window already
+        holds, never a second copy of it: this writes the same field, so the
+        two cannot come to disagree about how the plot is drawn.
+        """
+        field = f"{axis}_scale"
+        if not hasattr(self._settings, field):
+            return
+        # `log_x` / `log_y` are the retired spelling of the same choice, and
+        # `scale_for` prefers the scale only while the scale is linear. Left
+        # set, an old log flag would put the axis back on log the moment the
+        # menu chose linear.
+        self.apply_settings(self._settings.replaced(
+            **{field: scale, f"log_{axis}": False}))
+        self._show_settings_dialog_scale(axis, scale)
+
+    def _show_settings_dialog_scale(self, axis: str, scale: str) -> None:
+        """Keep an open settings window from showing a scale nothing uses.
+
+        The window and the axis menu are two editors of one value. When the
+        window has no way of being told, it is rebuilt from the settings that
+        are now in force rather than left displaying the old choice -- a
+        control that disagrees with the plot is worse than one that blinked.
+        """
+        dialog = self._settings_dialog
+        if dialog is None:
+            return
+        told = getattr(dialog, "set_scale", None)
+        if callable(told):
+            told(axis, scale)
+            return
+        visible = dialog.isVisible()
+        dialog.settings_changed.disconnect(self.apply_settings)
+        dialog.close()
+        dialog.deleteLater()
+        self._settings_dialog = None
+        if visible:
+            self.open_settings()
+
+    def ask_axis_cutoffs(self, axis: str) -> Optional[Tuple]:
+        """Ask for the lowest and highest value ``axis`` should show.
+
+        Returns the pair that was applied, or ``None`` when the request was
+        cancelled or could not be read.
+        """
+        column = self.axis_column(axis)
+        if not column:
+            return None
+        dialog = _AxisCutoffDialog(AXIS_NAMES.get(axis, axis), column,
+                                   self._cutoffs.get(column), self)
+        if not dialog.exec():
+            return None
+        try:
+            low, high = dialog.values()
+        except CutoffError as exc:
+            self.console.write(f"Cutoffs not applied: {exc}")
+            return None
+        try:
+            self.set_axis_cutoffs(axis, low, high)
+        except CutoffError as exc:
+            self.console.write(f"Cutoffs not applied: {exc}")
+            return None
+        return (low, high)
+
+    def set_axis_cutoffs(self, axis: str, low, high) -> None:
+        """Show only ``low`` to ``high`` of the measurement on ``axis``.
+
+        Either end may be ``None``, meaning the data decides it.
+
+        :raises spacr.qt.widgets.gate_canvas.CutoffError: when the low end is
+            not below the high one.
+        """
+        column = self.axis_column(axis)
+        if not column:
+            return
+        cutoff = self._cutoffs.set(column, low, high)
+        self.console.write(
+            f"{column} shows {cutoff.describe()}." if cutoff.is_set
+            else f"{column} follows the data again.")
+        self._redraw_for_cutoffs()
+
+    def clear_axis_cutoffs(self, axis: str) -> bool:
+        """Let ``axis`` follow the data again. Returns whether it was cut."""
+        column = self.axis_column(axis)
+        if not column or not self._cutoffs.clear(column):
+            return False
+        self.console.write(f"{column} follows the data again.")
+        self._redraw_for_cutoffs()
+        return True
+
+    def _redraw_for_cutoffs(self) -> None:
+        """Redraw so the new cutoffs take effect."""
+        canvas = getattr(self.gates, "canvas", None)
+        render = getattr(canvas, "render_now", None)
+        if callable(render):
+            render()
+
+    def _narrow_to_cutoffs(self, *_args) -> None:
+        """Apply the cutoffs to every panel the canvas has just drawn."""
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None or not self._cutoffs:
+            return
+        columns = (self.axis_column("x"), self.axis_column("y"))
+        try:
+            panels = canvas.panel_axes().values()
+        except Exception:
+            return
+        narrowed = False
+        for ax in panels:
+            narrowed = bool(apply_cutoffs(ax, columns, self._cutoffs)) or narrowed
+        if narrowed:
+            try:
+                canvas.figure().canvas.draw_idle()
+            except Exception:
+                LOG.debug("cutoff repaint skipped", exc_info=True)
+
+    def _show_axis_menu(self, axis: str, point) -> None:
+        """Build and show the menu for one axis at ``point``."""
         from PySide6.QtWidgets import QMenu
 
         canvas = getattr(self.gates, "canvas", None)
         if canvas is None:
+            return
+        menu = QMenu(self)
+        for item in self.axis_menu_items(axis):
+            if item.label is None:
+                menu.addSeparator()
+                continue
+            action = menu.addAction(item.label)
+            action.setEnabled(bool(item.enabled))
+            if item.checked is not None:
+                action.setCheckable(True)
+                action.setChecked(bool(item.checked))
+            if item.why:
+                action.setToolTip(item.why)
+            if item.callback is not None and item.enabled:
+                action.triggered.connect(
+                    lambda _c=False, cb=item.callback: cb())
+        menu.exec(canvas.mapToGlobal(point))
+
+    def _show_graph_menu(self, point) -> None:
+        """Build and show the plot menu at ``point``.
+
+        A right-click on an AXIS asks a different question from one on the
+        plot -- how that measurement is laid out and how much of it to show
+        -- so it gets its own menu.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        canvas = getattr(self.gates, "canvas", None)
+        if canvas is None:
+            return
+        axis = self.axis_under(point)
+        if axis is not None:
+            self._show_axis_menu(axis, point)
             return
         menu = QMenu(self)
         for label, enabled, callback, why in self.graph_menu_items():
@@ -575,10 +1105,21 @@ class GateEditorScreen(QWidget):
         self._settings_dialog.raise_()
 
     def _set_z_visible(self, visible: bool) -> None:
+        """Show or hide the Z picker and its label.
+
+        Hidden rather than removed in 2D, so the third measurement is remembered
+        across a switch to 2D and back.
+
+        :param visible: whether the Z row should be shown.
+        """
         self._z_label.setVisible(visible)
         self._z.setVisible(visible)
 
     def _on_z_changed(self, column: str) -> None:
+        """Record the chosen Z measurement, and re-draw if the canvas is in 3D.
+
+        :param column: the newly chosen column, or ``""`` for none.
+        """
         self._settings = self._settings.replaced(z_axis=column or "")
         if self._settings.gate_mode == "3D":
             self.gates.canvas.set_mode(self._settings.gate_mode,
@@ -809,6 +1350,10 @@ class GateEditorScreen(QWidget):
             self._reload_working_set()
 
     def settings(self) -> GateEditorSettings:
+        """The screen's settings, in the shape a settings file wants.
+
+        :returns: the settings dict.
+        """
         return self._settings
 
     # -- export -----------------------------------------------------------
@@ -817,16 +1362,26 @@ class GateEditorScreen(QWidget):
         """Write the current graph to a PNG or PDF.
 
         The format comes from the figure-format PREFERENCE rather than from
-        a setting of this screen's own; instruction 50 is explicit that a
+        a setting of this screen's own; the design is explicit that a
         second place to answer "am I making PDFs" is one too many. The file
         dialog still lets a single save differ, because "save as" is when a
         user thinks about format.
 
         Rendering goes through `render_figure_to_png`, the same helper the
-        figure queue uses, rather than `savefig` -- it restyles the figure
-        for print first. A plot exported with the dark theme's colours is
-        white text on black, which is unusable on paper, and that restyle
-        is the whole reason not to call matplotlib directly.
+        figure queue uses, rather than `savefig`: it applies the figure
+        colour, line and text-size preferences, caps the display raster,
+        and in PDF mode writes a genuine vector page beside the PNG with
+        its fonts embedded as TrueType. Calling matplotlib directly would
+        give none of that.
+
+        WHAT IT DOES NOT DO IS RESTYLE FOR PRINT. The colours it applies
+        are the ones the preferences resolve to, and the "auto" halves
+        follow the app theme -- so under a dark theme the text is white on
+        a transparent page, which disappears on paper. That is deliberate
+        where it is decided (`_export_vector_pdf` explains why the export
+        and the on-screen refinement have to agree), and the way to get a
+        print-ready file is to set the figure background and text colours
+        explicitly rather than leaving them on "follow the theme".
 
         :param path: destination. Empty opens a file dialog.
         :returns: the path written, or "" when cancelled or nothing is
@@ -862,7 +1417,7 @@ class GateEditorScreen(QWidget):
         png_path = target.with_suffix(".png")
         try:
             ok = render_figure_to_png(figure, str(png_path))
-        except Exception as exc:                      # pragma: no cover
+        except Exception as exc:
             LOG.info("saving the gate graph failed: %s", exc, exc_info=True)
             self.console.write(f"Could not save the graph: {exc}")
             return ""
@@ -923,7 +1478,8 @@ class GateEditorScreen(QWidget):
         for gate in gates.gates:
             try:
                 frame, mask = gate_mask_over_table(path, table, gates, gate.name)
-                column, marked = export_gate(path, frame, mask, gate.name)
+                column, marked = export_gate(
+                    path, frame, mask, gate.name, object_type=table)
                 written.append((column, marked))
             except (FilterError, Exception) as exc:
                 LOG.info("could not export gate %r", gate.name, exc_info=True)
@@ -983,18 +1539,38 @@ class GateEditorScreen(QWidget):
             return
 
         self._jobs.submit(
-            lambda p=path, f=frame, l=labels, c=column.strip():
-                self._write_annotation(p, f, l, c),
+            lambda p=path, f=frame, l=labels, c=column.strip(),
+                   t=(self._table or ""):
+                self._write_annotation(p, f, l, c, t),
             lambda payload: self._source.setText(
                 f"wrote {payload[0]} — {summary}"))
 
     @staticmethod
-    def _write_annotation(path: str, frame, labels, column: str):
+    def _write_annotation(path: str, frame, labels, column: str,
+                          table: str = ""):
+        """Write gate labels to an annotation column.
+
+        Static so the job runner can call it off the GUI thread without holding
+        a reference to the screen.
+
+        :param path: database to write into.
+        :param frame: the frame the labels line up with.
+        :param labels: the per-row label values.
+        :param column: annotation column to write.
+        :param table: object type the rows belong to; ``""`` leaves it unset.
+        :returns: whatever :func:`spacr.filters.export_annotation` returns.
+        """
         from ...filters import export_annotation
 
-        return export_annotation(path, frame, labels, column)
+        return export_annotation(path, frame, labels, column,
+                                 object_type=table or None)
 
     def _on_exported(self, payload) -> None:
+        """Report which gate columns were written and which were refused.
+
+        :param payload: the worker's ``(written, failed)`` pair -- ``written`` as
+            ``(column, n_marked)`` and ``failed`` as ``(name, reason)``.
+        """
         written, failed = payload
         parts = [f"{column} ({marked:,} objects)" for column, marked in written]
         message = ("wrote " + ", ".join(parts)) if parts else "nothing written"
@@ -1004,6 +1580,10 @@ class GateEditorScreen(QWidget):
         self._source.setText(message)
 
     def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
         path = self._path or ""
         LOG.info("could not read %s: %s", path, message)
         self._source.setText(
@@ -1032,6 +1612,12 @@ class GateEditorScreen(QWidget):
         self._reload_working_set()
 
     def _rebuild_chips(self) -> None:
+        """Rebuild the table chips from the working set.
+
+        The trailing stretch is left in place, and the chips are only removable
+        while more than one table is loaded -- removing the last one would leave
+        the screen with nothing to plot.
+        """
         while self._chips.count() > 1:
             item = self._chips.takeAt(0)
             widget = item.widget()
@@ -1042,12 +1628,96 @@ class GateEditorScreen(QWidget):
             chip.removed.connect(self.remove_table)
             self._chips.insertWidget(index, chip)
 
+    # -- the database working set (instruction 109) ------------------------
+    def database_labels(self) -> List[str]:
+        """The name each loaded database carries in the provenance column.
+
+        Asked of :mod:`spacr.multi_database` rather than derived here, so a
+        chip and the ``source_database`` value it stands for cannot disagree
+        -- a chip reading ``plate1`` beside a legend reading
+        ``measurements (2)`` is provenance the user cannot follow.
+        """
+        from ...multi_database import source_labels
+
+        if not self._paths:
+            return []
+        try:
+            return list(source_labels(self._paths))
+        except Exception:
+            return [os.path.splitext(os.path.basename(p))[0]
+                    for p in self._paths]
+
+    def _rebuild_database_chips(self) -> None:
+        """One removable chip per source database.
+
+        Shown only when there is more than one: a single-database session is
+        every session this screen has ever had, and a chip strip naming the
+        file the header already names is noise.
+        """
+        while self._db_chips.count() > 2:
+            item = self._db_chips.takeAt(1)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        show = len(self._paths) > 1
+        self._db_chips_label.setVisible(show)
+        if not show:
+            return
+        for index, (path, label) in enumerate(
+                zip(self._paths, self.database_labels())):
+            chip = TableChip(label, self, removable=True)
+            chip.setToolTip(path)
+            chip.removed.connect(self.remove_database)
+            self._db_chips.insertWidget(index + 1, chip)
+
+    def remove_database(self, name: str) -> None:
+        """Drop one database from the working set and re-merge the rest.
+
+        By its CHIP's label or by its path, because the chip shows the label
+        and a caller usually holds the path.
+
+        This is also the resolution the screen offers for a plate-id
+        collision, and the reason it does not offer ``on_collision='qualify'``
+        instead: qualifying rewrites ``plate1`` to ``runA-plate1``, which
+        makes the keys unique by hiding which experiment a plate belongs to
+        inside its own id, where nothing can block on it or colour by it.
+        Dropping one of the two databases keeps every remaining number
+        meaning what it says.
+        """
+        labels = self.database_labels()
+        target = None
+        if name in self._paths:
+            target = name
+        else:
+            for path, label in zip(self._paths, labels):
+                if label == name:
+                    target = path
+                    break
+        if target is None or len(self._paths) <= 1:
+            return
+        remaining = [path for path in self._paths if path != target]
+        self._record_merge(self._merge_plan, "resolved",
+                           f"removed {name} from the working set",
+                           paths=self._paths, table=self._table or "")
+        if len(remaining) == 1:
+            self._paths = remaining
+            self._rebuild_database_chips()
+            self.load_path(remaining[0], self._table)
+        else:
+            self.load_paths(remaining, self._table)
+
     def _reload_working_set(self) -> None:
-        """Re-read the tables in the working set, merged.
+        """Re-read the working set: every chosen table, from every database.
 
         One table is read straight, because merging a table onto itself only
         renames its columns and would make every saved gate on a single-table
         session stop matching.
+
+        Several DATABASES go through
+        :func:`spacr.plate_measurements.merge_plate_databases`, which is the
+        composition of the two things that already exist -- 41's per-table
+        merge rules and 109's per-database stacking -- rather than a third
+        set of rules that could disagree with either.
         """
         if not self._path or not self._tables:
             return
@@ -1059,12 +1729,46 @@ class GateEditorScreen(QWidget):
         fraction = self._settings.sample_fraction
         cap = self._settings.max_points or None
         policy = self._merge_policy()
+        if len(self._paths) > 1:
+            paths = list(self._paths)
+            labels = self.database_labels()
+            self._jobs.submit(
+                lambda p=paths, l=labels, t=tables, c=cap, m=policy:
+                    (t[0], self._read_across_databases(p, l, t, c, m)),
+                self._on_frame_loaded)
+            return
         self._jobs.submit(
             lambda p=self._path, t=tables, f=fraction, c=cap, m=policy:
                 (t[0], self._read_working_set(p, t, f, c, m)),
             self._on_frame_loaded)
 
+    @staticmethod
+    def _read_across_databases(paths: List[str], labels: List[str],
+                               tables: List[str], cap: Optional[int], policy):
+        """Every chosen table, from every chosen database, in one frame.
+
+        Off the GUI thread. The frame keeps
+        :data:`spacr.multi_database.SOURCE_COLUMN`, so the merged view can
+        still be coloured by which database a point came from -- which is the
+        single most valuable thing a multi-plate view can show.
+        """
+        from ...plate_measurements import merge_plate_databases
+
+        merge = merge_plate_databases(
+            dict(zip(labels, paths)), tables,
+            anchor=tables[0], policy=policy)
+        frame = merge.frame
+        if cap and len(frame) > int(cap):
+            step = max(1, len(frame) // int(cap))
+            frame = frame.iloc[::step].head(int(cap)).reset_index(drop=True)
+        return frame
+
     def _merge_policy(self):
+        """Build the merge policy for the current working set.
+
+        :returns: a ``MergePolicy`` whose primary table is the settings' choice,
+            falling back to the first loaded table and then to ``"cell"``.
+        """
         from ...merge_tables import MergePolicy
 
         primary = self._tables[0] if self._tables else "cell"
@@ -1091,15 +1795,27 @@ class GateEditorScreen(QWidget):
         return merged
 
     def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
         return self._jobs.active_jobs()
 
     def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        What the window asks before closing: a gate applied to a table that
+        is still loading would be applied to half of it.
+
+        :returns: True while work is outstanding.
+        """
         return self._jobs.is_busy()
 
     # -- the strategy -----------------------------------------------------
     # -- filter sets, saved the way gates already are -------------------
 
     def choose_save_filters(self) -> None:
+        """Ask where to save the current filters."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the filter set", "filters.json",
             "Filter sets (*.json);;All files (*)")
@@ -1113,6 +1829,7 @@ class GateEditorScreen(QWidget):
         return path
 
     def choose_load_filters(self) -> None:
+        """Ask which saved filters to load."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Load a filter set", "",
             "Filter sets (*.json);;All files (*)")
@@ -1143,6 +1860,7 @@ class GateEditorScreen(QWidget):
         return missing
 
     def choose_save_gates(self) -> None:
+        """Ask where to save the current gates."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the gating strategy", "gates.json",
             "Gates (*.json);;All files (*)")
@@ -1156,6 +1874,7 @@ class GateEditorScreen(QWidget):
         return path
 
     def choose_load_gates(self) -> None:
+        """Ask which saved gates to load."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Load a gating strategy", "",
             "Gates (*.json);;All files (*)")
@@ -1180,6 +1899,10 @@ class GateEditorScreen(QWidget):
         return True
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Let the panel close first, so it can unlink its canvas.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.gates.close()
         super().closeEvent(event)
@@ -1190,43 +1913,31 @@ def make_gate_editor_screen(app_key: Optional[str] = None) -> QWidget:
     return GateEditorScreen()
 
 
-APP_NAME = "Gate Editor"
-APP_DESCRIPTION = "Draw a threshold or a region on a plot; it becomes a filter"
-APP_INTRO = (
-    "The flow-cytometry gesture on measurement tables. Drag a threshold across "
-    "a histogram or click a polygon round a cloud on a two-parameter scatter, "
-    "name it, and the shape becomes a filter every open view honours. Gates "
-    "nest — gate on gate on gate — and each one shows its n, its percentage of "
-    "its parent and its percentage of the whole table. Save the strategy and "
-    "re-apply it to the next plate.")
-APP_CLI_NOTE = (
-    "The Gate Editor is drawing on a plot; run it in the GUI (spacr-qt). "
-    "Headless, spacr.qt.widgets.gate_spec.GateSet.load() reads a saved "
-    "strategy and .population(frame, name) applies it — no Qt involved, so a "
-    "gate drawn once can gate a whole campaign from a script.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Gate-redigerare", "Gate-Editor", "Editor de compuertas",
-    "门控编辑器", "Editor de gates", "गेट संपादक", "게이트 편집기",
-    "Gate-ritill", "Éditeur de gates")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
     """Put the Gate Editor in the app registry. Idempotent.
 
-    Called from :data:`spacr.qt.SELF_REGISTERING_MODULES`. Everything after
-    ``SECTION_EXPLORE`` is a table this key would otherwise need a hand-edit
-    in; :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_gate_editor_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/gate_editor",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

@@ -1,33 +1,8 @@
-"""
-Persisted AI Console settings — response speed + system prompt override.
+"""Persist AI Console preferences through Qt application settings.
 
-All values are stored via ``QSettings`` so they survive across app
-launches. Two knobs:
-
-* ``response_speed`` — a per-provider quality dial. Three levels map
-  to provider-specific CLI flags (see :data:`SPEED_MAP`). Faster =
-  cheaper + snappier, slower = more thorough. Same three labels work
-  for every provider so users never have to think about vendor knobs.
-* ``system_prompt`` — the spaCR-aware persona string. Users can edit
-  it in the Settings tab of the Providers dialog to change how the
-  assistant frames answers (e.g. shorter, or with a different
-  emphasis). :func:`reset_system_prompt` restores the default.
-
-Public API::
-
-    from spacr.qt.ai import settings as ai_settings
-
-    ai_settings.get_response_speed()          -> "fast" | "balanced" | "deep"
-    ai_settings.set_response_speed("deep")
-
-    ai_settings.get_system_prompt()           -> str
-    ai_settings.set_system_prompt(text)
-    ai_settings.reset_system_prompt()
-    ai_settings.is_system_prompt_overridden() -> bool
-
-    ai_settings.provider_args(provider_name)  -> list[str]
-        # Returns extra argv fragments the provider should append to
-        # its CLI invocation to honour the current speed setting.
+The module stores provider response speed, the optional system-prompt
+override, error-reporting preferences, and console-context sharing. Values
+persist across application sessions through :class:`PySide6.QtCore.QSettings`.
 """
 from __future__ import annotations
 
@@ -44,6 +19,7 @@ _KEY_SPEED = "ai/response_speed"
 _KEY_PROMPT = "ai/system_prompt"
 _KEY_AUTO_ISSUE = "ai/auto_file_issues"
 _KEY_ROUTE_ERRORS = "ai/route_errors_through_ai"
+_KEY_CONSOLE_AWARE = "ai/console_aware"
 
 VALID_SPEEDS = ("fast", "balanced", "deep")
 DEFAULT_SPEED = "balanced"
@@ -79,6 +55,10 @@ SPEED_MAP: Dict[str, Dict[str, tuple]] = {
 
 
 def _settings() -> QSettings:
+    """Open spaCR's ``QSettings``.
+
+    :returns: the settings store.
+    """
     return QSettings(_SETTINGS_ORG, _SETTINGS_APP)
 
 
@@ -87,20 +67,30 @@ def _settings() -> QSettings:
 # ---------------------------------------------------------------------------
 
 def get_response_speed() -> str:
-    """Return the persisted response-speed label.
+    """Return the validated response-speed preference.
 
-    :returns: one of ``"fast"``, ``"balanced"``, ``"deep"``. Falls
-        back to :data:`DEFAULT_SPEED` if unset or invalid.
+    Returns
+    -------
+    {"fast", "balanced", "deep"}
+        Stored speed, or :data:`DEFAULT_SPEED` if the stored value is absent
+        or invalid.
     """
     raw = str(_settings().value(_KEY_SPEED, DEFAULT_SPEED))
     return raw if raw in VALID_SPEEDS else DEFAULT_SPEED
 
 
 def set_response_speed(speed: str) -> None:
-    """Persist a new response-speed label.
+    """Store the response-speed preference.
 
-    :param speed: one of ``"fast"``, ``"balanced"``, ``"deep"``.
-    :raises ValueError: when ``speed`` is not a known label.
+    Parameters
+    ----------
+    speed : {"fast", "balanced", "deep"}
+        Provider-independent speed label.
+
+    Raises
+    ------
+    ValueError
+        If ``speed`` is not supported.
     """
     if speed not in VALID_SPEEDS:
         raise ValueError(f"unknown speed: {speed!r}. "
@@ -109,12 +99,18 @@ def set_response_speed(speed: str) -> None:
 
 
 def provider_args(provider_name: str) -> List[str]:
-    """Return the extra CLI argv fragments a provider should append
-    to honour the current speed setting.
+    """Return command-line arguments for the selected provider and speed.
 
-    :param provider_name: matches :attr:`ChatProvider.name` — currently
-        one of ``"claude"``, ``"codex"``, ``"gemini"``.
-    :returns: list of argv fragments (may be empty).
+    Parameters
+    ----------
+    provider_name : str
+        Provider identifier used as a key in :data:`SPEED_MAP`.
+
+    Returns
+    -------
+    list of str
+        Additional command-line arguments. Unknown providers or unmapped
+        speed levels return an empty list.
     """
     speed = get_response_speed()
     return list(SPEED_MAP.get(provider_name, {}).get(speed, ()))
@@ -125,10 +121,13 @@ def provider_args(provider_name: str) -> List[str]:
 # ---------------------------------------------------------------------------
 
 def get_system_prompt() -> str:
-    """Return the current system prompt.
+    """Return the stored system-prompt override or the spaCR default.
 
-    If the user has overridden it via :func:`set_system_prompt` that
-    text is returned. Otherwise :func:`default_system_prompt`.
+    Returns
+    -------
+    str
+        Non-empty stored override, otherwise the value returned by
+        :func:`default_system_prompt`.
     """
     raw = _settings().value(_KEY_PROMPT, None)
     if raw is None or not str(raw).strip():
@@ -137,11 +136,13 @@ def get_system_prompt() -> str:
 
 
 def set_system_prompt(text: str) -> None:
-    """Persist a user-authored system prompt override.
+    """Store a system-prompt override.
 
-    :param text: full prompt text; will be trimmed of surrounding
-        whitespace before saving. Passing an empty string clears the
-        override (equivalent to :func:`reset_system_prompt`).
+    Parameters
+    ----------
+    text : str
+        Prompt text. Surrounding whitespace is removed; an empty value clears
+        the override.
     """
     text = (text or "").strip()
     if not text:
@@ -151,13 +152,12 @@ def set_system_prompt(text: str) -> None:
 
 
 def reset_system_prompt() -> None:
-    """Remove any user-authored override; subsequent
-    :func:`get_system_prompt` returns :func:`default_system_prompt`."""
+    """Remove the stored system-prompt override."""
     _settings().remove(_KEY_PROMPT)
 
 
 def is_system_prompt_overridden() -> bool:
-    """Return ``True`` iff the user has set a custom system prompt."""
+    """Return whether a non-empty system-prompt override is stored."""
     raw = _settings().value(_KEY_PROMPT, None)
     return raw is not None and bool(str(raw).strip())
 
@@ -167,11 +167,10 @@ def is_system_prompt_overridden() -> bool:
 # ---------------------------------------------------------------------------
 
 def get_auto_file_issues() -> bool:
-    """Return ``True`` iff the user has opted in to auto-issue reporting.
+    """Return whether error explanations may offer GitHub issue filing.
 
-    When True, the AI Console's "Explain error" flow shows an extra
-    "File as GitHub issue" button that opens a pre-filled issue URL
-    in the user's browser (they still click Submit themselves).
+    When enabled, the error-explanation interface can open a pre-filled issue
+    in the browser. The issue is not submitted automatically.
     """
     raw = _settings().value(_KEY_AUTO_ISSUE, False)
     if isinstance(raw, bool):
@@ -180,17 +179,15 @@ def get_auto_file_issues() -> bool:
 
 
 def set_auto_file_issues(enabled: bool) -> None:
-    """Persist the auto-issue toggle."""
+    """Store the GitHub issue-filing preference."""
     _settings().setValue(_KEY_AUTO_ISSUE, bool(enabled))
 
 
 def get_route_errors_through_ai() -> bool:
-    """Return True iff pipeline errors should be routed through the AI.
+    """Return whether pipeline errors are routed to the AI Console.
 
-    When on (the default), a pipeline error is explained by the AI first —
-    the user sees the AI's explanation + instructions, and the raw traceback
-    stays hidden unless they ask to see it. Only takes effect when AI is
-    enabled with a configured provider.
+    The preference is effective only when an AI provider is configured. It
+    defaults to ``True``.
     """
     raw = _settings().value(_KEY_ROUTE_ERRORS, True)   # default ON
     if isinstance(raw, bool):
@@ -199,5 +196,23 @@ def get_route_errors_through_ai() -> bool:
 
 
 def set_route_errors_through_ai(enabled: bool) -> None:
-    """Persist the route-errors-through-AI toggle."""
+    """Store the pipeline-error routing preference."""
     _settings().setValue(_KEY_ROUTE_ERRORS, bool(enabled))
+
+
+def get_console_aware() -> bool:
+    """Return whether new console output is attached to AI questions.
+
+    The preference defaults to ``True``. The console panel reports the amount
+    of context attached to each message and applies its own output-length and
+    traceback retention rules.
+    """
+    raw = _settings().value(_KEY_CONSOLE_AWARE, True)   # default ON
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).lower() in ("true", "1", "yes")
+
+
+def set_console_aware(enabled: bool) -> None:
+    """Store the console-context sharing preference."""
+    _settings().setValue(_KEY_CONSOLE_AWARE, bool(enabled))

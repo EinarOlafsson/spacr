@@ -83,46 +83,23 @@ __all__ = ["APP_KEY", "GraphCanvas", "PipelineGraphScreen", "layout_rects",
 #: state, the command palette and the sidebar all key off it.
 APP_KEY = "pipeline_graph"
 
-#: Sidebar / tile name.
-APP_NAME = "Pipeline Graph"
+from ..app_catalog import declared_app, register_declared
 
-#: One-line summary; the tooltip and status tip.
-APP_DESCRIPTION = (
-    "The DAG of what produced what, with everything stale or missing marked")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
-APP_INTRO = (
-    "Every registered output of a project, drawn as the graph of what was "
-    "made from what. Each box carries the run that produced it, the settings "
-    "digest and the spaCR version; the colour is the artifact registry's "
-    "verdict on whether it still follows from its inputs. Amber is stale — an "
-    "input moved on or a material setting changed after this was written — "
-    "and red is missing from disk. Click a box for the reasons and for what "
-    "re-running it would invalidate.")
 
-#: Why there is no ``spacr-run pipeline_graph``; reaches
-#: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
-#: module".
-APP_CLI_NOTE = (
-    "Pipeline Graph is an interactive view of one project's provenance DAG; "
-    "headless, call spacr.pipeline_graph.build_graph(project) and "
-    "format_graph(graph) for the same content as text, or to_dot(graph) for "
-    "a Graphviz figure.")
 
-#: "Pipeline Graph" in the nine non-English UI languages, in
-#: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
-#: pt, hi, ko, is, fr.
-APP_TRANSLATIONS = (
-    "Pipelinediagram",
-    "Pipeline-Graph",
-    "Grafo de la tubería",
-    "流程图",
-    "Grafo do pipeline",
-    "पाइपलाइन ग्राफ़",
-    "파이프라인 그래프",
-    "Vinnsluferilsrit",
-    "Graphe du pipeline",
-)
+
 from ..widgets.toggle import Toggle
 
 #: Box geometry, in device-independent pixels. Named because the layout
@@ -236,6 +213,10 @@ class GraphCanvas(QWidget):
     node_clicked = Signal(str)
 
     def __init__(self, parent=None):
+        """Create the empty pipeline-graph canvas.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self._graph: Optional[PipelineGraph] = None
         self._rects: Dict[str, QRect] = {}
@@ -351,7 +332,12 @@ class GraphCanvas(QWidget):
             if artifact_id not in self._visible:
                 continue
             node = self._graph.node(artifact_id)
-            if node is None:                        # pragma: no cover
+            if node is None:
+                # A layer naming an artifact the graph does not hold. Nothing
+                # `build_graph` produces looks like this -- it builds the
+                # layers FROM the nodes -- but a graph handed in by a caller
+                # can, and a KeyError raised inside paintEvent is a window
+                # that will not redraw rather than one box missing.
                 continue
             fill, border = STATE_COLOURS.get(
                 node.state, STATE_COLOURS[STATE_CURRENT])
@@ -402,6 +388,14 @@ class PipelineGraphScreen(QWidget):
     graph_loaded = Signal(object)
 
     def __init__(self, parent=None, project: str = "", threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param project: a project folder to draw immediately; empty leaves the
+            screen asking for one.
+        :param threaded: scan on a worker thread. Set ``False`` in tests so
+            ``load_project`` finishes before it returns.
+        """
         super().__init__(parent)
         self._graph: Optional[PipelineGraph] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
@@ -550,7 +544,11 @@ class PipelineGraphScreen(QWidget):
     def _on_graph_ready(self, graph: Optional[PipelineGraph]) -> None:
         """Draw a freshly built graph. Runs on the GUI thread."""
         self._graph = graph
-        if graph is None:                            # pragma: no cover
+        if graph is None:
+            # The job delivered nothing. Saying so is the point: a screen
+            # that silently keeps the PREVIOUS project's graph on it after a
+            # failed read is showing one project's provenance under another
+            # project's name.
             self._set_verdict("The graph could not be built.", problem=True)
             return
         summary = stale_summary(graph)
@@ -644,7 +642,7 @@ class PipelineGraphScreen(QWidget):
         """Re-read the registry for the project already chosen."""
         self.load_project(self._project_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a project folder and load it."""
         chosen = QFileDialog.getExistingDirectory(self, "Choose a project")
         if chosen:
@@ -711,17 +709,7 @@ def register() -> bool:
         there — which is what a second import, or a plugin that pulls the
         module in again, must not treat as an error.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-        factory=make_pipeline_graph_screen, stage=STAGE_ALPHA,
-        title="Pipeline Graph", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/pipeline_graph",
-        translations=APP_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None
 
 
 register()

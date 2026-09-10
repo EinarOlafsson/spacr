@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "de",
+  "title": "Feature Explorer: reale Messwerte ordnen und den Vergleich ausdrücklich prüfen",
+  "description": "Öffnen Sie das Classify-Untermodul, vergleichen Sie reale Messwerte nach Plattenzeilen, prüfen Sie Verteilungen, filtern Sie live, ergänzen Sie eine berechnete Spalte und exportieren Sie die gewünschte Rangliste, ohne einen Klassifikator zu trainieren.",
+  "objectives": [
+    "Feature Explorer in Classify finden und bestehende Zellmessungen laden.",
+    "AUC und Trennung unterscheiden sowie Klassenumfänge und Verteilungen prüfen.",
+    "Live filtern, ohne automatische Wechsel der Vergleichsspalte zu übersehen.",
+    "Top bewusst einstellen, eine skalierte Spalte prüfen und die tatsächliche Rangliste exportieren."
+  ],
+  "prerequisite": "Verwenden Sie das heruntergeladene Annotate-Beispiel statt erfundener Messungen. Die Aufnahme öffnet eine byteidentische private Kopie der Datenbank mit 2.341 Zellen und 276 Spalten. Die rowID-Gruppen r12 und r5 sind räumliche Plattenzeilen, keine nachgewiesenen Behandlungsgruppen; die Zellen teilen Bildfelder und Wells und sind keine unabhängigen Experimente. Originaldaten bleiben unverändert. AUC, KS, Reihenfolge und Klassenumfänge endlicher Werte wurden für die vorgesehenen Zweiklassenvergleiche unabhängig geprüft. Der automatisch gewählte Achtklassenvergleich ist ein Warnbeispiel, keine unabhängig validierte Inferenz. Shuffle test bleibt ausgeschaltet. Hier erfolgen weder Training noch neue Bildanalyse, eigener Download, GPU-Verarbeitung oder KI-Anfrage; die Histogramme sind die eigenen Diagramme des Moduls.",
+  "scenes": [
+    "Öffnen Sie Classify und darin die Schaltfläche Feature Explorer. Dieses verschachtelte Werkzeug ordnet vorhandene Messwerte; sein Öffnen trainiert keinen Klassifikator. Wir verwenden das echte herunterladbare Annotate-Beispiel auf einer privaten Datenbankkopie. Die Annotate-Lektion zeigt den Bezug des Beispiels; lassen Sie Ihre experimentellen Quelldaten unverändert.",
+    "Wählen Sie Load table, die Messdatenbank und ihre Tabelle cell, dann bei Split by rowID. Es gibt 2.341 Zellen und 276 Spalten. Die zwei Gruppen sind aufgezeichnete Plattenzeilen, keine nachgewiesenen Behandlungsgruppen; diese Zellen sind keine unabhängigen Experimente.",
+    "Ordnen Sie nach AUC und lesen Sie beide Zahlenspalten. Separation ist der Betrag von zweimal AUC minus eins: etwa 0,34 Trennung bedeutet nicht 0,34 AUC. Higher in gibt die Richtung an; min n zählt endliche Messwerte in der kleineren Klasse, keine experimentellen Wiederholungen.",
+    "Setzen Sie Top auf vier, um vier überlagerte Histogramme zu prüfen. Für jedes Merkmal verwenden die Klassen dieselben Intervallgrenzen; Balkenhöhen sind Anzahlen. Das höchstplatzierte Merkmal ist nicht automatisch ein nützlicher Biomarker. Beachten Sie die Warnung: AUC kann Streuungsunterschiede übersehen, obwohl sich die Verteilungen unterscheiden.",
+    "Export ranking bei Top vier schreibt vier Merkmalszeilen. In dieser Version folgt der Export Top, obwohl der Wortlaut die gesamte Rangliste nahelegt. Er exportiert weder die zugrunde liegenden Zellen noch speichert er ein trainiertes Modell. Jeder exportierte Wert wurde mit der tatsächlichen aktuellen Rangliste verglichen.",
+    "Setzen Sie Top vor dem Export aller bewerteten Merkmale dieses Beispiels auf 500. 261 Merkmale sind bewertbar; zwei numerische Kandidaten nicht. Der Export enthält alle 261 Zeilen, die Anzeige zeichnet aber höchstens acht Verteilungen. Merkmalsanzahl, Tabellenzeilen und Diagrammfelder sind verschiedene Größen.",
+    "Wechseln Sie Rank by zu KS, um den größten Abstand zwischen kumulativen Verteilungen zu vergleichen, und kehren Sie zu AUC zurück. KS kann Verteilungsunterschiede zeigen, die AUC übersieht, liefert selbst aber keine Richtung. Andere Statistiken haben eigene Grenzen; lesen Sie die Warnung, statt eine Rangliste als Signifikanztest zu behandeln.",
+    "Fügen Sie unter Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Die sichtbare Population sinkt auf 1.171 Zellen; 255 Merkmale bleiben bewertbar. Dieser medianbasierte Demonstrationsschwellenwert ist keine biologische Qualitätsgrenze. Ranglisten und Verteilungen aktualisieren sich ohne erneute Bildmessung.",
+    "Clear all entfernt Anzeigefilter, nicht Daten. Alle 2.341 Zellen und die ursprüngliche Rangliste kehren zurück. Prüfen Sie nach Filteränderungen Population und Split by erneut. Eine Differenz, die sich durch Filtern ändert, beschreibt eine andere ausgewählte Population, kein neues Experiment.",
+    "Diese Version hat eine wichtige Falle. Ein rowID-Filter auf r12 entfernt die andere Zeile, doch die Anzeige schaltet Split by unbemerkt auf cell_channel_0_maxima_count um. Nun werden acht Gruppen verglichen, die kleinste mit nur einem Objekt. Diese beeindruckenden Werte sind weder der ursprüngliche Zeilenvergleich noch Belege für eine biologische Entdeckung.",
+    "Löschen Sie den Filter und wählen Sie ausdrücklich erneut rowID. Das Löschen allein stellt den ursprünglichen Vergleich nicht unbedingt wieder her. Prüfen Sie vor dem Export Klassenspalte und Population. Shuffle test bietet 50 Label-Permutationen, bleibt hier aber ausgeschaltet: freies Permutieren dieser korrelierten Zellen würde keine Evidenz auf Well- oder Behandlungsebene begründen.",
+    "Öffnen Sie Columns und nennen Sie eine neue Spalte area_k. Geben Sie cell_area geteilt durch 1e3, also 1.000, ein und wählen Sie Add column ohne Ersetzen. Das skaliert die Fläche; es kalibriert keine physikalischen Einheiten und fügt keine neue Messung hinzu. Preview prüft die ersten 2.000 Zeilen; beim Hinzufügen gilt die Formel für die gesamte Tabelle.",
+    "Die skalierte Spalte erscheint in Rangliste und Export, nun mit 262 bewerteten Merkmalen. Ihre AUC und KS entsprechen cell_area, weil positive Skalierung die Reihenfolge erhält. Jeder berechnete Wert wurde geprüft. Entfernen Sie die Formel für die ursprünglichen 261 Merkmale; die Messdatenbank bleibt unverändert.",
+    "Nutzen Sie diese Ranglisten zur beschreibenden Erkundung, nicht zur unabhängigen Validierung eines ausgewählten Merkmals oder trainierten Klassifikators. In Python stellt spacr.qt.widgets.feature_rank rank_features und ExplorerSpec bereit. Für Rohtabellen oder andere Vergleiche folgen Database Browser und Graph Builder. Es wurde keine neue Bildanalysepipeline und keine KI-Anfrage ausgeführt."
+  ]
+}

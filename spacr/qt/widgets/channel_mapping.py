@@ -44,11 +44,32 @@ _SLOTS = (
 
 
 class ChannelMappingWidget(QWidget):
-    """Editor for a ``{'r': int, 'g': int, 'b': int}`` channel mapping."""
+    """Editor for a ``{'r': int, 'g': int, 'b': int}`` channel mapping.
+
+    :param value: the mapping already saved. ``None`` opens with nothing
+        assigned, and a colour left empty STAYS empty -- the run must not put
+        a plane back into a slot the user cleared.
+    :param parent: parent widget.
+    """
 
     valueChanged = Signal(dict)
 
     def __init__(self, value: Any = None, parent: Optional[QWidget] = None):
+        """Build the row of colour-slot spin boxes.
+
+        The whole help lives on each slot's name rather than on the box beside
+        it: hovering the field the user is about to type in used to cover it
+        with a tooltip they had already read on the label.
+
+        The container paints nothing and registers no stylesheet of its own, so
+        there is no new rule to forget to add to the theme's module list -- the
+        children are styled by the existing spin-box and label rules. A theme
+        that cannot be reached leaves the field working on the window colour,
+        because decoration must never be load-bearing.
+
+        :param value: the mapping to start with.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
 
         layout = QHBoxLayout(self)
@@ -59,14 +80,17 @@ class ChannelMappingWidget(QWidget):
         for key, label_text, tip in _SLOTS:
             label = QLabel(label_text, self)
             label.setObjectName(f"ChannelMappingLabel{label_text}")
-            label.setToolTip(tip)
+            # The whole help, on the name (instruction 113). The spin box
+            # used to carry a longer variant of this text, so hovering the
+            # field the user was about to type in covered it with a tooltip
+            # they had already read on the label beside it.
+            label.setToolTip(tip + ". “—” leaves this colour empty.")
             layout.addWidget(label)
 
             box = QSpinBox(self)
             box.setObjectName(f"ChannelMappingSpin{label_text}")
             box.setRange(_EMPTY, MAX_SOURCE_CHANNEL)
             box.setSpecialValueText("—")     # shown when the value is _EMPTY
-            box.setToolTip(tip + ". “—” leaves this colour empty.")
             box.valueChanged.connect(self._emit)
             layout.addWidget(box)
             self._boxes[key] = box
@@ -88,6 +112,11 @@ class ChannelMappingWidget(QWidget):
             pass
 
         self.set_value(value)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- value -------------------------------------------------------------
 
@@ -118,6 +147,16 @@ class ChannelMappingWidget(QWidget):
 
     @staticmethod
     def _coerce(value: Any) -> Dict[str, Optional[int]]:
+        """Normalise a stored value into a colour-slot mapping.
+
+        A string is parsed as a Python literal, and anything that will not parse
+        falls back to the default mapping rather than raising -- a settings file
+        with a mangled value should open the module, not refuse to build it.
+
+        :param value: ``None``, a mapping, a ``png_dims`` sequence, or the
+            string form of either.
+        :returns: the mapping, one entry per colour slot.
+        """
         from ...crops import (
             DEFAULT_PNG_CHANNEL_MAPPING,
             png_dims_to_channel_mapping,
@@ -142,4 +181,8 @@ class ChannelMappingWidget(QWidget):
         return dict(DEFAULT_PNG_CHANNEL_MAPPING)
 
     def _emit(self, *_args) -> None:
+        """Announce the current mapping.
+
+        :param _args: whatever the emitting spin box passes; ignored.
+        """
         self.valueChanged.emit(self.get_value())

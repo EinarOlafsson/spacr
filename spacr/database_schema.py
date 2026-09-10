@@ -70,6 +70,16 @@ class Migration:
 
     ``version`` is the schema version after ``apply`` succeeds.  Consequently
     a migration numbered ``3`` upgrades version ``2`` to version ``3``.
+
+    :param version: schema version reached by this transition. It determines
+        registry order and selection and becomes SQLite ``user_version``
+        after successful application.
+    :param name: human-readable transition label appended to
+        :attr:`MigrationReport.applied` when the migration runs.
+    :param apply: callable invoked with the open SQLite connection inside the
+        migration transaction. It mutates the schema and returns
+        ``(table, old, new)`` column-renaming records; an exception rolls the
+        transition back.
     """
 
     version: int
@@ -79,7 +89,16 @@ class Migration:
 
 @dataclass(frozen=True)
 class MigrationReport:
-    """Result of bringing one database to a requested schema version."""
+    """Result of bringing one database to a requested schema version.
+
+    :param path: database path label copied into the report, or ``None`` for
+        an unnamed connection.
+    :param from_version: schema version observed before migration.
+    :param to_version: schema version reached after successful migration.
+    :param applied: ordered names of migrations that ran.
+    :param column_renames: ``(table, old, new)`` column repairs performed by
+        the migrations.
+    """
 
     path: Optional[str]
     from_version: int
@@ -123,6 +142,7 @@ canonical_column_name = _schema.canonical_column_name
 
 
 def _quote_identifier(name: str) -> str:
+    """Return a validated, safely quoted SQLite identifier."""
     if not isinstance(name, str) or not name:
         raise DatabaseMigrationError(f"invalid SQLite identifier: {name!r}")
     return '"' + name.replace('"', '""') + '"'
@@ -194,6 +214,7 @@ def _validated_migrations(
     migrations: Sequence[Migration],
     target_version: int,
 ) -> Tuple[Migration, ...]:
+    """Sort migrations after validating a contiguous prefix through the target."""
     ordered = tuple(sorted(migrations, key=lambda item: item.version))
     versions = tuple(item.version for item in ordered)
     expected = tuple(range(1, target_version + 1))
@@ -206,12 +227,15 @@ def _validated_migrations(
 
 
 def _pragma_int(connection: sqlite3.Connection, pragma: str) -> int:
+    """Return the first value of a SQLite pragma as an integer, or zero."""
     row = connection.execute(f"PRAGMA {pragma}").fetchone()
     return int(row[0]) if row else 0
 
 
 def database_schema_version(source) -> int:
     """Return ``source``'s SQLite ``user_version``.
+
+    :param source: open SQLite connection or path to an existing database.
 
     ``source`` may be an open :class:`sqlite3.Connection` or a path.  A path
     must already exist; inspecting a typo must not create an empty database.
@@ -244,6 +268,7 @@ def _commit_migration(
     connection: sqlite3.Connection,
     transaction: Tuple[str, bool],
 ) -> None:
+    """Commit the transaction or release its migration savepoint."""
     name, is_savepoint = transaction
     if is_savepoint:
         connection.execute(f"RELEASE SAVEPOINT {name}")
@@ -255,6 +280,7 @@ def _rollback_migration(
     connection: sqlite3.Connection,
     transaction: Tuple[str, bool],
 ) -> None:
+    """Roll back the transaction or its migration savepoint."""
     name, is_savepoint = transaction
     if is_savepoint:
         connection.execute(f"ROLLBACK TO SAVEPOINT {name}")
@@ -389,8 +415,22 @@ def migrate_database(
     :raises FileNotFoundError: ``db_path`` is not an existing file.
     """
 
-    path = os.path.abspath(os.fspath(db_path))
+    given = os.fspath(db_path)
+    path = os.path.abspath(given)
     if not os.path.isfile(path):
+        # A TILDE THAT NOBODY EXPANDED IS THE COMMONEST WAY TO REACH HERE, and
+        # `FileNotFoundError: ~/x/measurements.db` is a message that reads as
+        # "your database is missing" when the database is fine and the PATH was
+        # never resolved. GitHub issue #108 is exactly this, from a macOS user
+        # whose settings carried `~`. This function's contract stays strict --
+        # see the docstring, and `ensure_database_schema` is where expansion
+        # belongs -- but it can at least name the real problem.
+        if given.startswith("~"):
+            raise FileNotFoundError(
+                f"{path} (from {given!r}) -- the '~' was never expanded, so "
+                f"this was looked for under the working directory rather than "
+                f"your home. The database itself may be fine; the path was "
+                f"not resolved before it got here.")
         raise FileNotFoundError(path)
     connection = connect_database(path, timeout=timeout)
     try:
@@ -406,6 +446,8 @@ def migrate_database(
 
 def repair_legacy_columns(db_path, *, timeout: float = 30.0):
     """Re-run the non-destructive column repair without changing the version.
+
+    :param db_path: database file whose legacy column aliases are repaired.
 
     This compatibility operation remains useful for a manually edited
     database that already declares the current version.  Normal opens should
@@ -434,12 +476,26 @@ def ensure_database_schema(
 ) -> MigrationReport:
     """Migrate a database and repair schema drift at the current version.
 
+    :param db_path: database file to migrate after expanding user-relative
+        path syntax.
+
     Old spaCR readers performed the non-destructive column repair on every
     open.  Retaining that small safety net matters for databases manually
     edited after migration, while ordinary legacy databases still follow the
     explicit one-time migration path.
     """
 
+    # EXPANDED HERE, AND ONLY HERE. This is the function every reader calls
+    # to make a database usable, so it is the boundary a user-supplied path
+    # crosses -- and `os.path.abspath(os.path.expanduser(os.fspath(path)))` is
+    # already the idiom in `annotation.py` and `artifacts.py`. `database_schema`
+    # was the outlier, and GitHub issue #108 is what that cost: a macOS user
+    # whose settings carried `~` got FileNotFoundError from four frames down.
+    #
+    # `migrate_database` keeps its strict contract deliberately: it is the
+    # low-level operation, its docstring promises no expansion, and a caller
+    # that has already resolved a path should not have it resolved twice.
+    db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
     report = migrate_database(
         db_path,
         target_version=target_version,

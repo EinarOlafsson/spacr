@@ -132,8 +132,34 @@ def test_sidebar_refreshes_without_rebuilding_or_leaving_empty_headers(
     maturity_prefs.set_show_beta(False)
     sidebar.refresh_visibility()
 
+    # TWO REASONS A ROW CAN BE ABSENT, and this test is about one of them.
+    # Since 2026-08-23 the dock's sections are COLLAPSED except Core, so a
+    # stable module in a closed section is hidden for a reason that has
+    # nothing to do with maturity. Open every section first, and the
+    # maturity filter is the only thing left deciding.
+    for section in list(sidebar._section_headers):
+        if not sidebar.section_is_open(section):
+            sidebar.toggle_section(section)
+
+    # A THIRD REASON, since folded modules were nested under their hosts: a
+    # child row is hidden until its host is opened, and `expand_host` opens
+    # ONE host at a time on purpose -- 33 children at once would make the
+    # dock taller than the screen. So they cannot all be revealed here, and
+    # a child's visibility is not the maturity filter's answer anyway.
     for key, button in buttons.items():
-        assert button.isHidden() == (app_stage(key) != "stable")
+        if button.property("isFoldChild"):
+            continue
+        assert button.isHidden() == (app_stage(key) != "stable"), key
+
+    # The children are still covered, one host at a time: opening a host
+    # reveals the stable ones and the filter still hides the rest.
+    for host in {str(b.property("foldParent")) for b in buttons.values()
+                 if b.property("isFoldChild")}:
+        sidebar.expand_host(host)
+        for key, button in buttons.items():
+            if str(button.property("foldParent") or "") != host:
+                continue
+            assert button.isHidden() == (app_stage(key) != "stable"), key
     headers = {
         label.text(): label
         for label in sidebar.findChildren(QLabel)
@@ -157,18 +183,24 @@ def test_open_settings_toggle_in_place_without_losing_sections(
     beta = [section for section in sections if section.maturity() == "beta"]
     stable = [section for section in sections if section.maturity() == "stable"]
     assert beta and stable
-    assert all(not section.isHidden() for section in sections)
+    # Dimension switches are an independent visibility gate. Turn them on so
+    # this test leaves maturity as the only reason a section can be hidden.
+    for dimension in ("z", "t"):
+        screen.set_dimension(dimension, True)
+    baseline = {section: section.isHidden() for section in sections}
+    assert any(not baseline[section] for section in beta)
+    assert any(not baseline[section] for section in stable)
 
     maturity_prefs.set_show_beta(False)
     screen.refresh_maturity_visibility()
     assert all(section.isHidden() for section in beta)
-    assert all(not section.isHidden() for section in stable)
+    assert all(section.isHidden() == baseline[section] for section in stable)
     assert not screen._maturity_notice.isHidden()
     assert "Beta settings are hidden" in screen._maturity_notice.text()
 
     maturity_prefs.set_show_beta(True)
     screen.refresh_maturity_visibility()
-    assert all(not section.isHidden() for section in beta)
+    assert all(section.isHidden() == baseline[section] for section in sections)
     assert screen._maturity_notice.isHidden()
 
 
@@ -184,13 +216,24 @@ def test_hidden_numeric_shortcut_does_not_open_a_filtered_module(
         def _on_nav_selected(self, key):
             self.opened.append(key)
 
+    # THE INDEXES ARE FOUND, NOT ASSUMED. `_nav_by_index` indexes into
+    # APPS, and APPS was reordered on 2026-08-23 -- Core is now the pipeline
+    # in the order you run it, and Timelapse (which used to sit at index 1)
+    # moved to Assays. A hard-coded index tests the ordering, not the
+    # filter.
+    from spacr.qt.app import APPS, app_stage
+
+    beta = next(i for i, row in enumerate(APPS) if app_stage(row[0]) == "beta")
+    stable = next(i for i, row in enumerate(APPS)
+                  if app_stage(row[0]) == "stable")
+
     window = Window()
     maturity_prefs.set_show_beta(False)
-    shortcuts._nav_by_index(window, 1)  # Timelapse is Beta.
+    shortcuts._nav_by_index(window, beta)
     assert window.opened == []
 
-    shortcuts._nav_by_index(window, 0)  # Mask is Stable.
-    assert window.opened == ["mask"]
+    shortcuts._nav_by_index(window, stable)
+    assert window.opened == [APPS[stable][0]]
 
 
 def test_command_palette_does_not_restore_hidden_modules(
@@ -240,7 +283,11 @@ def test_main_window_refreshes_home_dock_and_menus_together(
         action.isVisible() == (app_stage(key) == "stable")
         for key, action in window._app_actions.items()
     )
-    assert not window._demo_actions["timelapse"].isVisible()
+    assert all(
+        action.isVisible() == (
+            app_stage(window.DEMO_TARGETS[key][0]) == "stable")
+        for key, action in window._demo_actions.items()
+    )
     assert {
         tile.stage for tile in window._startup.findChildren(AppTile)
     } == {"stable"}
@@ -251,4 +298,8 @@ def test_main_window_refreshes_home_dock_and_menus_together(
         action.isVisible() == (app_stage(key) != "beta")
         for key, action in window._app_actions.items()
     )
-    assert not window._demo_actions["timelapse"].isVisible()
+    assert all(
+        action.isVisible() == (
+            app_stage(window.DEMO_TARGETS[key][0]) != "beta")
+        for key, action in window._demo_actions.items()
+    )

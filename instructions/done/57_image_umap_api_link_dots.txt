@@ -78,6 +78,12 @@ the window stays responsive throughout -- draggable, scrollable, cancellable
 while figures are still arriving. No API dots in the settings column, and
 the smoke test still passes, which proves the help survived.
 
+SUPERSEDED, in the grid clause only -- see the 2026-08-26 re-audit at the end.
+The positional streaming grid is what the classify, ml_analyze and activation
+searches still do; Image UMAP was deliberately moved off it on 2026-08-14 and
+now streams into an interactive scatter instead of a wall of PNGs. The dots
+clause and the smoke test stand unchanged.
+
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
@@ -122,3 +128,44 @@ removal rather than a regression.
 
 138 pass across the hyperparameter screen, the axes dialog and the gates
 suite.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE DOTS HALF HOLDS. THE GRID HALF NOW DESCRIBES A
+              DIFFERENT PANEL.
+--------------------------------------------------------------------------------
+
+DRIVEN, not read. `UmapSearchSettingsDialog(HyperparamPanel("umap"))` built
+offscreen and counted:
+
+    InfoLink dots in the dialog                  0
+    setting labels carrying help with `href=`   75   (75 of 75)
+
+`install_api_tooltips(self, panel.app_key, search_tooltips, api_dots=False)`
+at spacr/qt/screens/hyperparam.py is still the single call that decides it.
+tests/qt/test_all_module_smoke.py is 75 passed, so the help survived, which is
+what the smoke-test clause was for.
+
+THE GRID CLAUSE NO LONGER DESCRIBES IMAGE UMAP. Commit 35076c7e, "umap: add
+interactive search explorer and GPU runs", changed one line in
+`_SearchWorker._emit_trial`:
+
+    if self._figure_dir is not None:
+    ->  if self._request.app_key != "umap" and self._figure_dir is not None:
+
+So for UMAP the worker renders no per-trial PNG and `_figure_grid` is never
+constructed -- `HyperparamPanel.__init__` builds `SearchFigureGrid` only on
+the non-UMAP branch. What the UMAP panel streams instead is the table (a row
+per finished trial, with the running best beside it) and the pyqtgraph
+`UmapExplorer`, which draws any selected trial's embedding immediately; the
+wall of every embedding is `UmapGalleryDialog`, opened from the grid button
+once at least one trial carries an embedding.
+
+That is a deliberate replacement, not a regression: an interactive scatter is
+what instruction 129 asked every plot to become, and a positional PNG grid
+cannot be one. `SearchFigureGrid` is unchanged and still streams positionally
+for classify, ml_analyze and activation, so the clause is right about them and
+wrong only about the module this file is named after.
+
+NOT CHECKED HERE: "the window stays responsive throughout" on a real display.
+Offscreen cannot answer it; the mechanism that makes it true -- rendering off
+the GUI thread -- is where the docstrings say it is.

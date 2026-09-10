@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_cellprob_threshold",
+      "source_sha256": "c3a08fa9fcb284f680b80ed8d83677927dd1e91f7dd56f7ae5ccc7dd546e2309",
+      "source": "Cellpose cell-probability threshold for the nucleus channel, passed straight to model.eval as cellprob_threshold. A pixel must exceed it to join a mask, so raising it shrinks masks and drops dim nuclei, while lowering it grows masks and recovers faint ones along with more debris. Useful range about -6 to 6; default 0.",
+      "translation": "Seuil de probabilité cellulaire de Cellpose pour le canal du noyau, transmis tel quel à model.eval comme cellprob_threshold. Un pixel doit le dépasser pour rejoindre un masque : l'augmenter rétrécit les masques et écarte les noyaux peu intenses, tandis que le diminuer élargit les masques et récupère les noyaux ténus en même temps que davantage de débris. Plage utile d'environ -6 à 6 ; valeur par défaut 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelle_cellprob_threshold",
+      "source_sha256": "91f4843e579b1af7bff38e9590d704394b4b6658e536cf3b38bf84f692014676",
+      "source": "Cellpose cellprob_threshold. Pixels whose predicted probability of belonging to an object fall below it are excluded, so raising it shrinks masks and drops faint organelles, while lowering it grows masks and recovers dim ones along with more false positives. Useful range roughly -6 to 6. Default 0.0.",
+      "translation": "Cellpose cellprob_threshold. Les pixels dont la probabilité prédite d'appartenir à un objet passe en dessous de ce seuil sont exclus : l'augmenter rétrécit les masques et écarte les organites peu intenses, tandis que le diminuer élargit les masques et récupère les plus ténus en même temps que davantage de faux positifs. Plage utile d'environ -6 à 6. Valeur par défaut 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelleb_cellprob_threshold",
+      "source_sha256": "91f4843e579b1af7bff38e9590d704394b4b6658e536cf3b38bf84f692014676",
+      "source": "Cellpose cellprob_threshold. Pixels whose predicted probability of belonging to an object fall below it are excluded, so raising it shrinks masks and drops faint organelles, while lowering it grows masks and recovers dim ones along with more false positives. Useful range roughly -6 to 6. Default 0.0.",
+      "translation": "Cellpose cellprob_threshold. Les pixels dont la probabilité prédite d'appartenir à un objet passe en dessous de ce seuil sont exclus : l'augmenter rétrécit les masques et écarte les organites peu intenses, tandis que le diminuer élargit les masques et récupère les plus ténus en même temps que davantage de faux positifs. Plage utile d'environ -6 à 6. Valeur par défaut 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organellec_cellprob_threshold",
+      "source_sha256": "91f4843e579b1af7bff38e9590d704394b4b6658e536cf3b38bf84f692014676",
+      "source": "Cellpose cellprob_threshold. Pixels whose predicted probability of belonging to an object fall below it are excluded, so raising it shrinks masks and drops faint organelles, while lowering it grows masks and recovers dim ones along with more false positives. Useful range roughly -6 to 6. Default 0.0.",
+      "translation": "Cellpose cellprob_threshold. Les pixels dont la probabilité prédite d'appartenir à un objet passe en dessous de ce seuil sont exclus : l'augmenter rétrécit les masques et écarte les organites peu intenses, tandis que le diminuer élargit les masques et récupère les plus ténus en même temps que davantage de faux positifs. Plage utile d'environ -6 à 6. Valeur par défaut 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "organelled_cellprob_threshold",
+      "source_sha256": "91f4843e579b1af7bff38e9590d704394b4b6658e536cf3b38bf84f692014676",
+      "source": "Cellpose cellprob_threshold. Pixels whose predicted probability of belonging to an object fall below it are excluded, so raising it shrinks masks and drops faint organelles, while lowering it grows masks and recovers dim ones along with more false positives. Useful range roughly -6 to 6. Default 0.0.",
+      "translation": "Cellpose cellprob_threshold. Les pixels dont la probabilité prédite d'appartenir à un objet passe en dessous de ce seuil sont exclus : l'augmenter rétrécit les masques et écarte les organites peu intenses, tandis que le diminuer élargit les masques et récupère les plus ténus en même temps que davantage de faux positifs. Plage utile d'environ -6 à 6. Valeur par défaut 0.0."
+    }
+  ]
+}

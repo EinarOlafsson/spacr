@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "58_graph_builder",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Construa gráficos exploratórios associando colunas da tabela a funções visuais.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Graph Builder.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Graph Builder. Construa gráficos exploratórios associando colunas da tabela a funções visuais.",
+        "Selecione uma tabela de medições e arraste características para os eixos x e y ou para as funções de cor, tamanho ou painel.",
+        "Na área principal de configuração, selecione a geometria, a agregação, a filtragem, as transformações e o agrupamento adequados à pergunta.",
+        "Renderize o gráfico e examine as contagens, os valores ausentes e as linhas de origem que fundamentam os padrões.",
+        "Ao término do fluxo de trabalho, a especificação do gráfico e a seleção dos dados podem ser reutilizadas ou exportadas."
+      ]
+    }
+  }
+}

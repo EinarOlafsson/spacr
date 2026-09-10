@@ -10,13 +10,21 @@ a real Qt widget grouped into logical Section boxes based on
 from __future__ import annotations
 
 import ast
+import csv
+from contextlib import contextmanager
+from functools import partial
 from html import escape
 import logging
+import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+import textwrap
+import weakref
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
+from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
+                            QTimer, Signal)
 from PySide6.QtWidgets import (
+    QBoxLayout,
     QCheckBox,
     QComboBox,
     QFormLayout,
@@ -24,9 +32,13 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QLayout,
     QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
     QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
+    QTextBrowser,
+    QTextEdit,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -34,13 +46,35 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
+from .. import timing as _timing
+from ..widgets.availability_panel import (AvailabilityPanel,
+                                         disable_combo_row,
+                                         run_install_offer)
 from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.class_editor import ClassEditorWidget
+from ..widgets.database_set import DatabaseSetWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
+from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
+# EVERY SLOT A FILE MAY CARRY, not the four the schema segments today. A
+# layout that lists all of them costs nothing -- build_sections drops any
+# key the module's settings dict does not hold -- and a layout that lists
+# four puts slot five in the "Additional Settings" bucket nobody chose.
+from ...organelle_types import (ALL_ORGANELLE_ROLES,
+                                MAX_ORGANELLES as _MAX_ORGANELLES,
+                                NUMBER_OF_ORGANELLES,
+                                organelle_number, organelle_slot_label)
+# Pure data, and it imports nothing -- that is the whole point of the module
+# (see its docstring). The explainer box below reads it so that a backend
+# joining the no-p-value set changes what the box says about correction
+# without a second edit here.
+from ...regression_spec import NO_P_VALUE_TYPES
+# The one separator a spaCR key is built from, so the design scan below
+# splits gRNA names the way the pipeline does rather than on a literal '_'.
+from ...schema import KEY_SEPARATOR
 
 
 LOGGER = logging.getLogger(__name__)
@@ -78,14 +112,38 @@ def _registered_app_metadata(app_key: str) -> Dict[str, Any]:
     return (getattr(app, "APP_META", {}).get(app_key) or {}) if app else {}
 
 
+#: Folded modules' defaults modules — app key → the module that calls
+#: :func:`spacr.settings.register_defaults` for it.
+#:
+#: A module with a registry row names this through ``register_app(...,
+#: defaults_module=...)``, and that is still the seam a new module should
+#: use. A module that has been FOLDED into another one has no row left to
+#: name it from, and nothing in a fresh window imports it — so
+#: :func:`resolve_default_settings` would find no registered defaults and
+#: fall through to the bare ``{"src": "path"}`` placeholder, i.e. the
+#: folded page would open on an empty form with a Run button that has
+#: nothing to run.
+#:
+#: Consulted only when the registry has no answer, so a module that still
+#: has a row is served by its own registration exactly as before.
+_FOLDED_DEFAULTS_MODULES: Dict[str, str] = {
+    "barcode_qc": "spacr.sequencing_qc",
+    "explain_cv": "spacr.surrogate",
+    "anndata_export": "spacr.anndata_export",
+}
+
+
 def _import_registered_defaults_module(app_key: str) -> None:
     """Import the module that registers ``app_key``'s settings defaults.
 
-    Named by ``register_app(..., defaults_module=...)``. Failure is
-    logged and swallowed: an unimportable optional dependency should cost
-    that app its settings panel, not stop the window opening.
+    Named by ``register_app(..., defaults_module=...)`` while the app has
+    a row, and by :data:`_FOLDED_DEFAULTS_MODULES` once it has been folded
+    into another module and the row is gone. Failure is logged and
+    swallowed: an unimportable optional dependency should cost that app
+    its settings panel, not stop the window opening.
     """
-    module = _registered_app_metadata(app_key).get("defaults_module")
+    module = (_registered_app_metadata(app_key).get("defaults_module")
+              or _FOLDED_DEFAULTS_MODULES.get(app_key))
     if not module or module in sys.modules:
         return
     import importlib
@@ -254,6 +312,18 @@ def resolve_default_settings(app_key: str) -> Dict[str, Any]:
 #: the layouts exist to keep empty. This is the mechanism that actually
 #: hides one.
 _APP_HIDDEN_KEYS: Dict[str, set] = {
+    # `pathogen_model` named the same thing as `pathogen_model_name` --
+    # `object.py` reads the first as an override of the second -- and two
+    # controls for one value is how a user sets one and wonders why the other
+    # wins. Retired from the panel 2026-09-01 at the maintainer's request;
+    # `pathogen_model_name` is the one control, and it loads a checkpoint path
+    # exactly as the override did, because both go through
+    # `_resolve_cellpose_pretrained`.
+    #
+    # It stays in the settings dict, and object.py still reads it, so a
+    # settings CSV written before this keeps segmenting with the model it
+    # names instead of silently falling back to cpsam.
+    "mask": {"pathogen_model"},
     # This module IS the timelapse one. A user who turned this off would be
     # left looking at a screen whose every remaining control is about a time
     # dimension it had just been told to ignore -- and Mask Generation is
@@ -268,7 +338,110 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # working. It is not OFFERED, because offering both halves of a
     # superseded pair is how a user sets one and wonders why the other
     # wins.
-    "classify": {"png_type"},
+    # AND THE SAME RULE FOR THE 230 SUPERSESSIONS. `crop_source`,
+    # `file_metadata` and `file_type` are what `image_source` and
+    # `load_path_regex` replaced, and `coordinate_columns` is DERIVED from
+    # `object_array` -- so none of the four is a control any more.
+    #
+    # They stay in the settings dict because the old readers still consult
+    # them as a fallback, which is what keeps a settings CSV written before
+    # the rename working. They are not OFFERED, for the reason `png_type`
+    # is not: offering both halves of a superseded pair is how a user sets
+    # one and wonders why the other wins.
+    "classify": {
+        "png_type", "crop_source", "file_metadata", "file_type",
+        "path_string", "extract_channels", "coordinate_columns",
+        "class_metadata", "annotation_column",
+        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
+        # "i asked you to remove class folder names and just use the classes
+        # given in the classes setting"). The first pass only made the class
+        # field OUTRANK it, which left a control on screen that could
+        # disagree with the classes above it and lose -- a control the user
+        # can change that changes nothing.
+        #
+        # It stays in the settings dict because dataset generation WRITES
+        # it: it records what actually went to disk, which is a different
+        # fact from what the user asked for.
+        "class_folder_names",
+    },
+    "classify_merged": {
+        "png_type", "crop_source", "file_metadata", "file_type",
+        "path_string", "extract_channels", "coordinate_columns",
+        "class_metadata", "annotation_column",
+        # AND THE FOLDER NAMES (instruction 229, reported again 2026-08-21:
+        # "i asked you to remove class folder names and just use the classes
+        # given in the classes setting"). The first pass only made the class
+        # field OUTRANK it, which left a control on screen that could
+        # disagree with the classes above it and lose -- a control the user
+        # can change that changes nothing.
+        #
+        # It stays in the settings dict because dataset generation WRITES
+        # it: it records what actually went to disk, which is a different
+        # fact from what the user asked for.
+        "class_folder_names",
+    },
+    # One action-strip GPU toggle drives both the main reducer and the search.
+    # The setting remains in _defaults and therefore in collect(); only the
+    # duplicate form control is hidden.
+    # `crop_source` reaches UMAP through the shared picture settings and is
+    # superseded there by `image_source` for the same reason as above.
+    "umap": {"gpu", "crop_source"},
+    # WHAT "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" HELD, per
+    # instruction 135. The sections are deleted from the layout above; these
+    # keys keep their values and reach the run exactly as before, they are
+    # simply not asked about.
+    #
+    # Hidden and not dropped, deliberately, and each for its own reason:
+    #
+    #   regression_qc          `parameter_sweep` sets it False so a
+    #                          hundred-trial sweep does not pay ~5.8 s and
+    #                          ~19 figures per trial. Drop the key and the
+    #                          sweep has nothing to set. One analysis still
+    #                          gets the suite, because the default is True.
+    #   guide_permutation_plot hard True: the permutation run's only picture.
+    #   log_x, log_y           hard False.
+    #   x_lim, y_lims,         set ON the plot, where the axes being changed
+    #   split_axis_lims        are visible; a number typed before the figure
+    #                          exists is a guess.
+    #   strict_errors,         how the APPLICATION behaves on a failure, not
+    #   max_failure_rate,      how this regression is fitted. The same answer
+    #   verbose, random_seed,  on every module, so it is one answer in
+    #   on_error*              Preferences rather than eleven in the modules.
+    #
+    # Keys this module does not declare (`on_error`, `random_seed`, ...) are
+    # named anyway: hiding a key that is not there costs nothing, and the day
+    # a shared runtime default reaches this module it must not appear on the
+    # panel the instruction just cleared.
+    "regression": {
+        # Programmatic export contract for ``perform_regression``.  A mapping
+        # or manifest path belongs in a script/CLI call, not in a scalar GUI
+        # field; keeping it in the defaults makes runs reproducible, while
+        # hiding it here prevents it falling into ``Additional Settings``.
+        "regression_panel_manifest",
+        "regression_qc", "guide_permutation_plot",
+        "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims",
+        "strict_errors", "max_failure_rate", "on_error",
+        "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
+        # Regression derives this aggregate from the positive, negative, and
+        # mixed control-well settings, so it is not an independent GUI choice.
+        # The invasion assay retains its separate control because there it
+        # identifies wells without pre-permeabilisation stain.
+        "control_wells",
+        # SUPERSEDED BY `annotation_source`, and hidden here rather than in
+        # a second "regression" entry further up this dict -- which is where
+        # it was, and which a later key of the same name silently replaced.
+        # A dict literal keeps the last value, so `Toxoplasma` was declared
+        # hidden and then offered anyway, ungrouped, in the bucket the
+        # layouts exist to keep empty.
+        "Toxoplasma",
+        # THE FOUR OBJECT-OUTLIER FILTERS. Each excludes objects by a
+        # robust z-score over a measurement, and this module joins the
+        # measurements to the scores AFTER the fit -- so at the moment they
+        # would run there is no column to take a deviation over. They are
+        # still read from a settings file; they are not offered.
+        "cell_area_outlier_mads", "nucleus_area_outlier_mads",
+        "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
+    },
 }
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
@@ -284,42 +457,476 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
 
+# ---------------------------------------------------------------------------
+# A setting is visible when its object is in the run
+# ---------------------------------------------------------------------------
+#
+# WHY THIS IS A THIRD MECHANISM AND NOT ONE OF THE TWO ABOVE.
+#
+#   * ``spacr.settings.setting_dependencies`` GREYS a control and writes the
+#     reason beside it. That is right for a setting the run is about to
+#     decide for itself -- one row among a handful, where the note is the
+#     point. It is wrong here: an object a run does not segment takes forty
+#     rows with it, and forty greyed rows are not an explanation, they are
+#     the wall this exists to remove.
+#   * ``_APP_HIDDEN_KEYS`` builds no widget at all. It is decided once, per
+#     MODULE, before any value exists, and it is not reversible: with no
+#     widget the value falls back to ``_defaults``, so everything the user
+#     typed into a row is gone the moment the row is hidden. "Changing a
+#     channel back must bring the old answers back with it" is exactly the
+#     thing that mechanism cannot do.
+#
+# So the widget is built and kept in ``_widgets``, and its ROW is hidden.
+# HIDDEN, NOT DELETED: ``collect()`` walks ``_widgets``, so a hidden setting
+# is still read from its own widget, still carries what the user last typed
+# into it, and is still written to the settings file. A settings CSV cannot
+# lose a key because the panel was not showing it when Save was pressed.
+
+#: The keys that say whether an object is in the run at all.
+#:
+#: Both spellings, because which one a module offers depends on what the
+#: module does: a module that SEGMENTS asks for a channel to segment it in
+#: (``cell_channel``), and one that reads masks somebody else made asks which
+#: plane holds them (``cell_mask_dim`` -- Measure offers no ``cell_channel``
+#: at all, so a rule that knew only about channels would gate nothing there).
+#: ``spacr.settings.category_integer_dependencies`` already declares exactly
+#: this pair for cell, nucleus and pathogen; this is the same switch read per
+#: SETTING rather than per category, because an organelle slot is not a
+#: category -- four of them share two.
+OBJECT_SWITCH_SUFFIXES: Tuple[str, ...] = ("channel", "mask_dim")
+
+#: The objects that have a channel and are not organelle slots.
+#:
+#: ``cytoplasm`` is deliberately absent: it is DERIVED from the cell mask
+#: minus everything found inside it, so it has no channel, no diameter and no
+#: detection method, and there is nothing to switch it with. See
+#: ``spacr.object_roles``.
+CHANNELLED_OBJECTS: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
+
+#: Which of a slot's detection settings each ``organelle_morphology`` reads.
+#:
+#: Read off ``spacr.object``, which is the authority: ``_segment_spots``,
+#: ``_segment_network``, ``_segment_irregular`` and ``_segment_ring``, plus
+#: the methods ``_validate_organelle_settings`` accepts for each morphology.
+#: An entry is the union over that morphology's LEGAL METHODS rather than
+#: over the one method currently chosen: the method is a separate choice, and
+#: a spots slot that will be switched to ``log`` tomorrow needs its sigmas on
+#: screen today.
+#:
+#: A suffix in NO entry is never hidden by a morphology, and that is most of
+#: them. ``adaptive_block_size`` is one -- ``'adaptive'`` is legal under all
+#: four morphologies, so a block size applies whatever the slot is -- and so
+#: is everything cellpose reads, for the same reason. ``morph_radius`` is in
+#: TWO entries, because it is irregular's closing radius and also the closing
+#: radius of network's otsu/adaptive path, which is why this is a membership
+#: table and not a partition.
+_MORPHOLOGY_SETTINGS: Dict[str, frozenset] = {
+    "spots": frozenset({
+        "tophat_radius", "watershed_spots",
+        "log_min_sigma", "log_max_sigma", "log_num_sigma", "log_threshold",
+        "dog_sigma_low", "dog_sigma_high",
+    }),
+    "network": frozenset({
+        "ridge_filter", "ridge_sigmas", "network_threshold",
+        "hysteresis_low", "hysteresis_high", "skeletonize",
+        "morph_radius", "unet_model_path", "unet_threshold",
+    }),
+    "irregular": frozenset({"morph_radius", "fill_holes"}),
+    "ring": frozenset({
+        "ring_sigma_inner", "ring_sigma_outer", "ring_min_prominence",
+        "ring_fill_method",
+        # Ring accepts 'log' and reads the LoG sigmas when it is chosen. It
+        # does NOT read the DoG pair: its 'dog' path band-passes with
+        # `ring_sigma_inner`/`_outer` instead. See `_segment_ring`.
+        "log_min_sigma", "log_max_sigma", "log_num_sigma", "log_threshold",
+    }),
+}
+
+#: Every suffix some morphology claims. A slot setting outside this set is
+#: shown whenever its slot is, whatever the slot is typed as.
+_MORPHOLOGY_OWNED: frozenset = frozenset().union(
+    *_MORPHOLOGY_SETTINGS.values())
+
+
+#: The signals a settings widget announces a change on, most specific first.
+#: ONE of them is connected, not all: a QComboBox emits both
+#: `currentIndexChanged` and `currentTextChanged` for a single choice, so
+#: connecting every signal a widget has would run the handler twice per edit.
+_VALUE_CHANGED_SIGNALS: Tuple[str, ...] = (
+    'value_changed', 'currentTextChanged', 'currentIndexChanged',
+    'textChanged', 'valueChanged', 'toggled', 'stateChanged',
+)
+
+
+def _connect_value_changed(widget, handler) -> bool:
+    """Connect ``handler`` to the first change signal ``widget`` has.
+
+    :returns: whether a signal was found. A widget with none of them cannot
+        announce an edit, and a rule that follows it will only be re-read
+        when something else on the panel moves.
+    """
+    for name in _VALUE_CHANGED_SIGNALS:
+        signal = getattr(widget, name, None)
+        if signal is not None:
+            signal.connect(handler)
+            return True
+    return False
+
+
+def _names_a_plane(value: Any) -> bool:
+    """True when a channel or mask-dim setting names a plane of the stack.
+
+    ``False`` is not a plane. A boolean reaches here only from a settings
+    file that put one in a channel, and ``int(False)`` would read it as plane
+    zero -- which would switch an object on because someone wrote "no".
+    """
+    if value is None or isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return False
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
+
+
+#: How many organelle slots a panel builds controls for.
+#:
+#: Every slot that can be named, because a count the panel cannot render is
+#: a count that does nothing -- which is the defect this number exists to
+#: close. What it costs is measurable and worth writing down: the Mask panel
+#: renders 54 settings per slot, so at twenty-six it builds about 1,500
+#: controls instead of 350 and takes a few seconds to open the first time in
+#: a session rather than well under one. Measure pays almost nothing, because
+#: a slot is three settings there.
+#:
+#: Lowering this is the one-line trade: the panel opens faster and a count
+#: above it becomes inert again for the slots it cannot draw. It is a
+#: PANEL number and nothing else reads it -- the run, the settings file and
+#: the registries are all bounded by
+#: :data:`spacr.organelle_types.MAX_ORGANELLES`, which is where the slot
+#: names actually run out.
+PANEL_ORGANELLE_SLOTS: int = _MAX_ORGANELLES
+
+
+#: The key endings that name ONE PLANE of the stack: the raw acquisition
+#: channel an object is imaged in, the channel paired with its mask when an
+#: overlay is drawn, and the plane its label mask sits on in the merged array.
+PLANE_SUFFIXES: Tuple[str, ...] = ("_channel", "_mask_dim", "_chann_dim")
+
+
+def _is_clearable_plane_setting(key: str) -> bool:
+    """True when ``key`` names a plane and is declared to accept None.
+
+    BOTH HALVES MATTER. The suffix says the value is a plane index, and the
+    declaration in ``spacr.settings.expected_types`` says whether the object
+    it belongs to may be absent. ``outside_channel`` ends in ``_channel`` and
+    is declared ``int`` alone -- the invasion assay thresholds on it and has
+    no reading without it -- so it keeps its spin box.
+    """
+    if not str(key).endswith(PLANE_SUFFIXES):
+        return False
+    try:
+        from ... import settings as _settings
+
+        declared = _settings.expected_types.get(str(key))
+    except Exception:                                        # noqa: BLE001
+        return False
+    if declared is None:
+        return False
+    allowed = declared if isinstance(declared, tuple) else (declared,)
+    return type(None) in allowed
+
+
+def object_switch_keys(role: str) -> Tuple[str, ...]:
+    """The keys that decide whether ``role`` is in the run."""
+    return tuple(f"{role}_{suffix}" for suffix in OBJECT_SWITCH_SUFFIXES)
+
+
+def object_of_setting(key: str) -> Optional[str]:
+    """Which object a setting belongs to, or None for the great majority.
+
+    Organelle slots are resolved by :mod:`spacr.organelle_types`, which owns
+    the slot naming: the prefixes are lettered -- ``organelle``,
+    ``organelleb``, ... -- and ``organelle`` is a prefix of every other one,
+    so the match has to be longest-first and belongs where the names are
+    generated rather than being written out a second time here.
+
+    Both spellings of the other three are understood, ``cell_min_size`` and
+    ``remove_background_cell``, the way
+    ``spacr.settings.advanced_object_of`` understands them: spaCR is not
+    consistent about which end of a key the object name goes on, and a rule
+    that knew only one end would leave half a family on screen.
+    """
+    from ...organelle_types import organelle_role_of
+
+    text = str(key)
+    role = organelle_role_of(text)
+    if role is not None:
+        return role
+    for obj in CHANNELLED_OBJECTS:
+        if text.startswith(f"{obj}_") or text.endswith(f"_{obj}"):
+            return obj
+    return None
+
+
+def organelle_morphology_now(role: str,
+                             settings: Dict[str, Any]) -> Optional[str]:
+    """Resolve the morphology currently applicable to an organelle slot.
+
+    The collected ``<role>_morphology`` is authoritative. Selecting a type
+    writes its recommendation into that control, while a later explicit
+    advanced choice must win over the preset and over its display inference.
+    Only a sparse mapping with no morphology falls back to resolving
+    ``<role>_type`` and ``<role>_diameter`` directly.
+
+    :param role: Prefix for the organelle-slot settings, such as ``organelle``
+        or ``organelleb``.
+    :param settings: Current values keyed by setting name.
+    :returns: ``"spots"``, ``"network"``, ``"irregular"``, ``"ring"``, or
+        ``None`` when neither resolution path supplies a supported morphology.
+    """
+    own = settings.get(f"{role}_morphology")
+    if own in _MORPHOLOGY_SETTINGS:
+        return own
+
+    from ...organelle_types import resolve_type
+
+    try:
+        preset = resolve_type(settings.get(f"{role}_type"))
+    except ValueError:
+        preset = None
+    if preset is not None:
+        diameter = settings.get(f"{role}_diameter")
+        try:
+            diameter = None if diameter is None else float(diameter)
+        except (TypeError, ValueError):
+            diameter = None
+        morphology = preset.morphology_for(diameter)
+        if morphology in _MORPHOLOGY_SETTINGS:
+            return morphology
+    return None
+
+
+def keys_hidden_by_their_object(keys, settings: Dict[str, Any]) -> set:
+    """Which of ``keys`` must not be on the form, because they do not apply.
+
+    Three reasons, in the order they are decided:
+
+      * the slot is beyond ``number_of_organelles`` -- and that takes the
+        slot's channel with it, because a slot the run does not have is not a
+        slot with its channel left showing;
+      * the object's channel (or its mask plane) names no plane, so the run
+        does not have that object at all;
+      * the slot's type puts it in one morphology and the setting belongs to
+        a different one -- a punctate organelle has no ridge filter.
+
+    :param keys: every setting this panel has a control for. WHAT THE PANEL
+        HOLDS IS WHAT DECIDES WHAT MAY BE HIDDEN: a role is gated only when
+        its switch is on the panel too, and a slot is gated by the count only
+        when the count is. Hiding a row whose switch lives on another screen
+        would leave the user a control they cannot bring back --
+        ``_rules_for_this_panel`` refuses to grey one for the same reason.
+    :param settings: the panel's current values. Only the switches, the
+        count and the slots' type, diameter and morphology are read.
+    :returns: the keys whose rows are to be hidden.
+    """
+    from ...organelle_types import (NUMBER_OF_ORGANELLES,
+                                    active_organelle_roles)
+
+    on_panel = {str(key) for key in keys}
+    counted = NUMBER_OF_ORGANELLES in on_panel
+    active = active_organelle_roles(settings) if counted else ()
+    hidden = set()
+    for key in on_panel:
+        role = object_of_setting(key)
+        if role is None:
+            continue
+        # CELL IS NEVER GATED. It is the object every other one is measured
+        # against, and instruction 300 explicitly superseded the earlier
+        # channel-following rule for this one family. Its plane may be empty,
+        # but the controls a fresh run needs must remain available.
+        if role == "cell":
+            continue
+        is_slot = role not in CHANNELLED_OBJECTS
+        if counted and is_slot and role not in active:
+            hidden.add(key)
+            continue
+        switches = [k for k in object_switch_keys(role) if k in on_panel]
+        if not switches or key in switches:
+            continue
+        if not any(_names_a_plane(settings.get(k)) for k in switches):
+            hidden.add(key)
+            continue
+        if not is_slot:
+            continue
+        morphology = organelle_morphology_now(role, settings)
+        if morphology is None:
+            continue
+        suffix = key[len(role) + 1:]
+        if (suffix in _MORPHOLOGY_OWNED
+                and suffix not in _MORPHOLOGY_SETTINGS[morphology]):
+            hidden.add(key)
+    return hidden
+
+
+
+def section_shows_anything(section) -> bool:
+    """Report whether a settings section contains visible content.
+
+    A section whose setting rows and nested sections are all hidden should not
+    leave an empty heading in the panel. This predicate reports whether
+    content remains after row-level visibility rules have been applied; it
+    does not change widget visibility itself.
+
+    :param section: A :class:`spacr.qt.widgets.section.Section`.
+    :returns: ``False`` only when a section owns rows or nested sections and
+        all of them are hidden. Sections without setting rows remain visible.
+    """
+    from ..widgets.section import Section
+
+    form = getattr(section, "_form", None)
+    if not isinstance(form, QFormLayout):
+        return True
+    own_rows = 0
+    for index in range(form.rowCount()):
+        item = form.itemAt(index, QFormLayout.FieldRole)
+        if item is None or item.widget() is None:
+            continue
+        own_rows += 1
+        if form.isRowVisible(index):
+            return True
+    children = [child for child in section.findChildren(Section)
+                if child is not section]
+    if any(section_shows_anything(child) for child in children):
+        return True
+    return not own_rows and not children
+
+
+#: The batch-correction alphabet, offered identically by every screen that
+#: shows the setting.
+#:
+#: It is one named tuple rather than a literal repeated per app because the
+#: fourth copy was the one that never got written: Classify (merged) resolves
+#: its defaults through ``set_default_classify``, which sets all eight
+#: ``batch_*`` keys, but ``_APP_COMBO_OPTIONS['classify_merged']`` listed
+#: neither this nor ``batch_missing_control``. Both were free-text boxes on
+#: that screen alone, and a typo in one reached
+#: ``batch_correction.correct_batch_effects`` as
+#: ``ValueError: Unknown batch_correction='zcore'`` at run time, after the
+#: user had walked away — the same failure the ``classifier_family`` alphabet
+#: right below exists to prevent.
+#:
+#: ``combat`` is last because it is the only one that needs an answer from
+#: the user first: without ``batch_covariate_column`` it refuses to run
+#: rather than deleting the contrast the screen is measuring. See
+#: ``spacr.batch_correction._combat``.
+_BATCH_CORRECTION_OPTIONS = [
+    "none", "control_center", "robust_zscore", "center", "zscore", "combat",
+]
+
+#: What ``control_center`` does on a plate with too few reference controls.
+_BATCH_MISSING_CONTROL_OPTIONS = ["error", "skip"]
+
+#: Crop-source choices shown by the settings panel. ``Load images`` is first
+#: because it is the default and reads existing crops from ``data/``.
+#:
+#: The stored values stay 'png' and 'merged' -- `spacr.crops` reads those,
+#: and no settings file written before this changes meaning.
+_CROP_SOURCE_OPTIONS = [
+    ("png", "load images — crops already in data/"),
+    ("merged", "stream images — cut from merged/"),
+]
+
 # Options that are enumerations for one module but not necessarily for every
 # setting with the same generic key.  Keeping these app-scoped avoids turning
 # unrelated ``mode`` fields into sequencing controls.
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
+        "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
+        # Replaced with the installed UMAP metric inventory in _widget_for.
+        "metric": ["euclidean"],
+        "pca_svd_solver": [
+            "auto", "full", "covariance_eigh", "arpack", "randomized",
         ],
-        "batch_missing_control": ["error", "skip"],
+        "isomap_path_method": ["auto", "FW", "D"],
+        "spectral_affinity": ["nearest_neighbors", "rbf"],
+        "clustering": ["dbscan", "kmeans"],
+        # 'auto' is retired FROM THE PANEL and not from the code
+        # (instruction 171): it answers "what is available here", which is not
+        # an answer to somebody asked which mode they want.
+        "crop_source": _CROP_SOURCE_OPTIONS,
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
+    },
+    "annotate": {
+        # The choice the annotation app has always had a SETTING for and
+        # never offered -- it shipped 'auto' and took the PNG folder whenever
+        # one existed. "in the annotation app how do i choose to stream images
+        # from database or dataset" (2026-08-19).
+        "crop_source": _CROP_SOURCE_OPTIONS,
     },
     "ml_analyze": {
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
-        ],
-        "batch_missing_control": ["error", "skip"],
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "regression": {
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
+        "independent_variable_layout": ["auto", "long", "wide"],
+        "model_data_layout": ["long", "wide"],
+        # Filled from the modules that own each inventory in _widget_for, so
+        # a family added to spacr.ml or a correction added to
+        # spacr.multiple_testing appears here without a second edit.
+        "regression_type": ["ols"],
+        "multiple_testing_method": ["fdr_bh"],
+        # (value, label) pairs for the same reason `analysis_mode` has them
+        # below: this is the choice that decides whether the family box or
+        # the permutation section is the one that does anything, and 'auto'
+        # / 'parametric' / 'nonparametric' name a statistical stance rather
+        # than the consequence a reader is choosing between.
+        "inference": [
+            ("auto",
+             "auto — take the simultaneous fit only if the design supports it"),
+            ("parametric",
+             "parametric — fit every term at once; needs more wells than terms"),
+            ("nonparametric",
+             "nonparametric — test each term on its own by permutation; "
+             "valid at any width"),
         ],
-        "batch_missing_control": ["error", "skip"],
+        # Instruction 134, asked for on 2026-08-17: "analasys mode should be
+        # a dropdown". Two valid values and it was a FREE-TEXT box, so a typo
+        # in it survived until the run had read the whole database.
+        # `_resolve_regression_analysis_choices` is what maps `inference` onto
+        # this, and it accepts exactly these two.
+        #
+        # (value, label) PAIRS: the key is called 'guide_permutation' and the
+        # dropdown says what that IS, the same way 132's model box explains
+        # what it fits. The stored values are unchanged, so every settings
+        # file already written goes on meaning what it meant.
+        "analysis_mode": [
+            ("regression",
+             "regression — fit every guide at once in the chosen model"),
+            ("guide_permutation",
+             "guide permutation — test each guide on its own, wells "
+             "reshuffled within each plate"),
+        ],
+        "analysis_unit": ["well", "cell"],
+        # Exactly the branches process_scores implements; anything else
+        # reaches the pipeline and is silently ignored rather than applied.
+        "agg_type": ["mean", "median", "quantile", None],
+        "transform": [None, "log", "sqrt", "square", "beta"],
+        "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
+        "threshold_method": ["std", "var"],
+        # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third
+        # reading, so it is a closed alphabet rather than a box a user can
+        # type "adj" into. "adjusted" leads because it is the only one of the
+        # two that is evidence with hundreds of guides in the family.
+        "p_threshold_kind": ["adjusted", "raw"],
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
@@ -329,7 +936,27 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # A closed alphabet: there are two families and a typo in a free-text
         # box would raise ClassifierFamilyError at run time, after the user
         # had walked away.
-        "classifier_family": ["cv", "ml"],
+        #
+        # (value, label) PAIRS, asked for on 2026-09-02: "in classify in
+        # classifier family spell out computer vision and machine learning
+        # and change machine learning to Tabular Machine Learning and cv to
+        # Computer vision (Torch)". "cv" and "ml" are abbreviations of
+        # abbreviations -- a dropdown reading `cv` / `ml` asks the user to
+        # already know which of two whole disciplines this module means, and
+        # the distinction that matters is what each one READS: one is fed
+        # object crops through Torch, the other rows of measured features.
+        # The stored values are unchanged, so every settings file already
+        # written goes on meaning what it meant, and `spacr.classify`
+        # dispatches on the same two strings.
+        "classifier_family": [
+            ("cv", "Computer Vision (Torch)"),
+            ("ml", "Tabular Machine Learning"),
+        ],
+        # set_default_classify gives this screen all eight batch_* keys, so
+        # it corrects batches exactly like the other three — but it was the
+        # one app that listed no alphabet for them.
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
@@ -341,6 +968,120 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "single_direction": ["R1", "R2"],
         "comp_type": ["zlib", "lzo", "bzip2", "blosc"],
     },
+    "explain_cv": {
+        "surrogate_model": [
+            "random_forest", "hist_gradient_boosting", "xgboost",
+        ],
+        "surrogate_split_by": ["well", "plate"],
+    },
+    "investigate_hit": {
+        "hit_direction": ["positive", "negative"],
+        "hit_split_by": ["auto", "plate", "well"],
+    },
+}
+
+
+class _CsvColumnSource(NamedTuple):
+    """Where a column-name setting's candidate names come from."""
+
+    #: Which side of the paired input table holds the CSVs to read --
+    #: ``score``, ``count``, or both. `dependent_variable` is a column of the
+    #: score CSV and of nothing else; `filter_column` is applied to BOTH
+    #: (`ml.clean_controls` on the scores, `ml.process_reads` on the counts),
+    #: so offering only one side would hide half the answer.
+    roles: Tuple[str, ...]
+    #: What kind of column, for the message. It reads "no response column
+    #: dependent_variable='pred' in ..." rather than "no column ...".
+    what: str
+
+
+#: Settings whose value NAMES A COLUMN OF AN INPUT CSV, per module.
+#:
+#: Regression column pickers read the score and count CSV headers rather than
+#: a ``measurements.db`` file, because those CSVs are the inputs against which
+#: the selected names are validated.
+#:
+#: The reading is `spacr.columns`, which takes the HEADER ROW ONLY
+#: (`nrows=0`). This runs on the GUI thread against score CSVs that are
+#: hundreds of megabytes, and there is no second reader here for that reason.
+CSV_COLUMN_SOURCES: Dict[str, Dict[str, _CsvColumnSource]] = {
+    "regression": {
+        "dependent_variable": _CsvColumnSource(("score",), "response column"),
+        "filter_column": _CsvColumnSource(("score", "count"),
+                                          "filter column"),
+        # The count table's own header names, which were HARD-CODED and had
+        # no setting at all until instruction 135. They fail the same way
+        # `dependent_variable` did -- inside the merge, naming a column the
+        # file has not got -- and they earn the same button.
+        "count_grna_column": _CsvColumnSource(("count",), "count column"),
+        "count_value_column": _CsvColumnSource(("count",), "count column"),
+    },
+}
+
+
+def has_csv_column_picker(app_key: str, key: str) -> bool:
+    """True when this module gives ``key`` a CSV picker of its own.
+
+    Read by the screen so it does not ALSO hang the measurements.db "SQL"
+    button off the same field: two buttons that disagree about which file the
+    column comes from is worse than the one wrong button this replaces.
+    """
+    return str(key or "") in CSV_COLUMN_SOURCES.get(str(app_key or ""), {})
+
+
+# Settings read by exactly one Image UMAP reducer.  The controls remain in the
+# form so switching methods preserves their values; only the inactive families
+# are greyed.  Shared controls (random_seed and, where applicable, metric) are
+# handled separately in _refresh_umap_reducer_enablement.
+_UMAP_REDUCER_SETTINGS: Dict[str, set] = {
+    "umap": {"n_neighbors", "min_dist"},
+    "tsne": {
+        "tsne_perplexity", "tsne_learning_rate",
+        "tsne_early_exaggeration", "tsne_max_iter",
+    },
+    "pca": {"pca_whiten", "pca_svd_solver"},
+    "isomap": {"isomap_n_neighbors", "isomap_path_method"},
+    "spectral": {"spectral_affinity", "spectral_n_neighbors"},
+}
+
+_UMAP_TOOLTIP_OVERRIDES = {
+    "reduction_method": (
+        "Dimensionality reducer run before clustering and plotting. UMAP "
+        "balances local and global structure; t-SNE emphasizes local "
+        "neighborhoods; PCA is a fast linear baseline; Isomap preserves "
+        "geodesic distances; Spectral Embedding follows a neighborhood "
+        "graph. Inactive reducer controls stay visible but greyed."
+    ),
+    "metric": (
+        "Distance metric used by UMAP, t-SNE, Isomap and DBSCAN. The "
+        "dropdown contains every metric accepted by the installed UMAP "
+        "implementation; PCA and Spectral Embedding ignore it."
+    ),
+    "n_neighbors": (
+        "UMAP neighborhood size. Small values sharpen local structure; "
+        "large values give a smoother global embedding. Used only by UMAP."
+    ),
+}
+
+_REGRESSION_TOOLTIP_OVERRIDES = {
+    "src": (
+        "Output root for regression results. Leave blank to use the directory "
+        "containing the first count table. An existing directory is used "
+        "directly; if only its final component is missing, spaCR creates that "
+        "directory. If the configured path is a file, its parent is missing, "
+        "or the directory cannot be created, spaCR reports the problem and "
+        "uses the automatic location. Home-directory shortcuts and relative "
+        "path components are resolved before validation. Each run is stored "
+        "below this root in results/<analysis> or, when that directory is "
+        "occupied, results/<analysis>_<n>. Default: blank (automatic)."
+    ),
+}
+
+# Shared keys can have different meanings in individual modules. These
+# overrides are applied after the global tooltip registry is loaded.
+_APP_TOOLTIP_OVERRIDES = {
+    "regression": _REGRESSION_TOOLTIP_OVERRIDES,
+    "umap": _UMAP_TOOLTIP_OVERRIDES,
 }
 
 
@@ -359,6 +1100,85 @@ except Exception:      # pragma: no cover - keeps the GUI importable
 # dictionaries remain unchanged — this controls only the order and grouping in
 # Qt, just like the Classify (CV) regroup below.
 _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
+    "explain_cv": (
+        ("Source & provenance", (
+            "db_path", "predictions_file", "path_column",
+            "prediction_column",
+        )),
+        ("Surrogate & validation", (
+            "surrogate_model", "surrogate_split_by", "surrogate_test_size",
+            "surrogate_n_estimators", "surrogate_random_seed",
+            "surrogate_min_fidelity_improvement",
+        )),
+        ("Importance & diagnostics", (
+            "surrogate_n_repeats", "surrogate_shap_max_samples",
+            "surrogate_exclude", "surrogate_correlation_threshold",
+        )),
+        ("Output & runtime", ("dst", "verbose")),
+    ),
+    "investigate_hit": (
+        ("Source & provenance", (
+            "db_path", "predictions_file", "guide_fractions_file",
+            "results_folder", "path_column", "score_column",
+        )),
+        ("Selected hit", (
+            "target_gene", "target_guides", "hit_phenotype",
+            "hit_effect", "hit_fdr", "hit_guide_agreement",
+            "hit_n_guides", "hit_well_support", "hit_direction",
+        )),
+        ("Attribution model", (
+            "hit_feature_columns", "hit_include_original_score",
+            "hit_probability_threshold", "hit_split_by",
+            "hit_random_seed",
+        )),
+        ("Evidence & output", (
+            "hit_bootstrap", "hit_permutations",
+            "hit_pipeline_permutations",
+            "hit_gallery_per_stratum", "hit_store_database", "dst",
+            "verbose",
+        )),
+    ),
+    "umap": (
+        ("Input Data", (
+            "src", "tables", "crop_source", "filter_by", "row_limit",
+            "exclude", "exclude_rows", "remove_highly_correlated",
+            "log_data", "resnet_features", "visualize",
+        )),
+        ("Dimensionality Reduction", (
+            "reduction_method", "random_seed", "metric",
+        )),
+        ("UMAP", ("n_neighbors", "min_dist")),
+        ("t-SNE", (
+            "tsne_perplexity", "tsne_learning_rate",
+            "tsne_early_exaggeration", "tsne_max_iter",
+        )),
+        ("PCA", ("pca_whiten", "pca_svd_solver")),
+        ("Isomap", ("isomap_n_neighbors", "isomap_path_method")),
+        ("Spectral Embedding", (
+            "spectral_affinity", "spectral_n_neighbors",
+        )),
+        ("Clustering", (
+            "clustering", "eps", "min_samples", "remove_cluster_noise",
+            "analyze_clusters", "color_by",
+        )),
+        ("Plate & Batch Correction", (
+            "batch_correction", "batch_column", "batch_control_column",
+            "batch_control_values", "batch_covariate_column",
+            "batch_combat_mean_only", "batch_min_samples",
+            "batch_missing_control",
+        )),
+        ("Points & Images", (
+            "dot_size", "point_color", "point_alpha", "outline_width",
+            "img_zoom", "image_nr", "plot_images", "remove_image_canvas",
+            "plot_points", "plot_outlines", "smooth_lines",
+            "plot_by_cluster", "plot_cluster_grids",
+        )),
+        ("Canvas & Output", (
+            "figuresize", "umap_canvas_width", "umap_sidebar_width",
+            "black_background", "save_figure",
+        )),
+        ("Runtime", ("n_jobs", "verbose")),
+    ),
     "ml_analyze": (
         # Category names shared with Classify (CV) wherever the two do the
         # same job -- "Labels & Classes", "Classifier & Validation",
@@ -371,12 +1191,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # annotation basis
             "annotation_column",
             # measurement basis
-            "measurement_rules",
         )),
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
             "pathogen_limit", "remove_highly_correlated_features",
-            "remove_low_variance_features", "minimum_cell_count",
+            "remove_low_variance_features", "min_cell_count",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -400,8 +1219,21 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "mask": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
+            # the slots it governs -- the relationship Measure states beside
+            # its mask dimensions, said here beside the channels.
+            #
+            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
+            # settings strip opens on Essentials, and essentials are the
+            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
+            # leads the shared "Organelle" category as well
+            # (`settings.organelle_basic_settings`), and filed only there it
+            # was in neither list: a panel drawing twenty-six organelle
+            # channel boxes offered no way to say how many there were until
+            # the user found the All settings switch.
+            NUMBER_OF_ORGANELLES,
             "organelle_channel",
-            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -411,8 +1243,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "upscale", "upscale_factor", "consolidate",
+            "consolidate",
             "denoise",
+        )),
+        ("Illumination Correction", (
+            "illumination_correction", "illumination_model",
+            "illumination_estimator", "illumination_degree",
+            "illumination_dark", "illumination_per_plate",
+            "illumination_max_fields", "illumination_qc",
+            "illumination_on_missing",
         )),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
@@ -424,7 +1263,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         # Instruction 73: the families that are one decision applied to
         # several objects, grouped by what they do rather than by which
-        # object they do it to.
+        # object they do it to. All three nest under "Advanced settings",
+        # which is derived from the group they reference rather than
+        # restated here -- see `_shared_category_parents`.
+        #
+        # "(per object)", NOT "Image Preprocessing": the heading above is the
+        # whole-image one, and the category-help table is keyed on the
+        # heading text, so two headings spelled alike would share one blurb.
+        ("Image Preprocessing (per object)",
+         ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
@@ -437,7 +1284,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
-            "compression", "filter", "merge_pathogens",
+            "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
             "strict_errors", "max_failure_rate", "on_error",
@@ -449,10 +1296,41 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Experiment", ("src", "experiment")),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
-            "pathogen_mask_dim", "organelle_mask_dim",
-            *(f"{role}_mask_dim" for role in ORGANELLE_ROLES[1:]),
+            "pathogen_mask_dim",
+            # HOW MANY SLOTS THERE ARE, before the slots themselves. It
+            # belongs to no slot, so nothing hides it, and unclaimed it
+            # landed in the bucket the layouts exist to keep empty.
+            "number_of_organelles", "organelle_mask_dim",
+            *(f"{role}_mask_dim" for role in ALL_ORGANELLE_ROLES[1:]),
+            # WHAT KIND OF ORGANELLE each slot holds. Measure needs it for
+            # the same reason mask does, and for one more: it decides
+            # whether "how many, and how spread out" is the phenotype or a
+            # segmentation artefact, which is what a measure run says out
+            # loud about its own organelle numbers. Beside the mask
+            # dimension because the two answer one question -- which plane,
+            # and what is on it.
+            "organelle_type",
+            *(f"{role}_type" for role in ALL_ORGANELLE_ROLES[1:]),
             "cytoplasm",
             "timelapse", "timelapse_objects",
+        )),
+        # Illumination correction sits between the mapping and the features
+        # because that is where it runs: it rewrites the pixels every
+        # intensity feature below is then computed from. The Illumination
+        # screen spreads these across four tabs -- correction model, field
+        # sampling, QC, failure handling -- which is the right shape when
+        # estimating a field is the whole job. Inside Measure it is one
+        # decision with its details attached, so it is one section.
+        #
+        # `src` and `channels`, the other two keys the estimate reads, are
+        # not repeated here: Measure already offers them above, and the
+        # estimate deliberately reads the same fields the run measures.
+        ("Illumination Correction", (
+            "illumination_correction", "illumination_model",
+            "illumination_estimator", "illumination_degree",
+            "illumination_dark",
+            "illumination_per_plate", "illumination_max_fields",
+            "illumination_qc", "illumination_on_missing",
         )),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
@@ -462,9 +1340,19 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # them into the trailing "Additional Settings" bucket -- which is
             # not a heading anyone chose, it is the absence of one. They
             # extend calculate_correlation, so they sit beside it.
-            "corrected_manders", "spatial_measurements",
+            "spatial_measurements",
+            # The radius the neighbourhood is counted in, immediately after
+            # the switch that turns it on: it is baked into the column name,
+            # so a screen has to pick one value and keep it.
+            "spatial_neighbor_radius",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
+            # The spatial-distance block: how far every object is from
+            # every other, and from the intensity maxima inside it. Filed
+            # beside `radial_dist` because they answer the same kind of
+            # question, one object pair at a time instead of one radius.
+            "object_distances", "object_distance_maxima",
+            "object_distance_intensity",
             # Not a segmentation control -- it decides which organelle summary
             # TABLES a measure run writes, so it belongs with the other
             # what-gets-measured settings rather than under the mask
@@ -472,9 +1360,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "summarize_organelles_by",
         )),
         ("Object Filtering", (
-            "uninfected", "cell_min_size", "cytoplasm_min_size",
-            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
-            *(f"{role}_min_size" for role in ORGANELLE_ROLES[1:]),
+            "uninfected", "cell_min_size", "cell_max_size",
+            "cytoplasm_min_size",
+            "nucleus_min_size", "nucleus_max_size",
+            "pathogen_min_size", "pathogen_max_size", "organelle_min_area",
+            *(f"{role}_min_area" for role in ALL_ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
@@ -496,8 +1386,21 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "timelapse": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
+            # HOW MANY ORGANELLE SLOTS, immediately before the switches of
+            # the slots it governs -- the relationship Measure states beside
+            # its mask dimensions, said here beside the channels.
+            #
+            # AND IN THE FIRST GROUP, WHICH IS WHAT MAKES IT REACHABLE. The
+            # settings strip opens on Essentials, and essentials are the
+            # module's first group plus `_APP_ESSENTIAL_EXTRAS`. The count
+            # leads the shared "Organelle" category as well
+            # (`settings.organelle_basic_settings`), and filed only there it
+            # was in neither list: a panel drawing twenty-six organelle
+            # channel boxes offered no way to say how many there were until
+            # the user found the All settings switch.
+            NUMBER_OF_ORGANELLES,
             "organelle_channel",
-            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
@@ -516,8 +1419,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
-            "upscale", "upscale_factor", "consolidate",
+            "consolidate",
             "denoise",
+        )),
+        ("Illumination Correction", (
+            "illumination_correction", "illumination_model",
+            "illumination_estimator", "illumination_degree",
+            "illumination_dark", "illumination_per_plate",
+            "illumination_max_fields", "illumination_qc",
+            "illumination_on_missing",
         )),
         ("Cell Segmentation", ("@Cell",)),
         ("Nucleus Segmentation", ("@Nucleus",)),
@@ -529,7 +1439,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Organelle Segmentation (advanced)", ("@Organelle advanced",)),
         # Instruction 73: the families that are one decision applied to
         # several objects, grouped by what they do rather than by which
-        # object they do it to.
+        # object they do it to. All three nest under "Advanced settings",
+        # which is derived from the group they reference rather than
+        # restated here -- see `_shared_category_parents`.
+        #
+        # "(per object)", NOT "Image Preprocessing": the heading above is the
+        # whole-image one, and the category-help table is keyed on the
+        # heading text, so two headings spelled alike would share one blurb.
+        ("Image Preprocessing (per object)",
+         ("@Image preprocessing (per object)",)),
         ("Object Filtration (all objects)", ("@Object filtration",)),
         ("Intensity Handling (all objects)", ("@Intensity handling",)),
         ("Quality Control", ("@Segmentation QC",)),
@@ -553,7 +1471,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images", "keep_npz",
-            "compression", "filter", "merge_pathogens",
+            "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
@@ -614,10 +1532,49 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("n_jobs",)),
     ),
     "regression": (
-        ("Input Tables", ("metadata_files", "score_data", "count_data")),
-        ("Controls & Plate Design", (
-            "plateID", "positive_control", "negative_control", "controls",
-            "control_wells", "filter_column", "filter_value",
+        # `count_grna_column` and `count_value_column` are the count CSV's
+        # own header names, which were HARD-CODED until instruction 135.
+        # They belong beside the table they name: a user who has to say what
+        # their count file calls its guide column is looking at the count
+        # file, not at the model.
+        # ``src`` is the optional result root. It remains beside the input
+        # tables because its automatic value is derived from the first count
+        # table; see ``ml.resolve_regression_src``.
+        ("Input Tables", ("paired_data", "metadata_files",
+                          "count_grna_column", "count_value_column",
+                          "independent_variable_layout",
+                          "wide_predictor_columns", "src")),
+        # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
+        # Asked for on 2026-08-17 -- "merge quality & filters in here. change
+        # the settings categoty to Controlls & Filters". They were two
+        # sections with the response, the estimator and the hit-calling rules
+        # between them, so it was not obvious that seven separate settings
+        # each drop data.
+        # THE THREE CONTROL BLOCKS AND THE EXCLUSION LIVE HERE, not in the
+        # trailing "additional settings" they fell into for want of being
+        # named (2026-08-21). A settings key that no panel section claims
+        # lands in the catch-all, which is where a reader looks last.
+        #
+        # ORDER IS THE ASK: they follow `negative_control`, because they are
+        # about the same thing -- which wells and which guides are controls
+        # -- and the eye should not have to travel to collect them.
+        #
+        # `control_wells` IS GONE FROM THIS PANEL. It said "these wells are
+        # controls" without saying WHICH control, and the three settings
+        # below say that. Still read by the invasion-assay panel, which has
+        # its own meaning for it.
+        ("Controls & Filters", (
+            "positive_control", "negative_control",
+            "positive_control_wells", "negative_control_wells",
+            "mixed_control_wells", "exclude_grnas", "controls",
+            "filter_column", "filter_value",
+            "min_cell_count", "min_n", "fraction_threshold",
+            # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this
+            # from the control wells instead", so it is only readable
+            # beside the number it is an alternative to.
+            "calibrate_fraction_threshold",
+            "normalise_fraction",
+            "target_unique_count", "tolerance", "outlier_detection",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -625,33 +1582,128 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )),
-        ("Model & Covariates", (
-            "regression_type", "dependent_variable", "score_column",
-            "invert_dependent_variable", "agg_type", "transform",
-            "alpha", "cov_type", "random_row_column_effects",
+        # WHAT IS BEING MODELLED, before HOW. The response was previously
+        # interleaved with the estimator settings under "Model & Covariates",
+        # so the two questions a user actually asks in order -- what am I
+        # measuring, and how should it be tested -- were answered in one
+        # twelve-row block.
+        ("Response", (
+            # `score_column` retired with instruction 135 A: it named the
+            # same measurement as `dependent_variable` and only offered a
+            # way to disagree with it.
+            "dependent_variable", "invert_dependent_variable",
+            "analysis_unit", "agg_type", "transform",
+        )),
+        # `inference` leads because it decides whether "Estimator Tuning" or
+        # "Permutation Test" below is the section that does anything.
+        ("Model & Inference", (
+            # `level` was in no section at all, so it fell into "Additional
+            # Settings" -- the bucket this layout exists to keep empty.
+            # Asked for on 2026-08-17: "level should be in model and
+            # inference not additional settings". It is not a plate-layout
+            # setting: it decides WHICH FITS RUN, and it is greyed out under
+            # regression_type='mixed', which nests guides in genes and
+            # therefore fits both levels at once. A control whose enabled
+            # state is decided by `regression_type` belongs beside it, not
+            # three sections away.
+            # WHICH MODEL, THEN WHO FITS IT, THEN AT WHICH LEVELS. Asked for
+            # on 2026-08-18: "regression backend should be in Model and
+            # inference right after regression type". `regression_type` says
+            # WHAT is fitted and `regression_backend` says WHO fits it -- the
+            # same mixed model through statsmodels or through torch on the
+            # GPU should give the same answer and not the same runtime -- so
+            # the two belong adjacent, and `level` follows them.
+            "inference", "analysis_mode", "regression_type",
+            "regression_backend", "level", "model_data_layout",
+            # WHERE THE FITTED LINE IS ANCHORED. Still part of WHAT is
+            # fitted rather than which terms are in it, so it reads with
+            # the four above: `intercept` chooses fitted, zero, control or
+            # value, and `intercept_value` is the number the last of those
+            # pins it at -- greyed for the other three.
+            "intercept", "intercept_value",
+            # `model_plate_position` decides whether rowID and columnID are in
+            # the model at all; `random_row_column_effects` then decides fixed
+            # vs random for terms that ARE in. Adjacent because setting one
+            # without seeing the other is how they end up contradicting.
+            "model_plate_position", "random_row_column_effects",
+            # SIGNIFICANCE MERGED IN, asked for on 2026-08-17: "significance
+            # nad hit calling is good but merge all of these settings into
+            # Model and inference". They are not a separate question -- which
+            # correction, at what level, above which effect size IS how the
+            # model's output is turned into a claim, and a user reading the
+            # model section had to scroll past three others to find out.
+            # `p_threshold_alpha` and `p_threshold_kind` are the line the
+            # plot draws significance at. The plot already had a raw/adjusted
+            # choice on its right-click menu and the RUN had no say in it, so
+            # the exported hit list and the picture could disagree about what
+            # "significant" meant. They sit with `fdr_alpha` because the three
+            # of them are one question: what counts as a hit.
+            "multiple_testing_method", "fdr_alpha", "p_threshold_alpha",
+            "p_threshold_kind", "threshold_method",
+            "threshold_multiplier",
+            # THE FIELD, NOT THE BOOLEAN. `annotation_source` supersedes
+            # `Toxoplasma`: empty or 'toxoplasma' is the bundled tables
+            # exactly as the True case was, and any organism name, taxon id
+            # or accession is a UniProt lookup. The boolean stays in the
+            # settings dict, because every CSV in existence carries it and
+            # `_annotation_source` still reads it, but offering both halves
+            # of a superseded pair is how a user sets one and wonders why
+            # the other wins.
+            "annotation_source",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in
         # "Additional Settings" -- the bucket a layout exists to keep empty --
         # because only the shared estimator settings above were named.
         ("Estimator Tuning", (
-            "l1_ratio", "quantile", "huber_t", "tolerance",
+            # `cov_type` moved here from Model & Inference on 2026-08-17 --
+            # "mooveCov type here". It is estimator-specific in exactly the
+            # way everything else in this section is: the penalised, robust
+            # and quantile fits have no such estimator and REFUSE it rather
+            # than quietly reporting ordinary errors under a robust label.
+            "cov_type",
+            "alpha", "l1_ratio", "quantile", "huber_t",
+            "spline_knots", "spline_degree",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
             "lasso_selection_threshold",
+            # One knob per family, filed with the rest of them:
+            # `group_lasso_lambda` is the group lasso's penalty, and
+            # `rra_alpha`/`rra_permutations` are robust rank aggregation's
+            # cutoff and null size.
+            "group_lasso_lambda", "rra_alpha", "rra_permutations",
         )),
-        ("Hit Calling & Outliers", (
-            "min_cell_count", "fraction_threshold", "target_unique_count",
-            "outlier_detection", "threshold_method", "threshold_multiplier",
-            "min_n", "toxo",
+        # The permutation test's own settings, previously split across three
+        # sections: its block and nuisance columns sat under the model, its
+        # permutation count and seed under estimator tuning, and its support
+        # thresholds under hit calling. Nothing here is read unless inference
+        # resolves to the nonparametric test.
+        ("Permutation Test", (
+            # FIRST: it says WHAT is measured, and everything after it says
+            # how the null is built and who is eligible -- answers to a
+            # question this setting asks. Absent from this list it fell to
+            # the trailing "Additional Settings", which is where a reader
+            # looks last.
+            "grna_statistic",
+            "guide_min_wells", "guide_primary_min_wells",
+            "guide_permutations", "guide_permutation_seed",
+            "guide_permutation_block", "guide_nuisance_columns",
+            "guide_presence_threshold", "guide_permutation_batch_size",
         )),
-        ("Regression Plots", (
-            "volcano", "log_x", "log_y", "x_lim", "y_lims",
-            "split_axis_lims",
-        )),
-        ("Runtime & Reliability", (
-            "strict_errors", "max_failure_rate", "on_error",
-            "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
-        )),
+        # "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" ARE GONE, asked for
+        # on 2026-08-17: "Regression plot can be removed" and "Runtime and
+        # reliability should be removed and go to prefgerences/general".
+        #
+        # Neither was a question about the regression. The plot section asked
+        # a user to decide the axis scaling of a figure they had not seen yet
+        # -- `x_lim` and `y_lims` are set on the plot now -- and the runtime
+        # section asked how the whole application handles a failure, which is
+        # the same answer for every module and belongs in Preferences.
+        #
+        # The keys they held are not dropped, they are HIDDEN
+        # (`_APP_HIDDEN_KEYS`): dropping `regression_qc` would take
+        # `parameter_sweep`'s `settings.setdefault("regression_qc", False)`
+        # with it, and a hundred-trial sweep would pay ~5.8 s and ~19 figures
+        # per trial for diagnostics nobody opens.
     ),
     "activation": (
         ("Model & Data", (
@@ -676,9 +1728,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "recruitment": (
         ("Data source", ("src",)),
-        ("Mask & Channel Mapping", (
-            "cell_mask_dim", "cell_chann_dim", "nucleus_mask_dim",
-            "nucleus_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim",
+        # THE THREE `*_mask_dim` ROWS ARE GONE, with the factory keys behind
+        # them. Instruction 364: `analyze_recruitment` never read them, so
+        # half this section did nothing while its hint warned that "a wrong
+        # index here measures the wrong compartment without complaining" --
+        # and their tooltips described `measure_crop`, which is where those
+        # keys are actually live.
+        ("Channel Mapping", (
+            "cell_chann_dim", "nucleus_chann_dim", "pathogen_chann_dim",
             "channel_dims", "channel_of_interest",
         )),
         ("Object Filtering", (
@@ -782,6 +1839,12 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
         ("Read Parsing", (
             "target_sequence", "regex", "offset_start", "expected_end",
+            # How far a read may be from a listed barcode and still be
+            # called as it -- a parsing tolerance, filed with the rest of
+            # the parse. Left out of this layout it fell into "Additional
+            # Settings", which is not a heading anyone chose; it is the
+            # absence of one.
+            "barcode_mismatches",
         )),
         ("Output & Storage", (
             "save_h5", "comp_type", "comp_level", "fill_na",
@@ -897,11 +1960,11 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "measure": ("@Mask & Channel Mapping", "test_mode"),
     "motility": ("@Spatial & Temporal Calibration",),
     "ml_analyze": ("channel_of_interest", "model_type_ml"),
-    "regression": ("@Controls & Plate Design", "regression_type",
+    "regression": ("@Controls & Filters", "regression_type",
                    "dependent_variable"),
     "activation": ("cam_type", "target_layer"),
     "replication": ("@Vacuole Assignment",),
-    "recruitment": ("@Mask & Channel Mapping",),
+    "recruitment": ("@Channel Mapping",),
     "invasion": ("@Channels & Intensity",),
     "cellpose_masks": ("@Model",),
     "cellpose_all": ("@Model",),
@@ -1049,6 +2112,199 @@ def get_categories() -> Dict[str, List[str]]:
     return categories
 
 
+# ---------------------------------------------------------------------------
+# THE SETTINGS TREE. Instruction 73.
+# ---------------------------------------------------------------------------
+#
+# The panel used to group by OBJECT and nothing else, so `cell_min_size` and
+# `nucleus_min_size` -- one decision applied to two objects -- read as two
+# unrelated knobs filed under two headings. The request is a second axis:
+# group the advanced settings by WHAT THEY DO, then by which object they do
+# it to, under one "advanced settings" umbrella.
+#
+# That needs three levels, and the panel had one. `build_sections` returned
+# List[Tuple[str, List[Tuple[str, QWidget]]]] -- a header and its rows, no
+# third element and no recursion -- so a sub-sub-section could not be
+# expressed at all. Widening that return type is a contract change for every
+# module in the tool, which is why the section below is a TUPLE SUBCLASS: it
+# still IS the pair it always was, so nothing that unpacks or `dict()`s the
+# result has to change, and the tree hangs off attributes beside it.
+
+
+class SettingsSection(tuple):
+    """Represent one settings-panel heading and its nested content.
+
+    The class remains a ``(title, rows)`` tuple for compatibility with callers
+    that unpack section pairs or pass them to ``dict``. ``rows`` contains all
+    controls in the subtree, allowing clients without nested-section support
+    to render every control exactly once.
+
+    The hierarchy is exposed through :attr:`own_rows`, :attr:`children`, and
+    :attr:`path`. The path contains section titles from the root to the current
+    node, for example ``("Advanced settings", "Object filtration", "Cell")``,
+    so sections with identical titles remain distinguishable.
+    """
+
+    # No `__slots__`: a variable-length tuple subclass cannot have one, and
+    # the four attributes below are what carries the tree.
+
+    def __new__(cls, title, own_rows=(), children=()):
+        """Build a section, flattening its children's rows into its own.
+
+        The tuple half is ``(title, rows)`` where ``rows`` is this section's own
+        rows followed by every descendant's, so a consumer that only knows the
+        tuple still sees the whole subtree.
+
+        :param title: the section's caption.
+        :param own_rows: rows belonging to this section itself.
+        :param children: nested sections; each is re-parented onto this
+            section's path.
+        :returns: the new section.
+        """
+        children = tuple(children)
+        own = list(own_rows)
+        rows = list(own)
+        for child in children:
+            rows.extend(child.rows)
+        section = super().__new__(cls, (str(title), rows))
+        section.title = str(title)
+        section.own_rows = own
+        section.children = children
+        section.path = (section.title,)
+        for child in children:
+            child._reparent(section.path)
+        return section
+
+    def _reparent(self, parent_path) -> None:
+        """Record this section's place under a parent that now exists.
+
+        A child is built before the parent that will hold it, so its path is
+        completed from above rather than passed down.
+        """
+        self.path = tuple(parent_path) + (self.title,)
+        for child in self.children:
+            child._reparent(self.path)
+
+    @property
+    def rows(self) -> List[Tuple[str, QWidget]]:
+        """Every row in this heading and in everything nested under it."""
+        return self[1]
+
+    def walk(self):
+        """This section and every section below it, outermost first."""
+        yield self
+        for child in self.children:
+            yield from child.walk()
+
+
+def _shared_category_parents() -> Dict[str, str]:
+    """Which heading each category nests under, including renamed ones.
+
+    `spacr.settings.CATEGORY_PARENTS` is keyed on the SHARED category name,
+    and a module layout may draw the same group under its own spelling --
+    mask calls "Object filtration" "Object Filtration (all objects)". A
+    layout entry built out of nothing but ``@Family`` references is that
+    family, so its place in the tree is DERIVED rather than restated. The
+    alternative is a second table listing every rename, and this project has
+    already shipped three defects from a module being registered in one such
+    table and not the other.
+    """
+    from spacr.settings import CATEGORY_PARENTS
+
+    parents = dict(CATEGORY_PARENTS)
+    for spec in _APP_CATEGORY_SPECS.values():
+        for title, tokens in spec:
+            groups = [t[1:] for t in tokens if str(t).startswith("@")]
+            if len(groups) != len(tokens) or not groups:
+                continue
+            inherited = {CATEGORY_PARENTS[g] for g in groups
+                         if g in CATEGORY_PARENTS}
+            if len(inherited) == 1 and len(groups) == 1:
+                parents[title] = inherited.pop()
+    return parents
+
+
+def _object_subheading(obj: str) -> str:
+    """The heading one object's rows are drawn under.
+
+    Organelle slots are numbered rather than spelled `organelleb`, which is
+    an internal name chosen so object keys can round-trip through `prcfo`
+    and was never meant to be read.
+
+    THE SLOT IS RECOGNISED BY ITS NAME, not by the schema's list of the slots
+    that carry a mask plane today. That list stops at four, so a run with
+    seven organelles grouped its fifth slot's rows correctly and then drew
+    them under "Organellee" -- the internal spelling, leaked by the one
+    function whose job is to keep it out of sight. Asking
+    :mod:`spacr.organelle_types`, which owns the naming, covers every slot
+    the alphabet allows.
+    """
+    from spacr.object_roles import organelle_label
+    from ...organelle_types import organelle_role_of
+
+    if organelle_role_of(obj) == str(obj):
+        return organelle_label(obj)
+    return str(obj).replace("_", " ").capitalize()
+
+
+def _split_rows_by_object(rows, keys):
+    """Split one family's rows into a sub-section per object.
+
+    :param rows: ``(label, widget)`` in the order the family lists them.
+    :param keys: the setting key behind each row, positionally aligned.
+    :returns: ``(own_rows, children)`` -- a row whose key names no object
+        stays with the family itself rather than being dropped, because a
+        control that reaches no sub-heading is a control the user cannot
+        reach.
+    """
+    from spacr.settings import ADVANCED_OBJECT_ORDER, advanced_object_of
+
+    grouped: Dict[str, List[Tuple[str, QWidget]]] = {}
+    own: List[Tuple[str, QWidget]] = []
+    for row, key in zip(rows, keys):
+        obj = advanced_object_of(key)
+        if obj is None:
+            own.append(row)
+        else:
+            grouped.setdefault(obj, []).append(row)
+    children = tuple(
+        SettingsSection(_object_subheading(obj), grouped[obj])
+        for obj in ADVANCED_OBJECT_ORDER if grouped.get(obj)
+    )
+    return own, children
+
+
+def _nest_sections(flat) -> List[SettingsSection]:
+    """Hang each flat section under the parent its category declares.
+
+    THE PARENT TAKES THE PLACE OF ITS FIRST CHILD, so the running order of a
+    panel is the one its layout wrote. Hoisting the umbrella to the top or
+    dropping it to the bottom would move a block of settings the layout
+    deliberately put between two others.
+
+    A parent whose children all vanished -- every key hidden, or none
+    offered by this module -- is not emitted, the same rule an empty
+    category has always followed.
+    """
+    parents = _shared_category_parents()
+    order: List[str] = []
+    umbrellas: Dict[str, List[SettingsSection]] = {}
+    out: List[object] = []
+    for section in flat:
+        parent = parents.get(section.title)
+        if parent is None:
+            out.append(section)
+            continue
+        if parent not in umbrellas:
+            umbrellas[parent] = []
+            order.append(parent)
+            out.append(parent)          # a placeholder, replaced below
+        umbrellas[parent].append(section)
+    return [SettingsSection(item, (), umbrellas[item])
+            if isinstance(item, str) else item
+            for item in out]
+
+
 #: Below this many settings a module cannot render as an undifferentiated
 #: list — six rows fit on one screen and read as one group whatever they are
 #: called. Modules at or under it are exempt from :func:`has_curated_layout`;
@@ -1068,11 +2324,7 @@ CURATION_THRESHOLD = 6
 #:
 #: `classify_merged` shares Classify's regroup and then amends it — it is
 #: named twice in :func:`categories_for_app`, once with `classify` and once
-#: on its own to lift the family switch out of "Model Architecture". It was
-#: missing here until 2026-08-09, so `has_curated_layout` reported False for
-#: a module with 110 settings and a hand-written layout: the module was
-#: registered without this list being updated, which is the failure mode of
-#: keeping the same fact in two places.
+#: on its own to lift the family switch out of "Model Architecture".
 _INLINE_LAYOUT_APPS = frozenset({
     "classify", "classify_merged", "umap", "external_masks",
 })
@@ -1120,6 +2372,44 @@ def needs_curated_layout(app_key: str) -> bool:
         # judge. Reporting "needs a layout" would fail the invariant test for
         # a reason that has nothing to do with layouts.
         return False
+
+
+#: The dash between a family prefix and the group name in a merged module's
+#: heading. Written once: an em dash swapped for a hyphen in an edit fails
+#: silently, because the lookups below simply stop matching.
+_FAMILY_HEADING_DASH = "—"
+
+
+def _family_heading(prefix: str, name: str) -> str:
+    """Compose one family-prefixed section heading and catalogue the pair.
+
+    The composed heading is a key as much as a caption: the blurb tables,
+    the hidden-category lists and the layout tests are all written against
+    the English ``Computer Vision — Images & Cropping``, so the heading is
+    returned in English and only its TRANSLATION is composed here. No
+    catalog can carry a row for every prefix and group name that meet, and
+    asking for the finished pair is what leaves these headings reading half
+    English; each half is looked up on its own and the halves joined, so a
+    row written for either one reaches the header — which knows only the
+    finished pair. A translation that already exists for the whole pair
+    wins, so a reviewed caption is never displaced by a composed one.
+    """
+    heading = f"{prefix} {_FAMILY_HEADING_DASH} {name}"
+    try:
+        from ..i18n import (VALID_LANGUAGE_CODES, _exact_translation,
+                            add_translation, tr)
+
+        add_translation(heading, [
+            _exact_translation(heading, code)
+            or f"{tr(prefix, code)} {_FAMILY_HEADING_DASH} {tr(name, code)}"
+            for code in VALID_LANGUAGE_CODES[1:]
+        ])
+    except (ImportError, AttributeError, ValueError):
+        # A catalog that will not take the row leaves the heading reading
+        # exactly as it does today. A panel that is otherwise ready to build
+        # must not fail over a caption.
+        pass
+    return heading
 
 
 def categories_for_app(
@@ -1208,23 +2498,34 @@ def categories_for_app(
             "Labels & Classes": [
                 # `classes` is what each class MEANS; `class_folder_names`
                 # is where its crops are written. One key used to be both.
+                # `metadata_type_by` and `measurement_rules` are GONE, not
+                # hidden. The first named the column a class is defined by,
+                # which is the Classes editor's own column field; the second
+                # was a second vocabulary for "a class is a rule about a
+                # column", written as hand-edited JSON because it had no
+                # editor. Both were answers to a question `classes` now asks
+                # once.
+                # `annotation_column` and `class_metadata` are GONE from
+                # the panel (instruction 229): the Classes editor names the
+                # column each class is defined by and the value that
+                # defines it, so a box for either was a second place to say
+                # the same thing. Both are still WRITTEN, derived from
+                # `classes`, so every consumer downstream is unchanged.
                 "dataset_mode", "classes", "class_folder_names",
-                "annotation_column",
-                "class_metadata", "metadata_type_by",
                 "metadata_item_1_name", "metadata_item_1_value",
                 "metadata_item_2_name", "metadata_item_2_value",
-                "measurement_rules", "balance_to_smallest", "test_split",
+                "balance_to_smallest", "test_split",
                 "val_split", "sample"],
 
             "Images & Cropping": [
-                "crop_source", "tables", "channel_of_interest",
-                "path_string", "file_type", "file_metadata",
-                "extract_channels", "object_array", "coordinate_columns",
+                "image_source", "load_path_regex", "tables",
+                "channel_of_interest", "stream_method", "object_array",
+                "mask_array", "channel_arrays", "bounding_box",
                 "crop_shape", "train_channels", "image_size", "augment"],
 
             "Model & Regularization": [
                 "classifier_family",
-                "model_type", "custom_model", "custom_model_path",
+                "model_type", "custom_model_path",
                 "resume_checkpoint", "init_weights",
                 "normalize", "normalization", "normalization_scope",
                 "dropout_rate", "weight_decay", "use_checkpoint"],
@@ -1233,12 +2534,21 @@ def categories_for_app(
                 "epochs", "optimizer_type", "learning_rate", "schedule",
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
-                "batch_size", "gradient_accumulation",
+                # `gradient_accumulation` was here and is retired: the step
+                # count alone says whether to accumulate, and `steps = 1` IS
+                # the off position. A category naming a key with no type and
+                # no default draws nothing and hides the retirement.
+                "batch_size", "mixed_precision",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
             "Evaluation & Results": [
                 "cross_validation_enabled", "cross_validation_folds",
-                "cv_group_by", "nested_cv_inner_folds", "score_threshold",
+                # The plate held back from fitting, beside the folds it is
+                # the alternative to. Left out of this layout it fell into
+                # "Additional Settings", which is not a heading anyone chose;
+                # it is the absence of one.
+                "cv_group_by", "holdout_plate", "nested_cv_inner_folds",
+                "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
@@ -1284,7 +2594,7 @@ def categories_for_app(
                     "cross_validation", "reg_alpha", "reg_lambda",
                     "exclude", "nuclei_limit", "pathogen_limit",
                     "remove_highly_correlated_features",
-                    "remove_low_variance_features", "minimum_cell_count",
+                    "remove_low_variance_features", "min_cell_count",
                     "prune_features", "top_features", "n_repeats"],
             })
             # The heatmap is not a machine-learning setting: it is how a
@@ -1303,8 +2613,8 @@ def categories_for_app(
             # The shared groups are deliberately NOT prefixed. "Labels &
             # Classes" applies to both families, and prefixing it would
             # imply it belonged to one.
-            cv_prefix = "Computer Vision — "
-            ml_prefix = "Machine Learning — "
+            cv_family = "Computer Vision"
+            ml_family = "Machine Learning"
             cv_groups = ("Images & Cropping", "Model & Regularization",
                          "Training & Loss")
             # Feature preparation and feature importance were two headings
@@ -1320,15 +2630,15 @@ def categories_for_app(
                     rebuilt[name] = ordered[name]
             for name in cv_groups:
                 if name in ordered:
-                    rebuilt[cv_prefix + name] = ordered[name]
+                    rebuilt[_family_heading(cv_family, name)] = ordered[name]
             for name in ml_groups:
+                # A rename of `label` to "Classifier & Validation" stood here,
+                # guarded on `name.startswith("ML Classifier")` so the heading
+                # would not read "Machine Learning - ML Classifier". No entry
+                # of `ml_groups` has been called that since the groups above
+                # were consolidated, so it could not run and was removed.
                 if name in ordered:
-                    label = name
-                    if label.startswith("ML Classifier"):
-                        # Already named for its family; prefixing would read
-                        # "Machine Learning - ML Classifier".
-                        label = "Classifier & Validation"
-                    rebuilt[ml_prefix + label] = ordered[name]
+                    rebuilt[_family_heading(ml_family, name)] = ordered[name]
             # Shared groups that come LAST -- evaluation applies to both
             # families, so prefixing it onto one would be a lie about who it
             # belongs to, and putting it first would bury the settings that
@@ -1336,11 +2646,14 @@ def categories_for_app(
             for name in shared_last:
                 if name in ordered:
                     rebuilt[name] = ordered[name]
-            for name, keys in ordered.items():
-                if name not in rebuilt and name not in cv_groups \
-                        and name not in ml_groups and name not in shared_first \
-                        and name not in shared_last:
-                    rebuilt[name] = keys
+            # A catch-all that copied any group the five tuples above do not
+            # name stood here, and it could not run either: `ordered` is the
+            # literal a hundred lines up plus this branch's own two additions,
+            # and the tuples enumerate every one of them. It was a net against
+            # that literal growing a group nobody added to a tuple -- so the
+            # invariant it was catching is asserted directly instead, by
+            # `test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild`.
+            # A silent net that nobody has ever seen fire is not evidence.
             ordered = rebuilt
 
         moved = {key for keys in ordered.values() for key in keys}
@@ -1353,7 +2666,7 @@ def categories_for_app(
     if app_key == "external_masks":
         filter_keys = (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
-            "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            "nucleus_min_size", "pathogen_min_size", "organelle_min_area",
             "merge_edge_pathogen_cells",
         )
         for keys in result.values():
@@ -1395,6 +2708,57 @@ def categories_for_app(
 # ``app_screen`` re-exports this as ``SECTION_HINTS`` for the tests and
 # integrations that already read it by that name.
 CATEGORY_TOOLTIPS: Dict[str, str] = {
+    # -- optical pooled screening, folded onto Align & Stitch --------------
+    # Nine headings, and each needs an entry here or the panel draws the
+    # generic fallback: a heading whose tooltip says nothing about the
+    # settings under it is worse than no tooltip, because the reader has
+    # already spent the hover.
+    "OPS INPUT":
+        "Where the two acquisitions are read from and how they are laid "
+        "out on disk: the genotype folder, the phenotype folder, which "
+        "file extensions count, and what to do when a name collides or a "
+        "file is missing. Set these first; every other OPS group assumes "
+        "they are right.",
+    "OPS NAMING":
+        "How a filename is read back into well, site, channel and plane. "
+        "The regex and the axis letters are what turn a microscope's "
+        "naming scheme into coordinates, so a mosaic that comes out "
+        "scrambled is almost always wrong here rather than in stitching.",
+    "OPS STITCHING":
+        "Finding the overlap between neighbouring tiles: which feature "
+        "detector runs, how many features it looks for, and how far apart "
+        "two sites may be and still be treated as neighbours. Downsampling "
+        "trades registration accuracy for speed.",
+    "OPS STITCHING ADVANCED":
+        "The registration's own tolerances -- how many keypoints to keep, "
+        "how far a match may sit from the model before RANSAC rejects it, "
+        "and whether scale and rotation are allowed to vary at all. Leave "
+        "these alone unless a plate is failing to register.",
+    "OPS MOSAIC":
+        "Whether the stitched mosaic is built and written, whether every "
+        "channel is carried into it, and how confident a pair must be "
+        "before it is placed. This is the group that decides what actually "
+        "lands on disk.",
+    "OPS MOSAIC ADVANCED":
+        "Where the mosaic and its per-tile score table are written, in "
+        "which formats, and how far the preview is downsampled. Paths "
+        "only: nothing here changes the mosaic itself.",
+    "OPS ALIGNMENT":
+        "Placing the high-magnification phenotype images onto the "
+        "low-magnification genotype mosaic. The nucleus segmentation and "
+        "the outline it produces are what the two acquisitions are matched "
+        "on, so the model and diameter here decide whether they meet.",
+    "OPS QUALITY CONTROL":
+        "The figures the run leaves behind so a placement can be checked "
+        "afterwards, and how heavily the outlines are drawn on them. "
+        "Costs disk and a little time; it is what turns a bad alignment "
+        "from a mystery into a picture.",
+    "OPS PERFORMANCE":
+        "How much of the machine the run may use: worker counts for the "
+        "stitch and the feature pass, an OpenCV thread cap, a memory "
+        "ceiling for cached features, and where the cache and temporary "
+        "files live. Nothing here changes the result, only what it costs.",
+
     # -- shared headings from spacr.settings.categories --------------------
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "
@@ -1407,18 +2771,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "figures are drawn. Worth a look on any dataset you have not run "
         "before.",
     "CELL":
-        "How the cell mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. Open "
+        "How the cell mask is found — model, expected diameter, probability "
+        "and flow thresholds. What is done to the channel first, and which "
+        "of the masks it produces are kept, are under Advanced settings, "
+        "where the same choices for the other objects sit beside them. Open "
         "it when cells are missed, merged into their neighbours, or split "
         "in two.",
     "NUCLEUS":
-        "How the nucleus mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. "
+        "How the nucleus mask is found — model, expected diameter, "
+        "probability and flow thresholds; the channel preprocessing and the "
+        "size filters are under Advanced settings. "
         "Nuclei are the easiest object to get right, so they are a good "
         "place to check the channel assignment.",
     "PATHOGEN":
-        "How the pathogen mask is found and cleaned up — model, expected "
-        "diameter, probability and flow thresholds, background floor. "
+        "How the pathogen mask is found — model, expected diameter, "
+        "probability and flow thresholds; the channel preprocessing and the "
+        "size filters are under Advanced settings. "
         "Tightly packed parasites fusing into one object are the usual "
         "reason to come here.",
     "ORGANELLE":
@@ -1428,6 +2796,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters for you and says on the console what it picked — the "
         "rest are under Organelle advanced, still editable, if you want to "
         "change any of them.",
+    "ADVANCED SETTINGS":
+        "The umbrella over the settings that are one decision applied to "
+        "several objects — what is done to the pixels before segmentation, "
+        "which detected objects are kept, and how intensity decides "
+        "splitting and merging. Each group inside it is broken down per "
+        "object, so the same choice for cells and for nuclei sits side by "
+        "side instead of under two unrelated headings. Nothing here needs "
+        "touching on a first run.",
+    # PER OBJECT, and the parenthetical is load-bearing: "IMAGE
+    # PREPROCESSING" is already this table's key for the whole-image step
+    # mask and timelapse render, and a second heading spelled the same way
+    # would silently serve that blurb instead of this one.
+    "IMAGE PREPROCESSING (PER OBJECT)":
+        "What is done to each object's own channel before anything is "
+        "segmented — the background floor below which pixels are zeroed, "
+        "the signal-to-noise ratio that sets where the contrast stretch "
+        "tops out, and, for organelles, rolling-ball flattening and CLAHE. "
+        "The objects do not all offer the same steps, and each sub-heading "
+        "shows exactly the ones its object has.",
     # The workflow-ordered layouts render these under a longer title, and
     # the tooltip table is keyed on the heading's EXACT text -- which is the
     # trap the "Computer Vision — " prefix fell into and why instruction 73
@@ -1435,8 +2822,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION (ALL OBJECTS)":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied four times "
-        "rather than four unrelated knobs — the settings are ordered by "
+        "different objects, so they are one decision applied once per "
+        "object rather than a row of unrelated knobs — the settings are "
+        "ordered by "
         "object, so each group reads together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
@@ -1451,8 +2839,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied four times "
-        "rather than four unrelated knobs — the settings are ordered by "
+        "different objects, so they are one decision applied once per "
+        "object rather than a row of unrelated knobs — the settings are "
+        "ordered by "
         "object, so each group reads together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
@@ -1516,11 +2905,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "value of which column each class is. Open it first — everything "
         "downstream is a model of whatever this says.",
     "COMPUTER VISION DATA SOURCE":
-        "Where the training images come from and how they are cut. "
-        "Pre-generated crops are filtered by path and file type; on-demand "
-        "crops are cut from merged as training runs, which needs the "
-        "intensity channels and the object to cut around. The settings that "
-        "do not apply to the chosen source are greyed rather than hidden.",
+        "Where the training images come from and how they are cut. Loading "
+        "reads crops that were already exported, selected by one path "
+        "pattern; streaming cuts them from the merged arrays as training "
+        "runs, which needs the channel arrays and either an object table or "
+        "a mask array to cut around. The settings that do not apply to the "
+        "chosen source and stream method are greyed rather than hidden.",
     "COMPUTER VISION MODEL":
         "Which architecture, and how its input is scaled. A custom model path "
         "that loads supersedes the model type. Normalisation matters more "
@@ -1535,9 +2925,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "weight decay, gradient checkpointing. Reach for these when training "
         "accuracy climbs and validation accuracy does not.",
     "MODEL EVALUATION":
-        "How the fitted model is judged, and where the result is written — "
-        "cross-validation and its grouping, calibration, the leakage audit, "
-        "and Save Results to DB. Shared by both classifier families.",
+        "Cross-validation design used to estimate generalization performance: "
+        "whether validation runs, the number of folds, and the grouping unit. "
+        "Grouped folds keep related observations in the same partition and "
+        "reduce information leakage. These settings apply to both classifier "
+        "families.",
+    "EVALUATION REPORTS":
+        "Outputs produced after model evaluation: the metric bundle, "
+        "calibration curve and bins, output score column, and decision "
+        "threshold. Calibration compares predicted probabilities with "
+        "observed frequencies. These settings apply to both classifier "
+        "families.",
+    "LEAKAGE AUDIT":
+        "Checks whether training and test partitions share objects or "
+        "identical content, with configurable detection and failure behavior. "
+        "Partition overlap invalidates held-out performance estimates because "
+        "the evaluation then includes data seen during training.",
     "MACHINE LEARNING MODEL AND FEATURES":
         "The feature-based classifier: which model, and which measured "
         "features it is allowed to see. Feature preparation and feature "
@@ -1582,17 +2985,30 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "DBSCAN/KMeans parameters with their noise handling. Change these "
         "when the embedding is one undifferentiated blob, or shatters into "
         "dozens of tiny clusters.",
-    "UMAP DISPLAY":
-        "How the embedding is drawn, in both the static figure and the "
-        "interactive explorer: point size, colour and opacity, cluster "
-        "outlines, how many thumbnails are sampled, canvas and sidebar "
-        "widths, and figure saving. Presentation only — none of it moves a "
-        "point.",
+    "DIMENSIONALITY REDUCTION":
+        "Choose the reducer and the shared random seed and distance metric. "
+        "The method-specific groups below grey themselves automatically.",
+    "UMAP":
+        "UMAP-only neighbourhood and minimum-distance controls. These values "
+        "are retained but greyed whenever another reducer is selected.",
+    "T-SNE":
+        "t-SNE-only neighbourhood scale and optimisation controls.",
+    "PCA":
+        "PCA-only whitening and decomposition-solver controls.",
+    "ISOMAP":
+        "Isomap-only graph-neighbourhood and shortest-path controls.",
+    "SPECTRAL EMBEDDING":
+        "Spectral-only affinity graph and neighbourhood controls.",
+    "POINTS & IMAGES":
+        "How points, outlines and image thumbnails are rendered. These "
+        "presentation controls never refit or move the embedding.",
+    "CANVAS & OUTPUT":
+        "Canvas dimensions, background and figure-saving controls.",
     "ACTIVATION MAPS":
-        "Attribution settings for a trained image model — which method, "
-        "which layer is hooked, how the map is overlaid, and the "
-        "normalisation applied at inference. Open it when you want to know "
-        "what the classifier is actually looking at.",
+        "Attribution settings for a trained image model: method, target "
+        "layer, overlay rendering and inference normalization. These settings "
+        "determine which image regions are reported as contributing to a "
+        "classification.",
     "PLOT":
         "What is drawn from the results and how it looks — figure size, "
         "colour map, which control is shown alongside, and how many panels "
@@ -1626,11 +3042,86 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "features are selected and the filter windows applied to tracks. "
         "Only worth opening once the basic assay runs and the tracks look "
         "wrong in a specific way.",
-    "REGRESSION":
-        "The model that maps screen scores onto gRNA or well effect sizes, "
-        "its covariates, and the control-based threshold used to call a "
-        "hit. Change the family when the score distribution breaks the "
-        "assumptions the default makes.",
+    # The Qt regression layout's own section names. The shared
+    # spacr.settings.categories names for the same six groups are the
+    # "REGRESSION: ..." entries below; both maps are rendered, so both need a
+    # curated blurb or the section shows the generic fallback.
+    "RESPONSE":
+        "What is being modelled: which score column (or columns — name "
+        "several and each is fitted and corrected as its own family), "
+        "whether one row is a well or a single cell, and how the values are "
+        "collapsed and transformed before the model sees them.",
+    "PERMUTATION TEST":
+        "Read only when inference resolves to the nonparametric test. These "
+        "control the permutation itself: how many, what is held fixed "
+        "(normally the plate), the random seed, and how many wells a guide "
+        "must appear in before it is testable.",
+    "REGRESSION: RESPONSE":
+        "What is being modelled: which score column (or columns — name "
+        "several and each is fitted and corrected as its own family), "
+        "whether one row is a well or a single cell, and how the values are "
+        "collapsed and transformed before the model sees them.",
+    "MODEL & INFERENCE":
+        "Two questions, asked in order. WHAT IS ESTIMATED is 'Level': "
+        "'gRNA' gives one estimate per guide, 'gene' one estimate per gene "
+        "with its guides pooled, 'both' gives each separately, corrected as "
+        "its own family. HOW THE P VALUE IS REACHED is 'Inference': "
+        "'parametric' fits every term at once and needs more wells than "
+        "terms; 'nonparametric' tests each term on its own by permutation "
+        "and has no such limit; 'auto' counts them and picks. The two are "
+        "independent — every level is available under either.\n"
+        "A THIRD ANALYSIS exists on the fitted side only: 'Regression type' "
+        "= 'mixed' estimates gene effects while modelling the guide-to-guide "
+        "spread inside each gene, which is why it answers both levels at "
+        "once and greys 'Level'. There is no permutation equivalent — a "
+        "variance component is something a model estimates — so under "
+        "nonparametric inference the family is not read at all and says so.\n"
+        "Below them: the multiple-testing correction applied across the "
+        "tested family, the level it targets, and the control-based "
+        "effect-size threshold. With hundreds of guides an uncorrected P "
+        "value is not evidence. Together, these settings define what counts "
+        "as a hit.",
+    "REGRESSION: MODEL":
+        "Select the estimation level and inference method independently. "
+        "'Level' requests one effect per guide, one per gene, or separate "
+        "results for both. 'Parametric' inference fits all terms "
+        "simultaneously and therefore requires more wells than terms; "
+        "'nonparametric' inference tests terms by plate-blocked permutation; "
+        "'auto' selects the method supported by the design. 'Regression "
+        "type' selects the fitted model family. The mixed model nests guides "
+        "within genes and reports both levels.",
+    "REGRESSION: MODEL TUNING":
+        "Per-family knobs. Each applies to only some regression types, and a "
+        "family refuses a setting it cannot read rather than ignoring it, so "
+        "nothing here changes a fit silently. Leave them alone unless the "
+        "chosen family documents the one you are changing.",
+    "REGRESSION: PERMUTATION TEST":
+        "Read only when inference resolves to the nonparametric test. These "
+        "control the permutation itself: what is measured, how many "
+        "reshuffles, what is held fixed (normally the plate), the random "
+        "seed, and how many wells a guide must appear in before it is "
+        "testable. They apply to the gene pass as well as the guide pass: a "
+        "gene is tested as a SET, its regressor the sum of its guides' "
+        "fractions, permuted with the same scheme and the same seed and "
+        "corrected as its own family — never by combining its guides' P "
+        "values, which would assume an independence guides scored in the "
+        "same wells do not have.",
+    "REGRESSION: SIGNIFICANCE":
+        "What counts as a hit: the multiple-testing correction applied across "
+        "the tested family, the level it targets, and the control-based "
+        "effect-size threshold. With hundreds of guides an uncorrected P "
+        "value is not evidence, so this is the section to get right.",
+    "REGRESSION: QUALITY FILTERS":
+        "Everything that decides which rows reach the model — minimum cells "
+        "per well, minimum observations per guide, the read-fraction cutoff "
+        "and outlier removal. Each one silently shrinks the dataset, so "
+        "check the diagnostics after changing any of them.",
+    "REGRESSION: DIAGNOSTICS":
+        "Assess fit validity using variance homogeneity, residuals, the model "
+        "design matrix, influence and calibration. Outputs are written per "
+        "fit as figures, a combined PDF and a text report. Diagnostics are "
+        "enabled for individual analyses and disabled during parameter sweeps "
+        "to avoid generating large numbers of intermediate files.",
     "INVASION ASSAY":
         "The two-colour invasion readout: which channels carry the outside "
         "and total stains, how the outside signal is measured, how its "
@@ -1658,10 +3149,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "segments correctly until the channel assignment and the naming "
         "convention here are right.",
     "WORKFLOW & TEST RUN":
-        "Which stages actually execute, whether this is a small test pass "
-        "over a few fields, and whether an interrupted run picks up where "
-        "it stopped. Start every new dataset here with a test run before "
-        "committing to the full plate.",
+        "Select the stages to execute, enable a small test run over a subset "
+        "of fields, and configure resumption after interruption. Validate a "
+        "new dataset with a test run before processing the complete plate.",
     "IMAGE PREPROCESSING":
         "What happens to the pixels before any mask is made — intensity "
         "normalisation, projection, upscaling, denoising, and how fields "
@@ -1785,8 +3275,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "INFECTION CLASSIFICATION":
         "How a tracked cell is called infected, uninfected or ambiguous — "
         "which strategy is used, which table it reads, and where the "
-        "probability cutoffs sit. The strategy chosen here decides which of "
-        "the groups below actually apply.",
+        "probability cutoffs are placed. The selected strategy determines "
+        "which settings groups below are applicable.",
     "XGBOOST INFECTION MODEL":
         "Training and tree parameters for the supervised infection "
         "classifier, plus the probability threshold and margin that turn "
@@ -1846,8 +3336,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "the reported accuracy looks too good to be true.",
     "FEATURE SELECTION & IMPORTANCE":
         "Whether features are pruned before the final fit, and how repeated "
-        "permutation importance is computed afterwards. This is the part "
-        "that answers which measurements the decision is actually based on.",
+        "permutation importance is computed afterwards. These settings "
+        "identify the measurements contributing to model decisions.",
     "OUTPUT & DATABASE":
         "Whether model scores are written back into the measurements "
         "database so later modules can read them. Leave it off for "
@@ -1861,24 +3351,22 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The metadata, score and count tables the regression runs on. All "
         "three have to agree on well and gRNA naming — disagreement there "
         "is the usual cause of an empty result.",
-    "CONTROLS & PLATE DESIGN":
-        "The plate identifier, which wells are the positive and negative "
-        "controls, and any row filter applied before fitting. The controls "
-        "set the scale the effect sizes are reported on.",
-    "MODEL & COVARIATES":
-        "The regression family, the response variable, how replicates are "
-        "aggregated and transformed, regularisation, and the covariance "
-        "structure. Switch families when the residuals are clearly not what "
-        "the default assumes.",
-    "HIT CALLING & OUTLIERS":
-        "How much evidence a gRNA needs before it can be a hit — minimum "
-        "cell and well counts, the control-derived threshold and its "
-        "multiplier, and outlier rejection. Tighten these when the hit list "
-        "fills up with low-count noise.",
-    "REGRESSION PLOTS":
-        "The volcano plot, and the axis transforms and ranges used to draw "
-        "the regression output. Cosmetic: the fitted coefficients do not "
-        "change.",
+    # "CONTROLS & PLATE DESIGN", "QUALITY FILTERS" and "SIGNIFICANCE & HIT
+    # CALLING" were retired on 2026-08-17 with instruction 135: the first two
+    # merged into "CONTROLS & FILTERS" and the third into "MODEL &
+    # INFERENCE". Their hints merged with them rather than being dropped.
+    "CONTROLS & FILTERS":
+        "Which rows reach the model, and what they are measured against. The "
+        "plate identifier, the positive and negative control wells, any row "
+        "filter — and every cutoff that drops data: minimum cells per well, "
+        "minimum observations per guide, the read-fraction cutoff and "
+        "outlier removal. The controls set the scale the effect sizes are "
+        "reported on; each cutoff silently shrinks the dataset, so check the "
+        "diagnostics after changing one.",
+    # "MODEL & COVARIATES", "HIT CALLING & OUTLIERS" and the flat "REGRESSION"
+    # heading were retired when the regression layout was split into Response
+    # / Model & Inference / Estimator Tuning / Permutation Test / Significance
+    # & Hit Calling / Quality Filters. Their replacements are above.
     "ADDITIONAL SETTINGS":
         "The remaining knobs belonging to individual regression families "
         "and plots — bootstrap counts, quantile and hinge parameters, "
@@ -1945,10 +3433,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     # identically is the point: someone who learned them once should not have
     # to relearn them in the next module.
     "INPUT & CHANNELS":
-        "Where the images come from and which planes of each one the module "
-        "actually looks at, plus whether they are normalised or inverted "
-        "first. A run that finds nothing at all is usually a channel index "
-        "pointing at an empty plane.",
+        "Image source, planes read by the module, and normalization or "
+        "inversion applied before analysis. An empty result can indicate a "
+        "channel index assigned to an empty plane.",
     "MODEL":
         "Which weights do the segmenting — a packaged model, or a checkpoint "
         "of your own — and the object size they should expect. Nothing is "
@@ -2024,6 +3511,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Where the report is written and whether figures are drawn and kept. "
         "Leave saving off while you are still deciding which checks matter "
         "for this library.",
+    # Measure's single illumination heading. The Illumination screen's four
+    # tabs keep their own blurbs below; this one covers all of them, because
+    # under Measure they are one section.
+    "ILLUMINATION CORRECTION":
+        "Whether the microscope's uneven lighting is estimated from these "
+        "fields and divided out before any intensity is measured, and how "
+        "that estimate is made and checked. Turn it on when the same cell "
+        "measures differently depending on where in the field it sat; "
+        "leaving it off keeps that bias in every intensity feature.",
     # -- Illumination ------------------------------------------------------
     "CORRECTION MODEL":
         "How the uneven lighting field is estimated and removed — the family "
@@ -2085,6 +3581,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "cut-off, the convergence tolerance, and the bootstrap counts behind "
         "the hinge and lasso selection thresholds. Only the ones matching "
         "the model chosen above have any effect.",
+    "SOURCE & PROVENANCE":
+        "The exact database, prediction, sequencing and result artifacts used "
+        "by this run. Preserve these paths and hashes so the explanation can "
+        "be reproduced instead of silently following the newest file.",
+    "SURROGATE & VALIDATION":
+        "The interpretable estimator and grouped held-out test used to decide "
+        "whether it reproduces the CV model well enough to explain it.",
+    "IMPORTANCE & DIAGNOSTICS":
+        "Permutation, SHAP and correlation controls. These are only "
+        "interpretable after the held-out fidelity gate passes.",
+    "SELECTED HIT":
+        "The gene, guides, direction and regression evidence carried forward "
+        "from the exact selected result.",
+    "ATTRIBUTION MODEL":
+        "Cross-fit grouping, independent morphology features and probability "
+        "threshold for hit-like candidates; these are not genotype calls.",
+    "EVIDENCE & OUTPUT":
+        "Well-level bootstrap/permutation evidence, blinded gallery sampling, "
+        "versioned database storage and exported artifacts.",
     # -- Power / Design ----------------------------------------------------
     #
     # "Power analysis" is the single heading `spacr/qt/screens/power.py`
@@ -2104,8 +3619,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "lever on detection power.",
     "PLATE LAYOUT":
         "How the library is spread over physical plates — wells per plate, "
-        "plate count, replicates, and cells sampled per well. This is where "
-        "a design becomes a number of plates somebody has to actually run.",
+        "plate count, replicates and cells sampled per well. These values "
+        "determine the physical plate and acquisition requirements.",
     "EFFECT & PREVALENCE":
         "What the screen is looking for and how rare it is: the effect size "
         "worth detecting, the fraction of genes expected to show it, the "
@@ -2163,30 +3678,67 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "over a new plate.",
     },
     "umap": {
-        "PATHS":
-            "The measurements database the embedding is built from. One "
-            "setting, and every other group depends on it.",
-        "MEASUREMENTS":
-            "Which tables and feature columns enter the embedding, and "
-            "which are excluded or dropped for being redundant. The single "
-            "most effective place to change what the map looks like.",
-        "PLATE LAYOUT & CONTROLS":
-            "Rules that drop whole rows out of the embedding by column "
-            "value — a failed well, an untreated control, a plate you are "
-            "not interested in today.",
-        "PLOT":
-            "How many rows are drawn and which column colours the points. "
-            "Colouring by a metadata column is the quickest way to see "
-            "whether a cluster is biology or batch.",
-        "ADVANCED":
-            "Where the crops are read from, worker count and verbosity. "
-            "Rarely touched once a project is set up.",
+        "INPUT DATA":
+            "Choose the measurements database, tables and feature columns "
+            "that enter the map, then exclude unwanted rows or redundant "
+            "measurements before fitting anything.",
+        "DIMENSIONALITY REDUCTION":
+            "Choose the reducer and the shared random seed and distance "
+            "metric. The method-specific groups below grey themselves "
+            "automatically when another reducer is selected.",
+        "UMAP":
+            "Tune UMAP's neighbourhood size and minimum distance to trade "
+            "fine local structure against a smoother view of global "
+            "relationships.",
+        "T-SNE":
+            "Tune t-SNE's perplexity, learning rate, exaggeration and "
+            "iteration budget when its neighbourhoods collapse or fail to "
+            "separate.",
+        "PCA":
+            "Choose PCA whitening and its decomposition solver. Change these "
+            "when component scales or the dimensions of a large table make "
+            "the default solver unsuitable.",
+        "ISOMAP":
+            "Set Isomap's graph neighbourhood and shortest-path method. "
+            "Change them when the manifold disconnects or bends across "
+            "biologically separate populations.",
+        "SPECTRAL EMBEDDING":
+            "Choose how Spectral Embedding builds its affinity graph and how "
+            "many neighbours connect it. Sparse or fragmented data usually "
+            "needs this group.",
+        "CLUSTERING":
+            "Choose the clustering algorithm and its density or cluster-size "
+            "controls, then decide whether noise is retained and which "
+            "metadata colours the result.",
+        "PLATE & BATCH CORRECTION":
+            "Describe plate, control and covariate columns used to remove "
+            "technical batch structure without treating real biological "
+            "differences as nuisance variation.",
+        "POINTS & IMAGES":
+            "Control point, outline and crop-thumbnail rendering after the "
+            "embedding is fitted. These presentation choices never move or "
+            "refit a sample.",
+        "CANVAS & OUTPUT":
+            "Set canvas and sidebar dimensions, background colour and figure "
+            "saving. Use these controls to prepare an export without changing "
+            "the analysis.",
+        "RUNTIME":
+            "Set worker parallelism and diagnostic verbosity. Reduce workers "
+            "when memory is constrained, or increase logging while tracing a "
+            "failed run.",
     },
     "recruitment": {
-        "MASK & CHANNEL MAPPING":
-            "Which array plane holds each mask and each intensity channel, "
-            "and which one the recruitment is measured on. A wrong index "
-            "here measures the wrong compartment without complaining.",
+        # CHANNELS ONLY, AND THE HEADING SAYS SO NOW. This category used to be
+        # "Mask & Channel Mapping" and to carry three `*_mask_dim` rows that
+        # `analyze_recruitment` never read -- instruction 364 measured zero
+        # reads against four each for their channel twins. The rows and their
+        # factory keys are gone, so both the heading and this blurb stop
+        # promising a mask index the module does not use.
+        "CHANNEL MAPPING":
+            "Which intensity channel holds each compartment, and which one "
+            "the recruitment is measured on. These are indices into the "
+            "merged stack, so a wrong one measures the wrong compartment "
+            "without complaining.",
         "OBJECT FILTERING":
             "The size and intensity windows an object has to fall inside to "
             "count, plus the per-well cell limits. These gates decide which "
@@ -2230,8 +3782,8 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "The expensive ones are off by default.",
         "ADVANCED":
             "Resume, failure tolerance, dry runs, worker count and "
-            "verbosity for the import. Turn strict errors on the first time "
-            "you import someone else's data.",
+            "verbosity for the import. Enable strict errors when validating a "
+            "new external data source.",
     },
     "timelapse": {
         "RUNTIME & RELIABILITY":
@@ -2251,11 +3803,6 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "on the way. Lower the worker count when the machine has other "
             "work to do; raise the verbosity when a fit is failing and you "
             "cannot see where.",
-    },
-    "regression": {
-        "RUNTIME & RELIABILITY":
-            "Whether a failed plate stops the run, and how large a fraction "
-            "of failures is tolerated before it does.",
     },
     "replication": {
         "OBJECT FILTERING":
@@ -2333,6 +3880,118 @@ def category_tooltip(
     return _translated_body(text, language, category=True)
 
 
+#: Help for the per-object SUB-HEADINGS inside an advanced family.
+#:
+#: KEYED ON THE OBJECT, NOT ON THE FAMILY, and written to read under any of
+#: them: the family heading above already says what the group decides, so the
+#: sub-heading only has to say which object it decides it for, and what is
+#: different about that object.
+#:
+#: A SEPARATE TABLE BECAUSE THE TITLES COLLIDE. A sub-heading titled "Cell"
+#: under "Object filtration" is not the top-level "Cell" segmentation
+#: category, and the shared table is keyed on the heading text alone -- so a
+#: title-only lookup hands a filtration sub-heading the blurb about Cellpose
+#: models and expected diameters. :func:`section_tooltip` tells them apart by
+#: the section's PATH, which is the only thing that differs.
+OBJECT_SUBHEADING_TOOLTIPS: Dict[str, str] = {
+    "CELL": (
+        "This group's decision as it applies to the cell mask -- the outer "
+        "boundary every other object is assigned to. Changing it moves the "
+        "denominator of every per-cell measurement, so it is the one to be "
+        "most careful with."),
+    "NUCLEUS": (
+        "This group's decision as it applies to the nucleus mask. Nuclei are "
+        "the roundest and best separated objects in a typical screen, so "
+        "values that are far from the ones the other objects need usually "
+        "mean the channel assignment is wrong rather than the filter."),
+    "PATHOGEN": (
+        "This group's decision as it applies to the pathogen mask. Parasites "
+        "sit inside a host cell and often touch each other, so this is where "
+        "a clump segmented as one object, or a vacuole counted as several, "
+        "is dealt with."),
+    "CYTOPLASM": (
+        "This group's decision as it applies to the cytoplasm, which is not "
+        "segmented at all -- it is the cell with the nucleus and the "
+        "pathogens subtracted. A filter here therefore acts on what is left "
+        "over, and follows whatever the other three were set to."),
+}
+
+
+def _organelle_subheading_tooltip(number: int) -> str:
+    """Help for one organelle slot's sub-heading, written from its number.
+
+    GENERATED, BECAUSE THE SLOTS ARE. Four of these were written out by hand,
+    which was the whole complaint: the fifth slot a run may declare had no
+    help at all and fell back to "Settings that control organelle 5", and the
+    fourth one's text told the user it was "the last one spaCR offers" --
+    true while the slots were fixed at four and a lie the moment the count
+    became a setting.
+    """
+    if number == 1:
+        return ("This group's decision as it applies to the first organelle "
+                "slot. Organelles are the most varied objects spaCR handles, "
+                "from diffraction-limited dots to a network filling the whole "
+                "cell, so the useful values here depend on which kind was "
+                "chosen.")
+    if number == 2:
+        return ("The same decision for the second organelle slot, which is "
+                "an independent object with its own channel and its own "
+                "type. A screen staining two organelles keeps their settings "
+                "apart here rather than sharing one set of values between "
+                "them.")
+    return (f"The same decision for organelle slot {number}, an independent "
+            "object with its own channel and its own type. It is defaulted "
+            "from the first slot, so a screen using fewer organelles can "
+            "ignore this heading without leaving anything unset, and it is "
+            "only worth opening when this slot's channel is actually being "
+            "segmented.")
+
+
+#: Every slot gets one, for the reason the registries are generated for every
+#: slot too: lowering `number_of_organelles` HIDES a slot rather than deleting
+#: it, so a heading that can come back has to have help waiting when it does.
+OBJECT_SUBHEADING_TOOLTIPS.update({
+    organelle_slot_label(role).upper(): _organelle_subheading_tooltip(
+        organelle_number(role))
+    for role in ALL_ORGANELLE_ROLES
+})
+
+
+def section_tooltip(app_key: str, section, language: Optional[str] = None) -> str:
+    """Return the blurb for one heading of the settings TREE.
+
+    A nested heading is resolved by its :attr:`SettingsSection.path`, not by
+    its title: "Cell" under "Object filtration" and the top-level "Cell"
+    segmentation category are the same word for two different groups, and a
+    title-only lookup would give the first one the second one's help.
+
+    :param app_key: module the section is being rendered for.
+    :param section: a :class:`SettingsSection`, or any ``(title, rows)``
+        pair -- an un-nested pair resolves exactly as before.
+    :param language: optional language override; defaults to the UI language.
+    """
+    path = tuple(getattr(section, "path", ()) or ())
+    title = getattr(section, "title", None)
+    if title is None:
+        title = section[0] if isinstance(section, tuple) else str(section)
+    if len(path) > 1:
+        text = OBJECT_SUBHEADING_TOOLTIPS.get(str(title).upper().strip(), "")
+        if text:
+            return _translated_body(text, language, category=True)
+    return category_tooltip(app_key, title, language)
+
+
+def section_tooltip_is_curated(app_key: str, section) -> bool:
+    """True when a tree heading has written help rather than the fallback."""
+    path = tuple(getattr(section, "path", ()) or ())
+    title = getattr(section, "title", None)
+    if title is None:
+        title = section[0] if isinstance(section, tuple) else str(section)
+    if len(path) > 1 and str(title).upper().strip() in OBJECT_SUBHEADING_TOOLTIPS:
+        return True
+    return category_tooltip_is_curated(app_key, title)
+
+
 def category_tooltip_is_curated(app_key: str, title: str) -> bool:
     """True when a category has a written blurb rather than the fallback.
 
@@ -2361,8 +4020,98 @@ def get_tooltips() -> Dict[str, str]:
 
 DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 
+#: The published docs root. `DOCS_API_BASE` is the AutoAPI subtree of it;
+#: the settings-flow page sits beside that subtree, not inside it.
+DOCS_SITE_BASE = "https://einarolafsson.github.io/spacr"
+
+#: The anchor prefix `tools/settings_flow.py` writes for each section.
+#: Kept as one constant because the page and this link must agree, and
+#: they are written by different programs.
+FLOW_ANCHOR = "setting-flow-"
+
+
+def _anchor_inside(key: str, module: str) -> str:
+    """The API anchor for ``key`` if its consumer lives in ``module``.
+
+    Returns "" when the setting is read somewhere else, or by a private
+    function that AutoAPI publishes no anchor for. Pointing at a symbol
+    from a DIFFERENT module would be a fragment the page does not carry,
+    which the browser ignores in silence -- item 3's defect.
+    """
+    try:
+        from spacr.qt.screens.setting_api_targets import SETTING_API_TARGETS
+    except Exception:                                        # noqa: BLE001
+        return ""
+    row = SETTING_API_TARGETS.get(key)
+    if not row:
+        return ""
+    where, symbol = row[0], row[1]
+    if where != "spacr." + str(module).replace("/", "."):
+        return ""
+    if not symbol or str(symbol).rsplit(".", 1)[-1].startswith("_"):
+        return ""
+    return f"{where}.{symbol}"
+
+
+def _has_a_flow_section(key: str) -> bool:
+    """Whether the settings-flow page can answer for this setting.
+
+    Imported lazily and forgivingly: the index is generated, and a
+    checkout that has not run the generator should lose the better link
+    rather than fail to draw the panel.
+    """
+    try:
+        from spacr.qt.screens.settings_flow_index import (
+            SETTINGS_WITH_A_FLOW_SECTION)
+    except Exception:                                        # noqa: BLE001
+        return False
+    return key in SETTINGS_WITH_A_FLOW_SECTION
+
 _APP_API_MODULE = {
+    # Registered without a mapping, so their help had no API page to link to.
+    # The Volcano Explorer redraws a finished regression's coefficient table
+    # and the Parameter Sweep reads the trials of a search that already ran;
+    # each points at the module that produced what it is showing.
+    # The Cells tab -- which objects a dot on the volcano is most consistent
+    # with. Instruction 131; the answer is pure pandas in `cell_montage` and
+    # the tab only loads what it names.
+    "cell_montage": "cell_montage",
+    "feature_dict": "feature_dict",
+    # THE FOLDED MODULES. These three reached this table through
+    # ``register_app(..., api_module=...)`` -- the push half of the seam
+    # absorbed below -- so folding them into a host screen and dropping
+    # the row would take the API link out of the hover help on every one
+    # of their settings, and the folded page's help would point at the
+    # generated API index instead of at the module that does the work.
+    "barcode_qc": "sequencing_qc",
+    "explain_cv": "surrogate",
+    "anndata_export": "anndata_export",
+    # Illumination reached this table from its own row too, and folded into
+    # Measure. Its module is the one that estimates the flat field, so the
+    # settings on the folded page point there rather than at the index.
+    "illumination": "illumination",
+    "volcano_explorer": "volcano_style",
+    # Image Scatter and PCA reached this table the same way, from their own
+    # rows. Both are folded onto Image UMAP now, and `unregister_app` takes a
+    # pushed entry back out with the row it came from -- so without these two
+    # lines the help on either screen falls back to the generated API index
+    # instead of the page that documents it.
+    "image_scatter": "qt/screens/image_scatter",
+    "pca": "qt/screens/pca",
+    # Curate the same way, from its own row into Make Masks. Its page is the
+    # brush rather than a settings form, so nothing asks for its link
+    # today; the line is here because the alternative is that the answer
+    # silently became the generated API index the first time anything did.
+    "curate": "qt/screens/curate",
+    "parameter_sweep": "parameter_sweep",
     "align": "align",
+    # OPS folds onto Align & Stitch and was never given a row, so the
+    # fold reference on the API homepage listed it as bare text and its
+    # settings' help pointed at the generated index. Its entry point is
+    # `spacr.spacrops.ops_preprocess` -- the same module `bridge` imports
+    # to run it -- and `spacrops` is a public module with a page of its
+    # own, so there was a page the whole time and nothing addressing it.
+    "ops": "spacrops",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",
@@ -2410,7 +4159,7 @@ def _absorb_registered_api_modules() -> None:
     :func:`spacr.qt.app.register_app` PUSHES into this table when this
     module is already imported, and this picks up whatever registered
     before it was, so the order of the two imports stops mattering.
-    Without it a module that registers itself sends its ⓘ link to the
+    Without it a module that registers itself sends its API link to the
     generated API index rather than to its own page.
     """
     app = sys.modules.get("spacr.qt.app")
@@ -2425,6 +4174,146 @@ def _absorb_registered_api_modules() -> None:
 
 
 _absorb_registered_api_modules()
+
+
+#: Settings whose documentation lives on the evaluation module's page rather
+#: than on the page of whichever app happens to display them. A constant, not
+#: a literal inside :func:`api_docs_url`: that function is called once per
+#: setting per tooltip, so building these two sets there rebuilt them
+#: thousands of times per panel.
+_EVALUATION_DOC_KEYS = frozenset({
+    "classifier_evaluation",
+    "nested_cv_inner_folds",
+    "evaluation_calibration",
+    "evaluation_bins",
+    "evaluation_fail_on_leakage",
+    "leakage_audit_train_test",
+    "leakage_hash_content",
+    "leakage_require_identity",
+})
+
+#: UMAP settings documented on the hyperparameter-search page.
+_UMAP_SEARCH_DOC_KEYS = frozenset({
+    "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
+    "random_seed", "resume_search", "n_neighbors_step",
+    "min_dist_step", "min_improvement", "max_panels",
+    "umap_stability_repeats", "umap_neighborhood_weight",
+    "umap_stability_weight", "umap_cluster_structure_weight",
+})
+
+
+def _mapped_api_target(key: str, app_key: str = "") -> tuple[str, str]:
+    """``(module_path_segment, anchor)`` for a setting, or ``("", "")``.
+
+    Reads the tables generated by ``tools/build_setting_consumer_map.py``. A
+    missing table is not an error -- the caller falls back to the plain
+    module link -- so a checkout that has not run the generator still gets
+    the old behaviour rather than no link.
+
+    THE APP IS PART OF THE QUESTION, since 2026-09-08. Reported: "i just
+    tried sourse in mask and got a 404 error". `src` is shown in 41
+    panels and this function was keyed on the SETTING ALONE, so all 41
+    were sent to `annotation_dataset.generate_annotation_dataset` -- a
+    real consumer, and the right one for at most one of them. No better
+    ranking could have fixed that: the function was not told who was
+    asking.
+
+    So the per-module table is consulted first, and only for the module
+    the asking app's help already points at. A setting that module does
+    not read has no row there and falls through to the single answer,
+    which is what every setting had before.
+
+    :param key: the setting.
+    :param app_key: the app whose panel is drawing it. Omitted, the
+        behaviour is exactly the old one.
+    """
+    if not key:
+        return ("", "")
+    try:
+        from .setting_api_targets import (SETTING_API_TARGETS,
+                                          SETTING_API_TARGETS_BY_MODULE)
+    except Exception:                                        # noqa: BLE001
+        return ("", "")
+    target = SETTING_API_TARGETS.get(key)
+    own = _APP_API_MODULE.get(app_key) if app_key else None
+    if own:
+        rows = SETTING_API_TARGETS_BY_MODULE.get(key) or {}
+        row = rows.get("spacr." + str(own).replace("/", "."))
+        if row is not None:
+            symbol, _exact = row
+            target = ("spacr." + str(own).replace("/", "."), symbol, _exact)
+    if not target:
+        return ("", "")
+    module, symbol, _exact = target
+    if not module.startswith("spacr."):
+        return ("", "")
+    # "spacr.batch_correction" -> "batch_correction"; nested packages keep
+    # their path so "spacr.qt.screens.x" would be "qt/screens/x".
+    segment = module[len("spacr."):].replace(".", "/")
+    return (segment, f"{module}.{symbol}" if symbol else "")
+
+
+#: WHERE A TILE LANDS WHEN SIX TILES SHARE THREE PAGES.
+#:
+#: Measured: `mask` and `umap` both open
+#: `spacr.core`, and all four toxoplasma assays -- Analyze Plaques,
+#: Recruitment, Invasion, Replication -- open `spacr.submodules`. A reader
+#: who clicked "Recruitment" BECAUSE THEY DID NOT KNOW WHAT IT DOES arrived
+#: at the same text as someone who clicked "Analyze Plaques", and one page
+#: cannot answer for both.
+#:
+#: It is fixed by where the tile POINTS rather than by new prose, because the
+#: prose already exists and is good: each of these six entry points carries
+#: between 238 and 684 words about that module specifically -- what the
+#: red/green invasion asymmetry means and which direction its error runs,
+#: why replication is a distribution and not a mean, which channel ratio
+#: recruitment computes. Autoapi gives every function an anchor, so the tile
+#: can land on the section that answers for it.
+#:
+#: ONLY THE MODULE-LEVEL LINK USES THIS -- the one behind the tile and the
+#: masthead, where `key` is empty and the question is "what is this module".
+#: A SETTING's help is unchanged: it still resolves through the generated
+#: consumer map to wherever that value is actually read, which is a
+#: different question and usually a different function.
+#:
+#: An entry whose anchor does not live in the module `_APP_API_MODULE` names
+#: for the same key is IGNORED rather than followed, so renaming an entry
+#: point degrades to today's plain module link instead of producing a
+#: fragment that scrolls nowhere.
+_APP_API_ANCHOR = {
+    "mask": "spacr.core.preprocess_generate_masks",
+    "umap": "spacr.core.generate_image_umap",
+    "analyze_plaques": "spacr.submodules.analyze_plaques",
+    "recruitment": "spacr.submodules.analyze_recruitment",
+    "invasion": "spacr.submodules.analyze_invasion",
+    "replication": "spacr.submodules.analyze_replication",
+}
+
+
+def _module_level_anchor(app_key: str, module: str) -> str:
+    """The anchor for a tile that shares its page, checked against `module`."""
+    anchor = _APP_API_ANCHOR.get(app_key, "")
+    if not anchor or not module:
+        return ""
+    expected = f"spacr.{module.replace('/', '.')}."
+    return anchor if anchor.startswith(expected) else ""
+
+
+#: Settings that begin "batch_" and have nothing to do with batch-effect
+#: correction.
+#:
+#: The rule below sends every `batch_*` setting to `spacr.batch_correction`,
+#: which is right for the six that module reads and wrong for these two:
+#: `batch_fields` is how many fields the mask pipeline processes at once and
+#: `batch_size` is a machine-learning batch size. A reader pressing API on
+#: either was told to read about removing batch EFFECTS, which is a
+#: different subject that happens to share a word.
+#:
+#: A deny-list rather than an allow-list, deliberately: a new
+#: batch-correction setting should be picked up by the prefix without
+#: anybody remembering to add it, and a new stranger is the rarer case and
+#: the one worth stating.
+_BATCH_PREFIX_STRANGERS = frozenset({"batch_fields", "batch_size"})
 
 
 def api_docs_url(
@@ -2446,38 +4335,207 @@ def api_docs_url(
         plugin_app = None
     if plugin_app is not None and plugin_app.docs_url:
         return plugin_app.docs_url
-    evaluation_keys = {
-        "classifier_evaluation",
-        "nested_cv_inner_folds",
-        "evaluation_calibration",
-        "evaluation_bins",
-        "evaluation_fail_on_leakage",
-        "leakage_audit_train_test",
-        "leakage_hash_content",
-        "leakage_require_identity",
-    }
-    umap_search_keys = {
-        "criterion", "search_mode", "adaptive", "n_trials", "n_folds",
-        "random_seed", "resume_search", "n_neighbors_step",
-        "min_dist_step", "min_improvement", "max_panels",
-        "umap_stability_repeats", "umap_neighborhood_weight",
-        "umap_stability_weight", "umap_cluster_structure_weight",
-    }
-    if key.startswith("batch_"):
+    anchor = ""
+    # A HAND-WRITTEN TARGET IS A DECISION, and the flow fallback below must
+    # not quietly overrule it. Each of these three was checked by a person:
+    # a batch-correction setting lands on the module that IMPLEMENTS the
+    # correction rather than on whichever app displays it. Those modules
+    # have no per-setting anchor, so without this flag the fallback saw
+    # "module, no anchor" and sent all seven batch settings to the flow
+    # page -- which `test_defaults_and_gui_categories_expose_batch
+    # _correction` caught within the hour.
+    chosen_by_hand = True
+    if key.startswith("batch_") and key not in _BATCH_PREFIX_STRANGERS:
         module = "batch_correction"
-    elif key in evaluation_keys:
+    elif key in _EVALUATION_DOC_KEYS:
         module = "classifier_evaluation"
-    elif app_key == "umap" and key in umap_search_keys:
+    elif app_key == "umap" and key in _UMAP_SEARCH_DOC_KEYS:
         module = "hyperparam"
     else:
-        module = _APP_API_MODULE.get(app_key)
-    if module:
+        chosen_by_hand = False
+        # Instruction 336. Before this, every row fell through to the SCREEN's
+        # module, so a setting read twelve calls down still linked to the entry
+        # point the reader was already looking at. The generated map says where
+        # the value is actually read, from an AST walk rather than the panel it
+        # is drawn on. The hand-written cases above still win: they were
+        # checked by a person and this table is mechanical.
+        module, anchor = _mapped_api_target(key, app_key)
+        if not module:
+            module = _APP_API_MODULE.get(app_key)
+    if not key and not anchor:
+        # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
+        # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
+        anchor = _module_level_anchor(app_key, module or "")
+    if chosen_by_hand and module and not anchor and key:
+        # A CURATED MODULE CAN STILL HAVE A PRECISE ANCHOR. The three cases
+        # above choose the module a person decided the reader should land in
+        # -- and then left the anchor empty, so the link went to the top of
+        # that page. The consumer map often knows the symbol INSIDE that same
+        # module, and taking it keeps the decision while adding the part the
+        # hand-written table never carried.
+        #
+        # The KEY-ONLY map, not the per-module one, and the difference is why
+        # the obvious version of this found nothing: the per-module table is
+        # restricted to modules some app's help links to, and
+        # `batch_correction` is not one -- it implements a correction, it does
+        # not host a panel. Its row lives in the key-only map.
+        #
+        # Six of the eight batch settings gain
+        # `batch_correction.correction_kwargs` from this. The eight
+        # classifier-evaluation keys gain nothing and cannot: they are read in
+        # `deep_spacr`, so their curated module has no symbol to point at.
+        anchor = _anchor_inside(key, module)
+    if (module and not anchor and key and not chosen_by_hand
+            and _has_a_flow_section(key)):
+        # A MODULE PAGE THAT MAY NOT MENTION THE SETTING. Instruction 383:
+        # "i tested the API link for Magnefication and got a page with no
+        # mention of magnefication". It was not a wrong module -- utils IS
+        # where magnification is read -- but the only consumer is private,
+        # so there is no anchor to aim at and the reader lands at the top
+        # of 4,000 lines. 245 of 796 links are in that position.
+        #
+        # The flow page names the setting, carries its help text and lists
+        # every function that reads it, private ones included, each linked
+        # on to its own API page. So it answers the question the reader
+        # pressed API to ask, and the module page is one click further on
+        # rather than lost.
+        url = f"{DOCS_SITE_BASE}/settings_flow.html#{FLOW_ANCHOR}{key}"
+    elif module:
         url = f"{DOCS_API_BASE}/spacr/{module}/index.html"
+        if anchor:
+            url = f"{url}#{anchor}"
     else:
         url = f"{DOCS_API_BASE}/index.html"
     code = _language_code(language)
-    return f"{url}?lang={code}" if code != "en" else url
+    if code == "en":
+        return url
+    # The query has to precede the fragment or the browser keeps the anchor
+    # inside the query string and the page lands at the top.
+    base, _, frag = url.partition("#")
+    return f"{base}?lang={code}" + (f"#{frag}" if frag else "")
 
+
+
+#: Phrases a setting's own description uses to state a 0-to-1 domain.
+_UNIT_INTERVAL_PHRASES = (
+    "between 0 and 1",
+    "strictly inside 0 and 1",
+    "0 and 1",
+)
+
+
+#: Settings whose value is EITHER a positive number OR the word "auto".
+#: Built as a QDoubleSpinBox whose minimum reads "auto"
+#: (:meth:`QDoubleSpinBox.setSpecialValueText`) -- one control that expresses
+#: both, with no new widget class and no second field to keep in step.
+#:
+#: `alpha` is here because it was UNSETTABLE. Its shipped default is the
+#: integer 1, so the panel inferred an integer and built a QSpinBox: the
+#: documented 'auto' could not be typed, and neither could any value below 1.
+#: Every value the control could reach shrinks a fraction-scale design to
+#: nothing -- measured on the reference screen, alpha=1 sent all 790
+#: coefficients to exactly zero -- so the penalised families could not be run
+#: from the GUI at all.
+AUTO_OR_NUMBER_SETTINGS = ("alpha",)
+
+# These integer settings are undefined at zero and negative values. Limiting
+# the editor prevents the GUI from producing values rejected by the engine;
+# pre-flight validation still handles settings loaded from external files.
+POSITIVE_INTEGER_SETTINGS = frozenset({"guide_permutations"})
+
+#: What the minimum of such a spin box means, and what it shows.
+AUTO_TEXT = "auto"
+
+
+def _auto_or_number_box(default):
+    """A spin box for a setting that takes a positive number or "auto"."""
+    box = QDoubleSpinBox()
+    box.setDecimals(6)
+    box.setRange(0.0, 1e6)
+    box.setSingleStep(0.001)
+    # Qt shows the SPECIAL TEXT in place of the minimum, so 0.0 is the
+    # spelling of "auto" and the user reaches it by winding the box down --
+    # which is also where somebody hunting for a smaller penalty is heading.
+    box.setSpecialValueText(AUTO_TEXT)
+    _set_auto_or_number(box, default)
+    return box
+
+
+def _set_auto_or_number(box, value) -> None:
+    """Put ``value`` -- a number, ``None``, or "auto" -- into such a box."""
+    if value is None or str(value).strip().lower() == AUTO_TEXT:
+        box.setValue(box.minimum())
+        return
+    try:
+        box.setValue(float(value))
+    except (TypeError, ValueError):
+        box.setValue(box.minimum())
+
+
+def _read_auto_or_number(box):
+    """"auto" when the box is at its minimum, otherwise the float."""
+    return AUTO_TEXT if box.value() <= box.minimum() else float(box.value())
+
+
+def _permits_float(key: str) -> bool:
+    """Whether ``spacr.settings`` allows this setting to hold a fraction.
+
+    The widget for a number is otherwise chosen from the DEFAULT VALUE's
+    Python type, and a float-valued setting that happens to ship a round
+    default ships an ``int``. `cell_flow_threshold` defaults to 100 and is
+    documented "usable range about 0-3" with Cellpose's own default at 0.4,
+    so an integer box let the user choose 0, 1, 2 or 3 and nothing between.
+    `perimeter_fraction` is declared a plain float and a FRACTION, and could
+    only be set to 0 or 1.
+
+    :param key: the setting name.
+    :returns: True when the declared type admits a float.
+    """
+    try:
+        from spacr.settings import expected_types
+    except Exception:                                    # noqa: BLE001
+        return False
+    declared = expected_types.get(key)
+    if declared is None:
+        return False
+    types = declared if isinstance(declared, tuple) else (declared,)
+    return float in types
+
+
+def _float_domain(key: str, default: float):
+    """Return the minimum, maximum, and step for a float editor.
+
+    The range follows the setting's documented numeric domain. The step
+    follows the magnitude of the default so a single wheel event cannot move
+    fractional settings by a whole unit.
+    """
+    magnitude = abs(float(default))
+    if magnitude and magnitude < 1:
+        step = 0.01
+    elif magnitude < 10:
+        step = 0.1
+    else:
+        step = 1.0
+
+    text = ""
+    try:
+        from ... import settings as _settings
+
+        # `tooltips`, not `descriptions`: `descriptions` is keyed by APP, and
+        # `tooltips` is the per-setting text that states the domain.
+        text = str(_settings.tooltips.get(key, "") or "").lower()
+    except Exception:                                    # noqa: BLE001
+        text = ""
+    if any(phrase in text for phrase in _UNIT_INTERVAL_PHRASES):
+        # The setting says it lives in the unit interval. Hold the box to it:
+        # a probability the user cannot type is better than a run that dies
+        # forty seconds in having already written half a results folder.
+        # The floor is the smallest value the box can express, not 0: a
+        # setting whose own text says "between 0 and 1" is refused at 0 by
+        # the code that reads it, so a box that clamps a bad saved value to
+        # 0.0 has only moved the failure. With decimals=6 that floor is 1e-6.
+        return 1e-6, 1.0, min(step, 0.01)
+    return -1e12, 1e12, step
 
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
                str: "string", list: "list", tuple: "tuple",
@@ -2513,6 +4571,11 @@ def _type_hint(key: str) -> str:
 
 
 def _humanize(key: str) -> str:
+    """Render a setting key as its human label.
+
+    :param key: the setting name.
+    :returns: its label, and ``""`` for an empty key.
+    """
     return setting_label(key) if key else ""
 
 
@@ -2523,11 +4586,107 @@ def _strip_type_prefix(text: str) -> str:
     return re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", text or "").strip()
 
 
+#: ``argument -> resolved code`` while a :func:`language_resolved_once`
+#: scope is open, and ``None`` when none is. See that function for why the
+#: cache is scoped rather than permanent.
+_LANGUAGE_SCOPE: Optional[Dict[Any, str]] = None
+
+#: How many nested :func:`language_resolved_once` scopes are open. Nesting is
+#: the normal case, not an edge one: a screen wraps its whole panel build and
+#: ``build_sections`` wraps itself, so the inner scope must not drop the cache
+#: the outer one is still using.
+_LANGUAGE_SCOPE_DEPTH = 0
+
+#: Translated fragments already resolved inside the open scope, or ``None``.
+#: Every setting is rendered TWICE while a panel is built -- once as the
+#: HTML tooltip on the widget and once as the plain hint under the form --
+#: and the two share their name, their type hint and their prose. Scoped for
+#: the same reason the language is: a catalog upgrade or a renamed organelle
+#: slot must reach the next panel, and inside one synchronous build neither
+#: can happen.
+_TRANSLATION_MEMO: Optional[Dict[Any, Any]] = None
+
+
+@contextmanager
+def language_resolved_once():
+    """Cache language and translation lookups during one synchronous build.
+
+    Nested scopes share the outermost cache. The cache is discarded when the
+    outermost scope exits so subsequent builds observe language or catalog
+    changes.
+    """
+    global _LANGUAGE_SCOPE, _LANGUAGE_SCOPE_DEPTH, _TRANSLATION_MEMO
+    if _LANGUAGE_SCOPE is None:
+        _LANGUAGE_SCOPE = {}
+        _TRANSLATION_MEMO = {}
+    _LANGUAGE_SCOPE_DEPTH += 1
+    # AND THE OTHER HALF OF THE SAME LOOKUP. The dicts above memoise what
+    # THIS module resolves; `i18n.tr` has its own path to the preference
+    # store and was still reading it once per translated string inside a
+    # scope that existed to stop exactly that. Opening both here keeps one
+    # scope for callers to reason about. Imported inside the function for
+    # the reason everything i18n is: `preferences` imports i18n, so the
+    # cycle is broken by lateness.
+    try:
+        from ..i18n import ui_language_resolved_once
+        ui_scope = ui_language_resolved_once()
+        ui_scope.__enter__()
+    except Exception:                                        # noqa: BLE001
+        ui_scope = None
+    try:
+        yield
+    finally:
+        if ui_scope is not None:
+            try:
+                ui_scope.__exit__(None, None, None)
+            except Exception:                                # noqa: BLE001
+                pass
+        _LANGUAGE_SCOPE_DEPTH -= 1
+        if _LANGUAGE_SCOPE_DEPTH <= 0:
+            _LANGUAGE_SCOPE_DEPTH = 0
+            _LANGUAGE_SCOPE = None
+            _TRANSLATION_MEMO = None
+
+
 def _language_code(language: Optional[str] = None) -> str:
     """Resolve ``language`` without making settings metadata depend on Qt."""
+    scope = _LANGUAGE_SCOPE
+    if scope is not None:
+        try:
+            return scope[language]
+        except KeyError:
+            pass
+        except TypeError:
+            # An unhashable argument cannot be cached; resolve it directly
+            # rather than refuse to answer.
+            scope = None
+
     from ..i18n import current_language, normalize_language
 
-    return normalize_language(language or current_language())
+    code = normalize_language(language or current_language())
+    if scope is not None:
+        scope[language] = code
+    return code
+
+
+def _translated_ui_text(
+    source: str,
+    language: Optional[str] = None,
+    **values: object,
+) -> str:
+    """Translate one complete explainer template, or retain its English.
+
+    Scientific guidance must use an exact catalog record. Falling through to
+    :func:`spacr.qt.i18n.tr`'s short-label term substitution could otherwise
+    produce a partly translated sentence while catalogs are being upgraded.
+    Format values are applied after translation so a locale may reorder them.
+    """
+    from ..i18n import _exact_translation, tr
+
+    code = _language_code(language)
+    if code == "en" or _exact_translation(str(source), code) is not None:
+        return tr(source, code, **values)
+    return tr(source, "en", **values)
 
 
 def _translated_body(
@@ -2535,6 +4694,7 @@ def _translated_body(
     language: Optional[str] = None,
     *,
     setting_key: str = "",
+    app_key: str = "",
     category: bool = False,
 ) -> str:
     """Translate setting prose only when a complete translation exists.
@@ -2551,25 +4711,34 @@ def _translated_body(
     code = _language_code(language)
     if code == "en":
         return source
+    memo = _TRANSLATION_MEMO
+    memo_key = ("body", source, code, setting_key, app_key, category)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
     from ..i18n import _exact_translation, tr
 
     try:
         from ..i18n_catalogs import category_help, setting_tooltip
         translated = (
-            setting_tooltip(setting_key, source, code)
+            setting_tooltip(setting_key, source, code, app_key)
             if setting_key
             else category_help(source, code) if category else None
         )
         if translated is not None:
+            if memo is not None:
+                memo[memo_key] = translated
             return translated
     except (ImportError, AttributeError):
         pass
 
-    return (
+    resolved = (
         tr(source, code)
         if _exact_translation(source, code) is not None
         else source
     )
+    if memo is not None:
+        memo[memo_key] = resolved
+    return resolved
 
 
 def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
@@ -2578,6 +4747,11 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     code = _language_code(language)
     if not source or code == "en":
         return source
+
+    memo = _TRANSLATION_MEMO
+    memo_key = ("type_hint", source, code)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
 
     from ..i18n import tr
 
@@ -2588,6 +4762,8 @@ def _translated_type_hint(key: str, language: Optional[str] = None) -> str:
     translated = " / ".join(tr(part, code) for part in core.split(" or "))
     if optional:
         translated = f"{translated} ({tr('optional', code)})"
+    if memo is not None:
+        memo[memo_key] = translated
     return translated
 
 
@@ -2597,22 +4773,31 @@ def _translated_setting_name(
     app_key: str = "",
 ) -> str:
     """Translate a short humanized setting label using the UI term catalog."""
+    code = _language_code(language)
+    memo = _TRANSLATION_MEMO
+    memo_key = ("setting_name", key, code, app_key)
+    if memo is not None and memo_key in memo:
+        return memo[memo_key]
+
     from ..i18n import _ROWS, _TERM_ROWS, tr
 
     source = _humanize(key)
-    code = _language_code(language)
     # The compact catalog is the hand-reviewed authority for exact terms.
     # External generated labels extend it, but never override a correction.
     if source in _ROWS or source in _TERM_ROWS:
-        return tr(source, code)
-    try:
-        from ..i18n_catalogs import setting_label
-        translated = setting_label(key, source, code, app_key)
-        if translated is not None:
-            return translated
-    except (ImportError, AttributeError):
-        pass
-    return tr(source, code)
+        resolved = tr(source, code)
+    else:
+        resolved = None
+        try:
+            from ..i18n_catalogs import setting_label
+            resolved = setting_label(key, source, code, app_key)
+        except (ImportError, AttributeError):
+            resolved = None
+        if resolved is None:
+            resolved = tr(source, code)
+    if memo is not None:
+        memo[memo_key] = resolved
+    return resolved
 
 
 def _api_reference_tooltip(
@@ -2641,7 +4826,9 @@ def format_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body_source = _translated_body(text, code, setting_key=key)
+    body_source = _translated_body(
+        text, code, setting_key=key, app_key=app_key
+    )
     body = escape(body_source)
     header = escape(_translated_setting_name(key, code, app_key))
     th = escape(_translated_type_hint(key, code))
@@ -2674,7 +4861,7 @@ def plain_tooltip(
     from ..i18n import tr
 
     code = _language_code(language)
-    body = _translated_body(text, code, setting_key=key)
+    body = _translated_body(text, code, setting_key=key, app_key=app_key)
     if not body:
         body = (f"Controls {_humanize(key).lower()}."
                 if code == "en" and key
@@ -2689,12 +4876,40 @@ def plain_tooltip(
     return f"{summary} — {api}" if summary else api
 
 
+def _is_self_labelling(widget) -> bool:
+    """Does this control carry its own visible label?
+
+    A `QCheckBox` does: its text sits beside the box and there is no separate
+    label to hang the help on. A composite field does NOT -- it is a
+    container, its text belongs to a child, and Qt delivers `Enter` to it
+    whenever the pointer crosses into any of those children, so decorating
+    it puts the help on the field.
+    """
+    from PySide6.QtWidgets import QAbstractButton, QLabel
+
+    if isinstance(widget, QLabel):
+        return True
+    if isinstance(widget, QAbstractButton):
+        try:
+            return bool(widget.text())
+        except (AttributeError, RuntimeError):
+            return False
+    return False
+
+
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
         # Re-render on entry so a Preferences language change cannot leave a
         # sticky popup displaying an earlier language.
+        """Show the API help popup instead of Qt's own tooltip.
+
+        :param watched: the widget being hovered.
+        :param event: the event.
+        :returns: ``True`` for the tooltip request it replaces, ``False``
+            otherwise.
+        """
         if event.type() == QEvent.Enter:
             refresh_api_tooltips(watched)
         html = watched.property("apiTooltipHtml")
@@ -2718,6 +4933,1592 @@ class _ApiTooltipFilter(QObject):
 #: once and removed cleanly rather than accumulating.
 _BASIS_NOTE_PROPERTY = "_spacr_basis_note"
 
+#: Where a label's own help is kept while a greyed-out reason is appended to
+#: it. Restored verbatim rather than stripped back off, because the note is
+#: rendered into HTML and un-rendering it is guesswork.
+_NOTE_BACKUP_PROPERTY = "_spacr_help_before_note"
+
+#: The reason a control is currently greyed, held on the CONTROL so it can be
+#: put on a label that does not exist yet, and removed from one that acquired
+#: it before there was anywhere to keep the original.
+_PENDING_NOTE_PROPERTY = "_spacr_greyed_reason"
+
+
+# ---------------------------------------------------------------------------
+# The Model & Inference explainer box (instruction 132)
+# ---------------------------------------------------------------------------
+#
+# "it is important for the user to know all of this."  A read-only box in the
+# Model & Inference section that states, for the CURRENT selection, the formula
+# that will be fitted and what it models.
+#
+# It is prose, not a tooltip, because the thing it has to say does not fit in
+# one: the default changed to `mixed`, and a mixed fit answers the gene
+# question WELL while giving up something the previous default appeared to
+# give -- a guide-level hit list. A user who takes the default and later goes
+# looking for their guide p-values is exactly who this box is for, so the cost
+# is a named section of it rather than a clause someone might not hover.
+#
+# THE TEXT IS BUILT BY A PURE FUNCTION so it can be asserted without a
+# QApplication, and so the formulas have one spelling in this file rather than
+# one per branch of a widget callback.
+
+#: The `level` choices offered when the backend is a fixed-effects one.
+#: `both` is the default: it fits the guide model and the gene model
+#: SEPARATELY and writes both tables.
+REGRESSION_LEVELS = ("both", "grna", "gene")
+
+#: The model part of each formula, without the plate terms -- those are
+#: decided by the settings and added by :func:`formula_for`.
+GRNA_TERM = "fraction:grna"
+GENE_TERM = "gene_fraction:gene"
+MIXED_TERM = "gene_fraction:gene + (1 | gene/grna)"
+
+#: One coefficient per guide. The guide is the unit the screen measures.
+GRNA_FORMULA = "y ~ fraction:grna"
+
+#: One coefficient per gene, from the summed guide fraction.
+GENE_FORMULA = "y ~ gene_fraction:gene"
+
+#: The mixed model: gene fixed, guide random and nested inside its gene.
+MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna)"
+
+
+def formula_for(term: str, *, plate_position: bool = False,
+                random_row_column: bool = False) -> str:
+    """The formula actually fitted, for one model term and the plate settings.
+
+    The box must show the formula the run fits. Previously,
+    `regression_model_explainer` took only `(regression_type, level)`, so the
+    three constants above were printed whatever the two plate settings said,
+    and a user who turned plate position OFF still read `+ rowID + columnID`.
+
+    That is the same class of failure as an axis that relabels itself without
+    moving its dots: the display asserts something the code does not do, and
+    nothing on screen says which to believe.
+
+    The three states produced by :func:`spacr.ml.prepare_formula` are no
+    position terms when ``plate_position=False``; fixed ``rowID`` and
+    ``columnID`` effects when ``plate_position=True``; and row/column variance
+    components when ``random_row_column=True``.
+
+    ``random_row_column`` implies the terms are present, so it wins over
+    ``plate_position=False``; that combination is refused upstream
+    (`_reconcile_random_row_column_effects`) and this renders what the refusal
+    would be about rather than inventing a fourth state.
+
+    :param term: the model part, e.g. ``"fraction:grna"`` or
+        ``"gene_fraction:gene + (1 | gene/grna)"``.
+    """
+    if random_row_column:
+        position = " + (1 | rowID) + (1 | columnID)"
+    elif plate_position:
+        position = " + rowID + columnID"
+    else:
+        position = ""
+    return f"y ~ {term}{position}"
+
+#: Deprecated formula retained so the explainer can show why it is refused.
+#: `gene_fraction` is the
+#: SUM of the gene's gRNA fractions (`spacr.ml.check_and_clean_data`), so every
+#: gene column here is an exact linear combination of that gene's own guide
+#: columns and the combined design is rank deficient.
+COLLINEAR_FORMULA = (
+    "y ~ fraction:grna + gene_fraction:gene + rowID + columnID")
+
+#: Final explainer line linking to the detailed formula-change rationale.
+#:
+#: The full explanation lives in :func:`regression_model_explainer`; keeping a
+#: short pointer in the panel avoids repeating a long retired-design history.
+_HISTORY_POINTER_SYMBOL = "regression_model_explainer.__doc__"
+_HISTORY_POINTER_SOURCE = "WHY THE FORMULA CHANGED -> {symbol}"
+_HISTORY_POINTER = _HISTORY_POINTER_SOURCE.format(
+    symbol=_HISTORY_POINTER_SYMBOL,
+)
+
+#: The column the prose is wrapped to.
+#:
+#: Set against the width the settings pane ACTUALLY grants the box, measured
+#: rather than assumed: the pane opens at ~400px and the splitter stretches it
+#: to ~490 for this box, which is about 57 monospace characters. Wrapping
+#: prose wider than that put every sentence behind a horizontal scrollbar.
+#: The indented mixed formula is 63 characters and deliberately exceeds this
+#: -- it is one line and it must not be broken, so :func:`explainer_width`
+#: hands that length to the box as its minimum rather than this column.
+_EXPLAINER_WIDTH = 54
+
+#: The short name shown in the box header beside the key the user selected.
+_MODE_TITLES = {
+    "auto": "chosen from the response",
+    "ols": "ordinary least squares",
+    "wls": "weighted least squares",
+    "rlm": "robust M-estimation",
+    "huber": "robust M-estimation (Huber)",
+    "glm": "generalised linear model",
+    "poisson": "Poisson GLM",
+    "quasi_binomial": "quasi-binomial GLM",
+    "beta": "beta regression",
+    "logit": "binomial GLM, logit link",
+    "probit": "binomial GLM, probit link",
+    "quantile": "quantile regression",
+    "spline": "least squares with spline-adjusted covariates",
+    "mixed": "mixed effects, guides nested in genes",
+    "lasso": "penalised least squares, L1",
+    "ridge": "penalised least squares, L2",
+    "elasticnet": "penalised least squares, L1 + L2",
+    "hinge": "linear SVM on a binarised response",
+    "horseshoe": "sparse Poisson GLM, horseshoe",
+    # Kept short on purpose: the header renders as "MODEL: <key> -- <title>"
+    # on ONE unwrapped line, and the box does not soft-wrap, so a title long
+    # enough to pass 54 characters puts the model's own name behind a
+    # horizontal scrollbar.
+    "group_lasso": "guides grouped by gene",
+    "rra": "MAGeCK alpha rank aggregation",
+}
+
+#: Backends suited to pooled CRISPR screens, with the reason each is
+#: recommended. The explanations focus on sparse, high-dimensional designs
+#: and correlated guides rather than on a method's general popularity.
+RECOMMENDED_FOR_SCREENS = {
+    "mixed": "treats guides as repeated perturbations nested within genes",
+    "horseshoe": "uses a sparse prior when most guides have small effects "
+                 "and a few have large effects",
+    "elasticnet": "combines L1 and L2 to retain correlated guides from one "
+                  "gene",
+    "lasso": "builds a sparse model and ranks bootstrap stability",
+    "group_lasso": "selects or drops each gene's guides as a group",
+    "rra": "aggregates guide ranks by gene without fitting every guide "
+           "jointly",
+}
+
+#: Information-limit caveat shown beside every recommended backend.
+INFORMATION_LIMIT_NOTE = (
+    "Fewer wells than guides puts a joint guide fit below the information "
+    "limit. Penalties, priors and groups do not create information. The "
+    "permutation test is the exception because it tests one guide at a time.")
+
+
+#: One- or two-sentence descriptions of what each regression mode fits, based
+#: on :func:`spacr.ml.regression_model` rather than the general
+#: reputation of the method. Where a backend reads a setting from this panel it
+#: is named, so the box and the Estimator Tuning section below it agree.
+_MODE_NOTES = {
+    "auto": (
+        "spaCR reads the response and picks the model itself "
+        "(check_distribution): 0/1 data gets logit, a fraction strictly "
+        "inside (0, 1) gets beta -- or quasi_binomial when values sit within "
+        "1e-6 of a boundary -- a fraction including exact 0 or 1 gets "
+        "quasi_binomial, and anything that passes a normality test gets ols. "
+        "The run prints the model it chose, so read the console before "
+        "naming a model in a methods section."
+    ),
+    "ols": (
+        "Least squares: minimises the summed squared residual and assumes "
+        "the well residuals are roughly normal around one common variance. "
+        "It is the baseline the others are worth comparing against."
+    ),
+    "wls": (
+        "Least squares weighted by the well's cell count, so a well of 400 "
+        "cells outweighs one of 30. Worth choosing when wells differ widely "
+        "in how many cells their score was averaged over, which ols ignores."
+    ),
+    "rlm": (
+        "Robust M-estimation with a Huber loss, tuned by huber_t (default "
+        "1.345, which is 95% efficient under normality). Wells far from the "
+        "fit are down-weighted instead of dragging it, and no R-squared is "
+        "reported."
+    ),
+    "hinge": (
+        "A linear support-vector fit (hinge loss) on the response BINARISED "
+        "at hinge_threshold, so it asks which guides SEPARATE high wells "
+        "from low wells rather than how far they move the score. It has no "
+        "likelihood: the p-values are bootstrap Wald values over "
+        "hinge_n_boot resamples, not a likelihood-ratio test."
+    ),
+    "glm": (
+        "A generalised linear model whose FAMILY AND LINK are picked from "
+        "the response by pick_glm_family_and_link rather than assumed, and "
+        "the run prints the pair it chose. Where the family comes out "
+        "Poisson, log(cell_count) enters as an offset, so the coefficients "
+        "are effects on a per-cell rate."
+    ),
+    "poisson": (
+        "Poisson GLM with a log link and offset(log(cell_count)) for per-well "
+        "counts. The offset makes coefficients represent effects on the "
+        "per-cell rate rather than total cell count, preventing differences "
+        "in cell count from being interpreted as phenotype effects."
+    ),
+    "quasi_binomial": (
+        "Binomial GLM whose dispersion is estimated from the Pearson "
+        "chi-square instead of being fixed at 1, for a fraction that varies "
+        "more than binomial sampling allows; the cell count enters as "
+        "var_weights. Choose it over logit when the residual deviance says "
+        "the response is overdispersed."
+    ),
+    "beta": (
+        "Beta regression, for a response that is a fraction strictly inside "
+        "(0, 1): it models the mean of a bounded variable as bounded, rather "
+        "than fitting a proportion as if it could exceed 1, which is what "
+        "ols on a fraction does. Exact 0 or 1 values must be handled before "
+        "it can fit."
+    ),
+    "quantile": (
+        "Quantile regression fits a CONDITIONAL QUANTILE of the response -- "
+        "the `quantile` setting, where 0.5 is the median -- NOT the mean, so "
+        "a perturbation that moves the tail without shifting the centre "
+        "appears here and in no mean model. It is the one backend whose "
+        "answer changes meaning with a setting, so name the quantile "
+        "alongside the result."
+    ),
+    "spline": (
+        "Ordinary least squares in which each continuous nuisance covariate "
+        "may bend through a B-spline basis. spline_knots controls how many "
+        "knots each basis receives and spline_degree controls its polynomial "
+        "degree; indicators and low-cardinality covariates remain linear. "
+        "Guide and gene columns are never expanded, so each perturbation "
+        "keeps one coefficient and its usual OLS p-value."
+    ),
+    "lasso": (
+        "L1-penalised least squares sets coefficients to zero; alpha='auto' "
+        "selects the penalty by 5-fold cross-validation. It reports "
+        "bootstrap selection frequency across lasso_n_boot resamples, not "
+        "p-values, and applies lasso_selection_threshold."
+    ),
+    "elasticnet": (
+        "Elastic net combines L1 and L2 through l1_ratio (1 is lasso; 0 is "
+        "ridge), with alpha='auto' chosen by 5-fold cross-validation. It "
+        "reports bootstrap selection frequency across lasso_n_boot resamples, "
+        "not p-values, and applies lasso_selection_threshold."
+    ),
+    "ridge": (
+        "Penalised least squares with an L2 penalty, which never sets a "
+        "coefficient to exactly zero -- so there is no selection frequency "
+        "to report, every feature would score 1.0, and it falls back to an "
+        "approximate p-value. That test is mis-specified, in the safe "
+        "direction: the standard error is unpenalised while the coefficient "
+        "it divides has been shrunk, so the statistic is too small and ridge "
+        "under-detects rather than manufacturing hits."
+    ),
+    "horseshoe": (
+        "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's "
+        "power-analysis model -- with offset(log(cell_count)). The prior "
+        "shrinks the bulk of the guides hard toward zero while leaving a "
+        "genuinely large effect close to untouched, which suits a screen "
+        "where most guides are expected to do nothing."
+    ),
+    "mixed": (
+        "The gene is a FIXED effect; each guide is a RANDOM effect nested "
+        "inside its gene, treating guides as repeated perturbations with "
+        "different efficiencies and off-target effects. Guide disagreement "
+        "widens the gene interval, and a gene supported by one noisy guide "
+        "shrinks toward zero."
+    ),
+    "group_lasso": (
+        "Group-penalised least squares treats A GENE'S GUIDES AS ONE BLOCK, "
+        "retaining or zeroing the whole block. group_lasso_lambda sets the "
+        "penalty relative to group_lasso.max_lambda; hits use bootstrap "
+        "selection frequency over lasso_n_boot resamples and "
+        "lasso_selection_threshold."
+    ),
+    "rra": (
+        "MAGeCK alpha-RRA ranks guides across the screen, then scores each "
+        "gene from its strongest ranks within rra_alpha. It builds an "
+        "empirical null with rra_permutations for each guide count and "
+        "reports depletion and enrichment separately."
+    ),
+}
+_MODE_NOTES["huber"] = _MODE_NOTES["rlm"]
+_MODE_NOTES["logit"] = (
+    "Binomial GLM with a logit link on a fraction, weighted by the well's "
+    "cell count as var_weights -- which is what tells the variance function "
+    "that a fraction measured from 400 cells is firmer evidence than the "
+    "same fraction measured from 30. Coefficients are log-odds."
+)
+_MODE_NOTES["probit"] = (
+    "Binomial GLM with a probit link on a fraction, weighted by the well's "
+    "cell count as var_weights. It differs from logit only in the link: the "
+    "fitted probabilities are near-identical, and the coefficients are on a "
+    "different scale and are not log-odds."
+)
+
+
+# ---------------------------------------------------------------------------
+# What the default costs (instruction 140)
+# ---------------------------------------------------------------------------
+#
+# Reported 2026-08-18: "im running the mixed model now and it is taking much
+# longer than before is that normal?" ... "it is still going, cpu at 100
+# percent". NOTHING WAS WRONG. MixedLM is an iterative REML optimisation and
+# it is single-threaded, so one core at 100% for an hour is exactly what a
+# healthy fit looks like -- and an hour of silence at 100% CPU is
+# indistinguishable from a hang. 132 made `mixed` the DEFAULT, which means
+# everybody pays this, so it belongs where the model is chosen.
+
+#: The measurement, as ``(genes, wells, ols seconds, mixed seconds)``.
+#:
+#: Measured by calling :func:`spacr.ml.regression_model` directly on a
+#: well-conditioned gene-level design without guide random effects. The full
+#: nested model is more expensive, so these values are lower bounds.
+MIXED_COST_ANCHORS = (
+    (40, 400, 0.03, 1.62),
+    (80, 600, 0.16, 10.66),
+)
+
+#: Reference design for the "tens of minutes to hours" expectation, expressed
+#: as ``(genes, guides, wells)``.
+MIXED_COST_SCREEN = (823, 389, 610)
+
+
+_MIXED_COST_NOTE_TEMPLATE = (
+    "MEASURED 2026-08-18: {small_genes} genes/{small_wells} wells took "
+    "{small_ols:g}s as ols and {small_mixed:g}s as mixed ({small_ratio:g}x); "
+    "{big_genes}/{big_wells}, {big_ols:g}s against {big_mixed:g}s "
+    "({big_ratio:g}x) -- and both were gene level only. This fit adds a "
+    "random effect per guide too, so {guides} guides over {wells} wells is "
+    "tens of minutes to hours. Single-threaded REML: one core at 100% is a "
+    "healthy fit, not a hang. For an answer now, use ols at level='both'."
+)
+
+
+def mixed_cost_note(language: Optional[str] = None) -> str:
+    """What ``mixed`` costs, as one paragraph, built from the measurement.
+
+    :param language: UI language code. ``None`` uses the active language.
+    :returns: Exact localized guidance when its catalog record is current;
+        otherwise the canonical English paragraph.
+
+    ONE SOURCE FOR TWO PLACES. The model box states it before the user
+    chooses, and the run states it again before it blocks; two hand-written
+    copies of a measurement are two numbers that drift apart, and the second
+    one to be edited is the one nobody believes afterwards.
+
+    A MEASURED RANGE, NOT "THIS MAY BE SLOW" -- the digits are what make it
+    actionable, and "may be slow" is what the console said by saying nothing.
+    """
+    (small_genes, small_wells, small_ols, small_mixed), \
+        (big_genes, big_wells, big_ols, big_mixed) = MIXED_COST_ANCHORS
+    guides, _genes, wells = MIXED_COST_SCREEN
+    # EVERY NUMBER KEPT, half the words. Instruction 143 B: "do not shorten
+    # by deleting the numbers -- they are what makes the claim checkable.
+    # Shorten by removing what does not need re-reading."
+    return _translated_ui_text(
+        _MIXED_COST_NOTE_TEMPLATE,
+        language,
+        small_genes=small_genes,
+        small_wells=small_wells,
+        small_ols=small_ols,
+        small_mixed=small_mixed,
+        small_ratio=round(small_mixed / small_ols),
+        big_genes=big_genes,
+        big_wells=big_wells,
+        big_ols=big_ols,
+        big_mixed=big_mixed,
+        big_ratio=round(big_mixed / big_ols),
+        guides=guides,
+        wells=wells,
+    )
+
+
+#: The models worth warning about before they block, and the reason for each.
+#: `mixed` is the one that is MEASURED (:func:`mixed_cost_note`) and the one
+#: that is the default. The other two are named because their cost is set by
+#: a control on this panel -- `rra_permutations` for the permuted null, and
+#: the sampler behind `horseshoe` -- rather than by the size of the screen,
+#: so a user who is waiting has something to change.
+SLOW_MODELS = ("mixed", "rra", "horseshoe")
+
+
+def _count_files_of(settings) -> list:
+    """The sgRNA count CSVs this run was given, in order.
+
+    ``paired_data`` is the current shape (one row per score/count pair) and
+    ``count_data`` is the legacy list :func:`spacr.ml.perform_regression`
+    still migrates; both are read here because a settings CSV saved before
+    the migration is exactly the kind of run somebody re-opens.
+    """
+    paths = []
+    pairs = (settings or {}).get("paired_data") or []
+    if isinstance(pairs, (list, tuple)):
+        for pair in pairs:
+            value = pair.get("count") if isinstance(pair, dict) else None
+            if isinstance(value, str) and value.strip():
+                paths.append(value.strip())
+    if not paths:
+        legacy = (settings or {}).get("count_data")
+        if isinstance(legacy, str):
+            legacy = [legacy]
+        for value in legacy or []:
+            if isinstance(value, str) and value.strip():
+                paths.append(value.strip())
+    return paths
+
+
+#: Where the scan records which plate a count file stands for, when the file
+#: itself does not say. A frame attribute rather than a column, so nothing
+#: downstream sees an invented plate in the data.
+_FILE_PLATE = "spacr_scan_plate"
+
+
+def _well_keys(frame):
+    """One identifier per well in a count frame, or ``None``.
+
+    Mirrors :func:`spacr.ml.process_reads`: a well is plate + row + column,
+    ``plate_row`` is ``<plate>_<row>`` split on the LAST separator (the plate
+    is the half that may itself contain one), and ``prc`` is that answer
+    already composed. Returns ``None`` when the frame carries none of them,
+    rather than guessing -- a well count off by the number of plates is
+    worse than no well count.
+    """
+    if "prc" in frame.columns:
+        return frame["prc"].astype(str)
+    columns = set(frame.columns)
+    if "plate_row" in columns and "columnID" in columns:
+        return (frame["plate_row"].astype(str) + KEY_SEPARATOR
+                + frame["columnID"].astype(str))
+    if {"rowID", "columnID"} <= columns:
+        if "plateID" in columns:
+            plate = frame["plateID"].astype(str)
+        else:
+            # NO PLATE COLUMN, SO THE WELLS OF THIS FILE ARE THIS FILE'S.
+            # It used to substitute the literal "plate1", which is the guess
+            # its own docstring forbids -- and it cost exactly what that
+            # sentence predicts: the example screen's four count files each
+            # name the same 384 row/column pairs, so the union across them
+            # was 384 for a 1,536-well screen. Off by the number of plates,
+            # stated confidently, on the first line of the console.
+            #
+            # `_FILE_PLATE` is filled by the caller with the file's position,
+            # which is the same rule `load_regression_input_pairs` uses when
+            # neither side declares a plate: the pair-row order.
+            plate = str(frame.attrs.get(_FILE_PLATE, "plate1"))
+        return (plate + KEY_SEPARATOR + frame["rowID"].astype(str)
+                + KEY_SEPARATOR + frame["columnID"].astype(str))
+    return None
+
+
+def _split_guide_names(names):
+    """``(genes, guides)`` for a set of gRNA names, or ``(None, guides)``.
+
+    THE SAME POSITIONAL RULE THE PIPELINE USES, and it is positional:
+    :func:`spacr.ml.process_reads` splits ``<org>_<gene>_<guide>`` and
+    requires EVERY name to have the same three components, because
+    ``str.split(expand=True)`` pads a short name with ``None`` instead of
+    raising -- which silently deleted those reads from the screen. Names of
+    another shape get no gene count here for the same reason: a gene total
+    taken from a rule the run will not apply is a number that disagrees with
+    the fit.
+    """
+    guides = {str(name) for name in names}
+    widths = {len(name.split(KEY_SEPARATOR)) for name in guides}
+    if widths == {3}:
+        genes = {name.split(KEY_SEPARATOR)[1] for name in guides}
+        return genes, {KEY_SEPARATOR.join(name.split(KEY_SEPARATOR)[1:])
+                       for name in guides}
+    if widths == {2}:
+        return {name.split(KEY_SEPARATOR)[0] for name in guides}, guides
+    return None, guides
+
+
+def regression_design_scan(settings) -> dict:
+    """How big the fit is about to be, read off the count files it was given.
+
+    The design: "The useful line names the design -- 'fitting 389
+    genes and 823 guide random effects over 610 wells' -- because that is
+    also the line that tells a user their filters did something unexpected."
+
+    WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else,
+    so it is the design AS THE INPUT FILES HOLD IT: before the merge with
+    the score data, before ``fraction_threshold`` and before the well
+    filters. That is deliberate -- it is the number to compare the run's own
+    post-cleaning counts against, and comparing them is how a filter that
+    did something unexpected becomes visible. Every caller says which it is.
+
+    NEVER RAISES. It runs to put a sentence in the console beside a fit that
+    is already starting; a scan that threw would take the run's own message
+    with it. What it could not work out comes back as ``None`` with a
+    ``note`` saying why.
+
+    :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
+    """
+    out = {"genes": None, "guides": None, "wells": None, "rows": 0,
+           "files": 0, "note": ""}
+    paths = _count_files_of(settings)
+    if not paths:
+        out["note"] = "no count files in the settings"
+        return out
+
+    # THE ONE READER (145), and this line is why. Reading raw, the count
+    # tables of the example screen -- which spell their keys `row_name` and
+    # `column_name` -- carried no column this scan recognises, so it reported
+    # "no 'prc', 'plate_row' or 'rowID'/'columnID' column, so wells were not
+    # counted" over 642,551 rows that name 1,536 wells perfectly well.
+    #
+    # A count of NOTHING, printed confidently, on a table that has the
+    # answer: exactly the failure instruction 145 exists to stop, and the
+    # first line of the console a user reads before a run.
+    #
+    # `report=None`, because a column-collision note belongs to the run and
+    # not to a sizing scan the user did not ask for.
+    from ...tabular import read_table
+
+    names, wells, unread = set(), set(), []
+    no_wells = False
+    for path in paths:
+        try:
+            frame = read_table(path, report=None)
+        except Exception as error:                              # noqa: BLE001
+            unread.append(f"{path} ({type(error).__name__})")
+            continue
+        out["files"] += 1
+        out["rows"] += int(len(frame))
+        # ONE FILE IS ONE PLATE when the file does not say otherwise, which
+        # is `load_regression_input_pairs`' rule for the same question.
+        frame.attrs[_FILE_PLATE] = f"plate{out['files']}"
+        column = ("grna" if "grna" in frame.columns else
+                  "grna_name" if "grna_name" in frame.columns else None)
+        if column is not None:
+            names |= set(frame[column].astype(str).unique().tolist())
+        keys = _well_keys(frame)
+        if keys is None:
+            no_wells = True
+        else:
+            wells |= set(keys.unique().tolist())
+
+    notes = []
+    if unread:
+        notes.append("could not read " + ", ".join(unread))
+    if names:
+        genes, guides = _split_guide_names(names)
+        out["guides"] = len(guides)
+        if genes is None:
+            notes.append("the gRNA names are not "
+                         "'<org>_<gene>_<guide>', so genes were not counted")
+        else:
+            out["genes"] = len(genes)
+    else:
+        notes.append("no 'grna' column")
+    if no_wells:
+        notes.append("no 'prc', 'plate_row' or 'rowID'/'columnID' column, "
+                     "so wells were not counted")
+    elif wells:
+        out["wells"] = len(wells)
+    out["note"] = "; ".join(notes)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The box is TYPESET, not dumped (instruction 144)
+# ---------------------------------------------------------------------------
+#
+# 2026-08-18: "actually my main problem was it dosnt look great. i want you to
+# use markdown and colors for negative (CANNOT) and positive (MODEL, LEVEL,
+# ETC.) text. make the formula look better (write the math symbol version then
+# the code version if possible) short discriptions that contain the vital
+# information for the user and links to APIs for the different methods".
+#
+# 143 read the first report as "too long" and cut 2,438 characters to 892. The
+# content is settled; what was left is that nothing was EMPHASISED, so a
+# formula read exactly like a caveat.
+#
+# ONE SOURCE, TWO LAYOUTS. Everything below composes the SAME pieces the plain
+# renderer does -- `_MODE_TITLES`, `_MODE_NOTES`, `formula_for`,
+# `mixed_cost_note` -- so the two cannot say different things. Only the layout
+# is written twice, and the plain one stays because it is what a test can
+# assert on and what a headless caller can print.
+
+#: Mathematical notation shown for each model term.
+#:
+#: REAL UNICODE, NOT LATEX SOURCE. The box is a widget, not a renderer, and
+#: ``\beta`` on screen is worse than no symbol at all.
+_MATHS_RESPONSE = {
+    "grna": "yᵢ = μ + Σ_g β_g·f_gi",
+    "gene": "yᵢ = μ + Σ_G β_G·F_Gi",
+    "mixed": "yᵢ = μ + Σ_G β_G·F_Gi + u_G + u_G:g",
+}
+
+
+def maths_for(kind: str, *, plate_position: bool = False,
+              random_row_column: bool = False) -> List[str]:
+    """The statistical statement, as lines, for one model term.
+
+    THE MATHS AND THE CODE MUST AGREE, and this is the half that keeps them
+    agreeing: it takes the same two plate arguments :func:`formula_for` does
+    and reads them the same way. If the code line says ``+ rowID +
+    columnID``, ρ and γ are here; if the plate-position toggle
+    turns them off, BOTH lose them; if they are random effects, both say
+    random. A box whose two formulas disagree is worse than a box with one.
+
+    :param kind: ``'grna'``, ``'gene'`` or ``'mixed'``.
+    :returns: the response line first, then the distribution line(s).
+    """
+    response = _MATHS_RESPONSE[str(kind)]
+    distributions = []
+    if str(kind) == "mixed":
+        distributions.append("u_G ~ N(0, σ²_gene)   u_G:g ~ N(0, σ²_guide)")
+    if random_row_column:
+        response += " + u_r(i) + u_c(i)"
+        distributions.append("u_r(i) ~ N(0, σ²_row)   u_c(i) ~ N(0, σ²_col)")
+    elif plate_position:
+        response += " + ρ_r(i) + γ_c(i)"
+    response += " + εᵢ"
+    distributions.append("εᵢ ~ N(0, σ²)")
+    return [response] + distributions
+
+
+_STATSMODELS = "https://www.statsmodels.org/stable/generated/"
+_SKLEARN = "https://scikit-learn.org/stable/modules/generated/"
+
+#: Where each backend's API lives, as ``(what to call it, where it is)``.
+#:
+#: External backends use direct documentation URLs; spaCR backends use paths
+#: resolved against :data:`DOCS_API_BASE`.
+MODEL_API_LINKS = {
+    "auto": ("spacr.ml.check_distribution", "ml"),
+    "ols": ("statsmodels OLS",
+            _STATSMODELS + "statsmodels.regression.linear_model.OLS.html"),
+    "wls": ("statsmodels WLS",
+            _STATSMODELS + "statsmodels.regression.linear_model.WLS.html"),
+    "rlm": ("statsmodels RLM",
+            _STATSMODELS + "statsmodels.robust.robust_linear_model.RLM.html"),
+    "huber": ("statsmodels RLM",
+              _STATSMODELS
+              + "statsmodels.robust.robust_linear_model.RLM.html"),
+    "glm": ("statsmodels GLM",
+            _STATSMODELS
+            + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "poisson": ("statsmodels GLM",
+                _STATSMODELS
+                + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "logit": ("statsmodels GLM",
+              _STATSMODELS
+              + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "probit": ("statsmodels GLM",
+               _STATSMODELS
+               + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "quasi_binomial": ("statsmodels GLM",
+                       _STATSMODELS
+                       + "statsmodels.genmod.generalized_linear_model.GLM"
+                         ".html"),
+    "beta": ("statsmodels BetaModel",
+             _STATSMODELS + "statsmodels.othermod.betareg.BetaModel.html"),
+    "quantile": ("statsmodels QuantReg",
+                 _STATSMODELS
+                 + "statsmodels.regression.quantile_regression.QuantReg"
+                   ".html"),
+    "spline": ("spacr.nonparametric_fits.spline_design",
+               "nonparametric_fits"),
+    "mixed": ("statsmodels MixedLM",
+              _STATSMODELS
+              + "statsmodels.regression.mixed_linear_model.MixedLM.html"),
+    "ridge": ("scikit-learn Ridge",
+              _SKLEARN + "sklearn.linear_model.Ridge.html"),
+    "lasso": ("scikit-learn Lasso",
+              _SKLEARN + "sklearn.linear_model.Lasso.html"),
+    "elasticnet": ("scikit-learn ElasticNet",
+                   _SKLEARN + "sklearn.linear_model.ElasticNet.html"),
+    "hinge": ("scikit-learn LinearSVC",
+              _SKLEARN + "sklearn.svm.LinearSVC.html"),
+    "group_lasso": ("spacr.group_lasso", "group_lasso"),
+    "rra": ("spacr.rra (MAGeCK alpha-RRA)", "rra"),
+    "horseshoe": ("spacr.power_model", "power_model"),
+}
+
+
+def model_api_link(
+    regression_type: Any,
+    language: Optional[str] = None,
+) -> Tuple[str, str]:
+    """``(name, url)`` for one backend's API, or ``("", "")``.
+
+    A spaCR backend is named by its MODULE and resolved against the published
+    API documentation, so `group_lasso` and `rra` get the same kind of link
+    statsmodels does rather than a module path a user has to go and find.
+
+    :param regression_type: Backend key shown in the regression selector.
+    :param language: UI language code appended to spaCR documentation links.
+        Third-party links are returned unchanged.
+    :returns: Link label and absolute documentation URL.
+    """
+    key = str(regression_type or "").strip().lower()
+    entry = MODEL_API_LINKS.get(key)
+    if entry is None:
+        return "", ""
+    name, target = entry
+    if target.startswith("http"):
+        return name, target
+    url = f"{DOCS_API_BASE}/spacr/{target}/index.html"
+    code = _language_code(language)
+    return name, f"{url}?lang={code}" if code != "en" else url
+
+
+#: Phrases the box emphasises, and the palette token each takes.
+#:
+#: AN EXPLICIT, SHORT TABLE rather than a rule over the prose. "Everything is
+#: plain except what the sentence is about" (`spacr/figures/style.py`) applies
+#: to text as much as to a figure; a regex that coloured every capitalised
+#: phrase would over-emphasise unrelated text.
+_EMPHASIS = (
+    ("NO GUIDE-LEVEL HIT LIST", "error"),
+    ("REPORTS NO P-VALUE", "error"),
+    ("NOTHING TO BH-CORRECT", "error"),
+    ("TWO MODELS, TWO TABLES", "success"),
+)
+
+#: The one heading that is a refusal rather than a description, so it takes
+#: `error` where every other heading takes `accent`.
+_REFUSAL_HEADING = "WHAT YOU DO NOT GET"
+
+#: The two mixed-model decisions repeated by the plain and rich renderers.
+#: Keeping one source prevents the user-visible settings box and the text API
+#: from drifting apart as either is edited for clarity.
+_MIXED_GUIDE_OUTPUT_NOTE = (
+    "Guide results are BLUPs -- shrunken PREDICTIONS of departure from the "
+    "gene -- NOT coefficients with standard errors and p-values. This model "
+    "has NO GUIDE-LEVEL HIT LIST or guide-level BH correction. For a ranked, "
+    "tested guide list, choose another model with level='grna'.")
+_MIXED_MULTIPLE_TESTING_NOTE = (
+    "Gene coefficients form one BH family; there is no second family because "
+    "the guide effects are not tested.")
+_UNKNOWN_MODEL_NOTE = (
+    "spaCR has no description for this model, which means it is not one of "
+    "the backends spacr.ml can fit. The run will refuse it and name the "
+    "models it accepts."
+)
+_NO_P_VALUE_BOTH_NOTE = (
+    "Each fit ranks features by bootstrap selection frequency and REPORTS "
+    "NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency "
+    "is not a false-discovery rate and should not be quoted as one."
+)
+_NO_P_VALUE_SINGLE_NOTE = (
+    "The fit ranks features by bootstrap selection frequency and REPORTS "
+    "NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency "
+    "is not a false-discovery rate and should not be quoted as one."
+)
+
+#: What the box falls back to when no palette is handed in -- which is what a
+#: test that is not about colour wants. Named tokens, not hexes, so a reader
+#: of the rendered HTML can see which token a colour came from.
+_TOKEN_FALLBACK = {name: name for name in
+                   ("fg", "fg_muted", "accent", "error", "success",
+                    "chip_value")}
+
+
+def _colours(palette: Optional[Dict[str, Any]]) -> Dict[str, str]:
+    """Return the six theme tokens used by the model explainer."""
+    if not palette:
+        return dict(_TOKEN_FALLBACK)
+    return {name: str(palette.get(name) or _TOKEN_FALLBACK[name])
+            for name in _TOKEN_FALLBACK}
+
+
+def _ink(text: str, colour: str, *, bold: bool = False) -> str:
+    """One coloured run of already-escaped text."""
+    weight = " font-weight:600;" if bold else ""
+    return f'<span style="color:{colour};{weight}">{text}</span>'
+
+
+def _prose_html(text: str, ink: Dict[str, str]) -> str:
+    """One paragraph, escaped, with the emphasis table applied."""
+    out = escape(str(text))
+    for phrase, token in _EMPHASIS:
+        if phrase in out:
+            out = out.replace(phrase, _ink(phrase, ink[token], bold=True))
+    return f'<p style="margin:2px 0 8px 0;">{out}</p>'
+
+
+def _heading_html(text: str, ink: Dict[str, str], *,
+                  writes: str = "", refusal: bool = False) -> str:
+    """A section heading: accent, or `error` when the section is a refusal.
+
+    :param writes: the output file this section's formula produces. It is on
+        the HEADING rather than under the formula because "which file does
+        this end up in" is the question asked while scanning, and a name in
+        `chip_value` is what makes it findable without reading the prose.
+    """
+    token = "error" if refusal or text == _REFUSAL_HEADING else "accent"
+    tail = (f' → {_ink(escape(writes), ink["chip_value"])}' if writes else "")
+    return (f'<p style="margin:10px 0 2px 0;">'
+            f'{_ink(escape(text), ink[token], bold=True)}{tail}</p>')
+
+
+def _formula_html(maths: List[str], code: str, ink: Dict[str, str]) -> str:
+    """Render copyable, unwrapped formula and code blocks as HTML."""
+    lines = "\n".join(escape(line) for line in maths)
+    return (f'<pre style="margin:2px 0 2px 12px; color:{ink["fg"]};">'
+            f'{lines}</pre>'
+            f'<pre style="margin:2px 0 8px 12px;">'
+            f'{_ink(escape(code), ink["accent"])}</pre>')
+
+
+def _api_html(regression_type: Any, ink: Dict[str, str],
+              language: Optional[str] = None) -> str:
+    """The backend's API link, or "" when there is none to give."""
+    name, url = model_api_link(regression_type, language)
+    if not url:
+        return ""
+    return (f'<p style="margin:10px 0 2px 0;">'
+            f'{_ink("API", ink["accent"], bold=True)} '
+            f'<a href="{escape(url)}" style="color:{ink["accent"]};">'
+            f'{escape(name)}</a></p>')
+
+
+#: Brief guidance shown when nonparametric inference bypasses model fitting.
+#: The separate Permutation Test section contains the full method description.
+NONPARAMETRIC_NOTE = (
+    "This asks one question of each guide on its own: does its abundance "
+    "track the phenotype? It does not fit a model, so nothing here is a "
+    "coefficient — there is no formula, no family, and no estimate of what "
+    "a guide does with every other guide held fixed.",
+    "How the P value is reached: the guide's read fraction and the well "
+    "phenotype are both cleaned of plate, row and column effects, and the "
+    "cleaned phenotype is then reshuffled between wells of the same plate, "
+    "many thousands of times. The P value is the share of those shuffles "
+    "that produced an association at least as strong as the real one — so "
+    "it is measured from your own data rather than assumed from a "
+    "distribution.",
+    "USE IT WHEN THE GUIDES OUTNUMBER THE WELLS. A model that fits every "
+    "guide at once needs more wells than guides or its coefficients are not "
+    "identifiable at all; this has no such limit. The cost is that guides "
+    "sharing a well are not told apart, and that no P value can be smaller "
+    "than one divided by the number of shuffles plus one.",
+    "The regression settings are greyed because this path never reads them. "
+    "Their values are kept, so switching back restores the model you chose. "
+    "The Permutation Test section sets the number of shuffles and how much "
+    "support a guide needs to be tested at all.",
+)
+
+
+def _nonparametric_selected(inference: Any, analysis_mode: Any = "") -> bool:
+    """Return whether the current settings select permutation inference.
+
+    ``'auto'`` returns ``False`` because resolving it requires the data-dependent
+    guide and well counts used by :func:`spacr.ml.resolve_auto_inference`.
+    """
+    from spacr.settings import INFERENCE_MODES
+
+    name = str(inference or "auto").strip().lower()
+    selected = INFERENCE_MODES.get(name)
+    if selected is not None:
+        return selected == "guide_permutation"
+    return (name != "auto"
+            and str(analysis_mode or "").strip().lower() == "guide_permutation")
+
+
+def regression_model_explainer_html(regression_type: Any,
+                                    level: Any = "both",
+                                    plate_position: Any = False,
+                                    random_row_column: Any = False,
+                                    palette: Optional[Dict[str, Any]] = None,
+                                    language: Optional[str] = None,
+                                    inference: Any = "auto",
+                                    analysis_mode: Any = "",
+                                    ) -> str:
+    """Render localized model or inference guidance as HTML.
+
+    Parameters
+    ----------
+    regression_type : Any
+        Selected regression backend.
+    level : Any, default='both'
+        Coefficient level: guide, gene, or both.
+    plate_position : Any, default=False
+        Include fixed plate-position terms when true.
+    random_row_column : Any, default=False
+        Use row and column variance components when true.
+    palette : dict, optional
+        Resolved theme palette. The active semantic color names are used when
+        omitted.
+    language : str, optional
+        UI language. Missing or stale translations fall back by whole sentence.
+    inference : Any, default='auto'
+        Selected inference mode.
+    analysis_mode : Any, default=''
+        Compatibility value used to identify permutation inference.
+
+    Returns
+    -------
+    str
+        Rich text describing the run that the current settings will execute.
+    """
+    position = {"plate_position": bool(plate_position),
+                "random_row_column": bool(random_row_column)}
+    ink = _colours(palette)
+    key = str(regression_type or "auto").strip().lower() or "auto"
+    parts = [f'<div style="color:{ink["fg"]};">']
+
+    def tx(source: str, **values: object) -> str:
+        """Translate one source string into the explainer's language."""
+        return _translated_ui_text(source, language, **values)
+
+    if _nonparametric_selected(inference, analysis_mode):
+        parts.append(
+            f'<p>{_ink(escape(tx("INFERENCE:")), ink["accent"], bold=True)} '
+            f'{escape(tx("nonparametric — guide permutation"))}</p>')
+        for line in NONPARAMETRIC_NOTE:
+            parts.append(_prose_html(tx(line), ink))
+        parts.append("</div>")
+        return "".join(parts)
+
+    if key not in _MODE_NOTES:
+        parts.append(f'<p>{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
+                     f'{escape(key)}</p>')
+        parts.append(_prose_html(tx(_UNKNOWN_MODEL_NOTE), ink))
+        parts.append("</div>")
+        return "".join(parts)
+
+    title = tx(_MODE_TITLES.get(key, key))
+    if key == "mixed":
+        parts.append(
+            f'<p style="margin:0 0 2px 0;">'
+            f'{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
+            f'mixed — '
+            f'{escape(title)}<br/>'
+            f'{_ink(escape(tx("LEVEL:")), ink["accent"], bold=True)} '
+            f'{escape(tx("not applicable — one model carries both levels"))}'
+            f'</p>')
+        parts.append(_heading_html(tx("FORMULA"), ink))
+        parts.append(_formula_html(maths_for("mixed", **position),
+                                   formula_for(MIXED_TERM, **position), ink))
+        parts.append(_heading_html(tx("WHAT IS MODELLED"), ink))
+        parts.append(_prose_html(tx(_MODE_NOTES["mixed"]), ink))
+        parts.append(_heading_html(
+            tx(_REFUSAL_HEADING), ink, refusal=True,
+        ))
+        parts.append(_prose_html(tx(_MIXED_GUIDE_OUTPUT_NOTE), ink))
+        # 133 A. `mixed` takes its own branch above, so the flag every other
+        # backend gets from the shared path has to be added here too -- and
+        # missing it on the DEFAULT would have been the one place it mattered
+        # most.
+        recommended_label = _ink(
+            escape(tx("Recommended for CRISPR screens")),
+            ink["success"],
+            bold=True,
+        )
+        parts.append(
+            f'<p style="margin:6px 0 2px 0;">{recommended_label}'
+            f' — {escape(tx(RECOMMENDED_FOR_SCREENS["mixed"]))}</p>')
+        parts.append(
+            f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
+            f'{escape(tx(INFORMATION_LIMIT_NOTE))}</p>')
+        parts.append(_heading_html(tx("WHAT IT COSTS"), ink))
+        parts.append(_prose_html(mixed_cost_note(language), ink))
+        parts.append(_heading_html(tx("MULTIPLE TESTING"), ink))
+        parts.append(_prose_html(tx(_MIXED_MULTIPLE_TESTING_NOTE), ink))
+    else:
+        chosen = normalise_regression_level(level)
+        level_line = {
+            "both": "both — the two fits below, run SEPARATELY",
+            "grna": "grna — the guide fit only",
+            "gene": "gene — the gene fit only",
+        }[chosen]
+        parts.append(
+            f'<p style="margin:0 0 2px 0;">'
+            f'{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
+            f'{escape(key)} — '
+            f'{escape(title)}<br/>'
+            f'{_ink(escape(tx("LEVEL:")), ink["accent"], bold=True)} '
+            f'{escape(tx(level_line))}</p>')
+        fixed_effects_note = escape(tx(
+            "Fixed effects only — no nesting of guides inside genes."
+        ))
+        parts.append(f'<p style="margin:2px 0 6px 0; '
+                     f'color:{ink["fg_muted"]};">'
+                     f'{fixed_effects_note}</p>')
+        if chosen in ("both", "grna"):
+            parts.append(_heading_html(tx("FORMULA (guide fit)"), ink,
+                                       writes="results_grna.csv"))
+            parts.append(_formula_html(maths_for("grna", **position),
+                                       formula_for(GRNA_TERM, **position),
+                                       ink))
+            parts.append(_prose_html(
+                tx("One coefficient per guide, the unit the screen measures."),
+                ink))
+        if chosen in ("both", "gene"):
+            parts.append(_heading_html(tx("FORMULA (gene fit)"), ink,
+                                       writes="results_gene.csv"))
+            parts.append(_formula_html(maths_for("gene", **position),
+                                       formula_for(GENE_TERM, **position),
+                                       ink))
+            parts.append(_prose_html(
+                tx("One coefficient per gene, from the summed guide fraction."),
+                ink))
+        if chosen == "both":
+            parts.append(_prose_html(
+                tx("TWO MODELS, TWO TABLES — fitted separately, NOT one "
+                   "design containing both."), ink))
+        parts.append(_heading_html(
+            tx("WHAT {model} DOES", model=key.upper()), ink,
+        ))
+        parts.append(_prose_html(tx(_MODE_NOTES[key]), ink))
+        # 133 A: say WHICH backends answer this question well, and WHY each.
+        # In `success`, the same colour "TWO MODELS, TWO TABLES" uses, because
+        # both are affirmations about the model rather than caveats about it.
+        if key in RECOMMENDED_FOR_SCREENS:
+            recommended_label = _ink(
+                escape(tx("Recommended for CRISPR screens")),
+                ink["success"],
+                bold=True,
+            )
+            parts.append(
+                f'<p style="margin:6px 0 2px 0;">{recommended_label}'
+                f' — {escape(tx(RECOMMENDED_FOR_SCREENS[key]))}</p>')
+            # AND THE CAVEAT, because a badge without it reads as a promise.
+            parts.append(
+                f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
+                f'{escape(tx(INFORMATION_LIMIT_NOTE))}</p>')
+        parts.append(_heading_html(tx("MULTIPLE TESTING"), ink))
+        if key in NO_P_VALUE_TYPES:
+            source = (_NO_P_VALUE_BOTH_NOTE if chosen == "both"
+                      else _NO_P_VALUE_SINGLE_NOTE)
+            parts.append(_prose_html(tx(source), ink))
+        elif chosen == "both":
+            parts.append(_prose_html(
+                tx("Each fit is its OWN multiple-testing family and is "
+                   "BH-corrected within itself."), ink))
+        else:
+            parts.append(_prose_html(
+                tx("The single fit is BH-corrected as one family."), ink))
+
+    history_pointer = escape(tx(
+        _HISTORY_POINTER_SOURCE,
+        symbol=_HISTORY_POINTER_SYMBOL,
+    ))
+    parts.append(_api_html(key, ink, language))
+    parts.append(f'<p style="margin:12px 0 0 0; color:{ink["fg_muted"]};">'
+                 f'{history_pointer}</p>')
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def permutation_test_explainer_html(
+        palette: Optional[Dict[str, Any]] = None,
+        language: Optional[str] = None) -> str:
+    """Render localized permutation-test guidance as HTML.
+
+    Parameters
+    ----------
+    palette : dict, optional
+        Resolved theme palette.
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Rich text with translated prose and unchanged formulas.
+    """
+    ink = _colours(palette)
+    return (f'<div style="color:{ink["fg"]};">'
+            + _heading_html(
+                _translated_ui_text("WHAT THIS TEST DOES", language), ink)
+            + _prose_html(
+                _translated_ui_text(_PERMUTATION_NOTE, language), ink)
+            + '</div>')
+
+
+def section_explainer_html(app_key: str, title: str,
+                           settings: Optional[Dict[str, Any]] = None,
+                           palette: Optional[Dict[str, Any]] = None,
+                           language: Optional[str] = None) -> str:
+    """Return localized HTML guidance for a settings section.
+
+    Parameters
+    ----------
+    app_key : str
+        Application whose settings section is rendered.
+    title : str
+        Canonical English section title.
+    settings : dict, optional
+        Current values used to render formulas and selected inference.
+    palette : dict, optional
+        Resolved theme palette.
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Rich text, or ``""`` when the section has no explainer.
+    """
+    if not has_section_explainer(app_key, title):
+        return ""
+    values = settings or {}
+    if title == "Model & Inference":
+        return regression_model_explainer_html(
+            values.get("regression_type", "auto"),
+            values.get("level", "both"),
+            plate_position=values.get("model_plate_position", False),
+            random_row_column=values.get("random_row_column_effects", False),
+            palette=palette,
+            language=language)
+    return permutation_test_explainer_html(palette, language)
+
+
+def explainer_width() -> int:
+    """Return the minimum explainer width in monospace characters.
+
+    The width is derived from the longest unbreakable formula. Prose remains
+    free to wrap to the available panel width.
+    """
+    longest = _EXPLAINER_WIDTH
+    for text in _every_explainer_line():
+        if text.strip().startswith(("y ~", "rho =", "minimise")):
+            longest = max(longest, len(text))
+    return longest
+
+
+def _every_explainer_line():
+    """Return every line that an explainer may render.
+
+    The result supplies representative content to :func:`explainer_width`.
+    """
+    from spacr.regression_spec import REGRESSION_TYPES
+
+    lines = []
+    positions = (
+        {"plate_position": False, "random_row_column": False},
+        {"plate_position": True, "random_row_column": False},
+        {"plate_position": True, "random_row_column": True},
+    )
+    for family in REGRESSION_TYPES:
+        for level in REGRESSION_LEVELS:
+            for position in positions:
+                try:
+                    lines.extend(regression_model_explainer(
+                        family, level, **position).splitlines())
+                except Exception:                              # noqa: BLE001
+                    continue
+    return lines
+
+
+def _wrap_block(text: str, indent: str = "    ") -> str:
+    """Indent a paragraph while leaving line wrapping to the widget.
+
+    Formula lines bypass this helper so they remain copyable as complete
+    expressions. Prose stays on one logical line and adapts to the current
+    width of the explainer pane.
+    """
+    out = []
+    for paragraph in str(text).split("\n"):
+        if not paragraph.strip():
+            out.append("")
+            continue
+        out.append(indent + " ".join(paragraph.split()))
+    return "\n".join(out)
+
+
+def normalise_regression_level(level: Any) -> str:
+    """Return a supported regression level, defaulting to ``'both'``.
+
+    Missing or unrecognized values can occur in settings saved by older
+    versions and are handled without interrupting panel rendering.
+    """
+    text = str(level or "").strip().lower()
+    return text if text in REGRESSION_LEVELS else "both"
+
+
+def regression_model_explainer(regression_type: Any,
+                               level: Any = "both",
+                               plate_position: Any = False,
+                               random_row_column: Any = False,
+                               language: Optional[str] = None,
+                               inference: Any = "auto",
+                               analysis_mode: Any = "") -> str:
+    """Describe the regression formula selected in the settings panel.
+
+    Parameters
+    ----------
+    regression_type : Any
+        Requested regression backend, such as ``"ols"`` or ``"mixed"``.
+    level : Any, default="both"
+        Coefficient level to describe: ``"grna"``, ``"gene"``, or ``"both"``.
+    plate_position : Any, default=False
+        Whether the formula includes row and column position terms.
+    random_row_column : Any, default=False
+        Whether row and column terms are variance components instead of fixed
+        effects.
+    language : str or None, default=None
+        UI language code. ``None`` uses the active language. Only exact,
+        source-current paragraph translations are used.
+    inference : Any, default='auto'
+        Selected inference mode.
+    analysis_mode : Any, default=''
+        Compatibility value used to identify permutation inference.
+
+    Returns
+    -------
+    str
+        Plain text containing the selected model, fitted formula, output, and
+        interpretation notes. Unknown backends receive an explicit warning.
+
+    Notes
+    -----
+    Guide and gene effects are described as separate fits. The retired design,
+    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``, contains
+    both guide fractions and their gene-level sums. It is rank deficient, so
+    its individual coefficients are not uniquely interpretable.
+    :data:`COLLINEAR_FORMULA` stores the formula used by the compatibility
+    checks.
+    """
+    position = {"plate_position": bool(plate_position),
+                "random_row_column": bool(random_row_column)}
+    key = str(regression_type or "auto").strip().lower() or "auto"
+
+    def tx(source: str, **values: object) -> str:
+        """Translate one source string into the explainer's language."""
+        return _translated_ui_text(source, language, **values)
+
+    if _nonparametric_selected(inference, analysis_mode):
+        # THE SAME WORDS AS THE TYPESET BOX, from the one constant, so the
+        # plain renderer and the HTML one cannot describe different runs.
+        return "\n\n".join(
+            [tx("INFERENCE: nonparametric — guide permutation")]
+            + [tx(line) for line in NONPARAMETRIC_NOTE])
+
+    if key not in _MODE_NOTES:
+        # An unknown name is the pipeline's error to raise, with its own list
+        # of what it accepts. The box says it cannot describe the choice
+        # rather than inventing a formula for it.
+        return (f"{tx('MODEL:')} {key}\n\n"
+                + _wrap_block(tx(_UNKNOWN_MODEL_NOTE)))
+
+    title = tx(_MODE_TITLES.get(key, key))
+    lines: List[str] = []
+
+    if key == "mixed":
+        lines.append(f"{tx('MODEL:')} mixed -- {title}")
+        lines.append(
+            f"{tx('LEVEL:')} "
+            f"{tx('not applicable -- one model carries both levels')}"
+        )
+        lines.append("")
+        lines.append(tx("FORMULA"))
+        lines.append(f"    {formula_for(MIXED_TERM, **position)}")
+        lines.append("")
+        lines.append(tx("WHAT IS MODELLED"))
+        lines.append(_wrap_block(tx(_MODE_NOTES["mixed"])))
+        lines.append("")
+        # THE COST OF THE DEFAULT, in its own named section. This is the
+        # paragraph the box exists for, and the one section instruction 143
+        # left at full length: a user who takes the default and then goes
+        # looking for guide p-values reads it exactly once, but they cannot
+        # be told to go elsewhere for it.
+        lines.append(tx(_REFUSAL_HEADING))
+        lines.append(_wrap_block(tx(_MIXED_GUIDE_OUTPUT_NOTE)))
+        lines.append("")
+        # WHAT IT COSTS, beside "what you do not get" and for the same
+        # reason: both are things a user can only find out by having already
+        # spent the afternoon. Instruction 140.
+        lines.append(tx("Recommended for CRISPR screens").upper())
+        lines.append(_wrap_block(tx(RECOMMENDED_FOR_SCREENS["mixed"])))
+        lines.append(_wrap_block(tx(INFORMATION_LIMIT_NOTE)))
+        lines.append("")
+        lines.append(tx("WHAT IT COSTS"))
+        lines.append(_wrap_block(mixed_cost_note(language)))
+        lines.append("")
+        lines.append(tx("MULTIPLE TESTING"))
+        lines.append(_wrap_block(tx(_MIXED_MULTIPLE_TESTING_NOTE)))
+    else:
+        chosen = normalise_regression_level(level)
+        level_line = {
+            "both": "both -- the two fits below, run SEPARATELY",
+            "grna": "grna -- the guide fit only",
+            "gene": "gene -- the gene fit only",
+        }[chosen]
+        lines.append(f"{tx('MODEL:')} {key} -- {title}")
+        lines.append(f"{tx('LEVEL:')} {tx(level_line)}")
+        lines.append("")
+        lines.append(_wrap_block(
+            tx("Fixed effects only -- no nesting of guides inside genes."),
+            ""))
+        lines.append("")
+
+        # ONE SENTENCE UNDER EACH FORMULA, and no blank line between them:
+        # the sentence says what a coefficient IS, which is the one thing a
+        # reader needs it for, and it belongs to the formula above it.
+        if chosen in ("both", "grna"):
+            lines.append(
+                f"{tx('FORMULA (guide fit)')}  ->  results_grna.csv"
+            )
+            lines.append(f"    {formula_for(GRNA_TERM, **position)}")
+            lines.append(_wrap_block(
+                tx("One coefficient per guide, the unit the screen "
+                   "measures.")))
+            lines.append("")
+        if chosen in ("both", "gene"):
+            lines.append(
+                f"{tx('FORMULA (gene fit)')}   ->  results_gene.csv"
+            )
+            lines.append(f"    {formula_for(GENE_TERM, **position)}")
+            lines.append(_wrap_block(
+                tx("One coefficient per gene, from the summed guide "
+                   "fraction.")))
+            lines.append("")
+        if chosen == "both":
+            lines.append(_wrap_block(
+                tx("TWO MODELS, TWO TABLES -- fitted separately, NOT one "
+                   "design containing both."), ""))
+            lines.append("")
+
+        if key in RECOMMENDED_FOR_SCREENS:
+            lines.append(tx("Recommended for CRISPR screens").upper())
+            lines.append(_wrap_block(tx(RECOMMENDED_FOR_SCREENS[key])))
+            lines.append(_wrap_block(tx(INFORMATION_LIMIT_NOTE)))
+            lines.append("")
+        lines.append(tx("WHAT {model} DOES", model=key.upper()))
+        lines.append(_wrap_block(tx(_MODE_NOTES[key])))
+        lines.append("")
+        lines.append(tx("MULTIPLE TESTING"))
+        if key in NO_P_VALUE_TYPES:
+            # Saying "BH-corrected" under a backend that reports no p-value
+            # would contradict this box's own WHAT ... DOES paragraph two
+            # lines above it.
+            source = (_NO_P_VALUE_BOTH_NOTE if chosen == "both"
+                      else _NO_P_VALUE_SINGLE_NOTE)
+            lines.append(_wrap_block(tx(source)))
+        elif chosen == "both":
+            # ITS FIRST SENTENCE ONLY, per instruction 143. The four that
+            # followed said why pooling would be wrong and warned that a gene
+            # called by both fits is two tests of one hypothesis -- both true,
+            # both read once, and the second belongs beside the hit list where
+            # somebody is making the claim.
+            lines.append(_wrap_block(
+                tx("Each fit is its OWN multiple-testing family and is "
+                   "BH-corrected within itself.")))
+        else:
+            lines.append(_wrap_block(
+                tx("The single fit is BH-corrected as one family.")))
+
+    lines.append("")
+    lines.append(tx(
+        _HISTORY_POINTER_SOURCE,
+        symbol=_HISTORY_POINTER_SYMBOL,
+    ))
+    return "\n".join(lines).rstrip() + "\n"
+
+
+# ---------------------------------------------------------------------------
+# The Permutation Test explainer box (instruction 135)
+# ---------------------------------------------------------------------------
+#
+# "Permutation test is good it just needs a text box at the top briefly
+# explaining what it does."  ONE PARAGRAPH, and shorter than the model box
+# above: the eight controls under it are already named for what they do, so
+# what is missing is only the sentence that says what the test IS.
+#
+# Written from `spacr.guide_permutation` rather than from the general
+# reputation of permutation tests, which is why it says "marginal" out loud.
+# The module's own docstring is explicit that it "does not claim to estimate a
+# simultaneous conditional coefficient for every guide", and a user who reads
+# "permutation test" as "the same fit, only distribution-free" would take a
+# marginal association for a conditional one.
+
+#: What the nonparametric branch actually runs, in one paragraph.
+#:
+#: Every clause is a line of `guide_freedman_lane_test`: the block-wise
+#: reshuffle is its `for indexes in block_indexes` loop, the two-sided
+#: comparison is `np.abs(permutation_effects) >= np.abs(observed)`, the floor
+#: on the P value is `(exceedances + 1) / (n_permutations + 1)`, and the
+#: per-threshold family is the `for threshold in thresholds` loop that
+#: corrects each support level on its own.
+_PERMUTATION_NOTE = (
+    # BOTH THE PLAIN WORDS AND THE TERM. The longhand -- "one coefficient in
+    # a design holding every guide at once" -- is what a reader who does not
+    # know the vocabulary needs; "conditional coefficients" is what a reader
+    # who does will look for, and it is the phrase
+    # `guide_freedman_lane_test`'s own docstring uses when it says the test
+    # "does not claim to estimate a simultaneous conditional coefficient".
+    # Dropping the term left the distinction true but unsearchable.
+    "Each guide is tested independently, as a marginal association rather "
+    "than as one coefficient in a design holding every guide at once -- so "
+    "these are marginal associations, not conditional coefficients. Its "
+    "read fraction and the well phenotype are first residualised against "
+    "the block (normally plateID) and any nuisance columns; the P value is "
+    "then the share of Freedman-Lane permutations -- the phenotype residual "
+    "reshuffled WITHIN each block -- whose statistic reaches the observed "
+    "one, so it is empirical and two-sided and can never be smaller than "
+    "1/(permutations + 1). A guide becomes testable once it appears in "
+    "guide_min_wells wells above guide_presence_threshold, and each of "
+    "those thresholds is corrected as its own family. This avoids the rank "
+    "requirement of a simultaneous guide model and can be used when guides "
+    "outnumber wells; interpretation still depends on valid blocking, "
+    "exchangeability, and adequate guide support."
+)
+
+
+#: The head of the regression menu. 'auto' is NOT a family -- it is the
+#: readable spelling of the historical ``None``, which ``ml.regression`` turns
+#: into ``check_distribution(response)`` -- so it carries no group title and
+#: no assumption, and it must not be labelled as though it were one.
+_REGRESSION_AUTO_CHOICE = (
+    "auto",
+    "auto — chosen from the response by check_distribution",
+)
+
+
+def _regression_type_menu():
+    """Every entry of the ``regression_type`` dropdown, as (value, caption).
+
+    ONE TABLE FOR BOTH ROUTES. The families and their captions come from
+    :func:`spacr.regression_families.regression_family_choices`, which
+    :func:`spacr.settings_spec._regression_type_choices` also asks -- so the
+    Qt panel and the settings spec cannot disagree about what a family is
+    called or which of the three kinds it is in. This panel used to build its
+    own flat list out of the bare inventory, and the two routes did disagree:
+    one showed nineteen unlabelled names, the other showed them explained.
+
+    ONE LIST FOR THE MENU AND FOR THE CATALOG. ``_SETTINGS_MODEL_UI_SOURCES``
+    is built from this, so a caption that reaches the dropdown reaches the
+    translators with it and cannot be left behind as the only English row in
+    a Swedish panel.
+
+    Asked of ``spacr.regression_families`` rather than ``spacr.ml``: both
+    re-export the function, but ``spacr.ml`` imports ``spacr.plot`` and
+    therefore torch, which is 2.2 seconds and 900 MB on the GUI thread to
+    read a tuple of strings.
+
+    :returns: ``[('auto', caption), (family, caption), ...]`` -- 'auto'
+        first, then parametric, robust/semiparametric and rank-based, which
+        is the order a reader meets the three kinds in.
+    """
+    from spacr.regression_families import regression_family_choices
+
+    return [_REGRESSION_AUTO_CHOICE, *regression_family_choices()]
+
+
+#: Every caption the regression menu shows, for the catalog builder.
+#:
+#: A CAPTION SHIPS WITH ITS ROWS. These are assembled at runtime from
+#: :mod:`spacr.regression_families`, so the literal-string extractor in
+#: ``tools/build_i18n_catalogs.py`` cannot see them at the ``addItem`` call
+#: site the way it sees a quoted label. Declaring them here is how a
+#: dynamically composed caption still reaches the translators.
+#:
+#: SEPARATE FROM ``_SETTINGS_MODEL_UI_SOURCES`` ON PURPOSE. That set is
+#: pinned by ``tests/qt/test_external_i18n_catalogs.py`` to exactly the
+#: templates the model explainers render, so it is that surface's inventory
+#: and not this module's. Folding a menu caption into it would make the
+#: explainer check fail on a string no explainer has ever rendered.
+_REGRESSION_MENU_UI_SOURCES = frozenset(
+    caption for _value, caption in _regression_type_menu())
+
+
+_SETTINGS_MODEL_UI_SOURCES = frozenset({
+    *_MODE_TITLES.values(),
+    *RECOMMENDED_FOR_SCREENS.values(),
+    *_MODE_NOTES.values(),
+    INFORMATION_LIMIT_NOTE,
+    _HISTORY_POINTER_SOURCE,
+    _MIXED_COST_NOTE_TEMPLATE,
+    _REFUSAL_HEADING,
+    _MIXED_GUIDE_OUTPUT_NOTE,
+    _MIXED_MULTIPLE_TESTING_NOTE,
+    _UNKNOWN_MODEL_NOTE,
+    _NO_P_VALUE_BOTH_NOTE,
+    _NO_P_VALUE_SINGLE_NOTE,
+    _PERMUTATION_NOTE,
+    "MODEL:",
+    "LEVEL:",
+    "not applicable — one model carries both levels",
+    "not applicable -- one model carries both levels",
+    "FORMULA",
+    "WHAT IS MODELLED",
+    "Recommended for CRISPR screens",
+    "WHAT IT COSTS",
+    "MULTIPLE TESTING",
+    "both — the two fits below, run SEPARATELY",
+    "grna — the guide fit only",
+    "gene — the gene fit only",
+    "both -- the two fits below, run SEPARATELY",
+    "grna -- the guide fit only",
+    "gene -- the gene fit only",
+    "Fixed effects only — no nesting of guides inside genes.",
+    "Fixed effects only -- no nesting of guides inside genes.",
+    "FORMULA (guide fit)",
+    "FORMULA (gene fit)",
+    "One coefficient per guide, the unit the screen measures.",
+    "One coefficient per gene, from the summed guide fraction.",
+    "TWO MODELS, TWO TABLES — fitted separately, NOT one design containing "
+    "both.",
+    "TWO MODELS, TWO TABLES -- fitted separately, NOT one design containing "
+    "both.",
+    "WHAT {model} DOES",
+    "Each fit is its OWN multiple-testing family and is BH-corrected within "
+    "itself.",
+    "The single fit is BH-corrected as one family.",
+    "WHAT THIS TEST DOES",
+})
+
+
+def permutation_test_explainer(
+    language: Optional[str] = None,
+) -> str:
+    """Return localized plain-text permutation-test guidance.
+
+    Parameters
+    ----------
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Wrapped guidance, using canonical English when a complete translation
+        is unavailable.
+    """
+    return (_translated_ui_text("WHAT THIS TEST DOES", language) + "\n"
+            + _wrap_block(
+                _translated_ui_text(_PERMUTATION_NOTE, language)) + "\n")
+
+
+#: Sections that open with a read-only prose box instead of a control, per
+#: module.
+#:
+#: A table keeps placement and coverage in one place and makes additional
+#: explainer sections explicit.
+SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
+    "regression": ("Model & Inference", "Permutation Test"),
+}
+
+
+def has_section_explainer(app_key: str, title: str) -> bool:
+    """Return whether a settings section begins with explanatory prose."""
+    return str(title or "") in SECTION_EXPLAINERS.get(str(app_key or ""), ())
+
+
+def section_explainer(app_key: str, title: str,
+                      settings: Optional[Dict[str, Any]] = None,
+                      language: Optional[str] = None) -> str:
+    """Return localized plain-text guidance for a settings section.
+
+    Parameters
+    ----------
+    app_key : str
+        Application whose section is rendered.
+    title : str
+        Section heading.
+    settings : dict, optional
+        Current values used to render formulas and selected inference.
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Guidance text, or ``""`` when the section has no explainer.
+    """
+    if not has_section_explainer(app_key, title):
+        return ""
+    values = settings or {}
+    if title == "Model & Inference":
+        return regression_model_explainer(
+            values.get("regression_type", "auto"),
+            values.get("level", "both"),
+            plate_position=values.get("model_plate_position", False),
+            random_row_column=values.get("random_row_column_effects", False),
+            language=language)
+    return permutation_test_explainer(language)
+
 
 def _basis_note(basis: str) -> str:
     """The sentence shown on a setting the current training basis ignores."""
@@ -2732,27 +6533,63 @@ def _family_note(family: str) -> str:
 
 
 def _apply_greyed_note(control, note: str) -> None:
-    """Add the greyed-out note WITHOUT destroying the setting's API help.
+    """Append a disabled-state note without replacing the setting help.
 
-    This was a bare `setToolTip(note)`, which replaced linked documentation
-    with a plain sentence. The label's help is composed from the control's
-    tooltip, so greying a setting silently stripped its API link: measured
-    on `annotation_column`, whose LABEL help was the note alone while the
-    FIELD still held the full documentation. The smoke test reported it as
-    "label help has no API link" on classify, classify_merged, ml_analyze.
-
-    Both greying passes go through here -- training basis and classifier
-    family -- because the second had the identical bug and would have been
-    found the identical way, one test run later.
-
-    The note is appended to the help instead, and the help properties are
-    left untouched so nothing downstream mistakes the note for the
-    setting's own description.
+    Existing tooltip text and API-link properties remain intact so labels
+    and fields expose the same documentation while the control is disabled.
     """
     _clear_greyed_note(control)     # the reason may have changed; it is named
     base = control.property("apiTooltipHtml") or control.toolTip()
     control.setProperty(_BASIS_NOTE_PROPERTY, True)
     control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
+    # REMEMBERED ON THE CONTROL, because the label may not exist yet. The
+    # first greying pass runs while the panel is being built and the labels
+    # are decorated afterwards, so a note written only where a label would be
+    # is a note that never appears. Held here, it can be put on the label the
+    # moment there is one.
+    control.setProperty(_PENDING_NOTE_PROPERTY, note)
+    label = getattr(control, "_spacr_setting_label", None)
+    if label is not None:
+        label.setEnabled(False)
+        # ON THE LABEL, WHICH IS WHERE THE HELP ACTUALLY SHOWS. The editor is
+        # deliberately SILENT on hover -- decoration sets its display role to
+        # "metadata" and clears its tooltip so the panel does not show two
+        # tooltips for one setting -- so the note above went to a string
+        # nothing reads. EVERY greyed setting in spaCR was disabled WITHOUT
+        # saying why, which is the one thing instruction 106 asks of a greyed
+        # control, and it was invisible precisely because the reason was
+        # written where it could not be seen.
+        _note_on_label(label, note)
+
+
+def _note_on_label(label, note: str) -> None:
+    """Append the greyed-out reason to the help the LABEL shows on hover.
+
+    The original help is kept under its own property so
+    :func:`_clear_greyed_note` restores it exactly rather than trying to
+    strip the note back off a rendered string.
+    """
+    if label.property(_NOTE_BACKUP_PROPERTY) is None:
+        base = str(label.property("apiTooltipHtml") or label.toolTip() or "")
+        # A note may already be BAKED IN: the label's help was composed from
+        # the control's tooltip at decoration time, and that tooltip carried
+        # the note from the build-time greying pass. Stripped by its exact
+        # text, which is known, rather than by a pattern -- guessing where
+        # help ends and a note begins is how a restore loses a sentence.
+        base = _without_note(base, note)
+        label.setProperty(_NOTE_BACKUP_PROPERTY, base)
+    base = str(label.property(_NOTE_BACKUP_PROPERTY) or "")
+    text = f"{base}<br><i>{note}</i>" if base else note
+    label.setProperty("apiTooltipHtml", text)
+    label.setToolTip(text)
+
+
+def _without_note(text: str, note: str) -> str:
+    """``text`` with a trailing greyed-out ``note`` removed, if it has one."""
+    for suffix in (f"<br><i>{note}</i>", note):
+        if suffix and text.endswith(suffix):
+            return text[:-len(suffix)].rstrip()
+    return text
 
 
 def _clear_greyed_note(control) -> None:
@@ -2763,6 +6600,25 @@ def _clear_greyed_note(control) -> None:
     restored = control.property("apiTooltipHtml")
     if restored:
         control.setToolTip(restored)
+    pending = str(control.property(_PENDING_NOTE_PROPERTY) or "")
+    control.setProperty(_PENDING_NOTE_PROPERTY, None)
+    label = getattr(control, "_spacr_setting_label", None)
+    if label is not None:
+        label.setEnabled(control.isEnabled())
+        backup = label.property(_NOTE_BACKUP_PROPERTY)
+        if backup is not None:
+            label.setProperty("apiTooltipHtml", backup)
+            label.setToolTip(str(backup))
+            label.setProperty(_NOTE_BACKUP_PROPERTY, None)
+        elif pending:
+            # No backup because the note was applied before this label
+            # existed and was baked into its help by decoration. Removed by
+            # its own text.
+            cleaned = _without_note(
+                str(label.property("apiTooltipHtml") or label.toolTip() or ""),
+                pending)
+            label.setProperty("apiTooltipHtml", cleaned)
+            label.setToolTip(cleaned)
 
 
 def attach_api_tooltip(
@@ -2782,6 +6638,16 @@ def attach_api_tooltip(
     # Keep an absent body absent: format_tooltip owns the localized generic
     # fallback.  Synthesizing an English sentence here bypasses it.
     body = str(body or "")
+    # WHAT A SLOW FIT COSTS, SAID BEFORE IT IS CHOSEN. Instruction 273
+    # section 3: the measurement already exists, and it used to reach a user
+    # only after they had started the run -- printed by the console banner,
+    # which is after the decision. `mixed_cost_note` is the one source, so
+    # the box and the banner cannot say different numbers.
+    if key == "regression_type":
+        try:
+            body = f"{body} {mixed_cost_note()}".strip()
+        except Exception:                                    # noqa: BLE001
+            pass
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
@@ -2862,26 +6728,21 @@ def install_api_tooltips(
     owner: QWidget,
     app_key: str,
     widget_keys: Optional[Dict[QWidget, str]] = None,
-    *,
-    api_dots: bool = True,
 ) -> None:
     """Give every mapped/generated popup setting label consistent API help.
 
     ``SettingsWidgets`` controls are discovered through their ``settingKey``
     property. Hand-built Live/Crop/Search controls are supplied in
     ``widget_keys``. Descriptive help belongs to the label, not the editable
-    field; a compact teal dot immediately beside that label opens the API page.
+    field, and the whole of it -- description and API link both -- is in the
+    label's hover text.
 
-    :param api_dots: draw the teal link dots. Hover help is installed either
-        way -- this only controls the visible dot. Forms with a setting on
-        nearly every row read as a column of dots rather than a column of
-        settings, which is why the Mask live preview turns them off: 68 of
-        them on one dialog. The Annotate settings dialog turns them off for
-        the same reason -- twenty-six settings, so twenty-six dots -- and
-        because the API link is in the hover tooltip either way, which is
-        where users were reading it from. Anywhere the settings are sparse
-        enough for a dot to look like an affordance rather than texture,
-        leave it on.
+    NOTHING IS DRAWN BESIDE THE LABEL. A teal link dot used to be, and three
+    forms had already switched it off one at a time: 68 of them down the Mask
+    live preview, twenty-six down the Annotate settings dialog, three in the
+    figure dialog. A column of dots reads as texture rather than as one
+    affordance per setting, and the API link was never in the dot alone --
+    it is in the hover text, which is where it was being read from.
     """
     event_filter = getattr(owner, "_api_tooltip_filter", None)
     if event_filter is None:
@@ -2913,10 +6774,33 @@ def install_api_tooltips(
         html = attach_api_tooltip(
             widget, app_key, key, _descriptions=descriptions)
         label = _setting_label_for_field(owner, widget)
+        if label is None and not _is_self_labelling(widget):
+            # A COMPOSITE FIELD IS NOT A SELF-LABELLING CONTROL, and treating
+            # it as one is what put the tooltip on the field.
+            #
+            # Reported repeatedly, and measured on the regression panel:
+            # THIRTY-THREE editors sit inside a composite -- a `_ScalarEdit`
+            # inside a `_CsvColumnField`, a line edit inside a chip field --
+            # and the composite was landing in the branch below, which
+            # installs the hover filter on the widget itself. Qt delivers
+            # `Enter` to a parent when the pointer crosses into any of its
+            # children, so hovering the FIELD fired the help.
+            #
+            # The branch below is right for a `QCheckBox`, which carries its
+            # own visible text and IS its own label. It is wrong for a
+            # container, which has no text and whose label is elsewhere or
+            # missing. Where there is no label to put the help on, the help
+            # goes nowhere -- a field that stays quiet is the requested
+            # behaviour, and a tooltip on the field is not a lesser version
+            # of it.
+            widget.setProperty("apiTooltipHtml", "")
+            widget.setProperty("apiTooltipDisplayRole", "metadata")
+            widget.setToolTip("")
+            widget.removeEventFilter(event_filter)
+            continue
         if label is None:
             # A one-widget form row (usually a Toggle/QCheckBox) carries its
-            # own visible label. Keep hover help on its text and put the same
-            # teal API dot immediately after the combined label/control.
+            # own visible label, so the hover help goes on its own text.
             # Remove before installing. Qt keeps a LIST of filters and calls
             # each installation separately, so decorating the same widget
             # twice makes one hover emit two tooltips.
@@ -2924,9 +6808,6 @@ def install_api_tooltips(
             # installed, which makes this idempotent for free.
             widget.removeEventFilter(event_filter)
             widget.installEventFilter(event_filter)
-            if api_dots:
-                _add_api_dot_to_combined_control(
-                    owner, widget, app_key, key, html)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -2940,13 +6821,10 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        # Idempotent, for the reason above: this decoration pass runs again
-        # whenever the live-preview form is re-gated -- changing the primary
-        # object from cell to nucleus, for instance -- and a second
-        # installation on the same label duplicated every tooltip on the
-        # panel. The API dots did not duplicate because
-        # `_add_api_dot_to_label` guards on a property; the filter had no such
-        # guard.
+        # Idempotent: this decoration pass runs again whenever the
+        # live-preview form is re-gated -- changing the primary object from
+        # cell to nucleus, for instance -- and a second installation on the
+        # same label duplicated every tooltip on the panel.
         label.removeEventFilter(event_filter)
         label.installEventFilter(event_filter)
 
@@ -2955,20 +6833,17 @@ def install_api_tooltips(
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
         widget.removeEventFilter(event_filter)
-        if api_dots:
-            _add_api_dot_to_label(label, app_key, key, html)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
     """Return the real label inside a `SettingLabelWithInfo` host.
 
-    The first decoration pass replaces the form's label with a host widget
-    holding ``[stretch][label][dot]``. On a SECOND pass
-    ``QFormLayout.labelForField`` therefore hands back the HOST, not the
-    label — a fresh widget with none of the label's guard properties — so the
-    pass decorated it again and the panel grew a second dot and a second
-    tooltip per setting. That is what switching Primary object from cell to
-    nucleus did in the Mask live preview.
+    A section builds that host to right-align a label against its field, so
+    ``QFormLayout.labelForField`` hands back the HOST rather than the label —
+    a widget with none of the label's guard properties, which the decoration
+    pass then decorated again, giving the panel a second tooltip per setting.
+    That is what switching Primary object from cell to nucleus did in the
+    Mask live preview.
 
     Unwrapping restores the invariant the guards rely on: the same label
     object is found every time.
@@ -2979,6 +6854,15 @@ def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
         return candidate
     for child in candidate.findChildren(QWidget):
         if child.property("settingHelpLabel"):
+            return child
+    # BEFORE THE HOST HAS EVER BEEN DECORATED there is no marked child to
+    # find, because `settingHelpLabel` is set by the decoration pass
+    # itself -- so the first pass over a freshly built form got the host
+    # back and treated the row as having no name at all. The first
+    # labelled child is the caption `add_row` put there, and taking it is
+    # as deterministic as the marked one: a host holds one caption.
+    for child in candidate.findChildren(QLabel):
+        if child.text().strip():
             return child
     return candidate
 
@@ -2998,8 +6882,8 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
         # A form field is often a wrapper QWidget containing an editor and a
         # Browse button (or two numeric editors). QFormLayout only knows the
         # wrapper, so walk the editor's parent chain before concluding that it
-        # is a label-less combined control. Otherwise its tooltip and API dot
-        # end up beside the editor instead of on the form label.
+        # is a label-less combined control. Otherwise its hover help ends up
+        # on the editor instead of on the form label.
         candidate: Optional[QWidget] = field
         while isinstance(candidate, QWidget):
             label = _unwrap_setting_label(form.labelForField(candidate))
@@ -3026,117 +6910,6 @@ def _setting_label_for_field(owner: QWidget, field: QWidget) -> Optional[QWidget
     return None
 
 
-def build_setting_link_widget(
-    app_key: str,
-    key: str,
-    html: str,
-    body_source: str = "",
-    parent: Optional[QWidget] = None,
-) -> Tuple[QWidget, QWidget, None]:
-    """Build the one teal API dot that sits beside a setting label.
-
-    A setting used to carry two dots: this one and a purple one that opened
-    the setting's animation in a popup of its own. The hover tooltip shows
-    that animation inline now, on request, so the purple dot was 585 coloured
-    marks of clutter for a window nothing else needed. It is gone, and so is
-    the stack that held the pair apart.
-
-    :returns: ``(layout_widget, api_dot, None)``. The third slot is kept —
-        always ``None`` — because ``AppScreen`` unpacks three values; there is
-        no second dot for it to receive any more.
-    """
-    from ..widgets.info_link import InfoLink
-
-    api_dot = InfoLink(
-        api_docs_url(app_key, key),
-        tooltip=_api_reference_tooltip(key, app_key=app_key),
-    )
-    api_dot.setObjectName("SettingInfoLink")
-    api_dot.setProperty("settingsAppKey", app_key)
-    api_dot.setProperty("settingKey", key)
-    api_dot.setProperty("apiTooltipDescriptionSource", body_source)
-    api_dot.setProperty("apiTooltipDescription", body_source)
-    api_dot.setProperty("apiTooltipHtml", html)
-    api_dot.setProperty("apiTooltipDisplayRole", "api-link")
-    api_dot.setParent(parent)
-    return api_dot, api_dot, None
-
-
-def _add_api_dot_to_label(
-    label: QWidget,
-    app_key: str,
-    key: str,
-    html: str,
-) -> None:
-    """Place one clickable teal API dot immediately to a setting label's right."""
-    if bool(label.property("settingApiDotInstalled")):
-        return
-    parent = label.parentWidget()
-    layout = parent.layout() if parent is not None else None
-    if layout is None:
-        return
-
-    host = QWidget(parent)
-    host.setObjectName("SettingLabelWithInfo")
-    row = QHBoxLayout(host)
-    row.setContentsMargins(0, 0, 0, 0)
-    row.setSpacing(4)
-    row.addStretch(1)
-    replaced = layout.replaceWidget(label, host)
-    if replaced is None:
-        host.deleteLater()
-        return
-    label.setParent(host)
-    row.addWidget(label)
-    body_source = str(label.property("apiTooltipDescriptionSource") or "")
-    links, dot, _ = build_setting_link_widget(
-        app_key, key, html, body_source, parent=host,
-    )
-    row.addWidget(links, 0, Qt.AlignVCenter)
-    label.setProperty("settingApiDotInstalled", True)
-    label._spacr_api_dot = dot
-
-
-def _add_api_dot_to_combined_control(
-    owner: QWidget,
-    field: QWidget,
-    app_key: str,
-    key: str,
-    html: str,
-) -> None:
-    """Add an API dot after a Toggle/QCheckBox that is its own row label."""
-    existing = getattr(field, "_spacr_api_dot", None)
-    if isinstance(existing, QWidget):
-        try:
-            if existing.window() is owner.window():
-                return
-        except RuntimeError:
-            pass
-    parent = field.parentWidget()
-    layout = parent.layout() if parent is not None else None
-    if layout is None:
-        return
-
-    host = QWidget(parent)
-    host.setObjectName("SettingControlWithInfo")
-    row = QHBoxLayout(host)
-    row.setContentsMargins(0, 0, 0, 0)
-    row.setSpacing(4)
-    replaced = layout.replaceWidget(field, host)
-    if replaced is None:
-        host.deleteLater()
-        return
-    field.setParent(host)
-    row.addWidget(field)
-    body_source = str(field.property("apiTooltipDescriptionSource") or "")
-    links, dot, _ = build_setting_link_widget(
-        app_key, key, html, body_source, parent=host,
-    )
-    row.addWidget(links, 0, Qt.AlignVCenter)
-    row.addStretch(1)
-    field._spacr_api_dot = dot
-
-
 # ---------------------------------------------------------------------------
 # Widget factory
 # ---------------------------------------------------------------------------
@@ -3158,6 +6931,97 @@ class _ListEdit(QLineEdit):
         self.setText(repr(v) if v is not None else "")
 
 
+class _ValueCombo(QComboBox):
+    """A dropdown settable by the value it stores, not only by its caption.
+
+    Every entry is added as ``addItem(caption, userData=value)``, and for most
+    settings the two are the same string. They are not the same for a menu
+    that explains itself: ``regression_type`` stores ``'quantile'`` and shows
+    ``'quantile -- robust/semiparametric: ...'`` so the user can tell the
+    supported families apart.
+
+    Qt's ``setCurrentText`` matches the CAPTION and, on a non-editable combo,
+    silently does nothing when there is no match. So the ordinary way to say
+    "choose ols" -- ``combo.setCurrentText('ols')`` -- becomes a no-op the
+    moment a caption stops being its own value, and the control is left on
+    whatever it was showing while the caller believes it was set. Nothing
+    raises and nothing is logged; the run simply fits a different model.
+
+    Matching the caption FIRST keeps Qt's own behaviour exactly, and falling
+    back to the stored value adds the case that used to vanish.
+    """
+
+    def setCurrentText(self, text: Any) -> None:                # noqa: N802
+        """Select the entry whose caption -- or, failing that, whose stored
+        value -- is ``text``.
+
+        :param text: a caption or a stored value. Anything matching neither
+            leaves the selection alone on a non-editable combo, which is what
+            Qt does.
+        """
+        wanted = "" if text is None else str(text)
+        index = self.findText(wanted)
+        if index < 0:
+            index = self.findData(wanted)
+        if index >= 0:
+            self.setCurrentIndex(index)
+            return
+        super().setCurrentText(text)
+
+
+class _HiddenRowWatcher(QObject):
+    """Tells a :class:`SettingsWidgets` that one of its hidden rows is back.
+
+    An event filter rather than a signal, because the thing that put the row
+    back does not know the rule exists -- the settings-search strip shows
+    every row it indexed when nothing is narrowing, and a recipe or a fold
+    reaches the panel by a different door again. ``ShowToParent`` is the one
+    event every route has in common: Qt delivers it on ``setVisible(True)``
+    even when the widget's ancestors are hidden, which is the case that
+    matters here because a settings section is usually collapsed.
+
+    A WEAK REFERENCE TO THE MODEL, AND A QT PARENT. The model owns this and
+    this is installed on the model's own widgets, so a strong reference back
+    would make a cycle with a QObject in it -- and a QObject destroyed by
+    Python's cyclic collector, while it is still an event filter on several
+    hundred live widgets, is the shape of crash that is impossible to read
+    afterwards. Parented to the panel instead, so Qt decides when it dies and
+    unhooks it from everything it watches on the way out.
+
+    :param model: the widget set to notify. Held as a WEAK reference for the
+        reason above, so every use has to cope with it having gone.
+    :param parent: the panel that owns this watcher -- NOT the model, whose
+        widgets it is installed on. That split is the whole point: Qt
+        decides when the watcher dies, and unhooks it from the widgets on
+        the way out.
+    """
+
+    def __init__(self, model: "SettingsWidgets",
+                 parent: Optional[QWidget] = None) -> None:
+        """Hold the model weakly and take the panel as parent."""
+        super().__init__(parent)
+        self._model = weakref.ref(model)
+
+    def eventFilter(self, obj, event) -> bool:            # noqa: N802
+        """Keep a hidden settings row hidden when something tries to show it.
+
+        :param obj: the row's field widget.
+        :param event: the event.
+        :returns: ``False`` -- the show is observed and corrected, never
+            consumed.
+        """
+        if event.type() == QEvent.ShowToParent:
+            model = self._model()
+            if model is None:
+                return False
+            try:
+                model._shown_against_the_rule(obj)
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not re-assert object visibility",
+                             exc_info=True)
+        return False
+
+
 class _ScalarEdit(QLineEdit):
     """A plain QLineEdit that returns None for empty text."""
     def get_value(self) -> Optional[str]:
@@ -3167,6 +7031,174 @@ class _ScalarEdit(QLineEdit):
     def set_value(self, v: Any) -> None:
         """Set the field text; ``None`` clears the field."""
         self.setText("" if v is None else str(v))
+
+
+class _CsvColumnField(QWidget):
+    """A column-name box with a CSV button that offers the columns that exist.
+
+    The box is the setting; the button answers the question the box asks. A
+    misnamed `dependent_variable` used to survive every early check and die
+    inside the merge -- after the whole score table had been read -- with a
+    message naming a column the file does not have and saying nothing about
+    what it does have.
+
+    THREE RULES, and each is a failure this is built not to repeat:
+
+    * THE HEADER ROW ONLY. Every read goes through :mod:`spacr.columns`,
+      which uses ``nrows=0``. This runs on the GUI thread and a score CSV is
+      hundreds of megabytes; a picker that has to load the file to populate
+      itself is a picker nobody waits for.
+
+    * NO CSV IS NOT AN EMPTY LIST. With nothing loaded the button SAYS SO --
+      `columns.describe` writes the sentence -- rather than opening a chooser
+      with nothing in it. An empty list of choices presented as though it
+      were the answer teaches a user that the file has no columns.
+
+    * THE CHOOSER AND THE REPORTER ARE INJECTABLE (:meth:`set_chooser`,
+      :meth:`set_reporter`), so a headless test drives the whole path without
+      ever entering a modal event loop.
+    """
+
+    #: Emitted when the name changes, typed or picked. Named `value_changed`
+    #: because that is the first signal `_connect_setting_dependency_signals`
+    #: looks for, so a rule gated on this setting re-evaluates on a pick and
+    #: not only on a keystroke.
+    value_changed = Signal()
+
+    def __init__(self, key: str = "", default: Any = None,
+                 paths: Any = None, what: str = "column",
+                 parent: Optional[QWidget] = None):
+        """
+        :param key: the settings key, named in the not-found message.
+        :param default: the column name to start with.
+        :param paths: callable returning the CSVs to read, or a fixed
+            sequence of them. A CALLABLE by default: the user picks their
+            input files after the panel is built, so a list captured at
+            construction is always the empty one.
+        :param what: what kind of column, for the message.
+        :param parent: parent widget; ownership only.
+        """
+        super().__init__(parent)
+        self._key = str(key or "")
+        self._what = str(what or "column")
+        self._paths = paths
+        self._chooser: Optional[Callable[[List[str], Any], Any]] = None
+        self._reporter: Optional[Callable[[str], None]] = None
+
+        self.edit = _ScalarEdit()
+        self.edit.set_value(default)
+        self.edit.textChanged.connect(self._on_edited)
+        self.button = QPushButton("CSV", self)
+        self.button.setObjectName("CsvColumnPicker")
+        self.button.setCursor(Qt.PointingHandCursor)
+        self.button.setToolTip(
+            "Read the header row of the input CSVs and choose a column.")
+        self.button.clicked.connect(self.pick)
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(self.edit, 1)
+        row.addWidget(self.button, 0)
+        # Typing goes to the box, not to the button, when the row is tabbed
+        # into or given focus programmatically.
+        self.setFocusProxy(self.edit)
+
+    # -- the settings-widget contract ---------------------------------------
+
+    def get_value(self) -> Optional[str]:
+        """The column name currently typed or picked, or None if empty."""
+        return self.edit.get_value()
+
+    def set_value(self, value: Any) -> None:
+        """Write a column name into the box; ``None`` clears it."""
+        self.edit.set_value(value)
+
+    def text(self) -> str:
+        """The raw text -- the QLineEdit contract callers may still use."""
+        return self.edit.text()
+
+    def setText(self, value: str) -> None:  # noqa: N802 - QLineEdit contract
+        """Set the raw text -- the QLineEdit contract callers may still use."""
+        self.edit.setText(value)
+
+    # -- the picker ---------------------------------------------------------
+
+    def set_chooser(self, chooser) -> None:
+        """Replace the modal chooser with ``chooser(choices, current)``."""
+        self._chooser = chooser
+
+    def set_reporter(self, reporter) -> None:
+        """Replace the modal message box with ``reporter(message)``."""
+        self._reporter = reporter
+
+    def input_paths(self) -> List[str]:
+        """The CSVs this field's columns are read from, right now."""
+        paths = self._paths() if callable(self._paths) else self._paths
+        return [path for path in (paths or []) if path]
+
+    def pick(self) -> Optional[str]:
+        """Offer the columns the input CSVs have; return the one chosen.
+
+        :returns: the chosen name, or None when there was nothing to offer or
+            the user cancelled.
+        """
+        from spacr import columns as columns_module
+
+        paths = self.input_paths()
+        # ONE read, and it is the only one. `columns.describe` and
+        # `columns.resolve` would each re-read the headers to build the same
+        # list; the list is already here, so the near-miss below is computed
+        # from it rather than by asking the files a second time.
+        choices = columns_module.available(paths)
+        if not choices:
+            self.report(columns_module.describe(
+                self.get_value(), paths, what=self._what, setting=self._key))
+            return None
+        current = self.get_value()
+        chosen = self.choose(choices, current,
+                             self._prompt(columns_module, choices, current))
+        if chosen:
+            self.set_value(chosen)
+        return chosen or None
+
+    def _prompt(self, columns_module, choices: List[str],
+                current: Any) -> str:
+        """The line above the chooser: how many, and the likely typo."""
+        if current is not None and current not in choices:
+            close = columns_module.suggest(current, choices)
+            if close:
+                return (f"No {self._what} {current!r} in the input CSVs. "
+                        f"Did you mean {close[0]!r}?")
+            return f"No {self._what} {current!r} in the input CSVs."
+        return f"{len(choices)} column(s) in the input CSVs:"
+
+    def choose(self, choices: List[str], current: Any,
+               prompt: str = "") -> Optional[str]:
+        """Ask the user which column. Overridden by :meth:`set_chooser`."""
+        if self._chooser is not None:
+            return self._chooser(choices, current)
+        from PySide6.QtWidgets import QInputDialog
+
+        index = choices.index(current) if current in choices else 0
+        name, ok = QInputDialog.getItem(
+            self, f"Choose a {self._what}",
+            prompt or f"{len(choices)} column(s) available:",
+            choices, index, False)
+        return name if ok else None
+
+    def report(self, message: str) -> None:
+        """Say why there is nothing to choose from. See :meth:`set_reporter`."""
+        if self._reporter is not None:
+            self._reporter(message)
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        QMessageBox.information(self, "No columns to offer", message)
+
+    def _on_edited(self, *_args) -> None:
+        """Announce that the field changed, whatever changed it."""
+        self.value_changed.emit()
 
 
 # ---------------------------------------------------------------------------
@@ -3223,135 +7255,415 @@ CHANNEL_LIST_KEYS = frozenset({
 })
 
 
-class _FlowLayout(QLayout):
-    """A left-to-right layout that wraps onto a new line when it runs out.
+class _RegressionBackendField(QWidget):
+    """Backend selector with availability and compatibility guidance.
 
-    Chips have to wrap: ``controls`` ships thirty of them and a horizontal
-    box would either clip them or force the settings panel wider than the
-    window.
+    Every registered backend remains visible. Unavailable or incompatible
+    entries are disabled and show the reason in the menu, tooltip, and
+    description pane. Changing the regression family refreshes availability
+    without silently replacing the selected backend.
+
+    Descriptions come from
+    :func:`spacr.regression_backends.describe_backends` in compact form.
     """
 
-    def __init__(self, parent=None, spacing: int = 4):
+    #: Emitted when the chosen backend changes. Named `value_changed` because
+    #: that is the first signal `_connect_setting_dependency_signals` looks
+    #: for, so a rule gated on this setting re-evaluates on a pick.
+    value_changed = Signal()
+
+    #: How tall the description may get before it scrolls, in pixels.
+    #: The ceiling keeps the settings panel the same length for every backend;
+    #: longer descriptions scroll inside the box.
+    BOX_HEIGHT = 168
+
+    def __init__(self, default: Any = None, regression_type: Any = None,
+                 parent: Optional[QWidget] = None):
+        """
+        :param default: the stored value -- a label, a short name or None.
+        :param regression_type: what the panel currently asks to fit, used to
+            decide which entries are choosable. ``'auto'``/``None`` mean the
+            family is chosen from the response after the data is read.
+        :param parent: parent widget; ownership only.
+        """
         super().__init__(parent)
-        self._items: List[Any] = []
-        self._space = spacing
-        self.setContentsMargins(0, 0, 0, 0)
+        from spacr.regression_backends import backend_choices
 
-    def addItem(self, item) -> None:            # noqa: N802 (Qt override)
-        """Append a layout item (Qt calls this for every added widget)."""
-        self._items.append(item)
+        self._regression_type = self._normalise_type(regression_type)
 
-    def count(self) -> int:
-        """Number of items in the layout."""
-        return len(self._items)
+        self.combo = QComboBox(self)
+        self.combo.setObjectName("RegressionBackendCombo")
+        self.combo.setSizeAdjustPolicy(
+            QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.combo.setMinimumContentsLength(12)
+        for label in backend_choices():
+            # The LABEL is the stored value (spacr.settings.
+            # _resolve_regression_backend says why), and it is kept in
+            # userData rather than read back off the text: the text carries
+            # the refusal for a disabled entry and is therefore not the value.
+            self.combo.addItem(label, userData=label)
 
-    def itemAt(self, index):                    # noqa: N802 (Qt override)
-        """Return the item at ``index``, or None when out of range."""
-        if 0 <= index < len(self._items):
-            return self._items[index]
-        return None
+        self.description = QTextBrowser(self)
+        self.description.setObjectName("RegressionBackendBox")
+        self.description.setReadOnly(True)
+        # CLICKABLE, which is the ask -- "linkt the the API for each". A
+        # QTextBrowser without this swallows the click and tries to navigate
+        # itself to a URL it cannot render.
+        self.description.setOpenExternalLinks(True)
+        self.description.setMaximumHeight(self.BOX_HEIGHT)
+        # Seven lines at the pane's default width, measured on the real
+        # screen: enough that the selected backend's paragraph and the first
+        # of the other seven are both on screen before anyone scrolls.
+        self.description.setMinimumHeight(132)
+        self.description.setSizePolicy(QSizePolicy.Preferred,
+                                       QSizePolicy.Preferred)
 
-    def takeAt(self, index):                    # noqa: N802 (Qt override)
-        """Remove and return the item at ``index``, or None."""
-        if 0 <= index < len(self._items):
-            return self._items.pop(index)
-        return None
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        column.addWidget(self.combo, 0)
+        column.addWidget(self.description, 1)
+        self.setFocusProxy(self.combo)
 
-    def expandingDirections(self):              # noqa: N802 (Qt override)
-        """Never ask for extra space in either direction."""
-        return Qt.Orientations(Qt.Orientation(0))
+        self.set_value(default)
+        self.combo.currentIndexChanged.connect(self._on_choice_changed)
+        self._install_availability_hooks()
+        self.refresh()
 
-    def hasHeightForWidth(self) -> bool:        # noqa: N802 (Qt override)
-        """Height depends on width -- that is the whole point of wrapping."""
-        return True
+    # -- the settings-widget contract ---------------------------------------
 
-    def heightForWidth(self, width: int) -> int:    # noqa: N802 (Qt override)
-        """Height needed to lay the chips out inside ``width``."""
-        return self._do_layout(QRect(0, 0, width, 0), test_only=True)
+    def get_value(self) -> Optional[str]:
+        """The chosen backend, as the label the settings CSV stores."""
+        index = self.combo.currentIndex()
+        if index < 0:
+            return None
+        return self.combo.itemData(index)
 
-    def setGeometry(self, rect) -> None:        # noqa: N802 (Qt override)
-        """Place every chip inside ``rect``."""
-        super().setGeometry(rect)
-        self._do_layout(rect, test_only=False)
+    def set_value(self, value: Any) -> None:
+        """Select whatever ``value`` names -- label, short name or alias.
 
-    def sizeHint(self) -> QSize:                # noqa: N802 (Qt override)
-        """Preferred size -- the minimum, since the height is width-driven."""
-        return self.minimumSize()
+        An unknown name is LEFT ALONE rather than raising or silently
+        selecting the default: this is called while a settings CSV is being
+        loaded, and a typo there is answered by
+        :func:`spacr.regression_backends.resolve_backend_name` at run time
+        with a message naming every valid choice.
+        """
+        from spacr.regression_backends import backend_label
 
-    def minimumSize(self) -> QSize:             # noqa: N802 (Qt override)
-        """The largest single chip, plus margins."""
-        size = QSize()
-        for item in self._items:
-            size = size.expandedTo(item.minimumSize())
-        margins = self.contentsMargins()
-        return size + QSize(margins.left() + margins.right(),
-                            margins.top() + margins.bottom())
+        try:
+            label = backend_label(value)
+        except (ValueError, KeyError):
+            return
+        index = self.combo.findData(label)
+        if index >= 0:
+            self.combo.setCurrentIndex(index)
 
-    def _do_layout(self, rect, test_only: bool) -> int:
-        margins = self.contentsMargins()
-        area = rect.adjusted(margins.left(), margins.top(),
-                             -margins.right(), -margins.bottom())
-        x, y, line_height = area.x(), area.y(), 0
-        for item in self._items:
-            hint = item.sizeHint()
-            next_x = x + hint.width() + self._space
-            if next_x - self._space > area.right() and line_height > 0:
-                x = area.x()
-                y = y + line_height + self._space
-                next_x = x + hint.width() + self._space
-                line_height = 0
-            if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), hint))
-            x = next_x
-            line_height = max(line_height, hint.height())
-        return y + line_height - rect.y() + margins.bottom()
+    def text(self) -> str:
+        """The chosen label -- the QComboBox contract callers may still use."""
+        return str(self.get_value() or "")
+
+    def setText(self, value: str) -> None:  # noqa: N802 - Qt contract
+        """Select by label -- the QComboBox contract callers may still use."""
+        self.set_value(value)
+
+    # -- what is choosable, and what the box says ---------------------------
+
+    @staticmethod
+    def _normalise_type(value: Any) -> Optional[str]:
+        """`'auto'`, `''` and `None` all mean "chosen from the response".
+
+        The regression-type combo offers ``'auto'`` as the readable spelling
+        of the historical ``None``, and
+        :func:`spacr.settings.get_perform_regression_default_settings`
+        normalises it back. `backend_status` is asked the same question in
+        the same spelling, so the panel and the run agree about which
+        backends can promise to fit a family nobody has chosen yet.
+        """
+        text = str(value if value is not None else "").strip().lower()
+        return None if text in ("", "auto", "none") else text
+
+    def regression_type(self) -> Optional[str]:
+        """The family the entries are currently judged against."""
+        return self._regression_type
+
+    def set_regression_type(self, value: Any) -> None:
+        """Re-judge every entry against a new ``regression_type``."""
+        normalised = self._normalise_type(value)
+        if normalised == self._regression_type:
+            return
+        self._regression_type = normalised
+        self.refresh()
+
+    def refresh(self) -> None:
+        """Re-grey the entries and re-render the box."""
+        from spacr.regression_backends import (backend_menu,
+                                               describe_backends)
+
+        statuses = backend_menu(self._regression_type)
+        model = self.combo.model()
+        blocked = self.combo.blockSignals(True)
+        try:
+            for index, status in enumerate(statuses):
+                if index >= self.combo.count():
+                    break
+                label = str(status['label'])
+                # THE REFUSAL IS IN THE ENTRY'S OWN TEXT. A disabled row in a
+                # dropdown is grey and silent; Qt's item tooltip is shown only
+                # while the popup is open and only under the cursor, so on its
+                # own it is a reason a user can walk straight past.
+                self.combo.setItemText(
+                    index,
+                    label if status['enabled']
+                    else f"{label}  --  {status['short_reason']}")
+                self.combo.setItemData(index, label)
+                self.combo.setItemData(index, status['reason'] or
+                                       f"{label}: {status['summary']}",
+                                       Qt.ToolTipRole)
+                if status['enabled']:
+                    item = (model.item(index) if hasattr(model, "item")
+                            else None)
+                    if item is not None:
+                        item.setEnabled(True)
+                        item.setFlags(item.flags() | Qt.ItemIsSelectable)
+                else:
+                    # NOT `setEnabled(False)` ALONE. Measured 2026-08-18: it
+                    # leaves `ItemIsSelectable` set, so Qt refuses to activate
+                    # the row from the popup but a model-level selection can
+                    # still land on it. `disable_combo_row` clears the flag
+                    # too, and keeps the tooltip -- which is what the hover
+                    # panel is hung off.
+                    disable_combo_row(self.combo, index,
+                                      tooltip=str(status['reason'] or ''))
+        finally:
+            self.combo.blockSignals(blocked)
+
+        current = self.get_value()
+        html = describe_backends(self._regression_type, html=True,
+                                 selected=current, compact=True)
+        chosen = next((status for status in statuses
+                       if status['label'] == current), None)
+        if chosen is not None and not chosen['enabled']:
+            # THE SELECTION IS KEPT AND THE REFUSAL IS SHOWN. Re-pointing the
+            # setting at statsmodels here would be exactly the silent
+            # fallback instruction 141 C forbids -- and the sentence below is
+            # the one `spacr.ml._require_backend` will use if the run starts
+            # anyway, so the panel and the run say the same thing.
+            html = ("<p><b>This run will be refused.</b><br>"
+                    + escape(str(chosen['reason'])) + "</p>") + html
+        self.description.setHtml(html)
+
+    def api_links(self) -> List[str]:
+        """Return rendered anchor URLs in document order.
+
+        URLs are read from the laid-out document so the result contains only
+        anchors that Qt parsed as clickable links.
+        """
+        from PySide6.QtGui import QTextCursor
+
+        found: List[str] = []
+        cursor = QTextCursor(self.description.document())
+        while not cursor.atEnd():
+            cursor.movePosition(QTextCursor.NextCharacter,
+                                QTextCursor.KeepAnchor)
+            href = cursor.charFormat().anchorHref()
+            if href and href not in found:
+                found.append(href)
+            cursor.clearSelection()
+        return found
+
+    def _on_choice_changed(self, *_args) -> None:
+        """A new backend: re-render the box for it, then tell the panel."""
+        self.refresh()
+        self.value_changed.emit()
+
+    # -- the unavailable entries explain themselves (instruction 158) -------
+    #
+    # THE ROW STAYS DEAD and everything interactive lives in the hover panel.
+    # Three routes reach it and they are all here rather than in the panel,
+    # because the panel is shared with the Image UMAP and must not know what a
+    # regression backend is:
+    #
+    #   * hovering a greyed row in the OPEN popup, anchored on that row;
+    #   * hovering the CLOSED combo while the value it holds has gone
+    #     unavailable -- 141 C keeps a stale selection rather than silently
+    #     re-pointing it, so this is a state a user can sit in;
+    #   * Shift+F1 on the combo, which is the keyboard route. It has to be
+    #     explicit: the rows are disabled, so nothing about them is tabbable
+    #     and no help can be inherited from them.
+    #
+    # THE POPUP IS CLOSED THE MOMENT THE POINTER LEAVES IT. A QComboBox popup
+    # is a `Qt.Popup` with an active mouse grab, so with it still open the
+    # first click on the panel would be eaten by the grab -- the Install link
+    # would need two presses and the first would look like it did nothing.
+
+    def availability_entries(self) -> List[dict]:
+        """Every backend as the shared panel wants it, in panel order."""
+        from spacr.regression_backends import availability_entries
+        return availability_entries(self._regression_type)
+
+    def unavailable_entries(self) -> List[dict]:
+        """Just the greyed ones -- what the panel cycles through."""
+        return [entry for entry in self.availability_entries()
+                if not entry['enabled']]
+
+    def _install_availability_hooks(self) -> None:
+        """Watch the combo and its popup for the three routes above."""
+        self.combo.installEventFilter(self)
+        view = self.combo.view()
+        if view is not None:
+            view.viewport().installEventFilter(self)
+
+    def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
+        """Route hover and Shift+F1 to the shared availability panel."""
+        combo = getattr(self, "combo", None)
+        if combo is None:
+            return super().eventFilter(obj, event)
+        try:
+            view = combo.view()
+        except RuntimeError:
+            # The combo's C++ half has gone. An event filter outlives the
+            # widget it watches, so this is teardown rather than never.
+            return super().eventFilter(obj, event)
+        viewport = view.viewport() if view is not None else None
+        kind = event.type()
+        if obj is viewport:
+            if kind == QEvent.MouseMove:
+                self._hover_popup_row(view, event)
+            elif kind == QEvent.Leave:
+                # Leaving the popup is how the pointer travels to the panel.
+                self._release_popup()
+        elif obj is combo:
+            if kind == QEvent.KeyPress and self._is_help_key(event):
+                self.open_availability_panel()
+                return True
+            if kind == QEvent.Enter:
+                self._hover_closed_combo()
+            elif kind == QEvent.Leave:
+                panel = AvailabilityPanel.instance()
+                if panel.isVisible():
+                    panel.start_hide()
+        return super().eventFilter(obj, event)
+
+    @staticmethod
+    def _is_help_key(event) -> bool:
+        """Shift+F1 -- Qt's own "explain this control" chord."""
+        return (event.key() == Qt.Key_F1
+                and bool(event.modifiers() & Qt.ShiftModifier))
+
+    def _hover_popup_row(self, view, event) -> None:
+        """A greyed row under the pointer opens the panel beside it."""
+        try:
+            position = event.position().toPoint()
+        except AttributeError:
+            # `position()` is Qt 6; `pos()` is the Qt 5 spelling. spaCR
+            # is installed against both.
+            position = event.pos()
+        index = view.indexAt(position)
+        if not index.isValid():
+            return
+        statuses = self.availability_entries()
+        if index.row() >= len(statuses):
+            return
+        entry = statuses[index.row()]
+        if entry['enabled']:
+            panel = AvailabilityPanel.instance()
+            if panel.isVisible():
+                panel.start_hide()
+            return
+        rect = view.visualRect(index)
+        top_left = view.viewport().mapToGlobal(rect.topLeft())
+        self.show_availability_panel(
+            entry['key'], anchor=view.viewport(),
+            anchor_rect=QRect(top_left, rect.size()))
+
+    def _hover_closed_combo(self) -> None:
+        """Hovering the combo explains a selection that has gone stale."""
+        current = self.get_value()
+        entry = next((e for e in self.availability_entries()
+                      if e['title'] == current), None)
+        if entry is None or entry['enabled']:
+            return
+        self.show_availability_panel(entry['key'], anchor=self.combo)
+
+    def _release_popup(self) -> None:
+        """Close the dropdown so its mouse grab stops owning the pointer."""
+        panel = AvailabilityPanel.instance()
+        if panel.isVisible():
+            self.combo.hidePopup()
+
+    def show_availability_panel(self, key, *, anchor=None,
+                                anchor_rect=None, pinned: bool = False):
+        """Open the shared panel on the unavailable backend named ``key``.
+
+        :param key: a backend name. Ignored when it is not unavailable.
+        :returns: the panel, or ``None`` when there was nothing to explain.
+        """
+        entries = self.unavailable_entries()
+        if not entries:
+            return None
+        index = next((i for i, entry in enumerate(entries)
+                      if entry['key'] == key), 0)
+        panel = AvailabilityPanel.instance()
+        self._connect_panel(panel)
+        if pinned:
+            panel.open_for(anchor or self.combo, entries, index,
+                           anchor_rect=anchor_rect)
+        else:
+            panel.show_for(anchor or self.combo, entries, index,
+                           anchor_rect=anchor_rect)
+        return panel
+
+    def open_availability_panel(self):
+        """The keyboard route: Shift+F1 pins the panel and focuses it."""
+        current = self.get_value()
+        entries = self.unavailable_entries()
+        if not entries:
+            return None
+        key = next((e['key'] for e in entries if e['title'] == current),
+                   entries[0]['key'])
+        return self.show_availability_panel(key, anchor=self.combo,
+                                            pinned=True)
+
+    def _connect_panel(self, panel) -> None:
+        """Take ownership of the shared panel's Install signal.
+
+        The panel is a process-wide singleton with two callers, so the
+        connection is remade on every show rather than once in ``__init__`` --
+        otherwise the Image UMAP's copy and this one would both answer.
+        """
+        panel.set_install_handler(self._run_install_offer)
+
+    def _run_install_offer(self, offer) -> None:
+        """Press Install: the dry run first, then the install, or neither."""
+        outcome = run_install_offer(self, offer)
+        if outcome == "installed":
+            self.refresh()
 
 
-class _FlowHost(QWidget):
-    """The widget a :class:`_FlowLayout` lives in.
-
-    Qt only consults a layout's ``heightForWidth`` through the widget that
-    owns it, and only when that widget's size policy says its height depends
-    on its width. Without this the strip reported a one-line height however
-    many chips it held, and ``controls`` (thirty of them) drew off the edge
-    of the settings column instead of wrapping.
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        policy.setHeightForWidth(True)
-        self.setSizePolicy(policy)
-
-    def hasHeightForWidth(self) -> bool:      # noqa: N802 (Qt override)
-        """Yes -- more width means fewer rows of chips."""
-        return True
-
-    def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt override)
-        """Height the chips need once wrapped into ``width``."""
-        layout = self.layout()
-        if layout is None:
-            return super().heightForWidth(width)
-        return layout.heightForWidth(width)
-
-    def sizeHint(self) -> QSize:              # noqa: N802 (Qt override)
-        """Preferred size at the current width, so the row grows as chips
-        are added rather than clipping them."""
-        layout = self.layout()
-        if layout is None:
-            return super().sizeHint()
-        width = max(self.width(), layout.minimumSize().width())
-        return QSize(width, layout.heightForWidth(width))
+# The chip strip's wrapping row now lives beside the other widgets, because
+# the regression results header needs the same thing. The private names stay
+# so nothing that imported them from here has to move.
+from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
 
 
 class _Chip(QFrame):
-    """One value, rendered as a removable pill."""
+    """One value, rendered as a removable pill.
+
+    :param text: the value shown, and the payload emitted with
+        :attr:`removed` -- so it identifies the chip, not just its label.
+    :param colours: the active palette, PASSED IN rather than read here so a
+        strip of chips is built from one palette lookup instead of one per
+        chip.
+    :param parent: parent widget; ownership only.
+    """
 
     removed = Signal(object)
 
     def __init__(self, text: str, colours: dict, parent=None):
+        """Build the pill: its text and the mark that removes it."""
         super().__init__(parent)
-        from ..theme import font_px
+        from ..i18n import tr
+        from ..theme import apply_close_mark, font_px
         self.setObjectName("SettingChip")
         self._text = text
         row = QHBoxLayout(self)
@@ -3362,9 +7674,13 @@ class _Chip(QFrame):
         row.addWidget(label)
         close = QToolButton(self)
         close.setObjectName("SettingChipClose")
-        close.setText("×")
-        close.setCursor(Qt.PointingHandCursor)
-        close.setToolTip(f"Remove {text}")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        #
+        # THE VALUE IS A VALUE. Splicing it in first asks the catalog for
+        # "Remove Cell", "Remove cytoplasm" and one key per chip anyone ever
+        # types; the caption is looked up as a template and the value put in
+        # after, so the verb translates whatever the chip holds.
+        apply_close_mark(close, tooltip=tr("Remove {value}", value=text))
         close.setFocusPolicy(Qt.NoFocus)
         close.clicked.connect(lambda: self.removed.emit(self))
         row.addWidget(close)
@@ -3381,14 +7697,6 @@ class _Chip(QFrame):
                 background: transparent;
                 font-size: {font_px(12)}px;
             }}
-            QToolButton#SettingChipClose {{
-                color: {colours['fg_muted']};
-                background: transparent;
-                border: none;
-                padding: 0px 2px;
-                font-size: {font_px(13)}px;
-            }}
-            QToolButton#SettingChipClose:hover {{ color: {colours['error']}; }}
             """
         )
 
@@ -3398,15 +7706,25 @@ class _Chip(QFrame):
 
 
 class _ChipStrip(QWidget):
-    """A wrapping strip of chips plus the field that adds another one."""
+    """A wrapping strip of chips plus the field that adds another one.
+
+    :param placeholder: the prompt in the field that adds a chip. Its only
+        instruction -- the strip has no other label.
+    :param removable: whether the WHOLE STRIP can be taken away, which is
+        separate from the per-chip close marks: a chip is always removable,
+        this is for a strip that is one of several and may be dropped
+        entirely, and it is what :attr:`emptied` reports against.
+    :param parent: parent widget; ownership only.
+    """
 
     changed = Signal()
     emptied = Signal(object)
 
     def __init__(self, placeholder: str = "add value…",
                  removable: bool = False, parent=None):
+        """Build the strip, its entry field and (optionally) its own close mark."""
         super().__init__(parent)
-        from ..theme import active_palette, font_px
+        from ..theme import active_palette, apply_close_mark, font_px
         self._colours = active_palette()
         self._chips: List[_Chip] = []
 
@@ -3430,9 +7748,8 @@ class _ChipStrip(QWidget):
         self._drop = None
         if removable:
             self._drop = QToolButton(self)
-            self._drop.setText("✕")
-            self._drop.setCursor(Qt.PointingHandCursor)
-            self._drop.setToolTip("Remove this group")
+            # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+            apply_close_mark(self._drop, tooltip="Remove this group")
             self._drop.setFocusPolicy(Qt.NoFocus)
             self._drop.clicked.connect(lambda: self.emptied.emit(self))
             outer.addWidget(self._drop, 0, Qt.AlignTop)
@@ -3467,6 +7784,7 @@ class _ChipStrip(QWidget):
             self._add_chip(head)
 
     def _commit_entry(self) -> None:
+        """Turn what is typed into a chip. Blank input adds nothing."""
         text = self._entry.text().strip()
         if not text:
             return
@@ -3474,6 +7792,12 @@ class _ChipStrip(QWidget):
         self._add_chip(text)
 
     def _add_chip(self, text: str, notify: bool = True) -> None:
+        """Add one chip, keeping the entry field last.
+
+        The entry TRAILS the chips rather than sitting at a fixed end, so the
+        place you type is always after the last value -- which is where the next
+        one goes.
+        """
         chip = _Chip(text, self._colours, self._host)
         chip.removed.connect(self._remove_chip)
         # Keep the entry field last so it always trails the chips.
@@ -3487,6 +7811,12 @@ class _ChipStrip(QWidget):
             self.changed.emit()
 
     def _remove_chip(self, chip, notify: bool = True) -> None:
+        """Take one chip out and let the strip reflow.
+
+        ``notify=False`` is for a bulk replace, which would otherwise emit once
+        per chip removed and make every listener do the work N times for one
+        change.
+        """
         if chip in self._chips:
             self._chips.remove(chip)
         self._flow.removeWidget(chip)
@@ -3509,6 +7839,63 @@ class _ChipStrip(QWidget):
 EXCLUDE_LIST_KEYS: Tuple[str, ...] = ("exclude",)
 
 
+#: Settings that name one or more input FILES, mapped to the kind of file each
+#: one wants. They get :class:`FilePathListWidget`: a real file dialog that can
+#: be pressed repeatedly to gather sources from several folders, plus
+#: drag-and-drop.
+#:
+#: These previously rendered as the free-text chip strip, which meant a
+#: four-plate screen was configured by typing four absolute paths by hand --
+#: and ``score_data``/``count_data`` shipped the literal default string
+#: ``'list of paths'``, so the first thing every user had to do was delete a
+#: placeholder that looked like a value. A mistyped path was not detected
+#: until the run had already read the other CSVs and died.
+#:
+#: The value stays a plain ``list[str]``, so settings CSVs written by the Tk
+#: panel or by hand still load, and the CLI is unaffected.
+PATH_LIST_KEYS: Dict[str, str] = {
+    "score_data": "table",
+    "count_data": "table",
+    "metadata_files": "table",
+    "grna_csv": "csv",
+    "row_csv": "csv",
+    "column_csv": "csv",
+    "barcodes": "csv",
+    "grna": "csv",
+}
+
+
+#: Human-readable dialog titles, so the file chooser says what it is for
+#: instead of "Choose input files" four times in one panel.
+PATH_LIST_TITLES: Dict[str, str] = {
+    "score_data": "Choose per-object score CSVs",
+    "count_data": "Choose gRNA count CSVs (one per plate)",
+    "metadata_files": "Choose metadata CSVs",
+    "grna_csv": "Choose the gRNA barcode CSV",
+    "row_csv": "Choose the row barcode CSV",
+    "column_csv": "Choose the column barcode CSV",
+    "barcodes": "Choose the barcode CSV",
+    "grna": "Choose the gRNA CSV",
+}
+
+
+#: The subset of :data:`PATH_LIST_KEYS` that names exactly ONE file.
+#:
+#: Every one of these is declared ``str`` in :mod:`spacr.settings` and is
+#: handed to ``pd.read_csv`` unchanged -- ``sequencing.map_sequences_to_names``
+#: for the three barcode references, the legacy helpers for the other two.
+#: Giving them the multi-file control made the panel COLLECT a one-element
+#: list, so merely opening the module and saving rewrote
+#: ``column_csv=/…/barcodes_column.csv`` to ``['/…/barcodes_column.csv']`` in
+#: the user's settings file -- and `validate` then refused every run from it
+#: with "column_csv=[...] is a list, but str is expected", about a value the
+#: user had never typed. The dialog and the drop target stay; the shape of the
+#: value goes back to what its consumer reads.
+PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
+    "grna_csv", "row_csv", "column_csv", "barcodes", "grna",
+)
+
+
 #: Settings whose legal values are a short, closed, ordered set.
 #:
 #: ``train_channels`` is the reason this table exists. It is declared a plain
@@ -3526,6 +7913,24 @@ EXCLUDE_LIST_KEYS: Tuple[str, ...] = ("exclude",)
 #: whole class of confusion, which a text field cannot.
 FIXED_ALPHABETS: Dict[str, Tuple[Tuple[Any, str], ...]] = {
     "train_channels": (("r", "Red"), ("g", "Green"), ("b", "Blue")),
+    # WHAT THE MODEL IS ALLOWED TO LOOK AT (236 A2), asked for as "the user
+    # can train on channel_1 measurements only or morphological
+    # measurements or channel combinations, localization ... This should be
+    # straight forward and easy."
+    #
+    # `utils.filter_dataframe_features` has always taken a list,
+    # 'morphology' and a free-text fragment. The setting declared `int`, so
+    # a spin box was all the panel could draw and three of the four
+    # documented ways of choosing a feature space were unreachable. A
+    # multi-select says the whole question in one row: light one chip for
+    # one channel, two for the combination, Shape for morphology, none for
+    # every feature.
+    #
+    # LOCALISATION NEEDS NO CHIP. A colocalisation column names the two
+    # channels it measures and survives a request for either, so asking for
+    # channel 1 already brings channel 1's relationships with it.
+    "channel_of_interest": ((0, "Ch 0"), (1, "Ch 1"), (2, "Ch 2"),
+                            (3, "Ch 3"), ("morphology", "Shape")),
 }
 
 
@@ -3558,10 +7963,13 @@ QToolButton#SettingAlphabetChip:checked {{
 """
 
 
-try:  # pragma: no cover - the theme seam is present in every real launch
+# AT IMPORT TIME, so the failure is not a missing chip style -- it is
+# the module not importing, which takes down whatever imports it. Driven
+# in tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from ..theme import register_widget_qss as _register_widget_qss
     _register_widget_qss("SettingAlphabetChip", _alphabet_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOGGER.debug("Could not register the alphabet-chip QSS", exc_info=True)
 
 
@@ -3584,6 +7992,17 @@ class _AlphabetSelect(QWidget):
 
     def __init__(self, key: str = "", default: Any = None,
                  choices: Tuple[Tuple[Any, str], ...] = (), parent=None):
+        """Build a row of exclusive buttons for a small fixed choice.
+
+        :param key: the setting this edits, used for its tooltip and API
+            link.
+        :param default: the value selected to start with.
+        :param choices: the options, as ``(value, caption)`` pairs. The
+            VALUE is what the settings file carries and the CAPTION is what
+            the user reads, which is why they are a pair rather than one
+            string doing both jobs.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._key = key
         self._choices = tuple(choices)
@@ -3622,7 +8041,7 @@ class _AlphabetSelect(QWidget):
         and the Live Preview both hand back ``"['r', 'g']"`` rather than a
         list. A value outside the alphabet is dropped rather than shown,
         which is the whole point of the control — but it is dropped
-        *visibly*, because the pill for it simply is not lit.
+        *visibly*, because the corresponding pill is not lit.
         """
         wanted = self._as_members(value)
         for member, button in self._buttons:
@@ -3645,10 +8064,12 @@ class _AlphabetSelect(QWidget):
 
     # -- internals -------------------------------------------------------
     def _on_toggled(self, _checked: bool) -> None:
+        """Announce that the selection changed."""
         self.changed.emit()
 
     @staticmethod
     def _as_members(value: Any) -> set:
+        """Read a stored value as a set of letters, however it was written."""
         if value is None:
             return set()
         if isinstance(value, str):
@@ -3682,6 +8103,24 @@ class _ListEditor(QWidget):
     def __init__(self, key: str = "", default: Any = None,
                  nested_capable: bool = False, allow_none: bool = False,
                  element_type: Any = None, container: Any = list, parent=None):
+        """Build the editor for one list-valued setting.
+
+        :param key: the setting this edits, used for its tooltip and API
+            link.
+        :param default: the value to start from.
+        :param nested_capable: whether the setting accepts a list OF lists.
+            Only these offer the nesting control; a flat setting given one
+            would produce a value its consumer cannot read.
+        :param allow_none: whether "unset" is a legal answer, distinct from
+            an empty list -- the same third state a spin box cannot express.
+        :param element_type: what each entry is coerced to, or ``None`` to
+            keep the typed text.
+        :param container: ``list`` or ``tuple``, deciding what
+            :meth:`value` returns. ANYTHING ELSE BECOMES ``list`` rather
+            than raising, because a settings file naming an odd container is
+            still a settings file somebody has.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         # font_px is used further down this method. Importing only
         # active_palette here raised NameError out of build_sections(), and
@@ -3770,6 +8209,12 @@ class _ListEditor(QWidget):
 
     # -- shape -----------------------------------------------------------
     def _rebuild(self, nested: bool, value) -> None:
+        """Replace every strip, flat or grouped.
+
+        Signals are BLOCKED on each entry before it is torn down:
+        ``editingFinished`` fires while a focused QLineEdit is being destroyed,
+        and that would call ``_commit_entry`` on a half-deleted strip.
+        """
         for strip in list(self._strips):
             # editingFinished fires while a focused QLineEdit is being torn
             # down, which would call _commit_entry on a half-deleted strip.
@@ -3789,6 +8234,7 @@ class _ListEditor(QWidget):
         self._refresh_footer()
 
     def _add_strip(self, values) -> _ChipStrip:
+        """Append one chip strip and wire it back to this editor."""
         strip = _ChipStrip(placeholder=self._placeholder(),
                            removable=self._nested, parent=self)
         strip.emptied.connect(self._drop_strip)
@@ -3798,6 +8244,11 @@ class _ListEditor(QWidget):
         return strip
 
     def _drop_strip(self, strip) -> None:
+        """Remove one group, or fall back to a flat list when it was the last.
+
+        Removing the ONLY group is how a user goes back to an ungrouped list, so
+        it rebuilds flat rather than leaving an editor with nothing in it.
+        """
         if len(self._strips) <= 1:
             # Removing the only group is how you go back to a flat list.
             self._rebuild(False, [])
@@ -3810,6 +8261,7 @@ class _ListEditor(QWidget):
         self._refresh_footer()
 
     def _on_footer(self) -> None:
+        """Add a group when grouped, or a value when flat."""
         if self._nested:
             self._add_strip([])
             return
@@ -3818,6 +8270,7 @@ class _ListEditor(QWidget):
         self._rebuild(True, [current] if current else [[]])
 
     def _refresh_footer(self) -> None:
+        """Label the add button for what it adds -- a group, or a value."""
         if self._nested:
             self._footer.setText("＋  Add group")
             self._footer.setToolTip(
@@ -3839,6 +8292,7 @@ class _ListEditor(QWidget):
         # eliding -- the point of the placeholder is to say what KIND of
         # value belongs here, and an elided "add a whole numb…" says less
         # than "add number".
+        """A short prompt naming the KIND of value this list takes."""
         if self._element_type is int:
             return "add number"
         if self._element_type is float:
@@ -3875,6 +8329,14 @@ class _ListEditor(QWidget):
 
     @staticmethod
     def _as_sequence(value: Any) -> List[Any]:
+        """Read a stored value as a list, however it was written.
+
+        A list, a Python literal in a string, or a comma-separated line -- the
+        last because that is what someone hand-editing a settings CSV most often
+        means, and refusing it would reject a file that reads perfectly well. A
+        bare ``"None"`` is EMPTY rather than the string "None", which is what a
+        CSV round-trip turns an unset value into.
+        """
         if value is None:
             return []
         if isinstance(value, (list, tuple)):
@@ -3966,17 +8428,130 @@ class SettingsWidgets:
     Section widgets on a screen. `.collect()` returns the current settings
     dict after user edits."""
 
-    def __init__(self, app_key: str, parent: Optional[QWidget] = None):
-        """Load the app's default settings dict and prepare an empty widget map.
+    def __init__(self, app_key: str, parent: Optional[QWidget] = None,
+                 *, skip_keys=(), current=None):
+        """Load the app's defaults and prepare its empty widget map.
 
         :param app_key: id of the app whose settings are being edited.
         :param parent: optional Qt parent for created widgets.
+        :param skip_keys: settings to build NO widget for.
+
+            For a FOLD, which mounts one module's extra settings onto
+            another's panel. The timelapse fold on the mask screen built all
+            364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and
+            kept the 14 that mask does not already have, discarding the rest
+            because the host already owns them. Naming them here skips them
+            instead, which is the same result for 4% of the work.
+        :param current: optional mapping from the form being rebuilt. Recognized
+            settings replace the app defaults; its organelle count, slot, and
+            object-channel values determine which controls the replacement
+            form builds.
         """
         self.app_key = app_key
         self._parent = parent
-        self._defaults = resolve_default_settings(app_key)
+        #: Settings to build no widget for. See __init__'s docstring.
+        self._skip_keys = frozenset(str(k) for k in (skip_keys or ()))
+        # EVERY SLOT THAT CAN BE NAMED, not the four the module ships. A
+        # control that was never built cannot be revealed, so a panel whose
+        # defaults stop at `number_of_organelles` slots can only ever render
+        # that many however the count is driven -- which is exactly why
+        # raising the count to seven went on drawing the same four. The extra
+        # keys arrive with the values they would have had and their rows are
+        # hidden by `refresh_object_visibility`, so what the count changes is
+        # which of them is ON SCREEN. `number_of_organelles` itself is left
+        # at the module's own number: this widens what can be shown, not what
+        # the panel opens showing.
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        shipped = resolve_default_settings(app_key)
+        # ONLY THE SLOTS THE COUNT ASKS FOR. Building every nameable slot and
+        # hiding the surplus cost the Mask screen 1,551 widgets where a few
+        # hundred would do, and every one of them was constructed, laid out
+        # and walked by each pass over the form before being hidden again.
+        #
+        # `number_of_organelles` says how many a run has, and a run with none
+        # has none: the rows are built when the count is raised (see
+        # `grow_to_fit_the_organelle_count`), which is one deliberate change
+        # to one control rather than something that happens while typing.
+        # WHAT THE FORM IS BEING REBUILT FOR. A panel built from the
+        # module's shipped defaults can only ever show what a fresh run has;
+        # when the user types a nucleus channel or raises the organelle
+        # count, the form has to be built for the values ON SCREEN, not the
+        # ones the module ships. `current` is those values.
+        current_values = {str(k): v for k, v in (current or {}).items()}
+        deciding = dict(shipped)
+        deciding.update(current_values)
+        from spacr.organelle_types import (NUMBER_OF_ORGANELLES,
+                                           organelle_count,
+                                           organelle_role_of)
+
+        # A file written before the count existed still means what its slot
+        # keys say. Do not let the shipped count (now zero) shadow that
+        # inference when such a mapping builds a replacement form.
+        current_names_slots = any(
+            organelle_role_of(key) is not None for key in current_values)
+        if (NUMBER_OF_ORGANELLES in current_values
+                or current_names_slots):
+            wanted = organelle_count(current_values)
+        else:
+            wanted = organelle_count(shipped)
+        self._slots_built_for = max(0, min(wanted, PANEL_ORGANELLE_SLOTS))
+        self._defaults = organelle_slots_beyond_the_count(
+            shipped, self._slots_built_for)
+        # AND THE SLOTS THE COUNT DOES NOT ASK FOR ARE NOT BUILT AT ALL,
+        # including the first one. Its keys are in the module's shipped
+        # defaults rather than invented by the panel, so trimming the
+        # invented ones left 54 `organelle_*` settings and their categories
+        # on a form whose count says zero -- which is the thing the count is
+        # supposed to decide.
+        # AND THE WIDGETS ARE BUILT HOLDING WHAT THE USER TYPED. `deciding`
+        # settles the form's SHAPE; without this the new form arrives at the
+        # module's defaults, so a second rebuild collects a nucleus channel
+        # of None and takes the nucleus settings away again.
+        from spacr.settings import expected_types
+
+        for key, value in current_values.items():
+            if key in self._defaults or (
+                    organelle_role_of(key) is not None
+                    and key in expected_types):
+                self._defaults[key] = value
+        self._skip_keys = frozenset(self._skip_keys) | frozenset(
+            self._organelle_keys_beyond(self._slots_built_for,
+                                        self._defaults)
+        )
+        # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
+        # file is not a panel: writing every slot that can be named into
+        # every CSV would bury the four a run uses. `collect` leaves these
+        # out again while they are above the count AND still hold exactly
+        # what was put here -- so a value that came from anywhere else, a
+        # user or a loaded file, is written out whatever the count is.
+        self._slots_the_panel_added = {
+            key: value for key, value in self._defaults.items()
+            if key not in shipped and key not in current_values}
         self._widgets: Dict[str, QWidget] = {}
+        # What the object rule decided last, and the rows watching to see
+        # that it sticks. See `_guard_hidden_rows`.
+        self._hidden_by_the_run: set = set()
+        self._guarded_rows: Dict[int, str] = {}
+        #: ``id(section) -> section`` for the slot headings this hid, so it
+        #: can put back exactly what it took and nothing else.
+        self._headings_of_absent_slots: Dict[int, Any] = {}
+        self._object_row_guard = _HiddenRowWatcher(self, parent)
+        self._object_rule_pass_queued = False
+        #: Values the currently selected organelle preset still owns. A user
+        #: edit removes its key, so a later diameter change can update a
+        #: size-dependent recommendation without overwriting advanced work.
+        self._organelle_preset_owned: Dict[str, Dict[str, Any]] = {}
+        self._applying_organelle_preset = False
+        #: Called with the keys this pass is hiding, just before row
+        #: visibility is decided, so the screen can lay out any row it left
+        #: unbuilt that is about to be shown. The model decides WHETHER a row
+        #: is on the form; only the screen can BUILD one. Left ``None`` on a
+        #: model built for its values rather than for a screen.
+        self.rows_are_laid_out_by = None
         self._tooltips = get_tooltips()
+        self._data_context: Dict[str, Any] = {'plate_count': None}
+        self._tooltips.update(_APP_TOOLTIP_OVERRIDES.get(app_key, {}))
         try:
             from spacr.plugins import get_app
             plugin_app = get_app(app_key)
@@ -3985,16 +8560,44 @@ class SettingsWidgets:
         except Exception:
             pass
 
-    def build_sections(self) -> List[Tuple[str, List[Tuple[str, QWidget]]]]:
-        """Group the settings by category and return one (title, rows)
-        tuple per non-empty category, plus a trailing 'Other' section
-        for anything not categorized."""
-        # `spacr.settings_spec`, NOT `spacr.gui_utils`. The function is the
-        # same one (gui_utils re-exports it); the module it now lives in
-        # imports nothing. Reaching it through gui_utils cost 770 ms of Tk
-        # dependencies -- IPython, matplotlib.pyplot, cv2, tkinter,
-        # huggingface_hub -- on the GUI thread, and it was the whole remaining
-        # cost of opening the first module. See spacr/settings_spec.py.
+    def build_sections(self) -> List["SettingsSection"]:
+        """Build the section tree with the UI language resolved once.
+
+        The scope is the whole reason this wrapper exists; see
+        :func:`language_resolved_once`. Every tooltip, type hint, label and
+        documentation URL below asks what language the interface is in, and
+        without the scope each of those asks reads ``QSettings`` again.
+
+        :returns: what :meth:`_build_sections` returns, unchanged.
+        """
+        with language_resolved_once():
+            return self._build_sections()
+
+    def _build_sections(self) -> List["SettingsSection"]:
+        """Group the settings and return the panel's section TREE.
+
+        Each result is a :class:`SettingsSection`, a tuple subclass compatible
+        with ``(title, rows)`` unpacking and ``dict()`` conversion. Its
+        ``rows`` member contains all controls in the section's subtree,
+        allowing clients without nested-section support to render every
+        control exactly once.
+
+        Three levels are expressible: the "Advanced settings" umbrella, the
+        family headings that declare it as their parent
+        (``spacr.settings.CATEGORY_PARENTS``), and one sub-heading per object
+        inside each family, derived from the setting keys. A category that
+        declares no parent and splits into no objects is a single flat
+        section exactly as before.
+
+        Anything in no category at all lands in a trailing "Other".
+        """
+        # `spacr.settings_spec` -- a module that imports NOTHING, which is
+        # the entire point of it existing. This function used to be reached
+        # through a module that pulled IPython, matplotlib.pyplot, cv2 and
+        # huggingface_hub in behind it: 770 ms on the GUI thread, and the
+        # whole remaining cost of opening the first module. That module is
+        # gone now, but the rule it taught is not -- import the leaf, not
+        # the package that re-exports it. See spacr/settings_spec.py.
         from spacr.settings_spec import convert_settings_dict_for_gui
         variables = convert_settings_dict_for_gui(self._defaults)
 
@@ -4005,25 +8608,63 @@ class SettingsWidgets:
         # `self._widgets`, so a key left out of every category still
         # renders as long as a widget exists for it. The value stays in
         # `self._defaults` and reaches the run unchanged.
-        hidden_keys = _APP_HIDDEN_KEYS.get(self.app_key, frozenset())
-        for key, meta in variables.items():
-            if key in hidden_keys:
-                continue
-            kind, options, default = meta
-            widget = self._widget_for(kind, options, default, key)
-            if widget is not None:
-                attach_api_tooltip(
-                    widget,
-                    self.app_key,
-                    key,
-                    _descriptions=self._tooltips,
-                )
-                self._widgets[key] = widget
+        hidden_keys = set(_APP_HIDDEN_KEYS.get(self.app_key, frozenset()))
+        hidden_keys.update(self._skip_keys)
+        # THE EVENT LOOP GETS A TURN EVERY SO OFTEN. A module screen builds
+        # about 1,500 widgets, which took 1.5 SECONDS OF SOLID GUI THREAD --
+        # measured as zero timer ticks for the whole build, which is what
+        # "the theme freezes when I click a module" is. Qt requires widgets
+        # on the GUI thread, so this cannot move; what it can do is stop
+        # holding the thread for the entire run.
+        #
+        # `processEvents` and not a chunked timer: the caller expects a built
+        # panel when this returns, and handing it a half-built one to be
+        # finished later would move the bug into every consumer.
+        from PySide6.QtCore import QCoreApplication, QEventLoop
+
+        # BREATHING ON TIME, NOT ON COUNT. Every 60 widgets left a worst gap
+        # of 324 ms, because the widgets are not equally expensive and a
+        # fixed count breathes at the wrong moments. A deadline gives up the
+        # thread whenever this loop has held it too long, whatever it was
+        # building.
+        import time as _time
+
+        _BREATH = 0.025
+        next_breath = _time.perf_counter() + _BREATH
+        with _timing.span("build widgets", f"{len(variables)} settings"):
+            for key, meta in variables.items():
+                if key in hidden_keys:
+                    continue
+                if _time.perf_counter() >= next_breath:
+                    next_breath = _time.perf_counter() + _BREATH
+                    # EXCLUDE user input. A half-built panel must not receive
+                    # a click that lands on a widget which is about to move,
+                    # so the backdrop repaints and the interface stays alive
+                    # while the pointer and keyboard wait the extra second
+                    # out.
+                    QCoreApplication.processEvents(
+                        QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+                kind, options, default = meta
+                widget = self._widget_for(kind, options, default, key)
+                if widget is not None:
+                    attach_api_tooltip(
+                        widget,
+                        self.app_key,
+                        key,
+                        _descriptions=self._tooltips,
+                    )
+                    self._widgets[key] = widget
 
         src_widget = self._widgets.get("src")
         if isinstance(src_widget, QLineEdit):
             src_widget.editingFinished.connect(
                 self._refresh_contextual_widgets)
+        elif isinstance(src_widget, DatabaseSetWidget):
+            # The same obligation through a different control: adding a plate
+            # changes which columns and which rows the dependent fields can
+            # offer, so the panel follows the SET as it is edited rather than
+            # only when the screen is built.
+            src_widget.value_changed.connect(self._refresh_contextual_widgets)
 
         # The training basis changes which controls matter, so the panel has
         # to follow it as it is changed rather than only when the screen is
@@ -4047,7 +8688,44 @@ class SettingsWidgets:
                     signal.connect(self._on_training_basis_changed)
                     break
 
+        # An entry greyed for one family is choosable for another, so the
+        # backend control has to follow `regression_type` rather than be
+        # judged once when the panel is built. Bound method, not a lambda:
+        # INVARIANTS 4.
+        type_widget = self._widgets.get("regression_type")
+        if (isinstance(self._widgets.get("regression_backend"),
+                       _RegressionBackendField) and type_widget is not None):
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "textChanged"):
+                signal = getattr(type_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_regression_type_changed)
+                    break
+
+        reducer_widget = self._widgets.get("reduction_method")
+        if self.app_key == "umap" and isinstance(reducer_widget, QComboBox):
+            reducer_widget.currentTextChanged.connect(
+                self._on_umap_reducer_changed)
+        affinity_widget = self._widgets.get("spectral_affinity")
+        if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
+            affinity_widget.currentTextChanged.connect(
+                self._on_umap_reducer_changed)
+
+        # Every panel, not only the regression one it was built against.
+        # _rules_for_this_panel decides what applies here, and a panel with
+        # no gated setting connects nothing. See its docstring.
+        self._connect_setting_dependency_signals()
+
+        # THE OBJECTS THIS RUN HAS. A channel that gains a number reveals
+        # its object's settings and losing it hides them again, and the type
+        # a slot is given decides which of that slot's detection settings are
+        # on screen at all. Bound method, not a lambda: INVARIANTS 4.
+        self._connect_object_visibility_signals()
+
         self._refresh_contextual_widgets()
+        self._refresh_umap_reducer_enablement()
+        self._refresh_analysis_unit_lock()
+        self._refresh_regression_backend()
 
         # Bucket into sections.
         cats = categories_for_app(self.app_key, get_categories())
@@ -4055,25 +8733,186 @@ class SettingsWidgets:
         # Categories that don't apply to a given app (e.g. the classify app
         # trains a Torch model, not Cellpose — so it gets no Cellpose tab).
         hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
-        sections: List[Tuple[str, List[Tuple[str, QWidget]]]] = []
+        split_by_object = set(_shared_category_parents())
+        sections: List[SettingsSection] = []
         for cat_name, keys in cats.items():
             if cat_name in hidden:
                 continue
             rows: List[Tuple[str, QWidget]] = []
+            # THE KEYS, ALONGSIDE THE ROWS. A row is `(label, widget)` and a
+            # label is a sentence for a human, so the object a row belongs to
+            # can only be read off the KEY -- the same confusion that put the
+            # plate map on nothing at all when a label was matched instead.
+            row_keys: List[str] = []
             for k in keys:
                 if k in self._widgets and k not in used_keys:
                     rows.append((self._label_for(k), self._widgets[k]))
+                    row_keys.append(k)
                     used_keys.add(k)
-            if rows:
-                sections.append((cat_name, rows))
+            if not rows:
+                continue
+            if cat_name in split_by_object:
+                own, children = _split_rows_by_object(rows, row_keys)
+                sections.append(SettingsSection(cat_name, own, children))
+            else:
+                sections.append(SettingsSection(cat_name, rows))
 
         # Trailing 'Other' for anything not in a category.
         remaining = [(self._label_for(k), self._widgets[k])
                      for k in self._widgets if k not in used_keys]
         if remaining:
-            sections.append(("Other", remaining))
+            sections.append(SettingsSection("Other", remaining))
 
-        return sections
+        # ONCE THE SCREEN HAS LAID THE ROWS OUT. This hands the rows back and
+        # the screen builds each label and puts the pair into a QFormLayout
+        # afterwards -- so there is no ROW to hide yet, and hiding the field
+        # here and nothing else would leave its name behind on an empty row.
+        # Zero delay, so it lands on the next turn of the event loop, before
+        # the panel has been painted.
+        #
+        # OWNED BY THE PANEL'S OWN WIDGET. PySide 6.6 cannot bind a Python
+        # callable through QTimer.singleShot's receiver overload, so use a
+        # real single-shot timer instead. Its QObject parent cancels the pass
+        # when a screen is destroyed inside the same turn; delete it after a
+        # successful pass so a long-lived panel does not collect dead timers.
+        # Nothing is scheduled at all without a parent -- a SettingsWidgets
+        # built with no parent is being used for its values and has no rows
+        # to lay out.
+        if self._parent is not None:
+            timer = QTimer(self._parent)
+            timer.setSingleShot(True)
+            timer.timeout.connect(self.refresh_object_visibility)
+            timer.timeout.connect(timer.deleteLater)
+            timer.start(0)
+
+        return _nest_sections(sections)
+
+    @staticmethod
+    def _keys_of_objects_the_run_has_no_channel_for(settings,
+                                                    deciding=None) -> set:
+        """Settings for an object whose switch names no plane.
+
+        :param settings: the defaults the panel is about to build from.
+        :returns: the keys not to build.
+
+        A segmenting module switches an object with ``*_channel``; Measure
+        has no such settings and switches the same objects with
+        ``*_mask_dim``. A run whose applicable switch is empty has no such
+        object, so its object-specific settings under multiple headings would
+        be settings the run can never use.
+
+        CELL IS ALWAYS THERE. It is the object every other one is measured
+        against and the one a run is most likely to want, so hiding it on an
+        unset channel would empty the form a user has only just opened.
+
+        DECIDED WHEN THE PANEL IS BUILT, not while typing. Re-running this on
+        every keystroke is what made the Mask module hang; a channel typed
+        afterwards changes what the run does without rearranging the form
+        under the hands typing it.
+        """
+        gated = ("nucleus", "pathogen")
+        absent = set()
+        answers = deciding if deciding is not None else settings
+        for role in gated:
+            switches = tuple(
+                key for key in object_switch_keys(role) if key in settings)
+            # A module that owns neither spelling does not own this gate.
+            # Treating a missing ``*_channel`` as an empty channel removed
+            # Measure's real ``*_mask_dim`` control and left no way to say a
+            # nucleus or pathogen mask exists.
+            if not switches:
+                continue
+            named = any(_names_a_plane(answers.get(key)) for key in switches)
+            if named:
+                continue
+            prefix = f"{role}_"
+            for key in settings:
+                name = str(key)
+                if name in switches:
+                    # THE SWITCH ITSELF STAYS, or there is no way to say the
+                    # run has this object after all.
+                    continue
+                if name.startswith(prefix):
+                    absent.add(name)
+        return absent
+
+    @staticmethod
+    def _organelle_keys_beyond(count: int, settings) -> set:
+        """Every organelle key belonging to a slot past ``count``.
+
+        :param count: how many slots the run has.
+        :param settings: the defaults the panel is about to build from.
+        :returns: the keys not to build.
+
+        BY ROLE PREFIX, because that is what names a slot. `organelle_` is
+        slot one, `organelleb_` is slot two, and so on; a key belongs to the
+        first role its name starts with, longest first so `organelleb_area`
+        is not read as `organelle_` plus a suffix.
+        """
+        from spacr.organelle_types import ALL_ORGANELLE_ROLES
+
+        from spacr.organelle_types import NUMBER_OF_ORGANELLES
+
+        count = max(0, int(count))
+        keep = {f"{role}_" for role in ALL_ORGANELLE_ROLES[:count]}
+        every = {f"{role}_" for role in ALL_ORGANELLE_ROLES}
+        drop = every - keep
+        beyond = set()
+        for key in settings:
+            name = str(key)
+            if name == NUMBER_OF_ORGANELLES:
+                # THE CONTROL ITSELF ALWAYS STAYS, or a run with no
+                # organelles would have no way to ask for one.
+                continue
+            # Longest prefix first: `organelleb_` before `organelle_`.
+            owner = max((p for p in every if name.startswith(p)),
+                        key=len, default=None)
+            if owner is not None and owner in drop:
+                beyond.add(name)
+            elif count == 0 and "organelle" in name.lower():
+                # A SETTING ABOUT ORGANELLES IN GENERAL, which a slot prefix
+                # does not catch: `summarize_organelles_by` is one, and it
+                # kept "Organelle Segmentation (advanced)" on a form whose
+                # count said none. With no organelles there is nothing for
+                # it to be about.
+                beyond.add(name)
+        return beyond
+
+    def grow_to_fit_the_organelle_count(self, count) -> int:
+        """Build the organelle slots a raised count now asks for.
+
+        :param count: the new ``number_of_organelles``.
+        :returns: how many slots the panel holds afterwards.
+
+        THE PANEL OPENS WITH WHAT THE RUN HAS. Building every nameable slot
+        up front and hiding the surplus is what made the Mask screen 1,551
+        widgets; a control that was never built cannot be revealed, so the
+        panel has to be able to grow instead.
+
+        ONE CONTROL, DELIBERATELY CHANGED. This is safe to do here and was
+        not safe to do per keystroke: the count is a single spinbox somebody
+        sets on purpose, where a channel is a field they type digits into.
+        Growing never shrinks -- a slot built once keeps whatever the user
+        has since put in it, and a count lowered and raised again finds its
+        values where it left them.
+        """
+        try:
+            wanted = max(0, int(count or 0))
+        except (TypeError, ValueError):
+            return getattr(self, "_slots_built_for", 0)
+        wanted = min(wanted, PANEL_ORGANELLE_SLOTS)
+        if wanted <= getattr(self, "_slots_built_for", 0):
+            return self._slots_built_for
+
+        from spacr.settings import organelle_slots_beyond_the_count
+
+        shipped = resolve_default_settings(self.app_key)
+        self._defaults = organelle_slots_beyond_the_count(shipped, wanted)
+        self._slots_the_panel_added = {
+            key: value for key, value in self._defaults.items()
+            if key not in shipped}
+        self._slots_built_for = wanted
+        return wanted
 
     def tooltip_for(self, key: str) -> str:
         """Return the HTML-formatted tooltip for a given setting key."""
@@ -4177,6 +9016,15 @@ class SettingsWidgets:
                 if key in self._widgets]
 
     def _label_for(self, key: str) -> str:
+        """Return the caption a setting is shown under on this screen.
+
+        A plugin's own label wins; then the handful of per-module overrides
+        where one key means something narrower than its general name; then the
+        shared label table.
+
+        :param key: the setting name.
+        :returns: the caption to show.
+        """
         try:
             from spacr.plugins import get_app
             plugin_app = get_app(self.app_key)
@@ -4197,11 +9045,48 @@ class SettingsWidgets:
                 return "Exclude"
             if key == "exclude":
                 return "Exclude features"
+        if self.app_key == "regression" and key == "src":
+            return "Output directory"
         return setting_label(key)
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
+        """Choose the control one setting gets on this screen.
+
+        The order of the checks is load-bearing. Path-list and column-naming
+        keys are matched before the chip-editor and combo routes, because
+        several of them are declared ``list`` or ``str`` and would otherwise
+        fall through to a free-text box -- which is what made a typo
+        indistinguishable from a real column name. Closed alphabets are matched
+        before the chip editor for the same reason.
+
+        :param kind: the declared control kind.
+        :param options: the declared options, for the kinds that have them.
+        :param default: the declared default.
+        :param key: the setting name; several controls are chosen from this
+            alone, since the setting's meaning is narrower than its type.
+        :returns: the control, or ``None`` when the kind has none.
+        """
         parent = self._parent
+        # MORE THAN ONE DATABASE (instruction 109). A screen acquired as three
+        # plates is three project folders, and `generate_image_umap` has
+        # always taken a list of them -- the panel was the half that could
+        # only express one, so the comparison the user actually wants could
+        # not be asked for from the application at all. The control adds,
+        # removes, and SAYS WHAT THE MERGE WOULD COST before anything runs.
+        #
+        # `on_colour_by` writes into this panel's own `color_by` field, looked
+        # up when the box is ticked rather than captured now: the fields are
+        # built in one pass and `color_by` does not exist yet at this point.
+        if self.app_key == "umap" and key == "src":
+            return DatabaseSetWidget(
+                value=self._defaults.get(key, default),
+                mode="folder",
+                table="cell",
+                title="Choose one or more spaCR project folders",
+                on_colour_by=partial(self.set_value_for_key, "color_by"),
+                parent=parent,
+            )
         if self.app_key == "umap" and key == "exclude_rows":
             return RowExclusionEditor(
                 value=self._defaults.get(key, default),
@@ -4231,10 +9116,94 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
+        # A setting that names input files gets a file dialog and a drop
+        # target, not a box to type absolute paths into. Checked before the
+        # chip-editor and combo paths below, because several of these keys are
+        # declared ``list`` and would otherwise take the free-text route.
+        if key in PATH_LIST_KEYS:
+            return FilePathListWidget(
+                value=self._defaults.get(key, default),
+                kind=PATH_LIST_KEYS[key],
+                title=PATH_LIST_TITLES.get(key, "Choose input files"),
+                single=key in PATH_LIST_SINGLE_KEYS,
+                parent=parent,
+            )
+        if key == "paired_data":
+            return PairedFileTableWidget(
+                value=self._defaults.get(key, default), parent=parent)
+        # A setting whose value NAMES A COLUMN of an input CSV gets the box
+        # plus a button that reads those CSVs' header row. Checked before the
+        # combo and chip paths below because these keys are declared `str`
+        # and would otherwise take the plain text box that made a typo
+        # indistinguishable from a name.
+        #
+        # The paths are read WHEN THE BUTTON IS PRESSED, not here: the user
+        # chooses their input files after this panel is built, so a list read
+        # at construction is always the empty one.
+        source = CSV_COLUMN_SOURCES.get(self.app_key, {}).get(key)
+        if source is not None:
+            return _CsvColumnField(
+                key=key,
+                default=self._defaults.get(key, default),
+                # `partial`, not a lambda: the callable outlives this call
+                # and is read on a button press minutes later, so what it
+                # captures should be visible rather than implied.
+                paths=partial(self._input_csv_paths, source.roles),
+                what=source.what,
+                parent=parent,
+            )
+        # WHO fits the model gets a control that can say why an option is
+        # not choosable and what each one is. A plain combo could only offer
+        # eight labels and be silent about all of it -- which is what it did
+        # until 2026-08-18. See _RegressionBackendField.
+        if key == "regression_backend":
+            return _RegressionBackendField(
+                default=self._defaults.get(key, default),
+                regression_type=self._defaults.get("regression_type"),
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
             options = app_options[key]
+        # Two inventories are owned by the modules that implement them, so the
+        # dropdown cannot list a model spaCR cannot fit or omit a correction it
+        # can apply. Both imports are cheap: regression_families reads only
+        # regression_spec, which imports nothing, and multiple_testing imports
+        # only numpy at module scope.
+        if key == "regression_type":
+            # THE SAME TABLE THE OTHER ROUTE READS -- see
+            # _regression_type_menu, which settings_spec's
+            # _regression_type_choices shares the family half of. Building a
+            # second list here out of the bare inventory is what let this
+            # panel show nineteen unlabelled names while the other route
+            # showed them grouped and explained.
+            #
+            # 'auto' is the readable spelling of the historical None, which
+            # ml.regression turns into check_distribution(response). It is
+            # normalised back to None in
+            # settings.get_perform_regression_default_settings, so the fit
+            # path is unchanged and old settings CSVs holding None still work.
+            #
+            # A bare string and a (value, label) pair may share this list --
+            # the combo builder below takes either -- and every entry here is
+            # a pair, so the stored value is what a settings CSV gets while
+            # the caption says which kind of fit it is and what it assumes.
+            kind = "combo"
+            options = _regression_type_menu()
+        elif key == "multiple_testing_method":
+            from spacr.multiple_testing import method_choices
+            kind = "combo"
+            options = method_choices()
+        if self.app_key == "umap" and key == "metric":
+            # One closed alphabet rather than a text field that accepts a
+            # typo and fails after the reducer starts.  Importing the constant
+            # does not import umap-learn (and therefore does not put a model
+            # load on the GUI thread); the runtime validator still consults
+            # the installed package.
+            from spacr.hyperparam import UMAP_METRICS
+            kind = "combo"
+            options = list(UMAP_METRICS)
         if self.app_key == "map_barcodes" and key == "regex":
             return BarcodeRegexWidget(
                 value=self._defaults.get(key, default),
@@ -4289,10 +9258,29 @@ class SettingsWidgets:
             w.setChecked(bool(default))
             return w
         if kind == "combo":
-            w = QComboBox()
+            # _ValueCombo, not QComboBox: some of these lists are
+            # (value, label) pairs, and on a plain combo `setCurrentText`
+            # takes the caption only -- so "choose ols" silently does nothing
+            # as soon as the caption stops being the value.
+            w = _ValueCombo()
+            # Long inventories (notably UMAP's complete metric list) must not
+            # become the minimum width of the whole settings sidebar. The
+            # popup still shows every option; the closed control elides.
+            w.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            w.setMinimumContentsLength(12)
             for opt in (options or []):
-                w.addItem("None" if opt is None else str(opt),
-                          userData=opt)
+                # A (value, label) pair shows the LABEL and stores the VALUE.
+                # Instruction 171 wants "load images" and "stream images" in
+                # those words in every panel that offers the choice, while
+                # 'png' and 'merged' go on meaning what they meant to every
+                # settings file already written.
+                if isinstance(opt, tuple) and len(opt) == 2:
+                    stored, shown = opt
+                else:
+                    stored = opt
+                    shown = "None" if opt is None else str(opt)
+                w.addItem(str(shown), userData=stored)
             # Pre-select the value THIS module declares, not the one
             # hard-coded in gui_utils.convert_settings_dict_for_gui's
             # special_cases table. That table is one row per key for the whole
@@ -4332,11 +9320,39 @@ class SettingsWidgets:
                                    allow_none=allow_none,
                                    element_type=element_type,
                                    container=container)
+            # BY NAME, BEFORE THE TYPE SNIFF. These settings take a number
+            # or the word "auto", and the shipped default happens to be a
+            # number -- so inferring from it built a control that could not
+            # express half of what the setting accepts.
+            if key in AUTO_OR_NUMBER_SETTINGS:
+                return _auto_or_number_box(self._defaults.get(key, default))
+            # A PLANE THIS RUN MAY NOT HAVE, for the same reason and one step
+            # further: `cell_mask_dim` names a plane of the merged stack, and
+            # a screen with no nucleus has no nucleus plane. The control is
+            # otherwise chosen from the SHIPPED DEFAULT, so the three that
+            # ship a number -- cell 4, nucleus 5, pathogen 6 -- got a spin
+            # box, and a spin box has no empty state: the value could be
+            # changed but never CLEARED, and being made to name a plane for
+            # an object that is not in the run is being made to lie about it.
+            # The organelle slots ship None and have always had the box
+            # below; this is what makes the family agree.
+            if _is_clearable_plane_setting(key):
+                w = _ScalarEdit()
+                w.set_value(self._defaults.get(key, default))
+                return w
             # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
                 w = Toggle()
                 w.setChecked(default)
                 return w
+            # THE DECLARED TYPE WINS over the default's Python type. A
+            # setting spacr.settings types as a float gets a float box even
+            # when the number it ships happens to be round -- otherwise the
+            # box silently refuses every value between the whole ones, and
+            # the setting most affected was the Cellpose flow threshold whose
+            # own tooltip names 0.4.
+            if isinstance(default, int) and _permits_float(key):
+                default = float(default)
             if isinstance(default, int):
                 w = QSpinBox()
                 # Wide enough for the defaults the modules actually ship:
@@ -4344,12 +9360,18 @@ class SettingsWidgets:
                 # silently clamped it to 1e6 -- a thousand-fold change to the
                 # largest vacuole the assay will score, applied before the
                 # user touched anything.
-                w.setRange(-2_147_483_648, 2_147_483_647)
+                minimum = (
+                    1 if key in POSITIVE_INTEGER_SETTINGS
+                    else -2_147_483_648
+                )
+                w.setRange(minimum, 2_147_483_647)
                 w.setValue(default)
                 return w
             if isinstance(default, float):
                 w = QDoubleSpinBox()
-                w.setRange(-1e12, 1e12)
+                low, high, step = _float_domain(key, default)
+                w.setRange(low, high)
+                w.setSingleStep(step)
                 w.setDecimals(6)
                 w.setValue(default)
                 return w
@@ -4419,17 +9441,91 @@ class SettingsWidgets:
                 continue
         return value
 
+    #: Settings whose value has ONE canonical form, whatever shape the
+    #: widget hands back. `channel_of_interest` is drawn as a multi-select,
+    #: so one channel comes back as `[3]` where the default is `3` -- the
+    #: same feature space, but a panel that rewrites a default makes every
+    #: settings file differ from it and breaks "has this been changed?".
+    CANONICAL_READERS = {
+        "channel_of_interest": "spacr.settings:canonical_feature_selection",
+    }
+
+    def _canonical(self, key: str, value: Any) -> Any:
+        """Put a widget's answer into the one form the setting is stored in."""
+        where = self.CANONICAL_READERS.get(key)
+        if where is None:
+            return value
+        module_name, function_name = where.split(":")
+        try:
+            import importlib
+
+            reader = getattr(importlib.import_module(module_name),
+                             function_name)
+            return reader(value)
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not canonicalise %s", key, exc_info=True)
+            return value
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict."""
         out: Dict[str, Any] = {}
         for key, w in self._widgets.items():
-            out[key] = self._coerce_to_expected_type(key, self._read_widget(w))
+            out[key] = self._canonical(
+                key, self._coerce_to_expected_type(key, self._read_widget(w)))
         # Also carry over any defaults we didn't render (e.g. things not
         # in the categories map that convert_settings_dict_for_gui also
         # skipped).
         for k, v in self._defaults.items():
             out.setdefault(k, v)
-        return out
+        return self._organelle_slots_worth_keeping(out)
+
+    def _organelle_slots_worth_keeping(self,
+                                       settings: Dict[str, Any]
+                                       ) -> Dict[str, Any]:
+        """Drop the slots this run neither has nor has anything to say about.
+
+        THE PANEL AND THE FILE ARE NOT THE SAME QUESTION. The panel builds a
+        control for every slot that can be named, because the count has to
+        have something to reveal; a settings file written that way would bury
+        the four slots a run uses under twelve hundred keys nobody set.
+
+        WHAT SURVIVES: every slot ``number_of_organelles`` reaches, every slot
+        the MODULE itself declared, and every slot above the count holding
+        something other than the value the panel invented for it. That last
+        part is the whole of "a file written at seven opens at two and still
+        carries seven" -- the five hidden slots hold what the file said, not
+        what the panel put there, so they are written back out and raising
+        the number again brings their answers with them.
+
+        CONTIGUOUS, because a slot's number is its position: keeping the
+        seventh without the fifth and sixth would leave a settings dict that
+        ``number_of_organelles`` cannot describe.
+        """
+        from ..settings_diff import _values_equal
+        from ...organelle_types import (organelle_count, organelle_number,
+                                        organelle_role_of, organelle_roles)
+
+        invented = getattr(self, "_slots_the_panel_added", None)
+        if not invented:
+            return settings
+        roles = {key: organelle_role_of(key) for key in settings}
+        highest = organelle_count(settings)
+        for key, role in roles.items():
+            if role is None:
+                continue
+            number = organelle_number(role)
+            if number <= highest:
+                continue
+            if key in invented:
+                try:
+                    if _values_equal(settings[key], invented[key]):
+                        continue
+                except Exception:                            # noqa: BLE001
+                    pass
+            highest = number
+        kept = set(organelle_roles(highest))
+        return {key: value for key, value in settings.items()
+                if roles[key] is None or roles[key] in kept}
 
     def set_value_for_key(self, key: str, value: Any) -> bool:
         """Write ``value`` into the widget bound to ``key`` (if present).
@@ -4447,7 +9543,10 @@ class SettingsWidgets:
             elif isinstance(w, QSpinBox):
                 w.setValue(int(value))
             elif isinstance(w, QDoubleSpinBox):
-                w.setValue(float(value))
+                if str(w.specialValueText() or "") == AUTO_TEXT:
+                    _set_auto_or_number(w, value)
+                else:
+                    w.setValue(float(value))
             elif isinstance(w, QComboBox):
                 idx = w.findData(value)
                 if idx < 0:
@@ -4462,7 +9561,10 @@ class SettingsWidgets:
                     _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
-                    ClassEditorWidget,
+                    ClassEditorWidget, DatabaseSetWidget,
+                    FilePathListWidget,
+                    PairedFileTableWidget, _CsvColumnField,
+                    _RegressionBackendField,
                 ),
             ):
                 w.set_value(value)
@@ -4474,7 +9576,174 @@ class SettingsWidgets:
             return False
         if key in {"src", "tables"}:
             self._refresh_contextual_widgets()
+        elif self.app_key == "regression":
+            self._refresh_setting_dependencies()
+        if key in {"reduction_method", "spectral_affinity"}:
+            self._refresh_umap_reducer_enablement()
+        if key == "analysis_unit":
+            self._refresh_analysis_unit_lock()
         return True
+
+    def set_hidden_value(self, key: str, value: Any) -> bool:
+        """Update a known run setting whose widget is not on this form.
+
+        This includes dedicated controls outside the form and object rows
+        omitted by the current shape.
+
+        Hidden does not mean absent: imported
+        values live in ``_defaults`` and still reach ``collect()``.
+
+        A slot
+        above the current count is accepted only when this app owns the count
+        and the key is a declared setting; foreign-app keys remain rejected.
+        """
+        if key not in self._defaults:
+            from ...organelle_types import (NUMBER_OF_ORGANELLES,
+                                            organelle_role_of)
+            from ...settings import expected_types
+
+            if (NUMBER_OF_ORGANELLES not in self._defaults
+                    or organelle_role_of(key) is None
+                    or key not in expected_types):
+                return False
+        self._defaults[key] = self._coerce_to_expected_type(key, value)
+        return True
+
+    def _on_regression_type_changed(self, *_args) -> None:
+        """Re-judge the backends against the family now being fitted."""
+        self._refresh_regression_backend()
+
+    def _refresh_regression_backend(self) -> None:
+        """Point the backend control at the panel's current regression type.
+
+        Reads the WIDGET rather than the defaults, so the greying and the
+        description follow what is on screen. With no `regression_type`
+        widget -- another module, or a layout that hides it -- the declared
+        default is used, which is what the run would fit anyway.
+        """
+        backend = self._widgets.get("regression_backend")
+        if not isinstance(backend, _RegressionBackendField):
+            return
+        widget = self._widgets.get("regression_type")
+        if widget is None:
+            value = self._defaults.get("regression_type")
+        else:
+            try:
+                value = self._read_widget(widget)
+            except Exception:                                  # noqa: BLE001
+                value = self._defaults.get("regression_type")
+        backend.set_regression_type(value)
+
+    def _on_umap_reducer_changed(self, *_args) -> None:
+        """Re-grey method-specific Image UMAP controls immediately."""
+        self._refresh_umap_reducer_enablement()
+
+    def _refresh_analysis_unit_lock(self) -> None:
+        """Apply and display settings constrained by ``analysis_unit``.
+
+        Constraints come from :mod:`spacr.settings_advisor`, which also
+        validates imported settings that did not pass through this panel.
+        Keeping one constraint registry ensures the interface and preflight
+        checks use the same requirements.
+        """
+        control = self._widgets.get("analysis_unit")
+        if control is None:
+            return
+        try:
+            from ...settings_advisor import requirements_for_unit
+        except Exception:                                    # noqa: BLE001
+            return
+        unit = str(self._read_widget(control) or "well").strip().lower()
+        required = requirements_for_unit(unit)
+        # EVERY SETTING ANY UNIT CONSTRAINS, so switching back to `well`
+        # releases what `cell` locked. Refreshing only the current unit's
+        # keys would leave a control greyed after the reason for it was
+        # withdrawn.
+        try:
+            from ...settings_advisor import UNIT_REQUIREMENTS
+
+            owned = set().union(*(set(v) for v in UNIT_REQUIREMENTS.values()))
+        except Exception:                                    # noqa: BLE001
+            owned = set(required)
+        # WHAT THIS RULE ITSELF LOCKED LAST TIME. Only these are released,
+        # so a control greyed by another rule stays greyed.
+        released = set(getattr(self, "_unit_locked", set()))
+        note = (f"Fixed by analysis_unit={unit!r}: the run reads this value "
+                f"and no other, so it is shown rather than left editable. "
+                f"Choose analysis_unit='well' to set it yourself.")
+        for key in sorted(owned):
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            if key in required:
+                # SET IT, THEN GREY IT. A greyed control still showing the
+                # old value tells the user the run will use that value, and
+                # it will not -- which is worse than an editable control
+                # that disagrees, because it looks settled.
+                # `set_value_for_key`, which is the one writer -- a second
+                # way of putting a value into a widget is a second set of
+                # type rules to keep in step. It re-enters this method only
+                # for `analysis_unit` itself, which is never a required key.
+                self.set_value_for_key(key, required[key])
+                widget.setEnabled(False)
+                _apply_greyed_note(widget, note)
+            elif key in released:
+                # RELEASE ONLY WHAT THIS RULE GREYED. `analysis_mode` is also
+                # greyed by the inference rule -- it is set for you by
+                # inference='parametric' -- and a blanket setEnabled(True)
+                # here undid that, so the combo came back editable while
+                # something else was still deciding its value. Enabling a
+                # control another rule disabled is worse than leaving one
+                # greyed: the user changes it and the run ignores them.
+                widget.setEnabled(True)
+                _clear_greyed_note(widget)
+        self._unit_locked = {k for k in required if k in self._widgets}
+        # WHATEVER ELSE HAD A SAY, AFTER. The other refreshers re-assert
+        # their own greying over anything this one just released.
+        if hasattr(self, "_refresh_setting_dependencies"):
+            try:
+                self._refresh_setting_dependencies()
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not re-run the dependency rules",
+                             exc_info=True)
+
+    def _refresh_umap_reducer_enablement(self) -> None:
+        """Enable only the settings the selected reducer actually reads."""
+        if self.app_key != "umap":
+            return
+        selector = self._widgets.get("reduction_method")
+        if selector is None:
+            return
+        method = str(self._read_widget(selector) or "umap").strip().lower()
+        if method not in _UMAP_REDUCER_SETTINGS:
+            return
+        owned = set().union(*_UMAP_REDUCER_SETTINGS.values())
+        active = _UMAP_REDUCER_SETTINGS[method]
+        note = f"Used only when dimensionality reduction is {method}."
+        for key in owned:
+            control = self._widgets.get(key)
+            if control is None:
+                continue
+            enabled = key in active
+            if key == "spectral_n_neighbors" and method == "spectral":
+                affinity = self._widgets.get("spectral_affinity")
+                enabled = str(
+                    self._read_widget(affinity) if affinity is not None
+                    else "nearest_neighbors"
+                ) == "nearest_neighbors"
+            control.setEnabled(enabled)
+            if enabled:
+                _clear_greyed_note(control)
+            else:
+                _apply_greyed_note(control, note)
+
+        metric = self._widgets.get("metric")
+        if metric is not None:
+            # The projection may ignore this setting, but DBSCAN always reads
+            # it. Keep the shared metric editable instead of greying a control
+            # that can still change the result.
+            metric.setEnabled(True)
+            _clear_greyed_note(metric)
 
     def _refresh_classifier_family_enablement(self) -> None:
         """Grey the settings the OTHER classifier family reads.
@@ -4526,21 +9795,12 @@ class SettingsWidgets:
         self.refresh_training_basis_enablement()
 
     def refresh_training_basis_enablement(self) -> None:
-        """Grey out the settings the chosen training basis does not read.
+        """Disable settings that the selected training basis does not use.
 
-        Seeing metadata controls while training on annotations is exactly the
-        confusion this was asked to remove: three sets of controls, only one
-        of which does anything, and nothing saying which.
-
-        GREYED, never removed. INVARIANTS 6: a key ABSENT from the settings
-        dict makes the pipeline fall back to its own default, which can
-        differ from the value the module needs and says nothing when it does.
-        A disabled widget keeps its value and still collects; it just stops
-        being editable.
-
-        The list of what each basis reads lives in
-        :mod:`spacr.training_basis`, not here, so the panel and the pipeline
-        cannot drift into disagreeing about which control matters.
+        Controls remain present so their values are still collected and the
+        pipeline does not substitute defaults for missing keys. Applicability
+        is read from :mod:`spacr.training_basis`, which is shared with the
+        pipeline.
         """
         self._refresh_classifier_family_enablement()
         widget = self._widgets.get("dataset_mode")
@@ -4569,6 +9829,7 @@ class SettingsWidgets:
     def _refresh_contextual_widgets(self) -> None:
         """Refresh widgets whose choices come from the selected data source."""
         self.refresh_training_basis_enablement()
+        self._refresh_setting_dependencies()
         editor = self._widgets.get("exclude_rows")
         if not isinstance(editor, RowExclusionEditor):
             return
@@ -4582,12 +9843,879 @@ class SettingsWidgets:
         )
         editor.set_source(source, tables)
 
+    def _rules_for_this_panel(self) -> Dict[str, Any]:
+        """The applicability rules THIS panel can honestly evaluate.
+
+        ``settings.setting_dependencies`` is keyed by setting NAME and says
+        nothing about which screen a setting appears on --
+        ``batch_correction='none'`` kills ``batch_column`` wherever the two
+        are shown together, which is four screens, not one. Both entry points
+        below nevertheless opened with ``if self.app_key != 'regression'``,
+        so on Image UMAP, Classify (merged) and ML Analyze all seven
+        ``batch_*`` controls stayed live and editable under the default
+        ``batch_correction='none'``. The table was module-agnostic; the
+        wiring was not.
+
+        The guard is not widened into an allow-list of app keys, because an
+        allow-list is the same bug with a longer line in it -- the next
+        module to gain a gated setting silently would not gate. What the
+        guard was actually protecting against is stated directly instead:
+
+          * the setting must be ON THIS PANEL, or there is nothing to grey;
+          * at least one of the rule's SOURCES must be on this panel too.
+
+        The second is the one that matters. A predicate reads other settings,
+        and on a panel that shows the ruled setting but none of the settings
+        it depends on, the predicate would be evaluated against a default the
+        user can neither see nor change -- a control greyed by an invisible
+        value, which nobody can ever re-enable. Such a rule must not fire at
+        all. ``any`` rather than ``all`` because a rule combined from two
+        independent reasons carries the union of both reasons' sources, and
+        a panel is entitled to have only one of them.
+        """
+        if not self._widgets:
+            return {}
+        try:
+            from spacr.settings import get_setting_dependencies
+            dependencies = get_setting_dependencies()
+        except Exception:
+            return {}
+        return {
+            key: rule for key, rule in dependencies.items()
+            if key in self._widgets
+            and any(source in self._widgets
+                    for source in rule.get('sources', ()))
+        }
+
+    def _connect_setting_dependency_signals(self) -> None:
+        """Re-evaluate applicability whenever one of its source keys moves."""
+        dependencies = self._rules_for_this_panel()
+        sources = {source for rule in dependencies.values()
+                   for source in rule.get('sources', ())}
+        for key in sources:
+            widget = self._widgets.get(key)
+            if widget is not None:
+                _connect_value_changed(widget,
+                                       self._on_dependency_source_changed)
+
+    def _on_dependency_source_changed(self, *_args) -> None:
+        """Re-evaluate the dependency rules after a source setting changed.
+
+        :param _args: whatever the emitting widget passes; ignored, since every
+            control is re-read either way.
+        """
+        self._refresh_setting_dependencies()
+
+    def _current_dependency_settings(self) -> Dict[str, Any]:
+        """Read every control into a settings dict for the dependency rules.
+
+        :returns: the declared defaults overlaid with whatever each control now
+            holds; a control that cannot be read or coerced leaves its default
+            in place rather than dropping the key.
+        """
+        current = dict(self._defaults)
+        for key, widget in self._widgets.items():
+            try:
+                current[key] = self._coerce_to_expected_type(
+                    key, self._read_widget(widget))
+            except Exception:
+                pass
+        return current
+
+    def _loaded_table_paths(self, current: Dict[str, Any]):
+        """Return index-tagged score and count CSVs loaded by the user.
+
+        Paired inputs share one logical index so a score file and its count
+        file represent one plate when neither contains a plate column. Legacy
+        flat input keys remain supported after the paired table.
+        """
+        return [(index, path)
+                for index, _role, path in self._input_tables(current)]
+
+    @staticmethod
+    def _input_tables(current: Dict[str, Any],
+                      roles: Tuple[str, ...] = ('score', 'count')):
+        """``[(index, role, path)]`` for the loaded regression input CSVs.
+
+        THE ONE PLACE THE PAIRED TABLE IS UNPACKED, and it carries the role
+        because its two callers need different projections of the same read:
+        the plate-count scan wants every path with its logical index, and the
+        CSV column picker wants one side only -- `dependent_variable` names a
+        column of the SCORE file and offering it `grna` from the count file
+        would offer a name the run cannot use. A second unpacker would be a
+        second thing to update the day the table gains a third side.
+        """
+        pairs = current.get('paired_data')
+        if isinstance(pairs, (list, tuple)) and pairs:
+            found = []
+            for index, row in enumerate(pairs):
+                if not isinstance(row, dict):
+                    continue
+                for role in roles:
+                    path = row.get(role)
+                    if path:
+                        found.append((index, role, path))
+            if found:
+                return found
+        found = []
+        for role in roles:
+            paths = current.get(f'{role}_data') or []
+            if isinstance(paths, (str, os.PathLike)):
+                paths = [paths]
+            found.extend((index, role, path)
+                         for index, path in enumerate(paths))
+        return found
+
+    def _input_csv_paths(self, roles: Tuple[str, ...]) -> List[str]:
+        """The input CSVs a column picker for ``roles`` should read.
+
+        Deduplicated in order: one score CSV shared by two plate rows is one
+        file to read, and `spacr.columns.available` would merge its columns
+        anyway.
+
+        Only the three input keys are read, not the whole panel: this runs on
+        a button press and `_current_dependency_settings` walks every widget
+        on the screen to answer a question about three of them.
+        """
+        current = {}
+        for key in ('paired_data', 'score_data', 'count_data'):
+            widget = self._widgets.get(key)
+            current[key] = (self._read_widget(widget) if widget is not None
+                            else self._defaults.get(key))
+        seen: List[str] = []
+        for _index, _role, path in self._input_tables(current, tuple(roles)):
+            text = os.fspath(path)
+            if text not in seen:
+                seen.append(text)
+        return seen
+
+    @staticmethod
+    def _plate_context(paths) -> Dict[str, Any]:
+        """Inspect only CSV headers/plate columns; never load feature data."""
+        sources = []
+        for fallback_index, item in enumerate(paths or []):
+            logical_index, path = (item if isinstance(item, tuple)
+                                   else (fallback_index, item))
+            if path and os.path.isfile(os.fspath(path)):
+                sources.append((logical_index, os.fspath(path)))
+        if not sources:
+            return {'plate_count': None, 'has_plate_id': False}
+        # A very large single-plate file should not stall the GUI merely to
+        # grey one field. Leave it unknown; the run still validates it.
+        if sum(os.path.getsize(path) for _, path in sources) > 5_000_000:
+            return {'plate_count': None, 'has_plate_id': None}
+        plates = set()
+        has_plate = False
+        for logical_index, path in sources:
+            with open(path, newline='', encoding='utf-8-sig') as handle:
+                sample = handle.read(4096)
+                handle.seek(0)
+                try:
+                    dialect = csv.Sniffer().sniff(sample, delimiters=',\t;')
+                except csv.Error:
+                    dialect = csv.excel
+                reader = csv.DictReader(handle, dialect=dialect)
+                names = reader.fieldnames or []
+                plate_key = next((name for name in names
+                                  if str(name).casefold() in {
+                                      'plateid', 'plate', 'plate_name'}), None)
+                if plate_key is None:
+                    # score_data[i] and count_data[i] describe the same plate;
+                    # their absent IDs therefore share one fallback identity.
+                    plates.add(('source', logical_index))
+                    continue
+                has_plate = True
+                for row in reader:
+                    value = str(row.get(plate_key, '')).strip()
+                    if value:
+                        plates.add(('value', value))
+                    if len(plates) > 1:
+                        break
+            if len(plates) > 1:
+                break
+        return {'plate_count': len(plates) or None,
+                'has_plate_id': has_plate}
+
+    def _refresh_setting_dependencies(self) -> None:
+        # THE ROWS FIRST, THEN WHICH OF THE ONES LEFT ON SCREEN ARE GREYED.
+        # This is the hook `apply_settings_dict` calls when it has finished
+        # pouring a settings file in, and a file that sets `cell_channel` has
+        # to bring the cell settings back on screen with it. A reason written
+        # beside a control on a hidden row is a reason nobody can read.
+        """Re-apply the row visibility and then grey the rows that stay.
+
+        Visibility goes first: this is the hook ``apply_settings_dict`` calls
+        once a settings file has been poured in, and a file that sets
+        ``cell_channel`` has to bring the cell rows back on screen with it -- a
+        reason written beside a control on a hidden row is a reason nobody can
+        read.
+
+        The loaded tables are only scanned when a rule on this panel can
+        actually read them; doing it on every combo change of a panel with no
+        data-dependent rule is a stall for nothing. A rule that raises leaves
+        its control enabled, since refusing a setting because the check broke
+        is worse than allowing one that will be rejected later.
+        """
+        self.refresh_object_visibility()
+        dependencies = self._rules_for_this_panel()
+        if not dependencies:
+            return
+        current = self._current_dependency_settings()
+        # Only scanned when a rule on this panel can actually read it. It
+        # opens the loaded CSVs, and doing that on every combo change of a
+        # panel with no data-dependent rule is a stall for nothing.
+        if any('paired_data' in rule.get('sources', ())
+               or 'score_data' in rule.get('sources', ())
+               or 'count_data' in rule.get('sources', ())
+               for rule in dependencies.values()):
+            self._data_context = self._plate_context(
+                self._loaded_table_paths(current))
+        for key, rule in dependencies.items():
+            control = self._widgets[key]
+            try:
+                enabled = bool(rule['predicate'](current, self._data_context))
+            except Exception:
+                enabled = True
+            control.setEnabled(enabled)
+            if enabled:
+                _clear_greyed_note(control)
+            else:
+                reason = str(rule['reason'](current, self._data_context))
+                _apply_greyed_note(control, reason)
+                self._show_the_value_it_will_have(key, current)
+
+    #: Settings whose value another setting DECIDES, and the translator that
+    #: decides it. A greyed control here shows the value the run will use.
+    _DECIDED_BY_ANOTHER = ("analysis_mode", "agg_type", "regression_type")
+
+    def _show_the_value_it_will_have(self, key, current) -> None:
+        """Put the resolved value into a control the run overrides anyway.
+
+        A GREYED CONTROL SHOWING THE WRONG VALUE IS WORSE THAN A GREYED ONE.
+        Asked 2026-08-20: "if nonparametric is chosen should guide permutation
+        be in analysis mode". It should, and it was not:
+        `_resolve_regression_analysis_choices` rewrites `analysis_mode` from
+        `inference` AT RUN TIME, so the panel showed 'regression' while the
+        run used 'guide_permutation' -- and the greyed note beside it said as
+        much in words. Words next to a contradicting value is the worst of
+        the three states.
+
+        Only the settings another setting genuinely decides, and only through
+        the SAME translator the run uses, so the panel cannot come to a
+        different answer than the fit.
+        """
+        if key not in self._DECIDED_BY_ANOTHER:
+            return
+        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
+        # sets one widget at a time, so `inference` may still hold the old
+        # value when `analysis_mode` arrives -- and forcing then would
+        # overwrite the file's value from an inference that is about to
+        # change. Caught by loading a file carrying inference='auto' and
+        # analysis_mode='guide_permutation': the mode was clobbered to
+        # 'regression' before 'auto' had landed. The refresh that runs once
+        # the whole dict is applied does the right thing.
+        if getattr(self, "_applying_settings", False):
+            return
+        try:
+            from spacr.settings import _resolve_regression_analysis_choices
+
+            resolved = dict(current)
+            _resolve_regression_analysis_choices(resolved)
+        except Exception:                                    # noqa: BLE001
+            return
+        value = resolved.get(key)
+        if value is None or value == current.get(key):
+            return
+        setter = getattr(self, "set_value_for_key", None)
+        if callable(setter):
+            setter(key, value)
+
+    # ------------------------------------------------------------------
+    # A setting is visible when its object is in the run
+    # ------------------------------------------------------------------
+
+    def _object_visibility_keys(self) -> set:
+        """The few settings the visibility rule reads.
+
+        NOT ``_current_dependency_settings``, which walks and coerces EVERY
+        widget on the screen: this runs on each keystroke in a channel box,
+        and Mask has three hundred and fifty settings of which the rule reads
+        about thirty. The same reason ``_input_csv_paths`` reads three keys
+        rather than the panel.
+        """
+        from ...organelle_types import NUMBER_OF_ORGANELLES
+
+        wanted = {NUMBER_OF_ORGANELLES}
+        for key in self._widgets:
+            role = object_of_setting(key)
+            if role is None:
+                continue
+            wanted.update(object_switch_keys(role))
+            # The type narrows a slot, the diameter decides which way a
+            # size-split type narrows it, and the morphology is the answer
+            # for a slot left on 'custom'.
+            wanted.update(f"{role}_{name}"
+                          for name in ("type", "diameter", "morphology"))
+        return wanted
+
+    def _object_visibility_settings(self) -> Dict[str, Any]:
+        """Current values of the settings the visibility rule reads.
+
+        A key with no control on this panel is read from ``_defaults``, which
+        is where its value lives and where the run will read it from too.
+        """
+        current: Dict[str, Any] = {}
+        for key in self._object_visibility_keys():
+            widget = self._widgets.get(key)
+            if widget is None:
+                current[key] = self._defaults.get(key)
+                continue
+            try:
+                current[key] = self._coerce_to_expected_type(
+                    key, self._read_widget(widget))
+            except Exception:                                # noqa: BLE001
+                current[key] = self._defaults.get(key)
+        return current
+
+    def keys_whose_object_the_run_lacks(self) -> set:
+        """Return setting keys excluded by the current object configuration.
+
+        The screen calls this before constructing captions and tooltips so
+        settings for unavailable object types remain unbuilt. It uses the
+        same visibility rule as :meth:`refresh_object_visibility`.
+
+        :returns: Hidden setting keys, or an empty set if visibility cannot
+            be determined.
+        """
+        try:
+            return set(keys_hidden_by_their_object(
+                self._widgets, self._object_visibility_settings()))
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not decide which objects are in the run",
+                         exc_info=True)
+            return set()
+
+    def remember_section_rows(self, section, keys, has_children: bool) -> None:
+        """Record the settings and nesting state associated with a section.
+
+        :param section: Section-heading widget.
+        :param keys: Settings declared directly in the section, in order.
+        :param has_children: Whether the section contains nested headings.
+        """
+        declared = getattr(self, "_section_rows", None)
+        if declared is None:
+            declared = self._section_rows = {}
+        declared[id(section)] = (section, tuple(keys), bool(has_children))
+        self._slot_heading_cache = None
+
+    def hide_the_rows_the_grid_speaks_for(self, keys) -> None:
+        """Take ``keys`` off the form because a grid now shows them.
+
+        The widgets STAY -- they are what `collect()` reads and what the grid
+        writes through to -- so this hides rows rather than dropping them.
+        The settings search still indexes them and every check that walks the
+        form still finds them holding their values.
+
+        :param keys: the setting keys the grid answers.
+        """
+        self._hidden_by_the_grid = set(keys or ())
+        self.refresh_object_visibility()
+
+    def refresh_object_visibility(self) -> None:
+        """Show only the rows whose object this run actually has.
+
+        Idempotent, and it decides EVERY gated row every time rather than
+        toggling the ones that changed -- so a row put back on screen by
+        something else answering a different question (the settings search
+        releasing its filter shows every row it indexed) is hidden again on
+        the next call instead of drifting.
+
+        Public because the screen has to be able to ask for it: it is the
+        screen that lays the rows out, and the screen that hands row
+        visibility back after a filter.
+        """
+        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
+        # sets one widget at a time, so a channel may already hold its new
+        # value while the type beside it still holds the old one; hiding rows
+        # against that half-applied panel would show a slot narrowed to the
+        # wrong morphology and then narrow it again. The bulk apply calls
+        # `_refresh_setting_dependencies` when it is finished, which is where
+        # this runs instead.
+        if getattr(self, "_applying_settings", False):
+            return
+        try:
+            current = self._object_visibility_settings()
+            hidden = keys_hidden_by_their_object(self._widgets, current)
+            # BEFORE THE ROWS MOVE, so the guard installed below judges each
+            # row against the answer this pass is applying rather than the
+            # last one -- otherwise showing a row whose channel was just
+            # typed would look, to the guard, like something else putting a
+            # hidden row back.
+            # AND THE ROWS THE GRID SPEAKS FOR. Kept in a set of its own
+            # because this pass recomputes `hidden` from scratch every time:
+            # putting the grid's keys into `_hidden_by_the_run` would show
+            # them again on the next channel edit. Union, so a row hidden for
+            # either reason stays hidden.
+            hidden = set(hidden) | set(
+                getattr(self, "_hidden_by_the_grid", ()) or ())
+            self._hidden_by_the_run = set(hidden)
+            # BEFORE THE ROWS MOVE, for the other reason too: a row the screen
+            # left unbuilt because this rule hid it has to exist before the
+            # rule can show it, or `_set_row_visible` would put a bare field
+            # on screen in no layout at all.
+            lay_out = getattr(self, "rows_are_laid_out_by", None)
+            if lay_out is not None:
+                try:
+                    lay_out(hidden)
+                except Exception:                            # noqa: BLE001
+                    LOGGER.debug("could not lay out the rows that are back",
+                                 exc_info=True)
+            for key in list(self._widgets):
+                self._set_row_visible(key, key not in hidden)
+            self._guard_hidden_rows(hidden)
+            self._hide_the_headings_of_slots_the_run_lacks(current)
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not decide which objects are in the run",
+                         exc_info=True)
+
+    def keys_hidden_by_the_run(self) -> List[str]:
+        """Return settings hidden by the latest object-visibility pass.
+
+        :returns: Hidden keys in no guaranteed order. The result is empty
+            before visibility is evaluated or when the model has no rows.
+        """
+        return list(getattr(self, "_hidden_by_the_run", ()) or ())
+
+    def _slot_headings(self) -> Dict[int, Tuple[Any, Tuple[str, ...]]]:
+        """Each leaf heading on the panel and the settings it owns.
+
+        Computed once: which settings a heading holds is decided when the
+        panel is built and does not change afterwards, and this runs on every
+        keystroke in a channel box.
+
+        LEAF HEADINGS ONLY -- one with sub-headings inside it is answered by
+        them. ``id(section) -> (section, keys)``, because a ``Section`` is
+        not hashable in a way that survives Qt taking it apart.
+        """
+        # AN EMPTY ANSWER IS NOT CACHED. The first pass is scheduled from
+        # `build_sections`, and on a model built for its values rather than
+        # for a screen there are no sections to find at all -- caching that
+        # would answer "no headings" for the life of the panel.
+        cached = getattr(self, "_slot_heading_cache", None)
+        if cached:
+            return cached
+        cache: Dict[int, Tuple[Any, Tuple[str, ...]]] = {}
+        if self._parent is None:
+            return cache
+        # WHAT THE PANEL DECLARED, when it declared anything. The walk below
+        # recovers the same two facts from the rendered form, at the cost of a
+        # `findChildren` per heading; a panel that said what it was building
+        # has already answered. See :meth:`remember_section_rows`.
+        declared = getattr(self, "_section_rows", None)
+        if declared:
+            for ident, (section, keys, has_children) in declared.items():
+                if has_children or not keys:
+                    continue
+                cache[ident] = (section, tuple(keys))
+            if cache:
+                self._slot_heading_cache = cache
+            return cache
+        try:
+            from ..widgets.section import Section
+
+            by_widget = {id(widget): key
+                         for key, widget in self._widgets.items()}
+            for section in self._parent.findChildren(Section):
+                if [child for child in section.findChildren(Section)
+                        if child is not section]:
+                    continue
+                form = getattr(section, "_form", None)
+                if not isinstance(form, QFormLayout):
+                    continue
+                keys = []
+                for index in range(form.rowCount()):
+                    item = form.itemAt(index, QFormLayout.FieldRole)
+                    field = item.widget() if item is not None else None
+                    key = by_widget.get(id(field)) if field is not None \
+                        else None
+                    if key is not None:
+                        keys.append(key)
+                if keys:
+                    cache[id(section)] = (section, tuple(keys))
+        except Exception:                                    # noqa: BLE001
+            LOGGER.debug("could not map the panel's headings", exc_info=True)
+            return {}
+        if cache:
+            self._slot_heading_cache = cache
+        return cache
+
+    def _hide_the_headings_of_slots_the_run_lacks(
+            self, settings: Dict[str, Any]) -> None:
+        """A slot the count does not reach has no heading either.
+
+        A HEADING WITH EVERY ROW HIDDEN IS A SMALLER WALL, BUT IT IS STILL A
+        WALL, and the panel now builds a heading for every slot that can be
+        named: without this, opening Mask meant scrolling past ORGANELLE 5
+        through ORGANELLE 26 three times over to reach anything.
+
+        ONLY THE SLOT HEADINGS, and only the ones this method hid. A heading
+        is left alone unless every setting under it belongs to an organelle
+        slot the run does not have -- so nothing here has an opinion about a
+        heading hidden for its maturity, by a dimension switch, or by the
+        settings search, and a heading this did not hide is never shown by
+        it. That is what keeps one card from being decided in two places.
+
+        :param settings: the values the object rule just read, so the count
+            is not walked out of the panel a second time on every keystroke.
+        """
+        from ..preferences import maturity_is_visible
+        from ...organelle_types import active_organelle_roles
+
+        headings = self._slot_headings()
+        if not headings:
+            return
+        active = set(active_organelle_roles(settings))
+        emptied = self._headings_of_absent_slots
+        for ident, (section, keys) in headings.items():
+            roles = {object_of_setting(key) for key in keys}
+            gone = bool(roles) and all(
+                role is not None and role not in CHANNELLED_OBJECTS
+                and role not in active for role in roles)
+            try:
+                if gone:
+                    # EVERY PASS, not only the first: the settings search
+                    # puts a heading back whenever its filter is released,
+                    # and a method that only hid one it had not hidden
+                    # before would hide it once and never again.
+                    if not section.isHidden():
+                        emptied[ident] = section
+                        section.setVisible(False)
+                        section.installEventFilter(self._object_row_guard)
+                elif ident in emptied:
+                    del emptied[ident]
+                    # ONLY WHAT MATURITY WOULD ALSO SHOW. A heading this hid
+                    # may since have been hidden again as Alpha or Beta, and
+                    # putting a slot back must not overrule Preferences.
+                    if maturity_is_visible(section.maturity()):
+                        section.setVisible(True)
+            except RuntimeError:
+                # The section went away with the screen that owned it.
+                emptied.pop(ident, None)
+
+    def _guard_hidden_rows(self, hidden) -> None:
+        """Keep settings for inactive object roles hidden after UI updates.
+
+        Search filters, recipes, and section expansion can make a previously
+        hidden row visible. Each affected row therefore watches
+        ``ShowToParent`` events and schedules another visibility pass whenever
+        an external update reveals it, including within collapsed sections.
+        """
+        guard = getattr(self, "_object_row_guard", None)
+        if guard is None or self._parent is None:
+            return
+        guarded = self._guarded_rows
+        for key in hidden:
+            widget = self._widgets.get(key)
+            if widget is None or id(widget) in guarded:
+                continue
+            guarded[id(widget)] = key
+            widget.installEventFilter(guard)
+
+    def _shown_against_the_rule(self, widget: QWidget) -> None:
+        """Something outside put a hidden row or heading back; ask for a pass.
+
+        DEFERRED, not undone here: this runs while Qt is delivering the show
+        event, and hiding the widget again inside its own event would leave
+        whatever is walking a form mid-walk. One pass is queued however many
+        rows were shown, because the pass decides every gated row anyway.
+        """
+        key = self._guarded_rows.get(id(widget))
+        contested = (
+            (key is not None and key in getattr(self, "_hidden_by_the_run", ()))
+            or id(widget) in getattr(self, "_headings_of_absent_slots", {}))
+        if not contested:
+            return
+        # NOTHING TO RE-ASSERT. The rule is applied once, when the panel is
+        # built; a row shown afterwards by the search releasing its filter is
+        # meant to stay shown. Re-queueing a pass here is what turned one
+        # keystroke into a walk of the whole form.
+        return
+
+    def _reassert_object_visibility(self) -> None:
+        """Run the queued object-visibility pass and clear the queue flag."""
+        self._object_rule_pass_queued = False
+        self.refresh_object_visibility()
+
+    def _set_row_visible(self, key: str, visible: bool) -> None:
+        """Show or hide the whole ROW a setting sits on.
+
+        THE ROW, NOT THE FIELD. The screen builds the label and puts the pair
+        into a ``QFormLayout`` after ``build_sections`` has handed the rows
+        back, and it keeps the label side inside a wrapper it does not hand
+        back -- so hiding the field alone strands its name on an empty row.
+        ``QFormLayout.setRowVisible`` reaches both halves, and it is reached
+        through the same helper the settings search and the 3D/Time switches
+        hide rows with, so a row is hidden one way whatever the reason for
+        hiding it.
+
+        The widget the FORM knows is not always the field: a handful of
+        settings sit in a little holder with a button beside them, and it is
+        the holder that is in the row. The walk goes up until a form
+        recognises the node it is being handed.
+        """
+        widget = self._widgets.get(key)
+        if widget is None:
+            return
+        from ..settings_search import _set_row_visible as set_row
+
+        node = widget
+        # Three steps is the deepest the panel nests a field: field, the
+        # button holder, the section body that owns the form.
+        for _ in range(3):
+            parent = node.parentWidget()
+            if parent is None:
+                break
+            layout = parent.layout()
+            if isinstance(layout, QFormLayout):
+                row, _role = layout.getWidgetPosition(node)
+                if row >= 0:
+                    set_row(parent, node, visible)
+                    return
+            node = parent
+        # NOT UNTIL THE SCREEN HAS TAKEN THE WIDGET. `SettingsWidgets` is
+        # built with no parent by everything that wants the values rather
+        # than a form, and a parentless widget shown here would not be a row
+        # coming back -- it would be a window of its own, opened and painted
+        # on the next turn of the event loop, mid-construction and long after
+        # the panel that made it was finished with.
+        if widget.parentWidget() is None:
+            return
+        # There is a widget but no row yet: the screen builds the label and
+        # the form after `build_sections` hands the rows back. Hide the field
+        # so the panel is not a frame late; the scheduled pass takes the
+        # label once the row has one.
+        widget.setVisible(visible)
+        label = getattr(widget, "_spacr_setting_label", None)
+        if label is not None:
+            label.setVisible(visible)
+
+    def _connect_object_visibility_signals(self) -> None:
+        """Follow the three committed values that narrow an organelle slot.
+
+        Object channels and slot counts are deliberately NOT connected here.
+        A channel is typed character by character, and the former connection
+        ran a whole 1,551-row visibility pass per keystroke. ``AppScreen``
+        watches their committed values and rebuilds the optimized form once.
+
+        Type and morphology are closed choices, however, and diameter is
+        relevant when a size-dependent preset is selected. Those values can
+        change which already-owned detection rows apply, so one user choice
+        refreshes them in place. Diameter waits for ``editingFinished`` where
+        available; it never rearranges the panel while a number is typed.
+        """
+        if getattr(self, "_object_visibility_signals_connected", False):
+            return
+        self._object_visibility_signals_connected = True
+        from ...organelle_types import ORGANELLE_TYPES, slot_setting
+
+        primary_targets = {"organelle_morphology", "organelle_method"}
+        for preset in ORGANELLE_TYPES.values():
+            primary_targets.update(preset.params)
+
+        roles = {object_of_setting(key) for key in self._widgets}
+        roles = {role for role in roles
+                 if role is not None and role not in CHANNELLED_OBJECTS}
+        for role in roles:
+            # A rebuilt panel can arrive already holding a preset. Remember
+            # only recommendations its widgets still equal; differing values
+            # are explicit overrides and diameter must leave them alone.
+            recommended = self._organelle_recommendations(role)
+            owned = self._organelle_preset_owned.setdefault(role, {})
+            for key, value in recommended.items():
+                if self._setting_value_equals(key, value):
+                    owned[key] = value
+
+            type_widget = self._widgets.get(f"{role}_type")
+            if type_widget is not None:
+                _connect_value_changed(
+                    type_widget,
+                    partial(self._on_organelle_type_changed, role))
+
+            diameter = self._widgets.get(f"{role}_diameter")
+            if diameter is not None:
+                changed = partial(self._on_organelle_diameter_changed, role)
+                committed = getattr(diameter, "editingFinished", None)
+                if committed is not None:
+                    try:
+                        committed.connect(changed)
+                    except Exception:                        # noqa: BLE001
+                        _connect_value_changed(diameter, changed)
+                else:
+                    _connect_value_changed(diameter, changed)
+
+            for primary in primary_targets:
+                key = slot_setting(primary, role)
+                widget = self._widgets.get(key)
+                if widget is None:
+                    continue
+                _connect_value_changed(
+                    widget,
+                    partial(self._on_organelle_preset_target_changed,
+                            role, key))
+
+    def _on_object_switch_changed(self, *_args) -> None:
+        """Refresh rows after one slot-narrowing value is committed."""
+        self.refresh_object_visibility()
+
+    def _setting_value(self, key: str) -> Any:
+        """Return one widget value with the same coercion as ``collect``."""
+        widget = self._widgets.get(key)
+        if widget is None:
+            return self._defaults.get(key)
+        try:
+            return self._coerce_to_expected_type(key, self._read_widget(widget))
+        except Exception:                                    # noqa: BLE001
+            return self._defaults.get(key)
+
+    def _setting_value_equals(self, key: str, expected: Any) -> bool:
+        """Compare a setting's current value with an expected one.
+
+        :param key: the setting to read.
+        :param expected: what to compare against.
+        :returns: ``True`` when they match under the settings-diff comparison,
+            falling back to ``==`` and finally to ``False`` -- an unreadable
+            setting is not equal to anything.
+        """
+        try:
+            from ..settings_diff import _values_equal
+
+            return bool(_values_equal(self._setting_value(key), expected))
+        except Exception:                                    # noqa: BLE001
+            try:
+                return bool(self._setting_value(key) == expected)
+            except Exception:                                # noqa: BLE001
+                return False
+
+    def _organelle_recommendations(self, role: str) -> Dict[str, Any]:
+        """Return the selected type's recommendations in this slot's keys."""
+        from ...organelle_types import preset_for, slot_setting
+
+        try:
+            recommended = preset_for(
+                self._setting_value(f"{role}_type"),
+                self._setting_value(f"{role}_diameter"),
+            )
+        except (TypeError, ValueError):
+            return {}
+        return {slot_setting(key, role): value
+                for key, value in recommended.items()}
+
+    def _apply_organelle_recommendations(
+            self, role: str, *, overwrite: bool) -> None:
+        """Write one preset into widgets while preserving diameter overrides."""
+        recommended = self._organelle_recommendations(role)
+        previous = dict(self._organelle_preset_owned.get(role, {}))
+        now_owned: Dict[str, Any] = {}
+        self._applying_organelle_preset = True
+        try:
+            for key, value in recommended.items():
+                may_write = overwrite or (
+                    key in previous
+                    and self._setting_value_equals(key, previous[key])
+                )
+                if not may_write or not self.set_value_for_key(key, value):
+                    continue
+                now_owned[key] = value
+        finally:
+            self._applying_organelle_preset = False
+        self._organelle_preset_owned[role] = now_owned
+
+    def _on_organelle_type_changed(self, role: str, *_args) -> None:
+        """A deliberate type choice populates its actual execution values."""
+        if getattr(self, "_applying_settings", False):
+            return
+        self._apply_organelle_recommendations(role, overwrite=True)
+        self.refresh_object_visibility()
+
+    def _on_organelle_diameter_changed(self, role: str, *_args) -> None:
+        """Update only size-dependent values the preset still owns."""
+        if getattr(self, "_applying_settings", False):
+            return
+        self._apply_organelle_recommendations(role, overwrite=False)
+        self.refresh_object_visibility()
+
+    def _on_organelle_preset_target_changed(
+            self, role: str, key: str, *_args) -> None:
+        """Mark an advanced edit as the user's, then refresh morphology rows."""
+        if (getattr(self, "_applying_settings", False)
+                or self._applying_organelle_preset):
+            return
+        self._organelle_preset_owned.setdefault(role, {}).pop(key, None)
+        if key == f"{role}_morphology":
+            self.refresh_object_visibility()
+
+    def apply_organelle_presets_from_mapping(
+            self, settings: Dict[str, Any]) -> None:
+        """Apply sparse imported presets without replacing explicit values.
+
+        A settings file that supplies morphology/method/thresholds owns those
+        values. A file that supplies only a type asks the picker to populate
+        its missing recommendations just as a direct user choice does.
+        """
+        from ...organelle_types import organelle_role_of
+
+        supplied = {str(key) for key in settings}
+        roles = {organelle_role_of(key) for key in supplied}
+        roles.discard(None)
+        for role in roles:
+            owned = self._organelle_preset_owned.setdefault(role, {})
+            for key in supplied:
+                if organelle_role_of(key) == role:
+                    owned.pop(key, None)
+            if f"{role}_type" not in supplied:
+                if f"{role}_diameter" in supplied:
+                    self._apply_organelle_recommendations(
+                        role, overwrite=False)
+                continue
+            recommended = self._organelle_recommendations(role)
+            self._applying_organelle_preset = True
+            try:
+                for key, value in recommended.items():
+                    if key in supplied and settings.get(key) is not None:
+                        continue
+                    # An imported slot may not name a channel yet, so its
+                    # dependent controls are deliberately absent. Preserve
+                    # the preset in the same off-form defaults that preserve
+                    # explicit imported values; activating the channel later
+                    # then builds the correct morphology and method.
+                    if (self.set_value_for_key(key, value)
+                            or self.set_hidden_value(key, value)):
+                        owned[key] = value
+            finally:
+                self._applying_organelle_preset = False
+
     def _read_widget(self, w: QWidget) -> Any:
+        """Read one control's value in the form the settings dict expects.
+
+        A combo's ``userData`` is authoritative, not its caption: every item is
+        added with its option as data, including the Python ``None`` option, so
+        ``currentData()`` returning ``None`` means the chosen option *is*
+        ``None``. Falling back to the caption is what shipped
+        ``strict_errors='None'`` -- a non-empty string, and therefore truthy --
+        turning strict error handling silently on. The caption is still right
+        for an editable combo showing text the user typed, which is detected by
+        the displayed text differing from the current item's.
+
+        :param w: the control to read.
+        :returns: its value, or ``None`` for a control kind this does not know.
+        """
         if isinstance(w, QCheckBox):
             return bool(w.isChecked())
         if isinstance(w, QSpinBox):
             return int(w.value())
         if isinstance(w, QDoubleSpinBox):
+            if str(w.specialValueText() or "") == AUTO_TEXT:
+                return _read_auto_or_number(w)
             return float(w.value())
         if isinstance(w, QComboBox):
             idx = w.currentIndex()
@@ -4613,7 +10741,10 @@ class SettingsWidgets:
             (
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
-                ChannelMappingWidget, ClassEditorWidget,
+                ChannelMappingWidget, ClassEditorWidget, DatabaseSetWidget,
+                FilePathListWidget,
+                PairedFileTableWidget, _CsvColumnField,
+                _RegressionBackendField,
             ),
         ):
             return w.get_value()
@@ -4622,3 +10753,324 @@ class SettingsWidgets:
         if isinstance(w, QLineEdit):
             return w.text() or None
         return None
+
+
+#: Widget types that are an EDITOR for a setting rather than its name.
+#: A QCheckBox is deliberately absent: it carries its own text, so it is its
+#: own label and hovering it is hovering the name.
+_EDITOR_TYPES = (QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
+                 QPlainTextEdit, QTextEdit)
+
+#: Marks a field tooltip that is a DISABLED-REASON rather than help.
+#: "This control does nothing because ..." explains that control, so the
+#: control is the right place for it and :func:`retarget_field_tooltips`
+#: leaves it alone. Set it where such a note is written.
+DISABLED_REASON_TOOLTIP = "spacrDisabledReasonTooltip"
+
+
+def _owning_layout(root: QLayout, field: QWidget):
+    """The innermost layout that holds ``field`` directly, and its index."""
+    stack = [root]
+    while stack:
+        layout = stack.pop()
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item is None:
+                continue
+            if item.widget() is field:
+                return layout, index
+            child = item.layout()
+            if child is not None:
+                stack.append(child)
+    return None, -1
+
+
+
+def _widget_is_alive(widget) -> bool:
+    """Whether ``widget``'s C++ half still exists.
+
+    The same check `spacr.qt.live_zoom._alive` makes, and for the same
+    reason one layer down: a Python wrapper outlives the object it wraps,
+    and reading through it is undefined rather than an exception.
+
+    :param widget: any Qt object, or None.
+    :returns: True when it is safe to touch.
+    """
+    if widget is None:
+        return False
+    try:
+        from shiboken6 import isValid
+        return bool(isValid(widget))
+    except Exception:                                        # noqa: BLE001
+        try:
+            widget.objectName()
+            return True
+        except RuntimeError:
+            return False
+
+def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
+    """The QLabel a LAYOUT says names this field.
+
+    Asked of the layout rather than of the geometry, because the screens run
+    :func:`retarget_field_tooltips` at the end of ``__init__`` -- before the
+    widget has ever been shown, laid out or resized. Every child is still at
+    (0, 0) there, so a matcher that compares x and y answers "the first label
+    in this parent" for EVERY field, and the pass then moves one setting's
+    help onto that label and DELETES the rest. It measurably did: 80 settings
+    across the Qt screens had no help left anywhere.
+
+    A layout knows the pairing with no geometry at all. Three shapes cover
+    what the hand-built screens use, and each is the same claim -- the name
+    sits to the LEFT of the editor:
+
+    * ``QFormLayout`` -- ``labelForField`` is the pairing, exactly;
+    * ``QGridLayout`` -- the nearest label in a lower column of the same row;
+    * a horizontal box -- the nearest label before it in the row.
+
+    Anything else returns None, which leaves the field's tooltip alone. A
+    setting whose help is on the field is a smaller defect than a setting
+    with no help at all.
+    """
+    # A disabled-reason tooltip is control state, not descriptive setting
+    # help.  It belongs on the disabled control by design (and is guarded by
+    # a dedicated test), so callers looking for label-paired *help* must not
+    # classify it as an ordinary field tooltip waiting to be moved.
+    if field.property(DISABLED_REASON_TOOLTIP):
+        return None
+    parent = field.parentWidget()
+    root = parent.layout() if parent is not None else None
+    if root is None:
+        return None
+    layout, index = _owning_layout(root, field)
+    if layout is None:
+        return None
+
+    def _named(widget) -> Optional[QWidget]:
+        # THE NAME MAY BE INSIDE A HOST. `Section.add_row` wraps the
+        # caption in a `SettingLabelWithInfo` whenever the row wants it
+        # right-aligned against its field, which is the settings form's
+        # normal shape -- so the layout hands back a plain `QWidget` and
+        # the `isinstance` below rejected it. Measured on Mask: 1,541 of
+        # 1,657 rows kept their help on the field for this reason alone,
+        # and 13 labels had it. `_unwrap_setting_label` is the existing
+        # answer to "what is the real label in there"; it returns the
+        # widget unchanged when there is no host to unwrap.
+        """The real label inside a row, unwrapping a host if there is one.
+
+        `Section.add_row` wraps the caption in a `SettingLabelWithInfo` whenever
+        the row is right-aligned against its field -- the form's normal shape --
+        so the layout hands back a plain QWidget and a bare isinstance rejects
+        it. Measured on Mask: 1,541 of 1,657 rows kept their help on the FIELD
+        for this reason alone, and only 13 labels had it.
+        """
+        # ALIVE FIRST. This walks layout items, and a layout can hand back an
+        # item whose widget has been deleted on the C++ side -- a row that
+        # rebuilt itself, a screen torn down while a queued `_on_arrival` was
+        # still pending. Touching that wrapper is a dangling pointer, and it
+        # does not raise: a full tests/qt sweep on 2026-09-08 SEGFAULTED here,
+        # taking the whole process with it, in
+        # `retarget_field_tooltips` <- `app_screen._translate` <-
+        # `_on_arrival`. A crash on screen arrival is the worst failure mode
+        # this form has, because it takes the application rather than the
+        # tooltip.
+        if widget is None or not _widget_is_alive(widget):
+            return None
+        widget = _unwrap_setting_label(widget)
+        if widget is None or not _widget_is_alive(widget):
+            return None
+        try:
+            if not (isinstance(widget, QLabel) and widget.text().strip()):
+                return None
+        except RuntimeError:
+            # Deleted between the check above and this line, which is a real
+            # ordering on a queued slot.
+            return None
+        # A label with a pointing hand is this repository's convention for
+        # "this text is clickable" -- AiToggleLabel, _ClearFiguresLabel, the
+        # console's copy glyph. Such a label is a CONTROL sharing the row,
+        # not the name of the editor beside it, and its own tooltip explains
+        # itself rather than its neighbour.
+        try:
+            if widget.cursor().shape() == Qt.PointingHandCursor:
+                return None
+        except RuntimeError:
+            return None
+        return widget
+
+    if isinstance(layout, QFormLayout):
+        return _named(layout.labelForField(field))
+
+    if isinstance(layout, QGridLayout):
+        row, column, _rows, _cols = layout.getItemPosition(index)
+        for candidate in range(column - 1, -1, -1):
+            item = layout.itemAtPosition(row, candidate)
+            found = _named(item.widget()) if item is not None else None
+            if found is not None:
+                return found
+        return None
+
+    if (isinstance(layout, QBoxLayout)
+            and layout.direction() == QBoxLayout.LeftToRight
+            and index > 0):
+        # The item IMMEDIATELY before it, and nothing further back. A row of
+        # several controls has labels belonging to each of them, and scanning
+        # backwards past an intervening control pairs an editor with the
+        # previous setting's name -- or, in the preview panels, with the
+        # "drop a folder here" placeholder that happens to sit first in the
+        # row.
+        candidate_index = index - 1
+        # A stretching label is row status or a path placeholder, not the
+        # fixed caption of the editor after it.  Measure's preview path was
+        # otherwise paired with the adjacent maximum-set spin box.
+        if layout.stretch(candidate_index) > 0:
+            return None
+        item = layout.itemAt(candidate_index)
+        return _named(item.widget()) if item is not None else None
+    return None
+
+
+def _is_a_settings_field(widget: QWidget) -> bool:
+    """Whether ``widget`` is a setting's editor, whose help belongs on a name.
+
+    :param widget: any widget found under the panel.
+    :returns: ``True`` when its tooltip should move to its row's label.
+
+    A TYPE LIST ALONE WAS TOO NARROW. It named the six Qt editors, and the
+    settings form is largely spaCR's own controls: measured on the Mask
+    screen, 27 ``Toggle`` rows and 3 ``_ListEditor`` rows each had a real
+    name beside them in the form and kept their help on the control anyway,
+    because neither type is a ``QLineEdit``. Carrying a ``settingKey`` is
+    the definitive mark of "this widget is a setting's field", whatever it
+    was built from.
+
+    A CONTROL THAT IS ITS OWN LABEL KEEPS ITS HELP. A checkbox or button
+    with visible text of its own has no separate name to move the help to --
+    hovering its text IS hovering its name -- and taking the tooltip off it
+    would leave that setting with no help anywhere.
+    """
+    from PySide6.QtWidgets import QAbstractButton
+
+    if isinstance(widget, _EDITOR_TYPES):
+        return True
+    if not widget.property("settingKey"):
+        return False
+    if isinstance(widget, QAbstractButton) and (widget.text() or "").strip():
+        return False
+    return True
+
+
+def retarget_field_tooltips(root: QWidget) -> int:
+    """Move editor tooltips to the labels that identify their settings.
+
+    Parameters
+    ----------
+    root : QWidget
+        Constructed screen or dialog to inspect recursively.
+
+    Returns
+    -------
+    int
+        Number of tooltips moved.
+
+    Notes
+    -----
+    Tooltips stay on editors that have no sibling label, whose label already
+    has different help, or that carry :data:`DISABLED_REASON_TOOLTIP`.
+    """
+    # Hand-built settings panels used to stop at moving the native Qt tooltip
+    # string.  That kept editors quiet, but it left those panels outside the
+    # shared tooltip contract: a native platform tooltip cannot be entered,
+    # does not share HoverTooltip's single rounded surface, and may disappear
+    # while its text is being read.  Keep one filter alive on the owning root
+    # and route every successfully paired label through the same popup used by
+    # AppScreen.  `_ApiTooltipFilter` does not require API metadata; with a
+    # plain authored tooltip it simply displays `apiTooltipHtml` verbatim.
+    event_filter = getattr(root, "_api_tooltip_filter", None)
+    if event_filter is None:
+        event_filter = _ApiTooltipFilter(root)
+        root._api_tooltip_filter = event_filter
+
+    moved = 0
+    for field in root.findChildren(QWidget):
+        if field.property("settingHelpLabel"):
+            continue
+        if not _is_a_settings_field(field):
+            continue
+        tip = field.toolTip()
+        if not tip:
+            continue
+        if field.property(DISABLED_REASON_TOOLTIP):
+            continue
+        label = _sibling_label_for(field)
+        if label is None:
+            continue
+        existing = label.toolTip()
+        if existing and existing != tip:
+            # Two settings cannot share one name, so this pairing is wrong.
+            # Leave the help where it is: clearing it here is how 80 settings
+            # ended up with no help anywhere, which is a worse defect than
+            # the one this pass exists to fix.
+            continue
+        key = str(field.property("settingKey") or "")
+        app_key = str(field.property("settingsAppKey") or "")
+        if key and not app_key:
+            app_key = str(getattr(root, "app_key", "") or "")
+
+        display_tip = tip
+        if app_key and key:
+            source = str(
+                field.property("apiTooltipDescriptionSource")
+                or field.property("apiTooltipDescription")
+                or tip
+            )
+            html = str(field.property("apiTooltipHtml") or "")
+            display_tip = (html if "href=" in html
+                           else format_tooltip(source, app_key, key))
+            field.setProperty("settingsAppKey", app_key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
+            field.setProperty("apiTooltipHtml", display_tip)
+
+        if not existing:
+            label.setToolTipDuration(-1)
+            label.setCursor(Qt.WhatsThisCursor)
+        label.setToolTip(display_tip)
+        label.setProperty("apiTooltipHtml", display_tip)
+        label.setProperty(
+            "apiTooltipDisplayRole",
+            "tooltip" if app_key and key else "hover-help",
+        )
+        # This widget now OWNS setting help. ``install_api_tooltips`` later
+        # discovers fields by ``settingKey``; without this mark it also
+        # rediscovers these labels as though they were editors. On a compact
+        # grid that second pass pairs each label with the label to its left,
+        # overwriting two UMAP help strings and leaving their real labels
+        # empty.
+        label.setProperty("settingHelpLabel", True)
+        # THE LABEL HAS TO CARRY THE SETTING'S IDENTITY, or the language
+        # pass cannot refresh the help it now owns: `refresh_api_tooltips`
+        # skips any widget without both of these, so a translated caption
+        # would leave the old wording on the name.
+        for prop in ("settingsAppKey", "settingKey",
+                     "apiTooltipDescriptionSource", "apiTooltipDescription"):
+            carried = field.property(prop)
+            if carried:
+                label.setProperty(prop, carried)
+        label.removeEventFilter(event_filter)
+        label.installEventFilter(event_filter)
+        field.setToolTip("")
+        # AND THE FIELD HAS TO BE MARKED QUIET, or the move is undone the
+        # next time anything refreshes.
+        #
+        # This is what made every previous attempt at this look fixed and
+        # then not be: the language pass runs on arrival -- a queued call,
+        # so it lands AFTER the panel is built -- walks every widget with a
+        # `settingKey`, and re-applies the html to whatever it finds. A
+        # field with no display role defaults to "tooltip" and was tipped
+        # straight back. "metadata" is the existing word for "this widget
+        # keeps the metadata but says nothing on hover", and
+        # `refresh_api_tooltips` already honours it.
+        field.setProperty("apiTooltipDisplayRole", "metadata")
+        field.removeEventFilter(event_filter)
+        moved += 1
+    return moved

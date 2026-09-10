@@ -59,9 +59,17 @@ from .empty_state import EmptyState
 # ---------------------------------------------------------------------------
 
 class _MessageBubble(QWidget):
-    """Aligned QLabel bubble — right-aligned for ``"user"``, left for other."""
+    """Aligned QLabel bubble — right-aligned for ``"user"``, left for other.
+
+    :param role: ``"user"`` or anything else, which is read as the AI. There
+        is no third alignment, and an unrecognised role is drawn as the AI
+        rather than refused.
+    :param text: the initial message; may be set later instead.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, role: str, text: str = "", parent=None):
+        """Build the bubble and align it by role."""
         super().__init__(parent)
         self.role = role
         layout = QHBoxLayout(self)
@@ -104,9 +112,12 @@ class _ProvidersDialog(QDialog):
     """
 
     def __init__(self, parent=None):
+        """Build the providers and settings tabs."""
         super().__init__(parent)
         self.setWindowTitle("AI Console — providers & settings")
-        self.setMinimumWidth(620)
+        from ..preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(620))
         self.setMinimumHeight(560)
         outer = QVBoxLayout(self)
 
@@ -126,12 +137,14 @@ class _ProvidersDialog(QDialog):
             self._speed_combo: "response_speed",
             self._auto_issue_chk: "auto_file_issues",
             self._route_errors_chk: "route_errors_through_ai",
+            self._console_aware_chk: "console_aware",
             self._prompt_edit: "system_prompt",
         })
         retranslate_widget_tree(self)
 
     # -- Providers tab -------------------------------------------------
     def _build_providers_tab(self) -> QWidget:
+        """The page listing each provider and how to sign in to it."""
         page = QWidget()
         col = QVBoxLayout(page)
 
@@ -164,6 +177,7 @@ class _ProvidersDialog(QDialog):
 
     # -- Settings tab --------------------------------------------------
     def _build_settings_tab(self) -> QWidget:
+        """The page for response speed, the system prompt and issue filing."""
         page = QWidget()
         col = QVBoxLayout(page)
         col.setSpacing(SPACING["md"])
@@ -190,6 +204,13 @@ class _ProvidersDialog(QDialog):
                 self._speed_combo.setCurrentIndex(i)
                 break
         self._speed_combo.currentIndexChanged.connect(self._on_speed_changed)
+        # THE HEADING IS THIS FIELD'S LABEL, and `install_api_tooltips` has no
+        # way to work that out: it finds labels through QFormLayout and QGrid,
+        # and this tab is a plain column of heading-then-control pairs. Without
+        # the pointer the helper concludes there is no label and deliberately
+        # installs no help at all -- which is why this was the one settings
+        # dialog in spaCR with no hover help on its combo or its editor.
+        self._speed_combo._spacr_setting_label = speed_label
         col.addWidget(self._speed_combo)
 
         col.addWidget(Divider())
@@ -225,6 +246,20 @@ class _ProvidersDialog(QDialog):
             lambda _s: ai_settings.set_route_errors_through_ai(
                 self._route_errors_chk.isChecked()))
         col.addWidget(self._route_errors_chk)
+
+        # Console aware — replaces the three-mode combo that used to sit
+        # beside the chat input. On by default: the chat gets switched on
+        # after something has already gone wrong, so the question it exists
+        # to answer needs the console that is already on screen.
+        self._console_aware_chk = Toggle(
+            "Console aware — send the console with your question so the AI "
+            "can explain what went wrong"
+        )
+        self._console_aware_chk.setChecked(ai_settings.get_console_aware())
+        self._console_aware_chk.stateChanged.connect(
+            lambda _s: ai_settings.set_console_aware(
+                self._console_aware_chk.isChecked()))
+        col.addWidget(self._console_aware_chk)
 
         # GitHub sign-in — the official CLI owns credential storage --------
         col.addWidget(Divider())
@@ -263,6 +298,8 @@ class _ProvidersDialog(QDialog):
         col.addWidget(prompt_label)
 
         self._prompt_edit = QTextEdit()
+        # Its heading, for the same reason as the speed combo above.
+        self._prompt_edit._spacr_setting_label = prompt_label
         self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
         self._prompt_edit.setMinimumHeight(240)
         col.addWidget(self._prompt_edit, 1)
@@ -287,14 +324,27 @@ class _ProvidersDialog(QDialog):
 
     # -- Settings handlers --------------------------------------------
     def _on_speed_changed(self, _idx: int) -> None:
+        """Store the chosen speed, ignoring a value the store would reject.
+
+        Guarded rather than trusted: the combo is built from the valid set, so a
+        value outside it means the two have drifted, and writing it would put a
+        setting in the store that nothing can read back.
+        """
         value = self._speed_combo.currentData()
         if value in ai_settings.VALID_SPEEDS:
             ai_settings.set_response_speed(value)
 
     def _on_auto_issue_changed(self, _state: int) -> None:
+        """Store whether a failure may file an issue without asking."""
         ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
 
     def _refresh_github_status(self) -> None:
+        """Say whether issues can be sent directly, and by what.
+
+        NAMES THE SOURCE -- a token, the environment, or the CLI -- because "signed
+        in" alone does not tell a user which credential is about to be used, and
+        that is the thing they change when it is the wrong one.
+        """
         from ..ai import github_auth
         src = github_auth.auth_source()
         labels = {
@@ -320,21 +370,29 @@ class _ProvidersDialog(QDialog):
         self._gh_status.setTextFormat(Qt.RichText)
 
     def _on_prompt_save(self) -> None:
+        """Store the edited system prompt and say it is now custom."""
         text = self._prompt_edit.toPlainText().strip()
         ai_settings.set_system_prompt(text)
         self._prompt_status.setText(self._prompt_status_text())
 
     def _on_prompt_reset(self) -> None:
+        """Restore the default prompt and show it in the editor.
+
+        The editor is REFILLED rather than cleared, so the reader can see what
+        the default actually says before deciding to keep it.
+        """
         ai_settings.reset_system_prompt()
         self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
         self._prompt_status.setText(self._prompt_status_text())
 
     def _prompt_status_text(self) -> str:
+        """Whether the custom system prompt or the default is in force."""
         if ai_settings.is_system_prompt_overridden():
             return tr("Using your custom prompt (overrides default).")
         return tr("Using the default spaCR-aware prompt.")
 
     def _make_provider_row(self, provider: ChatProvider) -> QWidget:
+        """One provider's card: its name, its state and how to sign in."""
         card = QWidget()
         col = QVBoxLayout(card)
         col.setContentsMargins(SPACING["sm"], SPACING["sm"],
@@ -393,6 +451,12 @@ class _ProvidersDialog(QDialog):
         return card
 
     def _copy_to_clipboard(self, text: str) -> None:
+        """Put ``text`` on the clipboard, if there is one.
+
+        A headless or clipboard-less session gets nothing rather than an
+        exception: copying a sign-in command is a convenience, and failing it
+        must not take the dialog down.
+        """
         from PySide6.QtGui import QGuiApplication
         cb = QGuiApplication.clipboard()
         if cb is not None:
@@ -404,11 +468,15 @@ class _ProvidersDialog(QDialog):
 # ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
-    """Multi-line input: Enter sends, Shift+Enter inserts a newline."""
+    """Multi-line input: Enter sends, Shift+Enter inserts a newline.
+
+    :param parent: parent widget; ownership only.
+    """
 
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, bounded so it grows a little and no further."""
         super().__init__(parent)
         self.setMinimumHeight(56)
         self.setMaximumHeight(140)
@@ -430,9 +498,16 @@ class _ChatInput(QTextEdit):
 # ---------------------------------------------------------------------------
 
 class AIChatPanel(QWidget):
-    """Full chat panel — embed inside a QDockWidget or any container."""
+    """Full chat panel — embed inside a QDockWidget or any container.
+
+    :param parent: parent widget.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None):
+        """Build the chat panel.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._messages: List[Dict] = []
         # Keep BOTH thread AND worker references — Qt's signal delivery
@@ -451,6 +526,7 @@ class AIChatPanel(QWidget):
 
     # ------------------------------------------------------------------
     def _build_ui(self):
+        """Lay out the transcript over the input row."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
                                   SPACING["md"], SPACING["md"])
@@ -561,10 +637,15 @@ class AIChatPanel(QWidget):
             self._btn_send.setEnabled(False)
 
     def _current_provider(self) -> Optional[ChatProvider]:
+        """The provider this panel will send through.
+
+        :returns: the provider, or None when none is configured.
+        """
         name = self._provider_combo.currentData()
         return ai_module.get_provider(name) if name else None
 
     def _on_open_keys_dialog(self):
+        """Open the dialog that installs or signs in to a provider."""
         dlg = _ProvidersDialog(self)
         if dlg.exec() == QDialog.Accepted:
             self.refresh_provider_combo()
@@ -573,8 +654,17 @@ class AIChatPanel(QWidget):
     # Send / cancel
     # ------------------------------------------------------------------
     def _set_send_mode(self, mode: str):
-        source = "Cancel" if mode == "cancel" else "Send"
-        set_translatable_text(self._btn_send, source)
+        """Switch between sending a question and cancelling a stream.
+
+        ONE BUTTON, TWO MEANINGS, because a stream can take a while and a
+        separate cancel button sits dead for most of the panel's life.
+
+        :param mode: which meaning the button now carries.
+        """
+        set_translatable_text(
+            self._btn_send,
+            "Cancel" if mode == "cancel" else "Send",
+        )
         if mode == "cancel":
             self._btn_send.setObjectName("DangerButton")
             try:
@@ -594,6 +684,7 @@ class AIChatPanel(QWidget):
         self._btn_send.style().polish(self._btn_send)
 
     def _send_from_input(self):
+        """Send whatever is typed, and clear the box only if it was accepted."""
         text = self._input.toPlainText().strip()
         if not text:
             return
@@ -608,17 +699,26 @@ class AIChatPanel(QWidget):
         self._start_stream(system=_current_system_prompt())
 
     def _cancel_stream(self):
+        """Stop the answer that is streaming in."""
         if self._worker is not None:
             self._worker.cancel()
             set_translatable_text(self._status, "Cancelling…")
 
     def _append_user(self, text: str):
+        """Put the user's own message in the transcript.
+
+        :param text: what they asked.
+        """
         self._messages.append({"role": "user", "content": text})
         bubble = _MessageBubble("user", text)
         self._chat_layout.insertWidget(self._chat_layout.count() - 1, bubble)
         self._scroll_to_bottom()
 
     def _start_stream(self, system: str):
+        """Ask the provider, streaming the answer in as it arrives.
+
+        :param system: the system prompt to send with it.
+        """
         provider = self._current_provider()
         if provider is None:
             set_translatable_text(self._status, "No provider configured.")
@@ -650,6 +750,10 @@ class AIChatPanel(QWidget):
         thread.start()
 
     def _on_stage_changed(self, stage: str):
+        """Show which stage the answer is at.
+
+        :param stage: the stage's name.
+        """
         provider = self._current_provider()
         label = provider.label if provider else ""
         if stage == "connecting":
@@ -660,6 +764,10 @@ class AIChatPanel(QWidget):
                 self._status, "Streaming from {provider}…", provider=label)
 
     def _on_chunk(self, text: str):
+        """Append one chunk of a streaming answer.
+
+        :param text: the chunk.
+        """
         self._pending_buf.append(text)
         if self._pending_bubble is not None:
             self._pending_bubble.set_text("".join(self._pending_buf))
@@ -669,6 +777,11 @@ class AIChatPanel(QWidget):
         # Retire the (thread, worker) pair — keep BOTH Python refs until
         # the OS thread has actually exited, otherwise Python can drop
         # the last reference while QThread.isRunning() is still True.
+        """Close off the answer, successfully or not.
+
+        :param ok: True when the stream completed.
+        :param final_text: the whole answer, for the transcript.
+        """
         self._prune_retired()
         thread, worker = self._thread, self._worker
         # Reset streaming state so a fast follow-up send works.
@@ -750,6 +863,12 @@ class AIChatPanel(QWidget):
         super().closeEvent(event)
 
     def _scroll_to_bottom(self):
+        """Follow the answer as it streams in.
+
+        ONLY WHEN ALREADY AT THE BOTTOM would be the other choice, and this
+        panel does it unconditionally: the stream is the thing the user just
+        asked for, so following it is what they want.
+        """
         sb = self._chat_scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
 

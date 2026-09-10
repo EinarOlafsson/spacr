@@ -94,6 +94,31 @@ def test_read_plot_model_stats_show_branch_draws_six_figures(tmp_path, monkeypat
     assert list(tmp_path.glob("*.pdf")) == []
 
 
+def test_reading_the_training_curves_does_not_restyle_the_rest_of_the_session(
+        tmp_path):
+    """Six training-curve plots, and then everything looks the same again.
+
+    ``sns.set`` writes a whole seaborn theme -- grid, background, fonts, colour
+    cycle -- into matplotlib's process-wide rcParams. Opening the training
+    curves therefore restyled every figure the session drew afterwards, on
+    every other screen, over whatever the user had chosen in figure
+    preferences.
+    """
+    before = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    train = tmp_path / "train.csv"
+    val = tmp_path / "validation.csv"
+    _stats_frame().to_csv(train)
+    _stats_frame().to_csv(val)
+
+    IO.read_plot_model_stats(str(train), str(val), save=True)
+
+    after = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    changed = sorted(key for key in after if before.get(key) != after[key])
+    assert not changed, (
+        "reading the training curves left a seaborn theme on matplotlib's "
+        f"globals; every later figure of the session inherits it: {changed}")
+
+
 # ---------------------------------------------------------------------------
 # _save_model
 # ---------------------------------------------------------------------------
@@ -343,6 +368,31 @@ def test_read_and_merge_change_plate_renames_plate(tmp_path):
     assert set(merged["plateID"]) == {"plate1"}
 
 
+def test_read_and_merge_all_core_object_roles_loudly(tmp_path, capsys):
+    """Merged child-role reporting and a numeric pathogen limit are live."""
+    cell = _entity_frame("cell")
+    cytoplasm = _entity_frame("cytoplasm")
+    nucleus = _child_frame("nucleus", [1, 2, 3, 4, 5, 6])
+    pathogen = _child_frame("pathogen", [1, 2, 3, 4, 5, 6])
+    db = _write_db(tmp_path / "all.db", {
+        "cell": cell,
+        "cytoplasm": cytoplasm,
+        "nucleus": nucleus,
+        "pathogen": pathogen,
+    })
+
+    merged, object_frames = IO._read_and_merge_data(
+        [db], ["cell", "cytoplasm", "nucleus", "pathogen"],
+        nuclei_limit=2, pathogen_limit=2, verbose=True)
+
+    assert len(merged) == 6
+    assert len(object_frames) == 4
+    output = capsys.readouterr().out
+    assert "cytoplasms: 6, cytoplasms grouped: 6" in output
+    assert "nucleus: 6, nucleus grouped: 6" in output
+    assert "pathogens: 6, pathogens grouped: 6" in output
+
+
 # ---------------------------------------------------------------------------
 # _read_mask / convert_numpy_to_tiff
 # ---------------------------------------------------------------------------
@@ -384,7 +434,16 @@ def ds_src(tmp_path, rng):
         (src / "measurements").mkdir(parents=True)
         png_dir = src / "data" / "cell_png"
         png_dir.mkdir(parents=True)
-        paths = [_png(png_dir / f"{name}_o{i + 1}.png", rng) for i in range(n)]
+        # spaCR-SHAPED NAMES: plate_row_column_field_object. Instruction 94's
+        # split reads the well out of the filename, and "plate1_o1.png" is a
+        # name spaCR cannot produce -- a fixture built from those was testing
+        # a plate that cannot exist. Rows vary and columns alternate, so the
+        # crops span several independent wells per condition rather than
+        # confounding the two.
+        row = lambda i: (i % 10) % 5 + 1
+        col = lambda i: (i % 10) // 5 + 1
+        paths = [_png(png_dir / f"{name}_r{row(i)}_c{col(i)}_f1_o{i + 1}.png",
+                      rng) for i in range(n)]
         with sqlite3.connect(src / "measurements" / "measurements.db") as con:
             pd.DataFrame({"png_path": paths,
                           "cell_id": [f"o{i + 1}" for i in range(n)]}
@@ -525,20 +584,32 @@ def _build_png_src(root, rng, n=N, prefix="o", extra_cols=None,
     png_dir = src / "data" / "cell_png"
     png_dir.mkdir(parents=True, exist_ok=True)
 
-    real_paths = [_png(png_dir / f"{prefix}{i + 1}.png", rng) for i in range(n)]
+    # A REAL PLATE SHAPE, and the FILENAMES carry it. Instruction 94's split
+    # reads the well out of the crop name, so "o1.png" is a name spaCR cannot
+    # produce -- and the row/column columns below described a plate the files
+    # did not. Five rows per column means each condition spans five
+    # independent wells, so a well-grouped split can hold one out and still
+    # train on the rest; two wells confounded with two classes is a design
+    # the split correctly refuses.
+    _row = lambda i: (i % 10) % 5 + 1
+    _col = lambda i: (i % 10) // 5 + 1
+    real_paths = [
+        _png(png_dir / f"plate1_r{_row(i)}_c{_col(i)}_f1_{prefix}{i + 1}.png",
+             rng)
+        for i in range(n)]
     stored = list(real_paths) if png_paths is None else list(png_paths)
 
     df = pd.DataFrame({
         "png_path": stored,
         "cell_id": [f"o{i + 1}" for i in range(n)],
         "plateID": ["plate1"] * n,
-        "rowID": [f"r{(i % 2) + 1}" for i in range(n)],
-        "columnID": [f"c{(i % 2) + 1}" for i in range(n)],
+        "rowID": [f"r{_row(i)}" for i in range(n)],
+        "columnID": [f"c{_col(i)}" for i in range(n)],
         "fieldID": ["f1"] * n,
-        "test": [1 if i % 2 == 0 else 2 for i in range(n)],
+        "test": [_col(i) for i in range(n)],
     })
     if with_condition:
-        df["condition"] = ["c1" if i % 2 == 0 else "c2" for i in range(n)]
+        df["condition"] = [f"c{_col(i)}" for i in range(n)]
     for key, values in (extra_cols or {}).items():
         df[key] = values
 
@@ -594,8 +665,17 @@ def test_generate_training_dataset_named_metadata_rules(tmp_path, rng, monkeypat
     counts = _class_counts(train_dir, test_dir)
     assert sorted(counts) == ["colc1", "colc2", "everything", "hightest",
                               "lowtest", "notr2"]
-    # balanced down to the smallest class (20) then split 80/20
-    assert all(counts[c] == (16, 4) for c in counts)
+    # Balanced down to the smallest class (20), then split about 80/20.
+    #
+    # ABOUT, not exactly: instruction 94 splits by WELL, so whole wells move
+    # and the fraction is granular. Five of these classes span five wells and
+    # land on (16, 4); 'notr2' is every row but r2, so it spans four and one
+    # held-out well is 25%. Pinning (16, 4) for all six would be asserting a
+    # precision a leakage-safe split cannot offer, and the property that
+    # matters is that each class is balanced and roughly a fifth is held out.
+    for name, (n_train, n_test) in counts.items():
+        assert n_train + n_test == 20, (name, counts[name])
+        assert 0.15 <= n_test / 20 <= 0.30, (name, counts[name])
 
 
 def test_generate_training_dataset_unknown_column_aborts(tmp_path, rng, capsys):
@@ -652,24 +732,30 @@ def test_generate_training_dataset_metadata_column_is_missing(tmp_path, rng):
             _gtd(src, metadata_rules=None, metadata_type_by="condition",
                  class_metadata=["c1"]))
     assert "'condition'" in str(excinfo.value)
-    assert "metadata_type_by" in str(excinfo.value)
+    assert "Classes editor" in str(excinfo.value)
 
 
-def test_generate_training_dataset_measurement_rules(tmp_path, rng):
-    """measurement mode buckets rows with numeric where-clauses."""
+def test_the_retired_measurement_mode_is_migrated(tmp_path, rng):
+    """`dataset_mode='measurement'` is retired (229) and maps to annotation.
+
+    A REMOVAL THAT MAKES EVERY OLD SETTINGS FILE RAISE IS NOT A REMOVAL, it
+    is a break -- so the value is accepted and resolved rather than refused.
+    The mapping is not an approximation: the measurement path WROTE a label
+    column and then read it back as an annotation.
+    """
+    from spacr.training_basis import RETIRED_BASES
+
+    assert RETIRED_BASES["measurement"] == "annotation"
     src, _ = _build_png_src(tmp_path / "plate1", rng)
     train_dir, test_dir = IO.generate_training_dataset(_gtd(
-        src, dataset_mode="measurement", measurement_rules=[
-            {"name": "low", "where": [{"column": "test", "op": "<", "value": 2}]},
-            {"name": "high", "where": [{"column": "test", "op": ">=", "value": 2}]},
-        ]))
-    assert sorted(os.listdir(train_dir)) == ["high", "low"]
-    assert _class_counts(train_dir, test_dir) == {"high": (16, 4), "low": (16, 4)}
+        src, dataset_mode="measurement",
+        annotation_column="test", annotated_classes=[1, 2]))
+    assert sorted(os.listdir(train_dir)) == ["test_1", "test_2"]
 
 
 def test_generate_training_dataset_invalid_mode(tmp_path, rng, capsys):
     src, _ = _build_png_src(tmp_path / "plate1", rng, n=4)
-    with pytest.raises(ValueError, match="Invalid dataset_mode"):
+    with pytest.raises(ValueError, match="is not one of"):
         IO.generate_training_dataset(_gtd(src, dataset_mode="nonsense"))
 
 
@@ -779,7 +865,12 @@ def test_generate_training_dataset_repairs_png_paths(tmp_path, rng):
     """png_paths recorded on another machine are re-rooted under src; paths
     that cannot be repaired are dropped by the png_type filter."""
     src_dir = tmp_path / "plate1"
-    names = [f"o{i + 1}.png" for i in range(N)]
+    # The names have to match the files _build_png_src writes, which are
+    # spaCR-shaped -- this test is about REPAIRING a path's root, not about
+    # renaming the crop, and a name that no file has would test neither.
+    _row = lambda i: (i % 10) % 5 + 1
+    _col = lambda i: (i % 10) // 5 + 1
+    names = [f"plate1_r{_row(i)}_c{_col(i)}_f1_o{i + 1}.png" for i in range(N)]
     stored = []
     for i, name in enumerate(names):
         if i < 10:                                    # already correct
@@ -864,8 +955,14 @@ def test_training_dataset_from_annotation_metadata_rowid_filter(anno_db, tmp_pat
         anno_db, str(tmp_path / "dst"), annotation_column="test",
         annotated_classes=(1, 2), metadata_type_by="rowID",
         class_metadata=["r1"])
-    # rowID r1 and test==1 select the same even rows
-    assert len(out[0]) == 10 and len(out[1]) == 0
+    # The fixture is five rows x two columns now, so r1 is 4 of the 20 rows
+    # and test==1 is the c1 half -- their intersection is 2. It used to be 10
+    # because rowID alternated r1/r2 in step with test, which made the two
+    # filters the same filter and could not have caught one being ignored.
+    # Both classes appear: r1 spans two columns now, so the test==1 and
+    # test==2 halves each contribute. With the old two-row fixture r1 was
+    # entirely test==1, which is why the second list used to be empty.
+    assert len(out[0]) == 2 and len(out[1]) == 2
 
 
 def test_training_dataset_from_annotation_metadata_bad_key(anno_db, tmp_path):
@@ -1117,25 +1214,40 @@ def test_convert_to_yokogawa_czi_reader_failure(tmp_path, monkeypatch, capsys):
 
 
 class _StubLifImage:
+    """Mirrors readlif 0.6.5's LifImage: snake_case, channels off the image.
+
+    `Dims` is namedtuple("Dims", "x y z t m") -- there is no `c` -- so the
+    channel count lives on the image itself. spacr.io used to read
+    `dims.c`, which never existed and silently pinned every LIF to one
+    channel; see tests/test_cov_lif_uses_the_real_readlif_api.py.
+    """
+
     def __init__(self, drop_z=None):
-        self.dims = types.SimpleNamespace(t=1, z=2, c=2)
+        self.dims = types.SimpleNamespace(x=4, y=4, z=2, t=1, m=1)
+        self.channels = 2
         self.drop_z = drop_z
 
-    def getFrame(self, z=0, t=0, c=0):
+    def get_frame(self, z=0, t=0, c=0):
         if self.drop_z is not None and z == self.drop_z:
             raise IndexError("missing plane")
         return np.full((4, 4), z + 1, np.uint16)
 
 
 def _stub_readlif(images):
-    class _Reader:
+    """The real surface: `readlif.reader.LifFile(...).get_iter_image()`.
+
+    The old camelCase names (`readlif.Reader`, `getIterImage`, `getFrame`)
+    do not exist in readlif 0.6.5, which is why every LIF import raised
+    AttributeError on its first line until 97b78fe8.
+    """
+    class _LifFile:
         def __init__(self, path):
             self.path = path
 
-        def getIterImage(self):
+        def get_iter_image(self):
             return list(images)
 
-    return types.SimpleNamespace(Reader=_Reader)
+    return types.SimpleNamespace(reader=types.SimpleNamespace(LifFile=_LifFile))
 
 
 def test_convert_to_yokogawa_lif_mips_z_stack(tmp_path, monkeypatch):

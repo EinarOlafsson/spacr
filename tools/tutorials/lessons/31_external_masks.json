@@ -1,0 +1,275 @@
+{
+  "id": "31_external_masks",
+  "number": 31,
+  "slug": "external_masks",
+  "series": 4,
+  "app_key": "external_masks",
+  "host_app_key": "foreign",
+  "section": "Data",
+  "title": "External Masks: measure existing cell labels without resegmenting",
+  "description": "Reuse real microscopy images and existing cell labels, review their assignments, preview without project writes, and verify a newly measured spaCR project while distinguishing display crops and duplicated cytoplasm from independent biological evidence.",
+  "objectives": [
+    "Find External Masks within Import and review actual image and Cell-mask assignments.",
+    "Preserve source provenance while distinguishing original, TIFF and merged-array plane indices.",
+    "Use a non-writing preview before calculating measurements and cell crops in a separate project.",
+    "Interpret all six figures and verify raw per-cell values without claiming segmentation accuracy or an independent cytoplasmic compartment."
+  ],
+  "prerequisite": "Reuse the two image and cell-mask TIFF pairs already prepared for Import Project from Measure's downloaded microscopy example. fov01_C1.tif and fov02_C1.tif preserve original intensity plane 1; fov01_cell_mask.tif and fov02_cell_mask.tif preserve cell-label plane 4. Their original arrays are plate1_E01_1_1 and plate1_L02_9_1, with 44 and 59 labels respectively. The 1994-by-1994 images are real acquired data, but their neutral filenames and newly assigned A01 fields do not preserve original wells. Existing labels are not certified ground truth. This lesson imports no measurement CSV and makes no physical pixel-calibration claim. External Masks has no separate example-download control; reuse the preserved inputs. The visible AI control is not used.",
+  "scenes": [
+    {
+      "visual": "01b_current_external_masks_fold",
+      "narration": "Open Import in Home's Data category, then its nested External Masks tool. This workflow measures supplied segmentation labels; it does not segment the images again. The parent Import Project form adopts an existing measurement table, whereas External Masks calls Measure to calculate new features.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "36_import",
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "02_choose_real_images",
+      "narration": "Reuse the two real image and cell-mask pairs prepared for Import Project from the downloaded microscopy example. Each field is nineteen hundred and ninety-four pixels square. The neutral fov01 and fov02 filenames are demonstration names, not the original acquisition wells.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "36_import"
+      ]
+    },
+    {
+      "visual": "04_review_detected_roles",
+      "narration": "Use Add folder… for the image folder and again for the cell-mask folder. The table contains two groups and four TIFFs. Review Use as: Image for intensity files and Mask for labels, with Mask type set to Cell. Confidence describes the detected assignment, not segmentation accuracy.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        815,
+        1660,
+        350
+      ]
+    },
+    {
+      "visual": "04b_image_ignored_not_submitted",
+      "narration": "Change the image group's Use as to Ignore. This removes that group from the settings submitted for a run; it does not delete its files. Do not run with the required intensity group ignored.",
+      "hold_after": 0.7,
+      "focus": [470, 815, 1660, 350]
+    },
+    {
+      "visual": "04c_image_role_restored",
+      "narration": "Restore Image before continuing. The original image and Cell-mask assignments are now back in place, with both source groups included. Review these editable roles before configuring the destination or starting the preview.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        815,
+        1660,
+        350
+      ]
+    },
+    {
+      "visual": "05_setting_recursive",
+      "narration": "Set Dst to a new project folder separate from the sources. Use Layout flat, Z handling first and Plate naming index, with Recursive and Overwrite off. These inputs each have one two-dimensional intensity plane. Their assigned coordinates will be plate1, A01 and fields one and two, not recovered original wells.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        1120,
+        1660,
+        380
+      ]
+    },
+    {
+      "visual": "05_setting_channels",
+      "narration": "Use Channels zero and leave Normalize off. The TIFF's only intensity plane has array index zero, but its pixels were extracted from index one in the original seven-plane array. The supplied cell labels came from original index four and will occupy merged plane one. Do not interchange these indexing contexts.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        1515,
+        1660,
+        270
+      ]
+    },
+    {
+      "visual": "05_setting_cytoplasm",
+      "narration": "Measure cytoplasm is enabled in this recording, but only Cell masks are supplied. There are no nucleus or other interior masks to subtract. The derived cytoplasm therefore duplicates the cell region; it is not an independently identified cytoplasmic compartment. Keep that limitation when reading the later figures and tables.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        815,
+        1660,
+        395
+      ]
+    },
+    {
+      "visual": "05_setting_png_size",
+      "narration": "Under Object Crops, enable Save PNG, choose cell in Crop mode and set PNG size to two hundred and twenty-four by two hundred and twenty-four. PNG dims and all three PNG channel mapping entries use zero. Cell min size is zero and Keep uninfected cells is on; these choices retain this example's supplied labels.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        980,
+        1660,
+        805
+      ]
+    },
+    {
+      "visual": "05_setting_test_mode",
+      "narration": "Use N jobs one, with Resume, Dry run and Test mode off. Enable Plot and Save measurements. Correlation, spatial, radial, homogeneity and object-distance calculations are disabled for this bounded example. Review these choices for your own analysis; the settings are not a validated biological protocol.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        810,
+        1660,
+        975
+      ]
+    },
+    {
+      "visual": "07_preview_plan_no_project_written",
+      "narration": "Enable Preview only and press this tool's Run button. The actual plan reports two intensity mappings, two ready fields, one intensity channel and cell masks. The recorded full console output also confirms two mask pairs at merged plane one. At this point the destination does not exist: the preview has written no project data.",
+      "hold_after": 0.7,
+      "focus": [
+        2140,
+        840,
+        1670,
+        440
+      ]
+    },
+    {
+      "visual": "08_preview_only_disabled",
+      "narration": "Disable Preview only and press Run again, without changing the reviewed assignments. External Masks writes the converted images, stacks, cell masks and two-plane merged arrays, then runs the normal Measure pipeline. No measurement CSV is imported, and the original source files remain unchanged.",
+      "hold_after": 0.7,
+      "focus": [
+        470,
+        805,
+        1660,
+        535
+      ]
+    },
+    {
+      "visual": "10_external_figure_00_preview_menu",
+      "narration": "The run produces six figures. For the first five, use the figure's actual right-click menu, Save figure with a preview…, to inspect a larger native preview. This is an export dialog, not the embedded viewer. We press Cancel each time; no figure export is saved.",
+      "hold_after": 0.7,
+      "focus": [
+        2620,
+        1020,
+        440,
+        515
+      ]
+    },
+    {
+      "visual": "10_external_figure_00_export_preview",
+      "narration": "The first displayed field is the fifty-nine-cell example, assigned field two. This figure places the intensity image beside its supplied cell labels. The colours identify label regions; they do not measure confidence or prove that each boundary is biologically correct.",
+      "hold_after": 0.7,
+      "focus": [
+        50,
+        550,
+        3730,
+        1450
+      ]
+    },
+    {
+      "visual": "10_external_figure_01_export_preview",
+      "narration": "The next figure shows C. zero, C. one with fifty-nine objects, and C. two with fifty-nine objects. Here these are intensity, cell and derived cytoplasm. Different label colours do not make the last two independent compartments: their geometry is identical because no interior masks were supplied.",
+      "hold_after": 0.7,
+      "focus": [
+        50,
+        550,
+        3730,
+        1450
+      ]
+    },
+    {
+      "visual": "10_external_figure_02_export_preview",
+      "narration": "The third figure is the fifty-nine-object cell montage from that same field, not a new set of cells. Use it to inspect the extracted views. Display colours and crop scaling are not raw measurement values; the source intensity arrays and database retain the quantitative evidence.",
+      "hold_after": 0.7,
+      "focus": [
+        50,
+        550,
+        3730,
+        1450
+      ]
+    },
+    {
+      "visual": "10_external_figure_03_export_preview",
+      "narration": "The fourth figure shows the other acquired field's intensity image and supplied labels. This is the forty-four-cell example, assigned field one. Figure order is not field numbering. Together the two fields contain one hundred and three distinct cell labels.",
+      "hold_after": 0.7,
+      "focus": [
+        50,
+        550,
+        3730,
+        1450
+      ]
+    },
+    {
+      "visual": "10_external_figure_04_export_preview",
+      "narration": "The fifth figure repeats the intensity, cell and derived-cytoplasm view for the forty-four-cell field. Again the two mask panels describe the same cell regions, not two independent measurements of different compartments. Close this final export preview with Cancel; the actual six-figure queue remains available.",
+      "hold_after": 0.7,
+      "focus": [
+        50,
+        550,
+        3730,
+        1450
+      ]
+    },
+    {
+      "visual": "10_external_figure_05",
+      "narration": "The sixth figure is the forty-four-object montage in the ordinary embedded Figures viewer. Across both fields, the project has one hundred and three readable cell PNGs with exact per-object database links. These display crops are not claimed to preserve raw intensity pixels. The data folder can be reviewed later in Annotate.",
+      "hold_after": 0.7,
+      "focus": [
+        1305,
+        775,
+        2500,
+        660
+      ],
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "11_console_preferences_font_scale_125",
+      "narration": "To inspect the completed console, open Preferences and reduce Font scale from two hundred to one hundred and twenty-five percent, then Save. Return through the Import Project and External Masks tabs. This is a native display adjustment; it does not rerun measurement or edit the recorded results.",
+      "hold_after": 0.7,
+      "focus": [
+        1015,
+        275,
+        1810,
+        345
+      ]
+    },
+    {
+      "visual": "11_console_preferences_font_scale_100",
+      "narration": "That first reduction still leaves too little console space, so set Font scale to one hundred percent, Save and return through the tabs again. We verify that the measurement settings, complete console history and all six ordered figure images remain unchanged. No AI request is sent.",
+      "hold_after": 0.7,
+      "focus": [
+        1015,
+        275,
+        1810,
+        345
+      ]
+    },
+    {
+      "visual": "11_external_measurement_summary",
+      "narration": "Read the completed operation's summary, not just its earlier preview. It reports two prepared fields and measurements.db tables: cell, cytoplasm, intensity_rescale, png_list, run_status, settings and settings_history. Annotation crops are under data. The later console review occurs after writing; it is not another non-writing preview.",
+      "hold_after": 0.7,
+      "focus": [
+        990,
+        1330,
+        2440,
+        90
+      ]
+    },
+    {
+      "visual": "11_external_measurement_summary",
+      "narration": "Independent checks match every output intensity and label pixel to the preserved inputs, and all one hundred and three cell identities, pixel areas and raw mean intensities to those labels. Mean-intensity error is zero in this run. The one hundred and three cytoplasm rows exactly duplicate cell values. This verifies data handling, not segmentation ground truth or biological validity.",
+      "hold_after": 0.7,
+      "focus": [
+        990,
+        1330,
+        2440,
+        90
+      ]
+    },
+    {
+      "visual": "11_external_measurement_summary",
+      "narration": "In Python, spacr.external_masks.plan_external_masks returns an ExternalMaskPlan without writing. run_external_masks accepts that plan and returns an ExternalMaskResult after measurement. prepare_external_masks returns the plan when preview_only is true, otherwise the result. Retain the source manifest, conversion_map.csv and project together so assigned coordinates cannot be mistaken for original acquisition metadata.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "35_converter"
+      ]
+    }
+  ]
+}

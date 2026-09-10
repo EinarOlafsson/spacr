@@ -131,6 +131,12 @@ def test_cv_merge_scores_every_row_of_a_two_plate_database(tmp_path):
 
     report = merge_cv_predictions(df, db)
 
+    for field in ("columns", "db_rows", "result_rows", "matched_rows",
+                  "matched_keys", "unmatched_db_rows",
+                  "unmatched_result_rows", "unparsed_result_rows",
+                  "ambiguous_keys", "ambiguous_result_rows", "fanout_rows",
+                  "repaired", "added_columns"):
+        assert f":param {field}:" in (type(report).__doc__ or "")
     assert report.key == "prcfo", "prcfo is the canonical per-object identity"
     assert report.matched_rows == report.db_rows == 24
     assert report.unmatched_db_rows == 0
@@ -1416,6 +1422,28 @@ def test_crop_name_metadata_marks_a_name_it_cannot_parse(tmp_path):
     assert parsed["prcfo"].isna().tolist() == [False, True, True]
 
 
+def test_crop_name_metadata_parses_each_basename_once(monkeypatch):
+    """Repeated paths share a parse, while a different basename does not."""
+    from spacr.predictions import crop_name_metadata
+    from spacr import utils
+
+    calls = []
+
+    def parse(name, timelapse=False):
+        calls.append((name, timelapse))
+        label = "o3" if name == "same.png" else "o4"
+        return ("plate1", "r1", "c1", "f1",
+                f"plate1_r1_c1_f1_{label}", label)
+
+    monkeypatch.setattr(utils, "_map_wells_png", parse)
+    parsed = crop_name_metadata([
+        "/first/same.png", "/second/same.png", "/first/other.png",
+    ])
+
+    assert calls == [("same.png", False), ("other.png", False)]
+    assert parsed["object_label"].tolist() == ["3", "3", "4"]
+
+
 def test_the_legacy_timepoint_spelling_on_a_scores_file_still_joins(tmp_path):
     """``time_id`` and ``timeID`` are one concept; either spells the key.
 
@@ -1445,3 +1473,71 @@ def test_the_legacy_timepoint_spelling_on_a_scores_file_still_joins(tmp_path):
                      merged["cv_predictions"]))
             == {"t1_1": 0, "t1_2": 0, "t2_1": 0, "t2_2": 1,
                 "t3_1": 1, "t3_2": 1})
+
+
+def test_an_explicit_timelapse_setting_is_obeyed_not_re_inferred(tmp_path):
+    """``timelapse=`` overrides the sniff, and the sniff is what it overrides.
+
+    The default None means "look at the table and decide", which reads the
+    presence of a time column. That is right for the common case and wrong
+    whenever the guess is wrong: a screen whose table happens to carry a
+    ``timeID`` column from an earlier run is not a timelapse, and treating it
+    as one changes what ``prcfo`` is built from -- so every key misses and the
+    merge silently writes nothing.
+
+    Passing the flag has to short-circuit the inference completely. Asserted
+    by making the inference raise: if it were still consulted, this would fail
+    loudly instead of merging.
+    """
+    from spacr import utils as U
+    from spacr.predictions import merge_prediction_results
+
+    src = str(tmp_path / "screen")
+    paths = write_png_list(src, "plate1", wells=("A1",), fields=(1,))
+    frame = vision_results(paths, [0.5] * 3)
+
+    def must_not_be_called(_columns):
+        raise AssertionError("the time column was sniffed despite an "
+                             "explicit timelapse= setting")
+
+    original = U._time_column
+    U._time_column = must_not_be_called
+    try:
+        report = merge_prediction_results(
+            frame, db_of(src), {"pred": ("pred", "REAL")},
+            key="prcfo", timelapse=False)
+    finally:
+        U._time_column = original
+
+    assert report.matched_rows == 3
+
+
+def test_the_default_still_asks_the_table(tmp_path):
+    """The other half, so the test above is about the flag and not the path.
+
+    With ``timelapse`` left at None the sniff must run -- otherwise the
+    override above would be indistinguishable from the inference never having
+    existed.
+    """
+    from spacr import utils as U
+    from spacr.predictions import merge_prediction_results
+
+    src = str(tmp_path / "screen")
+    paths = write_png_list(src, "plate1", wells=("A1",), fields=(1,))
+    frame = vision_results(paths, [0.5] * 3)
+
+    asked = []
+    original = U._time_column
+
+    def watched(columns):
+        asked.append(tuple(columns))
+        return original(columns)
+
+    U._time_column = watched
+    try:
+        merge_prediction_results(frame, db_of(src), {"pred": ("pred", "REAL")},
+                                 key="prcfo")
+    finally:
+        U._time_column = original
+
+    assert asked, "the default did not consult the table's columns"

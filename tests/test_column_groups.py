@@ -126,6 +126,14 @@ def test_the_order_follows_the_table_not_the_clicks():
     assert first == [c for c in COLUMNS if c in set(first)]
 
 
+def test_resolve_preserves_order_for_a_one_shot_iterable():
+    expected = resolve(COLUMNS, {"family": ["intensity"]})
+
+    assert resolve(
+        (column for column in COLUMNS), {"family": ["intensity"]}
+    ) == expected
+
+
 # ---------------------------------------------------------------------------
 # Refusals and edges
 # ---------------------------------------------------------------------------
@@ -166,6 +174,14 @@ def test_the_summary_says_how_many_of_how_many():
     """400 columns and 4 look identical in a dialog until something says."""
     text = summarise(COLUMNS, {"family": ["intensity"]})
     assert "4 of 11" in text or "of 11" in text
+
+
+def test_the_summary_counts_a_one_shot_iterable_once():
+    text = summarise(
+        (column for column in COLUMNS), {"family": ["intensity"]}
+    )
+
+    assert text == "4 of 11 columns selected"
 
 
 def test_the_summary_says_so_when_nothing_is_selected():

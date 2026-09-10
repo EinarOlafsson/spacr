@@ -35,7 +35,12 @@ INDEX = INSTRUCTIONS / "00_INDEX.txt"
 #: Instructions owned by the concurrent codex session. Named here rather than
 #: inferred, because "do not touch this" is not something a file says about
 #: itself and getting it wrong means two sessions editing one file.
-OWNERS: Dict[str, str] = {"83": "codex"}
+#: Empty because both codex-owned instructions -- 48 (tutorials) and 83
+#: (catalogs) -- are DONE. It fills again the moment two sessions share
+#: this folder. Named here rather than inferred, because "do not touch
+#: this" is not something a file says about itself, and getting it
+#: wrong means two sessions editing one file.
+OWNERS: Dict[str, str] = {}
 
 #: Why an item cannot be worked, when the reason is outside the repository.
 BLOCKED: Dict[str, str] = {
@@ -47,33 +52,84 @@ BLOCKED: Dict[str, str] = {
 }
 
 #: The two the maintainer has scheduled at the end, in this order.
-LAST: Dict[str, str] = {"82": "SECOND TO LAST", "58": "LAST"}
+LAST: Dict[str, str] = {
+    "82": "SECOND TO LAST",
+}
 
 #: How far along something is, where the file's own header does not say.
 STAGE: Dict[str, str] = {
-    "52": "controls rebuilt 2026-08-13; geometry was already right",
-    "75": "SUPERSEDED by 95 -- can be closed",
-    "93": "filed, not started",
-    "94": "~40% -- ladder built, five sites still ungrouped",
-    "95": "model + GPU button built; viewer, grid, walk NOT",
+    # Audited against the code on 2026-09-01, not read off the headers.
+    # Three items were found already complete and moved to done/ that day
+    # (319, 330, 336); two more were badly wrong about themselves (327 read
+    # as not-started with all five parts shipped, 306 read as finished with
+    # its ratchet red). Re-audit before trusting any figure here.
+    "01": "100% of the code; blocked on publishing 1.5.0.5",
+    "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
+    "253": "0% by construction -- closes last",
+    "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues",
+    "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
+    "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
+    "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
+    "316": "READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 19: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings",
+    "325": "the channel between the two sessions -- open while both are running",
+    "326": "~55% -- settings follow the count (2 means 2); the ceiling of 26 is what remains",
+    "327": "~95% -- all five parts shipped; only the frame-rate evidence is missing",
+    "331": "a checklist over the other items; regenerated 2026-09-02 after three closures and four new filings",
+    "337": "~75% -- Manders, spatial defaults and both labels done; part 3 needs the maintainer's measure settings",
+    "339": "0% -- illumination is called from measure and nowhere else",
+    "341": "0% -- three tests confirmed still failing on 2026-09-01",
+    "372": "unblocked 2026-09-04 -- the maintainer answered the stitch question; PART 0's survivability audit of 3,891 unreached lines still comes first",
+    "350": "~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded",
+    "353": "~60% -- the buttons are at the top; aligning them to their columns is not done",
+    "345": "~35% -- the stale stub is fixed, 3 down to 2; the rest are order-dependent",
+    "346": "~90% -- 21 down to 3; the last two are two live copies of one function, diagnosed",
+    "348": "~35% -- Help is a dock heading and is last; the magnifier and the text move are open",
 }
 
 
-def _entries(folder: str) -> List[Tuple[str, str, str]]:
-    """``(number, title, filename)`` for one folder, in numeric order.
+def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
+    """Return a title from either instruction format used in the ledger.
 
-    The title is line 2 of the file, which is the convention every
-    instruction follows -- line 1 and line 3 are the ``====`` rules.
+    Older records put an uppercase title between ``====`` rules. Recent
+    records begin directly with ``NNN — Title``. The index used to assume
+    only the first form, which silently produced blank rows as soon as the
+    second form reached ``open/`` or ``done/``.
     """
+    if (len(lines) >= 3 and lines[0].strip()
+            and set(lines[0].strip()) == {"="} and lines[1].strip()):
+        return lines[1].strip()
+
+    prefix = f"{number} —"
+    for line in lines:
+        candidate = line.strip()
+        if not candidate:
+            continue
+        if candidate.startswith(prefix):
+            title = candidate[len(prefix):].strip()
+            if title:
+                return title
+        if set(candidate) <= {"=", "-"}:
+            continue
+        return candidate
+    return fallback
+
+
+def _entries(folder: str) -> List[Tuple[str, str, str]]:
+    """``(number, title, filename)`` for one folder, in numeric order."""
     out = []
     for path in (INSTRUCTIONS / folder).glob("*.txt"):
         number = path.name.split("_", 1)[0]
         if not number.isdigit():
             continue
         lines = path.read_text(errors="replace").splitlines()
-        title = lines[1].strip() if len(lines) > 1 else path.stem
+        title = _instruction_title(lines, number, path.stem)
         out.append((number, title, path.name))
-    return sorted(out, key=lambda row: int(row[0]))
+    # Instruction 84 exists twice, so the numeric id is not a unique sort
+    # key.  ``Path.glob`` preserves the filesystem's directory-entry order,
+    # which is not stable between a developer checkout and a GitHub runner.
+    # Include the filename as the tie-breaker so a checkout cannot make the
+    # committed index appear stale without any content changing.
+    return sorted(out, key=lambda row: (int(row[0]), row[2]))
 
 
 def _note_for(number: str) -> str:
@@ -134,7 +190,7 @@ def render(today: str = "") -> str:
         "",
     ]
     for number, title, name in open_rows:
-        lines.append(f"  {number:>3}  {title}")
+        lines.append(f"  {number:>3}  {title}".rstrip())
         note = _note_for(number)
         if note:
             lines.append(f"       {note}")
@@ -143,7 +199,7 @@ def render(today: str = "") -> str:
 
     lines += ["-" * 80, "DONE", "-" * 80, ""]
     for number, title, _name in done_rows:
-        lines.append(f"  {number:>3}  {title}")
+        lines.append(f"  {number:>3}  {title}".rstrip())
     lines.append("")
     return "\n".join(lines)
 

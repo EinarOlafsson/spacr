@@ -1,0 +1,996 @@
+{
+  "lesson": "66_outliers",
+  "scope": "Verified real GUI workflow; multilingual media checks not yet complete",
+  "capture": "outliers_verified_flags",
+  "provenance": {
+    "commit": "b495450812a2f72293e4b48147b99a29583be406",
+    "version": "1.5.0.4",
+    "module": "outliers",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "scenes": 17,
+  "spoken_words": 921,
+  "capture_frames": 29,
+  "source": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/measurements.db",
+    "source_bundle": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+        "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+        "signature": [
+          66306,
+          33957043,
+          30629888,
+          1788972666110587305,
+          1788972666110587305
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": [
+          66306,
+          33962636,
+          0,
+          1788973501772441799,
+          1788973501772441799
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "signature": [
+          66306,
+          33962707,
+          32768,
+          1788982325621416451,
+          1788982325621416451
+        ]
+      }
+    },
+    "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "copy_is_byte_identical": true,
+    "source_opened_in_gui": false
+  },
+  "original_unchanged": true,
+  "private_database_unchanged": true,
+  "initial_load_and_auto_scan_seconds": 82.37103067699354,
+  "automatic_initial_scan": {
+    "rows": 2341,
+    "features": 255,
+    "flagged": 2338
+  },
+  "independently_checked_scans": {
+    "06_area_mad_3_5": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 4,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 8,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 6,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "09_area_mad_2": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 2.0,
+      "flagged": 142,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -1114.638475577056,
+        44964.638475577056
+      ],
+      "max_numeric_error": 3.637978807091713e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 33,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 24,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 47,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 38,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=2) over 1 feature(s) flagged 142 of 2,341 scored objects (6.07%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "10_broad_rule_not_quality_cutoff": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 0.5,
+      "flagged": 1479,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        16165.090381105736,
+        27684.909618894264
+      ],
+      "max_numeric_error": 1.8189894035458565e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 462,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 320,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 375,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 322,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=0.5) over 1 feature(s) flagged 1,479 of 2,341 scored objects (63.18%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "12_restore_mad": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 4,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 8,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 6,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "13_area_iqr": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "iqr",
+      "transform": "none",
+      "threshold": 1.5,
+      "flagged": 55,
+      "centre": 22663.0,
+      "spread": 15730.0,
+      "fences": [
+        -8797.0,
+        54123.0
+      ],
+      "max_numeric_error": 0.0,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 13,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 11,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 15,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 16,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "iqr(c=1.5) over 1 feature(s) flagged 55 of 2,341 scored objects (2.35%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "15_log_area_iqr": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "iqr",
+      "transform": "log10",
+      "threshold": 1.5,
+      "flagged": 79,
+      "centre": 4.3274506880048325,
+      "spread": 0.3144953300383371,
+      "fences": [
+        3.6984600279281583,
+        4.956441348081507
+      ],
+      "max_numeric_error": 0.0,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 22,
+          "median": 4.326509950517708,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 22,
+          "median": 4.317896266492956,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 22,
+          "median": 4.350248018334163,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 13,
+          "median": 4.368881656176334,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "iqr(c=1.5) over 1 feature(s) flagged 79 of 2,341 scored objects (3.37%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "16_log_area_mad": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "log10",
+      "threshold": 3.5,
+      "flagged": 36,
+      "centre": 4.340939602038078,
+      "spread": 0.23378848959725634,
+      "fences": [
+        3.5226798884476804,
+        5.159199315628475
+      ],
+      "max_numeric_error": 1.7763568394002505e-15,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 4.326509950517708,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 12,
+          "median": 4.317896266492956,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 9,
+          "median": 4.350248018334163,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 7,
+          "median": 4.368881656176334,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 36 of 2,341 scored objects (1.54%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "17_real_intensity_raw": {
+      "rows": 2341,
+      "feature": "cell_channel_0_min_intensity",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 68,
+      "centre": 34.0,
+      "spread": 19.273828840572826,
+      "fences": [
+        -33.458400942004886,
+        101.45840094200489
+      ],
+      "max_numeric_error": 1.4210854715202004e-14,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 12,
+          "median": 33.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 31,
+          "median": 39.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 15,
+          "median": 37.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 10,
+          "median": 30.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 68 of 2,341 scored objects (2.90%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "19_restored_after_refusal": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 4,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 8,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 6,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "20_high_minimum_not_clean": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 1 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 4,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: 501 object(s) < the 700 required for a stable median"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 8,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: 615 object(s) < the 700 required for a stable median"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 6,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: 525 object(s) < the 700 required for a stable median"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%) and 0 of 0 scored wells.",
+      "per_well": true
+    },
+    "22_objects_only": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%).",
+      "per_well": false
+    },
+    "23_original_rule_and_wells": {
+      "rows": 2341,
+      "feature": "cell_area",
+      "method": "mad",
+      "transform": "none",
+      "threshold": 3.5,
+      "flagged": 26,
+      "centre": 21925.0,
+      "spread": 11519.819237788528,
+      "fences": [
+        -18394.367332259848,
+        62244.36733225985
+      ],
+      "max_numeric_error": 7.275957614183426e-12,
+      "wells": [
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c1"
+          ],
+          "n": 700,
+          "flagged_objects": 8,
+          "median": 21208.5,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r12",
+            "c2"
+          ],
+          "n": 501,
+          "flagged_objects": 4,
+          "median": 20792.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c1"
+          ],
+          "n": 615,
+          "flagged_objects": 8,
+          "median": 22400.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        },
+        {
+          "key": [
+            "plate1",
+            "r5",
+            "c2"
+          ],
+          "n": 525,
+          "flagged_objects": 6,
+          "median": 23382.0,
+          "well_scored": false,
+          "reason": "not scored: only 4 well(s) qualify, fewer than the 5 the across-well comparison needs"
+        }
+      ],
+      "table_rows": 500,
+      "headline": "mad(k=3.5) over 1 feature(s) flagged 26 of 2,341 scored objects (1.11%) and 0 of 0 scored wells.",
+      "per_well": true
+    }
+  },
+  "log_refusal": {
+    "message": "spacr.qt.widgets.outlier_model.OutlierError: transform='log10' was asked for and 1 value(s) are zero or negative, which log10 cannot take: cell_channel_0_min_intensity (1). Adding a pseudocount would invent measurements and dropping those objects would self-select the population, so neither is done for you — drop the feature, filter the objects yourself, or run untransformed.",
+    "real_nonpositive_values": 1,
+    "old_objects_tab": "Objects (68)",
+    "old_table_rows": 500,
+    "export_enabled": false
+  },
+  "exports": {
+    "11_all_rows_not_display_cap": {
+      "objects": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/11_all_rows_not_display_cap_objects.csv",
+        "rows": 2341,
+        "columns": 280,
+        "sha256": "0a2f694d6491b81228b622fdaad727abf43ca28c0119146a9b45dde5cf95a6c6"
+      },
+      "flagged": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/11_all_rows_not_display_cap_flagged.csv",
+        "rows": 1479,
+        "columns": 280,
+        "sha256": "a4f087e07d058e55e85ba505a7486c15420e1bcc431a738c6f9c9df24634c0b1"
+      },
+      "wells": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/11_all_rows_not_display_cap_wells.csv",
+        "rows": 4,
+        "columns": 12,
+        "sha256": "26c91570a888da68e820ef67a59c3972f112a4304665a1428301718bc2e2c26e"
+      },
+      "report": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/11_all_rows_not_display_cap_report.txt",
+        "sha256": "c1b557a39496d284dd9c6c7744b30be6a7e4ca60e8285bf8ac0a83cacb58bf4a"
+      }
+    },
+    "24_final_flags_and_report": {
+      "objects": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/24_final_flags_and_report_objects.csv",
+        "rows": 2341,
+        "columns": 280,
+        "sha256": "4f615a9317919b5eca8c84936169938bf6415f684a5a025aa794f53dd2404b9b"
+      },
+      "flagged": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/24_final_flags_and_report_flagged.csv",
+        "rows": 26,
+        "columns": 280,
+        "sha256": "522188df2328a9fa943e7f0656640a131c27b938e88e4be6cdb896d8c1dd9ae0"
+      },
+      "wells": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/24_final_flags_and_report_wells.csv",
+        "rows": 4,
+        "columns": 12,
+        "sha256": "310f0bd6974ba11b0f85948b0ef57d01c9ec3ee4ee432190438f7969761c5d3a"
+      },
+      "report": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/outliers_runs/real-measurements-_dhxd_lm/24_final_flags_and_report_report.txt",
+        "sha256": "8a899a7e4ca312fc702c1556a5bf7b8bcad25738cabce3d07d984c5a49484c8e"
+      }
+    }
+  },
+  "scan_events": [
+    {
+      "rows": 2341,
+      "features": 255,
+      "flagged": 2338
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 142
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 1479
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 55
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 79
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 36
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 68
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    },
+    {
+      "rows": 2341,
+      "features": 1,
+      "flagged": 26
+    }
+  ],
+  "remaining_workers": 0,
+  "acceptance_sha256": "b51bfbceeb2714dc34463564742a7414df2e2281148b23570bc04c276060c90c",
+  "tests": {
+    "file": "tools/tutorials/tests/test_outliers_evidence.py",
+    "passed": 25,
+    "negative_control": "Temporarily bypassed the three scan checks and final well comparison guard in actual helper source: 23 failed, 2 positive examples passed. Restored source:25 passed. No capture ran during mutation.",
+    "focused_branch_coverage": "outliers_guard_coverage.json",
+    "sha256": "37e1a6a88bdf7494c406a33bd64418629a4b932381f53c700c3320d0c8be7d3d",
+    "named_guard_raise_lines_executed": [
+      46,
+      52,
+      54,
+      84
+    ]
+  },
+  "reported_owner_observations": [
+    "Initial full-table load and automatic scan took82.37s in accepted recording. A read-only py-spy sample during the previous run found main thread in _fill_table at setHorizontalHeaderLabels, not calculating statistics. Not a hardware-normalized benchmark.",
+    "Report.caveats incorrectly attributes all unscored wells to fewer than20 objects; actual four counts501/525/615/700 qualify by object count, but fewer than5 wells exist. Well-table specific reasons are correct.",
+    "IQR report calls midhinge22663 the median; actual area median21925, Q1=14798, Q3=30528. Independently checked fences[-8797,54123] and all55 flags are correct.",
+    "After log-transform refusal, result is cleared and Export disabled, but old Objects(68) tab and500 table rows remain. They are not successful results under the changed rule.",
+    "Original font1.5 clipped parts of control labels. Accepted font1.25 uses actual app preference and actual dropdown capture, not app source edits. Long feature names can still elide."
+  ],
+  "earlier_capture": {
+    "name": "outliers_real_mad_iqr",
+    "accepted": false,
+    "reason": "Recorder expected the phrase non-positive; the actual correct refusal says 1 value(s) are zero or negative. Guard wording corrected, full fresh private-copy capture repeated. Also corrected empty-search clearing to actual Backspace.",
+    "source_and_private_database_unchanged": true
+  },
+  "scope_limits": [
+    "Independent arithmetic covers finite nondegenerate single-feature MAD/IQR, explicit positive-data log10 and all flag positions, not MCD or zero-spread fallbacks.",
+    "All four well medians, counts, flagged shares and not-scored status checked independently. This dataset cannot demonstrate a legitimate five-or-more-well comparison.",
+    "Automatic initial255-feature scan flags2338/2341 but is not independently reimplemented or interpreted as defective cells. No biological labels or treatment evidence invented.",
+    "Both CSV export sets keep2341 objects with280 columns; flagged1479 at k0.5 and26 at k3.5, four12-column wells, report text. Every original measurement and actual flag checked. No deletion.",
+    "No image preview, Plot toggle, GPU analysis, AI request, classifier training or MCD run in this lesson; existing measured table only. App/Qt/global catalogs unchanged."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

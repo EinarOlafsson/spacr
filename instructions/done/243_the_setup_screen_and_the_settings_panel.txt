@@ -1,0 +1,329 @@
+================================================================================
+THE SETUP SCREEN, A BUTTON EXPLAINS ITSELF AT THE FOOT OF THE WINDOW
+
+"for button tooltips there should allways be a spece at the bottom of the
+window that gets populated with the tooltip for the button not on the
+button itself. like it works for the modules on the main screen."
+
+  * `spacr/qt/widgets/hint_bar.py` is the Home screen's mechanism made
+    reusable: a `HintBar` at the foot, `explain_through_the_bar(widget,
+    text)` to register a control (it finds the bar with `hint_bar_of` and
+    returns False when the window has none), and an event filter that
+    writes the sentence while the pointer is on it and restores the
+    resting line when it leaves;
+    (AUDIT 2026-08-26: this paragraph named the registrar `explain`; the
+    function has always been exported as `explain_through_the_bar`.)
+  * the button carries NO tooltip. The sentence would otherwise appear
+    over the button -- where the pointer already is, and where the user is
+    about to click -- covering the thing it describes;
+  * the sentence goes onto the widget's accessible description, so
+    removing the tooltip costs no assistive text;
+  * a control with nothing to say is not watched, or crossing it would
+    blank the sentence belonging to the control beside it;
+  * a window with NO bar keeps the tooltip: explaining itself awkwardly
+    beats explaining itself nowhere;
+  * Preferences has one, and its five cleanup buttons report to it.
+
+THE SETTINGS PANEL, AND THE FIGURE EXPORT
+================================================================================
+
+Status:    DONE. The montage cap is 2,000, and it is ONE constant rather
+           than three kept in step: `cell_montage.MAX_OBJECTS`, which the
+           panel imports for its own default rather than repeating. The
+           measurement behind the number is recorded in
+           `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES`
+           and `MEASURED_MS_PER_CROP`, and `montage_cap_cost()` turns them
+           into the sentence the control carries as a cap is typed.
+Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
+           dialog, the figure save dialog; spacr/ml.py for the intercept.
+
+--------------------------------------------------------------------------------
+CLOSED -- WAS "STILL OPEN"
+--------------------------------------------------------------------------------
+
+(AUDIT 2026-08-26: this section was headed STILL OPEN and its own body
+says the number was measured, shown, decided and set. Re-measured against
+the code: `cell_montage.MAX_OBJECTS` and `picture_settings.OWN_DEFAULTS
+['cap']` are both 2,000, `MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES` and
+`MEASURED_MS_PER_CROP` all carry their numbers, and `montage_cap_cost()`
+renders the sentence. The Cells-tab spin box no longer stops at 5,000 --
+it is `setRange(1, 1_000_000)` -- so the clamp the last paragraph warned
+about cannot happen either. Nothing here is owed; the heading was.)
+
+1. THE MONTAGE CAP -- MEASURED, THEN SET AT 2,000
+
+   "set the cap to 10000 images." The cost of 10,000 was measured before it
+   was taken, and shown to the maintainer, who chose 2,000 instead: most of
+   the reach, none of the cliff. The number is now 2,000 in
+   `cell_montage.MAX_OBJECTS` and in the panel's own default, and
+   `montage_cap_cost()` says what any cap costs as it is typed.
+
+   THE MEASUREMENT IS DONE and it is recorded in the code, in
+   `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES` and
+   `MEASURED_MS_PER_CROP`, with `montage_cap_cost()` turning them into the
+   sentence the cap control now carries. What 10,000 costs, against 300:
+
+   ===============  ==================  ==================
+   what             cap 300             cap 10,000
+   ===============  ==================  ==================
+   pages            5 - 13              167 - 417
+   crops held       43 MB               1,436 MB
+   twelve well tabs 0.5 GB              16.8 GB
+   time to cut      0.1 - 3.4 s         4.9 - 114 s
+   ===============  ==================  ==================
+
+   Pages are measured with the tab's own geometry -- six columns, 96 px
+   thumbnails -- across the viewports the Cells tab is used at: 24 crops a
+   page in the narrowest panel the splitter allows, 36 in an ordinary one,
+   60 on a full screen. Memory is measured resident, not estimated: a well
+   tab holds EVERY crop it was given, because turning a page must not
+   re-cut, and 10,000 crops of 224x224x3 is 1,436 MB of them. Cutting time
+   is the recorded per-crop cost by route -- the low figure reads exported
+   PNGs, the high one cuts from merged arrays spread over many fields.
+
+   TWO CONSEQUENCES THE NUMBER DOES NOT CARRY ON ITS OWN, and both are
+   decisions rather than measurements:
+
+     * `MAX_WELL_TABS` is 12 and a tab is only ever closed by hand. Twelve
+       tabs at the raised cap is 16.8 GB, which is more than the machines
+       spaCR runs on have. The cap and the tab bound multiply, so raising
+       one is a decision about the other;
+     * the pager is a previous and a next button. At 300 the far end is 13
+       clicks away; at 10,000 it is 417. A cap that large wants a page to
+       jump to, or the last page is unreachable in practice.
+
+   THE THREE PLACES THE NUMBER LIVES MOVE TOGETHER. It is
+   `cell_montage.MAX_OBJECTS`, `picture_settings.OWN_DEFAULTS['cap']` and
+   the Cells-tab toolbar's own spin box; the panel imports the constant
+   rather than repeating it, and the spin box's range is 1 to 1,000,000,
+   so a typed cap is never silently clamped on the way to the montage.
+   (AUDIT 2026-08-26: this paragraph read "WHAT IS LEFT IS THE NUMBER
+   ITSELF" and described a spin box that stopped at 5,000. Both were true
+   of the 10,000 proposal that was not taken.)
+
+--------------------------------------------------------------------------------
+DONE, FOR THE RECORD
+--------------------------------------------------------------------------------
+
+THE TERMS ARE LONG ENOUGH TO BE TERMS, AND THE ACCEPTANCE IS GATED ON
+HAVING READ THEM.
+
+"for the spacr terms there should be much more text, so the user has to
+scroll down. when they scroll down to the bottom the tick box stopps
+being grayed out and they can check it (the text should also be grayed
+out)."
+
+  * THE DOCUMENT IS NINE NUMBERED SECTIONS in `terms.TERMS`, and the
+    length is load-bearing rather than padding: the gate below cannot
+    mean anything unless reaching the end is an act. It covers the
+    licence, what may be done with spaCR, what is not promised, what
+    leaves the machine, how what is sent may be used, what is never made
+    public, how to refuse each route, and what a rewritten version does;
+  * `TERMS_VERSION` is 2.0. A profile that accepted 1.0 accepted a
+    document with no data-use clause in it, so the existing machinery
+    asks it again;
+  * THE ACCEPTANCE IS GATED ON HAVING REACHED THE END. The control is
+    disabled, and drawn disabled, until the terms have been scrolled to
+    the bottom -- so the enabling IS the evidence that the text went past
+    the reader's eyes. A viewport tall enough to show the whole text at
+    once counts as read; the gate is "the end is on screen", not "a
+    scrollbar moved", or a large monitor becomes a trap;
+  * THE TEXT IS GREYED TOO while the gate is closed, not only the tick.
+    One state, drawn on both halves, so the page reads as one thing
+    waiting rather than as a tick that happens to be dead;
+  * THE GREYED SWITCH SAYS WHY, from the moment the slide opens rather
+    than only after a press: `terms.SCROLL_HINT` sits above it, and the
+    refusal on Next carries it too, because "tick the box above" is not
+    actionable advice about a box that will not take a tick;
+  * A PAGE THAT IS NOT ON SCREEN HAS NOT BEEN READ. An unshown scroll
+    area still answers questions about its range off geometry nothing
+    laid out, and that answer is "no scrolling needed" -- the same one a
+    fully-read document gives. It is not believed: `terms_were_read`
+    measures only while the page is visible, and the gate is drawn shut
+    until it can be measured;
+  * READING IS LATCHED. Scrolling back up does not un-read what was
+    read, or the gate closes behind the reader who has already earned it.
+
+WHAT THE TERMS MUST SAY, in the maintainer's own words:
+
+  * "the developers can use the users data to develope the software
+    further";
+  * "any image data or models generated and uploaded to shared resourses
+    by the user may be used by the developers to generate comunity
+    resourses such as object detection models";
+  * "the users logs and metadata may be used for making the software
+    better, and other uses."
+
+AND THE TERMS MUST MATCH WHAT THE SOFTWARE ACTUALLY DOES. The maintainer's
+reading of the report control -- "so if the user dosnt unclick include
+logs in report, i can use those logs for whatever i want" -- is what the
+terms now have to state plainly, because a permission nobody was told
+about is not a permission. Note the change that went with it: a bug
+report no longer PUBLISHES the log. The log is saved to the reporter's
+own machine and the public issue names the path, because "the github
+issue can be public but the users loggs can never be publicly facing,
+users whould not like that". So the terms grant the developers use of
+logs that are SENT; they do not put them on the tracker.
+
+  * sections 5 and 6 of the document are that pair, written out: what the
+    developers may do with what is sent, and then what is never made
+    public, so the permission cannot be read as a permission to publish.
+    Section 7 is the other half of an honest permission -- every route
+    out of the machine, and the switch that closes it;
+  * two claims were checked against the code rather than asserted: the
+    version check is the only request spaCR makes that is not about the
+    user's data, and the report preview shows and can edit the whole
+    report but does not re-offer the log setting, so the document says
+    what it does instead of what would have read better.
+
+THE ANIMATION QUESTION, UNDER THEME
+
+"in the startup, under theme should be annimation, degault to blobs."
+
+  * a question of its own on the same slide as the theme, immediately
+    under it, offering `ambient.ANIMATION_CHOICES` including None;
+  * it defaults to Blobs, which is already `ambient.DEFAULT_THEME` and
+    what `preferences.get_ambient_animation` falls back to -- so the
+    slide shows the default the application already has rather than a
+    second opinion about it;
+  * it writes through `preferences.set_ambient_animation`, which is the
+    one seam that both turns the backdrop on and stores the choice, and
+    it writes as the choice is made -- like the theme above it, because
+    the only way to know a look took is to see it;
+  * it is asked by the SLIDE, not added to `setup_screen.questions()`:
+    that screen's apply pass writes each answer through its own setter,
+    and a second writer for the backdrop is how a stored None ends up
+    drawing. With no ambient module to ask, the row is absent and the
+    theme slide is the two questions it was.
+
+THE TERMS OF USE
+  * a slide of its own, second to last: after the questions, before the
+    screen says it is finished. It carries the terms, the licence's name and
+    a link to the whole of it, and the required copyright notice;
+  * THE TERMS THEMSELVES ARE NOT TRANSLATED and everything around them is. A
+    translated licence summary is not the licence; the title, the sentence
+    introducing it, the acceptance and the refusal are the screen talking,
+    and they are catalogued in all nine languages through the same
+    registration seam an app's name uses;
+  * the acceptance is a slider, like every other boolean on that screen;
+  * THE NEXT BUTTON IS NOT GREYED. Pressed without the acceptance it stays
+    on the slide and says why -- a control that does nothing and says
+    nothing leaves the reader to guess which thing on the page is stopping
+    them;
+  * the acceptance is RECORDED, beside the other setup answers and under the
+    same `onboarding/` prefix, with the version of the terms and the time it
+    was given. `terms.agreement_record()` is the whole record in one call;
+  * A CHANGED VERSION IS A NEW AGREEMENT. `TERMS_VERSION` is compared against
+    what was recorded, so rewritten terms ask again instead of inheriting the
+    old answer;
+  * dismissing the screen records NOTHING -- a dismissal chooses the
+    defaults, it does not accept a licence -- and the screen comes back next
+    launch. A store that refuses the write is treated as not having agreed,
+    which is the safe direction. A launch that declined setup (a server, a
+    headless job) is still never asked.
+
+THE SETTINGS WINDOW IN TABS
+  * the picture-settings window is five tabs -- Source, Channels, Picture,
+    Outline, Which cells -- off one table, `picture_settings.categories()`,
+    the same shape the module screens group their settings with;
+  * the grouping is BY THE QUESTION EACH SETTING ANSWERS, not by which mode
+    uses it: a tab that appeared and vanished with the crop source would hide
+    the controls whose greyed reason explains the mode;
+  * every offered setting is on exactly one tab, and a setting added later
+    with no tab named for it lands on a trailing one rather than vanishing;
+  * a tab holding controls this mode cannot use says how many, and stays
+    selectable -- behind a tab, a greyed control's reason has to be findable.
+
+PERCENTILES AS TWO FIELDS
+  * one label, two numeric fields, low and high. The stored value is still
+    the two-element list every settings file holds;
+  * the fields constrain each other rather than validating afterwards: the
+    high end cannot go below the low one and the low end cannot go above the
+    high one, so an inverted window is not a value the panel can be left
+    holding;
+  * every spelling already on disk is MIGRATED, not refused: `[2, 98]`,
+    `(2, 98)`, `2,98`, `2;98`, and the `[1 99]` a user types when they use a
+    space. A pair given high-first is put in order; a percentile outside
+    0-100 is brought back, because numpy raises on one and the raise
+    surfaces as a lost montage with no mention of a setting;
+  * THE SHIPPED DEFAULT USED TO BE THROWN AWAY. `percentiles` was read by the
+    channel-list parser, which maps the position strings '0', '1' and '2'
+    onto the colours r, g and b -- right for `normalize_channels` and
+    destructive here. `[2, 98]` became `['b', '98']`, the float conversion
+    raised, and the caller fell back to a pair nobody asked for. Every
+    window whose low end was 0, 1 or 2 was silently replaced;
+  * the same migration at the crop layer: a `normalize` written as text
+    reached `CropSpec` as a truthy string that is not a sequence, so the cut
+    fell through to a full 0-100 stretch -- the window was configured, the
+    crop ignored it, and nothing said so.
+
+THE SETUP SCREEN
+  * one rounded translucent surface, with nothing square behind it;
+  * Hello moved up a row and fades out over a band the next page leaves
+    empty;
+  * three spaCR modes, described by what they hold;
+  * clicking a provider starts its sign-in, and offers the install page
+    when the CLI is absent; brand fill means ready, hover gives the brand
+    tint, muted ink means not installed;
+  * the GitHub sign-in opens the default browser at the device page and
+    shows the one-time code; the LOGO is the button, and it takes the
+    theme's own ink when a token is reachable -- white on dark;
+  * the language applies as it is chosen and redraws the screen in it;
+  * the first slide says segmentation and object classification need an
+    NVIDIA GPU, and names the card in green or red. A card that is present
+    but unreachable is sent to `spacr-doctor`, because that is a CUDA
+    problem and not a hardware one. First slide only;
+  * the last slide says "Done" and, under it, "Welcome to spaCR".
+
+THE WINDOWS
+  * frameless, with minimise / full screen / close top right, and the MARK
+    changes colour rather than a plate behind it: red x, blue square, blue
+    minus. The x spans the same box as the square;
+  * every popup is cut to the card's shape with a rounded mask, so no
+    compositor can leave a square corner;
+  * the resting rim is the palette's dark grey and every card lights the
+    same fraction of it, measured against the first-run window;
+  * the edges resize, handed to the window manager, because dropping the
+    frame dropped the grips;
+  * the menu bar lights its words in the accent on hover and press, and is
+    re-laid on a window-state change so a menu opens under the word that
+    was pressed.
+
+THE SETTINGS PANEL
+  * every Preferences row carries its tooltip ON THE LABEL, never on the
+    field, filled from one table and moved there by one pass over the
+    finished dialog -- so a row added later is covered without the author
+    having to remember the rule.
+
+THE CELLS TAB AND THE FIGURES
+  * three crop sources: load images, stream (array), stream (database).
+    The array route reads an object's label out of a mask plane and can
+    follow the outline; the database route reads its row in the
+    measurements table and can only cut the recorded box, and the panel
+    says so rather than offering a shape it cannot cut;
+  * the object types cover the four organelle roles, which had no
+    coordinate column and so could not be streamed at all;
+  * three fields map each colour to an array plane, so planes 1, 2 and 4
+    of a five-plane array are a mapping rather than a slice, and a blank
+    field means that colour is not drawn;
+  * crops fill their row instead of stopping at a hard-coded 96 px;
+  * the save dialog's preview is drawn on the page the FILE gets, and the
+    dialog offers "lock axis scales", a graph shape, line width, an
+    absolute text size and both axis titles, all defaulting to "as drawn".
+    (AUDIT 2026-08-26: this line said "aspect ratio", which 245 removed
+    from every surface a user reads. The row is `lock axis scales` -- one
+    y unit to n x units, a statement about the DATA -- and the shape of
+    the page is the separate `graph shape` control beside it.)
+
+THE REGRESSION
+  * the intercept is a choice in four states: fitted, zero (through the
+    origin), control (the response centred on the negative controls, so
+    the intercept IS the control level), and value (pinned at a number the
+    user gives, by shifting the response AND suppressing the term).
+    OFFERED IN THE FORM: `intercept` is a dropdown of the four under
+    "Regression: Model", `intercept_value` is the number beside it, and
+    the number is greyed for the three modes that do not read it, with
+    the reason naming the mode actually in force. A settings file written
+    before the keys existed still runs, and fits as it did;
+  * rank refuses a continuous column as a grouping, by name, and names the
+    thin groups once instead of one line per pair.

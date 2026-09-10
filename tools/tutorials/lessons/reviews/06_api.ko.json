@@ -1,0 +1,19 @@
+{
+  "lesson": "06_api", "language": "ko",
+  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
+  "title": "Python API와 현재의 헤드리스 작업 흐름",
+  "description": "설치된 배치 진입점을 확인하고, 대화형 도구와 Python 함수를 구분하며, 분석을 실행했다고 주장하지 않고 실제 예제의 모의 실행을 살펴봅니다.",
+  "objectives": ["활성 Python 환경에서 패키지 버전을 확인합니다.", "현재 명령 키와 실제로 호출하는 함수를 확인합니다.", "대화형 작업, Python 함수, 배치 명령을 구분합니다.", "무인 실행 전에 모의 실행의 설정, 종료 상태, 한계를 읽습니다."],
+  "prerequisite": "먼저 설치 강의를 완료하세요. 시연하는 사전 점검에는 Regression 강의에서 다운로드한 짝지어진 데이터와 저장한 설정을 사용합니다. 이 컴퓨터의 경로를 자신의 경로로 바꾸세요. 이 녹화에서는 분석이나 보고서를 생성하지 않습니다.",
+  "scenes": [
+    "spaCR를 설치한 환경에서 패키지를 가져오고 버전을 출력합니다. 실제 터미널에는 버전 일 점 오 점 영 점 사가 표시됩니다. 오래된 환경은 다른 함수와 설정을 제공할 수 있으므로 명령을 따라 하기 전에 자신의 버전을 확인하세요.",
+    "list 옵션과 함께 spacr-run을 실행합니다. 배치 부분에는 mask, measure, classify_merged 등을 포함한 정확한 명령 키와 Python 진입점이 표시됩니다. Home 화면의 이름이나 중첩 버튼이 자동으로 배치 명령이 되는 것은 아닙니다. 강의 제목으로 키를 추측하지 말고 설치된 목록을 확인하세요.",
+    "regression에 describe를 사용하면 spacr.ml의 perform_regression 함수, 기본값을 제공하는 함수, 입력 요구 사항을 볼 수 있습니다. 명령을 실제 분석 함수와 연결하는 정보입니다. 여기서 사용한 짝지어진 데이터의 저장 설정은 연결된 Regression 예제에서 가져온 것이며, 가상의 측정 폴더가 아닙니다.",
+    "Annotate는 대화형 작업입니다. 실제로 spacr-run annotate를 호출하면 종료 상태 이가 반환되고 배치 등가 기능이 없다는 설명이 나옵니다. 잘라낸 이미지에 레이블을 지정하려면 데스크톱 앱의 Annotate를 사용하세요. 이 예상된 거부는 설치가 잘못되었다는 증거가 아닙니다.",
+    "일부 기능은 대응하는 배치 키 없이 Python API를 제공합니다. 여기서는 spacr.report에서 build_report를 가져와 실제 함수 시그니처를 확인합니다. 함수를 호출하거나 보고서를 생성하지는 않습니다. spacr-run report가 있다고 가정하지 말고 함수의 문서와 인수를 확인하세요.",
+    "regression에 저장한 설정 파일을 전달하고 dry-run 옵션을 추가합니다. 실제 명령은 설정을 확정하고 사전 점검을 수행한 다음 perform_regression이 호출되지 않았다고 명시합니다. 종료 상태와 메시지를 읽으세요. 이 녹화에서는 추가 회귀 분석을 시작하거나 그 분석 결과를 기록하지 않았습니다.",
+    "사전 점검에 오류가 없다고 해서 전체 분석의 성공이나 과학적 타당성이 입증되지는 않습니다. 이 버전의 일반 계획은 측정 데이터베이스를 언급하지만, 여기서 회귀 분석은 짝지어진 표를 사용합니다. 모듈의 실제 입력을 확인하고 무인 실행에 의존하기 전에 제한된 규모로 시험 실행하세요.",
+    "분석을 실제로 실행하려는 경우에만 dry-run을 제거하세요. 정확한 설정, 입력 식별자, 패키지 버전, 콘솔 로그를 출력과 함께 보관하세요. 시연된 실행은 연결된 모듈 강의를 참고하고, Python 스크립트를 작성할 때는 함수의 현재 API 문서를 확인하세요."
+  ]
+}

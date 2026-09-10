@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.macro.Recording#3",
+      "source_sha256": "b09e873d1dddabd0a3e532dd91e88e9a111f18802a1c5bdbb7c5353da7c3cdce",
+      "source": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "context": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "translation": "Directorio run-journal copiado al paso registrado y utilizado para recuperar un identificador de ejecución de reserva cuando ningún registro del historial expone ninguno."
+    },
+    {
+      "label": "spacr.ml#4",
+      "source_sha256": "840d545efb08862de418b298b309fbeb66a5ad9a28d4ab441cc20187572830b5",
+      "source": "A regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "context": "A regression processing session is configured with ``paired_data``: ordered score/count CSV pairs whose laboratory microplate and microplate sample position identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control microplate sample positions, laboratory microplate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "translation": "Una ejecución de regresión se configura con ``paired_data``: pares ordenados de CSV de puntuación y recuento cuyas identidades de placa y de pocillo coinciden.  Las listas antiguas ``score_data`` y ``count_data`` se migran por posición, pero los pares explícitos son más seguros. Elija la columna de puntuación con ``dependent_variable`` y proporcione los pocillos de control pertinentes, los metadatos de la placa, el ``level`` del análisis (guía, gen o ambos), el umbral de comparaciones múltiples y, ya sea un ``regression_type`` admitido, ya sea ``None`` para la selección basada en la distribución.  Los ajustes propios de cada familia se validan en lugar de descartarse en silencio.  La vía de aprendizaje automático clásico necesita, en cambio, uno o más archivos ``measurements.db``, controles positivos y negativos etiquetados o una columna de anotación, y la elección de un modelo como XGBoost, regresión logística o bosque aleatorio."
+    },
+    {
+      "label": "spacr.pipeline_v2.run_v2#18",
+      "source_sha256": "4554a1bbdec89947b598be33d2da307067ee47fdca422918ebcf3a830e938085",
+      "source": "full Mask settings mapping. When it enables ``illumination_correction``, one model is prepared from the raw persisted stacks after pass 1 and its session corrects only the private Cellpose inputs in pass 2; omitted/off preserves the previous byte-level output contract.",
+      "context": "full Mask settings mapping. When it enables ``illumination_correction``, one model is prepared from the raw persisted stacks after pass 1 and its session corrects only the private Cellpose inputs in pass 2; omitted/off preserves the previous byte-level output contract.",
+      "translation": "asignación completa de ajustes de Mask. Cuando activa ``illumination_correction``, se prepara un modelo a partir de las pilas brutas persistidas tras la pasada 1 y su sesión corrige únicamente las entradas privadas de Cellpose en la pasada 2; omitirlo o desactivarlo conserva el contrato de salida byte a byte anterior."
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
+      "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
+      "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "translation": "Tanto Eliminar como Cancelar pasan por aquí y ninguno de los dos envía un evento de cierre — ``QDialog.done`` oculta el widget —, de modo que aquí, y no en ``closeEvent``, es donde debe vivir el desmontaje de un diálogo modal. Qt aborta el proceso de inmediato si un ``QThread`` en ejecución se destruye junto con su propietario, y el recorrido puede seguir en curso cuando la usuaria o el usuario cancela."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
+      "source_sha256": "4f42abf241ab238fd87e1eb7644fcb820fab5c9269e7916cd1d9e6b93b3c3379",
+      "source": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "context": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "translation": "La forma antigua de dos estados de :meth:`set_tile_policy`, conservada porque es lo que entiende quien llama sin haber oído hablar del cosido: off es ahora la política DEFAULT en lugar del skip que era antes, ya que un campo cosido es lo que siempre se quiso."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
+      "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
+      "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "translation": "El resto se CONSERVA, no se descarta: :meth:`settings` lo devuelve sin cambios junto a los nombres de datos estructurados de la propia tabla, de modo que este widget puede editar un rincón de un archivo de ajustes sin retener el archivo entero."
+    },
+    {
+      "label": "spacr.qt.widgets.section.Section#5",
+      "source_sha256": "29ab42780880f20d46f88ba28225877563bf273ab16a319acdc506789de673d2",
+      "source": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Plate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "translation": "El título se conserva tal como se escribió y solo se pasa a mayúsculas camino del botón, porque el catálogo de traducción está indexado por el nombre escrito: buscar un rótulo ya en mayúsculas no encuentra nada y deja la cabecera en inglés. El ``&`` de un nombre como \"Laboratory microplate Layout & Controls\" se escapa para mostrarlo, ya que de lo contrario un ``QToolButton`` lo leería como un mnemónico y se lo tragaría."
+    },
+    {
+      "label": "spacr.spacrops.stitch_cycle_wells#2",
+      "source_sha256": "43e2055f27b37bb3caa915733fa5684575c1b93adb7ae82e1a64fe15a181260e",
+      "source": "THE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a mosaic raises when too few tiles overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
+      "context": "The stitched image grid is opt-in. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a stitched image grid raises when too few microscope image fields overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.",
+      "translation": "La cuadrícula de imágenes cosida es opcional. Establezca ``write_mosaic`` (o su sinónimo ``mosaic``) para construir una. Está desactivada de forma predeterminada porque montar una cuadrícula de imágenes cosida da error cuando muy pocos campos de imagen del microscopio se solapan como para colocar alguno, y una placa que no se puede coser no debería convertirse en una placa que no se puede organizar."
+    }
+  ]
+}

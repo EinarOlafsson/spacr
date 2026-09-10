@@ -1,34 +1,17 @@
-"""The Classes editor: pick a column, name what is in it.
+"""Edit named classes derived from annotation or metadata values.
 
-The setting is a dict of ``name -> {column, value}``, and this is how it gets
-filled in: choose a column, and every distinct value in it becomes a row the
-user gives a name to. That is the whole gesture — "you set the column then the
-keys of this dict get populated and the user fills in their names."
-
-Two things it does that the old settings could not.
-
-**More than one column.** Each row remembers which column its value came from,
-so classes can be defined across several annotation columns at once. Adding a
-second column appends its values rather than replacing the first's.
-
-**The random complement.** One row can be "everything not claimed, chosen at
-random", which is what the retired ``write_random_annotation_column`` used to
-arrange. It is a KIND OF ROW here rather than a button pressed beforehand,
-because it is a way of defining a class and belongs where the other class
-definitions are.
-
-Under the metadata basis the offered columns become the plate's own
-coordinates — plate, row, column, field, well — which is why
-``location_column``, ``positive_control`` and ``negative_control`` are no
-longer needed: "positive control is column 3" is exactly a row in this table.
+Class definitions are stored as ``name -> {column, value}`` mappings. Values
+from several columns can be appended to one definition set, and an optional
+random-complement rule represents objects not claimed by another class. With
+the metadata basis, the editor offers plate, row, column, field, and well
+coordinates through the same interface.
 """
 from __future__ import annotations
 
 import ast
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence
 
-import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QFrame, QHBoxLayout, QHeaderView, QLabel,
@@ -36,11 +19,21 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+if TYPE_CHECKING:                    # pragma: no cover - typing only
+    # PANDAS IS NOT NEEDED TO RUN THIS FILE. Both mentions are annotations,
+    # and `from __future__ import annotations` above makes those strings --
+    # but the plain import still ran, and it cost 0.365 s of a 1.5 s main
+    # window, because the Home page reaches this module through the settings
+    # model. Nothing here calls pandas; nothing here should import it.
+    import pandas as pd
+
 from ...classify_classes import (
     METADATA_COLUMNS, ClassDefinitionError, ClassRule, candidate_columns,
     values_in,
 )
-from ..theme import SPACING, register_widget_qss
+from ..i18n import set_translatable_text
+from ..theme import SPACING, apply_close_mark, register_widget_qss
+from .sortable_table import install_sorting, tree_item
 
 LOG = logging.getLogger("spacr.qt.class_editor")
 
@@ -48,6 +41,12 @@ QSS_NAME = "ClassEditor"
 
 
 def _class_editor_qss(palette, opacity=None) -> str:
+    """Build the class editor's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the panel's surface.
+    :returns: the QSS.
+    """
     return f"""
     QTreeWidget#ClassTable {{
         background: transparent;
@@ -73,26 +72,32 @@ register_widget_qss(QSS_NAME, _class_editor_qss, replace=True)
 
 
 class ClassChip(QWidget):
-    """One class, as the two bubbles the maintainer asked for.
+    """Display one class name and its selected value as a removable pair.
 
-    "class then value class generating a teal bubble and the value generating
-    a green bubble ... i just thought it was a good idea to consolidate the
-    information into one object."
+    Random-complement classes omit the value pill because they do not select
+    a specific value. Name and value colours come from the active theme's
+    ``chip_class`` and ``chip_value`` roles.
 
-    So the two halves are one object on screen: a TEAL pill carrying the class
-    name and a GREEN pill carrying the value it selects, side by side with a
-    single remove button for the pair. A class that selects nothing -- the
-    random complement -- shows only the teal half, because there is no value
-    to put in the green one.
-
-    The colours are palette ROLES (`chip_class`, `chip_value`), not literals.
-    A hard-coded teal survives exactly until someone switches to the light
-    theme, where it fails contrast against a white surface.
+    :param index: which rule this chip stands for. It is what ``removed``
+        carries, so it must be the rule's position in the editor's list
+        rather than a running count of chips built.
+    :param rule: the rule to show. Read once, at construction: a chip does
+        not follow a rule that changes underneath it.
+    :param palette: the active theme's colour roles, as a mapping. Needs at
+        least ``chip_class``, ``chip_value`` and ``bg``.
+    :param parent: parent widget.
     """
 
     removed = Signal(int)
 
     def __init__(self, index: int, rule: "ClassRule", palette, parent=None):
+        """Build one class bubble: its name, its value and a remove mark.
+
+        :param index: the rule's position, carried so removal can name it.
+        :param rule: the class rule this chip stands for.
+        :param palette: the active theme colours.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ClassChip")
         self._index = int(index)
@@ -127,15 +132,17 @@ class ClassChip(QWidget):
             source.setStyleSheet(f"color:{palette['fg_muted']};")
             row.addWidget(source)
 
-        self._close = QPushButton("\u00d7", self)
+        self._close = QPushButton(self)
         self._close.setObjectName("ClassChipRemove")
-        self._close.setFixedWidth(20)
-        self._close.setToolTip(f"Remove the class {rule.name!r}")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(self._close,
+                         tooltip=f"Remove the class {rule.name!r}")
         self._close.clicked.connect(self._on_removed)
         row.addWidget(self._close)
         row.addStretch(1)
 
     def _on_removed(self) -> None:
+        """Announce that this chip's rule should go."""
         self.removed.emit(self._index)
 
 
@@ -144,9 +151,15 @@ class ClassEditorWidget(QWidget):
 
     :param value: the current setting -- a dict, or the old list of names.
     :param frame: the table whose columns and values are offered. Without one
-        the widget still edits an existing dict; it simply cannot populate new
+        the widget still edits an existing dictionary but cannot populate new
         rows, and says so rather than showing an empty column picker as though
         the table had no columns.
+    :param parent: parent widget; ownership only.
+    :param basis: ``annotation`` to derive classes from an annotation column,
+        or ``metadata`` to offer plate/row/column/field/well instead. It picks
+        WHICH COLUMNS ARE ON OFFER, not how a rule is stored -- both bases
+        produce the same ``name -> {column, value}`` mapping -- and it can be
+        changed after construction with :meth:`set_basis`.
     """
 
     value_changed = Signal(object)
@@ -154,6 +167,20 @@ class ClassEditorWidget(QWidget):
     def __init__(self, value: Any = None, parent=None, *,
                  frame: Optional[pd.DataFrame] = None,
                  basis: str = "annotation"):
+        """Build the class editor: a column picker, a two-field entry row and chips.
+
+        The column combo is editable because it is filled from a loaded table
+        and there is not always one: with no frame the list came back empty, Add
+        values was disabled, and a non-editable empty combo left no way at all
+        to name a column -- so no class could be added and the module could not
+        be configured.
+
+        :param value: the classes to start with.
+        :param parent: parent widget, or ``None``.
+        :param frame: the loaded table, used to offer columns and their values.
+        :param basis: which columns the picker offers -- ``"annotation"`` or
+            the metadata set.
+        """
         super().__init__(parent)
         self.setObjectName("ClassEditor")
         self._frame = frame
@@ -170,12 +197,21 @@ class ClassEditorWidget(QWidget):
         self.column = QComboBox(self)
         self.column.setToolTip(
             "Choosing a column fills the table below with its values, one row "
-            "per class. Choosing a SECOND column adds its values alongside — "
+            "per class. Choosing another column adds its values alongside — "
             "classes can be defined across more than one column.")
+        # EDITABLE, because the combo is filled from a LOADED TABLE and there
+        # is not always one. With no frame the list came back empty, the "Add
+        # values" button was disabled, and a non-editable empty combo left no
+        # way at all to name a column -- so no class could be added and the
+        # module could not be configured. Typing a name is the fallback; the
+        # SQL button below is the answer when a database is there to ask.
+        self.column.setEditable(True)
+        self.column.setInsertPolicy(QComboBox.NoInsert)
         picker.addWidget(self.column, 1)
         self._add = QPushButton("Add values", self)
         self._add.clicked.connect(self.populate_from_column)
         picker.addWidget(self._add)
+        self._picker_row = picker
         outer.addLayout(picker)
 
         # TWO FIELDS, SIDE BY SIDE -- the gesture the maintainer asked for:
@@ -218,6 +254,7 @@ class ClassEditorWidget(QWidget):
         # because every existing test and integration reads `self.table`.
         # Removing it would be a second change riding on this one.
         self.table = QTreeWidget(self)
+        install_sorting(self.table)
         self.table.setVisible(False)
         self.table.setObjectName("ClassTable")
         self.table.setColumnCount(3)
@@ -252,6 +289,11 @@ class ClassEditorWidget(QWidget):
 
         self.set_frame(frame)
         self.set_value(value)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- what is on offer --------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
@@ -264,12 +306,46 @@ class ClassEditorWidget(QWidget):
         self.column.blockSignals(True)
         self.column.clear()
         self.column.addItems([str(c) for c in columns])
-        if current in columns:
+        # A NAME TYPED OR PICKED STAYS PUT. `set_frame` runs again whenever
+        # the basis changes or a table is attached, and clearing the combo
+        # used to throw away a column the user had already named -- silently,
+        # because an empty combo looks the same as one nobody has touched.
+        if current:
             self.column.setCurrentText(current)
         self.column.blockSignals(False)
-        self._add.setEnabled(bool(columns) and frame is not None)
+        self._add.setEnabled(bool(self.column.currentText().strip())
+                             and frame is not None)
         if frame is None:
-            self._say("Load a table to fill classes in from a column.")
+            set_translatable_text(
+                self._hint,
+                "Load a table, or press SQL to read the column "
+                "names out of the database, to fill classes in "
+                "from a column.")
+
+    def attach_sql_picker(self, db_path_getter, table: str = "png_list"):
+        """Add a database-backed column picker beside the column field.
+
+        The picker reads available columns from the current run database when
+        no table has been loaded into the editor.
+
+        :param db_path_getter: callable giving the run folder or database
+            path, called on each press so a path edited later is picked up.
+        :param table: database table whose columns should be offered.
+        :returns: the button, or ``None`` if it could not be built.
+        """
+        from .column_picker import attach_column_picker
+
+        try:
+            return attach_column_picker(
+                self.column, db_path_getter, table,
+                layout=self._picker_row,
+                on_pick=lambda _name: self._add.setEnabled(True),
+                tooltip=("Read the column names out of this run's database, "
+                         "rather than typing one and finding out at run "
+                         "time whether it exists."))
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not attach the column picker", exc_info=True)
+            return None
 
     def set_basis(self, basis: str) -> None:
         """Metadata or annotation: it decides which columns are offered.
@@ -327,13 +403,25 @@ class ClassEditorWidget(QWidget):
         self._rebuild()
 
     def value(self) -> Dict[str, Dict[str, Any]]:
+        """The class rules, keyed by name.
+
+        :returns: one dict per rule.
+        """
         return {r.name: r.to_dict() for r in self._rules}
 
     #: The settings panel reads every custom widget through this name.
     def get_value(self) -> Dict[str, Dict[str, Any]]:
+        """The same as :meth:`value`, under the name the settings form calls.
+
+        :returns: one dict per rule.
+        """
         return self.value()
 
     def rules(self) -> List[ClassRule]:
+        """The rules as objects rather than as dicts.
+
+        :returns: the rules, in display order.
+        """
         return list(self._rules)
 
     # -- editing -----------------------------------------------------------
@@ -377,11 +465,12 @@ class ClassEditorWidget(QWidget):
         name = self.class_field.text().strip()
         value = self.value_field.text().strip()
         if not name:
-            self._say("give the class a name first")
+            set_translatable_text(self._hint, "give the class a name first")
             return
         column = self.column.currentText().strip()
         if not column:
-            self._say("choose the column the value comes from")
+            set_translatable_text(
+                self._hint, "choose the column the value comes from")
             return
         if not value:
             self._say(f"give {name!r} a value in {column!r}, or use "
@@ -404,20 +493,28 @@ class ClassEditorWidget(QWidget):
         self._say(f"added {name}")
 
     def remove_at(self, index: int) -> None:
-        """Remove the class a chip's \u00d7 belongs to."""
+        """Remove the class a chip's close mark belongs to."""
         if 0 <= int(index) < len(self._rules):
             del self._rules[int(index)]
             self._rebuild()
 
     def add_random_complement(self) -> None:
+        """Add a rule taking a random sample of whatever the others leave.
+
+        AT MOST ONE. Two complements would each be defined as "the rest",
+        which is not a partition and cannot both be true.
+        """
         if any(r.random_complement for r in self._rules):
-            self._say("there is already a random-rest class; two classes both "
-                      "meaning 'everything else' have no boundary between them")
+            set_translatable_text(
+                self._hint,
+                "there is already a random-rest class; two classes both "
+                "meaning 'everything else' have no boundary between them")
             return
         self._rules.append(ClassRule(name="rest", random_complement=True))
         self._rebuild()
 
     def remove_selected(self) -> None:
+        """Drop the selected rules."""
         item = self.table.currentItem()
         if item is None:
             return
@@ -428,6 +525,12 @@ class ClassEditorWidget(QWidget):
 
     # -- plumbing ----------------------------------------------------------
     def _rebuild(self) -> None:
+        """Redraw the chips and the hidden table from the current rules.
+
+        Only the class name is editable in the table: the value and its column
+        are facts about the loaded table, and letting them be typed over would
+        produce a class that selects nothing with no sign of why.
+        """
         self._rebuild_chips()
         self.table.blockSignals(True)
         self.table.clear()
@@ -437,7 +540,7 @@ class ClassEditorWidget(QWidget):
             else:
                 labels = [rule.name, "" if rule.value is None else str(rule.value),
                           rule.column]
-            item = QTreeWidgetItem(labels)
+            item = tree_item(labels)
             # Only the NAME is editable. The value and its column are facts
             # about the table, and letting them be typed over would produce a
             # class that selects nothing with no sign of why.
@@ -447,6 +550,15 @@ class ClassEditorWidget(QWidget):
         self._emit()
 
     def _on_item_changed(self, item: QTreeWidgetItem, column: int) -> None:
+        """Rename a class from an edited table cell.
+
+        An empty name is refused and the old one put back -- a class with no
+        name cannot be trained on or reported, so it fails later rather than
+        here if accepted.
+
+        :param item: the edited row.
+        :param column: which cell changed; only the name column is acted on.
+        """
         if column != 0:
             return
         index = self.table.indexOfTopLevelItem(item)
@@ -488,9 +600,23 @@ class ClassEditorWidget(QWidget):
             self._chips_layout.addWidget(chip)
 
     def _emit(self) -> None:
+        """Announce the current class definitions."""
         self.value_changed.emit(self.value())
 
     def _say(self, message: str) -> None:
+        """Show a hint built from data — a column name, a count, an error.
+
+        The message is shown verbatim. Sending it through the translator
+        would rewrite the user's own column names and values word by word,
+        so a class on ``control`` would report itself as ``Kontroll``.
+        """
+        # Two things would otherwise rewrite this line on a language pass:
+        # the source a fixed sentence leaves behind, which would come back
+        # over this one, and the general label walk, which translates known
+        # words wherever it finds them. A fixed sentence set later still
+        # retranslates -- its template is consulted before the opt-out.
+        self._hint.setProperty("_spacr_i18n_text_template", None)
+        self._hint.setProperty("i18nSkipText", True)
         self._hint.setText(message)
 
 

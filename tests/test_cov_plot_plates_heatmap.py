@@ -141,29 +141,42 @@ def test_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc():
 # generate_plate_heatmap — metadata back-fill from legacy column names
 # ---------------------------------------------------------------------------
 
-def test_generate_plate_heatmap_backfills_columnid_from_column():
-    """A legacy ``column`` column seeds ``columnID`` before prc parsing."""
+def test_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_column():
+    """A legacy ``column`` column does not get a vote on where a well is drawn.
+
+    Renamed from the "backfills columnID" spelling it had while the function
+    carried a disagreeing derivation: it read ``column`` / ``column_name``
+    into ``columnID`` and then overwrote that from the prc tokens a few lines
+    later, so the derivation could never change an answer. What is worth
+    pinning is the property that survived: prc is the only authority on the
+    well, so a frame carrying a second spelling of the column is placed
+    exactly where the same frame without it is.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r1_c1", "p1_r2_c2"], [1.0, 3.0, 7.0])
-    df["column"] = ["c1", "c1", "c2"]
-    assert "column_name" not in df.columns
+    df["column"] = ["c9", "c9", "c9"]
 
     plate_map, (vmin, vmax) = generate_plate_heatmap(df, "p1", "value", "mean", "all", 0)
-    # The seeded columnID is superseded by the prc tokens (prc is the truth).
     assert df["columnID"].tolist() == ["c1", "c1", "c2"]
+    assert plate_map.columns.tolist() == ["c1", "c2"]
     assert plate_map.loc["r1", "c1"] == 2.0
     assert plate_map.loc["r2", "c2"] == 7.0
     assert (vmin, vmax) == (0.0, 7.0)
 
 
-def test_generate_plate_heatmap_backfills_plateid_from_plate():
-    """A legacy ``plate`` column seeds ``plateID`` when ``plateID`` is absent."""
+def test_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column():
+    """``plateID`` comes from the identifier even when a ``plate`` column exists.
+
+    Renamed from "backfills plateID from plate" for the reason given above:
+    the seeding branch it named was overwritten before anything read it. The
+    plate filter has to agree with the identifier or a well lands on the
+    wrong plate's grid, and that is what is asserted here.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [4.0, 6.0])
-    df["plate"] = "p1"
-    assert "plateID" not in df.columns
+    df["plate"] = "some_other_plate"
 
     plate_map, _ = generate_plate_heatmap(df, "p1", "value", "mean", "all", 0)
     assert df["plateID"].tolist() == ["p1", "p1"]
@@ -171,22 +184,31 @@ def test_generate_plate_heatmap_backfills_plateid_from_plate():
     assert plate_map.loc["r2", "c2"] == 6.0
 
 
-def test_generate_plate_heatmap_backfills_plateid_from_plate_name():
-    """``plate_name`` is the second fallback for ``plateID``."""
+def test_generate_plate_heatmap_ignores_a_plate_name_column_entirely():
+    """``plate_name`` names nothing this function reads.
+
+    Renamed from "backfills plateID from plate_name": that fallback was
+    overwritten from the prc tokens in every case. A disagreeing
+    ``plate_name`` must not move the well, which is the assertion left.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [4.0, 6.0])
     df["plate_name"] = "ignored_by_prc_parsing"
-    assert "plateID" not in df.columns and "plate" not in df.columns
 
     plate_map, _ = generate_plate_heatmap(df, "p1", "value", "sum", "all", 0)
-    # prc parsing overwrites the seeded plateID, so the plate filter still works.
     assert df["plateID"].tolist() == ["p1", "p1"]
     assert plate_map.loc["r1", "c1"] == 4.0
 
 
-def test_generate_plate_heatmap_default_plateid_when_no_metadata_columns():
-    """With no plate metadata at all the seed is 'p1', then prc parsing wins."""
+def test_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns():
+    """With no plate metadata at all the plate is still the one in the prc.
+
+    Renamed from "default plateID when no metadata columns": the ``'p1'``
+    default it named was overwritten from the prc token before it was read,
+    so a frame of ``pX_`` wells was never labelled ``p1``. That is what is
+    checked now.
+    """
     from spacr.plot import generate_plate_heatmap
 
     df = _prc_df(["pX_r1_c1", "pX_r2_c2"], [1.0, 5.0])
@@ -343,7 +365,7 @@ def test_generate_plate_heatmap_rejects_unknown_grouping():
 # ---------------------------------------------------------------------------
 
 def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_recorder):
-    """Five plates -> 2x4 grid, three unused axes deleted, PDF written to dst."""
+    """Five plates -> one small multiple, one shared colour bar, one file."""
     from spacr.plot import plot_plates
 
     prc = []
@@ -357,25 +379,38 @@ def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_re
     fig = plot_plates(df, "value", "mean", "all", "viridis",
                       min_count=0, verbose=False, dst=str(tmp_path))
 
-    # 5 heatmap axes + 5 seaborn colorbar axes; the 3 spare grid slots are gone.
-    heat_axes = [a for a in fig.axes if a.get_title()]
+    # 5 plate axes, each an image, plus the ONE colour bar they share.
+    heat_axes = [a for a in fig.axes if a.images]
     assert sorted(a.get_title() for a in heat_axes) == ["p1", "p2", "p3", "p4", "p5"]
-    assert os.path.isfile(tmp_path / "plate_heatmap_0.pdf")
-    assert (tmp_path / "plate_heatmap_0.pdf").stat().st_size > 0
+    assert len([a for a in fig.axes if not a.images]) == 1
+    assert os.path.isfile(tmp_path / "plate_heatmap_value.pdf")
+    assert (tmp_path / "plate_heatmap_value.pdf").stat().st_size > 0
     assert show_recorder == []          # verbose=False must not call plt.show
 
 
-def test_plot_plates_autoincrements_output_filename(tmp_path, show_recorder):
-    """A second export next to an existing file gets the next free index."""
+def test_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one(
+        tmp_path, show_recorder):
+    """The export is named for the measurement it draws, and replaced.
+
+    The old loop took the first free ``plate_heatmap_<n>.pdf`` and never
+    overwrote, so the maintainer's screen accumulated twelve byte-identical
+    copies of one figure from twelve runs -- and the figure grid showed all
+    twelve. A run already gets its own results folder
+    (``spacr.ml._next_results_folder``), so one file per measurement in it is
+    the whole of what belongs there. The old loop also probed for a ``.pdf``
+    that ``save_figure`` may write as ``.png``, in which case it never found
+    its own previous output at all.
+    """
     from spacr.plot import plot_plates
 
-    (tmp_path / "plate_heatmap_0.pdf").write_bytes(b"placeholder")
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [1.0, 2.0])
-    plot_plates(df, "value", "mean", "all", "viridis",
-                min_count=0, verbose=False, dst=str(tmp_path))
+    for _ in range(3):
+        plot_plates(df, "value", "mean", "all", "viridis",
+                    min_count=0, verbose=False, dst=str(tmp_path))
 
-    assert (tmp_path / "plate_heatmap_1.pdf").is_file()
-    assert (tmp_path / "plate_heatmap_0.pdf").read_bytes() == b"placeholder"
+    assert [p.name for p in sorted(tmp_path.iterdir())] == \
+        ["plate_heatmap_value.pdf"]
+    assert (tmp_path / "plate_heatmap_value.pdf").stat().st_size > 0
 
 
 def test_plot_plates_verbose_calls_show_and_skips_saving(tmp_path, show_recorder):

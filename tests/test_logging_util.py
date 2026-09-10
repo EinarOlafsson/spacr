@@ -85,6 +85,9 @@ def test_get_logger_returns_child(tmp_path):
 
 
 def test_enable_disable_debug_toggle(tmp_path):
+    import sys
+    import threading
+
     from spacr.logging_util import (
         disable_debug,
         enable_debug,
@@ -94,12 +97,19 @@ def test_enable_disable_debug_toggle(tmp_path):
     setup_logging(level=logging.INFO)
     spacr_log = logging.getLogger("spacr")
     assert spacr_log.getEffectiveLevel() == logging.INFO
+    sys_profile = sys.getprofile()
+    get_thread_profile = getattr(threading, "getprofile", lambda: None)
+    thread_profile = get_thread_profile()
     enable_debug()
     assert spacr_log.level == logging.DEBUG
-    assert function_trace_enabled()
+    assert not function_trace_enabled()
+    assert sys.getprofile() is sys_profile
+    assert get_thread_profile() is thread_profile
     disable_debug()
     assert spacr_log.level == logging.INFO
     assert not function_trace_enabled()
+    assert sys.getprofile() is sys_profile
+    assert get_thread_profile() is thread_profile
 
 
 def test_function_trace_covers_internal_package_calls(caplog):

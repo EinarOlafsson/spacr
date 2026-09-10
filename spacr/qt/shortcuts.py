@@ -8,8 +8,10 @@ the whole app is usable without a mouse:
     Ctrl+1..9     Switch to the Nth app in the sidebar
     Ctrl+K        Open the command palette
     F1  / ?       Show the shortcuts cheat sheet
-    Ctrl+,        Open Preferences
+    Ctrl+P        Open Preferences
     Ctrl+/        Open the AI Console
+    Ctrl+End      Jump to the newest console line
+    F11           Toggle full screen
     Esc           Close any open dialog / popup
 
 :func:`install` is called once from ``MainWindow.__init__``. Every
@@ -20,23 +22,45 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QShortcut
 from PySide6.QtWidgets import (
-    QDialog, QGridLayout, QLabel, QMainWindow, QVBoxLayout, QWidget,
+    QDialog,
+    QGridLayout,
+    QLabel,
+    QMainWindow,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
 
 LOG = logging.getLogger("spacr.qt.shortcuts")
 
 
+#: Where a shortcut works. A key that only works on one screen and is listed
+#: without saying so sends a user to press it somewhere it does nothing.
+EVERYWHERE = "anywhere in spaCR"
+
+
 @dataclass(frozen=True)
 class ShortcutSpec:
-    """One shortcut declaration."""
+    """One shortcut declaration.
+
+    :param keys: the binding, in Qt's portable spelling. It is PRINTED
+        through `QKeySequence.toString(NativeText)`, so `Ctrl` reads as the
+        Command symbol on macOS -- writing "Ctrl+H" into a label would
+        hard-code one platform into the help.
+    :param label: what the key does.
+    :param category: the group it is shown under.
+    :param scope: where it works. The default is the whole window; a
+        per-screen binding names its screen.
+    """
     keys:     str
     label:    str
     category: str = "General"
+    scope:    str = EVERYWHERE
 
 
 SHORTCUTS: List[ShortcutSpec] = [
@@ -51,13 +75,182 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+8",       "Switch to 8th app",      "Navigation"),
     ShortcutSpec("Ctrl+9",       "Switch to 9th app",      "Navigation"),
     ShortcutSpec("Ctrl+K",       "Open command palette",   "Navigation"),
-    ShortcutSpec("Ctrl+,",       "Open preferences",       "Navigation"),
+    ShortcutSpec("Ctrl+P",       "Open preferences",       "Navigation"),
+    ShortcutSpec("Ctrl+Shift+A", "Show the full app list", "Navigation"),
+    ShortcutSpec("F11",          "Toggle full screen",     "Navigation"),
     ShortcutSpec("Ctrl+/",       "Toggle AI Console",      "Actions"),
+    # Bound at window scope so it is available whenever a module console
+    # exists, and listed under the interface area it controls.
+    ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
+                 "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
     ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
+    ShortcutSpec("Ctrl+T",       "Pause or resume the background",
+                 "Background"),
+    ShortcutSpec("Ctrl+R",       "Restart the background", "Background"),
+    ShortcutSpec("Ctrl+Shift+F", "Show the background full screen",
+                 "Background"),
+    ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
+    # HOLD Z AND SCROLL, from 378. It is on the map for the reason 378's own
+    # rejection note gives: "a gesture nobody can guess belongs on that map".
+    # It was left off at the time only because every spec's label, category
+    # and scope are rows in the compact caption ratchet, and the catalogs
+    # were being rebuilt by other work that week. They are stable now, so the
+    # condition that deferred it is met.
+    #
+    # NOT A KEY SEQUENCE, which is why the first column reads as prose rather
+    # than as an accelerator. Qt binds a shortcut to a key press; this is a
+    # modifier held while the wheel turns, caught in an event filter, and
+    # there is no QKeySequence that can express it. The cheat sheet is a MAP
+    # of what the hands can do, not a list of what QShortcut owns.
+    ShortcutSpec("Z + scroll",   "Resize the interface text",
+                 "Background"),
+    # BOUND ON WINDOW ACTIONS: the window carries these, so they
+    # belongs on the map, and `install()` is not the one that creates it.
+    ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
-    ShortcutSpec("?",            "Show this cheat sheet",  "Help"),
+    ShortcutSpec("?",            "Show this cheat sheet",  "Help")
 ]
+
+
+#: THE PER-SCREEN BINDINGS, kept apart from :data:`SHORTCUTS` on purpose.
+#:
+#: `SHORTCUTS` is what `install()` BINDS on the main window, and a test
+#: asserts every entry in it is wired there. These keys are bound by the
+#: screens that own them and do not exist until such a screen is built --
+#: so putting them in the same table made "declared" and "wired" stop
+#: meaning the same thing, and four tests said so at once.
+#:
+#: THE MAP IS BOTH (:func:`mapped`). The distinction is real -- one set is
+#: always live and the other is not -- and it is the same distinction the
+#: `scope` field states to the reader.
+SCREEN_SHORTCUTS: List[ShortcutSpec] = [
+    ShortcutSpec("Left",         "Previous image",         "Annotate",
+                 "the Annotate and Make Masks screens and the QC field "
+                 "browser"),
+    ShortcutSpec("Right",        "Next image",             "Annotate",
+                 "the Annotate and Make Masks screens and the QC field "
+                 "browser"),
+    ShortcutSpec("PageUp",       "Previous image",         "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("PageDown",     "Next image",             "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Alt+Left",     "Previous image",         "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Alt+Right",    "Next image",             "Annotate",
+                 "the Annotate screen"),
+
+    ShortcutSpec("B",            "Brush",                  "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("E",            "Erase",                  "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("D",            "Draw an object",         "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("V",            "Divide an object",       "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("R",            "Recrop an object",       "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Z",            "Zoom",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+S",       "Save the mask",          "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Z",       "Undo",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Y",       "Redo",                   "Make Masks",
+                 "the Make Masks screen"),
+    ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Make Masks",
+                 "the Make Masks screen"),
+
+    ShortcutSpec("Q",            "Quarantine or restore this field",
+                 "Field browser",
+                 "the QC field browser"),
+]
+
+
+#: Window-wide keys that something OTHER than `install()` binds. They are
+#: attached to window actions, so they belong on the map and not in
+#: ``install()``'s count.
+BOUND_ELSEWHERE = frozenset({
+    "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
+    # Ctrl+H and Ctrl+P joined on 2026-09-08. The spaCR menu builds Home
+    # and Preferences as QActions carrying these sequences so the menu can
+    # print the accelerator beside the item -- which BINDS them -- and
+    # `install` bound a QShortcut for each on the same window as well. Qt
+    # answers a key with two holders by firing neither and logging
+    # "QAction::event: Ambiguous shortcut overload", so both keys were
+    # dead. They stay in SHORTCUTS because the cheat sheet must still
+    # teach them; they leave `installed()` because the action owns them.
+    "Ctrl+H", "Ctrl+P",
+})
+
+
+def installed() -> List[ShortcutSpec]:
+    """The window-wide keys `install()` is responsible for binding."""
+    return [s for s in SHORTCUTS if s.keys not in BOUND_ELSEWHERE]
+
+
+def mapped() -> List[ShortcutSpec]:
+    """Every shortcut the map describes: window-wide, then per-screen."""
+    return list(SHORTCUTS) + list(SCREEN_SHORTCUTS)
+
+
+def native(keys: str) -> str:
+    """``keys`` in the spelling the user's own keyboard has.
+
+    `Ctrl` is the Command symbol on macOS and Qt already knows; writing
+    "Ctrl+H" into a label hard-codes one platform into the help.
+    """
+    try:
+        return QKeySequence(str(keys)).toString(QKeySequence.NativeText) \
+            or str(keys)
+    except Exception:                                    # noqa: BLE001
+        return str(keys)
+
+
+def discover(window) -> List[ShortcutSpec]:
+    """Every shortcut LIVE on ``window``, whether declared or not.
+
+    The declared table is what the map is drawn from, because a per-screen
+    binding does not exist until that screen is built and the map has to
+    describe it anyway. This is the other half: a shortcut added at runtime
+    -- a plugin, a menu action -- appears without anyone editing a list.
+
+    Anything already in :data:`SHORTCUTS` is left to its declaration, which
+    is where the label and the scope live.
+    """
+    from PySide6.QtGui import QAction
+
+    # Include declared per-screen bindings as well as window-wide ones. A
+    # screen that already exists under the window must not make its declared
+    # shortcut appear a second time as a dynamically discovered key.
+    known = {native(spec.keys) for spec in mapped()}
+    out: List[ShortcutSpec] = []
+    seen = set()
+    try:
+        holders = list(window.findChildren(QShortcut)) \
+            + list(window.findChildren(QAction))
+    except Exception:                                    # noqa: BLE001
+        return out
+    for holder in holders:
+        try:
+            sequence = holder.key() if isinstance(holder, QShortcut) \
+                else holder.shortcut()
+            printed = sequence.toString(QKeySequence.NativeText)
+        except Exception:                                # noqa: BLE001
+            continue
+        if not printed or printed in known or printed in seen:
+            continue
+        seen.add(printed)
+        label = ""
+        if isinstance(holder, QAction):
+            label = holder.text().replace("&", "").strip()
+        out.append(ShortcutSpec(printed, label or "(not described)",
+                                "Other"))
+    return out
 
 
 def install(window: QMainWindow) -> None:
@@ -65,10 +258,32 @@ def install(window: QMainWindow) -> None:
 
     Idempotent — safe to call from within reload paths.
     """
-    _bind(window, "Ctrl+H", lambda: _nav(window, "__home__"))
+    # Ctrl+H and Ctrl+P are NOT bound here: the spaCR menu's Home and
+    # Preferences actions already carry them, and a second holder makes
+    # the key ambiguous. See BOUND_ELSEWHERE.
     _bind(window, "Ctrl+K", lambda: _open_palette(window))
-    _bind(window, "Ctrl+,", lambda: _open_preferences(window))
     _bind(window, "Ctrl+/", lambda: _toggle_ai(window))
+    # THE WINDOW OWNS Ctrl+End, and the consoles stand down. Binding it here
+    # as well as on every console panel would make it AMBIGUOUS, which in Qt
+    # means NEITHER fires -- measured: with both live, `activated` stays
+    # silent on both and `activatedAmbiguously` goes to one of them in turn.
+    # `_hand_ctrl_end_to_the_window` disables the panels' own copies, so
+    # exactly one binding is live and the key works from anywhere in the
+    # window rather than only while a console happens to exist.
+    end = _bind(window, "Ctrl+End", lambda: _jump_to_the_newest_line(window))
+    # If a console the sweep never reached is on screen, the press arrives
+    # ambiguously instead of cleanly. Answering it anyway means the jump
+    # still happens, and the handler stands that console down on its way
+    # past, so the next press is clean.
+    #
+    # `_bind` returns None when a menu QAction already holds the key, which
+    # no menu currently does for Ctrl+End -- but the guard is here rather
+    # than in a comment, because the failure it would cause is this line
+    # raising during window construction.
+    if end is not None:
+        end.activatedAmbiguously.connect(
+            lambda: _jump_to_the_newest_line(window))
+    _watch_the_stack_for_consoles(window)
     _bind(window, "Ctrl+F", lambda: _focus_settings_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
@@ -116,6 +331,17 @@ def _install_window_hooks(window: QMainWindow) -> None:
         _walkthrough_hooks(window)
     except Exception:
         LOG.debug("Could not install the walkthrough hooks", exc_info=True)
+    # THE FOLD STRIPS. A folded module is reached from its host's masthead,
+    # and the generic settings screens the hosts are built from know nothing
+    # about who folded into them -- the strip is hung on each of them from
+    # outside, as the stack reaches it. Without this call no host's strip
+    # ever reaches a running window, which for Mask Generation's tracking
+    # switch means the module folded into it has no way in at all.
+    try:
+        from .screens.map_barcodes import install_window_hooks as _fold_hooks
+        _fold_hooks(window)
+    except Exception:
+        LOG.debug("Could not install the fold-strip hooks", exc_info=True)
 
     # LAST. Everything above may have added menu-bar actions, and an action
     # with no explicit macOS menu role is one Qt assigns from its TEXT --
@@ -130,10 +356,59 @@ def _install_window_hooks(window: QMainWindow) -> None:
         LOG.debug("Could not pin the menu roles", exc_info=True)
 
 
-def _bind(window: QMainWindow, keys: str, cb: Callable[[], None]) -> None:
-    sc = QShortcut(QKeySequence(keys), window)
-    sc.setContext(Qt.ApplicationShortcut)
+def _bind(window: QMainWindow, keys: str,
+          cb: Callable[[], None]) -> Optional[QShortcut]:
+    """Wire ``keys`` on ``window`` and hand the binding back to the caller.
+
+    ONCE PER KEY, which is what makes :func:`install` idempotent in the only
+    sense that matters here: a second holder of one key makes it AMBIGUOUS,
+    and an ambiguous shortcut fires neither handler -- so a reload path
+    calling `install` again would silence every key it re-bound.
+
+    Only the window's OWN shortcuts are consulted. `findChildren` reaches
+    the whole tree, and a console panel holding `Ctrl+End` deeper down would
+    otherwise look like this key was already wired.
+
+    Returned rather than dropped because a key with a second holder
+    somewhere else needs its ambiguous activation connected too.
+    """
+    sequence = QKeySequence(keys)
+    for existing in window.findChildren(
+            QShortcut, options=Qt.FindDirectChildrenOnly):
+        if existing.key() == sequence:
+            return existing
+    # A QAction HOLDS A SHORTCUT TOO, and the loop above cannot see one.
+    # The menu bar builds "Home" and "Preferences..." as QActions carrying
+    # Ctrl+H and Ctrl+P so the menu can print the accelerator beside the
+    # item; binding a QShortcut for the same sequence here gave each key a
+    # second holder, and Qt answers a key with two holders by firing
+    # NEITHER -- it logs "QAction::event: Ambiguous shortcut overload" and
+    # the key does nothing. Reported 2026-09-08 for both keys, which is
+    # exactly the pair the menu also declares.
+    #
+    # The action wins: it is the one the user can see, and a menu item
+    # printing an accelerator that does not work is worse than no
+    # accelerator. Nothing is returned because there is no QShortcut to
+    # hand back -- callers that connect `ambiguousActivation` are guarding
+    # against this very case and have nothing left to guard.
+    # `findChildren`, not `window.actions()`: a menu item is a child of its
+    # QMenu, so the window's own action list does not contain it. The menu
+    # bar is built before `install` runs, which is what makes this reachable
+    # -- BOUND_ELSEWHERE is the declarative half that does not depend on
+    # that order.
+    for action in window.findChildren(QAction):
+        if not action.shortcut().isEmpty() and action.shortcut() == sequence:
+            return None
+    sc = QShortcut(sequence, window)
+    # One spaCR window owns one set of bindings.  ApplicationShortcut makes
+    # every still-live window's copy eligible, including a window waiting on
+    # deferred deletion after a rebuild/test teardown.  Qt then calls the key
+    # ambiguous and fires neither copy.  WindowShortcut still reaches every
+    # child control in the active window, which is the promised scope, while
+    # another open spaCR window keeps its own independent bindings.
+    sc.setContext(Qt.WindowShortcut)
     sc.activated.connect(cb)
+    return sc
 
 
 def _help_key(window: QMainWindow) -> None:
@@ -163,11 +438,26 @@ def _help_key(window: QMainWindow) -> None:
 
 
 def _nav(window: QMainWindow, key: str) -> None:
+    """Navigate the window to a module.
+
+    :param window: the main window; one without the navigation slot is
+        tolerated, so a shortcut cannot crash a bare dialog.
+    :param key: the module to open.
+    """
     if hasattr(window, "_on_nav_selected"):
         window._on_nav_selected(key)
 
 
 def _nav_by_index(window: QMainWindow, idx: int) -> None:
+    """Navigate to the nth VISIBLE module, for the number-key shortcuts.
+
+    An index past the end, or one naming a module the user has hidden, does
+    nothing -- a shortcut that jumps somewhere unexpected is worse than one
+    that does not fire.
+
+    :param window: the main window.
+    :param idx: the module's position in the registry.
+    """
     try:
         from .app import APPS, app_is_visible
         if 0 <= idx < len(APPS) and app_is_visible(APPS[idx][0]):
@@ -177,6 +467,11 @@ def _nav_by_index(window: QMainWindow, idx: int) -> None:
 
 
 def _open_palette(window: QMainWindow) -> None:
+    """Open the command palette.
+
+    :param window: the main window. A build without the palette logs and
+        does nothing rather than raising out of a key press.
+    """
     try:
         from .command_palette import CommandPalette
         CommandPalette(window).exec()
@@ -185,6 +480,10 @@ def _open_palette(window: QMainWindow) -> None:
 
 
 def _open_preferences(window: QMainWindow) -> None:
+    """Open the Preferences dialog.
+
+    :param window: the main window.
+    """
     try:
         from .preferences import PreferencesDialog
         PreferencesDialog(window).exec()
@@ -199,18 +498,86 @@ def _toggle_ai(window: QMainWindow) -> None:
         current = None
         for s in window.findChildren(AppScreen):
             if s.isVisible():
-                current = s; break
+                current = s
+                break
         if current is not None and hasattr(current, "_ai_switch"):
             current._ai_switch.setChecked(
                 not current._ai_switch.isChecked()
             )
-    except Exception:
-        pass
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not toggle the AI switch", exc_info=True)
+
+
+def _consoles(window) -> list:
+    """Every console panel living under ``window``, newest screens included."""
+    try:
+        from .widgets.console_panel import ConsolePanel
+        return list(window.findChildren(ConsolePanel))
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not look for console panels", exc_info=True)
+        return []
+
+
+def _hand_ctrl_end_to_the_window(window, panels=None) -> None:
+    """Stand the consoles' own ``Ctrl+End`` down in favour of the window's.
+
+    Two live bindings for one key are not two chances to be heard: Qt calls
+    that ambiguous and fires NEITHER handler. A console panel binds the key
+    on itself so the gesture still works when the panel is used on its own,
+    and inside a window that binds it too that copy is redundant -- the
+    window's reaches the same panel and reaches it from every screen.
+
+    :param panels: the consoles to sweep, when the caller has already found
+        them; otherwise they are looked up.
+    """
+    for panel in (_consoles(window) if panels is None else panels):
+        own = getattr(panel, "_end_shortcut", None)
+        if own is None:
+            continue
+        try:
+            if own.isEnabled():
+                own.setEnabled(False)
+        except RuntimeError:                             # noqa: PERF203
+            continue
+
+
+def _watch_the_stack_for_consoles(window) -> None:
+    """Sweep each screen as it is shown, since screens are built on demand.
+
+    The console of a module that has never been opened does not exist yet,
+    so the stand-down cannot be done once at start-up and be finished.
+    """
+    _hand_ctrl_end_to_the_window(window)
+    try:
+        window._stack.currentChanged.connect(
+            lambda _index: _hand_ctrl_end_to_the_window(window))
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("no screen stack to watch for consoles", exc_info=True)
+
+
+def _jump_to_the_newest_line(window) -> None:
+    """Send the console on screen to its newest line.
+
+    A long run writes thousands of lines and the one that matters is the
+    last; getting to it must not be a scroll through everything above it.
+    Screens without a console are left alone rather than swallowing the key.
+    """
+    panels = _consoles(window)
+    _hand_ctrl_end_to_the_window(window, panels)
+    for panel in panels:
+        try:
+            if not panel.isVisible():
+                continue
+            panel.jump_to_the_end()
+            return
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not jump the console to its end", exc_info=True)
 
 
 #: objectNames, so the theme can reach the overlay and tests can find it.
 OVERLAY_NAME = "ShortcutOverlay"
 OVERLAY_CARD_NAME = "ShortcutOverlayCard"
+OVERLAY_SCROLL_NAME = "ShortcutOverlayScroll"
 
 
 class ShortcutOverlay(QWidget):
@@ -225,9 +592,21 @@ class ShortcutOverlay(QWidget):
 
     Laid out in columns by category rather than one long list, because
     fifteen bindings in one column is a scroll and in three is a glance.
+
+    :param window: the window to cover and to read the bindings from. The
+        overlay is drawn OVER it rather than as a dialog of its own, which is
+        the whole argument above -- so this is not a parent in the ordinary
+        sense but the thing being annotated.
     """
 
     def __init__(self, window: QWidget):
+        """Build the shortcut cheat sheet as a card over the window.
+
+        :param window: the window it covers; the card is centred in it and
+            scrolls when the map does not fit.
+        """
+        from .i18n import tr
+
         super().__init__(window)
         self.setObjectName(OVERLAY_NAME)
         self._window = window
@@ -237,41 +616,92 @@ class ShortcutOverlay(QWidget):
 
         self._card = QWidget(self)
         self._card.setObjectName(OVERLAY_CARD_NAME)
-        grid = QGridLayout(self._card)
+        card_layout = QVBoxLayout(self._card)
+        card_layout.setContentsMargins(0, 0, 0, 0)
+        card_layout.setSpacing(0)
+
+        # The complete map normally fits as one centred card. A short window
+        # or larger UI font must not clip its last shortcuts, so only the
+        # inside becomes scrollable when the natural card is taller/wider
+        # than the overlay. The surrounding card and its visual treatment do
+        # not change.
+        self._scroll = QScrollArea(self._card)
+        self._scroll.setObjectName(OVERLAY_SCROLL_NAME)
+        self._scroll.setWidgetResizable(False)
+        self._scroll.setFocusPolicy(Qt.NoFocus)
+        self._scroll.viewport().setAutoFillBackground(False)
+        self._scroll.viewport().installEventFilter(self)
+        card_layout.addWidget(self._scroll)
+
+        self._card_content = QWidget()
+        self._card_content.setAutoFillBackground(False)
+        grid = QGridLayout(self._card_content)
         grid.setContentsMargins(28, 24, 28, 24)
         grid.setHorizontalSpacing(36)
         grid.setVerticalSpacing(6)
 
-        title = QLabel("Keyboard shortcuts", self._card)
+        title = QLabel(tr("Keyboard shortcuts"), self._card_content)
         title.setObjectName("ShortcutOverlayTitle")
         grid.addWidget(title, 0, 0, 1, 2)
 
         by_cat: dict[str, list[ShortcutSpec]] = {}
-        for spec in SHORTCUTS:
+        # THE DECLARED TABLE PLUS WHATEVER IS LIVE (197 A). A per-screen
+        # binding is declared, because it does not exist until that screen
+        # is built and the map has to describe it anyway; anything else the
+        # window happens to carry is discovered, so a shortcut added at
+        # runtime appears without a list being edited.
+        for spec in mapped() + discover(self.parent()):
             by_cat.setdefault(spec.category, []).append(spec)
 
+        # THE CARD HAS TO FIT THE WINDOW. One column-pair per category made
+        # the card 1,640 px wide against a 1,280 px overlay the moment the
+        # map grew from 17 rows to 33 -- a map that runs off the screen is
+        # the same fault as a map that leaves keys out. Categories are laid
+        # out in as many pairs as fit and then wrapped.
+        room = max(int(self.width() * 0.9), 640)
+        # A pair contains the key plus a possibly scoped description. About
+        # 420 px per pair keeps two pairs inside a 1280 px window even with
+        # the longest scope text; narrower estimates let the size hint grow
+        # beyond the overlay on hosted Open Sans rasterizers.
+        per_pair = 420
+        pairs = max(1, min(len(by_cat), room // per_pair))
+        band = 1
         column = 0
-        for category, specs in by_cat.items():
-            row = 1
-            header = QLabel(category.upper(), self._card)
+        for index, (category, specs) in enumerate(by_cat.items()):
+            if index and index % pairs == 0:
+                band = grid.rowCount() + 1
+                column = 0
+            row = band
+            header = QLabel(tr(category).upper(), self._card_content)
             header.setObjectName("ShortcutOverlayCategory")
             grid.addWidget(header, row, column, 1, 2)
             row += 1
             for spec in specs:
-                keys = QLabel(spec.keys, self._card)
+                # PRINTED IN THE PLATFORM'S OWN SPELLING. `Ctrl` is the
+                # Command symbol on macOS and Qt already knows.
+                keys = QLabel(native(spec.keys), self._card_content)
                 keys.setObjectName("ShortcutOverlayKeys")
                 keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 grid.addWidget(keys, row, column)
-                label = QLabel(spec.label, self._card)
+                # AND WHERE IT WORKS, when that is not everywhere. A key
+                # that works on one screen and is listed without saying so
+                # sends a user to press it somewhere it does nothing.
+                said = tr(spec.label)
+                if spec.scope and spec.scope != EVERYWHERE:
+                    said = f"{said}  —  {tr(spec.scope)}"
+                label = QLabel(said, self._card_content)
                 label.setObjectName("ShortcutOverlayLabel")
                 grid.addWidget(label, row, column + 1)
                 row += 1
             column += 2
 
-        hint = QLabel("Press any key to close.", self._card)
+        hint = QLabel(tr("Press any key to close."), self._card_content)
         hint.setObjectName("ShortcutOverlayHint")
         grid.addWidget(hint, grid.rowCount(), 0, 1, max(column, 2))
 
+        self._scroll.setWidget(self._card_content)
+        grid.activate()
+        self._card_content.adjustSize()
         self._reposition()
         window.installEventFilter(self)
 
@@ -287,11 +717,27 @@ class ShortcutOverlay(QWidget):
         self._reposition()
 
     def _reposition(self) -> None:
-        hint = self._card.sizeHint()
+        """Centre the card and size it to its content, within the window.
+
+        The scrollbar's width is added only when the content is actually taller
+        than the space -- reserving it unconditionally would leave a gap beside
+        a map that fits.
+        """
+        hint = self._card_content.sizeHint()
+        max_width = max(1, self.width() - 24)
+        max_height = max(1, self.height() - 24)
+        needs_vertical_scroll = hint.height() > max_height
+        scrollbar_width = (
+            self._scroll.verticalScrollBar().sizeHint().width()
+            if needs_vertical_scroll else 0
+        )
+        width = min(max_width, hint.width() + scrollbar_width)
+        height = min(max_height, hint.height())
+        self._card_content.resize(hint)
         self._card.setGeometry(
-            max(0, (self.width() - hint.width()) // 2),
-            max(0, (self.height() - hint.height()) // 2),
-            hint.width(), hint.height(),
+            max(0, (self.width() - width) // 2),
+            max(0, (self.height() - height) // 2),
+            width, height,
         )
 
     # -- dismissal ----------------------------------------------------
@@ -299,6 +745,10 @@ class ShortcutOverlay(QWidget):
         """Track the window's size so the overlay stays full-bleed."""
         if obj is self._window and event.type() == QEvent.Resize:
             self.setGeometry(self._window.rect())
+        if obj is self._scroll.viewport() \
+                and event.type() == QEvent.MouseButtonPress:
+            self.dismiss()
+            return True
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event) -> None:
@@ -373,7 +823,9 @@ def show_cheat_sheet(parent) -> None:
 
     dlg = QDialog(parent)
     dlg.setWindowTitle("spaCR — Keyboard shortcuts")
-    dlg.setMinimumWidth(420)
+    from .preferences import scaled_px
+    
+    dlg.setMinimumWidth(scaled_px(420))
     layout = QVBoxLayout(dlg)
 
     # Group by category
@@ -413,6 +865,13 @@ QWidget#{OVERLAY_CARD_NAME} {{
     border: 1px solid {palette["accent"]};
     border-radius: 12px;
 }}
+QScrollArea#{OVERLAY_SCROLL_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QScrollArea#{OVERLAY_SCROLL_NAME} > QWidget > QWidget {{
+    background: transparent;
+}}
 QLabel#ShortcutOverlayTitle {{
     font-size: {font_px(18)}px;
     color: {palette["fg"]};
@@ -440,8 +899,12 @@ QLabel#ShortcutOverlayHint {{
 """
 
 
-try:  # pragma: no cover - present in every real launch
+# AT IMPORT TIME, so the failure is not a missing background --
+# it is the module not importing, which takes down whatever
+# imports it. Driven in
+# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(OVERLAY_NAME, _overlay_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOG.debug("could not register the shortcut-overlay QSS", exc_info=True)

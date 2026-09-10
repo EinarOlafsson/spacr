@@ -46,7 +46,7 @@ confusion rather than a feature nobody got round to:
   one column and nothing else;
 * **no arbitrary names** — a name is either a column of the frame or one of
   :data:`FUNCTIONS`. ``__import__``, ``open`` and ``eval`` are not blocked as
-  special cases; they are simply not columns, and the error says so;
+  special cases; they are not columns, and the error says so;
 * **comparisons do not chain** — ``0 < area < 5`` is refused rather than
   silently parsed as something numpy would evaluate elementwise into a shape
   nobody meant. The message says to write the conjunction.
@@ -208,11 +208,21 @@ _REJECTED = {
 
 @dataclass(frozen=True)
 class _Token:
+    """One lexed piece of a formula, with where it came from.
+
+    `at` is carried on every token so an error can point at the character
+    the user typed rather than describing the problem in the abstract --
+    "unexpected ) at 14" against a field they can see. Reconstructing the
+    offset later from the token text is impossible once the same text
+    appears twice in one formula.
+    """
+
     kind: str
     text: str
     at: int
 
     def __str__(self) -> str:  # pragma: no cover - debugging aid
+        """``kind:text@position`` -- for reading a token stream in a debugger."""
         return f"{self.kind}:{self.text}@{self.at}"
 
 
@@ -326,6 +336,12 @@ def _elementwise(fn):
     is noise that hides the warnings worth reading.
     """
     def call(*args):
+        """Apply the function across the arrays, warnings suppressed.
+
+        A column of real data contains zeros and negatives, so a log or a divide
+        will legitimately produce inf and nan; the VALUE is what the formula
+        means, and numpy's warning about it is not something a user can act on.
+        """
         with np.errstate(all="ignore"):
             return fn(*args)
     return call
@@ -344,7 +360,18 @@ def _sample_std(values: np.ndarray) -> float:
 
 
 def _aggregate(fn):
+    """Wrap a numpy reduction as a formula aggregate over finite values.
+
+    :param fn: the reduction to apply.
+    :returns: a callable taking the values and returning one float.
+    """
     def call(values):
+        """Reduce the values to one number, ignoring non-finite entries.
+
+        An all-non-finite column gives ``nan`` rather than raising: an empty
+        aggregate is an answer the caller can carry, and an exception here would
+        take down a whole computed column for one bad group.
+        """
         array = np.asarray(values, dtype=float)
         finite = array[np.isfinite(array)]
         if finite.size == 0:
@@ -355,6 +382,13 @@ def _aggregate(fn):
 
 
 def _zscore(values):
+    """Standardise values against their own finite mean and sample SD.
+
+    :param values: the column.
+    :returns: the z-scores; all-``nan`` when fewer than two finite values
+        are present, because a standard deviation over one point is not a
+        spread.
+    """
     array = np.asarray(values, dtype=float)
     finite = array[np.isfinite(array)]
     if finite.size < 2:
@@ -374,6 +408,16 @@ def _rank(values):
 
 
 def _quantile(values, q):
+    """Return one quantile of the finite values.
+
+    :param values: the column.
+    :param q: the fraction; only its first element is read, so a column
+        accidentally passed as the fraction fails on the range check rather
+        than silently using its first row.
+    :returns: the quantile, or ``nan`` when nothing finite is present.
+    :raises FormulaError: if the fraction is outside ``[0, 1]``, with an
+        example of the intended call.
+    """
     array = np.asarray(values, dtype=float)
     finite = array[np.isfinite(array)]
     fraction = float(np.asarray(q, dtype=float).reshape(-1)[0])
@@ -490,9 +534,18 @@ class _Parser:
     One class rather than a pile of closures so the node budget and the depth
     are counters rather than globals, and so a parse cannot leak state into the
     next one.
+
+    :param tokens: the token stream, copied so the caller's sequence is not
+        consumed.
+    :param source: the text those tokens came from. STORED AND NOT READ:
+        kept so an error can quote the offending span, which the parser does
+        not yet do -- it reports by token. Left in place rather than removed
+        because that is the message worth having, and dropping the argument
+        now means threading it back through when someone writes it.
     """
 
     def __init__(self, tokens: Sequence[_Token], source: str):
+        """Start at the first token, with the budgets unspent."""
         self._tokens = list(tokens)
         self._at = 0
         self._source = source
@@ -502,29 +555,51 @@ class _Parser:
     # -- token helpers -------------------------------------------------
     @property
     def _current(self) -> _Token:
+        """The token the parser is looking at, without consuming it."""
         return self._tokens[self._at]
 
     def _advance(self) -> _Token:
+        """Consume and return the current token."""
         token = self._tokens[self._at]
         self._at += 1
         return token
 
     def _accept_op(self, *ops: str) -> Optional[_Token]:
+        """Consume the current token if it is one of ``ops``, else ``None``.
+
+        Peek-and-take rather than take-and-regret: a parser that consumed first
+        would have to put the token back, and the position it was at is what
+        every error message quotes.
+        """
         token = self._current
         if token.kind == _OP and token.text in ops:
             return self._advance()
         return None
 
     def _accept_word(self, word: str) -> Optional[_Token]:
+        """Consume the current token if it is the keyword ``word``, else ``None``."""
         token = self._current
         if token.kind == _NAME and token.text == word:
             return self._advance()
         return None
 
     def _where(self, token: _Token) -> str:
+        """`` at position N`` for an error message, counting from ONE.
+
+        Users count from one; the token's own index counts from zero, and a
+        message that says position 0 for the first character reads as a bug in
+        the error rather than in the formula.
+        """
         return f" at position {token.at + 1}"
 
     def _count(self, node: Node) -> Node:
+        """Count one node against the budget, and return it unchanged.
+
+        Threaded through every construction so the budget cannot be bypassed by a
+        production that forgets to check. A formula past the ceiling is REFUSED
+        with the remedy in the message -- build it as several named columns --
+        rather than parsed into something that will be slow to evaluate.
+        """
         self._nodes += 1
         if self._nodes > MAX_NODES:
             raise FormulaError(
@@ -534,6 +609,13 @@ class _Parser:
 
     # -- the grammar ---------------------------------------------------
     def parse(self) -> Node:
+        """Parse the whole expression and require that it ends.
+
+        :returns: the expression's root node.
+        :raises FormulaError: if anything follows a complete expression, naming
+            the position -- and, for a keyword, saying what it joins, since
+            ``area > 1 and`` reads as a typo but ``area > 1 2`` does not.
+        """
         node = self._or()
         if self._current.kind != _END:
             token = self._current
@@ -546,6 +628,12 @@ class _Parser:
         return node
 
     def _nest(self, method):
+        """Run ``method`` one level deeper, refusing past the depth ceiling.
+
+        The depth counter is what stops a pathological formula recursing the
+        parser into a stack overflow, which is a crash rather than an error
+        message.
+        """
         self._depth += 1
         if self._depth > MAX_DEPTH:
             raise FormulaError(
@@ -557,23 +645,32 @@ class _Parser:
             self._depth -= 1
 
     def _or(self) -> Node:
+        """``or``, the loosest binding. Left-associative."""
         node = self._and()
         while self._accept_word("or"):
             node = self._count(Binary("or", node, self._and()))
         return node
 
     def _and(self) -> Node:
+        """``and``, binding tighter than ``or``."""
         node = self._not()
         while self._accept_word("and"):
             node = self._count(Binary("and", node, self._not()))
         return node
 
     def _not(self) -> Node:
+        """``not``, binding tighter than ``and`` and nesting to the right."""
         if self._accept_word("not"):
             return self._count(Unary("not", self._nest(self._not)))
         return self._comparison()
 
     def _comparison(self) -> Node:
+        """One comparison, and only one.
+
+        NOT CHAINED. ``a < b < c`` is Python's rule, not most people's, and a
+        formula that quietly means something other than it looks like is worse
+        than one that is refused.
+        """
         node = self._sum()
         token = self._accept_op(*_COMPARISONS)
         if token is None:
@@ -588,6 +685,7 @@ class _Parser:
         return node
 
     def _sum(self) -> Node:
+        """``+`` and ``-``, left-associative."""
         node = self._product()
         while True:
             token = self._accept_op("+", "-")
@@ -596,6 +694,7 @@ class _Parser:
             node = self._count(Binary(token.text, node, self._product()))
 
     def _product(self) -> Node:
+        """``*``, ``/``, ``//`` and ``%``, binding tighter than ``+``."""
         node = self._unary()
         while True:
             token = self._accept_op("*", "/", "//", "%")
@@ -604,12 +703,19 @@ class _Parser:
             node = self._count(Binary(token.text, node, self._unary()))
 
     def _unary(self) -> Node:
+        """A leading ``+`` or ``-``, nesting to the right."""
         token = self._accept_op("+", "-")
         if token is not None:
             return self._count(Unary(token.text, self._nest(self._unary)))
         return self._power()
 
     def _power(self) -> Node:
+        """``**``, RIGHT-associative, with the exponent parsed as a unary.
+
+        Two rules that a left-associative reading would get wrong: ``2 ** -1``
+        parses because the exponent goes through ``_unary``, and ``-a ** 2`` is
+        ``-(a ** 2)`` -- Python's rule, and every maths textbook's.
+        """
         node = self._atom()
         token = self._accept_op("**")
         if token is None:
@@ -620,6 +726,12 @@ class _Parser:
         return self._count(Binary("**", node, self._nest(self._unary)))
 
     def _atom(self) -> Node:
+        """A number, a name, a call, or a parenthesised expression.
+
+        The bottom of the grammar: anything that is not one of those is where the
+        parse stops and the error is raised, with the position of the token that
+        did not fit.
+        """
         token = self._advance()
         if token.kind == _NUMBER:
             return self._count(Number(float(token.text)))
@@ -648,9 +760,19 @@ class _Parser:
             f"unexpected {token.text!r}{self._where(token)}")
 
     def _previous_text(self) -> str:
+        """The text just consumed, for an error that has to quote it.
+
+        Two back rather than one, because the current token has already been
+        advanced past by the time an error is being written.
+        """
         return self._tokens[max(0, self._at - 2)].text
 
     def _call(self, name_token: _Token) -> Node:
+        """A function call, or a refusal that suggests the nearest real name.
+
+        An unknown function is the commonest typo in a formula, and a bare
+        "unknown function" makes the user diff their spelling against a list.
+        """
         name = name_token.text
         if name not in FUNCTIONS:
             close = get_close_matches(name, sorted(FUNCTIONS), n=1, cutoff=0.6)
@@ -698,6 +820,7 @@ def referenced_columns(node: Node) -> Tuple[str, ...]:
     found: Dict[str, None] = {}
 
     def walk(item: Node) -> None:
+        """Collect every column the expression names, depth first."""
         if isinstance(item, Column):
             found.setdefault(item.name, None)
         elif isinstance(item, Unary):
@@ -769,6 +892,13 @@ def _numeric_column(frame: pd.DataFrame, name: str) -> np.ndarray:
 
 
 def _as_array(value: Any, length: int) -> np.ndarray:
+    """Broadcast a scalar result to the column length, leaving arrays alone.
+
+    :param value: a scalar or an array.
+    :param length: the number of rows.
+    :returns: an array of that length; an empty scalar becomes ``nan``
+        rather than raising.
+    """
     array = np.asarray(value)
     if array.ndim == 0:
         return np.full(length, array.item() if array.size else np.nan)
@@ -787,6 +917,7 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
     length = len(frame)
 
     def walk(item: Node) -> Any:
+        """Evaluate one node of the tree, recursing into its children."""
         if isinstance(item, Number):
             return item.value
         if isinstance(item, Column):
@@ -804,13 +935,28 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
             return _binary(item, walk(item.left), walk(item.right))
         if isinstance(item, Call):
             return _call(item, [walk(arg) for arg in item.args], length)
-        raise FormulaError(  # pragma: no cover - every node type is above
+        # A NODE THE PARSER DOES NOT PRODUCE TODAY. Named rather than
+        # merely refused: a formula error the user sees has to say what
+        # it could not do.
+        raise FormulaError(
             f"cannot evaluate a {type(item).__name__}")
 
     return walk(node)
 
 
 def _binary(item: Binary, left: Any, right: Any) -> Any:
+    """Apply one binary operator to two already-evaluated operands.
+
+    Comparisons and arithmetic coerce to float, and the logical operators to
+    bool, so mixing them is decided here rather than by numpy's dtype
+    promotion. ``**`` stays in floats deliberately: a huge exponent then
+    gives ``inf`` rather than a bignum allocation that never returns.
+
+    :param item: the operator node.
+    :param left: the left operand's value.
+    :param right: the right operand's value.
+    :returns: the result, elementwise.
+    """
     op = item.op
     with np.errstate(all="ignore"):
         if op in ("and", "or"):
@@ -843,6 +989,20 @@ def _binary(item: Binary, left: Any, right: Any) -> Any:
 
 
 def _call(item: Call, args: List[Any], length: int) -> Any:
+    """Call one formula function with its evaluated arguments.
+
+    An aggregate's first argument is broadcast to the column length first,
+    so ``mean(3)`` means the mean of a constant column rather than of a
+    scalar.
+
+    :param item: the call node.
+    :param args: the evaluated arguments.
+    :param length: the number of rows.
+    :returns: the function's result.
+    :raises FormulaError: naming the function, for anything the call raises
+        -- the chained traceback is suppressed because the user wrote an
+        expression, not a stack.
+    """
     fn, _low, _high, aggregate = FUNCTIONS[item.func]
     try:
         if aggregate:
@@ -861,6 +1021,15 @@ def _call(item: Call, args: List[Any], length: int) -> Any:
 # ---------------------------------------------------------------------------
 
 def _valid_name(name: str) -> str:
+    """Validate and normalise a computed column's name.
+
+    :param name: the proposed name.
+    :returns: it, stripped.
+    :raises FormulaError: if it is empty, if it is not a bare identifier --
+        anything else would have to be quoted everywhere it is used -- or if
+        it is already a function or keyword in this language, in which case a
+        column of that name could never be referred to.
+    """
     text = str(name).strip()
     if not text:
         raise FormulaError("a computed column needs a name")
@@ -900,6 +1069,15 @@ class ColumnFormula:
     replace: bool = False
 
     def __post_init__(self) -> None:
+        """Normalise the name and expression, and parse the expression now.
+
+        Parsing at construction is the point: an unparseable formula cannot then
+        be stored, serialised, or reach a redraw -- it fails where the user typed
+        it.
+
+        :raises FormulaError: if the name is not a usable column name, or the
+            expression will not parse.
+        """
         object.__setattr__(self, "name", _valid_name(self.name))
         object.__setattr__(self, "expression", str(self.expression).strip())
         object.__setattr__(self, "replace", bool(self.replace))
@@ -931,6 +1109,11 @@ class ColumnFormula:
         every value.
         """
         def walk(node: Node) -> bool:
+            """Whether any node needs the whole column rather than one row.
+
+            An aggregate cannot be computed row by row, so this decides whether the
+            formula can stream or has to hold the table.
+            """
             if isinstance(node, Call):
                 if node.func in TABLE_DEPENDENT_FUNCTIONS:
                     return True
@@ -943,23 +1126,52 @@ class ColumnFormula:
         return walk(self.ast)
 
     def to_dict(self) -> Dict[str, Any]:
+        """This formula as plain data.
+
+        :returns: a JSON-safe dict.
+        """
         return {"name": self.name, "expression": self.expression,
                 "replace": self.replace}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "ColumnFormula":
+        """Rebuild a formula from plain data.
+
+        UNKNOWN KEYS ARE IGNORED rather than raising, so a saved set from a
+        later version still opens with the parts this one knows.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt formula.
+        """
         known = {k: v for k, v in dict(payload).items()
                  if k in {"name", "expression", "replace"}}
         return cls(**known)
 
     def to_json(self) -> str:
+        """This formula as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "ColumnFormula":
+        """Rebuild a formula from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt formula.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """The formula, marked when it reads the WHOLE table.
+
+        The mark matters: a formula using a table-wide statistic cannot be
+        computed per row, so it behaves differently under filtering and the
+        reader should not have to work that out from the expression.
+
+        :returns: a one-line description.
+        """
         note = " (uses the whole table)" if self.uses_whole_table() else ""
         return f"{self.name} = {self.expression}{note}"
 
@@ -1006,6 +1218,25 @@ class ColumnResult:
 
 
 def _apply_one(frame: pd.DataFrame, formula: ColumnFormula) -> ColumnResult:
+    """Evaluate one formula against a table and describe the result.
+
+    A boolean result is kept boolean; anything else becomes floats, and the
+    non-finite entries are counted -- separating those that came from
+    non-finite INPUTS from those the arithmetic produced, because a column
+    full of ``nan`` because its input was missing is a different problem
+    from one that divided by zero.
+
+    ``area = area * 2`` with ``replace`` on is a rescale and is allowed:
+    computation always starts from a fresh copy of the loaded table, so it
+    reads the measured column and is idempotent however often it is
+    re-applied. ``x = x + 1`` where no ``x`` exists is a genuine circle.
+
+    :param frame: the table to evaluate against.
+    :param formula: the column to compute.
+    :returns: the values with their diagnostics.
+    :raises FormulaError: if the name is taken and ``replace`` is off, or if
+        the formula refers to a column it is itself defining.
+    """
     if formula.name in frame.columns and not formula.replace:
         raise FormulaError(
             f"this table already has a column called {formula.name!r}. Pick "
@@ -1059,22 +1290,43 @@ class FormulaSet:
         return self
 
     def remove(self, name: str) -> "FormulaSet":
+        """Drop the formula called ``name``. Returns self, so it chains.
+
+        A name that is not there is not an error: removing something already
+        gone is the state the caller wanted.
+
+        :param name: the formula's name.
+        :returns: this set.
+        """
         self.formulas = [f for f in self.formulas if f.name != str(name)]
         return self
 
     def clear(self) -> "FormulaSet":
+        """Drop every formula. Returns self, so it chains.
+
+        :returns: this set, now empty.
+        """
         self.formulas = []
         return self
 
     @property
     def names(self) -> Tuple[str, ...]:
+        """Every formula's name, in evaluation order.
+
+        :returns: the names.
+        """
         return tuple(f.name for f in self.formulas)
 
     @property
     def is_empty(self) -> bool:
+        """Whether this set computes nothing.
+
+        :returns: True when empty.
+        """
         return not self.formulas
 
     def __len__(self) -> int:
+        """Return how many formulas the set holds."""
         return len(self.formulas)
 
     def apply(self, frame: pd.DataFrame) -> Tuple[pd.DataFrame, List[ColumnResult]]:
@@ -1087,21 +1339,43 @@ class FormulaSet:
         return compute(frame, self.formulas)
 
     def to_dict(self) -> Dict[str, Any]:
+        """The whole set as plain data.
+
+        :returns: a JSON-safe dict holding every formula.
+        """
         return {"formulas": [f.to_dict() for f in self.formulas]}
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "FormulaSet":
+        """Rebuild a set from plain data.
+
+        :param payload: what :meth:`to_dict` produced.
+        :returns: the rebuilt set.
+        """
         rows = dict(payload).get("formulas") or []
         return cls([ColumnFormula.from_dict(row) for row in rows])
 
     def to_json(self) -> str:
+        """The set as JSON text, keys sorted so the file is diffable.
+
+        :returns: the JSON text.
+        """
         return json.dumps(self.to_dict(), sort_keys=True)
 
     @classmethod
     def from_json(cls, text: str) -> "FormulaSet":
+        """Rebuild a set from JSON text.
+
+        :param text: the JSON text.
+        :returns: the rebuilt set.
+        """
         return cls.from_dict(json.loads(text))
 
     def describe(self) -> str:
+        """Every formula in evaluation order, or that there are none.
+
+        :returns: a one-line description.
+        """
         if not self.formulas:
             return "no computed columns"
         return " · ".join(f.describe() for f in self.formulas)

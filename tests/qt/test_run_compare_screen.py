@@ -153,7 +153,13 @@ def _child(tree, group, key):
 def test_the_screen_registers_itself_as_an_app(qapp, registered):
     row = next(r for r in APPS if r[0] == screen.APP_KEY)
     assert row[1] == "Run Compare"
-    assert row[3] == "Results & QC"
+    # DATA SINCE 00f166a7f, which made Home four categories -- Core, Data,
+    # Tools, Assays -- and "Results & QC" stopped being one of them. Read
+    # from the constant rather than spelled, so the next reorganisation
+    # moves one declaration instead of a literal in every test.
+    from spacr.qt.app import SECTION_DATA
+
+    assert row[3] == SECTION_DATA
     from spacr.qt.app import APP_FACTORIES, app_stage
     assert screen.APP_KEY in APP_FACTORIES
     # `spacr.qt.maturity` reassessed every alpha module against the

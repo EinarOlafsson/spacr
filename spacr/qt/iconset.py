@@ -37,14 +37,17 @@ from __future__ import annotations
 
 import hashlib
 import os
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional, Tuple
 
 from PySide6.QtGui import QIcon
 
 from .theme import (
-    contrast_ratio, effective_surface, palette_for, relative_luminance,
+    contrast_ratio,
+    effective_surface,
+    palette_for,
+    relative_luminance,
 )
 
 #: WCAG 1.4.11 (non-text contrast) minimum for a UI graphic.
@@ -67,9 +70,14 @@ CHROMA_MONO_MAX = 32.0
 #: the ink band paints visible banding into a flat glyph.
 MIN_TONAL_RANGE = 0.12
 
-#: Longest edge an icon is processed at. Icons are drawn into 16-52 px
-#: slots; anything past 512 px is pure cost.
-MAX_WORK_SIZE = 512
+#: Longest edge an icon is processed at. The largest bundled-icon consumer
+#: is the legacy 64 px tile; the supported 200 % accessibility scale and a
+#: 2x display make that 256 physical pixels. Processing the 1024 px masters
+#: any larger cannot add a pixel Qt can show on that supported path. The old
+#: 512 px ceiling accounted for 2.9 s (37 %) of a measured cold Home launch;
+#: this display-derived ceiling cuts the same pass to about 1.0 s without
+#: asking Qt to upscale at the maximum supported tile size.
+MAX_WORK_SIZE = 256
 
 #: Where the bundled PNGs live.
 RESOURCE_DIR = os.path.normpath(
@@ -101,6 +109,11 @@ def active_theme() -> str:
 
 
 def _theme_palette(theme: Optional[str]) -> dict:
+    """Return a theme's palette.
+
+    :param theme: the theme name; ``None`` uses the active one.
+    :returns: the palette.
+    """
     return palette_for(theme or active_theme())
 
 
@@ -155,6 +168,7 @@ def contrast_icon(name: str, theme: Optional[str] = None) -> QIcon:
 def _blend(a: str, b: str, t: float) -> str:
     """Linear blend from colour ``a`` (t=0) to colour ``b`` (t=1)."""
     def ch(c):
+        """One hex colour as its three integer channels."""
         c = c.lstrip("#")
         return [int(c[i:i + 2], 16) for i in (0, 2, 4)]
     ca, cb = ch(a), ch(b)
@@ -201,8 +215,8 @@ def _load_rgba(path: str):
     Downscaled to :data:`MAX_WORK_SIZE` first. Some bundled assets are
     enormous for icon artwork — ``logo_spacr.png`` is 3334x3334, which
     is 356 MB as a float64 RGBA array and about half a second to
-    re-ink, for something drawn into a 52 px slot. 512 px is four times
-    the largest slot at 2x device pixel ratio.
+    re-ink, for something drawn into a 52 px slot. 256 px covers the largest
+    64 px tile at the supported 200 % UI scale on a 2x display.
     """
     try:
         import numpy as np
@@ -235,7 +249,38 @@ def _file_stamp(path: str):
         return (path, 0, 0)
 
 
+@lru_cache(maxsize=192)
+def _source_digest(stamp) -> str:
+    """Stable digest of an icon's compressed source bytes.
+
+    ``stamp`` still includes mtime so an edit invalidates this small in-process
+    memo immediately. The persistent cache key uses the resulting content
+    digest, however: reinstalling or checking out byte-identical artwork can
+    change every mtime without forcing spaCR to decode, resize and re-ink every
+    icon again.
+
+    Reading the compressed PNG once is deliberately cheaper than decoding it.
+    If the source cannot be read, return a deterministic fallback; the normal
+    loader will then fail softly as it did before.
+    """
+    digest = hashlib.sha256()
+    try:
+        with open(stamp[0], "rb") as source:
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+    except OSError:
+        fallback = f"missing|{stamp[0]}|{stamp[1]}|{stamp[2]}"
+        return hashlib.sha256(
+            fallback.encode("utf-8", "replace")).hexdigest()
+
+
 def _hex_to_array(color: str):
+    """Convert a hex colour to an RGB array.
+
+    :param color: the colour.
+    :returns: its channels, for compositing an icon.
+    """
     import numpy as np
     text = color.lstrip("#")
     return np.array([int(text[i:i + 2], 16) for i in (0, 2, 4)],
@@ -346,7 +391,7 @@ ENV_ICON_CACHE = "SPACR_ICON_CACHE"
 #: Bumped when the re-inking maths changes. A cached icon from an older
 #: formula is WRONG rather than merely stale, and a version in the name is
 #: cheaper than trying to detect that.
-ICON_CACHE_VERSION = 1
+ICON_CACHE_VERSION = 2
 
 
 def icon_cache_dir() -> Path:
@@ -358,13 +403,14 @@ def icon_cache_dir() -> Path:
 
 
 def _cache_path(stamp, theme: str) -> Path:
-    """Cache filename for one (file, mtime, size) at one theme.
+    """Cache filename for one source-content digest at one theme.
 
-    The stamp carries mtime and size, so an edited or replaced icon gets a
-    different name and the old entry is simply never read again. No
-    invalidation logic, and none to get wrong.
+    The in-process stamp notices edits immediately. The disk key is based on
+    bytes, not mtime or install path, so unchanged artwork survives editable
+    checkouts, reinstalls and archive extraction while changed artwork still
+    gets a different entry automatically.
     """
-    key = f"{stamp[0]}|{stamp[1]}|{stamp[2]}|{theme}|v{ICON_CACHE_VERSION}"
+    key = f"{_source_digest(stamp)}|{theme}|v{ICON_CACHE_VERSION}"
     digest = hashlib.sha1(key.encode("utf-8", "replace")).hexdigest()[:20]
     return icon_cache_dir() / f"{Path(stamp[0]).stem}-{digest}.png"
 
@@ -511,17 +557,77 @@ def bundled_icon_paths() -> Tuple[str, ...]:
     return tuple(os.path.join(RESOURCE_DIR, n) for n in names)
 
 
+#: Keys that deliberately draw ANOTHER key's bundled artwork, as
+#: ``key -> filename``.
+#:
+#: NOT a synonym for :data:`spacr.qt.app._ICON_OVERRIDES`. That table is
+#: read by ``app._icon_for_app``, which is the Home tile and the sidebar;
+#: a fold button and a folded module's settings heading both call
+#: :func:`app_icon` bare, so a sharing recorded only in ``app`` gives one
+#: key two different pictures depending on where it is drawn. Sharing that
+#: is about the SUBJECT rather than about one screen belongs here, where
+#: every caller sees it.
+#:
+#: ``investigate_hit`` is the case this exists for. ``hit_list.png`` was
+#: drawn for the Hit List tile, and the Hit List has since folded onto
+#: Regression -- so the mark now names *a hit* rather than a tile that no
+#: longer exists, and the module that takes one hit apart is what a user
+#: reaches for it expecting. The Hit List keeps it as well: ``hit_list``
+#: still resolves to the same file under its own name, so its fold button
+#: on Regression is unchanged. Two keys, one asset, ON PURPOSE -- they are
+#: the same subject, and the alias is what says so instead of leaving it
+#: to look like a filename collision.
+#:
+#: Consulted AFTER ``<key>.png``, so installing artwork named for the key
+#: retires its alias with no code change here.
+#: ``classify_merged`` is the same shape. ``classify.png`` was drawn for
+#: Classify (CV), and the two Classify tiles have since become one merged
+#: screen -- so the mark names *classification* rather than one of the two
+#: routes into it, and the merged screen is the only thing left that a user
+#: reaches for it expecting. Neither ``classify`` nor ``classify_ml`` is a
+#: registered key any more, so nothing else is claiming the file.
+#:
+#: ``explain_cv`` is the third of the same shape, and it is the same again. Of the 208 buttons that carry an icon at all -- counted
+#: by walking every ``QAbstractButton`` in a booted window with all 36
+#: module screens opened -- seven were still falling through to the puzzle
+#: piece, and two of the seven were Explain CV Model: its dock row and its
+#: fold button on Classify's masthead. ``ml_analyze.png`` is a
+#: six-node decision tree drawn for the ML-classification route that folded
+#: into ``classify_merged``; no GUI key resolves to it any more (measured:
+#: zero of the 61 registered + folded keys), so it is retired artwork rather
+#: than a borrowing from a live tile. It is also literally the right
+#: picture: :func:`spacr.surrogate.fit_surrogate` fits a random forest, a
+#: histogram gradient booster or XGBoost -- all tree ensembles -- to
+#: reproduce the CV model's decisions from measured features, so a tree of
+#: nodes is what this screen builds, not a metaphor for it.
+SHARED_ICON_ASSETS = {
+    "investigate_hit": "hit_list.png",
+    "classify_merged": "classify.png",
+    "explain_cv": "ml_analyze.png",
+}
+
+
 def bundled_icon_path(key: str, override: Optional[str] = None
                       ) -> Optional[str]:
     """Resolve an app key to its bundled PNG, or ``None``.
 
-    :param override: explicit filename to try first. The key → filename
-        table lives in :mod:`spacr.qt.app` next to the app registry it
-        describes; this module only knows how to *render* what it's
-        pointed at.
+    Tried in order: the caller's ``override``, ``<key>.png``, the same
+    with underscores as spaces, and finally whatever
+    :data:`SHARED_ICON_ASSETS` says this key borrows.
+
+    :param key: application registry key whose bundled artwork is requested;
+        it is also used verbatim to form the first conventional filename.
+    :param override: explicit filename to try first. The per-screen key →
+        filename table lives in :mod:`spacr.qt.app` next to the app
+        registry it describes; this module only knows how to *render*
+        what it's pointed at, plus the handful of keys in
+        :data:`SHARED_ICON_ASSETS` that share one picture everywhere.
     """
     candidates = [override] if override else []
     candidates += [f"{key}.png", f"{key.replace('_', ' ')}.png"]
+    alias = SHARED_ICON_ASSETS.get(key)
+    if alias:
+        candidates.append(alias)
     for candidate in candidates:
         path = os.path.join(RESOURCE_DIR, candidate)
         if os.path.isfile(path):
@@ -595,9 +701,26 @@ _NAME_TO_GLYPH = {
     "brush":           "fa5s.paint-brush",
     "erase":           "fa5s.eraser",
     "erase_object":    "fa5s.trash-alt",
+    # Run History's "Clear all" asked for `trash` and this table had no
+    # such name, so the one button that throws away recorded runs drew the
+    # puzzle piece -- the artwork every unfiled key draws. A solid bin,
+    # distinct from `erase_object`'s outlined `trash-alt`; the two never
+    # share a screen (one is a Make Masks canvas tool, the other is a
+    # Run History toolbar button), so the family resemblance costs nothing.
+    "trash":           "fa5s.trash",
     "wand":            "fa5s.magic",
     "wand_add":        "fa5s.plus-circle",
     "wand_erase":      "fa5s.minus-circle",
+    # The three Make Masks canvas tools that had no glyph. Each fell
+    # through to the shared puzzle piece, so Draw, Divide and Recrop sat
+    # in one toolbar row wearing one picture -- three different edits a
+    # user cannot tell apart, which is worse than a row with a gap in it.
+    # A closed outline traced point by point, scissors through an object,
+    # and a crop frame: what each tool does to the field, not what family
+    # it belongs to.
+    "draw":            "fa5s.draw-polygon",
+    "divide":          "fa5s.cut",
+    "recrop":          "fa5s.crop-alt",
     "zoom":            "fa5s.search-plus",
     "zoom_reset":      "fa5s.compress-arrows-alt",
     "undo":            "fa5s.undo",
@@ -638,17 +761,52 @@ _NAME_TO_GLYPH = {
     "analyze_plaques": "fa5s.microscope",
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",
-    "cellpose_all":    "fa5s.th",
     # One square divided into four by its own seams: tiles registered into
     # a single canvas. Align & Stitch renders this glyph rather than a
     # bundled PNG (spacr.qt.app._FORCE_GLYPH) because no bundled artwork
     # says "stitched mosaic".
     "align":           "fa5s.border-all",
+    # Stacked photo frames: the module reads a FOLDER OF IMAGES off a
+    # microscope, and "images" is the whole thing that separates it from its
+    # host Import (`foreign.png`, a net funnelling into a down arrow) and
+    # from its two siblings on that fold strip -- Format Converter
+    # (`convert.png`, one field split raw/processed) and External Masks
+    # (`external_masks.png`, two crops arrowed into a folder). No bundled
+    # PNG says "image files", and without a line here the key fell through
+    # to the shared puzzle piece on both the dock row and the fold button.
+    "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
+    # A FIELD OF DOTS, NOT A BARCODE, and the distinction is the module.
+    # `map_barcodes` reads a barcode out of sequencing reads and draws one;
+    # OPS reads its code off the IMAGE, as a pattern of spots whose colour
+    # is one base per imaging cycle -- eleven cycles on the reference plate.
+    # Braille is the honest picture of that: a code carried by where the
+    # dots are rather than by a stripe, and it cannot be confused at 16 px
+    # with the barcode beside it on the same fold strip.
+    #
+    # Not `layer-group`, which is Classify's and says "stacked" without
+    # saying what is stacked. Not `border-all`, which is Align & Stitch's
+    # one registered canvas -- OPS is that canvas ELEVEN TIMES OVER, and a
+    # glyph that says "mosaic" would be the neighbour's story, not this
+    # module's.
+    "ops":             "fa5s.braille",
     "ai_console":      "fa5s.robot",
     # Stacked platters: the app is about what a project weighs on disk and
     # what of it can safely go. Without an entry here a new key falls back
     # to the shared puzzle piece, which is artwork every unfiled app draws
     # — indistinguishable tiles on Home.
     "data_manager":    "fa5s.hdd",
+    # DELIBERATELY ABSENT: `regression_diagnostics`. It is the one key of
+    # the four instruction 355 measured on the fallback that is still
+    # there, and it is left there on purpose. Regression Diagnostics is
+    # residual-versus-fitted, scale-location, QQ, leverage and Cook's
+    # distance (see spacr/regression_diagnostics.py), so the mark that
+    # names it is a scatter about a zero line with one point flagged.
+    # Nothing bundled draws that and is free -- `outliers.png` is the
+    # closest and is the live Outliers QC module's own mark, so taking it
+    # would make two modules one picture -- and no FA5 glyph draws it;
+    # `stethoscope` and `heartbeat` say "diagnostics" the way a gear says
+    # "settings", which is the substitution instruction 355 rules out.
+    # A wrong-but-present icon is worse than the fallback, because the
+    # fallback at least reads as "nobody has chosen one yet".
 }

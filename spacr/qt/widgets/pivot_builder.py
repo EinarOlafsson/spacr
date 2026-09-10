@@ -50,14 +50,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..theme import (RADIUS, SPACING, active_palette, font_px, mark_surface,
-                     register_widget_qss)
+from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
+                     font_px, mark_surface, register_widget_qss)
 from .graph_builder import COLUMN_MIME, ColumnWell
 from .pivot_spec import (
     AGGREGATION_LABELS, AGGREGATIONS, COUNT_ONLY, LOW_N, MEAN, N, SD,
     WELL_HIERARCHY, PivotError, PivotResult, PivotSpec, format_value, pivot,
 )
 from .toggle import Toggle
+from .sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.pivot")
 
@@ -105,11 +106,22 @@ class DropWell(QWidget):
     Removing is Delete, Backspace or a double-click. There is no drag-out: a
     column dragged from here to another well would have to decide whether it
     was a move or a copy, and getting that wrong silently loses an axis.
+
+    :param axis: which pivot axis this well holds. Must be a key of
+        :data:`AXIS_LABELS`; anything else RAISES here rather than drawing a
+        well nothing can be dropped into.
+    :param parent: parent widget.
     """
 
     changed = Signal()
 
     def __init__(self, axis: str, parent=None):
+        """Build one axis well of the pivot shelf.
+
+        :param axis: which axis this well holds -- a key of ``AXIS_LABELS``.
+        :param parent: parent widget, or ``None``.
+        :raises ValueError: if ``axis`` names no pivot axis.
+        """
         super().__init__(parent)
         if axis not in AXIS_LABELS:
             raise ValueError(f"unknown pivot axis {axis!r}")
@@ -126,10 +138,10 @@ class DropWell(QWidget):
         title = QLabel(AXIS_LABELS[axis], self)
         title.setObjectName("PivotWellName")
         head.addWidget(title, 1)
-        clear = QPushButton("×", self)
+        clear = QPushButton(self)
         clear.setObjectName("PivotWellClear")
-        clear.setFixedWidth(20)
-        clear.setToolTip(f"Empty the {AXIS_LABELS[axis]} well")
+        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
+        apply_close_mark(clear, tooltip=f"Empty the {AXIS_LABELS[axis]} well")
         clear.clicked.connect(self.clear)
         head.addWidget(clear)
         outer.addLayout(head)
@@ -143,6 +155,10 @@ class DropWell(QWidget):
 
     # -- state ------------------------------------------------------------
     def columns(self) -> Tuple[str, ...]:
+        """The columns dropped into this well.
+
+        :returns: the column names, in drop order.
+        """
         return tuple(self._list.item(i).data(Qt.UserRole)
                      for i in range(self._list.count()))
 
@@ -159,32 +175,54 @@ class DropWell(QWidget):
         self.changed.emit()
 
     def clear(self) -> None:
+        """Empty the well."""
         self.set_columns(())
 
     def _add(self, name: str) -> None:
+        """Put one column into the well.
+
+        :param name: the column name; also stored on the item, so the well can
+            be read back without parsing its labels.
+        """
         item = QListWidgetItem(name)
         item.setData(Qt.UserRole, name)
         item.setToolTip(f"{name}\nDelete or double-click to remove it.")
         self._list.addItem(item)
 
     def _on_dropped(self, name: str) -> None:
+        """Accept a dropped column, unless the well already holds it.
+
+        A column twice on one axis would group by itself, so the duplicate is
+        dropped silently rather than reported.
+
+        :param name: the dropped column name.
+        """
         if name and name not in self.columns():
             self._add(name)
             self.changed.emit()
 
     def _on_remove(self, row: int) -> None:
+        """Take one column out of the well.
+
+        :param row: its position; out-of-range rows are ignored, since the list
+            can change between the request and its delivery.
+        """
         if 0 <= row < self._list.count():
             self._list.takeItem(row)
             self.changed.emit()
 
 
 class _AxisList(QListWidget):
-    """The list inside a :class:`DropWell`: takes :data:`COLUMN_MIME`."""
+    """The list inside a :class:`DropWell`: takes :data:`COLUMN_MIME`.
+
+    :param parent: parent widget; ownership only.
+    """
 
     dropped = Signal(str)
     remove_requested = Signal(int)
 
     def __init__(self, parent=None):
+        """Build the list as a drop target that does not drag out."""
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setDragEnabled(False)
@@ -195,22 +233,36 @@ class _AxisList(QListWidget):
             lambda item: self.remove_requested.emit(self.row(item)))
 
     def _accepts(self, event) -> bool:
+        """Whether a drag carries a column this list can take."""
         return event.mimeData() is not None and \
             event.mimeData().hasFormat(COLUMN_MIME)
 
     def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        """Accept a dragged column, and refuse anything else.
+
+        :param event: the drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        """Keep accepting while the drag is over this well.
+
+        :param event: the drag event.
+        """
         if self._accepts(event):
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Announce the dropped column.
+
+        :param event: the drop event; an empty payload is accepted but announces
+            nothing, so a malformed drag does not add a nameless axis.
+        """
         if not self._accepts(event):
             event.ignore()
             return
@@ -220,6 +272,10 @@ class _AxisList(QListWidget):
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):  # noqa: N802 - Qt name
+        """Remove the selected column on Delete or Backspace.
+
+        :param event: the key event.
+        """
         if event.key() in (Qt.Key_Delete, Qt.Key_Backspace):
             row = self.currentRow()
             if row >= 0:
@@ -234,9 +290,15 @@ class PivotTable(QTableWidget):
     One column per row key so the table can be copied out whole, then one per
     column-level combination. Every populated cell ends with its ``n``; every
     empty one is blank.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
+        """Create an empty pivot table view.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("PivotTable")
         self.setAlternatingRowColors(True)
@@ -246,11 +308,16 @@ class PivotTable(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self.setWordWrap(True)
+        install_sorting(self)
         self._result: Optional[PivotResult] = None
         self._truncated = 0
 
     @property
     def result(self) -> Optional[PivotResult]:
+        """The pivot being displayed, if any.
+
+        :returns: the result, or None before one has been computed.
+        """
         return self._result
 
     @property
@@ -265,12 +332,21 @@ class PivotTable(QTableWidget):
         return item.text() if item is not None else ""
 
     def _header_offset_keys(self) -> Tuple[str, ...]:
+        """Return the row-key names that the leading header columns stand for.
+
+        :returns: the result's row keys, ``("rows",)`` when it has none, and
+            an empty tuple when nothing has been computed.
+        """
         result = self._result
         if result is None:
             return ()
         return result.row_keys or ("rows",)
 
     def set_result(self, result: Optional[PivotResult]) -> None:
+        """Show a computed pivot.
+
+        :param result: the pivot result, or None to clear.
+        """
         self._result = result
         self.clear()
         self._truncated = 0
@@ -293,7 +369,7 @@ class PivotTable(QTableWidget):
             # million items takes minutes to construct, for a table nobody is
             # going to scroll to the end of.
             self._truncated = result.n_cells
-            note = QTableWidgetItem(
+            note = table_item(
                 f"{result.n_cells:,} cells is past the {MAX_RENDERED_CELLS:,} "
                 f"this grid draws — narrow the axes, or export the CSV.")
             self.setRowCount(1)
@@ -307,11 +383,11 @@ class PivotTable(QTableWidget):
         for r in range(n_rows):
             for i, key in enumerate(key_columns):
                 text = (result.row_levels[r][i] if result.row_keys else "all")
-                item = QTableWidgetItem(str(text))
+                item = table_item(str(text))
                 item.setToolTip(f"{key} = {text}")
                 self.setItem(r, i, item)
             for c in range(n_cols):
-                item = QTableWidgetItem(self._body_text(result, r, c))
+                item = table_item(self._body_text(result, r, c))
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 item.setToolTip(self._tooltip(result, r, c))
                 smallest = self._smallest_n(result, r, c)
@@ -324,6 +400,15 @@ class PivotTable(QTableWidget):
     # -- one cell ---------------------------------------------------------
     @staticmethod
     def _smallest_n(result: PivotResult, row: int, col: int) -> Optional[int]:
+        """Return the smallest object count behind one cell.
+
+        :param result: the computed pivot.
+        :param row: cell row.
+        :param col: cell column.
+        :returns: the smallest ``n`` across the cell's value layers, or ``None``
+            when none of them has one. It is the smallest rather than the mean's
+            own: a cell is only as trustworthy as its thinnest layer.
+        """
         counts = [result.n_at(value, row, col)
                   for value in (result.spec.values or (COUNT_ONLY,))]
         found = [c for c in counts if c is not None]
@@ -353,6 +438,18 @@ class PivotTable(QTableWidget):
 
     @staticmethod
     def _tooltip(result: PivotResult, row: int, col: int) -> str:
+        """Build the hover text for one cell.
+
+        Every layer is listed with its value, and a cell at or below ``LOW_N``
+        says to read it as an anecdote. An empty cell says it is blank rather
+        than zero on purpose -- that combination was not measured, or nothing
+        survived the filter.
+
+        :param result: the computed pivot.
+        :param row: cell row.
+        :param col: cell column.
+        :returns: the tooltip text.
+        """
         where = " · ".join(p for p in (result.row_label(row),
                                        result.col_label(col)) if p) or "all"
         if result.is_empty(row, col):
@@ -372,7 +469,10 @@ class PivotTable(QTableWidget):
 
 
 class PivotPanel(QWidget):
-    """The well, the three axes, the aggregations and the grid."""
+    """The well, the three axes, the aggregations and the grid.
+
+    :param parent: parent widget.
+    """
 
     #: Emitted after every successful pivot.
     computed = Signal(object)
@@ -380,6 +480,10 @@ class PivotPanel(QWidget):
     plot_requested = Signal(object)
 
     def __init__(self, parent=None):
+        """Build the pivot shelf beside the table.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("PivotPanel")
         self._frame: Optional[pd.DataFrame] = None
@@ -485,6 +589,11 @@ class PivotPanel(QWidget):
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(DEBOUNCE_MS)
         self._debounce.timeout.connect(self.recompute)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
@@ -504,6 +613,10 @@ class PivotPanel(QWidget):
 
     @property
     def result(self) -> Optional[PivotResult]:
+        """The pivot this panel is showing, if any.
+
+        :returns: the result, or None before one has been computed.
+        """
         return self._result
 
     def spec(self) -> PivotSpec:
@@ -569,7 +682,11 @@ class PivotPanel(QWidget):
             self.table.set_result(None)
             self.notice.setText(str(exc))
             return None
-        except Exception as exc:  # pragma: no cover - defensive
+        except Exception as exc:
+            # ANYTHING THAT IS NOT A PivotError. That one is the expected
+            # refusal and carries its own explanation; this is a fault
+            # inside the pivot, and the "could not build that table"
+            # wrapper is what tells the two apart on screen.
             LOG.info("the pivot failed", exc_info=True)
             self._result = None
             self.table.set_result(None)
@@ -585,11 +702,25 @@ class PivotPanel(QWidget):
         return result
 
     def _on_axis_changed(self, *_args) -> None:
+        """Queue a recompute after an axis or aggregation edit.
+
+        Debounced, so dragging three columns into a well costs one recompute
+        rather than three, and suppressed entirely while the panel is being
+        built from a spec.
+
+        :param _args: whatever the emitting signal passes; ignored, since the
+            whole spec is re-read from the widgets either way.
+        """
         if self._building:
             return
         self._debounce.start()
 
     def _on_plot(self) -> None:
+        """Hand the summary to the Graph Builder, one row per cell.
+
+        An empty table says so rather than emitting nothing, which would read
+        as a broken button.
+        """
         frame = self.long_frame()
         if frame.empty:
             self.notice.setText(
@@ -618,6 +749,10 @@ class PivotPanel(QWidget):
         return path
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
         self._debounce.stop()
         super().closeEvent(event)
 
@@ -627,6 +762,13 @@ class PivotPanel(QWidget):
 # ---------------------------------------------------------------------------
 
 def _pivot_qss(palette, opacity) -> str:
+    """Build the pivot shelf's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the shelf's surface so it
+        sits over the backdrop like every other panel.
+    :returns: the QSS.
+    """
     from ..theme import block_surface
     surface_alt = block_surface("surface_alt", palette["theme"], opacity)
     return f"""
@@ -637,11 +779,6 @@ QWidget#PivotShelf {{
 QLabel#PivotWellName {{
     color: {palette["fg_muted"]};
     font-weight: 600;
-}}
-QPushButton#PivotWellClear {{
-    border: none;
-    background: transparent;
-    color: {palette["fg_muted"]};
 }}
 QListWidget#PivotWellList {{
     background: transparent;

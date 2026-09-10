@@ -5,7 +5,7 @@
      measurements used the filtered one.
 (ii) `settings['cytoplasm_mask_dim']` raised KeyError for anyone who asked to
      summarise organelles by cytoplasm -- the key does not exist at all.
-(iii) `organelle_min_size` is applied twice. DISPROVEN as a defect: the
+(iii) `organelle_min_area` is applied twice. DISPROVEN as a defect: the
      filter is idempotent and the first pass is load-bearing.
 """
 

@@ -65,7 +65,11 @@ def _require_gpu_cellpose():
         cuda_available,
         package_available,
     )
-    if not cuda_available():
+    # The real microscopy dataset remains GPU-only. The four-field stub is a
+    # release-gate contract and is deliberately small enough for Cellpose CPU,
+    # so a hosted runner can execute it rather than skip the only assertion
+    # that proves masks survive the stage.
+    if not _stubbed_mode() and not cuda_available():
         pytest.skip("no CUDA — this E2E chain is GPU-only")
     if not package_available("cellpose"):
         pytest.skip("cellpose unavailable")
@@ -125,14 +129,47 @@ def _make_stub_settings(dst: Path) -> Path:
         "plot,false\n"
         "test_mode,false\n"
         "batch_size,2\n"
+        # The mask stage normally deletes its intermediate stacks after they
+        # have been merged. This test explicitly asserts the stack contract,
+        # so keep the artefact it is looking for instead of calling a planned
+        # cleanup "no masks were produced".
+        "keep_intermediate,true\n"
     )
     (settings / _PACK_CSV["measure"]).write_text(
         "Key,Value\n"
         "src,\n"
+        # Three image channels are merged first, then cell and nucleus masks.
+        # The generic Measure defaults assume four image channels; spelling
+        # the fixture's actual layout exercises the same provenance check a
+        # real settings pack must satisfy.
+        "cell_mask_dim,3\n"
+        "nucleus_mask_dim,4\n"
+        "pathogen_mask_dim,None\n"
+        "organelle_mask_dim,None\n"
         "plot,false\n"
     )
     (settings / "annotate_settings.csv").write_text("Key,Value\nsrc,\n")
     return settings
+
+
+def _download_folder(repo_id: str, subfolder: str, dest: Path) -> Path:
+    """Fetch one demo repo folder with the downloader the app itself uses.
+
+    The demo pull lives in :mod:`spacr.qt.hf_download`; its two building
+    blocks are driven directly so the fetch needs neither an event loop nor
+    the progress dialog, while still exercising the same listing and
+    streaming the menu item runs. An empty listing is an assertion failure,
+    not an empty folder handed on to the mask stage to fail inside.
+    """
+    from spacr.qt.hf_download import _download_one, _list_files
+
+    dest.mkdir(parents=True, exist_ok=True)
+    names = _list_files(repo_id, subfolder)
+    assert names, f"{repo_id}/{subfolder or '<root>'} listed no files"
+    for name in names:
+        print(f"downloading {name}", flush=True)
+        _download_one(repo_id, name, dest)
+    return dest
 
 
 @pytest.fixture(scope="module")
@@ -144,18 +181,10 @@ def _prepared_workspace(tmp_path_factory):
         dataset = _make_stub_dataset(root / "data")
         settings = _make_stub_settings(root / "data")
     else:
-        from spacr.gui_utils import download_dataset
-        # Use the CLI downloader (queue-based). We pipe status
-        # messages into a small local queue and print them so a -s
-        # invocation shows progress in real time.
-        import queue as _q
-        q = _q.Queue()
-        dataset = Path(download_dataset(
-            q, repo_id="einarolafsson/toxo_mito",
-            subfolder="plate1", local_dir=str(root)))
-        settings = Path(download_dataset(
-            q, repo_id="einarolafsson/spacr_settings",
-            subfolder="", local_dir=str(root / "settings_dir")))
+        dataset = _download_folder(
+            "einarolafsson/toxo_mito", "plate1", root / "plate1")
+        settings = _download_folder(
+            "einarolafsson/spacr_settings", "", root / "settings_dir")
     return dataset, settings
 
 
@@ -218,16 +247,56 @@ def test_hf_e2e_mask_stage(_prepared_workspace):
     from spacr.run_journal import open_run
 
     settings = _load_settings_for("mask", settings_root, dataset)
+    # The downloaded pack may choose production cleanup. An E2E output test
+    # must retain the output it asserts in both stub and real-data modes.
+    settings["keep_intermediate"] = True
     t0 = time.time()
     with open_run("mask", settings) as run:
         preprocess_generate_masks(settings)
     print(f"[hf-e2e] mask stage: {time.time() - t0:.1f}s -> {run.dir}")
     assert (run.dir / "manifest.json").exists()
-    # v1 writes .npy stacks under masks/cell_mask_stack/ — accept
-    # any file whose path names "cell_mask" (covers both the v1 stack
-    # layout + any per-field .tif some builds emit).
-    hits = [p for p in dataset.rglob("*") if "cell_mask" in p.name]
-    assert hits, "mask stage produced no cell_mask output files"
+
+    # WHAT THIS USED TO ASSERT, and why that was the whole problem:
+    #
+    #     hits = [p for p in dataset.rglob("*") if "cell_mask" in p.name]
+    #     assert hits, "mask stage produced no cell_mask output files"
+    #
+    # "at least one path somewhere in the workspace is NAMED cell_mask" is the
+    # weakest possible statement about a segmentation stage. The directory
+    # `masks/cell_mask_stack/` matches it by its own name, so the assertion
+    # passed whether that directory held four labelled fields or nothing at
+    # all, and it could not tell "worked" from "barely worked" -- which is the
+    # gap the intermittent failure of instruction 104 hid in for a year. A
+    # stage that segments one cell in one field is a stage that is broken.
+    #
+    # So: one labelled mask per merged field, and every field found cells.
+    masks_dir = dataset / "masks"
+    stack = masks_dir / "cell_mask_stack"
+    assert stack.is_dir(), (
+        f"the mask stage wrote no cell_mask_stack. {masks_dir} holds "
+        f"{sorted(p.name for p in masks_dir.glob('*')) if masks_dir.is_dir() else 'nothing — the folder does not exist'}")
+    masks = sorted(stack.glob("*.npy"))
+    fields = sorted((dataset / "merged").glob("*.npy"))
+    assert len(masks) == len(fields), (
+        f"{len(fields)} merged field(s) went in and {len(masks)} cell mask(s) "
+        f"came out; a field with no mask is a field dropped in silence")
+
+    counts = {p.name: int(np.unique(np.load(p)).size - 1) for p in masks}
+    print(f"[hf-e2e] cell objects per field: {counts}")
+    empty = sorted(name for name, n in counts.items() if n == 0)
+    assert not empty, (
+        f"these fields produced a mask with no cells in it: {empty}. "
+        f"Per-field counts: {counts}")
+    if _stubbed_mode():
+        # The stub is four 64x64 fields and its segmentation is deterministic
+        # here: 14 / 6 / 11 / 3 objects, measured over 24 consecutive runs
+        # under load. The floor is well under that rather than equal to it,
+        # because the number is a property of the model version as much as of
+        # the fixture — but an order of magnitude below it is a regression,
+        # not a new cellpose release.
+        assert sum(counts.values()) >= 12, (
+            f"the stub plate segmented {sum(counts.values())} cells in total; "
+            f"it has produced 34 on every run measured. Per field: {counts}")
 
 
 @pytest.mark.slow

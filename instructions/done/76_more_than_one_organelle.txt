@@ -328,3 +328,41 @@ pipeline suites also pass. Final focused verification: 610 passed, 1 skipped,
 tests; 11 dedicated/orchestration edge tests; and the 865-test measurement,
 schema, settings, crop and golden-pipeline sweep after updating obsolete bug
 guards.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE LAST CRITERION IS HALF MET, AND THE HALF IS NAMED
+--------------------------------------------------------------------------------
+
+Three of the four criteria hold, checked by running rather than by reading:
+`tests/test_multiple_organelles.py` (9 passed) covers two-slot segmentation and
+measurement into one database, the per-family output and the legacy defaults;
+`ALL_ORGANELLE_ROLES` now runs to 26 slots rather than the four this file
+recorded, and the primary slot's settings and table still mean what they meant.
+
+THE FOURTH -- "no object type is spelled as a literal in more than one place"
+-- IS TRUE OF ORGANELLES AND NOT OF THE FIXED FOUR. Measured:
+
+    every one of the vocabularies this file inventoried now interpolates
+    `*ORGANELLE_ROLES` from the registry, so adding a slot needs no edit --
+    feature_dict.py, measure_hooks.py, filters.py, merge_tables.py,
+    io.py (CROP_OBJECT_TYPES), measure.py (CROP_MODES), external_masks.py;
+
+    but each of them still spells "cell", "nucleus", "pathogen" and
+    "cytoplasm" out in its own literal tuple. That is deliberate and said so
+    in `spacr/object_roles.py`'s docstring -- "consumers retain their own
+    ordering where array planes, table layout, or crop modes require a
+    specific sequence" -- because the order is load-bearing in several of
+    them. The criterion as written is absolute; the code is not, on purpose.
+
+TWO CONSEQUENCES OF THAT WHICH ARE NOT ORDERING, and are left for a decision
+rather than changed here, because both alter what a reporting tool prints:
+
+  `spacr/run_compare.py:90`  OBJECT_TABLES omits every organelle table, so a
+      run-to-run comparison does not notice that one run wrote 40,000
+      organelle rows and the other none.
+  `spacr/gene_measurement_compare.py:972`  OBJECT_TABLES omits them too, so
+      organelle measurements cannot be compared against a gene.
+
+Neither is on the measure path and neither affects what is written to the
+database; both mean an organelle measurement is invisible to a tool that
+reports on every other object type.

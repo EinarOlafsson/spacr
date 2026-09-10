@@ -8,7 +8,16 @@ from .dot_link import DotLink
 
 
 class InfoLink(DotLink):
-    """A small teal dot that opens an API-reference URL when pressed."""
+    """A small teal dot that opens an API-reference URL when pressed.
+
+    :param url: the page to open in the browser.
+    :param tooltip: hover text, also the accessible name.
+    :param parent: parent widget.
+
+    The colours and the accessible description are fixed here rather than
+    passed: every one of these dots means the same thing, and a caller
+    choosing its own would make them stop reading as one control.
+    """
 
     def __init__(
         self,
@@ -17,6 +26,12 @@ class InfoLink(DotLink):
         tooltip: str = "Open API reference",
         parent=None,
     ):
+        """Build the teal dot that opens a documentation page.
+
+        :param url: the page to open.
+        :param tooltip: hover text.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(
             tooltip=tooltip,
             colours=("#20B8B0", "#48D8D0", "#118D88", "#6A8F8D"),

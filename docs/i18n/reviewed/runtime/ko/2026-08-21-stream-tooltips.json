@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "reviewed_at": "2026-08-21",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "load_path_regex",
+      "source_sha256": "7ada59be3e0632f0b1ad208ccba2135974ad72e30bc898015d2d5f982533cad3",
+      "source": "Pattern used to select previously exported crops when image_source is 'load_images'. Use a pattern that identifies the intended object crop type and excludes incompatible images. Legacy file_metadata, path_string, and file_type values are normalized to this setting. Default 'cell_png'.",
+      "translation": "image_source 설정이 'load_images' 일 때 이전에 내보낸 크롭을 선택하는 패턴입니다. 원하는 객체 크롭 유형을 식별하고 호환되지 않는 이미지를 제외하는 패턴을 사용하십시오. 기존 file_metadata, path_string 및 file_type 값은 이 설정으로 정규화됩니다. 기본값은 'cell_png' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mask_array",
+      "source_sha256": "5635def8fdf222ecda4e0e5986b73ae0787c93e5ed5a589a5218ca3b9cd8c461",
+      "source": "Labelled mask plane that defines object identifiers when stream_method is 'array'. Select the mask corresponding to the biological object being classified; this setting is ignored by the 'column' method. Default 'cell'.",
+      "translation": "stream_method 설정이 'array' 일 때 객체 식별자를 정의하는 레이블 마스크 평면입니다. 분류할 생물학적 객체에 해당하는 마스크를 선택하십시오. 'column' 방법에서는 이 설정을 무시합니다. 기본값은 'cell' 입니다."
+    }
+  ]
+}

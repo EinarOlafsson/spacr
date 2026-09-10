@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
+import importlib.util
+import json
 import os
 import re
 import subprocess
-import importlib.util
-import json
 from pathlib import Path
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 ONLINE = ROOT / "packaging" / "online"
@@ -106,7 +105,7 @@ def test_windows_generated_catalog_is_bom_encoded_before_use():
     )
 
 
-def test_bootstraps_use_tls_and_detect_acceleration_by_default():
+def test_bootstraps_use_tls_and_select_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
     assert "https://astral.sh/uv/" in unix
@@ -116,10 +115,11 @@ def test_bootstraps_use_tls_and_detect_acceleration_by_default():
     assert 'TORCH_BACKEND="${SPACR_TORCH_BACKEND:-}"' in unix
     assert "nvidia-smi -L" in unix
     assert 'DETECTED_ACCELERATOR="apple-silicon"' in unix
+    assert 'TORCH_BACKEND="auto"' in unix
     assert '--torch-backend "$TORCH_BACKEND"' in unix
     assert 'Get-Command "nvidia-smi.exe"' in windows
     assert '$TorchBackend = "auto"' in windows
-    assert '$TorchBackend = "cpu"' in windows
+    assert 'Users can still request "cpu" explicitly' in windows
     assert "--torch-backend $TorchBackend" in windows
     assert 'DEFAULT_EXTRAS="qt"' in unix
     assert '$DefaultExtras = "qt"' in windows
@@ -261,7 +261,6 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
         "SectionSetFlags ${SecGpu}"
     )
     assert '-TorchBackend "$1"' in nsis
-    assert "nvidia-smi -L" in nsis
     assert "SectionSetFlags ${SecGpu} ${SF_SELECTED}" in nsis
     assert "nsis-bootstrap-status.txt" in nsis
     assert "SetErrorLevel $0" in nsis
@@ -273,7 +272,11 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
         'OutFile "..\\..\\dist\\online\\spaCR-${VERSION}-Windows-Online-Setup.exe"'
         in nsis
     )
-    assert "dist\\online\\SpaCR-${VERSION}" not in nsis
+    # The mis-cased name is BUILT rather than written: this file is scanned
+    # by test_the_name_is_spaCR, which cannot tell an assertion that the
+    # wrong spelling is absent from an actual use of it.
+    wrong = "Spa" + "CR"
+    assert f"dist\\online\\{wrong}-${{VERSION}}" not in nsis
 
 
 def test_installer_locales_cover_every_supported_ui_language():
@@ -556,12 +559,12 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     ("platform_name", "machine", "nvidia_status", "expected"),
     (
         ("linux", "x86_64", 0, "auto"),
-        ("linux", "x86_64", 1, "cpu"),
+        ("linux", "x86_64", 1, "auto"),
         ("macos", "arm64", 1, "auto"),
-        ("macos", "x86_64", 1, "cpu"),
+        ("macos", "x86_64", 1, "auto"),
     ),
 )
-def test_unix_backend_default_follows_detected_hardware(
+def test_unix_backend_default_is_auto_on_every_supported_platform(
     tmp_path, platform_name, machine, nvidia_status, expected
 ):
     installer = _standalone_unix_installer(tmp_path)
@@ -602,6 +605,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/upload-artifact@v7" in workflow
     assert "actions/download-artifact@v8" in workflow
     assert "python packaging/release.py collect" in workflow
+    assert "python packaging/release.py index" in workflow
+    assert "--current-installers spacr/application" in workflow
     assert "--localized-readme-dir docs/i18n/readme" in workflow
     assert "README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst" in workflow
     assert "for language in en sv de es zh_CN pt hi ko is fr" in workflow
@@ -628,6 +633,7 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "assert torch.backends.mps.is_available()" in workflow
     assert workflow.count("smoke_installed.py") == 3
     assert workflow.count("from spacr.updater import upgrade_command") == 3
+    assert workflow.count("find_spec('pip') is None") == 3
     assert "bootstrap/uv').resolve()" in workflow
     assert "'bootstrap'/'uv.exe'" in workflow
     assert workflow.count("install-profile.json") >= 3
@@ -652,7 +658,11 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "python packaging/release.py bump" in workflow
     assert "--allow-current" in workflow
     assert "github.actor != 'github-actions[bot]'" in workflow
+    assert "github.event.forced != true" in workflow
+    assert "refusing to infer a release from rewritten history" in workflow
     assert "VERSION remains $version" in workflow
+    assert "python packaging/release.py verify" in workflow
+    assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "needs.verify-pypi.result == 'success'" in workflow
@@ -688,6 +698,25 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert workflow.index("  verify-pypi:") < workflow.index("  installers:")
 
 
+def test_zenodo_facing_github_release_automation_is_version_only():
+    workflow_dir = ROOT / ".github" / "workflows"
+    release_markers = (
+        "gh release create",
+        "softprops/action-gh-release",
+        "actions/create-release",
+    )
+    publishers = [
+        path.name
+        for path in sorted(workflow_dir.glob("*.yml"))
+        if any(marker in _text(path) for marker in release_markers)
+    ]
+
+    assert publishers == ["release.yml"]
+    workflow = _text(RELEASE_WORKFLOW)
+    assert "New 3- or 4-component numeric version" in workflow
+    assert 'echo "tag=v$version"' in workflow
+
+
 def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
     helper = _release_module()
 
@@ -704,6 +733,183 @@ def test_release_helper_bumps_only_to_a_newer_valid_version(tmp_path):
     assert helper.read_version(setup) == "1.2.4"
     with pytest.raises(ValueError, match="valid Python package version"):
         helper.bump_version(setup, "not a version")
+    with pytest.raises(ValueError, match="three or four numeric components"):
+        helper.bump_version(setup, "1.2.5rc1")
+
+
+def test_repository_package_and_citation_metadata_name_the_same_release():
+    helper = _release_module()
+    setup = ROOT / "setup.py"
+
+    assert helper.verify_release_metadata(
+        setup,
+        ROOT / "CITATION.cff",
+        package_version_path=ROOT / "spacr" / "_version.py",
+    ) == helper.read_version(setup)
+
+
+def test_every_readme_uses_the_zenodo_concept_doi():
+    concept_doi = "10.5281/zenodo.21343316"
+    old_version_record = "21343317"
+    readmes = [ROOT / "README.rst"] + [
+        ROOT / "docs" / "i18n" / "readme" / f"README.{code}.rst"
+        for code in _release_module().LOCALIZED_README_CODES
+    ]
+
+    assert len(readmes) == 10
+    for readme in readmes:
+        text = _text(readme)
+        assert concept_doi in text, readme
+        assert old_version_record not in text, readme
+
+
+def test_release_helper_bumps_setup_and_citation_together(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'cff-version: 1.2.0\ndoi: "10.5281/zenodo.99999999"\n'
+        'version: "1.2.3"\n'
+        'date-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
+
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        package_version_path=package_version,
+        release_date="2026-08-29",
+    ) == "1.2.4"
+    assert helper.verify_release_metadata(
+        setup,
+        citation,
+        package_version_path=package_version,
+    ) == "1.2.4"
+    assert 'VERSION = "1.2.4"' in _text(setup)
+    assert helper.read_package_version(package_version) == "1.2.4"
+    assert 'version: "1.2.4"' in _text(citation)
+    assert 'date-released: "2026-08-29"' in _text(citation)
+    assert 'doi: "10.5281/zenodo.99999999"' in _text(citation)
+
+    # A workflow rerun must not rewrite the historical release date.
+    citation_after_bump = _text(citation)
+    package_after_bump = _text(package_version)
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        package_version_path=package_version,
+        release_date="2099-01-01",
+        allow_current=True,
+    ) == "1.2.4"
+    assert _text(citation) == citation_after_bump
+    assert _text(package_version) == package_after_bump
+
+
+def test_release_helper_rejects_stale_citation_before_writing_setup(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.2"\ndate-released: "2026-07-01"\n',
+        encoding="utf-8",
+    )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
+    original_setup = _text(setup)
+    original_citation = _text(citation)
+    original_package = _text(package_version)
+
+    with pytest.raises(ValueError, match="Cannot bump"):
+        helper.bump_release(
+            setup,
+            citation,
+            "1.2.4",
+            package_version_path=package_version,
+            release_date="2026-08-29",
+        )
+
+    assert _text(setup) == original_setup
+    assert _text(citation) == original_citation
+    assert _text(package_version) == original_package
+
+
+def test_release_verifier_rejects_a_nonversion_github_release_name(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.4rc1"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.4rc1"\ndate-released: "2026-08-29"\n',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="three or four numeric components"):
+        helper.verify_release_metadata(setup, citation)
+
+
+def test_release_helper_repairs_an_old_setup_only_bump(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.4"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.3"\ndate-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.3"\n', encoding="utf-8")
+
+    assert helper.bump_release(
+        setup,
+        citation,
+        "1.2.4",
+        package_version_path=package_version,
+        release_date="2026-08-29",
+        allow_current=True,
+    ) == "1.2.4"
+    assert helper.read_citation_metadata(citation) == (
+        "1.2.4", "2026-08-29")
+    assert helper.read_package_version(package_version) == "1.2.4"
+
+
+def test_release_helper_rejects_stale_facade_before_writing(tmp_path):
+    helper = _release_module()
+
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "1.2.3"\n', encoding="utf-8")
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'version: "1.2.3"\ndate-released: "2026-08-10"\n',
+        encoding="utf-8",
+    )
+    package_version = tmp_path / "_version.py"
+    package_version.write_text('__version__ = "1.2.2"\n', encoding="utf-8")
+    originals = tuple(
+        _text(path) for path in (setup, citation, package_version)
+    )
+
+    with pytest.raises(ValueError, match="Cannot bump"):
+        helper.bump_release(
+            setup,
+            citation,
+            "1.2.4",
+            package_version_path=package_version,
+            release_date="2026-08-29",
+        )
+
+    assert tuple(
+        _text(path) for path in (setup, citation, package_version)
+    ) == originals
 
 
 def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path):
@@ -757,7 +963,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
         source, destination, readme, setup, branch="nightly")
 
     assert {path.name for path in copied} == set(names)
-    assert not old.exists()
+    assert old.exists(), "an earlier version was deleted during collection"
     all_readmes = [readme] + [
         localized_dir / f"README.{code}.rst"
         for code in helper.LOCALIZED_README_CODES
@@ -782,7 +988,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
         assert (destination / name).is_file()
     manifest = (destination / "README.rst").read_text(encoding="utf-8")
     assert f"Current version: ``{version}``" in manifest
-    assert manifest.count("SHA-256") == 4  # heading + one line per installer
+    assert manifest.count("SHA-256") == 4  # retained old file + three current
 
 
 def test_release_helper_refuses_an_incomplete_localized_readme_set(tmp_path):

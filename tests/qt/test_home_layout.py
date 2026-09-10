@@ -22,23 +22,29 @@ in a screenshot months later.
 from __future__ import annotations
 
 import pytest
-
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QLabel, QPushButton
 
 from spacr.qt.app import (
     APPS,
+    tiled_apps,
     MAX_APPS_PER_SECTION,
     SECTION_CORE,
     SECTIONS,
     Sidebar,
     _icon_for_app,
+    dock_rows,
     home_bands,
     make_home_page,
     section_members,
 )
 from spacr.qt.widgets.home import AppTile, HomePage
 
+#: What the dock actually draws, which is Home's tiles plus the Help modules
+#: and NOT every key in ``APPS``. The folded second level was removed on
+#: 2026-09-03, so a module that only ever had an indented child row has no
+#: row to measure here.
+_DOCK_ROWS = list(dock_rows())
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -116,8 +122,23 @@ def _tiles_by_name(page: HomePage) -> dict:
 
 
 def _nav_buttons_by_name(bar: Sidebar) -> dict:
-    """App navigation buttons keyed by app name (Home excluded)."""
-    return {b.accessibleName(): b for b in bar.findChildren(QPushButton)
+    """App navigation buttons keyed by app name (Home excluded).
+
+    STRIPPED, because a folded child's row is built from an indented label
+    -- three leading spaces, which is what said "this hangs off the row
+    above" before the rows stopped drawing their names -- and its accessible
+    name carries the indent with it.
+
+    That did not matter while every module also had a TOP-LEVEL row to find.
+    It started mattering on 2026-09-03, when the dock's top level was cut to
+    Home's tiles: eight modules that had been drawn twice
+    (`train_compare`, `profiler`, `investigate_hit`, `convert`,
+    `external_masks`, `lineage`, `layer_viewer`, `tabulate`) are now only
+    ever a child row, and the un-stripped lookup reported them as having no
+    sidebar entry at all.
+    """
+    return {b.accessibleName().strip(): b
+            for b in bar.findChildren(QPushButton)
             if b.property("navKey") not in (None, "__home__")}
 
 
@@ -175,35 +196,30 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
 
     spacr.qt.register_self_registering_modules()
     keys = [a[0] for a in APPS]
+    # TILED keys for the two partition claims. Both are about where a
+    # TILE is drawn, and a folded module has none -- it is reached from
+    # its host's button or from Help. Against `APPS` these read "an app
+    # is on no category tab" for fourteen modules that deliberately are
+    # not, which is the fold working rather than a partition breaking.
+    drawn = [a[0] for a in tiled_apps()]
 
     subject = [k for s in SECTIONS for k, *_ in section_members(s)]
-    assert sorted(subject) == sorted(keys), (
+    assert sorted(subject) == sorted(drawn), (
         "an app is on no category tab, or on two")
 
     banded = [k for _s, rows in home_bands() for k, *_ in rows]
-    assert sorted(banded) == sorted(keys), (
+    assert sorted(banded) == sorted(drawn), (
         "an app is missing from Home, or drawn on it twice")
 
+    # STAGE IS COUNTED OVER EVERY REGISTERED APP, not just the drawn
+    # ones. How finished a module is does not change because it is
+    # reached from a button, and the drawer still filters on it.
     staged = [k for k in keys if app_stage(k) != "stable"]
-    # Forty-three, and it moved for two reasons at once, which is why it is
-    # worth writing down. Apps kept arriving alpha — Pipeline Graph, Hit
-    # List, Prediction Profiler and Methods & Results, then Control Charts,
-    # Dose Response, Trellis, Gate Editor, Feature Explorer, Outliers,
-    # Project Browser and the rest of the self-registering set. And the count
-    # is now taken over the REGISTERED registry rather than the module-level
-    # one, which is the list the user actually sees: the same expression read
-    # 45 of 53 before registration and 42 of 62 after it, so the old number
-    # was answering a question nobody asks. The count is the user's list — how
-    # many of the apps in front of them carry a "not signed off" colour — and
-    # it drops by one every time an app is signed off.
-    #
-    # Forty-three since 2026-08-06 (2d4da7df): the merged Classify module
-    # registered itself STAGE_ALPHA on purpose, because "stable" is the
-    # absence of a line in APP_STAGE and the merged screen has not been run
-    # on real data. It is the only one that has ever moved this number UP
-    # by arriving rather than by the registry being read differently.
-    assert len(staged) == 43, (
-        f"{len(staged)} apps staged, not 43 — if that is intended, say so "
+    # This count is over the fully registered list shown after launch. It is
+    # intentionally ratcheted: signing an app off removes its alpha/beta
+    # entry, while adding an unvalidated app increases the count explicitly.
+    assert len(staged) == 29, (
+        f"{len(staged)} apps staged, not 29 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 
@@ -225,14 +241,12 @@ def test_every_app_is_in_a_declared_section():
 
 
 def test_the_core_pipeline_comes_first_and_is_unbroken():
-    """Ctrl+1..9 map to APPS[0..8], so Core has to lead the table.
+    """Require the six core pipeline applications to lead the registry.
 
-    Core is nine apps and they are APPS[0..8], so the nine Ctrl slots
-    are exactly the Core pipeline again — #16i staged Timelapse and
-    Motility Assay out of it and #16j put them back. The assertion is
-    written to survive either: Core first, and contiguous. A Core app at
-    APPS[20] would be unreachable by keyboard number and would also draw
-    a second "Core" heading in the sidebar.
+    Keyboard number shortcuts follow registry order, and the sidebar draws
+    sections in the same order. A core application placed later would split
+    the Core section and make its shortcut position inconsistent with the
+    displayed workflow.
     """
     core = [a for a in APPS if a[3] == SECTION_CORE]
     assert core, "Core lost all its apps"
@@ -264,6 +278,7 @@ def test_every_app_has_a_title_and_an_intro():
 def test_every_app_resolves_to_a_screen(qtbot, qt_theme_applied):
     """An app in the registry that cannot be opened is a dead tile."""
     from PySide6.QtWidgets import QWidget
+
     from spacr.qt.app import MainWindow
 
     win = MainWindow()
@@ -279,8 +294,12 @@ def test_every_app_resolves_to_a_screen(qtbot, qt_theme_applied):
 # Part A — nothing is clipped
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("key,name,desc,section", APPS,
-                         ids=[a[0] for a in APPS])
+# TILED apps, not every registered one. This asks whether a TILE clips its
+# label, so an app with no tile has no question to answer -- parametrising
+# over `APPS` asked it of nine folded modules and failed nine times for a
+# tile that is deliberately absent.
+@pytest.mark.parametrize("key,name,desc,section", tiled_apps(),
+                         ids=[a[0] for a in tiled_apps()])
 def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
     """The name fits the label drawing it — or elides WITH a tooltip.
 
@@ -304,10 +323,19 @@ def test_home_tile_shows_the_whole_name(home, key, name, desc, section):
         f"{name!r} is elided but its tooltip does not carry the full name")
 
 
-@pytest.mark.parametrize("key,name,desc,section", APPS,
-                         ids=[a[0] for a in APPS])
+@pytest.mark.parametrize("key,name,desc,section", _DOCK_ROWS,
+                         ids=[a[0] for a in _DOCK_ROWS])
 def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
-    """Same contract for the left navigation column."""
+    """Same contract for the left navigation column.
+
+    OVER THE DOCK'S OWN ROWS, NOT ``APPS``. The folded second level was
+    removed on 2026-09-03 ("Scrap the sub categories"), so the nine modules
+    that reached the dock only as indented children -- ``convert``,
+    ``lineage``, ``layer_viewer``, ``tabulate``, ``plate_view``,
+    ``profiler``, ``investigate_hit``, ``external_masks`` and
+    ``train_compare`` -- have no row to measure. They are still reachable
+    from their host screen's fold strip.
+    """
     _theme, _page, bar = home
     btn = _nav_buttons_by_name(bar).get(name)
     assert btn is not None, f"{name} has no sidebar entry"
@@ -318,8 +346,16 @@ def test_sidebar_item_shows_the_whole_name(home, key, name, desc, section):
         assert not btn.is_elided()
     else:
         assert btn.is_elided()
-    # Elided or not, hovering must reveal which app this is.
-    assert name in btn.toolTip()
+    # ELIDED OR NOT, THE ROW MUST STILL SAY WHICH APP IT IS -- and it no
+    # longer says it in a tooltip. The popup came off on 2026-09-03 ("remove
+    # the popup window tooltip on the moduals. the tooltip is shown at the
+    # botom of the screen"), so the name now reaches the reader three other
+    # ways: painted beside the icon on hover (369), written into the strip
+    # along the bottom of the window with its API and Tutorial links, and
+    # announced here to a screen reader.
+    assert btn.accessibleName().strip() == name, (
+        f"the row for {name!r} announces itself as "
+        f"{btn.accessibleName().strip()!r}")
 
 
 def test_no_sidebar_item_needs_eliding_at_the_default_font(home):
@@ -442,12 +478,21 @@ def test_the_widest_name_fits_the_tile_the_grid_gives_it(home):
             continue        # a tile on a tab that is not the current one
         assert floor <= tile.width() <= cap, (
             f"{name} is {tile.width()} px wide, outside {floor}..{cap}")
-    for name in ("Mask", "Annotator Agreement", "Format Converter"):
+    # Check every visible title rather than naming former tiles. This keeps
+    # the contract aligned with the launched registry as modules are folded.
+    widest = max(
+        visible,
+        key=lambda name: QFontMetrics(
+            tiles[name].name_label.font()
+        ).horizontalAdvance(name),
+    )
+    for name in visible:
         label = tiles[name].name_label
         needed = QFontMetrics(label.font()).horizontalAdvance(name)
         assert needed <= label.available_text_width(), (
             f"{name!r} needs {needed} px and the tile gives it "
-            f"{label.available_text_width()} px")
+            f"{label.available_text_width()} px"
+            + (" (it is the widest name on the page)" if name == widest else ""))
 
 
 # ---------------------------------------------------------------------------
@@ -465,7 +510,9 @@ def test_home_renders_every_app_under_every_band_heading(home):
     """
     _theme, page, _bar = home
     rendered = set(_tiles_by_name(page))
-    assert rendered == {a[1] for a in APPS}
+    # The TILED names. A folded module draws no tile on Home, so demanding
+    # one here demands the thing instruction 318 removed.
+    assert rendered == {a[1] for a in tiled_apps()}
 
     headings = {lbl.text() for lbl in page.findChildren(QLabel)}
     for section, _rows in home_bands():
@@ -481,11 +528,26 @@ def test_sidebar_renders_every_app_under_every_section_heading(home):
     that only exist as subject tabs.
     """
     _theme, _page, bar = home
-    assert set(_nav_buttons_by_name(bar)) == {a[1] for a in APPS}
+    # THE DOCK'S OWN ROWS. It used to be APPS plus the folded children,
+    # because a folded module was nested under its host -- asked for on
+    # 2026-09-02, "nested modules should be nested in the dock". That second
+    # level was removed on 2026-09-03 ("Scrap the sub categories"), so the
+    # dock now draws exactly `dock_rows`: Home's tiles and the Help modules.
+    # A folded module is reached from its host screen's fold strip instead.
+    # Home itself is not in here -- `_nav_buttons_by_name` excludes it.
+    expected = {row[1] for row in _DOCK_ROWS}
+    assert {name.strip() for name in _nav_buttons_by_name(bar)} == expected
+
+    # PLUS THE DOCK-ONLY HELP HEADING. `SECTION_HELP` is not a real section
+    # -- every Help module is tileless, so on Home it would be a tab with
+    # nothing on it -- but the dock lists modules rather than tiles and gives
+    # them a heading of their own at the bottom. `dock_rows` says so in its
+    # own docstring; this test compares against the dock, so it has to know.
+    from spacr.qt.app import SECTION_HELP
 
     headings = {lbl.text() for lbl in bar.findChildren(QLabel)
                 if lbl.objectName() == "SidebarSection"}
-    assert headings == set(_sections_in_order())
+    assert headings == set(_sections_in_order()) | {SECTION_HELP}
 
 
 def test_sidebar_still_has_a_home_button(home):
@@ -586,13 +648,22 @@ def test_menu_bar_lists_every_app(qtbot, qt_theme_applied):
     qtbot.addWidget(win)
     # Never hold a QMenu reference across statements — Qt owns it and
     # PySide will report it deleted (see _menu_labels in test_batch7).
+    # One level down since 2026-08-23: the menu groups apps by section.
     labels: set = set()
+
+    def collect(menu):
+        for act in menu.actions():
+            if act.isSeparator():
+                continue
+            if act.menu() is not None:
+                collect(act.menu())
+            else:
+                labels.add(act.text())
+
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
             continue
-        for act in top.menu().actions():
-            if not act.isSeparator():
-                labels.add(act.text())
+        collect(top.menu())
         break
     for _key, name, *_rest in APPS:
         assert name in labels, f"{name} missing from the spaCR menu"

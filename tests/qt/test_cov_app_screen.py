@@ -197,17 +197,27 @@ class TestWidgetConstruction:
 
     def test_mask_screen_builds_one_widget_per_expected_type(self, qtbot):
         """Every widget kind the settings model can emit is actually built."""
+        from PySide6.QtWidgets import QComboBox
+
         scr = _make_screen(qtbot, "mask")
         widgets = scr._settings_model._widgets
-        kinds = {}
-        for key, w in widgets.items():
-            kinds.setdefault(type(w).__name__, []).append(key)
+
+        # BUCKETED BY WHAT THE WIDGET IS, not by its exact class name. The
+        # enumerated settings are built as `_ValueCombo`, a QComboBox
+        # subclass, so an exact-name bucket reported "no QComboBox built for
+        # the mask app" about a screen carrying 187 of them -- and would say
+        # the same of any future subclass. `Toggle` is likewise a QCheckBox,
+        # which the assertions below already rely on.
+        def _count(kind):
+            return sum(1 for w in widgets.values() if isinstance(w, kind))
+
+        from spacr.qt.screens.settings_model import _ScalarEdit
+        from spacr.qt.widgets.toggle import Toggle
 
         # bool -> Toggle, int -> QSpinBox, float -> QDoubleSpinBox,
         # enumerated -> QComboBox, str/None -> _ScalarEdit.
-        for kind in ("Toggle", "QSpinBox", "QDoubleSpinBox",
-                     "QComboBox", "_ScalarEdit"):
-            assert kinds.get(kind), f"no {kind} built for the mask app"
+        for kind in (Toggle, QSpinBox, QDoubleSpinBox, QComboBox, _ScalarEdit):
+            assert _count(kind), f"no {kind.__name__} built for the mask app"
 
         # And each one carries the DEFAULT of its setting, not a blank widget.
         defaults = scr._settings_model._defaults
@@ -241,11 +251,16 @@ class TestWidgetConstruction:
     def test_tooltip_moves_from_field_to_label(self, qtbot):
         """Hover targets are the LABELS; fields keep no tooltip of their own."""
         scr = _make_screen(qtbot, "mask")
+        # Walking the hint index is its documented completeness seam: it
+        # captions the object-gated rows that were deliberately left lazy at
+        # first paint. Assert the whole-model contract only after asking for
+        # that whole-model view; before this, hidden fields correctly retain
+        # metadata that no rendered caption has taken yet.
+        assert len(scr._hint_map) == len(scr._settings_model._widgets)
         for w in scr._settings_model._widgets.values():
             assert w.toolTip() == ""
         # Every label registered in the hint map carries BOTH a plain hint
         # (for the bottom strip) and the HTML tip (for the sticky popup).
-        assert len(scr._hint_map) == len(scr._settings_model._widgets)
         assert set(scr._hint_map) == set(scr._html_tip_map)
         for lbl, hint in scr._hint_map.items():
             assert isinstance(lbl, QLabel)
@@ -272,7 +287,15 @@ class TestWidgetConstruction:
             f"{len(setting_links)} API link dots are still on the settings "
             f"form; the help belongs to the label alone")
         for html in scr._html_tip_map.values():
-            assert "/api/" in html
+            # EITHER DESTINATION IS THE DOCUMENTATION. Most settings link
+            # to their consumer's AutoAPI page under /api/. A setting whose
+            # only consumer is private has no anchor to aim at there, so
+            # since 383 it links to the settings-flow page instead -- which
+            # names the setting, carries its help text and lists every
+            # function that reads it. Both are "Open spaCR API
+            # documentation"; asserting on /api/ alone made the better link
+            # look like a missing one.
+            assert "/api/" in html or "settings_flow.html#" in html, html
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):
@@ -299,6 +322,13 @@ class TestWidgetConstruction:
         assert len(scr._hint_map) == len(scr._settings_model._widgets)
 
     def test_header_shows_title_and_intro_blurb(self, qtbot):
+        """The masthead is a name, a sentence and an instruction.
+
+        No dot beside the blurb: the module's API link is the last line of
+        the blurb's own hover help, which is where every setting's link
+        already is.
+        """
+        from spacr.qt.screens.settings_model import api_docs_url
         from spacr.qt.widgets.info_link import InfoLink
 
         scr = _make_screen(qtbot, "mask")
@@ -308,9 +338,14 @@ class TestWidgetConstruction:
         assert "Configure settings, then press Run." in texts
         module_links = [
             link for link in scr.findChildren(InfoLink)
-            if link.objectName() == "ModuleInfoLink"
+            if link.objectName() in ("ModuleInfoLink", "InfoLink")
         ]
-        assert len(module_links) == 1
+        assert not module_links, (
+            f"{len(module_links)} information dot(s) on the masthead")
+        help_label = scr._header.api_help
+        assert help_label is not None
+        assert APP_INTROS["mask"] in help_label.help_html()
+        assert help_label.url() == api_docs_url("mask")
         assert not any("Docs" in text for text in texts)
 
     def test_unknown_app_key_titles_itself_and_has_no_blurb(self, qtbot):
@@ -354,11 +389,9 @@ class TestCategoryGrouping:
         """It used to assert ``titles[-1] == "OTHER"``.
 
         The "Other" section is not a heading anyone chose -- it is the
-        trailing bucket ``build_sections`` emits for keys in no category at
-        all. Classify rendered one holding exactly ``custom_model``, because
-        that key was filed under "Cellpose" and Classify hides Cellpose. The
-        key now lives beside ``model_type``, which is the question it
-        answers, so there is nothing left to bucket.
+        trailing bucket ``build_sections`` emits for keys in no category.
+        Classify now exposes only its classifier checkpoint path; the
+        similarly named Cellpose checkpoint is not one of its defaults.
 
         The two section names are read off the module's own ordering rather
         than spelled here: the Classify overhaul renamed "Model
@@ -370,23 +403,29 @@ class TestCategoryGrouping:
         The escape hatch itself still works and is covered by
         ``test_uncategorised_keys_still_land_in_other`` below.
         """
-        scr = _make_screen(qtbot, "classify")
-        titles = _section_titles(scr)
-        assert "CELLPOSE" not in titles
-        assert "OTHER" not in titles
-        assert "custom_model" in scr._settings_model._widgets
-        # custom_model is rendered under some heading, and that heading is
-        # the model one -- asserted by where the key landed, not by its name.
-        model_section = next(
-            (name for name, rows in scr._settings_model.build_sections()
-             if any(label_or_key == "custom_model"
-                    or getattr(widget, "property", lambda _p: None)(
-                        "settingKey") == "custom_model"
-                    for label_or_key, widget in rows)),
-            None)
-        assert model_section is not None, (
-            "custom_model is not rendered in any section")
-        assert "MODEL" in model_section.upper()
+        for app_key in ("classify", "classify_merged"):
+            scr = _make_screen(qtbot, app_key)
+            titles = _section_titles(scr)
+            assert "CELLPOSE" not in titles
+            assert "OTHER" not in titles
+            assert "custom_model" not in scr._settings_model._defaults
+            assert "custom_model" not in scr._settings_model._widgets
+            assert "custom_model_path" in scr._settings_model._widgets
+        from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+        assert "custom_model" not in _APP_HIDDEN_KEYS["classify"]
+        assert "custom_model" not in _APP_HIDDEN_KEYS["classify_merged"]
+
+    def test_cellpose_custom_model_is_a_nullable_path_widget(self, qtbot):
+        """Cellpose keeps its checkpoint field; it is not a boolean toggle."""
+        scr = _make_screen(qtbot, "cellpose_masks")
+        widget = scr._settings_model._widgets["custom_model"]
+
+        assert isinstance(widget, _ScalarEdit)
+        assert not isinstance(widget, QCheckBox)
+        assert scr._settings_model.collect()["custom_model"] is None
+        widget.set_value("/models/cpsam.CP_model")
+        assert scr._settings_model.collect()["custom_model"] == \
+            "/models/cpsam.CP_model"
 
     def test_uncategorised_keys_still_land_in_other(self, qtbot, monkeypatch):
         """The bucket is a safety net, not a section anyone should see."""
@@ -407,7 +446,7 @@ class TestCategoryGrouping:
     def test_sections_are_ordered_and_each_row_is_labelled(self, qtbot):
         scr = _make_screen(qtbot, "umap")
         titles = _section_titles(scr)
-        assert titles[0] == "PATHS"
+        assert titles[0] == "INPUT DATA"
         assert len(titles) == len(set(titles)), "a category was emitted twice"
 
     def test_curated_and_fallback_section_hints(self, qtbot):
@@ -484,7 +523,11 @@ class TestRoundTrip:
         first = scr._settings_model.collect()
         applied = scr.apply_settings_dict(first)
         second = scr._settings_model.collect()
-        assert applied == len(scr._settings_model._widgets)
+        from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
+        accepted = set(scr._settings_model._widgets)
+        accepted.update(_APP_HIDDEN_KEYS.get(app_key, set()))
+        assert applied == len(set(first) & accepted)
         assert set(first) == set(second)
         drifted = {k: (first[k], second[k])
                    for k in first if first[k] != second[k]}
@@ -675,9 +718,10 @@ class TestImportSettings:
                             staticmethod(lambda *a, **k: ("", "")))
         scr = _make_screen(qtbot, "mask")
         before = scr._settings_model.collect()
+        console_before = _console_text(scr._console)
         scr._on_import_settings()
         assert scr._settings_model.collect() == before
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_import_of_a_non_settings_csv_warns_and_changes_nothing(
             self, qtbot, monkeypatch, tmp_path):
@@ -701,33 +745,50 @@ class TestImportSettings:
 
     def test_moved_settings_are_called_out_on_import(self, qtbot, monkeypatch,
                                                      tmp_path, no_modals):
-        """An old Mask CSV with timelapse=True must say so, not go quiet."""
+        """An old Mask CSV with these flags must say what became of them.
+
+        Both used to be reported as IGNORED and the reader sent to a
+        sidebar row for each. Tracking is a settings category on this very
+        form now, with a switch on the masthead for the gate that has no
+        control — so on a screen carrying that switch the flag lands and
+        the note has to say so, and on one that is not, it really is
+        ignored and the note has to say that instead. This screen is built
+        without a masthead strip, which is the second case.
+        """
         path = _write_csv(tmp_path / "old.csv",
                           [("src", "/data/p3"), ("timelapse", "True"),
                            ("motility_analysis", "True")])
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(path), "")))
         scr = _make_screen(qtbot, "mask")
+        from spacr.qt.screens.mask import fold_set
+        assert fold_set(scr) is None, "this case is the screen with no switch"
+
         scr._on_import_settings()
         text = _console_text(scr._console)
-        # Only src was applicable; the two moved keys are reported.
+
+        # Only src was applicable; both gates are reported, and neither
+        # note sends the reader to a sidebar row that no longer exists.
         assert "Loaded 1 settings" in text
         assert "timelapse=True was ignored" in text
-        assert "Timelapse module" in text
+        assert "carrying no Timelapse switch" in text
         assert "motility_analysis=True was ignored" in text
-        assert "Motility Assay module" in text
+        assert "Measure" in text
+        assert "sidebar" not in text
 
     def test_moved_settings_notice_is_mask_only(self, qtbot):
         scr = _make_screen(qtbot, "measure")
+        console_before = _console_text(scr._console)
         scr._warn_about_moved_settings({"timelapse": True,
                                         "motility_analysis": True})
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_moved_settings_stay_quiet_when_the_flags_are_off(self, qtbot):
         scr = _make_screen(qtbot, "mask")
+        console_before = _console_text(scr._console)
         scr._warn_about_moved_settings({"timelapse": "False"})
         scr._warn_about_moved_settings({})
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------
@@ -803,7 +864,7 @@ class TestEmptyStateAndSrc:
     def test_column_fields_get_a_sql_button_bound_to_the_live_src(self, qtbot):
         """The picker must read src when clicked, not when built."""
         from spacr.qt.widgets.column_picker import ColumnPickerButton
-        scr = _make_screen(qtbot, "classify")
+        scr = _make_screen(qtbot, "ml_analyze")
         assert "annotation_column" in COLUMN_TABLES
         field = scr._settings_model._widgets["annotation_column"]
         buttons = [b for b in scr.findChildren(ColumnPickerButton)
@@ -811,7 +872,7 @@ class TestEmptyStateAndSrc:
         assert len(buttons) == 1
         btn = buttons[0]
         assert btn.table == COLUMN_TABLES["annotation_column"] == "png_list"
-        scr._settings_model.set_value_for_key("src", ["/data/plate9"])
+        scr._settings_model.set_value_for_key("src", "/data/plate9")
         assert btn.db_path() == "/data/plate9"
 
     def test_non_column_fields_get_no_picker(self, qtbot):
@@ -856,28 +917,56 @@ class TestHoverHints:
         qtbot.wait(1)
         assert (scr._btn_run.pos(), scr._btn_stop.pos()) == before
 
-    def test_enter_and_leave_drive_the_hint_strip_and_the_popup(self, qtbot):
-        from spacr.qt.widgets.hover_tooltip import HoverTooltip, split_api_link
+    def test_enter_and_leave_drive_the_hint_strip_alone(self, qtbot):
+        """THE POPUP NO LONGER FIRES when the strip took the hint.
+
+        Changed on 2026-09-01: "i dont need the popup box if the tooltip is
+        shown on the bottom of the window". Both surfaces carried the same
+        sentence, so the popup was a second copy over the form being read.
+
+        The documentation link moved onto the strip rather than being lost
+        with the popup -- the strip's own prompt promises one.
+
+        AND SINCE 2026-09-03 THE STRIP SURVIVES THE POINTER LEAVING.
+        Instruction 371: "for the user to be able to press the botom tooltip
+        API link ... the last setting the mouse hovered over should be
+        shown, not only when the mouse hovers the setting. this way the user
+        can hover then move the mouse to the link and click it, which is
+        otherwise not possible." Blanking on Leave made that link unreachable
+        by construction -- it appeared only while the pointer was on the
+        setting, and moving toward it removed it. A ten-second hold clears it
+        instead, and `test_the_bottom_tooltip_survives_the_pointer_leaving.py`
+        holds that behaviour.
+        """
+        from spacr.qt.widgets.hover_tooltip import HoverTooltip
         scr = _make_screen(qtbot, "mask")
+        scr.resize(1200, 900)
+        scr.show()
+        qtbot.wait(1)
         label, hint = next(iter(scr._hint_map.items()))
-        html = scr._html_tip_map[label]
         tip = HoverTooltip.instance()
 
         assert scr._hint_strip.text() == scr._default_hint()
         scr.eventFilter(label, QEvent(QEvent.Enter))
-        assert scr._hint_strip.text() == hint
-        assert tip._anchor is label
-        # The popup renders the body's trailing documentation link as its own
-        # blue "API" word, so the prose it shows is that body without the
-        # anchor. The URL is not lost — it moves to the word.
-        body, url = split_api_link(html)
-        assert tip._label.text() == body
-        assert tip.api_url() == url
-        assert url.startswith("https://")
+
+        assert tip._anchor is not label, "the popup was shown as well"
+        shown = scr._hint_strip.text()
+        assert shown != scr._default_hint()
+        # The prose is there, trimmed to the strip's fixed height if need be,
+        # and the link is clickable rather than a bare URL in the prose.
+        opening = shown.split("<br>")[0].rstrip("…")[:30]
+        assert opening and opening.split()[0] in hint, (opening, hint[:80])
+        assert "<a href=" in shown
+        assert scr._hint_strip.openExternalLinks()
 
         scr.eventFilter(label, QEvent(QEvent.Leave))
+        assert scr._hint_strip.text() == shown, (
+            "the strip was blanked on Leave, which makes its API link "
+            "unreachable: moving the pointer toward the link removes it")
+        assert scr._hint_hold_timer.isActive(), (
+            "nothing will ever clear the strip again")
+        scr._release_the_hint()
         assert scr._hint_strip.text() == scr._default_hint()
-        assert tip._hide_timer.isActive()
         tip.cancel_hide()
 
     def test_enter_on_an_unregistered_widget_leaves_the_strip_alone(
@@ -920,8 +1009,12 @@ class TestHoverHints:
         from spacr.qt.widgets.hover_tooltip import HoverTooltip
         scr = AppScreen("mask")          # deliberately NOT qtbot-owned
         label = next(iter(scr._hint_map))
-        scr.eventFilter(label, QEvent(QEvent.Enter))
         tip = HoverTooltip.instance()
+        # ANCHORED DIRECTLY. Hovering a setting no longer shows the popup --
+        # the hint goes to the bottom strip instead -- but this test is about
+        # the popup surviving its anchor being deleted, which is still worth
+        # holding. Driving it through the screen would test the routing.
+        tip.show_for(label, "<b>anything</b>")
         assert tip._anchor is label
         shiboken6.delete(scr)
         assert not shiboken6.isValid(label)
@@ -1060,8 +1153,9 @@ class TestRunStopStateMachine:
     def test_stop_without_a_running_thread_is_silent(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         assert scr._thread is None
+        console_before = _console_text(scr._console)
         scr._on_stop()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_stop_survives_a_thread_that_refuses_to_be_interrupted(
             self, qtbot, monkeypatch):
@@ -1171,6 +1265,8 @@ class TestRunStopStateMachine:
 class TestErrorRouting:
 
     def test_error_prints_raw_when_ai_is_off(self, qtbot, monkeypatch):
+        monkeypatch.setattr("spacr.qt.preferences.get_ai_on_by_default",
+                            lambda: False)
         monkeypatch.setattr("spacr.qt.ai.settings.get_auto_file_issues",
                             lambda: False)
         scr = _make_screen(qtbot, "mask")
@@ -1320,8 +1416,9 @@ class TestErrorRouting:
         monkeypatch.setattr("spacr.qt.ai.issue_report.file_issue",
                             lambda *a, **k: pytest.fail("must not file"))
         scr = _make_screen(qtbot, "mask")
+        console_before = _console_text(scr._console)
         scr._on_file_issue()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_file_issue_survives_an_unreadable_settings_model(self, qtbot,
                                                               monkeypatch):
@@ -1339,9 +1436,15 @@ class TestErrorRouting:
         from PySide6.QtWidgets import QDialog
         from spacr.qt.ai.issue_preview import IssuePreviewDialog
 
-        def _build(tb, active_app="", settings=None, include_log_tail=True):
+        def _build(tb, active_app="", settings=None, include_log_tail=True,
+                   ai_response=""):
+            # `ai_response` IS NAMED rather than swept into **kwargs: a stub
+            # that accepts anything cannot notice the screen dropping an
+            # argument, and this stub stands in for the one function that
+            # decides what a public bug report contains.
             seen.update(tb=tb, app=active_app, settings=settings,
-                        include_log_tail=include_log_tail)
+                        include_log_tail=include_log_tail,
+                        ai_response=ai_response)
             return {"title": "t", "body": "b", "fingerprint": "f"}
 
         monkeypatch.setattr("spacr.qt.ai.issue_report.build_report", _build)
@@ -1376,42 +1479,56 @@ class TestErrorRouting:
 
 class TestAiControls:
 
-    def test_menu_without_a_provider_offers_only_the_dialog(self, qtbot,
-                                                            monkeypatch):
-        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
-        scr = _make_screen(qtbot, "mask")
-        scr._refresh_ai_menu()
-        acts = scr._ai_menu.actions()
-        labels = [a.text() for a in acts if not a.isSeparator()]
-        assert labels == ["(no vendor CLI installed)", "Providers…"]
-        assert not acts[0].isEnabled()
+    def test_the_preference_chooses_the_provider(self, qtbot, monkeypatch):
+        """WHAT THE TWO MENU TESTS HERE WERE ABOUT, asked of the new place.
 
-    def test_menu_lists_providers_and_marks_the_current_one(self, qtbot,
-                                                            monkeypatch):
+        They drove `_refresh_ai_menu` and read back the chevron's actions:
+        that no provider offered only "Providers…", and that the current one
+        was ticked. The chevron is gone -- choosing a vendor is a preference,
+        not a control on the actions row of every module -- so the same two
+        questions are asked of `_wanted_provider`, which is what the screen
+        now consults when the AI switch goes on.
+        """
+        from spacr.qt import preferences as prefs
+
         providers = [_FakeProvider("claude", "Claude Code"),
                      _FakeProvider("codex", "Codex")]
         monkeypatch.setattr("spacr.qt.ai.configured_providers",
                             lambda: providers)
-        monkeypatch.setattr(
-            "spacr.qt.ai.get_provider",
-            lambda name: next((p for p in providers if p.name == name), None))
         scr = _make_screen(qtbot, "mask")
-        scr._console.set_ai_provider("codex")
-        scr._refresh_ai_menu()
-        acts = [a for a in scr._ai_menu.actions() if not a.isSeparator()]
-        assert [a.text() for a in acts] == ["Claude Code", "Codex",
-                                            "Providers…"]
-        assert acts[0].isChecked() is False
-        assert acts[1].isChecked() is True
+        was = prefs.get_preferred_provider()
+        try:
+            prefs.set_preferred_provider("codex")
+            assert scr._wanted_provider() == "codex"
 
-        # Triggering a provider action selects it and rebuilds the menu.
-        acts[0].trigger()
-        assert scr._console._current_provider_name == "claude"
-        acts2 = [a for a in scr._ai_menu.actions() if not a.isSeparator()]
-        assert acts2[0].isChecked() is True
+            # Nothing chosen: the console takes the first available, which is
+            # what the chevron's default did.
+            prefs.set_preferred_provider("")
+            assert scr._wanted_provider() == ""
+        finally:
+            prefs.set_preferred_provider(was)
+
+    def test_no_provider_installed_means_no_choice_to_honour(self, qtbot,
+                                                             monkeypatch):
+        """The "(no vendor CLI installed)" case, after the menu that said it."""
+        from spacr.qt import preferences as prefs
+
+        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
+        scr = _make_screen(qtbot, "mask")
+        was = prefs.get_preferred_provider()
+        try:
+            prefs.set_preferred_provider("claude")
+            assert scr._wanted_provider() == ""
+        finally:
+            prefs.set_preferred_provider(was)
 
     def test_ai_switch_autoselects_the_first_configured_provider(
             self, qtbot, monkeypatch):
+        # The shipped preference now starts AI on.  This test exercises the
+        # transition from off to on, so give it that precondition explicitly
+        # instead of depending on an older product default.
+        monkeypatch.setattr("spacr.qt.preferences.get_ai_on_by_default",
+                            lambda: False)
         providers = [_FakeProvider("codex", "Codex")]
         monkeypatch.setattr("spacr.qt.ai.configured_providers",
                             lambda: providers)
@@ -1461,50 +1578,20 @@ class TestAiControls:
         assert scr._console._ai_active is False
         assert scr._console._current_provider_name == "codex"
 
-    def test_providers_dialog_refreshes_the_menu_when_accepted(
-            self, qtbot, monkeypatch):
-        state = {"providers": []}
-        monkeypatch.setattr("spacr.qt.ai.configured_providers",
-                            lambda: list(state["providers"]))
-        monkeypatch.setattr(
-            "spacr.qt.ai.get_provider",
-            lambda name: next((p for p in state["providers"]
-                               if p.name == name), None))
-        scr = _make_screen(qtbot, "mask")
-        assert [a.text() for a in scr._ai_menu.actions()
-                if not a.isSeparator()][0] == "(no vendor CLI installed)"
+    def test_the_providers_dialog_is_reached_from_preferences_now(self):
+        """WHERE THE TWO DIALOG TESTS HERE WENT.
 
-        class _Dlg:
-            def __init__(self, parent=None):
-                pass
+        They opened the install/login dialog from the screen's own chevron
+        and checked that accepting it rebuilt the menu beside the AI switch.
+        There is no chevron and no menu: the dialog is reached from
+        Preferences → AI → Providers…, and accepting it re-lists the combo
+        on that page. The screen is no longer involved, so this only records
+        that the screen no longer claims to be.
+        """
+        from spacr.qt.screens.app_screen import AppScreen
 
-            def exec(self):
-                state["providers"] = [_FakeProvider("gemini", "Gemini")]
-                return QDialog.Accepted
-
-        monkeypatch.setattr(
-            "spacr.qt.widgets.ai_chat_panel._ProvidersDialog", _Dlg)
-        scr._on_open_providers_dialog()
-        assert [a.text() for a in scr._ai_menu.actions()
-                if not a.isSeparator()] == ["Gemini", "Providers…"]
-
-    def test_providers_dialog_rejected_leaves_the_menu_alone(self, qtbot,
-                                                             monkeypatch):
-        monkeypatch.setattr("spacr.qt.ai.configured_providers", lambda: [])
-        scr = _make_screen(qtbot, "mask")
-
-        class _Dlg:
-            def __init__(self, parent=None):
-                pass
-
-            def exec(self):
-                return QDialog.Rejected
-
-        monkeypatch.setattr(
-            "spacr.qt.widgets.ai_chat_panel._ProvidersDialog", _Dlg)
-        before = [a.text() for a in scr._ai_menu.actions()]
-        scr._on_open_providers_dialog()
-        assert [a.text() for a in scr._ai_menu.actions()] == before
+        assert not hasattr(AppScreen, "_on_open_providers_dialog")
+        assert not hasattr(AppScreen, "_refresh_ai_menu")
 
 
 # ---------------------------------------------------------------------------
@@ -1542,7 +1629,27 @@ class TestRuntimePanels:
         card = getattr(scr, attr + "_card")
         assert panel is not None and card is not None
         assert scr._runtime_splitter is not None
-        assert scr._runtime_splitter.count() == 2
+        # WHAT THIS USED TO ASSERT, and why it went red without anything
+        # breaking: `count() == 2`. When it was written these splitters held
+        # the preview card and the console. The figures card was later
+        # inserted at position 0 in all four preview branches, deliberately,
+        # and a bare count cannot tell "a third pane was added on purpose"
+        # from "a pane was duplicated" -- so it failed on a change it had no
+        # opinion about and said nothing about the thing it was guarding.
+        #
+        # The contract is WHICH panes are in it and in what order: the user
+        # reads figures at the top, tunes in the preview beneath, and watches
+        # the console at the bottom. Stated by identity, that survives the
+        # next layout change and still catches a pane going missing.
+        splitter = scr._runtime_splitter
+        panes = [splitter.widget(i) for i in range(splitter.count())]
+        assert panes == [scr._figures_card, card, scr._console_wrap], (
+            f"{app_key}: the runtime splitter holds "
+            f"{[type(w).__name__ for w in panes]}, not figures / preview / "
+            f"console")
+        assert scr._console.isAncestorOf(scr._console_wrap) is False
+        assert scr._console_wrap.isAncestorOf(scr._console), (
+            "the console pane must actually contain the console")
         # The other slots stay None rather than leaking from another screen.
         others = {"_live_preview", "_measure_preview", "_timelapse_preview",
                   "_motility_preview", "_hyperparam"} - {attr}
@@ -1630,29 +1737,29 @@ class TestRuntimePanels:
         scr = _make_screen(qtbot, "mask")
         before = scr._settings_model.collect()
         scr._propagate_live_settings({
-            "cell_CP_prob": 3,          # QSpinBox
-            "cell_FT": 0.75,            # QDoubleSpinBox
+            "cell_cellprob_threshold": 3,          # QSpinBox
+            "cell_flow_threshold": 0.75,            # QDoubleSpinBox
             "normalize": False,         # QCheckBox
             "cell_diameter": 37,        # free-text field (default is None)
             "metadata_type": "cq1",     # QComboBox
             "not_a_setting_here": 1,    # unknown -> silently skipped
         })
         out = scr._settings_model.collect()
-        assert out["cell_CP_prob"] == 3
-        assert out["cell_FT"] == pytest.approx(0.75)
+        assert out["cell_cellprob_threshold"] == 3
+        assert out["cell_flow_threshold"] == pytest.approx(0.75)
         assert out["normalize"] is False
         assert out["metadata_type"] == "cq1"
         assert str(out["cell_diameter"]) == "37"
         # Nothing else was disturbed.
         moved = {k for k in before if before[k] != out[k]}
-        assert moved == {"cell_CP_prob", "cell_FT", "normalize",
+        assert moved == {"cell_cellprob_threshold", "cell_flow_threshold", "normalize",
                          "cell_diameter", "metadata_type"}
 
     def test_propagate_live_settings_without_a_model(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         model, scr._settings_model = scr._settings_model, None
         before = model.collect()
-        scr._propagate_live_settings({"cell_FT": 0.1})   # must not raise
+        scr._propagate_live_settings({"cell_flow_threshold": 0.1})   # must not raise
         assert model.collect() == before
 
     def test_console_target_registration_failure_does_not_break_the_screen(
@@ -1772,20 +1879,23 @@ class TestDemosMenu:
         win.menuBar().addAction("&Demos")       # bare action, no submenu
         scr = AppScreen("mask")
         win.setCentralWidget(scr)
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()                  # must not raise
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_open_demos_menu_without_a_window_is_silent(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         scr.window = lambda: None
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()          # must not raise
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
     def test_open_demos_menu_survives_a_parent_without_a_menu_bar(self, qtbot):
         scr = _make_screen(qtbot, "mask")
         assert not hasattr(scr.window(), "menuBar")
+        console_before = _console_text(scr._console)
         scr._open_demos_menu()          # top-level QWidget: no menuBar()
-        assert _console_text(scr._console) == ""
+        assert _console_text(scr._console) == console_before
 
 
 # ---------------------------------------------------------------------------
@@ -1852,7 +1962,6 @@ class TestUsage:
 
     def test_refresh_usage_writes_real_percentages(self, qtbot):
         scr = _make_screen(qtbot, "mask")
-        _settle(qtbot, scr)               # the poll the constructor started
         scr._refresh_usage()
         _settle(qtbot, scr)
         import psutil                      # already a spaCR dependency
@@ -1866,6 +1975,8 @@ class TestUsage:
         fake = types.ModuleType("GPUtil")
         fake.getGPUs = lambda: []
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._usage_gpu.set_value(55)
@@ -1885,12 +1996,29 @@ class TestUsage:
         fake = types.ModuleType("GPUtil")
         fake.getGPUs = lambda: [_Gpu()]
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._refresh_usage()
         _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 25
         assert _pct(scr._usage_vram) == 50
+
+    def test_cpu_only_host_never_enters_gputil(self, monkeypatch):
+        import types
+        from spacr.qt.screens import app_screen
+
+        fake = types.ModuleType("GPUtil")
+        fake.getGPUs = lambda: (_ for _ in ()).throw(
+            AssertionError("GPUtil must not run without nvidia-smi"))
+        monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(app_screen, "_nvidia_smi_available", lambda: False)
+
+        sample = app_screen._sample_usage(False)
+
+        assert sample["gpu"] == 0
+        assert sample["vram"] == 0
 
     def test_psutil_failure_leaves_the_bars_untouched(self, qtbot,
                                                      monkeypatch):

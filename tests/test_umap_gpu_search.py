@@ -19,6 +19,18 @@ def test_injected_embedder_is_named_custom_not_cpu():
     assert result.best.extra_metrics["backend"] == "custom"
 
 
+def test_injected_embedder_with_a_gpu_label_is_still_custom():
+    """An injected callable owns its provenance regardless of the UI label."""
+    result = umap_search(
+        _features(), SearchSpace({"n_neighbors": [8]}),
+        embed_fn=lambda values, _params: values[:, :2],
+        backend="cuml",
+    )
+
+    assert result.best.extra_metrics["backend"] == "custom"
+    assert "Embedding backend: custom." in " ".join(result.notes)
+
+
 def test_unknown_backend_is_refused_before_a_trial_runs():
     with pytest.raises(ValueError, match="'cpu' or 'cuml'"):
         umap_search(

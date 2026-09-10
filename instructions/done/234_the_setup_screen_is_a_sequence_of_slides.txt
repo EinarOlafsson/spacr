@@ -1,0 +1,218 @@
+================================================================================
+THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
+================================================================================
+
+Status:    filed 2026-08-21, not started.
+Requested: 2026-08-21 -- "for the spacr start up. i want one question per
+           slide with a little explantaion. the blue rim should flow like
+           water towards the mouse and every time i press nezt it should
+           make one round clockwise and preveous goes counter clockwise. ...
+           then a screen that just says Done / the background should be
+           stratified with random moovement at 150% speed. / it should feel
+           like a smooth transition into spacr".
+Owner:     Qt GUI (setup screen)
+
+This SUPERSEDES the grouped-form layout instruction 221 shipped. 221's model
+(`spacr/qt/setup_screen.py`) and its persistence are unchanged and stay --
+what changes is entirely how the questions are presented.
+
+--------------------------------------------------------------------------------
+ONE QUESTION PER SLIDE
+--------------------------------------------------------------------------------
+
+A form asks everything at once and answers nothing; a slide asks one thing
+and has room to say why it matters. EACH SLIDE CARRIES A LITTLE EXPLANATION
+-- not the setting's full tooltip, which is reference text, but the sentence
+a person needs to choose.
+
+THE ORDER IS THE MAINTAINER'S, and it is not arbitrary: it runs from what
+changes the screen the user is looking at, through how spaCR runs, to what
+leaves the machine.
+
+  1. LANGUAGE
+     And HELLO IN THE CHOSEN LANGUAGE underneath it. That is the request and
+     it is also the demonstration -- the only way to know a language choice
+     took is to see it, and the greeting is the smallest thing that shows it
+     without redrawing the screen.
+
+  2. THEME and COLOUR-BLIND MODE
+     Together because they are one question: what this looks like. Both
+     should apply as they are chosen, for the same reason the greeting does.
+
+  3. spaCR MODE and the REPRODUCIBILITY HASH
+     How it runs.
+
+  4. THE ASSISTANT -- provider, and on at launch
+     THE PROVIDER IS A LOGO BUTTON, one each for Claude, GPT and Gemini.
+     A dropdown of three names is a dropdown; three logos is a choice
+     somebody makes in one glance. A provider whose CLI is not installed
+     must say so rather than being offered as though it were ready.
+
+  5. USER FEEDBACK -- file GitHub issues, include logs in the report,
+     GitHub login
+     Grouped because they are one decision with three parts: what leaves
+     this machine, and under whose name.
+
+  6. DONE
+     A screen that says only that. It is the transition, not a summary --
+     a list of what was chosen here would be a form again, at the end.
+
+--------------------------------------------------------------------------------
+EVERY BOOLEAN IS A SLIDER
+--------------------------------------------------------------------------------
+
+    "aslo in the startup all the booleans should be sliders"
+
+Not a checkbox anywhere on this screen. A tick box is a form control and
+this is not a form -- and a slider READS AS A STATE rather than as a task,
+which is what these settings are: the reproducibility hash, the assistant at
+launch, issue filing and log inclusion are all things that are on or off,
+not things to be done.
+
+spaCR already has `spacr.qt.widgets.toggle.Toggle`, which is what the rest
+of the application uses for exactly this. Use it rather than a second
+slider, so the gesture and the look are the ones the user meets everywhere
+else.
+
+--------------------------------------------------------------------------------
+THE RIM
+--------------------------------------------------------------------------------
+
+    "the blue rim should flow like water towards the mouse and every time i
+     press nezt it should make one round clockwise and preveous goes counter
+     clockwise"
+
+TWO BEHAVIOURS ON ONE ELEMENT, and they have to compose rather than fight:
+
+  * AT REST it FLOWS TOWARDS THE POINTER. 221's card already picks the
+    nearest corner and this is the continuous version of it -- the accent
+    eases along the rim to where the mouse is, rather than jumping between
+    four positions.
+  * ON NEXT it makes ONE FULL CIRCUIT CLOCKWISE; on PREVIOUS, one
+    ANTICLOCKWISE. The direction is what tells the user which way they went,
+    which is worth more than the animation.
+
+WHILE A CIRCUIT IS RUNNING THE POINTER DOES NOT STEER IT. A lap that gets
+dragged off course by a mouse movement is not a lap, and the user cannot
+tell whether it went round. The follow resumes when the circuit finishes.
+
+--------------------------------------------------------------------------------
+THE BACKGROUND
+--------------------------------------------------------------------------------
+
+    "stratified with random moovement at 150% speed"
+
+Stratified layers, each drifting on its own, at 1.5x the ambient theme's
+rate. It is the existing blob/ambient background driven faster and split
+into strata -- not a second background system, which would be a second thing
+to keep in step with the theme.
+
+--------------------------------------------------------------------------------
+AND IT MUST STILL BE DISMISSIBLE
+--------------------------------------------------------------------------------
+
+221's rules survive intact and are not up for renegotiation by the redesign:
+
+  * every question has a working default, so the screen can be closed at any
+    slide without answering;
+  * closing it MARKS IT ANSWERED, because a screen that reopens until it is
+    filled in cannot be dismissed;
+  * INVARIANTS 10 -- if the blur, the rim animation or the strata cannot be
+    drawn, the slides still work and still write the same answers. Every one
+    of these is decoration, and decoration must never be load-bearing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Six slides in the maintainer's order, one question each, each with its own
+  sentence of explanation.
+* The greeting under the language slide is in the chosen language and
+  changes when the choice does.
+* Theme and colour-blind mode take effect on the slide that sets them.
+* The provider is chosen by logo, and an uninstalled provider says so.
+* Next runs one clockwise circuit and Previous one anticlockwise, asserted
+  on the DIRECTION rather than on a frame count.
+* A pointer move during a circuit does not steer it.
+* Every boolean on the screen is a Toggle; a test asserts no QCheckBox
+  survives anywhere in the slides.
+* Closing at any slide writes the defaults and does not reopen.
+* With the animation disabled the same answers are still written.
+
+
+--------------------------------------------------------------------------------
+AND IT IS IN THE HELP MENU
+--------------------------------------------------------------------------------
+
+    2026-08-21: "the startup should be in the help menue"
+
+It ran once on the first launch and then never. That is right for the
+AUTOMATIC path -- a screen that reappears every launch cannot be dismissed
+-- and wrong as the only path, because this screen is the one place several
+of these settings are EXPLAINED rather than merely offered. A user who
+dismissed it lost the explanation along with the questions.
+
+IN HELP, NOT PREFERENCES. Help is where somebody goes to be told what a
+choice means; Preferences is where they go when they already know and want
+to change it. Both exist and they answer different questions.
+
+THE MENU ENTRY DOES NOT ASK `should_open`. It would refuse on every launch
+after the first, and a menu item that does nothing is the inert control this
+codebase keeps meeting -- three of them were reported on the same day this
+was added. The automatic path keeps its guard; the menu is the user asking.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-22 -- THE SECOND PASS, FROM SEEING IT RUN
+--------------------------------------------------------------------------------
+
+Everything above shipped, and then five things were reported on meeting the
+screen itself. All five are fixed and all five are MEASURED, because the
+first of them was invisible to a code reading.
+
+THE BLACK BOXES. This palette's `bg` is literally `#000000`, so every plain
+QWidget between the translucent card and the drifting backdrop -- the page
+stack, each page, the provider strip -- was caught by the blanket `QWidget`
+rule and painted a pure black rectangle over the animation the dialog had
+just installed. The widget tree gives no sign of this; it took a grab and a
+pixel count. 92% of the page stack was `#000000` and it is 0% now. THE
+CONTAINERS ONLY: the combos keep their surface, because a control you can
+see through is a control you cannot read.
+
+THE PAUSE FOR THE GREETING. "there should be a lag after the first next
+click to make time for Hello in the chosen language". The greeting is the
+only proof the language choice took and it lives on the page being LEFT, so
+without a pause it was on screen for one frame of a fade. The rim starts its
+circuit immediately -- the click is answered at once -- and only the page
+change waits. Next is disabled for the wait, or a second click would queue a
+second advance and skip a slide. It happens ONCE: a pause on every return to
+the first slide is a delay the user has already sat through.
+
+The greeting also has its own line now. It was prepended to the explanation,
+so choosing a language rewrote the paragraph under the title and the one
+word that changed was buried in it.
+
+THE PROVIDERS ARE THEIR MARKS. Claude's radiating burst, OpenAI's six-fold
+knot, Gemini's four-pointed spark, each a `QPainterPath` built in
+`spacr.qt.widgets.provider_marks`. DRAWN, NOT SHIPPED: a bitmap would be a
+vendor asset in the repository with its own licence, its own resolution and
+its own two versions for light and dark. The brand colour is used only where
+that vendor's CLI is actually installed -- colour is the fastest answer to
+"which of these can I use" -- and an absent one is drawn in the theme's
+muted ink rather than in a greyed version of its own colour.
+
+THE RIM. Longer, fading, and quicker. It was ONE FLAT STROKE, which has two
+hard ends that arrive and leave abruptly; it is twenty-four segments now,
+each with its own alpha and its own width, brightest just BEHIND THE HEAD
+and falling to nothing at both ends. A highlight that peaks in the middle
+reads as a bar; one that peaks at the front reads as something moving. The
+lit run went from 90 px to 150, and the ease from 0.18 to 0.34 -- still
+travel, not a jump, and asserted not to overshoot.
+
+AND ONE SPEED, NOT TWO. "most notably make the transitions smoother!"
+`setCurrentIndex` swapped the page between two frames while the rim took
+half a second to travel, so one gesture had two speeds -- which is what read
+as unfinished. The pages cross-fade over 260 ms. The animation is HELD on
+the dialog or Qt collects it before it runs, and the opacity effect comes
+back OFF when the fade ends: it renders its widget into an offscreen pixmap
+on every repaint, and six left alive over a drifting backdrop is a cost paid
+per frame for an animation that has finished.

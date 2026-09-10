@@ -1,0 +1,649 @@
+326 — THE ORGANELLE COUNT MUST BE ARBITRARY
+============================================
+
+ASKED FOR (2026-08-31)
+----------------------
+"organelle is arbitrary -- implement a prefix scheme that survives being
+embedded in an underscore-delimited key without colliding with object
+labels... this is no small task so be careful AND DONT BREAK ANYTHING."
+
+Taking the last clause as the governing constraint. Everything below is
+shaped by it.
+
+WHY THERE IS A LIMIT AT ALL
+---------------------------
+Twenty-six is the ALPHABET running out, not a design decision.
+
+A slot's role name IS the prefix of every settings key and every object
+key it owns. Slot 1 is ``organelle``; slots 2 upward take a letter,
+``organelleb`` through ``organellez``. `spacr/organelle_types.py:449`
+sets ``MAX_ORGANELLES = 26`` for that reason and says so.
+
+Letters, because `spacr/schema.py:284-289` REFUSES a role that contains a
+digit or a separator, and refuses it at IMPORT:
+
+  * a digit is ambiguous against the object LABEL, which is appended with
+    no separator -- ``cell1`` + 7 cannot be told from ``cell`` + 17;
+  * an underscore is ``KEY_SEPARATOR``, so it would split the surrounding
+    ``prcfo`` key.
+
+That check is not an obstacle to route around. It is the reason no
+identity in the database is ambiguous today, and any scheme proposed here
+must keep it true.
+
+WHAT A KEY LOOKS LIKE
+---------------------
+``prcfo`` is plate_row_column_field_object, separator-joined, and the
+object component is ``<role><label>`` with NO separator between them.
+`schema.py` composes and parses these (`compose_prcfo`, `parse_prcfo`),
+and it already has an escaping vocabulary: ``_ESCAPES`` maps
+``KEY_SEPARATOR`` to ``%5F``, which is what
+`io.migrate_unescaped_plate_names` uses to rescue plates whose names
+contain an underscore.
+
+THREE CANDIDATE SCHEMES, AND WHAT EACH COSTS
+--------------------------------------------
+Do not pick one from this list without measuring. They are here so the
+tradeoffs are not rediscovered.
+
+1. LETTER PAIRS -- ``organelleaa`` after ``organellez``.
+   Cheapest: still letters, so the digit-free rule holds untouched, and
+   `parse_prcfo` needs no change at all. Ugly at scale and the ordering
+   is not obvious to a reader (is ``organelleaa`` slot 27 or slot 1?).
+   Bounded at 702 without a third letter.
+
+2. ESCAPED SEPARATOR -- ``organelle%5F27``.
+   Reuses the vocabulary that already exists and that the plate migration
+   already proved. But it puts DIGITS in a role, which the import-time
+   check forbids -- so the check has to learn that a digit after an
+   escaped separator is a slot number and not a label. That is a change
+   to the rule that currently makes every identity unambiguous, and it is
+   the one to be most careful about.
+
+3. LENGTH-PREFIXED -- ``organelle2z``, ``organelle11ab``.
+   Unambiguous by construction and unbounded, at the cost of being
+   unreadable and of a parse that no existing code does.
+
+THE HARD PART IS NOT THE SCHEME
+-------------------------------
+It is that keys are already WRITTEN DOWN, in three places that outlive
+any release:
+
+  * measurement databases -- every object row carries a ``prcfo``;
+  * settings files -- every organelle slot's keys are prefixed by its
+    role, and users have files from older versions;
+  * run journals -- ``~/.spacr/runs`` records the settings a run used.
+
+So the scheme must be BACKWARD-COMPATIBLE IN BOTH DIRECTIONS: today's
+keys must still parse, and a database written today must still be
+readable after the change. `io.migrate_unescaped_plate_names` is the
+precedent for how a key migration is done here, including the property
+that made it safe -- it is idempotent because it tests the COMPONENT
+COUNT rather than comparing before and after, so running it twice cannot
+double-escape.
+
+DONE MEANS, and this list is the "do not break anything"
+--------------------------------------------------------
+* MAX_ORGANELLES is gone, or raised to a number nobody will meet.
+* Every existing key parses unchanged. Assert this with real keys taken
+  from a measurements.db, not with synthesised ones.
+* A round-trip property test: for every slot number from 1 to at least
+  1000, compose a prcfo and parse it back, and require the object role
+  and label to come back exactly. Include labels that begin with a digit,
+  roles at the old boundary (26, 27), and a plate name containing an
+  underscore -- the three cases that break naive schemes.
+* The digit-free/separator-free invariant still holds, or if it is
+  deliberately relaxed, `schema.py:284-289` says what replaced it and
+  why, and a test drives the ambiguity it used to prevent and shows the
+  new scheme resolves it.
+* An old settings file still means what it meant. `organelle_count`
+  already infers the count from the slots a file holds rather than
+  reading a stored number -- keep that.
+* A measurement database written before the change opens, and one written
+  after opens in a build from before it, or the version gate says
+  plainly which it is.
+* The GUI's slot control offers the new range and the settings form does
+  not slow down at large counts. Twenty-six rows is a form; a thousand is
+  a performance question.
+
+DO IT IN THIS ORDER
+-------------------
+1. Write the round-trip property test FIRST, against the CURRENT scheme,
+   and watch it pass. It is the safety net, and a net written after the
+   change tests the change rather than the invariant.
+2. Then the scheme, then the migration, then the GUI.
+3. Do not touch the database format and the key grammar in one commit.
+
+WATCH
+-----
+`spacr/schema.py` is shared and central. Announce in instruction 325 §5
+before editing it, and do not hold it for long.
+
+--------------------------------------------------------------------------------
+2026-09-01 — STEP 1 DONE, AND IT FOUND THE REAL CEILING. IT IS FOUR, NOT 26.
+--------------------------------------------------------------------------------
+
+The round-trip property test this instruction asks for FIRST is written
+and passing: `tests/test_the_object_key_round_trips_for_every_slot.py`,
+ten tests over the current scheme, covering the three cases named above
+as the ones naive schemes break -- a label beginning with a digit, the
+role at the vocabulary boundary, and a plate name containing
+KEY_SEPARATOR -- plus parser idempotence, which `parse_prcfo`'s own
+docstring records as having been wrong once ('oxy' -> 'ooxy' -> 'ooooxy').
+
+It did not pass on the first run, and the reason is the finding.
+
+    organelle_types.MAX_ORGANELLES               26
+    settings_model.PANEL_ORGANELLE_SLOTS         26   (= MAX_ORGANELLES)
+    schema.ORGANELLE_ROLES                        4
+        ('organelle', 'organelleb', 'organellec', 'organelled')
+
+`schema.OBJECT_TYPES` is a CLOSED vocabulary and it holds four organelle
+roles. Slots 5 through 26 produce a valid role from `organelle_role()`,
+are offered by the settings panel, and CANNOT BE WRITTEN INTO AN OBJECT
+KEY: `compose_prcfo(..., object_type='organellee')` raises KeyParseError,
+and the closed-vocabulary contract says to ask `is_object_type()` and
+leave the frame UNTYPED when the answer is no.
+
+WHY THAT MATTERS MORE THAN THE NUMBER. An untyped frame is precisely the
+state the object type was introduced to remove: schema.py's own comment
+says a nucleus labelled 1 and a pathogen labelled 1 in the same field
+were the same key, so "four objects opened as three and which one you got
+depended on the row order of png_list". An organelle in slot 5 or beyond
+is silently in that state today. `compose_prcfo` has no production caller
+yet, but `is_object_type` and `object_type_prefix` do -- selection.py,
+layers.py and lineage.py -- so the untyped path is reachable.
+
+WHAT THIS DOES TO THE ITEM. The three candidate schemes are still the
+three candidate schemes, but they are no longer the first question. The
+first question is that two modules disagree about how many organelles
+exist, and the GUI believes the larger one. Reconciling
+`schema.ORGANELLE_ROLES` with `MAX_ORGANELLES` is a prerequisite for
+raising either, and it is the smaller and better-defined piece of work.
+
+The disagreement is pinned by
+`test_the_keyable_roles_are_fewer_than_the_slots_offered`, which fails the
+moment the two agree -- so whoever reconciles them must come back here
+and update this instruction in the same change. Mutation-checked: adding
+a fifth role to schema.ORGANELLE_ROLES fails that test and nothing else.
+
+`spacr/schema.py` was NOT modified. Step 1 only reads it.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDITED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+CONFIRMED at step 1 of 4. `organelle_types.MAX_ORGANELLES` is still 26 and
+`schema.ORGANELLE_ROLES` still holds four keyable roles, so the disagreement
+step 1 found is untouched and the pin test still guards it. Steps 2-4 (the
+scheme, the migration, the GUI) are not begun. ~20%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — STEP 2 ATTEMPTED AND REVERTED. THE RECONCILIATION HAS A PRICE.
+--------------------------------------------------------------------------------
+
+Step 1 said the first question is that two modules disagree about how many
+organelles exist, and that reconciling them "is the smaller and better-defined
+piece of work". It is smaller. It is not free, and this is what it costs.
+
+WHAT WAS TRIED. `schema.ORGANELLE_ROLES` was generated from the same lettering
+rule `organelle_types.organelle_role()` uses, giving all 26 instead of the
+hand-written four. That is a three-line change and it does exactly what step 1
+asked: `is_object_type('organellee')` becomes True, every slot the panel
+offers can be written into an object key, and the untyped-frame path closes.
+The round-trip suite went to 32 passing, including a new equality test and a
+rewritten boundary test that still proves the vocabulary is CLOSED -- an
+arbitrary type like 'mitochondrion' is still refused.
+
+WHY IT WAS REVERTED. Measured against a HEAD baseline over 34 schema/organelle
+test files: 945 passed before, 1010 after, and TWO REAL REGRESSIONS.
+
+  1. `test_multiple_organelles.py::test_role_registry_has_stable_internal_and_
+     numbered_display_names` asserts `ORGANELLE_ROLES == (four names)`. That is
+     another hand-written pin and would simply move with the change.
+
+  2. `test_the_number_of_organelles_is_a_setting.py::test_measure_offers_the_
+     same_slots_the_masks_were_made_with` is NOT just a pin. It asserts that a
+     five-organelle run does not carry slot SIX's settings, and after the
+     change it carries all twenty-six:
+
+         get_measure_crop_settings({'src': ..., 'number_of_organelles': 5})
+             -> organelle_mask_dim ... organellez_mask_dim   (26 keys)
+
+     `declared_organelle_roles` derives "which slots does this dict declare"
+     from `organelle_role_of(key)`, which asks the role vocabulary. Widening
+     the vocabulary widens what counts as a declared slot, so the settings
+     dict every measure run carries changes shape.
+
+THAT IS A PRODUCT DECISION, NOT A TEST FIX, and it is why this stops here.
+This instruction opens with the maintainer's own governing constraint --
+"this is no small task so be careful AND DONT BREAK ANYTHING" -- and changing
+what a measure run's settings contain reaches instruction 337, where the
+maintainer has separately asked for "the settings i set now for measure and
+mask should be the new defaults". Deciding that at 4am on a night run is
+exactly the wrong trade.
+
+WHAT THE NEXT SESSION NEEDS TO DECIDE, and it is one question:
+
+    Should a run configured for five organelles carry settings keys for the
+    other twenty-one?
+
+  * YES is defensible: `organelle_slots_beyond_the_count` already exists to
+    "populate declarable organelle slots without changing the active count",
+    so the GUI can reveal controls when the number goes up, and its docstring
+    says values ride along untouched. On that reading the extra keys are
+    intended and the test is asserting an accident of the four-role ceiling.
+  * NO is defensible: twenty-six slots of settings on every measure run is
+    noise in every settings CSV, every run journal and every reproducibility
+    hash, for slots the user never asked for.
+
+The reconciliation is correct either way. What changes is whether
+`declared_organelle_roles` should keep deriving declared slots from the
+vocabulary, or from `number_of_organelles` alone.
+
+NOTHING IS COMMITTED FROM THIS ATTEMPT. `spacr/schema.py` is untouched and the
+hold announced in 325 is released. Still 20%.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE MAINTAINER ANSWERED, AND IT SETTLES BOTH HALVES
+--------------------------------------------------------------------------------
+
+Asked: should a five-organelle run carry settings keys for the other
+twenty-one? Answered, verbatim:
+
+    "no if the user chooses 2 organelles settings for 2 organells if the user
+     chooses 100 organelles settings for 100 organells"
+
+TWO THINGS FOLLOW, and the second is the whole original item.
+
+1. SETTINGS FOLLOW THE COUNT. A run configured for N organelles carries
+   exactly N slots' keys. So `declared_organelle_roles` must stop deriving
+   "declared" from the role VOCABULARY and derive it from
+   `number_of_organelles` -- which also removes the coupling that made the
+   reconciliation attempt above balloon a five-slot run to twenty-six.
+
+   `organelle_slots_beyond_the_count` exists to populate extra slots so the
+   GUI can reveal controls when the number goes up. That is a GUI concern and
+   must not reach the settings a run records: twenty-six slots of settings in
+   every settings CSV, every run journal and every reproducibility hash, for
+   slots the user never asked for, is exactly what the answer rules out.
+
+2. ONE HUNDRED MUST WORK, so the ceiling is not 26 and the lettering scheme
+   is not enough. `MAX_ORGANELLES = 26` exists because "slots are lettered, so
+   the alphabet is what runs out". A hundred organelles needs the arbitrary
+   prefix scheme this instruction was filed for.
+
+THE SCHEME THAT FITS THE EXISTING CONSTRAINTS, and it is the smallest one:
+KEEP THE LETTERS AND CARRY THEM.
+
+    slot 1        organelle          (unchanged, bare)
+    slots 2..26   organelleb .. organellez   (unchanged, exactly as today)
+    slots 27+     organelleaa, organelleab, ... then aaa, and so on
+
+  * DIGIT-FREE and SEPARATOR-FREE, which are the two hard constraints:
+    `organelle_2` cannot round-trip through a prcfo key and `organelle2` is
+    ambiguous with the object LABELLED 2. Letters have neither problem.
+  * EVERY EXISTING KEY IS UNCHANGED. Slots 1 to 26 keep their exact current
+    names, so no measurement database, settings CSV or saved state moves.
+    That is the "DONT BREAK ANYTHING" constraint satisfied by construction
+    rather than by migration.
+  * PREFIX AMBIGUITY IS ALREADY HANDLED. `organelle_types` sorts roles by
+    length descending before matching (line ~505), so `organelleaa` cannot be
+    read as `organellea` -- and `organellea` is never minted anyway, because
+    slot 1 is the bare word.
+  * UNBOUNDED. Two letters give 676 more, three give 17,576. A hundred needs
+    two.
+
+WHAT STILL NEEDS DECIDING, and it is small: whether `MAX_ORGANELLES` becomes a
+large number or disappears. The docstring argues a limit should exist so a
+settings file asking for thirty slots is TOLD which of its keys stopped
+existing rather than silently clamped. That argument survives; the number just
+stops being 26.
+
+ORDER OF WORK, unchanged from "DO IT IN THIS ORDER" above and now with the
+count question answered:
+    1. the round-trip property test already exists and passes (step 1, done);
+    2. extend the lettering, raise the ceiling, keep 1..26 byte-identical;
+    3. make `declared_organelle_roles` follow `number_of_organelles`;
+    4. then the GUI.
+Steps 2 and 3 are independent and 3 is the one the maintainer will see first.
+
+--------------------------------------------------------------------------------
+2026-09-02 — STEP 3 DONE. TWO ORGANELLES NOW MEANS TWO.
+--------------------------------------------------------------------------------
+
+The maintainer's example was a live defect, and it was worse at both ends:
+
+    asked   1  ->  4 slots        asked  26  -> 26  OK
+    asked   2  ->  4 slots        asked  27  -> 26  silently clamped
+    asked   5  ->  5  OK          asked 100  -> 26  silently clamped
+
+A low count was RAISED to a floor of four and a high one was CLAMPED to a
+ceiling of twenty-six. Now:
+
+    asked 1 -> 1      asked 2 -> 2      asked 5 -> 5      asked 26 -> 26
+
+WHERE THE FLOOR WAS. `settings.py`, in `get_measure_crop_settings`, a loop
+over `schema.ORGANELLE_ROLES[1:]` seeding every secondary slot with a disabled
+placeholder "even when ``number_of_organelles`` is zero or one", because
+"downstream readers iterate that fixed schema". Deliberate, documented, and
+overruled.
+
+AND IT WAS THE THING THAT MADE THE CEILING IMMOVABLE. This is why the
+2026-09-02 reconciliation attempt had to be reverted: widening the role
+vocabulary so a hundred slots could be KEYED widened that loop with it, and a
+five-organelle run came back carrying twenty-six. The two problems were one
+problem. Removing the floor is the prerequisite for raising the ceiling, and
+it is done first for that reason.
+
+FOUR TESTS MOVED WITH IT, none loosened:
+
+  * `test_legacy_measure_settings_leave_secondary_slots_disabled` asserted the
+    old contract exactly -- a one-organelle legacy file coming back with every
+    secondary slot present and disabled. Rewritten as
+    `..._carry_no_slots_they_did_not_ask_for`, and joined by
+    `test_the_slot_count_is_exactly_what_was_asked_for`, which drives the
+    maintainer's own example across 1, 2, 3, 5 and 26 -- both ends, because
+    both ends were wrong.
+  * the notebooks were regenerated (they carry every setting);
+  * two tooltip-contract pins moved: twelve claims fewer to compare
+    (682 -> 670) and six `organelleb/c/d_min_size` entries removed from the
+    repaired-tooltip contract (31 -> 25), because those settings no longer
+    exist in a default run.
+
+VERIFIED against a HEAD baseline over 120 organelle/measure/settings test
+files: 6 failed before, 6 after, no regressions and none of the six related.
+
+STILL TO DO -- STEP 2, THE CEILING. `MAX_ORGANELLES` is still 26 and 27 still
+raises. The carried-letter scheme is designed in the note above and the floor
+that blocked it is gone, so it is now a contained change to
+`organelle_types.organelle_role()` plus the vocabulary that mirrors it.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHAT RAISING THE CEILING ACTUALLY COSTS. MEASURED BEFORE DOING IT.
+--------------------------------------------------------------------------------
+
+The lettering scheme is the easy half. The bill is somewhere else, and it is
+large enough that it should be seen before it is paid.
+
+    settings owned by ONE secondary slot            56
+    typed keys for secondary slots at MAX=26     1,400
+                                  at MAX=100     5,544
+
+Four times the registry is survivable. THE TRANSLATION SURFACE IS NOT, and
+that is the finding:
+
+    tooltips for slot b that are DISTINCT from the primary's    41 of 56
+
+They are not clones. The text is specialised per slot --
+
+    organelle_min_size   "...removed from organelle masks..."
+    organelleb_min_size  "...removed from organelle 2 masks..."
+
+-- so every new slot mints 41 NEW ENGLISH STRINGS. Going to a hundred slots
+adds roughly 3,000 of them, and every one is a row in nine locale catalogs:
+about 27,000 new translation rows, landing on instructions 306 and 316, which
+are already the maintainer's bottleneck and are today 125 rows behind.
+
+SO THE CEILING IS NOT A CONSTANT TO BUMP. Two ways forward:
+
+  A. RAISE IT AND PAY. `MAX_ORGANELLES = 100`, the carried-letter scheme,
+     ~5,500 typed keys and ~27,000 new translation rows. Nothing else has to
+     change and the catalogs become permanently much larger.
+
+  B. MAKE THE PER-SLOT TEXT DERIVE FROM THE PRIMARY. One translated string
+     per setting carrying the slot number as a placeholder --
+     "...removed from organelle {n} masks..." -- resolved when the tooltip is
+     read rather than materialised for every possible slot. The registry then
+     stays one slot wide whatever the ceiling is, and the translation surface
+     STOPS GROWING WITH THE CEILING ENTIRELY.
+
+     B is more work and it is the better answer, and it pays for itself twice:
+     it also removes 1,400 existing secondary-slot rows from the catalogs that
+     306 is currently trying to keep current.
+
+RECOMMENDATION: B, and it is worth the maintainer knowing that a hundred
+organelles is cheap in code and expensive in translation unless the tooltips
+are derived. The instruction's own constraint -- "this is no small task so be
+careful AND DONT BREAK ANYTHING" -- points the same way: A quietly triples
+what 306 and 316 are carrying.
+
+NOT STARTED EITHER WAY. Step 3 (settings follow the count) is done and shipped
+and is useful on its own; the ceiling waits on which of A or B.
+
+--------------------------------------------------------------------------------
+2026-09-02: NO LETTER REACHES A USER, AND IMPORT WAS THE ONE THAT DID
+--------------------------------------------------------------------------------
+
+Asked for, in the maintainer's words: "i dont want to see organellea b c d
+anywhere organelle number should allways be cointrolled by number of
+organells which can be any integer. now change that in e.g. import".
+
+TWO DIFFERENT THINGS, and only one of them was broken.
+
+The DISPLAY half was already right nearly everywhere: `setting_label`
+renders `organelleb_channel` as "Organelle 2 — Channel", the nine runtime
+catalogs carry the same numbering ("Organelle 2 — Kanal"), and Measure's
+preview labels its slots through `organelle_label`. Checked rather than
+assumed, and the letters are storage spellings that nothing but the Import
+screen put on screen.
+
+IMPORT WAS THE EXCEPTION. `spacr/qt/screens/foreign.py` built its mask-class
+combo straight from `schema.SEGMENTED_ROLES`, so its list read
+
+    cell, nucleus, pathogen, organelle, organelleb, organellec, organelled
+
+-- both faults in one control: the raw lettered keys, and four organelle
+slots offered to every user whether or not they have any. It now reads
+
+    Cell, Nucleus, Pathogen, Organelle 1
+
+and grows a slot as one is filled: adding Organelle 1 offers Organelle 2, and
+so on to the number of mask planes a merged array can carry. The value behind
+each entry is still the role, so nothing downstream changes, and the added
+list and the error message name slots the same way.
+
+THE COUNT FOLLOWING THE ORGANELLES is what "controlled by number of
+organelles" means on a form with no count field of its own. On the settings
+forms it is the `number_of_organelles` setting, which already works.
+
+WHAT REMAINS FOR "ANY INTEGER". The ceiling is still 26 and the choice
+between A and B above is still open and still the maintainer's. Import's own
+cap is lower and is NOT that ceiling: it stops at the organelle planes
+`crops.MASK_PLANE_ORDER` defines, which is four, because a fifth class has
+nowhere to go in a merged array. Lifting that is a change to
+`spacr/schema.py` and `spacr/crops.py`, which belong to the other session
+under protocol 325 -- it is not something the Import screen can do for
+itself, and pretending otherwise would offer a class the backend drops.
+
+--------------------------------------------------------------------------------
+2026-09-02 (late): STEP 2 IS BLOCKED ON A LIVE JOB, NOT ON A DECISION
+--------------------------------------------------------------------------------
+
+The choice between A and B above is not close, and the file's own numbers
+settle it: A mints roughly 3,000 new English strings and about 27,000 new
+locale rows, landing on instructions 306 and 316 — which are release-blocking
+and are the maintainer's stated bottleneck. Paying that to raise a ceiling is
+the wrong trade by a wide margin. B keeps the registry one slot wide whatever
+the ceiling is and the translation surface stops growing with it entirely.
+
+SO THE ANSWER IS B, and the reason it is still not done tonight is
+mechanical rather than editorial: B is a rewrite of the per-slot tooltip
+registry in `spacr/settings.py`, and a session is at this moment regenerating
+all nine locale catalogs FROM that registry. Editing the source of a
+regeneration while it runs produces catalogs that match neither the old
+registry nor the new one, and the audit that would catch it is the same run.
+
+WHAT B ACTUALLY REQUIRES, so the next session does not re-derive it:
+
+  * one translated string per setting, carrying the slot as a placeholder --
+    "...removed from organelle {n} masks..." -- resolved when the tooltip is
+    READ rather than materialised per slot;
+  * the 41-of-56 secondary tooltips that are genuinely distinct from the
+    primary's collapse into those placeholders; the other 15 are already
+    clones and collapse for free;
+  * `MAX_ORGANELLES` then stops being a translation question and becomes only
+    the "tell the user which keys stopped existing" question its docstring
+    describes, which the file argues should keep a limit and just not 26.
+
+ORDER: wait for the catalog regeneration to land and be committed, then do B,
+then raise the ceiling. Doing it the other way round means translating strings
+that are about to stop existing.
+
+--------------------------------------------------------------------------------
+2026-09-04 — STEP 2 DONE. THE ALPHABET IS NO LONGER THE CEILING.
+--------------------------------------------------------------------------------
+
+    slot   1  organelle          (unchanged)
+    slot  26  organellez         (unchanged)
+    slot  27  organelleaa        (new: the carry)
+    slot 100  organellecv
+    slot 702  organellezz
+
+    MAX_ORGANELLES  26 -> 702
+
+The maintainer's own number now works: `number_of_organelles: 100` declares a
+hundred slots and `organelle_count` returns 100 instead of clamping to 26.
+
+THE SCHEME IS THE ONE DESIGNED IN THE 2026-09-02 NOTE ABOVE, unchanged --
+keep the letters and carry them. Slots 1..26 are BYTE-IDENTICAL, so the
+"DONT BREAK ANYTHING" constraint is satisfied by construction rather than by
+migration: no measurement database, settings CSV or run journal contains a
+name that moved.
+
+VERIFIED, not assumed:
+  * round-trip exact for every slot 1..702 (`organelle_number(organelle_role(n)) == n`);
+  * all 702 roles distinct;
+  * every role `isalpha()` -- the digit-free and separator-free invariants
+    that `schema.py` depends on are untouched;
+  * `organellea` is never minted, so a single-letter suffix cannot be read as
+    the first letter of a carried one.
+
+TESTS FIRST, as this instruction requires. `tests/test_the_organelle_lettering_
+carries_past_z.py` was written and run BEFORE the change: 10 passed and 6
+failed. The 10 that passed are the "must not move" guarantees -- slot 1 bare,
+2..26 unchanged, `organellea` never minted -- so the safety net was proven to
+be a net before it was relied on.
+
+AND A 130x SPEED-UP THAT THE RAISE MADE NECESSARY. `_count_implied_by_the_slots`
+scanned every role against every settings key: O(roles x keys). At 26 roles
+that was invisible; at 702 it was 4.0 ms per call on a 209-key dict, on a path
+the settings form takes repeatedly. It now reads the role OFF the key -- a key
+is `<role>_<question>`, so the role is the text before the first underscore --
+and `organelle_role_of` does the same. 4.0 ms -> 0.03 ms. This is the "the
+settings form does not slow down at large counts" clause of DONE MEANS, and it
+would have been a real regression rather than a theoretical one.
+
+THREE PINS MOVED, all of them anticipated by this file:
+  * `test_the_cap_is_the_alphabet_and_it_says_so` -> `..._is_no_longer_the_
+    alphabet_...`. What it still guards is that the cap SPEAKS.
+  * `test_an_unreadable_number_keeps_the_file_openable` asserted 99 clamps to
+    26. Ninety-nine is now a real answer; the clamp is asserted above the new
+    cap instead, and 100 is asserted explicitly because it is the maintainer's
+    own example.
+  * `test_the_keyable_roles_are_fewer_than_the_slots_offered` said in its own
+    docstring that it "must be updated deliberately when 326 raises the
+    ceiling". Updated. THE DISAGREEMENT IT GUARDS IS WIDER, NOT GONE: schema
+    still holds four keyable roles against 702 offered slots.
+
+NO REGRESSIONS. Baselined against HEAD over 34 organelle/schema/object-key
+test files: 7 failing before, 7 after, the same 7, none of them related.
+
+WHAT REMAINS -- STEP 2's OTHER HALF, AND IT IS THE ONE WITH THE PRICE.
+`schema.ORGANELLE_ROLES` still holds four. Slots 5+ still cannot be written
+into an object key, so an organelle beyond the fourth is still an UNTYPED
+frame -- the collision the object type was introduced to remove. Raising the
+ceiling has made that gap wider rather than narrower, and it is now the whole
+of what is left.
+
+The 2026-09-02 attempt at it was reverted because widening the vocabulary
+ballooned a five-organelle run to twenty-six settings slots. THAT BLOCKER IS
+GONE: step 3 made `declared_organelle_roles` follow `number_of_organelles`
+rather than the vocabulary, which is exactly the coupling that caused it. The
+reconciliation should be re-attempted, and `spacr/schema.py` is shared -- take
+the 325 §5 hold first.
+
+`spacr/schema.py` was NOT modified by this step either.
+
+--------------------------------------------------------------------------------
+2026-09-04 — THE RECONCILIATION IS DONE. schema AND organelle_types AGREE.
+--------------------------------------------------------------------------------
+
+    schema.ORGANELLE_ROLES     4  ->  702
+    organelle_types.MAX        702      (unchanged, raised earlier today)
+
+`is_object_type('organellecv')` is now True. Every slot the settings panel
+offers can be written into an object key, so the UNTYPED-FRAME path -- "a
+nucleus labelled 1 and a pathogen labelled 1 in the same field were the same
+key" -- is closed for organelles. That was the whole of what this item had
+left after step 2.
+
+THE VOCABULARY IS STILL CLOSED, which was the constraint most at risk. A
+made-up type is still refused: `mitochondrion`, `organelle1`, `organelle_b`,
+`organellea` and `ORGANELLEZZZZZZZ` all answer False, and there is a test for
+each. An open vocabulary would mean `plate1_r1_c1_f2_x7` parsing as object 7
+of type `x`.
+
+TWO THINGS THAT LOOKED LIKE THE OBVIOUS WAY AND WERE WRONG.
+
+1. IMPORTING THE RULE. The first attempt had schema do
+   `from .organelle_types import organelle_roles`. That is one definition of
+   the lettering instead of two, which is what this file keeps asking for --
+   and it breaks `test_module_imports_with_only_the_stdlib_and_pandas`, which
+   loads schema by path with every `spacr` import BANNED because "everything
+   wants this module, so it must cost nothing to import". That is a real
+   constraint, not a pin, and it is not one to weaken for a three-line
+   convenience.
+
+   So the rule is RESTATED in schema, and the drift risk that creates is
+   answered by a test rather than by care:
+   `test_the_two_statements_of_the_lettering_rule_agree` walks every slot and
+   requires both spellings to match, and asserts the two ceilings are equal.
+   This exact pair had already drifted by 698 entries, so the test is not
+   theoretical.
+
+2. ENUMERATING THE ROLES INTO THE MATCHER. `_OBJECT_TYPE_MATCH` is scanned
+   per object id by `split_object_id`, which runs once per row of a
+   measurement table. Putting 702 roles in it made that ~88x slower, measured
+   before it was written rather than after. The organelle branch is matched
+   ALGORITHMICALLY instead -- longest letter-run first, which gives the same
+   longest-first answer `organelled`+`x` over `organelle`+`dx` -- and is
+   bounded by the LABEL's length rather than the vocabulary's size.
+
+   Measured: 4000 ids in 1.0 ms before, 1.0 ms after, with an 88x larger
+   vocabulary. `is_object_type` moved to a frozenset for the same reason.
+
+FOUR TESTS MOVED, and one of them had demanded it in writing.
+  * `test_the_keyable_roles_are_fewer_than_the_slots_offered` said in its own
+    docstring that it "must be updated deliberately when 326 raises the
+    ceiling". It is now `..._are_exactly_the_slots_offered` and asserts
+    AGREEMENT rather than pinning a gap.
+  * `test_the_roles_at_the_boundaries_behave` reached "the first unkeyable
+    role" by `organelle_role(len(ORGANELLE_ROLES) + 1)`. There is no longer
+    an unkeyable role below the ceiling -- that was the defect -- so it now
+    tests past the CEILING, which is where the edge actually is.
+  * `test_role_registry_has_stable_internal_and_numbered_display_names`
+    pinned the whole four-name tuple. It pins the first four now: what must
+    not move is the spelling of roles that already exist in databases.
+  * `test_measure_offers_the_type_for_every_slot` iterated the whole registry
+    against a four-organelle run. That was only ever correct while the
+    registry held four; it now iterates the slots the run ASKED for, which is
+    the maintainer's own rule.
+
+NO REGRESSIONS. Baselined against HEAD over 34 organelle/schema/object-key
+files before starting: 7 failing, and 7 failing after, the same 7, none
+related. Three new tests added.
+
+I LEFT THE SHARED TREE UNIMPORTABLE FOR ABOUT FORTY SECONDS doing this, and
+the other session hit it. The schema edit was applied as two writes -- the
+references first, the definition second -- and between them `spacr/__init__`
+could not load, which blocks every test run in the tree and produces failures
+that look like they belong to whoever runs next. In a shared tree an edit that
+breaks the import has to be ONE write. Recorded here rather than only in 325
+because it is the kind of thing the next person doing surgery on a central
+file will otherwise repeat.
+
+326 IS COMPLETE. Steps 1-4: the round-trip test (2026-09-01), the count
+following the setting (step 3, 2026-09-02), the carried lettering and the
+raised ceiling (step 2, today), and the vocabulary reconciliation (today).
+The hold on `spacr/schema.py` is released.

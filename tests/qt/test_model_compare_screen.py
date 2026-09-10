@@ -179,34 +179,33 @@ def test_the_two_panels_start_on_different_settings(screen):
     assert config_a.diameter != config_b.diameter
 
 
-def test_the_screen_is_registered_under_segmentation_models(
+def test_the_screen_is_a_button_on_make_masks_and_no_longer_a_tile(
         qtbot, qt_theme_applied):
-    """Back under Segmentation models, and separately marked alpha.
+    """The row is dropped; everything the row supplied has to survive it.
 
-    #16i staged that whole section by maturity — Model Compare and Model
-    Zoo into alpha, the three Cellpose apps into beta — and emptied the
-    section doing it. Maturity is a colour now, so the section is intact
-    and the stage is asserted on its own axis."""
+    This asserted the registry entry -- name, section, stage, title, intro,
+    icon -- until Model Compare was folded into the segmentation workbench
+    and stopped having one. What the tile carried is now carried by
+    ``make_masks.FOLD_FALLBACK`` (the name, the sentence, the maturity
+    colour), by the hand-written ``APP_TITLES`` / ``APP_INTROS`` entries
+    (which ``register_app`` never owned) and by ``_ICON_OVERRIDES``. Each is
+    checked here, because between them they are the button.
+    """
     from spacr.qt.app import APPS, _icon_for_app
     from spacr.qt.screens.app_screen import APP_INTROS, APP_TITLES
+    from spacr.qt.screens.make_masks import FOLD_FALLBACK, FOLD_ORDER
 
-    entry = next((a for a in APPS if a[0] == "model_compare"), None)
-    assert entry is not None, "model_compare missing from APPS"
-    key, name, description, section = entry
+    key = "model_compare"
+    assert not any(row[0] == key for row in APPS), (
+        "Model Compare is a button on Make Masks and a tile on Home at once")
+    assert key in FOLD_ORDER
+    name, description, stage = FOLD_FALLBACK[key]
     assert name == "Model Compare"
-    from spacr.qt.app import SECTION_MODELS, app_stage
-    assert section == SECTION_MODELS
-    # `spacr.qt.maturity` reassessed every alpha module against the
-    # evidence in the repository and this one no longer qualifies; the
-    # reason is recorded beside the decision. Applied here because the
-    # promotions land in `register_self_registering_modules`, which every
-    # launch calls but a bare test process may not have. `apply` alone,
-    # not the whole registration pass: it touches only APP_STAGE, so it
-    # cannot re-register a module a test has deliberately removed.
-    from spacr.qt import maturity
-    maturity.apply()
-    assert app_stage(key) == "stable"
     assert description
+    # Stable, on the evidence `spacr.qt.maturity` recorded for it -- the
+    # colour its tile lit in, which the button has to go on lighting.
+    from spacr.qt import maturity
+    assert maturity.PROMOTIONS[key][0] == stage == "stable"
     assert APP_TITLES[key] == "Model Compare"
     assert APP_INTROS[key]
     assert not _icon_for_app(key).isNull()

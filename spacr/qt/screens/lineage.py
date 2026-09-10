@@ -41,6 +41,8 @@ from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette, mark_surface
+from ..widgets.sortable_table import install_sorting, tree_item
+from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger(__name__)
 
@@ -76,12 +78,19 @@ class LineageScreen(LinkedView, QWidget):
 
     :param threaded: ``False`` reads inline, so a test drives the screen
         without a worker thread and gets the same calls in the same order.
+    :param parent: parent widget; ownership only.
     """
 
     #: A node was selected. Carries its object key.
     node_selected = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen, join the shared selection and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so ``load`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("LineageScreen")
         self._jobs = JobRunner(self, threaded=bool(threaded),
@@ -99,6 +108,7 @@ class LineageScreen(LinkedView, QWidget):
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:
+        """Lay out the source row, the containment tree and the orphan list."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -137,6 +147,7 @@ class LineageScreen(LinkedView, QWidget):
         left_column.setContentsMargins(0, 0, 0, 0)
         left_column.setSpacing(4)
         self.tree = QTreeWidget(left)
+        install_sorting(self.tree)
         self.tree.setHeaderLabels(["Object", "Inside it", "Key"])
         self.tree.setColumnHidden(2, True)
         self.tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -190,6 +201,7 @@ class LineageScreen(LinkedView, QWidget):
 
     # -- loading -------------------------------------------------------------
     def _choose_db(self) -> None:
+        """Ask for a measurements database and build the tree from it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurements database", self._db.text().strip(),
             "SQLite (*.db *.sqlite);;All files (*)")
@@ -237,6 +249,11 @@ class LineageScreen(LinkedView, QWidget):
                if len(self._orphans) else " · every child has a parent"))
 
     def _fill_tree(self) -> None:
+        """Rebuild the containment tree from the loaded forest.
+
+        Capped at ``TREE_LIMIT`` roots: a plate's worth of cells would take
+        longer to build than to read.
+        """
         self.tree.clear()
         for root in self._forest[:TREE_LIMIT]:
             self.tree.addTopLevelItem(self._item(root))
@@ -249,7 +266,7 @@ class LineageScreen(LinkedView, QWidget):
         have drifted apart in this codebase before.
         """
         inside = {t: n for t, n in node.counts().items() if t != node.table}
-        item = QTreeWidgetItem([
+        item = tree_item([
             f"{node.table} {node.label}",
             ", ".join(f"{n} {t}" for t, n in sorted(inside.items())),
             node.key,
@@ -262,6 +279,13 @@ class LineageScreen(LinkedView, QWidget):
         return item
 
     def _fill_orphans(self) -> None:
+        """List the children whose ``cell_id`` names no cell in their field.
+
+        Each row publishes a key stamped with the table it came from, so an
+        unattached child identifies itself the way the tree does rather than
+        naming every object with that label in the field. An empty list says so
+        in words rather than being left blank.
+        """
         self.orphan_list.clear()
         if self._orphans.empty:
             self.orphan_list.addItem(QListWidgetItem(
@@ -283,6 +307,10 @@ class LineageScreen(LinkedView, QWidget):
             self.orphan_list.addItem(item)
 
     def _on_job_failed(self, message: str) -> None:
+        """Show a failed load on the status line, in the error colour.
+
+        :param message: the failure text from the job runner.
+        """
         self.status.setText(message)
         self.status.setStyleSheet(f"color: {active_palette()['error']};")
 
@@ -326,6 +354,12 @@ class LineageScreen(LinkedView, QWidget):
         return out
 
     def _subtree_keys(self, item: QTreeWidgetItem) -> List[str]:
+        """Collect the object keys of an item and everything under it.
+
+        :param item: the subtree root.
+        :returns: its key first, then its descendants' in tree order; items
+            carrying no key contribute nothing.
+        """
         key = item.data(0, _KEY_ROLE)
         keys = [str(key)] if key else []
         for index in range(item.childCount()):
@@ -333,6 +367,12 @@ class LineageScreen(LinkedView, QWidget):
         return keys
 
     def _subtree_ids(self, item: QTreeWidgetItem) -> List[str]:
+        """Collect the node ids of an item and everything under it.
+
+        :param item: the subtree root.
+        :returns: its id first, then its descendants' in tree order; items
+            carrying no id contribute nothing.
+        """
         node_id = item.data(0, _ID_ROLE)
         ids = [str(node_id)] if node_id else []
         for index in range(item.childCount()):
@@ -382,11 +422,21 @@ class LineageScreen(LinkedView, QWidget):
         return keys
 
     def _on_tree_activated(self, item: QTreeWidgetItem, _column: int) -> None:
+        """Open the crop for a double-clicked tree row.
+
+        :param item: the activated row.
+        :param _column: the column that was hit; unused, since the row is what
+            identifies the object.
+        """
         key = item.data(0, _KEY_ROLE)
         if key:
             self._open([str(key)], f"double-clicked in the lineage tree")
 
     def _on_orphan_activated(self, item: QListWidgetItem) -> None:
+        """Open the crop for a double-clicked unattached child.
+
+        :param item: the activated row.
+        """
         key = item.data(_KEY_ROLE)
         if key:
             self._open([str(key)],
@@ -401,6 +451,15 @@ class LineageScreen(LinkedView, QWidget):
         return self._open(keys, "selected in the lineage tree, parents first")
 
     def _open(self, keys: List[str], reason: str) -> Any:
+        """Open crops for a set of object keys, reporting whatever stops it.
+
+        :param keys: the objects to show.
+        :param reason: what prompted the request, passed through to the opener
+            so the receiving screen can say where the selection came from.
+        :returns: whatever :meth:`open_objects` returns, or ``None`` when no
+            opener is registered or the open failed -- either way the status
+            line says which.
+        """
         if not has_object_opener(DEFAULT_OPEN_KIND):
             self.status.setText(
                 "Open the Annotate screen first — it is what shows crops.")
@@ -444,6 +503,10 @@ class LineageScreen(LinkedView, QWidget):
                 f"tree.")
 
     def closeEvent(self, event) -> None:
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self.unlink_selection()
         self._jobs.cancel()
         super().closeEvent(event)
@@ -453,18 +516,16 @@ class LineageScreen(LinkedView, QWidget):
 # Registration
 # ---------------------------------------------------------------------------
 
-APP_NAME = "Lineage"
-APP_DESCRIPTION = "What is inside what: cell → nucleus → pathogen"
-APP_INTRO = (
-    "Every cell with the nuclei and pathogens it contains, read off the "
-    "cell_id links Measure has always written. Selecting a node highlights "
-    "the same object in every other open view; 'Select with contents' "
-    "highlights the whole family. Children whose cell_id names no cell get "
-    "their own list — that is the two masks disagreeing, and it is a finding "
-    "rather than noise.")
-APP_CLI_NOTE = (
-    "Lineage is an interactive tree; run it in the GUI (spacr-qt). Headless, "
-    "spacr.lineage.build_forest gives the same tree as data.")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
 
 
 def make_lineage_screen(**_kwargs) -> LineageScreen:
@@ -478,14 +539,5 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
 
     :returns: the registry row, or ``None`` when the key was already there.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == key for row in APPS):
-        return None
-    return register_app(
-        key, APP_NAME, APP_DESCRIPTION, section or SECTION_EXPLORE,
-        factory=make_lineage_screen,
-        stage=STAGE_ALPHA if stage is None else stage,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/lineage",
-        translations=("Härstamning", "Abstammung", "Linaje", "谱系",
-                      "Linhagem", "वंशावली", "계보", "Ætterni", "Lignée"))
+    return register_declared(
+        __name__, key=key, section=section, stage=stage)

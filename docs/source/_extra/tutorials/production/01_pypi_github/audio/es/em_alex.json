@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "es",
+  "voice": "em_alex",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 88.6,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.4,
+      "scene_end": 14.1,
+      "duration": 14.1,
+      "text": "Antes de instalar spaCR, conozca las tres rutas de distribución oficiales: PyPI para el paquete Python lanzado, GitHub para los instaladores de código fuente y escritorio y conda-forge una vez que se publique su paquete revisado.",
+      "speech_text": "Antes de instalar espáquer, conozca las tres rutas de distribución oficiales: pai pi para el paquete Python lanzado, GitHub para los instaladores de código fuente y escritorio y conda-forge una vez que se publique su paquete revisado.",
+      "phonemes": "ˈantes ðe ˌinstalˈaɾ espˈakeɾ, konˈoθka las tɾˈes rˈutas ðe ðˌistɾiβuθjˈon ˌofiθjˈales: pˈI pˈi pˌaɾa el pakˈete pˈiton lanθˈaðo, xˈit ˈub pˌaɾa los ˌinstalaðˈoɾes ðe kˈoðiɣo fwˈɛnte i ˌeskɾitˈoɾjo i kˈondafˈoɾxe ˈuna βˈeθ ke se puβlˈike su pakˈete rˌeβisˈaðo."
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.1,
+      "speech_end": 24.2,
+      "scene_end": 24.9,
+      "duration": 10.799999999999999,
+      "text": "La página spaCR en PyPI muestra la versión estable actual y el comando pip install spacr. Los archivos de liberación incluyen una rueda de Python y un archivo fuente.",
+      "speech_text": "La página espáquer en pai pi muestra la versión estable actual y el comando pip install espáquer. Los archivos de liberación incluyen una rueda de Python y un archivo fuente.",
+      "phonemes": "la pˈaxina espˈakeɾ em pˈI pˈi mwˈestɾa la βeɾsjˈon estˈaβle aktwˈal i el komˈando pˈip instˈaʎ espˈakeɾ. los aɾʧˈiβos ðe lˌiβeɾaθjˈon inklˈuʝen ˈuna ruˈeða ðe pˈiton i ˈun aɾʧˈiβo fwˈɛnte."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.9,
+      "speech_end": 37.099999999999994,
+      "scene_end": 37.8,
+      "duration": 12.899999999999999,
+      "text": "PyPI también se enlaza con la documentación, el repositorio de fuentes y el rastreador de problemas. Compruebe las versiones de Python requeridas y la fecha de lanzamiento antes de cambiar un entorno existente.",
+      "speech_text": "pai pi también se enlaza con la documentación, el repositorio de fuentes y el rastreador de problemas. Compruebe las versiones de Python requeridas y la fecha de lanzamiento antes de cambiar un entorno existente.",
+      "phonemes": "pˈI pˈi tambjˈen se enlˈaθa kon la ðˌokumˌentaθjˈon, el rˌepositˈoɾjo ðe fwˈɛntes i el rˌastɾeaðˈoɾ ðe pɾoβlˈemas. kˌompɾuˈeβe las βeɾsjˈones ðe pˈiton rˌekeɾˈiðas i la fˈeʧa ðe lˌanθamjˈɛnto ˈantes ðe kambjˈaɾ ˈun entˈoɾno ˌeksistˈɛnte."
+    },
+    {
+      "scene": 4,
+      "speech_start": 37.8,
+      "speech_end": 49.824999999999996,
+      "scene_end": 50.525,
+      "duration": 12.725000000000001,
+      "text": "En GitHub, main es la línea de código fuente publicada y nightly contiene cambios más recientes que todavía están en pruebas. Use nightly solo cuando necesite específicamente un cambio aún no publicado.",
+      "speech_text": "En GitHub, main es la línea de código fuente publicada y nightly contiene cambios más recientes que todavía están en pruebas. Use nightly solo cuando necesite específicamente un cambio aún no publicado.",
+      "phonemes": "eŋ xˈit ˈub, mˈIn ˈes la lˈinea ðe kˈoðiɣo fwˈɛnte pˌuβlikˈaða i nˈiɣtli kontjˈene kˈambjos mˈas reθjˈɛntes ke tˌoðaβˈia estˈan em pɾuˈeβas. ˈuse nˈiɣtli sˈolo kwˌando nˌeθesˈite ˌespeθˈifikamˈente ˈun kˈambjo aˈun nˈo pˌuβlikˈaðo."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.525,
+      "speech_end": 61.8,
+      "scene_end": 62.5,
+      "duration": 11.975000000000001,
+      "text": "GitHub Releases proporciona los instaladores de Windows, macOS y Linux, notas de lanzamiento, archivos de paquetes de Python y sumas de verificación de SHA-256.",
+      "speech_text": "GitHub Releases proporciona los instaladores de Windows, macOS y Linux, notas de lanzamiento, archivos de paquetes de Python y sumas de verificación de SHA-256.",
+      "phonemes": "xˈit ˈuβ rˌeleˈases pɾˌopoɾθjˈona los ˌinstalaðˈoɾes ðe wˈindows, mˈak ˌoˈɛse i lˈinuks, nˈotas ðe lˌanθamjˈɛnto, aɾʧˈiβos ðe pakˈetes ðe pˈiton i sˈumas ðe βˌeɾifˌikaθjˈon de ˌeseˌaʧeˈa dosθjˈentos θinkwˌɛntaisˈAs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 62.5,
+      "speech_end": 74.675,
+      "scene_end": 75.375,
+      "duration": 12.875,
+      "text": "La receta conda-forge está preparada en el repositorio, pero aún no se ha publicado ningún paquete de spaCR en el canal conda-forge. Por ahora, crea un entorno Conda e instala spaCR desde PyPI dentro de él.",
+      "speech_text": "La receta conda-forge está preparada en el repositorio, pero aún no se ha publicado ningún paquete de espáquer en el canal conda-forge. Por ahora, crea un entorno Conda e instala espáquer desde pai pi dentro de él.",
+      "phonemes": "la reθˈeta kˈondafˈoɾxe estˈa pɾˌepaɾˈaða en el rˌepositˈoɾjo, pˌeɾo aˈun nˈo se ˈa pˌuβlikˈaðo niŋɡˈum pakˈete ðe espˈakeɾ en el kanˈal kˈondafˈoɾxe. poɾ aˈoɾa, kɾˈea ˈun entˈoɾno kˈonda e instˈala espˈakeɾ ðˌesðe pˈI pˈi ðˈɛntɾo ðe ˈel."
+    },
+    {
+      "scene": 7,
+      "speech_start": 75.375,
+      "speech_end": 87.9,
+      "scene_end": 88.60000000000001,
+      "duration": 13.225000000000009,
+      "text": "Utilice PyPI o pip para un entorno Python, GitHub Releases para un instalador nativo y la rama nightly sólo para el desarrollo. Los siguientes tutoriales demuestran cada ruta de instalación sin lanzar la aplicación.",
+      "speech_text": "Utilice pai pi o pip para un entorno Python, GitHub Releases para un instalador nativo y la rama nightly sólo para el desarrollo. Los siguientes tutoriales demuestran cada ruta de instalación sin lanzar la aplicación.",
+      "phonemes": "ˌutilˈiθe pˈI pˈi o pˈip pˌaɾa ˈun entˈoɾno pˈiton, xˈit ˈuβ rˌeleˈases pˌaɾa ˈun ˌinstalaðˈoɾ natˈiβo i la rˈama nˈiɣtli sˈolo pˌaɾa el ðˌesarˈoʎo. los siɣjˈɛntes tˌutoɾjˈales ðemwˈestɾan kˈaða rˈuta ðe ˌinstalaθjˈon sin lanθˈaɾ la ˌaplikaθjˈon."
+    }
+  ]
+}

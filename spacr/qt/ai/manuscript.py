@@ -98,7 +98,10 @@ def availability() -> Availability:
              "instead, set up one of:"]
     try:
         candidates: Sequence[ChatProvider] = list_providers()
-    except Exception:                                 # pragma: no cover
+    except Exception:
+        # The advice above this is still worth printing. A traceback here
+        # would replace a paragraph of help with nothing, and the run's
+        # own numbers do not depend on any provider being reachable.
         candidates = ()
     for provider in candidates:
         if provider.is_installed():

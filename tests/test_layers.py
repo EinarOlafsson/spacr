@@ -134,6 +134,31 @@ def test_canvas_for_grid_is_the_identity_sampling_of_a_layer():
     assert rgb[..., 0] * 11.0 == pytest.approx(data, abs=1e-4)
 
 
+def test_canvas_for_grid_starts_a_translated_volume_on_its_first_plane():
+    """An omitted depth follows the grid origin instead of world zero."""
+    sp = Spacing.from_map(
+        {"z": 2.0, "y": 1.0, "x": 1.0},
+        origin={"z": 10.0, "y": 3.0, "x": -4.0},
+    )
+    data = np.zeros((2, 3, 4), dtype=np.uint8)
+    data[0] = 7
+
+    canvas = Canvas.for_grid(sp, data.shape)
+    assert dict(canvas.depth) == {"z": 10.0}
+
+    image = ImageLayer(
+        data, spacing=sp, contrast_limits=(0.0, 7.0), colormaps="gray"
+    )
+    labels = LabelsLayer(data, spacing=sp)
+    assert image.render(canvas)[1].min() == 1.0
+    assert labels.render(canvas)[1].min() == 1.0
+
+    # An explicit depth remains authoritative, including an intentionally
+    # empty mapping whose absent z coordinate retains Canvas's world-0 rule.
+    world_zero = Canvas.for_grid(sp, data.shape, depth={})
+    assert image.render(world_zero)[1].max() == 0.0
+
+
 def test_canvas_zoom_holds_the_world_point_under_the_cursor():
     canvas = Canvas(origin=(0.0, 0.0), step=(1.0, 1.0), shape=(20, 20))
     before = canvas.world_at(5, 7)
@@ -668,6 +693,21 @@ def test_replacing_label_data_on_a_different_grid_is_refused():
         layer.data = np.zeros((8, 8), dtype=np.int32)
     layer.data = np.ones((4, 4), dtype=np.int32)
     assert layer.labels().tolist() == [1]
+
+
+def test_replacing_label_data_keeps_the_whole_number_contract():
+    layer = LabelsLayer(np.zeros((2, 2), dtype=np.int32))
+    layer.data = np.array([[0.0, 1.0], [2.0, 3.0]])
+
+    assert layer.data.dtype.kind == "i"
+    assert layer.labels().tolist() == [1, 2, 3]
+    accepted = layer.data.copy()
+
+    with pytest.raises(LayerError, match="integer labels"):
+        layer.data = np.array([[0.0, 1.5], [2.0, 3.0]])
+
+    assert np.array_equal(layer.data, accepted)
+    assert layer.data.dtype.kind == "i"
 
 
 def test_the_brush_is_a_ball_in_world_space_not_in_array_elements():

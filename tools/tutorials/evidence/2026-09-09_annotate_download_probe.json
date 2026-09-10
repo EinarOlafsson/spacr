@@ -1,0 +1,14 @@
+{
+  "scope": "Real dataset chooser/download probe, not a completed annotation tutorial",
+  "application_commit": "62b740a6d",
+  "application_modified": false,
+  "capture_directory": "refresh_2026-09-09/annotate_fresh/captures/annotate",
+  "workspace": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials",
+  "cache": "Fresh isolated cache, not the earlier Mask/Measure cache",
+  "chooser": {"actual_dialog": true, "descriptions_shown": ["Load", "Stream"], "selected_route": "load"},
+  "download": {"png_images": 2341, "png_list_rows": 2341, "measurement_database_present": true, "settings_files": ["annotate_settings.csv", "classify_settings.csv"]},
+  "observation": "After successful download, the visible screen still says No source selected and Open an experiment to start annotating. The application callback assigns source/database and refreshes totals but does not open the source or load its first page.",
+  "next_recording_step": "Use the actual Open source control to open the downloaded plate; do not fabricate a populated grid or call internal painting methods",
+  "annotation_operation_recorded": false,
+  "published": false
+}

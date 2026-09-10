@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import logging
 import os
+from importlib import import_module
 from pathlib import Path
 from typing import Union
 
@@ -65,9 +66,22 @@ def save_mask(path: PathLike, mask: np.ndarray,
     :param fmt: force a format (``"tif"``, ``"tiff"``, or ``"npy"``).
         Defaults to :data:`DEFAULT_FORMAT` (env-overridable).
     :returns: the resolved on-disk path.
+    :raises ValueError: when an object id will not fit in uint16, or when
+        ``fmt`` names a format this module cannot write.
+
+    An id above 65535 is refused rather than cast. The cast wraps, and the
+    first value it wraps to is 0 — background — so object 65536 would come
+    back from disk fused with everything that was never segmented at all,
+    and nothing downstream could tell that from a mask with one fewer object.
     """
     fmt = (fmt or DEFAULT_FORMAT).lower().lstrip(".")
     p = Path(path)
+
+    top = int(np.max(mask)) if np.size(mask) else 0
+    if top > np.iinfo(np.uint16).max:
+        raise ValueError(
+            f"mask holds object id {top}, which does not fit in uint16; "
+            f"relabel it before saving to {p}")
 
     # If path already has a recognised suffix, that wins over `fmt`.
     if p.suffix.lower() in (".tif", ".tiff", ".npy"):
@@ -76,7 +90,11 @@ def save_mask(path: PathLike, mask: np.ndarray,
     if fmt in ("tif", "tiff"):
         p = p.with_suffix(f".{fmt}")
         try:
-            from .tiff_io import write_tiff
+            # Resolve through sys.modules rather than the package attribute.
+            # Python leaves ``spacr.tiff_io`` attached to the parent package
+            # after its module-cache entry is removed, which could otherwise
+            # make an optional dependency look available after it vanished.
+            write_tiff = import_module(".tiff_io", __package__).write_tiff
         except Exception:
             LOG.warning("tifffile missing — falling back to npy for %s", p)
             return save_mask(path, mask, fmt="npy")
@@ -93,6 +111,8 @@ def save_mask(path: PathLike, mask: np.ndarray,
 
 def load_mask(path: PathLike) -> np.ndarray:
     """Read a Cellpose mask regardless of on-disk format.
+
+    :param path: mask file or extensionless stem to resolve and load.
 
     Accepts a full path (``foo.tif`` / ``foo.npy``) OR a stem
     (``foo``) — in the stem case, tif → tiff → npy is tried and the
@@ -121,6 +141,12 @@ def load_mask(path: PathLike) -> np.ndarray:
 
 
 def _read_one(p: Path) -> np.ndarray:
+    """Read one TIFF or NumPy mask and return it as unsigned 16-bit data.
+
+    :param p: Mask file with a ``.tif``, ``.tiff``, or ``.npy`` suffix.
+    :returns: Mask array cast to ``numpy.uint16`` without changing its shape.
+    :raises ValueError: ``p`` has an unsupported suffix.
+    """
     if p.suffix.lower() in (".tif", ".tiff"):
         import tifffile
         arr = tifffile.imread(str(p))

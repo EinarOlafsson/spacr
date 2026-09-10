@@ -1,0 +1,16 @@
+{
+  "lesson": "14_make_masks",
+  "status": "Complete real-data recording accepted; multilingual production pending",
+  "application_commit": "62b9ade0ef0aafe47782ef0f23a554ea1f813db8",
+  "capture": "refresh_2026-09-09/captures/make_masks_complete",
+  "original_dataset_changed": false,
+  "initial_objects": 63,
+  "reversible_gestures": "Erase object 63 -> 62; Draw 63 -> 64; Divide 63 -> 64; all undone back to the original label array",
+  "contrast": "Actual lower percentile 1 -> 10 -> 1 changes the display and restores it exactly; image and mask arrays never change",
+  "area_filter": {"minimum_area": 21022, "before": 63, "after": 31, "model_rerun": false, "undone": true, "bounds_disabled_before_next_field": true},
+  "recrop": {"shape_yx": [331, 267], "objects": 1, "image_pixels_preserved": true, "private_parent_recoverable": true},
+  "cellpose": {"model": "cpsam", "objects": 1, "input_shape_yx": [331, 267], "cell_probability": 0.0, "flow_threshold": 0.4, "diameter": 0, "normalize": true, "mode": "replace", "actual_probability_and_flow_views_captured": true, "detection_undone": true, "resolved_device_recorded": false},
+  "folds_shown": ["train_cellpose", "cellpose_all", "model_compare", "model_zoo", "curate", "napari_bridge"],
+  "acceptance_file": "editor_acceptance.json in the capture directory",
+  "published": false
+}

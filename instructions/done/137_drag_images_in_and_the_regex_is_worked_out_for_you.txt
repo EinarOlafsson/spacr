@@ -1,0 +1,292 @@
+================================================================================
+DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
+================================================================================
+
+Status:    DONE 2026-08-20. See the closing section.
+Requested: 2026-08-18 --
+
+  "for the import data modulation the user should be able to drag and drop
+   images into a table and the program based on those chooses desires the
+   regex to use for detecting what all files are. The table should have
+   control columns specified by the user (or e.g. channel 1 channel 2 channel
+   3 and channel 4 and cell and nuclei, they choose from predetermined set of
+   channels. Then a regex is proposed and, which is modifiable, and the user
+   can hit test to show how file names would be changed and how files would be
+   organized into a spacr structure."
+
+Related: 106 is the rule a control that cannot act has to follow.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS TODAY, AND WHY IT IS NOT THIS
+--------------------------------------------------------------------------------
+
+`spacr.utils._get_regex(metadata_type, img_format, custom_regex)` is a
+four-branch lookup: 'cellvoyager', 'cq1', 'auto' and 'custom'. Three are FIXED
+PATTERNS -- 'auto' is not automatic, it is a fourth hard-coded regex -- and
+'custom' means the user types a regex with named groups by hand:
+
+    (?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)
+    L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif
+
+So a microscope spaCR has not met is a Python regex the user has to write,
+with the right group NAMES, before anything can be imported at all. That is
+the wall this removes.
+
+`_run_test_mode` already exists and already does half of what "hit test"
+asks: it matches a sample, groups by (plate, well, field) and writes a `test`
+folder. It is reachable only from a settings flag, it needs the regex to be
+correct ALREADY, and it copies real files to prove it. The new Test is the
+same idea moved before the commitment: it shows the answer instead of writing
+it.
+
+--------------------------------------------------------------------------------
+A. DRAG FILES IN, GET A TABLE
+--------------------------------------------------------------------------------
+
+Drop images (or a folder) onto the import screen and they land in a table --
+one row per file, the filename shown whole. This is the input to everything
+below; nothing is copied, moved or renamed at this stage.
+
+--------------------------------------------------------------------------------
+B. THE PROGRAM PROPOSES THE REGEX
+--------------------------------------------------------------------------------
+
+"the program based on those chooses desires the regex to use for detecting
+what all files are."
+
+INFER IT FROM THE NAMES THEMSELVES. Tokenise each filename, align the set, and
+the fields that VARY are the candidate groups while the parts that never vary
+are literals. A field taking few distinct values across many files is a
+channel; one taking many is a field or a slice; one that matches a well
+pattern (a letter and one or two digits, or r##c##) is the well.
+
+Rank the proposals and show the best. NEVER SILENTLY PICK ONE: the whole
+failure being fixed is a regex that looked right and grouped the files wrong.
+
+State the evidence next to it -- how many of the dropped files it matches, how
+many distinct values each group takes, and which files it does NOT match. An
+unmatched file is the most useful thing on that screen.
+
+--------------------------------------------------------------------------------
+C. THE COLUMNS ARE THE USER'S, FROM A CLOSED SET
+--------------------------------------------------------------------------------
+
+"The table should have control columns specified by the user (or e.g. channel
+1 channel 2 channel 3 and channel 4 and cell and nuclei, they choose from
+predetermined set of channels."
+
+Each inferred group gets a column, and the user says what it MEANS from a
+dropdown -- not by typing. The closed set is what the rest of spaCR already
+knows how to read: plateID, wellID, fieldID, timeID, sliceID, channel 1-4,
+and the object roles cell, nucleus, pathogen, cytoplasm.
+
+A CLOSED SET, because these names are not decoration: `_rename_and_organize_image_files`
+and `_move_to_chan_folder` read `plateID` / `wellID` / `fieldID` / `chanID`
+by name, and a typo in a hand-written group name is a silent import of
+nothing. The dropdown is what makes that impossible.
+
+Two columns claiming the same role is an error stated on the spot, not at run
+time.
+
+--------------------------------------------------------------------------------
+D. MODIFIABLE, AND TEST BEFORE IT COMMITS
+--------------------------------------------------------------------------------
+
+"Then a regex is proposed and, which is modifiable, and the user can hit test
+to show how file names would be changed and how files would be organized into
+a spacr structure."
+
+The proposed regex is editable text. Editing it re-runs the match against the
+dropped files LIVE -- the table is the preview.
+
+TEST SHOWS, IT DOES NOT WRITE. Two things, side by side:
+
+  * the new NAME for each file, beside its old one;
+  * the FOLDER TREE it would produce -- the spaCR structure, per plate, well,
+    field and channel -- with the counts at each level.
+
+Nothing is copied until the user accepts. `_run_test_mode` writes a `test`
+folder of real files today; this is the same question answered before any
+commitment, which is the point.
+
+A FILE THAT DOES NOT MATCH IS LISTED, not dropped in silence. "412 of 480
+files matched" with the other 68 named is an answer; 412 files appearing
+without comment is how half a plate goes missing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Dropping a folder of Yokogawa images proposes a regex equivalent to the
+  bundled 'cellvoyager' one, without the user typing anything.
+* Dropping images from a microscope spaCR has never seen produces a working
+  regex from the names alone.
+* Every group is labelled from a dropdown; no user types a group name.
+* Test shows old name -> new name and the folder tree, and writes nothing.
+* Unmatched files are named and counted.
+* The accepted regex reaches `_get_regex`'s 'custom' branch, so the headless
+  path and `spacr-run` are unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- B IS BUILT: `spacr/regex_infer.py`. A, C AND D ARE THE GUI.
+--------------------------------------------------------------------------------
+
+`propose(filenames)` returns ranked candidates. On the three cases that matter
+it reaches 100% coverage with the right group names, from the names alone:
+
+  cellvoyager  plate1_(?P<wellID>[A-Za-z0-9]+)_T0001F(?P<fieldID>\d+)
+               L01A01Z01C(?P<chanID>\d+)\.tif
+  cq1          W(?P<wellID>[A-Za-z0-9]+)F(?P<fieldID>\d+)T0001Z01C(?P<chanID>\d+)\.tif
+  unseen       exp7\-P(?P<plateID>\d+)\-(?P<wellID>[A-Za-z0-9]+)\-s(?P<fieldID>\d+)
+               \-ch(?P<chanID>\d+)\.png
+
+The third is a microscope nothing in spaCR has ever met, and it is the case
+the whole instruction is about.
+
+HOW, AND THE FOUR THINGS THAT HAD TO BE GOT RIGHT:
+
+  1. TWO GRAINS OF FAMILY. Grouping by the tokenised SHAPE put `plate1_A01_`
+     and `plate1_B01_` in different families -- the well letter is a non-digit
+     token and it differs -- so each matched a third of the drop and the
+     letter was folded into the literal where it could never become a group.
+     A coarser MASK (digits vs not) merges them. Both are tried; a mask family
+     varying in more than two non-digit positions is two microscopes rather
+     than one and is refused, because a regex that matches everything and
+     means nothing is worse than none.
+
+  2. THE CLASS IS DERIVED FROM THE VALUES. A non-digit slot is a separator
+     with a letter stuck to it -- `_A`, `_B` -- and a fixed `[^_.]+` could not
+     match its own observed values. The shared prefix and suffix are factored
+     back into the literal and the class is built from what is left.
+
+  3. ROLES ARE ASSIGNED IN TWO PASSES, STRONGEST EVIDENCE FIRST. A role can
+     only be used once, so naming each slot as it was walked meant the slot
+     after a literal 'C' -- unambiguously the channel -- arrived to find
+     `chanID` taken by an earlier slot that merely had few distinct values.
+     Wells first, then vendor literals, then value shape.
+
+  4. THE HINT READS THE TRAILING ALPHA RUN, stopping at the first non-letter.
+     Reading every letter made `plate1_` end in "PLATE" and claim the WELL
+     after it as a plate id. The separator is exactly what says the word is
+     not about that slot. And the words are matched longest first, so `ch`
+     beats `h` -- `-ch1` was an unnamed slot while a plate code two tokens
+     earlier took `chanID` on nothing but its value count.
+
+  Plus: a well number that never varies (a plate with one column) is absorbed
+  into the well group as a fixed tail, because `A` alone is not a well by any
+  test and the digits are still part of it.
+
+NOTHING IS EVER PICKED SILENTLY. Every proposal carries the count matched, the
+distinct values per group, WHICH files it leaves out, and WHY each role was
+guessed -- a guess presented without its reason is indistinguishable from a
+fact. `rename_preview` and `structure` answer "what would this do" without
+writing anything, which is the same question `_run_test_mode` answers today by
+copying real files.
+
+22 tests in tests/test_the_regex_is_worked_out_from_the_filenames.py.
+
+STILL OWED: A, C and D are the GUI -- the drop table, the role dropdowns and
+the live Test panel. The engine underneath them is done and headless, so that
+work is wiring rather than invention.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- B REACHES THE AUTO-DETECT A USER ACTUALLY PRESSES.
+--------------------------------------------------------------------------------
+
+`regex_detect.auto_detect_regex` -- what the regex editor's "Auto detect"
+button calls -- tries `regex_infer.propose` before falling back to
+`_synthesise_regex`.
+
+THE DIFFERENCE IS WHAT THEY WORK FROM. The old synthesiser builds a template
+from ONE filename and routinely fails to match its siblings, which is why the
+hit count above it had to be corrected to stop it reporting "matched 3/3" for
+a regex that matched nothing. `propose` ALIGNS THE WHOLE SET.
+
+Measured through the button:
+
+    cellvoyager   cellvoyager   12/12     (the bundled pattern, untouched)
+    cq1           cq1           12/12     (the bundled pattern, untouched)
+    unseen        inferred      32/32     (was: synthesised, 16/32)
+    another       inferred      24/24
+
+A BUNDLED PATTERN THAT ALREADY FITS IS LEFT ALONE. Inference is tried against
+the best built-in rather than instead of it: a known-good answer does not need
+improving, and a user who recognises "cellvoyager" in that box learns
+something an inferred pattern cannot tell them.
+
+AND IT IS AN IMPROVEMENT ON THE FALLBACK, NEVER A REQUIREMENT. A failure
+inside `propose` leaves the old path exactly as it was, held by a test that
+makes it raise.
+
+FOUND ON THE WAY: the first wiring used `from ...regex_infer import propose`
+from `spacr/qt/regex_detect.py`, which is one level too far -- it resolved
+above the package, the `except` swallowed it, and the unseen microscope went
+on getting the 16/32 answer with nothing saying why. A guarded import that
+silently does nothing is the failure mode of every guarded import; the test
+that names the expected label is what caught it.
+
+26 tests in tests/test_the_regex_is_worked_out_from_the_filenames.py.
+
+STILL OWED: A, C and D -- the drop TABLE, the role dropdowns and the live
+Test panel. The engine is done, headless and now reachable from the existing
+dialog, so that work is a table widget rather than any more invention.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- A, C AND D. AND EVERY SAVED REGEX MATCHED NOTHING.
+--------------------------------------------------------------------------------
+
+A. DROP FILES IN, GET A TABLE. `qt/widgets/import_workbench.py` accepts a
+drop of files or a folder, walks it for images, and holds one row per file.
+Nothing is copied, moved or renamed.
+
+C. THE COLUMNS ARE THE USER'S, FROM A CLOSED SET. One dropdown per inferred
+GROUP, offering `plateID` / `wellID` / `fieldID` / `chanID` / `timeID` /
+`sliceID` / ignore -- the names `_rename_and_organize_image_files` and
+`_move_to_chan_folder` read BY NAME, which is why typing them is what the
+dropdown makes impossible. A group already called `wellID` defaults to it, so
+a good proposal costs no clicks. TWO GROUPS ON ONE ROLE IS SAID ON THE SPOT,
+and so is a missing required role.
+
+D. TEST SHOWS, IT DOES NOT WRITE -- and there is no Test button, because the
+table IS the preview and re-runs on every edit. A button would imply the
+answer is stale until it is pressed, and the whole failure being fixed is a
+regex that looked right and grouped the files wrong. Beside the table, the
+FOLDER TREE it would produce, with the counts at each level. Unmatched files
+are rows that say "no match" in red, never dropped in silence.
+
+THE NEW NAME IS `io`'S OWN. `spacr/import_plan.py` composes it with
+`io._escaped_field_stem`, so what this previews is what the import writes,
+down to the plate escaping `schema.parse_field_stem` reads back -- a plate
+called `exp_1` previews as `exp%5F1_A01_001_`, not as five components for a
+four-component grammar.
+
+--------------------------------------------------------------------------------
+AND THE THING THIS FOUND, WHICH IS WORSE THAN WHAT IT WAS BUILT FOR
+--------------------------------------------------------------------------------
+
+EVERY REGEX SAVED FROM THE DROP EDITOR MATCHED NOTHING.
+
+`utils._get_regex` builds the custom pattern as::
+
+    f"({custom_regex}).{img_format}"
+
+-- it appends the extension ITSELF. And `auto_detect_regex` returns a pattern
+ending `\.(?:tif|tiff|png|jpg|jpeg)$`, which `RegexEditorDialog._on_save`
+pushed into `custom_regex` verbatim. The composed pattern was
+
+    ((?P<plateID>.*)_..._C(?P<chanID>.*)\.(?:tif|tiff|png|jpg|jpeg)$)..tif
+
+an anchor with characters after it. MEASURED through the real path -- drop,
+auto-detect, save, `_get_regex` -- on eight cellvoyager filenames: 0 of 8.
+
+WITH NO ERROR ANYWHERE. The import runs, finds no files, and reports only
+that it found none; the pattern in the box looks exactly right; and the
+preview inside the editor is matched against WHOLE filenames, so it says the
+pattern is fine, because inside that dialog it is.
+
+`import_plan.for_get_regex` trims the tail, and both the editor and the
+workbench go through it. Same eight names, same path: 8 of 8, with `wellID`
+reading back `A01`. A test pins the old behaviour too, so the trim cannot be
+removed as tidying.
+
+50 tests in tests/test_the_import_workbench_shows_before_it_writes.py.

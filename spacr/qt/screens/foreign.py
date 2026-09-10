@@ -57,7 +57,10 @@ from __future__ import annotations
 
 import os
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import (
@@ -79,13 +82,17 @@ from PySide6.QtWidgets import (
 )
 
 from ... import foreign as fgn
+from ...object_roles import organelle_label
 from ...schema import SEGMENTED_ROLES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting
 
 __all__ = [
     "ForeignScreen",
+    "object_label",
+    "organelle_slots_offered",
     "ColumnMapModel",
     "MAP_COLUMNS",
     "OBJECT_CHOICES",
@@ -106,7 +113,48 @@ MAP_COLUMNS: Tuple[Tuple[str, str, bool], ...] = (
 )
 
 #: Mask classes, in the order their planes are appended to a merged array.
+#: The STORAGE spelling, which is what the backend takes and what a saved
+#: mapping carries. Never what the user is shown -- see :func:`object_label`.
 OBJECT_CHOICES: Tuple[str, ...] = tuple(SEGMENTED_ROLES)
+
+
+def object_label(role: str) -> str:
+    """What a mask class is CALLED, as opposed to what it is keyed by.
+
+    NO USER SEES A LETTER, asked for in as many words on 2026-09-02: "i dont
+    want to see organelle a b c d anywhere, organelle number should always be
+    controlled by number of organelles". The slots are stored lettered --
+    ``organelle``, ``organelleb``, ``organellec`` -- because a role name is
+    the prefix of every settings key it owns and ``organelle2`` cannot
+    round-trip through a ``prcfo`` key without colliding with the object
+    LABELLED 2. That is a storage decision and it has no business on screen,
+    where a slot is a NUMBER: Organelle 1, Organelle 2.
+
+    :param role: a role from :data:`OBJECT_CHOICES`.
+    """
+    name = str(role)
+    if name.startswith("organelle"):
+        return organelle_label(name)
+    return name.capitalize()
+
+
+def organelle_slots_offered(added: Sequence[str]) -> int:
+    """How many organelle slots a form should show, given what is filled.
+
+    THE COUNT FOLLOWS THE ORGANELLES, not a constant. Offering four slots to
+    a user with one organelle is three questions nobody asked, and offering
+    exactly the ones in use plus one is what "controlled by the number of
+    organelles" means on a form that has no separate count field: adding the
+    first makes the second available, and so on for as many as the mask
+    planes can carry.
+
+    :param added: the roles already mapped.
+    :returns: how many organelle slots to list, at least one.
+    """
+    filled = [role for role in added if str(role).startswith("organelle")]
+    capacity = sum(1 for role in OBJECT_CHOICES
+                   if role.startswith("organelle"))
+    return max(1, min(len(filled) + 1, capacity))
 
 #: What to do about a target that collides with a spaCR name.
 CONFLICT_CHOICES: Tuple[Tuple[str, str], ...] = (
@@ -128,6 +176,8 @@ class ColumnMapModel(QAbstractTableModel):
     per-row status, updating the status refreshes the tooltips, and
     refreshing tooltips emits ``dataChanged`` again — one keystroke
     recursed until the interpreter ran out of stack.
+
+    :param parent: parent widget.
     """
 
     #: Emitted when a cell's value actually changed. Never on a tooltip
@@ -135,6 +185,10 @@ class ColumnMapModel(QAbstractTableModel):
     mapping_edited = Signal()
 
     def __init__(self, parent=None):
+        """Build an empty column mapping.
+
+        :param parent: parent object.
+        """
         super().__init__(parent)
         self._maps: List[fgn.ColumnMap] = []
         self._status: Dict[str, str] = {}
@@ -180,12 +234,31 @@ class ColumnMapModel(QAbstractTableModel):
     # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
+        """How many source columns are waiting to be mapped.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
         return 0 if parent.isValid() else len(self._maps)
 
     def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the mapping table shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
         return 0 if parent.isValid() else len(MAP_COLUMNS)
 
     def flags(self, index):
+        """Which cells the user may edit.
+
+        Only the target column: the source name is what the foreign file
+        actually contains, and editing it would let a user rename their data
+        rather than map it.
+
+        :param index: the cell.
+        :returns: the Qt item flags.
+        """
         base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
         if not index.isValid():
             return base
@@ -194,6 +267,12 @@ class ColumnMapModel(QAbstractTableModel):
         return base
 
     def data(self, index, role=Qt.DisplayRole):
+        """One cell of the mapping table.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
         if not index.isValid():
             return None
         mapping = self._maps[index.row()]
@@ -207,6 +286,13 @@ class ColumnMapModel(QAbstractTableModel):
         return None
 
     def setData(self, index, value, role=Qt.EditRole) -> bool:
+        """Record which spaCR column a source column maps to.
+
+        :param index: the cell.
+        :param value: what the user chose.
+        :param role: the Qt edit role.
+        :returns: True when the mapping was taken.
+        """
         if not index.isValid() or role != Qt.EditRole:
             return False
         key, _label, editable = MAP_COLUMNS[index.column()]
@@ -224,6 +310,13 @@ class ColumnMapModel(QAbstractTableModel):
         return True
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -248,6 +341,11 @@ class ForeignScreen(QWidget):
     _progress = Signal(int, int, str)
 
     def __init__(self, parent=None, threaded: bool = True):
+        """Build the importer: images, masks, table and mapping.
+
+        :param parent: parent widget.
+        :param threaded: whether the import runs on a worker.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._plan: Optional[fgn.ImportPlan] = None
@@ -274,14 +372,30 @@ class ForeignScreen(QWidget):
     # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
+        # ITS OWN REGISTRY KEY -- what `install_folds_on` dispatches
+        # on. A screen that builds itself has no `app_key` unless it says
+        # so, and without it this screen could declare folds and never be
+        # handed them.
+        """Lay out the input rows over the mapping table and the report."""
+        self.app_key = "foreign"
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        title = QLabel("Import Project")
-        title.setObjectName("DisplayHeading")
-        outer.addWidget(title)
+        # A ModuleHeader RATHER THAN A BARE LABEL, for the same reason
+        # Database Browser grew one: it draws the same `DisplayHeading`
+        # this built by hand, and its `add_trailing` is where the fold
+        # strip hangs. Without a masthead, Format Converter and External
+        # Masks have nowhere to appear.
+        header = ModuleHeader(
+            "Import",
+            description="Convert microscope formats, map somebody else's "
+                        "columns, or adopt masks made elsewhere",
+            app_key="foreign",
+        )
+        self._header = header
+        outer.addWidget(header)
 
         subtitle = QLabel(
             "Turn somebody else's images, label masks and measurement table "
@@ -315,8 +429,7 @@ class ForeignScreen(QWidget):
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
         self._object_box = QComboBox(self)
-        for name in OBJECT_CHOICES:
-            self._object_box.addItem(name, name)
+        self._refill_object_box()
         self._mask_edit = QLineEdit(self)
         self._mask_edit.setPlaceholderText(
             "…/their_cell_masks  — one folder of label images per class")
@@ -379,6 +492,9 @@ class ForeignScreen(QWidget):
         self._model.mapping_edited.connect(self._on_mapping_edited)
         self._table = QTableView(self)
         self._table.setModel(self._model)
+        # After setModel: the helper puts a sorting proxy over the mapping
+        # model, which replaces the view's model and its selection model.
+        install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setAlternatingRowColors(True)
         self._table.horizontalHeader().setSectionResizeMode(
@@ -451,6 +567,10 @@ class ForeignScreen(QWidget):
         return self._report.toPlainText()
 
     def _set_report(self, text: str) -> None:
+        """Put the import report on screen.
+
+        :param text: the report.
+        """
         self._report.setPlainText(text or "")
 
     # -- configuration -----------------------------------------------------
@@ -477,7 +597,8 @@ class ForeignScreen(QWidget):
         if name not in OBJECT_CHOICES:
             self._set_status(
                 f"{name!r} is not a spaCR mask class; expected one of "
-                f"{', '.join(OBJECT_CHOICES)}.", error=True)
+                f"{', '.join(object_label(role) for role in OBJECT_CHOICES)}.",
+                error=True)
             return False
         if not folder:
             self._set_status("Choose a mask folder before adding it.",
@@ -503,17 +624,48 @@ class ForeignScreen(QWidget):
                 if name in self._masks}
 
     def _refresh_mask_list(self) -> None:
+        """Rebuild the list of mask sets added so far."""
         self._mask_list.clear()
         for name, folder in self.mask_folders().items():
-            item = QListWidgetItem(f"{name}  →  {folder}")
+            item = QListWidgetItem(f"{object_label(name)}  →  {folder}")
             item.setData(Qt.UserRole, name)
             self._mask_list.addItem(item)
+        self._refill_object_box()
+
+    def _refill_object_box(self) -> None:
+        """List the classes worth offering, by name, keeping the selection.
+
+        Rebuilt as folders are added because the number of organelle slots
+        follows the organelles: one unfilled slot is on offer at a time, so
+        a user with one organelle is never asked about a second, third and
+        fourth they do not have.
+        """
+        wanted = [role for role in OBJECT_CHOICES
+                  if not role.startswith("organelle")]
+        slots = organelle_slots_offered(getattr(self, "_masks", {}))
+        wanted += [role for role in OBJECT_CHOICES
+                   if role.startswith("organelle")][:slots]
+        if [self._object_box.itemData(i)
+                for i in range(self._object_box.count())] == wanted:
+            return
+        chosen = self._object_box.currentData()
+        blocked = self._object_box.blockSignals(True)
+        self._object_box.clear()
+        for role in wanted:
+            self._object_box.addItem(object_label(role), role)
+        if chosen is not None:
+            index = self._object_box.findData(chosen)
+            if index >= 0:
+                self._object_box.setCurrentIndex(index)
+        self._object_box.blockSignals(blocked)
 
     def _add_from_fields(self) -> None:
+        """Add the image and mask currently typed as one pair."""
         self.add_mask_folder(str(self._object_box.currentData()),
                              self._mask_edit.text().strip())
 
     def _remove_selected_mask(self) -> None:
+        """Remove the selected mask set."""
         item = self._mask_list.currentItem()
         if item is None:
             self._set_status("Select a mask folder in the list to remove it.",
@@ -599,16 +751,19 @@ class ForeignScreen(QWidget):
     # -- pickers -----------------------------------------------------------
 
     def _pick_images(self) -> None:
+        """Ask for a folder of images."""
         path = QFileDialog.getExistingDirectory(self, "Choose their images")
         if path:
             self.set_images(path)
 
     def _pick_mask(self) -> None:
+        """Ask for a folder of masks."""
         path = QFileDialog.getExistingDirectory(self, "Choose a mask folder")
         if path:
             self._mask_edit.setText(path)
 
     def _pick_table(self) -> None:
+        """Ask for the measurement table to import."""
         path, _filter = QFileDialog.getOpenFileName(
             self, "Choose their measurement table", "",
             "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet *.db *.sqlite);;"
@@ -617,11 +772,18 @@ class ForeignScreen(QWidget):
             self.set_measurements(path)
 
     def _pick_destination(self) -> None:
+        """Ask where the imported project should be written."""
         path = QFileDialog.getExistingDirectory(self, "Choose destination")
         if path:
             self.set_destination(path)
 
     def _pick_save_mapping(self) -> None:
+        """Ask where to save the column mapping.
+
+        SAVED SEPARATELY because a lab's export format does not change between
+        experiments: the mapping is worked out once and reloaded, rather than
+        re-entered for every import.
+        """
         path, _filter = QFileDialog.getSaveFileName(
             self, "Save the column mapping", fgn.COLUMN_MAP_FILENAME,
             "CSV (*.csv);;All files (*)")
@@ -629,6 +791,7 @@ class ForeignScreen(QWidget):
             self.save_mapping(path)
 
     def _pick_load_mapping(self) -> None:
+        """Ask which saved column mapping to load."""
         path, _filter = QFileDialog.getOpenFileName(
             self, "Load a column mapping", "", "CSV (*.csv);;All files (*)")
         if path:
@@ -675,6 +838,7 @@ class ForeignScreen(QWidget):
         policy = self.on_conflict()
 
         def _job():
+            """Plan the foreign import. Off the GUI thread."""
             return fgn.plan_import(images, masks, table, um_per_px=scale,
                                    on_conflict=policy)
 
@@ -829,6 +993,7 @@ class ForeignScreen(QWidget):
         emit = self._progress.emit
 
         def _job():
+            """Run the foreign import. Off the GUI thread."""
             return fgn.run_import(plan, dst, progress=emit)
 
         self._progress_bar.setVisible(True)
@@ -866,6 +1031,7 @@ class ForeignScreen(QWidget):
     # -- controls ----------------------------------------------------------
 
     def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
         idle = not self._busy
         for widget in (self._btn_pick_images, self._btn_pick_mask,
                        self._btn_add_mask, self._btn_remove_mask,
@@ -997,12 +1163,116 @@ class ForeignScreen(QWidget):
         return self._busy
 
     def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed import.
+
+        :param exc: what went wrong.
+        """
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param text: the traceback.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._progress_bar.setVisible(False)
         self._set_status(f"Import failed: {line}", error=True)
+
+
+# ---------------------------------------------------------------------------
+# Folded modules
+# ---------------------------------------------------------------------------
+
+from .app_screen import ModuleHeader
+from .map_barcodes import build_registered_screen
+
+HOST_KEY = "foreign"
+
+#: The other two ways data gets into a project, folded onto this one.
+#:
+#: Specified as one module called Import, carrying the format converter, import project (use import project as the icon),
+#: external masks". This screen IS Import Project, renamed to Import and
+#: keeping its icon, so the other two arrive as buttons on its masthead
+#: rather than as a third and fourth tile saying the same thing.
+#:
+#: They are genuinely one job seen three ways -- convert a microscope
+#: format, map somebody else's columns, or adopt masks made elsewhere --
+#: and which one a user needs depends on what they were handed, which is
+#: not a decision Home can help with.
+#: Import Images joined them on 2026-09-02, first because it is the one a
+#: new user needs first: this screen adopts somebody else's MASKS AND
+#: MEASUREMENTS, and that is the second thing anyone does. Reading a folder
+#: of raw images off a microscope is the first, and the cost of getting it wrong is blunt -- "a tool that cannot read your data has
+#: no features".
+FOLDED_APPS: Tuple[str, ...] = ("import_images", "convert", "external_masks")
+
+#: ``key -> (name, sentence, maturity)`` for what the registry cannot say.
+#:
+#: ONE ENTRY, because Import Images has no registry row and never had one:
+#: not `spacr.qt.app.APPS`, not the declared catalogue. Without it the button
+#: would be headed by the key title-cased, hover no sentence at all, and
+#: light up stable-blue -- the registry answers a key it has never heard of
+#: exactly as it answers a typo, and "stable" is the answer it gives.
+#:
+#: Format Converter and External Masks are NOT here, and that is not an
+#: omission: both still hold their registry rows, and
+#: `fold_strip.folded_modules` asks the registry for a fold that has one.
+#: Copying those two sentences here would be the same text written twice,
+#: with the copy free to go stale.
+FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    "import_images": (
+        "Import Images",
+        "Read a folder of images from any microscope into a spaCR project, "
+        "working the naming out from the folder rather than from a list of "
+        "conventions",
+        "beta"),
+}
+
+
+def _build_image_import(host_window: Optional[QWidget] = None) -> QWidget:
+    """Import Images: the screen over :mod:`spacr.image_import`.
+
+    BUILT DIRECTLY rather than through :func:`build_registered_screen`,
+    because there is no registry row to build from and no settings form
+    behind it. The other two folds are registered modules with catalogue
+    entries, and asking the window for those is what keeps the fold button
+    and the command palette on one screen; this module is reached only from
+    here, so there is nothing for the two routes to disagree about.
+    """
+    from .image_import import ImageImportScreen
+
+    screen = ImageImportScreen()
+    from .map_barcodes import connect_host
+
+    connect_host(screen, host_window)
+    return screen
+
+
+def _build_convert(host_window: Optional[QWidget] = None) -> QWidget:
+    """Format Converter, as the window builds it."""
+    return build_registered_screen("convert", host_window)
+
+
+def _build_external_masks(host_window: Optional[QWidget] = None) -> QWidget:
+    """External Masks, as the window builds it."""
+    return build_registered_screen("external_masks", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "import_images": _build_image_import,
+    "convert": _build_convert,
+    "external_masks": _build_external_masks,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put Import's fold strip on ``screen``'s masthead."""
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

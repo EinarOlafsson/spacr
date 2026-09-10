@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "24_plaque",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Segmente ou reutilize máscaras de placas de lise, valide-as e resuma a formação de placas por condição.",
+      "prerequisite": "Prepare imagens de placas de lise, controles, metadados das placas e calibração de pixels.",
+      "objectives": [
+        "Escolher entre realizar a segmentação e usar máscaras existentes.",
+        "Ajustar a detecção das placas de lise a partir das prévias.",
+        "Validar e localizar as saídas do ensaio."
+      ],
+      "narrations": [
+        "Plaque Assay mede regiões de lise em imagens de placas. O console registra as configurações resolvidas, o progresso, os avisos e os caminhos de saída.",
+        "Selecione a pasta de imagens das placas de lise e decida se as imagens de origem serão segmentadas ou se máscaras de rótulos nomeadas corretamente serão reutilizadas.",
+        "Essentials reúne os controles necessários para uma primeira execução. Modified permite revisar as alterações deliberadas, enquanto All apresenta os controles avançados para diagnóstico de problemas.",
+        "Faça o modelo e a escala esperada das placas de lise corresponderem às imagens representativas, em vez de copiar um valor do tutorial.",
+        "As configurações de detecção controlam as regiões candidatas, a consistência de forma, a reamostragem e a limpeza. Ajuste-as usando vários poços de controle e de tratamento.",
+        "Use correção de fundo ou redução de ruído somente quando as prévias demonstrarem que a aquisição exige esse processamento.",
+        "Execute o ensaio depois de verificar a origem, o modelo, a escala e o comportamento da saída. Comece com um pequeno conjunto de validação quando a segmentação estiver sendo recalibrada.",
+        "Examine as sobreposições e as distribuições das placas de lise antes de comparar as condições. O banco de dados, os resumos, as estatísticas e as figuras de controle de qualidade permanecem vinculados à execução."
+      ]
+    }
+  }
+}

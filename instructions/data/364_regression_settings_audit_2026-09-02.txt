@@ -1,0 +1,176 @@
+================================================================================
+364 -- REGRESSION SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+Regression (get_perform_regression_default_settings)   88 settings
+
+The same three questions the mask and measure audit asked, in the same order,
+against the same standard of evidence: every claim below is either a quotation
+from the setting's own tooltip or a line of code that reads it.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- NOTHING IS DEAD HERE EITHER
+--------------------------------------------------------------------------------
+
+All 88 keys are named in more than one file of the package. A scan for keys
+mentioned in one file or none returned ZERO, exactly as it did for mask and
+measure's 268. "Unnecessary" is not the axis for this module either; the
+problems are REDUNDANCY and NAMING.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- `Toxoplasma` AND `annotation_source` ARE THE SAME REQUEST
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE `Toxoplasma`, keep `annotation_source`.
+
+This is not an inference. `spacr/ml.py` says it outright, in the function that
+has to reconcile them:
+
+    def _annotation_source(settings) -> str:
+        """...
+        `Toxoplasma=True` and `annotation_source='toxoplasma'` are the same
+        request and the field wins, because a user who typed a name meant it.
+        """
+
+So the form asks twice: a checkbox named after an organism, and a field whose
+default value IS that organism. A user who sets the field to 'human' and
+leaves the checkbox ticked has said two things, and the code has to have an
+opinion about which one they meant.
+
+  THE THIRD SPELLING IS ALREADY RETIRED IN PLACE: `TOXOPLASMA_KEYS` accepts
+  the legacy `toxo` as well, "so existing settings files continue to enable
+  annotation instead of silently ignoring the legacy key". That is exactly
+  the mechanism this proposal needs -- `Toxoplasma` joins `toxo` as an
+  accepted legacy spelling, `RETIRED_SETTINGS` records it the way
+  `corrected_manders` was, and no settings file in the wild changes meaning.
+
+  ONE CASE MUST SURVIVE THE RETIREMENT and the docstring names it:
+  `Toxoplasma=False` with no `annotation_source` means NO annotation. A
+  migration that dropped the key would turn that into the default, which is
+  the bundled Toxoplasma tables -- annotation appearing in the exports of a
+  user who had turned it off.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- NINE SETTINGS SAY "CONTROL" AND THEY MEAN FOUR DIFFERENT THINGS
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME, so the name says which of the four it is.
+
+    positive_control        an IDENTIFIER -- "the value in location_column
+    negative_control        (e.g. 'c1') whose objects are labelled class 0 for
+                            training; in gRNA regression a gene/gRNA ID"
+    positive_control_wells  WELLS -- "wells containing only the positive
+    negative_control_wells  control, e.g. ['c2']"
+    mixed_control_wells
+    controls                NON-TARGETING gRNA IDs, whose coefficients set the
+                            volcano effect-size cutoff
+    control_wells           SOMETHING ELSE ENTIRELY -- "these wells set the
+                            empirical negative distribution for the
+                            pre-permeabilisation stain", an invasion-assay
+                            setting sharing the word
+    batch_control_column    which COLUMN identifies controls for batch
+    batch_control_values    correction, and which values in it
+
+  THIS ONE HAS ALREADY COST THE PROJECT SUPPORT TIME. GitHub issues 91 and 92
+  are both `ValueError: no rows matched negative_control='c1' and
+  positive_control='c2'` -- a user putting WELL names into the IDENTIFIER
+  settings, which is a reasonable thing to do when the tooltip for the
+  identifier says its ML value is "e.g. 'c1'" and the setting beside it is
+  the same word plus `_wells`.
+
+  WHAT MAKES IT WORSE than a naming problem: `positive_control` means a
+  column VALUE in the machine-learning screen and a gene/gRNA IDENTIFIER in
+  gRNA regression. One key, two meanings, chosen by which family is running.
+
+  PROPOSED NAMES, and the rule behind them is that a name should say what
+  KIND of thing it holds:
+
+    positive_control      -> positive_control_id
+    negative_control      -> negative_control_id
+    controls              -> nontargeting_control_grnas
+    control_wells         -> stain_baseline_wells
+
+  `controls` is worth its own note: it is the only setting in the package
+  that needed an entry in `object_roles.EXACT_LABELS` to render as anything
+  a reader recognises ("Control gRNA/Gene"). A name that needs a special case
+  to be understandable is the definition of a name that should change.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- FOUR OUTLIER SETTINGS ARE THE PER-OBJECT TABLE AGAIN
+--------------------------------------------------------------------------------
+
+PROPOSE: MOVE INTO THE PER-OBJECT TABLE, not rename.
+
+    cell_area_outlier_mads          nucleus_area_outlier_mads
+    cell_intensity_outlier_mads     nucleus_intensity_outlier_mads
+
+Two questions -- area and intensity -- asked once per object, which is the
+exact shape `spacr/object_settings_table.py` was built for and the shape the
+maintainer approved for mask. Adding pathogen and the organelle slots in the
+flat vocabulary would be eight more settings; in the table it is two rows and
+however many columns the run has.
+
+--------------------------------------------------------------------------------
+FINDING 4 -- FIVE MINIMUMS, AND NONE OF THEM SAYS WHAT IT COUNTS
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME.
+
+    min_n                   -> min_observations_per_hit
+        "Observation count a significant hit must strictly exceed ... gRNA
+        hits need n_grna > min_n, gene hits need n_gene > min_n"
+    min_cell_count          -> min_cells_per_well
+        "Wells with fewer than this many cells are dropped"
+    guide_min_wells         -> (keep; it says it)
+    guide_primary_min_wells -> (keep; it says it)
+    target_unique_count     -> ? it is not a minimum at all and its name
+                               suggests one. Needs the maintainer.
+
+`min_n` is the worst of them: "n" is whatever the reader supplies, and the
+answer is neither cells nor wells but OBSERVATIONS OF A HIT.
+
+--------------------------------------------------------------------------------
+FINDING 5 -- SEVEN SETTINGS DECIDE "WHAT MODEL, ON WHAT SHAPE OF DATA"
+--------------------------------------------------------------------------------
+
+    inference        analysis_mode     regression_type    regression_backend
+    model_data_layout    independent_variable_layout    wide_predictor_columns
+
+NOT PROPOSED FOR CHANGE, and the reason is worth recording so the next audit
+does not re-open it: these are genuinely different questions -- parametric or
+not, one model or a permutation test, which family, which library, and two
+about the shape of the input table -- and 134's dropdown work has already made
+each one a closed alphabet with its choices spelled out. The cluster is large
+because the module is, not because it is redundant.
+
+  WORTH ASKING THE MAINTAINER: whether `model_data_layout`,
+  `independent_variable_layout` and `wide_predictor_columns` could be one
+  question with three answers. They are the only three that overlap.
+
+--------------------------------------------------------------------------------
+FINDING 6 -- ABBREVIATIONS THAT ARE NOT THE FIELD'S
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME `agg_type` -> `well_aggregation`.
+
+    "How per-object scores are collapsed to one value per well before
+    regression: 'mean', 'median', 'quantile' ... or None"
+
+`agg` is not a term of art in the way `l1_ratio`, `huber_t`, `quantile` and
+`cov_type` are -- those four are what the statistics literature and
+statsmodels call them, and renaming them would make the settings file harder
+to read for the people most likely to change them. `agg_type` is just short.
+
+  `level` is borderline and is left alone with a note: it means "report at
+  the gRNA level, the gene level, or both", and `report_level` would say so
+  -- but `level` appears in exported filenames and in the tooltips of three
+  other settings, so renaming it is a wider change than the others here.
+
+--------------------------------------------------------------------------------
+WHAT THIS AUDIT DID NOT DO
+--------------------------------------------------------------------------------
+
+Classify (114 settings) is measured -- nothing dead there either -- and not
+yet audited. Annotate and Map Barcodes are untouched. The order in the
+request is core modules first, then preferences and spaceout.

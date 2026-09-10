@@ -9,11 +9,13 @@ a directory this file builds itself with :func:`json.dump` and
 writer that agree with each other and with nothing else would pass a symmetric
 test suite perfectly.
 
-**zarr and numcodecs are not installed, and that is the point.** The whole
-module is exercised with the optional extra absent, which is the state a plain
-``pip install spacr`` leaves an environment in. The missing-dependency paths
-are called directly rather than skipped — a test that skips when the extra is
-missing tests nothing in the environment where it matters.
+**zarr and numcodecs are unavailable here, and that is the point.** The whole
+module is exercised with the optional extra hidden, which is the state a plain
+``pip install spacr`` leaves an environment in. A test fixture enforces that
+boundary even when another test dependency happens to install either package.
+The missing-dependency paths are called directly rather than skipped — a test
+that skips when the extra is missing tests nothing in the environment where it
+matters.
 
 **Laziness is counted, not asserted.** ``test_a_small_region_does_not_decode
 _every_chunk`` instruments :func:`spacr.ome_zarr._read_chunk_bytes`, the single
@@ -24,6 +26,7 @@ that gets a number.
 """
 from __future__ import annotations
 
+import builtins
 import gzip
 import json
 import zlib
@@ -39,6 +42,30 @@ from spacr.ome_zarr import (Axis, OmeZarrError, OmeZarrImage, ZarrExtraMissing,
                             read_ome_zarr, read_ome_zarr_array, require_codec,
                             require_zarr, spacing_from_axes,
                             spacr_unit_to_ngff, write_ome_zarr)
+
+
+@pytest.fixture(autouse=True)
+def _without_optional_zarr_extra(monkeypatch):
+    """Exercise the no-extra contract independently of transitive installs.
+
+    Cellpose currently installs zarr as a transitive dependency. That must not
+    turn this module's fallback-reader tests into tests of whichever zarr
+    release Cellpose selected, or make the missing-extra error paths
+    unreachable. Only imports of the two optional packages are blocked; all
+    arrays and chunk files remain real on-disk fixtures.
+    """
+    real_import = builtins.__import__
+
+    def import_without_extra(name, globals=None, locals=None, fromlist=(),
+                             level=0):
+        top_level = name.split(".", 1)[0]
+        if level == 0 and top_level in {"zarr", "numcodecs"}:
+            error = ModuleNotFoundError(f"No module named '{top_level}'")
+            error.name = top_level
+            raise error
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", import_without_extra)
 
 
 # ---------------------------------------------------------------------------
@@ -1167,6 +1194,42 @@ def test_spacr_records_its_own_version_in_the_multiscale_metadata(tmp_path):
     recorded = image.multiscale["metadata"]["version"]
     assert recorded == ome_zarr._spacr_version()
     assert recorded and recorded != "unknown"
+
+
+def test_distribution_metadata_precedes_the_checkout_version(monkeypatch):
+    """An installed artifact's own metadata remains authoritative."""
+    import spacr._version as checkout
+    import spacr.version as installed
+
+    monkeypatch.setattr(installed, "__version__", "9.8.7-installed")
+    monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
+
+    assert ome_zarr._spacr_version() == "9.8.7-installed"
+
+
+def test_checkout_version_fills_absent_distribution_metadata(monkeypatch):
+    """A source run records its synchronized literal instead of unknown."""
+    import spacr._version as checkout
+    import spacr.version as installed
+
+    monkeypatch.setattr(installed, "__version__", "unknown")
+    monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
+
+    assert ome_zarr._spacr_version() == "1.2.3-checkout"
+
+
+def test_a_missing_checkout_version_never_fails_a_write(monkeypatch):
+    """Both metadata sources may be incomplete in a damaged source tree."""
+    import sys
+    import types
+
+    installed = types.ModuleType("spacr.version")
+    installed.__version__ = "unknown"
+    broken_checkout = types.ModuleType("spacr._version")
+    monkeypatch.setitem(sys.modules, "spacr.version", installed)
+    monkeypatch.setitem(sys.modules, "spacr._version", broken_checkout)
+
+    assert ome_zarr._spacr_version() == "unknown"
 
 
 # ---------------------------------------------------------------------------

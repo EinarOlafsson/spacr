@@ -63,7 +63,7 @@ def caption_fields(catalog: dict) -> tuple[list[dict], list[str]]:
 
 
 def translate(source: dict, language: str, model_path: Path,
-              batch_size: int, threads: int) -> dict:
+              batch_size: int, threads: int, device: str = 'cpu') -> dict:
     import torch
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
@@ -72,7 +72,7 @@ def translate(source: dict, language: str, model_path: Path,
         model_path, src_lang="eng_Latn", local_files_only=True)
     model = AutoModelForSeq2SeqLM.from_pretrained(
         model_path, local_files_only=True)
-    model.eval()
+    model.to(device).eval()
     _, strings = caption_fields(source)
     translated: list[str] = []
     forced_id = tokenizer.convert_tokens_to_ids(LANGUAGES[language])
@@ -82,6 +82,7 @@ def translate(source: dict, language: str, model_path: Path,
         encoded = tokenizer(
             batch, return_tensors="pt", padding=True, truncation=True,
             max_length=320)
+        encoded = {key: value.to(device) for key, value in encoded.items()}
         with torch.inference_mode():
             generated = model.generate(
                 **encoded,

@@ -1,26 +1,14 @@
-"""The Image UMAP search: a table of recipes, each of which redraws its map.
+"""Represent Image UMAP searches as reproducible embedding recipes.
 
-Instruction 95, taking starplast's shape.
+Each search row stores the parameters and score needed to redraw its two- or
+three-dimensional embedding and continue with clustering.
 
-    "during the search a table is formed with values and scores, i can click
-     each row in this table to spawn a that rows umap (3d umap) and then i can
-     luster that umap"
+Each stored recipe includes its selected columns, random state and backend so
+the associated score remains bound to the embedding that produced it. cuML
+and umap-learn can produce different embeddings from the same data and
+hyperparameters; recording the backend therefore preserves provenance.
 
-THE ROW IS THE RECIPE, and that is the whole design. starplast's
-``EmbeddingSpec`` is one frozen record that round-trips, so a stored row can
-rebuild EXACTLY the map it scored -- not a map with the same settings, the
-same map. Anything else and clicking row 7 draws something that is not what
-row 7's score describes, which nobody would notice.
-
-WHICH BACKEND DREW IT IS PART OF THE RECIPE. cuML's UMAP is not umap-learn's:
-it is a DIFFERENT MAP of the same data, not the same map faster. A table whose
-rows came from both backends is comparing two libraries rather than the
-settings the search varied, so ``backend`` is a field and not a footnote.
-
-WHAT IS NOT HERE: Qt. This is the model the panel drives, so the search, the
-table and the recipe are testable without a display -- which is the mistake
-instruction 52 was reopened for, where the geometry was tested and the
-controls were not.
+The module is independent of Qt and can be tested without a display.
 """
 from __future__ import annotations
 
@@ -49,9 +37,23 @@ class UmapRecipe:
     """Everything needed to redraw one embedding, and nothing else.
 
     Frozen and round-tripping, so a row saved to disk today rebuilds the same
-    map tomorrow. ``columns`` is part of it: a recipe that recorded only the
-    hyperparameters would rebuild a different map the moment the column
-    selection changed, and the score beside it would then describe neither.
+    requested configuration tomorrow. ``columns`` is part of it: a recipe
+    that recorded only the hyperparameters would request a different map the
+    moment the column selection changed. The exact scored coordinates remain
+    on :class:`SearchRow`, because nondeterministic backends and dependency
+    changes can produce a different map from the same recipe.
+
+    :ivar n_neighbors: neighbourhood size balancing local detail against
+        global structure in the embedding.
+    :ivar min_dist: minimum separation between embedded points, controlling
+        how tightly local clusters may pack.
+    :ivar n_components: drawable output dimensions, clamped to two or three.
+    :ivar metric: distance function used to compare input feature vectors.
+    :ivar random_state: seed retained so the CPU embedding can be reproduced.
+    :ivar scale: standardize selected features before fitting when true.
+    :ivar columns: exact input feature columns scored by this recipe.
+    :ivar backend: implementation used to build the map, such as CPU UMAP or
+        cuML; different backends are treated as different recipes.
     """
 
     n_neighbors: int = 15
@@ -64,19 +66,27 @@ class UmapRecipe:
     backend: str = "cpu"
 
     def __post_init__(self) -> None:
+        """Normalize columns and clamp dimensions to the supported 2--3."""
         object.__setattr__(self, "columns", tuple(self.columns))
         object.__setattr__(self, "n_components",
                            max(2, min(3, int(self.n_components))))
 
     @property
     def is_3d(self) -> bool:
+        """Return whether this recipe requests a three-dimensional map."""
         return self.n_components >= 3
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return a storable field mapping with columns represented as a list."""
         return {**asdict(self), "columns": list(self.columns)}
 
     @classmethod
     def from_dict(cls, payload: Dict[str, Any]) -> "UmapRecipe":
+        """Build a recipe from known fields in a stored mapping.
+
+        :param payload: serialized recipe mapping, possibly with newer fields.
+        :returns: normalized recipe containing only fields this version knows.
+        """
         data = {k: v for k, v in dict(payload).items()
                 if k in cls.__dataclass_fields__}
         if "columns" in data:
@@ -84,7 +94,7 @@ class UmapRecipe:
         return cls(**data)
 
     def label(self) -> str:
-        """The short description a table cell shows."""
+        """Return the compact configuration label shown in a table cell."""
         return (f"n={self.n_neighbors} d={self.min_dist:g} "
                 f"{self.n_components}D {self.backend}")
 
@@ -93,10 +103,18 @@ class UmapRecipe:
 class SearchRow:
     """One trial: its recipe, its scores, and the embedding it produced.
 
-    ``embedding`` is held so clicking the row is instant and, more to the
-    point, so it is the SAME array that was scored. Recomputing on click
-    would give a map that merely matches the recipe -- and with cuML, or any
-    non-deterministic backend, would not even give that.
+    ``embedding`` retains the exact array used to calculate ``scores``.
+    Recomputing an embedding when a row is selected could produce different
+    coordinates with a non-deterministic backend.
+
+    :param recipe: complete embedding recipe evaluated by this trial.
+    :param scores: named quality measurements calculated from this embedding.
+    :param embedding: exact coordinates those scores describe, retained so
+        selecting the row never silently refits a different map.
+    :param labels: optional cluster assignment aligned with the embedded rows;
+        negative labels represent noise.
+    :param note: warning or explanatory text retained and exported with the
+        trial.
     """
 
     recipe: UmapRecipe
@@ -130,31 +148,41 @@ class SearchTable:
     """
 
     def __init__(self) -> None:
+        """Initialize an empty insertion-ordered search-result table."""
         self._rows: List[SearchRow] = []
 
     def add(self, row: SearchRow) -> SearchRow:
+        """Append and return one search result row.
+
+        :param row: search result to retain in insertion order.
+        :returns: ``row`` after appending it.
+        """
         self._rows.append(row)
         return row
 
     def __len__(self) -> int:
+        """Return the number of retained search rows."""
         return len(self._rows)
 
     def __iter__(self):
+        """Iterate over retained rows in insertion order."""
         return iter(self._rows)
 
-    def __getitem__(self, index: int) -> SearchRow:
+    def __getitem__(self, index: int | slice) -> SearchRow | List[SearchRow]:
+        """Return one row or a list slice using ordinary list semantics."""
         return self._rows[index]
 
     @property
     def rows(self) -> List[SearchRow]:
+        """Return a shallow outer-list copy in insertion order."""
         return list(self._rows)
 
     def best(self) -> Optional[SearchRow]:
         """The highest-scoring row, or None when nothing scored.
 
-        A row whose score is NaN is not "worst", it is UNSCORED, and letting
-        it compare as a number would make the best row depend on how NaN
-        happens to sort.
+        Rows with a NaN score are excluded from the comparison.
+
+        :returns: highest-scoring finite row, or ``None`` when none exists.
         """
         scored = [r for r in self._rows if not np.isnan(r.score)]
         return max(scored, key=lambda r: r.score) if scored else None
@@ -164,14 +192,17 @@ class SearchTable:
 
         More than one is worth saying out loud: a table mixing cuML and
         umap-learn rows is comparing two libraries as well as the settings.
+
+        :returns: sorted distinct backend names from retained recipes.
         """
         return tuple(sorted({r.recipe.backend for r in self._rows}))
 
     def mixed_backends(self) -> bool:
+        """Return whether retained recipes name multiple backends."""
         return len(self.backends()) > 1
 
     def to_dicts(self) -> List[Dict[str, Any]]:
-        """The table without its arrays, for saving beside a run."""
+        """Return serializable rows without embedding or label arrays."""
         return [{"recipe": r.recipe.to_dict(), "scores": dict(r.scores),
                  "clusters": r.cluster_count(), "note": r.note}
                 for r in self._rows]
@@ -185,6 +216,15 @@ class ClusterWalkRow:
     changes the partition, not the map.  Keeping that distinction explicit
     prevents a cluster button from quietly refitting UMAP and making the row
     the user selected cease to be the row they are looking at.
+
+    :param min_cluster_size: HDBSCAN minimum cluster size used for this trial.
+    :param labels: cluster label for each embedding row, with noise represented
+        by ``-1``.
+    :param silhouette: silhouette score over assigned points when defined; a
+        non-finite value makes :attr:`score` rank below every measured trial.
+    :param n_clusters: number of non-noise clusters found.
+    :param noise_fraction: fraction of embedding rows assigned to noise, used
+        to discount :attr:`score`.
     """
 
     min_cluster_size: int
@@ -195,14 +235,19 @@ class ClusterWalkRow:
 
     @property
     def score(self) -> float:
-        """Ranking score: separation, discounted by unassigned points."""
+        """Return separation discounted by the unassigned-point fraction."""
         if not np.isfinite(self.silhouette):
             return float("-inf")
         return float(self.silhouette) * (1.0 - float(self.noise_fraction))
 
 
 def _embedding_array(embedding: Any) -> np.ndarray:
-    """Validate coordinates at the clustering/viewer boundary."""
+    """Validate coordinates at the clustering/viewer boundary.
+
+    :param embedding: candidate coordinate array.
+    :returns: finite float coordinates shaped ``(rows, 2)`` or ``(rows, 3)``.
+    :raises ValueError: when the shape, row count, or values are invalid.
+    """
     values = np.asarray(embedding, dtype=float)
     if values.ndim != 2 or values.shape[1] not in (2, 3):
         raise ValueError(
@@ -226,6 +271,17 @@ def cluster_embedding(
     dependency (spaCR requires a version new enough to provide HDBSCAN). No
     DBSCAN substitution is made: changing the algorithm while keeping the
     HDBSCAN label would make the cluster count beside a map false provenance.
+
+    :param embedding: finite coordinate array shaped ``(rows, 2)`` or
+        ``(rows, 3)``.
+    :param min_cluster_size: smallest group HDBSCAN may call a cluster; at
+        least two and smaller than the embedding row count.
+    :param min_samples: optional HDBSCAN core-sample threshold; ``None`` and
+        zero leave it unset.
+    :returns: one integer label per embedding row, with noise labelled ``-1``.
+    :raises ValueError: when the coordinates or clustering thresholds cannot
+        describe a valid partition.
+    :raises RuntimeError: when HDBSCAN returns the wrong number of labels.
     """
     values = _embedding_array(embedding)
     size = int(min_cluster_size)
@@ -262,9 +318,18 @@ def walk_clusters(
 
     This is the clustering half of the Starplast-style walk.  It can run for
     every UMAP trial as that trial arrives, or later against the table row the
-    user chose.  Failed/oversized scales are skipped individually; if no scale
-    is meaningful the result is empty rather than a fabricated one-cluster
-    winner.
+    user chose. Duplicate and out-of-range candidate sizes are skipped; if no
+    size is meaningful the call is refused rather than fabricating a
+    one-cluster winner. A clustering failure propagates, while an undefined
+    silhouette is retained as ``nan`` and ranks below every measured score.
+
+    :param embedding: fixed finite 2-D or 3-D coordinates to cluster at each
+        candidate scale.
+    :param min_cluster_sizes: candidate HDBSCAN minimum cluster sizes.
+    :param min_samples: optional HDBSCAN core-sample threshold passed to every
+        candidate.
+    :returns: scored partitions ordered best-first, then by cluster size.
+    :raises ValueError: when the map or candidate sequence is invalid.
     """
     values = _embedding_array(embedding)
     candidates: List[int] = []
@@ -311,14 +376,22 @@ def walk_recipes(base: UmapRecipe, *, steps: int = 12,
                  components: Sequence[int] = ()) -> List[UmapRecipe]:
     """The recipes a walk would try, worked out before any of them runs.
 
-    Returned as a list rather than yielded one at a time so the panel can say
-    how many trials there will be BEFORE the first one starts -- a progress
-    bar whose denominator arrives at the end is not a progress bar.
+    The returned list lets the panel report the total trial count before the
+    first trial starts.
 
-    :param steps: how many to return when no explicit grid is given. The
-        default grid walks ``n_neighbors``, which is the parameter that
-        actually changes the shape of a UMAP; ``min_dist`` mostly changes how
-        tightly it packs.
+    :param base: recipe cloned for every candidate. Its values fill dimensions
+        with no explicit grid, and its neighbour count scales the default
+        neighbour walk.
+    :param steps: target sample count when no explicit grid is given. At least
+        two neighbor values are attempted, and integer rounding plus
+        deduplication may change the final count.
+    :param neighbors: explicit neighborhood-size values, or empty to derive a
+        walk from ``base`` and ``steps``.
+    :param min_dists: explicit minimum-distance values, or empty to retain the
+        base value.
+    :param components: explicit dimensionalities, or empty to retain the base
+        value.
+    :returns: distinct recipes in Cartesian-product order.
     """
     if not any((neighbors, min_dists, components)):
         low, high = 5, max(6, int(base.n_neighbors) * 4)

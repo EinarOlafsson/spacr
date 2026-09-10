@@ -58,8 +58,9 @@ from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.pca")
 
-__all__ = ["PCAScreen", "make_pca_screen", "register", "APP_KEY", "APP_NAME",
-           "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE"]
+__all__ = ["PCAScreen", "make_pca_screen", "APP_KEY", "APP_NAME",
+           "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
+           "APP_TRANSLATIONS"]
 
 #: The registry key. Chosen once and never renamed.
 APP_KEY = "pca"
@@ -76,9 +77,27 @@ class PCAScreen(QWidget):
         :class:`~spacr.qt.linked_selection.LinkedSelection` for tests. ``None``
         joins the process-wide one, which is the point of the screen in normal
         use.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
+        CALL; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
     """
 
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the PCA panel beside the filter, with a re-filter timer.
+
+        The filter sits upstream of the maths, so the screen listens for it
+        itself rather than leaving the canvas to redraw components computed on
+        rows the filter has since removed.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the panel and the filter
+            so both answer to the same selection.
+        :param threaded: run reads and the fit on a worker thread. Set ``False``
+            in tests so a load finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("PCAScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -146,7 +165,16 @@ class PCAScreen(QWidget):
         body.addWidget(self.pca)
 
         self.filters = DataFilterPanel(self, link=link)
-        self.filters.setMaximumWidth(320)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 320 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        self.filters.setMaximumWidth(scaled_px(320))
         body.addWidget(self.filters)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
@@ -168,6 +196,11 @@ class PCAScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "pca")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
@@ -194,6 +227,7 @@ class PCAScreen(QWidget):
             return self._frame
 
     def choose_table(self) -> None:
+        """Ask which table in the project to use."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a measurement table", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
@@ -276,11 +310,21 @@ class PCAScreen(QWidget):
         return self._jobs.is_busy() or self.pca.is_busy()
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
     # -- filter -----------------------------------------------------------
     def _on_filter_changed(self) -> None:
+        """Queue a re-fit after the shared filter changed.
+
+        Debounced: dragging a filter handle changes it many times, and the fit
+        is over a second on a large table.
+        """
         if self._frame is not None:
             self._refilter.start()
 
@@ -301,16 +345,29 @@ class PCAScreen(QWidget):
 
     # -- results ----------------------------------------------------------
     def _on_computed(self, result) -> None:
+        """Say what was decomposed and how much PC1 explains.
+
+        :param result: the finished decomposition.
+        """
         self._export.setEnabled(True)
         self._source.setText(
             f"{len(result):,} objects × {result.n_features} features · "
             f"PC1 {result.explained_variance_ratio[0]:.1%}")
 
     def _on_failed(self, message: str) -> None:
+        """Report a refused or failed decomposition and disable the export.
+
+        :param message: why it did not run.
+        """
         self._export.setEnabled(False)
         self._source.setText(message)
 
     def _on_rendered(self, _data) -> None:
+        """Enable the Annotate hand-off once something is brushed.
+
+        :param _data: the render payload; the selection is re-read from the
+            canvas, so it is not used.
+        """
         self._to_annotate.setEnabled(self.pca.canvas.selected_count() > 0)
 
     def export_csv(self) -> None:
@@ -377,6 +434,10 @@ class PCAScreen(QWidget):
         # reliably reach its `closeEvent`, and the panel's runner is the one
         # holding the long job — leaving it out is exactly the leak this line
         # exists to prevent.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.pca._jobs.shutdown()
         try:
@@ -389,7 +450,12 @@ class PCAScreen(QWidget):
 
 
 def make_pca_screen(app_key: Optional[str] = None) -> QWidget:
-    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    """Build the screen. The one constructor every caller goes through.
+
+    ``app_key`` is accepted and ignored: it is the shape
+    :func:`spacr.qt.app.register_app` called a factory with, and callers
+    written against that shape still work.
+    """
     return PCAScreen()
 
 
@@ -403,52 +469,34 @@ APP_INTRO = (
     "by any column, and brush a cluster to highlight those cells in every "
     "other open view. Features are standardised by default — without it PC1 "
     "is whichever column is measured in the largest numbers.")
-#: What `spacr.cli.INTERACTIVE_ONLY` wants: why this app has no headless run.
-APP_CLI_NOTE = ("Interactive multivariate exploration; "
-                "spacr.qt.widgets.pca_model.pca() is the headless equivalent.")
+#: Why there is no ``spacr-run pca``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than reached
+#: from there. It used to travel as the row's ``cli_note=``; the row is gone,
+#: and ``spacr.cli`` answers ``--list`` on clusters with no PySide6 at all, so
+#: it cannot import this module to read the sentence. A test asserts the two
+#: copies are the same string.
+APP_CLI_NOTE = ("PCA here is interactive multivariate exploration — ticking "
+                "features and brushing a cluster are the feature; run it in "
+                "the GUI (spacr-qt), where it is a button on Image UMAP. "
+                "Headless, spacr.qt.widgets.pca_model.pca() is the "
+                "equivalent.")
+
+#: The display name in the nine languages the catalogs carry, in their order:
+#: the acronym where it is the scientific convention, the term where it is
+#: not. Kept beside the name they translate now that no registration hands
+#: them to :func:`spacr.qt.i18n.add_translation`.
+APP_TRANSLATIONS = ("PCA", "PCA", "PCA", "主成分分析", "PCA", "पीसीए",
+                    "주성분 분석", "PCA", "ACP")
 
 
-def register() -> bool:
-    """Put PCA in the app registry, through the public seam. Idempotent.
-
-    Everything after ``section`` is a table this key used to need a hand-edit
-    in — the screen header and blurb, the "no headless run" sentence, the API
-    doc link and the display name in nine languages.
-    :func:`spacr.qt.app.register_app` distributes them; this function only has
-    to know them.
-
-    :returns: ``True`` if this call is what registered it. Safe to call
-        twice — a module imported from two paths must not raise on the
-        duplicate key.
-
-    **Not called at import.** ``app.py`` imports ``spacr.qt.widgets`` before
-    ``register_app`` exists, so no module reachable from the top of it can
-    register during its import, and a registration that happens later is one
-    that some importer's snapshot of ``APPS`` predates. The one place a
-    registration is visible to everybody is ``app.py``'s own
-    ``_SELF_REGISTERING_APPS`` table, at the bottom of that file. Turning this
-    screen on is therefore **one row**::
-
-        ("spacr.qt.screens.pca", "register"),
-
-    and nothing else: the strings above travel with the registration. That row
-    is not added here because ``spacr/qt/app.py`` belongs to another change in
-    flight, and because a new ``APPS`` row currently reddens the per-app
-    inventory tests for reasons this screen cannot fix.
-    """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION,
-        # Explore, not Results & QC: this is asking the measurements a
-        # question, not reporting what a finished run produced.
-        SECTION_EXPLORE,
-        factory=make_pca_screen, stage=STAGE_ALPHA,
-        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/pca",
-        # The acronym where it is the scientific convention, the term where
-        # it is not. A tile has room for one word either way.
-        translations=("PCA", "PCA", "PCA", "主成分分析", "PCA", "पीसीए",
-                      "주성분 분석", "PCA", "ACP"))
-    return True
+# NO REGISTRY ROW. PCA is reached as a button on Image UMAP's masthead --
+# :data:`spacr.qt.screens.image_umap.FOLDED_APPS` -- which builds it through
+# :func:`make_pca_screen` and then loads the measurements database the UMAP
+# screen is already reading. The three are projections of one table, so the
+# source travelling with the press is what makes them one module rather than
+# three screens that read the same file.
+#
+# The strings above are kept because they are this module's public description
+# -- the fold button's name and sentence are asserted against them, and the
+# i18n catalogs carry the translations.

@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_plate_metadata",
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "cell_types की प्रत्येक प्रविष्टि वाले वेल, प्रत्येक cell type के लिए उसी क्रम में एक आंतरिक सूची के रूप में, जैसे [['c2','c3'],['c4']]। प्रत्येक पहचानकर्ता column के लिए 'c' या row के लिए 'r' से शुरू होना चाहिए; अमान्य पहचानकर्ता बिना अपवाद के छोड़ दिए जाते हैं और उन वेल को host_cells लेबल नहीं मिलता। क्योंकि 'condition' मौजूद लेबलों को जोड़ता है, टाइपिंग त्रुटि बिना त्रुटि उठाए तुलना बदल देती है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "focal_gamma",
+      "source_sha256": "2fff273f006c1e8711f2c381c518bc97d47a87af99b465a188e99a80ecc7f434",
+      "source": "Focusing exponent in the focal-loss weight (1 - p_t)^gamma, applied only when loss_type is focal. 0 reduces it to cross-entropy; increasing it, typically within 1-5, reduces the contribution of confidently classified crops and increases the relative contribution of difficult samples. Default 2.0. Increase when class imbalance causes training to be dominated by easy examples.",
+      "translation": "focal-loss भार (1 - p_t)^gamma का focusing exponent, जो केवल loss_type के focal होने पर लागू होता है। 0 इसे cross-entropy में बदल देता है; इसे बढ़ाने पर, सामान्यतः 1-5 की सीमा में, उच्च विश्वास से वर्गीकृत image crops का योगदान घटता है और कठिन नमूनों का सापेक्ष योगदान बढ़ता है। डिफ़ॉल्ट 2.0। जब वर्ग असंतुलन के कारण प्रशिक्षण पर आसान उदाहरणों का प्रभुत्व हो, तब इसे बढ़ाएँ।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "generate_training_dataset",
+      "source_sha256": "42d4954ae0a8e50ebe4d19fab20726a1e318f3a88ea11545dcfb5d89a1a45420",
+      "source": "Rebuild the train/ and test/ PNG folders from the object crops before training, using the dataset_mode rules (annotation_column labels, metadata rules or measurement rules) and splitting off test_split of the images. Turn it off to reuse an existing split; it is only consulted when train or test is True, and a failed build aborts training. Default True.",
+      "translation": "Training से पहले object crops से train/ और test/ PNG folders फिर बनाएँ; dataset_mode rules (annotation_column labels, metadata rules या measurement rules) उपयोग करें और images का test_split अलग करें। मौजूदा split फिर उपयोग करने के लिए इसे off करें। यह केवल train या test True होने पर देखा जाता है, और build fail होने पर training रुकती है। डिफ़ॉल्ट True।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_size",
+      "source_sha256": "765cb33abbf1a7a5a509fe4d52d0f6deb0d397bba91db67c76aa129ab341bb8e",
+      "source": "Side length in pixels of the center crop taken from each object PNG before model input. Images are cropped rather than rescaled, so larger values add zero padding and smaller values discard peripheral object pixels. This value also defines the backbone input resolution and must match the crop size used to generate the dataset. Default 224.",
+      "translation": "मॉडल इनपुट से पहले प्रत्येक ऑब्जेक्ट PNG से लिए गए केंद्रीय क्रॉप की भुजा की लंबाई, पिक्सेल में। छवियों का आकार बदलने के बजाय उन्हें क्रॉप किया जाता है, इसलिए बड़े मान शून्य पैडिंग जोड़ते हैं और छोटे मान ऑब्जेक्ट के किनारे के पिक्सेल हटा देते हैं। यह मान बैकबोन का इनपुट रिज़ॉल्यूशन भी निर्धारित करता है और डेटासेट बनाते समय उपयोग किए गए क्रॉप आकार से मेल खाना चाहिए। डिफ़ॉल्ट 224।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plot_cluster_grids",
+      "source_sha256": "32a312cdd50470827a71fe1112a03f016d94c1450c3c7f87b351163582fe97bb",
+      "source": "Render a second figure with one colour-bordered panel per cluster, each containing up to image_nr example crops, and save it as <METHOD>_grid.pdf when save_figure is enabled. The cluster grid is emitted after the embedding and therefore becomes the final displayed figure. Ignored unless plot_images is True. Default False.",
+      "translation": "प्रत्येक cluster के लिए रंगीन सीमा वाला एक panel रखते हुए दूसरी figure बनाएँ; प्रत्येक panel में अधिकतम image_nr उदाहरण image crops होते हैं। save_figure सक्षम होने पर इसे <METHOD>_grid.pdf के रूप में सहेजा जाता है। cluster grid embedding के बाद बनती है, इसलिए यही अंतिम प्रदर्शित figure होती है। plot_images के True न होने पर यह सेटिंग अनदेखी की जाती है। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_size",
+      "source_sha256": "562c3e4b7cb08f5a9edb3058bf176f7a22037b8f3e7d6bb52609e62635244126",
+      "source": "Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
+      "translation": "Output extracted image region का size [width, height] pixels में, object centroid पर centred। बड़ा size अधिक surroundings रखता है, छोटा बड़े objects काटता है। यह classifier input size से मिलना चाहिए (डिफ़ॉल्ट [224,224])। कई crop_mode entries के लिए हर mode की एक size वाली list of lists दें, अन्यथा एक size सबके लिए फिर उपयोग होगी।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_type",
+      "source_sha256": "8eb5919bb877e225dc887b7b70a4a791bb8f6be0e9a7f84b36c51c61fc44a642",
+      "source": "Object crop type selected from the png_list table when building the training dataset; a row is retained only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode saved by measure_crop. Default 'cell_png'.",
+      "translation": "प्रशिक्षण डेटासेट बनाते समय png_list तालिका से चुनी जाने वाली ऑब्जेक्ट-क्रॉप किस्म; कोई पंक्ति तभी रखी जाती है जब उसके PNG पथ में यह उपस्ट्रिंग हो। पूरे सेल, नाभिक, परजीवी, साइटोप्लाज्म या कोशिकांग पर प्रशिक्षण के लिए क्रमशः 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' या 'organelle_png' का उपयोग करें। यह measure_crop द्वारा सहेजे गए crop_mode से मेल खाना चाहिए। डिफ़ॉल्ट 'cell_png'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_figure",
+      "source_sha256": "18d93f4abc7676065413c176f8c5abff7e05e029c834850294dfae65e3bf265d",
+      "source": "Write the embedding, plus the cluster grid when plot_cluster_grids is on, as vector PDFs to <src>/results/<METHOD>_embedding.pdf and <METHOD>_grid.pdf. Enable it when you want the figure for a paper or a record of the run; either way the plots are still displayed on screen. Default False.",
+      "translation": "Embedding और plot_cluster_grids on होने पर cluster grid को vector PDFs के रूप में <src>/results/<METHOD>_embedding.pdf तथा <METHOD>_grid.pdf में लिखें। Paper के लिए figure या run का record चाहिए तो enable करें; दोनों स्थितियों में plots screen पर भी दिखते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch_threshold",
+      "source_sha256": "ffd90b5571918bcc2daed4a69a95d2127fd7726a8edc45ed887d609fc15f776d",
+      "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
+      "translation": "जब z_segmentation_mode 'stitch' हो, तब एक image layer के label को नीचे वाली layer के उसी object के रूप में मानने के लिए न्यूनतम overlap, 0 और 1 के बीच intersection-over-union। इसे बढ़ाने पर layers के बीच drift या shape बदलने वाले objects कई छोटे objects में split होते हैं; घटाने पर projection में केवल overlap करने वाले neighbouring objects जुड़ते हैं। Matching एक-से-एक है, इसलिए नीचे के उसी object को overlap करने वाले दो objects में केवल बेहतर match उसका label पाता है और दूसरा नया label शुरू करता है। अन्य दो modes में ignore। डिफ़ॉल्ट 0.25।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "summarize_organelles_by",
+      "source_sha256": "cb5d1ffd9a6a5e283b05f61e85b9f40c17edf14e2ca16b8ac2a4918c560b2335",
+      "source": "Parent compartments to roll every enabled organelle slot into. Accepts 'cell', 'nucleus', 'pathogen' and 'cytoplasm'; each writes one <parent>_organelle_summary row per parent with a separate organelle_summary_<slot>_* column family. Raw per-organelle tables are always written when their mask dim is enabled. Default 'cell'; None disables only these rollups.",
+      "translation": "वे parent compartments जिनमें हर enabled organelle slot का rollup करना है। 'cell', 'nucleus', 'pathogen' और 'cytoplasm' स्वीकार होते हैं; हर एक parent के लिए एक <parent>_organelle_summary row और अलग organelle_summary_<slot>_* column family लिखता है। Mask dim enabled होने पर raw per-organelle tables हमेशा लिखी जाती हैं। डिफ़ॉल्ट 'cell'; None केवल इन rollups को बंद करता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "train_channels",
+      "source_sha256": "6b4dd190ee09cb6657c690c02f589ed3b730eaf47241ead5a8390b28a5e0c8d0",
+      "source": "Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
+      "translation": "Classifier हर object extracted image region के कौन-से colour planes देखता है; 'r', 'g' और 'b' में से चुनें। कम channels से input tensor छोटा होता है और model हटाए stain को उपयोग नहीं कर सकता, इसलिए channel केवल तभी हटाएँ जब उसमें phenotype के लिए signal न हो। जुड़े letters saved model के filename का भाग भी बनते हैं। डिफ़ॉल्ट ['r', 'g', 'b']।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_projection",
+      "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
+      "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
+      "translation": "z_segmentation_mode के 'project' होने पर z को समेटने की विधि। 'max' stack में सबसे चमकीला मान रखता है और विरल fluorescent objects के लिए उपयुक्त है; 'mean' शोर घटाता है, लेकिन कुछ ही planes में मौजूद संकेत को कम करता है; 'sum' कुल संकेत बनाए रखता है; और 'best_focus' केवल सबसे स्पष्ट plane रखता है, जो तब उपयुक्त है जब एक plane focus में हो और maximum-intensity projection में पर्याप्त out-of-focus संकेत शामिल हो जाए। अन्य modes में यह सेटिंग अनदेखी की जाती है। डिफ़ॉल्ट 'max'।"
+    }
+  ]
+}

@@ -64,42 +64,57 @@ from ..theme import (SPACING, block_surface, mark_surface,
                      register_widget_qss)
 from .app_screen import ModuleHeader
 
-__all__ = ["APP_KEY", "HitListScreen", "make_hit_list_screen", "register"]
+__all__ = ["APP_KEY", "HitListScreen", "connect_investigation",
+           "make_hit_list_screen"]
 
-#: The app key this screen is registered under. Load-bearing: saved user
-#: state, the command palette and the sidebar all key off it.
+#: The key this module answers to. Load-bearing even with no registry row:
+#: the fold button on Regression's masthead, the drop handler in
+#: :mod:`spacr.qt.dnd_handlers` and the job runner's own bookkeeping all key
+#: off it.
 APP_KEY = "hit_list"
 
-#: Sidebar / tile name.
+#: The module's display name — the first line of the fold button's tooltip
+#: and the title of the window it opens in.
 APP_NAME = "Hit List"
 
-#: One-line summary; the tooltip and status tip.
+#: One-line summary. The second line of the fold button's tooltip, kept in
+#: step with the copy in :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`
+#: that the button actually reads.
 APP_DESCRIPTION = (
     "Ranked, annotated, filterable hits with effect size, FDR and gRNA "
     "agreement")
 
-#: The paragraph under this app's header, handed to the seam as ``intro``.
+#: What the module does, in a paragraph. This screen draws its own
+#: :class:`~spacr.qt.screens.app_screen.ModuleHeader`, so nothing reads this
+#: to build a page; it is the module's own description, and the text a
+#: caller that needs to explain the Hits tab can quote.
 APP_INTRO = (
-    "The deliverable at the end of a screen: one row per gene, ranked, with "
-    "the effect size and its 95% interval, a Benjamini-Hochberg q-value over "
-    "the genes actually tested, how many of the gene's own guides agree in "
-    "sign, and the curated annotation joined on. Filter by FDR, effect, guide "
-    "agreement, direction or free text, then export the exact list you are "
-    "looking at as CSV, Markdown or a self-contained HTML page you can send "
-    "to a collaborator.")
+    "Review one ranked row per gene with its effect estimate, 95% interval "
+    "when available, guide sign agreement, and joined annotations. Backends "
+    "that report p-values receive Benjamini–Hochberg q-values across the genes "
+    "tested; penalised backends rank by bootstrap selection frequency. Filter "
+    "by FDR, effect, guide agreement, direction, or free text, then export the "
+    "displayed rows as CSV, Markdown, or self-contained HTML.")
 
-#: Why there is no ``spacr-run hit_list``; reaches
-#: ``spacr.cli.INTERACTIVE_ONLY``, which prints it instead of "unknown
-#: module".
+#: Why there is no ``spacr-run hit_list``.
+#:
+#: WRITTEN OUT AGAIN in :data:`spacr.cli.INTERACTIVE_ONLY` rather than
+#: reached from there. It used to travel as the registry row's ``cli_note=``;
+#: with no row left, and with ``spacr.cli`` answering ``--list`` on clusters
+#: that have no PySide6 at all, the sentence cannot be imported from here. A
+#: test asserts the two copies are the same string.
 APP_CLI_NOTE = (
-    "Hit List is the interactive view of a regression's ranked hits; "
-    "headless, call spacr.hits.build_hit_list(results_folder, "
-    "metadata_files=[...]) and then .filter(...).write_csv(path) for exactly "
-    "the same table.")
+    "Use Hit List for interactive review and export. In a headless workflow, "
+    "call spacr.hits.build_hit_list(results_folder, metadata_files=[...]), "
+    "then use .filter(...).write_csv(path) to produce the same filtered table.")
 
 #: "Hit List" in the nine non-English UI languages, in
 #: :data:`spacr.qt.i18n.LANGUAGES` order after English — sv, de, es, zh_CN,
 #: pt, hi, ko, is, fr.
+#:
+#: Kept beside the name they translate now that no registration hands them
+#: to :func:`spacr.qt.i18n.add_translation`; the shipped catalogs carry the
+#: same nine strings, and a test compares them.
 APP_TRANSLATIONS = (
     "Träfflista",
     "Trefferliste",
@@ -112,6 +127,7 @@ APP_TRANSLATIONS = (
     "Liste des résultats",
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, tree_item
 
 #: The table's columns, so the drawing code and the tests cannot disagree.
 COLUMNS = ("#", "Gene", "Name", "Effect", "95% CI", "p", "q", "Guides",
@@ -168,10 +184,23 @@ class HitListScreen(QWidget):
     hits_loaded = Signal(object)
     #: Emitted with the filtered list every time the filters change.
     hits_filtered = Signal(object)
+    #: Exact selected hit handed to MainWindow for the explanation workbench.
+    investigate_requested = Signal(dict)
 
     def __init__(self, parent=None, folder: str = "",
                  metadata_files: Sequence[str] = (),
                  regression_type: str = "", threaded: bool = True):
+        """Build the hit-list screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param folder: regression results folder to load immediately; empty
+            leaves the screen asking for one.
+        :param metadata_files: extra metadata tables to join onto the hits.
+        :param regression_type: which fit produced the results, when the caller
+            already knows.
+        :param threaded: read on a worker thread. Set ``False`` in tests so
+            ``load_folder`` finishes before it returns.
+        """
         super().__init__(parent)
         self._all: Optional[HitList] = None
         self._shown: Optional[HitList] = None
@@ -192,6 +221,11 @@ class HitListScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "hit_list")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction -----------------------------------------------------
 
@@ -318,6 +352,10 @@ class HitListScreen(QWidget):
         self._summary.setWordWrap(True)
         strip.addWidget(self._summary, 1)
         for label, tip, slot in (
+                ("Investigate selected…",
+                 "Resolve the selected hit back to candidate single cells "
+                 "with held-out wells and guide-fraction evidence.",
+                 "_on_investigate_selected"),
                 ("Export CSV…", "The exact table above, as CSV.",
                  "_on_export_csv"),
                 ("Export Markdown…",
@@ -338,7 +376,9 @@ class HitListScreen(QWidget):
         self._table.setHeaderLabels(list(COLUMNS))
         self._table.setRootIsDecorated(False)
         self._table.setAlternatingRowColors(True)
-        self._table.setSortingEnabled(False)
+        # The list arrives ranked, and a third click on a header brings that
+        # ranking back -- so sorting costs the default order nothing.
+        install_sorting(self._table)
         header = self._table.header()
         header.setStretchLastSection(True)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
@@ -394,7 +434,11 @@ class HitListScreen(QWidget):
     def _on_hits_ready(self, hit_list: Optional[HitList]) -> None:
         """Take a freshly built list. Runs on the GUI thread."""
         self._all = hit_list
-        if hit_list is None:                          # pragma: no cover
+        if hit_list is None:
+            # THE WORKER FAILED. This runs on the GUI thread from a
+            # finished signal, so an AttributeError here surfaces as an
+            # unhandled exception in the Qt event loop and leaves the
+            # screen showing the last list it had.
             self._set_summary("The hit list could not be built.", problem=True)
             return
         self.hits_loaded.emit(hit_list)
@@ -466,7 +510,7 @@ class HitListScreen(QWidget):
                         else f"{hit.ci_low:.3g} … {hit.ci_high:.3g}")
             agreement = ("—" if math.isnan(hit.agreement)
                          else f"{hit.agreement:.0%}")
-            item = QTreeWidgetItem([
+            item = tree_item([
                 str(hit.rank), hit.gene, hit.name, _number(hit.effect),
                 interval, _number(hit.p_value), _number(hit.q_value),
                 f"{hit.n_agree}/{hit.n_guides}", agreement,
@@ -521,15 +565,47 @@ class HitListScreen(QWidget):
         if path:
             self.export(path, fmt)
 
-    def _on_export_csv(self) -> None:                # pragma: no cover - modal
+    # MODAL IS A REASON NOT TO OPEN ONE IN A TEST, not a reason to leave
+    # these untested: everything that matters happens after the dialog
+    # returns. Driven by stubbing the Qt static, in
+    # tests/qt/test_the_modal_slots_do_what_the_dialog_returns.py.
+    def _on_export_csv(self) -> None:
+        """Ask where to write the hit list and export it as CSV."""
         self._ask_and_export("csv", "Export hit list", "CSV (*.csv)")
 
-    def _on_export_markdown(self) -> None:           # pragma: no cover - modal
+    def _on_export_markdown(self) -> None:
+        """Ask where to write the hit list and export it as Markdown."""
         self._ask_and_export("markdown", "Export hit list",
                              "Markdown (*.md)")
 
-    def _on_export_html(self) -> None:               # pragma: no cover - modal
+    def _on_export_html(self) -> None:
+        """Ask where to write the hit list and export it as HTML."""
         self._ask_and_export("html", "Export hit list", "HTML (*.html)")
+
+    def _on_investigate_selected(self) -> None:
+        """Send one exact provenance-bearing result row to its workbench."""
+        item = self._table.currentItem()
+        if item is None or self._shown is None:
+            self._set_summary("Select one hit to investigate.", problem=True)
+            return
+        gene = str(item.data(0, Qt.UserRole) or "")
+        hit = self._shown.gene(gene)
+        if hit is None:
+            self._set_summary(
+                f"The selected gene {gene!r} is no longer in the filtered list.",
+                problem=True)
+            return
+        self.investigate_requested.emit({
+            "folder": self._shown.source,
+            "gene": hit.gene,
+            "effect": hit.effect,
+            "guides": hit.agreeing_guides,
+            "guide_agreement": hit.agreement,
+            "n_guides": hit.n_guides,
+            "well_support": hit.n_obs,
+            "fdr": hit.q_value,
+            "phenotype": "",
+        })
 
     # -- slots ------------------------------------------------------------
 
@@ -537,14 +613,14 @@ class HitListScreen(QWidget):
         """Load whatever was typed into the folder box."""
         self.load_folder(self._folder_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a results folder and load it."""
         chosen = QFileDialog.getExistingDirectory(
             self, "Choose a regression results folder")
         if chosen:
             self.load_folder(chosen)
 
-    def _on_pick_metadata(self) -> None:             # pragma: no cover - modal
+    def _on_pick_metadata(self) -> None:
         """Ask for annotation CSVs and rebuild with them."""
         paths, _ = QFileDialog.getOpenFileNames(
             self, "Choose gene metadata CSVs", "", "CSV (*.csv)")
@@ -596,32 +672,53 @@ def _number(value: Any) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Registration
+# Construction
 # ---------------------------------------------------------------------------
 
-def make_hit_list_screen(app_key: Optional[str] = None) -> QWidget:
-    """Factory the registry calls to build this screen."""
-    return HitListScreen()
+def connect_investigation(screen, host) -> bool:
+    """Connect a hit list's investigation request to its host workbench.
 
+    Repeated calls do not create duplicate signal connections.
 
-def register() -> bool:
-    """Add Hit List to the app registry. Idempotent.
-
-    :returns: True when this call added the row, False when it was already
-        there — which is what a second import, or a plugin that pulls the
-        module in again, must not treat as an error.
+    :param screen: :class:`HitListScreen` instance, or ``None``.
+    :param host: Object providing ``_on_investigate_hit_requested``, or
+        ``None``.
+    :returns: ``True`` if a new connection was made.
     """
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-
-    if any(row[0] == APP_KEY for row in APPS):
+    handler = getattr(host, "_on_investigate_hit_requested", None)
+    if screen is None or not callable(handler):
         return False
-    register_app(
-        APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=make_hit_list_screen, stage=STAGE_ALPHA,
-        title="Hit List", intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-        api_module="qt/screens/hit_list",
-        translations=APP_TRANSLATIONS)
+    if getattr(screen, "_investigation_connected", False):
+        return False
+    screen.investigate_requested.connect(handler)
+    screen._investigation_connected = True
     return True
 
 
-register()
+def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
+    """Build the screen bare and wire its one outgoing signal.
+
+    The constructor for a caller with no run to point it at; Regression
+    builds its own, seeded, and calls :func:`connect_investigation` itself.
+    """
+    screen = HitListScreen()
+    connect_investigation(screen, host)
+    return screen
+
+
+# NO REGISTRY ROW. The hit list is not a tile: it arrives as the **Hits
+# tab** on Regression's results panel, loaded with the run whose
+# coefficients are on screen, and as a button on that masthead which raises
+# the tab -- :data:`spacr.qt.screens.regression.FOLDED_APPS` and
+# :class:`spacr.qt.screens.regression.HitsOpener`. A tile would have been a
+# second front door onto the same table, opening it empty and asking the
+# user to find the results folder the host already knows.
+#
+# Everything the row used to fan out has a home that outlives it: the
+# button's name, sentence and alpha maturity colour in
+# :data:`spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, the API link in
+# ``settings_model._APP_API_MODULE``, the headless answer in
+# :data:`spacr.cli.INTERACTIVE_ONLY`, and the nine translated names in the
+# shipped i18n catalogs. The strings above stay because they are this
+# module's own description, and because those homes are asserted against
+# them.

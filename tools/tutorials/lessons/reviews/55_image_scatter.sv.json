@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Image Scatter: verkliga mätningar och bildutsnittet bakom varje punkt",
+  "description": "Utforska undermodulen Image Scatter i Image UMAP med nedladdade cellmätningar, kontrollerade förhandsvisningar vid pekning och överföring av exakt en cell till Annotate.",
+  "objectives": [
+    "Hitta Image Scatter i Image UMAP och läs in rätt celltabell.",
+    "Granska par av råmätningar och förstå saknade eller konstanta koordinater.",
+    "Koppla en plottad cell till dess verkliga bildutsnitt utan att ändra etiketter eller källdata."
+  ],
+  "prerequisite": "Återanvänd det nedladdningsbara Annotate-exemplet, inklusive mätdatabasen, cellutsnitten och markörerna för utsnittens bildformat. Lektionen använder en privat, byteidentisk kopia av 2 341 celler och samtliga 2 341 ursprungliga PNG-filer. Oberoende SQLite-kontroller omfattar varje källvärde, cellidentiteten med fullständig fältinformation och utsnittssökvägen; även visade koordinater och miniatyrbildernas RGB-pixlar kontrolleras. Endast kopplingar till cellutsnitt är kontrollerade, inte kopplingar till kärn- eller patogenutsnitt. En ovanlig punkt är inget bevis för fenotyp, infektion, behandling eller korrekt segmentering. Ingen UMAP-anpassning, träning, GPU-beräkning, filexport eller ändring av källetiketter utförs. Image Scatter har ingen egen nedladdare, väljare för bildkolumn, färg- eller grupperingskontroller, axeltransformering, exportkontroll eller AI-konsol. Plot läser in den valda tabellen; axelval ritar om den. Inläsningen begränsas till 200 000 rader, vilket varken är ett slumpmässigt urval eller bevis för att större tabeller inte förlorar information. Lektionen fastställer inte hur delad filtrering fungerar. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame och ScatterCanvas.point_position.",
+  "scenes": [
+    "Öppna Image UMAP från Home och välj sedan Image Scatter. Den här inbäddade vyn plottar två befintliga mätningar; den anpassar ingen UMAP-inbäddning. Vi återanvänder det verkliga, nedladdningsbara Annotate-exemplet och behåller mätdatabasen och cellutsnitten tillsammans. Annotate-lektionen visar var du hämtar det.",
+    "Välj Browse och öppna den kopierade mätdatabasen. Behåll data-mappen och utsnittens formatmarkörer när du flyttar ett projekt, eftersom en tabell ensam inte innehåller bilderna. Exemplet som visas använder privata kopior; de ursprungliga mätningarna och bildpixlarna förblir oförändrade.",
+    "Välj cell i tabellväljaren och sedan Plot. Plot läser den här tabellen; det är inget segmenterings- eller träningsjobb. Vårt exempel har 2 341 celler med motsvarande cellutsnitt. Om du väljer en annan tabell måste du trycka Plot igen; att bara ändra väljaren läser inte in dess rader.",
+    "Ställ x på cell_area och y på cell_channel_1_mean_intensity. Axeländringar ritar om de inlästa raderna direkt. Det här är råmätningar, inte transformerade inbäddningskoordinater. Punkterna beskriver enskilda celler, inte oberoende försöksreplikat, och ett mönster i bilden är inget statistiskt test.",
+    "Håll pekaren över cellen längst till höger. Dess utsnitt visas bredvid punktdiagrammet tillsammans med den fullständiga identiteten för platta, rad, kolumn, bildfält och cell. Miniatyrbilden är ett sparat utsnitt, inte hela mikroskopfältet eller en ny segmentering. Ett ovanligt utseende fastställer inte i sig en fenotyp.",
+    "Flytta pekaren bort från ritytan: den tillfälliga förhandsvisningen töms. Återvänd till samma punkt, så visas det cachade utsnittet igen utan en ny avkodning. Pekning ger tillfällig bildgranskning, inte en annotering eller ett bestående urval. Inga etiketter i källan ändras.",
+    "Byt plats på de två mätningarna på x- och y-axeln. Samma cell behåller sin identitet och sitt utsnitt även om dess position på skärmen ändras. Välj meningsfulla axlar i stället för att automatiskt acceptera de första numeriska kolumnerna; väljarna erbjuder även numeriska identifierare och metadata från bildinsamlingen.",
+    "Återställ x till cell_area och välj cell_channel_0_homogeneity_distance_32 på y. Sju celler saknar den mätningen, så bara 2 334 koordinatpar kan ritas. Antalet inlästa rader visar fortfarande 2 341. Saknade värden är inte nollor, och dolda koordinater numrerar inte om objektidentiteter.",
+    "Välj measurement_ndim på y. Varje rad har värdet två, så punkterna ligger på en vågrät linje. Det här är en konstant metadatakolumn, inte biologisk samstämmighet. Återställ cell_channel_1_mean_intensity innan du granskar en annan cell.",
+    "För att granska ett klickat utsnitt i Annotate öppnar du först Annotate och läser in samma kopierade projekt. Återvänd via Home, Image UMAP och dess befintliga Image Scatter-flik. Annoteringssidan måste känna till rätt projekt; ett diagram och ett öppet, orelaterat dataset är ingen giltig överföring.",
+    "Klicka på själva punkten och växla sedan till Annotate. Att bara hålla pekaren över bilden ger en förhandsvisning. Klicket skickar den exakta cellnyckeln tillsammans med de två axelnamnen till annoteringsvyn. Det växlar inte sida automatiskt, tilldelar ingen etikett och bevisar inte att objektet är en avvikare.",
+    "Annotate visar nu exakt den klickade cellen med samma sparade utsnitt. Granska bilden innan du bestämmer dig för att annotera den; den här demonstrationen lämnar alla etiketter oförändrade. Image Scatter har ingen särskild export av diagram eller urval. Använd Database Browser för tabellexport, eller PCA-lektionen för komponentanalys och dess dokumenterade CSV-resultat."
+  ]
+}

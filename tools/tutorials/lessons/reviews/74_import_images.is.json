@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "is",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial caption translation checked against English and recorded operations", "native_speaker_signoff": false, "corrections": ["Keep original-name rejection distinct from prepared copies and preserve image identity.", "Retain sampling, symbolic-link, tile and saved-plan limitations."]},
+  "title": "Import Images: skoðaðu áætlunina áður en þú flytur inn",
+  "description": "Opnaðu Import Images innan Import, skoðaðu lítið úrval raunverulegra smásjármynda áður en skrár eru skrifaðar og vistaðu endurnýtanlega áætlun. Dæmið greinir á milli upprunalegra nafna sem ekki eru studd og undirbúinna afrita.",
+  "objectives": ["Finna Import Images innan Import og greina það frá innflutningi fyrirliggjandi mælinga og gríma.", "Athuga auðkenni mynda og óleysta hluta skráarheita áður en verkefnið er skrifað.", "Velja afrit eða tengla, vista og endurhlaða áætlun og sannreyna innflutninginn."],
+  "prerequisite": "Sæktu fyrst raunverulega Mask-dæmið. Upptakan notar afrit af myndsviðunum E01/F001 og L01/F009, með fjórum C-rásum á hvoru sviði. Í undirbúnu afritunum er aðeins A-hlutanum beint á undan Z sleppt; frumritin breytast ekki. Þetta er sérstaklega yfirfarið dæmi, ekki almenn ráðlegging um að eyða óþekktum lýsigögnum.",
+  "scenes": [
+    "Opnaðu Import í Data-flokknum á Home og veldu Import Images. Þetta undirverkfæri undirbýr hráar myndskrár. Import Project, Format Converter og External Masks eru tengd verkferli með eigin kennsluefni.",
+    "Myndirnar átta eru raunveruleg smásjárgögn úr Mask-dæminu sem hægt er að sækja: eitt myndsvið úr hvorum tveggja brunna, með fjórum rásum á sviði. Við vinnum með sérstök afrit og látum sóttu frumritin vera óbreytt.",
+    "Scan finnur óleystan myndtökuhluta í upprunalegu heitunum. Import er áfram óvirkt og ekkert er skrifað. Ekki giska á rásavörpun: Tvær ólíkar rásir deila þessu myndtökugildi og slík vörpun myndi rugla auðkennum þeirra.",
+    "Í þessu yfirfarna dæmi sleppa undirbúnu afritin aðeins óþarfa myndtökuhlutanum. Heiti brunns, myndsviðs og rásar haldast óbreytt. Scan sýnir nú átta línur, tvo brunna, tvö myndsviðsnúmer og fjórar rásir. Það þýðir ekki að upprunalega nafngiftin hafi verið samþykkt.",
+    "Berðu tillöguna saman við skráarheitin áður en þú flytur inn. Read inside each file kannar innbyggð ásalýsigögn auk heitanna. Sample takmarkar fjölda skoðaðra skráa; gakktu úr skugga um að tillagan nái yfir myndirnar sem þú ætlar að flytja inn. Svaraðu spurningum út frá myndtökuskráningum, ekki ágiskunum.",
+    "Veldu áfangastað utan inntaksmöppunnar og stilltu heiti plötunnar. Við slökkvum á Link instead of copy til að búa til sjálfstætt verkefni. Tenglar spara diskpláss, en frumritin þurfa áfram að vera aðgengileg á núverandi stöðum.",
+    "Þessar dæmismyndir eru ekki hlutar af myndflísamósaík. Lestu Tiles vandlega við slíka myndtöku: Samsetning endurbyggir myndsvið, að halda flísum aðskildum breytir því hvað myndsvið merkir og að sleppa þeim tapar þessum myndum. Athugaðu skýrsluna og óstaðfest samskeyti áður en þú mælir.",
+    "Save plan skrifar uppruna og vörpunarsvör þín í JSON-skrá, ekki öryggisafrit af myndunum. Geymdu hana með myndtökunótunum. Sama áætlun má lesa í gegnum Python-forritaskilin fyrir myndainnflutning.",
+    "Load plan les upprunamöppuna aftur og endurnýtir vistuðu svörin. Skoðaðu nýju tillöguna áður en þú flytur inn; vistuð áætlun tryggir ekki að breytt myndtaka sé rétt túlkuð. Hér endurheimtir hún sömu átta yfirförnu myndauðkennin.",
+    "Ýttu á Import og lestu samantektina. Þessi keyrsla skrifaði átta sjálfstæð myndafrit án þess að sleppa skrám; innihaldið samsvarar upprunanum. Veldu síðan verkefnið í Mask og skoðaðu lifandi forskoðun áður en myndirnar eru hlutaðar. Innflutningur einn og sér býr hvorki til grímur né mælingar."
+  ]
+}

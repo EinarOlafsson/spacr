@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "50_run_compare",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Coloque duas execuções lado a lado para compreender alterações nas configurações, contagens, saídas e resultados positivos.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Run Compare.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Run Compare. Coloque duas execuções lado a lado para compreender alterações nas configurações, contagens, saídas e resultados positivos.",
+        "Selecione dois registros de execução compatíveis.",
+        "Na área principal de configuração, selecione quais configurações, artefatos, contagens e tabelas de resultados devem ser comparados.",
+        "Calcule a comparação e examine as diferenças relevantes antes de concluir que uma execução melhorou a análise.",
+        "Ao término do fluxo de trabalho, o relatório da comparação vincula cada diferença às duas execuções de origem."
+      ]
+    }
+  }
+}

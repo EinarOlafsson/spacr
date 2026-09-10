@@ -21,6 +21,7 @@ there, and no amount of exercising the happy path can assert an absence.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -161,6 +162,55 @@ def test_nothing_cached_is_reported_as_nothing_cached(monkeypatch):
     result = rc.clear_ram()
     assert result.details == ()
     assert "nothing was cached" in result.summary().lower()
+
+
+def test_headless_ram_cleanup_still_collects_python_garbage(monkeypatch):
+    calls = []
+    monkeypatch.setattr(rc, "_qt_application_is_running", lambda: False)
+    monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
+    monkeypatch.setattr(
+        rc.gc, "collect", lambda: calls.append("collect") or 3)
+    monkeypatch.setattr(rc, "process_rss", lambda: 1024)
+
+    result = rc.clear_ram()
+
+    assert calls == ["collect"]
+    assert "3 unreachable objects collected" in result.details
+    assert "skipped" not in result.note.lower()
+
+
+def test_gui_ram_cleanup_never_collects_live_qt_wrappers(monkeypatch):
+    monkeypatch.setattr(rc, "_qt_application_is_running", lambda: True)
+    monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
+    monkeypatch.setattr(
+        rc.gc, "collect",
+        lambda: pytest.fail("gc.collect reached a live Qt heap"))
+    monkeypatch.setattr(rc, "process_rss", lambda: 1024)
+
+    result = rc.clear_ram()
+
+    assert result.details == ()
+    assert "garbage collection was skipped" in result.note
+
+
+def test_only_a_real_qapplication_counts_as_a_live_gui(qapp, monkeypatch):
+    """A headless QCoreApplication must keep the ordinary GC path."""
+    class _CoreApplication:
+        pass
+
+    core = _CoreApplication()
+
+    class _Application:
+        @staticmethod
+        def instance():
+            return core
+
+    class _Widgets:
+        QApplication = _Application
+
+    assert rc._qt_application_is_running() is True
+    monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", _Widgets)
+    assert rc._qt_application_is_running() is False
 
 
 def test_the_vram_cleanup_says_what_it_cannot_do(monkeypatch):
@@ -325,7 +375,10 @@ def test_every_confirmation_names_what_will_happen(action):
 
 
 def test_the_confirmations_name_the_specific_mechanism():
-    assert "garbage collection" in rc.confirmation_text("ram")
+    ram = rc.confirmation_text("ram").lower()
+    assert "garbage collection" in ram
+    assert "will not force" in ram
+    assert "without forcing" in rc.summary_text("ram").lower()
     assert "empty_cache" in rc.confirmation_text("vram")
     assert "torch" in rc.confirmation_text("cpu")
     assert "read" in rc.confirmation_text("disk")
@@ -363,14 +416,49 @@ def test_the_disk_confirmation_promises_it_writes_nothing():
 ])
 def test_preferences_offers_each_button(action, object_name, qtbot,
                                         qt_theme_applied):
+    """The button exists, and says what it will do at the foot of the window.
+
+    The confirmation text used to be the button's own tooltip. A tooltip
+    appears over the button -- where the pointer already is and where the
+    user is about to click -- so it covered the thing it described. It now
+    goes to the hint bar, the way a module tile's description does on the
+    Home screen: hovering writes it into a line across the bottom.
+    """
     from PySide6.QtWidgets import QPushButton
     from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
 
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
     button = dlg.findChild(QPushButton, object_name)
     assert button is not None, f"no button for {action}"
-    assert button.toolTip() == rc.confirmation_text(action)
+    bar = dlg.findChild(HintBar)
+    assert bar is not None, "the dialog has nowhere to say what a button does"
+    assert bar.explains(button) == rc.summary_text(action)
+    # And nothing is said twice: the popup that used to carry it is gone.
+    assert button.toolTip() == ""
+
+
+@pytest.mark.parametrize("action,object_name", [("ram", "ClearRamButton")])
+def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
+                                                           qtbot,
+                                                           qt_theme_applied):
+    """Registering is not enough -- the hover has to reach the bar."""
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication, QPushButton
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.hint_bar import HintBar
+
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    button = dlg.findChild(QPushButton, object_name)
+    bar = dlg.findChild(HintBar)
+    resting = bar.text()
+
+    QApplication.sendEvent(button, QEvent(QEvent.Enter))
+    assert bar.text() == rc.summary_text(action)
+    QApplication.sendEvent(button, QEvent(QEvent.Leave))
+    assert bar.text() == resting, "the bar must go back to resting"
 
 
 @pytest.mark.parametrize("action", rc.ACTIONS)
@@ -392,8 +480,16 @@ def test_declining_the_confirmation_does_absolutely_nothing(action,
 
 
 @pytest.mark.parametrize("action", rc.ACTIONS)
-def test_accepting_runs_exactly_that_action_and_reports_it(action,
+def test_accepting_runs_exactly_that_action_and_reports_it(action, qtbot,
                                                            monkeypatch):
+    """Each button runs its own action and reports it — and only its own.
+
+    "disk" is the one that arrives rather than returns: it stats folders the
+    user chose, so since 2026-09-04 it runs on a worker and its result comes
+    back through the callback (see
+    `tests/qt/test_the_disk_report_never_blocks_the_dialog.py`). What it
+    reports is unchanged, which is what the wait here is for.
+    """
     from spacr.qt import preferences as prefs
 
     ran = []
@@ -409,6 +505,8 @@ def test_accepting_runs_exactly_that_action_and_reports_it(action,
     prefs.run_resource_action(action)
     expected = {"ram": "clear_ram", "vram": "clear_vram", "cpu": "clear_cpu",
                 "disk": "disk_report"}[action]
+    if action == "disk":
+        qtbot.waitUntil(lambda: shown == [action], timeout=5000)
     assert ran == [expected]
     assert shown == [action]
 

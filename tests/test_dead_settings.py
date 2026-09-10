@@ -306,6 +306,9 @@ def test_the_retired_keys_are_gone_from_every_declaration_site():
         for group in S.categories.values():
             if key in group:
                 back.append(f"{key} (in a category)")
+        for dependency, keys in S.category_group_dependencies.items():
+            if key in keys:
+                back.append(f"{key} (in group dependency {dependency!r})")
     assert not back, f"retired settings are declared again: {sorted(set(back))}"
 
 

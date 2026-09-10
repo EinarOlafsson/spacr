@@ -148,6 +148,7 @@ def _register(label: str) -> Callable[[Callable], Callable]:
     """Add a check to :data:`CHECKS` and give it the label the report shows."""
 
     def decorate(function: Callable) -> Callable:
+        """Label and register ``function``, then return it unchanged."""
         function.check_label = label  # type: ignore[attr-defined]
         CHECKS.append(function)
         return function
@@ -476,6 +477,7 @@ def _importable_spacr_dirs() -> List[Path]:
     found: List[Path] = []
 
     def add(path: Path) -> None:
+        """Resolve and append ``path`` once, ignoring unresolvable paths."""
         try:
             resolved = Path(path).resolve()
         except OSError:
@@ -1066,6 +1068,11 @@ CORE_MODULES: Tuple[Tuple[str, str], ...] = (
     ("torch", "torch"),
     ("torchvision", "torchvision"),
     ("cellpose", "cellpose"),
+    # VisPy backs the installed application's default Mandelbrot renderer.
+    # It remains available through the historical ``fractal`` extra spelling,
+    # but it is a core dependency now; a missing install is therefore a broken
+    # environment, not an optional feature the doctor may report as absent.
+    ("vispy", "vispy"),
 )
 
 
@@ -1108,6 +1115,7 @@ def check_core_dependencies(ctx: Context) -> Result:
 #: Extras whose absence is normal but whose *partial* presence is not.
 OPTIONAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "qt": ("PySide6", "qtawesome"),
+    "fractal": ("vispy",),
     "umap": ("umap-learn",),
     "boosting": ("catboost", "lightgbm"),
     "czi": ("pylibCZIrw", "czifile"),
@@ -1261,6 +1269,52 @@ def check_gpu(ctx: Context) -> Result:
         )
     driver = _nvidia_driver()
     built = getattr(getattr(torch, "version", None), "cuda", None)
+
+    # ANOTHER VENDOR'S ACCELERATOR IS NOT A CUDA FAILURE, and this is the
+    # one place where confusing the two is user-facing. Everything below
+    # diagnoses CUDA and ends in `nvidia-smi`, and the very first branch --
+    # "a CPU-only torch: segmentation and training will be very slow" -- is
+    # the exact verdict a Mac gets. On the machine this was written on that
+    # sentence was wrong by two orders of magnitude: the AMD card it does
+    # not mention segments 139x faster than the CPU it is warning about.
+    #
+    # ASKED BEFORE `built`, because a stock macOS torch has no CUDA version
+    # at all and would never reach a check placed lower. NOT taken when the
+    # accelerator IS CUDA -- that path must keep every diagnostic below,
+    # including the allocation probe that catches a driver mismatch
+    # `torch.cuda.is_available()` reports as fine. Instruction 319.
+    try:
+        from .accelerator import capabilities, inspect_torch
+
+        # ASKED ABOUT THIS torch, not the cached answer for this machine:
+        # the torch above comes through `_import_torch` precisely so the
+        # diagnosis can be exercised against a stand-in, and a cached
+        # global would report the developer's own card instead.
+        found = inspect_torch(torch)
+        if found.is_gpu and not found.is_cuda:
+            slow = [task for task, ok, _ in capabilities() if not ok]
+            details = [f"device: {found.device}"]
+            if slow:
+                details.append("still on the CPU: " + ", ".join(slow))
+            if not found.float64:
+                details.append(
+                    "float64 is unsupported on this backend, so anything "
+                    "needing double precision runs on the CPU")
+            return Result("gpu", PASS,
+                          f"{found.label} — spaCR will use it.",
+                          details=tuple(details))
+        if found.detected and not found.usable and not driver:
+            # FOUND AND UNUSABLE is its own verdict rather than "no GPU":
+            # the fix differs and the reader can act on it.
+            return Result("gpu", WARN,
+                          f"{found.label} was detected but spaCR cannot "
+                          f"use it.",
+                          details=(found.note,) if found.note else ())
+    except Exception:                                        # noqa: BLE001
+        # Silent on purpose: this module has no logger, and a doctor has to
+        # keep reporting on a machine where something is broken. Falling
+        # through to the CUDA diagnosis is the right behaviour anyway.
+        pass
 
     if not built:
         if driver:
@@ -1927,6 +1981,8 @@ def run_checks(
     ``KeyboardInterrupt`` is the one exception — the user asking to stop is not
     a diagnostic finding.
 
+    :param ctx: invocation context passed unchanged to every selected check,
+        including the checkout, optional project inputs and GPU-probe choice.
     :param checks: the checks to run, in order; ``None`` runs every check
         registered in :data:`CHECKS`.
     """
@@ -1977,6 +2033,9 @@ def summarize(results: Iterable[Result]) -> Dict[str, int]:
 def exit_code(results: Iterable[Result], strict: bool = False) -> int:
     """``0`` when the installation is healthy, ``1`` otherwise.
 
+    :param results: diagnostic rows to inspect. ``FAIL`` and ``ERROR`` always
+        make the result non-zero; other statuses remain healthy unless strict
+        warning handling applies.
     :param strict: also fail on ``WARN``, for CI that wants a clean bill.
     """
     rows = list(results)

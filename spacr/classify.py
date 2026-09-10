@@ -19,10 +19,21 @@ produce the same result, because they are the same code.
 """
 from __future__ import annotations
 
+import os
+import sys
 from typing import Any, Dict, Mapping, Tuple
 
 #: The two classifier families, in the order the settings panel offers them.
 CLASSIFIER_FAMILIES: Tuple[str, ...] = ("cv", "ml")
+
+# Keep this list beside the family dispatcher: it is the boundary at which a
+# merged settings payload becomes an ML run.  Rejecting a CV backbone here is
+# both cheaper and more accurate than letting it survive database loading and
+# fail deep inside ``ml_analysis``.
+ML_MODEL_TYPES: Tuple[str, ...] = (
+    "xgboost", "lightgbm", "catboost", "random_forest", "extra_trees",
+    "gradient_boosting", "logistic_regression", "svm", "mlp",
+)
 
 #: family -> the app key whose settings and pipeline it uses. The merged
 #: screen is a front end onto these, not a replacement for them.
@@ -36,10 +47,14 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
         "crop_shape", "extract_channels", "object_array", "coordinate_columns",
         "normalization", "normalization_scope",
-        "model_type", "custom_model", "custom_model_path", "image_size",
+        "model_type", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
-        "gradient_accumulation", "gradient_accumulation_steps",
+        # `gradient_accumulation` retired 2026-09-09 (364): the step count
+        # alone says whether to accumulate, and `steps = 1` IS the off
+        # position. A greying table naming a key that no longer exists
+        # greys nothing.
+        "gradient_accumulation_steps",
         "early_stopping_patience", "augment", "pin_memory", "use_checkpoint",
         "resume_checkpoint", "tensorboard", "focal_gamma", "focal_alpha",
         "label_smoothing", "logit_adjust_tau", "train", "test",
@@ -49,7 +64,7 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
-        "prune_features", "top_features", "n_repeats", "minimum_cell_count",
+        "prune_features", "top_features", "n_repeats", "min_cell_count",
         "remove_low_variance_features", "remove_highly_correlated_features",
         "heatmap_feature", "grouping", "min_max", "cmap", "save_to_db",
         "batch_correction", "batch_column", "batch_control_column",
@@ -62,6 +77,40 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
 
 class ClassifierFamilyError(ValueError):
     """A classifier family spaCR does not have."""
+
+
+def _begin_flowview_run(settings: Mapping[str, Any]) -> object | None:
+    """Start a live graph only when optional FlowView tracing is enabled.
+
+    :param settings: Raw Classify settings fingerprinted into the new
+        FlowView graph.
+    :returns: The newly installed collector when tracing is enabled,
+        otherwise ``None``.
+
+    The common disabled path is a module-cache lookup and an environment
+    check; importantly, it imports no FlowView code.  A panel can enable the
+    already-loaded trace module, while ``SPACR_FLOWVIEW`` opts a headless run
+    in through the same lazy boundary.
+    """
+
+    trace_module = sys.modules.get("spacr.flowview.trace")
+    if trace_module is None:
+        enabled_by_environment = os.environ.get("SPACR_FLOWVIEW", "")
+        if enabled_by_environment.strip().casefold() not in {
+            "1",
+            "on",
+            "true",
+            "yes",
+        }:
+            return None
+        from .flowview import trace as trace_module
+
+    if not trace_module.is_enabled():
+        return None
+
+    from .flowview.classify_blueprint import _install_classify_collector
+
+    return _install_classify_collector(settings)
 
 
 def resolve_family(settings: Mapping[str, Any]) -> str:
@@ -108,6 +157,30 @@ def inapplicable_settings(family: str) -> Tuple[str, ...]:
                  if other != key for k in keys if k not in mine)
 
 
+def resolve_ml_model_type(settings: Mapping[str, Any]) -> str:
+    """Return the classical-ML estimator selected by ``settings``.
+
+    ``model_type_ml`` is authoritative in a merged payload.  ``model_type``
+    is accepted only when the ML-specific key is absent, which migrates the
+    short-lived shared-vocabulary settings files written before the two model
+    controls were separated.  The default matches
+    :func:`spacr.settings.set_default_analyze_screen`.
+
+    :param settings: settings for an ML-family run.
+    :returns: a member of :data:`ML_MODEL_TYPES`.
+    :raises ValueError: when the selected value is not an ML estimator.
+    """
+    selected = settings.get("model_type_ml")
+    if selected in (None, ""):
+        selected = settings.get("model_type", "xgboost")
+    model_type = str(selected).strip().lower()
+    if model_type not in ML_MODEL_TYPES:
+        raise ValueError(
+            f"Unsupported model_type_ml: {selected!r}. Choose one of "
+            f"{list(ML_MODEL_TYPES)}")
+    return model_type
+
+
 def classify(settings: Mapping[str, Any]) -> Any:
     """Run whichever classifier family ``settings`` asks for.
 
@@ -120,6 +193,8 @@ def classify(settings: Mapping[str, Any]) -> Any:
     :param settings: the run settings.
     :returns: whatever the dispatched pipeline returns.
     :raises ClassifierFamilyError: an unrecognised family.
+    :raises ValueError: when pre-dispatch validation rejects the selected ML
+        estimator or CV crop source.
     """
     from .classify_classes import normalize_settings as normalize_classes
     from .training_basis import normalize_settings
@@ -127,8 +202,26 @@ def classify(settings: Mapping[str, Any]) -> Any:
     # Two translations, both idempotent and both in one place: the shared
     # vocabulary (names) and the class definition (what the names select).
     # Anything downstream reads the current shape only.
+    # Resolve family-owned values before shared-vocabulary normalization.
+    # ``training_basis.normalize_settings`` deliberately treats
+    # model_type_ml as a legacy alias for model_type.  A merged payload has
+    # both keys, though, and the CV value wins that generic alias operation.
+    # Capturing the ML value here prevents maxvit_t (or any other CV
+    # backbone) from being sent to the classical estimator pipeline.
+    family = resolve_family(settings)
+    ml_model_type = (
+        resolve_ml_model_type(settings) if family == "ml" else None
+    )
+
+    # FlowView is optional observability.  Its complete setup boundary is
+    # failure-isolated so neither a renderer fault nor malformed trace state
+    # can replace a pipeline result or exception.
+    try:
+        _begin_flowview_run(settings)
+    except Exception:
+        pass
+
     resolved = dict(normalize_classes(normalize_settings(settings)))
-    family = resolve_family(resolved)
 
     if family == "cv":
         # Refuse a crop source that cannot produce images BEFORE training
@@ -140,11 +233,10 @@ def classify(settings: Mapping[str, Any]) -> Any:
 
     if family == "ml":
         from .ml import generate_ml_scores
-        # generate_ml_scores reads `model_type_ml`, and normalize_settings
-        # renames it to the shared `model_type`. Hand it back under the name
-        # it reads, rather than editing a working pipeline to suit a screen.
-        if "model_type" in resolved:
-            resolved.setdefault("model_type_ml", resolved["model_type"])
+        # The ML pipeline reads only its family-owned spelling.  Assignment,
+        # rather than setdefault, is intentional: ``model_type`` may contain
+        # the simultaneously visible CV choice in a merged settings file.
+        resolved["model_type_ml"] = ml_model_type
         if "test_split" in resolved:
             resolved.setdefault("test_size", resolved["test_split"])
         if "cross_validation_enabled" in resolved:

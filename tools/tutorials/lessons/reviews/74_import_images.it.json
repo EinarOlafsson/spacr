@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "it",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Retain the explicitly prepared-copy limitation, acquisition identity and all operational caveats."]},
+  "title": "Import Images: controllare il piano prima di importare",
+  "description": "Apri Import Images dentro Import, controlla un sottoinsieme reale di immagini prima di scrivere i file e salva un piano riutilizzabile. L’esempio distingue i nomi originali non supportati dalle copie preparate.",
+  "objectives": ["Trovare Import Images dentro Import e distinguerlo dall’importazione di misure e maschere esistenti.", "Controllare l’identità delle immagini e le parti dei nomi non risolte prima di scrivere il progetto.", "Scegliere copie o collegamenti, salvare e ricaricare un piano e verificare l’importazione."],
+  "prerequisite": "Scarica prima l’esempio reale di Mask. Il video usa copie dei campi E01/F001 e L01/F009, ciascuno con quattro canali C. Nelle copie preparate viene omessa solo la parte A subito prima di Z; gli originali non cambiano. È un esempio verificato, non un invito generale a eliminare metadati sconosciuti.",
+  "scenes": [
+    "Apri Import nella categoria Data di Home, poi scegli Import Images. Questo strumento integrato prepara i file delle immagini grezze. Import Project, Format Converter ed External Masks sono procedure collegate con tutorial dedicati.",
+    "Le nostre otto immagini sono dati reali di microscopia dell’esempio scaricabile di Mask: un campo per ciascuno di due pozzetti, con quattro canali per campo. Lavoriamo su copie separate senza modificare gli originali scaricati.",
+    "Scan rileva una parte del nome relativa all’acquisizione che non riesce a interpretare. Import resta disabilitato e non viene scritto nulla. Non indovinare la corrispondenza dei canali: due canali diversi condividono questo valore di acquisizione, quindi quella risposta ne altererebbe l’identità.",
+    "Per questo esempio verificato, le copie preparate omettono solo la parte ridondante relativa all’acquisizione. Conservano i nomi di pozzetto, campo e canale. Scan mostra ora otto righe, due pozzetti, due numeri di campo e quattro canali. Non significa che i nomi originali siano stati accettati.",
+    "Confronta la proposta con i nomi dei file prima di importare. Read inside each file controlla anche i metadati degli assi interni. Sample limita i file esaminati: verifica che la proposta includa le immagini da importare. Risolvi i dubbi consultando i registri di acquisizione, non tirando a indovinare.",
+    "Scegli una destinazione esterna alla cartella di ingresso e imposta il nome della piastra. Disattiviamo Link instead of copy per creare un progetto indipendente. I collegamenti risparmiano spazio, ma gli originali devono restare accessibili nelle posizioni attuali.",
+    "Questi file non sono tessere di un mosaico. Per acquisizioni a tessere, controlla Tiles: l’unione ricostruisce i campi, mantenere le tessere separate cambia il significato di campo e ignorarle perde quelle immagini. Esamina il rapporto e le giunzioni non verificate prima di misurare.",
+    "Save plan scrive un file JSON con la sorgente e le risposte di mappatura, non un backup delle immagini. Conservalo con le note di acquisizione. Lo stesso piano può essere letto dall’API Python di importazione delle immagini.",
+    "Load plan legge nuovamente la cartella sorgente e riutilizza le risposte salvate. Controlla la nuova proposta prima di importare: un piano salvato non garantisce che un’acquisizione modificata sia corretta. Qui ripristina le stesse otto identità verificate.",
+    "Premi Import e leggi il riepilogo. Questa esecuzione ha scritto otto copie indipendenti senza saltare file; il contenuto coincide con le sorgenti. Seleziona poi il progetto in Mask e controlla l’anteprima dal vivo prima della segmentazione. La sola importazione non genera maschere o misure."
+  ]
+}

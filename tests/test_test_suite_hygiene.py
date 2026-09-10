@@ -414,13 +414,16 @@ MODULE_SCOPE = "<module>"
 #:   pytest.skip(...)`` says "torch is missing" and means "torch raised". They
 #:   became ``pytest.importorskip("torch")``, which catches ImportError only,
 #:   so a package that IS installed and detonates on import now fails.
-#: * **4 were at module scope** -- the ``try: import spacr.gui_elements /
-#:   except Exception: pytest.skip(..., allow_module_level=True)`` shape, the
+#: * **4 were at module scope** -- the ``try: import <a GUI module> / except
+#:   Exception: pytest.skip(..., allow_module_level=True)`` shape, the
 #:   highest-blast-radius form of this pattern, since one of them turns an
 #:   import-time product bug into a whole FILE reporting skipped. All four were
 #:   dead by the time they were read: ``tests/conftest.py`` stubs mouseinfo,
 #:   pyautogui and screeninfo before any test module loads, so the display-less
-#:   ImportError they were written for cannot happen. Deleted.
+#:   ImportError they were written for cannot happen. Deleted. (They guarded
+#:   the Tkinter interface, which has since been deleted outright; the shape
+#:   is what this rule is about, and it is spelled with a module that exists
+#:   below so the example can still be read against the tree.)
 #: * **1 was a real environmental guard** with the wrong exception type: a
 #:   ``subprocess.run(["git", ...])`` that skips where there is no checkout.
 #:   Narrowed to ``(OSError, subprocess.SubprocessError)``.
@@ -688,7 +691,7 @@ BROAD_SKIP_EVASIONS = {
     """, "_try_it"),
     "hoisted to module level, where it skips the whole file": ("""
         try:
-            import spacr.gui_elements as ge
+            import spacr.qt.app as app
         except Exception as e:
             pytest.skip(f"unavailable: {e}", allow_module_level=True)
     """, MODULE_SCOPE),
@@ -885,13 +888,23 @@ def test_conftest_hard_codes_no_absolute_path_at_all():
     assert {_rel(p) for p in conftests} >= {"conftest.py", "qt/conftest.py"}, (
         "the suite's known conftests are no longer being found; the glob in "
         "_conftests() has stopped matching")
+    # KERNEL INTERFACES ARE NOT MACHINE PATHS. The defect this test is
+    # written for is a path that exists on one developer's computer, which
+    # makes the suite green everywhere else while running nothing. `/proc`
+    # is the opposite of that: it is the same on every Linux kernel, it is
+    # not a location anybody chose, and there is no tmp_path or fixture
+    # that could stand in for it. The memory watchdog in tests/conftest.py
+    # reads /proc/<pid>/statm because that is where a process's resident
+    # size is, and rewriting it as `Path("/proc") / str(getpid())` would
+    # hide the same string from this check rather than remove it.
+    allowed_prefixes = ("/tmp", "/proc", "/sys", "/dev/null")
     offenders = []
     for path in conftests:
         for node in _string_constants(_parse(path)):
             for line in node.value.splitlines():
                 text = line.strip()
                 if text.startswith("/") and len(text) > 1 \
-                        and not text.startswith("/tmp"):
+                        and not text.startswith(allowed_prefixes):
                     offenders.append((_rel(path), node.lineno, text[:70]))
     assert not offenders, (
         f"conftest(s) hard-code absolute path(s): {offenders}. Build "

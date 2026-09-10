@@ -35,6 +35,12 @@ class _Axes3D:
     def get_zlim3d(self):
         return (0.0, 30.0)
 
+    # A three-dimensional axes HAS one, and the canvas asks for it by name to
+    # tell a volume from a flat plot that a volume fell back to. Without it
+    # this stand-in was a flat plot wearing 3D limits, and the clicks below
+    # went down the branch a real volume never takes.
+    get_zlim = get_zlim3d
+
     def add_collection3d(self, artist):
         self.added.append(artist)
 
@@ -48,6 +54,12 @@ def canvas(qtbot):
     widget._spec = replace(widget._spec, x="a", y="b")
     widget._z_column = "c"
     widget._mode = "3D"
+    # What a user drawing in the volume has set: the Spin/Draw button on
+    # Draw, and the shape dropdown on the polygon. The volume reads these two
+    # rather than the 2D tool picker, so a test that leaves them alone is
+    # testing a state the editor cannot be in.
+    widget.set_drag_mode("draw")
+    widget.set_volume_shape("polygon")
     return widget
 
 
@@ -187,7 +199,10 @@ def test_a_matplotlib_that_cannot_draw_it_does_not_break_the_view(canvas,
         raise RuntimeError("no 3d collections here")
 
     axes.add_collection3d = boom
-    canvas._draw_anchor_aura(axes)              # the assertion is no raise
+    canvas._draw_anchor_aura(axes)
+    # Nothing drawn, and nothing raised: an aura that cannot be painted costs
+    # the view nothing, which is the whole point of guarding it.
+    assert axes.added == []
 
 
 # ---------------------------------------------------------------------------

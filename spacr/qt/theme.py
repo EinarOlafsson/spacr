@@ -1,68 +1,41 @@
-"""
-Themes (palettes + QSS stylesheet) for the spacr Qt GUI.
+"""Provide palettes, geometry tokens, and QSS for the spaCR Qt interface.
 
-Single source of truth for every color, radius, and font size used by the
-custom widgets and screens. Call :func:`active_palette` for the colours
-that are on screen right now and :func:`stylesheet` for the Qt StyleSheet
-string to hand to `QApplication.setStyleSheet`.
+Use :func:`active_palette` for colors shown by a live widget and
+:func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
+the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, and ``"glass"``;
+the ``"system"`` preference resolves to dark or light before palette lookup.
+A legacy ``"space"`` palette can still be read from persisted settings but is
+not selectable.
 
 .. warning::
 
-   There is deliberately **no module-level ``PALETTE``**. The name used
-   to exist, held the *dark* palette, and nothing ever updated it — so
-   ``from .theme import PALETTE`` followed by
-   ``widget.setStyleSheet(f"background: {PALETTE['surface_alt']}")``
-   painted a near-black panel on the light theme's near-white page, and
-   any text the app stylesheet inked landed on it at 1.08:1. Black on
-   black, measured. The dark palette is now called
-   :data:`DARK_PALETTE`, which says what it is; ``theme.PALETTE`` still
-   resolves (read-only, with a ``DeprecationWarning``) so the modules
-   that have not been migrated yet keep working.
+   ``theme.PALETTE`` is a deprecated, read-only alias for the dark palette and
+   does not follow runtime theme changes. Use :func:`active_palette`, or
+   :data:`DARK_PALETTE` only when dark colors are explicitly required.
 
-Four themes ship: ``"dark"``, ``"light"``, ``"cell"`` and
-``"glass"``.
-(Preferences also offers ``"system"``, which resolves to dark or light
-at runtime — it is not a palette of its own.) They are *themes*, not
-"modes": "dark mode" stopped being accurate the moment a third one
-existed.
+Cell and Glass are :data:`IMAGE_THEMES`. Their panels use translucent scrims
+so the backdrop remains visible without sacrificing text contrast.
+:func:`contrast_failures` validates roles painted on scrims, while
+:func:`image_contrast_failures` validates roles painted directly over image
+content. :func:`solve_scrim_alpha` balances those contrast constraints against
+:data:`MIN_PICTURE_CONTRAST`, and :func:`scrim_report` exposes the result.
 
-Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual
-backdrop — a generated deep-space render or downloaded photograph for
-Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for
-Cell (see :mod:`spacr.qt.imagery`), and a built-in neutral light field for
-Glass. Panels, cards and inputs are drawn as translucent scrims so
-text always lands on a readable surface while the backdrop shows through
-the chrome and empty areas.
-
-Legibility over a picture is checked two ways, because the two failure
-modes are different:
-
-* :func:`contrast_failures` judges every scrim against the worst case
-  *that theme's wallpaper pipeline can actually produce* — see
-  :func:`scrim_under`. Space's procedural sky keeps its sun blown out on
-  purpose, so Space is judged against a pure white pixel; every Cell
-  wallpaper goes through :func:`spacr.qt.imagery.render`, which
-  exposure-solves it, so Cell is judged against that ceiling.
-* :func:`image_contrast_failures` judges the roles that are painted
-  with **nothing** under them against a colour measured from the real
-  wallpaper. That is the case a scrim cannot help with, and
-  :func:`max_background_luma` is what the imagery pipeline dims to.
-
-The scrim opacities themselves are **solved from those two facts plus
-one more** — :data:`MIN_PICTURE_CONTRAST`, how much of the picture a
-panel must still transmit — rather than picked by eye. See
-:func:`solve_scrim_alpha`, and :func:`scrim_report` for the audit
-trail. Picking them by eye is what produced a set of panels that passed
-every contrast rule and showed 10 % of the photograph underneath, which
-users read, reasonably, as the image themes not working.
+:func:`enable_spaceout` dresses the process in the rainbow palette the
+``spaceout`` entry point launches into. It re-hues whichever theme is
+resolved rather than adding a fifth one, so :data:`THEMES` and the light/dark
+handling are untouched; it is process state and is never persisted.
 """
 from __future__ import annotations
 
 import logging
+import math
 import warnings
+from contextlib import contextmanager
+from functools import lru_cache
 from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
@@ -310,13 +283,13 @@ IMAGE_THEMES = ("cell", "glass")
 # each is derived from one that is already there.
 
 def rim_colour(theme: str = "dark") -> str:
-    """The hairline that outlines every tile — the theme's own ink.
+    """The meaningful hairline on outlined tiles — the theme's own ink.
 
     White in the dark themes, near-black in the light one, because that
-    is what ``fg`` already is. Asked for as "a thin white rim, black in
-    white mode"; deriving it from ``fg`` rather than writing ``#ffffff``
-    means Space and Cell get it for free and no theme can be added that
-    silently draws an invisible rim.
+    is what ``fg`` already is. Horizontal cards and interactive hover states
+    still use it; resting Home module tiles deliberately do not. Deriving it
+    from ``fg`` rather than writing ``#ffffff`` means every palette gets the
+    right ink without a raw colour drifting out of sync.
     """
     return palette_for(theme)["fg"]
 
@@ -553,6 +526,8 @@ def legible_scrim_floor(theme: str, role: str,
     thing the theme's wallpaper pipeline can put behind it. Below this
     number the panel stops being readable; it is a hard lower bound.
 
+    :param theme: name of the palette whose surface is being evaluated.
+    :param role: palette surface role on which the text is painted.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     :param under: what is actually behind the surface, when it is not
@@ -621,16 +596,18 @@ def solve_scrim_alpha(theme: str, role: str,
     as the picture can afford, and never thinner than legibility allows.
     Every alpha in that window satisfies both constraints, so the choice
     within it is which one to spend the slack on, and it goes to the
-    panel: the settings form sits on this surface and the user asked for
-    the grey categories to stay grey categories. Taking the floor
-    instead would show *more* picture — Cell's floor is 0.05, a panel
-    that is not there — at the cost of the form dissolving into the
+    panel: the settings form sits on this surface, and preserving its grey
+    category structure is more important than exposing additional wallpaper.
+    Taking the floor instead would show *more* picture — Cell's floor is 0.05,
+    a nearly transparent panel — at the cost of the form dissolving into the
     wallpaper.
 
     When the floor lands *above* the ceiling the theme cannot do both,
     legibility wins, and the shortfall is visible in
     :func:`scrim_report`.
 
+    :param theme: name of the palette whose surface is being solved.
+    :param role: palette surface role whose opacity is being chosen.
     :param colour_role: palette entry the surface is painted with, when
         it differs from ``role`` — ``tile`` is painted with ``surface``.
     """
@@ -984,18 +961,23 @@ def field_fade_profile(stops: int = FIELD_FADE_STOPS):
 
 
 def field_chrome(theme: str = "dark") -> Dict[str, object]:
-    """Colours and geometry the field fade paints a field's container with.
+    """Return theme colors and geometry for faded field containers.
 
-    One place so the painter and the QSS that gets out of its way cannot
-    drift apart, and so a theme that restyles its inputs restyles the fade
-    with them. Every colour is ``(hex, alpha)``: the ramp is applied as a
-    **multiplier** on that alpha, so a theme whose border is intrinsically
-    translucent (Glass paints a white rim at 16 %) keeps its own material
-    and still reaches zero at the right edge, while the flat themes start
-    from a genuinely solid 1.0 exactly as the request asks.
+    Parameters
+    ----------
+    theme : str, default="dark"
+        Theme name accepted by :func:`palette_for`.
 
-    Note what is *not* here: :func:`panel_alpha`. Fields are exempt from
-    the page-opacity preference — see :func:`field_fade_alpha`.
+    Returns
+    -------
+    dict
+        Radius, fill, border, focus, and disabled-state tokens. Each color is
+        represented as ``(hex_color, alpha)``.
+
+    Notes
+    -----
+    The fade multiplies each token's alpha so translucent themes retain their
+    material. Field chrome is independent of the page-opacity preference.
     """
     base = palette_for(theme)
     glass = theme == "glass"
@@ -1070,36 +1052,894 @@ def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
 
 def _composite(fg: str, bg: str, alpha: int) -> str:
     """``fg`` painted at ``alpha`` over ``bg``, as the painter blends it."""
-    fr, fg_, fb = _channels(fg)
-    br, bg_, bb = _channels(bg)
+    fr, fg_, fb = _channels(fg, _UNREADABLE)
+    br, bg_, bb = _channels(bg, _UNREADABLE)
     a = max(0, min(255, int(alpha))) / 255.0
     return "#%02x%02x%02x" % tuple(
         int(round(f * a + b * (1 - a)))
         for f, b in ((fr, br), (fg_, bg_), (fb, bb)))
 
 
-def _channels(hex_colour: str):
-    text = str(hex_colour).lstrip("#")
-    if len(text) == 3:
-        text = "".join(c * 2 for c in text)
-    try:
-        return tuple(int(text[i:i + 2], 16) for i in (0, 2, 4))
-    except (ValueError, IndexError):
-        return (255, 255, 255)
-
-
 def _relative_luminance(hex_colour: str) -> float:
+    """Compute a colour's relative luminance, per WCAG.
+
+    :param hex_colour: the colour; an unparseable one is treated as the
+        unreadable sentinel rather than raising, so a contrast check reports
+        a failure instead of crashing the theme.
+    :returns: the luminance in ``[0, 1]``.
+    """
     def channel(value: int) -> float:
+        """One sRGB channel linearised, per WCAG's own definition."""
         v = value / 255.0
         return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
-    r, g, b = (channel(c) for c in _channels(hex_colour))
+    r, g, b = (channel(c) for c in _channels(hex_colour, _UNREADABLE))
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
 def _contrast(a: str, b: str) -> float:
+    """Return the WCAG contrast ratio between two colours.
+
+    :param a: one colour.
+    :param b: the other.
+    :returns: the ratio, from 1 (identical) to 21 (black on white). Order
+        does not matter -- the lighter is always the numerator.
+    """
     la, lb = _relative_luminance(a), _relative_luminance(b)
     hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
+
+
+# ---------------------------------------------------------------------------
+# spaceout — the same application, wearing something else
+# ---------------------------------------------------------------------------
+# `spaceout` is a console entry point beside `spacr` and `spacr-qt`
+# (:mod:`spacr.qt.spaceout`). It starts the same application — the same
+# screens, the same modules, the same settings — and changes only the
+# dressing: the palette goes rainbow, and the ambient backdrop draws moving
+# fractals instead of drifting blobs.
+#
+# THE CHOICE IS MADE ONCE, AT LAUNCH, AND IS STORED NOWHERE. It lives here
+# as process state because this module is the funnel every colour in the
+# application already passes through: `palette_for` is what `stylesheet`,
+# `apply_qpalette`, `active_palette`, `page_colour`, every contrast check and
+# every widget that paints its own pixels end up calling, so nothing else has
+# to learn that the mode exists. Handing it to `spacr.qt.preferences` would
+# make it survive a restart and leak the dressing into an ordinary `spacr`
+# start, which is the one thing the request rules out — so it is written
+# nowhere, no Preferences control offers it, and the entry point is the only
+# way in.
+#
+# THE THEME CONTRACT DOES NOT CHANGE. `resolve_effective_theme` still answers
+# one of `THEMES`, `THEMES` is still those four, and the light/dark handling
+# every screen reads goes on working. spaceout re-hues whichever theme was
+# resolved; it does not become a fifth one, and a light start stays light.
+#
+# READABILITY IS THE CONSTRUCTION HERE, not a table of colours somebody
+# eyeballed afterwards. Every role moves in HUE ONLY and keeps its own WCAG
+# relative luminance, and three checks fall out of that identity:
+#
+#   * `contrast_ratio` is a function of relative luminance and of nothing
+#     else, so every rule in `CONTRAST_RULES` measures what it measured on
+#     the theme being re-hued;
+#   * `lightness` (CIE L*) is a function of relative luminance too, so
+#     `page_separation_report` — can you see the panel — is preserved with
+#     it;
+#   * `max_background_luma` is a minimum over luminances, so the exposure
+#     the imagery is solved down to does not move either.
+#
+# The identity is exact in the reals and within 8-bit rounding on screen;
+# `_hue_shift` picks the closest representable colour on the hue line rather
+# than the first one that fits, which keeps the drift to a few thousandths of
+# a luminance level.
+#
+# The one place it does not carry on its own is a TRANSLUCENT surface. An
+# image theme composites its panels over the wallpaper channel by channel in
+# sRGB, and two colours of equal luminance but different hue do not
+# composite to equal luminance. That is why `SCRIM_ALPHA` is re-solved when
+# the mode is enabled — `_solve_scrims` was written as a solve rather than a
+# table for exactly this case, and it says so.
+
+#: Where each palette role lands on the spectrum, in degrees of hue.
+#:
+#: The surfaces sweep it — violet window, magenta page, blue and cyan and
+#: green panels — because those are the large areas, and they are what makes
+#: the application read as rainbow rather than as a blue application with
+#: coloured buttons.
+#:
+#: The STATUS roles deliberately do not sweep. `error` stays at the red end,
+#: `warning` in the ambers and `success` in the greens, because their whole
+#: job is to be recognised before they are read; a dressing that makes a
+#: failure look like a success is a broken theme, not a trippy one. They are
+#: re-hued — five degrees, fifty, a hundred and thirty — so they belong to
+#: the same spectrum as everything else, but they stay in their own
+#: neighbourhood of it.
+#:
+#: `info` tracks `accent` and `chip_value` tracks `success`, the way they
+#: already do in every shipped palette.
+SPACEOUT_HUES: Dict[str, float] = {
+    # Surfaces, sweeping violet -> magenta -> blue -> cyan -> green.
+    "bg":          285.0,
+    "page":        300.0,
+    "surface":     250.0,
+    "surface_alt": 205.0,
+    "surface_hi":  165.0,
+    "border":      320.0,
+    "border_soft": 265.0,
+    # Text. `fg` is the extreme of its theme's range — white on the dark
+    # themes, near-black on the light one — and a hue cannot move a colour
+    # that is already at the top or the bottom of the luminance scale, so
+    # this entry mostly documents where the light theme's ink goes.
+    "fg":          210.0,
+    "fg_muted":     45.0,
+    "fg_dim":       25.0,
+    # Interactive.
+    "accent":      190.0,
+    "accent_hi":   175.0,
+    "accent_lo":   215.0,
+    "accent_soft": 275.0,
+    "info":        190.0,
+    # Status — see the note above.
+    "success":     130.0,
+    "warning":      50.0,
+    "error":         5.0,
+    "chip_class":  165.0,
+    "chip_value":  115.0,
+    # The theme-invariant button roles. They are re-hued by the same table
+    # for every theme, so they stay invariant across themes inside the
+    # dressing exactly as they are outside it.
+    "button_accent":     305.0,
+    "button_accent_hi":  320.0,
+    "button_accent_lo":  290.0,
+    "button_accent_ink": 340.0,
+}
+
+#: How far toward its hue a role is taken. Everything not listed goes all
+#: the way.
+#:
+#: The two that are held back are the two the ANIMATION IS PAINTED ONTO, and
+#: the number is measured rather than judged. On a dark page the ambient
+#: backdrop composites ADDITIVELY, so what reaches the eye is the page's own
+#: channels plus the animation's. At full saturation the dressed page is
+#: ``#480048`` — 72 of red and 72 of blue and none of green — and the
+#: fractal's green at its peak alpha adds 67. The green never wins, and the
+#: measured result was a rainbow palette rendering as four neighbouring
+#: hues: blue through magenta to red, and nothing else, whatever the
+#: animation was drawing underneath.
+#:
+#: Damped to a third, the same luminance is spread across all three channels
+#: instead of piled into two, and every colour the animation draws clears
+#: it. The page is still unmistakably not the ordinary grey — it is a plum —
+#: and the rainbow it was hiding is now visible. See
+#: ``tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py``, which
+#: counts the hue families in a real painted frame.
+SPACEOUT_SATURATION: Dict[str, float] = {
+    "bg":   0.35,
+    "page": 0.35,
+}
+
+
+def _hue_rgb(hue: float, saturation: float = 1.0) -> Tuple[float, float,
+                                                           float]:
+    """sRGB for ``hue`` in degrees at ``saturation``, as 0..1 per channel.
+
+    The HSV ``V=1`` plane, written out rather than imported so this module
+    keeps its short import list. ``saturation`` 1.0 is the pure hue; 0.0 is
+    white, and every value between mixes the two, which is what
+    :data:`SPACEOUT_SATURATION` asks for.
+    """
+    position = (float(hue) % 360.0) / 60.0
+    ramp = 1.0 - abs(position % 2.0 - 1.0)
+    pure = ((1.0, ramp, 0.0), (ramp, 1.0, 0.0), (0.0, 1.0, ramp),
+            (0.0, ramp, 1.0), (ramp, 0.0, 1.0), (1.0, 0.0, ramp))[
+                int(position) % 6]
+    weight = max(0.0, min(1.0, float(saturation)))
+    return tuple(1.0 - weight * (1.0 - channel) for channel in pure)
+
+
+#: The sRGB transfer function, tabulated for all 256 levels.
+#:
+#: :func:`_hue_shift` scores 512 candidate colours per ``(colour, hue)``
+#: pair, and doing that through :func:`_relative_luminance` would mean
+#: formatting each one to hex and parsing it straight back — a hundredfold
+#: on the only part of this that is not free.
+_LINEAR_CHANNEL: Tuple[float, ...] = tuple(
+    (level / 255.0) / 12.92 if level / 255.0 <= 0.03928
+    else ((level / 255.0 + 0.055) / 1.055) ** 2.4
+    for level in range(256))
+
+
+def _rgb_luminance(rgb: Tuple[int, int, int]) -> float:
+    """WCAG relative luminance of an 8-bit ``(r, g, b)`` triple."""
+    return (0.2126 * _LINEAR_CHANNEL[rgb[0]]
+            + 0.7152 * _LINEAR_CHANNEL[rgb[1]]
+            + 0.0722 * _LINEAR_CHANNEL[rgb[2]])
+
+
+#: Levels either side of the crossing :func:`_hue_shift` measures.
+#:
+#: The two ramps are monotone but only weakly: 8-bit rounding leaves short
+#: plateaus where two neighbouring levels land on the same luminance, and a
+#: linear scan keeping the first strict improvement returns the LOWEST index
+#: on such a plateau. Eight is far wider than any plateau either ramp can
+#: produce — a fully saturated hue moves at least one channel on every
+#: level — so the window contains the whole tie and the lowest index in it
+#: still wins.
+_HUE_WINDOW = 8
+
+
+@lru_cache(maxsize=None)
+def _hue_shift(colour: str, hue: float, saturation: float = 1.0) -> str:
+    """``colour`` moved to ``hue``, at the relative luminance it already had.
+
+    Two ramps are searched, and both are needed because a saturated hue can
+    only reach part of the luminance scale — fully saturated blue tops out
+    at 0.0722, and the light theme's ``surface`` is 1.0:
+
+    * **value**, at full saturation: the hue's own colour, darkened. This is
+      the arm that answers for the surfaces and for most of the ink, and it
+      is the one that makes the result *look* like a rainbow.
+    * **saturation**, at full value: the hue mixed toward white, for the
+      roles that need more light than the hue itself carries. This is what
+      keeps a white ``fg`` white instead of substituting a violet nobody
+      could read a settings form in.
+
+    The closest of all 512 candidates wins, so the 8-bit rounding error is
+    minimised rather than merely bounded. Cached because ``palette_for`` is
+    on the path of every stylesheet build and every widget that paints.
+
+    THE 512 ARE NOT ALL VISITED. Both ramps are monotone in luminance —
+    every channel of the value ramp rises with the level and every channel
+    of the saturation ramp falls with the step — so the closest entry is
+    found by crossing rather than by scanning, and only a window either side
+    of the crossing is measured. That is 20-odd candidates instead of 512
+    and it is not an approximation: ``test_spaceout_looks_alive.py`` asserts
+    the answer is identical to the full scan for every colour, hue and
+    saturation the dressing can produce. It matters because the drift asks
+    for the whole palette at :data:`SPACEOUT_DRIFT_STEPS` offsets rather
+    than once, and the full scan spent a second of the launcher's startup
+    doing it.
+    """
+    target = _relative_luminance(colour)
+    base = _hue_rgb(hue, saturation)
+
+    def value(level: int) -> Tuple[int, int, int]:
+        """The base hue at ``level``, darkened toward black."""
+        return (int(round(base[0] * level)),
+                int(round(base[1] * level)),
+                int(round(base[2] * level)))
+
+    def tint(step: int) -> Tuple[int, int, int]:
+        """The base hue at ``step``, lightened toward white."""
+        weight = step / 255.0
+        return (int(round(255.0 * (1.0 - weight + weight * base[0]))),
+                int(round(255.0 * (1.0 - weight + weight * base[1]))),
+                int(round(255.0 * (1.0 - weight + weight * base[2]))))
+
+    best, error = value(0), abs(_rgb_luminance(value(0)) - target)
+    for ramp, rising in ((value, True), (tint, False)):
+        low, high = 0, 255
+        while low < high:
+            mid = (low + high) // 2
+            here = _rgb_luminance(ramp(mid))
+            if (here < target) if rising else (here > target):
+                low = mid + 1
+            else:
+                high = mid
+        for index in range(max(0, low - _HUE_WINDOW),
+                           min(256, low + _HUE_WINDOW + 1)):
+            candidate = ramp(index)
+            miss = abs(_rgb_luminance(candidate) - target)
+            if miss < error:
+                best, error = candidate, miss
+    return "#%02x%02x%02x" % best
+
+
+def spaceout_palette(palette: dict, drift: float = 0.0,
+                     theme: Optional[str] = None) -> dict:
+    """Re-hue a theme palette while preserving accessible luminance.
+
+    Roles absent from :data:`SPACEOUT_HUES` are returned unchanged. Named ink
+    roles are constrained to contrast-safe luminance bands for ``theme``.
+
+    :param palette: Mapping from theme roles to colour values.
+    :param drift: Hue rotation in degrees applied to all mapped roles.
+    :param theme: Theme used to resolve contrast-safe ink bands, or ``None``
+        for a direct hue shift.
+    :returns: A new role-to-colour mapping.
+    """
+    bands = _INK_BANDS.get(theme, {}) if theme else {}
+    damping = _PAGE_DAMPING.get(theme, {}).get(float(drift), 1.0) \
+        if theme else 1.0
+    out = {}
+    for role, colour in palette.items():
+        seat = SPACEOUT_HUES.get(role)
+        if seat is None:
+            out[role] = colour
+            continue
+        hue = (seat + float(drift)) % 360.0
+        band = bands.get(role)
+        if band:
+            out[role] = _hue_ink(hue, band[0], band[1], colour)
+            continue
+        saturation = SPACEOUT_SATURATION.get(role, 1.0)
+        if role in SPACEOUT_DAMPED_ROLES:
+            saturation *= damping
+        out[role] = _hue_shift(colour, hue, saturation)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The drift — the spectrum turns, and the readability turns with it
+# ---------------------------------------------------------------------------
+# The dressing above is a *table*: every role lands on one hue and stays
+# there. This turns the whole table, slowly and without a loop a watcher can
+# learn, so the application is not one rainbow but a rainbow that moves.
+#
+# WHY THIS COSTS NOTHING IN READABILITY, and why that is a property of the
+# construction rather than a claim: `_hue_shift` moves a role in hue and
+# leaves its WCAG relative luminance where it was, and `contrast_ratio` is a
+# function of relative luminance and of NOTHING ELSE. Adding a constant to
+# every hue therefore leaves every ratio in `CONTRAST_RULES` exactly where it
+# was — at every point on the drift, not only at the one it started from.
+#
+# TWO THINGS DO NOT CARRY ON THEIR OWN, and both are solved rather than
+# hoped for:
+#
+#   * a TRANSLUCENT surface. An image theme composites its panels over the
+#     wallpaper channel by channel in sRGB, and two colours of equal
+#     luminance and different hue do not composite to equal luminance. The
+#     alphas were already re-solved when the dressing went on; they are now
+#     solved for the WORST POINT ON THE DRIFT instead of for one palette.
+#     Measured: keeping the alphas solved at the starting hue, the wallpaper
+#     stops reading through the panels at 74 of the 360 one-degree offsets,
+#     down to 1.37:1 against a 1.50:1 rule.
+#   * the INK, which is the other half of the request — see
+#     :data:`SPACEOUT_INK_ROLES`.
+#
+# THE CLOCK IS DRIVEN, NOT READ. `advance_spaceout_drift` is called by the
+# things that are already painting frames — the ambient backdrop's tick and
+# the setup card's — rather than by `palette_for` reading a wall clock. Two
+# reasons, and the second is the load-bearing one: a backdrop the user
+# turned off should not be quietly replaced by a palette animating instead,
+# and `palette_for` is on the path of every stylesheet build and every
+# widget that paints, so a wall clock inside it would make the palette a
+# different value on two calls in the same frame.
+
+#: Seconds for the spectrum to travel once round, before the wander.
+#:
+#: Nine minutes. A backdrop must never look like it is *moving*, only like
+#: it has moved when you look back at it — the same figure the blob drift
+#: and the fractal's own spin are set by.
+SPACEOUT_DRIFT_TURN = 540.0
+
+#: The wander, as ``(share of a turn, period in seconds, phase in turns)``.
+#:
+#: WHAT MAKES IT NOT A LOOP. On its own the term above is a metronome: the
+#: hue advances by the same amount every second and a watcher learns the
+#: cycle. These three add a wander whose periods are mutually incommensurate
+#: with each other and with the turn, so the *sequence* of hues — fast here,
+#: backing up there, dwelling somewhere else — does not repeat on any period
+#: short enough to be learned. They are amplitudes on the ANGLE, so the
+#: drift can slow, stall and briefly reverse without ever jumping.
+SPACEOUT_DRIFT_WANDER: Tuple[Tuple[float, float, float], ...] = (
+    (0.070, 149.0, 0.137),
+    (0.041, 76.3, 0.611),
+    (0.023, 31.7, 0.283),
+)
+
+#: How many hue offsets the *palette* is allowed to take.
+#:
+#: The drift itself is continuous — :func:`spaceout_drift` — and the things
+#: that repaint every frame use it that way. The palette is quantised onto
+#: this grid instead, for one reason: every offset on it has to be SOLVED,
+#: because the scrim alphas and the ink bands below are worst cases over the
+#: offsets the palette can actually reach. A continuous palette would be a
+#: continuum of solves.
+#:
+#: Sixty is six degrees a step and one step every nine seconds. Six degrees
+#: moves a saturated surface by two or three 8-bit levels, which is under
+#: the step the eye resolves on a large flat area, and the QSS chrome only
+#: re-reads the palette when the stylesheet is rebuilt anyway.
+SPACEOUT_DRIFT_STEPS = 60
+
+#: The roles whose colour is solved for CHROMA rather than carried over.
+#:
+#: "the color of the text is pretty good but could be more rainbow like."
+#: The reason it was not is the identity the rest of the dressing rests on:
+#: hue moves, luminance does not — and a role already at the top of the
+#: luminance scale cannot carry a hue at all. Dark's `fg` is ``#ffffff``, so
+#: re-hueing it returns ``#ffffff``, and the body text of the application is
+#: the one thing in it that was not in the rainbow.
+#:
+#: So for these three the luminance is allowed to MOVE, inside a band solved
+#: from :data:`CONTRAST_RULES` — see :func:`_ink_band` — and the most
+#: chromatic colour on the hue line inside that band is taken. On dark that
+#: turns ``#ffffff`` into a fully saturated ``#00d5ff`` at the hue the table
+#: gives `fg`, and it still clears 4.5:1 on every surface with
+#: :data:`SPACEOUT_INK_HEADROOM` to spare.
+#:
+#: THE CHECK IS WHAT DECIDES HOW FAR IT GOES. Where the band is narrow the
+#: answer is a pale tint, and that is the right answer: a trippy theme that
+#: cannot be read is a broken theme.
+SPACEOUT_INK_ROLES: Tuple[str, ...] = ("fg", "fg_muted", "fg_dim")
+
+#: Multiplier on every WCAG minimum when solving an ink band, so a solved
+#: ink is not sitting exactly on the line — the same reason
+#: :data:`SCRIM_HEADROOM` exists, and much larger than it, for two reasons
+#: that both come from what is UNDER the text.
+#:
+#: The scrims are re-solved AFTER the ink and must not be able to push it
+#: under, which is the small half. The large half is that
+#: :data:`CONTRAST_RULES` judges ink against a surface role, and some panels
+#: in the application are painted translucent by the WIDGET rather than by
+#: the theme — ``SetupCard`` lays its body down at alpha 216 so the backdrop
+#: shows through it, and under ``spaceout`` that backdrop is a bright
+#: fractal. Measured on the rendered first-run card over a real frame: at
+#: 1.12 the heading came out at 4.56:1 against a 4.5:1 rule, which is inside
+#: the rule and outside any comfort. At 1.30 the same measurement is 5.6:1
+#: and ``fg`` is still a saturated blue rather than the white it was.
+SPACEOUT_INK_HEADROOM = 1.30
+
+#: The saturations tried when the drift breaks the page separation, in
+#: order. The first one that clears the rule wins, so a drift offset that
+#: never had a problem keeps the full colour.
+#:
+#: WHY THIS EXISTS, and it is the same reason the scrims are re-solved. The
+#: contrast rules survive a re-hue by construction, because a ratio is a
+#: function of relative luminance alone — but `page_separation_report` asks
+#: whether you can SEE the panel, and half of its rows composite the panel
+#: over the page at :data:`PAGE_FADED_OPACITY`. That composite happens
+#: channel by channel in sRGB, and two colours of equal luminance and
+#: different hue do not composite to equal luminance. Measured over the
+#: sixty offsets the palette can take: the light theme's faded
+#: ``surface_alt`` drops to 1.069:1 against a 1.08:1 rule at four of them.
+#:
+#: So at those offsets — and only at those — the page and the panels are
+#: mixed back toward white until the panel separates again. It costs
+#: saturation on four sixtieths of the drift and it buys a page you can
+#: still see the panels on, which is the trade the request names outright.
+SPACEOUT_DAMPING_STEPS: Tuple[float, ...] = (1.0, 0.75, 0.55, 0.40, 0.28,
+                                             0.20, 0.12)
+
+#: Extra saturation damping for the page and its panels, as
+#: ``{theme: {drift offset: multiplier}}``. An offset that is not in the
+#: table needs no damping, which is nearly all of them.
+_PAGE_DAMPING: Dict[str, Dict[float, float]] = {}
+
+#: Solved damping, keyed by whether the dressing is on — the twin of
+#: :data:`_SOLVED_SCRIMS`.
+_SOLVED_DAMPING: Dict[bool, Dict[str, Dict[float, float]]] = {}
+
+#: The roles the damping reaches: the page itself and the panels that have
+#: to stay visible on it.
+#:
+#: Written out rather than built from :data:`PAGE_PANEL_ROLES`, which is
+#: declared further down the module; ``test_spaceout_looks_alive.py`` asserts
+#: the two agree so the pair cannot drift apart.
+SPACEOUT_DAMPED_ROLES: Tuple[str, ...] = ("page", "surface", "surface_alt")
+
+#: Elapsed animation seconds the drift is at. Advanced by the widgets that
+#: are already painting frames; never read off a wall clock.
+_DRIFT_SECONDS = 0.0
+
+#: Solved ink bands for the current dressing, ``{theme: {role: (lo, hi)}}``.
+#: Empty when the dressing is off, which is what makes every ink role fall
+#: back to the plain hue shift.
+_INK_BANDS: Dict[str, Dict[str, Tuple[float, float]]] = {}
+
+#: Solved ink bands, keyed by whether the dressing is on — the twin of
+#: :data:`_SOLVED_SCRIMS`, and cached for the same reason.
+_SOLVED_INK: Dict[bool, Dict[str, Dict[str, Tuple[float, float]]]] = {}
+
+#: While a solve is running: the hue offset to dress at, and whether the ink
+#: treatment is applied. `palette_for` consults both, which is what lets the
+#: solvers call the ordinary public helpers — `effective_surface`,
+#: `scrim_under`, `max_background_luma` — instead of restating them, and
+#: what stops the ink solve recursing into the palette it is solving.
+_SOLVE_DRIFT: Optional[float] = None
+_SOLVE_INK = True
+
+
+@contextmanager
+def _dressed_at(drift: float, ink: bool = True):
+    """Resolve palettes at hue offset ``drift`` for the duration.
+
+    ``ink`` False leaves the ink roles on the plain hue shift, which is what
+    :func:`_ink_band` needs: it is solving the band the ink will be chosen
+    from, and it reads the surfaces through :func:`effective_surface`, which
+    goes back through :func:`palette_for`.
+    """
+    global _SOLVE_DRIFT, _SOLVE_INK
+    was = (_SOLVE_DRIFT, _SOLVE_INK)
+    _SOLVE_DRIFT, _SOLVE_INK = float(drift), bool(ink)
+    try:
+        yield
+    finally:
+        _SOLVE_DRIFT, _SOLVE_INK = was
+
+
+def _drift_grid() -> Tuple[float, ...]:
+    """The hue offsets the palette can take, in degrees."""
+    return tuple(index * 360.0 / SPACEOUT_DRIFT_STEPS
+                 for index in range(SPACEOUT_DRIFT_STEPS))
+
+
+def spaceout_drift(at: Optional[float] = None) -> float:
+    """Return the continuous spaceout hue rotation in degrees.
+
+    :param at: Elapsed animation time in seconds. ``None`` uses the current
+        drift clock.
+    :returns: Hue rotation in ``[0, 360)``, or zero when spaceout is disabled.
+    """
+    if not _SPACEOUT:
+        return 0.0
+    elapsed = _DRIFT_SECONDS if at is None else float(at)
+    turns = elapsed / SPACEOUT_DRIFT_TURN
+    for share, period, phase in SPACEOUT_DRIFT_WANDER:
+        turns += share * math.sin(2.0 * math.pi * (elapsed / period + phase))
+    return (turns * 360.0) % 360.0
+
+
+def spaceout_drift_step(at: Optional[float] = None) -> float:
+    """Return :func:`spaceout_drift` quantised to its solved palette grid."""
+    if not _SPACEOUT:
+        return 0.0
+    step = 360.0 / SPACEOUT_DRIFT_STEPS
+    return (round(spaceout_drift(at) / step) % SPACEOUT_DRIFT_STEPS) * step
+
+
+def spaceout_drift_seconds() -> float:
+    """Return the elapsed spaceout animation time in seconds."""
+    return _DRIFT_SECONDS
+
+
+def advance_spaceout_drift(dt: float) -> float:
+    """Advance the spaceout clock and return the resulting hue rotation.
+
+    Non-positive intervals and calls made while spaceout is disabled do not
+    modify the clock.
+    """
+    global _DRIFT_SECONDS
+    if _SPACEOUT and dt > 0:
+        _DRIFT_SECONDS += float(dt)
+    return spaceout_drift()
+
+
+def set_spaceout_drift_seconds(seconds: float) -> None:
+    """Set the spaceout animation clock, clamped to zero or greater."""
+    global _DRIFT_SECONDS
+    _DRIFT_SECONDS = max(0.0, float(seconds))
+
+
+@lru_cache(maxsize=None)
+def _hue_ink(hue: float, low: float, high: float, fallback: str) -> str:
+    """The most chromatic colour on ``hue`` whose luminance is in the band.
+
+    The same 512 candidates :func:`_hue_shift` scores — the value ramp at
+    full saturation and the saturation ramp at full value — judged on a
+    different question. :func:`_hue_shift` asks which one is closest to a
+    luminance it must keep; this asks which one is the most COLOURED of
+    those the readability band allows, because for the ink the luminance is
+    the constraint and the colour is the point.
+
+    Falls back to the plain hue shift when the band admits nothing, which is
+    what a role whose rules leave it no room gets: unchanged and readable.
+    """
+    base = _hue_rgb(hue)
+    best: Optional[Tuple[int, int, int]] = None
+    chroma = -1
+    for level in range(256):
+        candidate = (int(round(base[0] * level)),
+                     int(round(base[1] * level)),
+                     int(round(base[2] * level)))
+        if low <= _rgb_luminance(candidate) <= high:
+            spread = max(candidate) - min(candidate)
+            if spread > chroma:
+                best, chroma = candidate, spread
+    for step in range(256):
+        weight = step / 255.0
+        candidate = (
+            int(round(255.0 * (1.0 - weight + weight * base[0]))),
+            int(round(255.0 * (1.0 - weight + weight * base[1]))),
+            int(round(255.0 * (1.0 - weight + weight * base[2]))))
+        if low <= _rgb_luminance(candidate) <= high:
+            spread = max(candidate) - min(candidate)
+            if spread > chroma:
+                best, chroma = candidate, spread
+    if best is None:
+        return _hue_shift(fallback, hue)
+    return "#%02x%02x%02x" % best
+
+
+def _ink_band(theme: str, role: str) -> Optional[Tuple[float, float]]:
+    """The luminances ``role`` may take in ``theme`` and still be read.
+
+    Closed form per rule rather than a search. For an ink of luminance
+    ``L`` on a surface of luminance ``Ls``, WCAG asks
+    ``(hi + 0.05) / (lo + 0.05) >= r``; an ink that is the LIGHTER of the
+    pair is therefore bounded below by ``(Ls + 0.05) * r - 0.05`` and a
+    darker one bounded above by ``(Ls + 0.05) / r - 0.05``. The band is the
+    tightest of those over every rule in :data:`CONTRAST_RULES` that names
+    the role, at every offset the drift can reach — the surfaces keep their
+    luminance under the dressing, but an image theme's surfaces are
+    composited over the wallpaper and those do move with hue.
+
+    One more bound, and it is what keeps the rest of the module honest:
+    :func:`max_background_luma` is a minimum over ink luminances, and the
+    imagery pipeline exposure-solves every wallpaper down to it. Letting the
+    ink darken would silently darken every photograph in the application, so
+    each role that feeds that minimum is held at or above the luminance it
+    needs to leave the ceiling where it was.
+
+    ``None`` when the role sits between its surfaces, or when the bounds
+    cross — both of which mean there is no room to spend and the plain hue
+    shift is the right answer.
+    """
+    rules = tuple((surface, required)
+                  for fg, surface, required in CONTRAST_RULES if fg == role)
+    if not rules:
+        return None
+    plain = dict(_PALETTES.get(theme, DARK_PALETTE))
+    plain.update(CONSTANT_ROLES)
+    ink = relative_luminance(plain[role])
+    low, high = 0.0, 1.0
+    for drift in _drift_grid():
+        with _dressed_at(drift, ink=False):
+            surfaces = [relative_luminance(effective_surface(theme, surface))
+                        for surface, _ in rules]
+        if ink >= max(surfaces):
+            for (_surface, required), luma in zip(rules, surfaces):
+                low = max(low, (luma + 0.05) * required
+                          * SPACEOUT_INK_HEADROOM - 0.05)
+        elif ink <= min(surfaces):
+            for (_surface, required), luma in zip(rules, surfaces):
+                high = min(high, (luma + 0.05) / (required
+                                                  * SPACEOUT_INK_HEADROOM)
+                           - 0.05)
+        else:
+            return None
+    with _dressed_at(0.0, ink=False):
+        keep = max_background_luma(theme)
+    for named, required in BARE_IMAGE_RULES:
+        if named == role:
+            low = max(low, (keep + 0.05) * required - 0.05)
+    low, high = max(0.0, low), min(1.0, high)
+    return (low, high) if high - low > 1e-6 else None
+
+
+def _solve_page_damping() -> Dict[str, Dict[float, float]]:
+    """How much colour each theme has to give up, at each drift offset, for
+    its panels to stay visible on its page.
+
+    Solved by *trying* rather than by arithmetic, because the rule it is
+    solving against — :func:`page_separation_failures` — is two
+    measurements, one of them in CIE L*, and reading them backwards to a
+    saturation would be a second implementation of the thing it has to
+    agree with. Seven candidates over sixty offsets is 130 ms once.
+
+    The candidate under test is written straight into :data:`_PAGE_DAMPING`
+    so :func:`page_separation_failures` sees it through the palette, which
+    is what makes this the published rule judging the published colours
+    rather than a copy of either.
+    """
+    _PAGE_DAMPING.clear()
+    for name in THEMES:
+        rows: Dict[float, float] = {}
+        _PAGE_DAMPING[name] = rows
+        for drift in _drift_grid():
+            for damping in SPACEOUT_DAMPING_STEPS:
+                rows[drift] = damping
+                with _dressed_at(drift):
+                    if not page_separation_failures(name):
+                        break
+            if rows[drift] >= 1.0:
+                del rows[drift]
+    return {name: dict(rows) for name, rows in _PAGE_DAMPING.items()}
+
+
+def _solve_ink_bands() -> Dict[str, Dict[str, Tuple[float, float]]]:
+    """Every ink band of every theme. Solved once per dressing."""
+    out: Dict[str, Dict[str, Tuple[float, float]]] = {}
+    for name in THEMES:
+        rows = {}
+        for role in SPACEOUT_INK_ROLES:
+            band = _ink_band(name, role)
+            if band is not None:
+                rows[role] = band
+        out[name] = rows
+    return out
+
+
+def _scrim_bounds(palette: dict, role: str, colour_role: str,
+                  under: Tuple[int, int, int]) -> Tuple[float, float]:
+    """:func:`legible_scrim_floor` and :func:`present_scrim_ceiling`, in one
+    pass over 8-bit channels rather than over hex strings.
+
+    Exactly the two published solvers and it has to stay exactly them —
+    ``tests/qt/test_spaceout_looks_alive.py`` asserts the answers match for
+    every role of every image theme. What it is not is their cost: those
+    format a colour to hex and parse it straight back once per step of a
+    thousand-step sweep, and the drift asks for the pair at every offset in
+    :func:`_drift_grid` rather than once.
+
+    The ceiling is found coarse-to-fine. :func:`picture_contrast` falls as
+    the panel thickens, so the first coarse step that still shows the
+    picture puts the answer inside the block above it, and the block is then
+    walked from the top. Not a bisection: the fall is monotone in the reals
+    but 8-bit rounding makes it wobble by two or three thousandths, and a
+    bisection lands on the wrong side of the wobble.
+    """
+    # `colour_role or role`, matching the two published solvers exactly --
+    # which this docstring insists on and, until 310 A7, did not do. Both
+    # `picture_contrast` and `present_scrim_ceiling` take `colour_role` as
+    # Optional and fall back to `role`; here `role` was accepted and never
+    # read, so a caller passing the documented `colour_role=None` got
+    # `KeyError: None` out of the drift solver at import rather than that
+    # role's own bounds. Not reachable today -- every SCRIM_ROLES value is a
+    # non-None string -- but the dead parameter also hid the divergence from
+    # anyone comparing the three implementations, which is the comparison the
+    # docstring asks them to make.
+    base = _channels(palette[colour_role or role])
+    inks = tuple((_rgb_luminance(_channels(palette[fg])),
+                  required * SCRIM_HEADROOM)
+                 for fg, required in _scrim_rules(colour_role or role))
+
+    def over(alpha: float, beneath: Tuple[int, int, int]) -> float:
+        """The luminance of the scrim at ``alpha`` over one background."""
+        rest = 1.0 - alpha
+        return _rgb_luminance((
+            int(round(alpha * base[0] + rest * beneath[0])),
+            int(round(alpha * base[1] + rest * beneath[1])),
+            int(round(alpha * base[2] + rest * beneath[2]))))
+
+    floor = 1.0
+    for step in range(0, 1001):
+        panel = over(step / 1000.0, under)
+        if all((max(luma, panel) + 0.05) / (min(luma, panel) + 0.05) >= need
+               for luma, need in inks):
+            floor = step / 1000.0
+            break
+
+    def shows(step: int) -> bool:
+        """Whether text still meets the contrast floor at this scrim strength.
+
+        Checked against BOTH the lightest and the darkest thing the scrim can
+        sit on, because a picture backdrop is neither -- an alpha that reads
+        against one and not the other is not usable.
+        """
+        alpha = step / 1000.0
+        lit, dark = over(alpha, under), over(alpha, (0, 0, 0))
+        return ((max(lit, dark) + 0.05) / (min(lit, dark) + 0.05)
+                >= MIN_PICTURE_CONTRAST)
+
+    coarse = 1000
+    while coarse > 0 and not shows(coarse):
+        coarse -= 25
+    ceiling = 0.0
+    for step in range(min(1000, coarse + 25), max(-1, coarse - 1), -1):
+        if shows(step):
+            ceiling = step / 1000.0
+            break
+    return floor, ceiling
+
+
+def _solve_scrims_over_drift() -> Dict[str, Dict[str, float]]:
+    """Scrim alphas that hold at every offset the drift can reach.
+
+    The bounds :func:`solve_scrim_alpha` weighs are the same two, taken as a
+    worst case instead of at one palette: the HIGHEST legibility floor and
+    the LOWEST see-through ceiling over :func:`_drift_grid`. The answer is
+    still the ceiling clamped up to the floor, so where the drift makes the
+    two cross, legibility takes it — which is the same way round this module
+    has always resolved that pair.
+    """
+    out: Dict[str, Dict[str, float]] = {}
+    for name in IMAGE_THEMES:
+        floors: Dict[str, float] = {}
+        ceilings: Dict[str, float] = {}
+        for drift in _drift_grid():
+            with _dressed_at(drift):
+                palette = palette_for(name)
+                under = _channels(scrim_under(name))
+            for role, colour_role in SCRIM_ROLES.items():
+                floor, ceiling = _scrim_bounds(palette, role, colour_role,
+                                               under)
+                floors[role] = max(floors.get(role, 0.0), floor)
+                ceilings[role] = min(ceilings.get(role, 1.0), ceiling)
+        solved = {role: max(ceilings[role], floors[role])
+                  for role in SCRIM_ROLES}
+        # Popups are separate top-level windows. Translucency there shows
+        # the desktop, not the wallpaper.
+        solved["elevated"] = 1.00
+        out[name] = solved
+    return out
+
+
+#: Whether this process is wearing the spaceout dressing. Process state,
+#: never a stored preference — see the block above.
+_SPACEOUT = False
+
+#: Solved scrim alphas, keyed by whether the dressing is on. Populated at
+#: import for ``False`` and on the first :func:`enable_spaceout` for
+#: ``True``, so flipping the mode costs one solve and never more.
+_SOLVED_SCRIMS: Dict[bool, Dict[str, Dict[str, float]]] = {}
+
+
+def spaceout_enabled() -> bool:
+    """Return whether spaceout rendering is enabled for this process."""
+    return _SPACEOUT
+
+
+def _apply_dressing() -> None:
+    """Point :data:`SCRIM_ALPHA` and :data:`_INK_BANDS` at the current
+    dressing's solved values.
+
+    The image themes paint translucent panels, so their alphas are a
+    function of the palette — re-hueing one moves the colour a panel is
+    composited from and therefore what it takes for text to stay readable
+    over the wallpaper. Under the dressing the palette also *drifts*, so the
+    answer is a worst case over the offsets it can reach rather than a
+    single solve.
+
+    TWO PASSES, and the order is forced. The ink band is read off the
+    surfaces, and an image theme's surfaces are its scrims composited over
+    the wallpaper — so the scrims have to exist before the ink can be
+    solved. The ink then changes what those panels have to carry, so the
+    scrims are solved again against it. :data:`SPACEOUT_INK_HEADROOM` is
+    what stops the second pass from invalidating the first: the ink is
+    solved with 12 % in hand, and the scrims only ever thicken.
+
+    Solved once per dressing and cached, so taking it off and putting it
+    back costs one dict copy.
+    """
+    solved = _SOLVED_SCRIMS.get(_SPACEOUT)
+    bands = _SOLVED_INK.get(_SPACEOUT)
+    damping = _SOLVED_DAMPING.get(_SPACEOUT)
+    if solved is None or bands is None or damping is None:
+        if not _SPACEOUT:
+            solved, bands, damping = _solve_scrims(), {}, {}
+        else:
+            _INK_BANDS.clear()
+            # The damping first: it moves the panel colours, and the scrims
+            # are solved from those.
+            damping = _solve_page_damping()
+            SCRIM_ALPHA.clear()
+            SCRIM_ALPHA.update(_solve_scrims_over_drift())
+            bands = _solve_ink_bands()
+            _INK_BANDS.update(bands)
+            solved = _solve_scrims_over_drift()
+        _SOLVED_SCRIMS[_SPACEOUT] = solved
+        _SOLVED_INK[_SPACEOUT] = bands
+        _SOLVED_DAMPING[_SPACEOUT] = damping
+    SCRIM_ALPHA.clear()
+    SCRIM_ALPHA.update(solved)
+    _INK_BANDS.clear()
+    _INK_BANDS.update(bands)
+    _PAGE_DAMPING.clear()
+    _PAGE_DAMPING.update({name: dict(rows) for name, rows in damping.items()})
+
+
+def enable_spaceout() -> None:
+    """Enable process-local spaceout rendering.
+
+    This operation is idempotent and does not modify saved preferences.
+    """
+    global _SPACEOUT, _DRIFT_SECONDS
+    if _SPACEOUT:
+        return
+    _SPACEOUT = True
+    _DRIFT_SECONDS = 0.0
+    _apply_dressing()
+
+
+def disable_spaceout() -> None:
+    """Disable process-local spaceout rendering and reset its clock."""
+    global _SPACEOUT, _DRIFT_SECONDS
+    if not _SPACEOUT:
+        return
+    _SPACEOUT = False
+    _DRIFT_SECONDS = 0.0
+    _apply_dressing()
 
 
 def palette_for(theme: str = "dark") -> dict:
@@ -1111,10 +1951,25 @@ def palette_for(theme: str = "dark") -> dict:
     theme-invariant key from :data:`CONSTANT_ROLES` so callers can hit
     e.g. ``palette_for(t)["button_accent"]`` and know the value is the
     same across themes.
+
+    Under the ``spaceout`` dressing (:func:`spaceout_enabled`) the result is
+    re-hued onto the spectrum on the way out, at whatever offset the drift
+    has reached. The keys and the count are unchanged, and so is every
+    surface role's relative luminance, so callers, contrast rules and the
+    light/dark distinction all go on working. The three ink roles are the
+    exception and are solved rather than carried — see
+    :data:`SPACEOUT_INK_ROLES`.
     """
     base = _PALETTES.get(theme, DARK_PALETTE)
     out = dict(base)
     out.update(CONSTANT_ROLES)
+    if _SPACEOUT:
+        # Same keys, same surface luminances, different hues — see the
+        # spaceout block above. Applied before the splash roles so those are
+        # derived from the colours the window will actually be painted with.
+        drift = (spaceout_drift_step() if _SOLVE_DRIFT is None
+                 else _SOLVE_DRIFT)
+        out = spaceout_palette(out, drift, theme if _SOLVE_INK else None)
     out.update(_splash_roles(out))
     return out
 
@@ -1283,16 +2138,41 @@ def __getattr__(name: str):
 # Colour maths — WCAG contrast
 # ---------------------------------------------------------------------------
 
-def _channels(color: str) -> Tuple[int, int, int]:
-    text = color.strip().lstrip("#")
+#: What an unreadable colour becomes for a caller that cannot afford to
+#: raise. White is the safe answer for paint: it keeps type and scrims
+#: visible instead of blanking them.
+_UNREADABLE = (255, 255, 255)
+
+
+def _channels(color: str,
+              fallback: Optional[Tuple[int, int, int]] = None
+              ) -> Tuple[int, int, int]:
+    """Split ``#rgb`` or ``#rrggbb`` into its three 0-255 channels.
+
+    Parsing is strict by default, so a palette entry that is not a colour is
+    reported where someone can fix it. Callers that run inside a paint pass
+    ``fallback`` instead: a swatch that comes out the wrong colour is
+    cosmetic, an exception raised out of a repaint is not.
+    """
+    text = str(color).strip().lstrip("#")
     if len(text) == 3:
         text = "".join(ch * 2 for ch in text)
-    if len(text) != 6:
-        raise ValueError(f"not a #rrggbb colour: {color!r}")
-    return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
+    try:
+        if len(text) != 6:
+            raise ValueError
+        return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
+    except ValueError:
+        if fallback is not None:
+            return fallback
+        raise ValueError(f"not a #rrggbb colour: {color!r}") from None
 
 
 def _linear(value: int) -> float:
+    """Linearise one 8-bit sRGB channel.
+
+    :param value: the channel, 0-255.
+    :returns: its linear-light value in ``[0, 1]``.
+    """
     c = value / 255.0
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
@@ -1318,6 +2198,44 @@ def composite(top: str, alpha: float, under: str = WORST_CASE_UNDER) -> str:
     out = tuple(int(round(alpha * t + (1.0 - alpha) * u))
                 for t, u in ((tr, ur), (tg, ug), (tb, ub)))
     return "#%02x%02x%02x" % out
+
+
+#: FULLY OPAQUE. Tried at 0.94 first, on the reasoning that a solid bar
+#: would read as a slab pasted over the backdrop. Seen on a real screen
+#: that was still wrong -- "remove the transparency for the bar and it
+#: will be perfect" -- because this bar is the frameless window's TITLE
+#: bar: the backdrop moving behind its two labels is motion under text
+#: the eye is trying to read, and no amount of it is an improvement.
+#:
+#: Kept as a named constant rather than inlined, because the corner
+#: chrome and the bar must agree and this is the single thing they agree
+#: on. At 1.0 `css_color` returns plain hex, which is also what the flat
+#: themes are required to emit.
+MENU_BAR_ALPHA = 1.0
+
+
+def menu_bar_background(theme: Optional[str] = None) -> str:
+    """The QSS colour the menu bar and its corner chrome both paint.
+
+    ONE FUNCTION FOR BOTH so they cannot drift. The bar is styled from
+    the generated stylesheet and the window chrome is styled in
+    ``spacr.qt.app`` with a stylesheet of its own; two hard-coded colours
+    that have to match is one of them going stale.
+
+    :param theme: theme name; the active theme when omitted.
+    :returns: a QSS colour string.
+    """
+    if theme is None:
+        # The theme ON SCREEN, resolved the way `active_palette` does --
+        # the chrome is restyled on a theme change like everything else,
+        # so reading a constant here would leave the corner painting the
+        # dark bar's colour under the light one.
+        try:
+            from .preferences import resolve_effective_theme
+            theme = resolve_effective_theme()
+        except Exception:                                   # noqa: BLE001
+            theme = "dark"
+    return css_color(palette_for(theme)["surface"], MENU_BAR_ALPHA)
 
 
 def css_color(color: str, alpha: float = 1.0) -> str:
@@ -1440,6 +2358,13 @@ def contrast_failures(theme: str) -> List[str]:
 
 
 def _describe(report: List[dict]) -> List[str]:
+    """Render the failing contrast rules as readable lines.
+
+    :param report: the contrast report.
+    :returns: one line per FAILING rule, naming both colours, the ratio it
+        reached and the ratio it needed -- the passes are omitted because a
+        report of what is fine is a report nobody reads.
+    """
     return [
         f"{r['fg']} ({r['fg_color']}) on {r['bg']} ({r['bg_color']}): "
         f"{r['ratio']:.2f}:1 < {r['required']:.1f}:1"
@@ -1559,6 +2484,12 @@ def page_separation_failures(theme: str) -> List[str]:
 # — a role added there is automatically enforced against the imagery.
 
 def _bare_image_rules() -> Tuple[Tuple[str, float], ...]:
+    """Return the contrast rules that apply straight over the window.
+
+    :returns: ``(foreground, required_ratio)`` for every rule whose surface
+        is the window itself -- the ones a picture theme has to satisfy,
+        since there is no panel between the text and the image.
+    """
     return tuple((fg, required)
                  for fg, surface, required in CONTRAST_RULES
                  if surface == "bg")
@@ -1653,7 +2584,8 @@ CONSTANT_ROLES = {
 # `scrim_alpha` stays a dict lookup on the hot path (the QSS asks for it
 # once per role per theme change) and so a palette edit that makes a
 # theme unsolvable fails loudly here rather than three screens later.
-SCRIM_ALPHA.update(_solve_scrims())
+_SOLVED_SCRIMS[False] = _solve_scrims()
+SCRIM_ALPHA.update(_SOLVED_SCRIMS[False])
 
 
 # ---------------------------------------------------------------------------
@@ -1797,7 +2729,7 @@ def mark_surface(*widgets) -> None:
     transmission, which over a near-black window colour reads as a black box
     with the text floating on it.
 
-    So the sweep cannot simply be narrowed to exact types. Doing that flips
+    The sweep cannot be narrowed to exact types. Doing that flips
     **every** view in the application at once, and the ones already sitting on
     a pane would then stack two translucent greys and read about 0.49 — a
     shade no position of the page-opacity slider can produce. Nor can a type
@@ -2202,10 +3134,20 @@ QPushButton:hover {{
     background: {high};
     border: 1px solid {rim};
 }}
-QPushButton#Tile, QPushButton#HTile, QPushButton#AppTile {{
+QPushButton#Tile, QPushButton#HTile {{
     background: {tile};
     border: 1px solid {rim};
     border-radius: 16px;
+}}
+/* Module launchers sit directly on the Home pane. A resting glass rim made
+   each row read as a ruled table; only an interactive state earns an edge. */
+QPushButton#AppTile {{
+    background: {tile};
+    border: none;
+    border-radius: 16px;
+}}
+QPushButton#AppTile:focus {{
+    border: 1px solid {base["accent"]};
 }}
 QGroupBox {{
     border: 1px solid {rim_soft};
@@ -2249,31 +3191,17 @@ _WIDGET_QSS: Dict[str, object] = {}
 
 #: Every module that registers a widget QSS block **at import time**.
 #:
-#: This list exists because a rule that is not registered when the
-#: stylesheet is built simply is not in it, and the widget it was meant for
-#: then falls through to the blanket ``QWidget {{ background-color: bg }}``.
-#: ``bg`` is the WINDOW colour -- ``#000000`` on the dark theme -- so an
-#: unstyled container is not "slightly off", it is a solid black rectangle.
-#:
-#: That is the black box behind the settings categories, reported over and
-#: over across Mask, Measure, Timelapse, Motility, both Classify screens,
-#: Map Barcodes, Regression, External Masks, Illumination, Train Cellpose,
-#: Cellpose Masks, Image UMAP, Activation, Barcode QC, Replication,
-#: Invasion, Recruitment and Plaque. ``settings_search`` owns
-#: ``SettingsSearchPane``, the wrapper around the search strip AND the
-#: settings scroll area -- i.e. the entire left column -- and it registers
-#: its rules when it is imported, which is when the first module screen is
-#: built. The application stylesheet is composed and applied before that.
-#: So the first screen of a session opened onto a black column, and any
-#: later rebuild of the stylesheet -- switching theme, switching animation,
-#: opening enough screens that something re-applied it -- silently fixed
-#: it. Every one of those is exactly what was reported.
-#:
-#: Ordering, not styling: the rules were right the whole time and were not
-#: in the sheet yet. Fixing it by styling one more container would have
-#: fixed one screen and left the next.
+#: This is the exhaustive/static stylesheet inventory.  The public
+#: :func:`stylesheet` default imports it so documentation, screenshots and
+#: callers that request one complete sheet retain that contract.  Production
+#: startup skips the imports: when a screen is opened, its root receives the
+#: registered blocks that are absent from the application sheet before that
+#: root is shown.  Scoping the late rules to the new screen avoids asking Qt
+#: to re-polish every widget already alive merely because one module arrived.
+#: Order follows registration order, with later rules winning ties.
 WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.settings_search",
+    "spacr.qt.screens.annotate",
     "spacr.qt.screens.app_screen",
     "spacr.qt.screens.settings_model",
     "spacr.qt.shortcuts",
@@ -2284,12 +3212,25 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.layer_viewer",
     "spacr.qt.ortho_view",
     "spacr.qt.roi_tool",
+    # The lightweight Classify footer registers the theme-native box without
+    # importing FlowView itself.  Its renderer remains lazy until expansion.
+    "spacr.qt.screens.classify",
     "spacr.qt.screens.classifier_evaluation",
     "spacr.qt.screens.control_chart",
     "spacr.qt.screens.data_manager",
     "spacr.qt.screens.experiment_design",
+    # The Gate Editor's Filter/Search tab strip. It tried to register its own
+    # block from the screen's __init__, against a `theme.register_qss` that
+    # has never existed, so the strip has been falling through to the blanket
+    # `QWidget { background-color: bg }` since it was written.
+    "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
+    # The fold page strip every module screen grows when a fold is opened.
+    # A page can be opened long after launch, so its import-time registration
+    # is applied to its host screen then; exhaustive sheets include it up
+    # front too.
+    "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
     "spacr.qt.screens.model_zoo",
@@ -2329,9 +3270,10 @@ _QSS_REGISTRARS_LOADED = False
 def load_widget_qss_registrars() -> Tuple[str, ...]:
     """Import :data:`WIDGET_QSS_MODULES` so their blocks are registered.
 
-    Called from :func:`stylesheet` before it composes anything, so the very
-    first sheet of a session carries every rule rather than acquiring them
-    as screens happen to be opened.
+    Called by the exhaustive/default :func:`stylesheet` path before it
+    composes anything.  The production preference path opts out so unopened
+    data screens do not import their scientific dependencies merely to
+    contribute decoration.
 
     Idempotent, and the flag is set BEFORE the imports rather than after:
     several of these modules call :func:`stylesheet` while being imported,
@@ -2364,6 +3306,12 @@ def load_widget_qss_registrars() -> Tuple[str, ...]:
 
 def register_widget_qss(name: str, fn, *, replace: bool = False):
     """Register a QSS block appended to every generated stylesheet.
+
+    Registration itself never re-applies the ``QApplication`` stylesheet.
+    Qt re-polishes every live widget on a global ``setStyleSheet`` call; doing
+    that once for every screen imported on demand made later module opens
+    progressively slower.  :func:`ensure_widget_qss_applied` installs the
+    missing blocks on the new screen's root before it can paint instead.
 
     :param name: stable identifier, normally the widget's ``objectName``.
         It is what the block is reported and unregistered by; it does not
@@ -2424,55 +3372,158 @@ def widget_qss_names() -> Tuple[str, ...]:
 #: module was imported.
 _WIDGET_QSS_MARKER = "/* --- registered widget QSS: {name} --- */"
 
+# A late block lives on the root of the screen that needed it.  The outer
+# markers make that suffix replaceable as more modules are imported and
+# removable before the next whole-application preference rebuild.  The
+# attribute holds the exact suffix, including its leading newline, so a
+# screen's own stylesheet is restored byte-for-byte rather than reparsed.
+_LOCAL_WIDGET_QSS_START = "/* --- local registered widget QSS: start --- */"
+_LOCAL_WIDGET_QSS_END = "/* --- local registered widget QSS: end --- */"
+_LOCAL_WIDGET_QSS_ATTRIBUTE = "_spacr_local_widget_qss_suffix"
+_WIDGET_QSS_CONTEXT_ATTRIBUTE = "_spacr_widget_qss_context"
 
-def ensure_widget_qss_applied(*names: str) -> bool:
-    """Re-apply the application stylesheet if ``names`` are missing from it.
 
-    The registration seam has one seam of its own, and it is silent. A block
-    is registered at its module's **import**, and the application stylesheet
-    is generated **once at launch**, before ``MainWindow`` exists. A screen
-    that ``app.py`` imports lazily — inside the ``if key == …`` branch that
-    builds it — therefore registers its block minutes after the only
-    stylesheet that would have carried it, and the screen opens unstyled.
+def set_widget_qss_context(app, theme: str, font_scale: float,
+                           surface_opacity: Optional[float]) -> None:
+    """Record the exact live preference inputs for late screen blocks."""
+    if app is not None:
+        setattr(app, _WIDGET_QSS_CONTEXT_ATTRIBUTE,
+                (str(theme), float(font_scale), surface_opacity))
 
-    That is not hypothetical: Model Compare's panels were given a page
-    surface, the test that measures them passed (a test imports the module
-    before it applies the stylesheet), and the panels were still bare in the
-    running app, because ``spacr.qt.screens.model_compare`` is not in
-    ``sys.modules`` when the stylesheet is built. The screens listed in
-    ``spacr.qt.SELF_REGISTERING_MODULES`` are imported at launch and never
-    had the problem, which is why it went unnoticed for as long as it did.
 
-    Call this from the constructor of a screen whose module registers a
-    block. It is a no-op in every case except the one it exists for: no
-    ``QApplication``, no stylesheet yet, or the block already present.
-
-    :param names: registered block names the caller needs to be live.
-    :returns: ``True`` if the stylesheet was regenerated.
-    """
+def _live_widget_qss_context(app) -> Tuple[str, float, Optional[float]]:
+    """Return the preference inputs used by the live application sheet."""
+    context = getattr(app, _WIDGET_QSS_CONTEXT_ATTRIBUTE, None)
+    if (isinstance(context, tuple) and len(context) == 3):
+        return context
     try:
-        from PySide6.QtWidgets import QApplication
-    except Exception:  # pragma: no cover - PySide6 is a hard dependency here
+        from .preferences import (
+            get_font_scale,
+            get_pane_opacity,
+            resolve_effective_theme,
+        )
+        return (resolve_effective_theme(), get_font_scale(),
+                get_pane_opacity())
+    except Exception:
+        return "dark", 1.0, None
+
+
+def _widget_qss_palette(theme: str, font_scale: float,
+                        surface_opacity: Optional[float]) -> dict:
+    """Build the callback palette shared by global and screen-local QSS."""
+    base = palette_for(theme)
+    palette = dict(base)
+    for role in ("surface", "surface_alt", "surface_hi"):
+        palette[role] = css_color(
+            base[role], panel_alpha(theme, role, surface_opacity))
+    palette["theme"] = theme
+    palette["font_scale"] = font_scale
+    return palette
+
+
+def clear_widget_qss_overlays(app=None) -> int:
+    """Remove screen-local late-QSS suffixes before a global theme rebuild.
+
+    The rebuilt application sheet contains every block registered so far,
+    with the new theme, opacity and font scale.  Leaving an older local copy
+    in place would give it precedence and strand the screen on the previous
+    preference values.
+
+    :returns: number of screen roots whose owned suffix was removed.
+    """
+    app = app or QApplication.instance()
+    if app is None:
+        return 0
+    cleared = 0
+    for widget in list(app.allWidgets()):
+        suffix = getattr(widget, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+        if not suffix:
+            continue
+        try:
+            current = widget.styleSheet()
+            setattr(widget, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+            if current.endswith(suffix):
+                widget.setStyleSheet(current[:-len(suffix)])
+            cleared += 1
+        except RuntimeError:
+            # The C++ widget was deleted while Qt was draining its queue.
+            pass
+    return cleared
+
+
+def preserve_widget_qss_overlay(root, stylesheet: str) -> str:
+    """Return ``stylesheet`` with ``root``'s owned late-QSS suffix intact.
+
+    A screen may legitimately replace its own base stylesheet after its late
+    widget blocks were installed.  Folding the suffix into that existing
+    assignment avoids a second ``setStyleSheet`` call (and its palette-change
+    cascade) while keeping the blocks available for the next paint.
+    """
+    return str(stylesheet) + getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+
+
+def ensure_widget_qss_applied(*names: str, root=None) -> bool:
+    """Install late registered blocks on ``root`` without restyling the app.
+
+    The production application stylesheet is composed before unopened screen
+    modules are imported.
+
+    Replacing that whole sheet for each import closes
+    the first-paint race, but it also makes Qt parse the sheet and re-polish
+    every widget accumulated in every cached screen.
+
+    A screen root is a QSS
+    scope: rules installed there reach that screen and its descendants, and
+    applying them before the root is shown preserves the same first-paint
+    contract without touching Home or any previously opened module.
+
+    The suffix contains every registered block absent from the application
+    sheet, in registry order, rather than only ``names``.  This keeps blocks
+    imported by a screen's dependencies together and means a later call can
+    replace one complete suffix instead of stacking fragments with different
+    preference values.  ``names`` remains the caller's documentation of the
+    blocks it requires; omitting it is the MainWindow screen-host path.
+
+    It is a no-op with no ``root``, no ``QApplication``, or no application
+    stylesheet.  A caller that never opted into spaCR styling is not opted in
+    merely by constructing one of its widgets.
+
+    :returns: ``True`` only when ``root.setStyleSheet`` was called.
+    """
+    if root is None:
         return False
     app = QApplication.instance()
     if app is None:
         return False
-    sheet = app.styleSheet()
-    if not sheet:
-        # Nothing has styled the application, so there is nothing to be
-        # missing from and re-applying would install a stylesheet the caller
-        # never asked for.
+    app_sheet = app.styleSheet()
+    if not app_sheet:
         return False
-    if all(_WIDGET_QSS_MARKER.format(name=name) in sheet for name in names):
-        return False
+    wanted = tuple(
+        name for name in _WIDGET_QSS
+        if _WIDGET_QSS_MARKER.format(name=name) not in app_sheet
+    )
+    theme, font_scale, opacity = _live_widget_qss_context(app)
+    palette = _widget_qss_palette(theme, font_scale, opacity)
+    fragment = registered_widget_qss(palette, opacity, names=wanted)
+    if fragment:
+        body_px = max(6, int(round(FONT_SIZE["body"] * font_scale)))
+        fragment += close_mark_rules(theme, body_px)
+    suffix = (
+        f"\n{_LOCAL_WIDGET_QSS_START}\n{fragment}"
+        f"{_LOCAL_WIDGET_QSS_END}"
+        if fragment else ""
+    )
     try:
-        from .preferences import apply_preferences_to_app
-    except Exception:
-        return False
-    try:
-        apply_preferences_to_app(app)
-    except Exception:
-        LOG.exception("Could not re-apply the stylesheet for %s", names)
+        current = root.styleSheet()
+        previous = getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+        base = current[:-len(previous)] if (
+            previous and current.endswith(previous)) else current
+        desired = base + suffix
+        setattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, suffix)
+        if desired == current:
+            return False
+        root.setStyleSheet(desired)
+    except (AttributeError, RuntimeError):
         return False
     return True
 
@@ -2555,7 +3606,8 @@ QTabWidget#{object_name} QTextEdit[readOnly="true"] {{
 
 
 def registered_widget_qss(palette: dict,
-                          opacity: Optional[float] = None) -> str:
+                          opacity: Optional[float] = None, *,
+                          names=None) -> str:
     """Render every registered block into one QSS fragment.
 
     Empty (not even a newline) while nothing is registered, which is what
@@ -2568,8 +3620,11 @@ def registered_widget_qss(palette: dict,
     would leave the whole application unstyled — black text on a black
     window — because one contributed widget had a typo.
     """
+    wanted = None if names is None else {str(name) for name in names}
     parts = []
     for name, fn in list(_WIDGET_QSS.items()):
+        if wanted is not None and name not in wanted:
+            continue
         try:
             block = fn(palette, opacity)
         except Exception:
@@ -2587,7 +3642,8 @@ def registered_widget_qss(palette: dict,
 
 def stylesheet(theme: str = "dark", font_scale: float = 1.0,
                background: Optional[str] = None,
-               surface_opacity: Optional[float] = None) -> str:
+               surface_opacity: Optional[float] = None, *,
+               load_widget_registrars: bool = True) -> str:
     """Return the QSS string that styles every custom widget in the app.
 
     Blocks registered with :func:`register_widget_qss` are appended after
@@ -2602,13 +3658,19 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
         first run mid-generation gets) falls back to a flat gradient.
     :param surface_opacity: optional user-requested alpha for all shared
         module surfaces. ``None`` uses the theme's designed scrims.
+    :param load_widget_registrars: import every module that contributes a
+        widget block before composing.  This remains the public default for
+        exhaustive callers and tests.  Application startup passes ``False``
+        so an unopened data screen cannot pull the scientific stack into the
+        first frame; ``MainWindow`` scopes late blocks to a new screen before
+        inserting that screen into the visible stack.
     """
     base = palette_for(theme)
-    # Before anything is composed: a block that is not registered yet is
-    # not in the sheet, and its widget falls through to the blanket
-    # `QWidget { background-color: bg }` -- black on the dark theme. See
-    # `WIDGET_QSS_MODULES`.
-    load_widget_qss_registrars()
+    # Exhaustive callers get every known block in one static sheet. The live
+    # application opts out; MainWindow installs blocks registered by a lazy
+    # module on that module's screen root before it is shown.
+    if load_widget_registrars:
+        load_widget_qss_registrars()
 
     S = SPACING
     R = RADIUS
@@ -2616,13 +3678,28 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     # For dark and light every alpha is 1.0 and this is a no-op that
     # emits the same hex it always did; for Space each one becomes an
     # ``rgba()`` so the background image reads through the panel.
-    P = dict(base)
-    for role in ("surface", "surface_alt", "surface_hi"):
-        P[role] = css_color(
-            base[role], panel_alpha(theme, role, surface_opacity))
+    P = _widget_qss_palette(theme, font_scale, surface_opacity)
     # Opaque variants for the places translucency would be wrong.
     ELEVATED = css_color(
         base["surface_alt"], panel_alpha(theme, "elevated", surface_opacity))
+    #: The menu bar, and everything drawn onto it: its items, and the
+    #: window chrome in its corner.
+    #:
+    #: READ FROM :data:`MENU_BAR_ALPHA`, NOT WRITTEN AGAIN HERE. This was a
+    #: second hand-written `0.94`, and it silently outranked the constant:
+    #: `MENU_BAR_ALPHA` was set to 1.0 when the maintainer looked at 0.94 on
+    #: a real screen and said "remove the transparency for the bar and it
+    #: will be perfect", `menu_bar_background()` returned `#0d0e10`
+    #: correctly, and the generated stylesheet went on emitting
+    #: `rgba(13, 14, 16, 0.940)` because this line never asked.
+    #:
+    #: The bar is the frameless window's title bar, so what shows through it
+    #: is the animated backdrop moving under the only two words on it.
+    #: `test_the_menu_bar_never_shows_the_window_behind_it` says in its own
+    #: docstring that deriving the colour "is what stops the corner chrome
+    #: and the bar drifting apart"; they had drifted anyway, because the
+    #: derivation had a copy.
+    BAR_BG = css_color(base["surface"], MENU_BAR_ALPHA)
     over_image = theme in IMAGE_THEMES
     # Tiles take page opacity on every theme. Over an image they always did;
     # on the flat themes they were `transparent`, which looked identical to
@@ -2669,10 +3746,15 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     DOCK_BG = (dock_colour(theme) if over_image else css_color(
         dock_colour(theme),
         panel_alpha(theme, "surface_alt", surface_opacity)))
-    # The hairline every tile carries, and the three maturity hues its
-    # hover switches to. `RIM` is the theme's ink; the hover fill is the
-    # stage colour at a low alpha so the tile lights UP rather than being
-    # replaced by a block of magenta.
+    #: What the dock actually paints. See the Sidebar block below: 369 takes
+    #: the container off, #16j says it may never be transparent over a
+    #: picture, and `over_image` is the seam that was already carrying that
+    #: distinction.
+    DOCK_FILL = DOCK_BG if over_image else "transparent"
+    # The theme ink used by outlined horizontal tiles, and the three maturity
+    # hues a module tile switches to on hover. Resting AppTiles are rimless;
+    # the hover fill is the stage colour at a low alpha so the tile lights UP
+    # rather than being replaced by a block of magenta.
     RIM = rim_colour(theme)
     SELECTION_INK = selection_ink(theme)
     STAGE_RULES = "\n".join(
@@ -2681,6 +3763,23 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     border: 1px solid {hue};
 }}
 QPushButton#AppTile[stage="{stage}"]:pressed {{
+    background-color: {css_color(hue, 0.40)};
+    border: 1px solid {hue};
+}}"""
+        for stage, hue in STAGE_HOVER.items())
+    # THE FOLDED MODULES LIGHT UP LIKE THE TILES THEY REPLACED.
+    #
+    # A module folded into a host screen is a button on that host's
+    # masthead rather than a tile on Home, and the maturity it promises
+    # did not change when it moved. Same hue, same two states, read from
+    # the same STAGE_HOVER table -- so signing a module off recolours its
+    # button and its tile together, and neither can drift from the other.
+    FOLD_STAGE_RULES = "\n".join(
+        f"""QPushButton#FoldButton[stage="{stage}"]:hover {{
+    background-color: {css_color(hue, 0.22)};
+    border: 1px solid {hue};
+}}
+QPushButton#FoldButton[stage="{stage}"]:pressed {{
     background-color: {css_color(hue, 0.40)};
     border: 1px solid {hue};
 }}"""
@@ -2714,8 +3813,12 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
     # this callback is the only place it would otherwise have to guess it
     # (guessing means reading the preference again, which is wrong while
     # a stylesheet is being generated for a theme that is not yet live).
-    WIDGET_QSS = registered_widget_qss(
-        dict(P, theme=theme, font_scale=font_scale), surface_opacity)
+    WIDGET_QSS = registered_widget_qss(P, surface_opacity)
+    # LAST, after the contributed blocks. The close mark is the one glyph
+    # the whole application shares, so a widget block that grows a rule for
+    # its own X loses the tie instead of quietly winning it. See
+    # `close_mark_rules`.
+    CLOSE_MARK_RULES = close_mark_rules(theme, F["body"])
     return f"""
 /* -----------------------------------------------------------------
  *  Base
@@ -2754,11 +3857,12 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
 QLabel {{
     background: transparent;
 }}
-/* Settings labels are wrapped with a layout-only QWidget so the teal API dot
- * can sit immediately beside the text. A bare QWidget inherits the window
- * canvas colour; without this rule that wrapper paints a black rectangle on
- * the section's dark-gray surface even though the QLabel itself is transparent.
- * Both wrappers are structural and must show their actual container through. */
+/* Settings labels are wrapped with a layout-only QWidget that right-aligns
+ * the text against its field. A bare QWidget inherits the window canvas
+ * colour; without this rule that wrapper paints a black rectangle on the
+ * section's dark-gray surface even though the QLabel itself is transparent.
+ * These wrappers are structural and must show their actual container
+ * through. */
 QWidget#SettingLabelWithInfo,
 QWidget#SettingControlWithInfo,
 QWidget#SettingLinkStack {{
@@ -2776,20 +3880,40 @@ QGroupBox::title:disabled, QRadioButton:disabled {{
  *  Menu bar + menus
  * ----------------------------------------------------------------- */
 QMenuBar {{
-    background-color: {P["surface"]};
+    /* ONE FLAT, MOSTLY-OPAQUE COLOUR. This bar is the frameless window's
+       title bar, so it sits over the animated backdrop -- and read
+       through a fully translucent bar that backdrop is a moving gradient
+       behind the only two words on it. Reported from macOS: "the bar is
+       transparent and has a gradient so it is hard to see the spaCR and
+       Help". A little translucency keeps it from looking pasted on; the
+       rest is what makes the labels legible over anything. */
+    background-color: {BAR_BG};
     color: {P["fg_muted"]};
     padding: {S["xs"]}px {S["sm"]}px;
     border-bottom: 1px solid {P["border_soft"]};
     font-size: {F["small"]}px;
 }}
 QMenuBar::item {{
-    background: transparent;
+    /* THE BAR'S OWN COLOUR, NEVER `transparent`. `transparent` means
+       "paint nothing", and what is behind this bar is the WINDOW, whose
+       palette Window role is the splash colour -- pure black. On Linux
+       the bar's own fill covers that and nothing shows; on macOS the
+       hover repaint clears to the window first, and the black came
+       through as a box behind each label. Painting the bar's colour
+       here is indistinguishable from transparent wherever transparent
+       worked, and correct where it did not. */
+    background: {BAR_BG};
     padding: {S["xs"]}px {S["sm"]}px;
     border-radius: {R["sm"]}px;
 }}
-QMenuBar::item:selected {{
-    background: {P["surface"]};
-    color: {P["fg"]};
+QMenuBar::item:selected, QMenuBar::item:pressed {{
+    /* THE WORD LIGHTS, not a plate behind it: the same accent the dock's
+       open section header takes, so pointing at spaCR or Help reads the
+       same way as pointing at a category. The background repeats the
+       bar's colour rather than being `transparent` for the reason
+       above -- this is the exact state the black box appeared in. */
+    background: {BAR_BG};
+    color: {P["accent"]};
 }}
 QMenu {{
     background-color: {ELEVATED};
@@ -2816,24 +3940,54 @@ QMenu::separator {{
 /* -----------------------------------------------------------------
  *  Sidebar (main window navigation)
  * ----------------------------------------------------------------- */
-/* NEVER translucent, in any theme — see `dock_colour`. Every widget
-   between the dock's edge and its rows is named here, because the
-   image themes make `QWidget` transparent by default and one unnamed
-   container is enough to put the galaxy back behind the app list. */
+/* THE TRAY GOES ON THE FLAT THEMES AND STAYS OVER A PICTURE, AND THAT SPLIT
+   IS TWO MAINTAINER REQUESTS THAT DISAGREE.
+
+   2026-09-02, instruction 369: "the background dark gray container can be
+   removed, the hover highlight should stay."
+   Earlier, #16j: "the dock to the left should never have a transparent
+   background, either dark gray or white" -- filed because on Space the app
+   list was a ghost with a galaxy behind every row.
+
+   Both are real. Taken literally the second forbids the first. The split
+   already in this file resolves it, and 369 is applied along the SAME seam
+   rather than a new one: on `dark` and `light` there is no wallpaper behind
+   the dock -- only the ambient animation -- so the container comes off and
+   that is exactly what was asked for. Over `space` and `cell` there IS a
+   picture, #16j's complaint applies verbatim, and the legibility floor does
+   not rescue it (Cell floors at 0.047), so the dock stays opaque there.
+
+   THE EDGE IS KEPT EITHER WAY: `#Sidebar` still draws its right border, so
+   the page still ends at a line rather than bleeding into the dock.
+
+   THE HOVER HIGHLIGHT SURVIVES BECAUSE IT WAS NEVER THE TRAY. It is drawn
+   by the row itself, in `_DockRow._paint_plate`, and translucently on
+   purpose: removing the plane behind it changes what it sits ON, not
+   whether it is drawn. (It is NOT the `QPushButton#SidebarItem:hover`
+   rule below, which this comment used to claim and which reaches no dock
+   row -- see the note on that rule.)
+
+   IF THE MAINTAINER WANTS IT GONE OVER THE PICTURES TOO, this is one line:
+   drop the `over_image` arm of `DOCK_FILL` below. */
 #EdgeDrawer, #Sidebar, #SidebarScroll, #SidebarInner {{
-    background-color: {DOCK_BG};
+    background-color: {DOCK_FILL};
 }}
+/* NO RIGHT BORDER. The dock is a rounded slab painted by `Sidebar.
+   paintEvent` (2026-09-03), and a full-height 1 px rule down its right edge
+   cuts straight across the two corners it just rounded. The slab draws its
+   own hairline edge, all the way round, which is what separates the dock
+   from the page now. */
 #Sidebar {{
-    border-right: 1px solid {P["border_soft"]};
+    border: none;
 }}
 #SidebarTitle {{
     color: {P["accent"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
-    font-size: 24px;
+    font-size: {font_px(24, font_scale)}px;
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
     padding: {S["lg"]}px {S["md"]}px {S["md"]}px;
-    background: {DOCK_BG};
+    background: {DOCK_FILL};
 }}
 #SidebarSection {{
     color: {P["fg_dim"]};
@@ -2842,28 +3996,71 @@ QMenu::separator {{
     padding: {S["md"]}px {S["md"]}px {S["xs"]}px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: {DOCK_BG};
+    background: {DOCK_FILL};
 }}
-QPushButton#SidebarItem {{
-    text-align: left;
-    background: transparent;
-    color: {P["fg_muted"]};
-    padding: {S["sm"]}px {S["md"]}px;
-    border: none;
-    border-left: 3px solid transparent;
-    border-radius: 0px;
-    font-size: {F["body"]}px;
-}}
-/* `surface_hi`, not `surface_alt`: the dock IS `surface_alt` now, and a
-   hover the same colour as the thing under it is no hover at all. */
-QPushButton#SidebarItem:hover {{
-    background: {P["surface_hi"]};
-    color: {P["fg"]};
-}}
-QPushButton#SidebarItem:checked, QPushButton#SidebarItem[selected="true"] {{
-    background: {P["surface_hi"]};
+/* AN OPEN SECTION IS BLUE, and so is one under the pointer. The header is
+   the control that opens it, and a control that looks identical whether it
+   is on or off is a control nobody learns. */
+#SidebarSection[open="true"], #SidebarSection[hovered="true"] {{
     color: {P["accent"]};
-    border-left: 3px solid {P["accent"]};
+}}
+/* A DOCK ROW PAINTS NO BOX, IN ANY STATE, and every state is listed below
+   so none can be added back by accident.
+
+   `:hover` used to fill `surface_hi`, and `:checked` filled it and added a
+   3 px accent bar. Those are the "fields which appear whne hovered" the
+   maintainer asked to remove on 2026-09-03: "i just want the transparent
+   dock holder with rounded edges, the icons and when hovered the icons turn
+   blue and you see the text which is also blue. nothing else."
+
+   `background-color` AND `background`, AND EVERY STATE SPELLED OUT. Both of
+   those are load-bearing, and getting either wrong cost four failed fixes
+   on 2026-09-03 -- the box was reported, "fixed", and reported again, four
+   times.
+
+   The generic rules above this file's dock section paint EVERY QPushButton:
+
+       QPushButton              background-color: surface_alt   (#161719)
+       QPushButton:hover        background-color: surface_hi    (#1f2124)
+       QPushButton:pressed      background-color: <accent>      (blue)
+       QPushButton:checked      background-color: <selection>
+
+   This rule used to say `background: transparent` only. An id selector beats
+   a type selector, so that looks like it should win -- and it does, for the
+   property it names. Qt merges declarations PER PROPERTY, and `background`
+   and `background-color` are two properties: setting one leaves the other
+   exactly as the generic rule left it. So `#161719` was painted behind every
+   icon at rest, `#1f2124` appeared under the pointer, and `:pressed` flashed
+   the accent. That is the "black box", the "fields which appear whne
+   hovered", and the blue flash, all of them, from one missing word.
+
+   It survived every measurement because `QWidget.render()` and `grab()` do
+   not put a widget through the stylesheet's background pass the way a live
+   paint does -- so every probe reported a clean row while the running
+   application drew the box.
+
+   Painting a QSS background is ALSO not something a `paintEvent` can
+   prevent: QStyleSheetStyle fills it from `QWidget::event(QEvent::Paint)`
+   before `paintEvent` runs. Removing the `drawControl(CE_PushButton)` call
+   from `app.py` was worth doing -- it was rendering a native button panel
+   from the palette on top of this -- but it could never have been enough on
+   its own.
+
+   The dock's own translucent rounded slab is painted by
+   `Sidebar.paintEvent`, and it is the only box in the column. */
+QPushButton#SidebarItem,
+QPushButton#SidebarItem:hover,
+QPushButton#SidebarItem:pressed,
+QPushButton#SidebarItem:checked,
+QPushButton#SidebarItem:checked:hover,
+QPushButton#SidebarItem:disabled,
+QPushButton#SidebarItem[selected="true"] {{
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    padding: {S["sm"]}px {S["md"]}px;
+    text-align: left;
+    font-size: {F["body"]}px;
 }}
 
 /* -----------------------------------------------------------------
@@ -2977,7 +4174,7 @@ QPushButton#HTile:pressed {{
 QPushButton#AppTile {{
     background-color: {TILE_BG};
     color: {P["fg"]};
-    border: 1px solid {css_color(RIM, 0.35)};
+    border: none;
     border-radius: {R["lg"]}px;
     padding: 0px;
     min-height: {TILE_MIN_H}px;
@@ -2999,6 +4196,11 @@ QPushButton#AppTile:pressed {{
    aside — a tile that lights magenta is a beta module, and the legend
    beside it is what says so. */
 {STAGE_RULES}
+/* A resting rim is decoration; a keyboard-focus ring carries state. Keep it
+   after the maturity rules so focus remains visible while a tile is hovered. */
+QPushButton#AppTile:focus {{
+    border: 1px solid {P["accent"]};
+}}
 QLabel#HTileName {{
     color: {P["fg"]};
     font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
@@ -3043,6 +4245,16 @@ QLabel#HintBar {{
  *  Sliders — blue (accent) handle + filled track, not the default
  *  dark-gray handle.
  * ----------------------------------------------------------------- */
+/* THE WIDGET'S OWN BACKGROUND, which no rule had claimed. The groove and
+   handle were styled and the QSlider behind them was not, so it painted the
+   palette's window colour as an opaque rectangle on a container that is a
+   translucent SURFACE -- reported as "there is a figure size slider that has
+   a black background in regression module, it should be same color as
+   container". A figure control is not a window (INVARIANTS 2); the same
+   omission is what made the tab overflow arrows black boxes. */
+QSlider {{
+    background: transparent;
+}}
 QSlider::groove:horizontal {{
     height: 4px;
     background: {P["border"]};
@@ -3465,15 +4677,14 @@ QProgressBar::chunk {{
     border-radius: 4px;
 }}
 QProgressBar#UsageBar {{
-    /* Match the System card body (surface_alt) so the RAM/GPU/CPU/VRAM track
-       blends into the box it sits in (only the filled chunk stands out)
-       instead of reading as a separate black bar. */
-    background: {P["surface_alt"]};
+    /* The System card already paints surface_alt. A second translucent fill
+       here compounds the page opacity and makes each track a darker slab. */
+    background: transparent;
     height: 6px;
     max-height: 6px;
 }}
 QProgressBar#UsageBarWarn, QProgressBar#UsageBarError {{
-    background: {P["surface_alt"]};
+    background: transparent;
     height: 6px;
     max-height: 6px;
 }}
@@ -3557,6 +4768,30 @@ QTabWidget::pane {{
 }}
 QTabBar {{
     background: transparent;
+}}
+/* THE OVERFLOW ARROWS ARE NOT OURS AND LOOK IT. Qt draws a tab bar that does
+   not fit with two QToolButton scrollers, and no rule in this sheet claimed
+   them -- so they came out as opaque boxes with white arrows on every theme.
+   Reported 2026-08-19: "two arrows that are visable black boxes with white
+   arrows. these are ugly and can be removed."
+   Styled rather than hidden with a width of 0: a bar that genuinely
+   overflows still needs a way along it, and `setUsesScrollButtons` is where
+   a screen decides that. This makes them belong to the theme. */
+QTabBar::scroller {{
+    width: {S["lg"]}px;
+}}
+QTabBar QToolButton {{
+    background: transparent;
+    border: none;
+    color: {P["fg_muted"]};
+}}
+QTabBar QToolButton:hover {{
+    background: {P["surface"]};
+    border-radius: {R["sm"]}px;
+    color: {P["fg"]};
+}}
+QTabBar QToolButton:disabled {{
+    color: {P["border_soft"]};
 }}
 QTabBar::tab {{
     background-color: {P["surface"]};
@@ -3761,9 +4996,19 @@ QFrame#SectionCard {{
     border-radius: {R["md"]}px;
     margin-bottom: {S["sm"]}px;
 }}
+/* THE RESTING HEADING IS THE FOREGROUND (198). It was `fg_muted` at rest
+   and `fg` only on hover or when open -- backwards, because the
+   unhighlighted state is the one a user READS: on a screen with sixteen
+   folded categories at most one is open and the rest are what they are
+   scanning to decide where to go. Dimming them says "secondary" about the
+   only thing on the page that is not.
+
+   The highlight is still visible: hover and checked keep `surface_alt`
+   behind them, and checked keeps its underline. What stopped distinguishing
+   the states is the text going away. */
 QToolButton#SectionHeader {{
     background: transparent;
-    color: {P["fg_muted"]};
+    color: {P["fg"]};
     border: none;
     border-radius: {R["md"]}px;
     padding: {S["sm"]}px {S["md"]}px;
@@ -3792,6 +5037,12 @@ QWidget#SectionBody {{
    settings. Labels keep the theme's readable text ink; the coloured rule is
    the maturity signal, so alpha cyan remains legible on the light theme. */
 {SECTION_STAGE_RULES}
+{FOLD_STAGE_RULES}
+QPushButton#FoldButton {{
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0px;
+}}
 
 /* -----------------------------------------------------------------
  *  Group box (used by settings sections)
@@ -3829,5 +5080,379 @@ QStatusBar {{
     font-size: {F["small"]}px;
     padding: 0px {S["sm"]}px;
 }}
-{GLASS_LAYER}{WIDGET_QSS}
+{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}
 """
+
+
+# ---------------------------------------------------------------------------
+# Shared marks — one glyph per gesture, drawn the same way everywhere
+# ---------------------------------------------------------------------------
+# A close mark restyled at each site drifts at the next one. The montage's
+# well tabs drew their own `×` at the tab bar's font, the gate-editor chip
+# drew one in the chip's ink, the folded pages got whatever small pixmap the
+# platform style felt like, and the value chips coloured theirs `fg_muted`.
+# There is ONE mark now: the glyph, its size, its hit target and its two
+# colours live here, and every site asks for it instead of describing it
+# again.
+
+#: The close mark. U+2715 MULTIPLICATION X is a full-height stroked X.
+#: `×` (U+00D7 MULTIPLICATION SIGN) is a *maths operator* drawn at x-height,
+#: which is why the marks it replaces read as small however large the font
+#: was set.
+CLOSE_MARK = "✕"
+
+#: How much larger than body text the mark is drawn. "A large X" was the
+#: ask, and body text is what the tab title beside it uses -- so the mark
+#: reads as larger than the title it sits next to, and as a great deal
+#: larger than the 16 px pixmap Qt draws on a closable tab.
+CLOSE_MARK_SCALE = 1.15
+
+#: Breathing room around the glyph inside its square, in px. Also what
+#: keeps the mark from touching the tab title on its left.
+CLOSE_MARK_PAD_PX = 8
+
+#: The smallest square the mark stays clickable inside. Qt's own tab close
+#: button is 16 px, so this is also the floor that keeps a *larger glyph*
+#: from arriving with a *smaller target*.
+CLOSE_MARK_HIT_PX = 22
+
+#: Dynamic property that puts a widget under the shared close-mark rules.
+#: Set it through :func:`apply_close_mark`; :func:`close_mark_rules` keys on
+#: it, and a sweep for close marks keys on it too.
+CLOSE_MARK_PROPERTY = "spacrCloseMark"
+
+
+def close_mark_colours(theme: str = "dark") -> Dict[str, str]:
+    """Return normal, hover, and disabled close-mark colours for a theme."""
+    P = palette_for(theme)
+    return {"rest": P["fg"], "hover": P["error"], "disabled": P["fg_dim"]}
+
+
+def close_mark_font_px(body_px: Optional[int] = None) -> int:
+    """Return the close-mark font size in pixels.
+
+    :param body_px: Resolved body-text size. ``None`` uses :func:`font_px`.
+    """
+    base = font_px("body") if body_px is None else int(body_px)
+    return max(12, int(round(base * CLOSE_MARK_SCALE)))
+
+
+def close_mark_rules(theme: str = "dark",
+                     body_px: Optional[int] = None) -> str:
+    """Return the shared Qt style-sheet rules for close marks."""
+    ink = close_mark_colours(theme)
+    size = close_mark_font_px(body_px)
+    prop = CLOSE_MARK_PROPERTY
+    return f"""
+/* -----------------------------------------------------------------
+ *  The one close mark
+ * -----------------------------------------------------------------
+ *  Theme ink at rest, red under the pointer, everywhere in the app.
+ *  Keyed on a property rather than an object name so a new closable
+ *  thing joins by asking for the mark, not by editing this sheet.
+ */
+*[{prop}="true"] {{
+    color: {ink["rest"]};
+    background: transparent;
+    border: none;
+    padding: 0px;
+    font-size: {size}px;
+    font-weight: 400;
+}}
+*[{prop}="true"]:hover {{
+    color: {ink["hover"]};
+    background: transparent;
+    border: none;
+}}
+*[{prop}="true"]:pressed {{
+    color: {ink["hover"]};
+    background: transparent;
+    border: none;
+}}
+*[{prop}="true"]:disabled {{
+    color: {ink["disabled"]};
+    background: transparent;
+    border: none;
+}}
+"""
+
+
+def repolish(widget) -> None:
+    """Reapply Qt styling after a widget property changes."""
+    style = widget.style()
+    if style is not None:
+        style.unpolish(widget)
+        style.polish(widget)
+    widget.update()
+
+
+def close_mark_side(widget=None, body_px: Optional[int] = None) -> int:
+    """Return the required side length for a close-mark hit target.
+
+    The result accounts for the rendered glyph, current interface scale, and
+    :data:`CLOSE_MARK_HIT_PX` minimum.
+    """
+    from PySide6.QtGui import QFont, QFontMetrics
+
+    font = QFont(widget.font()) if widget is not None else QFont()
+    font.setPixelSize(max(font.pixelSize(), close_mark_font_px(body_px)))
+    metrics = QFontMetrics(font)
+    # The glyph's own box, not the font's line box. A line box carries
+    # ascent, descent and leading for text that is not there, and sizing the
+    # square from it made a mark half again as tall as the tab holding it.
+    ink = metrics.tightBoundingRect(CLOSE_MARK)
+    return max(CLOSE_MARK_HIT_PX,
+               ink.width() + CLOSE_MARK_PAD_PX,
+               ink.height() + CLOSE_MARK_PAD_PX)
+
+
+def apply_close_mark(button, *, tooltip: Optional[str] = None,
+                     body_px: Optional[int] = None):
+    """Apply the shared close-mark glyph, styling, and hit-target size.
+
+    :param button: Qt button to configure.
+    :param tooltip: Replacement tooltip. ``None`` preserves the existing
+        tooltip.
+    :param body_px: Optional resolved body-text size.
+    :returns: The configured button.
+    """
+    button.setText(CLOSE_MARK)
+    button.setProperty(CLOSE_MARK_PROPERTY, True)
+    # Polished BEFORE it is measured: the style resolves the sheet's
+    # font-size onto the widget, so both the glyph below and the control's
+    # own size hint describe what will actually be painted.
+    repolish(button)
+    size_close_mark(button, body_px)
+    if getattr(button, "_spacr_close_mark_resizer", None) is None:
+        resizer = _CloseMarkResizer(button, body_px)
+        button._spacr_close_mark_resizer = resizer
+        button.installEventFilter(resizer)
+    button.setCursor(Qt.PointingHandCursor)
+    set_auto_raise = getattr(button, "setAutoRaise", None)
+    if callable(set_auto_raise):
+        set_auto_raise(True)
+    set_flat = getattr(button, "setFlat", None)
+    if callable(set_flat):
+        set_flat(True)
+    if tooltip is not None:
+        button.setToolTip(tooltip)
+    return button
+
+
+def size_close_mark(button, body_px: Optional[int] = None) -> None:
+    """Resize a close-mark button for its current font and interface scale."""
+    side = close_mark_side(button, body_px)
+    hint = button.sizeHint()
+    height = max(side, button.minimumHeight(), hint.height())
+    width = max(side, button.minimumWidth(), min(hint.width(), height))
+    # Unconditional, and deliberately so. This once read
+    # `if button.size() != (width, height):`, which compares a QSize against a
+    # tuple and is therefore true for every size there is -- so the box has
+    # always been re-fixed on every FontChange and StyleChange the style
+    # delivered. Making that guard real would change WHEN setFixedSize
+    # re-applies its minimum and maximum, so the skip is left out rather than
+    # introduced here.
+    button.setFixedSize(width, height)
+
+
+class _CloseMarkResizer(QObject):
+    """Re-measure a close mark when the style hands it a new font.
+
+    The box is FIXED so a close mark cannot balloon into the row beside it,
+    which means a live Zoom change -- the sheet is rebuilt, the glyph grows,
+    the box does not -- would clip the X. Qt sends ``FontChange`` when the
+    sheet's font-size reaches the widget; that is the moment to re-measure.
+    """
+
+    def __init__(self, button, body_px: Optional[int] = None):
+        """Keep one close mark's box fixed across font and style changes.
+
+        :param button: the close mark to re-measure; also the QObject
+            parent.
+        :param body_px: the body text size to size against, or ``None`` to
+            read the current one at each change. Pin it only for a mark
+            that must NOT follow the app's Zoom -- everything else wants
+            ``None``, which is what makes a live Zoom change re-fix the box
+            instead of clipping the X.
+        """
+        super().__init__(button)
+        self._body_px = body_px
+
+    def eventFilter(self, obj, event):
+        """Re-fix the box whenever the style or the font under it moves."""
+        if event.type() in (QEvent.FontChange, QEvent.StyleChange):
+            try:
+                size_close_mark(obj, self._body_px)
+            except RuntimeError:
+                # The button went away under the event. Nothing to size.
+                pass
+        return False
+
+
+def close_mark_button(parent=None, *, tooltip: Optional[str] = None,
+                      body_px: Optional[int] = None):
+    """Create a standalone close mark as a flat ``QToolButton``."""
+    from PySide6.QtWidgets import QToolButton
+
+    return apply_close_mark(QToolButton(parent), tooltip=tooltip,
+                            body_px=body_px)
+
+
+def is_close_mark(widget) -> bool:
+    """Return whether a widget uses the shared close-mark styling."""
+    return bool(widget is not None and widget.property(CLOSE_MARK_PROPERTY))
+
+
+class _CloseMarkWatcher(QObject):
+    """Re-mark a tab bar whenever Qt hands it a new close button."""
+
+    def __init__(self, bar, tooltip: Optional[str] = None):
+        """Re-mark a tab bar's close buttons as Qt creates them.
+
+        :param bar: the tab bar to watch; also the QObject parent.
+        :param tooltip: the tooltip put on each close button, or ``None``
+            for none. Applied to every button this watcher marks, INCLUDING
+            ONES CREATED LATER -- which is the reason the watcher exists:
+            Qt makes a new close button per tab, and a tooltip set once at
+            setup covers only the tabs open at the time.
+        """
+        super().__init__(bar)
+        self._bar = bar
+        self._tooltip = tooltip
+        self._pending = False
+
+    def eventFilter(self, obj, event):
+        """Schedule a re-mark for the child Qt has just added."""
+        if (obj is self._bar and event.type() == QEvent.ChildAdded
+                and not self._pending):
+            self._pending = True
+            QTimer.singleShot(0, self._sweep)
+        return False
+
+    def _sweep(self) -> None:
+        """Mark whatever arrived, once the bar has finished wiring it up."""
+        self._pending = False
+        try:
+            mark_tab_bar(self._bar, self._tooltip)
+        except RuntimeError:
+            # The bar went away between the event and this turn of the
+            # loop. Nothing left to mark.
+            pass
+
+
+def _request_tab_close(bar, mark, side) -> None:
+    """Ask ``bar`` to close whichever tab ``mark`` is sitting on right now.
+
+    The mark is looked up rather than remembered: closing an earlier tab
+    renumbers every later one, and a remembered index would then close the
+    wrong page.
+    """
+    for index in range(bar.count()):
+        if bar.tabButton(index, side) is mark:
+            bar.tabCloseRequested.emit(index)
+            return
+
+
+def mark_tab_bar(bar, tooltip: Optional[str] = None) -> int:
+    """Replace existing tab close buttons with the shared close mark.
+
+    Tabs without a close button remain unchanged, and hidden buttons remain
+    hidden.
+
+    :returns: Number of close marks installed.
+    """
+    from PySide6.QtWidgets import QTabBar, QToolButton
+
+    if getattr(bar, "_spacr_marking_tabs", False):
+        return 0
+    bar._spacr_marking_tabs = True
+    replaced = 0
+    try:
+        for index in range(bar.count()):
+            for side in (QTabBar.RightSide, QTabBar.LeftSide):
+                existing = bar.tabButton(index, side)
+                if existing is None or is_close_mark(existing):
+                    continue
+                mark = QToolButton(bar)
+                text = tooltip if tooltip is not None else existing.toolTip()
+                apply_close_mark(mark, tooltip=text or None)
+                mark.clicked.connect(
+                    lambda *_a, b=bar, m=mark, s=side:
+                    _request_tab_close(b, m, s))
+                hidden = existing.isHidden()
+                bar.setTabButton(index, side, mark)
+                # AFTER, not before. `setTabButton` shows whatever it is
+                # given, so a mark hidden on the way in comes back visible
+                # and puts an X on the page that must not close.
+                if hidden:
+                    mark.hide()
+                replaced += 1
+    finally:
+        bar._spacr_marking_tabs = False
+    return replaced
+
+
+def install_close_marks(root, *, tooltip: Optional[str] = None) -> int:
+    """Install shared close marks on closable tabs below ``root``.
+
+    ``root`` may be a tab widget, tab bar, or containing widget. Event
+    filters also style close buttons added later. Repeated calls are
+    idempotent.
+
+    :returns: Number of close marks installed during this call.
+    """
+    from PySide6.QtWidgets import QTabBar, QTabWidget
+
+    if isinstance(root, QTabWidget):
+        bars = [root.tabBar()]
+    elif isinstance(root, QTabBar):
+        bars = [root]
+    else:
+        bars = [widget.tabBar() for widget in root.findChildren(QTabWidget)]
+        bars.extend(root.findChildren(QTabBar))
+
+    installed = 0
+    for bar in {id(bar): bar for bar in bars}.values():
+        if getattr(bar, "_spacr_close_mark_watcher", None) is None:
+            watcher = _CloseMarkWatcher(bar, tooltip)
+            bar._spacr_close_mark_watcher = watcher
+            bar.installEventFilter(watcher)
+        installed += mark_tab_bar(bar, tooltip)
+    return installed
+
+
+# ---------------------------------------------------------------------------
+# Tab-bar overflow controls
+# ---------------------------------------------------------------------------
+
+def take_the_scroll_arrows_off(root) -> int:
+    """Disable overflow buttons for every tab bar below ``root``.
+
+    This changes only the visibility of the scroll buttons. Qt's keyboard and
+    mouse-wheel tab navigation remain available.
+
+    Parameters
+    ----------
+    root : PySide6.QtWidgets.QWidget
+        Widget, tab widget, or tab bar to inspect recursively.
+
+    Returns
+    -------
+    int
+        Number of distinct tab bars found.
+    """
+    from PySide6.QtWidgets import QTabBar, QTabWidget
+
+    bars = []
+    if isinstance(root, QTabWidget):
+        bars.append(root.tabBar())
+    elif isinstance(root, QTabBar):
+        bars.append(root)
+    for widget in root.findChildren(QTabWidget):
+        bars.append(widget.tabBar())
+    bars.extend(root.findChildren(QTabBar))
+
+    unique = {id(bar): bar for bar in bars}
+    for bar in unique.values():
+        bar.setUsesScrollButtons(False)
+    return len(unique)

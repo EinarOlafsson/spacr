@@ -1,0 +1,373 @@
+"""The README's installers and archive are drawn as linked icons.
+
+What these tests protect is not "an image directive exists". It is the set of
+ways an icon row silently stops working:
+
+* white line art on a transparent background disappears on GitHub's white
+  light-mode page, and nobody notices because the maintainer reads in dark
+  mode;
+* an icon hotlinked from a CDN dies the day that host moves;
+* a generator substitutes approximated clip art for the platform artwork the
+  user supplied, or lets one mark drift off-centre;
+* the release helper that bumps the download links every release stops
+  recognising the block and either fails the release or leaves stale links.
+
+Each of those is asserted on the rendered or measured effect.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import io
+import re
+from collections import Counter
+from pathlib import Path
+
+import pytest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+README = ROOT / "README.rst"
+ICON_DIR = ROOT / "spacr" / "resources" / "icons" / "platforms"
+
+BEGIN = ".. spacr-installer-links-begin"
+END = ".. spacr-installer-links-end"
+
+#: The published assets keep the spelling they were published under, which is
+#: why ``tests/test_the_name_is_spaCR.py`` exempts ``releases/download/``
+#: lines: renaming them in text makes the front page 404.
+ASSET_URL = "https://github.com/EinarOlafsson/spacr/releases/download/v{version}/SpaCR-{version}-{fragment}"  # noqa: E501
+
+#: ``artwork stem -> the release-asset fragment its link must point at``
+PLATFORM_ASSETS = {
+    "windows": "Windows-Online-Setup.exe",
+    "macos": "macOS-Universal-Online.pkg",
+    "linux": "Linux-x86_64-Online.run",
+}
+ALL_ICON_STEMS = (*PLATFORM_ASSETS, "legacy")
+
+#: github/markup renders ``.rst`` with docutils configured like this. Raw HTML
+#: is off, which is why the README cannot use the ``<picture>`` +
+#: ``prefers-color-scheme`` trick that a Markdown README would use for "white".
+GITHUB_RST_SETTINGS = {
+    "cloak_email_addresses": True,
+    "file_insertion_enabled": False,
+    "raw_enabled": False,
+    "strip_comments": True,
+    "doctitle_xform": True,
+    "report_level": 2,
+    "syntax_highlight": "short",
+    "input_encoding": "utf-8",
+    "halt_level": 5,
+}
+
+#: GitHub's two README page colours
+LIGHT_PAGE = (255, 255, 255)
+DARK_PAGE = (13, 17, 23)
+
+
+def _release_module():
+    spec = importlib.util.spec_from_file_location(
+        "spacr_release_helper", ROOT / "packaging" / "release.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _block() -> str:
+    text = README.read_text(encoding="utf-8")
+    start = text.find(BEGIN)
+    end = text.find(END)
+    assert start >= 0 and end > start, "README lost its installer-link markers"
+    return text[start:end + len(END)]
+
+
+def _render_readme(text: str) -> tuple[str, str]:
+    """Return ``(html, docutils messages)`` for GitHub's own RST settings."""
+    from docutils.core import publish_parts
+
+    warnings = io.StringIO()
+    settings = dict(GITHUB_RST_SETTINGS, warning_stream=warnings)
+    parts = publish_parts(
+        source=text, writer_name="html", settings_overrides=settings)
+    # ``html_body`` only -- ``whole`` carries docutils' default stylesheet,
+    # which mentions every class name it can style.
+    return parts["html_body"], warnings.getvalue()
+
+
+def _linked_images(html: str) -> dict[str, str]:
+    """Map every ``<img>`` source to the href of the link wrapping it."""
+    found = {}
+    for anchor in re.finditer(
+            r'<a\b[^>]*href="(?P<href>[^"]+)"[^>]*>(?P<inner>.*?)</a>',
+            html, re.DOTALL):
+        for image in re.finditer(r'<img\b[^>]*src="(?P<src>[^"]+)"',
+                                 anchor.group("inner")):
+            found[image.group("src")] = anchor.group("href")
+    return found
+
+
+def _relative_luminance(rgb) -> float:
+    channels = []
+    for value in rgb:
+        srgb = value / 255.0
+        channels.append(srgb / 12.92 if srgb <= 0.04045
+                        else ((srgb + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def _contrast(first, second) -> float:
+    light, dark = sorted((_relative_luminance(first),
+                          _relative_luminance(second)), reverse=True)
+    return (light + 0.05) / (dark + 0.05)
+
+
+def _icon(stem: str):
+    from PIL import Image
+
+    return Image.open(ICON_DIR / f"{stem}.png").convert("RGBA")
+
+
+def _opaque_colours(image) -> Counter:
+    """Count the RGB of every fully opaque pixel."""
+    return Counter(pixel[:3] for pixel in image.getdata() if pixel[3] == 255)
+
+
+# ------------------------------------------------------------------ the block
+
+@pytest.mark.parametrize("stem", sorted(PLATFORM_ASSETS))
+def test_each_download_is_an_icon_linking_to_its_installer(stem):
+    """GitHub renders the row as three linked images, one per platform."""
+    html, messages = _render_readme(README.read_text(encoding="utf-8"))
+    assert "system-message" not in html, (
+        f"README.rst does not render cleanly:\n{messages}")
+
+    links = _linked_images(html)
+    sources = [src for src in links if src.endswith(f"/platforms/{stem}.png")]
+    assert len(sources) == 1, (
+        f"expected exactly one {stem} platform icon, rendered {sources}")
+    href = links[sources[0]]
+    assert PLATFORM_ASSETS[stem] in href, (
+        f"the {stem} icon links to {href}, not to its installer")
+    assert href.startswith(
+        "https://github.com/EinarOlafsson/spacr/releases/download/"), href
+
+
+def test_the_icons_are_committed_here_and_not_hotlinked():
+    """Every image in the block is served from this repository."""
+    block = _block()
+    urls = re.findall(r"image:: (\S+)", block)
+    assert len(urls) == len(ALL_ICON_STEMS)
+    prefix = "spacr/resources/icons/platforms/"
+    for url in urls:
+        assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
+        committed = ICON_DIR / url[len(prefix):]
+        assert committed.is_file(), f"{url} has no committed artwork"
+
+
+def test_legacy_is_the_fourth_link_and_opens_the_version_archive():
+    html, _messages = _render_readme(README.read_text(encoding="utf-8"))
+    links = _linked_images(html)
+    legacy = next(src for src in links if src.endswith("/legacy.png"))
+    assert links[legacy].endswith("docs/source/installers.rst")
+    row = re.search(r"(?m)^\|Installer.+\|$", _block()).group(0)
+    assert row.split() == [
+        "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
+        "|InstallerLegacy|",
+    ]
+
+
+def test_no_platform_is_left_as_a_bare_text_link():
+    """The three downloads are icons, not the list of text links they were."""
+    block = _block()
+    assert "download spaCR" not in block
+    for fragment in PLATFORM_ASSETS.values():
+        assert block.count(fragment) == 1, (
+            f"{fragment} should appear exactly once, as an image target")
+
+
+# ------------------------------------------------------------------ the art
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_the_icon_carries_its_own_background_into_a_white_page(stem):
+    """White art on transparency is invisible on GitHub's light-mode page.
+
+    reStructuredText on GitHub cannot switch artwork by theme, so each glyph
+    must sit on an opaque chip that contrasts with a white page as well as
+    with a dark one.
+    """
+    generator = _generator_module()
+    image = _icon(stem)
+    button = image.crop((0, 0, generator.CANVAS, generator.CANVAS))
+    colours = _opaque_colours(button)
+    assert sum(colours.values()) / (button.width * button.height) > 0.90, (
+        f"{stem}.png is mostly transparent, so its white art has no backing")
+
+    chip = generator.SLATE[:3]
+    assert chip in colours, f"{stem}.png does not use the specified slate"
+    assert _contrast(chip, LIGHT_PAGE) >= 3.0, (
+        f"{stem}.png's chip {chip} is invisible on a white README page")
+    assert _contrast(chip, DARK_PAGE) >= 1.05, (
+        f"{stem}.png's chip {chip} vanishes into a dark README page")
+
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_the_glyph_is_white_and_nothing_else_is_painted(stem):
+    """One ink, one chip.
+
+    Every opaque pixel has to be the chip, pure white, or an antialiased blend
+    of exactly those two. A second colour anywhere -- a grey substituted for
+    "white", a coloured platform mark -- breaks that line.
+    """
+    generator = _generator_module()
+    image = _icon(stem)
+    colours = _opaque_colours(image)
+    chip = generator.SLATE[:3]
+    assert (255, 255, 255) in colours, f"{stem}.png has no pure white artwork"
+    assert _contrast((255, 255, 255), chip) >= 4.5
+
+    for colour in colours:
+        for channel in range(3):
+            blend = (colour[0] - chip[0]) / (255.0 - chip[0])
+            expected = chip[channel] + blend * (255 - chip[channel])
+            assert abs(colour[channel] - expected) <= 3, (
+                f"{stem}.png paints {colour}, which is not white on {chip}")
+
+
+def _bright_bounds(image):
+    """Return the visible white mark bounds, excluding its slate tile."""
+    white = image.convert("RGB").convert("L").point(
+        lambda value: 255 if value > 180 else 0)
+    return white.getbbox()
+
+
+def test_supplied_platform_artwork_is_kept_as_generator_input():
+    """Regeneration must never overwrite the three supplied source images."""
+    from PIL import Image
+
+    expected = {
+        "linux": ("linux.png", "PNG", (500, 500)),
+        "macos": ("macos.jpg", "JPEG", (840, 1070)),
+        "windows": ("windows.png", "PNG", (800, 800)),
+    }
+    generator = _generator_module()
+    for stem, (filename, image_format, size) in expected.items():
+        source = ICON_DIR / "source" / filename
+        assert generator.SOURCE_FILES[stem] == source
+        with Image.open(source) as image:
+            assert image.format == image_format
+            assert image.size == size
+
+
+def test_the_three_platform_marks_are_centred_and_fill_eighty_percent():
+    """Equal geometry, rather than equal ink density, defines the icon row."""
+    generator = _generator_module()
+    for stem in PLATFORM_ASSETS:
+        image = _icon(stem)
+        assert image.size == (generator.CANVAS, generator.OUTPUT_HEIGHT)
+        bounds = _bright_bounds(image)
+        assert bounds is not None
+        left, top, right, bottom = bounds
+        # Antialiasing can move the bright-pixel edge a few pixels inward.
+        assert generator.MARK_SIZE - 6 <= max(right - left, bottom - top) \
+            <= generator.MARK_SIZE
+        centre = ((left + right - 1) / 2, (top + bottom - 1) / 2)
+        expected_centre = (generator.CANVAS - 1) / 2
+        assert abs(centre[0] - expected_centre) <= 1
+        assert abs(centre[1] - expected_centre) <= 1
+
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
+    """The button is exactly #15181F with a restrained 32 px radius."""
+    generator = _generator_module()
+    image = _icon(stem)
+    assert image.size == (generator.CANVAS, generator.OUTPUT_HEIGHT)
+    assert image.getpixel((image.width // 2, 0)) == generator.SLATE
+    assert image.getpixel((0, generator.CANVAS // 2)) == generator.SLATE
+    assert image.getpixel((0, 0))[3] == 0
+    assert image.getpixel((0, generator.CANVAS))[3] == 0
+
+    first_opaque = next(
+        x for x in range(image.width) if image.getpixel((x, 0))[3] > 0)
+    assert generator.CORNER_RADIUS - 8 <= first_opaque \
+        <= generator.CORNER_RADIUS
+    assert generator.CORNER_RADIUS < generator.CANVAS * 0.10
+
+
+def test_legacy_uses_the_spacr_mark_without_a_caption():
+    """The archive button is only the centered spaCR mark."""
+    generator = _generator_module()
+    image = _icon("legacy")
+    button = image.crop((0, 0, generator.CANVAS, generator.CANVAS))
+    bounds = _bright_bounds(button)
+    assert bounds is not None
+    left, top, right, bottom = bounds
+    assert abs((left + right - 1) / 2 - (image.width - 1) / 2) <= 1
+    assert generator.MARK_SIZE - 6 <= max(right - left, bottom - top) \
+        <= generator.MARK_SIZE
+    assert abs((top + bottom - 1) / 2 - (generator.CANVAS - 1) / 2) <= 1
+
+    for stem in ALL_ICON_STEMS:
+        caption = _icon(stem).crop(
+            (0, generator.CANVAS, generator.CANVAS,
+             generator.OUTPUT_HEIGHT))
+        assert caption.getbbox() is None, (
+            f"{stem}.png contains text or artwork below its button")
+
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_committed_tiles_match_the_generator(stem):
+    """A source or generator change must be accompanied by fresh artwork."""
+    generator = _generator_module()
+    rendered = (generator.render_legacy() if stem == "legacy"
+                else generator.render_platform(stem))
+    assert list(_icon(stem).getdata()) == list(rendered.getdata())
+
+
+def _generator_module():
+    spec = importlib.util.spec_from_file_location(
+        "spacr_platform_icons",
+        ROOT / "packaging" / "generate_platform_icons.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+# --------------------------------------------------------------- the release
+
+def test_the_release_helper_still_bumps_the_icon_block(tmp_path):
+    """The next release must be able to move all three links forward."""
+    helper = _release_module()
+    working = tmp_path / "README.rst"
+    working.write_text(README.read_text(encoding="utf-8"), encoding="utf-8")
+
+    updated = helper._updated_readme_text(working, "9.9.9")
+    start = updated.find(BEGIN)
+    block = updated[start:updated.find(END) + len(END)]
+
+    for fragment in PLATFORM_ASSETS.values():
+        expected = ASSET_URL.format(version="9.9.9", fragment=fragment)
+        assert expected in block, f"{expected} is not in the bumped block"
+    assert "1.5.0" not in block, "a stale version survived the bump"
+    assert block.count("/platforms/") == 4, "the artwork links were rewritten"
+    assert updated[:start] == README.read_text(encoding="utf-8")[:start]
+
+
+def test_a_block_advertising_two_versions_is_refused(tmp_path):
+    """Half-bumped links are a release that ships the wrong installer."""
+    helper = _release_module()
+    working = tmp_path / "README.rst"
+    text = README.read_text(encoding="utf-8")
+    stale = ASSET_URL.format(version="1.4.0", fragment=PLATFORM_ASSETS["linux"])
+    current = re.search(
+        r"https://github\.com/EinarOlafsson/spacr/releases/download/\S+"
+        + re.escape(PLATFORM_ASSETS["linux"]), text)
+    assert current, "the README lost its Linux installer link"
+    working.write_text(text.replace(current.group(0), stale), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="more than one installer version"):
+        helper._updated_readme_text(working, "9.9.9")

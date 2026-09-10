@@ -52,6 +52,12 @@ class ChatProvider(ABC):
         # Tracks the currently-running child process so cancel_stream()
         # can actually terminate it — otherwise `for line in proc.stdout`
         # blocks indefinitely and the worker thread never exits.
+        """Create the provider with no child process running.
+
+        The running process is tracked so that cancelling a stream can actually
+        terminate it -- otherwise iterating the child's stdout blocks
+        indefinitely and the worker thread never exits.
+        """
         self._current_proc: Optional[subprocess.Popen] = None
 
     def is_installed(self) -> bool:
@@ -117,6 +123,93 @@ _NOISE_LINE_PREFIXES = (
 )
 
 
+#: Every provider subprocess currently being read, newest last.
+#:
+#: A stream is read by a worker thread that BLOCKS on the child's stdout,
+#: and the only reliable way to unblock it is to end the child --
+#: :meth:`ChatProvider.cancel_stream` says so and is right. But that
+#: method reaches one provider's own process, and the thing that goes
+#: wrong is nobody holding the provider any more: the owner is gone, the
+#: thread is still blocked on a read, and Qt aborts the process the
+#: moment that thread's QThread wrapper is collected.
+#:
+#: So the live processes are also findable from here, without a provider
+#: in hand. Entries are removed as each stream ends; a crash that skips
+#: the removal leaves a dead Popen, which
+#: :func:`terminate_all_streams` steps over.
+_LIVE_STREAMS: List[subprocess.Popen] = []
+
+#: Every wait in process cleanup is bounded. A provider CLI is external code;
+#: shutdown must not hang forever because that code ignored a signal.
+_PROCESS_EXIT_TIMEOUT = 1
+
+
+def _process_has_exited(proc: subprocess.Popen) -> bool:
+    """Whether ``proc`` is known to have exited; uncertainty means still live."""
+    try:
+        return proc.poll() is not None
+    except Exception:                                      # noqa: BLE001
+        return False
+
+
+def _kill_and_reap(proc: subprocess.Popen) -> bool:
+    """Kill ``proc``, then bounded-wait to reap it; report confirmed exit."""
+    try:
+        proc.kill()
+    except Exception:                                      # noqa: BLE001
+        return _process_has_exited(proc)
+    try:
+        proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+        return True
+    except Exception:                                      # noqa: BLE001
+        return _process_has_exited(proc)
+
+
+def _terminate_and_reap(
+        proc: subprocess.Popen, *, known_running: bool = False,
+) -> tuple[bool, bool]:
+    """Request termination and return ``(requested, confirmed_exited)``.
+
+    A failed signal is not evidence that the child died. Callers use the
+    second result to keep an uncertain, possibly live child registered for a
+    later retry instead of losing the only handle that can unblock its reader.
+    """
+    if not known_running and _process_has_exited(proc):
+        return False, True
+    try:
+        proc.terminate()
+    except Exception:                                      # noqa: BLE001
+        return False, _process_has_exited(proc)
+    try:
+        proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+        return True, True
+    except Exception:                                      # noqa: BLE001
+        return True, _kill_and_reap(proc)
+
+
+def _discard_stream(proc: subprocess.Popen) -> None:
+    """Remove a confirmed-finished stream, tolerating a cleanup race."""
+    try:
+        _LIVE_STREAMS.remove(proc)
+    except ValueError:
+        pass
+
+
+def terminate_all_streams() -> int:
+    """Terminate active provider subprocesses and release their readers.
+
+    :returns: Number of subprocesses for which termination was requested.
+    """
+    ended = 0
+    for proc in list(_LIVE_STREAMS):
+        requested, finished = _terminate_and_reap(proc)
+        if requested:
+            ended += 1
+        if finished:
+            _discard_stream(proc)
+    return ended
+
+
 def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
                      env_extra: Optional[Dict[str, str]] = None,
                      provider: Optional["ChatProvider"] = None,
@@ -128,12 +221,9 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
     user's ~/.claude/settings.json). Merges stderr into stdout so
     real errors show up inline.
 
-    If `provider` is passed we register the Popen on it so that
-    provider.cancel_stream() can terminate the subprocess and unblock
-    the caller's iteration. Without this, a stream that hangs on
-    a `for line in proc.stdout` read can never be cancelled and the
-    worker QThread will outlive its Python reference on quit — which
-    is exactly the crash the user reported.
+    When ``provider`` is supplied, its process reference is registered so
+    :meth:`ChatProvider.cancel_stream` can terminate a blocked read. This also
+    prevents the worker thread from outliving its Python owner during exit.
     """
     env = os.environ.copy()
     if env_extra:
@@ -155,6 +245,7 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
 
     if provider is not None:
         provider._current_proc = proc
+    _LIVE_STREAMS.append(proc)
 
     try:
         if stdin_text is not None and proc.stdin is not None:
@@ -175,19 +266,17 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             proc.stdout.close()
         except Exception:
             pass
+        finished = False
         try:
-            proc.wait(timeout=1)
-        except Exception:
-            try:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=1)
-                except Exception:
-                    proc.kill()
-            except Exception:
-                pass
-        if provider is not None:
+            proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+            finished = True
+        except Exception:                                  # noqa: BLE001
+            _requested, finished = _terminate_and_reap(
+                proc, known_running=True)
+        if provider is not None and finished:
             provider._current_proc = None
+        if finished:
+            _discard_stream(proc)
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:

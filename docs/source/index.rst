@@ -1,12 +1,18 @@
 Welcome to spaCR
 ================
 
-.. image:: _static/logo_spacr.png
+.. image:: _static/logo_spacr_docs.png
    :align: center
    :alt: spaCR Logo
    :width: 200px
 
 **spaCR** — *Spatial phenotype analysis of CRISPR screens.*
+
+.. note::
+
+   You are reading the |docs-channel| documentation for spaCR
+   |spacr-version|. The public site follows released ``main``; nightly
+   builds validate upcoming changes without replacing the stable site.
 
 A Python toolkit for quantifying and visualising phenotypic changes in
 high-throughput microscopy screens. Ships with a modern PySide6 GUI
@@ -15,15 +21,32 @@ plate-to-classification workflow that runs on top of PyTorch,
 Cellpose, scikit-image, and scipy.
 
 It is built for cell biologists running pooled or arrayed CRISPR screens
-who need per-cell measurements out of plate images. The GUI route needs no
-programming; the same steps are available as a scripted pipeline when a
-screen outgrows one desktop.
+who need per-cell measurements from plate images. The GUI route needs no
+programming; the same processing steps are available through the Python API
+for scripted and reproducible workflows.
+
+The GUI groups its applications into four categories: *Core* for the
+segment-measure-classify pipeline, *Data* for getting images and tables in
+and running them at scale, *Tools* for the instruments you point at a
+project — hand mask correction, stitching, embeddings, gates, plots and
+quality control — and *Assays* for the parasite-specific readouts. The
+bands under "Applications and workflow" below are those categories, in that
+order, with the tiles each one holds.
+
+Not every screen is a tile, which is why no count of them is printed here.
+Work that only makes sense inside another step opens from that step's
+masthead instead — **Timelapse** from Mask, **Illumination** and the
+**Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
+Model** from Classify, **Annotator Agreement** from Annotate, and the
+**Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from
+Make Masks, among them — so a screen with no tile below is one step further
+in rather than gone. Home lists whatever the running build offers.
 
 .. grid:: 2
    :gutter: 3
 
    .. grid-item-card:: 🚀 Get started
-      :link: https://github.com/EinarOlafsson/spacr#quickstart
+      :link: https://github.com/EinarOlafsson/spacr#install-spacr
       :link-type: url
 
       Install spaCR from PyPI and launch the Qt GUI in two commands.
@@ -32,17 +55,17 @@ screen outgrows one desktop.
       :link: tutorials/
       :link-type: url
 
-      The lesson library — 40 narrated, step-by-step lessons covering the
+      The lesson library — |lesson-count| narrated, step-by-step lessons covering the
       whole pipeline.
 
    .. grid-item-card:: 📖 API reference
       :link: api/index
       :link-type: doc
 
-      Every public function, method, and class — grouped by module.
+      Supported workflow entry points and the complete module reference.
 
    .. grid-item-card:: 🎬 Video tutorials
-      :link: https://github.com/EinarOlafsson/spacr#narrated-video-tutorials
+      :link: tutorials/
       :link-type: url
 
       Narrated walkthroughs of each pipeline module.
@@ -54,59 +77,12 @@ screen outgrows one desktop.
       File a bug, request a feature, or ask a question.
 
 
-Pipeline overview
------------------
+Applications and workflow
+-------------------------
 
-.. image:: https://github.com/EinarOlafsson/spacr/raw/main/spacr/resources/icons/flow_chart_v3.png
-   :alt: spaCR workflow
-   :align: center
+Every tile links to the API page used by that application's in-product help.
 
-The GUI ships 63 apps, grouped into seven categories — *Core*, *Data*,
-*Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
-The nine Core apps form the main pipeline; these five are the path most
-screens take, each with its own :doc:`API reference <api/index>` module:
-
-+---------------------+-----------------------------------------------------+
-| **Mask**            | Cellpose segmentation of cells, nuclei, pathogens.  |
-|                     | :func:`spacr.core.preprocess_generate_masks`        |
-+---------------------+-----------------------------------------------------+
-| **Measure**         | Per-object feature extraction into a SQLite DB.     |
-|                     | :func:`spacr.measure.measure_crop`                  |
-+---------------------+-----------------------------------------------------+
-| **Annotate**        | Grid-based manual labelling of single-cell crops.   |
-|                     | :mod:`spacr.app_annotate`                           |
-+---------------------+-----------------------------------------------------+
-| **Classify**        | CNN / XGBoost training from annotations.            |
-|                     | :mod:`spacr.deep_spacr`, :mod:`spacr.ml`            |
-+---------------------+-----------------------------------------------------+
-| **Map Barcodes**    | Map FASTQ reads to row/column/gRNA barcodes.        |
-|                     | :mod:`spacr.sequencing`                             |
-+---------------------+-----------------------------------------------------+
-
-
-Key modules by category
------------------------
-
-**Core pipelines**
-   :mod:`spacr.core` · :mod:`spacr.io` · :mod:`spacr.measure` ·
-   :mod:`spacr.object` · :mod:`spacr.utils`
-
-**Machine learning + classification**
-   :mod:`spacr.ml` · :mod:`spacr.deep_spacr` · :mod:`spacr.predictions` ·
-   :mod:`spacr.spacr_cellpose`
-
-**Analysis**
-   :mod:`spacr.plot` · :mod:`spacr.sp_stats` · :mod:`spacr.submodules` ·
-   :mod:`spacr.toxo` · :mod:`spacr.timelapse` · :mod:`spacr.sim`
-
-**Sequencing**
-   :mod:`spacr.sequencing`
-
-**Modern Qt GUI**
-   ``spacr.qt`` — launched via the ``spacr`` or ``spacr-qt`` CLI.
-
-**Classic Tk GUI**
-   :mod:`spacr.gui` · :mod:`spacr.gui_core` · :mod:`spacr.gui_utils`
+.. include:: _generated/workflow_grid.rst
 
 
 Installation
@@ -132,10 +108,10 @@ Headless (cluster, server, CI) — no Qt, no display:
 Learn spaCR
 -----------
 
-The `interactive tutorial library <tutorials/>`_ contains 69 narrated,
+The `interactive tutorial library <tutorials/>`_ contains |lesson-count| narrated,
 step-by-step lessons covering every module, with 50 voices across eight
 languages. It is also reachable from the GUI:
-**Help → Tutorial (web)**, or the spaCR logo on the classic Tk start screen.
+**Help → Tutorial (web)**.
 
 
 Contents
@@ -144,13 +120,21 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   localization
+   installer_guide
+   installers
+   features
+   python_api
+   settings_flow
+   model_zoo
+   Language <localization>
    setting_animations
    checkpoint_resume
    reproducibility_manifests
    run_history
    batch_correction
    classifier_evaluation
+   guide_permutation
+   model_explanation
    umap_multiobjective
    distributed_execution
    plugin_sdk

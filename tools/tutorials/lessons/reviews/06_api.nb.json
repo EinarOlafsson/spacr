@@ -1,0 +1,19 @@
+{
+  "lesson": "06_api", "language": "nb",
+  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "review": {"kind": "Editorial caption translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
+  "title": "Python-API og dagens arbeidsflyter uten grafisk grensesnitt",
+  "description": "Finn de installerte satsvise kommandoene, skill interaktive verktøy fra Python-funksjoner og undersøk en prøvekjøring med et ekte eksempel uten å hevde at analysen ble utført.",
+  "objectives": ["Bekrefte pakkeversjonen i det aktive Python-miljøet.", "Finne dagens kommandonøkler og funksjonene de faktisk kaller.", "Skille en interaktiv arbeidsflyt, en Python-funksjon og en satsvis kommando.", "Lese prøvekjøringens innstillinger, avslutningskode og begrensninger før uovervåket arbeid."],
+  "prerequisite": "Fullfør først en installasjonsleksjon. Bruk de nedlastede parede dataene og lagrede innstillingene fra Regression-leksjonen til forhåndskontrollen som vises; erstatt denne maskinens stier med dine egne. Opptaket utfører ingen analyse og genererer ingen rapport.",
+  "scenes": [
+    "Importer pakken og skriv ut versjonen i miljøet der du installerte spaCR. Denne ekte terminalen viser versjon én punkt fem punkt null punkt fire. Kontroller din egen versjon før du følger kommandoene, siden et eldre miljø kan tilby andre funksjoner og innstillinger.",
+    "Kjør spacr-run med alternativet list. Delen for satsvis behandling viser nøyaktige kommandonøkler og Python-inngangspunkter, blant annet mask, measure og classify_merged. Navn på Home-skjermen og underordnede knapper er ikke automatisk satsvise kommandoer. Bruk den installerte listen i stedet for å gjette en nøkkel fra tittelen på en leksjon.",
+    "Bruk describe med regression for å se funksjonen perform_regression i spacr.ml, funksjonen som leverer standardverdiene, og kravene til inndata. Dette knytter kommandoen til den faktiske analysefunksjonen. De lagrede innstillingene for parede data kommer fra det lenkede Regression-eksemplet, ikke fra en oppdiktet målemappe.",
+    "Annotate er en interaktiv arbeidsflyt. Kallet spacr-run annotate returnerer faktisk avslutningskode to og forklarer at det ikke finnes en satsvis ekvivalent. Bruk Annotate i skrivebordsprogrammet til å merke bildeutsnitt. Denne forventede avvisningen er ikke bevis på en ødelagt installasjon.",
+    "Andre funksjoner har et Python-API uten en tilsvarende satsvis kommandonøkkel. Her importerer vi build_report fra spacr.report og undersøker den faktiske funksjonssignaturen. Vi kaller den ikke og lager ingen rapport. Sjekk funksjonens dokumentasjon og argumenter i stedet for å anta at spacr-run report finnes.",
+    "Gi regression den lagrede innstillingsfilen og legg til dry-run. Den faktiske kommandoen fastsetter innstillingene og utfører forhåndskontrollene, og sier deretter uttrykkelig at perform_regression ikke ble kalt. Les avslutningskoden og meldingene; opptaket startet ingen ny regresjon og skrev ingen analyseresultater.",
+    "En forhåndskontroll uten feil beviser verken at hele analysen lykkes, eller at den er vitenskapelig gyldig. Denne versjonens generelle plan nevner en måledatabase, selv om regresjonen vår bruker parede tabeller. Undersøk modulens faktiske inndata og prøv en avgrenset kjøring før du stoler på uovervåket utførelse.",
+    "Fjern dry-run bare når du faktisk vil utføre analysen. Behold de nøyaktige innstillingene, inndataenes identifikatorer, pakkeversjonen og konsollloggen sammen med resultatene. Følg den lenkede modulleksjonen for en demonstrert kjøring, og les funksjonens gjeldende API-referanse når du skriver Python-skript."
+  ]
+}

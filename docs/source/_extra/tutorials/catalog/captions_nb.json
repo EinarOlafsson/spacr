@@ -7,25 +7,25 @@
       "id": "01_pypi_github",
       "scenes": [
         {
-          "narration": "Før du installerer spaCR, skal du vite de tre offisielle distribusjonsveiene: PyPI for den utgivne Python-pakken, GitHub for kildekode- og skrivebordsinstaller og conda-forge når den reviderte pakken er publisert."
+          "narration": "Velg en offisiell distribusjonsmåte før du installerer spaCR. PyPI og conda-forge tilbyr publiserte pakker, mens GitHub tilbyr kildekode, installasjonsprogrammer for skrivebordet og utgivelseshistorikk."
         },
         {
-          "narration": "spaCR siden på PyPI viser den nåværende stabile versjonen og kommandoen pip install spacr. Release-filer inkluderer et Python-hjul og et kildearkiv."
+          "narration": "På PyPI viser utgivelsesoverskriften den gjeldende stabile versjonen og kommandoen pip install spacr."
         },
         {
-          "narration": "PyPI kobler også til dokumentasjonen, kilderepositoriet og issue tracker. Sjekk de nødvendige Python-versjonene og utgivelsesdatoen før du endrer et eksisterende miljø."
+          "narration": "Delen Project links åpner dokumentasjonen, hjemmesiden, feilsporingen og kildekodedepotet."
         },
         {
           "narration": "På GitHub er main den publiserte kildekodelinjen, mens nightly inneholder nyere endringer som fortsatt testes. Bruk nightly bare når du uttrykkelig trenger en endring som enn ikke er utgitt."
         },
         {
-          "narration": "GitHub Releases gir Windows, macOS og Linux installatorer, utgivelsesnotater, Python-pakkefiler og SHA-256 sjekksum."
+          "narration": "I en GitHub Release utvider du Assets for å laste ned installasjonsprogrammet for Windows, macOS eller Linux, Python-pakkefilene eller kontrollsumlisten."
         },
         {
-          "narration": "Receptet til conda-forge er forberedt i arkivet, men ingen spaCR-pakke er publisert på conda-forge-kanalen ennå. For øyeblikket, opprett et Conda miljø og installere spaCR fra PyPI inne i det."
+          "narration": "Den offisielle conda-forge-pakken installerer spaCR og skrivebordsavhengighetene i det aktive Conda-miljøet. Bruk nøyaktig kommandoen conda install conda-forge::spacr."
         },
         {
-          "narration": "Bruk PyPI eller pip for et Python-miljø, GitHub Releases for en native installator, og nightly gren kun for utvikling. De neste opplæringene viser hver installasjonsrute uten å starte applikasjonen."
+          "narration": "Bruk conda-forge eller PyPI for et administrert Python-miljø, GitHub Releases for et installasjonsprogram til skrivebordet og nightly bare når du trenger endringer som ennå ikke er utgitt. Velg deretter installasjonsveiledningen for din metode."
         }
       ]
     },
@@ -33,25 +33,25 @@
       "id": "02_conda_install",
       "scenes": [
         {
-          "narration": "Et Conda-miljø holder spaCR og dens vitenskapelige avhengighetene adskilt fra ikke-relaterte prosjekter. Python tre punkt tolv tilbyr for tiden den bredeste valgfrie pakke kompatibilitet."
+          "narration": "Installer spaCR fra conda-forge i et eget Conda-miljø. Pakken inkluderer skrivebordsgrensesnittet og deklarerer de vitenskapelige avhengighetene til spaCR."
         },
         {
-          "narration": "Åpne en Conda-aktivert terminal og opprett et miljø kalt spacr med Python tre punkt tolv og pip."
+          "narration": "Åpne en terminal med Conda og opprett et miljø som heter spacr med Python 3.12."
         },
         {
-          "narration": "Aktivere miljøet. Bekreft at Python tilhører spacr-miljøet før du installerer noe."
+          "narration": "Aktiver miljøet. Bekreft at Python tilhører spacr-miljøet før du installerer noe."
         },
         {
-          "narration": "Oppgradere pip gjennom den aktive Python tolken. Ved bruk av python -m pip forhindres en annen rørutførbar fra å motta pakken."
+          "narration": "Installer den offisielle pakken med conda install conda-forge::spacr. Kommandoen angir kanalen og velger dermed conda-forge-bygget uttrykkelig."
         },
         {
-          "narration": "For skrivebordsapplikasjonen, installere spacr med qt extra. Bruk den enkle spacr-pakken for en hovedløs arbeidsstation eller server."
+          "narration": "Bekreft at Conda viser spaCR i miljøet; importer deretter pakken og skriv ut den installerte versjonen."
         },
         {
-          "narration": "Kjør spaCR-doctor før første oppstart. Diagnoseverktøyet kontrollerer den aktive installasjonen, Qt, PyTorch, valgfrie komponenter og maskinvarestøtte og foreslår en løsning for hver kontroll som mislykkes."
+          "narration": "Kjør spacr-doctor før første oppstart. Diagnoseverktøyet kontrollerer den aktive installasjonen, Qt, PyTorch, valgfrie komponenter og maskinvarestøtte og foreslår en løsning for hver kontroll som mislykkes."
         },
         {
-          "narration": "conda-forge-pakken er ennå ikke publisert, så ikke kjør kommandoen conda install -c conda-forge spacr i dag. Når pakken blir tilgjengelig, blir den offisielle oppskriften og kanalen lenket fra spaCR-depotet."
+          "narration": "Når spacr-doctor har bestått alle kontrollene, starter du spaCR med kommandoen spacr. Behold miljøet aktivert hver gang du kjører spaCR."
         }
       ]
     },
@@ -59,25 +59,25 @@
       "id": "03_pip_install",
       "scenes": [
         {
-          "narration": "Pip-rutten fungerer på Windows, macOS og Linux. Bruk alltid et isolert virtuelt miljø i stedet for å endre operativsystemets Python-installasjon."
+          "narration": "Installasjon med pip fungerer på Windows, macOS og Linux. Bruk alltid et isolert virtuelt miljø i stedet for å endre operativsystemets Python-installasjon."
         },
         {
-          "narration": "På macOS eller Linux, opprett miljøet med Python tre punkt tolv, deretter aktivere det fra sin bin katalog."
+          "narration": "På macOS eller Linux oppretter du miljøet med Python 3.12 og aktiverer det deretter fra bin-mappen."
         },
         {
-          "narration": "På Windows bruker du Python-lanseren for å lage miljøet og aktivere det fra Skripts-mappen."
+          "narration": "På Windows bruker du Python-startprogrammet til å opprette miljøet og aktiverer det fra Scripts-mappen."
         },
         {
-          "narration": "Oppgradere pip i det aktive miljøet. Kommandoen python -m pip holder installasjonen bundet til Python du nettopp aktiverte."
+          "narration": "Oppgrader pip i det aktive miljøet. Kommandoen python -m pip knytter installasjonen til Python-versjonen du nettopp aktiverte."
         },
         {
-          "narration": "Installere den enkle spacr-pakken for bruk uten hoder, eller spacr med qt extra for skrivebordets grensesnitt."
+          "narration": "Installer den vanlige spacr-pakken for bruk uten grafisk grensesnitt, eller spacr med qt-tillegget for skrivebordsgrensesnittet."
         },
         {
-          "narration": "Kontroller den importerte versjonen og kjøre spacr-doctor. Løs eventuelle mislykkede kontroller før du åpner eksperimentelle data."
+          "narration": "Kontroller den importerte versjonen og kjør spacr-doctor. Løs alle mislykkede kontroller før du åpner eksperimentdata."
         },
         {
-          "narration": "Miljøet er nå klar. Hold den aktiv når du bruker spaCR, og bruk python -m pip install --upgrade spacr når du bevisst oppdaterer den."
+          "narration": "Miljøet er nå klart. Hold det aktivert når du bruker spaCR, og bruk python -m pip install --upgrade spacr når du bevisst vil oppdatere programmet."
         }
       ]
     },
@@ -85,28 +85,28 @@
       "id": "04_platform_installers",
       "scenes": [
         {
-          "narration": "De lette innfødte installatørene skaper en privat Python tre punkt tolv kjøretid, deretter laste ned Qt, PyTorch, spaCR, og dets vitenskapelige avhengigheter."
+          "narration": "De lette, plattformspesifikke installasjonsprogrammene oppretter et privat Python 3.12-kjøremiljø og laster deretter ned Qt, PyTorch, spaCR og de vitenskapelige avhengighetene."
         },
         {
-          "narration": "Last ned installatorer bare fra den nyeste spaCR GitHub Release. Matche filen til operativsystemet ditt og bruk den publiserte SHA-256 filen når du trenger å verifisere nedlastingen."
+          "narration": "Last bare ned installasjonsprogrammer fra den nyeste spaCR-utgivelsen på GitHub. Velg filen for operativsystemet ditt, og bruk den publiserte SHA-256-filen når du trenger å kontrollere nedlastingen."
         },
         {
-          "narration": "På Windows ti eller elleve, åpne den elektroniske konfigurasjon utførbar. Den bærbare CPU-installasjonen er standard; NVIDIA akselerasjon er en valgfri installasjonskomponent."
+          "narration": "På Windows 10 eller 11 åpner du den nettbaserte installasjonsfilen. Den portable CPU-installasjonen er standard; NVIDIA-akselerasjon er en valgfri installasjonskomponent."
         },
         {
-          "narration": "På macOS eleven eller nyere, åpne den universelle pakken for Intel og Apple silikon. Hvis Gatekeeper blokkerer den ikke-notariserte pakken, bruk privatliv og sikkerhet, Open Anyway, og kjøre den igjen."
+          "narration": "På macOS 11 eller nyere åpner du universalpakken for Intel- og Apple Silicon-maskiner. Hvis Gatekeeper blokkerer den unotariserte pakken, velger du Privacy & Security, deretter Open Anyway, og kjører pakken på nytt."
         },
         {
-          "narration": "På 64 bit Linux, gjør den nedlastede .run-filen utførbar, og start den fra en terminal. Standardinstallasjonen bruker CPU-kompatibel PyTorch."
+          "narration": "På 64-bits Linux gjør du den nedlastede .run-filen kjørbar og starter den deretter fra en terminal. Standardinstallasjonen bruker en CPU-kompatibel versjon av PyTorch."
         },
         {
-          "narration": "For støttet NVIDIA-hardware på Linux, gå forbi --torch-backend auto. Dette velger akselerasjon når det er tilgjengelig uten å gjøre CUDA-biblioteker den stille standarden."
+          "narration": "På Linux med støttet NVIDIA-maskinvare angir du --torch-backend auto. Da velges akselerasjon når den er tilgjengelig, uten at CUDA-biblioteker blir en uuttalt standard."
         },
         {
-          "narration": "Hver installasjon validerer erstatningen før du bytter versjoner. En avbrutt oppdatering forlater det forrige miljøet intakt, og install.log forblir i det private installasjonsdirektoriet spaCR."
+          "narration": "Hvert installasjonsprogram validerer den nye installasjonen før det bytter til den. En avbrutt oppdatering lar det forrige miljøet være intakt, og install.log beholdes i den private installasjonsmappen for spaCR."
         },
         {
-          "narration": "Etter installasjon, bruk operativsystem lanseren. Ingen separat Python eller Conda konfigurasjon kreves."
+          "narration": "Start spaCR fra operativsystemets programstarter etter installasjonen. Det kreves ikke noe separat oppsett av Python eller Conda."
         }
       ]
     },
@@ -114,19 +114,19 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Hjemgrupper spaCR moduler etter arbeidsflyt slik at du kan gå fra bildebehandling gjennom analyse og kvalitetskontroll."
+          "narration": "Home grupperer spaCR-modulene etter arbeidsflyt, slik at du kan gå fra bildebehandling til analyse og kvalitetskontroll."
         },
         {
-          "narration": "Bruk venstre sidebar for å bytte seksjoner. Velg Hjem når du vil returnere til det komplette modulbiblioteket."
+          "narration": "Bruk venstre sidefelt til å bytte mellom seksjoner. Velg Home når du vil gå tilbake til den fullstendige moduloversikten."
         },
         {
-          "narration": "Sjekk kategorifiler og arbeidsflytlinjer for å finne et modul. Hver flis åpner en arbeidsflyt, og fargen indikerer om modulen er alfa, beta eller stabil."
+          "narration": "Bla gjennom kategorifanene og arbeidsflytradene for å finne en modul. Hver flis åpner én arbeidsflyt, og fargen viser om modulen er alpha, beta eller stable."
         },
         {
-          "narration": "Den høyre panelen viser dagens systembruk, utgivelse nyheter, og modul-tilstanden legende. Sjekk systembruket før du begynner dyrt arbeid."
+          "narration": "Panelet til høyre viser gjeldende systembelastning, utgivelsesnyheter og en forklaring av modulstatusene. Kontroller systembelastningen før du starter ressurskrevende arbeid."
         },
         {
-          "narration": "Velg en modul flis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."
+          "narration": "Velg en modulflis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."
         }
       ]
     },
@@ -385,34 +385,37 @@
       "id": "13_regression",
       "scenes": [
         {
-          "narration": "Regresjon forbinder fenotyppoeng med sekvensering avledet guide overflod. Konsolen rapporterer tabelljustering, filtrering, modelldiagnostikk, resultater og gjenopprettbarhetsregister."
+          "narration": "Regression relaterer fenotyppoeng til guideforekomst utledet fra sekvensering. Konsollen rapporterer tabelljustering, filtrering, valgt inferensprosedyre, diagnostikk, resultater og sporbarhetsdata for reproduksjon."
         },
         {
-          "narration": "Input Tables velger fenotipscore, sekvenseringstelling og valgfrie genmetadata. Bevis at plater og brønner bruker tilsvarende identifikatorer før modellering."
+          "narration": "Input Tables velger fenotyppoeng, sekvenseringstellinger, valgfrie genmetadata og målmappe for resultatene. La målmappen stå tom for å skrive ved siden av den første tellingstabellen; bekreft samsvarende plate- og brønnidentifikatorer før analysen."
         },
         {
-          "narration": "Essentials inneholder de kontroller som kreves for en første modell. Bruk Modifisert for å revidere forsettlige endringer, Alt for avanserte familier, og oppskrifter for et gjenbrukbar design."
+          "narration": "Essentials inneholder inndataene og inferensinnstillingene som kreves for en første analyse. Bruk Modified for å kontrollere bevisste endringer, All for avanserte innstillinger og Recipes for å lagre et gjenbrukbart analysedesign."
         },
         {
-          "narration": "Kontroller og plate design identifiserer positive, negative og nøytrale kontroller pluss alle brønner eller rader som er ekskludert før montering. Disse valgene definerer referanseadferd."
+          "narration": "Controls and Filters identifiserer positive, negative og nøytrale kontroller, utelukker angitte guider, brønner eller tabellrader og angir evidens- og normaliseringsreglene som bestemmer hvilke observasjoner som inngår i analysen."
         },
         {
-          "narration": "Plate og Batch Correction kan fjerne tekniske avvik ved å sentrere, robust skalering, referansekontroll eller batch-modeller. Bruk bare korrigering når designet støtter den."
+          "narration": "Plate and Batch Correction kan fjerne tekniske forskyvninger ved sentrering, robust skalering, referansekontroller eller batchmodeller. Bruk korreksjon bare når forsøksdesignet gir grunnlag for det."
         },
         {
-          "narration": "Modell og covariates velger respons, aggregering, transformasjon, regresjonsfamilie, usikkerhetsskatting og eventuelle berettigede rader, kolonne eller eksperimentelle covariater."
+          "narration": "Response velger fenotypekolonne, analyseenhet, aggregering, valgfri fortegnsvending og transformasjon. Disse valgene definerer størrelsen som skal relateres til guideforekomsten."
         },
         {
-          "narration": "Hit Calling og Outliers setter minimum cell, vel, og guide bevis pluss valgfrie outlier regler. Velg tærskler fra kontroll oppførsel og datakvalitet."
+          "narration": "Model and Inference velger ikke-parametrisk testing per guide, parametrisk samtidig regresjon eller automatisk valg. Her angis også rapporteringsnivå, modellfamilie når det er relevant, korreksjon for multippel testing og signifikansregel."
         },
         {
-          "narration": "Regresjon Plots konfigurerer diagnostiske og vulkansk visninger. Planbegrensninger endrer presentasjonen, ikke de monterte koefficientene, så hold ukrunkede tabeller for tolkning."
+          "narration": "Estimator Tuning inneholder innstillinger for kovarians, regularisering, robust tilpasning, kvantiler, bootstrap og rangaggregering. Bare innstillingene som den valgte estimatoren bruker, påvirker analysen."
         },
         {
-          "narration": "Run validerer skemer og brønn nøkkel, bruker ekskluderinger og korrigeringer, aggregerer poeng, passer den valgte modellen og vurderer bevis. Se kontroll og diagnostikk før du ringer."
+          "narration": "Permutation Test konfigurerer guidestatistikk, minste brønnstøtte, antall permutasjoner og tilfeldig startverdi, utbyttbarhetsblokk, forstyrrende variabler, tilstedeværelsesterskel og en batchstørrelse begrenset av minnet."
         },
         {
-          "narration": "Det fullførte prosjektet inneholder justert regresjonsdata, koefficienter på guide- og gennivå, usikkerhet eller betydningstabeller, diagnostiske tall, lagre innstillinger og et gjenløpelig manifest."
+          "narration": "Run validerer skjemaer og brønnøkler, bruker eksklusjoner og korreksjon, aggregerer responsen og kjører den valgte inferensprosedyren. Standardprosedyren er ikke-parametrisk, bruker plateblokkerte Freedman–Lane-permutasjoner og tilpasser ingen regresjonsmodell."
+        },
+        {
+          "narration": "Det fullførte prosjektet inneholder justerte analysedata, effektestimater på guide- og gennivå, empiriske eller modellbaserte signifikanstabeller, diagnostiske figurer, lagrede innstillinger og et manifest som kan kjøres på nytt."
         }
       ]
     },
@@ -1806,6 +1809,273 @@
         },
         {
           "narration": "Når arbeidsflyten er ferdig, kan kurvparametre, usikkerhet, diagnostikk og kildedata eksporteres sammen."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Explain CV Model. Gjenskap prediksjoner fra datasyn basert på målte egenskaper, og kontroller om de resulterende forklaringene er pålitelige og uten datalekkasje."
+        },
+        {
+          "narration": "Velg prediksjonsfilen per objekt, den tilhørende målingsdatabasen, den predikerte klassen eller skåren og grupperingen etter mikroplatebrønn eller plate som må holdes samlet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du bakenden for surrogatmodellen, reserverte valideringsgrupper, egenskaper som skal utelates, antall permutasjonsrepetisjoner og det avgrensede SHAP-budsjettet."
+        },
+        {
+          "narration": "Kontroller utelatelsene som skal hindre datalekkasje, og den grupperte datadelingen. Tilpass deretter surrogatmodellen, og sammenlign samsvaret på valideringsdata med majoritetsgrunnlinjen før du tolker egenskapenes betydning."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, registreres samsvar, permutasjonsbetydning i valideringssettet, SHAP-sammendrag, utelatte kolonner, gruppering, bakende og proveniens. Lavt samsvar rapporteres i stedet for å skjules."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Investigate Hit. Spor et valgt regresjonsfunn tilbake til kandidatceller og kvantitativ evidens fra mikroplatebrønner uten å overskrive gjennomgåtte annotasjoner."
+        },
+        {
+          "narration": "Velg regresjonskjøringen, det valgte funnet på gen- eller guide-nivå, fenotyperetningen, terskelen for falske funn, guide-støtten og den samsvarende målingsdatabasen."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet gjennomgår du objekttabellen, skårkolonnen, grupperingen etter mikroplatebrønn, evidenstersklene, kovariatene og den valgfrie krysstilpassede hierarkiske blandingsmodellen."
+        },
+        {
+          "narration": "Forhåndsvis kandidatcellene rangert etter skår og sammendragene for mikroplatebrønnene. Kjør den krysstilpassede modellen bare når det valgte funnet og evidenskravene er riktige."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, lagrer spaCR rangerte kandidatceller, sammenligninger mellom uavhengige brønner, valgfrie sannsynligheter for at hver celle samsvarer med den valgte fenotypen, usikkerhet og en versjonert avgjørelse som aldri erstatter manuelle annotasjoner."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Volcano Explorer. Åpne en fullført regresjon, undersøk hvert punkt, juster diagrammets utforming og eksporter en vektorfigur i publikasjonsstørrelse uten å kjøre analysen på nytt."
+        },
+        {
+          "narration": "Velg en mappe med en fullført regresjon eller en resultat-CSV, og bekreft utfallet, tabellen på guide-nivå, støttefamilien, effektkolonnen og kolonnen med justerte P-verdier."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet gjennomgår du signifikans- og effektterskler, aksetransformasjoner, etiketter, farger, former, annotasjoner, aksebrudd, skrifttyper og utdataformat."
+        },
+        {
+          "narration": "Klikk på representative punkter for å undersøke hele raden, slå sammen valgfrie annotasjoner, og kontroller at endringer i utformingen bevarer de underliggende verdiene og tersklene."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, gjengis PDF- og PNG-eksportene på nytt fra de registrerte dataene og den registrerte utformingen i ønsket størrelse, mens de opprinnelige regresjonsresultatene forblir uendret."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Parameter Sweep. Kjør et avgrenset søk gjennom regresjonsinnstillinger, og sammenlign hvilke konklusjoner som består på tvers av faglig forsvarlige analysevalg."
+        },
+        {
+          "narration": "Koble CSV-filene med skår per objekt og guide-antall for hver plate, velg responskolonnen, og angi en separat utdatamappe."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du hvilke akser som skal variere, låser alle andre verdier, velger rutenett- eller tilfeldig utvalg, begrenser antall forsøk, registrerer startverdien og godtar den minnebegrensede grensen for parallelle arbeidere."
+        },
+        {
+          "narration": "Bruk Estimate først for å undersøke størrelsen og kostnaden til det gyldige søkerommet. Start deretter et lite, avgrenset søk, og overvåk vellykkede, avviste og mislykkede forsøk."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, registrerer den gjenopptakbare resultattabellen innstillinger, status, antall funn, rangering av positiv kontroll, varighet, utdatamappe og feilårsak for hvert forsøk."
+        }
+      ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: kontroller planen før import",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Åpne Import Images i Import, kontroller et lite utvalg ekte mikroskopibilder før filer skrives, og lagre en plan som kan brukes igjen. Eksemplet skiller mellom opprinnelige navn som ikke støttes, og klargjorte kopier.",
+      "objectives": [
+        "Finn Import Images i Import og skill det fra import av eksisterende målinger og masker.",
+        "Kontroller bildeidentiteter og uavklarte deler av filnavn før prosjektet skrives.",
+        "Velg kopier eller lenker, lagre og last inn en plan, og kontroller importen."
+      ],
+      "prerequisite": "Last først ned det ekte Mask-eksemplet. Opptaket bruker kopier av bildefeltene E01/F001 og L01/F009, hvert med fire C-kanaler. De klargjorte kopiene utelater bare A-delen rett før Z; originalene endres ikke. Dette er et spesifikt kontrollert eksempel, ikke en generell beskjed om å slette ukjente metadata.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Åpne Import fra kategorien Data på Home, og velg Import Images. Dette underverktøyet klargjør rå bildefiler. Import Project, Format Converter og External Masks er beslektede arbeidsflyter med egne veiledninger.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "De åtte bildene våre er ekte mikroskopidata fra det nedlastbare Mask-eksemplet: ett bildefelt fra hver av to brønner med fire kanaler per felt. Vi arbeider med separate kopier og lar de nedlastede originalene være urørt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan viser en uavklart opptaksdel i de opprinnelige navnene. Import forblir deaktivert, og ingenting skrives. Ikke gjett en kanaltilordning: To forskjellige kanaler deler denne opptaksverdien, så en slik tilordning ville forvrenge identitetene deres.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "I dette kontrollerte eksemplet utelater de klargjorte kopiene bare den overflødige opptaksdelen. Brønn-, bildefelt- og kanalnavn beholdes. Scan viser nå åtte rader, to brønner, to feltnumre og fire kanaler. Det betyr ikke at de opprinnelige navnene ble godkjent.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Sammenlign forslaget med filnavnene før import. Read inside each file kontrollerer også innebygde aksemetadata. Sample begrenser filene som undersøkes; kontroller at forslaget omfatter bildene du vil importere. Avklar spørsmål fra opptaksloggene, ikke ved gjetting.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Velg et mål utenfor inndatamappen, og angi platenavnet. Vi slår av Link instead of copy for å lage et selvstendig prosjekt. Lenker sparer diskplass, men krever at originalene fortsatt er tilgjengelige på sine nåværende steder.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Disse eksempelfilene er ikke mosaikkfliser. Les Tiles nøye ved flisbaserte opptak: Sammensying gjenoppretter bildefelt, separate fliser endrer hva et felt betyr, og å hoppe over dem mister disse bildene. Kontroller rapporten og ubekreftede skjøter før måling.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan skriver kilden og tilordningssvarene dine til en JSON-fil, ikke en sikkerhetskopi av bildene. Oppbevar den med opptaksnotatene. Den samme planen kan leses gjennom Pythons API for bildeimport.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan leser kildemappen på nytt og gjenbruker lagrede svar. Kontroller det nye forslaget før import; en lagret plan garanterer ikke at et endret opptak er korrekt. Her gjenopprettes de samme åtte kontrollerte bildeidentitetene.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Trykk Import og les sammendraget. Denne kjøringen skrev åtte selvstendige bildekopier uten å hoppe over filer; innholdet samsvarer med kildene. Velg deretter prosjektet i Mask og undersøk direkteforhåndsvisningen før segmentering. Import alene lager verken masker eller målinger.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: forstå grunnlaget for resultatene",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Åpne diagnostikkfiler fra en faktisk analyse av eksempelscreeningen, skill mellom advarsler om forsøksdesignet og permutasjonsresultater, og forstå begrensningene ved en kort demonstrasjon.",
+      "objectives": [
+        "Åpne Diagnostics i Regression, og kontroller utdatamappen som undersøkes.",
+        "Tolk designets identifiserbarhet, guidenes forekomst og inferenspanelene i sammenheng med den valgte analysen.",
+        "Forstå manglende tilpassede residualer og begrenset permutasjonsoppløsning uten å anta at en modell ble tilpasset."
+      ],
+      "prerequisite": "Fullfør Regression-eksemplet med de fire nedlastbare parene med skår- og tellefiler. Opptaket undersøker en avgrenset ikke-parametrisk kjøring med 199 permutasjoner, minst to brønner og resultater for både guider og gener. Det demonstrerer programvaren og diagnostikken, ikke endelig inferens for pålitelige funn.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Hold pekeren over Diagnostics i Regression, og åpne det etter at en analyse er fullført. Knappen leser lagrede utdata; den tilpasser ikke en ny modell. Den åpner den nyeste diagnostikkmappen i prosjektet, så kontroller banen hvis det finnes flere kjøringer.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Systemets filbehandler viser de faktiske filene fra analysen av den nedlastede eksempelscreeningen. Figurformatet var her satt til PNG. Mappen inneholder designets identifiserbarhet, designdiagnostikk, inferensdiagnostikk, en oppsummeringstabell og en tabell over kollineære guidepar.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Designet har 606 brønner, 793 parametere og rang 599. Det kan ikke bestemme en entydig koeffisient for hver guide samtidig. Advarselen forklarer hvorfor vi brukte en permutasjonsanalyse; den betyr ikke at en simultan modell ble tilpasset med hell.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Guidene er ujevnt representert: 355 forekommer bare i én brønn i dette designet. Få forekomster begrenser hva forsøket kan fastslå. Undersøk dekningen før du tolker effekter, og skill mellom hele designet og den filtrerte familien av guider som faktisk ble testet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Designpanelet hjelper med å finne lav dekning og avhengigheter mellom guideprediktorer. Guider som alltid forekommer sammen, er vanskelige å skille statistisk. Undersøk bestemte par i kollinearitetstabellen i stedet for å betrakte et varselmerke som en fullstendig forklaring.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Inferenspanelet oppsummerer 434 guidetester: fordelingen av p-verdier, sammenligningen med en uniform nullfordeling og funn ved ulike korrigerte terskler. Denne korte kjøringen har ingen funn ved den viste terskelen. Et kalibreringsvarsel ber om nærmere undersøkelse, ikke om å konkludere med biologiske effekter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Vi brukte bare 199 permutasjoner for å holde demonstrasjonen kort. Den minste oppnåelige empiriske p-verdien er derfor 0,005. Denne oppløsningen kan være utilstrekkelig etter korreksjon for multiple tester. Planlegg et passende antall permutasjoner for den egentlige analysen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Denne permutasjonskjøringen har ikke noe panel med tilpassede residualer, fordi den ikke tilpasset den simultane regresjonsmodellen. Sammenligningen av p-verdier var ikke residualdiagnostikk. Andre analysemoduser kan skrive residualpaneler når de leverer observerte og tilpassede verdier.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Oppsummeringen registrerer vurderingen av hvert panel og den dårligste vurderingen for hele diagnostikken. Les hver vurdering i sammenheng i stedet for å tolke det samlede merket som en programvarefeil. Python-API-et for regresjonsdiagnostikk skriver de samme typene paneler fra inndataene det mottar.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Gå tilbake til Regression for å undersøke inndata eller bevisst endre et analysevalg. En endring krever en ny kjøring og ny diagnostikk; å åpne mappen oppdaterer aldri gamle resultater. Regression-veiledningen viser hele datasettet, konsollen, interaktive resultater og hjelpefunksjonene.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
         }
       ]
     }

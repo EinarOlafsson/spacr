@@ -199,10 +199,12 @@ def _finite(value: Any) -> Optional[float]:
 
 
 def _median(values: np.ndarray) -> Optional[float]:
+    """Return the finite median, or ``None`` when unavailable."""
     return _finite(np.median(values)) if values.size else None
 
 
 def _mean(values: np.ndarray) -> Optional[float]:
+    """Return the finite mean, or ``None`` when unavailable."""
     return _finite(np.mean(values)) if values.size else None
 
 
@@ -340,12 +342,18 @@ def _parse_well_label(label: Any) -> Optional[Tuple[int, int]]:
 
 
 def row_label(row_index: int) -> str:
-    """Return the letter label of a 1-based row index: ``3`` → ``'C'``."""
+    """Return the letter label of a 1-based row index: ``3`` → ``'C'``.
+
+    :param row_index: 1-based plate row index to convert.
+    """
     return _index_to_alpha(int(row_index))
 
 
 def well_id(row_index: int, column_index: int) -> str:
     """Return the canonical well name, e.g. ``(3, 7)`` → ``'C07'``.
+
+    :param row_index: 1-based plate row index.
+    :param column_index: 1-based plate column index.
 
     Agrees with :func:`spacr.schema.well_id` on every real well; it differs
     only in refusing to raise, because a layout table has to render every
@@ -413,7 +421,10 @@ def _connect(db_path: str) -> sqlite3.Connection:
 
 
 def tables(db_path: str) -> List[str]:
-    """Return the user tables + views of ``db_path``, alphabetically."""
+    """Return the user tables + views of ``db_path``, alphabetically.
+
+    :param db_path: path to the SQLite database to inspect read-only.
+    """
     con = _connect(db_path)
     try:
         rows = con.execute(
@@ -426,6 +437,9 @@ def tables(db_path: str) -> List[str]:
 
 def table_columns(db_path: str, table: str) -> List[str]:
     """Return the column names of ``table``, in declaration order.
+
+    :param db_path: path to the SQLite database to inspect read-only.
+    :param table: table or view whose declared columns are returned.
 
     :raises ValueError: when the database has no such table. The name is
         checked against ``sqlite_master`` before it is ever interpolated
@@ -570,6 +584,7 @@ def _prc_parts(series: pd.Series) -> Optional[pd.DataFrame]:
 
 
 def _first_column(df: pd.DataFrame, names: Sequence[str]) -> Optional[str]:
+    """Return the first candidate column present in ``df``, or ``None``."""
     for name in names:
         if name in df.columns:
             return name
@@ -635,6 +650,8 @@ def _identify_wells(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
 def plates_in(df: pd.DataFrame) -> List[str]:
     """Return the plate IDs present in ``df``, sorted.
 
+    :param df: raw long measurements or an existing plate layout.
+
     Accepts either a raw long frame or a layout from
     :func:`plate_layout`. Returns ``[]`` for anything unusable rather
     than raising — this feeds a combo box.
@@ -655,6 +672,7 @@ def _is_layout(df: pd.DataFrame) -> bool:
 
 
 def _empty_layout() -> pd.DataFrame:
+    """Create an empty typed plate layout with independent default metadata."""
     frame = pd.DataFrame({
         "plateID": pd.Series(dtype=object),
         "well": pd.Series(dtype=object),
@@ -1011,8 +1029,7 @@ def write_layout_csv(layout: pd.DataFrame, path: str) -> str:
         raise ValueError("No output path given for the CSV export.")
     out = os.path.abspath(os.path.expanduser(str(path).strip()))
     parent = os.path.dirname(out)
-    if parent:
-        os.makedirs(parent, exist_ok=True)
+    os.makedirs(parent, exist_ok=True)
     frame = layout[list(LAYOUT_COLUMNS)] if len(layout) else _empty_layout()
     frame.to_csv(out, index=False, quoting=csv.QUOTE_MINIMAL)
     return out
@@ -1112,16 +1129,23 @@ def row_column_trends(df: pd.DataFrame,
 class RingStats:
     """One concentric ring of the plate, compared against its core.
 
-    :ivar ring: 0 for the outermost ring, 1 for one well in, and so on.
-    :ivar n_wells: wells surviving ``min_count`` in this ring.
-    :ivar median: median well value in the ring.
-    :ivar mean: mean well value in the ring.
-    :ivar delta: ``median(ring) - median(core)``.
-    :ivar pct: ``delta`` as a percentage of the core median, or ``None``
-        when the core median is zero.
-    :ivar p_value: two-sided Mann-Whitney U against the core.
-    :ivar cliffs_delta: rank effect size in ``[-1, 1]``; positive means
-        this ring reads higher than the core.
+    :param ring: zero-based distance from the plate edge: zero is the
+        outermost ring, one is one well inward, and so on.
+    :param n_wells: number of usable wells in this ring after minimum-count
+        and missing-value filtering.
+    :param median: finite median of the per-well values in this ring, or
+        ``None`` when it is unavailable.
+    :param mean: finite mean of the per-well values in this ring, or ``None``
+        when it is unavailable.
+    :param delta: ring median minus the selected core median, or ``None`` when
+        either median is unavailable.
+    :param pct: ``delta`` as a percentage of the absolute core median, or
+        ``None`` when the difference or baseline is unavailable or zero.
+    :param p_value: two-sided Mann-Whitney U p-value comparing this ring with
+        the selected core, or ``None`` when the comparison is unavailable.
+    :param cliffs_delta: signed Cliff's delta for the same comparison, in
+        ``[-1, 1]``; positive values mean this ring reads higher than the core,
+        or ``None`` when unavailable.
     """
     ring: int
     n_wells: int
@@ -1137,16 +1161,24 @@ class RingStats:
 class GradientStats:
     """A monotonic drift along one axis of the plate.
 
-    :ivar axis: ``'row'`` or ``'column'``.
-    :ivar spearman_rho: rank correlation of well value with the axis
-        index; ``None`` when undefined (constant values, <3 wells).
-    :ivar p_value: two-sided p for ``spearman_rho``.
-    :ivar first_label: label of the lowest-index row/column present.
-    :ivar last_label: label of the highest-index row/column present.
-    :ivar delta_first_last: median of the last minus median of the first.
-    :ivar pct_first_last: that difference as a percentage of the first.
-    :ivar detected: both ``p_value`` and ``|rho|`` cleared their
-        thresholds.
+    :param axis: plate axis tested, either ``"row"`` or ``"column"``.
+    :param spearman_rho: Spearman rank correlation between each usable well's
+        value and its row or column index, or ``None`` when fewer than three
+        wells are available or the correlation is undefined.
+    :param p_value: two-sided p-value for ``spearman_rho``, or ``None`` when
+        the correlation is unavailable.
+    :param first_label: label of the lowest-index row or column present in the
+        usable wells.
+    :param last_label: label of the highest-index row or column present in the
+        usable wells.
+    :param delta_first_last: median value at the last axis index minus the
+        median at the first, or ``None`` when either median is unavailable.
+    :param pct_first_last: ``delta_first_last`` as a percentage of the absolute
+        first-index median, or ``None`` when the difference or baseline is
+        unavailable or zero.
+    :param detected: whether ``p_value < alpha`` and
+        ``abs(spearman_rho) >= min_gradient_rho`` for the thresholds used to
+        produce the profile.
     """
     axis: str
     spearman_rho: Optional[float]
@@ -1166,18 +1198,45 @@ class EdgeEffectReport:
     :attr:`cliffs_delta` — "the outer ring reads 31 % higher, δ = 0.78" —
     with :attr:`p_value` as supporting evidence rather than the verdict.
 
-    :ivar ok: False when the plate could not be tested at all (empty
+    :param plate: plate identifier analysed, or None when none was selected.
+    :param value_col: measurement aggregated per well, or None for counts.
+    :param grouping: per-well aggregation used to build the layout.
+    :param ok: False when the plate could not be tested at all (empty
         frame, one well, no interior); :attr:`notes` says why.
-    :ivar edge_detected: the outer ring differs from the interior by more
+    :param plate_format: nominal well count used to choose the plate grid, or
+        ``None`` when geometry is non-standard or unavailable.
+    :param n_rows: number of rows in the grid used to classify plate rings.
+    :param n_cols: number of columns in the grid used to classify plate rings.
+    :param n_wells: wells retaining usable values after count and NaN filtering.
+    :param n_edge_wells: usable wells assigned to the outermost ring.
+    :param n_interior_wells: usable wells inside the outermost ring.
+    :param min_count: minimum number of objects a well needed to remain in the
+        analysis.
+    :param edge_detected: the outer ring differs from the interior by more
         than :attr:`min_effect`, at better than :attr:`alpha`.
-    :ivar gradient_detected: at least one axis shows a monotonic drift.
-    :ivar dominant: ``'edge'``, ``'gradient'``, or ``'none'`` — which
+    :param p_value: two-sided Mann-Whitney U p-value comparing outer-ring and
+        interior wells, or ``None`` when the comparison is unavailable.
+    :param cliffs_delta: signed rank effect size for that comparison; positive
+        values mean the outer ring reads higher.
+    :param edge_median: median usable value on the outermost ring.
+    :param interior_median: median usable value inside the outermost ring.
+    :param median_difference: ``edge_median - interior_median``.
+    :param pct_difference: median difference as a percentage of the interior
+        median, or ``None`` when the baseline is zero or unavailable.
+    :param gradient_detected: at least one axis shows a monotonic drift.
+    :param dominant: ``'edge'``, ``'gradient'``, or ``'none'`` — which
         pattern better explains the plate.
-    :ivar rings: ring-by-ring profile, outermost first.
-    :ivar gradients: one :class:`GradientStats` per axis.
-    :ivar n_dropped_min_count: wells removed by ``min_count``. A heatmap
+    :param alpha: p-value threshold used together with :attr:`min_effect`.
+    :param min_effect: minimum absolute Cliff's delta required to flag an edge.
+    :param min_gradient_rho: minimum absolute Spearman correlation required to
+        flag a row or column gradient.
+    :param rings: ring-by-ring profile, outermost first.
+    :param gradients: one :class:`GradientStats` per axis.
+    :param n_dropped_min_count: wells removed by ``min_count``. A heatmap
         missing a third of its wells looks like data; this is the number
         that says it isn't.
+    :param notes: filtering, geometry, and degenerate-input explanations safe
+        to present to the user.
     """
     plate: Optional[str]
     value_col: Optional[str]
@@ -1208,14 +1267,20 @@ class EdgeEffectReport:
     notes: List[str] = field(default_factory=list)
 
     def gradient(self, axis: str) -> Optional[GradientStats]:
-        """Return the :class:`GradientStats` for ``'row'`` or ``'column'``."""
+        """Return the :class:`GradientStats` for ``'row'`` or ``'column'``.
+
+        :param axis: gradient axis to retrieve.
+        """
         for g in self.gradients:
             if g.axis == axis:
                 return g
         return None
 
     def ring(self, index: int) -> Optional[RingStats]:
-        """Return the :class:`RingStats` for ring ``index``, if computed."""
+        """Return the :class:`RingStats` for ring ``index``, if computed.
+
+        :param index: zero-based ring depth, outermost first, to retrieve.
+        """
         for r in self.rings:
             if r.ring == index:
                 return r
@@ -1527,6 +1592,7 @@ def _fmt_pct(value: Optional[float]) -> str:
 
 
 def _fmt_p(value: Optional[float]) -> str:
+    """Format a p-value compactly, including undefined and sub-floor values."""
     if value is None:
         return "undefined"
     if value < 1e-4:

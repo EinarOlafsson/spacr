@@ -2,8 +2,10 @@
 IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
 ================================================================================
 
-Status:    done, 2026-08-14. Supersedes the "no grid at the end" half of
-           instruction 75.
+Status:    reopened, 2026-08-14. The original starplast-style viewer is
+           complete; the maintainer requested a second usability and reducer
+           expansion pass quoted below. Supersedes the "no grid at the end"
+           half of instruction 75.
 Requested: 2026-08-13, verbatim:
 
     "i asked for the first option (the cluster montage). but then we built
@@ -27,6 +29,29 @@ Requested: 2026-08-13, verbatim:
      cuML version, if dependencies are not installed then it should check the
      python version and install if compatible other wise tell the user what
      they need to do."
+
+Requested: 2026-08-14, verbatim:
+
+    "now in image umap in hyperparamiter search i want you to put mindist,
+    and neighbours as their own columns so i can order based on them. also
+    when tSNE is the embedding mode umap settings should be grayed out and
+    vice versa. also add PCA and any other dimentional reduction methods you
+    can think of and try to organize the settings in the setting tabs in umap
+    settings better and more intuitively their should be a better score the
+    metrich (defaults to euclidian) should be a dropdown showing all possible
+    alternatives. when their are a fixed set of options allway use drop down
+    menue never a field . the GPU button should instead by the same style as
+    hyperparamiter sertch and AI and should be to the left of hyperparamiter
+    search and should controll GPU use for the hyperparamiter search and for
+    main UMAP module.
+
+    right now the UMAP container in hyperparamiters can be stretched sideways
+    but it should als o be able to strech up and down.
+
+    the container should show the grid axees, 3 for 3D and 2 for 2d.
+
+    right clicking on the umap should apllow the user to modifue the UMAP
+    appearence (datapoint rendering, size, cmap, etc.)"
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -254,3 +279,78 @@ TESTED:
   * Source catalogs were regenerated (`settings=694`, `categories=163`,
     `ui=1409`; English API manifest `symbols=6481`), compileall and
     `git diff --check` pass.
+
+--------------------------------------------------------------------------------
+2026-08-14 - REOPENED FOR REDUCERS, SORTABLE PARAMETERS, LAYOUT AND APPEARANCE
+--------------------------------------------------------------------------------
+
+WHAT THE STATE IS. The first pass is complete and tested as recorded above.
+The new request has not been implemented. The current viewer supports exact
+2-D/3-D trial selection, horizontal resizing, clustering, grid view and a GPU
+search route, but it does not expose neighbour/min-dist as sortable columns,
+does not draw coordinate axes, has no appearance context menu, and the GPU
+control is visually compact and search-specific. The main module currently
+offers UMAP/t-SNE through a free-form reduction setting and does not express
+algorithm-specific setting enablement.
+
+2026-08-14 SCOPE CORRECTION. The user confirmed that the existing height
+resizing already works as intended and withdrew that part of the request. Do
+not change the current vertical resizing behaviour; every other item below
+still stands.
+
+WHAT TO DO. Extend the existing model and viewer contracts so search rows
+carry sortable reducer parameters; make every finite choice in the Image UMAP
+surface a combo box; add well-supported dimensionality reducers without
+silently pretending incompatible settings apply; reorganise the settings into
+algorithm/common/search/display groups; use one prominent GPU toggle for both
+the main run and search; render two or three labelled grid axes; and provide a
+right-click appearance editor for
+point shape/rendering, point size and colour map. Define and expose a stronger
+default scoring criterion with its direction and component scores visible.
+
+HOW TO KNOW IT WORKED. The table sorts neighbours and min-dist numerically;
+switching reducers immediately disables every irrelevant control and enables
+only settings the selected reducer reads; every enumerated setting is a combo;
+all added reducers execute through the main module and their compatible search
+path or explicitly state that search is not applicable; GPU state is shared by
+main and search and the button is left of Search with matching visual weight;
+the existing height resizing remains unchanged; 2-D/3-D viewers show
+two/three axes; and the context appearance controls update the selected exact
+embedding without a refit. Focused model, settings, Qt, pipeline and
+end-to-end tests must pass.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETED REDUCER, SEARCH-TABLE AND VIEWER FOLLOW-UP
+--------------------------------------------------------------------------------
+
+WHAT CHANGED. Hyperparameter results now expose numeric-sortable Neighbours
+and Min dist columns, while the multi-objective neighbourhood/stability/
+cluster score is the default criterion and retains its component provenance.
+The metric is a non-editable dropdown containing every supported distance
+metric and defaults to Euclidean. Other finite settings are dropdowns as well.
+
+The main Image UMAP workflow now supports UMAP, t-SNE, PCA, Isomap and Spectral
+Embedding with algorithm-specific options. Settings are grouped by purpose;
+inactive reducer families and their labels are visibly disabled as soon as the
+method changes. Reducer execution forwards only compatible settings, clamps
+sample-dependent neighbourhood/perplexity values safely, records the actual
+backend, and refuses unsupported GPU combinations or silent CPU fallback.
+
+A single prominent GPU toggle now sits immediately left of Hyperparameter
+Search and controls both the main workflow and search. The viewer draws two
+labelled grid axes in 2-D and three in 3-D. Its right-click Appearance dialog
+changes marker shape, point size, opacity and colour map without recomputing or
+changing coordinates. The existing vertical resize behaviour was not changed,
+per the scope correction.
+
+VERIFIED. Focused Qt/settings/viewer/search tests pass (118), reducer/core/
+plotting/settings tests pass (253), all-module smoke plus real UMAP search tests
+pass (58), and AppScreen round-trip/integration tests pass (9). Targeted
+compileall and `git diff --check` pass. The 2-D/3-D viewer, Appearance dialog
+and reorganised Image UMAP screen were also rendered and inspected visually.
+Two broader pre-existing checks remain outside this change: external language
+catalogs contain retired keys tracked by instruction 83, and the real-pipeline
+fixture counts its generated plane-layout manifest as an unexpected ninth
+file. During verification, an unrelated concurrent cuML pip process modified
+the base Anaconda environment, so the passing suite was run in the repository's
+stable `spacr` conda environment.

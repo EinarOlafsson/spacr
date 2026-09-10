@@ -1,12 +1,10 @@
-"""
-Photographic backgrounds for the image-backed themes.
+"""Photographic backgrounds for image-backed themes.
 
 Why this exists next to :mod:`spacr.qt.space`
 ---------------------------------------------
-:mod:`spacr.qt.space` *generates* a sky with numpy. This module does the
-same job for pixels that already exist: three photographs the user
-supplied — two of their own micrographs and one deep-field astronomy
-frame — turned into wallpapers for the Space and Cell themes.
+:mod:`spacr.qt.space` generates procedural backgrounds. This module prepares
+three bundled photographs—two microscopy images and one deep-field astronomy
+image—for the Space and Cell themes.
 
 It reuses ``space``'s cache directory, its size clamps and its
 "never raise, fall back to something" contract, so from the outside a
@@ -14,20 +12,15 @@ photo background and a generated one behave identically. What is new is
 the part that photographs need and procedural pixels do not: a decode
 budget, a crop policy, and a measured legibility check.
 
-The performance limit is decoded memory, not file size
-------------------------------------------------------
-``space_1.jpeg`` is 10.2 MB on disk and **281 MB decoded** as
-10000x7020 RGBA. Re-decoding that on a window resize would be brutal and
-holding it resident is worse. So:
+Decoded-image memory, not compressed file size, sets the performance limit.
+Large source photographs are therefore prepared as follows:
 
 * the masters shipped in ``spacr/resources/themes`` are already cropped
   and capped at :data:`MASTER_CAP` (3840x2400 — :data:`spacr.qt.space.MAX_DIM`),
   so the largest thing ever decoded at runtime is ~27 MB, not 281 MB;
 * each screen size is rendered **once** and cached as JPEG under
   ``~/.spacr/backgrounds``; and
-* :func:`decode_count` counts every master decode, so the claim "no
-  master is touched during a resize or a repaint" is a number the test
-  suite checks rather than a promise in a docstring.
+* :func:`decode_count` reports master decodes for diagnostics and tests.
 
 The crop policy
 ---------------
@@ -67,7 +60,7 @@ into ``~/.spacr/themes`` themselves.
 :func:`exposure_target`, :func:`brightest_window` and :func:`solve_dim`
 — on its generated sky, which for a long time was the one wallpaper in
 the app that had never been measured against the rule the photographs
-were held to. It cannot simply call :func:`solve_dim` on the finished
+were held to. It cannot call :func:`solve_dim` on the finished
 frame (that lands the sky on a solid black rectangle; the numbers are in
 that module's docstring), so it applies the ceiling where the frame
 actually breaks the rule and then measures the result here.
@@ -290,6 +283,13 @@ def available_keys() -> Tuple[str, ...]:
 # ---------------------------------------------------------------------------
 
 def _srgb_to_linear_lut() -> np.ndarray:
+    """Build the 256-entry sRGB-to-linear lookup table.
+
+    A table rather than the formula per pixel: the input is 8-bit, so there
+    are only 256 possible answers and computing them once is the whole cost.
+
+    :returns: the table, single-precision.
+    """
     c = np.arange(256, dtype=np.float64) / 255.0
     return np.where(c <= 0.04045, c / 12.92,
                     ((c + 0.055) / 1.055) ** 2.4).astype(np.float32)
@@ -299,6 +299,13 @@ _TO_LINEAR = _srgb_to_linear_lut()
 
 
 def _linear_to_srgb(value: np.ndarray) -> np.ndarray:
+    """Convert linear-light values back to sRGB.
+
+    :param value: linear values; clipped to ``[0, 1]`` first, because a
+        composite can overshoot and the transfer function is only defined on
+        that range.
+    :returns: the sRGB values.
+    """
     value = np.clip(value, 0.0, 1.0)
     return np.where(value <= 0.0031308, value * 12.92,
                     1.055 * np.power(value, 1.0 / 2.4) - 0.055)
@@ -475,6 +482,10 @@ def cover_box(src_w: int, src_h: int, out_w: int, out_h: int,
     stylesheet — which centres the image without repeating it — can
     never end up letterboxing it into bands of flat colour.
 
+    :param src_w: width of the source image in pixels.
+    :param src_h: height of the source image in pixels.
+    :param out_w: width of the target area in pixels.
+    :param out_h: height of the target area in pixels.
     :param focus: vertical centre of the crop as a fraction of the
         source height. Clamped so the box stays inside the frame.
     """

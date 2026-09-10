@@ -1,0 +1,450 @@
+================================================================================
+EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
+================================================================================
+
+Status:    PHASES 1-3 DONE 2026-09-02 -- the analyser, the pruned tree, and
+           the Sphinx page with every branch clickable. Phase 4, the
+           docstrings, is not started.
+Requested: 2026-09-02 -- "many functions and subfunctions lack docstrings ...
+           all functions should have a docstring that explains their inputs
+           and outputs, this goes for subfunctions as well ... when it comes
+           to functions that pass along settings ... there should be a tree
+           representation in the API. So if the user clicks on an api link
+           say cell channel in the mask module and this links to
+           preprocess_mask or similar, the user should see preprocess_mask
+           and all the branches below preprocess_mask that lead to functions
+           or classes that use the cell_channel setting, and all branches
+           should be clickable ... first explain to me how you intend to
+           implement this ... if you need to change api compiler from sphinx
+           to something different that is fine just inform me."
+
+--------------------------------------------------------------------------------
+MEASURED FIRST, 2026-09-02 -- these numbers decide what is possible
+--------------------------------------------------------------------------------
+
+DOCSTRING COVERAGE
+    module-level functions   7036   documented 6541  (92%)
+    methods                  8794   documented 5915  (67%)
+    nested "sub" functions    742   documented  241  (32%)
+
+  The maintainer's observation is confirmed and located: the gap is METHODS
+  and NESTED FUNCTIONS, not module-level functions. 2879 undocumented
+  methods and 501 undocumented nested functions.
+
+SETTINGS READS
+    literal-string key reads  4251   (95%)
+    dynamic key reads          233   (5%)
+    distinct keys read          954
+
+  The 5% is not scattered noise. It is dominated by ONE pattern --
+  f'{object_type}_intensity_merge', f'{object_type}_min_area' and siblings --
+  which is the per-object family instruction 364 measured from the other
+  side. Expanding `object_type` over the known object vocabulary resolves
+  most of it, so effective coverage is well above 95%.
+
+THE SETTINGS-PROPAGATING CALL GRAPH -- the part the tree actually needs
+    functions receiving a settings-shaped argument   562
+    settings-propagating call sites                  698
+      resolved by a bare-name + import-table pass    481   (68%)
+      unresolved: method / attribute / dynamic       217   (31%)
+
+  THIS IS THE FINDING THAT MAKES THE FEATURE FEASIBLE. The tree does not
+  need the whole call graph -- 156,371 call sites, of which a naive
+  name-match resolves 18%. It needs only the subgraph along which settings
+  travel, and that is 698 edges over 562 functions. A tractable object.
+
+  The unresolved 31% are `self.method(settings)` and `obj.method(settings)`.
+  Those are resolvable, but by class-attribute analysis, which is phase 2
+  work rather than a reason to abandon the design.
+
+--------------------------------------------------------------------------------
+THE ANSWER ON SPHINX: KEEP IT
+--------------------------------------------------------------------------------
+
+Changing the API compiler would cost everything and buy nothing, because no
+compiler -- Sphinx, mkdocs, pdoc, Doxygen -- does settings-flow analysis.
+None of them knows what a "setting" is. The tree has to be built by a
+purpose-written static analyser whatever renders the result.
+
+Sphinx is also already carrying work that would have to be rebuilt: nine
+translated API catalogs with source-hash pinning, `autoapi_python_class_content
+= 'both'`, the reviewed-translation gates, and the tests that pin every
+module tile to its API destination.
+
+  SO: a new tool emits the trees as data, and Sphinx renders them. The
+  analyser is the deliverable; the renderer is a detail.
+
+--------------------------------------------------------------------------------
+WHAT WILL BE BUILT
+--------------------------------------------------------------------------------
+
+PHASE 1 -- THE ANALYSER (`tools/settings_flow.py`)
+  Walks the package with `ast` and emits one JSON artifact:
+    * every settings key read, and by which qualified function;
+    * for each function, which settings-shaped parameters it receives;
+    * the propagation edges (caller -> callee, with the argument passed);
+    * a confidence marker per edge: RESOLVED, AMBIGUOUS or UNRESOLVED.
+  No import of spaCR at build time -- pure `ast`, so it cannot be defeated
+  by an import failure and needs no GPU, no Qt and no torch.
+
+PHASE 2 -- THE TREE, per setting
+  For a key K: root at each module entry point that owns K, walk the
+  propagation edges, mark nodes that READ K, and PRUNE branches that reach
+  no reader. Pruning is what makes it a usable tree rather than a call-graph
+  dump. Cycles get cut with a "(recurses)" marker.
+
+PHASE 3 -- THE PAGE
+  One page per setting, listing the tree with every node a link to its
+  existing API page. Cross-linked from the settings reference so clicking
+  `cell_channel` lands on its tree. Nodes whose edge is UNRESOLVED are shown
+  AS UNRESOLVED rather than omitted -- a tree that silently drops what it
+  could not resolve is worse than one that admits the gap.
+
+PHASE 4 -- THE DOCSTRINGS
+  2879 methods and 501 nested functions, worked in the order of instruction
+  367: the settings-carrying ones first, then the core pipeline, then the
+  rest. Nested functions are the maintainer's explicit ask and are today the
+  worst covered at 32%.
+
+  NOTE: AutoAPI does not emit nested functions at all -- they are not module
+  members. Making them "visible in parent functions" therefore needs the
+  parent's page to carry them, which the analyser can supply since it has
+  already parsed them. This is why phase 4 comes after phase 1.
+
+--------------------------------------------------------------------------------
+WHAT THIS WILL NOT DO, STATED UP FRONT
+--------------------------------------------------------------------------------
+
+* Static analysis cannot follow a call through `getattr`, a dispatch dict, a
+  Qt signal, or a callback passed as a value. Those edges will be marked
+  UNRESOLVED, not guessed.
+* A settings dict rebuilt or filtered mid-flow (`sub = {k: settings[k] ...}`)
+  breaks the chain. The analyser should DETECT and report these rather than
+  follow them wrongly.
+* "Every branch below" is bounded by these limits. The tree is a strong
+  guide, not a proof of reachability, and the page must say so once.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A known key -- `cell_channel` -- produces a tree whose readers match a
+  hand-audited list. Build the hand list FIRST; it is the specification.
+* Every node in a rendered tree links to a page that exists.
+* The analyser runs in CI and fails when an edge that used to resolve stops
+  resolving, so refactors cannot silently empty the trees.
+* Coverage ratchets for methods and nested functions, so the numbers above
+  cannot go back up.
+
+
+--------------------------------------------------------------------------------
+PHASES 1 AND 2 ARE BUILT, 2026-09-02
+--------------------------------------------------------------------------------
+
+`tools/settings_flow.py`. Pure `ast`, imports no spaCR -- so a broken import
+cannot empty the trees, and building the docs needs no torch, no Qt and no
+GPU. A test asserts that.
+
+    settings read           1058
+    functions taking them    617
+    propagation edges        776   (524 resolved, 252 unresolved)
+
+THE DESIGN ASSUMPTION HELD. The package has ~156,000 call sites and a naive
+name match resolves 18%; the settings-carrying subgraph is 776 edges, two
+orders of magnitude smaller, and two thirds of it resolves. A test fails if
+that ratio collapses, because a tree that is mostly holes is not usable.
+
+`--key cell_channel` prints the worked example from this file:
+
+    cell_channel
+      spacr.core.preprocess_generate_masks_timelapse
+          spacr.core.preprocess_generate_masks  <-- reads it
+              spacr.io.preprocess_img_data
+                  spacr.io.concatenate_and_normalize
+                      spacr.io._normalize_img_batch  <-- reads it
+              spacr.object.generate_cellpose_masks_sam  <-- reads it
+              spacr.object.generate_organelle_masks_sam
+                  spacr.object._segment_cellpose_sam  <-- reads it
+              spacr.validate.run_preflight
+                  spacr.validate.describe_plan
+                      spacr.validate._describe_objects  <-- reads it
+
+  PRUNED TO BRANCHES THAT REACH A READER, which is what makes it a tree
+  rather than a call-graph dump. `generate_organelle_masks_sam` does not read
+  the setting and is still shown, because the function BELOW it does.
+
+  THE F-STRING EXPANSION IS WHAT MAKES IT WORK. `cell_channel` is never
+  written literally in most of its readers -- it is built as
+  `f'{object_type}_channel'` -- so a literal-only matcher reports it as read
+  by nothing. Expanding the five object roles turns most of the dynamic 5%
+  into concrete keys.
+
+  ONE EDGE PER (caller, callee). The raw edge list records call SITES, so a
+  function calling another three times produced the whole subtree three
+  times. Correct as a record and useless as a tree.
+
+  UNRESOLVED EDGES ARE KEPT AND MARKED, never dropped -- 252 of them. A tree
+  that silently omits what it could not follow looks complete, and the reader
+  has no way to tell which they are looking at.
+
+PHASE 3 IS BUILT. `python tools/settings_flow.py --rst` writes
+`docs/source/_generated/settings_flow.rst`: one section per setting that is
+read anywhere, an anchor per section so a tooltip can land on it, and every
+node a `:py:func:` link to its API page.
+
+  A LINE BLOCK, NOT A LITERAL BLOCK, and that is the whole of the difficulty.
+  `::` is the obvious way to draw a tree and renders it as preformatted text
+  in which NOTHING IS CLICKABLE -- and "all branches should be clickable" is
+  the request. A line block keeps one source line per output line and still
+  interprets roles. RST then discards ordinary leading whitespace inside one,
+  so the depth is drawn with non-breaking spaces; without them every node
+  appears at the same level and the tree says nothing.
+
+  A PRIVATE READER IS NAMED BUT NOT LINKED. AutoAPI publishes no page for an
+  underscore function, so a link to one is a Sphinx warning and a broken link
+  for the reader. `_normalize_img_batch` appears as plain text, which still
+  says where the value is used.
+
+  ONE PAGE, NOT 1058. A page per setting is a file per setting and a toctree
+  nobody can scan. The anchors give a reader arriving from a tooltip the same
+  landing while keeping the rest browsable.
+
+STILL TO DO: the docstrings (phase 4), and including the page in the doc
+tree once the Sphinx build is next run. The map those links resolve against was fixed
+earlier today -- 59 settings pointed at a function that reads no settings --
+so the ground is now sound.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``mixed_gpu.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The three remaining undocumented callables were small but user-visible in
+their results: ``_readable`` now states its coercion, clamping, precision, and
+largest unit; ``_RandomTerm.n_levels`` names what it counts; and
+``TorchMixedResults.df_resid`` names the exact residual-degrees-of-freedom
+calculation. The module is now in the completed-module registry (and was
+already in the nested-function zero-debt registry), so deleting any function
+docstring makes the focused ratchet fail.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``roi.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final six gaps now document geometry and rule normalization, aggregate
+ROI counting, filter initialization, missing-field policy, and cumulative
+keep/drop accounting. ``RoiRegionFilter`` also states that its field counter
+tracks distinct raster/cache misses rather than uncovered, empty, or
+waved-through fields. The module is in the completed-module registry, and a
+direct test pins :meth:`RoiSet.__len__` to the number of drawings across all
+field entries.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``volcano_style.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final three callables now document detached style serialization,
+reference-rule rendering, and the full axis-finishing side effect. The pass
+also found and fixed axis labels ignoring ``label_font_size``; direct render
+and serialization tests pin both behavior contracts. The module is now in
+the completed-module registry.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``agreement.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The four final gaps now state the exact one-line pair summary, annotator
+count, signed κ formatting, and percentage fallback contracts. Existing
+tests already exercise defined and undefined pair strings, report cardinality,
+and both formatter fallbacks; the completed-module registry now prevents any
+function docstring from disappearing.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``multi_database.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The five final gaps now document pre-merge totals, within-screen collision
+meaning, SQLite metadata reads, exact row counts, and canonical plate
+discovery. The pass also deduplicated stored aliases after canonicalization,
+while retaining their original spellings separately for diagnosis. A focused
+database test and the completed-module registry pin both contracts.
+
+
+--------------------------------------------------------------------------------
+2026-09-03: ``external_masks.py`` IS A ZERO-DOCSTRING-DEBT MODULE
+--------------------------------------------------------------------------------
+
+The final fourteen gaps now document serialization, preview properties and
+summaries, supported-file discovery, role inference, input coercion, canonical
+stems, mask pairing, atomic NumPy writes, and database-table discovery. The
+module already had direct focused behavior coverage for each path and is now
+in the completed-module registry so the documentation cannot regress.
+
+---
+
+2026-09-04. PHASE 4, THE PRIVATE HALF: DONE. THE NUMBERS IN THIS FILE WERE
+STALE BY A LOT.
+
+    module functions   6908/7158   97%
+    methods            6712/9067   74%   (this file says nothing; it was 70.5%
+                                          at the start of this session)
+    nested             656/844     78%   (THIS FILE SAYS 32%)
+
+Nested functions were "today the worst covered at 32%" when this was written.
+They were at 62% before this session touched them and are at 78% now. Anyone
+planning work off the 32% would have been sizing a job four times bigger than
+the one that existed. THE MEASUREMENT IS ONE COMMAND -- run it before
+believing a number in here, including these.
+
+PRIVATE METHODS ON PRIVATE CLASSES ARE AT ZERO. Every one is documented.
+
+WHAT I DELIBERATELY DID NOT DO, and why it is not laziness: the public half.
+Every docstring on a public class -- INCLUDING A DUNDER -- moves the API
+symbol count, which stales `docs/source/_static/i18n/api/*.json` and turns
+306's catalog test red. Three passes were burnt this session discovering that
+(`Colormap.__eq__` gaining a docstring moved the count). The other session is
+closing 306; the public half resumes when they are done.
+
+WHAT THE WRITING IS ACTUALLY FOR, since a coverage percentage does not say it.
+Almost every docstring worth writing here recorded a decision that the code
+could not show:
+
+  * `_adapt_resolution` in fractal_travel.py is nine lines of bare constants
+    -- 0.78, 0.92, 1.65, 0.82, 1.055 -- and every one is a choice. It waits
+    twelve frames and reconsiders every twenty-fourth so the scale settles
+    rather than oscillating; the budget is 78% of the period because Qt's
+    conversion needs the rest; both directions are clamped so a stall cannot
+    drive the picture to nothing.
+  * `_axes_tab.set_colour` binds its artist as a DEFAULT ARGUMENT. Closing
+    over the loop variable gives every callback the last artist -- the classic
+    way a row of per-artist controls all end up editing one of them. It looks
+    like noise until someone tidies it away.
+  * `run._capture_show` renders figures on the WORKER thread because Agg
+    touches no Qt. Moving the render to where the tile is made is the obvious
+    edit and hangs the window.
+  * `_run_job._job` returns through a payload dict because a return value is
+    swallowed by the runner.
+  * `_settle_after_handler` keeps the solid fill on a DISABLED Run button,
+    because disabled conventionally means the worker is starting or stopping,
+    and greying it says "unavailable" instead of "in progress".
+
+THE RATCHET'S SECOND TEST IS THE GOOD HALF, and it is worth saying why:
+`test_the_budget_names_no_module_that_has_improved_past_it` fails when a
+module gets BETTER than its recorded budget. Without it, documenting four
+functions silently buys room to leave four more undocumented later. Fourteen
+budgets were tightened this session, several to zero. Bank the improvement in
+the same commit that earns it.
+
+AND ONE THING THIS CAMPAIGN FOUND THAT IT WAS NOT LOOKING FOR. Three tests
+that had been red long enough to be treated as background -- baselined,
+labelled "pre-existing", stepped over -- were all real defects:
+
+  * the maturity word elided off the hint bar, which is the only carrier for a
+    colour-blind reader (WCAG 1.4.1);
+  * `_contains_suffix` building its iterator above its own `try`, which stopped
+    working when `Path.iterdir` began raising at creation on Python 3.13 --
+    an OSError landing where Qt cannot catch it;
+  * a drop cache keyed on a directory mtime whose granularity is coarser than
+    the event it was meant to notice.
+
+A swept package-wide check for that third-party-version shape found no other
+instance. "Known red" is not the same as "known", and re-reading three of them
+cost less than one docstring batch.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- PHASE 4 IS DONE. ZERO UNDOCUMENTED CALLABLES, PACKAGE-WIDE.
+--------------------------------------------------------------------------------
+
+    UNDOCUMENTED: 0   of 18,550 callables (1,307 classes, 17,243 functions)
+
+Measured with `ast.get_docstring` over every `spacr/**/*.py` except the
+tutorial engine, counting classes, functions and methods at every nesting
+depth. The command is in this file's history; run it rather than believing
+the number, which is the rule this file has had to state twice already.
+
+THE LAST 37 were written tonight: 35 private and, once those were done, the
+two public classes that remained -- `OwnedTimerFigureCanvas` and
+`LazySweepPanel`.
+
+THE PUBLIC PAIR MOVED NO RATCHET, which contradicts the 2026-09-04 note above
+saying the public half had to wait for the catalogs. That note was right about
+the mechanism and wrong about these two: `autoapi_python_class_content` is
+`'both'`, so a class whose `__init__` already carries a docstring is ALREADY
+in the API surface, and giving the class itself one adds prose to a symbol
+that was counted rather than adding a symbol. The surface stayed at 10,243
+and all three ratchets stayed green.
+
+That is worth recording rather than quietly benefiting from: the deferral cost
+this instruction five days of waiting for a condition that did not apply to
+the work that was left. What would have settled it in a minute is the check
+that settles most things here -- write one, run the ratchet, read the number.
+
+TWO REAL DEFECTS CAME OUT OF THE WRITING, neither of them a docstring:
+
+  * Six SQLite connections in `infection.py` and `suggest.py` opened with
+    `sqlite3.connect` and so took the five-second default. Against a
+    measurements.db a Measure run is still writing, that is a report or an
+    annotation write failing with "database is locked" for a reason that has
+    nothing to do with the data. All six now go through
+    `database_concurrency.connect`.
+
+  * A `#:` comment carrying "asked for on 2026-09-08" -- development history
+    in prose AutoAPI publishes to users.
+
+Both were found by gates that already existed and had never been run against
+these files. Phase 4's real yield was not the percentage.
+
+WHAT REMAINS OF 368: nothing in phase 4. The settings-flow page (phases 1-3)
+is published, reads its tooltips through `ast`, and 383 now links 182 settings
+to it. This instruction can close.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- "THE SETTINGS-FLOW PAGE IS PUBLISHED" WAS NOT TRUE, AND IS NOW
+--------------------------------------------------------------------------------
+
+The closing note above says the page "is published". It was not. A CLOSED
+item is exactly where this is worth writing down, because nobody was going
+to look again.
+
+    docs/source/index.rst:120: WARNING: toctree contains reference to
+    nonexisting document 'settings_flow'
+
+Every documentation build since 2026-09-08 has failed on that line, and
+`docs.yml` treats warnings as errors. It was invisible for two reasons at
+once: the catalog audit runs BEFORE the Sphinx step and was failing on its
+own, so the build never got far enough to say this; and the failing runs
+were themselves being cancelled by the next push before anybody read them.
+
+WHAT WAS MISSING WAS THE WRAPPER, NOT THE PAGE. dfa06eb45 committed
+`_generated/settings_flow.rst` -- 1,924 lines of it -- and pointed the
+toctree at `docs/source/settings_flow.rst`, which "owns the heading and says
+what the page is for". That wrapper was written and never committed.
+`.gitignore` carries `/docs/source/*` and an explicit allowlist of the pages
+that are kept, and nobody added this one to it, so `git add` ignored it
+SILENTLY -- an ignored path is not an error -- and the file existed on the
+machine that wrote it for as long as that machine did.
+
+So the page was finished twice and invisible twice: first because nothing
+included the fragment (which this file already records), then because the
+file that includes it was not in the repository.
+
+FIXED, AND MEASURED RATHER THAN ASSERTED:
+
+    sphinx-build -W -E -b html --keep-going   exit 0
+    docs/_build/html/settings_flow.html       3.3 MB
+    anchors                                   1,108   -- one per setting
+    tests/test_tooltip_api_links_resolve.py   8 passed
+
+The allowlist now names the file, with the reason beside it.
+
+THE TRANSFERABLE PART. A `.gitignore` that works by allowlist turns "I
+forgot to add the file" into "the file is silently not in the repository",
+and no local check can tell the difference -- the tree is complete on the
+machine that made it. `git status` says nothing, `git add` says nothing, and
+the build is green locally forever. If a page is added under
+`docs/source/`, the allowlist entry belongs in the same commit, and the way
+to prove it is `git ls-files --error-unmatch <path>`.

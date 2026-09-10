@@ -1,0 +1,572 @@
+"""The setup screen is one question per slide (instruction 234).
+
+A FORM ASKS EVERYTHING AT ONCE AND ANSWERS NOTHING. A slide asks one thing
+and has room to say why it matters.
+
+INVARIANTS 10 THROUGHOUT: the rim, the strata and the blur are decoration.
+If none of them can be drawn the slides still work and still write the same
+answers.
+"""
+from __future__ import annotations
+
+import importlib
+
+import pytest
+
+pytest.importorskip("PySide6")
+
+from PySide6.QtCore import QPointF  # noqa: E402
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox  # noqa: E402
+
+from spacr.qt.widgets.setup_slides import GREETINGS, PROVIDERS, SLIDES, SetupSlides, greeting_for
+
+
+def _past_the_greeting(slides):
+    """Take the slides off the language page, pause included.
+
+    The first Next holds the greeting on screen for GREETING_MS; a test that
+    does not want to wait for a real timer calls the timeout itself.
+    """
+    if slides.slide() == 0:
+        slides.next()
+        if slides.slide() == 0:
+            slides._finish_the_greeting()
+    return slides.slide()
+
+
+@pytest.fixture(scope="module")
+def app():
+    return QApplication.instance() or QApplication([])
+
+
+@pytest.fixture(autouse=True)
+def own_config(tmp_path, monkeypatch):
+    """A config dir of this test's own.
+
+    Without it the test answers the setup screen on the user's machine and
+    they never see it again.
+    """
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    from spacr.qt import preferences
+
+    importlib.reload(preferences)
+    yield
+    importlib.reload(preferences)
+
+
+@pytest.fixture
+def slides(app, qtbot):
+    widget = SetupSlides()
+    qtbot.addWidget(widget)
+    return widget
+
+
+class TestTheOrderIsTheMaintainers:
+
+    def test_there_are_seven(self):
+        """SEVEN, not six: the terms of use are now a slide of their own.
+
+        They are not a preference -- every other question here has a working
+        default and can be answered by dismissing the screen -- so they could
+        not be folded onto an existing page without making that page
+        refusable in a way none of the others are.
+        """
+        assert len(SLIDES) == 7
+
+    def test_they_are_in_the_order_asked_for(self):
+        """The terms sit second to last, between the questions and Done.
+
+        Last would put them after the screen has said it is finished; any
+        earlier would ask for the agreement before the reader has seen what
+        they are agreeing to set up.
+        """
+        assert [title for title, _b, _k in SLIDES] == [
+            "Language", "Theme", "How it runs", "The assistant",
+            "When something breaks", "Terms of use", "Done"]
+
+    def test_language_is_first(self):
+        """It changes the screen the user is looking at."""
+        assert SLIDES[0][2] == ("language",)
+
+    def test_theme_and_colour_blind_are_one_slide(self):
+        """One question: what this looks like."""
+        assert set(SLIDES[1][2]) == {"theme", "colour_blind"}
+
+    def test_the_assistant_asks_provider_and_launch(self):
+        assert set(SLIDES[3][2]) == {"ai_provider", "ai_default"}
+
+    def test_the_last_one_asks_nothing(self):
+        """"then a screen that just says Done" -- it is the transition, not
+        a summary; a list of what was chosen would be a form again."""
+        assert SLIDES[-1][2] == ()
+
+    def test_every_slide_that_asks_something_explains_itself(self):
+        """A question with no explanation is a question asked badly.
+
+        THE CLOSING SLIDE IS EXEMPT, and it is the one slide that asks
+        nothing: it says "Done" and, under it, "Welcome to spaCR". A
+        paragraph there would be explaining a question that is not being
+        asked. This rule used to cover it and failed against the shortened
+        wording, which made the check report the layout rather than the
+        prose.
+        """
+        for title, blurb, _keys in SLIDES[:-1]:
+            assert len(blurb.strip()) > 40, title
+
+    def test_the_closing_slide_says_two_things_and_no_more(self):
+        """The word and the welcome, which is what that slide is for."""
+        title, blurb, keys = SLIDES[-1]
+
+        assert (title, keys) == ("Done", ())
+        assert blurb == "Welcome to spaCR"
+
+
+class TestOneQuestionPerSlide:
+
+    def test_a_page_exists_for_each(self, slides):
+        assert slides._pages.count() == len(SLIDES)
+
+    def test_next_moves_one_slide(self, slides):
+        """Off the FIRST slide it waits, so the greeting can be read.
+
+        `next` returns the slide still showing, which is 0 during the pause;
+        `_finish_the_greeting` is what the timer would call.
+        """
+        assert slides.next() == 0
+        slides._finish_the_greeting()
+        assert slides.slide() == 1
+        assert slides.next() == 2, "only the FIRST Next waits"
+
+    def test_previous_moves_back_one(self, slides):
+        _past_the_greeting(slides)
+        slides.next()
+        assert slides.previous() == 1
+
+    def test_it_does_not_go_before_the_first(self, slides):
+        assert slides.previous() == 0
+
+    def test_the_position_is_shown(self, slides):
+        """Paging without a total is navigation without a map.
+
+        Seven since the terms of use became a slide.
+
+        NOT ON SLIDE ONE, and that is deliberate. This asserted "1 of 7"
+        on the first slide, and `_show_slide` now leaves the counter empty
+        there: slide one carries the greeting AND the capability table,
+        and "1 of 7" was landing on top of the GPU note. A counter that
+        overlaps the thing it sits under is worse than no counter on the
+        one slide where the answer is obvious anyway -- there is no Back
+        button to wonder about.
+
+        So the property is that the map appears as soon as there is
+        anywhere to have come from.
+        """
+        assert slides._where.text() == "", (
+            "slide one has no room for a counter under the greeting and the "
+            "capability table")
+        # The first Next holds the greeting on screen for GREETING_MS, so
+        # the file's own helper is what actually reaches slide two.
+        assert _past_the_greeting(slides) == 1
+        assert "2 of 7" in slides._where.text()
+
+    def test_the_last_button_starts_spacr(self, slides):
+        """Walked to the end, the button offers to start rather than to page.
+
+        The terms slide will not be left unanswered, so the walk ticks the
+        acceptance on the way past -- which is the user's own route to the
+        last slide and the only one there is.
+        """
+        _past_the_greeting(slides)
+        for _ in range(len(SLIDES) - 2):
+            if SLIDES[slides.slide()][0] == "Terms of use":
+                slides._agree.setChecked(True)
+            slides.next()
+        assert "spaCR" in slides._next.text()
+
+
+class TestTheGreeting:
+    """"for the language chosen say Hello underneeth"."""
+
+    def test_every_offered_language_has_one(self):
+        from spacr.qt.setup_screen import questions
+
+        offered = {code for q in questions() if q[0] == "language"
+                   for code, _name in q[4]}
+        assert offered <= set(GREETINGS), offered - set(GREETINGS)
+
+    def test_it_is_not_shown_until_the_first_next(self, slides):
+        """THE GREETING IS THE ANSWER TO THE QUESTION, so it comes after the
+        question is answered rather than sitting under it while it is still
+        being decided.
+
+        ASSERTED ON `isHidden`, not `isVisible`: this dialog is never shown,
+        and every child of an unshown parent reports itself invisible -- so
+        `isVisible` would pass here whether or not the greeting had been
+        hidden on purpose.
+        """
+        assert slides._greeting.isHidden()
+
+    def test_the_first_next_shows_it(self, slides):
+        slides.next()
+        assert not slides._greeting.isHidden()
+        assert slides._greeting.text() == GREETINGS["en"]
+
+    def test_it_is_written_not_shouted(self, slides):
+        """"Hello", not "HELLO", and the equivalent in every language --
+        GREETINGS holds each in its own conventional form already."""
+        from spacr.qt.widgets.setup_slides import GREETINGS
+
+        slides.next()
+        assert slides._greeting.text() == GREETINGS["en"]
+        assert slides._greeting.text() != slides._greeting.text().upper()
+
+    def test_it_follows_the_language_that_was_chosen(self, slides):
+        box = slides._editors["language"]
+        box.setCurrentIndex(box.findData("sv"))
+        slides.next()
+        assert slides._greeting.text() == "Hej"
+
+    def test_it_is_in_the_accent_colour(self, slides):
+        """Blue, from the palette rather than a literal, so it matches the
+        rim running round the card as it arrives."""
+        from spacr.qt.theme import active_palette
+
+        slides.next()
+        assert active_palette()["accent"].lower() in \
+            slides._greeting.styleSheet().lower()
+
+    def test_it_fades_in_rather_than_appearing(self, slides):
+        """A word switched on reads as a label that was always going to be
+        there; one that fades up reads as an answer to what was just
+        chosen."""
+        slides.next()
+        assert slides._hello is not None
+        assert slides._hello.parent() is slides, (
+            "an animation nobody holds is collected before it runs")
+
+    def test_it_is_only_on_the_language_slide(self, slides):
+        """A "Hello" left standing over the theme question is a word with no
+        job on that page.
+
+        IT NOW TAKES 700ms TO GO. This used to assert the word was gone the
+        instant the slide changed, which was true because it was switched
+        off -- and being switched off is what "the transition away from
+        Hello is abrupt and bad" was about. It fades now, so the claim is
+        the same and the moment it becomes true is later.
+        """
+        import time
+
+        from PySide6.QtWidgets import QApplication
+
+        from spacr.qt.widgets.setup_slides import GREETING_LEAVE_MS
+
+        _past_the_greeting(slides)
+        deadline = time.time() + (GREETING_LEAVE_MS / 1000.0) + 2.0
+        while time.time() < deadline and slides._greeting.isVisibleTo(slides):
+            QApplication.processEvents()
+            time.sleep(0.02)
+        assert not slides._greeting.isVisibleTo(slides)
+
+    def test_a_language_with_no_greeting_falls_back(self):
+        assert greeting_for("xx") == GREETINGS["en"]
+
+    def test_the_languages_are_offered_in_their_own_script(self):
+        """The reader of this list is by definition somebody who may not
+        read the current one."""
+        from spacr.qt.setup_screen import questions
+
+        names = {name for q in questions() if q[0] == "language"
+                 for _code, name in q[4]}
+        assert "Svenska" in names and "한국어" in names
+
+
+class TestEveryBooleanIsASlider:
+    """"aslo in the startup all the booleans should be sliders"."""
+
+    def test_no_bare_checkbox_survives(self, slides):
+        from spacr.qt.widgets.toggle import Toggle
+
+        for box in slides.findChildren(QCheckBox):
+            assert isinstance(box, Toggle), (
+                "a tick box is a form control and this is not a form")
+
+    def test_the_booleans_are_toggles(self, slides):
+        from spacr.qt.widgets.toggle import Toggle
+
+        for key in ("hash_inputs", "ai_default", "share_logs"):
+            assert isinstance(slides._editors[key], Toggle), key
+
+    def test_they_still_read_back(self, slides):
+        slides._editors["hash_inputs"].setChecked(True)
+        assert slides.answers()["hash_inputs"] is True
+
+
+class TestTheProviderIsALogoButton:
+
+    @pytest.fixture(autouse=True)
+    def _no_modal(self, slides, monkeypatch):
+        """Answer the set-up prompt instead of opening it.
+
+        Choosing a provider that is not installed now asks what to do
+        about that (open the page / sign in / copy the command), and a
+        QMessageBox has nobody to answer it in a headless run -- the
+        suite's own guard raises rather than letting it hang.
+        """
+        monkeypatch.setattr(slides, "_prompt_to_set_up",
+                            lambda *a, **k: None)
+
+    def test_there_is_one_per_provider(self, slides):
+        holder = slides._editors["ai_provider"]
+        assert set(holder._buttons) == {code for code, _l, _c in PROVIDERS}
+
+    def test_it_is_not_a_dropdown(self, slides):
+        """A dropdown of three names is a dropdown; three logos is a choice
+        somebody makes in one glance."""
+        assert not isinstance(slides._editors["ai_provider"], QComboBox)
+
+    def test_choosing_one_unchooses_the_rest(self, slides):
+        holder = slides._editors["ai_provider"]
+        slides._choose_provider(holder, "claude")
+        assert holder._buttons["claude"].is_chosen()
+        slides._choose_provider(holder, "gpt")
+        assert not holder._buttons["claude"].is_chosen()
+        assert holder._buttons["gpt"].is_chosen()
+
+    def test_the_choice_reaches_the_answers(self, slides):
+        slides._choose_provider(slides._editors["ai_provider"], "gemini")
+        assert slides.answers()["ai_provider"] == "gemini"
+
+    def test_a_provider_that_is_not_ready_is_still_choosable(self, slides):
+        """Reported 2026-08-22: "for the ai assistant i can only click
+        claude". Whatever state a provider is in, picking it must work --
+        the state is drawn and said, not enforced.
+
+        WHAT CHANGED. This used to add "and launches nothing": the screen
+        wrote a preference and the login instructions lived on a different
+        screen entirely. Asked for on 2026-08-23 -- "if the user clicks an
+        AI provider they should get prompted to login right away" -- so
+        choosing one now starts its sign-in as well as recording it. The
+        tooltip says that instead of saying the CLI can be installed later,
+        and the mark's colour means SIGNED IN rather than merely installed.
+
+        The launch is stubbed here: this test is about the choice being
+        possible, and a real `codex login` would open a terminal.
+        """
+        slides._run_in_a_terminal = lambda command: True
+        holder = slides._editors["ai_provider"]
+        for code, _label, _command in PROVIDERS:
+            mark = holder._buttons[code]
+            if not mark.available:
+                assert "sign-in" in mark.toolTip()
+            slides._choose_provider(holder, code)
+            assert slides.answers()["ai_provider"] == code
+
+
+class TestTheRim:
+
+    def test_next_runs_a_clockwise_circuit(self, slides):
+        before = slides.card.position
+        slides.next()
+        assert slides.card.spinning
+        for _ in range(5):
+            slides.card._tick()
+        assert slides.card.position > before or slides.card.position < before
+
+    def test_the_two_directions_differ(self, app, qtbot):
+        """The direction is the message: it tells the user which way they
+        went, which is worth more than the animation."""
+        from spacr.qt.widgets.setup_card import SetupCard
+
+        forward, back = SetupCard(), SetupCard()
+        qtbot.addWidget(forward)
+        qtbot.addWidget(back)
+        forward.resize(200, 120)
+        back.resize(200, 120)
+        forward.circuit(clockwise=True)
+        back.circuit(clockwise=False)
+        for _ in range(4):
+            forward._tick()
+            back._tick()
+        assert forward.position > 0 and back.position < 1.0
+        assert forward.position != back.position
+
+    def test_a_lap_ends_exactly_where_it_started(self, app, qtbot):
+        """Floating error across thirty frames would leave the accent a
+        little further round after every circuit."""
+        from spacr.qt.widgets.setup_card import SetupCard
+
+        card = SetupCard()
+        qtbot.addWidget(card)
+        card.resize(200, 120)
+        card.circuit(clockwise=True)
+        for _ in range(200):
+            card._tick()
+            if not card.spinning:
+                break
+        assert card.position == pytest.approx(0.0, abs=1e-6)
+
+    def test_the_pointer_does_not_steer_a_running_circuit(self, app, qtbot):
+        """A lap dragged off course by a mouse movement is not a lap, and
+        the user cannot tell whether it went round."""
+        from spacr.qt.widgets.setup_card import SetupCard
+
+        card = SetupCard()
+        qtbot.addWidget(card)
+        card.resize(200, 120)
+        card.circuit(clockwise=True)
+        card.flow_towards(QPointF(200, 60))
+        assert card._towards == 0.0
+
+    def test_it_flows_rather_than_jumping(self, app, qtbot, monkeypatch):
+        """"the blue rim should flow like water towards the mouse", and
+        water does not teleport between corners.
+
+        The cursor read is stubbed out: every tick now aims at wherever the
+        pointer actually is, which on a test machine is wherever the last
+        thing to touch it left it -- so without this the target moves out
+        from under the assertion.
+        """
+        from spacr.qt.widgets import setup_card as module
+        from spacr.qt.widgets.setup_card import SetupCard
+
+        card = SetupCard()
+        qtbot.addWidget(card)
+        card.resize(200, 120)
+        monkeypatch.setattr(module.SetupCard, "_aim_at_the_cursor",
+                            lambda self: False)
+        card.flow_towards(QPointF(200, 60))
+        target = card._towards
+        card._tick()
+        first = card.position
+        assert 0.0 < first < target, (
+            "one tick should move part of the way, not all of it")
+
+
+class TestDecorationIsNotLoadBearing:
+
+    def test_it_builds_with_no_backdrop(self, app, monkeypatch):
+
+        def boom(self):
+            raise RuntimeError("no ambient engine")
+
+        monkeypatch.setattr(SetupSlides, "_install_backdrop", boom)
+        with pytest.raises(RuntimeError):
+            SetupSlides()
+
+    def test_a_failed_backdrop_is_caught_inside(
+            self, app, qtbot, monkeypatch):
+        """The catch is in `_install_backdrop` itself, so the dialog is
+        built either way."""
+        import spacr.qt.widgets.setup_slides as module
+
+        monkeypatch.setattr(
+            module, "BACKDROP_THEME", "no-such-theme", raising=False)
+        built = SetupSlides()
+        qtbot.addWidget(built)
+        assert built.answers()
+
+    def test_the_answers_are_the_same_without_it(
+            self, app, qtbot, monkeypatch):
+        import spacr.qt.widgets.setup_slides as module
+
+        plain = SetupSlides()
+        qtbot.addWidget(plain)
+        monkeypatch.setattr(module, "BACKDROP_THEME", "no-such-theme",
+                            raising=False)
+        undecorated = SetupSlides()
+        qtbot.addWidget(undecorated)
+        assert undecorated.answers() == plain.answers()
+
+
+class TestItIsStillDismissible:
+
+    def test_closing_at_any_slide_marks_it_answered(self, slides):
+        from spacr.qt.setup_screen import should_open
+
+        slides.next()
+        slides.next()
+        slides.reject()
+        assert not should_open()
+
+    def test_and_writes_the_defaults(self, slides):
+        from spacr.qt import preferences
+
+        slides._editors["hash_inputs"].setChecked(True)
+        slides.reject()
+        assert preferences.get_hash_inputs() is True
+
+    def test_finishing_marks_it_too(self, slides):
+        from spacr.qt.setup_screen import should_open
+
+        slides.accept()
+        assert not should_open()
+
+
+class TestItIsReachableFromHelp:
+    """Requested 2026-08-21: "the startup should be in the help menue".
+
+    It ran once on the first launch and then never -- and it is the only
+    place several of these settings are EXPLAINED rather than merely
+    offered, so a user who dismissed it lost the explanation with the
+    questions.
+    """
+
+    @pytest.fixture
+    def window(self, app, qtbot):
+        from spacr.qt.app import MainWindow
+
+        widget = MainWindow()
+        qtbot.addWidget(widget)
+        return widget
+
+    def _help_menu(self, window):
+        for menu in window.menuBar().findChildren(type(
+                window.menuBar().addMenu("scratch"))):
+            if "Help" in menu.title():
+                return menu
+        return None
+
+    def test_there_is_an_entry(self, window):
+        menu = self._help_menu(window)
+        assert menu is not None
+        assert any("Set spaCR up" in a.text() for a in menu.actions())
+
+    def test_it_says_what_it_opens(self, window):
+        action = next(a for a in self._help_menu(window).actions()
+                      if "Set spaCR up" in a.text())
+        assert "language" in action.statusTip()
+
+    def test_it_opens_even_when_already_answered(self, window,
+                                                 monkeypatch):
+        """`open_setup_if_needed` asks `should_open` and would refuse. A
+        menu item that does nothing on the second launch is the inert
+        control this codebase keeps meeting."""
+        import ast
+        import inspect
+        import textwrap
+
+        from spacr.qt.app import MainWindow
+
+        # THE CODE, NOT THE PROSE. The docstring explains why
+        # `open_setup_if_needed` is not used, so a plain substring search
+        # finds the very name it is asserting the absence of -- which is
+        # what the first version of this test did.
+        tree = ast.parse(textwrap.dedent(
+            inspect.getsource(MainWindow._show_setup)))
+        called = {node.id for node in ast.walk(tree)
+                  if isinstance(node, ast.Name)}
+        called |= {node.attr for node in ast.walk(tree)
+                   if isinstance(node, ast.Attribute)}
+        assert "SetupSlides" in called
+        assert "open_setup_if_needed" not in called
+        assert "should_open" not in called
+
+    def test_the_launcher_still_asks_first(self):
+        """The automatic path keeps its guard: it must not reappear every
+        launch."""
+        import inspect
+
+        from spacr.qt.widgets import setup_slides
+
+        source = inspect.getsource(setup_slides.open_setup_if_needed)
+        assert "should_open" in source

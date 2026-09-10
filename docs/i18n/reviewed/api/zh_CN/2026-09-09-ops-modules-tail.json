@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.ops_cycles#6",
+      "source_sha256": "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
+      "source": "IT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. The tile axis on DAPI peaks at 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and nuclei are smooth and few, so losing the Hoechst costs nothing here.",
+      "context": "It is not a fallback, it is the better image data channel. The tile axis on DAPI peaks at 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and nuclei are smooth and few, so losing the Hoechst costs nothing here.",
+      "translation": "这不是退而求其次，而是更好的通道。 DAPI 上的拼图轴峰值为 23 到 85；这里则是 169 到 281。斑点是点状且数量众多的，而细胞核平滑且稀少，所以在这里失去 Hoechst 没有任何代价。"
+    }
+  ]
+}

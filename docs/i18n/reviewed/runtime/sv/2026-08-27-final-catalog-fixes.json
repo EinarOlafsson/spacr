@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "ui",
+      "key": "FORMULA",
+      "source_sha256": "a724853bbcec701c04a92616b4d0d88b521bfb43cbbcb4b1b8895b77afac2f99",
+      "source": "FORMULA",
+      "translation": "FORMEL"
+    }
+  ]
+}

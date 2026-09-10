@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "z_handling",
+      "source_sha256": "3ed5e52586513e70542edb8e1d62320663bd1b40bc2b5d301a900cb8288360cb",
+      "source": "How multiple Z planes become a 2-D Measure input. 'max' takes a maximum-intensity projection and 'first' keeps only the first plane; inputs that still contain separate planes are rejected. Default 'max'.",
+      "translation": "Hvernig mörg Z snið verða að 2-D inntaki fyrir Measure. 'max' notar hámarksstyrksvörpun og 'first' heldur aðeins fyrsta sniðinu; inntaki sem enn inniheldur aðskilin snið er hafnað. Sjálfgefið er 'max'."
+    }
+  ]
+}

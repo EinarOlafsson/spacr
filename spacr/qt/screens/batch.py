@@ -50,7 +50,6 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -60,6 +59,7 @@ from ...cli import MODULES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
 
@@ -119,6 +119,14 @@ class BatchScreen(QWidget):
     _progress_relayed = Signal(object)
     def __init__(self, parent=None, threaded: bool = True,
                  runner: Optional[Callable[[Any, str, str], int]] = None):
+        """Build the screen, arm its drop zone and start the elapsed-time tick.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the queue on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param runner: callable invoked per job as ``(job, settings, log_path)``
+            returning an exit code; ``None`` uses the module's own runner.
+        """
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._runner = runner
@@ -157,12 +165,18 @@ class BatchScreen(QWidget):
         self._tick.setInterval(1000)
         self._tick.timeout.connect(self._refresh_running_row)
         self._tick.start()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # ------------------------------------------------------------------
     # construction
     # ------------------------------------------------------------------
 
     def _build_ui(self) -> None:
+        """Lay out the job editor, the queue toolbar, the run controls and the panes."""
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -173,12 +187,13 @@ class BatchScreen(QWidget):
         outer.addWidget(title)
 
         subtitle = QLabel(
-            "Stack any modules, in any order, with any settings, and run them "
-            "overnight: Mask → Measure → Classify, then the same again with "
-            "different settings. Every job is checked when you add it, the "
-            "queue file survives a reboot, and a job whose input failed is "
-            "skipped instead of run on a half-written result. One job at a "
-            "time — they share one GPU.")
+            "Configure modules in any order with independent settings and "
+            "execute them sequentially without supervision, for example "
+            "Mask → Measure → Classify followed by another configuration. "
+            "Each job is validated when added, the queue persists across a "
+            "restart, and jobs whose inputs failed are skipped to prevent use "
+            "of incomplete results. Jobs execute sequentially to preserve "
+            "dependency order and prevent resource contention.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -290,6 +305,7 @@ class BatchScreen(QWidget):
         split = QSplitter(Qt.Vertical, self)
 
         self._table = QTableWidget(self)
+        install_sorting(self._table)
         self._table.setColumnCount(len(COLUMNS))
         self._table.setHorizontalHeaderLabels(list(COLUMNS))
         self._table.verticalHeader().setVisible(False)
@@ -352,6 +368,8 @@ class BatchScreen(QWidget):
         :param overrides: ``key=value`` strings, exactly like ``--set``.
         :returns: True when the job was added.
         """
+        settings = (settings if str(settings).strip()
+                    else self._settings_edit.text().strip())
         job = bt.Job(
             module=module or self._module_combo.currentData() or "",
             settings=settings,
@@ -549,6 +567,7 @@ class BatchScreen(QWidget):
         box: Dict[str, Any] = {}
 
         def _job(payload: Dict[str, Any]) -> None:
+            """Run the whole plate queue. Off the GUI thread."""
             payload["result"] = bt.run_queue(
                 self._queue,
                 path=self._path or None,
@@ -698,10 +717,19 @@ class BatchScreen(QWidget):
             self._worker = None
 
     def _on_run_error(self, exc: BaseException) -> None:
+        """Clear the busy flag and report a failed queue run.
+
+        :param exc: the exception raised by the worker.
+        """
         self._busy = False
         self._set_status(f"The queue runner failed: {exc}", error=True)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy flag and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
         self._busy = False
         self._set_status(f"The queue runner failed: {line}", error=True)
@@ -711,18 +739,39 @@ class BatchScreen(QWidget):
     # ------------------------------------------------------------------
 
     def selected_job(self) -> Optional[bt.Job]:
-        """The :class:`spacr.batch.Job` for the selected row, or None."""
-        row = self._table.currentRow()
-        if row < 0 or row >= len(self._queue.jobs):
+        """The :class:`spacr.batch.Job` for the selected row, or None.
+
+        By the job's id, never by the row number: the table sorts, so the
+        third row is not the third job once the user has clicked a header.
+        """
+        job_id = self._job_id_at(self._table.currentRow())
+        if not job_id:
             return None
-        return self._queue.jobs[row]
+        return next((job for job in self._queue.jobs if job.id == job_id),
+                    None)
+
+    def _job_id_at(self, row: int) -> str:
+        """The id of the job drawn on ``row``, or "" when there is none."""
+        if row < 0 or row >= self._table.rowCount():
+            return ""
+        item = self._table.item(row, 0)
+        if item is None:
+            return ""
+        return str(item.data(Qt.UserRole) or "")
+
+    def _row_of_job(self, job_id: str) -> int:
+        """The row ``job_id`` is drawn on, or -1."""
+        for row in range(self._table.rowCount()):
+            if self._job_id_at(row) == str(job_id):
+                return row
+        return -1
 
     def select_job(self, job_id: str) -> bool:
         """Select the row for ``job_id``."""
-        index = self._queue.index(job_id)
-        if index < 0:
+        row = self._row_of_job(job_id)
+        if row < 0:
             return False
-        self._table.selectRow(index)
+        self._table.selectRow(row)
         return True
 
     def row_values(self, row: int) -> List[str]:
@@ -745,6 +794,13 @@ class BatchScreen(QWidget):
         return job.status
 
     def _refresh_table(self) -> None:
+        """Rebuild the queue table from the queue.
+
+        The elapsed-time cells sort on the seconds behind them rather than on
+        the rendered text, or ``"2m"`` would land under ``"9s"``, and each
+        row carries its job id, so a re-sorted table still knows which job the
+        user picked.
+        """
         jobs = self._queue.jobs
         self._table.setRowCount(len(jobs))
         for row, job in enumerate(jobs):
@@ -759,7 +815,11 @@ class BatchScreen(QWidget):
                 os.path.basename(job.log_path),
             )
             for col, text in enumerate(cells):
-                item = QTableWidgetItem(text)
+                # A duration reads as "2m 05s" and sorts on the seconds
+                # behind it, or "2m" would land under "9s".
+                key = (job.elapsed_s if col == COLUMNS.index("Time")
+                       else None)
+                item = table_item(text, key=key)
                 if col == COLUMNS.index("Status"):
                     palette = active_palette()
                     colour = palette.get(
@@ -770,19 +830,33 @@ class BatchScreen(QWidget):
                         item.setForeground(_brush(colour))
                 if col in (COLUMNS.index("Label"), COLUMNS.index("Status")) and job.error:
                     item.setToolTip(job.error)
+                if col == 0:
+                    # The row's identity, so a sorted table still knows which
+                    # job the user picked.
+                    item.setData(Qt.UserRole, job.id)
                 self._table.setItem(row, col, item)
 
     def _refresh_running_row(self) -> None:
         """Tick the elapsed cell of the running job, and only that cell."""
-        for row, job in enumerate(self._queue.jobs):
-            if job.status != bt.STATUS_RUNNING or row >= self._table.rowCount():
+        for job in self._queue.jobs:
+            if job.status != bt.STATUS_RUNNING:
+                continue
+            row = self._row_of_job(job.id)
+            if row < 0:
                 continue
             self._table.setItem(row, COLUMNS.index("Time"),
-                                QTableWidgetItem(bt.fmt_duration(job.elapsed_s)))
+                                table_item(bt.fmt_duration(job.elapsed_s),
+                                           key=job.elapsed_s))
             if self._table.currentRow() == row:
                 self._load_log(job)
 
     def _on_selection_changed(self) -> None:
+        """Load the selected job into the editor and show its log.
+
+        The editor fields are left alone while the queue is running: overwriting
+        what the user is typing because a job finished and the selection moved
+        would lose the edit.
+        """
         job = self.selected_job()
         if job is None:
             return
@@ -804,8 +878,16 @@ class BatchScreen(QWidget):
                 "" if not job.log_path else f"(no log yet at {job.log_path})")
             return
         try:
-            with open(job.log_path, "r", encoding="utf-8", errors="replace") as handle:
-                text = handle.read(_LOG_TAIL_BYTES)
+            with open(job.log_path, "rb") as handle:
+                handle.seek(0, os.SEEK_END)
+                size = handle.tell()
+                handle.seek(-min(size, _LOG_TAIL_BYTES), os.SEEK_END)
+                raw = handle.read(_LOG_TAIL_BYTES)
+                text = raw.decode("utf-8", errors="replace")
+                # Match text mode's universal-newline decoding. In particular,
+                # QPlainTextEdit returns LF, so an unchanged Windows log must
+                # not look different and reset the scroll position each tick.
+                text = text.replace("\r\n", "\n").replace("\r", "\n")
         except OSError as exc:
             text = f"(could not read {job.log_path}: {exc})"
         if self._log_view.toPlainText() != text:
@@ -822,6 +904,7 @@ class BatchScreen(QWidget):
     # ------------------------------------------------------------------
 
     def _on_add_clicked(self) -> None:
+        """Add a job from the editor fields."""
         self.add_job(
             settings=self._settings_edit.text().strip(),
             label=self._label_edit.text().strip(),
@@ -830,6 +913,7 @@ class BatchScreen(QWidget):
         )
 
     def _pick_settings_file(self) -> None:
+        """Ask for a settings file and put it in the editor."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Choose a settings file", "",
             "Settings (*.csv *.json);;All files (*)")
@@ -837,12 +921,14 @@ class BatchScreen(QWidget):
             self._settings_edit.setText(path)
 
     def _pick_queue_to_load(self) -> None:
+        """Ask for a queue file and load it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open a queue", "", "Queue files (*.json);;All files (*)")
         if path:
             self.load_queue_from(path)
 
     def _pick_queue_to_save(self) -> None:
+        """Ask where to write the queue and save it."""
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the queue", self._path or "queue.json",
             "Queue files (*.json);;All files (*)")
@@ -850,6 +936,11 @@ class BatchScreen(QWidget):
             self.save_queue_to(path)
 
     def _show_problems_text(self, text: str) -> None:
+        """Write the validation pane.
+
+        :param text: every problem at once, so the queue can be fixed in one
+            pass rather than one error per attempt.
+        """
         self._problems_view.setPlainText(text)
 
     def _set_status(self, text: str, error: bool = False) -> None:
@@ -866,6 +957,11 @@ class BatchScreen(QWidget):
         return self._status.text()
 
     def _update_controls(self) -> None:
+        """Enable the toolbar and run controls to match the queue and run state.
+
+        Run additionally needs the queue to be free of errors: starting an
+        overnight queue whose first job cannot run is the failure this prevents.
+        """
         has_jobs = bool(self._queue.jobs)
         has_selection = self.selected_job() is not None
         for button in (self._btn_add, self._btn_load):

@@ -1,0 +1,21 @@
+{
+  "lesson": "75_regression_diagnostics", "language": "nb",
+  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
+  "review": {"kind": "Editorial caption translation checked against English and recorded diagnostic evidence", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between design warnings, permutation inference and software errors.", "Retain numerical limits and explain why this run has no fitted residuals."]},
+  "title": "Regression Diagnostics: forstå grunnlaget for resultatene",
+  "description": "Åpne diagnostikkfiler fra en faktisk analyse av eksempelscreeningen, skill mellom advarsler om forsøksdesignet og permutasjonsresultater, og forstå begrensningene ved en kort demonstrasjon.",
+  "objectives": ["Åpne Diagnostics i Regression, og kontroller utdatamappen som undersøkes.", "Tolk designets identifiserbarhet, guidenes forekomst og inferenspanelene i sammenheng med den valgte analysen.", "Forstå manglende tilpassede residualer og begrenset permutasjonsoppløsning uten å anta at en modell ble tilpasset."],
+  "prerequisite": "Fullfør Regression-eksemplet med de fire nedlastbare parene med skår- og tellefiler. Opptaket undersøker en avgrenset ikke-parametrisk kjøring med 199 permutasjoner, minst to brønner og resultater for både guider og gener. Det demonstrerer programvaren og diagnostikken, ikke endelig inferens for pålitelige funn.",
+  "scenes": [
+    "Hold pekeren over Diagnostics i Regression, og åpne det etter at en analyse er fullført. Knappen leser lagrede utdata; den tilpasser ikke en ny modell. Den åpner den nyeste diagnostikkmappen i prosjektet, så kontroller banen hvis det finnes flere kjøringer.",
+    "Systemets filbehandler viser de faktiske filene fra analysen av den nedlastede eksempelscreeningen. Figurformatet var her satt til PNG. Mappen inneholder designets identifiserbarhet, designdiagnostikk, inferensdiagnostikk, en oppsummeringstabell og en tabell over kollineære guidepar.",
+    "Designet har 606 brønner, 793 parametere og rang 599. Det kan ikke bestemme en entydig koeffisient for hver guide samtidig. Advarselen forklarer hvorfor vi brukte en permutasjonsanalyse; den betyr ikke at en simultan modell ble tilpasset med hell.",
+    "Guidene er ujevnt representert: 355 forekommer bare i én brønn i dette designet. Få forekomster begrenser hva forsøket kan fastslå. Undersøk dekningen før du tolker effekter, og skill mellom hele designet og den filtrerte familien av guider som faktisk ble testet.",
+    "Designpanelet hjelper med å finne lav dekning og avhengigheter mellom guideprediktorer. Guider som alltid forekommer sammen, er vanskelige å skille statistisk. Undersøk bestemte par i kollinearitetstabellen i stedet for å betrakte et varselmerke som en fullstendig forklaring.",
+    "Inferenspanelet oppsummerer 434 guidetester: fordelingen av p-verdier, sammenligningen med en uniform nullfordeling og funn ved ulike korrigerte terskler. Denne korte kjøringen har ingen funn ved den viste terskelen. Et kalibreringsvarsel ber om nærmere undersøkelse, ikke om å konkludere med biologiske effekter.",
+    "Vi brukte bare 199 permutasjoner for å holde demonstrasjonen kort. Den minste oppnåelige empiriske p-verdien er derfor 0,005. Denne oppløsningen kan være utilstrekkelig etter korreksjon for multiple tester. Planlegg et passende antall permutasjoner for den egentlige analysen.",
+    "Denne permutasjonskjøringen har ikke noe panel med tilpassede residualer, fordi den ikke tilpasset den simultane regresjonsmodellen. Sammenligningen av p-verdier var ikke residualdiagnostikk. Andre analysemoduser kan skrive residualpaneler når de leverer observerte og tilpassede verdier.",
+    "Oppsummeringen registrerer vurderingen av hvert panel og den dårligste vurderingen for hele diagnostikken. Les hver vurdering i sammenheng i stedet for å tolke det samlede merket som en programvarefeil. Python-API-et for regresjonsdiagnostikk skriver de samme typene paneler fra inndataene det mottar.",
+    "Gå tilbake til Regression for å undersøke inndata eller bevisst endre et analysevalg. En endring krever en ny kjøring og ny diagnostikk; å åpne mappen oppdaterer aldri gamle resultater. Regression-veiledningen viser hele datasettet, konsollen, interaktive resultater og hjelpefunksjonene."
+  ]
+}

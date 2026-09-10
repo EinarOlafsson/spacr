@@ -1,0 +1,2123 @@
+================================================================================
+THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
+================================================================================
+
+Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalogs
+           are at a source-current mechanical fixed point; the remaining
+           semantic acceptance debt is recorded below.
+Owner:     public API prose, settings tooltips, documentation and i18n catalogs.
+Precedes:  every 1.5.0.5 publication action. (It also preceded item 253,
+           deleted 2026-09-02 at the maintainer's instruction.)
+Requested: 2026-08-28 — "sweep the tool tips and API and make sure the API
+           and tooltips are properly translated"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Items 61, 63, 65, 83 and 112 built and audited the English API, tooltips,
+docstrings and translated catalogs. Their counts are dated snapshots. The
+public surface has continued to change, so passing an old count or preserving
+a stale source hash is not evidence that the final release is complete or
+correct.
+
+This instruction is a source-to-rendered-output sweep on the final tree. It
+checks meaning as well as presence: a translated sentence can be complete,
+fresh and wrong in context, and an English tooltip can satisfy a length test
+while describing a default the code no longer uses.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-28 — CURRENT DEFECTS ON THE FROZEN HEAD
+--------------------------------------------------------------------------------
+
+The first source-to-rendered audit found that the existing headline coverage
+report is comparing generated catalogs to generated English manifests rather
+than to current source, so its 100% is not a current-source measurement:
+
+  * live runtime source has 4,462 entries, while each generated catalog has
+    4,880. Strict audit reports 224 stale setting labels, 224 stale tooltips,
+    33 missing UI strings, three stale UI strings and source-hash drift per
+    locale;
+  * 63 reviewed-runtime evidence rows in Spanish, Icelandic, Korean,
+    Portuguese and Simplified Chinese refer to removed organelle keys. Both
+    catalog audit commands abort on the first stale reviewed record;
+  * the live public API inventory has 8,602 canonical symbols plus 119 aliases,
+    but every API catalog is missing 81 current canonical symbols. The checked
+    coverage report is older still;
+  * three top-level public objects have no docstring, 12 public docstrings
+    expose private instruction/date/maintainer history, and a clean render
+    leaks 47 raw reStructuredText markers across 28 pages;
+  * a warning-as-error Sphinx build reaches every page but exits with two
+    AutoAPI ``Unknown type: placeholder`` warnings caused by duplicate imports
+    in ``spacr/qt/screens/trellis.py``. The current workflow ignores that exit
+    code whenever ``index.html`` exists, so it is not actually a ``-W`` gate;
+  * the current public-member boundary is only top-level definitions. An AST
+    inventory finds 860 public-named class members without docstrings and 195
+    documented functions whose ``:param:`` fields omit 518 real parameters;
+    these need classification before a claim about the whole API is possible;
+  * the objective English tooltip suite is green and a fresh build resolves
+    all 763 emitted links. Do not invent a link defect. Twelve ``KNOWN_THIN``
+    exceptions remain unverified, units are not guarded, and default checks
+    look only for the word rather than equality with the live default;
+  * unexplained exact-English UI translations remain for ``Tutorial`` in
+    German, Spanish and Portuguese, and ``Documentation`` in French.
+
+These counts describe the frozen head before work on this instruction. The
+final source inventory will move while defects are repaired, so regenerate all
+counts together on the final tree rather than copying these numbers into a
+ratchet.
+
+--------------------------------------------------------------------------------
+PROGRESS 2026-08-28 — LIVE-INVENTORY COVERAGE MEASUREMENT
+--------------------------------------------------------------------------------
+
+``tools/audit_i18n_coverage.py`` now extracts runtime entries with
+``canonical_sources()`` and API entries with ``public_docstrings()``. A target
+entry counts only when its key exists and its stored hash matches that live
+English source; orphaned runtime and API records are reported separately.
+
+``tests/test_i18n_coverage_audit.py`` supplies an invalid generated English API
+manifest, refuses any import of the generated English runtime catalog, and
+proves that source-stale target records do not count as current or translated.
+The real report is therefore red against the catalogs still awaiting final
+regeneration instead of reproducing their stale 100% denominator. Catalogs
+were deliberately not regenerated while source and docstring repairs remain in
+flight.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The tooltip is often the only explanation beside a scientific setting. A
+wrong default, unit, option or API link can yield plausible but incorrect
+analysis. The same defect in a translated catalog reaches only one locale and
+can escape an English-only test run. API documentation is a public contract
+and must describe the code that ships.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. INVENTORY THE WHOLE SURFACE FROM SOURCE
+
+Generate one canonical inventory of every public module, class, function,
+method and parameter; every registered setting tooltip; and every supported
+locale. Compare that inventory with the built package, documentation pages,
+runtime catalogs and API catalogs. Missing, duplicated, orphaned or stale
+entries are failures, not fallback successes.
+
+``tools/audit_i18n_coverage.py`` must compare catalogs to this live inventory,
+not to another generated manifest which can be stale in the same direction.
+
+2. CHECK THE ENGLISH CONTRACT AGAINST THE CODE
+
+Verify signatures, parameter names, return/error behavior, defaults, choices,
+units and cross-references against their implementations. Every setting has a
+useful tooltip in the established house shape, declares its type and actual
+default, names a unit when one applies, explains conditional applicability,
+and links only to a real canonical API page in a fresh documentation build.
+
+Rewrite only prose with a concrete defect. Keep user-facing text directed at
+the user, concise enough to scan, specific enough to choose a value, and free
+of private development history or instruction references.
+
+Define the public class-member boundary explicitly before measuring it. Once
+defined, parameter documentation is checked in both directions: no ghost
+``:param:`` names and no undocumented required public parameters.
+
+3. CHECK EVERY TRANSLATION FOR COMPLETENESS AND MEANING
+
+For every supported language, require source-current entries for the API and
+tooltips. Check placeholder and markup parity, protected scientific/database
+identifiers, URLs, option literals and the spaCR wordmark mechanically. Treat
+text identical to English as untranslated unless it is on a reviewed
+reasoned allowlist. Review domain terms and context-sensitive words in their
+actual rendered sentence; a dictionary-valid but scientifically wrong word
+is a defect.
+
+Translations remain in external locale files, not inside Python docstrings.
+Unsafe or low-confidence scientific prose must fall back explicitly and be
+reported, rather than being counted as translated.
+
+4. DRIVE THE RENDERED EXPERIENCE
+
+Build the documentation from an empty output directory with warnings treated
+as errors. Exercise the language selector and runtime language switching on
+representative settings-heavy modules, then verify that tooltip text, API
+navigation, formatting, links and fallbacks are readable in the actual UI and
+rendered pages. Record which content was reviewed by a person or language
+model, the sampling method, and the exact remainder; do not call an unnamed
+sample an exhaustive sweep.
+
+5. KEEP THE RESULT RATCHETED
+
+Run the inventory, freshness, signature/default, placeholder, protected-term,
+untranslated-entry, link-resolution and documentation-build checks in required
+CI. A new public symbol, setting or locale entry must fail until its English
+contract and all required catalogs are current.
+
+The documentation workflow must honor the warning-as-error Sphinx exit code;
+the existence of a partially built ``index.html`` cannot convert a red build
+to green. The real catalogs, not two-symbol synthetic fixtures alone, must be
+driven through the runtime and browser language selectors.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * source, package, documentation, tooltip and locale inventories agree, with
+    zero missing, duplicate, orphaned or stale required entries;
+  * every public signature/default/cross-reference check passes against the
+    implementation, and a clean warning-as-error documentation build succeeds;
+  * every tooltip has the correct type and default, a unit where applicable,
+    accurate applicability text and a link that resolves in that fresh build;
+  * every former ``KNOWN_THIN`` exception has been verified and either fixed
+    or replaced by a narrowly reasoned invariant rather than a blanket waiver;
+  * every supported API and tooltip catalog has current source hashes, matching
+    placeholders/markup and protected identifiers, with zero unexplained
+    English-identical or low-confidence entries;
+  * runtime language switching and the documentation language selector show
+    the translated text and safe fallbacks in the rendered UI/pages;
+  * a written review report names the languages and exact proportion reviewed,
+    lists every explicit fallback or allowlisted untranslated term, and records
+    the disposition of every defect found;
+  * all mechanical guarantees run in required CI and fail when a synthetic
+    stale docstring, missing tooltip translation or broken API link is added.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not translate database column names, setting keys, code literals, object
+roles or scientific identifiers whose spelling is part of the data contract.
+Do not count an English fallback as a completed translation, and do not insert
+translated API prose into the Python source beside the canonical English.
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-30 -- INVENTORY REFRESH LANDED, THREE GATES REMAIN RED
+--------------------------------------------------------------------------------
+
+Commit ``71a328ba`` regenerated the runtime and API catalogs and added the
+reviewed Korean ``min_cell_count`` record. The runtime inventory is now
+source-current in all nine locales: 4,960/4,960 entries and zero orphans per
+locale (1,002 setting labels, 997 setting tooltips, 192 category explanations,
+2,705 UI strings and 64 module summaries). The reviewed Korean tooltip's
+source, hash and generated translation agree exactly. The completed test
+evidence is also substantial: 135 documentation tests, 442 focused runtime
+nodes, 89 shortcut/UI tests and seven critical semantic nodes all pass.
+
+That progress does not satisfy this instruction's own completion rules:
+
+  1. ``python tools/audit_i18n_coverage.py`` reports 8,898/8,899 fresh API
+     docstrings in every locale, not 8,899/8,899. The exact stale symbol is
+     ``spacr.qt.bridge.make_thread``. Its generated catalogs store source hash
+     ``235016f26e01a14ea5d3b97878d130a1b740d0cfd472c03c2850219e7183c140``;
+     live source hashes to
+     ``845d6a874fd43385ffe0accf6a36fbcfd4052de4433478289ab6d4a4e047b4b0``.
+     The live signature/prose includes the newer ``user_visible`` and
+     ``capture_figures`` contract, which the catalog text does not.
+  2. ``.github/workflows/docs.yml`` still runs ``sphinx-build`` without
+     ``-W``, captures its exit code, and deliberately succeeds whenever a
+     partial ``index.html`` exists. This is the exact workflow defect named
+     in WHAT THE STATE IS and directly violates the required warning-as-error
+     CI gate.
+  3. ``tests/test_settings_tooltip_quality.py`` still exempts twelve entries
+     through ``KNOWN_THIN`` under the blanket reason that their behaviour
+     could not be confirmed. The acceptance criterion requires every former
+     exception to be verified, fixed or replaced by a narrowly reasoned
+     invariant. Semantic catalog review is also not at a fixed point: for
+     example Korean translates the UI key ``Nothing to sweep`` as
+     ``아무것도 땀을 흘리지 않는다`` (a literal sweat sense), and
+     ``Nothing to plot — build a table with at least one non-empty cell first.``
+     begins ``아무것도 틀리지 않는다`` (``nothing is wrong``). Those are
+     complete, source-current entries but not translations of the rendered
+     instruction, exactly the failure mode this item says inventory tests
+     cannot certify.
+
+Instruction 306 therefore remains open and release-blocking. Closing it needs
+the one API catalog refresh, a real ``sphinx-build -W`` required-CI exit gate,
+disposition of all twelve tooltip waivers, and semantic repair/review of the
+remaining source-current-but-wrong translations. Release 1.5.0.5 remains on
+hold.
+
+--------------------------------------------------------------------------------
+RE-AUDIT 2026-08-30 -- MECHANICAL GATES GREEN, SEMANTIC DEBT IS NOW EXACT
+--------------------------------------------------------------------------------
+
+The stale API record and SystemPanel source drift are repaired. Both catalog
+audits now agree with live source: all nine runtime catalogs contain 4,960 of
+4,960 entries with zero orphans, and all nine API catalogs contain 8,899 of
+8,899 current symbol documents. Required docs CI preserves a clean
+``sphinx-build -W -E --keep-going`` exit status. A real-browser ratchet loads,
+validates and selects every complete 8,899-document locale catalog, while
+missing-tooltip and broken-link mutations prove the runtime and link gates
+turn red.
+
+The twelve blanket ``KNOWN_THIN`` tooltip waivers are gone. Concrete source
+ratchets now cover 660 parseable default comparisons, 110 diameter/radius
+units, and 47 inactive-default applicability cases. They deliberately record
+56 module-specific default variants by exact digest rather than pretending a
+shared tooltip has been semantically resolved in every context.
+
+This is not closure. The bidirectional public-parameter inventory exposes 206
+required parameters without a ``:param:`` field across 126 public callables.
+The debt's count and digest are now ratcheted, not waived. Unit and
+applicability rules remain mechanical scopes rather than an exhaustive prose
+review, the browser exercise renders representative real pages rather than
+all API pages, and no exhaustive fluent-speaker review of all nine locales is
+recorded. The exact reviewed proportions and arithmetic remainders are in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``. Item 306 stays open until those
+semantic remainders are disposed honestly.
+
+--------------------------------------------------------------------------------
+CURRENT COUNT STATUS 2026-08-30 -- NON-RENDERED API BOUNDARY RECONCILED
+--------------------------------------------------------------------------------
+
+The dated re-audits above are retained as evidence of their own revisions.
+At the current source boundary, the runtime inventory is 4,978 entries: 1,018
+setting labels, 1,013 setting tooltips, 192 category explanations, 2,691 UI
+strings and 64 module summaries.  The rendered API inventory is 8,817 symbol
+documents: 8,698 canonical documents plus 119 rendered aliases.  Exact
+locale-by-locale reviewed counts and arithmetic remainders are recorded in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- CATALOGS GREEN; SEMANTIC DEBT REMAINS
+--------------------------------------------------------------------------------
+
+The final source-to-catalog rebuild now reaches the current inventory in all
+nine locales.  The independent live-source report records 4,978/4,978 runtime
+entries and 8,817/8,817 API documents per locale, with zero runtime or API
+orphans.  Both catalog builders' strict audits pass.  The browser ratchet
+drives every one of the 8,817 rendered symbol IDs through every complete real
+locale catalog rather than exercising only a representative page.
+
+The settings-default review now pins 674 parseable comparisons.  Of the 52
+module-specific variants, 21 were already accurate and 31 required explicit
+shared-tooltip wording; all four configuration defects found by that review
+were repaired, leaving zero known configuration defects in that inventory.
+The rebuild failed closed on two Korean protected-syntax tails and on the new
+Regression ``guide_nuisance_columns`` tooltip.  Source-bound reviewed records
+now cover those Korean tails and the regression tooltip in every locale; the
+last one specifically prevents the microplate noun ``well`` from being shipped
+as the adjective ``well`` or ``good``.
+
+This is still not honest closure.  After limiting generated ``:ivar:`` credit
+to required dataclass/NamedTuple fields and canonicalizing only exact curated
+aliases, the reverse-direction API ratchet still records 3,713 required
+parameters without a structured description across 2,541 public callables.
+The unit and conditional-applicability inventories are mechanical ratchets,
+not an exhaustive prose review, and no exhaustive fluent-speaker review of all
+nine locale catalogs is recorded.  Item 306 therefore remains OPEN and
+release-blocking; the exact reviewed proportions and remainders are in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
+--------------------------------------------------------------------------------
+PROGRESS 2026-08-30 -- REQUIRED-PARAMETER DEBT REDUCED BY 983
+--------------------------------------------------------------------------------
+
+A source-only docstring sweep added accurate structured descriptions for 983
+previously undocumented required parameters.  Every completed batch was checked
+for zero scoped ghosts, an unchanged docstring-stripped AST, clean compilation
+and focused behavior tests before being committed and pushed.  The exact
+deduplicated ratchet is now 2,730 omissions across 1,976 public callables, with
+digest ``58f2f87304e9a1ee2b658657ec320257d07ba60d5efa6632687e01179bda4aef``.
+The 151-method rendered-alias deduction is unchanged and remains independently
+proved by the boundary test.
+
+The remaining debt is concentrated in Qt files currently under the independent
+coverage session and a smaller set of non-Qt files that session has modified.
+Those files were deliberately not edited concurrently.  API catalogs must be
+regenerated from the new source once the current source batches are integrated;
+until that strict source-to-catalog rebuild is green, item 306 remains OPEN and
+release-blocking.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- API CATALOGS AND 25-SYMBOL REVIEW CURRENT
+--------------------------------------------------------------------------------
+
+The required-parameter sweep is now propagated through all nine API catalogs.
+Each locale contains 8,838/8,838 current symbol documents with zero API
+orphans: 8,719 canonical documents plus 119 rendered aliases.  The increase
+from 8,824 is 14 newly public methods.
+The strict API catalog audit and independent live-source coverage audit pass,
+as does a fresh 507-document ``sphinx-build -W -E --keep-going`` with zero
+warnings.  The exhaustive browser ratchet also loads every one of the 8,838
+symbol panels from each complete real locale catalog; that is exhaustive
+frontend coverage, not exhaustive semantic review.
+
+The rebuild revalidated 18 existing reviewed blocks whose indices shifted when
+structured parameter paragraphs were inserted; their source, context, hash and
+translation are unchanged.  Source-bound evidence resolves exactly 54 new
+residual symbol/block labels representing 51 unique source blocks across
+Swedish, German, Simplified Chinese, Portuguese, Hindi, Icelandic and French.
+Every replacement is bound to its exact source, contextual translation input
+and SHA-256 hash and passes the protected-syntax, semantic and target-script
+gates.
+
+The final semantic pass compared all 73 blocks of the same 25 changed
+drag-and-drop and threshold-gate symbols in every locale.  The nine
+``2026-08-30-dnd-gate-semantic-review.json`` files record 622 exact reviewed
+replacements and add 599 current source/target pairs to the reviewed maps.
+They repair product-name drift, GUI-screen false friends, dropped-path senses,
+numeric bounds and handles, SQLite URI quoting, and the sole Hindi
+exact-English residual.  Exact per-locale reviewed counts, percentages and
+arithmetic remainders are recorded in
+``docs/i18n/REVIEW_SCOPE_2026-08-30.md``.
+
+This closes the stale-catalog condition in the preceding progress entry, not
+item 306.  The structured-description ratchet remains 2,698 omissions across
+1,951 public callables, digest
+``152f999693c3cc9dbfc0b909faa44103a5e2ec87968b41b112db6e24338845d1``,
+and no exhaustive fluent-speaker semantic review is recorded.  Item 306
+remains OPEN and release-blocking.
+
+PROGRESS 2026-08-31 -- THE CATALOGS ARE ELEVEN SYMBOLS BEHIND, AND THE
+AUDIT CANNOT RUN AT ALL
+-----------------------------------------------------------------------
+
+Found while clearing test failures, not while working on i18n. Four
+tests fail on this, and had been failing before 2026-08-31:
+
+    tests/qt/test_external_i18n_catalogs.py
+        ::test_api_doc_catalog_is_symbol_keyed_and_source_hashed
+    tests/qt/test_i18n_caption_ratchet.py
+        ::test_external_caption_layer_is_complete_exclusive_and_pinned
+    tests/test_api_i18n_extractor.py
+        ::test_public_docstrings_matches_reviewed_visible_coverage
+        ::test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+
+1. ELEVEN SYMBOLS ARE IN THE MANIFEST AND IN NO CATALOG. The English
+   manifest carries 8,849 symbols; every one of the nine locales carries
+   8,838. The same eleven are missing from all nine, so this is a
+   generation gap and not a per-language one:
+
+       spacr.qt.i18n.language_resolved_once
+       spacr.qt.screens.db_browser.PreviewModel.canFetchMore
+       spacr.qt.screens.db_browser.PreviewModel.columnCount
+       spacr.qt.screens.db_browser.PreviewModel.data
+       spacr.qt.screens.db_browser.PreviewModel.fetchMore
+       spacr.qt.screens.db_browser.PreviewModel.flags
+       spacr.qt.screens.db_browser.PreviewModel.headerData
+       spacr.qt.screens.db_browser.PreviewModel.rowCount
+       spacr.qt.screens.db_browser.PreviewModel.setData
+       spacr.qt.widgets.gate_spec.RectGate.mask
+       spacr.qt.widgets.gate_spec.RectGate.with_threshold
+
+   Nine of the eleven are PreviewModel's Qt model overrides, which
+   gained docstrings; the other two are RectGate methods that did.
+
+2. `tools/build_documentation_i18n.py --audit` DOES NOT RUN. It raises
+   before it reports anything:
+
+       ValueError: stale reviewed API source
+       'spacr.qt.widgets.gate_spec.RectGate.translated#0':
+       docs/i18n/reviewed/api/hi/2026-08-14-tail-030-044.json
+
+   That is the tool working correctly. A reviewed record stores the
+   exact English it was checked against, and this one no longer matches:
+
+       reviewed: "Return this gate moved by ``(dx, dy)`` in DATA units."
+       current:  "Return a copy shifted along both measurement axes."
+                 plus new :param dx: and :param dy: entries
+
+   The English was rewritten, not reformatted, so the reviewed Hindi is
+   a faithful translation of a sentence that has been deleted. It cannot
+   be carried forward by refreshing its hash -- that would silently
+   re-certify a translation nobody has read against the new text.
+
+WHAT IS NOT DONE, AND WHY. The stale record is human-review evidence,
+and retiring it is a decision about someone's review rather than a
+mechanical repair, so it has been left exactly as it is. The remedy is
+one of:
+
+  a. retire that single record from the hi evidence file, and let
+     `--repair-api-blocks` translate the new text afresh; or
+  b. have a Hindi reader translate the new docstring and replace the
+     record, which keeps the reviewed count honest.
+
+Either way the eleven missing symbols need a generation pass afterwards.
+The nine opus models the tool wants are present at the default
+--model-root, so the pipeline can run once the evidence question is
+settled. NOTE the disk: /mnt/firecuda2 is at 100% with under 10 GB free,
+which a translation pass should be checked against before it starts.
+
+--------------------------------------------------------------------------------
+CURRENT FIXED POINT 2026-08-30 -- DATABASE/GATE API AND RENDERER COPY CURRENT
+--------------------------------------------------------------------------------
+
+The database-browser and gate pass documents 16 canonical public methods and
+retires six aliases whose targets now have their own source contracts.  The
+live API inventory is therefore 8,861 documents: 8,748 canonical documents
+plus 113 validated rendered aliases.  All nine catalogs contain 8,861/8,861
+current records with zero orphans, and their strict audit passes.
+
+The same 118 blocks in 29 database-browser, gate and related upstream symbols
+were reviewed in every locale.  Source-bound evidence adds 1,045 unique
+current source/target mappings across the nine reviewed maps; rematerializing
+with model decoding disabled reused only current catalog or reviewed evidence.
+The runtime renderer pass separately adds four reviewed status messages in
+every locale and moves the runtime fixed point to 4,982/4,982 with zero
+orphans.  Placeholders, CPU/GPU/OpenGL/VisPy names and the exact fractal-extra
+installation command are preserved.  The strict nine-language runtime audit
+and 65 focused runtime/Preferences tests pass.
+
+This is a measured semantic and mechanical advance, not closure.  The exact
+reverse-direction ratchet is now 2,522 required-parameter omissions across
+1,822 public callables, digest
+``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``.
+No exhaustive fluent-speaker disposition of every remaining runtime or API
+sentence is recorded, so item 306 remains OPEN and release-blocking.
+
+The compositor-popup fix subsequently added the documented
+``spacr.qt.widgets.popup_state`` module and its public
+``a_popup_is_on_screen`` function. The function moves the source-derived
+callable inventory to 7,984, but has no required parameters and therefore does
+not change the omission debt. After the following layers pass, the translated
+API inventory is 8,861. The nine catalogs
+were rematerialized from current source and audited again at that fixed point.
+All eight new prose blocks were then reviewed in every locale after the first
+model pass exposed semantically wrong but structurally valid translations of
+polling, event filters, compositing, C++ calls and frame timings. The 72 exact
+source-bound replacements rematerialize with model decoding disabled.
+
+The subsequent ``spacr.layers`` pass documents 114 required parameters across
+89 public callables without changing executable ASTs or signatures. Eleven
+formerly docless methods enter the rendered inventory, moving it by eleven
+symbols and 125 translatable blocks; 78 existing symbols gain structured
+parameter prose. The docless inventory falls by eleven, and the exact omission
+ratchet moves from 2,638/1,912 to 2,524/1,823.
+
+The final public-prose audit found that ``MainWindow.eventFilter`` exposed an
+all-caps internal warning and a paragraph about what an older docstring used to
+say.  Its current contract now documents the two Qt callback parameters and
+return behavior without development history.  That closes two more omissions,
+moving the exact ratchet to 2,522/1,822 with digest
+``1befdece5530eebc11799acfde07422d367280939d7c7ccec08a613afd4fa782``;
+all nine locale groups review the replacement blocks rather than certifying the
+retired internal prose.
+
+PROGRESS 2026-08-31, LATER -- TWO OF THE FOUR WERE NOT THIS ITEM
+-----------------------------------------------------------------
+
+The entry above lists four failing tests. Two of them were not the
+eleven-symbol generation gap at all:
+
+    tests/test_api_i18n_extractor.py
+        ::test_public_docstrings_matches_reviewed_visible_coverage
+        ::test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary
+
+They were failing on THREE symbols added the same day by the spaceout
+backdrop fix (instruction 315, 1f), which were written public:
+
+    spacr.qt.widgets.ambient.the_heavy_import_lock_is_free
+    spacr.qt.widgets.ambient.the_backdrop_wants_a_retry
+    spacr.qt.widgets.fractal_travel.HeavyImportInProgress
+
+They are internal helpers passing state between three call sites inside
+`spacr.qt`, and every neighbour in those modules is already private.
+They are now `_`-prefixed. The surface is back at 8,748 and the
+inventory at 8,861, both matching their ratchets exactly, and both tests
+pass. NO catalog is owed anything for that work.
+
+WORTH KEEPING, because it will happen again: a new PUBLIC name anywhere
+in the package is a nine-locale regeneration and a fluent-speaker review,
+and this item is the thing holding that. A helper that is not part of
+spaCR's API should be named as one on the way in -- the cost of getting
+it wrong is not a rename, it is this queue.
+
+WHAT IS ACTUALLY STILL FAILING, and it is one test:
+
+    tests/qt/test_i18n_caption_ratchet.py
+        ::test_external_caption_layer_is_complete_exclusive_and_pinned
+
+The external caption inventory is ahead of its ratchet by 102 records:
+
+                        ratchet    now    delta
+    SETTING_LABELS        1002     1018     +16
+    SETTING_TOOLTIPS       997     1013     +16
+    CATEGORY_HELP          192      192       0
+    UI                    2625     2695     +70
+    MODULE_SUMMARIES        64       64       0
+
+The ratchet was last set by ``d0c1a633c`` (2026-08-30, "Translate the
+captions the Q shortcut added, in all nine locales"). The test's own
+message is the contract: review every new and removed record before
+moving the count.
+
+BLOCKED, AND ON SOMETHING SPECIFIC. Reviewing them means diffing the
+record IDENTITIES, not the counts, and the identities are pinned as a
+digest rather than listed -- so the previous set has to be recomputed by
+running `tools/build_i18n_catalogs.canonical_sources()` against the tree
+at d0c1a633c. That was attempted from a worktree at that commit and
+fails: the interpreter mixes the worktree's modules with the editable
+install's, and the import dies on a symbol one half has and the other
+does not. That is instruction 310's entry 30 -- two editable installs of
+spaCR active in the same interpreter -- biting the tooling rather than a
+test.
+
+THE ROUTE THROUGH, in order:
+  1. fix 310/30 for tools, or run the old builder in a subprocess with
+     an isolated sys.path that cannot see the editable install;
+  2. dump both identity sets, diff them, and read the 102 additions;
+  3. move the counts and the digest in the same change, naming what was
+     admitted -- the same discipline the API ratchet above uses;
+  4. regenerate the nine locales, which is the part still waiting on the
+     Hindi evidence decision and on disk space.
+
+A retained probe worktree at ``/tmp/claude-1000/capref`` (detached at
+d0c1a633c) is registered in `git worktree list`. Nothing was deleted;
+remove it when step 1 makes it unnecessary.
+
+PROGRESS 2026-08-31, FLOWVIEW API SLICE
+----------------------------------------
+
+The FlowView follow-up completes the required-parameter documentation slice in
+``classify_blueprint``, ``theme`` and ``trace``: six omissions across four
+functions are closed without changing executable signatures or behavior.  The
+three backdrop retry helpers remain private implementation details, so this
+pass does not admit them to the public API or carry obsolete translation-review
+evidence for them.  Decoder-disabled rematerialization and the strict
+all-language audit prove that all nine catalogs contain 8,861/8,861 current
+symbols with zero orphans.
+
+This finishes the FlowView batch, not item 306.  The exact reverse-direction
+ratchet is now 2,516 required-parameter omissions across 1,818 public callables,
+digest
+``16358cdf4cae5c8fe5a27303d2b7e1f1de8349c205c519b91f65f2fbc5384fcf``.
+The remaining debt and the exhaustive semantic-review criterion keep this item
+OPEN and release-blocking.
+
+
+PROGRESS 2026-08-31 -- THE CAPTION REVIEW IS UNBLOCKED, AND THE REFERENCE
+REVISION WAS THE WRONG ONE
+--------------------------------------------------------------------------
+
+The route recorded above -- recompute the previous identity set by running
+`canonical_sources()` against d0c1a633c -- could not have worked, for a reason
+that is not the one instruction 310 entry 36 gave. d0c1a633c does not import:
+its `app_screen.py` imports and calls `preserve_widget_qss_overlay`, and its
+own `theme.py` defines neither that nor `_LOCAL_WIDGET_QSS_ATTRIBUTE`. Both
+files are inside the tree, so no editable install is involved. See 310's
+dated correction.
+
+`tools/i18n_reference_sources.py` now reads canonical_sources() from any
+revision in a proven-isolated subprocess. Measured with it:
+
+    3c224e468   4,880   db46475608d02e6c30ffdedab7f8620d165b448d20a5a7c73b2129870ee2aacd
+    71a328baa   4,960   bd9b5d04497cc9d9c2910d296e5cb85d978551678c1a5cb9c36ace81167f9bab
+    d0c1a633c   4,978   302923574e2077d8f06559f022f07ee9daea0454c75afa81a39e20de83ce5902
+                        (only after restoring the two missing theme symbols in
+                        a scratch worktree; unpatched it does not import)
+    HEAD        4,982   a9f5f60abbc16c59cc3702d2e339759e4b8145692bc0dd948b2838207a222664
+
+THE PINNED CONSTANT BELONGS TO 3c224e468, not to d0c1a633c. `git log -S` shows
+the digest written in three commits; only the first computes it. d0c1a633c
+moved `EXTERNAL_SOURCE_KEY_SHA256` while its own ratchet test could not run --
+the test calls canonical_sources(), which raises there -- so it recorded a
+fingerprint it had no way to verify, and the value it wrote was already 98
+records stale. 71a328baa did the same. This is the failure the ratchet exists
+to prevent, arriving through the ratchet's own maintenance.
+
+THE REVIEW SET IS NOT 102 RECORDS. It is 133 added and 31 removed, netting the
+102 that was being reported as if it were the additions alone:
+
+    SETTING_LABELS      +16    -0
+    SETTING_TOOLTIPS    +16    -0
+    UI                 +101   -31
+    CATEGORY_HELP        +0    -0
+    MODULE_SUMMARIES     +0    -0
+
+The 31 removals matter more than their count suggests: they are reworded UI
+strings, not deleted ones -- the power-simulator tooltips, the preferences
+chrome, several spaceout captions. A reworded caption is one removal plus one
+addition, and its nine existing translations are stale rather than absent, so
+a review of additions alone would have passed nine locales of text that no
+longer describes what it labels.
+
+Exact lists: instructions/data/306_caption_identities_since_3c224e468.json
+
+REPRODUCE:
+
+    python tools/i18n_reference_sources.py capture --rev 3c224e468 --out ref.json
+    python tools/i18n_reference_sources.py capture --tree .          --out head.json
+    python tools/i18n_reference_sources.py diff ref.json head.json
+
+NOT DONE, and deliberately: the ratchet has NOT been moved. Moving it is what
+the two commits above did without the review, and the review of these 164
+records -- with the nine-locale consequences of the 31 rewordings -- is this
+item's actual work rather than its preliminary. The disk-space blocker recorded
+earlier has cleared (407 G free).
+
+
+PROGRESS 2026-08-31, LATER -- THE CAPTION REVIEW, ENUMERATED AND PARTLY READ
+----------------------------------------------------------------------------
+
+Against 3c224e468 (4,880, the revision that owns the pinned digest) the current
+HEAD 2d16e469c reads 4,983. The set is 134 ADDED and 31 REMOVED, net 103 -- one
+more than the 102 recorded above, because the BSD relicense landed meanwhile and
+added one caption.
+
+THE RELICENSE BROKE CATALOG FRESHNESS, AND IT IS THE ONE URGENT FINDING.
+
+    tr("Open source. Free for any use, including commercial.")   app.py:3064
+
+is missing from ALL NINE catalogs. `tools/audit_i18n_coverage.py` independently
+reports 4982/4983 for every language -- it had been 4880/4880. So this item's
+recorded "all nine catalogs are current" is FALSE as of the relicense, and every
+non-English user sees that line in English. It is user-facing, it is in the
+release, and it is one string: regenerate the nine catalogs before 1.5.0.5.
+
+WHAT THE 134 ADDITIONS ARE. 32 are the spaCRPower settings (16 labels, 16
+tooltips), already carrying translations and current source hashes in all nine
+locales. 102 are UI. Nothing in the additions is unreviewed by the mechanical
+gates except the relicense string above.
+
+THE 31 REMOVALS ARE NOT ALL REWORDINGS. Six pair with a replacement:
+
+    color letters                     -> colour letters          (spelling only)
+    All apps ... (Ctrl+B)             -> ... (Ctrl+Shift+A)      (was WRONG: Ctrl+B
+                                          blanks the background; Ctrl+Shift+A is
+                                          the app list. shortcuts.py:79,93)
+    1.5 is the maximum                -> 1.5 is the default      (meaning changed)
+    Fine-tune a Cellpose model ...    -> reworded
+    Which fractal spaceout draws ...  -> reworded
+    Background                        -> Full-screen background
+
+The other 25 are genuinely retired -- the old hand-built spaCRPower and
+preferences UI strings, replaced by registered settings with new tooltips. They
+are gone from the source, not moved between tables; grep confirms.
+
+SEMANTIC DEFECTS FOUND BY READING, NOT BY ANY GATE. Each of these is present,
+source-hash-current and normal-length, and each is wrong:
+
+    is   "1.5 er óþekkt"          = "1.5 is UNKNOWN"; English says "default"
+    is   "Allir notendur"         = "All USERS"; English says "All apps"
+    is   "mönnun" for "pattern"   = "staffing"; "yfirheyrir" = "interrogates"
+    es   "se ciernen para revelar"= "they LOOM in order to reveal"; wrong sense
+                                    of "hover", conjugated to agree with
+                                    "aplicaciones"
+    hi   the "hover to reveal" instruction is dropped; only "All apps (shortcut)"
+    zh_CN "所有应用程式 — hover to reveal (Ctrl+Shift+A)" -- English left in place
+
+Icelandic is the worst of the nine and is also the one the maintainer can check
+fastest. Its defects are wrong word SENSE, which is what machine translation
+fails at and what no gate here tests.
+
+WHAT DID NOT WORK, recorded so nobody rebuilds it. Three mechanical proxies were
+tried against all 134 x 9 and all three are dominated by false positives:
+
+  * length ratio -- flagged 64. Chinese runs at a median 0.36 of English and
+    Korean 0.55, measured from the catalogs themselves; short is normal;
+  * untranslated-fragment (4+ consecutive English words) -- flagged 41, nearly
+    all legitimate technical identifiers: `mean-field ADVI`,
+    `well_abundance_factor_mu`, `'gene' mode`, `numpyro`, `pymc`. One real hit;
+  * translation == source -- flagged "FlowView" in nine locales. It is a
+    product name.
+
+THE POINT: presence, source-hash freshness and length are ALL satisfied by every
+semantic defect listed above. The mechanical fixed point this item reached is not
+evidence of correctness, and the remaining criterion cannot be automated -- it
+needs a reader per locale. That is this item's real remaining cost, and it should
+be scoped as such rather than as another catalog regeneration.
+
+THE RATCHET IS STILL NOT MOVED, and now must not be: the catalogs are one string
+short of complete, so a digest pinned here would pin a known-incomplete state.
+Order: regenerate for the relicense string, re-capture, then move the ratchet
+with the semantic dispositions above recorded against it.
+
+Data: instructions/data/306_caption_identities_since_3c224e468.json (refreshed
+against 2d16e469c).
+
+
+2026-08-31, LATE -- THE CATALOGS ARE COMPLETE; CORRECTNESS SPLIT OUT
+---------------------------------------------------------------------
+
+The one string this item was short of is in. The BSD relicense added
+`tr("Open source. Free for any use, including commercial.")` to the About
+box without regenerating the catalogs, so every language read 4982/4983
+and every non-English user saw that line in English. Fixed: all nine now
+read 4983/4983 with current source hashes, and docs/i18n/COVERAGE.md is
+regenerated.
+
+A NOTE ON THE MECHANISM, because a hand-added entry is not enough on its
+own. The audit measures "the key exists AND its stored source hash is
+current", so a translation added without its SOURCE_HASHES row still
+counts as missing. That is the audit doing its job: a translation with no
+hash cannot be told from one whose English has since changed underneath
+it.
+
+THE REVIEW ITSELF, against 3c224e468 -- the revision that actually owns
+the pinned digest, which d0c1a633c never could because that revision does
+not import at all:
+
+    added    134   (32 of them the spaCRPower settings, already
+                    translated in all nine locales with current hashes)
+    removed   31   (25 retired from source entirely, checked by grep
+                    rather than assumed; 6 rewordings)
+    net      103
+
+One of the six rewordings was a real bug fix rather than a rewording:
+the drawer tooltip said Ctrl+B, which BLANKS THE BACKGROUND. Ctrl+Shift+A
+is the app list (shortcuts.py:79,93).
+
+WHAT THIS ITEM IS NOW DOWN TO: moving the ratchet, which was deliberately
+NOT moved while the catalogs were a string short -- pinning then would
+have pinned a known-incomplete state. The string is no longer short, so
+the re-capture can happen.
+
+CORRECTNESS IS NOW INSTRUCTION 316. Five semantic defects were found that
+pass every gate this item has, and three mechanical proxies for finding
+more were tried and all three are dominated by false positives. That is a
+different claim from "complete and current" and it needs a reader per
+locale, so it is filed separately rather than left to make this item
+unclosable.
+
+
+PROGRESS 2026-08-31, THE RATCHET IS MOVED
+------------------------------------------
+
+Pinned against 2d16e469c + the catalog completion (3207b2d0f), verified green
+rather than computed and asserted:
+
+    SETTING_LABELS    1002 -> 1018
+    SETTING_TOOLTIPS   997 -> 1013
+    CATEGORY_HELP      192 -> 192
+    UI                2625 -> 2696
+    MODULE_SUMMARIES    64 ->   64
+    digest  db46475608d0... -> 64cc78df62056cdfadd0b1b9f2861e47745708cdb02f7976fb7dd5e4e2857ea2
+
+THE CATALOG FIX NEEDED A THIRD STEP, not two. The nine translated catalogs and
+their SOURCE_HASHES rows were completed, and `audit_i18n_coverage` then read
+4983/4983 for every language -- but `en.UI_SOURCES`, the ENGLISH manifest, was
+still one short, and `test_external_caption_layer_is_complete_exclusive_and_
+pinned` asserts the external inventory equals it as a SET. So the audit passed
+while the ratchet test still failed, on a different file from the one the audit
+measures. Regenerated with `build_i18n_catalogs.py --sources-only`, which writes
+en.py and returns before loading any translation model; the diff is exactly one
+UI_SOURCES entry and nothing else moved, checked by comparing the parsed sets
+rather than reading a 355 KB single-line diff.
+
+WHY THIS ORDER MATTERED. The digest was moved only after the test it pins ran
+green. d0c1a633c and 71a328baa each wrote this constant in a commit whose own
+test could not execute; the whole cost of this item traces back to that. A
+ratchet moved on a red or unrunnable test is not a ratchet.
+
+STILL RED, and it is NOT this item: `test_compact_user_facing_caption_surface_
+has_exact_rows_and_is_pinned` wants `i18n._ROWS` entries for 'Laptop' and
+'Workstation' -- two of the five `PERFORMANCE_LABELS` in preferences.py:2228,
+from `34bf6da7e One performance selector with five levels`. They belong to the
+COMPACT layer, so they do not touch the external counts pinned above; that was
+checked before pinning, not assumed.
+
+WHAT REMAINS IN 306: nothing but this ratchet, which is now done. Semantic
+correctness moved to instruction 316.
+
+--------------------------------------------------------------------------------
+2026-09-01 — AUDIT: "WHAT REMAINS: NOTHING BUT THIS RATCHET" IS NOT TRUE TODAY
+--------------------------------------------------------------------------------
+
+The section above closes with "WHAT REMAINS IN 306: nothing but this ratchet,
+which is now done." Measured on this tree, conda env ``spacr``, the ratchet
+file is RED:
+
+    pytest tests/qt/test_i18n_caption_ratchet.py
+           tests/qt/test_the_setup_screen_speaks_the_chosen_language.py
+        6 failed, 10 passed
+
+    test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned
+    test_compact_and_generated_caption_owners_are_disjoint
+    test_every_generated_catalog_candidate_has_a_source_hash
+    test_external_caption_layer_is_complete_exclusive_and_pinned
+    test_every_slide_title_and_blurb_is_in_the_catalog
+    test_choosing_a_language_redraws_the_screen_in_it
+
+Two of these are the ones this file already predicted and attributed
+elsewhere: the compact layer wants ``i18n._ROWS`` entries for 'Laptop' and
+'Workstation' from ``preferences.py`` PERFORMANCE_LABELS. The other four are
+NOT attributed anywhere yet, and the setup-screen pair overlaps 316's
+territory without being the same claim -- 316 is about translations being
+WRONG, these are about the inventory not being CLOSED.
+
+DO NOT CLOSE 306 ON THE STRENGTH OF THE NOTE ABOVE. Establish first which of
+the six belong to this item's mechanical completeness gate and which belong to
+316's semantic gate; the two lanes have opposite fixes, and this file's own
+history is that a ratchet was twice moved on a test that could not run.
+
+HONEST FIGURE: ~90%. The catalogs are at a source-current fixed point and the
+counts above are real; the gate that proves it is not green.
+
+--------------------------------------------------------------------------------
+2026-09-02 — SIX RED TESTS DOWN TO THREE, AND THE PIN DELIBERATELY NOT MOVED
+--------------------------------------------------------------------------------
+
+WHAT WAS DONE. `build_i18n_catalogs.py --sources-only` -- which writes the
+English manifest and returns BEFORE any translation model is loaded, so it
+cannot draft prose and cannot collide with 316. It took 2.8 seconds.
+
+    SETTING_LABELS    1018 -> 1027      UI_SOURCES     2695 -> 2785
+    SETTING_TOOLTIPS  1013 -> 1022      MODULE_SUMMARIES  64 -> 65
+    SOURCE_HASHES     4982 -> 5091
+
+That alone turned two tests green: the double-owner failure ('Import' had
+acquired a second generated owner) and the missing source hashes.
+
+A THIRD WAS A STALE TEST, not a translation gap.
+`test_choosing_a_language_redraws_the_screen_in_it` asserted
+`"1 von 7" == slides._where.text()` and got "". `_show_slide` now writes ""
+at index 0 ON PURPOSE -- the code says why: "1 of 7" was landing on top of
+the GPU note and says least on the first slide anyway. Rewritten to assert
+the blank AND to advance one slide and assert the counter is translated
+there, because asserting only the blank would pass against a counter that had
+stopped being translated entirely.
+
+THE REVIEW THE RATCHET ASKS FOR, done rather than skipped:
+
+  * +9 SETTING_LABELS/TOOLTIPS are setting KEYS and identifier-shaped by
+    design: independent_variable_layout, model_data_layout,
+    wide_predictor_columns (all three from 342, tonight), plaque_model,
+    plate_format, well_confidence, well_detection, well_diameter_mm,
+    well_pad.
+  * +1 MODULE_SUMMARIES is `regression_diagnostics`.
+  * -9 UI_SOURCES are all RENAMES, not deletions: 'Import', 'Train CV',
+    'Train XG', 'Load the example screen…', 'Use bundled example',
+    'Fetching the example plate…' and three more. This is 316's word-salad
+    family arriving in the inventory: `tr()` keys by source string, so each
+    rename orphaned nine translations.
+  * +99 UI_SOURCES are the week's new chrome -- test-data choosers, the model
+    zoo picker, annotate streaming, the measure crop preview.
+
+THE COUNT PIN WAS NOT MOVED, AND THIS IS THE POINT OF THIS ENTRY.
+`audit_i18n_coverage.py`, run after the refresh:
+
+    every language   4966/5091 current runtime entries, 10 orphans
+    every language   8929/9035 fresh API docstrings
+
+So the nine catalogs are 125 runtime rows and 106 API docstrings BEHIND the
+sources this refresh just corrected. Moving `test_external_caption_layer_is_
+complete_exclusive_and_pinned` to the new counts would make it green while the
+catalogs are 125 rows stale -- which is the exact failure this file's own
+history is made of: "A ratchet moved on a red or unrunnable test is not a
+ratchet." It stays red until the rows exist.
+
+--------------------------------------------------------------------------------
+WHAT REMAINS IN 306, AND WHICH HALF IS BLOCKED
+--------------------------------------------------------------------------------
+
+THREE RED TESTS, TWO CAUSES.
+
+CAUSE 1 -- THE GENERATED LAYER IS 125 ROWS BEHIND. This is ordinary 306 work
+and is NOT blocked: the sanctioned mechanism is a full
+`build_i18n_catalogs.py` run, which is how all 4,966 existing rows were made.
+It is not hand-drafting and it is not 316's prohibition.
+
+  IT IS ALSO THE HEAVIEST JOB EITHER SESSION HAS RUN. Nine languages through
+  a translation model is exactly the profile of the process that OOM-killed
+  this machine at 115.4 GiB on 2026-09-01. Run it through
+  `tools/run_memory_guarded.py`, announce it in 325 section 5 first so the
+  other session does not start a coverage run into it, and do not start it
+  unattended.
+
+  Closes: `test_external_caption_layer_is_complete_exclusive_and_pinned`
+  (then move the pin, on a green test).
+
+CAUSE 2 -- SIX COMPACT CAPTIONS NEED HAND-WRITTEN ROWS. BLOCKED ON THE
+MAINTAINER. `_ROWS` entries go through `_row()`, which RAISES unless given
+exactly nine translations, so there is no English-only row to add. These are
+the reviewed layer, not the generated one, and 316 reserves them.
+
+    'CPU'
+    'GPU'
+    'none detected'
+    'detected, not used by spaCR'
+    'How much of this machine spaCR keeps between runs: processes, caches and
+     GPU memory. Laptop keeps the least — for 8 GB or on battery; Workstation
+     the most. …'
+    'Primary modules are grouped here into Core, Data, Tools and Assays; …'
+
+  ONE OF THEM MAY NOT NEED TRANSLATING AT ALL. 'CPU' and 'GPU' are acronym
+  identifiers, and this repository already has that concept: instruction 318
+  kept 'QC' exact in every language "because QC is an identifier", and this
+  same test already exempts language native names and AI product names. If
+  they are identities they belong in the exemption, not in `_ROWS` -- decide
+  that before writing eighteen translations of two acronyms.
+
+  Closes: `test_compact_user_facing_caption_surface_has_exact_rows_and_is_
+  pinned` and `test_every_slide_title_and_blurb_is_in_the_catalog`, which
+  fail on the same performance-selector paragraph.
+
+CORRECTION TO THE 2026-08-31 NOTE ABOVE: it predicts the missing compact rows
+are 'Laptop' and 'Workstation'. They are not, and have not been for two days.
+The set is the six above.
+
+--------------------------------------------------------------------------------
+2026-09-02 — I STALED A REVIEWED BLOCK AND FIXED IT; THE NEXT ONE IS NOT MINE
+--------------------------------------------------------------------------------
+
+Recorded because it is a trap anyone editing a docstring can fall into, and
+because the docs job's error names only the FIRST stale record, so it reads
+like one problem when it is a queue.
+
+WHAT I DID. Instruction 342 added `plateID` to the formula in
+`spacr.ml.regression_levels`'s docstring -- correctly; the fixed-effects
+design really does include it now. That docstring block is one of the
+REVIEWED API translations, pinned by a sha256 of its source, so the change
+made nine reviewed catalogs stale at once and turned the docs job red with
+
+    ValueError: stale reviewed API source 'spacr.ml.regression_levels#2'
+
+A DOCSTRING EDIT IS A TRANSLATION EDIT here, and nothing in the editing
+experience says so. Worth knowing before touching any public docstring.
+
+WHY THE FIX WAS MECHANICAL AND NOT A TRANSLATION. The stale block is
+
+    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+
+-- a Patsy formula, and `source` and `translation` were the SAME STRING in all
+nine locales, because a code literal reads identically in every language.
+Updating the formula and re-hashing is therefore not drafting prose, which is
+what 316 forbids. Checked before editing: every one of the nine records had
+source == translation.
+
+THE NEXT FAILURE IS PRE-EXISTING AND IS THIS ITEM'S OWN DEBT.
+With the API pass green, the audit reaches the runtime pass and stops at
+
+    stale reviewed runtime source setting_tooltips/control_wells
+    docs/i18n/reviewed/runtime/es/2026-08-26-final-runtime-gaps.json
+
+`control_wells`'s tooltip is real prose, so THAT one cannot be repaired the
+same way -- it needs a Spanish sentence, which is the maintainer's pass. The
+docs job was already red on it before tonight's commits (the 2026-09-01 22:31
+run failed too), so this is the 125-row debt recorded above arriving in CI
+rather than anything new.
+
+AND THE AUDIT REPORTS ONE AT A TIME. Fixing the first revealed the second;
+there may be more behind it. Whoever does the maintainer's pass should expect
+to iterate rather than to see the whole list at once, and it is worth teaching
+the audit to report every stale record in one run instead.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE STALE QUEUE, ENUMERATED RATHER THAN DISCOVERED ONE AT A TIME
+--------------------------------------------------------------------------------
+
+Since the audit stops at its first stale record, here is what is behind it.
+Produced by walking `docs/i18n/reviewed/runtime/**.json` and comparing each
+record's stored `source` against the live table, using the same comparison
+`build_i18n_catalogs` makes at its line 3438: `current_source != source`.
+
+SEVENTEEN distinct labels, almost all in the `ui` table:
+
+    ALL NINE LOCALES
+      ui/"Which fractal spaceout draws. Orbit fold is ..."   (the long one)
+      ui/"{location}: {path}"
+
+    ONE OR TWO LOCALES EACH
+      zh_CN  the channel-colour VIEW setting; "aggregates guide ranks by
+             gene without fitting every guide jointly"; "control gene or
+             guide, comma separated"; "gene or guide, comma separated";
+             "genes or guides"; "guides grouped by gene"; "k (robust SDs)";
+             spaCR's own three colours
+      ko     "Which family of coefficients every tab draws." (the level=both
+             explanation)
+      is     "Which mask plane a crop is cut by."
+      sv     "checksum"; the PCA standardisation note
+      fr     "on"; "trained on"
+
+READ THIS AS AN INVENTORY, NOT AS A LEDGER. It was produced with a helper of
+my own that resolves the source tables the way that function does, and it did
+NOT list `setting_tooltips/control_wells` -- which is the record the audit
+actually stops on. So the two disagree somewhere, and the difference is
+probably which table the helper resolves for `setting_tooltips`. Trust the
+audit for what is broken; trust this for the SHAPE of the queue.
+
+WHAT THE SHAPE SAYS, and it is the useful part:
+
+  * Most of it is ONE OR TWO LOCALES, not nine. Those are single sentences a
+    reviewer can do in one pass, not a re-translation.
+  * TWO records affect all nine, and one of them -- `{location}: {path}` -- is
+    a FORMAT STRING with no prose in it at all. That one is very likely
+    mechanical, the same way `regression_levels`' formula was, and should be
+    checked before anyone translates anything.
+  * The long fractal description is the real work: nine locales of a
+    paragraph, and it is the sort of copy that changed because the feature
+    changed.
+
+TWO THINGS WORTH BUILDING, in this order:
+  1. Teach the audit to report EVERY stale record and exit once, instead of
+     raising on the first. The maintainer cannot plan a pass they can only
+     see one item of.
+  2. Separate the mechanical records -- where source == translation, or the
+     string is a format template -- from the ones needing a reviewer. Tonight
+     nine catalogs were repaired without a translator because of exactly that
+     distinction.
+
+CORRECTION, SAME DAY, TO THE NOTE DIRECTLY ABOVE.
+
+I wrote that `{location}: {path}` is "a FORMAT STRING with no prose in it at
+all" and "very likely mechanical". BOTH LOCALES AND I WERE WRONG -- checked
+before anyone acts on it:
+
+    de  '{location}: Pfad {path}'      es  '{location}: ruta {path}'
+    fr  '{location} : chemin {path}'   sv  '{location}: sökväg {path}'
+    ko  '{location}: 경로 {path}'       zh_CN '{location}：路径 {path}'
+
+Every locale adds a translated word for "path", and French also moves the
+space before the colon, which is correct French typography. This is real
+translation and needs a reviewer like any other.
+
+AND IT CASTS DOUBT ON THE ENUMERATION ITSELF, which is the more useful half of
+this correction. The live source `{location}: {path}` is still present at
+`qc_field_browser.py:798` and in every catalog, so it is not obvious it is
+stale at all -- my helper resolves the `ui` table as a membership set and may
+simply be looking at a different set from the one the audit builds. That is
+the second disagreement between my helper and the audit, after
+`control_wells`.
+
+SO: TREAT THE SEVENTEEN AS A LEAD, NOT AS A LIST. The only figures in this
+file worth planning against are the ones `audit_i18n_coverage.py` produced --
+4966/5091 per locale -- and whatever the audit itself reports when it is
+taught to list every record instead of raising on the first. That change is
+now the FIRST thing worth building here, not the second: without it, both a
+maintainer and an agent are reduced to guessing at the shape of the work, and
+this note is what guessing looks like.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE AUDIT NOW LISTS EVERYTHING, AND THE REAL QUEUE IS THREE RECORDS
+--------------------------------------------------------------------------------
+
+`reviewed_runtime_translations` collected its problems instead of raising on
+the first one it reached, and the answer is much smaller than either guess
+above:
+
+    sv clean    de clean    pt clean    hi clean    is clean    fr clean
+    es  1       zh_CN  1    ko  1
+    TOTAL 3
+
+THREE RECORDS, ONE STRING, THREE LOCALES: `setting_tooltips/control_wells`
+in Spanish, Chinese and Korean. That is the whole of what stands between the
+docs job and a green runtime audit. Not seventeen, and not a translation pass.
+
+MY ENUMERATION TWO NOTES ABOVE WAS WRONG, and now I know why: it resolved the
+source tables itself instead of calling `canonical_sources()`, which is what
+the loader uses. The correction note doubted the list on the evidence of two
+disagreements; this is the measurement that settles it. THE LIST IS THREE.
+Delete the seventeen from your planning.
+
+AND THE CHANGE IS SMALL. The stored source and the live tooltip are 97.9%
+identical -- one clause moved:
+
+    OLD  "... and"          NEW  ". Regression any"
+
+So each of the three needs one sentence adjusted in an existing reviewed
+translation, not a fresh one. That is minutes of a reviewer's time, and it is
+the last thing between here and a green docs job on the runtime side.
+
+WHY THE TOOLING CHANGE WAS WORTH MAKING FIRST. Every estimate in this file
+before it was a guess, including two of mine, because the audit only ever
+showed one record. It is still a hard error, still the same exception type and
+still the same first line -- `tests/test_documentation_i18n.py` matches on it
+and still passes -- but the message now carries the whole list.
+
+    tests/test_documentation_i18n.py, test_i18n_coverage_audit.py,
+    test_runtime_i18n_syntax.py:   18 failed at HEAD, 18 failed after.
+    No regressions; those 18 are this item's own debt.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE THREE ARE FIXED, ON THE MAINTAINER'S INSTRUCTION
+--------------------------------------------------------------------------------
+
+"Fix the translations!" -- 2026-09-02. Recorded because the note above said
+this needed the maintainer's own pass, and this is that instruction
+overriding it.
+
+WHAT THE ENGLISH DID, and the edits mirror exactly this and nothing else:
+
+    OLD  "...a list matching filter_value AND initializes it from
+          filter_value plus DECLARED control blocks..."
+    NEW  "...a list matching filter_value. REGRESSION initializes it from
+          filter_value plus ANY declared control blocks..."
+
+One sentence split, and one "any" added. So each locale needed the same two
+edits inside an existing reviewed sentence:
+
+    es     "...corresponde a filter_value. La regresión la inicializa a
+            partir de filter_value más CUALQUIER bloque de control declarado"
+    zh_CN  "...匹配的列表。回归会根据 filter_value 以及任何已声明的对照区组
+            进行初始化"
+    ko     "...목록으로 재사용합니다. 회귀는 filter_value 와 선언된 모든
+            대조 블록으로 초기화합니다"
+
+Nothing else in any of the three sentences was touched, and no other record
+was edited.
+
+ALL NINE LOCALES NOW PASS `reviewed_runtime_translations`, which is the gate
+that raises on drift, on a bad hash, on a non-idempotent target and on a
+target the ordinary rejection rules refuse. The runtime side of the docs
+audit is clean.
+
+STILL FOR THE MAINTAINER, and not changed by this: instruction 316's five
+named semantic defects and its nine-locale sign-off. This was a two-word
+adjustment to sentences a reviewer had already approved; 316 is about prose
+nobody has read. THESE THREE SHOULD STILL BE GLANCED AT in the next pass --
+they are marked reviewed and were last touched by an agent.
+
+--------------------------------------------------------------------------------
+2026-09-02: ONE REVIEWED MODULE SUMMARY IS STALE, AND IT IS NOT MINE TO RETIRE
+--------------------------------------------------------------------------------
+
+`tests/qt/test_module_tooltip_i18n.py::test_reviewed_summary_hashes_match_
+current_builtin_sources` is RED, and was red before this session touched
+anything -- verified against c309a1008 in a HEAD worktree. Exactly one key
+fails: `foreign`.
+
+WHAT HAPPENED. Import Project was renamed to Import on 2026-08-31 and its
+one-line summary was rewritten to cover the three ways into a project it now
+hosts:
+
+    reviewed against  "Import external images, masks and a measurement table
+                       into a spaCR project and map the source columns to
+                       spaCR fields"
+    the app now says  "Bring images, masks and measurement tables into a
+                       spaCR project -- converting microscope formats,
+                       mapping source columns, or adopting masks made
+                       elsewhere"
+
+The nine reviewed translations are faithful renderings of a sentence the
+application no longer contains. The machinery did the right thing with that:
+`module_summary` compares the stored hash against the live English, the
+comparison fails, and it falls through -- so nobody is being shown a wrong
+translation. A Swedish user sees the Import tile's sentence in ENGLISH.
+
+WHY IT IS STILL SITTING THERE. This file's own rule, written for the
+RectGate case above: a stale reviewed record "cannot be carried forward by
+refreshing its hash -- that would silently re-certify a translation nobody
+has read against the new text". The same applies here, and the remedy is the
+same pair -- retire the record and let the generated catalog translate the
+new text, or have a reader of each language translate it. Retiring nine
+people's review evidence is a decision about someone else's work, so it is
+recorded rather than taken, exactly as the RectGate record was.
+
+WHAT IS OWED, precisely, so whoever takes it does not have to re-derive it:
+
+  * `spacr/qt/i18n_module_summaries_{west,asia,other}.py` -- the `foreign`
+    row in all nine locales.
+  * `spacr/qt/i18n_module_summaries.py` -- `REVIEWED_SOURCE_HASHES['foreign']`,
+    and the `len(reviewed_keys) == 30` assertion in
+    `validate_module_summaries` if the row is retired rather than replaced.
+  * `spacr/qt/i18n_catalogs/<lang>.py` -- the generated `MODULE_SUMMARIES`
+    row and its source hash, which are stale in the same direction.
+  * The same test file's `assert len(reviewed_keys) == 30`, which is where
+    the count is stated.
+
+THE MODELS ARE ON THIS MACHINE, which was not obvious and is the reason the
+generated half is a re-run rather than a request:
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/
+        translation_models/opus/{en-de,en-es,en-fr,en-hi,en-is,en-ko,
+                                 en-pt,en-sv,en-zh}      (51 GB)
+
+`python tools/build_i18n_catalogs.py --repair-invalid-only` is the house
+command; it re-translates missing, source-stale, exact-English and rejected
+rows and leaves valid cached ones alone. It will pick up the 125 catalog
+rows this file already owes at the same time.
+
+ONE ROW WAS ADDED TO THE DEBT TODAY, and it is named here so it is not a
+surprise: `import_images`, the new Import Images screen folded onto Import,
+has an English sentence and no translation in any locale. Measured through
+`tools/build_i18n_catalogs.canonical_sources()`: 65 module-summary rows
+before, 66 after. That is the whole increase -- the other folded modules
+already had their sentences, because `folded_modules` now reads a fold's
+registry row when its host keeps no record of its own.
+
+--------------------------------------------------------------------------------
+2026-09-02: THE DOCS JOB'S ONE FATAL FAILURE, AND IT WAS NOT A TRANSLATION
+--------------------------------------------------------------------------------
+
+`tools/build_documentation_i18n.py --audit` -- the check the Docs CI job runs
+-- did not report anything at all. It RAISED before printing a line:
+
+    ValueError: stale reviewed API source 'spacr.layers.LabelsLayer#2':
+    docs/i18n/reviewed/api/sv/2026-08-31-layers-parameter-docs.json
+
+MEASURED ACROSS EVERY REVIEWED API RECORD rather than fixed where it stopped,
+because an audit that aborts on its first finding hides the rest:
+
+    4,295  records correct
+        9  MIS-KEYED -- one record, in all nine languages
+        1  genuinely stale
+
+THE NINE WERE NOT STALE AT ALL, AND THAT IS THE INTERESTING PART. A reviewed
+record is addressed by POSITION -- `<symbol>#<block index>` -- and
+`spacr.layers.LabelsLayer` gained two blocks before the one that was
+reviewed: `seed`'s description and the "Colours come from ..." paragraph. So
+`#2` now addresses `seed` while the reviewed sentence sits at `#4`. The
+English and the translation are byte-identical to what a reviewer approved;
+only the address moved. Re-keying them re-certifies nothing.
+
+THE ONE THAT WAS REALLY STALE is `spacr.crops.resolve_crop_source#5` in
+Icelandic, and it is this file's own rule in miniature -- the English gained
+a clause:
+
+    reviewed  "a settings dict (with ``src``, optionally ``crop_source``) or
+               a source path -- the experiment root or its ``merged`` folder."
+    now       "a settings dict (with ``src``, optionally ``crop_source``), a
+               source path, OR A LIST/TUPLE WHOSE FIRST ENTRY IS THE SOURCE
+               PATH -- the experiment root or its ``merged`` folder."
+
+so the Icelandic is a faithful rendering of a sentence that no longer exists.
+Retired, which is remedy (a) recorded above, and the retired text is kept
+here so nothing is lost and a reviewer can put it back:
+
+    is: "uppsetningar lykil-gildi kortlagning (með ``src``, valkvætt
+         ``crop_source``) eða upprunaleið -- tilraunarrótin eða ``merged``
+         möppan hennar."
+
+  EINAR READS ICELANDIC, so this is the one stale record in the tree that
+  does not need a translator hired: one sentence from him closes it properly
+  rather than by machine.
+
+THE AUDIT NOW EXITS 0. What it prints is eight ordinary notices -- English
+catalog entries whose docstrings changed today, `spacr.illumination.*` from
+the other session and `spacr.image_import*` from this one. Those are the
+regeneration chore, not a failure, and they are what this file's 125-row debt
+is made of.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE 125-ROW CATALOG DEBT IS PAID, AND TWO GATE GAPS PAID WITH IT
+--------------------------------------------------------------------------------
+
+`build_i18n_catalogs.py --repair-invalid-only` was run on CPU over all nine
+locales against the local checkpoints, one language per process so the model
+memory is freed between them. Measured with the tool's OWN
+`_invalid_catalog_sources`, which is exactly the set that mode retries, rather
+than with a helper of my own -- the correction note above is about what
+happens when those two disagree:
+
+    before   230 invalid source strings per locale, 2,070 across the nine
+    after     27 across the nine
+
+`--audit` went from 311 reported failures to 26 lines. Per locale the refresh
+added 192 rows, changed 45-59, and removed 76; the removals are the `_CP_prob`
+/ `_FT` families that 364 renamed in `settings.py`, not deletions of prose.
+
+`import_images` HAS ITS SENTENCE IN ALL NINE. It was the row this file added
+to the debt the same day, and `canonical_sources()` now reports 66 module
+summaries where it reported 65.
+
+WHAT THE REMAINING 27 ARE, because a number with no shape is the thing this
+file keeps complaining about:
+
+  * NINE are `foreign`, one per locale, and they are there ON PURPOSE. See
+    the next section.
+  * FOUR are zh_CN, where every route -- M2M100, sentence, clause, fragment
+    and the MADLAD secondary -- was refused by the release gates:
+    `independent_variable_layout`, `plaque_model`, and two UI sentences. The
+    tool left the English standing rather than shipping a mangled protected
+    literal, which is the behaviour we want; they need a Chinese reader.
+  * FOURTEEN are hi, and they are the price of the second gate below.
+
+I DID NOT TOUCH `docs/i18n/reviewed/` OR `i18n_module_summaries*.py`. The nine
+catalogs and `tools/build_i18n_catalogs.py` are the whole change.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE TOOL WANTED TO SUPERSEDE THE `foreign` REVIEWED ROW; REFUSED
+--------------------------------------------------------------------------------
+
+RECORDED BECAUSE IT IS THE EXACT TRAP THIS FILE WARNS ABOUT, arriving from the
+direction nobody had written down.
+
+`_reviewed_module_summary_translations` SKIPS a reviewed row whose stored hash
+no longer matches the live English -- correctly, so it does not hand a stale
+target to the gates. But the consequence is that a plain
+`--repair-invalid-only` then treats `foreign` as an ordinary untranslated row
+and writes a MACHINE translation of the new Import sentence into all nine
+generated catalogs, with a current hash.
+
+THAT CHANGES WHAT A USER SEES, and not in the safe direction. `module_summary`
+returns the reviewed target only when `expected == current`; on a stale hash it
+falls through to the generated catalog. While the generated row was ALSO stale
+the fall-through reached nothing and a Swedish user saw ENGLISH, which is what
+the 2026-09-02 note above describes as the machinery doing the right thing.
+Refresh the generated half alone and the same user silently gets unreviewed
+machine prose in place of a sentence nine reviewers signed off differently.
+
+So the generated `foreign` row and its `MODULE_SUMMARIES` source hash were
+RESTORED to their committed values in all nine catalogs after the run. The
+audit now reports, per locale:
+
+    <lang>/MODULE_SUMMARIES: 1 protected literal or markup failures (foreign)
+    <lang>/SOURCE_HASHES: missing=0 stale=0 wrong=1
+
+Eighteen of the 26 remaining audit lines are that one decision, and they are an
+HONEST report of debt that really is still outstanding. The four-part change
+this file already enumerated -- reviewed rows, `REVIEWED_SOURCE_HASHES`, the
+generated row, and the `== 30` assertion -- is atomic, and doing only the part
+an agent is allowed to do is what breaks it. It stays whole for its owner.
+
+CONFIRMING THE TWO TESTS EITHER WAY, since both orderings cost exactly one:
+keeping the regenerated row turns `test_external_catalogs_use_the_reviewed_
+module_summaries` red, because that test binds generated to reviewed with no
+hash condition; restoring it turns `test_external_runtime_catalogs_have_exact_
+current_source_keys` red instead. Same count, and restoring is the one that
+does not re-certify unread prose.
+
+--------------------------------------------------------------------------------
+2026-09-02 — TWO REAL GAPS IN THE SEMANTIC GATE, FOUND BY READING THE OUTPUT
+--------------------------------------------------------------------------------
+
+Both were found by reading the generated rows rather than the test results,
+which is the only way this class of defect surfaces: they are fluent,
+hash-current, and pass every structural check.
+
+GAP 1 -- A FABRICATED VENDOR NAME. M2M100 renders technical tokens it does not
+know as the Microsoft brand. Five rows across three locales:
+
+    ko     'import_images' and the `…/raw_images` caption -- "microscope"
+    hi     'guide_permutation_seed', 'surrogate_shap_max_samples'
+    zh_CN  'smoothgrad_samples'
+
+Two of those five were NEW, written by this pass; three predate it and were
+sitting in the committed catalogs. spaCR was telling a scientist that the
+folder their microscope wrote came from a software vendor. `Microsoft` is a
+proper noun, so it can only be right when the English source names it --
+which is a source-conditioned predicate exactly like the ones already in
+`_semantic_false_friends`, and that is where it went.
+
+GAP 2 -- CYRILLIC IN CATALOGS WITH NO CYRILLIC LANGUAGE. Repairing gap 1 in
+Hindi produced `'минералजगत की परिभाषाएँ'` for a permutation seed. The
+existing script check asks whether SOME target script is present, so a
+mixed-script row satisfies it; nothing asked the other half. A scan found 17
+such rows already committed -- 12 in hi, 5 in es. None of the nine targets is
+written in Cyrillic, so a Cyrillic run is always the model reaching into the
+wrong language.
+
+WHAT THE SECOND GATE COST, stated plainly because it is a real trade and the
+next person may want it back: es came out clean, but 14 hi rows now fall back
+to EXACT ENGLISH, and that is the whole of hi's share of the remaining 27.
+A Hindi user reading "Guide permutation seed" is strictly better off than one
+reading "минералजगत की परिभाषाएँ", and the audit now NAMES those 14 instead
+of hiding them behind a fluent wrong answer. Both predicates are ~10 lines in
+`_semantic_false_friends` and are trivially revertible if that call is wrong.
+
+--------------------------------------------------------------------------------
+2026-09-02 — WHAT THIS PASS MEASURED, AND ONE STALE TEST IT EXPOSED
+--------------------------------------------------------------------------------
+
+Against a `git archive HEAD` tree taken AFTER 75f7f8497 and f36f3cf9e landed
+mid-session -- the first baseline was taken before them and had to be redone,
+which is worth knowing in a two-session repo:
+
+    27 i18n/catalog test files      HEAD 30 failed / 543 passed
+                                    here 24 failed / 549 passed
+
+Seven fixed, one new, and the new one is NOT a translation defect:
+
+    tests/qt/test_external_i18n_catalogs.py::
+        test_runtime_uses_external_static_and_context_keyed_setting_text
+
+It asserts `_translated_setting_name("organelle_CP_prob", "ko") == "소기관 1 — CP"`.
+`organelle_CP_prob` DOES NOT EXIST -- b7ae412af (364) renamed the four families
+to `*_cellprob_threshold` / `*_flow_threshold`. The assertion passed only
+because the catalogs were 125 rows stale and still carried the dead key, so
+refreshing them is what revealed it. This is the same shape as the `"1 von 7"`
+case recorded above: A STALE TEST, NOT A TRANSLATION GAP. It needs a key that
+still exists; the test file was outside this pass's writable set, so it is
+reported rather than edited.
+
+`test_reviewed_summary_hashes_match_current_builtin_sources` is red at HEAD and
+red here, unchanged -- still the `foreign` row, still not this pass's to retire.
+
+TWO NOTES FOR WHOEVER RUNS THE TOOL NEXT.
+
+THE MODEL ROOT IS WRITTEN TO, WHICH IS NOT OBVIOUS FROM THE FLAG NAME.
+`_translate_batches` keeps its cache in `<model-root>/.spacr_translation_cache`
+and `_merge_write_translation_cache` DELETES keys from it. Pointing
+`--model-root` at the maintainer's 1.1 TB research volume therefore writes to
+that volume. This pass mirrored the nine pairs as symlinks into a scratch
+directory and copied the caches, so the research volume was read-only
+throughout; `find -newermt` over it confirms nothing of mine landed there.
+
+`run_memory_guarded.py --limit-gib` IS A SYSTEM-WIDE CEILING, not a budget for
+the guarded job. It compares against total RAM in use, so any value below the
+current baseline refuses to start with exit 137 and no work happens at all --
+`--limit-gib 20` on a box already at 38.3 GiB never runs. This pass used 60,
+which left the guard live with ~22 GiB of headroom over the baseline.
+
+--------------------------------------------------------------------------------
+2026-09-02 — THE ILLUMINATION TOOLTIP IS STAGE-NEUTRAL, ENGLISH AND NINE LOCALES
+--------------------------------------------------------------------------------
+
+Done on the Codex session's request, recorded in 325: the tooltip "still says
+only 'before any intensity feature is measured'", which stopped being true when
+illumination correction gained a segmentation consumer. CHECKED IN THE CODE
+BEFORE REWRITING rather than taken on trust -- `spacr/io.py` carries an
+`illumination_session` documented as "optional segmentation-only illumination"
+and `core.py` resumes it through `load_segmentation_illumination_resume`, so
+the correction really is applied at segmentation as well as at measurement.
+
+THREE TRANSLATABLE STRINGS SAY IT, and all three were wrong the same way:
+
+    spacr/illumination.py        `_TOOLTIPS['illumination_correction']`
+    spacr/illumination.py        `_DESCRIPTION`  (the settings-category text)
+    spacr/qt/screens/measure.py  `FOLD_FALLBACK['illumination']`
+
+plus the module comment at the top of `measure.py`, which described the same
+single consumer to the next reader of the code.
+
+THE WORDING NAMES NO STAGE, DELIBERATELY:
+
+    "divide it out of the pixels at every enabled stage"
+
+The field is estimated ONCE and applied wherever it is switched on, so the
+sentence stays true when a third stage is added and does not have to be
+rewritten again. Enumerating "segmentation and measurement" would have been
+more concrete and would have gone stale on the next feature. "measures the
+same" became "looks and measures the same" for the same reason: segmentation
+looks at pixels, it does not measure them. The `(bool)` type and the
+`Default False.` tail are untouched, so the house tooltip shape still holds.
+
+ENGLISH FIRST, THEN ONE GENERATION PASS PER LANGUAGE. Editing `en.py` by hand
+would have been reverted by the next build, since it is generated from
+`canonical_sources()`. `_invalid_catalog_sources` went to exactly +3 per locale
+after the source edit -- confirmation that the reword touched three
+translatable strings and nothing else.
+
+--------------------------------------------------------------------------------
+2026-09-02 — A BARE RELATIVE CLAUSE IS A GARDEN PATH FOR EVERY MODEL WE SHIP
+--------------------------------------------------------------------------------
+
+WORTH WRITING DOWN BECAUSE IT IS REUSABLE, and because the first version of the
+sentence above was mine and was wrong.
+
+The first draft read "divide it out of the pixels every enabled stage reads" --
+correct English, and a relative clause with the pronoun dropped. Run through
+the actual checkpoints this repository ships, all three Marian models produced
+UNGRAMMATICAL output, because each tried to parse "every enabled stage reads"
+as a noun phrase:
+
+    sv  "...ur pixlarna varje aktiverad steg läser"      (no relative pronoun)
+    fr  "...hors des pixels chaque étape activée lit"    (ungrammatical)
+    es  "...fuera de los píxeles cada etapa habilitada lee"
+
+Restoring the pronoun ("the pixels THAT every enabled stage reads") fixed all
+three -- sv `som`, fr `que`, es `que`. Deleting the clause altogether ("the
+pixels AT every enabled stage") also fixed all three and is the shorter, better
+English, so that is what shipped. A fourth candidate that dropped the object
+("divide it out at each enabled stage") was rejected: without "pixels" the
+French model rendered flat-field as `terrain plat`, flat GROUND.
+
+THE RULE THIS GIVES US, for anyone writing a tooltip that will be translated:
+KEEP THE RELATIVE PRONOUN, or write a prepositional phrase instead. English
+lets you drop "that"; none of the nine target models recovers it reliably, and
+the failure is silent -- the output is fluent, hash-current, passes every
+structural gate, and is simply bad grammar in the target. No test we have
+catches it. The only reason this one was caught is that the generated rows
+were read after the run.
+
+--------------------------------------------------------------------------------
+2026-09-02 — 364'S RENAME SILENTLY DISARMED THE OBJECT-NAME PROTECTION
+--------------------------------------------------------------------------------
+
+FOUND WHILE READING THE REFRESHED LABELS, and it is a real bug in
+`tools/build_i18n_catalogs.py` rather than a translation defect.
+
+The tool protects the four Cellpose object names with a reviewed table,
+`_OBJECT_LABELS`, and the comment above it says why: "asking a general
+translation model to infer these abbreviations produced labels such as
+'chairman' and 'organic' in otherwise plausible catalogs." That protection is
+installed by KEYING `MANUAL_UI` and `MANUAL_TRANSLATIONS` ON THE ENGLISH LABEL:
+
+    MANUAL_UI["Organelle cp prob"], MANUAL_TRANSLATIONS["Organelle 1 — Cp prob"]
+
+b7ae412af (item 364) renamed those settings, so the live English labels are now
+`Organelle 1 — Cellprob threshold` and `Organelle 1 — Flow threshold`. The
+table keys no longer match anything, the protection stopped applying, and
+nobody found out BECAUSE A LOOKUP THAT MISSES IS NOT AN ERROR.
+
+WHAT IT COSTS, measured on the refreshed catalogs: of the 14 labels in the
+renamed families the model localized `Cell` and `Nucleus` unaided, but left
+`Organelle` (four slots) and `Pathogen` in ENGLISH in eight of the nine
+locales -- 10 labels per locale. Korean now reads `Organelle 1 - Cellprob
+범위` while the reviewed name 소기관 sits unused in `_OBJECT_LABELS`, next to
+병원체 for Pathogen. Only Swedish reached "Organell" on its own.
+
+NOT REPAIRED HERE, and the reason is 316 rather than effort. Re-keying the
+table to the new English is one line; supplying its TARGET is not, because the
+new label ends in "Cellprob threshold" instead of the abbreviation "CP", so all
+nine targets would need a descriptive tail drafted -- exactly the prose an
+agent must not write. The mechanical half is ready for whoever takes it: the
+reviewed object names already exist and are correct; only the keys and the
+tails are missing.
+
+AND IT CHANGES THE FIX FOR THE STALE TEST RECORDED ABOVE.
+`test_runtime_uses_external_static_and_context_keyed_setting_text` asserts on
+the deleted `organelle_CP_prob`. The obvious one-line swap to
+`organelle_cellprob_threshold` would assert `== 'Organelle 1 - Cellprob 범위'`
+and PIN THIS BUG INTO A TEST. The test and the re-keying are one job, not two,
+and the line after it -- `_translated_setting_name("FT", "sv")` -- is worth
+checking for the same staleness while someone is in there.
+
+ONE MORE STALE COPY, outside this pass's writable set:
+`Notebooks/02_measure_and_crop.ipynb` still quotes the OLD
+`illumination_correction` tooltip verbatim, so the notebook and the shipped
+tooltip now disagree. 325's own quotation of the old phrase is historical
+record and is correct as it stands.
+
+--------------------------------------------------------------------------------
+2026-09-03 — A CATALOG PASS IS A RACE AGAINST THE TREE IT IS GENERATED FROM
+--------------------------------------------------------------------------------
+
+WORTH RECORDING AS AN OPERATING FACT, because it will happen to the next person
+and it looks like a mistake when it is not one.
+
+The nine catalogs were regenerated, audited clean, and then the audit went red
+again WITHOUT ANY CATALOG BEING TOUCHED -- because 369's dock work had landed
+four new UI strings in the meantime:
+
+    'Tooltips box'   'Tooltips bottom'
+    "Hovering a setting's title opens a box beside it with the explanation, an
+     API link and an Animation link. ..."
+    "The same explanation appears along the bottom of the window, ..."
+
+`--audit` reported `en/UI_SOURCES: canonical source catalog is stale` and
+`<lang>/UI: 4 missing` in all nine. Nothing was wrong with the catalogs; the
+SOURCE had moved. During this single session HEAD advanced from the commit the
+first baseline was taken at, through c97b68d8e and 59c975533, to 9321e282a and
+past it, and `settings.py` itself changed twice near the end.
+
+WHAT THAT MEANS PRACTICALLY, and it is not "regenerate more often":
+
+  * EVERY LOCALE PROCESS CALLS `canonical_sources()` FOR ITSELF. A nine-language
+    pass takes the better part of an hour because hi and zh_CN re-run their
+    permanently-failing rows through MADLAD each time, so a source change
+    halfway through leaves the early locales generated from one tree and the
+    late ones from another. The audit catches it as missing rows, but only
+    afterwards.
+  * SO THE CATALOGS ARE ONLY EVER "CURRENT AS OF A COMMIT", never current
+    absolutely, and the honest thing is to name that commit rather than to
+    claim the catalogs are up to date.
+  * AND THE COST OF A TOP-UP IS NOT PROPORTIONAL TO THE CHANGE. Four new UI
+    strings cost a full pass, because the two M2M100 locales pay their fixed
+    ~20 minutes of MADLAD retries whether four rows changed or four hundred.
+
+TWO THINGS WORTH BUILDING, and the second is cheap:
+
+  1. A `--freeze-sources` mode that resolves `canonical_sources()` ONCE, writes
+     it, and has every locale read that snapshot, so a nine-language pass is
+     generated from one tree by construction instead of by luck.
+  2. A NEGATIVE CACHE FOR PERMANENTLY-REJECTED ROWS. hi has 14 rows and zh_CN 4
+     that every route refuses on every run; they have no valid cached value, so
+     `--repair-invalid-only` retries them forever. Recording "this source, this
+     model set, this gate version -> refused" would cut roughly forty minutes
+     off every future nine-language pass and lose nothing: the rows are already
+     reported by the audit, which is where the maintainer reads them.
+
+--------------------------------------------------------------------------------
+2026-09-03 — WHERE THE CATALOGS ACTUALLY STAND, MEASURED ON THE FINAL TREE
+--------------------------------------------------------------------------------
+
+Generated against 9321e282a and after, with `foreign` restored to its committed
+value in all nine afterwards.
+
+    tools/build_i18n_catalogs.py --audit    311 failure lines  ->  26
+    _invalid_catalog_sources, nine locales  2,070 rows         ->  27
+    canonical UI sources                    2,808              ->  2,812
+
+Per locale: 196 rows added, 48-62 changed, 76 removed -- 2,903 row changes in
+all. The 76 removals per locale are 364's `_CP_prob` / `_FT` renames, not lost
+prose.
+
+THE 27 THAT REMAIN, named so nobody has to re-derive them:
+
+     9  `foreign`, one per locale, PRESERVED ON PURPOSE (see above). 18 of the
+        26 audit lines are this one decision.
+     4  zh_CN, refused by every route including the MADLAD secondary:
+        `independent_variable_layout`, `plaque_model`, and two UI sentences.
+    14  hi, falling back to English rather than shipping the Cyrillic the
+        MADLAD Hindi route keeps producing.
+
+Tests, 31 files, against a `git archive` of 59c975533 taken the same night:
+
+    HEAD    27 failed, 731 passed, 4 skipped
+    here    21 failed, 737 passed, 4 skipped
+
+Seven fixed, one new, and the new one is the stale `organelle_CP_prob`
+assertion described above -- a dead key that only passed while the catalogs
+were stale enough to still carry it.
+`test_reviewed_summary_hashes_match_current_builtin_sources` is red at HEAD and
+red here, unchanged: still `foreign`, still not this pass's to retire.
+
+THE ILLUMINATION REWORD REACHED ALL NINE, verified by source hash rather than
+by reading for the phrase -- `SOURCE_HASHES[('MODULE_SUMMARIES','illumination')]`
+matches the live English in every locale, and every one renders the stage as a
+prepositional phrase: `i varje aktiverat steg`, `en cada etapa habilitada`,
+`em cada estágio habilitado`, `à chaque étape activée`, `in jeder aktivierten
+Stufe`, `모든 활성화 된 단계에서`, `प्रत्येक सक्षम चरण में`, `在每个启用阶段`.
+Icelandic remains the weakest catalog and was weak before; that is 316's pass,
+not this one's.
+
+---
+
+2026-09-03. EIGHT OF THE THIRTY-ONE RUNTIME-CATALOG TESTS ARE FAILING, and
+have been since before last night. Found by running `tests/qt` in slices;
+nobody had run this file lately.
+
+    tests/qt/test_external_i18n_catalogs.py:  8 failed, 23 passed
+
+What they say, in the order they are worth reading:
+
+  * `test_external_runtime_catalogs_have_exact_current_source_keys` -- one
+    source hash differs: `('MODULE_SUMMARIES', 'foreign')`. 5,102 other keys
+    match, so this is one module's summary having been reworded since the
+    catalogs were built, not a wholesale drift.
+  * `test_runtime_tooltips_have_no_exact_english_prose_fallbacks` and
+    `..._no_unreviewed_exact_english_fallbacks` -- zh_CN carries English for
+    `independent_variable_layout` and `plaque_model`.
+  * `..._need_no_incremental_repairs`, plus four more on reviewed terms,
+    false friends and the API-doc catalog.
+
+NOT REPAIRED HERE, and the reason is what the repair costs rather than
+doubt about the diagnosis. `tools/build_i18n_catalogs.py` takes
+`--model-root`, `--device {cpu,cuda}`, `--batch-size` and `--beams`: it runs
+a translation MODEL. Firing that unattended would put machine output into
+nine locales at six in the morning, and the very tests failing here are the
+ones that refuse unreviewed text -- so a blind rebuild would either not fix
+them or would fix them by writing exactly what they exist to catch.
+
+THE SHAPE OF THE JOB: the hash mismatch is one summary and can be repaired
+incrementally; the two zh_CN tooltips need a reviewer or a targeted
+`MANUAL_TRANSLATIONS` entry, which is how the Icelandic "1.5 er óþekkt" fix
+was made. Neither wants the whole catalog rebuilt.
+
+TRIED THE MODEL-FREE HALF, AND IT MAKES IT WORSE. `build_i18n_catalogs.py
+--sources-only` needs no translation model and regenerates the English source
+catalog, which is where the stale hash lives. Running it took the file from
+
+    8 failed, 23 passed        to        10 failed, 23 passed
+
+because regenerating the SOURCE adds keys the nine locale catalogs do not
+have, and the tests that refuse unreviewed English then fail on them. Two
+tests that were passing -- placeholder preservation and the README language
+links -- started failing. Reverted.
+
+So the two halves cannot be separated: the source rebuild and the translation
+pass have to happen together, and the translation pass wants a reviewer for
+anything the tests will not accept machine output for.
+
+AND I ADDED TO THE DEBT TONIGHT. The per-object grid needed a control, so
+Preferences -> Appearance gained a row: the caption "Per-object settings as a
+table" and its tooltip. Both are new UI strings in nine locales' worth of
+catalog. That is the ordinary cost of any new control and is recorded here
+rather than left for the next person to discover in a diff.
+
+--------------------------------------------------------------------------------
+2026-09-03 -- ONE FAILURE WAS A SUPERSEDED REQUIREMENT; THE OTHER SEVEN ARE
+              ALL THE SAME BLOCKER
+--------------------------------------------------------------------------------
+
+Re-measured: `tests/qt/test_external_i18n_catalogs.py` 8 failed / 23 passed,
+matching the previous note exactly. Sorted by what each one actually needs,
+which turns out to be two piles rather than eight problems.
+
+FIXED, AND IT WAS NOT A TRANSLATION PROBLEM.
+`test_github_readme_links_every_external_language_page` required all nine
+`docs/i18n/readme/README.<lang>.rst` paths to appear inside README.rst.
+INSTRUCTION 361 MADE THAT IMPOSSIBLE ON PURPOSE: the maintainer asked for the
+links to be a dropdown, a dropdown on GitHub is `<details>`/`<summary>`, and
+README.rst cannot carry it because github/markup renders reStructuredText
+with raw HTML disabled. So the menu moved to `docs/i18n/readme/README.md`,
+which is Markdown and does render it, and README.rst carries ONE link.
+
+The two tests were therefore asserting opposite things, and
+`tests/test_the_language_picker_is_a_dropdown.py` was winning on 28 tests
+with the GitHub renderer actually queried as evidence. The requirement did
+not disappear -- every language must still be one click away and every page
+must still be a real translation -- so it is now checked where it lives: the
+picker link and the model attribution in README.rst, and all nine languages
+plus their >10 kB pages on the picker page. Verified: 7 failed / 52 passed
+with the dropdown file's 28 still green. Nothing was weakened to get there.
+
+THE OTHER SEVEN ARE ONE BLOCKER WEARING SEVEN HATS: text that only a fluent
+speaker can supply. Listed with the exact strings, because "needs a reviewer"
+without them is a note that cannot be acted on.
+
+  1. MODULE_SUMMARIES['foreign'] -- ONE stale source hash, nine stale
+     translations. And the hash must NOT simply be bumped. The English was
+     reworded from
+
+       "Import external images, masks and a measurement table into a spaCR
+        project and map source columns to spaCR fields"
+
+     to
+
+       "Bring images, masks and measurement tables into a spaCR project --
+        converting microscope formats, mapping source columns, or adopting
+        masks made elsewhere"
+
+     which ADDS two capabilities. The German still says the old, narrower
+     thing, and so do the other eight. Bumping the hash would certify nine
+     sentences as current that describe a feature set the module has
+     outgrown -- precisely the failure this instruction was filed to catch,
+     "complete, fresh and wrong in context".
+
+  2. zh_CN carries ENGLISH for two tooltips, `independent_variable_layout`
+     and `plaque_model`, which is what three of the seven are reporting.
+
+  3. Korean has a reviewed false-friend variant unresolved: the catalog
+     answers `소기관 1 — Cp prob` where the reviewed term is `소기관 1 — CP`.
+
+  4. Swedish carries English for the Preferences -> Appearance row added on
+     2026-09-02, "Per-object settings as a table" and its tooltip -- the debt
+     the previous note recorded against itself, now showing up as a failure.
+
+  5. The API-doc catalog is short of current symbols, which is the same
+     regeneration the previous note showed cannot be run half-way.
+
+WHY NONE OF IT WAS REPAIRED HERE, and this is a decision rather than an
+omission. `tools/build_i18n_catalogs.py` runs a translation MODEL, and the
+tests failing above are exactly the ones that REFUSE unreviewed machine
+output. Firing it would either not fix them or would fix them by writing the
+thing they exist to catch. The previous note already measured the model-free
+half making it worse -- `--sources-only` took the file from 8 failures to 10,
+because regenerating the source adds keys the nine locale catalogs lack.
+
+So the mechanical work in this instruction is done, and what remains is four
+short pieces of prose in Chinese, Korean, Swedish and the nine-locale
+`foreign` summary. That is a maintainer/reviewer gate, and it is the one the
+HANDOFF already lists as owed.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- THE API HALF IS SETTLED. THE SEVEN FAILURES, READ RATHER THAN
+              LABELLED, ARE FIVE DEFECTS AND ONE OF THEM IS NOT WHAT THIS FILE
+              SAYS IT IS.
+--------------------------------------------------------------------------------
+
+THE API CATALOG IS NO LONGER THE PROBLEM. The other session stopped adding
+public symbols and the catalogs are stable. Measured per locale rather than
+from any tool's summary:
+
+    de es fr hi is ko pt sv zh_CN en   9,426 symbols, all ten identical
+
+That closes the "API-doc catalog is short of current symbols" half of this
+item's remaining list. `test_documentation_api_catalog_inventory_and_hashes_
+are_current` passes.
+
+THE SEVEN REMAINING FAILURES IN tests/qt/test_external_i18n_catalogs.py WERE
+RE-READ RATHER THAN RE-LABELLED, on the other session's advice after it found
+three real defects behind tests it had written off. Two of the seven are one
+defect seen twice, so there are five:
+
+  1. MODULE_SUMMARIES['foreign'] -- one source hash, exactly as recorded.
+     Current English:
+       "Bring images, masks and measurement tables into a spaCR project --
+        converting microscope formats, mapping source columns, or adopting
+        masks made elsewhere"
+     Nine translations describe the older, narrower thing. Needs nine
+     sentences, then the hash follows.
+
+  2/3. zh_CN carries ENGLISH for `independent_variable_layout` and
+     `plaque_model`. Two tests report it. Both are long, precise tooltips --
+     the layout one explains long/wide/auto and lossless melting; the plaque
+     one warns that changing the checkpoint changes every plaque count.
+
+  4. sv carries ENGLISH for the per-object table's UI blurb, the 2026-09-02
+     Preferences row this file already recorded itself as adding.
+
+  5. ko `organelle_CP_prob`. AND THIS ONE IS NOT WHAT THE FILE SAYS.
+
+     Recorded here as "Korean has a reviewed false-friend variant unresolved:
+     the catalog answers 소기관 1 — Cp prob where the reviewed term is
+     소기관 1 — CP". Measured, it is TWO defects stacked, and the first is not
+     Korean at all:
+
+       _translated_setting_name('organelle_CP_prob', lang)
+         en     'Organelle 1 — Cp prob'
+         ko     '소기관 1 — Cp prob'
+         sv     'Organell 1 — Cp prob'
+         de     'Organelle 1 — Cp prob'
+         zh_CN  '细胞器 1 — Cp prob'
+
+     THE SUFFIX IS UNTRANSLATED IN EVERY LANGUAGE. The composition translates
+     the "Organelle N" half and passes "Cp prob" through untouched -- so
+     Swedish, German and Chinese are wrong in exactly the same way, and only
+     Korean has a test asserting it. The translation is not missing: `tr('Cp
+     prob', 'ko')` already answers '세포 확률(CP)'. It is never asked.
+
+     THE SECOND DEFECT IS THE KOREAN TERM. Even with the composition fixed,
+     Korean would render '소기관 1 — 세포 확률(CP)' and the reviewed term is
+     '소기관 1 — CP'. So the catalog row must become 'CP' as well.
+
+     FIXING ONLY THE COMPOSITION MAKES FOUR LOCALES BETTER AND THIS TEST STILL
+     RED. Fixing only the Korean row makes the test green and leaves sv, de and
+     zh_CN showing English. Both halves, or neither.
+
+  6. `spacr.regression_panels.apply_primary_call` is EXACT ENGLISH IN es ALONE
+     -- "Attach the common BH-plus-positive-gRNA-cut call fields." -- and is
+     not in API_EXACT_TEXT_ALLOWLIST. Eight locales translated it; one did not.
+
+AND ONE MORE, FOUND WHILE READING (6) AND NOT YET FILED ANYWHERE: ko and zh_CN
+translate "call" in that sentence as a TELEPHONE call --
+
+    ko     '... gRNA-컷 전화 필드를 연결합니다'      전화 = telephone
+    zh_CN  '... gRNA-切断电话字段'                   电话 = telephone
+
+It is a statistical call, as in variant calling. Both are fluent, both pass
+every gate, and both are about telephones. That is instruction 316's thesis in
+the API catalog rather than the runtime one, which is a surface 316 has not
+looked at.
+
+WHAT REMAINS FOR THIS ITEM, and it is now a list rather than a category: nine
+sentences for (1), two tooltips for zh_CN, one blurb for sv, the composition
+fix plus the Korean row for (5), and one Spanish sentence for (6).
+
+--------------------------------------------------------------------------------
+2026-09-04 (later) -- THREE OF THE SEVEN CLOSED, AND THE REAL SIZE OF THE FOURTH
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py   7 failed / 24 passed
+                                          ->  4 failed / 27 passed
+
+WHAT CLOSED, and none of it was a translation gap in the way this file assumed.
+
+1. `test_external_runtime_catalogs_have_exact_current_source_keys`.
+   MODULE_SUMMARIES['foreign'] is translated in all nine and its stored source
+   hash re-pinned to the current English. The English had grown two
+   capabilities -- converting microscope formats and adopting foreign masks --
+   and the nine sentences described the older, narrower module. Now they do
+   not, so the hash could be moved honestly rather than bumped.
+
+2. `test_runtime_uses_external_static_and_context_keyed_setting_text` AND
+   `..._resolve_all_reviewed_false_friend_variants` (partly). THE COMPOSITION
+   BUG IS FIXED, IN `spacr/qt/i18n.py`.
+
+   `_exact_translation` matches a whole string; `_term_translation` substitutes
+   single WORDS. A label joined with an em dash falls between them: the
+   composite has no exact entry, and a two-word piece like "Cp prob" is not one
+   word. So every locale kept the suffix in English and only Korean had a test.
+
+   `_composite_translation` splits an ``A — B`` label, resolves each side
+   exactly first and then by term -- the same order and authority `tr` itself
+   uses, so a hand-reviewed entry still beats a word substitution -- and
+   returns None unless a side actually changed. Measured after:
+
+       en     'Organelle 1 — Cp prob'
+       ko     '소기관 1 — CP'                    (the reviewed term)
+       sv     'Organell 1 — Cellsannolikhet (CP)'
+       de     'Organelle 1 — Zellwahrscheinlichkeit (CP)'
+       zh_CN  '细胞器 1 — 细胞概率（CP）'
+       fr/es/is/pt/hi   likewise translated
+
+   NINE LOCALES IMPROVED FROM ONE FIX, and the Korean row was additionally set
+   to 'CP' so the reviewed term resolves. This file recorded it as "a reviewed
+   false-friend variant unresolved", which sent three measurements at Korean
+   when the defect was in the composition and belonged to every language.
+
+3. `test_api_doc_catalog_is_symbol_keyed_and_source_hashed`. EIGHT symbols were
+   exact English -- 6 in hi, 2 in ko, 1 in is -- and are now translated.
+   `spacr.regression_panels.apply_primary_call` was the es one, rendered as
+   "determinación" rather than the telephone sense ko and zh_CN fell into.
+
+ALSO REPAIRED, FOUND BY READING RATHER THAN BY ANY TEST -- and all of them are
+316's class, in core vocabulary:
+
+    sv     'Object'      "Syfte"        = PURPOSE. A segmented object is not a
+           'Objects'     "Syften"         purpose. This word is everywhere in
+                                          the application.
+    zh_CN  'Model zoo'   "动物园模型"    = a model OF A ZOO.
+    zh_CN  'plaque_model' "板模型"       = BOARD model. The plaque family was
+           'Plaque Analysis' "板块分析"   uniformly 板/板块 -- board, or
+                                          tectonic plate -- and is now 蚀斑.
+           'Detect and quantify plaques in plaque-assay images.'
+                         "检测和量化板在板测试图像。" -- board, in board-test
+                         images, and ungrammatical besides.
+
+AND THE REMAINING THREE ARE ONE JOB WHOSE SIZE THIS FILE UNDERSTATES. The
+header says "125 catalog rows owed". MEASURED, per locale, by comparing every
+catalog value against its English source:
+
+    sv 88   de 92   es 87   fr 91   pt 89   hi 98   ko 85   is 86   zh_CN 87
+    TOTAL 803 rows still exact English
+
+That is roughly 90 distinct strings needing nine translations each, and it is
+what `..._no_exact_english_prose_fallbacks`, `..._no_unreviewed_exact_english_
+fallbacks` and `..._need_no_incremental_repairs` are all reporting. They are
+one job, not three.
+
+The fourth remaining failure is a KeyError rather than a missing translation:
+a reviewed false-friend record points at a source string
+("Which intensity channel holds each compartment...") that the catalog does not
+carry. That is an orphaned reviewed record of the same family as the three the
+2026-09-03 note in instruction 316 describes, and it wants the same treatment.
+
+ONE THING NOT TO REPEAT. Two strings for the per-object table were added to all
+nine catalogs and then REMOVED again: the key set is compared against
+`en.py::UI_SOURCES`, which does not carry them, so adding them to the locales
+alone turned a passing test red. `en.py` is generated, and this file already
+records that regenerating it with `--sources-only` makes things worse. Those
+two strings need the source regeneration and the locale rows in ONE pass.
+
+--------------------------------------------------------------------------------
+2026-09-04 (final pass) -- EVERY ROW IS TRANSLATED. 29 OF 31 GATES GREEN.
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py   7 failed / 24 passed
+                                          ->  2 failed / 29 passed
+
+    untranslated rows, by the gate's own filter:   16 -> 0
+
+ALL SIXTEEN ARE TRANSLATED. Ten were accepted unanimously by three independent
+review lenses; six were revised on the reviewers' own concrete fixes and then
+applied. Two of those revisions were verified against the catalog rather than
+taken on trust: `सीमा बॉक्स` is the established Hindi for a bounding box (4
+occurrences; the proposed `बाउंडिंग-बॉक्स` had 0), and the danda is the
+majority sentence terminator in the Hindi catalog (1,154 against 1,071 ASCII
+periods).
+
+THE API HALF IS ALSO DONE: all ten locales at 9,432, the inventory ratchet
+moved after reading the diff rather than bumping the number, and
+test_documentation_api_catalog_inventory_and_hashes_are_current passes.
+
+`--sources-only` STILL CANNOT BE RUN ON ITS OWN, and this is now measured
+TWICE under different conditions. The earlier note recorded it taking the file
+from 8 failures to 10 and blamed the locales being incomplete. The locales are
+now complete -- zero untranslated rows -- and it still makes things worse:
+
+    before regenerating en.py    2 failed / 29 passed
+    after                        6 failed / 25 passed
+    reverted                     2 failed / 29 passed
+
+So the cause is not locale incompleteness. Regenerating the English manifest
+adds SOURCE keys that no locale carries and that no gate will accept until
+they do, and the two halves must land together or not at all. Reverted.
+
+THE LAST TWO FAILURES, and neither is a missing translation:
+
+  * `..._need_no_incremental_repairs` wants the per-object table's caption and
+    blurb PRESENT in the locales. `..._have_exact_current_source_keys` refuses
+    them unless `en.py::UI_SOURCES` carries them, and it does not. The two
+    gates want opposite things until the English manifest and the nine locales
+    move in ONE change -- which is the same conclusion as the paragraph above,
+    reached from the other direction.
+
+  * `..._resolve_all_reviewed_false_friend_variants` raises KeyError on
+    'Which intensity channel holds each compartment...' -- a reviewed
+    false-friend record bound to a source string the catalog no longer carries.
+    That is an ORPHANED REVIEWED RECORD, the same family as the three cases in
+    316's 2026-09-03 note, and it wants the same treatment: re-bind if the text
+    moved, retire if it is gone.
+
+ALSO TIGHTENED, on the other session's warning that a ratchet which cannot
+distinguish "fixed" from "unchanged" hides work: API_EXACT_TEXT_ALLOWLIST
+audited entry by entry, 19 -> 17. `spacr.schema.field_index` is now translated
+in every locale and `spacr.resources.home.versions._generators.common.app_map`
+no longer exists at all. Both were dead weight that would never have failed a
+test. The remaining 17 are each still exercised by at least one locale.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CORRECTION: THE LAST TWO FAILURES ARE ONE CAUSE, NOT TWO
+--------------------------------------------------------------------------------
+
+The note above called the false-friend failure "an orphaned reviewed record...
+bound to a source string the catalog no longer carries". THAT IS BACKWARDS and
+the correction matters, because it changes the fix from a retirement to an
+addition.
+
+`test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` iterates
+`canonical_sources()` and does `table[key]`. A KeyError there means CANONICAL
+HAS A KEY THE CATALOG LACKS -- the source gained a string, the locales never
+got it. Nothing is orphaned; something is missing.
+
+MEASURED: seven keys are in canonical and absent from all nine catalogs.
+
+    CATEGORY_HELP  'Which intensity channel holds each compartment, and which
+                    one the recruitment is measured on...'
+    UI             "78 of Mask's 201 settings are the same twenty-odd
+                    questions asked once per object type..."
+    UI             'Locked open: the app list is a permanent column...'
+    UI             'Per-object settings as a table'
+    UI             'Drag to resize'
+    UI             'Resize the release notes'
+    UI             'No release notes bundled with this build.'
+
+So BOTH remaining failures have the same cause, and the earlier note's "the two
+gates want opposite things" was only half the picture. The key-set gate refuses
+these strings because `en.py::UI_SOURCES` does not list them; the repair and
+false-friend gates demand them because canonical does. They do not disagree --
+the ENGLISH MANIFEST IS BEHIND CANONICAL, and everything else follows from
+that one fact.
+
+THE SYMMETRIC CHANGE THIS NEEDS, which is why regenerating en.py alone made
+things worse twice:
+
+    en.py::UI_SOURCES gains 6 and loses 5
+        gained: the six UI strings above
+        lost:   five strings canonical no longer has, including
+                'API documentation for this setting' and
+                "Show or hide this setting's animation"
+    every locale catalog gains the same 7 (6 UI + 1 CATEGORY_HELP) and drops
+        the same 5
+
+Do it as one change or the key-set gate fails on whichever half lands first.
+That is not a quirk of these seven; it is how this catalog system is built, and
+it is worth stating plainly for the next person who reaches for --sources-only.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- CLOSED. EVERY MECHANICAL GATE IS GREEN AND THE EVIDENCE REPORT IS
+              CURRENT.
+--------------------------------------------------------------------------------
+
+    tests/qt/test_external_i18n_catalogs.py     7 failed / 24 passed -> 31 passed
+    tests/test_documentation_i18n.py                                 -> 137 of 138
+    tests/test_settings_tooltip_quality.py       2 failed            -> 28 passed
+
+The single remaining failure in the documentation suite is instruction 316's
+three reviewed README blocks whose ENGLISH changed meaning. That is 316's
+subject -- whether the translations are RIGHT -- and not this item's, which is
+whether they are COMPLETE and CURRENT.
+
+AGAINST THIS FILE'S OWN "HOW TO KNOW IT WORKED":
+
+  * INVENTORIES AGREE. Runtime 5,165 entries; API 9,434 symbols in all ten
+    locales; zero missing, duplicate or stale required entries. The manifest
+    and the nine catalogs now move together, which they did not before -- see
+    the symmetric-change note above, which is the finding that unblocked this.
+  * EVERY TOOLTIP HAS ITS TYPE, DEFAULT AND UNIT. The unit census now derives
+    from MAX_ORGANELLES instead of a hand-pinned 110, so raising the organelle
+    ceiling cannot silently stale it again. Default claims are compared against
+    the live resolved default for all 673 app/setting pairs; the 46 variants
+    each carry a recorded classification and reason, and CONFIG_DEFECT is 0.
+  * THE KNOWN_THIN BLANKET WAIVER IS GONE. Its twelve entries were retired into
+    pinned implementation facts, and the suite states that no tooltip is exempt.
+  * CATALOGS CARRY CURRENT SOURCE HASHES, matching placeholders and protected
+    identifiers, with zero unexplained English-identical entries. The explicit
+    ones are enumerated in the report below rather than left implicit.
+  * A WRITTEN REVIEW REPORT EXISTS AND IS CURRENT:
+    `docs/i18n/REVIEW_SCOPE_2026-09-04.md`. It names the languages, the exact
+    proportion of source-bound review evidence per locale, every allowlisted
+    untranslated term, and the disposition of all eleven defect classes found
+    today.
+
+WHAT THIS CLOSURE DOES NOT CLAIM, and the report says it in the same words:
+this is not a certificate that every sentence was read by a fluent speaker.
+Six of nine locales have never had one. "Nine languages, machine-drafted and
+technically reviewed" is defensible; "translated into nine languages" is not,
+and that distinction belongs to 316 and to whatever the README, the paper and
+the Zenodo record end up claiming.
+
+ONE DEFECT IS CARRIED FORWARD RATHER THAN FIXED: the API catalog renders "call
+fields" as TELEPHONE fields in ko (전화) and zh_CN (电话) for
+`spacr.regression_panels.apply_primary_call`. It is fluent, it passes every
+gate, and it sits in the API catalog -- a surface no systematic reading has
+covered. Filed against 316 rather than held here, because it is a correctness
+question and this item is about currency.
+
+THE COST OF THE LAST STRETCH IS WORTH RECORDING. None of the final ten
+failures was a missing translation. They were: an English manifest behind
+canonical; three "stale" keys that were rewordings whose successors were
+already translated; two tooltips whose English had been rewritten while nine
+locales still asserted the old meaning; and four separate protected-literal
+contracts -- a dropped product name, Korean particles breaking a token
+boundary, an INTRODUCED literal the source never had, and a renamed label. A
+gate that refuses a translation for adding "gRNA" where the English says
+"guide" looks pedantic until it stops you shipping the wrong vocabulary in
+nine languages.

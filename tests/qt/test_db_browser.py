@@ -955,13 +955,13 @@ def test_a_header_click_sorts_the_whole_table_not_the_loaded_rows(screen,
         "fixture must not fit in one chunk or this proves nothing")
 
     section = screen.visible_columns().index("cell_area")
-    screen._on_header_clicked(section)
+    screen._on_header_clicked(section)          # -> descending, as everywhere
 
     label = screen.visible_columns().index("object_label")
-    assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
-
-    screen._on_header_clicked(section)          # -> descending
     assert [r[label] for r in screen.preview_rows()][:3] == [250, 249, 248]
+
+    screen._on_header_clicked(section)          # -> ascending
+    assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
 
     screen._on_header_clicked(section)          # -> unsorted
     assert screen._sort is None
@@ -1296,6 +1296,13 @@ def test_filter_on_an_unknown_column_reports_inline(screen, measdb):
     assert "Filter error" in screen.status_text()
     assert screen.set_filter("not_a_column", "=", "1") is False
     assert "Unknown column" in screen.status_text()
+
+
+def test_filter_on_an_unknown_operator_reports_inline(screen, measdb):
+    screen.set_database(measdb.path)
+    assert screen.set_filter("well", "approximately", "A01") is False
+    assert "Unknown operator" in screen.status_text()
+    assert screen.where_clause() is None
 
 
 def test_empty_structured_value_is_treated_as_no_filter(screen, measdb):

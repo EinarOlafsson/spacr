@@ -18,11 +18,13 @@ able to find a feature by saying what they mean.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import sqlite3
 from pathlib import Path
 
 import pytest
 
+from spacr import feature_dict as feature_dictionary
 from spacr.feature_dict import (
     CHANNEL_NONE,
     CHANNEL_PAIR,
@@ -41,6 +43,22 @@ from spacr.feature_dict import (
     scope_for,
     search_features,
 )
+
+
+@pytest.mark.parametrize(
+    "record",
+    (
+        feature_dictionary.Concept,
+        feature_dictionary.Coverage,
+        feature_dictionary.FeatureDoc,
+        feature_dictionary.SearchHit,
+    ),
+)
+def test_lookup_records_document_every_generated_constructor_field(record):
+    """Search results and their supporting records explain every value."""
+    documentation = record.__doc__ or ""
+    for item in fields(record):
+        assert f":param {item.name}:" in documentation
 
 REAL_COLUMNS_FILE = Path(__file__).parent / "data" / "real_measurement_columns.tsv"
 
@@ -414,8 +432,13 @@ def test_the_ring_features_are_scoped_to_the_three_objects_that_have_them():
 def test_the_correlation_features_are_the_only_channel_pair_ones():
     pairs = {key for key, scope in FEATURE_SCOPE.items()
              if scope.channels == CHANNEL_PAIR}
+    # The corrected Manders trio (corrected_manders) joined the pair family;
+    # every member is still in the correlation family, which is what this
+    # test is really asserting.
     assert pairs == {"Pearson_correlation", "M1_correlation_<t>",
-                     "M2_correlation_<t>"}
+                     "M2_correlation_<t>", "manders_m1", "manders_m2",
+                     "manders_overlap_coefficient"}
+    assert {KNOWN_PROPERTIES[key].family for key in pairs} == {"correlation"}
 
 
 # --------------------------------------------------------------------------

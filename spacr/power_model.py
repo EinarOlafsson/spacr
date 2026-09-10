@@ -192,24 +192,20 @@ class PowerFitError(SpacrError):
 class ModelData:
     """Well-level design for the Poisson model, one row per well.
 
-    :ivar wells: well labels, in the order the rows of the design appear.
-    :ivar genes: gene labels, in the order the columns of
-        ``log10expression`` (and hence of ``beta``) appear.
-    :ivar Npositive: positive cells per well, summed over genes.
-    :ivar Ntotal: cells imaged per well; the Poisson offset is
-        ``log(Ntotal)``, so every well here has ``Ntotal > 0``.
-    :ivar log10expression: ``(n_wells, n_genes)`` matrix of
+    :param wells: retained well identifiers in design-row order.
+    :param genes: gene identifiers in the column order of
+        ``log10expression`` and fitted gene effects.
+    :param Npositive: positive-cell counts per retained well, summed over genes.
+    :param Ntotal: imaged-cell counts per retained well; every value is positive
+        because the model uses ``log(Ntotal)`` as its offset.
+    :param log10expression: ``(n_wells, n_genes)`` matrix of
         ``log10(reads_gene_well / reads_well + 1e-4)``.
-    :ivar dropped_wells: wells removed because ``Ntotal <= 0``.  A well
-        with no imaged cells has an infinite offset and contributes
-        nothing but a divide-by-zero.
-    :ivar zero_read_wells: wells whose sequencing returned no reads at
-        all.  Their read *fractions* are 0/0; see
-        :func:`prepare_model_data` for why they are set to 0 rather than
-        NaN, and note that such wells inform only the intercept.
-    :ivar unidentified_genes: genes whose ``log10expression`` column is
-        constant across every retained well.  Their coefficients are
-        confounded with the intercept and are reported as ``NaN``.
+    :param dropped_wells: wells removed because their imaged-cell count was not
+        positive.
+    :param zero_read_wells: retained wells with no sequencing reads; their
+        expression fractions use the pseudocount rather than ``nan``.
+    :param unidentified_genes: genes whose expression column is constant across
+        retained wells and whose fitted effect must remain unidentified.
     """
 
     wells: np.ndarray
@@ -428,6 +424,7 @@ def prepare_model_data(
 
     # ---- pivot to (well x gene) matrices -------------------------------
     def _matrix(column: str) -> np.ndarray:
+        """Pivot ``column`` to captured well-by-gene order as float64."""
         wide = frame.pivot(index="well", columns="gene", values=column)
         return wide.reindex(index=wells, columns=genes).to_numpy(dtype=np.float64)
 
@@ -863,6 +860,7 @@ def _fit_torch_advi(
     entropy_const = 0.5 * n_params * math.log(2.0 * math.pi * math.e)
 
     def _unpack(theta: "torch.Tensor"):
+        """Split the final parameter axis while preserving leading draws."""
         z = theta[..., :n_genes]
         log_lambda = theta[..., n_genes:2 * n_genes]
         log_tau = theta[..., 2 * n_genes:2 * n_genes + 1]
@@ -871,6 +869,11 @@ def _fit_torch_advi(
         return z, log_lambda, log_tau, log_c2, intercept
 
     def _log_joint(theta: "torch.Tensor") -> "torch.Tensor":
+        """Evaluate the unnormalized horseshoe-Poisson log posterior.
+
+        The parameter-independent Poisson factorial is omitted, so each
+        leading draw receives the same optimizer-equivalent objective.
+        """
         z, log_lambda, log_tau, log_c2, intercept = _unpack(theta)
 
         # beta, bounded by the slab -- see the docstring.
@@ -1070,6 +1073,7 @@ def _fit_numpyro_nuts(
     log_offset = jnp.log(jnp.asarray(model_data.Ntotal, dtype=jnp.float64))
 
     def model():
+        """Define the regularized-horseshoe Poisson model for NumPyro NUTS."""
         z = numpyro.sample("z", dist.Normal(0.0, 1.0).expand([n_genes]))
         lam = numpyro.sample(
             "lam", dist.StudentT(df_local, 0.0, 1.0).expand([n_genes]).mask(False)
@@ -2008,17 +2012,15 @@ def scan_parameters(
             # would print as 'nan' in the error column of a perfectly fine run.
             for column in ("run_key", "backend", "method", "status",
                            "seed_channel", "reason", "error"):
-                if column in existing.columns:
-                    existing[column] = existing[column].fillna("").astype(str)
-            if "run_key" in existing.columns:
-                for record in existing.to_dict("records"):
-                    done[str(record["run_key"])] = record
-                logger.info(
-                    "power_model: resuming from %s -- %d completed row(s) "
-                    "will be skipped.",
-                    path,
-                    len(done),
-                )
+                existing[column] = existing[column].fillna("").astype(str)
+            for record in existing.to_dict("records"):
+                done[str(record["run_key"])] = record
+            logger.info(
+                "power_model: resuming from %s -- %d completed row(s) "
+                "will be skipped.",
+                path,
+                len(done),
+            )
 
     rows: List[Dict[str, Any]] = []
     cancelled = False

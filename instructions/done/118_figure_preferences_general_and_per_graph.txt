@@ -1,0 +1,422 @@
+================================================================================
+FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
+================================================================================
+
+Status:    DONE. The house style ships a transparent background.
+Requested: 2026-08-16 — "the graphs look pretty ugly. in the general app
+           preferences in the figure tab theere should be general graph
+           settings and specialized settings for al the possible different
+           sets of graphs"
+Owner:     preferences
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Preferences' Figure tab holds background, text colour, text size, DPI, format,
+the live-figure cache size and the dynamic-figures switch. Nothing about how a
+plot LOOKS: no font family, no palette, no marker size, no line width, no grid
+default, and nothing specific to any one kind of graph.
+
+Every plot therefore inherits matplotlib's defaults, which is what "the graphs
+look pretty ugly" means in practice.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+These figures go into a manuscript. Restyling each one by hand after every run
+is work the application should do once, and a per-run restyle is lost the next
+time the analysis is re-run -- which, during a revision, is constantly.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+GENERAL, applying to every figure: font family and size, palette, background
+and foreground, grid on/off with its colour and width, spine visibility and
+width, marker size, line width, DPI, and figure format.
+
+PER GRAPH TYPE, overriding the general where it is set:
+
+  volcano          point size, threshold line style/colour, label count,
+                   which categories are coloured, split-axis behaviour
+  plate heatmap    colormap, whether it is centred, colour limits, cell
+                   annotation, one or two per row
+  histogram        bin count or rule, fill and edge colour
+  scatter / QC     point size and alpha, whether a trend line is drawn
+  residuals        reference line style, whether the trend is shown
+  jitter / bar     point spread, error-bar style
+
+Stored so a run picks them up without the user touching anything, and every
+one of them reachable from the same place.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Changing the palette in Preferences changes the next run's figures without any
+per-figure work, and a volcano-specific point size does not alter the plate
+heatmaps.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: TRANSPARENT. NEVER BLACK, NEVER WHITE.
+--------------------------------------------------------------------------------
+
+"figures should not have a background not black not white just transparent".
+
+This REVERSES what figure_queue does today, which paints the app theme's
+background into the figure and into the exported PDF deliberately -- so that
+a rasterised page does not flash from dark to light a moment after it
+appears. A transparent figure has to stop that flash by another means (the
+widget behind it supplying the colour), and the EXPORT has to stay legible
+on whatever the user pastes it onto -- white-on-transparent is invisible in
+a Word document. Both halves belong to this instruction now.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE PANEL SHIPPED. The model was already there; the way in was not.
+--------------------------------------------------------------------------------
+
+WHAT THE STATE ACTUALLY WAS, audited rather than read off this header. The
+MODEL for 118 had already been built by somebody:
+
+    spacr/figure_style.py            GENERAL_DEFAULTS (19 keys), GRAPH_DEFAULTS
+                                     (7 kinds, 37 keys), resolve(), rc_params()
+    spacr/qt/preferences.py          get/set_figure_style,
+                                     get/set_figure_style_per_graph,
+                                     apply_figure_style
+    spacr/figures/style.py           user_overrides(): the user's DELTAS laid
+                                     over the publication house style
+
+Every layer existed and nothing could set any of it. The Figures tab held
+format, DPI, cache size and the dynamic switch -- all about the FILE, none
+about how a plot LOOKS. So the stores were empty for everybody and the whole
+mechanism was unreachable, which is the "described but unreachable backend
+box" failure this repo has shipped before.
+
+WHAT SHIPPED
+
+  `FigureStylePreferences` in spacr/qt/widgets/figure_settings.py, on the
+  Figures tab under a "Graph style" heading. Measured on the real dialog:
+  19 general controls, 7 graph types, 37 per-kind controls, built in 5.9 ms
+  (the whole Preferences dialog is 17.1 ms).
+
+  BUILT FROM `figure_style`'S OWN TABLES, not from a hand-written list. A key
+  added to GENERAL_DEFAULTS or GRAPH_DEFAULTS gains a control without this
+  panel being edited -- the same decision `add_style_entries` made for
+  instruction 108, and two tests assert it by comparing the control set
+  against the dicts.
+
+  THE CONTROL KIND COMES FROM THE VALUE: bool -> checkbox, a key with a closed
+  set -> combo, `#rrggbb` -> colour button, float/int -> spin box, else a line
+  edit. From the VALUE and not from a declared type, for 108's own reason:
+  these are plain dicts with no annotations at all.
+
+  ONE GRAPH KIND AT A TIME, from a combo over a hidden QTabWidget. Seven kinds
+  times a dozen settings is eighty-odd rows, and a preferences tab that long
+  is one nobody finds anything in. One page per kind rather than a rebuild on
+  change, so switching kinds cannot lose an edit made on another.
+
+  THE STORE KEEPS DELTAS, WHICH IS NOT AN OPTIMISATION. `figures.style.
+  user_overrides` returns only the keys the user MOVED, precisely so that a
+  fresh install draws the published house style; a panel that wrote every
+  control back would freeze today's defaults into everybody's settings AND
+  replace the house style for every user who had ever opened the tab. Same
+  class of mistake as 152 A's persisted resolution, one layer up. There is a
+  test that an untouched panel stores {}.
+
+  FLOATS ARE COMPARED WITH A TOLERANCE. `grid_width` is 0.6 and a two-decimal
+  spin box returns 0.6000000000000001, so an exact comparison would mark
+  every user as having overridden a setting they never touched.
+
+  A STORED VALUE THE PACKAGE NO LONGER OFFERS IS KEPT AND SHOWN as
+  "<value> (not offered)" rather than snapped to the first entry. Silently
+  changing a user's setting inside the dialog that exists to show them their
+  settings is the worst possible place to do it.
+
+  RESET WORKS. Preferences' "Reset to defaults" re-reads every other getter
+  against a throwaway store; this panel holds its controls, not its store, so
+  it is told directly. Each control's SETTER is built beside its getter, so
+  a new control kind cannot be forgotten by the reset -- and the colour
+  button's swatch is repainted, because a reset the user cannot see did not
+  happen.
+
+MEASURED END TO END, through the dialog's own Save and not through the setter
+it calls:
+
+    panel: palette=muted, font_size=17, grid=off, volcano marker_size=44
+    stored general  {'font_size': 17.0, 'palette': 'muted', 'grid': False}
+    stored per-graph {'volcano': {'marker_size': 44.0}}
+    rcParams after apply_figure_style('volcano')
+        font.size   10.0 -> 17.0
+        prop_cycle  #1f77b4 -> #4878d0     (matplotlib's -> seaborn muted)
+    resolved volcano marker_size        44.0
+    resolved plate_heatmap marker_size  28.0   <- the acceptance criterion
+    figures.style.user_overrides('volcano')
+        {'font.size': 17.0, 'axes.grid': False, 'lines.markersize': 6.63}
+
+TESTS  tests/qt/test_the_figure_preferences_are_general_and_per_graph.py, 16,
+including the instruction's own "a volcano-specific point size does not alter
+the plate heatmaps" driven through `resolve`, and two that drive the real
+PreferencesDialog -- one asserting the panel is under `PreferencesTabFigures`,
+one clicking Save.
+
+WHAT REMAINS, and it is the 2026-08-16 restatement rather than the header:
+
+  * "figures should not have a background not black not white just
+    transparent". THE LIVE FIGURE ALREADY IS: `auto_figure_colors()` resolves
+    the background to TRANSPARENT_FIGURE_BG and has since 2026-08-06 (152 A).
+    What is not is `figure_style.GENERAL_DEFAULTS["background"] = "#FFFFFF"`,
+    which is a different key for a different job -- the house style's page.
+    The two overlap and neither knows about the other, which is the same
+    finding instruction 127 recorded about the two style systems. Reconciling
+    them means editing spacr/figure_style.py, NOT this territory, so the
+    background row here is a plain colour button and cannot express
+    "transparent" yet. HANDED OFF.
+  * The closed sets for `error_bars`, `bins`, `aspect` and `colormap` are
+    declared in figure_settings.STYLE_CHOICES because figure_style.py is not
+    this territory. They are read off the comments beside the defaults
+    ("sem | sd | ci95 | none") and belong in that module as field metadata
+    the next time it is opened. `spines` is already derived from its
+    SPINE_PRESETS rather than copied, which is what all of them should be.
+  * The EXPORT half of the restatement -- "white-on-transparent is invisible
+    in a Word document" -- is instruction 150's `print_ready`, which shipped.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- "NOT BLACK NOT WHITE JUST TRANSPARENT" NOW HAS A CONTROL. 118 CLOSES.
+--------------------------------------------------------------------------------
+
+The one thing the panel could not say was the 2026-08-16 restatement itself:
+
+    "figures should not have a background not black not white just
+     transparent"
+
+`background` is a colour and EVERY COLOUR A COLOUR BUTTON CAN RETURN IS
+OPAQUE, so the row could offer white, black, or a grey the user liked, and
+never the thing that was asked for. The previous note handed this off on the
+grounds that expressing it meant editing `spacr/figure_style.py`, which is
+another territory. THAT WAS WRONG, and pleasantly so: the vocabulary was
+already there.
+
+    `figure_style.rc_params` forwards `background` straight into
+    `figure.facecolor` AND `axes.facecolor`, and matplotlib's spelling for
+    "no ground at all" is the string "none" -- `to_rgba("none")` is
+    (0, 0, 0, 0). It is a value the store can already hold and the resolver
+    already carries.
+
+So the background row is now a colour button WITH a "Transparent" box beside
+it, storing `"none"`. `spacr/figure_style.py` is untouched.
+
+GREYED, NOT REMOVED (INVARIANTS 6). Ticking Transparent DISABLES the colour
+button rather than hiding it, so the colour the user had is still on screen
+and comes back on one click -- and unticking stores {} again rather than a
+delta, so the way back is genuinely a way back and not a new override.
+
+MEASURED THROUGH THE WHOLE CHAIN, not off the widget:
+
+    panel, box ticked        {'background': 'none'}, {}
+    rcParams after apply     figure.facecolor none, axes.facecolor none
+    figures.style.user_overrides('volcano')
+                             {'figure.facecolor': 'none',
+                              'axes.facecolor': 'none'}
+    the saved page's corner  (255, 255, 255, 0)     <- ALPHA ZERO
+
+THE PIXEL IS THE ASSERTION. An rcParam that is set and a page that is
+transparent are two different claims and only the second one is the request;
+there is a test that renders and reads the corner rather than reading the
+dict back.
+
+ONLY `background` OFFERS IT. A `TRANSPARENT_CAPABLE` tuple rather than a rule
+about colour-looking keys, because "invisible" is not a style for text: a
+transparent `foreground` is a figure with nothing written on it.
+
+TESTS  eight more in
+tests/qt/test_the_figure_preferences_are_general_and_per_graph.py, 24 in the
+file now.
+
+WHAT IS LEFT AND IS NOT THIS INSTRUCTION'S:
+
+  * The `STYLE_CHOICES` closed sets still live in figure_settings.py because
+    `spacr/figure_style.py` is another territory. They belong there as field
+    metadata beside the defaults they describe, exactly as `spines` already
+    reads its set from SPINE_PRESETS. HANDED OFF, unchanged from the previous
+    note.
+  * `figure_style.GENERAL_DEFAULTS["background"]` is still "#FFFFFF" -- the
+    house style's DEFAULT page, which a user can now move off but which
+    nobody has decided should ship transparent. That is a decision for the
+    maintainer and a one-line change in a module this territory does not own;
+    the CONTROL is what 118 asked for and the control is here.
+  * The other overlap instruction 127 recorded -- two style systems, this one
+    and `preferences.get_figure_colors`'s live-figure ink -- is unchanged.
+    They now agree on what transparent MEANS, which is more than they did.
+
+118 IS DONE on everything inside this territory: general settings, per-graph
+settings, the store keeping deltas, reset, and the restatement.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE STANDING HANDOFF IS TAKEN. 118 IS CLOSED.
+--------------------------------------------------------------------------------
+
+`STYLE_CHOICES` LIVES IN `spacr/figure_style.py` NOW, beside the defaults it
+describes, and the panel reads it through `style_choices(name)`.
+
+WHY IT MATTERED. The sets were read off the COMMENTS next to the defaults --
+
+    "error_bars": "sem",       # sem | sd | ci95 | none
+
+-- and a comment is not a contract. A value added to the renderer would have
+gone on being drawn and gone on being unofferable in the panel, with nothing
+saying the two disagreed. The comment is gone and a test asserts it stays
+gone, because while it was there it was the source of truth and could not be
+checked.
+
+DERIVED WHERE THE VALUES ALREADY EXIST. `spines` reads `SPINE_PRESETS`, as it
+already did, and the three line-style keys now share ONE `LINE_STYLE_CHOICES`
+instead of three identical tuples -- "which dashes may a line take" has one
+answer, and three copies of it drift. A preset added in either place is
+offered in the panel with no second edit.
+
+The panel keeps a fallback list for an import that fails: a settings dialog
+that refuses to open because a style module moved is worse than one offering a
+stale set.
+
+A TEST NOW HOLDS THE PROPERTY THE COMMENT COULD NOT: every default is inside
+its own closed set. A default outside it is a panel that cannot show the
+default, which is a bug nobody notices until they open the dropdown.
+
+7 tests in tests/test_the_figure_style_sets_live_beside_their_defaults.py,
+and the 119 across the figure-style and preferences suites still pass.
+
+WHAT IS LEFT AND IS A DECISION, NOT WORK: `GENERAL_DEFAULTS["background"]` is
+still "#FFFFFF" -- the house style's DEFAULT page. A user can move it off, and
+the control 118 asked for is there; whether it should SHIP transparent is the
+maintainer's call and a one-line change.
+
+
+================================================================================
+THE ONE OPEN QUESTION, WITH WHAT IT COSTS EITHER WAY
+================================================================================
+
+  SHOULD `figure_style.GENERAL_DEFAULTS["background"]` SHIP AS "none"
+  (TRANSPARENT) INSTEAD OF "#FFFFFF"?   Yes / no.
+
+Everything else 118 asked for is built. This is one value in one dict and the
+edit is one line; what it needs is a decision, because it changes what a fresh
+install means by "the page" and no code can decide that.
+
+WHAT THAT DEFAULT ACTUALLY REACHES, measured rather than reasoned about. It is
+NOT what any shipped figure draws. The house style's own ground is already
+transparent, and the panel stores DELTAS -- only the keys a user moved -- so an
+untouched store contributes nothing:
+
+    GENERAL_DEFAULTS["background"]        "#FFFFFF"
+    user_overrides() on a fresh store     {}
+    the figure that is actually drawn     figure.facecolor "none",
+                                          savefig.transparent True
+
+So the default is the BASELINE the panel measures "did the user move this"
+against, and the value the panel shows in the row. Nothing else consumes it.
+
+WHAT SAYING YES BUYS. The two halves would agree, and one trap closes. Because
+the store keeps deltas, a value equal to the default stores nothing -- so
+today, WHITE IS THE ONE PAGE COLOUR THE PANEL CANNOT PRODUCE. Setting the
+background row to #FFFFFF, the value the row itself offers as the default,
+stores {} and the figure comes out transparent:
+
+    panel set to #FFFFFF   page corner (255, 255, 255, 0)   <- ALPHA ZERO
+    panel set to #EEEEEE   page corner (238, 238, 238, 255)
+
+Flip the default to "none" and #FFFFFF becomes a real delta that produces a
+real white page, which is what a user who picks it is asking for.
+
+WHAT SAYING NO KEEPS. The row's default reads as a colour rather than as an
+absence, which is easier to understand in a dialog full of colour buttons, and
+the "Transparent" tick box is then the explicit way to ask for nothing. The
+tick box already works either way.
+
+WHAT NEITHER ANSWER TOUCHES. The SAVE path has its own mode -- `print` is the
+default and paints `PRINT_GROUND` #FFFFFF under the figure -- so a manuscript
+figure is unaffected by this decision whichever way it goes. A stored
+{"background": "none"} from a user who already ticked the box collapses to no
+delta if the default becomes "none", and draws the same figure it draws now.
+
+NOT CHANGED HERE. The value is left at "#FFFFFF" until this is answered,
+because guessing at the house style's default page is exactly the kind of
+change that is invisible until somebody's figure comes out wrong.
+
+--------------------------------------------------------------------------------
+CLOSED: THE BACKGROUND SHIPS AS 'none'
+--------------------------------------------------------------------------------
+
+The maintainer's answer: "ship as none."
+
+`figure_style.GENERAL_DEFAULTS["background"]` was '#FFFFFF' and the store
+keeps DELTAS from that table, so choosing white in the panel stored
+nothing and the figure rendered transparent anyway -- the declared
+default and the observed behaviour disagreed, and picking white
+deliberately was the one thing the panel could not express.
+
+It is 'none' now, which agrees with what was already happening and is the
+right answer for the job: a figure going into a paper or a slide takes
+the ground it is placed on, and a white rectangle behind it is visible on
+every dark background it lands on. An explicit white now STORES and
+applies, which is the capability that was missing.
+
+Four tests asserted the delta rather than the outcome and were the mirror
+image of the bug: they checked that ticking transparent wrote
+{'background': 'none'}, which with the new default correctly writes
+nothing. They assert what a drawn figure gets -- rc_params(resolve(...))
+-- which is the path a figure actually takes. The reset test was seeded
+with white first, because a reset from the default to the default proves
+nothing.
+
+--------------------------------------------------------------------------------
+2026-08-26 -- RE-AUDIT: THE PALETTE WAS THE ONE SETTING THAT NEVER ARRIVED
+--------------------------------------------------------------------------------
+
+The second acceptance line held when driven: a volcano-specific `marker_size`
+of 44 leaves `plate_heatmap` on its own 28, and `resolve` layers general
+defaults, general preferences, graph defaults and graph overrides in that
+order.
+
+THE FIRST ONE DID NOT. "Changing the palette in Preferences changes the next
+run's figures without any per-figure work" was false, and had been since the
+house style became the draw path. Driven on a sandboxed store:
+
+    set_figure_style({"palette": "viridis"})
+    with figure_style("screen"):
+        plt.rcParams["axes.prop_cycle"]   -> Matplotlib's own tab10
+
+WHY, and it is a seam rather than a typo. Every other general setting travels
+because it is an entry in `figure_style.rc_params`, which is what
+`figures.style.user_overrides` DIFFS to find what the user moved. The palette
+was never an entry there: the only code that applied it was
+`figure_style._apply_palette`, reached from `figure_style.apply`, reached from
+`preferences.apply_figure_style` -- and `apply_figure_style` has no caller in
+the package. Its docstring calls itself "the one call a plotting function
+needs" and no plotting function makes it. So the palette row in the dialog
+stored a value, the panel showed it back, and nothing drew with it.
+
+FIXED where the seam is. `palette_colours(name)` is the palette lookup on its
+own -- seaborn's names when it is installed, spaCR's `PALETTE` otherwise --
+and `rc_params` now emits `axes.prop_cycle` from it. `_apply_palette` reads
+the same function, so there is one answer to "what colours is this palette"
+rather than two.
+
+AN UNTOUCHED INSTALL IS UNAFFECTED, which is the property that made this safe:
+the stores hold DELTAS, and `user_overrides` returns only keys where the
+resolved style differs from the untouched one, so a user who never picked a
+palette gets no `axes.prop_cycle` override and Matplotlib's cycle stands.
+
+3 tests in tests/test_the_palette_preference_reaches_a_figure.py, including
+the per-graph case (a volcano palette overrides the general one for volcanoes
+and for nothing else) and the untouched-install case. Confirmed failing
+before the fix and passing after. 148 pass across the figure-style,
+preferences and saved-figure suites.

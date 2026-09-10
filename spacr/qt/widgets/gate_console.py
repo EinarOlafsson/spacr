@@ -55,11 +55,14 @@ class _ChatInput(QPlainTextEdit):
     """A chat box that is several lines tall and still sends on Enter.
 
     :ivar submitted: emitted when the user presses Enter without Shift.
+
+    :param parent: parent widget; ownership only.
     """
 
     submitted = Signal()
 
     def __init__(self, parent=None):
+        """Build the input, sized from the font rather than a fixed number."""
         super().__init__(parent)
         self.setTabChangesFocus(True)
         metrics = self.fontMetrics()
@@ -94,6 +97,12 @@ SAFE_NAMES = ("pd", "np", "len", "abs", "min", "max", "sum", "round",
 
 
 def _console_qss(palette, opacity=None) -> str:
+    """Build the gate console's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the console's surface.
+    :returns: the QSS.
+    """
     return f"""
     QTextEdit#GateConsoleLog {{
         background: transparent;
@@ -180,13 +189,20 @@ def _builtins() -> dict:
 
 
 class GateConsole(QWidget):
-    """The console and the chat box, sharing one transcript."""
+    """The console and the chat box, sharing one transcript.
+
+    :param parent: parent widget.
+    """
 
     #: A question was asked of the assistant. The host answers by calling
     #: :meth:`reply`; nothing here talks to a network.
     asked = Signal(str)
 
     def __init__(self, parent=None):
+        """Build the console that answers questions about the gated table.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("GateConsole")
         self._frame: Optional[pd.DataFrame] = None
@@ -248,6 +264,10 @@ class GateConsole(QWidget):
 
     # -- state ------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the console at a table to gate.
+
+        :param frame: the rows, or None to clear.
+        """
         self._frame = frame
 
     def set_responder(self, responder: Optional[Callable[[str], str]]) -> None:
@@ -260,10 +280,19 @@ class GateConsole(QWidget):
         self._responder = responder
 
     def transcript(self) -> str:
+        """Everything the console has printed.
+
+        :returns: the transcript as plain text.
+        """
         return self.log.toPlainText()
 
     # -- asking -----------------------------------------------------------
     def write(self, line: str, *, prefix: str = "") -> None:
+        """Append one line to the log.
+
+        :param line: the text.
+        :param prefix: an optional marker put in front of it.
+        """
         self.log.append(f"{prefix}{line}" if prefix else line)
 
     def run(self, expression: str) -> str:
@@ -277,6 +306,11 @@ class GateConsole(QWidget):
         return answer
 
     def run_input(self) -> None:
+        """Run whatever is typed, clearing the box only if it was accepted.
+
+        CLEARED ONLY ON SUCCESS, so a refused expression stays where the
+        user can fix it rather than having to be retyped from memory.
+        """
         if self.run(self.input.text()):
             self.input.clear()
 
@@ -300,6 +334,7 @@ class GateConsole(QWidget):
         return answer
 
     def send_chat(self) -> None:
+        """Send the chat box to the assistant, clearing it only if accepted."""
         if self.ask(self.chat.toPlainText()):
             self.chat.clear()
 

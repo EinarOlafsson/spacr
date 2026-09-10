@@ -1,5 +1,5 @@
-Localization
-============
+Language & translation
+======================
 
 The spaCR Qt interface includes ten built-in languages:
 
@@ -18,10 +18,10 @@ Select a language under **spaCR → Preferences → Language** and press Save.
 Existing windows and lazily opened module screens are translated immediately.
 The selection is retained by ``QSettings`` for later launches.
 
-What is localized
------------------
+What is translated
+------------------
 
-Localization covers the presentation layer of the Qt application:
+Language support covers the presentation layer of the Qt application:
 
 * navigation, Preferences, common actions, tabs and section headings;
 * the **AI** and **LIVE** controls, AI-provider setup, chat placeholders,
@@ -58,7 +58,7 @@ language-neutral. See the
 Translation safety
 ------------------
 
-Localization is presentation-only. Raw worker stdout, logs, tracebacks,
+Translation is presentation-only. Raw worker stdout, logs, tracebacks,
 filenames, paths, setting values, database contents, annotations,
 measurements, reports and saved results are never modified. User chat messages
 and AI responses also remain exactly as written or returned.
@@ -128,7 +128,7 @@ Developers should send raw pipeline output through ``append_stdout`` or
 template. Dynamic application chrome uses a stable source template so runtime
 language changes cannot translate an earlier translation or overwrite a live
 path/result label. Catalog tests enforce translation width and format-field
-parity, and localization tests assert that output and chat content remain
+parity, and language tests assert that output and chat content remain
 unchanged.
 
 Related API

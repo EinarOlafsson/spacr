@@ -44,6 +44,12 @@ _KEY_TOUR_SEEN = "onboarding/first_run_tour_seen"
 
 
 def _settings():
+    """Open spaCR's ``QSettings``.
+
+    Imported inside the call so this module can be read without Qt.
+
+    :returns: the settings store.
+    """
     from PySide6.QtCore import QSettings
     return QSettings(_ORG, _APP)
 
@@ -108,12 +114,18 @@ def _section_names_sentence() -> str:
     except Exception:
         names = []
     if not names:
-        return "Every pipeline lives here, grouped by what it does."
+        return (
+            "Primary modules are grouped here by purpose; related workflows "
+            "are reached from their host module."
+        )
     if len(names) == 1:
         listed = names[0]
     else:
         listed = ", ".join(names[:-1]) + " and " + names[-1]
-    return f"Every pipeline lives here, grouped into {listed}."
+    return (
+        f"Primary modules are grouped here into {listed}; related workflows "
+        "are reached from their host module."
+    )
 
 
 DEFAULT_TOUR: List[TourStep] = [
@@ -126,29 +138,30 @@ DEFAULT_TOUR: List[TourStep] = [
     TourStep(
         title="Sidebar — apps by category",
         body=_section_names_sentence()
-             + " Click any name to open it. Ctrl+1..9 jumps between the "
-               "core pipeline apps.",
+             + " Click any name to open it. Ctrl+1 through Ctrl+9 opens "
+               "the first nine "
+               "apps in sidebar order.",
         highlight=lambda w: getattr(w, "_sidebar", None),
     ),
     TourStep(
         title="Demos menu",
-        body="Load a synthetic demo dataset for any module in one "
-             "click — no data of your own required. Perfect for "
-             "trying spaCR out.",
+        body="Load a synthetic demo dataset for a selected core workflow "
+             "in one click — no data of your own required. Use it to try "
+             "spaCR before loading an experiment.",
         highlight=lambda w: find_menu(w, "Demos"),
     ),
     TourStep(
         title="Drag & drop",
-        body="Drop a folder of microscopy images onto Mask (or "
-             "Measure, Annotate, etc.) to point that module at it. "
-             "spaCR auto-detects the filename regex and shows a "
-             "sanity-check in the Console.",
+        body="Drop a folder of acquisition images onto Mask to set its "
+             "input; Mask detects the filename regex and displays a metadata "
+             "validation summary in the Console. Measure, Annotate and other modules "
+             "accept the files or folders described by their input controls.",
         highlight=None,
     ),
     TourStep(
         title="Command palette",
         body="Ctrl+K opens a searchable list of every app, every "
-             "recent run, and every menu action. Ctrl+, opens "
+             "recent run, and every menu action. Ctrl+P opens "
              "Preferences. F1 shows the shortcut cheat sheet.",
         highlight=None,
     ),
@@ -240,8 +253,12 @@ class _TourOverlay(QWidget):
         col.setContentsMargins(20, 20, 20, 20)
         col.setSpacing(8)
 
+        from .i18n import tr
         from .theme import font_px
-        self._step_lbl = QLabel("Step 1 / 5")
+        # THE STEP COUNTER IS COMPOSED FROM A TEMPLATE, so the catalog is
+        # asked for a key that exists rather than for the numbers baked in.
+        self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
+                                   total=len(steps)))
         self._step_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             f"font-weight: 600; font-size: {font_px(10)}px;"
@@ -249,14 +266,14 @@ class _TourOverlay(QWidget):
         )
         col.addWidget(self._step_lbl)
 
-        self._title_lbl = QLabel(steps[0].title)
+        self._title_lbl = QLabel(tr(steps[0].title))
         self._title_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
             f"font-weight: 400; font-size: {font_px(20)}px; color: #e5e5e5;"
         )
         col.addWidget(self._title_lbl)
 
-        self._body_lbl = QLabel(steps[0].body)
+        self._body_lbl = QLabel(tr(steps[0].body))
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet(
             "font-family: 'Open Sans', sans-serif;"
@@ -272,14 +289,14 @@ class _TourOverlay(QWidget):
         row.setContentsMargins(0, 8, 0, 0)
         row.setSpacing(8)
 
-        self._skip_btn = QPushButton("Skip")
+        self._skip_btn = QPushButton(tr("Skip"))
         self._skip_btn.setStyleSheet(_ghost_btn_qss())
         self._skip_btn.clicked.connect(self._skip)
         row.addWidget(self._skip_btn)
 
         row.addStretch(1)
 
-        self._next_btn = QPushButton("Next")
+        self._next_btn = QPushButton(tr("Next"))
         self._next_btn.setStyleSheet(_primary_btn_qss())
         self._next_btn.clicked.connect(self._next)
         row.addWidget(self._next_btn)
@@ -291,6 +308,16 @@ class _TourOverlay(QWidget):
 
     # -- painting -----------------------------------------------------
     def paintEvent(self, event) -> None:
+        """Dim the window and cut a lit ring around this step's target.
+
+        The dimming is CLEARED inside the ring rather than merely outlined, so
+        the widget being pointed at is seen in its own colours -- a highlight
+        that leaves its subject dimmed points at something the viewer still
+        cannot read. A target that cannot be resolved leaves the dim intact
+        rather than failing: a tour missing one ring is better than no tour.
+
+        :param event: the paint event.
+        """
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         # Dim overlay
@@ -320,10 +347,15 @@ class _TourOverlay(QWidget):
         p.end()
 
     def resizeEvent(self, event) -> None:
+        """Keep the caption card in place when the overlay resizes.
+
+        :param event: the resize event.
+        """
         self._update_card_position()
 
     def _update_card_position(self) -> None:
         # Bottom-centre
+        """Keep the card bottom-centre as the overlay resizes."""
         w = self.width()
         h = self.height()
         cw = self._card.width()
@@ -334,11 +366,22 @@ class _TourOverlay(QWidget):
 
     # -- events -------------------------------------------------------
     def eventFilter(self, obj, event):
+        """Follow the window's size, so the overlay always covers it.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: whatever the base filter returns -- the resize is observed,
+            never consumed.
+        """
         if obj is self._window and event.type() == QEvent.Resize:
             self.setGeometry(self._window.rect())
         return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Take Escape to skip the tour and Return to advance it.
+
+        :param event: the key event.
+        """
         if event.key() == Qt.Key_Escape:
             self._skip()
             return
@@ -349,23 +392,39 @@ class _TourOverlay(QWidget):
 
     # -- lifecycle ----------------------------------------------------
     def _next(self) -> None:
+        """Advance one step, finishing when the last one is past."""
         self._idx += 1
         if self._idx >= len(self._steps):
             self._finish()
             return
+        from .i18n import tr
+
         step = self._steps[self._idx]
-        self._step_lbl.setText(f"Step {self._idx + 1} / {len(self._steps)}")
-        self._title_lbl.setText(step.title)
-        self._body_lbl.setText(step.body)
+        self._step_lbl.setText(tr("Step {n} / {total}", n=self._idx + 1,
+                                  total=len(self._steps)))
+        self._title_lbl.setText(tr(step.title))
+        self._body_lbl.setText(tr(step.body))
         if self._idx == len(self._steps) - 1:
-            self._next_btn.setText("Finish")
+            self._next_btn.setText(tr("Finish"))
         self._update_card_position()
         self.update()
 
     def _skip(self) -> None:
+        """End the tour now. Same finish as reaching the last step.
+
+        Skipping and completing are the SAME outcome deliberately: a tour that
+        reappeared because it was dismissed rather than read is one the user
+        cannot get rid of.
+        """
         self._finish()
 
     def _finish(self) -> None:
+        """Close the overlay and tell the caller it is done.
+
+        A failing callback does not stop the overlay closing: the tour is
+        finished either way, and leaving it on screen because something
+        downstream raised is the worse of the two outcomes.
+        """
         if self._on_finish is not None:
             try:
                 self._on_finish()
@@ -389,6 +448,11 @@ def _widget_rect_in_window(widget: QWidget,
 
 
 def _ghost_btn_qss() -> str:
+    """Return the stylesheet for the tour's secondary button.
+
+    :returns: the QSS. Literal colours rather than the theme's, because the
+        first-run tour is shown before a theme has been chosen.
+    """
     return (
         "QPushButton {"
         "  background: transparent;"
@@ -403,6 +467,11 @@ def _ghost_btn_qss() -> str:
 
 
 def _primary_btn_qss() -> str:
+    """Return the stylesheet for the tour's primary button.
+
+    :returns: the QSS. Literal colours, for the same reason as the ghost
+        button.
+    """
     return (
         "QPushButton {"
         "  background: #4A9EFF;"

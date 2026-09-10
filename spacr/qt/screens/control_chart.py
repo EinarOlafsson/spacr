@@ -63,27 +63,11 @@ OUTPUT_OBJECT = "ControlChartOutput"
 
 
 def _control_chart_qss(palette: dict, opacity=None) -> str:
-    """This screen's QSS block, appended to every generated stylesheet.
+    """Return stylesheet rules for the control and output columns.
 
-    The control column is a named ``QWidget`` and had no rule of its own,
-    so it fell through to the blanket ``QWidget {{ background-color: bg }}``
-    -- the WINDOW colour, not a surface, which no page-opacity setting can
-    reach. It is a page surface now, the same one the Graph Builder's and
-    the Trellis's shelves take.
-
-    The output column under the chart was the region left over. It was an
-    ANONYMOUS ``QWidget``, so ``clear_container_surfaces`` tagged it
-    transparent as scaffolding -- and the report and the violations table
-    inside it are both ``QAbstractScrollArea``, which that sweep tags by
-    type as well. Three transparent things stacked: the whole lower right
-    of the page measured 1.000, the backdrop arriving untouched, which
-    over a dark window is the black rectangle that was reported.
-
-    The panel goes on the column rather than on the two widgets, which is
-    the treatment Classifier Evaluation's and Run History's tab panes
-    take: the container is the surface, and a read-only display sitting on
-    it shows it through instead of painting an opaque rectangle over the
-    thing that was just made translucent.
+    Each column owns one opacity-aware page surface. Child reports and tables
+    remain transparent so they do not stack opaque or translucent backgrounds
+    over their container.
     """
     surface = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""
@@ -131,6 +115,8 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
     ("Limits only (rule 1) — nothing but 3 sigma", RULES_LIMITS_ONLY),
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 #: Column names worth guessing at, best first, when a table is first loaded.
 #: A guess the user can see and change beats an empty form.
@@ -153,12 +139,22 @@ class ControlChartCanvas(QWidget):
     limit arrays rather than from a single pair of numbers, so a campaign whose
     plates carry different numbers of control wells draws the stepped limits
     that are actually in force rather than an average that is in force nowhere.
+
+    :param parent: parent widget.
     """
 
     #: Emitted after every draw with the result that was drawn (or ``None``).
     rendered = Signal(object)
 
     def __init__(self, parent=None):
+        """Create an empty control-chart canvas.
+
+        The figure carries no ``facecolor`` and no inline background: the canvas
+        paints the page panel in its own ``paintEvent`` under a transparent
+        figure patch, and either would put the opaque rectangle back.
+
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setObjectName("ControlChartCanvas")
         self._result: Optional[ControlChartResult] = None
@@ -288,6 +284,10 @@ class ControlChartCanvas(QWidget):
         self.rendered.emit(result)
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         cancel = getattr(self.canvas, "cancel_pending_draw", None)
         if callable(cancel):
             cancel()
@@ -299,6 +299,7 @@ class ControlChartScreen(QWidget):
 
     :param threaded: ``False`` runs the table read and the chart inline, so a
         test drives the screen synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     #: Emitted whenever a chart is refused, with the engine's message. The
@@ -307,6 +308,12 @@ class ControlChartScreen(QWidget):
     failed = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: source row, control pickers, chart and violation table.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so ``load_path`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("ControlChartScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -386,6 +393,7 @@ class ControlChartScreen(QWidget):
         lower_layout.addWidget(self.report, 1)
 
         self.violations = QTableWidget(0, 4, lower)
+        install_sorting(self.violations)
         self.violations.setObjectName("ControlChartViolations")
         self.violations.setHorizontalHeaderLabels(
             ["Rule", "Plates", "What it detects", "In words"])
@@ -408,6 +416,11 @@ class ControlChartScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "control_chart")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- the form ---------------------------------------------------------
     def _build_controls(self) -> QWidget:
@@ -415,7 +428,16 @@ class ControlChartScreen(QWidget):
         three statistical choices that change the answer."""
         panel = QWidget(self)
         panel.setObjectName(CONTROLS_OBJECT)
-        panel.setMaximumWidth(330)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 330 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        panel.setMaximumWidth(scaled_px(330))
         form = QFormLayout(panel)
         # Room for the panel's own rounded surface: the column sits ON a
         # page surface now rather than straight on the window.
@@ -553,6 +575,11 @@ class ControlChartScreen(QWidget):
 
         def fill(box: QComboBox, options: List[str], *, blank: bool,
                  guesses: Tuple[str, ...] = ()) -> None:
+            """Refill one picker, keeping the current choice where it survives.
+
+            Signals are blocked while refilling: repopulating a combo emits as
+            though the user had chosen, and the handlers would refill each other.
+            """
             previous = box.currentText()
             box.blockSignals(True)
             box.clear()
@@ -603,14 +630,30 @@ class ControlChartScreen(QWidget):
             box.blockSignals(False)
 
     def _selected_levels(self) -> Tuple[str, ...]:
+        """Return the control levels currently ticked.
+
+        :returns: their names, in list order.
+        """
         return tuple(item.text() for item in self._levels.selectedItems())
 
     def _on_control_column(self, _text: str) -> None:
+        """Repopulate the level list for a newly chosen control column and recompute.
+
+        :param _text: the new column; the current text is re-read from the box,
+            so it is not used directly.
+        """
         if self._frame is not None:
             self._refill_levels(self._frame)
         self._on_control_changed()
 
     def _on_control_changed(self, *_args) -> None:
+        """Recompute the chart after a control setting changed.
+
+        Suppressed while the screen is filling its own widgets, so loading a
+        table costs one recompute rather than one per control.
+
+        :param _args: whatever the emitting signal passes; ignored.
+        """
         if not self._loading:
             self.recompute()
 
@@ -674,6 +717,14 @@ class ControlChartScreen(QWidget):
         self._fill_violations(result)
 
     def _fill_violations(self, result: ControlChartResult) -> None:
+        """Fill the violation table, one row per rule that fired.
+
+        Each row names the rule, the plates it fired on, what that rule detects
+        and what it found -- a rule number alone says nothing to a reader who
+        does not already know the Westgard set.
+
+        :param result: the computed chart.
+        """
         self.violations.setRowCount(len(result.violations))
         for row, violation in enumerate(result.violations):
             for column, text in enumerate((
@@ -681,7 +732,7 @@ class ControlChartScreen(QWidget):
                     ", ".join(violation.plates),
                     RULE_DETECTS[violation.rule],
                     violation.describe())):
-                self.violations.setItem(row, column, QTableWidgetItem(text))
+                self.violations.setItem(row, column, table_item(text))
         self.violations.resizeColumnsToContents()
 
     def _show_refusal(self, message: str) -> None:
@@ -693,6 +744,10 @@ class ControlChartScreen(QWidget):
         self.failed.emit(message)
 
     def _on_job_failed(self, message: str) -> None:
+        """Log and show a refused or failed chart.
+
+        :param message: the refusal text from the job runner.
+        """
         LOG.info("control chart refused: %s", message)
         self._show_refusal(message)
 
@@ -741,6 +796,10 @@ class ControlChartScreen(QWidget):
             self._on_frame_loaded)
 
     def _on_frame_loaded(self, payload) -> None:
+        """Show a freshly loaded frame, labelled with its file, table and shape.
+
+        :param payload: the worker's ``(table_name, frame)`` pair.
+        """
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
@@ -750,6 +809,11 @@ class ControlChartScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
@@ -783,6 +847,10 @@ class ControlChartScreen(QWidget):
         # Abandon in-flight work rather than let it outlive the screen: Qt
         # aborts the process if a running QThread is destroyed, and a worker
         # delivering into a closed widget is a use-after-free.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         self.canvas.close()
         super().closeEvent(event)
@@ -793,33 +861,17 @@ def make_control_chart_screen(app_key: Optional[str] = None) -> QWidget:
     return ControlChartScreen()
 
 
-APP_NAME = "Control Charts"
-APP_DESCRIPTION = "Track a control plate by plate and see drift before it ruins a screen"
-APP_INTRO = (
-    "A campaign's controls are supposed to be the same thing every time, and "
-    "when they stop being the same, hit calling and normalisation are already "
-    "wrong. Pick the plate column, the run order and the control, and the "
-    "chart puts limits round it: an individuals / moving-range chart when a "
-    "plate has one control well, X-bar/S when it has several, and a robust "
-    "variant when one bad plate would drag the classical limits out. Sigma "
-    "comes from short-term variation, never from the spread of the whole "
-    "series — that one is inflated by exactly the drift you are looking for. "
-    "Limits are estimated from a stated baseline and applied forward, and "
-    "every Nelson rule that fires is marked on the plate and named in words, "
-    "along with how many false alarms the rule set you chose is worth over a "
-    "campaign this long.")
-APP_CLI_NOTE = (
-    "Control Charts is a picture you read: the zones, the marked plates and "
-    "the rule list are the feature. Run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.control_chart.control_chart(frame, spec) returns the "
-    "same limits, the same violations and the same report text with no Qt "
-    "involved, so a QC gate in a script can refuse a campaign on it.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Styrdiagram", "Regelkarten", "Gráficos de control",
-    "控制图", "Cartas de controlo", "कंट्रोल चार्ट", "관리도",
-    "Stýririt", "Cartes de contrôle")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
@@ -829,21 +881,17 @@ def register() -> bool:
     :func:`spacr.qt.run` runs after ``spacr.qt.app`` is fully executed and
     before ``MainWindow.__init__`` reads the registry.
 
-    Everything after ``SECTION_RESULTS`` is a table this key would otherwise
-    need a hand-edit in: the screen header and blurb, the "no headless run"
-    sentence, the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call again:
         a module imported twice, or a test that re-imports it, must not raise
         on the duplicate key.
     """
-    from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-                 factory=make_control_chart_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/control_chart",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

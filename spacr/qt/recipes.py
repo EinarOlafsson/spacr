@@ -39,13 +39,13 @@ file it could have read.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import datetime as _dt
 import json
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QTimer
 from PySide6.QtGui import QAction
@@ -65,6 +65,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.recipes")
 
@@ -101,10 +103,14 @@ QToolButton#{RECIPE_BUTTON_NAME}:hover {{
 """
 
 
-try:  # pragma: no cover - present in every real launch
+# AT IMPORT TIME, so the failure is not a missing background --
+# it is the module not importing, which takes down whatever
+# imports it. Driven in
+# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
+try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(RECIPE_BUTTON_NAME, _recipe_button_qss, replace=True)
-except Exception:  # pragma: no cover
+except Exception:
     LOG.debug("could not register the recipe-button QSS", exc_info=True)
 
 #: Override for the recipe folder, mirroring ``SPACR_MACRO_DIR``.
@@ -318,7 +324,12 @@ def compatibility_note(recipe: Recipe, model) -> str:
     :param recipe: the bundle.
     :param model: the screen's ``SettingsWidgets``.
     """
-    known = set(getattr(model, "_widgets", {}) or {})
+    # Conditional settings stay supported while their rows are absent from
+    # this particular form shape. ``collect()`` carries them in ``_defaults``,
+    # so judging only the currently rendered widgets calls a fresh recipe
+    # stale and asks the user to confirm every ordinary apply.
+    known = (set(getattr(model, "_widgets", {}) or {})
+             | set(getattr(model, "_defaults", {}) or {}))
     if not known:
         return ""
     unknown = sorted(set(recipe.settings) - known)
@@ -378,14 +389,30 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
 # ---------------------------------------------------------------------------
 
 class RecipeDialog(QDialog):
-    """List, apply, share and delete the recipes for one module."""
+    """List, apply, share and delete the recipes for one module.
+
+    :param screen: the module screen whose recipes these are. Its `app_key`
+        is what the list is filtered by, and it becomes the dialog's parent
+        when none is given.
+    :param parent: parent widget. Defaults to ``screen``.
+    """
 
     def __init__(self, screen, parent: Optional[QWidget] = None):
+        """Build the recipe dialog for one module screen.
+
+        :param screen: the module screen whose settings recipes are saved and
+            applied; its ``app_key`` scopes which recipes are listed.
+        :param parent: parent widget; defaults to ``screen``.
+        """
         super().__init__(parent or screen)
         self._screen = screen
         self._app_key = str(getattr(screen, "app_key", "") or "")
+        self._confirmation_runner: Callable[[QMessageBox], Any] = (
+            lambda box: box.exec())
         self.setWindowTitle(f"Settings recipes — {self._app_key or 'module'}")
-        self.setMinimumWidth(520)
+        from .preferences import scaled_px
+        
+        self.setMinimumWidth(scaled_px(520))
         self.setObjectName("RecipeDialog")
 
         column = QVBoxLayout(self)
@@ -464,8 +491,28 @@ class RecipeDialog(QDialog):
         """The line under the list. Public so tests read what users read."""
         return self._detail.text()
 
+    def set_confirmation_runner(
+            self, runner: Callable[[QMessageBox], Any]) -> None:
+        """Replace how the version/compatibility confirmation is run.
+
+        The default enters the real modal Apply/Cancel loop. Tests inject a
+        runner that inspects the fully configured message box and returns an
+        answer without blocking; a host can use the same seam for a custom
+        presentation.
+        """
+        self._confirmation_runner = runner
+
     # -- slots --------------------------------------------------------
     def _on_selection_changed(self, _row: int) -> None:
+        """Describe the selected recipe, including anything that will not carry.
+
+        The description states the setting count and date, then any note about
+        the spaCR version it was written under and any settings this module no
+        longer has -- both before the user applies it rather than after.
+
+        :param _row: the newly selected row; the recipe is re-read from the
+            list, so it is not used.
+        """
         recipe = self.selected()
         if recipe is None:
             self._detail.setText("")
@@ -486,6 +533,11 @@ class RecipeDialog(QDialog):
         self._refresh_buttons()
 
     def _on_save(self) -> None:
+        """Ask for a name and save the screen's current settings under it.
+
+        A failure is reported in a dialog rather than raised: a recipe that
+        cannot be written is a normal condition, not a crash.
+        """
         name, ok = QInputDialog.getText(
             self, "Save recipe",
             "Name this recipe — something you would say out loud, "
@@ -501,6 +553,13 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _on_apply(self) -> None:
+        """Apply the selected recipe to the screen, confirming first if it may not fit.
+
+        A recipe from a different spaCR version, or one naming settings this
+        module no longer has, is applied only after the user says so -- with the
+        reason on screen, so the choice is informed rather than a warning to
+        click through.
+        """
         recipe = self.selected()
         if recipe is None:
             return
@@ -514,7 +573,7 @@ class RecipeDialog(QDialog):
             box.setText(" ".join(part for part in (note, gap) if part))
             box.setInformativeText("Apply it anyway?")
             box.setStandardButtons(QMessageBox.Apply | QMessageBox.Cancel)
-            if box.exec() != QMessageBox.Apply:
+            if self._confirmation_runner(box) != QMessageBox.Apply:
                 return
         try:
             applied = apply_recipe(recipe, self._screen)
@@ -525,6 +584,7 @@ class RecipeDialog(QDialog):
             f"Applied “{recipe.name}” — {applied} settings written.")
 
     def _on_export(self) -> None:
+        """Write the selected recipe to a JSON file for sharing."""
         recipe = self.selected()
         if recipe is None:
             return
@@ -541,6 +601,12 @@ class RecipeDialog(QDialog):
             QMessageBox.warning(self, "Could not write the file", str(exc))
 
     def _on_import(self) -> None:
+        """Load a recipe from a JSON file into this module's collection.
+
+        A recipe belonging to another module is refused: applying it here would
+        write settings this screen does not have. One that names no module is
+        adopted by this one.
+        """
         path, _filter = QFileDialog.getOpenFileName(
             self, "Import recipe", "", "spaCR recipe (*.json);;All files (*)")
         if not path:
@@ -559,6 +625,7 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _on_delete(self) -> None:
+        """Delete the selected recipe."""
         recipe = self.selected()
         if recipe is None:
             return
@@ -570,6 +637,7 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _refresh_buttons(self) -> None:
+        """Enable Apply, Export and Delete only while a recipe is selected."""
         has = self.selected() is not None
         for button in (self._btn_apply, self._btn_export, self._btn_delete):
             button.setEnabled(has)
@@ -601,11 +669,19 @@ def install(screen) -> Optional[QToolButton]:
         return None
     button = QToolButton(bar)
     button.setObjectName(RECIPE_BUTTON_NAME)
-    button.setText("Recipes")
+    # The button joins the strip after the window has already run its one
+    # language pass over the screen, so it translates its own caption. The
+    # English stays on the widget as the source `retranslate_widget_tree`
+    # reads, so a later language change still has something to translate
+    # rather than a translation.
+    caption = "Recipes"
+    button.setProperty("_spacr_i18n_text", caption)
+    button.setText(tr(caption))
     button.setCursor(Qt.PointingHandCursor)
-    button.setToolTip(
-        "Save these settings under a name, reuse a saved one, or share it "
-        "as a file.")
+    hint = ("Save these settings under a name, reuse a saved one, or share "
+            "it as a file.")
+    button.setProperty("_spacr_i18n_tooltip", hint)
+    button.setToolTip(tr(hint))
     handler = _RecipeButtonHandler(screen, button)
     button.clicked.connect(handler.on_clicked)
     button._spacr_recipe_handler = handler
@@ -620,9 +696,16 @@ class _RecipeButtonHandler:
     A plain object rather than a lambda so the connection holds a reference
     to something that is not the screen's closure environment; the button
     owns it, and it dies with the button.
+
+    :param screen: the screen whose recipes are opened.
+    :param button: the button this is connected to. Held for its
+        ``window()``, which is what the dialog is parented to -- so the
+        dialog follows the real window even when the screen is reparented.
+        It is ALSO what owns this handler, per the note above.
     """
 
     def __init__(self, screen, button: QToolButton):
+        """Hold the screen and the button that owns this handler."""
         self._screen = screen
         self._button = button
 
@@ -660,6 +743,15 @@ class _RecipeMenuHandler:
     """Bound-method target for the Help-menu entry."""
 
     def __init__(self, window: QMainWindow):
+        """Bind the Help-menu entry to whichever module is on screen.
+
+        :param window: the main window; its stack is read at trigger time
+            rather than here, so one entry serves every module.
+
+        NOT A QOBJECT and so NOT PARENTED: a bound method connected to a
+        signal does not keep its object alive, which is why the caller
+        stashes this handler on the action it connected.
+        """
         self._window = window
 
     def on_triggered(self, _checked: bool = False) -> None:
@@ -723,6 +815,11 @@ class _StackWatcher(QObject):
     """
 
     def __init__(self, window: QMainWindow):
+        """Install the recipe button into each screen as it is shown.
+
+        :param window: the main window whose stack is watched; also the
+            QObject parent.
+        """
         super().__init__(window)
         self._window = window
 

@@ -1,0 +1,4338 @@
+"""Compare gene effect sizes across measured features and attached databases.
+
+This panel renders :mod:`spacr.measurement_scan` beside regression runs. Model
+settings remain fixed while the dependent measurement changes. Each row shows
+both the within-measurement q-value and the correction across all scanned
+measurements; verdicts use the across-scan value, while ranking uses effect
+size. In the recorded permuted-label check, within-measurement correction
+flagged 83.5% of scans and across-scan correction flagged 5.0%.
+
+:class:`DatabaseMergePanel` also exposes the measurement databases attached to
+each regression plate. :mod:`spacr.multi_database` prevents pooling colliding
+plate identities, and :mod:`spacr.merge_tables` chooses aggregation and join
+behavior per table from measurement type and object cardinality. The panel
+reports the selected sources, dropped columns, aggregation policy, collisions,
+and other merge consequences rather than applying one global join rule.
+"""
+
+from __future__ import annotations
+
+import os
+import logging
+import re
+import threading
+import time
+from collections.abc import Mapping as _Mapping
+from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
+import pandas as pd
+# QEvent AT MODULE SCOPE, NOT INSIDE THE CALLBACK. A function-local
+# import in an event handler is not lazy loading: this module is a
+# QWidget module and cannot load without QtCore, so the import bought
+# nothing but a sys.modules lookup on every event -- and it put an
+# EXCEPTION SITE on a path with no way to report one. The same shape in
+# `ModuleHintBar.event` produced 419 errors in one sweep when a test
+# stubbed PySide6.QtCore out of sys.modules and teardown then delivered
+# a paint event.
+from PySide6.QtCore import QEvent, Qt, Signal
+from PySide6.QtWidgets import (
+    QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+)
+
+from ...merge_tables import (AGGREGATION_RULES, DEFAULT_AGGREGATION,
+                             DEFAULT_PRIMARY, IDENTITY, OBJECT_COLUMN,
+                             OBJECT_TABLES, PNG_TABLE, TEXT_AGGREGATION,
+                             MergeError,
+                             MergePolicy, _align_keys, _apply_na_policy,
+                             aggregation_plan, mergeable_tables, roll_up)
+from ...multi_database import (SCREEN_COLUMN, SOURCE_COLUMN, MergeCancelled,
+                               MergeRefused, canonical_plate_id, column_kinds,
+                               describe_merge, read_merged)
+from ...object_roles import ONE_ROW_PER_CELL, anchor_column, is_one_row_per_cell
+from ...plate_measurements import (ambiguous_identifiers,
+                                   classify_default_columns,
+                                   describe_identifier_refusal)
+from ...schema import PLATE_KEY
+from .. import path_probe
+from .sortable_table import install_sorting, table_item
+
+LOG = logging.getLogger(__name__)
+
+#: Columns worth reading first, in this order. Effect size leads because it is
+#: the primary sort and the thing that was asked for; the two corrections sit
+#: beside each other so the gap between them is visible without scrolling.
+PREFERRED_COLUMNS = (
+    "measurement", "effect_size", "top_gene", "across_scan_q", "within_run_q",
+    "verdict", "coefficient", "p_value", "within_run_hits", "n_wells",
+    "n_genes", "measurement_p",
+)
+
+#: What a row's two corrections mean together, in words. The middle one is the
+#: single most useful thing this feature can say and the easiest to hide.
+VERDICT_SURVIVES = "clear effect"
+VERDICT_WITHIN_ONLY = "would pass alone — not across the scan"
+VERDICT_NEITHER = "no effect"
+
+
+def verdict_for(row) -> str:
+    """One phrase per measurement, from BOTH corrections."""
+    if getattr(row, "survives_across_scan", False):
+        return VERDICT_SURVIVES
+    if getattr(row, "survives_within_run", False):
+        return VERDICT_WITHIN_ONLY
+    return VERDICT_NEITHER
+
+
+def ordered_columns(frame) -> list:
+    """:data:`PREFERRED_COLUMNS` this frame has, then everything else.
+
+    Ordering, not filtering -- the columns nobody thought to list are still
+    the user's own numbers.
+    """
+    if frame is None:
+        return []
+    have = list(frame.columns)
+    first = [name for name in PREFERRED_COLUMNS if name in have]
+    return first + [name for name in have if name not in first]
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 130 B: the databases attached to the input table
+# --------------------------------------------------------------------------- #
+
+#: What a merge anchors on unless the user says otherwise, from
+#: :data:`spacr.merge_tables.DEFAULT_PRIMARY`. Named rather than typed so this
+#: panel cannot drift from the module that performs the merge.
+DEFAULT_ANCHOR = DEFAULT_PRIMARY
+
+#: How long a paint waits for the databases before it draws a placeholder and
+#: lets the answer arrive later.
+#:
+#: WHY THERE IS A BUDGET AT ALL. Every fact this panel shows about a plate --
+#: which object tables the file has, which plates are in it, how many anchor
+#: rows -- comes from `sqlite3.connect` on a path the USER supplied. Measured
+#: on the maintainer's machine 2026-09-04, a single `os.path.exists` under
+#: `/nas_mnt` (an `autofs` mount whose share was asleep) had not returned
+#: after TWENTY SECONDS, and step 1 of this tab opens every attached database
+#: the moment the Measurements tab is built. That was the whole interface,
+#: frozen, with no traceback -- see `spacr/qt/path_probe.py` for what it was
+#: reported as.
+#:
+#: A fifth of a second is below what anyone perceives, and it is far more than
+#: a local disk needs: the whole step-1 table of four databases reads in about
+#: a millisecond. So a local project is drawn complete on the first paint, as
+#: it always was, and a sleeping mount costs a fifth of a second instead of
+#: the application.
+READ_BUDGET_S = 0.2
+
+
+class _NotBack:
+    """What a database read that has not landed yet answers with.
+
+    A distinct object rather than ``None`` or ``()``, because every one of
+    these reads has a legitimate EMPTY answer -- a database with no object
+    table, a plan with no dropped columns -- and "nothing" and "not yet"
+    have to draw differently or the panel states a fact it has not read.
+    """
+
+    def __repr__(self) -> str:
+        """``<reading>``, so a stray one in a log says what it is."""
+        return "<reading>"
+
+
+#: The one :class:`_NotBack`. Compared with ``is``.
+READING = _NotBack()
+
+#: What a cell says while the database behind it has not answered yet.
+READING_TEXT = "reading…"
+
+#: The Aggregation rules button, and what it says while the preview it needs
+#: is still being read. Named rather than written twice: the button is put
+#: back from three places and a caption that drifted between them would leave
+#: it stuck saying it was reading.
+RULES_LABEL = "Aggregation rules…"
+RULES_READING_LABEL = "Aggregation rules — reading…"
+
+#: Rows per database in the Aggregation rules preview. Enough to know each
+#: column's type, which is all the rules need, and few enough that the read
+#: is a preview rather than the merge.
+PREVIEW_ROWS = 200
+
+
+class _ReadFailed:
+    """A read that raised, carried back so the GUI thread can re-raise it.
+
+    The formatting below already turns a failed read into "could not be
+    read: <error>" for the user, and it does that by catching the exception
+    where the read was made. Moving the read onto a worker thread must not
+    move that message, so the exception travels with the result and is
+    raised again in the place that knows how to word it.
+    """
+
+    __slots__ = ("error",)
+
+    def __init__(self, error: BaseException) -> None:
+        """:param error: what the read raised, kept to be re-raised."""
+        self.error = error
+
+
+def _screen_key(screens) -> Optional[Tuple[Tuple[str, str], ...]]:
+    """``screens`` as something hashable, for a read cache key.
+
+    :param screens: ``{path: screen}`` as :meth:`DatabaseMergePanel.screens`
+        returns it, or ``None``.
+    :returns: its pairs in path order, or ``None`` when no screen was named.
+    """
+    if not screens:
+        return None
+    return tuple(sorted((str(path), str(screen))
+                        for path, screen in screens.items()))
+
+
+@dataclass(frozen=True)
+class AttachedDatabase:
+    """One plate of the regression input table, seen from this tab.
+
+    :param plate: the plate the input-table row names.
+    :param path: its measurements database, or ``""``. **A plate with no
+        database is legal** -- the regression runs on the score and count CSVs,
+        and the database is only what makes this tab possible for that plate --
+        so an empty path is listed and disabled rather than refused.
+    :param screen: the screen the plate belongs to, when the project has more
+        than one. Carried through to :func:`spacr.multi_database.read_merged`
+        as ``screens=``, which is what keeps two screens sharing ``plate1``
+        apart as two identities instead of one collision.
+    """
+
+    plate: str
+    path: str = ""
+    screen: Optional[str] = None
+
+    @property
+    def attached(self) -> bool:
+        """Whether this plate has a database at all."""
+        return bool(str(self.path).strip())
+
+    @property
+    def present(self) -> bool:
+        """Whether the attached database is on disk right now.
+
+        Checked here rather than at run time: the design asks that a row
+        whose database has gone missing says so BEFORE the run, not four
+        minutes into it.
+
+        Asked of :mod:`spacr.qt.path_probe` rather than of ``os.path``, and
+        that is not a style choice. This property is read once per plate row
+        by `_fill_table`, and again by `paths`, `screens` and `describe` --
+        so a project with eight plates on a sleeping `autofs` mount was
+        eight twenty-second stats on the GUI thread before the tab had drawn
+        anything. The probe answers from a cache, reports a path it has not
+        seen as present, and stats it on its own bounded worker;
+        `DatabaseMergePanel._follow_path_probes` is the half that corrects
+        the row when the real answer lands.
+        """
+        return self.attached and path_probe.exists(str(self.path))
+
+    @property
+    def label(self) -> str:
+        """A readable name for the file, disambiguated by its folder.
+
+        Every plate's database is usually called ``measurements.db``, so the
+        stem alone names all of them the same thing -- the reason
+        :func:`spacr.multi_database.describe_merge` folds the parent directory
+        into its own labels.
+        """
+        if not self.attached:
+            return ""
+        path = str(self.path)
+        parent = os.path.basename(os.path.dirname(path))
+        return f"{parent}/{os.path.basename(path)}" if parent \
+            else os.path.basename(path)
+
+    @property
+    def status(self) -> str:
+        """Why this plate is or is not in the merge, in words."""
+        if not self.attached:
+            return "no database — this plate is not in the merge"
+        if not self.present:
+            return "missing from disk — attach it again or remove the row"
+        return "ready"
+
+
+def attached_databases(rows: Any) -> Tuple[AttachedDatabase, ...]:
+    """The input table's rows as :class:`AttachedDatabase` entries.
+
+    :param rows: what the host's database provider returned. The shape the
+        input table emits is a list of ``{"plate", "score", "count",
+        "database"}`` dicts; a ``(plate, path)`` pair, a ``(plate, path,
+        screen)`` triple and a bare path are accepted too, so a caller with a
+        plainer list does not have to build dicts to be understood.
+    :returns: one entry per row, IN THE ROW ORDER, including the rows with no
+        database -- they are the plates this tab has to disable rather than
+        drop, and dropping them here would make them invisible instead.
+    """
+    if rows is None:
+        return ()
+    out: List[AttachedDatabase] = []
+    for index, row in enumerate(rows):
+        if isinstance(row, AttachedDatabase):
+            out.append(row)
+            continue
+        if isinstance(row, _Mapping):
+            plate = row.get("plate", row.get("plateID", ""))
+            path = row.get("database", row.get("db", ""))
+            screen = row.get("screen", row.get(SCREEN_COLUMN))
+        elif isinstance(row, (str, os.PathLike)):
+            plate, path, screen = "", row, None
+        else:
+            values = list(row)
+            plate = values[0] if values else ""
+            path = values[1] if len(values) > 1 else ""
+            screen = values[2] if len(values) > 2 else None
+        label = str(plate or "").strip() or f"row {index + 1}"
+        screen = str(screen).strip() if screen not in (None, "") else None
+        out.append(AttachedDatabase(plate=label,
+                                    path=str(path or "").strip(),
+                                    screen=screen or None))
+    return tuple(out)
+
+
+def joinable_tables(paths: Sequence[str]) -> Tuple[str, ...]:
+    """The object tables EVERY one of these databases has, in table order.
+
+    The intersection, not the union, and this is not a nicety:
+    :func:`spacr.multi_database.describe_merge` reads a row count from every
+    path, so asking it for a table one database lacks raises a bare
+    ``sqlite3.OperationalError`` naming the table and nothing else. Offering
+    only what all of them have means the user never picks that.
+
+    :param paths: measurement databases.
+    :returns: names from :data:`spacr.merge_tables.OBJECT_TABLES` -- the
+        object-role registry, cell/nucleus/pathogen/cytoplasm and every
+        organelle slot, rather than four names typed here -- followed by
+        ``png_list`` where every database has it.
+    :raises sqlite3.Error: a path that is not a readable database.
+    """
+    # png_list IS OFFERED. `merge_tables.mergeable_tables` has always
+    # returned it, and `object_keys` exists specifically to translate its
+    # 'o5' spelling of the object key into the integer the object tables
+    # use -- so the backend was ready and the panel filtered it back out by
+    # intersecting with OBJECT_TABLES, which is the object-ROLE registry and
+    # deliberately does not list it. Asked for repeatedly; the answer was
+    # always one name missing from a list, not a missing feature.
+    offered = tuple(OBJECT_TABLES) + (PNG_TABLE,)
+    shared: Optional[set] = None
+    for path in paths:
+        present = set(mergeable_tables(str(path))) & set(offered)
+        shared = present if shared is None else (shared & present)
+    if not shared:
+        return ()
+    return tuple(name for name in offered if name in shared)
+
+
+def anchor_tables(tables: Sequence[str]) -> Tuple[str, ...]:
+    """The subset of ``tables`` that can be an anchor.
+
+    One row per cell, from :data:`spacr.object_roles.ONE_ROW_PER_CELL`.
+    Anchoring on a many-per-cell table would make a row of the merged frame
+    mean one nucleus or one pathogen, with the cell's own measurements
+    repeated across its children -- which is the fan-out the roll-up exists to
+    prevent, arrived at from the other side.
+    """
+    return tuple(name for name in tables if is_one_row_per_cell(name))
+
+
+def default_aggregation_columns(columns: Sequence[str], *,
+                                overrides: Optional[Dict[str, str]] = None
+                                ) -> Tuple[str, ...]:
+    """The columns NO :data:`~spacr.merge_tables.AGGREGATION_RULES` rule names.
+
+    third bullet: a measurement nobody thought
+    about is exactly the one worth naming. These fall through to
+    :data:`~spacr.merge_tables.DEFAULT_AGGREGATION`, which is MEAN -- right
+    more often than not for an unrecognised number, and silently wrong for a
+    total.
+
+    Computed by re-walking the rule table, so it cannot drift from it: a list
+    written here would go stale the first time a rule was added.
+
+    :param columns: the column names about to be aggregated.
+    :param overrides: the user's explicit choices, which win over every rule
+        and are therefore not fall-throughs.
+    """
+    chosen = dict(overrides or {})
+    out = []
+    for column in columns:
+        if column in chosen:
+            continue
+        name = str(column).lower()
+        if any(re.search(pattern, name) for pattern, _how in AGGREGATION_RULES):
+            continue
+        out.append(str(column))
+    return tuple(out)
+
+
+#: What happens to a text identifier whose value is not the same for every
+#: child of a parent. ``'refuse'`` leaves the column out and names it;
+#: ``'first'`` is the old behaviour and is kept only so a caller who wants it
+#: has to ask for it in writing.
+AMBIGUOUS_IDENTIFIER_POLICIES: Tuple[str, ...] = ("refuse", "first")
+
+
+def _relay(progress, tracker, stage: str, done: int) -> None:
+    """Pass one of ``read_merged``'s progress calls on, keeping the count.
+
+    ``read_merged`` counts rows within its own call; ``tracker`` is what makes
+    those counts continue across the several tables this merge reads.
+    """
+    tracker["done"] = int(done)
+    progress(stage, int(done), int(tracker["total"]))
+
+
+def merge_across_databases(paths: Sequence[str], tables: Sequence[str], *,
+                           policy: Optional[MergePolicy] = None,
+                           screens: Any = None,
+                           columns: str = "common",
+                           report=None,
+                           limit_per_source: Optional[int] = None,
+                           progress=None,
+                           cancelled=None,
+                           on_ambiguous_identifier: str = "refuse"):
+    """Every chosen table of every chosen database, on one anchor.
+
+    THE COMPOSITION OF THE TWO MERGES THAT ALREADY EXIST, and deliberately
+    nothing else. :func:`spacr.multi_database.read_merged` is *many databases,
+    one table*; :func:`spacr.merge_tables.merge_tables` is *one database, many
+    tables* and takes a path, so it cannot be handed a frame that already spans
+    databases. This runs the first per chosen table and then joins them with
+    the second's own :func:`~spacr.merge_tables.roll_up` and
+    :meth:`~spacr.merge_tables.MergePolicy.how_for`. There is no sum and no
+    mean written here; every number comes from the rules.
+
+    THE ROLL-UP KEYS CARRY THE SCREEN AND THE SOURCE. Omit them and two
+    screens legitimately sharing ``plate1`` -- the case
+    :func:`~spacr.multi_database.describe_merge` deliberately permits -- would
+    collapse into one parent, reintroducing one layer up the exact pooling
+    :mod:`spacr.multi_database` exists to prevent.
+
+    :param paths: measurement databases. Repeats are read once.
+    :param tables: the object tables to join. The anchor is added if absent.
+    :param policy: how each measurement combines and what happens to a cell
+        with no children. ``policy.primary`` IS the anchor and defaults to
+        :data:`DEFAULT_ANCHOR`.
+    :param screens: screen label per database -- a sequence parallel to
+        ``paths`` or a mapping from path. Passed to both the plan and the read.
+    :param columns: ``'common'`` (default) or ``'union'``, as ``read_merged``.
+    :param report: called with one line per thing the merge cost.
+    :param limit_per_source: row cap per database, for a preview.
+    :param progress: called ``progress(stage, done, total)`` as the merge
+        moves. ``stage`` names the table and the database; ``done``/``total``
+        are ROWS, against the same total the plan prints. Runs on whatever
+        thread the merge does, so a GUI caller relays it rather than touching
+        a widget in it.
+    :param cancelled: called between stages; a true answer raises
+        :class:`~spacr.multi_database.MergeCancelled`. Nothing is written
+        anywhere until this function RETURNS, so a cancelled merge leaves the
+        previous result exactly where it was.
+    :param on_ambiguous_identifier: ``'refuse'`` (default) leaves out a text
+        identifier that differs within a roll-up group and names it;
+        ``'first'`` restores the old silent pick. See
+        :func:`spacr.plate_measurements.ambiguous_identifiers`.
+    :returns: one row per anchor object, with ``frame.attrs`` carrying what the
+        merge cost -- see :func:`merge_report`, which renders it.
+    :raises MergeError: the anchor is not one row per cell, or carries no
+        object label.
+    :raises spacr.multi_database.MergeRefused: a plate id appears twice within
+        one screen.
+    :raises spacr.multi_database.MergeCancelled: the caller asked it to stop.
+    """
+    if on_ambiguous_identifier not in AMBIGUOUS_IDENTIFIER_POLICIES:
+        raise MergeError(
+            f"on_ambiguous_identifier must be one of "
+            f"{list(AMBIGUOUS_IDENTIFIER_POLICIES)}, got "
+            f"{on_ambiguous_identifier!r}")
+    policy = policy or MergePolicy(primary=DEFAULT_ANCHOR)
+    anchor = str(policy.primary)
+    if not is_one_row_per_cell(anchor):
+        raise MergeError(
+            f"{anchor!r} is many rows per cell, so anchoring on it would make "
+            f"a row mean one {anchor} and repeat the cell's own measurements "
+            f"across its children; anchor on one of "
+            f"{list(ONE_ROW_PER_CELL)}")
+
+    paths = list(dict.fromkeys(str(path) for path in paths))
+    wanted = list(dict.fromkeys([anchor] + [str(name) for name in tables]))
+
+    def _say(stage: str) -> None:
+        """Report the current stage, if anyone is listening."""
+        if progress is not None:
+            progress(stage, tracker["done"], tracker["total"])
+
+    def _stop(where: str) -> None:
+        """Raise if the caller has cancelled, naming where it stopped.
+
+        Checked BETWEEN stages rather than only at the start: a merge across
+        databases runs for minutes, and a cancel that is only noticed at the end
+        is not a cancel.
+        """
+        if cancelled is not None and cancelled():
+            raise MergeCancelled(
+                f"stopped {where}. Nothing was written and the previous "
+                f"merge, if there was one, is untouched.")
+
+    tracker = {"done": 0, "total": 0}
+    # EVERY TABLE IS PLANNED BEFORE ANY IS READ, so the denominator exists
+    # before the first row does. `describe_merge` reads sqlite metadata and
+    # the distinct plate ids only -- the same call the panel already makes on
+    # every click -- so this costs a fraction of a second and buys a progress
+    # count that means something. It also moves a missing table's failure to
+    # BEFORE the expensive anchor read rather than after it.
+    _say("planning the merge")
+    _stop("while planning the merge")
+    plans = {name: describe_merge(paths, name, screens=screens)
+             for name in wanted}
+    plan = plans[anchor]
+    tracker["total"] = sum(item.total_rows for item in plans.values())
+
+    _stop(f"before reading {anchor}")
+    base = read_merged(paths, anchor, plan=plan, columns=columns,
+                       screens=screens, report=report,
+                       limit_per_source=limit_per_source,
+                       progress=(lambda stage, done, total:
+                                 _relay(progress, tracker, stage, done))
+                       if progress is not None else None,
+                       cancelled=cancelled,
+                       rows_done=0, rows_total=tracker["total"])
+    tracker["done"] = int(base.attrs.get("rows_done", len(base)))
+    if OBJECT_COLUMN not in base.columns:
+        raise MergeError(
+            f"the {anchor} table has no {OBJECT_COLUMN}, so nothing can be "
+            f"merged onto it")
+
+    keys = [name for name in IDENTITY if name in base.columns]
+    # WHAT EVERY JOIN IS KEYED ON: the well identity, the screen and the file.
+    # `source_database` is in here as well as `screenID` because two databases
+    # of one screen are still two files, and a cell in one of them is not the
+    # same cell as the identically numbered cell in the other.
+    carried = [name for name in [*keys, SCREEN_COLUMN, SOURCE_COLUMN]
+               if name in base.columns]
+    rows_before = _rows_per_source(base)
+
+    # The anchor's own measurements carry its name, exactly as `merge_tables`
+    # prefixes its primary -- so `area` from cell and `area` from nucleus can
+    # be told apart in the axis picker. A column that ALREADY starts with the
+    # table's name is left alone: `cell_area` must not become `cell_cell_area`.
+    reserved = set(carried) | {OBJECT_COLUMN}
+    base = base.rename(columns={
+        name: f"{anchor}_{name}" for name in base.columns
+        if name not in reserved and not str(name).startswith(f"{anchor}_")})
+
+    joins: List[Dict[str, Any]] = []
+    skipped: Dict[str, str] = {}
+    fell_through: Dict[str, Tuple[str, ...]] = {}
+    dropped: Dict[str, Tuple[str, ...]] = {
+        anchor: tuple(plan.dropped_columns) if columns == "common" else ()}
+
+    identifiers: Dict[str, Tuple[str, ...]] = {}
+    refused: Dict[str, Dict[str, Any]] = {}
+
+    for table in wanted:
+        if table == anchor:
+            continue
+        _stop(f"before reading {table}")
+        child_plan = plans[table]
+        child = read_merged(paths, table, plan=child_plan, columns=columns,
+                            screens=screens, report=report,
+                            limit_per_source=limit_per_source,
+                            progress=(lambda stage, done, total:
+                                      _relay(progress, tracker, stage, done))
+                            if progress is not None else None,
+                            cancelled=cancelled,
+                            rows_done=tracker["done"],
+                            rows_total=tracker["total"])
+        tracker["done"] = int(child.attrs.get("rows_done", tracker["done"]))
+        dropped[table] = (tuple(child_plan.dropped_columns)
+                          if columns == "common" else ())
+        link = anchor_column(table)
+        if link not in child.columns:
+            # Measured without a parent mask: the roll-up is not empty, it is
+            # UNDEFINED. Named and skipped, as merge_tables does -- one
+            # unlinkable table must not cost the user the others.
+            skipped[table] = (
+                f"carries no {link}, so its rows cannot be matched to a "
+                f"{anchor}; re-run Measure with the {anchor} mask set")
+            continue
+
+        child_keys = [name for name in carried if name in child.columns] + [link]
+        if is_one_row_per_cell(table):
+            # One row per cell already: nothing to aggregate, and putting it
+            # through the roll-up rules would answer a question nobody asked.
+            rolled = child.rename(columns={
+                name: (name if str(name).startswith(f"{table}_")
+                       else f"{table}_{name}")
+                for name in child.columns if name not in set(child_keys)})
+        else:
+            plan_for_table = aggregation_plan(child, overrides=policy.overrides,
+                                              skip=child_keys)
+            numeric = [name for name in plan_for_table
+                       if plan_for_table[name] == DEFAULT_AGGREGATION]
+            fell_through[table] = default_aggregation_columns(
+                numeric, overrides=policy.overrides)
+            # WHAT THE TEXT COLUMNS ACTUALLY GET, recorded rather than
+            # inferred. `aggregation_plan` asks the DTYPE first, so a string
+            # takes `first` whatever its name -- which is the true answer the
+            # plan used to get wrong by matching on names alone.
+            identifiers[table] = tuple(
+                name for name in plan_for_table
+                if plan_for_table[name] == TEXT_AGGREGATION
+                and name not in (policy.overrides or {})
+                and name in child.columns
+                and not pd.api.types.is_numeric_dtype(child[name]))
+            _say(f"checking {table}'s identifiers over {len(child):,} rows")
+            _stop(f"before aggregating {table}")
+            ambiguous = ambiguous_identifiers(
+                child, child_keys, plan=plan_for_table,
+                overrides=policy.overrides)
+            if ambiguous and on_ambiguous_identifier == "refuse":
+                # REFUSED, NOT PICKED (instruction 79 item 2, and 154 C). The
+                # column is left out and named; the other eighty-odd are not
+                # lost with it, exactly as an unlinkable table does not cost
+                # the user the tables that do link.
+                refused[table] = ambiguous
+                identifiers[table] = tuple(
+                    name for name in identifiers[table] if name not in ambiguous)
+                child = child.drop(columns=list(ambiguous))
+            _say(f"aggregating {table}: {len(plan_for_table)} column(s) over "
+                 f"{len(child):,} rows")
+            rolled = roll_up(child, child_keys, name=table, policy=policy)
+        if link != OBJECT_COLUMN:
+            rolled = rolled.rename(columns={link: OBJECT_COLUMN})
+
+        # The object key is in both by construction: the anchor was checked for
+        # it above, and a child that does not carry it was skipped as
+        # unlinkable a few lines up.
+        on = [name for name in carried + [OBJECT_COLUMN]
+              if name in rolled.columns and name in base.columns]
+        _align_keys(base, rolled, on)
+        # PER TABLE, FROM CARDINALITY -- never one blanket `how`. A cell with
+        # no nucleus is not a cell; a cell with no pathogen is an uninfected
+        # cell and usually the control population.
+        how = policy.how_for(table)
+        before = len(base)
+        _say(f"joining {table} onto {anchor} ({how} join, {before:,} rows)")
+        base = base.merge(rolled, on=on, how=how)
+        joins.append({"table": table, "how": how, "before": before,
+                      "after": len(base)})
+
+    _stop("before the final frame was assembled")
+    _say(f"finishing {len(base):,} {anchor} rows")
+    base = _apply_na_policy(base, policy)
+    base.attrs["anchor"] = anchor
+    base.attrs["tables"] = tuple(wanted)
+    base.attrs["joins"] = tuple(joins)
+    base.attrs["skipped_tables"] = dict(skipped)
+    base.attrs["rows_before"] = rows_before
+    base.attrs["rows_after"] = _rows_per_source(base)
+    base.attrs["default_aggregation"] = {name: values
+                                         for name, values in fell_through.items()
+                                         if values}
+    base.attrs["dropped_columns"] = {name: values
+                                     for name, values in dropped.items()
+                                     if values}
+    base.attrs["identifier_columns"] = {name: values
+                                        for name, values in identifiers.items()
+                                        if values}
+    base.attrs["refused_identifiers"] = {name: values
+                                         for name, values in refused.items()
+                                         if values}
+    base.attrs["screens"] = plan.screens
+    base.attrs["shared_plates_across_screens"] = dict(
+        plan.shared_plates_across_screens)
+    base.attrs["sources"] = tuple((source.label, source.path)
+                                  for source in plan.sources)
+    return base
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 154 D: a plate called plate1 is shown as plate1
+# --------------------------------------------------------------------------- #
+#
+# MEASURED, BEFORE DECIDING IT WAS COSMETIC. The panel prints exactly what is
+# stored: a database whose `plateID` column holds `plate1` shows `plate1`, and
+# one that holds `pplate1` shows `pplate1`. Nothing in this file, in
+# `describe_merge` or in `read_merged` adds a prefix to anything.
+#
+# So the doubling is in the DATA, and that makes it more than cosmetic. Every
+# join INSIDE this merge is safe -- both sides of it read the same stored
+# value out of the same file -- but the merged frame then meets the regression
+# side, where `spacr.utils.correct_metadata` has ALREADY rewritten `pplate1`
+# to `plate1` in `plateID`, `prc` and `prcfo`. Score files stamped `pplate1`
+# meeting count files stamped `plate1` is the recorded failure that produced a
+# zero-row join and died two hundred lines later in a plot; a measurements
+# database stamped `pplate1` meeting a normalised score CSV is the same
+# mismatch from the other direction.
+#
+# The house rule is to correct the format going forward and migrate the old
+# content rather than preserve the bug, and that is where this ended up:
+# `tabular.read_database` collapses the doubling ON READ, so the plan and the
+# merged frame both name the plate `plate1` and the measurement side meets a
+# score CSV `correct_metadata` has normalised. Naming the stored spelling
+# beside it was what the panel could do while the doubling still reached the
+# frame; it now describes a mismatch that no longer happens, so the panel says
+# nothing and `plate_id_notes` is left as the tripwire for an id that reaches
+# the plan UNREPAIRED.
+
+
+def displayed_plates(plates: Sequence[str]) -> Tuple[str, ...]:
+    """Plate ids as the plates are CALLED, in their given order."""
+    return tuple(canonical_plate_id(plate) for plate in plates)
+
+
+def plate_id_notes(plan) -> List[str]:
+    """Describe noncanonical plate identifiers that remain in a merge plan.
+
+    Plate identifiers are normally canonicalized while each database is read.
+    A value that still differs from :func:`canonical_plate_id` at this stage
+    was not repaired during import and may fail to match score or count CSVs,
+    whose identifiers are normalized by :func:`spacr.utils.correct_metadata`.
+
+    :param plan: Merge plan containing database sources and their plate IDs.
+    :returns: One warning per affected database, or an empty list when all
+        identifiers are canonical.
+    """
+    lines: List[str] = []
+    for source in getattr(plan, "sources", ()) or ():
+        odd = [plate for plate in getattr(source, "plates", ()) or ()
+               if canonical_plate_id(plate) != str(plate)]
+        if not odd:
+            continue
+        stored = ", ".join(str(plate) for plate in odd)
+        canonical = ", ".join(displayed_plates(odd))
+        lines.append(
+            f"  {source.label}: the {PLATE_KEY} column stores {stored}; the "
+            f"canonical identifier is {canonical}. Joins within this database "
+            f"are unaffected because both sides use the stored value, but "
+            f"score and count CSVs normalize plate identifiers and therefore "
+            f"will not match these rows.")
+    return lines
+
+
+def _rows_per_source(frame) -> Dict[str, int]:
+    """How many rows each database has in ``frame`` right now.
+
+    ``read_merged`` writes :data:`~spacr.multi_database.SOURCE_COLUMN` into
+    every frame it returns, so this is always answerable.
+    """
+    counted = frame[SOURCE_COLUMN].value_counts()
+    return {str(label): int(count) for label, count in counted.items()}
+
+
+def merge_summary(frame) -> str:
+    """What the merge cost, as COUNTS. This is what fits in the box.
+
+    The old report put eighty-five column names inline and
+    then another eighty-five, so the three lines that matter -- what joined
+    how, how many rows, what the anchor is -- were buried in
+    ``nucleus_channel_2_channel_3_M2_correlation_85`` and its brothers.
+
+        The COUNT is the sentence. The LIST is the evidence, and evidence goes
+        behind a disclosure.
+
+    A refusal is the exception and stays here whatever its length: it is not
+    evidence for a claim, it IS the claim, and a user who never opens the
+    disclosure still has to be told a column was left out.
+
+    :param frame: the output of :func:`merge_across_databases`.
+    """
+    attrs = getattr(frame, "attrs", {}) or {}
+    anchor = attrs.get("anchor", DEFAULT_ANCHOR)
+    lines = [f"Merged {len(frame):,} rows on {anchor}, "
+             f"{len(frame.columns)} columns."]
+
+    before = attrs.get("rows_before") or {}
+    after = attrs.get("rows_after") or {}
+    for label in before:
+        kept = after.get(label, 0)
+        lost = before[label] - kept
+        lines.append(
+            f"  {label}: {kept:,} of {before[label]:,} {anchor} rows"
+            + (f" — {lost:,} dropped by the joins below" if lost else ""))
+
+    for join in attrs.get("joins", ()):
+        removed = join["before"] - join["after"]
+        lines.append(
+            f"  {join['table']}: {join['how']} join"
+            + (f", removed {removed:,} of {join['before']:,} rows"
+               if removed > 0 else
+               (f", added {-removed:,} rows" if removed < 0 else
+                ", removed nothing")))
+    for table, why in (attrs.get("skipped_tables") or {}).items():
+        lines.append(f"  {table}: left out — {why}")
+
+    fell_through = attrs.get("default_aggregation") or {}
+    identifiers = attrs.get("identifier_columns") or {}
+    if fell_through:
+        for table, names in fell_through.items():
+            lines.append(
+                f"  {table}: {len(names)} NUMERIC column(s) matched no "
+                f"aggregation rule and were combined with the default "
+                f"({DEFAULT_AGGREGATION}).")
+    else:
+        lines.append("  Every aggregated numeric column matched a rule; none "
+                     f"fell through to the default ({DEFAULT_AGGREGATION}).")
+    for table, names in identifiers.items():
+        # NOT a mean, and never was. A text column takes `first` from its
+        # dtype, and saying "the default (mean)" about a file name told the
+        # user something about their data that cannot happen.
+        lines.append(
+            f"  {table}: {len(names)} TEXT identifier(s) are constant within "
+            f"every group and were carried through as "
+            f"{TEXT_AGGREGATION} — text takes no mean.")
+    for table, columns in (attrs.get("refused_identifiers") or {}).items():
+        for column, detail in columns.items():
+            lines.append(describe_identifier_refusal(table, column, detail))
+
+    dropped = attrs.get("dropped_columns") or {}
+    for table, names in dropped.items():
+        lines.append(
+            f"  {table}: {len(names)} measurement(s) present in only some "
+            f"databases were dropped.")
+
+    shared = attrs.get("shared_plates_across_screens") or {}
+    for plate, screens in shared.items():
+        lines.append(
+            f"  plate {plate} appears in screens {', '.join(screens)}: kept "
+            f"apart by {SCREEN_COLUMN}, not renamed — a qualified plate id "
+            f"hides the screen inside the plate name.")
+    return "\n".join(lines)
+
+
+def merge_evidence(frame) -> str:
+    """The lists behind :func:`merge_summary`'s counts. One click away.
+
+    Every name the summary counted, so that a user who wants to check the
+    claim can, and one who does not is not made to read it.
+    """
+    attrs = getattr(frame, "attrs", {}) or {}
+    lines: List[str] = []
+    for table, names in (attrs.get("default_aggregation") or {}).items():
+        lines.append(
+            f"{table} — {len(names)} numeric column(s) with no rule, "
+            f"combined with {DEFAULT_AGGREGATION}:")
+        lines.append("  " + ", ".join(names))
+    for table, names in (attrs.get("identifier_columns") or {}).items():
+        lines.append(
+            f"{table} — {len(names)} text identifier(s) carried as "
+            f"{TEXT_AGGREGATION}:")
+        lines.append("  " + ", ".join(names))
+    for table, names in (attrs.get("dropped_columns") or {}).items():
+        lines.append(
+            f"{table} — {len(names)} measurement(s) in only some databases, "
+            f"dropped:")
+        lines.append("  " + ", ".join(names))
+    return "\n".join(lines)
+
+
+def merge_report(frame) -> str:
+    """The whole statement: :func:`merge_summary` and then its evidence.
+
+    Kept as one string for a caller that wants everything -- a log line, a
+    test, a headless script. The PANEL shows the two halves in two places,
+    which is the whole of the design.
+    """
+    evidence = merge_evidence(frame)
+    return merge_summary(frame) + (("\n" + evidence) if evidence else "")
+
+
+def step_header(number: int, title: str, parent=None):
+    """Create a numbered heading for one database-merge workflow step.
+
+    The title is translated before it is uppercased and prefixed with the step
+    number. The returned label uses the ``WorkflowStep`` object name for
+    shared stylesheet selection.
+
+    :param number: One-based workflow step number.
+    :param title: Source title to translate and display.
+    :param parent: Optional Qt parent.
+    :returns: Bold, word-wrapped ``QLabel`` for the step.
+    """
+    from ..i18n import tr
+
+    # THE NUMBER IS NOT PART OF THE TITLE. Upper-casing the composed line
+    # asks the catalog for "1. LOAD THE MEASUREMENT DATABASES", which no row
+    # can hold, so only the odd word came back translated. Look the title up
+    # on its own and number it afterwards.
+    label = QLabel(f"{int(number)}. {tr(str(title)).upper()}", parent)
+    label.setObjectName("WorkflowStep")
+    label.setWordWrap(True)
+    font = label.font()
+    font.setBold(True)
+    label.setFont(font)
+    return label
+
+
+class WorkflowStep(QWidget):
+    """One numbered step of the Measurements workflow: a fold and a body.
+
+    THE THIRD LEVEL OF NESTING ON THIS TAB. Its three panels are splitter
+    children that fold (see :class:`MeasurementScanPanel`), but the numbered
+    steps inside them were bold labels with the step's controls loose in the
+    panel's own column underneath. So "collapse the step I am not on" was not
+    offered at all, and a step could only lose height to its neighbours --
+    never take it back.
+
+    The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header`
+    makes, inside the header row rather than replacing it: it is what the
+    stylesheet selects on and what a reader recognises. What is new beside it
+    is a checkable arrow that hides the body, focusable so a keyboard reaches
+    it, with an accessible name that says which step it folds.
+
+    :param number: one-based step number, as the tab counts them.
+    :param title: the step's title, translated by :func:`step_header`.
+    :param parent: parent widget; ownership only.
+    :param expanded: whether it starts open. Steps DO start open: unlike the
+        tab's three panels, a step is a stage of one procedure and hiding all
+        of them would leave a panel that says nothing about what it does.
+    """
+
+    toggled = Signal(bool)
+
+    def __init__(self, number: int, title: str, parent=None,
+                 expanded: bool = True):
+        """One numbered, collapsible step of the scan workflow.
+
+        :param number: the step's position.
+        :param title: its caption.
+        :param parent: parent widget.
+        :param expanded: whether it starts open.
+        """
+        super().__init__(parent)
+        from PySide6.QtWidgets import QSizePolicy, QToolButton
+
+        from ..i18n import tr
+        from ..preferences import scaled_px
+
+        self._number = int(number)
+        self._title = str(title)
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        header = QHBoxLayout()
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(4)
+        self._fold = QToolButton(self)
+        self._fold.setCheckable(True)
+        self._fold.setChecked(bool(expanded))
+        self._fold.setAutoRaise(True)
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._fold.setFocusPolicy(Qt.StrongFocus)
+        # SAID ALOUD, AND TRANSLATED. "Toggle" on its own tells a screen-reader
+        # user nothing about which of four steps they are on.
+        spoken = f"{self._number}. {tr(self._title)}"
+        self._fold.setAccessibleName(spoken)
+        self._fold.setToolTip(f"Fold step {self._number} away, or open it again")
+        # AN ARROW WITH NO TEXT IS 24 px WHATEVER THE FONT, so at a 200 % font
+        # scale the one control on the row that has to be hit stays half the
+        # size of everything around it.
+        self._fold.setMinimumSize(scaled_px(22), scaled_px(22))
+        self._fold.toggled.connect(self._apply)
+        header.addWidget(self._fold)
+        self.label = step_header(self._number, self._title, self)
+        # THE HEADING IS PART OF THE CONTROL. A 22 px arrow beside a heading
+        # that ignores clicks is the affordance every other folding heading in
+        # the tool does not have -- `Section` and `CollapsibleSection` both put
+        # the whole caption on the button.
+        self.label.setCursor(Qt.PointingHandCursor)
+        self.label.installEventFilter(self)
+        header.addWidget(self.label, 1)
+        column.addLayout(header)
+
+        self._body = QWidget(self)
+        # EXPANDING, so a step that owns the panel's stretch really gets the
+        # height rather than sitting at its hint with a gap underneath.
+        self._body.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.body = QVBoxLayout(self._body)
+        self.body.setContentsMargins(0, 0, 0, 0)
+        self.body.setSpacing(4)
+        column.addWidget(self._body, 1)
+        self._apply(bool(expanded))
+
+    def is_expanded(self) -> bool:
+        """Whether the step's controls are showing.
+
+        READ OFF THE BUTTON, not a flag beside it, for the reason
+        :meth:`CollapsibleSection.is_expanded` gives: a cached copy can
+        disagree with what the user sees.
+        """
+        return self._fold.isChecked()
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Open or fold the step.
+
+        :param expanded: True to show the step's controls.
+        """
+        self._fold.setChecked(bool(expanded))
+
+    def title(self) -> str:
+        """The step's title as written, before translation or numbering."""
+        return self._title
+
+    def number(self) -> int:
+        """Which step this is, one-based."""
+        return self._number
+
+    def fold_button(self):
+        """The collapse control, for tests and for focus handling."""
+        return self._fold
+
+    def eventFilter(self, watched, event):                    # noqa: N802
+        """Fold when the heading beside the arrow is clicked.
+
+        :param watched: the object the event is for.
+        :param event: the event.
+        :returns: True when the click was consumed as a fold.
+        """
+
+        if (watched is self.label
+                and event.type() == QEvent.MouseButtonRelease
+                and event.button() == Qt.LeftButton):
+            self.set_expanded(not self.is_expanded())
+            return True
+        return super().eventFilter(watched, event)
+
+    def _apply(self, expanded: bool) -> None:
+        """Show or hide the step's body.
+
+        :param expanded: True to open it.
+        """
+        self._fold.setArrowType(Qt.DownArrow if expanded else Qt.RightArrow)
+        self._body.setVisible(bool(expanded))
+        self.toggled.emit(bool(expanded))
+
+
+def resizable_box(owner, widget, layout, *, key: str, minimum: int,
+                  default: int, maximum: int, name: str):
+    """Give ``widget`` a user-draggable height instead of a hard cap.
+
+    WHAT THIS REPLACES, and why it was wrong twice over. Every tall box on
+    this tab was pinned with ``setMaximumHeight(N)`` at a literal N chosen
+    against a 100 % font. Measured offscreen at a 200 % font scale -- a
+    supported accessibility setting -- each one lost about half its content
+    and could not be dragged back:
+
+    ======================  =========  =========  =========
+    box                     cap        @100 %     @200 %
+    ======================  =========  =========  =========
+    attached databases      170 px     4 rows     3 rows
+    join list                72 px     4 rows     2 rows
+    merge report            190 px     11 lines   5 lines
+    merge evidence          220 px     12 lines   6 lines
+    column picker           180 px     10 rows    5 rows
+    outcomes                120 px     7 lines    3 lines
+    ======================  =========  =========  =========
+
+    So the height now starts at ``default`` SCALED BY THE FONT PREFERENCE --
+    at 200 % the report opens twice as tall and keeps its eleven lines -- and
+    a :class:`~.height_grip.HeightGrip` under it drags it anywhere between
+    ``minimum`` and ``maximum``. Home's release-notes panel has had that
+    handle for a while; this is the same class, moved to
+    :mod:`spacr.qt.widgets.height_grip` rather than written a second time.
+
+    :param owner: the panel the box belongs to. The handle is registered on
+        it under ``key`` so the tab can store and restore the height.
+    :param widget: the box to make resizable. Added to ``layout`` here.
+    :param layout: the column the box and its handle go into.
+    :param key: stable name for the stored height. NOT ``name``: that one is
+        read aloud and will be translated one day, and a stored layout keyed
+        on a translated string is a layout that is lost when the user
+        switches language.
+    :param minimum: floor in px at 100 % font scale.
+    :param default: opening height in px at 100 % font scale.
+    :param maximum: ceiling in px at 100 % font scale.
+    :param name: accessible name for the handle -- which box it resizes.
+    :returns: the :class:`HeightGrip` that was installed.
+    """
+    from ..preferences import scaled_px
+    from .height_grip import HeightGrip
+
+    layout.addWidget(widget)
+    grip = HeightGrip(widget, minimum, maximum, widget.parentWidget(),
+                      name=name)
+    layout.addWidget(grip)
+    grip.resize_target(scaled_px(default))
+    owner.register_box(key, grip)
+    return grip
+
+
+# --------------------------------------------------------------------------- #
+#  STEP 4: PICK A COLUMN AND REGRESS ON IT  (instruction 154 F)
+#
+#  "the point of the measurements tab is to merge measurements so that
+#   regression can be run on any column in the databases", as four steps:
+#
+#      1. LOAD the measurement databases
+#      2. MERGE THE TABLES within each database
+#      3. MERGE THE DATABASES into one frame
+#      4. PICK A COLUMN and regress on it
+#
+#  Steps 1-3 were built and step 4 was not, so the tab ended before its own
+#  purpose -- which is most of "i dont understand how this is all set up".
+#  Everything below is Qt-free on purpose: it is the half worth testing
+#  without a widget, and `spacr/umap_search.py` is the house precedent.
+# --------------------------------------------------------------------------- #
+
+#: The four steps, in order, as the tab says them.
+WORKFLOW_STEPS = (
+    (1, "Load the measurement databases"),
+    (2, "Merge the tables inside each database"),
+    (3, "Merge the databases into one frame"),
+    (4, "Pick a column and regress on it"),
+)
+
+#: What the merged frame is called once it is written down.
+#:
+#: WRITTEN ONCE AND NAMED. "Regression on any column in the databases" means
+#: the merge is an ARTEFACT, not a preview: a queue of twelve fits that
+#: re-merged four databases twelve times would spend twelve times six seconds
+#: doing arithmetic it had already done, and -- worse -- twelve fits would not
+#: be guaranteed to have been fitted on the same numbers.
+#:
+#: ONLY THE STEM OF THIS NAME IS USED. :func:`write_merged_frame` stages the
+#: frame, and the stage picks the format: Parquet where an engine is
+#: installed, CSV where none is. The spelling is kept as written so a caller
+#: passing an explicit ``name`` reads the same way it always did, and
+#: :func:`spacr.tabular.read_table` dispatches on whichever suffix was
+#: actually produced.
+MERGED_FRAME_NAME = "merged_measurements.csv"
+
+#: Columns of a merged frame that are IDENTITY, not a response. Regressing on
+#: `plateID` is not a meaningful response, so identity columns are omitted
+#: from the response picker.
+#:
+#: `object_label` is here for a reason worth writing down: it is numeric, it
+#: survives every dtype filter, and it is a NAME. A fit against it is a
+#: perfectly well-formed regression onto an arbitrary numbering.
+IDENTITY_RESPONSES = frozenset(
+    set(IDENTITY) | {OBJECT_COLUMN, SOURCE_COLUMN, SCREEN_COLUMN, PLATE_KEY,
+                     "prc", "prcf", "prcfo", "well", "gene", "grna",
+                     "grna_name", "count", "fraction", "cell_id",
+                     "parent_label", "objectID"})
+
+
+def regressable_columns(frame) -> Tuple[str, ...]:
+    """The columns of a merged frame a regression could take as its response.
+
+    :param frame: a merged measurement frame, or ``None``.
+    :returns: the numeric measurement columns, in the frame's own order.
+
+    NUMERIC AND NOT IDENTITY, and both halves are checked rather than assumed.
+    A merged frame carries `plateID`, `object_label`, `source_database` and
+    the text identifiers `merge_across_databases` carries through; a picker
+    that offered those would offer a fit onto a well name.
+
+    A column of one value is left out too. It has no variance, so the fit is
+    degenerate -- and every backend reports that differently, which turns one
+    unusable choice into N different-looking failures.
+    """
+    if frame is None or not len(getattr(frame, "columns", ())):
+        return ()
+    out: List[str] = []
+    for name in frame.columns:
+        text = str(name)
+        if text in IDENTITY_RESPONSES or text.endswith("_label"):
+            continue
+        column = frame[name]
+        if not pd.api.types.is_numeric_dtype(column):
+            continue
+        if pd.api.types.is_bool_dtype(column):
+            continue
+        try:
+            if int(column.nunique(dropna=True)) < 2:
+                continue
+        except TypeError:
+            # A dtype that CLAIMS to be numeric while its values will not
+            # compare. No built-in one does -- complex, Int64, bool,
+            # sparse, float16 and timedelta were all checked -- but this
+            # scans whatever DataFrame the project produced, and a
+            # third-party ExtensionArray cannot be ruled out. One such
+            # column must not stop the scan finding the others.
+            continue
+        out.append(text)
+    return tuple(out)
+
+
+def write_merged_frame(frame, folder: str,
+                       name: str = MERGED_FRAME_NAME, *, report=print) -> str:
+    """Stage the merged frame: offer it in memory, write the durable copy.
+
+    :param frame: the merged frame.
+    :param folder: where to put it. Created if it is not there.
+    :param name: what the artefact is called. Only its STEM is used -- the
+        suffix belongs to the writer, so the same call produces Parquet where
+        an engine is installed and CSV where none is, and a reader dispatches
+        on what it finds.
+    :param report: called with one line naming what was written and what it
+        cost; ``None`` to say nothing.
+    :returns: the path written, or ``""`` when there was nothing to write.
+
+    THE ARTEFACT IS STILL WRITTEN. A user can open it, and every fit of a
+    queue then reads the same numbers, which is what made it an artefact
+    rather than a preview in the first place.
+
+    WHAT CHANGES IS THAT NOTHING PARSES IT BACK. The frame is already in this
+    process when it is written, and the fits run in this process too, so
+    :func:`spacr.frame_handoff.stage` offers it under the path it wrote
+    BEFORE the write returns. A four-plate screen merges to about 2.75 GB:
+    the CSV write cost around 160 seconds before anything read it, and each
+    fit then parsed the whole file back out of the page cache -- minutes of
+    CPU with no disk I/O at all, which is what made a working run look hung.
+
+    The offer is a WEAK reference, so it cannot keep a multi-gigabyte frame
+    alive after the panel that merged it lets go, and a reader that was
+    offered nothing reads the file exactly as before.
+    """
+    if frame is None or not len(frame) or not folder:
+        return ""
+    from ...frame_handoff import stage
+
+    return stage(frame, folder, os.path.splitext(str(name))[0], report=report)
+
+
+def column_run_settings(base: Optional[Dict[str, Any]], column: str,
+                        score_path: str) -> Dict[str, Any]:
+    """The settings for ONE fit of the queue: this column, this score file.
+
+    :param base: the regression screen's own settings, or ``None``.
+    :param column: the response to fit.
+    :param score_path: the merged frame written by :func:`write_merged_frame`.
+
+    A COPY, never the caller's dict. Twelve fits built by mutating one dict
+    are twelve fits of whatever the last one asked for -- and the base is the
+    live settings panel, which the user may be editing while the queue runs.
+
+    THE COUNT SIDE IS LEFT ALONE. What varies between these runs is the
+    RESPONSE and nothing else, which is what makes them comparable in the Runs
+    tab; the guides each well got are the same guides.
+    """
+    settings: Dict[str, Any] = dict(base or {})
+    settings["dependent_variable"] = str(column)
+    pairs = []
+    for row in (settings.get("paired_data") or []):
+        if isinstance(row, _Mapping):
+            pair = dict(row)
+        else:
+            values = list(row)
+            pair = {"score": values[0] if values else "",
+                    "count": values[1] if len(values) > 1 else ""}
+        # EVERY PLATE'S SCORE IS THE MERGED FRAME. It holds all the plates --
+        # `source_database` and `plateID` are in it -- so pointing each pair
+        # at it and letting the loader align on plate is what keeps the count
+        # side paired exactly as the input table pairs it.
+        pair["score"] = str(score_path)
+        pairs.append(pair)
+    if pairs:
+        settings["paired_data"] = pairs
+        settings["score_data"] = [str(score_path)]
+    return settings
+
+
+@dataclass
+class ColumnFit:
+    """What one fit of the queue did.
+
+    :param column: the response it was asked to fit.
+    :param ok: whether it produced results.
+    :param folder: where it wrote, when it wrote anywhere.
+    :param error: why it did not, in the words the fit used.
+    :param n_results: how many coefficients came back.
+    """
+
+    column: str
+    ok: bool = False
+    folder: str = ""
+    error: str = ""
+    n_results: int = 0
+
+    def describe(self) -> str:
+        """One line for the queue's own list."""
+        if self.ok:
+            return (f"{self.column}: {self.n_results} coefficients"
+                    + (f" — {self.folder}" if self.folder else ""))
+        return f"{self.column}: did not fit — {self.error or 'no reason given'}"
+
+
+class QueueCancelled(Exception):
+    """The user stopped the queue between fits.
+
+    Not an error and not a refusal, for the same reason
+    :class:`spacr.multi_database.MergeCancelled` is neither: wording a cancel
+    like a failure puts "did not fit" in front of somebody who pressed Stop.
+    """
+
+
+def run_column_fits(columns: Sequence[str], settings_for, fit, *,
+                    progress=None, cancelled=None,
+                    on_result=None) -> List[ColumnFit]:
+    """Fit response columns sequentially while isolating per-column failures.
+
+    Parameters
+    ----------
+    columns : sequence of str
+        Response columns in execution order.
+    settings_for : callable
+        Called with a column and returns settings for that fit.
+    fit : callable
+        Called with the settings and returns the pipeline result.
+    progress : callable, optional
+        Called as ``progress(column, index, total)`` before each fit.
+    cancelled : callable, optional
+        Called between fits; a true result stops the queue.
+    on_result : callable, optional
+        Called with each :class:`ColumnFit` when it completes or fails.
+
+    Returns
+    -------
+    list of ColumnFit
+        One result for every attempted column. A failed fit does not prevent
+        later columns from running.
+    """
+    out: List[ColumnFit] = []
+    total = len(columns)
+    for index, column in enumerate(columns):
+        if callable(cancelled) and cancelled():
+            raise QueueCancelled(
+                f"Stopped after {index} of {total} fits. The ones that "
+                f"finished are in the Runs tab.")
+        if callable(progress):
+            progress(str(column), index, total)
+        try:
+            payload = fit(settings_for(str(column)))
+        except Exception as error:            # noqa: BLE001 - record, go on
+            outcome = ColumnFit(column=str(column), ok=False,
+                                error=f"{type(error).__name__}: {error}")
+        else:
+            outcome = _fit_outcome(str(column), payload)
+        out.append(outcome)
+        if callable(on_result):
+            on_result(outcome)
+    return out
+
+
+def _fit_outcome(column: str, payload) -> ColumnFit:
+    """Read one fit's return value into a :class:`ColumnFit`.
+
+    `perform_regression` returns ``{'results': frame, 'res_folder': path}``
+    when it is called through the GUI's pipeline entry, and a PATH when it is
+    called directly. Both are accepted, because this queue is the first caller
+    to use it in either shape and guessing one would break the other.
+    """
+    folder = ""
+    results = None
+    if isinstance(payload, _Mapping):
+        folder = str(payload.get("res_folder") or "")
+        results = payload.get("results")
+    elif payload:
+        path = str(payload)
+        folder = os.path.dirname(path) if os.path.splitext(path)[1] else path
+    n_results = 0
+    if results is not None:
+        try:
+            n_results = int(len(results))
+        except TypeError:                     # a payload with no length
+            n_results = 0
+    if results is None and not folder:
+        return ColumnFit(column=column, ok=False,
+                         error="the fit returned nothing to look at")
+    return ColumnFit(column=column, ok=True, folder=folder,
+                     n_results=n_results)
+
+
+class WorkflowSteps:
+    """The numbered-step half of a Measurements panel, shared by both of them.
+
+    A MIXIN AND NOT A BASE CLASS: ``DatabaseMergePanel`` and
+    ``ColumnRegressionPanel`` are both ``QWidget`` already, and the thing they
+    share is bookkeeping rather than a widget. ``step_folds_changed`` stays
+    declared on each of them -- a ``Signal`` on a non-``QObject`` mixin is not
+    connectable.
+    """
+
+    def _add_step(self, number: int, layout, *, stretch: int = 0):
+        """Build one numbered step, put it in ``layout``, and remember it.
+
+        :param number: one-based step number; the title comes from
+            :data:`WORKFLOW_STEPS`, so the two cannot drift apart.
+        :param layout: the panel column the step goes into.
+        :param stretch: which step takes the height a folded sibling gives
+            up. Exactly one step per panel gets it -- without that, folding
+            step 1 leaves a blank fixed-height gap where step 1 was, which is
+            a fold that visibly did nothing.
+        :returns: the :class:`WorkflowStep`.
+        """
+        step = WorkflowStep(number, WORKFLOW_STEPS[number - 1][1], self)
+        step.toggled.connect(self._on_step_folded)
+        self.steps[int(number)] = step
+        layout.addWidget(step, stretch)
+        return step
+
+    def _on_step_folded(self, _expanded: bool) -> None:
+        """A step opened or folded: tell whoever is keeping the layout.
+
+        Nothing is stored here. The panel does not own the stored layout --
+        :class:`MeasurementScanPanel` does, keyed on the tab rather than on
+        one of its three panels -- so this only says that something moved.
+        """
+        self.step_folds_changed.emit()
+
+    def step_folds(self) -> dict:
+        """Which steps are open, by number. The half of the layout to store."""
+        return {number: step.is_expanded()
+                for number, step in self.steps.items()}
+
+    def set_step_folds(self, folds) -> None:
+        """Put back what :meth:`step_folds` returned.
+
+        A number this panel does not have is IGNORED rather than an error: a
+        layout stored by a version with five steps must not stop this one
+        from starting.
+        """
+        for number, expanded in dict(folds or {}).items():
+            step = self.steps.get(int(number))
+            if step is not None:
+                step.set_expanded(bool(expanded))
+
+
+    def register_box(self, key: str, grip) -> None:
+        """Record a height handle so its drag can be stored and restored.
+
+        :param key: stable, untranslated name for the box.
+        :param grip: the :class:`~.height_grip.HeightGrip` under it.
+        """
+        boxes = self.__dict__.setdefault("_boxes", {})
+        boxes[str(key)] = grip
+        grip.height_changed.connect(self._on_box_resized)
+
+    def _on_box_resized(self, _height: int) -> None:
+        """A box was dragged. Same relay as a fold: the tab does the storing."""
+        self.step_folds_changed.emit()
+
+    def box_heights(self) -> dict:
+        """The dragged heights, in px AT 100 % FONT SCALE.
+
+        Divided by the scale on the way out and multiplied on the way back in
+        (:meth:`set_box_heights`), so a height chosen at 200 % is the same
+        number of lines when it is restored at 100 %.
+        """
+        from ..preferences import get_font_scale
+
+        scale = max(get_font_scale(), 0.01)
+        return {key: max(1, int(round(grip.target_height() / scale)))
+                for key, grip in self.__dict__.get("_boxes", {}).items()}
+
+    def set_box_heights(self, heights) -> None:
+        """Put back what :meth:`box_heights` returned.
+
+        A key this panel does not have is ignored, for the reason
+        :meth:`set_step_folds` gives.
+        """
+        from ..preferences import scaled_px
+
+        boxes = self.__dict__.get("_boxes", {})
+        for key, height in dict(heights or {}).items():
+            grip = boxes.get(str(key))
+            if grip is not None:
+                grip.resize_target(scaled_px(int(height)))
+
+    def _show_outcomes(self) -> None:
+        """Reveal a box and the handle that resizes it, together."""
+        for widget in (getattr(self, "outcomes_box", None),
+                       getattr(self, "_outcomes_grip", None)):
+            if widget is not None:
+                widget.setVisible(True)
+
+
+class DatabaseMergePanel(WorkflowSteps, QWidget):
+    """The databases attached to the input table, and the join offered.
+
+    One row per plate of the regression input
+    table, whether or not it has a database -- a plate with none is listed and
+    disabled here, because it still runs in the regression and the user needs
+    to see why it is absent from this tab.
+
+    WHAT IS NOT OFFERED IS AS DELIBERATE AS WHAT IS. There is no join-type
+    control: the join follows object cardinality per table through
+    :meth:`spacr.merge_tables.MergePolicy.how_for`, and a blanket ``how`` is
+    the finding the design raised. The two checkboxes here are the two
+    settings that policy actually reads.
+
+    THE MERGE RUNS OFF THE GUI THREAD, and it did not used to. Four
+    databases, 226,467 cell rows and three joined tables ran inside the
+    button's own click handler, so Qt could not paint, could not show a
+    spinner and could not accept a cancel until it returned. The application
+    was not hung; it was working, and had no way to say so -- which is
+    the design in full. :class:`~spacr.qt.job_runner.JobRunner` is the
+    idiom every other long job here already uses, and this panel was the one
+    that did not.
+
+    :ivar databases_changed: emitted with the number of readable databases
+        whenever the list is re-read.
+    :ivar merged: emitted with the merged frame.
+    :ivar merge_progress: emitted with ``(stage, rows done, rows total)`` as
+        the merge moves. Always on the GUI thread -- see
+        :meth:`_relay_progress`.
+    :ivar merge_finished: emitted with the frame when a merge completes, or
+        ``None`` when it was refused, failed or cancelled.
+    """
+
+    databases_changed = Signal(int)
+    merged = Signal(object)
+    merge_progress = Signal(str, int, int)
+    merge_finished = Signal(object)
+
+    #: A numbered step was folded or opened. The tab stores the layout, not
+    #: this panel: the user arranges ONE Measurements tab, and three panels
+    #: each writing their own record would restore in three separate
+    #: writes and could disagree with each other.
+    step_folds_changed = Signal()
+
+    #: Internal relay: emitted from the WORKER thread, received on the GUI
+    #: thread. Emitting a Signal is the only thing a worker-thread callback
+    #: may safely do; the receiver below is a bound method of this GUI-thread
+    #: object, so Qt queues the real work back where it belongs. Getting this
+    #: wrong is the exact bug `spacr.qt.job_runner` was written to stop being
+    #: re-derived.
+    _progress_relayed = Signal(str, int, int)
+
+    #: Internal relay: a database read has landed. Emitted from the reader
+    #: thread for the same reason `_progress_relayed` is, and received on the
+    #: GUI thread by `_on_read_landed`, which redraws whatever was drawn as
+    #: "reading…" while the read was still out.
+    _read_landed = Signal()
+
+    #: The list columns, in reading order.
+    COLUMNS = ("Plate", "Database", "Screen", "Tables", "Plates in it",
+               "Rows", "Status")
+
+    def __init__(self, database_provider=None, parent=None, *,
+                 threaded: bool = True, destination_provider=None):
+        """
+        :param database_provider: called with no arguments for the input
+            table's rows. A callable rather than a stored list, for the same
+            reason ``frame_provider`` is one: the tab must not go on showing
+            the previous run's inputs.
+        :param threaded: whether :meth:`start_merge` runs off the GUI thread.
+            ``False`` runs it inline through the same code path, emitting the
+            same signals in the same order, so a test can drive the button
+            synchronously without the behaviour diverging.
+        :param destination_provider: called with no arguments for the folder
+            the merged frame is written into. Without one the merge still
+            happens and simply leaves no artefact -- the panel is used
+            headless and in tests where there is nowhere to write.
+        :param parent: parent widget; ownership only.
+        """
+        import threading
+
+        from ..job_runner import JobRunner
+
+        super().__init__(parent)
+        self._provider = database_provider
+        self._databases: Tuple[AttachedDatabase, ...] = ()
+        self._tables: Tuple[str, ...] = ()
+        self._frame = None
+        self._overrides: Dict[str, str] = {}
+        self._rules_dialog = None
+        self._filling = False
+        #: Guards the three dicts below. They are written by the reader
+        #: threads and read by the GUI thread, and `_shown` in particular is
+        #: a read-compare-write -- see :meth:`_file_read` for the ordering
+        #: it exists to get right.
+        self._read_lock = threading.Lock()
+        #: Answers to the database reads, keyed by ``(generation, question)``.
+        #: A value is the answer, or a :class:`_ReadFailed` carrying what the
+        #: read raised.
+        self._reads: Dict[tuple, Any] = {}
+        #: The reads a worker is still on, and the Event each sets when it
+        #: lands. Keyed the same way, so twenty paints ask one question once
+        #: -- COALESCED, not queued.
+        self._reading: Dict[tuple, Any] = {}
+        #: The last answer to each question as ``(generation, answer)``,
+        #: whatever generation it came from. What a re-read draws from while
+        #: the new answer is out: replacing what the user is looking at with
+        #: "reading…" would be a panel forgetting something it already knows.
+        #: The generation is carried so a read that lands LATE, after a newer
+        #: read of the same question has already landed, cannot put the older
+        #: answer back -- two databases behind one question can answer out of
+        #: order, and the newest answer is the only true one.
+        self._shown: Dict[Any, tuple] = {}
+        #: The ``(generation, question)`` the Aggregation rules dialog is
+        #: waiting on, or ``None``. See :meth:`show_aggregation_rules`.
+        self._rules_wanted: Optional[tuple] = None
+        #: Bumped by every `refresh`, and part of every read key. `refresh`
+        #: promises a RE-READ -- a measure run may have rewritten
+        #: `measurements.db` at a path this panel already knows -- so its
+        #: reads must not be answered from the previous paint's cache.
+        self._read_generation = 0
+        #: When the GUI thread stops waiting for this paint's reads.
+        self._deadline = 0.0
+        self._read_depth = 0
+        #: Whether the last paint drew a placeholder anywhere, and so has
+        #: something to correct when a read lands.
+        self._painted_pending = False
+        #: The count `databases_changed` last carried, so a probe that
+        #: changes nothing does not re-announce it.
+        self._announced: Optional[int] = None
+        self._threaded = bool(threaded)
+        self._jobs = JobRunner(self, threaded=self._threaded,
+                               app_key="merge databases")
+        self._jobs.job_failed.connect(self._on_job_failed)
+        # A plain Event, not a Qt flag: it is read from the worker thread on
+        # every stage boundary, and `threading.Event` is the one primitive
+        # both sides can touch without a lock.
+        self._stop = threading.Event()
+        self._merging = False
+        self._plan_shown = ""
+        self._destination_provider = destination_provider
+        #: Where the merged frame was written, or ``""``. THE ARTEFACT (154
+        #: F): the fits read this file, so the merge is paid for once and
+        #: every run in the queue is fitted on the same numbers.
+        self._artefact = ""
+        self._progress_relayed.connect(self._on_progress)
+        self._read_landed.connect(self._on_read_landed)
+
+        from ..preferences import scaled_px
+        from .height_grip import HeightGrip
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        #: The numbered steps, by number, so a fold or a stored layout can
+        #: reach one without walking the children.
+        self.steps = {}
+        step = self._add_step(1, layout)
+        self.heading = QLabel("No measurement database attached yet.")
+        self.heading.setWordWrap(True)
+        step.body.addWidget(self.heading)
+
+        self.table = QTableWidget(0, len(self.COLUMNS))
+        install_sorting(self.table)
+        self.table.setHorizontalHeaderLabels(list(self.COLUMNS))
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        resizable_box(self, self.table, step.body, key="databases",
+                      minimum=70, default=170, maximum=900,
+                      name="Resize the attached-database table")
+
+        step = self._add_step(2, layout)
+        self.tables_state = QLabel("")
+        self.tables_state.setWordWrap(True)
+        step.body.addWidget(self.tables_state)
+
+        chooser = QHBoxLayout()
+        chooser.addWidget(QLabel("join"))
+        self.tables_list = QListWidget()
+        self.tables_list.setFlow(QListWidget.LeftToRight)
+        self.tables_list.setWrapping(True)
+        self.tables_list.setSelectionMode(QAbstractItemView.NoSelection)
+        self.tables_list.setToolTip(
+            "The object tables every attached database has. A table only one "
+            "database has is not offered — merging it would fail on the "
+            "others rather than on this list.")
+        self.tables_list.itemChanged.connect(self._on_choice)
+        chooser.addWidget(self.tables_list, 1)
+        step.body.addLayout(chooser)
+        # THE HANDLE GOES UNDER THE ROW, not inside it: `chooser` is a
+        # horizontal row, so a grip added to it would be a nine-pixel column
+        # beside the list rather than a border under it. The list is already
+        # placed, so this is the one box built with the handle directly
+        # instead of through `resizable_box`.
+        self._tables_grip = HeightGrip(self.tables_list, 44, 480, self,
+                                       name="Resize the table list")
+        step.body.addWidget(self._tables_grip)
+        self._tables_grip.resize_target(scaled_px(72))
+        self.register_box("tables", self._tables_grip)
+
+        controls = QHBoxLayout()
+        controls.addWidget(QLabel("onto"))
+        self.anchor_box = QComboBox()
+        self.anchor_box.setToolTip(
+            f"The anchor: one row of the merged table is one of these. "
+            f"{DEFAULT_ANCHOR} by default, and only tables with one row per "
+            f"cell can be one — anchoring on a many-per-cell table repeats "
+            f"the cell's own measurements across its children.")
+        self.anchor_box.currentIndexChanged.connect(self._on_choice)
+        controls.addWidget(self.anchor_box)
+        self.anchor_note = QLabel(
+            f"default {DEFAULT_ANCHOR} — one anchor, one copy of each column")
+        self.anchor_note.setWordWrap(True)
+        controls.addWidget(self.anchor_note, 1)
+        step.body.addLayout(controls)
+
+        options = QHBoxLayout()
+        self.consolidate = QCheckBox("only cells that have the child object")
+        self.consolidate.setChecked(True)
+        self.consolidate.setToolTip(
+            "consolidate_on_cell. Off keeps every cell and leaves the child's "
+            "columns empty. This is not a blanket join type: the join is "
+            "decided per table by what that object IS.")
+        self.consolidate.toggled.connect(self._on_choice)
+        options.addWidget(self.consolidate)
+        self.keep_uninfected = QCheckBox("keep uninfected cells")
+        self.keep_uninfected.setChecked(True)
+        self.keep_uninfected.setToolTip(
+            "An uninfected cell is a cell, and in a screen it is usually the "
+            "control population. Off restricts the analysis to cells that "
+            "contain a pathogen or organelle.")
+        self.keep_uninfected.toggled.connect(self._on_choice)
+        options.addWidget(self.keep_uninfected)
+        options.addStretch(1)
+        self.rules_button = QPushButton(RULES_LABEL)
+        self.rules_button.setToolTip(
+            "How each measurement combines when several children roll up onto "
+            "one cell, and a dropdown to change any of it.")
+        self.rules_button.clicked.connect(self.show_aggregation_rules)
+        options.addWidget(self.rules_button)
+        step.body.addLayout(options)
+
+        # STEP 3 IS ITS OWN STEP, so the button that does it is under the
+        # heading that names it rather than at the end of step 2's row.
+        step = self._add_step(3, layout, stretch=1)
+        self.merge_state = QLabel("")
+        self.merge_state.setWordWrap(True)
+        step.body.addWidget(self.merge_state)
+
+        options = QHBoxLayout()
+        options.addStretch(1)
+        self.merge_button = QPushButton("Merge")
+        # `start_merge`, NEVER `merge`. `merge` blocks until the whole join is
+        # done; on four databases that is minutes with a frozen window, which
+        # is the report instruction 154 was filed from.
+        self.merge_button.clicked.connect(self.start_merge)
+        options.addWidget(self.merge_button)
+        self.cancel_button = QPushButton("Stop")
+        self.cancel_button.setToolTip(
+            "Stop the merge. Nothing is written until the merge finishes, so "
+            "stopping leaves the previous result exactly where it was.")
+        self.cancel_button.setEnabled(False)
+        self.cancel_button.clicked.connect(self.cancel_merge)
+        options.addWidget(self.cancel_button)
+        step.body.addLayout(options)
+
+        # WHAT STAGE, AND HOW FAR. The plan already prints the row total; this
+        # counts against that same number rather than against one invented
+        # here, so "120,431 of 226,467" is a claim the user can check against
+        # the line above it.
+        self.progress = QLabel("")
+        self.progress.setWordWrap(True)
+        self.progress.setVisible(False)
+        step.body.addWidget(self.progress)
+
+        self.report = QPlainTextEdit()
+        self.report.setReadOnly(True)
+        resizable_box(self, self.report, step.body, key="report",
+                      minimum=70, default=190, maximum=900,
+                      name="Resize the merge report")
+
+        # THE COUNT IS THE SENTENCE; THE LIST IS THE EVIDENCE (154 B). A
+        # hundred and seventy column names in a 190-pixel box buried the three
+        # lines that matter. `Section` is the house's foldable, collapsed by
+        # default, and `add_prose` rather than `add_widget` because this is
+        # not a labelled setting row -- see Section.add_prose for what that
+        # distinction costs when it is got wrong.
+        from .section import Section
+
+        self.evidence = Section("Show the columns", self, expanded=False)
+        self.evidence.set_hint(
+            "Every column name behind the counts above: what fell through to "
+            "the default, what is a text identifier, and what was dropped.")
+        self.details = QPlainTextEdit()
+        self.details.setReadOnly(True)
+        # A GRIP INSIDE THE FOLD, because the fold is the sub-sub-subsection
+        # and the box inside it is the thing that was 220 px whatever the
+        # font. `add_prose` twice rather than `add_widget`: neither the box
+        # nor its handle is a labelled setting row.
+        self.evidence.add_prose(self.details)
+        self._details_grip = HeightGrip(self.details, 70, 900, self.evidence,
+                                        name="Resize the column evidence")
+        self.evidence.add_prose(self._details_grip)
+        self._details_grip.resize_target(scaled_px(220))
+        self.register_box("evidence", self._details_grip)
+        step.body.addWidget(self.evidence)
+
+        # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
+        # into. A tooltip on an editable field is unreachable the moment the
+        # user is editing it -- which is exactly when they wanted it -- and
+        # tests/test_tooltips_are_on_the_setting_not_the_field.py is the
+        # guard that says so.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
+
+        self._follow_path_probes()
+        self.refresh()
+
+    # -------------------------------------------------- reading the databases
+    #
+    # WHY THIS SECTION EXISTS. Everything step 1 shows comes out of the
+    # attached databases, and every one of those reads -- `mergeable_tables`,
+    # `describe_merge`, `column_kinds` -- opens sqlite on a path the user
+    # chose. `DatabaseMergePanel.__init__` ends in `refresh()`, so opening
+    # the Measurements tab did all of it inline on the GUI thread. On the
+    # maintainer's machine one of those paths was an `autofs` mount whose
+    # share was asleep and a single stat on it had not returned after twenty
+    # seconds; see `READ_BUDGET_S` and `spacr/qt/path_probe.py`.
+    #
+    # The shape here is `spacr/qt/chaining.py`'s -- a GUI half that reads
+    # widgets and a worker half that touches none -- with one difference,
+    # and it is deliberate. `JobRunner` delivers through the event loop, and
+    # this panel's answers are read STRAIGHT BACK by its own callers:
+    # `refresh()` returns the count the host tab enables the rest of the
+    # workflow from, `_prepare_merge` reads `plan_summary()` on the line
+    # after it refreshes. So the GUI thread waits here -- but for a fixed
+    # fifth of a second and never for a filesystem, which is the difference
+    # between a panel that is a moment late and an application that is gone.
+
+    @contextmanager
+    def _read_budget(self, *, fresh: bool = False,
+                     budget: float = READ_BUDGET_S):
+        """Give this paint, and every read under it, ONE bounded wait.
+
+        Nested on purpose: `refresh` draws the plate table, the table
+        chooser and the plan, and each of those reads databases. Budgeting
+        them one at a time would let a single paint spend the budget three
+        times over, which is the freeze again in instalments.
+
+        :param fresh: whether this asks the databases AGAIN rather than
+            drawing what has already been asked for. IT DEFAULTS TO FALSE,
+            and `refresh` is the one caller that passes ``True`` -- that is
+            the whole guard against re-reading on every click. `describe` is
+            what a checkbox, an anchor change and a tooltip repaint all end
+            in, and `_repaint` is what runs once per read that lands, so a
+            fresh generation on either would open every attached database
+            again per keystroke and per landing -- and, because each landing
+            repaint would start reads that land and repaint in their turn,
+            it would never stop. What HAS changed is already in the key: the
+            anchor, the paths and the screens are all part of it, so a
+            genuinely different question is a different read whatever the
+            generation says.
+        :param budget: how long the GUI thread may wait. ``0`` for a redraw
+            that is CORRECTING an earlier paint: everything such a redraw can
+            draw is already filed, so waiting again would only add a stall
+            per landing read -- eight plates, eight stalls -- for nothing.
+        :yields: nothing; the budget lives in ``self._deadline``.
+        """
+        if not self._read_depth:
+            if fresh:
+                self._new_generation()
+            self._deadline = time.monotonic() + float(budget)
+        self._read_depth += 1
+        try:
+            yield
+        finally:
+            self._read_depth -= 1
+
+    def _new_generation(self) -> None:
+        """Retire the last question's answers, so this one reads again.
+
+        WHY NOT SIMPLY KEEP THEM. `refresh` promises a re-read -- a measure
+        run may have rewritten `measurements.db` at a path this panel already
+        knows, which is exactly why `_prepare_merge` refreshes before it
+        merges -- and `describe` is what a click ends in. Answers are kept
+        ONE generation deep, in `_shown`, so a re-read draws what it drew
+        last instead of blanking to "reading…" while it waits.
+        """
+        self._read_generation += 1
+        stale = self._read_generation - 1
+        # Never the one the rules dialog is parked on. That read was asked
+        # for by a CLICK, it opens the dialog when it lands, and dropping it
+        # here would leave the button saying "reading" with nothing left to
+        # answer it.
+        wanted = self._rules_wanted
+        with self._read_lock:
+            for key in [key for key in self._reads
+                        if key[0] < stale and key != wanted]:
+                self._reads.pop(key, None)
+
+    def _read_off_thread(self, question, work):
+        """``work()``'s answer -- from cache, from a worker, or not yet.
+
+        :param question: what is being asked, hashable. Two paints asking
+            the same thing share one worker and one answer.
+        :param work: a zero-argument callable that reads the databases. It
+            runs on a worker thread and MUST NOT touch a widget.
+        :returns: what ``work`` returned; the previous answer to the same
+            question while a re-read is out; or :data:`READING` when there
+            is nothing yet and this paint's budget is spent.
+        :raises Exception: whatever ``work`` raised, re-raised here so the
+            "could not be read" wording stays where it was written.
+        """
+        key = (self._read_generation, question)
+        start = None
+        with self._read_lock:
+            if key in self._reads:
+                return self._unwrap(self._reads[key])
+            waiting = self._reading.get(key)
+            if waiting is None:
+                waiting = start = threading.Event()
+                self._reading[key] = waiting
+        if start is not None:
+            # Outside the lock: starting a thread is not something to hold a
+            # lock the reader threads need across.
+            threading.Thread(target=self._run_read,
+                             args=(key, work, start), daemon=True,
+                             name="spacr-merge-read").start()
+        budget = self._deadline - time.monotonic()
+        if budget > 0:
+            waiting.wait(budget)
+        with self._read_lock:
+            if key in self._reads:
+                return self._unwrap(self._reads[key])
+            seen = self._shown.get(question)
+        # Whatever is drawn now is provisional, so say so: `_on_read_landed`
+        # draws it again for real.
+        self._painted_pending = True
+        if seen is not None:
+            return self._unwrap(seen[1])
+        return READING
+
+    @staticmethod
+    def _unwrap(value):
+        """Return a filed answer, re-raising the read that failed.
+
+        :param value: what was filed -- the answer, or a
+            :class:`_ReadFailed`.
+        :returns: the answer.
+        :raises Exception: the read's own exception.
+        """
+        if isinstance(value, _ReadFailed):
+            raise value.error
+        return value
+
+    def _run_read(self, key, work, waiting) -> None:
+        """Perform one database read. WORKER THREAD; touches no widget.
+
+        :param key: ``(generation, question)``, what the answer is filed
+            under.
+        :param work: the callable to run.
+        :param waiting: set once the answer is filed, so a GUI-thread wait
+            still inside its budget picks the answer up without a redraw.
+
+        The filing is in a ``finally``. A read that ends any other way --
+        the interpreter shutting down under it, a C-level error `work` does
+        not raise as an `Exception` -- must still release the question, or
+        the cell that said "reading…" says it for the life of the panel and
+        no later paint ever asks again.
+        """
+        try:
+            try:
+                value = work()
+            except Exception as error:           # noqa: BLE001 - carried back
+                value = _ReadFailed(error)
+            self._file_read(key, value)
+        finally:
+            with self._read_lock:
+                self._reading.pop(key, None)
+            waiting.set()
+            try:
+                self._read_landed.emit()
+            except RuntimeError:
+                # The panel's C++ half went with its screen while this read
+                # was still parked on a mount that had not woken up.
+                pass
+
+    def _file_read(self, key, value) -> None:
+        """File one answer. WORKER THREAD.
+
+        :param key: ``(generation, question)``.
+        :param value: the answer, or a :class:`_ReadFailed`.
+
+        `_shown` is what a re-read draws from while the new answer is out, so
+        it must hold the NEWEST answer and not merely the last one to land.
+        Two reads of one question overlap whenever `refresh` runs while the
+        first is still out, and the older of the two can easily be the slower
+        -- it is the one that went to the mount that was asleep. Stamping the
+        generation and refusing to go backwards is what stops that read, when
+        it finally lands, from painting the previous run's numbers over the
+        current ones.
+
+        `_reads` is keyed by generation and so cannot be overwritten this
+        way; only `_shown`, which is keyed by the question alone, needs the
+        comparison.
+        """
+        with self._read_lock:
+            self._reads[key] = value
+            seen = self._shown.get(key[1])
+            if seen is None or seen[0] <= key[0]:
+                self._shown[key[1]] = (key[0], value)
+
+    def _on_read_landed(self) -> None:
+        """Redraw what was drawn provisionally, now the answer is in.
+
+        Guarded throughout: this is reached from a signal a reader thread
+        emitted, and the panel's C++ half can have gone between the emit and
+        the queued delivery.
+        """
+        try:
+            wanted = self._rules_wanted
+            if wanted is not None and wanted in self._reads:
+                # A click asked for this one and is still waiting for it.
+                self._wait_for_rules(None)
+                self.show_aggregation_rules()
+            if not self._painted_pending:
+                return
+            self._repaint()
+        except RuntimeError:
+            # The panel is gone; the queued signal outlived it.
+            pass
+
+    def _repaint(self) -> None:
+        """Draw the list, the chooser and the plan from what is known now.
+
+        Not `refresh`: the provider has not changed and the databases must
+        NOT be read again. Everything this draws is already filed, which is
+        what makes the corrected paint free -- and why it is given NO budget:
+        a redraw that waited again would put a fifth of a second of frozen
+        interface between the user and every single read that lands.
+        """
+        with self._read_budget(budget=0.0):
+            self._painted_pending = False
+            self._fill_table()
+            self._offer_tables()
+            self.describe()
+
+    def _settle_paths(self) -> None:
+        """Let the path probes land, for as long as the budget lasts.
+
+        WHY WAIT AT ALL, when `path_probe` exists so that nothing does.
+        Because step 1's job is to say which plate has LOST its database
+        before a run starts, and the probe is optimistic: an unseen path is
+        reported present, so a database that is really gone would be drawn
+        as ready until the answer arrived. A local disk answers in
+        microseconds and the row is right the first time it is drawn; a
+        sleeping mount spends the budget and is put right by
+        `_follow_path_probes` instead.
+        """
+        attached = [entry.path for entry in self._databases if entry.attached]
+        for path in attached:
+            # Asking is what queues the check; the answer is what is waited
+            # for below.
+            path_probe.exists(path)
+        while attached and time.monotonic() < self._deadline:
+            if all(path_probe.known(path) is not None for path in attached):
+                return
+            time.sleep(0.002)
+
+    def _follow_path_probes(self) -> None:
+        """Correct a row when a background path check finally answers.
+
+        `path_probe` reports an unseen path as PRESENT so that no plate row
+        can freeze the interface -- see its module docstring and the
+        twenty-second `os.path.exists` behind it. The cost of that optimism
+        is that a database which really has gone is drawn as ready until the
+        probe lands, so this is the half that puts it right.
+
+        Held in an attribute and guarded rather than connected as a bound
+        method: `probes` is process-wide and outlives this panel, and
+        reaching a destroyed C++ half is a crash rather than an exception.
+        """
+        def corrected(path: str, _answer: bool) -> None:
+            """Redraw when ``path`` is one of ours, ignore every other.
+
+            :param path: the path whose answer just changed.
+            :param _answer: what it changed to; the rows are drawn from
+                `paths()`, which reads the probe's cache itself.
+            """
+            try:
+                if any(entry.path == path for entry in self._databases):
+                    self._recount()
+            except RuntimeError:
+                # The panel has gone; the signal outlived it.
+                pass
+
+        self._probe_redraw = corrected
+        path_probe.probes.answered.connect(corrected)
+
+    def _unfollow_path_probes(self) -> None:
+        """Stop following the probes, before the C++ half goes."""
+        redraw = getattr(self, "_probe_redraw", None)
+        if redraw is None:
+            return
+        self._probe_redraw = None
+        try:
+            path_probe.probes.answered.disconnect(redraw)
+        except (RuntimeError, TypeError):
+            pass
+
+    def _recount(self) -> None:
+        """Redraw after a path changed state, and re-announce the count.
+
+        `databases_changed` carries the number of READABLE databases and the
+        host tab gates the rest of the workflow on it, so a probe that turns
+        a row from ready to missing has to be announced as well as drawn.
+        Only when it actually moved: this fires once per path per probe.
+        """
+        self._repaint()
+        count = len(self.paths())
+        if count != self._announced:
+            self._announced = count
+            self.databases_changed.emit(count)
+
+    # ------------------------------------------------------------- the list
+
+    def set_database_provider(self, provider) -> None:
+        """Take a new source of input-table rows and re-read it."""
+        self._provider = provider
+        self.refresh()
+
+    @property
+    def databases(self) -> Tuple[AttachedDatabase, ...]:
+        """Every plate row, attached or not, in the input table's order."""
+        return self._databases
+
+    def paths(self) -> Tuple[str, ...]:
+        """The databases that are attached AND on disk, de-duplicated."""
+        return tuple(dict.fromkeys(
+            entry.path for entry in self._databases if entry.present))
+
+    def screens(self) -> Optional[Dict[str, str]]:
+        """``{path: screen}`` for the rows that named one, else ``None``.
+
+        ``None`` rather than a dict of defaults: naming a screen for every
+        database says the user is working in screens, and
+        :attr:`~spacr.multi_database.MergePlan.screens_were_named` reads that
+        to decide how a refusal is worded.
+        """
+        named = {entry.path: entry.screen for entry in self._databases
+                 if entry.present and entry.screen}
+        return named or None
+
+    def refresh(self) -> int:
+        """Re-read the provider and describe what is attached.
+
+        A RE-READ, so the previous paint's answers are not reused: a measure
+        run may have rewritten a database at a path this panel already knows,
+        and `_prepare_merge` refreshes precisely to catch that. It is bounded
+        rather than blocking -- see :meth:`_read_off_thread` -- so a database
+        that has not answered within the budget is drawn as it was, or as
+        "reading…", and put right the moment it does.
+
+        :returns: the number of readable databases.
+        """
+        with self._read_budget(fresh=True):
+            rows = None
+            if callable(self._provider):
+                try:
+                    rows = self._provider()
+                except Exception as error:  # noqa: BLE001 - report, not raise
+                    self._databases = ()
+                    self._fill_table()
+                    self.report.setPlainText(
+                        f"Could not read the input table: {error}")
+                    self.heading.setText("No measurement database attached.")
+                    self._announced = 0
+                    self.databases_changed.emit(0)
+                    return 0
+            self._databases = attached_databases(rows)
+            self._forget_paths()
+            self._settle_paths()
+            self._painted_pending = False
+            self._fill_table()
+            self._offer_tables()
+            self.describe()
+            count = len(self.paths())
+            self._announced = count
+            self.databases_changed.emit(count)
+            return count
+
+    def _forget_paths(self) -> None:
+        """Ask the probes again about this panel's own paths.
+
+        `refresh` exists partly to notice that a database has gone since the
+        tab was opened, and the probe cache would otherwise answer with what
+        was true then. Only our own rows are forgotten: that cache is
+        process-wide, so clearing more would make every other widget re-probe
+        paths this panel knows nothing about.
+        """
+        for entry in self._databases:
+            if entry.attached:
+                path_probe.forget(entry.path)
+
+    def _fill_table(self) -> None:
+        """Show what the merge would produce, before it is run."""
+        entries = self._databases
+        self.table.setRowCount(len(entries))
+        attached = sum(1 for entry in entries if entry.present)
+        missing = [entry.plate for entry in entries
+                   if entry.attached and not entry.present]
+        empty = [entry.plate for entry in entries if not entry.attached]
+        text = (f"{attached} measurement database(s) attached to "
+                f"{len(entries)} plate row(s).")
+        if missing:
+            text += (f" {len(missing)} named a database that is not on disk: "
+                     + ", ".join(missing) + ".")
+        if empty:
+            text += (f" {len(empty)} plate(s) have none and are disabled here "
+                     f"— they still run in the regression: "
+                     + ", ".join(empty) + ".")
+        self.heading.setText(text if entries else
+                             "No measurement database attached yet. Drop a "
+                             "database onto a plate row of the input table.")
+
+        info = self._source_info()
+        for row, entry in enumerate(entries):
+            detail = info.get(entry.path, {})
+            for column, value in enumerate(
+                    [entry.plate, detail.get("label", entry.label),
+                     entry.screen or "", detail.get("tables", ""),
+                     detail.get("plates", ""), detail.get("rows", ""),
+                     detail.get("status", entry.status)]):
+                item = table_item(str(value))
+                if not entry.present:
+                    # Disabled, not removed: the user has to be able to see
+                    # which plate is missing from this tab and why.
+                    item.setFlags(Qt.ItemIsSelectable)
+                self.table.setItem(row, column, item)
+
+    def _source_info(self) -> Dict[str, Dict[str, str]]:
+        """Each attached database's tables, plates and anchor row count.
+
+        The NAME shown is the one :func:`~spacr.multi_database.describe_merge`
+        gives it, which is the value that ends up in
+        :data:`~spacr.multi_database.SOURCE_COLUMN`. Naming the file one way
+        here and another way in the merged frame would leave the user unable to
+        connect a row to the database it came from, which is the whole reason
+        provenance is carried.
+
+        Both reads go through :meth:`_read_off_thread`. `mergeable_tables`
+        opens every attached database and `describe_merge` opens them all
+        again, once per plate row, on the paint that builds the tab.
+        """
+        out: Dict[str, Dict[str, str]] = {}
+        tables: Dict[str, List[str]] = {}
+        # png_list too -- see `joinable_tables`. This list is what the row
+        # shows as "tables", so leaving it out here made the panel report a
+        # database as not having a table it has.
+        offered = set(OBJECT_TABLES) | {PNG_TABLE}
+        for path in self.paths():
+            out[path] = {"label": os.path.basename(path), "tables": "",
+                         "plates": "", "rows": "", "status": "ready"}
+            try:
+                found = self._read_off_thread(
+                    ("tables", path), lambda p=path: mergeable_tables(p))
+            except Exception as error:  # noqa: BLE001 - one bad file, not all
+                tables[path] = []
+                out[path]["status"] = f"could not be read: {error}"
+                continue
+            if found is READING:
+                # The row is still LISTED, with its plate, its file name and
+                # its screen: what this panel must never do is leave a plate
+                # out. Only the three columns that come from inside the file
+                # wait for it.
+                tables[path] = []
+                out[path]["tables"] = READING_TEXT
+                out[path]["plates"] = READING_TEXT
+                out[path]["rows"] = READING_TEXT
+                continue
+            tables[path] = [name for name in found if name in offered]
+            out[path]["tables"] = ", ".join(tables[path]) or "no object table"
+
+        anchor = self.anchor()
+        readable = [path for path in out if anchor in tables.get(path, ())]
+        if not readable:
+            return out
+        screens = self.screens()
+        try:
+            plan = self._read_off_thread(
+                ("plan", tuple(readable), anchor, _screen_key(screens)),
+                lambda: describe_merge(readable, anchor, screens=screens))
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            for path in readable:
+                out[path]["status"] = f"could not be read: {error}"
+            return out
+        if plan is READING:
+            for path in readable:
+                out[path]["plates"] = READING_TEXT
+                out[path]["rows"] = READING_TEXT
+            return out
+        by_plate = {entry.path: entry.plate for entry in self._databases}
+        for source in plan.sources:
+            # Keyed on the path the plan was given, so the row and the summary
+            # cannot come apart.
+            detail = out[source.path]
+            detail["label"] = source.label
+            detail["plates"] = ", ".join(source.plates)
+            detail["rows"] = f"{source.rows:,} {anchor}"
+            plate = by_plate.get(source.path, "")
+            if plate and source.plates and plate not in source.plates:
+                # The row says plate3 and the file holds plate7. Not refused --
+                # the plate label in the input table is the user's own name for
+                # the row -- but never silent either.
+                detail["status"] = (f"holds {', '.join(source.plates)}, not "
+                                    f"{plate}")
+        return out
+
+    # ------------------------------------------------------------ the choice
+
+    def _offer_tables(self) -> None:
+        """Fill the table chooser with what every attached database has.
+
+        The intersection is read off the GUI thread like everything else
+        here: `joinable_tables` opens every attached database to take it.
+        """
+        paths = self.paths()
+        try:
+            names = self._read_off_thread(
+                ("joinable", paths),
+                lambda: joinable_tables(paths)) if paths else ()
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            names = ()
+            self.report.setPlainText(f"Could not read the databases: {error}")
+        if names is READING:
+            # LEAVE THE CHOOSER ALONE until the databases answer. Clearing it
+            # would drop the user's ticks and put them back a moment later,
+            # and an empty list is a statement -- "no object table is shared
+            # by every database" -- that nothing has been read to support.
+            return
+        previous = set(self.selected_tables()) or set(self._tables)
+        self._tables = names
+
+        self._filling = True
+        try:
+            self.tables_list.clear()
+            for name in names:
+                item = QListWidgetItem(name)
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                # Everything present is checked: the user asked for the
+                # measurements, and a table they did not want is one click.
+                item.setCheckState(
+                    Qt.Checked if (not previous or name in previous)
+                    else Qt.Unchecked)
+                self.tables_list.addItem(item)
+
+            anchors = anchor_tables(names)
+            chosen = self.anchor_box.currentText()
+            self.anchor_box.clear()
+            self.anchor_box.addItems(anchors)
+            if chosen in anchors:
+                self.anchor_box.setCurrentText(chosen)
+            elif DEFAULT_ANCHOR in anchors:
+                self.anchor_box.setCurrentText(DEFAULT_ANCHOR)
+        finally:
+            self._filling = False
+
+    def selected_tables(self) -> Tuple[str, ...]:
+        """The tables the user has ticked, in table order."""
+        out = []
+        for row in range(self.tables_list.count()):
+            item = self.tables_list.item(row)
+            if item.checkState() == Qt.Checked:
+                out.append(item.text())
+        return tuple(out)
+
+    def set_selected_tables(self, names: Sequence[str]) -> None:
+        """Tick exactly ``names``."""
+        wanted = {str(name) for name in names}
+        self._filling = True
+        try:
+            for row in range(self.tables_list.count()):
+                item = self.tables_list.item(row)
+                item.setCheckState(Qt.Checked if item.text() in wanted
+                                   else Qt.Unchecked)
+        finally:
+            self._filling = False
+        self.describe()
+
+    def anchor(self) -> str:
+        """The table a row of the merge means one of."""
+        return self.anchor_box.currentText() or DEFAULT_ANCHOR
+
+    def set_anchor(self, name: str) -> None:
+        """Choose the anchor, if it is on offer."""
+        self.anchor_box.setCurrentText(str(name))
+
+    def policy(self) -> MergePolicy:
+        """The merge policy the controls describe.
+
+        Note what is NOT here: a join type. ``how_for`` derives it per table
+        from cardinality, and these two checkboxes are the only settings that
+        change it.
+        """
+        return MergePolicy(primary=self.anchor(),
+                           overrides=dict(self._overrides),
+                           consolidate_on_cell=self.consolidate.isChecked(),
+                           keep_uninfected=self.keep_uninfected.isChecked())
+
+    def _on_choice(self, *_args) -> None:
+        """Re-plan the merge after a source was ticked or unticked."""
+        if self._filling:
+            return
+        self.describe()
+
+    # -------------------------------------------------- the state of a step
+
+    def step_states(self) -> Dict[int, str]:
+        """Return status text for the first three database-merge steps.
+
+        Step 1 reports attached databases, step 2 reports selected object
+        tables and the anchor, and step 3 reports merge progress, output shape,
+        and destination state.
+
+        :returns: Mapping from step number to user-facing status text.
+        """
+        attached = len(self.paths())
+        rows = len(self._databases)
+        if not rows:
+            first = "Nothing attached yet — drop a measurements database " \
+                    "onto a plate row of the input table."
+        elif not attached:
+            first = f"{rows} plate row(s), none with a database on disk."
+        else:
+            first = f"{attached} database(s) attached, from {rows} plate row(s)."
+
+        chosen = self.selected_tables()
+        if not self._tables:
+            second = "No object table is shared by every attached database."
+        elif not chosen:
+            second = (f"{len(self._tables)} table(s) offered, none chosen — "
+                      f"pick at least the anchor.")
+        else:
+            second = (f"{', '.join(chosen)} → {self.anchor()}, "
+                      f"one row per {self.anchor()}.")
+
+        if self._merging:
+            third = "Merging now. It can be stopped; nothing is written " \
+                    "until it finishes."
+        elif self._frame is None:
+            third = "Not merged yet."
+        else:
+            third = (f"Merged: {len(self._frame):,} rows, "
+                     f"{len(self._frame.columns)} columns.")
+            third += (f" Written to {self._artefact}." if self._artefact
+                      else " Not written to disk — no destination is set.")
+        return {1: first, 2: second, 3: third}
+
+    def _refresh_steps(self) -> None:
+        """Repaint the three step states. Cheap, and called on every change."""
+        states = self.step_states()
+        # STEP 1's line is `_fill_table`'s, which already counts the attached
+        # rows and names the missing ones. `step_states` answers the same
+        # question for a headless caller and a test; overwriting the richer
+        # sentence with the shorter one would be a step BACKWARDS on screen.
+        if not self.heading.text():
+            self.heading.setText(states[1])
+        self.tables_state.setText(states[2])
+        self.merge_state.setText(states[3])
+
+    def merged_frame_path(self) -> str:
+        """Where the merged frame was written, or ``""``.
+
+        The artefact the design asks for: written ONCE when the merge
+        finishes, named, and read by every fit in the column queue rather
+        than the merge being redone per fit.
+        """
+        return self._artefact
+
+    def _destination(self) -> str:
+        """The folder the merged frame is written into, or ``""``."""
+        if not callable(self._destination_provider):
+            return ""
+        try:
+            return str(self._destination_provider() or "")
+        except Exception:                     # noqa: BLE001 - report, not raise
+            return ""
+
+    # ----------------------------------------------------- what it will cost
+
+    def describe(self) -> str:
+        """State what the merge WOULD do, before it is done.
+
+        Called on every click, and it CANNOT read the databases on every
+        click. What it needs is sqlite metadata and the distinct plate ids,
+        which is a millisecond on a local disk and was the reason the old
+        comment here called it cheap -- but the same read on a share that is
+        asleep did not return at all, and this is reached from a checkbox.
+        So it draws from what `refresh` asked for, waits at most
+        :data:`READ_BUDGET_S` for anything not back yet, and says
+        "reading…" for the rest until :meth:`_on_read_landed` puts it right.
+
+        THE COUNT GOES IN THE BOX AND THE NAMES GO BEHIND THE DISCLOSURE
+        (154 B). Putting both in the box is what buried the three lines that
+        matter under a hundred and seventy column names.
+
+        :returns: the whole statement, summary and evidence, as one string --
+            what the panel SAYS, wherever it puts it.
+        """
+        with self._read_budget():
+            summary, evidence = self._plan_lines()
+        self.report.setPlainText("\n".join(summary))
+        self.details.setPlainText("\n".join(evidence))
+        # EVERY CHANGE REPAINTS THE STEPS. `describe` is what a click, a
+        # refresh and a new provider all end in, so hooking the state here is
+        # what keeps the four headings honest without a second signal path.
+        self._refresh_steps()
+        return "\n".join(summary) + ("\n\n" + "\n".join(evidence)
+                                     if evidence else "")
+
+    def plan_text(self) -> str:
+        """The whole pre-merge statement: the summary and then its evidence.
+
+        Kept whole for a caller that wants everything. What the PANEL shows is
+        :meth:`plan_summary` in the box and :meth:`plan_evidence` behind the
+        disclosure -- the design.
+        """
+        with self._read_budget():
+            summary, evidence = self._plan_lines()
+        text = "\n".join(summary)
+        return text + ("\n\n" + "\n".join(evidence) if evidence else "")
+
+    def plan_summary(self) -> str:
+        """The pre-merge statement as COUNTS -- what fits in the box."""
+        with self._read_budget():
+            return "\n".join(self._plan_lines()[0])
+
+    def plan_evidence(self) -> str:
+        """The column names behind :meth:`plan_summary`'s counts."""
+        with self._read_budget():
+            return "\n".join(self._plan_lines()[1])
+
+    def _plan_lines(self) -> Tuple[List[str], List[str]]:
+        """``(summary, evidence)``. One pass, so the two cannot disagree.
+
+        Call it inside a :meth:`_read_budget`: every `describe_merge` below
+        opens each attached database, and this is reached from the paint that
+        builds the tab.
+        """
+        paths = self.paths()
+        if not paths:
+            return ([("No database to merge. A plate row with no database is "
+                      "legal — it still runs in the regression; it just has "
+                      "no measurements to show here.")], [])
+        anchor = self.anchor()
+        tables = [name for name in self.selected_tables() if name != anchor]
+        policy = self.policy()
+        lines = [
+            f"Anchor: {anchor}"
+            + (" (the default)" if anchor == DEFAULT_ANCHOR else "")
+            + " — one row per cell, one anchor, one copy of each column.",
+        ]
+        evidence: List[str] = []
+        # BEFORE THE RUN, NOT FOUR MINUTES IN. A row that named a database
+        # which is not there is left out of the merge, and left out silently
+        # is how a result comes to describe fewer plates than the user thinks.
+        gone = [entry.plate for entry in self._databases
+                if entry.attached and not entry.present]
+        if gone:
+            lines.append(
+                f"{len(gone)} plate(s) name a database that is not on disk and "
+                f"are left out: " + ", ".join(gone) + ".")
+        screens = self.screens()
+        try:
+            plan = self._read_off_thread(
+                ("plan", tuple(paths), anchor, _screen_key(screens)),
+                lambda: describe_merge(paths, anchor, screens=screens))
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            return (lines + [f"Could not read {anchor}: {error}"], evidence)
+        if plan is READING:
+            # The lines above are already true and already said -- the anchor,
+            # and which plates were left out for having no database on disk.
+            # Only what has to be read out of the files waits.
+            return (lines + [f"Reading {anchor} from {len(paths)} "
+                             f"database(s)…"], evidence)
+
+        lines.append(f"{len(plan.sources)} database(s), "
+                     f"{plan.total_rows:,} {anchor} rows before any join:")
+        for source in plan.sources:
+            lines.append(f"  {source.label}: {source.rows:,} rows, plates "
+                         + (", ".join(displayed_plates(source.plates))
+                            or "none"))
+        lines.extend(plate_id_notes(plan))
+
+        if tables:
+            lines.append("Joined per table, by what the object IS — there is "
+                         "no single join type to choose:")
+            for table in tables:
+                lines.append(f"  {table}: {policy.how_for(table)} join")
+        else:
+            lines.append("No other table chosen: the merge is the "
+                         f"{anchor} table alone.")
+
+        if plan.dropped_columns:
+            lines.append(
+                f"{len(plan.dropped_columns)} {anchor} measurement(s) are in "
+                f"only some databases and would be dropped.")
+            evidence.append(
+                f"{anchor} — {len(plan.dropped_columns)} measurement(s) in "
+                f"only some databases, dropped:")
+            evidence.append("  " + ", ".join(plan.dropped_columns))
+        for table in tables:
+            said, shown = self._table_notes(paths, table, policy)
+            lines.extend(said)
+            evidence.extend(shown)
+
+        if plan.shared_plates_across_screens:
+            for plate, screens in plan.shared_plates_across_screens.items():
+                lines.append(
+                    f"Plate {plate} appears in screens "
+                    f"{', '.join(screens)} — two identities, kept apart by "
+                    f"{SCREEN_COLUMN}. It is NOT renamed: a qualified plate "
+                    f"id hides the screen inside the plate name.")
+        if plan.colliding_plates:
+            for plate, labels in plan.colliding_plates.items():
+                lines.append(
+                    f"Plate {plate} is in {', '.join(labels)} WITHIN one "
+                    f"screen. The merge will be refused: pooling them would "
+                    f"compute every per-well number over two experiments at "
+                    f"once. Rename the plates, drop one database, or name "
+                    f"the screens.")
+        return (lines, evidence)
+
+    def _table_notes(self, paths, table, policy) -> Tuple[List[str], List[str]]:
+        """Return per-table ``(summary, evidence)`` notes.
+
+        Columns are classified by dtype before aggregation counts are formed,
+        so text paths are described with text aggregation rather than the
+        numeric default.
+        """
+        screens = self.screens()
+        try:
+            plan = self._read_off_thread(
+                ("plan", tuple(paths), str(table), _screen_key(screens)),
+                lambda: describe_merge(paths, table, screens=screens))
+        except Exception as error:  # noqa: BLE001
+            return ([f"  {table}: could not be read: {error}"], [])
+        if plan is READING:
+            return ([f"  {table}: {READING_TEXT}"], [])
+        lines: List[str] = []
+        evidence: List[str] = []
+        if plan.dropped_columns:
+            lines.append(
+                f"  {table}: {len(plan.dropped_columns)} measurement(s) in "
+                f"only some databases would be dropped.")
+            evidence.append(
+                f"{table} — {len(plan.dropped_columns)} measurement(s) in "
+                f"only some databases, dropped:")
+            evidence.append("  " + ", ".join(plan.dropped_columns))
+        if not is_one_row_per_cell(table):
+            keys = set(IDENTITY) | {anchor_column(table), OBJECT_COLUMN,
+                                    SCREEN_COLUMN, SOURCE_COLUMN}
+            candidates = [name for name in plan.common_columns
+                          if name not in keys]
+            kinds = self._column_kinds(paths, table)
+            buckets = classify_default_columns(candidates, kinds,
+                                               overrides=policy.overrides)
+            if buckets["mean"]:
+                lines.append(
+                    f"  {table}: {len(buckets['mean'])} NUMERIC column(s) "
+                    f"match no aggregation rule and would take the default "
+                    f"({DEFAULT_AGGREGATION}).")
+                evidence.append(
+                    f"{table} — {len(buckets['mean'])} numeric column(s) "
+                    f"with no rule, would take {DEFAULT_AGGREGATION}:")
+                evidence.append("  " + ", ".join(buckets["mean"]))
+            if buckets["identifier"]:
+                lines.append(
+                    f"  {table}: {len(buckets['identifier'])} TEXT "
+                    f"identifier(s) — text takes no mean. Each is carried "
+                    f"through as {TEXT_AGGREGATION} where it is the same for "
+                    f"every child of a cell, and LEFT OUT where it is not, "
+                    f"because picking one invents provenance.")
+                evidence.append(
+                    f"{table} — {len(buckets['identifier'])} text "
+                    f"identifier(s), carried as {TEXT_AGGREGATION} or "
+                    f"refused:")
+                evidence.append("  " + ", ".join(buckets["identifier"]))
+            if buckets["unknown"]:
+                # SAY WHAT A NUMBER CANNOT SAY. A column the database
+                # declared no type for cannot be promised either treatment,
+                # and an absent answer that reads as a definite one is the
+                # false assurance this panel is most careful about.
+                lines.append(
+                    f"  {table}: {len(buckets['unknown'])} column(s) match no "
+                    f"rule AND carry no declared type, so what they take "
+                    f"cannot be stated before the merge reads them.")
+                evidence.append(
+                    f"{table} — {len(buckets['unknown'])} column(s) with no "
+                    f"rule and no declared type:")
+                evidence.append("  " + ", ".join(buckets["unknown"]))
+        return (lines, evidence)
+
+    def _column_kinds(self, paths, table) -> Dict[str, str]:
+        """``{column: kind}`` across every database, disagreements demoted.
+
+        Read from each database rather than from one: a column stored as TEXT
+        in one file and REAL in another is not a column this panel can promise
+        anything about, so it becomes ``'unknown'`` and is named as such.
+        """
+        merged: Dict[str, str] = {}
+        for path in paths:
+            try:
+                found = self._read_off_thread(
+                    ("kinds", str(path), str(table)),
+                    lambda p=path: column_kinds(str(p), str(table)))
+            except Exception:  # noqa: BLE001 - one bad file, not all
+                continue
+            if found is READING:
+                # Left out rather than guessed. A column whose declared type
+                # has not been read yet is not a column this panel can promise
+                # anything about, which is the same rule the disagreement case
+                # below applies -- and the note is redrawn when it lands.
+                continue
+            for name, kind in found.items():
+                if merged.setdefault(name, kind) != kind:
+                    merged[name] = "unknown"
+        return merged
+
+    # ---------------------------------------------------------- the merge
+
+    def merge(self, **kwargs):
+        """Merge the chosen tables and report what it cost, RIGHT NOW.
+
+        **This blocks the calling thread until the whole join is done.** On
+        four databases that is minutes, so the GUI must not call it: the Merge
+        button goes through :meth:`start_merge`, which runs this same work on
+        a :class:`~spacr.qt.job_runner.JobRunner`. It is kept as the
+        synchronous entry point for a headless caller and for a test that
+        wants the frame back on the next line.
+
+        :returns: the merged frame, or ``None`` when nothing was merged. A
+            refusal is shown in full rather than summarised: it is an ANSWER,
+            and it says what to do about it.
+        """
+        prepared = self._prepare_merge()
+        if prepared is None:
+            return None
+        self._stop.clear()
+        outcome = self._merge_worker(prepared, kwargs)
+        return self._finish_merge(prepared, outcome)
+
+    def start_merge(self, *_args, **kwargs) -> bool:
+        """Merge OFF the GUI thread, saying where it is and taking a cancel.
+
+        The whole of the design. Everything that touches a widget --
+        re-reading the input table, printing the plan, showing the result --
+        happens here on the GUI thread; the join itself happens on a worker,
+        and the only thing that crosses back is a Signal.
+
+        :returns: whether a merge was started. ``False`` when there is nothing
+            to merge, or when one is already running -- a second Merge click
+            must not start a second join over the same databases.
+        """
+        if self._merging:
+            return False
+        prepared = self._prepare_merge()
+        if prepared is None:
+            return False
+        self._stop.clear()
+        self._merging = True
+        self._set_running(True)
+        self._on_progress("starting", 0, 0)
+        started = self._jobs.submit(
+            lambda: self._merge_worker(prepared, kwargs),
+            lambda outcome: self._finish_merge(prepared, outcome))
+        if not started:
+            # PUT THE PANEL BACK. `_merging` and the running state were
+            # set before the submit, because the submit is the part that
+            # takes minutes. Left set after a refusal, every later press
+            # returns early and the merge can never be started.
+            #
+            # The old pragma here claimed JobRunner always returns True.
+            # It does not: `submit` returns False whenever it is
+            # unthreaded and the work or the completion callback raises,
+            # which is exactly how these panels are built in tests.
+            self._merging = False
+            self._set_running(False)
+        return bool(started)
+
+    def cancel_merge(self, *_args) -> bool:
+        """Stop a running merge. Nothing half-written survives it.
+
+        :returns: whether there was one to stop.
+        """
+        if not self._merging:
+            return False
+        self._stop.set()
+        # The worker is asked to stop at its next stage boundary AND its
+        # result is dropped on arrival by the runner's generation check, so
+        # neither a slow stage nor a fast one can leave a frame behind.
+        self._jobs.cancel()
+        self._merging = False
+        self._set_running(False)
+        self.progress.setText("Stopping — nothing was written.")
+        self.report.setPlainText(
+            self._plan_shown
+            + "\n\nStopped. Nothing was merged and the previous result, if "
+              "there was one, is untouched.")
+        self.merge_finished.emit(None)
+        return True
+
+    def is_merging(self) -> bool:
+        """Whether a merge is running right now."""
+        return bool(self._merging)
+
+    # -- the three halves of a merge, so both entry points share them ----
+
+    def _prepare_merge(self) -> Optional[Dict[str, Any]]:
+        """Everything the merge needs, read on the GUI thread.
+
+        The worker must not touch a widget, so every setting it reads is
+        copied out here -- and re-read rather than remembered: the input table
+        may have gained a row, and a database that was on disk when the tab
+        was opened may not be now. Merging the list the panel happens to be
+        holding would merge the previous run's inputs, which is the failure
+        the provider is a callable to prevent.
+        """
+        self.refresh()
+        paths = self.paths()
+        if not paths:
+            self.report.setPlainText(self.plan_summary())
+            self.details.setPlainText(self.plan_evidence())
+            return None
+        # Not a fresh generation: `refresh` on the line above has just read
+        # these files, and what it read is what the merge is about to do.
+        with self._read_budget(fresh=False):
+            summary, evidence = self._plan_lines()
+        self._plan_shown = "\n".join(summary)
+        self.report.setPlainText(self._plan_shown)
+        self.details.setPlainText("\n".join(evidence))
+        return {"paths": paths, "tables": self.selected_tables(),
+                "policy": self.policy(), "screens": self.screens(),
+                "plan": self._plan_shown,
+                # READ HERE, ON THE GUI THREAD. The provider is the settings
+                # panel, and a worker thread may not touch a widget.
+                "destination": self._destination()}
+
+    def _merge_worker(self, prepared: Dict[str, Any],
+                      kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """The join. Runs on the worker thread and touches NO widget.
+
+        Returns rather than raises, because a JobRunner job that raises loses
+        the distinction between the three outcomes -- refused, cancelled and
+        failed -- that the panel has to word differently.
+        """
+        notes: List[str] = []
+        try:
+            frame = merge_across_databases(
+                prepared["paths"], prepared["tables"],
+                policy=prepared["policy"], screens=prepared["screens"],
+                report=notes.append, progress=self._relay_progress,
+                cancelled=self._stop.is_set, **kwargs)
+        except MergeCancelled as stopped:
+            return {"outcome": "cancelled", "why": str(stopped),
+                    "notes": notes}
+        except MergeRefused as refusal:
+            return {"outcome": "refused", "why": str(refusal), "notes": notes}
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            return {"outcome": "failed", "why": str(error), "notes": notes}
+        # THE ARTEFACT, WRITTEN ON THIS THREAD (154 F). Two hundred thousand
+        # rows of eighty columns is seconds of CSV, and doing it in
+        # `_finish_merge` would put those seconds back on the GUI thread --
+        # which is the exact defect section A was filed about, moved twenty
+        # lines later. A merged frame nobody can write is still a merged
+        # frame, so a failure here is a NOTE and not a refusal.
+        artefact = ""
+        try:
+            artefact = write_merged_frame(frame, prepared.get("destination"))
+        except Exception as error:            # noqa: BLE001 - note, not raise
+            notes.append(f"The merged frame could not be written: {error}")
+        return {"outcome": "merged", "frame": frame, "notes": notes,
+                "artefact": artefact}
+
+    def _finish_merge(self, prepared: Dict[str, Any],
+                      outcome: Dict[str, Any]):
+        """Show what happened. Always on the GUI thread."""
+        self._merging = False
+        self._set_running(False)
+        plan_text = prepared.get("plan", "")
+        notes = outcome.get("notes") or []
+        tail = ("\n" + "\n".join(notes)) if notes else ""
+        kind = outcome.get("outcome")
+        if kind == "cancelled":
+            self.report.setPlainText(
+                plan_text + "\n\nStopped: " + outcome.get("why", ""))
+            self.merge_finished.emit(None)
+            return None
+        if kind == "refused":
+            self.report.setPlainText(
+                plan_text + "\n\nRefused, and nothing was merged:\n"
+                + outcome.get("why", ""))
+            self.merge_finished.emit(None)
+            return None
+        if kind != "merged":
+            self.report.setPlainText(
+                plan_text + f"\n\nThe merge did not finish: "
+                + outcome.get("why", ""))
+            self.merge_finished.emit(None)
+            return None
+
+        frame = outcome["frame"]
+        self._frame = frame
+        self._artefact = str(outcome.get("artefact") or "")
+        self.report.setPlainText(plan_text + "\n\n" + merge_summary(frame)
+                                 + tail
+                                 + (f"\nWritten to {self._artefact}"
+                                    if self._artefact else ""))
+        evidence = merge_evidence(frame)
+        self.details.setPlainText(evidence)
+        self.progress.setVisible(False)
+        self._refresh_steps()
+        self.merged.emit(frame)
+        self.merge_finished.emit(frame)
+        return frame
+
+    # -- progress, across the thread boundary -----------------------------
+
+    def _relay_progress(self, stage: str, done: int, total: int) -> None:
+        """Called BY THE WORKER. Emits, and does nothing else.
+
+        The guard is the one `JobRunner._relay` documents: a panel closed
+        while a merge is still running takes its C++ half with it, and PySide6
+        then raises ``RuntimeError: Signal source has been deleted`` inside
+        the worker.
+        """
+        try:
+            self._progress_relayed.emit(str(stage), int(done), int(total))
+        except RuntimeError:                 # teardown race
+            pass
+
+    def _on_progress(self, stage: str, done: int, total: int) -> None:
+        """Show one stage. Always on the GUI thread."""
+        text = str(stage)
+        if total:
+            text += f" — {done:,} of {total:,} rows"
+        self.progress.setText(text)
+        self.progress.setVisible(True)
+        self.merge_progress.emit(str(stage), int(done), int(total))
+
+    def _set_running(self, running: bool) -> None:
+        """Merge disabled and Stop enabled, or the other way round."""
+        self.merge_button.setEnabled(not running)
+        self.cancel_button.setEnabled(bool(running))
+        if not running:
+            self.progress.setVisible(bool(self.progress.text())
+                                     and self._merging)
+        self._refresh_steps()
+
+    def _on_job_failed(self, message: str) -> None:
+        """Report a failed merge without losing the plan.
+
+        :param message: what went wrong.
+        """
+        self._merging = False
+        self._set_running(False)
+        self.report.setPlainText(
+            self._plan_shown + f"\n\nThe merge did not finish: {message}")
+
+    def closeEvent(self, event):                 # noqa: N802 - Qt name
+        """Do not let a worker outlive the widget it reports to."""
+        try:
+            self._stop.set()
+            self._jobs.shutdown()
+            self._unfollow_path_probes()
+        finally:
+            super().closeEvent(event)
+
+    @property
+    def frame(self):
+        """The last merged frame, or ``None``."""
+        return self._frame
+
+    def statement(self) -> str:
+        """EVERYTHING the panel is saying: the box and the disclosure.
+
+        The box holds the counts and the disclosure holds the names, so a
+        caller that wants to know whether the panel
+        said something has to read both. Reading only the box would report a
+        column as unnamed when it is one click away.
+        """
+        detail = self.details.toPlainText()
+        return self.report.toPlainText() + (("\n" + detail) if detail else "")
+
+    @property
+    def overrides(self) -> Dict[str, str]:
+        """The user's per-column aggregation choices, which beat every rule."""
+        return dict(self._overrides)
+
+    def show_aggregation_rules(self) -> None:
+        """The per-column rules, for the columns actually about to be merged.
+
+        Reuses the Gate Editor's dialog rather than growing a second one: the
+        rules are the same rules, and two editors of one decision is how they
+        come to disagree.
+
+        THE PREVIEW READ IS OFF THE GUI THREAD, and it is the one the rest of
+        this panel's fix had left behind. Everything else here reads sqlite
+        METADATA; this reads ROWS -- `read_merged` opens every attached
+        database and pulls :data:`PREVIEW_ROWS` rows out of each -- and it ran
+        inside the button's own click handler. On a local disk that is a
+        blink; on the `autofs` mount this whole exercise came from it is the
+        freeze again, on a button rather than on a tab.
+
+        So the click either opens the dialog straight away, as it always did,
+        or says the button is reading and opens it from
+        :meth:`_on_read_landed` when the databases answer. Nothing is lost
+        either way: the dialog the user asked for still arrives.
+        """
+        from PySide6.QtWidgets import QMessageBox
+        from .aggregation_rules import AggregationRulesDialog
+
+        frame = self._frame
+        if frame is None:
+            paths = self.paths()
+            tables = [name for name in self.selected_tables()
+                      if not is_one_row_per_cell(name)] or list(
+                          self.selected_tables())
+            if not paths or not tables:
+                self._wait_for_rules(None)
+                QMessageBox.information(
+                    self, "Nothing to show",
+                    "The rules are per measurement, so there is nothing to "
+                    "show until a database is attached and a table chosen.")
+                return
+            screens = self.screens()
+            table = str(tables[0])
+            # A preview, not the merge: enough rows to know each column's
+            # type, which is all the rules need.
+            question = ("rules preview", paths, table, _screen_key(screens))
+
+            def preview():
+                """Read the preview. WORKER THREAD; touches no widget.
+
+                :returns: what :func:`~spacr.multi_database.read_merged`
+                    returns for the chosen table.
+                """
+                return read_merged(paths, table, screens=screens,
+                                   limit_per_source=PREVIEW_ROWS)
+
+            # The budget is the panel's usual one and NOT a fresh generation:
+            # a click is not a reason to re-open every database, and a local
+            # disk answers inside it, so the dialog still opens on the click
+            # exactly as it always did.
+            with self._read_budget():
+                key = (self._read_generation, question)
+                try:
+                    frame = self._read_off_thread(question, preview)
+                except Exception as error:  # noqa: BLE001
+                    # The read failed rather than being slow. Put the button
+                    # back BEFORE the message box: a modal opened over a
+                    # button still saying "reading" leaves it saying that for
+                    # good.
+                    self._wait_for_rules(None)
+                    QMessageBox.information(self, "Could not read the tables",
+                                            str(error))
+                    return
+            if frame is READING:
+                self._wait_for_rules(key)
+                return
+            self._wait_for_rules(None)
+        dialog = AggregationRulesDialog(frame, self,
+                                        overrides=self._overrides)
+        dialog.rules_changed.connect(self._on_rules_changed)
+        dialog.show()
+        self._rules_dialog = dialog
+
+    def _wait_for_rules(self, key) -> None:
+        """Say on the button whether the rules are still being read.
+
+        :param key: the ``(generation, question)`` the dialog is waiting for,
+            or ``None`` when it is waiting for nothing.
+
+        The button is disabled while it waits rather than left live and
+        inert. A second click on a button that looks armed and does nothing
+        is the failure this panel already made once with Merge; a button that
+        says what it is doing is the alternative, and it comes back the
+        moment the read lands or fails.
+        """
+        self._rules_wanted = key
+        waiting = key is not None
+        self.rules_button.setEnabled(not waiting)
+        self.rules_button.setText(RULES_READING_LABEL if waiting
+                                  else RULES_LABEL)
+
+    def _on_rules_changed(self, overrides: dict) -> None:
+        """Re-plan after the per-column aggregations changed.
+
+        :param overrides: the new aggregations.
+        """
+        self._overrides = dict(overrides or {})
+        self.describe()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 154 E: a message that asserts a cause it has not checked
+# --------------------------------------------------------------------------- #
+#
+# "Nothing to scan. Load a run whose wells carry both the gene assignment and
+# the measurements" was shown to the maintainer WITH FOUR MEASUREMENT
+# DATABASES LOADED. It names two things a well must carry, checks neither, and
+# offers no way to give it them. Which half is missing is answerable here --
+# the panel holds both halves -- and when both are present and the scan still
+# has nothing, the answer is the KEY, with one example from each side.
+
+
+def well_keys(frame) -> Tuple[str, Tuple[str, ...]]:
+    """``(what the key is called, the distinct well keys)`` for one frame.
+
+    ``prc`` when the frame carries it, otherwise built from
+    ``plateID``/``rowID``/``columnID`` -- which is what ``prc`` IS, and the
+    reason a measurements table with no ``prc`` column is still comparable to
+    a regression frame that has one.
+
+    :returns: ``("", ())`` for a frame carrying no well identity at all,
+        which is itself the answer to "why did nothing join".
+    """
+    if frame is None or not len(getattr(frame, "columns", ())):
+        return ("", ())
+    columns = list(frame.columns)
+    if "prc" in columns:
+        return ("prc", tuple(dict.fromkeys(
+            str(value) for value in frame["prc"].dropna())))
+    parts = [PLATE_KEY, "rowID", "columnID"]
+    if all(name in columns for name in parts):
+        built = [
+            "_".join(str(value) for value in row)
+            for row in zip(*[frame[name] for name in parts])]
+        return ("plateID_rowID_columnID", tuple(dict.fromkeys(built)))
+    return ("", ())
+
+
+def describe_key_overlap(left_name: str, left, right_name: str,
+                         right) -> str:
+    """Whether two frames' wells meet, and one example from each side if not.
+
+    The sentence the design asks for, and it is computed rather than
+    asserted. ``""`` when the two do overlap, because then the join is not the
+    problem and saying anything about it would send the user the wrong way.
+    """
+    left_key, left_wells = well_keys(left)
+    right_key, right_wells = well_keys(right)
+    if not left_wells:
+        return (f"The {left_name} carries no well identity "
+                f"({PLATE_KEY}/rowID/columnID or prc), so nothing can be "
+                f"matched to it.")
+    if not right_wells:
+        return (f"The {right_name} carries no well identity "
+                f"({PLATE_KEY}/rowID/columnID or prc), so nothing can be "
+                f"matched to it.")
+    shared = set(left_wells) & set(right_wells)
+    if shared:
+        return ""
+    # NORMALISED, so a `pp` doubling is not reported as a mismatch of wells
+    # when it is a mismatch of ONE CHARACTER in the plate id -- which is the
+    # failure instruction 154 D is about, seen from here.
+    def _canonical(keys):
+        """Keys with their plate id canonicalised, so two spellings match."""
+        return {canonical_plate_id(key.split("_")[0]) + key[len(key.split("_")[0]):]
+                for key in keys}
+
+    if _canonical(left_wells) & _canonical(right_wells):
+        return (f"The {left_name} and the {right_name} name the same wells "
+                f"with different plate ids: {left_key} "
+                f"{sorted(left_wells)[0]!r} against {right_key} "
+                f"{sorted(right_wells)[0]!r}. They differ only by the doubled "
+                f"'p' prefix spacr.utils.correct_metadata strips on one side "
+                f"and not the other.")
+    return (f"The {left_name} and the {right_name} share no well. "
+            f"{left_name}: {left_key} {sorted(left_wells)[0]!r} "
+            f"({len(left_wells):,} wells). {right_name}: {right_key} "
+            f"{sorted(right_wells)[0]!r} ({len(right_wells):,} wells).")
+
+
+class ColumnRegressionPanel(WorkflowSteps, QWidget):
+    """Run one regression per selected column of a merged measurement table.
+
+    Each column produces an independent run folder and Runs-tab entry. Jobs
+    execute sequentially through :class:`~spacr.qt.job_runner.JobRunner`, can
+    be stopped between fits, and continue after individual fit failures.
+
+    Parameters
+    ----------
+    frame_provider : callable or None, optional
+        Zero-argument callable returning the merged measurement frame.
+    settings_provider : callable or None, optional
+        Zero-argument callable returning the regression screen's current
+        model, correction, and count settings. Each queued fit copies these
+        settings and changes only the response column.
+    parent : QWidget or None, optional
+        Parent widget.
+    score_provider : callable or None, optional
+        Zero-argument callable returning the path to the saved merged frame.
+        Every queued fit reads this same file.
+    threaded : bool, default=True
+        Run fits through the background job runner. Set to ``False`` for
+        synchronous tests or headless callers.
+    fit : callable or None, optional
+        Function called with one fit's settings. ``None`` uses the standard
+        regression implementation. Supplying a callable keeps the queue
+        independently testable and avoids importing the full statistics stack
+        while the first window is constructed.
+
+    Attributes
+    ----------
+    fit_started : Signal
+        Emits ``(column, settings)`` as each fit begins.
+    fit_finished : Signal
+        Emits ``(column, outcome)`` when a fit succeeds or fails.
+    queue_finished : Signal
+        Emits ``(fitted, failed)`` when the queue ends.
+    queue_progress : Signal
+        Emits ``(column, index, total)`` before each fit.
+    """
+
+    fit_started = Signal(str, dict)
+    fit_finished = Signal(str, dict)
+    queue_finished = Signal(int, int)
+    queue_progress = Signal(str, int, int)
+
+    #: Step 4 was folded or opened. Declared here as well as on
+    #: `DatabaseMergePanel` because `WorkflowSteps` is not a QObject.
+    step_folds_changed = Signal()
+
+    #: Worker-thread relays. The rule is the one `job_runner` exists to stop
+    #: being re-derived: a worker may EMIT and nothing else, and the receiver
+    #: is a bound method of this GUI-thread object so Qt queues the real work
+    #: back where it belongs.
+    _started_relayed = Signal(str, int, int)
+    _result_relayed = Signal(object)
+
+    def __init__(self, frame_provider=None, settings_provider=None,
+                 parent=None, *, score_provider=None, threaded: bool = True,
+                 fit=None):
+        """Initialize the sequential column-regression queue."""
+        import threading
+
+        from ..job_runner import JobRunner
+
+        super().__init__(parent)
+        self._frame_provider = frame_provider
+        self._settings_provider = settings_provider
+        self._score_provider = score_provider
+        self._fit = fit if callable(fit) else _perform_regression
+        self._threaded = bool(threaded)
+        self._jobs = JobRunner(self, threaded=self._threaded,
+                               app_key="regress on columns")
+        self._jobs.job_failed.connect(self._on_job_failed)
+        self._stop = threading.Event()
+        self._running = False
+        self._columns: Tuple[str, ...] = ()
+        self._outcomes: List[ColumnFit] = []
+        self._queue_settings: Dict[str, Any] = {}
+        self._queue_score = ""
+        self._started_relayed.connect(self._on_queue_progress)
+        self._result_relayed.connect(self._on_queue_result)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        #: Step 4 lives in its own panel, so this holds exactly one entry --
+        #: kept as a mapping anyway so the tab can ask both panels the same
+        #: question without knowing how many steps each of them draws.
+        self.steps = {}
+        step = self._add_step(4, layout, stretch=1)
+        self.state = QLabel("")
+        self.state.setWordWrap(True)
+        step.body.addWidget(self.state)
+
+        self.filter = QLineEdit()
+        self.filter.setPlaceholderText(
+            "Filter the columns — a channel, a shape, anything")
+        self.filter.setToolTip(
+            "A merged frame has hundreds of measurements. This narrows the "
+            "list; it does not change what is selected, so a filter cannot "
+            "silently drop a column from the queue.")
+        self.filter.textChanged.connect(self._apply_filter)
+        step.body.addWidget(self.filter)
+
+        self.columns_list = QListWidget()
+        self.columns_list.setSelectionMode(
+            QAbstractItemView.ExtendedSelection)
+        self.columns_list.setToolTip(
+            "The numeric measurements of the merged frame. Pick as many as "
+            "you like: EACH ONE BECOMES ITS OWN RUN, with its own folder and "
+            "its own row in the Runs tab, so they can be compared there.")
+        self.columns_list.itemSelectionChanged.connect(self._on_selection)
+        resizable_box(self, self.columns_list, step.body, key="columns",
+                      minimum=70, default=180, maximum=900,
+                      name="Resize the column list")
+
+        row = QHBoxLayout()
+        self.run_button = QPushButton("Regress on the selected columns")
+        self.run_button.setToolTip(
+            "One regression per selected column, queued. Each is a run in "
+            "the Runs tab; a fit that fails does not stop the others.")
+        self.run_button.clicked.connect(self.start_regressions)
+        self.run_button.setEnabled(False)
+        row.addWidget(self.run_button)
+        self.cancel_button = QPushButton("Stop")
+        self.cancel_button.setToolTip(
+            "Stop after the fit that is running. The runs that finished stay "
+            "in the Runs tab — they are complete runs, not a partial one.")
+        self.cancel_button.setEnabled(False)
+        self.cancel_button.clicked.connect(self.cancel)
+        row.addWidget(self.cancel_button)
+        row.addStretch(1)
+        step.body.addLayout(row)
+
+        self.progress = QLabel("")
+        self.progress.setWordWrap(True)
+        self.progress.setVisible(False)
+        step.body.addWidget(self.progress)
+
+        self.outcomes_box = QPlainTextEdit()
+        self.outcomes_box.setReadOnly(True)
+        self.outcomes_box.setVisible(False)
+        self._outcomes_grip = resizable_box(
+            self, self.outcomes_box, step.body, key="outcomes", minimum=50,
+            default=120, maximum=700, name="Resize the run outcomes")
+        # THE HANDLE FOLLOWS THE BOX IT RESIZES. A grip under a hidden box is
+        # a border with nothing above it, and the panel shows the outcomes
+        # only once a queue has produced some.
+        self._outcomes_grip.setVisible(False)
+
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
+        self.refresh()
+
+    # -------------------------------------------------------- the columns
+
+    def refresh(self) -> int:
+        """Re-read the merged frame and offer its columns.
+
+        :returns: how many columns can be regressed on.
+
+        THE SELECTION SURVIVES A REFRESH where the column survives with it.
+        Re-merging with one more database must not silently empty a queue the
+        user has just built.
+        """
+        chosen = set(self.selected_columns())
+        frame = None
+        if callable(self._frame_provider):
+            try:
+                frame = self._frame_provider()
+            except Exception as error:        # noqa: BLE001 - say, not raise
+                self._columns = ()
+                self.columns_list.clear()
+                self.state.setText(f"Could not read the merged frame: "
+                                   f"{error}")
+                self._refresh_buttons()
+                return 0
+        self._columns = regressable_columns(frame)
+        self.columns_list.clear()
+        for name in self._columns:
+            item = QListWidgetItem(name)
+            self.columns_list.addItem(item)
+            item.setSelected(name in chosen)
+        self._apply_filter(self.filter.text())
+        self.state.setText(self._describe_state(frame))
+        self._refresh_buttons()
+        return len(self._columns)
+
+    def _describe_state(self, frame) -> str:
+        """What step 4 can and cannot do right now, and why."""
+        if frame is None or not len(frame):
+            return ("Nothing to regress on yet — merge the databases in step "
+                    "3 first. A column picker over a frame that does not "
+                    "exist would be a control that does nothing.")
+        if not self._columns:
+            return (f"The merged frame has {len(frame.columns)} columns and "
+                    f"none of them is a numeric measurement that varies. "
+                    f"Identity columns and constants are left out: a fit "
+                    f"onto a well name or onto one repeated value is not a "
+                    f"regression.")
+        score = self._score_path()
+        where = (f" Fits read {score}." if score else
+                 " The merged frame has not been written anywhere, so each "
+                 "fit would have nothing to read — set the module's src.")
+        return (f"{len(self._columns)} measurement(s) can be regressed on. "
+                f"Each column you pick becomes ITS OWN RUN in the Runs "
+                f"tab.{where}")
+
+    def columns(self) -> Tuple[str, ...]:
+        """Every column that can be regressed on."""
+        return self._columns
+
+    def selected_columns(self) -> Tuple[str, ...]:
+        """The columns the user picked, in the list's order.
+
+        The LIST's order and not the click order, so the queue is read the
+        same way the picker is -- and two users who picked the same three
+        columns get the same three runs in the same order.
+        """
+        return tuple(self.columns_list.item(index).text()
+                     for index in range(self.columns_list.count())
+                     if self.columns_list.item(index).isSelected())
+
+    def set_selected_columns(self, names: Sequence[str]) -> int:
+        """Select exactly ``names``. Returns how many were found."""
+        wanted = {str(name) for name in (names or ())}
+        found = 0
+        for index in range(self.columns_list.count()):
+            item = self.columns_list.item(index)
+            hit = item.text() in wanted
+            item.setSelected(hit)
+            found += int(hit)
+        self._refresh_buttons()
+        return found
+
+    def _apply_filter(self, text: str) -> None:
+        """Hide the rows that do not match. SELECTION IS NOT TOUCHED.
+
+        A filter that deselected what it hid would let a user narrow the list
+        and silently shorten their own queue -- and the queue is the thing
+        this panel exists to build.
+        """
+        needle = str(text or "").strip().lower()
+        for index in range(self.columns_list.count()):
+            item = self.columns_list.item(index)
+            item.setHidden(bool(needle) and needle not in item.text().lower())
+
+    def _on_selection(self) -> None:
+        """Enable the actions for whichever columns are selected."""
+        self._refresh_buttons()
+
+    def _refresh_buttons(self) -> None:
+        """Enable each action only when it has something to act on."""
+        chosen = len(self.selected_columns())
+        self.run_button.setEnabled(
+            bool(chosen) and not self._running and bool(self._score_path()))
+        self.run_button.setText(
+            "Regress on the selected columns" if chosen != 1
+            else "Regress on the selected column")
+        self.cancel_button.setEnabled(self._running)
+
+    def _offer_frame(self, score: str) -> bool:
+        """Hand the merged frame to the fits under the path they will read.
+
+        :param score: the artefact every fit of this queue is pointed at.
+        :returns: whether an offer was made.
+
+        The frame provider and the score provider are two views of ONE merge
+        -- the panel wires both to the merging panel, which sets the frame and
+        the path it wrote it to together -- so the object offered here is the
+        contents of that path.
+
+        Nothing here extends the frame's life: the offer is weak and the
+        merging panel remains its owner. A provider with no frame to give (a
+        run whose artefact was written in an earlier session, say) makes no
+        offer at all, and the fits read the file as they always did.
+        """
+        if not score or not callable(self._frame_provider):
+            return False
+        try:
+            frame = self._frame_provider()
+        except Exception:                     # noqa: BLE001 - offer, not raise
+            return False
+        if frame is None or not len(frame):
+            return False
+        from ...frame_handoff import hold
+
+        hold(score, frame)
+        return True
+
+    def _score_path(self) -> str:
+        """The merged frame's file, or ``""``."""
+        if not callable(self._score_provider):
+            return ""
+        try:
+            return str(self._score_provider() or "")
+        except Exception:                     # noqa: BLE001 - say, not raise
+            return ""
+
+    # ------------------------------------------------------------ the queue
+
+    def start_regressions(self, *_args) -> bool:
+        """Fit every selected column, one run each, off the GUI thread.
+
+        :returns: whether a queue was started. ``False`` when nothing is
+            selected, when one is already going, or when the merged frame was
+            never written -- and each of those SAYS which it was, because a
+            button that does nothing is the failure this file keeps fixing.
+        """
+        if self._running:
+            return False
+        columns = self.selected_columns()
+        if not columns:
+            self.progress.setText("Pick at least one column first.")
+            self.progress.setVisible(True)
+            return False
+        score = self._score_path()
+        if not score:
+            self.progress.setText(
+                "The merged frame has not been written anywhere, so there is "
+                "nothing for a fit to read. Merge in step 3 with the module's "
+                "src set.")
+            self.progress.setVisible(True)
+            return False
+
+        base = {}
+        if callable(self._settings_provider):
+            try:
+                base = dict(self._settings_provider() or {})
+            except Exception as error:        # noqa: BLE001 - say, not raise
+                self.progress.setText(f"Could not read the run settings: "
+                                      f"{error}")
+                self.progress.setVisible(True)
+                return False
+        # SNAPSHOTTED ON THE GUI THREAD. The provider is the live settings
+        # panel; reading it from the worker would be touching a widget off
+        # the GUI thread, and reading it per fit would let a user editing the
+        # panel mid-queue fit twelve different models and compare them as if
+        # only the response had changed.
+        self._queue_settings = base
+        self._queue_score = score
+        # THE FRAME IS OFFERED FOR EXACTLY AS LONG AS THE QUEUE THAT READS IT.
+        # The merge offers it when it stages it and `_finish_queue` withdraws
+        # that offer, so without this a second queue over the same merge would
+        # parse the artefact back once per fit -- gigabytes of it -- while the
+        # panel above was still holding the very frame it wrote.
+        self._offer_frame(score)
+        self._outcomes = []
+        self._stop.clear()
+        self._running = True
+        self._refresh_buttons()
+        self.outcomes_box.setPlainText("")
+        self._show_outcomes()
+        # THE LABEL ONLY, not `_on_queue_progress`. Calling that here put the
+        # first column's `fit_started` out TWICE -- once from here and once
+        # from the worker's own progress callback -- which is two rows in the
+        # Runs tab for one fit, and the first of them says "running" for ever
+        # because the second overwrote its handle. Found by driving the real
+        # queue; the tests were green.
+        self.progress.setText(f"Queued {len(columns)} fit(s).")
+        self.progress.setVisible(True)
+        started = self._jobs.submit(
+            lambda cols=tuple(columns): self._queue_worker(cols),
+            self._finish_queue)
+        if not started:
+            # Same contract as start_merge above: the running state goes
+            # up before the submit, so a refusal has to take it down or
+            # the queue can never be started again.
+            self._running = False
+            self._refresh_buttons()
+        return bool(started)
+
+    def cancel(self, *_args) -> bool:
+        """Stop the queue after the fit that is running.
+
+        :returns: whether there was one to stop.
+
+        NOT MID-FIT, and the honesty is the point: a regression stopped
+        half-way has written part of a results folder, and there is no way to
+        say what that folder means. The fits that finished are complete runs
+        and stay in the Runs tab.
+        """
+        if not self._running:
+            return False
+        self._stop.set()
+        self.progress.setText(
+            "Stopping after the fit that is running. The runs that finished "
+            "are complete and stay in the Runs tab.")
+        self.progress.setVisible(True)
+        return True
+
+    def is_running(self) -> bool:
+        """Whether a queue of fits is going right now."""
+        return bool(self._running)
+
+    def outcomes(self) -> Tuple[ColumnFit, ...]:
+        """What each fit of the last queue did."""
+        return tuple(self._outcomes)
+
+    # -- the three halves, so both entry points share them ------------------
+
+    def _queue_worker(self, columns: Sequence[str]) -> Dict[str, Any]:
+        """The fits. Runs on the worker thread and touches NO widget."""
+        try:
+            fits = run_column_fits(
+                columns,
+                lambda column: column_run_settings(
+                    self._queue_settings, column, self._queue_score),
+                self._fit,
+                progress=self._relay_started,
+                cancelled=self._stop.is_set,
+                on_result=self._relay_result)
+        except QueueCancelled as stopped:
+            return {"outcome": "cancelled", "why": str(stopped)}
+        return {"outcome": "ran", "fits": fits}
+
+    def _relay_started(self, column: str, index: int, total: int) -> None:
+        """Called BY THE WORKER before each fit. Emits, and nothing else."""
+        try:
+            self._started_relayed.emit(str(column), int(index), int(total))
+        except RuntimeError:                 # teardown race
+            pass
+
+    def _relay_result(self, outcome: ColumnFit) -> None:
+        """Called BY THE WORKER after each fit. Emits, and nothing else."""
+        try:
+            self._result_relayed.emit(outcome)
+        except RuntimeError:                 # teardown race
+            pass
+
+    def _on_queue_progress(self, column: str, index: int, total: int) -> None:
+        """One fit is starting. Always on the GUI thread."""
+        self.progress.setText(
+            f"Fitting {column} — run {int(index) + 1} of {int(total)}.")
+        self.progress.setVisible(True)
+        self.queue_progress.emit(str(column), int(index), int(total))
+        # THE ROW GOES UP BEFORE THE FIT COMES BACK. A twelve-column queue
+        # that showed nothing until it ended would be the freeze this whole
+        # instruction was filed about, one screen along.
+        self.fit_started.emit(
+            str(column),
+            column_run_settings(self._queue_settings, str(column),
+                                self._queue_score))
+
+    def _on_queue_result(self, outcome) -> None:
+        """One fit is decided. Always on the GUI thread."""
+        self._outcomes.append(outcome)
+        lines = [fit.describe() for fit in self._outcomes]
+        self.outcomes_box.setPlainText("\n".join(lines))
+        self._show_outcomes()
+        self.fit_finished.emit(str(outcome.column),
+                               {"ok": bool(outcome.ok),
+                                "folder": str(outcome.folder),
+                                "error": str(outcome.error),
+                                "n_results": int(outcome.n_results)})
+
+    def _finish_queue(self, result: Dict[str, Any]) -> None:
+        """Say what the queue did. Always on the GUI thread."""
+        self._running = False
+        self._refresh_buttons()
+        fitted = sum(1 for fit in self._outcomes if fit.ok)
+        failed = len(self._outcomes) - fitted
+        if (result or {}).get("outcome") == "cancelled":
+            self.progress.setText(
+                f"{result.get('why', 'Stopped.')} {fitted} run(s) finished.")
+        else:
+            self.progress.setText(
+                f"{fitted} run(s) fitted"
+                + (f", {failed} did not — see below." if failed else ".")
+                + " Compare them in the Runs tab.")
+        self.progress.setVisible(True)
+        self.queue_finished.emit(fitted, failed)
+        # THE PRODUCER SAYS IT HAS FINISHED. The offer is a weak reference, so
+        # this is not the difference between a leak and none -- the merging
+        # panel above still owns the frame either way. What it buys is a
+        # DETERMINISTIC fallback: after this, anything that reads the merged
+        # frame reads the file, rather than getting the object or the file
+        # depending on when a garbage collection happened to run.
+        from ...frame_handoff import release
+
+        release(self._queue_score)
+
+    def _on_job_failed(self, message: str) -> None:
+        """Report a failed regression.
+
+        :param message: what went wrong.
+        """
+        self._running = False
+        self._refresh_buttons()
+        self.progress.setText(f"The queue did not finish: {message}")
+        self.progress.setVisible(True)
+
+    def closeEvent(self, event):                 # noqa: N802 - Qt name
+        """Do not let a queue outlive the widget it reports to."""
+        try:
+            self._stop.set()
+            self._jobs.shutdown()
+        finally:
+            super().closeEvent(event)
+
+
+def _perform_regression(settings):
+    """Run one regression. The default `fit` of :class:`ColumnRegressionPanel`.
+
+    Imported here rather than at module scope because `spacr.ml` pulls in
+    statsmodels, torch and the plotting stack -- and this module is imported
+    while the first window is still being built.
+    """
+    from ...ml import perform_regression
+
+    return perform_regression(settings)
+
+
+
+class MeasurementScanPanel(QWidget):
+    """The scan's result table, and the two numbers behind every row.
+
+    :ivar measurement_selected: emitted with the measurement name of the
+        selected row, so a host can draw it.
+    :ivar scanned: emitted with the number of measurements scanned.
+    """
+
+    measurement_selected = Signal(str)
+    scanned = Signal(int)
+
+    def __init__(self, frame_provider=None, parent=None,
+                 database_provider=None, *, threaded: bool = True,
+                 destination_provider=None, settings_provider=None, fit=None):
+        """Initialize the measurement scan and database-merge panel.
+
+        Parameters
+        ----------
+        frame_provider : callable or None, optional
+            Zero-argument callable returning the current well-level frame to
+            scan. It is evaluated when needed so a newly loaded run replaces
+            the previous frame.
+        parent : QWidget or None, optional
+            Parent widget.
+        database_provider : callable or None, optional
+            Zero-argument callable returning the regression input rows and
+            their attached measurement databases.
+        threaded : bool, default=True
+            Run database merges outside the GUI thread. Set to ``False`` for
+            synchronous use in tests or headless callers.
+        destination_provider : callable or None, optional
+            Zero-argument callable returning the directory where the merged
+            measurement frame is written.
+        settings_provider : callable or None, optional
+            Zero-argument callable returning the current regression settings.
+            Column fits copy these settings and vary only the response.
+        fit : callable or None, optional
+            Function used to fit one selected measurement column. ``None``
+            uses the standard regression implementation.
+        """
+        super().__init__(parent)
+        from .fast_plots import ResultsTable
+
+        self._frame_provider = frame_provider
+        self._result = None
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        # THE DATABASES COME FIRST, because they are the input to everything
+        # below them. Hidden entirely when no plate row has one, so a project
+        # that never attached a database sees the tab it has always seen.
+        self.databases = DatabaseMergePanel(
+            database_provider, self, threaded=threaded,
+            destination_provider=destination_provider)
+        self.databases.databases_changed.connect(self._on_databases_changed)
+        # A NESTED FOLD OR A DRAGGED BORDER IS PART OF THE SAME ARRANGEMENT
+        # as the outer dividers, so it is stored the same way and at the same
+        # moment. The panels relay rather than store: the user arranges ONE
+        # Measurements tab, and three records that can disagree is the bug
+        # that arrangement-per-widget always turns into.
+        self.databases.step_folds_changed.connect(self.remember_section_layout)
+        # EVERY SECTION IS A SPLITTER CHILD, so its borders move and it cannot
+        # be squeezed into its neighbour. Reported 2026-08-19: "still cant
+        # resize the elements in the measurements tabs. now they overlap in
+        # such a way i dont have access to some of them" -- a QVBoxLayout
+        # gives the sections whatever height it decides, and adding one more
+        # widget to it took the space out of the others.
+        #
+        # `setChildrenCollapsible(False)` with a minimum height per section is
+        # what makes "not be able to overlap" true rather than merely
+        # unlikely: a section can be dragged small, never to nothing.
+        #
+        # AND EACH ONE FOLDS. Reported in the same breath: "there are to many
+        # elements in the measurements tab". Four panels is too many only
+        # when all four are open -- a user fitting a regression does not need
+        # the attach-database table on screen. See
+        # :class:`~.collapsible_section.CollapsibleSection`.
+        self._sections = QSplitter(Qt.Vertical, self)
+        self._sections.setChildrenCollapsible(False)
+        layout.addWidget(self._sections, 1)
+        self._folders = {}
+        # Set while the stored layout is being put back, so restoring does
+        # not write the half-restored state straight back out again.
+        self._restoring = False
+        self._sections.splitterMoved.connect(
+            lambda *_: self.remember_section_layout())
+        self._add_folding_section(self.databases, "Attached databases",
+                                  minimum=90)
+        self._show_section("Attached databases",
+                           bool(self.databases.databases))
+
+        # STEP 4, WHICH THE TAB USED TO END WITHOUT (154 F). Steps 1-3 merge;
+        # merging so that "regression can be run on any column in the
+        # databases" is the POINT of the merging, and it was not on this tab
+        # at all -- so a user who had merged had no idea what came next.
+        self.regression = ColumnRegressionPanel(
+            frame_provider=self.databases_frame,
+            settings_provider=settings_provider,
+            score_provider=self.databases.merged_frame_path,
+            parent=self, threaded=threaded, fit=fit)
+        # A NEW MERGE IS A NEW SET OF COLUMNS. Without this the picker holds
+        # the previous merge's columns and every fit reads a file that has
+        # been overwritten underneath it.
+        self.databases.merged.connect(self._on_merged)
+        self.regression.step_folds_changed.connect(
+            self.remember_section_layout)
+        self._add_folding_section(self.regression, "Regression", minimum=110)
+        self._show_section("Regression", bool(self.databases.databases))
+
+        scan = QWidget(self)
+        scan_layout = QVBoxLayout(scan)
+        scan_layout.setContentsMargins(0, 0, 0, 0)
+        top = QHBoxLayout()
+        self._run = QPushButton("Scan measurements")
+        self._run.setToolTip(
+            "Hold the model fixed and sweep the dependent variable: which "
+            "measurement has genes with a clear effect. Corrected across the "
+            "scan, not only within each measurement.")
+        self._run.clicked.connect(self.run_scan)
+        top.addWidget(self._run)
+
+        top.addWidget(QLabel("rank by"))
+        self._rank = QComboBox()
+        # Effect size first, because that is what was asked for and because
+        # with enough wells a trivial effect is significant.
+        self._rank.addItem("effect size", "effect_size")
+        self._rank.addItem("across-scan q", "across_scan_q")
+        self._rank.addItem("within-run q", "within_run_q")
+        self._rank.currentIndexChanged.connect(self._resort)
+        top.addWidget(self._rank)
+        top.addStretch(1)
+        scan_layout.addLayout(top)
+
+        self._status = QLabel("No scan yet.")
+        self._status.setWordWrap(True)
+        scan_layout.addWidget(self._status)
+
+        self.table = ResultsTable()
+        self.table.configure(
+            placeholder="Filter measurements — a channel, a shape, anything",
+            significance_filter=False)
+        self.table.table.itemSelectionChanged.connect(self._on_selection)
+        scan_layout.addWidget(self.table, 1)
+        self._add_folding_section(scan, "Measurement scan", minimum=140)
+
+    #: Which section is expanded on first use. NONE, as of 2026-08-20:
+    #: "measurment sections should all start closed."
+    #:
+    #: The tab holds four panels and opening one of them chose a starting
+    #: point on the user's behalf -- which was the point when the fold was
+    #: added (169), and is no longer wanted now that a fold really hands its
+    #: height over (186 C) and an opened section fills the space (187 C).
+    #: All closed is a tab that shows its four headings and lets the user say
+    #: which one they are here for.
+    #:
+    #: First-run only either way. `restore_section_layout` runs after this
+    #: and wins, so a user who arranged the tab last session gets that back.
+    OPENS_EXPANDED = ""
+
+    def _add_folding_section(self, widget, title: str, *, minimum: int):
+        """One splitter child: ``widget`` under a header that folds it.
+
+        The section is what the splitter sees, so a fold really does hand its
+        height to the neighbours rather than leaving a gap where the panel
+        was.
+        """
+        from .collapsible_section import CollapsibleSection
+
+        widget.setMinimumHeight(minimum)
+        section = CollapsibleSection(title, widget,
+                                     expanded=(title == self.OPENS_EXPANDED),
+                                     parent=self)
+        section.set_open_minimum(minimum)
+        # RE-WEIGH ON EVERY FOLD, because the weights depend on which
+        # sections are open -- see `_keep_the_filler_last`.
+        section.toggled.connect(lambda *_: self._reweigh_and_remember())
+        self._folders[title] = section
+        self._sections.addWidget(section)
+        # THE FILLER STAYS LAST, so a section added later still folds upward.
+        self._keep_the_filler_last()
+        return section
+
+    def _reweigh_and_remember(self) -> None:
+        """A fold changed: hand the space out again, then store the layout."""
+        self._keep_the_filler_last()
+        self._share_the_height()
+        self.remember_section_layout()
+
+    def _share_the_height(self) -> None:
+        """Redistribute splitter height after a section opens or closes.
+
+        Hidden sections take no space and collapsed sections retain only their
+        header height. Expanded sections divide the remaining height; the
+        filler receives the unused space only when every section is collapsed.
+        """
+        sections = self.sections()
+        if not sections:
+            return
+        total = max(self._sections.height(), 1)
+        sizes = []
+        open_indexes = []
+        for index in range(self._sections.count()):
+            widget = self._sections.widget(index)
+            if widget is getattr(self, "_filler", None):
+                sizes.append(0)
+                continue
+            # A HIDDEN SECTION TAKES NO ROOM. `_show_section` hides the ones
+            # with nothing to show, and the splitter forces a hidden child to
+            # zero anyway -- so asking for its minimum here only makes the
+            # arithmetic disagree with the layout that follows.
+            if not widget.isVisible():
+                sizes.append(0)
+                continue
+            if getattr(widget, "is_expanded", lambda: False)():
+                open_indexes.append(index)
+                sizes.append(0)                  # filled in below
+            else:
+                sizes.append(widget.minimumHeight() or 1)
+        spare = max(total - sum(sizes), 0)
+        if open_indexes:
+            each = max(spare // len(open_indexes), 1)
+            for index in open_indexes:
+                sizes[index] = each
+        else:
+            # Nothing open: the whole gap goes under the folded headers.
+            filler = self._sections.indexOf(getattr(self, "_filler", None))
+            if filler >= 0:
+                sizes[filler] = spare
+        self._sections.setSizes(sizes)
+
+    def sections(self) -> tuple:
+        """Return the folding sections in display order.
+
+        The expanding layout filler is excluded from the returned tuple.
+        """
+        from .collapsible_section import CollapsibleSection
+
+        return tuple(
+            self._sections.widget(i) for i in range(self._sections.count())
+            if isinstance(self._sections.widget(i), CollapsibleSection))
+
+    def _keep_the_filler_last(self) -> None:
+        """Keep an expanding splitter child below all folding sections.
+
+        The filler absorbs height released by collapsed sections so their
+        headers remain stacked at the top of the panel.
+        """
+        from PySide6.QtWidgets import QSizePolicy, QWidget
+
+        filler = getattr(self, "_filler", None)
+        if filler is None:
+            filler = QWidget(self)
+            filler.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+            filler.setMinimumHeight(0)
+            self._filler = filler
+        index = self._sections.indexOf(filler)
+        last = self._sections.count() - 1
+        if index != last or index < 0:
+            self._sections.addWidget(filler)
+        # THE FILLER YIELDS FIRST. Reported 2026-08-20, right after the
+        # fold-upward fix landed: "when opened they just open a tiny bit.
+        # have them fill the container to the next subsection."
+        #
+        # Giving the filler the only stretch made it absorb TOO well -- an
+        # opened section took its minimum and the filler kept everything
+        # else. An OPEN section stretches, so opening one takes the space
+        # back from the gap; a FOLDED section does not, so it still hands its
+        # height over. The filler stretches least of the three, which is what
+        # makes it the last to get space and the first to give it up.
+        for i in range(self._sections.count()):
+            widget = self._sections.widget(i)
+            if widget is filler:
+                self._sections.setStretchFactor(i, 1)
+            elif getattr(widget, "is_expanded", lambda: False)():
+                self._sections.setStretchFactor(i, 10)
+            else:
+                self._sections.setStretchFactor(i, 0)
+
+    #: What this panel is called in the stored layout. A NAME, not the class,
+    #: so renaming the class does not throw away every user's arrangement.
+    LAYOUT_KEY = "measurements"
+
+    def restore_section_layout(self) -> bool:
+        """Put back the folds and divider positions from last time.
+
+        Called once the sections exist, including any added later by
+        :meth:`add_section`, which is why the host calls it rather than the
+        constructor.
+
+        :returns: whether anything was restored.
+        """
+        from ..preferences import get_section_layout
+
+        try:
+            layout = get_section_layout(self.LAYOUT_KEY)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not read the stored section layout",
+                      exc_info=True)
+            return False
+        if not layout:
+            return False
+        self._restoring = True
+        try:
+            return self._apply_section_layout(layout)
+        finally:
+            self._restoring = False
+
+    def _apply_section_layout(self, layout) -> bool:
+        """Restore the folded state each section was last left in.
+
+        :param layout: the saved layout.
+        """
+        folded = set(layout.get("folded") or ())
+        for title in self._folders:
+            # ONLY the titles that are actually there. A stored layout from a
+            # version with a section this one does not have must not be an
+            # error, and a NEW section defaults to open rather than to
+            # whatever the absent entry would imply.
+            self.set_section_expanded(title, title not in folded)
+        sizes = [int(size) for size in (layout.get("sizes") or ())]
+        # A LAYOUT STORED BEFORE THE FILLER EXISTED is one child short, and
+        # dropping it would throw away every arrangement a user already has.
+        # The filler takes whatever is left, so it is restored at zero and
+        # grows on the first layout pass. (Future-first: what is written from
+        # now on carries the filler's own size.)
+        if len(sizes) == self._sections.count() - 1:
+            sizes = sizes + [0]
+        if len(sizes) == self._sections.count() and all(s >= 0 for s in sizes):
+            self._sections.setSizes(sizes)
+        # THE TWO NESTED LEVELS, restored in the same pass as the outer one.
+        # Numbered steps and box keys are unique across the tab's panels, so
+        # each panel takes the entries it recognises and ignores the rest --
+        # see `set_step_folds`, which is where "ignores the rest" is spelled
+        # out and why it is not an error.
+        steps = layout.get("steps") or {}
+        boxes = layout.get("boxes") or {}
+        for panel in self._step_panels():
+            if steps:
+                panel.set_step_folds(steps)
+            if boxes:
+                panel.set_box_heights(boxes)
+        return True
+
+    def _step_panels(self) -> tuple:
+        """The panels on this tab that draw numbered workflow steps."""
+        return tuple(panel for panel in (getattr(self, "databases", None),
+                                         getattr(self, "regression", None))
+                     if isinstance(panel, WorkflowSteps))
+
+    def remember_section_layout(self) -> None:
+        """Store the folds and divider positions. Called when the tab closes."""
+        from ..preferences import set_section_layout
+
+        if self._restoring:
+            return
+        try:
+            folded = [title for title in self._folders
+                      if not self.is_section_expanded(title)]
+            steps = {}
+            boxes = {}
+            for panel in self._step_panels():
+                steps.update(panel.step_folds())
+                boxes.update(panel.box_heights())
+            set_section_layout(self.LAYOUT_KEY, folded=folded,
+                               sizes=self._sections.sizes(),
+                               steps=steps, boxes=boxes)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not store the section layout", exc_info=True)
+
+    def section_is_shown(self, title: str) -> bool:
+        """Whether a section is on the tab at all -- FOLDED OR NOT.
+
+        TWO DIFFERENT QUESTIONS, and they used to be asked with one call.
+        `_show_section` HIDES a section that has nothing to show; a fold
+        merely closes one that does. Testing the content's visibility answers
+        both at once, so when the sections started closed (2026-08-20) three
+        tests about "the databases appear without a scan" began failing --
+        the databases were there, the section was shown, and its content was
+        simply folded away, which is what folded means.
+        """
+        section = self._folders.get(str(title))
+        return bool(section is not None and section.isVisibleTo(self))
+
+    def _show_section(self, title: str, showing: bool) -> None:
+        """Show or hide a whole section, HEADER INCLUDED.
+
+        Hiding the panel alone would leave its header behind, and opening
+        that header would then reveal a panel the tab had decided not to
+        show -- the fold and the "is there anything to show" question would
+        be answering each other.
+        """
+        section = self._folders.get(str(title))
+        if section is not None:
+            section.setVisible(bool(showing))
+        else:
+            # A TITLE THAT NAMES NO SECTION. Every caller passes one from
+            # section_titles(), so this is reached only if the two ever
+            # disagree -- which is exactly when a header would be left
+            # opening onto nothing.
+            self.databases.setVisible(bool(showing))
+
+    def section_titles(self) -> tuple:
+        """What can be folded, in the order the tab shows it."""
+        return tuple(self._folders)
+
+    def is_section_expanded(self, title: str) -> bool:
+        """Whether one result section is open.
+
+        :param title: the section's title.
+        :returns: True when expanded.
+        """
+        section = self._folders.get(str(title))
+        return bool(section is not None and section.is_expanded())
+
+    def set_section_expanded(self, title: str, expanded: bool) -> None:
+        """Fold or open one section by name. The hook a preference needs."""
+        section = self._folders.get(str(title))
+        if section is not None:
+            section.set_expanded(bool(expanded))
+
+    def add_section(self, widget, title: str = "") -> None:
+        """Put ``widget`` in the tab as its own resizable, foldable section.
+
+        Anything added to this tab goes HERE and not into the layout: a widget
+        appended to the layout takes its height out of the others, which is
+        how the sections came to overlap.
+        """
+        if widget is None:
+            return
+        name = str(title) or widget.windowTitle() or type(widget).__name__
+        self._add_folding_section(widget, name, minimum=120)
+
+        # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
+        # into. A tooltip on an editable field is unreachable the moment the
+        # user is editing it -- which is exactly when they wanted it -- and
+        # tests/test_tooltips_are_on_the_setting_not_the_field.py is the
+        # guard that says so.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
+
+    # -------------------------------------------------------------- running
+
+    def set_frame_provider(self, provider) -> None:
+        """Take a new source for the frame the scan runs on."""
+        self._frame_provider = provider
+
+    def set_database_provider(self, provider) -> None:
+        """Take a new source for the input table's attached databases.
+
+        The same shape as :meth:`set_frame_provider`, and for the same reason:
+        the tab re-reads the rows rather than holding a copy of them.
+        """
+        self.databases.set_database_provider(provider)
+
+    def refresh_databases(self) -> int:
+        """Re-read the attached databases. Called when the tab is opened.
+
+        :returns: how many readable databases are attached.
+        """
+        return self.databases.refresh()
+
+    def _on_databases_changed(self, count: int) -> None:
+        # Shown when there is anything to show -- including rows whose
+        # database is missing or absent, because "this plate has none" is
+        # exactly what a user opening this tab needs to be told.
+        """Re-run the scan when the set of databases changes.
+
+        :param count: how many are now selected.
+        """
+        showing = bool(self.databases.databases)
+        self._show_section("Attached databases", showing)
+        self._show_section("Regression", showing)
+
+    def databases_frame(self):
+        """The merged frame step 3 produced, or ``None``.
+
+        A method rather than the attribute, so step 4 reads the CURRENT
+        frame every time instead of a copy taken when it was built.
+        """
+        return self.databases.frame
+
+    def _on_merged(self, _frame) -> None:
+        """A merge finished: step 4 offers that frame's columns."""
+        self.regression.refresh()
+
+    def run_scan(self, **kwargs) -> bool:
+        """Scan whatever the provider is holding. Returns whether it ran."""
+        frame = None
+        if callable(self._frame_provider):
+            try:
+                frame = self._frame_provider()
+            except Exception as error:  # noqa: BLE001 - report, do not raise
+                self._status.setText(f"Could not read the data: {error}")
+                return False
+        if frame is None or not len(frame):
+            self._status.setText(self.why_nothing_to_scan(frame))
+            return False
+        return self.scan(frame, **kwargs)
+
+    def why_nothing_to_scan(self, frame=None) -> str:
+        """Which half is missing, checked rather than asserted.
+
+        The old sentence named two things a well must
+        carry, checked neither, and was shown while four
+        measurement databases were loaded -- so it was wrong about the half
+        that was there and silent about the half that was not.
+
+        :param frame: whatever the provider returned, or ``None``.
+        """
+        merged = self.databases.frame
+        attached = len(self.databases.paths())
+        # THE MEASUREMENT HALF, from what this tab is actually holding.
+        if attached and merged is not None and len(merged):
+            have = (f"{attached} measurement database(s) are attached and "
+                    f"merged into {len(merged):,} "
+                    f"{merged.attrs.get('anchor', DEFAULT_ANCHOR)} rows")
+        elif attached:
+            have = (f"{attached} measurement database(s) are attached but "
+                    f"not merged yet — press Merge above")
+        else:
+            have = "no measurement database is attached"
+
+        if not callable(self._frame_provider):
+            return ("Nothing to scan: THE GENE HALF IS MISSING. No source of "
+                    "well-level data is wired to this tab, so there is "
+                    f"nothing carrying a gene assignment to scan against. "
+                    f"Meanwhile {have}.")
+        if frame is None:
+            return (
+                "Nothing to scan: THE GENE HALF IS MISSING. No regression "
+                "run is loaded, and the gene assignment comes from the run's "
+                "own regression_data.csv — the measurement databases carry "
+                f"measurements and wells, never which gene is in a well. "
+                f"Right now {have}. Fit a regression, or load an existing run "
+                f"from the Runs tab, and this scan has both halves.")
+        if not len(frame):
+            return (f"Nothing to scan: the loaded run's well table has no "
+                    f"rows, so there is neither a gene assignment nor a "
+                    f"measurement in it. {have[0].upper() + have[1:]}.")
+        return f"Nothing to scan. {have[0].upper() + have[1:]}."
+
+    def what_is_available(self) -> str:
+        """One line naming both halves, and whether their wells meet.
+
+        Appended to a refusal, because "no 'gene' column" is true and does not
+        say that the measurements next to it cannot be reached either.
+        """
+        merged = self.databases.frame
+        if merged is None or not len(merged):
+            return ""
+        frame = None
+        if callable(self._frame_provider):
+            try:
+                frame = self._frame_provider()
+            except Exception:  # noqa: BLE001 - a diagnosis must not raise
+                return ""
+        if frame is None or not len(frame):
+            return ""
+        return describe_key_overlap("merged measurements", merged,
+                                    "loaded run", frame)
+
+    def scan(self, frame, **kwargs) -> bool:
+        """Scan ``frame`` and show the result."""
+        from ...measurement_scan import ScanRefused, scan_measurements
+
+        try:
+            result = scan_measurements(frame, **kwargs)
+        except ScanRefused as refusal:
+            # A refusal is an ANSWER and it says what to do about it. Shown
+            # in full rather than summarised: "the scan failed" would send the
+            # user looking for a bug in the software.
+            #
+            # AND WHAT ELSE IS HERE. "no 'gene' column" is true and incomplete
+            # when four measurement databases are sitting above it whose
+            # wells do not meet the loaded run's -- that is a second, checked
+            # fact, and the user cannot act on the first without it.
+            also = self.what_is_available()
+            self._status.setText(str(refusal) + (f"\n{also}" if also else ""))
+            self.table.set_frame(None)
+            self._result = None
+            return False
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            self._status.setText(f"The scan did not finish: {error}")
+            self.table.set_frame(None)
+            self._result = None
+            return False
+        return self.set_result(result)
+
+    def set_result(self, result) -> bool:
+        """Show an already-computed :class:`ScanResult`."""
+        self._result = result
+        table = result.frame()
+        if not len(table):
+            self._status.setText("No measurement could be scanned.\n"
+                                 + result.describe())
+            self.table.set_frame(None)
+            return False
+
+        # BOTH CORRECTIONS, IN WORDS, ON EVERY ROW. A measurement that passes
+        # within its own run and fails across the scan is the single most
+        # important thing this feature can tell a user, and it is invisible in
+        # two columns of small numbers.
+        table = table.copy()
+        table["verdict"] = [verdict_for(row) for row in result.rows]
+        table = table.loc[table.index]           # keep the frame's own order
+        self.table.set_frame(table[ordered_columns(table)],
+                             key_column="measurement")
+        self._status.setText(self._summary(result))
+        self.scanned.emit(len(result.rows))
+        return True
+
+    @staticmethod
+    def _summary(result) -> str:
+        """The header. Leads with the gap between the two corrections."""
+        survivors = len(result.surviving())
+        within = sum(1 for row in result.rows if row.survives_within_run)
+        text = [
+            f"{len(result.rows)} measurements scanned. "
+            f"{survivors} show a clear gene effect across the scan; "
+            f"{within} would have been reported by a single-measurement run."
+        ]
+        if within > survivors:
+            text.append(
+                f"The {within - survivors} in between are the ones a "
+                f"per-measurement analysis would have shown you as hits.")
+        dropped = getattr(result, "genes_dropped", None)
+        if dropped:
+            text.append(
+                f"{len(dropped)} gene(s) left out for having fewer than two "
+                f"wells — a gene in one well has nothing corroborating it: "
+                + ", ".join(sorted(dropped)[:6])
+                + ("…" if len(dropped) > 6 else ""))
+        if result.skipped:
+            text.append(f"{len(result.skipped)} column(s) not scanned.")
+        return "  ".join(text)
+
+    # ------------------------------------------------------------ selection
+
+    @property
+    def result(self):
+        """The last scan's result, if any.
+
+        :returns: the result, or None before a scan.
+        """
+        return self._result
+
+    def _resort(self) -> None:
+        """Re-order the results by the chosen column."""
+        if self._result is None:
+            return
+        column = self._rank.currentData()
+        table = self._result.frame().copy()
+        table["verdict"] = [verdict_for(row) for row in self._result.rows]
+        if column in table.columns:
+            ascending = column != "effect_size"
+            key = (lambda s: s.abs()) if column == "effect_size" else None
+            table = table.sort_values(column, ascending=ascending, key=key,
+                                      kind="stable").reset_index(drop=True)
+        self.table.set_frame(table[ordered_columns(table)],
+                             key_column="measurement")
+
+    def _on_selection(self) -> None:
+        """Show the details of whichever result is selected."""
+        key = None
+        items = self.table.table.selectedItems()
+        if items:
+            key = self.table.key_for_row(items[0].data(Qt.UserRole))
+        if key:
+            self.measurement_selected.emit(str(key))

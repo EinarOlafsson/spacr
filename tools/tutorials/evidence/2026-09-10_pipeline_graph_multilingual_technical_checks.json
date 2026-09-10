@@ -1,0 +1,175 @@
+{
+  "lesson": "52_pipeline_graph",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_pipeline_graph_current_workflow.json",
+  "canonical_english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "scene_count": 11,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "7fd60a0456ebf00052e8bc474634f5ab172eba68",
+    "version": "1.5.0.4",
+    "module": "pipeline_graph",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "52_pipeline_graph.da.json": "1b166c2ac12398af3f22cf8ca31e4efb62cdac439e91d7eab05a6f468cf700e0",
+    "52_pipeline_graph.de.json": "f6e2f84155071265b28fd58c6a0faaa44cf52774a2b285505f2b1fbe23603b62",
+    "52_pipeline_graph.es.json": "8ec438de5e78ba7225b46c4e3c7abf45c420507241d2d3b8f259501ef204d8d0",
+    "52_pipeline_graph.fr.json": "9c3a45a357b53b8d268dcaf6dc71a3e4b3020721e42fc61846907c05c744e4a7",
+    "52_pipeline_graph.hi.json": "8ceca44cd609ee2416d776e8a996c7dacb11ded0f63098d0eb21444632b9fbbb",
+    "52_pipeline_graph.is.json": "30b29772a7a04dac24f3662f4a25b178d35ff14fdedec7802907a30f15e4d6c2",
+    "52_pipeline_graph.it.json": "17ce7140d57474ed2e1a31de3ef2b6648be237f26870e34840f35a1ae18b6687",
+    "52_pipeline_graph.ja.json": "934df8b438b3710602fcead0d13e0d0118d76ecbaee627ccc92e4a81bcca6e73",
+    "52_pipeline_graph.ko.json": "44d528cc1a57e2cc24506f8e1ef14cdb4bb6127b263dbe6d909fea8eb0a965ef",
+    "52_pipeline_graph.nb.json": "34b1d343f7cca5e815f690fc77fda7647d587adc705e6c34516388bff7ed83ed",
+    "52_pipeline_graph.pt-BR.json": "c15b559bdaac004b3f297b390d239643ec3593ecce42653bb14c6cad8d6f225f",
+    "52_pipeline_graph.sv.json": "4a3ac8a14b67831538d78df6b1eca4a50bf623cf9d44616b8018a189e168509f",
+    "52_pipeline_graph.zh-CN.json": "e3c73d9a3a4a24f87755bfb633aaf8e9dfca60ee35f80fc50b9defee8577ea5f"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked actual GUI; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "9d1364e806c0797858ac69b49157916924a94010fcc25458d008dfc9d088bd19",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6453"
+        }
+      ],
+      "format": {
+        "duration": "215.100000",
+        "size": "9468462"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 90,
+        "content": "Real missing crop record retains historical 104-file size, not current disk usage or cell count"
+      },
+      {
+        "seconds": 155,
+        "content": "Zero visible nodes while banner retains three records; wrong empty message and retained prior detail disclosed"
+      }
+    ]
+  },
+  "poster_sha256": "86ce49ddec155c026ee3b0ce3280bff4bdf086ee701c78253194e9e77116b7a5",
+  "final_artifact_checks_sha256": "2a9dac0d422d9d7f193d7d69671e034a78b68e850ec4a6780c7d34d0f6aa4677",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "bcff033f757587ee6aa2d1f73e7ffcbfd8845d711f1ee33d2ab56f651d114876"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "5dd4ad434c011e5bc9ab2a745104b4d7d5805774a882cb78fbb5a17d9f7cdaa3"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "0d0de9acb43884495320c3cdd55d54c2b3cdf5302d250759065de544f642052a"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "876f4ccd9b7c42e7550e11bd19cbd1d2181e95d18ad829cfdd8f0cb1027d116d"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "c573152ce87864457359ef4639361e19b49aeb90df53600321426940f2f58cf5"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "c9dfc593191ae0e5c71b6116e2cb4587cff74b04252c28efb8404f19fa3123af"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "93d854aeec73d638c9eb8950c2c1789158d9699f89e867216537af0c248e8ec5"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "54d18726fb96150d2627938e6f0560ecea152f6d9741e5b6fea0e01a6660c100"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "cdbef8f31fe9b97a523d7a53c2006bd41c47ab22a1a7567f5829bab8cfae0752"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "abc4d746e010693f431ec7dcc62ab2e1969f50638ab0a64330b79ab6fd92020e"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "de50c8366462f0f6badc8e205e9bd3db759adf46ba1dbf543d72cbf4b4fa94a6"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "d10f11d81c004c694847bfa64ae30e0ecb1813fd2475d0e84d93f5430a8817f2"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "74fa37474dfc6f46a596a2f0ac4886d1dffc1f08cfdbf0a3b796ff3c091f1a91"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "9cbb1fd019851a459a40b1de290fdeacdeac2f271eeb6ecfda6ac53f0713284f"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "ed95663d027baffe4203d5467588ca8de8e8ca5ae598668003e71d66581ed798"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.04630929510095427,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "31_external_masks",
+    "37_batch",
+    "40_run_history",
+    "44_data_manager",
+    "45_project_browser"
+  ],
+  "catalog_preservation_sha256": "048c9557733835efd8123c6ae84fa01882d18d500baacf5bb185c87a255fcba7",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 712,
+    "selected_refreshed_lessons": 27,
+    "unselected_lessons_unchanged": 48
+  },
+  "source_preservation": {
+    "original_project": {
+      "files": 131,
+      "byte_identical": true
+    },
+    "archive": {
+      "files": 26,
+      "byte_identical": true
+    },
+    "conversion_original": {
+      "files": 7,
+      "byte_identical": true
+    },
+    "conversion_copy": {
+      "files": 7,
+      "byte_identical": true
+    }
+  },
+  "scope_limits": [
+    "Three actual historical records from the genuine Data Manager post-cleanup snapshot; no invented input edges, stale flags or recovery. A fourth archive-destination record is not part of the historical project view.",
+    "The scoped independent oracle checks exact SQL identity/provenance, recorded size and actual existing/missing paths for complete records without input edges. General staleness logic is not independently reimplemented.",
+    "Current is not scientific validation; no recorded downstream dependency does not establish scientific independence. Missing crops retain historical size and file count.",
+    "Filters hide nodes only; empty canvas text can be wrong and old details persist. Clipboard contains the full graph, not just visible nodes.",
+    "No app/global i18n edits, deletion, analysis, dedicated download, live image preview, Plot operation or AI request. Real upstream tutorial data and all originals unchanged."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

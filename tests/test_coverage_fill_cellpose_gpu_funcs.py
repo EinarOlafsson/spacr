@@ -108,7 +108,7 @@ class _FakeModel:
         self.eval_calls.append({"shape": image.shape, "dtype": image.dtype,
                                 "image": image.copy(),
                                 "channel_axis": channel_axis, **kwargs})
-        # Return the 4-tuple shape (mask, flows, styles, diams).
+        # Return the Cellpose 4 shape (mask, flows, styles).
         h, w = converted.shape[:2]
         mask = np.zeros((h, w), dtype=np.uint16)
         mask[2:5, 2:5] = 1
@@ -116,7 +116,7 @@ class _FakeModel:
                  np.zeros((3, h, w), dtype=np.float32),
                  np.zeros((h, w), dtype=np.float32),
                  np.zeros((h, w), dtype=np.float32)]
-        return mask, flows, None, None
+        return mask, flows, None
 
 
 @pytest.fixture
@@ -532,13 +532,20 @@ class TestRemainingBranches:
                             monkeypatch):
         """Without CUDA the model is built for the CPU, and says so."""
         import torch
-        monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+        import spacr.accelerator as accelerator
+
+        cpu = torch.device("cpu")
+        monkeypatch.setattr(accelerator, "cellpose_gpu", lambda: False)
+        monkeypatch.setattr(
+            accelerator, "cellpose_kwargs",
+            lambda: {"gpu": False, "device": cpu},
+        )
         cpu_src = _make_img_dir(tmp_path / "cpu")
         SC.identify_masks_finetune(_settings(cpu_src))
 
         assert _mock_cellpose.gpu_flags == [False]
         assert _mock_cellpose.devices == ["cpu"]
-        assert "Torch CUDA is not available, using CPU" in \
+        assert "No GPU available to spaCR, using CPU" in \
             capsys.readouterr().out
         assert len(_mock_cellpose.eval_calls) == 2
 
@@ -547,12 +554,18 @@ class TestRemainingBranches:
         # Building the device object needs no real GPU, so this holds on a
         # CPU-only box too.
         _mock_cellpose.reset()
-        monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+        cuda = torch.device("cuda:0")
+        monkeypatch.setattr(accelerator, "cellpose_gpu", lambda: True)
+        monkeypatch.setattr(
+            accelerator, "cellpose_kwargs",
+            lambda: {"gpu": True, "device": cuda},
+        )
+        monkeypatch.setattr(accelerator, "describe", lambda: "test CUDA")
         gpu_src = _make_img_dir(tmp_path / "gpu")
         SC.identify_masks_finetune(_settings(gpu_src))
         assert _mock_cellpose.gpu_flags == [True]
         assert _mock_cellpose.devices == ["cuda:0"]
-        assert "Torch CUDA is not available" not in capsys.readouterr().out
+        assert "Segmenting on test CUDA" in capsys.readouterr().out
 
     def test_parse_per_image_ndarray_item(self):
         # A per-image ndarray flows item → f0=item, rest None (line 63).
@@ -639,20 +652,17 @@ class TestRemainingBranches:
         assert _plot_calls == []
         assert [c["shape"] for c in model2.eval_calls] == [(32, 32, 3)] * 2
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "generate_masks_from_imgs discards the loader's orig_dims. On the "
-        "normalize=True branch it overwrites them with the shapes of the "
-        "ALREADY target-resized images, so `if resize: resize back to "
-        "orig_dims` is a no-op and masks are written at target_height x "
-        "target_width instead of the source resolution. identify_masks_finetune "
-        "keeps the loader's orig_dims and restores correctly."))
     def test_generate_normalize_resize_restores_source_resolution(
             self, tmp_path, _mock_cellpose, _quiet_resize_preview):
         """A saved mask must line up with the image it segmented.
 
         Same 32x32 source and 16x16 target as
-        ``test_identify_verbose_resize``, which does restore. Here the mask is
-        written at 16x16, so it cannot be overlaid on its own source image.
+        ``test_identify_verbose_resize``, which does restore. This one USED TO
+        write the mask at 16x16, so it could not be overlaid on its own source
+        image: the normalize=True branch overwrote the loader's ``orig_dims``
+        with the shapes of the ALREADY-resized images, which made "resize back
+        to orig_dims" a no-op (instruction 100, D1). It restores now, and the
+        assertion below requires the 32x32 source rather than the target.
         """
         import tifffile
         src = _make_img_dir(tmp_path / "norm_resize", size=32)

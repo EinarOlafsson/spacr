@@ -1,4 +1,4 @@
-"""Browse, verify, fetch and bench the models spaCR can segment or classify with.
+"""Browse, verify, fetch and benchmark spaCR segmentation and classification models.
 
 Why this exists
 ---------------
@@ -115,7 +115,7 @@ Example::
     entries = zoo.catalogue() + zoo.discover_local('/data/screen1')
     print(zoo.format_zoo(entries))
 
-    entry = zoo.resolve('toxo_plaque_cyto_e25000_X1120_Y1120.CP_model', entries)
+    entry = zoo.resolve('cpsam_plaque_r3', entries)
     result = zoo.benchmark(entry, source='/data/screen1/plate1/1', n_fields=3)
     print(zoo.format_benchmarks([result]))
 
@@ -134,11 +134,21 @@ import json
 import logging
 import os
 import re
+import threading
 import time
-from dataclasses import dataclass, field as _dc_field, replace
+from dataclasses import dataclass, replace
+from dataclasses import field as _dc_field
 from pathlib import Path
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
     Tuple,
 )
 
@@ -150,6 +160,11 @@ __all__ = [
     "BUNDLED_REMOTE_MODELS",
     "BenchmarkResult",
     "CATALOGUE_ENV_VAR",
+    "RETIRED_MODEL_NAMES",
+    "REMOTE_CATALOGUE_URI",
+    "shared_catalogue",
+    "shared_catalogue_is_stale",
+    "publish_model",
     "CLASSIFIER_SUFFIXES",
     "CELLPOSE_SUFFIXES",
     "ChecksumMismatch",
@@ -202,8 +217,15 @@ __all__ = [
 #: not know what this model was trained on".
 UNKNOWN = "unknown"
 
-#: The two kinds of model spaCR runs.
-KINDS = ("cellpose", "classifier")
+#: The kinds of model spaCR runs.
+#:
+#: ``detector`` was added for the YOLO well detector, which is neither of the
+#: first two: it does not segment and it does not classify a crop, it locates
+#: regions so something else can. :class:`ModelEntry` VALIDATES against this
+#: tuple and raises on anything else, so an entry naming a kind that is not
+#: here fails at construction rather than being quietly filed as a Cellpose
+#: model and handed to CellposeModel later.
+KINDS = ("cellpose", "classifier", "detector")
 
 #: Filename endings that mark a Cellpose checkpoint. ``.CP_model`` is what
 #: :func:`spacr.submodules.train_cellpose` names its output.
@@ -245,33 +267,183 @@ HF_MODELS_REPO = "einarolafsson/models"
 #: :func:`load_catalogue_file` for the format.
 CATALOGUE_ENV_VAR = "SPACR_MODEL_CATALOGUE"
 
+#: The SHARED catalogue, fetched at runtime rather than shipped.
+#:
+#: WHY THIS IS REMOTE. Until this existed, a model reached other spaCR users
+#: only by someone editing :data:`BUNDLED_REMOTE_MODELS` in this file and
+#: cutting a release -- so contributing a model meant contributing to spaCR,
+#: waiting for a version, and every user upgrading. That is a high price for a
+#: row of metadata, and it is why the zoo had exactly one entry.
+#:
+#: A contributor now uploads to THEIR OWN Hugging Face account -- they keep
+#: ownership, and nobody has to hand out write access to anyone else's -- and
+#: adds one row here. See :func:`publish_model`, which does the upload and
+#: prints the row.
+REMOTE_CATALOGUE_URI = (
+    "https://huggingface.co/datasets/einarolafsson/models/resolve/main/"
+    "catalogue.json"
+)
+
+#: How long a fetched shared catalogue is reused before being re-fetched.
+#: Long enough that opening a module repeatedly is not a repeated request,
+#: short enough that a newly contributed model appears the same day.
+CATALOGUE_CACHE_SECONDS = 3600
+
 #: Remote entries spaCR knows about out of the box.
 #:
-#: ``sha256`` is empty because this pack publishes no checksum, and an empty
-#: hash here is a *statement*, not an oversight: :func:`fetch` refuses to
-#: install an entry it cannot verify unless the caller passes
-#: ``require_checksum=False``. The honest fix is a catalogue file
-#: (:func:`load_catalogue_file`) carrying hashes for the copies your lab
-#: actually blessed.
+#: EVERY ENTRY HERE CARRIES A REAL sha256, and that is now the rule rather
+#: than an aspiration. The retired ``toxo_plaque_cyto`` entry published none,
+#: so :func:`fetch` refused to install it -- correctly, since a truncated or
+#: substituted checkpoint could not be told from the real one -- which meant
+#: it appeared in the model zoo as a row whose Download button could never
+#: succeed. An entry without a hash is not a conservative entry; it is one
+#: nobody can install.
 BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
+    # THE THREE BELOW PUBLISH REAL CHECKSUMS, and live in MODEL repos rather
+    # than the dataset repo above -- hence `repo_type`. Being verifiable is
+    # the difference between an entry `fetch` installs and one it refuses, so
+    # a new entry without a sha256 should be treated as unfinished rather
+    # than as following the precedent set by the first entry.
     {
-        "key": "toxo_plaque_cyto",
-        "name": "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+        "key": "toxoplasma_pv_v1",
+        "name": "cpsam_v2_toxo_r2",
         "kind": "cellpose",
-        "uri": None,        # filled in from HF_MODELS_REPO below
-        "sha256": "",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+        "display_name": "Toxoplasma PV v1",
+        # THE README TABLE READS THESE THREE, and nothing else.
+        # `trained_on` and `notes` stay full length because the Model Zoo
+        # screen and instruction 370's scorecard are where the detail
+        # belongs; the README table was carrying all of it and became
+        # unreadable. Asked 2026-09-02: "just state the model name and
+        # architecture, training dataset (staining + number of images from
+        # n datasets), and performance on hold out data compared to stock".
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 115 images, 1 dataset",
+        "versus_stock": "F1 0.867 against 0.713 for stock cpsam, at IoU 0.5",
         "trained_on": (
-            "Toxoplasma plaque assay, /nas_mnt/carruthers/patrick/"
-            "Plaque_assay_training/train — 1120x1120 crops, diameter 30, "
-            "25000 epochs, greyscale"
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the "
+            "PV lumen. 115 pairs (104 train / 11 test), 100 epochs, base "
+            "cpsam_v2"
         ),
-        "trained_by": "einarolafsson (spaCR bundled model pack)",
+        "trained_by": "einarolafsson",
         "notes": (
-            "publishes no checksum; fetch refuses it unless you pass "
-            "require_checksum=False or supply expected_sha256=",
+            "F1 0.867 at IoU 0.5 against 0.713 for stock cpsam; AJI 0.808 "
+            "against 0.426",
+            "accuracy falls sharply above IoU 0.8 -- suited to counting and "
+            "area rather than precise morphometry",
+        ),
+    },
+    {
+        "key": "toxoplasma_plaque_v1",
+        "name": "cpsam_plaque_r3",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+        "display_name": "Toxoplasma Plaque v1",
+        "architecture": "Cellpose-SAM (cpsam)",
+        # FROM THE TRAINING RECORD, `models/cpsam_seg_r3/model.db` in the
+        # plaque_assay_model project: 184 rows in `training_set`, by source
+        # nas_patrick 68 + nas_bigbean 27 (95 in-house) and lit_pmc_staged
+        # 67 + lit_curate_single 22 (89 literature, counted as one dataset).
+        "dataset": "crystal violet plaque wells; 184 wells from 3 datasets, "
+                   "95 in-house and 89 literature",
+        # THE LITERATURE FIGURE IS 0.806, NOT 0.834, and this row published
+        # the wrong one until 2026-09-02. The project corrected it on
+        # 2026-08-09 and its own model.db names the old value
+        # `literature_generalisation_SINGLESPLIT_optimistic`: 0.834 came
+        # from ONE 19-well split and turned out to be the best of three
+        # folds. The cross-validated mean is 0.806 with an SD of 0.020
+        # (per fold 0.795 / 0.789 / 0.834). The in-domain 0.856 is
+        # confirmed -- an independent harness reproduced 0.855.
+        "versus_stock": "F1 0.856 in-domain; 0.806 on literature "
+                        "(3-fold cross-validated, SD 0.020)",
+        "trained_on": (
+            "Toxoplasma gondii plaque assays; round 3, evaluated in-domain "
+            "(NAS) and against a literature generalisation set"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.856 in-domain and 0.806 on the literature set (3-fold "
+            "cross-validated, SD 0.020), against 0.718 for round 1",
+            # "down to" / "up to" rather than "->" BECAUSE THIS PROSE IS
+            # PUBLISHED. It is printed into the README's model zoo table and
+            # from there into all nine localized READMEs, and
+            # test_localized_readme_inline_markup_is_balanced_and_tight
+            # forbids ">" in those files -- it is looking for HTML that has
+            # leaked through a translation model, and an ASCII arrow reads as
+            # exactly that. It also translates better as words.
+            "round 3 trades precision (0.939 down to 0.858) for recall "
+            "(0.631 up to 0.811) on the literature set, which is the right "
+            "direction for a counting assay",
+        ),
+    },
+    {
+        "key": "toxoplasma_well_detector_v1",
+        "name": "yolo_welldetect_v3.pt",
+        "kind": "detector",
+        "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+        "display_name": "Toxoplasma Plaque Well Detector v1",
+        "architecture": "YOLO11n",
+        # FROM `data/detector_v3` and the v3 training record: 441 training
+        # images (289 wells + 152 background) and 121 validation (83 + 38).
+        # The background half is not padding -- v2 was trained on positives
+        # only and fired on histology, chest X-rays, logos and Venn
+        # diagrams, so the negatives are the reason v3 is the published
+        # model.
+        "dataset": "whole-plate and multi-well crystal violet images; 562 "
+                   "images from 1 dataset, 190 of them with no well in them",
+        # No stock model detects wells, so this is the hold-out score and
+        # not a comparison. mAP50-95 is 0.886 from the final training epoch
+        # in `runs/well_detector_v3/results.csv`; a separate val run in
+        # model.db reports 0.892, and the two are the same measurement
+        # taken twice rather than a disagreement worth publishing.
+        "versus_stock": "mAP50 0.993, mAP50-95 0.886, precision and recall "
+                        "both 0.987",
+        "trained_on": (
+            "whole-plate and multi-well Toxoplasma plaque-assay images; "
+            "yolo11n base, 150 epochs, batch 16, imgsz 640"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987",
+            "locates WELLS, not plaques; it is the front half of a two-stage "
+            "pipeline with toxoplasma_plaque_v1, and the well it finds also "
+            "gives the diameter that makes areas comparable across "
+            "microscopes",
         ),
     },
 )
+
+#: Models that are no longer OFFERED, by filename.
+#:
+#: Retired 2026-08-31 at the maintainer's instruction. ``toxo_plaque_cyto``
+#: recalls 0.631 on the literature set -- it misses about a third of the
+#: plaques -- against 0.811 for ``toxoplasma_plaque_v1``, and it published no
+#: checksum, so its row in the picker had a Download button that could never
+#: succeed.
+#:
+#: FILTERED FROM THE LISTING, NOT DELETED FROM DISK. The checkpoint still
+#: ships, and ``plaque_model='bundled'`` still resolves to it, because a run
+#: recorded against it has to stay reproducible: removing the weights would
+#: silently change what re-running an old analysis produces, which is worse
+#: than offering a model nobody should pick. It is simply no longer something
+#: the zoo suggests.
+RETIRED_MODEL_NAMES: frozenset = frozenset({
+    "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+})
+
 
 #: Keys :func:`rank` will sort on, with the direction and what the number is.
 #:
@@ -385,6 +557,14 @@ class ModelEntry:
     def __post_init__(self):
         # A blank provenance field reads as "no constraints"; it has to say
         # "unknown" out loud instead. object.__setattr__ because frozen.
+        """Fill in the provenance fields and validate the kind.
+
+        A blank ``trained_on`` or ``trained_by`` reads as "no constraints", so
+        it is replaced with an explicit unknown -- the field has to say so out
+        loud rather than by omission.
+
+        :raises ValueError: if ``kind`` is not one of the known model kinds.
+        """
         for attribute in ("trained_on", "trained_by"):
             value = str(getattr(self, attribute) or "").strip()
             object.__setattr__(self, attribute, value or UNKNOWN)
@@ -462,6 +642,13 @@ class ModelEntry:
 
 
 def _shorten(text: Any, width: int) -> str:
+    """Truncate text to a width, marking where it was cut.
+
+    :param text: the text.
+    :param width: the maximum length INCLUDING the ellipsis, so a column
+        laid out at this width never overflows.
+    :returns: the text, or its prefix with an ellipsis.
+    """
     text = str(text)
     return text if len(text) <= width else text[:width - 1] + "…"
 
@@ -475,8 +662,12 @@ def _human_bytes(size: Any) -> str:
     if n <= 0:
         return UNKNOWN
     for unit in ("B", "KB", "MB", "GB"):
-        if n < 1024 or unit == "GB":
+        if n < 1024:
             return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
+        # GB is the display ceiling.  Let its last pass finish naturally so
+        # values larger than a terabyte reach the reachable fallback below.
+        if unit == "GB":
+            continue
         n /= 1024.0
     return f"{n:.1f} GB"
 
@@ -1041,6 +1232,17 @@ def discover_local(roots: Any = None, max_depth: int = DEFAULT_SCAN_DEPTH,
 
 
 def _under(path: Path, root: Path) -> bool:
+    """Whether a path is inside a root, after resolving both.
+
+    Resolved first, so a symlink or a ``..`` cannot escape the root while
+    appearing to be under it -- this gates where a downloaded checkpoint may
+    be written.
+
+    :param path: the path to test.
+    :param root: the root it must be under.
+    :returns: ``True`` when it is; ``False`` when it is not, and also when
+        either path cannot be resolved.
+    """
     try:
         path.resolve().relative_to(root.resolve())
         return True
@@ -1061,14 +1263,35 @@ def _as_paths(roots: Any) -> List[Path]:
 # the catalogue
 # ---------------------------------------------------------------------------
 
-def hf_uri(repo_id: str, filename: str) -> str:
-    """The download URL for a file in a Hugging Face **dataset** repo.
+def hf_uri(repo_id: str, filename: str, repo_type: str = "dataset") -> str:
+    """The download URL for a file in a Hugging Face repo.
+
+    :param repo_id: Hugging Face repository identifier.
+    :param filename: repository-relative name of the file to download.
+    :param repo_type: ``"dataset"`` (the default, and what spaCR shipped
+        first) or ``"model"``.
 
     Exactly the URL :func:`spacr.utils.download_models` and
     :func:`spacr.qt.hf_download._download_one` build, kept in one place so the
     zoo cannot drift away from the downloader spaCR already ships.
+
+    THE TWO REPO KINDS HAVE DIFFERENT URLS, which is not cosmetic: a dataset
+    file lives under ``/datasets/<repo>/resolve/...`` and a model file under
+    ``/<repo>/resolve/...``. Asking for one at the other's URL returns a 404
+    page, and a downloader that does not check the content type writes that
+    HTML into the destination and leaves a "checkpoint" that fails to load
+    with a torch error naming neither the URL nor the repo.
+
+    ``dataset`` remains the default because :data:`HF_MODELS_REPO` is a
+    DATASET repo -- ``einarolafsson/models`` -- and every entry written before
+    this parameter existed assumes it. New model repos pass ``"model"``.
     """
-    return (f"https://huggingface.co/datasets/{repo_id}/resolve/main/"
+    kind = str(repo_type or "dataset").lower()
+    if kind not in ("dataset", "model"):
+        raise ValueError(
+            f"repo_type must be 'dataset' or 'model', not {repo_type!r}")
+    prefix = "datasets/" if kind == "dataset" else ""
+    return (f"https://huggingface.co/{prefix}{repo_id}/resolve/main/"
             f"{filename}?download=true")
 
 
@@ -1080,7 +1303,8 @@ def _entry_from_mapping(data: Mapping[str, Any],
         raise ValueError("a catalogue entry needs at least a name")
     uri = data.get("uri")
     if not uri:
-        uri = hf_uri(str(data.get("repo_id") or HF_MODELS_REPO), name)
+        uri = hf_uri(str(data.get("repo_id") or HF_MODELS_REPO), name,
+                     str(data.get("repo_type") or "dataset"))
     notes = tuple(str(n) for n in (data.get("notes") or ()))
     sha = str(data.get("sha256") or "").strip().lower()
     if not sha:
@@ -1102,6 +1326,242 @@ def _entry_from_mapping(data: Mapping[str, Any],
         metrics=dict(data.get("metrics") or {}),
         notes=notes,
     )
+
+
+_SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
+
+#: Set while a background refresh is in flight, so a screen that opens twice
+#: in a second starts one fetch rather than two.
+_SHARED_CATALOGUE_FETCHING = threading.Event()
+
+
+def _on_the_qt_gui_thread() -> bool:
+    """Whether this call is running on Qt's GUI thread.
+
+    Answers False for a process with no Qt, for a worker thread, and for
+    anything that goes wrong while asking -- so the only thing this can do
+    is turn a blocking fetch into a background one, never the reverse.
+    """
+    try:
+        from PySide6.QtCore import QCoreApplication, QThread
+    except Exception:                                        # noqa: BLE001
+        return False
+    try:
+        app = QCoreApplication.instance()
+        return app is not None and QThread.currentThread() is app.thread()
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _refresh_shared_catalogue_in_background(uri: Optional[str],
+                                            timeout: float) -> None:
+    """Fetch the catalogue on a daemon thread, for the cache to serve later.
+
+    Nothing waits on the thread and nothing is redrawn when it lands: the
+    point is only that the NEXT caller answers from a warm cache instead of
+    from the network.
+    """
+    if _SHARED_CATALOGUE_FETCHING.is_set():
+        return
+    _SHARED_CATALOGUE_FETCHING.set()
+
+    def run() -> None:
+        """Fetch the catalogue off the GUI thread, and always release the flag.
+
+        The `finally` is the whole point: `_SHARED_CATALOGUE_FETCHING` is what
+        stops a second refresh being started while this one is in flight, so a
+        fetch that raises must still clear it or no later refresh can ever
+        begin.
+        """
+        try:
+            shared_catalogue(uri, timeout=timeout, force=True, block=True)
+        finally:
+            _SHARED_CATALOGUE_FETCHING.clear()
+
+    threading.Thread(target=run, daemon=True,
+                     name="spacr-model-catalogue").start()
+
+
+def shared_catalogue(uri: Optional[str] = None, *,
+                     timeout: float = DEFAULT_TIMEOUT,
+                     force: bool = False,
+                     block: Optional[bool] = None) -> Tuple["ModelEntry", ...]:
+    """The community catalogue, fetched from :data:`REMOTE_CATALOGUE_URI`.
+
+    :param uri: override the catalogue location.
+    :param timeout: seconds to wait for the request.
+    :param force: ignore the cache and re-fetch.
+    :param block: whether to wait for the network. ``None`` -- the default,
+        and what an unthinking caller gets -- waits everywhere EXCEPT Qt's
+        GUI thread, where it answers from the cache and refreshes on a daemon
+        thread. ``True`` waits wherever it is called, which only a caller that
+        knows it is on a worker or in a CLI may ask for. ``False`` never
+        waits.
+    :returns: the entries, or ``()`` when the catalogue cannot be read.
+
+    NEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is
+    reached from ``spacr.settings.downloaded_zoo_models`` while a settings
+    panel is being built, so it ran inside ``MainWindow._on_nav_selected``
+    with nothing able to paint or answer the compositor. Measured
+    with the catalogue host non-routable (10.255.255.1, the shape of a down
+    VPN or a captive portal -- the connect neither completes nor is refused):
+    opening the Mask module took **32.2 s**, all of it a GUI thread stuck in
+    ``urlopen``. GNOME asks a window whether it is alive after five, so what
+    the user sees is spaCR's "force quit" dialog, which is how this was
+    reported. With the fetch moved off the thread the same open is 2.4 s.
+
+    The cost of not waiting is a first module open whose Cellpose dropdown
+    lists the bundled and local models but not the community ones; the
+    background refresh means the second one has them.
+
+    NEVER RAISES, and that is deliberate. This runs when a user opens a module
+    that offers a model list, and the list is useful without it: the bundled
+    entries and any local models are still there. A laptop on a train, a lab
+    behind a proxy and a Hugging Face outage all produce the same thing -- a
+    shorter list and a log line -- rather than a module that will not open.
+
+    The failure that WOULD be silent and harmful is a corrupt or hostile
+    catalogue, so entries that do not parse are dropped individually, and an
+    entry without a ``sha256`` still cannot be installed by :func:`fetch`
+    without an explicit override. A catalogue row is a claim about where a file
+    lives; the checksum is what makes it a claim about which file.
+    """
+    import time
+
+    target = uri or REMOTE_CATALOGUE_URI
+    now = time.time()
+    # THE STAMP, NOT THE CONTENTS, decides freshness. Keying on `entries`
+    # meant an empty answer -- which is what an unreachable or unpublished
+    # catalogue gives -- was never cached, so the failure was retried by every
+    # caller forever.
+    if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
+            and now - float(_SHARED_CATALOGUE_CACHE["fetched_at"])
+            < CATALOGUE_CACHE_SECONDS):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    # The default is decided here rather than in the signature, because what
+    # it should be depends on WHERE the call is: waiting is right in a CLI
+    # and in a worker, and is the defect this parameter exists for on the
+    # GUI thread.
+    wait = (not _on_the_qt_gui_thread()) if block is None else bool(block)
+    if not wait:
+        _refresh_shared_catalogue_in_background(uri, timeout)
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    try:
+        import urllib.request
+
+        with urllib.request.urlopen(target, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:                                # noqa: BLE001
+        # STAMP THE FAILURE, or the cache never suppresses anything. The
+        # freshness check below reads `entries`, which stays empty when the
+        # fetch fails -- so every caller re-fetched, and with the catalogue
+        # not yet published that is one 404 per settings panel built. It was
+        # reported as four identical lines in thirty seconds.
+        #
+        # DEBUG after the first, too. An unpublished or unreachable catalogue
+        # is the expected state for anyone who has not contributed a model,
+        # and telling them about it repeatedly at INFO makes spaCR look broken
+        # for a feature they are not using.
+        _SHARED_CATALOGUE_CACHE["fetched_at"] = now
+        first = not _SHARED_CATALOGUE_CACHE.get("warned")
+        _SHARED_CATALOGUE_CACHE["warned"] = True
+        (LOG.info if first else LOG.debug)(
+            "shared model catalogue unavailable (%s): %s",
+            type(exc).__name__, exc)
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+
+    records = payload.get("models") if isinstance(payload, Mapping) else payload
+    entries: List[ModelEntry] = []
+    for record in (records or ()):
+        try:
+            entries.append(_entry_from_mapping(record, source="shared"))
+        except Exception as exc:                            # noqa: BLE001
+            LOG.warning("skipping a shared catalogue entry: %s", exc)
+    _SHARED_CATALOGUE_CACHE.update(fetched_at=now, entries=tuple(entries))
+    return tuple(entries)
+
+
+def shared_catalogue_is_stale() -> bool:
+    """Whether :func:`shared_catalogue` would go to the network to answer.
+
+    For a caller that wants to do the waiting somewhere it is allowed to --
+    a worker thread -- rather than get the cached answer and not know it was
+    one.
+    """
+    stamp = float(_SHARED_CATALOGUE_CACHE["fetched_at"])
+    return stamp <= 0 or (time.time() - stamp) >= CATALOGUE_CACHE_SECONDS
+
+
+def publish_model(local_path: Any, repo_id: str, *,
+                  key: str,
+                  kind: str = "cellpose",
+                  trained_on: str = UNKNOWN,
+                  trained_by: str = UNKNOWN,
+                  private: bool = False,
+                  notes: Sequence[str] = ()) -> Dict[str, Any]:
+    """Upload a model to Hugging Face and return its catalogue row.
+
+    :param local_path: the checkpoint to upload.
+    :param repo_id: ``<user>/<repo>`` -- YOUR OWN account.
+    :param key: the short name spaCR will offer the model under.
+    :param kind: one of :data:`KINDS`.
+    :param trained_on: what the model was trained on. Say it properly: this is
+        the only thing another lab has to decide whether it applies to them.
+    :param trained_by: who trained it, and roughly when.
+    :param private: keep the repo private. A private model cannot be fetched by
+        other spaCR users, so it is off by default.
+    :param notes: caveats worth carrying next to the model.
+    :returns: the catalogue row, with the sha256 filled in.
+    :raises ImportError: when ``huggingface_hub`` is not installed.
+
+    THE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded,
+    which is the whole reason this exists as a function rather than as
+    instructions in a README. :func:`fetch` refuses an entry it cannot verify,
+    so a row written by hand without a hash produces a model nobody can install
+    without disabling the check -- which is what the one pre-existing bundled
+    entry does, and it is a hole rather than a precedent.
+
+    Publishing does NOT distribute the model on its own: add the returned row
+    to the shared catalogue (:data:`REMOTE_CATALOGUE_URI`) and every spaCR user
+    sees it within :data:`CATALOGUE_CACHE_SECONDS`.
+    """
+    try:
+        from huggingface_hub import HfApi
+    except ImportError as exc:
+        raise ImportError(
+            "Publishing a model needs the 'huggingface_hub' package:\n"
+            "  pip install huggingface_hub\n"
+            "then log in with `huggingface-cli login`.") from exc
+
+    path = Path(str(local_path))
+    if not path.is_file():
+        raise ModelZooError(f"{path} is not a file")
+    if kind not in KINDS:
+        raise ValueError(f"kind must be one of {KINDS}, got {kind!r}")
+
+    api = HfApi()
+    api.create_repo(repo_id, repo_type="model", private=bool(private),
+                    exist_ok=True)
+    api.upload_file(path_or_fileobj=str(path), path_in_repo=path.name,
+                    repo_id=repo_id, repo_type="model")
+
+    row = {
+        "key": key,
+        "name": path.name,
+        "kind": kind,
+        "repo_id": repo_id,
+        "repo_type": "model",
+        "sha256": sha256_file(path),
+        "size_bytes": path.stat().st_size,
+        "trained_on": trained_on,
+        "trained_by": trained_by,
+        "notes": tuple(notes),
+    }
+    LOG.info("published %s to %s; add this row to the shared catalogue",
+             path.name, repo_id)
+    return row
 
 
 def load_catalogue_file(path: Any) -> List[ModelEntry]:
@@ -1155,7 +1615,8 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
 
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
-              include_plugins: bool = True) -> List[ModelEntry]:
+              include_plugins: bool = True,
+              block: Optional[bool] = None) -> List[ModelEntry]:
     """Everything the zoo knows about without scanning the user's disks.
 
     That is: the models bundled with the installed package (whatever
@@ -1164,8 +1625,11 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     configured, the JSON catalogue named by ``catalogue_path`` or the
     :data:`CATALOGUE_ENV_VAR` environment variable.
 
-    Purely local: this reads files and an environment variable and makes no
-    network call, so it works offline and on a machine with no torch.
+    Local apart from one thing, and the exception used to be undocumented:
+    with ``remote`` on, this also asks :func:`shared_catalogue` for the
+    community rows, which is a network call. It works offline either way --
+    that fetch never raises -- and it never blocks Qt's GUI thread, which
+    :func:`shared_catalogue` enforces for itself.
 
     :param include_bundled: list the models in the package resources folder.
     :param remote: list declared remote entries.
@@ -1174,6 +1638,9 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     :param include_plugins: include entries returned by installed spaCR model
         providers. Provider failures are recorded in plugin diagnostics and do
         not hide built-in entries.
+    :param block: passed to :func:`shared_catalogue`. ``False`` takes the
+        community rows from its cache rather than waiting for the network;
+        ``None`` lets that function decide from the thread it is on.
     :returns: bundled entries first, then remote ones already present locally
         are dropped (a downloaded model is listed once, as the local file).
     """
@@ -1196,10 +1663,25 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
                 if (entry.key, entry.name) not in have:
                     entries.append(entry)
                     have.add((entry.key, entry.name))
+        # The community catalogue, LAST, so a key declared here or by a local
+        # file always wins over the shared one. That ordering is the safety
+        # property: a shared catalogue is edited by people other than the user
+        # running the code, and it must not be able to redefine a model spaCR
+        # ships or one the lab pinned in its own file. It can only ADD.
+        for entry in shared_catalogue(block=block):
+            if (entry.key, entry.name) not in have:
+                entries.append(entry)
+                have.add((entry.key, entry.name))
+    # Retired models are dropped LAST, after every source has contributed, so
+    # a retirement holds however the entry arrived -- bundled, local discovery
+    # of the shipped file, a lab catalogue, or a plugin.
+    entries = [e for e in entries if e.name not in RETIRED_MODEL_NAMES]
     if include_plugins:
         try:
             from .plugins import (
-                load_object, model_providers, record_diagnostic,
+                load_object,
+                model_providers,
+                record_diagnostic,
             )
             have = {(entry.key, entry.name) for entry in entries}
             for plugin_name, contribution in model_providers():
@@ -1350,6 +1832,13 @@ def open_uri(uri: str, timeout: int = DEFAULT_TIMEOUT,
 
 
 def _read_chunks(path: Path, chunk_size: int) -> Iterator[bytes]:
+    """Read a file in fixed-size blocks.
+
+    :param path: the file.
+    :param chunk_size: the block size.
+    :returns: an iterator over the blocks -- streamed rather than read
+        whole, because these are multi-gigabyte checkpoints being hashed.
+    """
     with path.open("rb") as handle:
         while True:
             block = handle.read(chunk_size)
@@ -1636,18 +2125,37 @@ class BenchmarkResult:
 
     @property
     def fields(self) -> List[str]:
+        """Every field this model was benchmarked on.
+
+        :returns: the field names.
+        """
         return [r.field for r in self.rows]
 
     @property
     def n_fields(self) -> int:
+        """How many fields were benchmarked.
+
+        :returns: the field count.
+        """
         return len(self.rows)
 
     @property
     def total_objects(self) -> int:
+        """Every object the model found, across all fields.
+
+        :returns: the object count.
+        """
         return sum(r.n_objects for r in self.rows)
 
     @property
     def mean_objects(self) -> float:
+        """Objects per field.
+
+        NaN rather than zero when nothing was benchmarked: no fields is a
+        different statement from a model that found nothing.
+
+        :returns: the mean, or NaN.
+        """
         return self.total_objects / self.n_fields if self.rows else float("nan")
 
     @property
@@ -1657,6 +2165,10 @@ class BenchmarkResult:
 
     @property
     def n_ok(self) -> int:
+        """How many fields came back without a quality complaint.
+
+        :returns: the count of fields at severity ``ok``.
+        """
         return sum(1 for r in self.rows if r.severity == "ok")
 
     @property
@@ -1675,6 +2187,10 @@ class BenchmarkResult:
 
     @property
     def summary(self) -> str:
+        """The model, what it found, over how many fields, and its QC score.
+
+        :returns: a one-line summary.
+        """
         score = self.qc_score
         return (f"{self.entry.name}: {self.total_objects} "
                 f"{self.object_type}(s) over {self.n_fields} field(s) "
@@ -1811,6 +2327,14 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
     total_steps = 2
 
     def _tick(message: str, done: int) -> None:
+        """Report one benchmark milestone through the captured callback.
+
+        :param message: stage description for the progress display.
+        :param done: completed-step index from zero through two.
+        :returns: None. When a callback was supplied it receives the message,
+            completed index, and captured total of two; otherwise this is a
+            no-op.
+        """
         if progress is not None:
             progress(message, done, total_steps)
 
@@ -1929,6 +2453,18 @@ def group_by_fieldset(results: Sequence[BenchmarkResult]
 
 
 def _rank_value(result: BenchmarkResult, key: str) -> Tuple:
+    """Build the sort key for one benchmark result.
+
+    ``nan`` sorts LAST rather than first: a model nobody scored is not the
+    best model.
+
+    :param result: the benchmark result.
+    :param key: what to rank by.
+    :returns: the sort key.
+    :raises ValueError: for an unknown key. There is deliberately no
+        accuracy key -- a benchmark here has no ground truth, so a column
+        sorting models by "score" would be inventing one.
+    """
     if key == "qc":
         score = result.qc_score
         # nan sorts last rather than first: a model nobody scored is not the
@@ -2112,7 +2648,7 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
                 f"diameter {diameter if diameter is not None else 'native'}")
             if result.ignored:
                 lines.append(
-                    f"       set but ignored by Cellpose 4: "
+                    "       set but ignored by Cellpose 4: "
                     + ", ".join(f"{k}={v!r}" for k, v in result.ignored.items()))
             rows = [[str(fmt(r)) for _, fmt in _BENCH_COLUMNS]
                     for r in result.rows]

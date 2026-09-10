@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "es",
+  "title": "Control Charts: examinar una campaña con controles y límites explícitos",
+  "description": "Abre la herramienta de QC, carga una campaña claramente sintética de treinta placas, comprueba el control y la referencia seleccionados y exporta puntos verificados de forma independiente.",
+  "objectives": [
+    "Encontrar Control Charts en QC y cargar el CSV sintético incluido.",
+    "Distinguir las filas de pocillos de las medias por placa y seleccionar exactamente un control.",
+    "Comparar reglas, cambiar y restablecer el control y la referencia, y leer las advertencias.",
+    "Exportar la tabla real de puntos sin afirmar que se exportó una imagen o se validó un ensayo biológico."
+  ],
+  "prerequisite": "El archivo tools/tutorials/fixtures/control_chart_campaign.csv es totalmente sintético y adapta una campaña de prueba con semilla fija: treinta placas ficticias, tres pocillos por tipo de control y placa y una deriva ascendente programada después de la placa veinte. Las fechas indican un orden ilustrativo, no adquisiciones reales. Este panel no tiene actualmente un botón Load test data; no se descargan imágenes ni se usan modelos, análisis de GPU o solicitudes de AI. La grabación anterior con dos placas se rechazó porque la aplicación no pudo estimar límites. La columna estrecha recorta las opciones largas cuando están cerradas; los desplegables abiertos muestran sus nombres completos. Aquí no se prueban Z-prime ni la reestimación.",
+  "scenes": [
+    "Abre QC y después su botón Control Charts. Este flujo especializado representa controles repetidos a lo largo de una campaña. El CSV incluido es explícitamente sintético, incluida la deriva: demuestra el software, no un experimento adquirido ni un ensayo validado.",
+    "Elige Load table y abre el CSV de ejemplo. Contiene doscientas setenta filas de pocillos: treinta placas, cada una con tres pocillos de control negativo, tres de control positivo y tres de muestra. El gráfico mostrará una media del control seleccionado por placa, no un punto por célula.",
+    "Comprueba Plate, Run order, Measurement y Control column con los nombres mostrados. Selecciona solo neg en Control is. La lista permite seleccionar varios niveles; si no seleccionas ninguno, se representan todas las filas. No supongas que cargar el archivo ya seleccionó el control deseado.",
+    "Abre Sigma from para leer todas las opciones. Auto elige aquí el estimador por subgrupos porque cada placa tiene tres pocillos seleccionados. Los límites usan la variación dentro de las placas de referencia, ajustada al tamaño muestral de la media, no la desviación estándar de toda la serie con deriva.",
+    "Rules ofrece las cuatro reglas habituales, las ocho o Limits only. Más reglas también crean más oportunidades de falsas alarmas. Elegimos Limits only para aislar la regla de tres sigma; cambiar este desplegable recalcula el gráfico sin un botón Run separado.",
+    "Baseline plates vale veinte: de P cero uno a P veinte se estiman los límites que se aplican a las placas restantes. Nueve puntos, de P veintidós a P treinta, superan el límite superior. El informe y la tabla de reglas los identifican; estas señales programadas no son descubrimientos biológicos.",
+    "Desmarca neg y selecciona solo pos. Ahora se muestran las medias del otro control y sus propios límites de referencia, sin infracciones de la regla uno en este ejemplo. Un gráfico sin alertas no demuestra por sí solo que el ensayo sea válido. Restablece neg antes de continuar.",
+    "Cambia Baseline plates a doce y observa cómo cambian el centro y los límites; después restablece veinte. La aplicación exige al menos ocho placas de referencia, pero ese mínimo no es una recomendación. Planifica y justifica la referencia; no la ajustes solo para eliminar alertas indeseadas.",
+    "Con el control original y la referencia de veinte placas restablecidos, elige Export points y guarda un CSV separado. Contiene treinta filas con identidad y orden de placa, media, tamaño y dispersión del subgrupo, límites, distancia estandarizada, pertenencia a la referencia y reglas activadas. No exporta una imagen del gráfico ni la configuración completa.",
+    "Cada identidad y campo numérico exportado se comprobó contra el CSV de origen, incluidas las marcas de la regla uno. La entrada original no cambió. Para scripts, el módulo del widget de gráficos de control ofrece ControlChartSpec y control_chart; su resultado proporciona points_frame. Conserva juntos datos, ajustes y notas de adquisición al investigar alertas reales."
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_mask_dim",
+      "source_sha256": "8a0b39ed854a497a9cb4238b617b72bae443042b939c0e0595288ee8df212a5a",
+      "source": "Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.",
+      "translation": "病原体标签掩模在每个 merged/*.npy 数组最后一条轴上的位置，位于细胞核掩模之后一个图像层。使用默认的四个图像数据通道（0–3）时，该位置为 6；若保留的图像数据通道数量不同，应相应移动。设为 None 会让 measure_crop 跳过病原体测量，因此无法评定感染状态。默认值为 6。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogens",
+      "source_sha256": "8d0e57b8ac101c36377f3be730f4d523903035cab9fb1c491415f8dfd7513467",
+      "source": "Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
+      "translation": "由 annotate_filter_vision 评分的病原体条件名称，例如 ['wt','mutant']。第 i 个元素会写入 pathogen_loc[i] 中每个微孔的 pathogen 列，并纳入组合条件标签。必须与 pathogen_loc 逐元素对应；如果 pathogen_loc 为 None，则只把第一个名称应用到每一行。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plot",
+      "source_sha256": "6460b55ed0cb6bf29973177bf3fd08fae63d9134094c2f2fab7fe3f730a5349e",
+      "source": "Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False. Merged Classifier and Recruitment both start with plotting enabled so their diagnostic figures are produced on the first run.",
+      "translation": "在流水线运行期间渲染并保存质量控制图，包括通道拼图、Cellpose 掩模叠加图、过滤对比图和 image crop 网格。生成图形会增加运行时间和内存使用量，处理完整微孔板时尤为明显。test_mode 会自动启用此设置。默认值为 False。Merged Classifier 和 Recruitment 均默认启用绘图，因此首次运行就会生成诊断图。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "translation": "保存的 PNG 中每种颜色对应的源图像数据通道，例如 {'r': 2, 'g': 1, 'b': 0} 表示图像数据通道 2 为红色、1 为绿色、0 为蓝色。此设置明确表达了 png_dims 过去只能暗示的映射。未指定的图像数据通道不会出现在提取图像区域中（不影响测量）；留空的颜色是空图像层。为三种颜色指定同一图像数据通道会写出灰度 PNG。默认值为 {'r': 2, 'g': 1, 'b': 0}，对于标准的 405/488/555 堆栈，会把细胞核染色放在蓝色图像数据通道。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_type",
+      "source_sha256": "8eb5919bb877e225dc887b7b70a4a791bb8f6be0e9a7f84b36c51c61fc44a642",
+      "source": "Object crop type selected from the png_list table when building the training dataset; a row is retained only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode saved by measure_crop. Default 'cell_png'.",
+      "translation": "构建训练数据集时从 png_list 表选择的对象裁剪类型；仅当某行的 PNG 路径包含此子字符串时才保留该行。使用 'cell_png'、'nucleus_png'、'pathogen_png'、'cytoplasm_png' 或 'organelle_png'，可分别基于完整细胞、细胞核、寄生虫、细胞质或细胞器进行训练。它必须与 measure_crop 保存的某个 crop_mode 匹配。默认值为 'cell_png'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "queue_measure",
+      "source_sha256": "2bec12f8ea7dcf98c7bd83a7f08f11381c7ae2aba513a04c40f3aa00e3f6996b",
+      "source": "Method used to score uncertainty for the annotation queue. 'entropy' incorporates all classes and is the preferred default for three or more classes; 'least_confidence' ranks samples by the highest class score; 'margin' ranks them by the difference between the two highest scores. With exactly two classes, margin and least_confidence produce identical rankings, including ties, and diverge only with three or more classes. These values are uncertainty scores rather than calibrated probabilities. Default 'entropy'.",
+      "translation": "用于计算标注队列不确定性的方法。'entropy' 会考虑所有类别，是类别数为三个或更多时的首选默认值；'least_confidence' 根据最高类别分数对样本排序；'margin' 根据最高两个分数之差排序。类别数恰好为两个时，margin 与 least_confidence 会产生相同的排序（包括并列），只有类别数达到三个或更多时才会不同。这些值是不确定性分数，不是经过校准的概率。默认值 'entropy'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_cell",
+      "source_sha256": "a66b2e867cadad7411549f3a04aa5dba288f8926dce212b24c7bd9133086c402",
+      "source": "Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
+      "translation": "归一化前，把细胞图像数据通道中低于 cell_background 的所有像素设为零。这样会压平雾状背景，使分位数拉伸由真实信号驱动，但也会擦除确实较暗的细胞边缘并可能缩小掩模。只有根据真实空白区域设定 cell_background 后才应启用。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_nucleus",
+      "source_sha256": "0b60c7c3dac53516c2556a659035660e8f597eda482f787aa67ea9100c814872",
+      "source": "Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
+      "translation": "归一化细胞核图像数据通道前，把低于 nucleus_background 的所有像素设为零，并从分位数计算中排除这些像素。启用后可提高真实细胞核的对比度并抑制雾状背景，但会把确实较暗的细胞核截断为零，使其可能无法分割。默认值为 False；请先用原始图像核验 nucleus_background。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_pathogen",
+      "source_sha256": "44adbc9151e8526933fcce396bd833038e1e552c4ea3a56579a50a0fbc462071",
+      "source": "Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default True.",
+      "translation": "归一化病原体图像数据通道前，把原始强度低于 pathogen_background 的每个像素强制设为零。当弥散自体荧光抬高低分位数并使 Cellpose 开始分割雾状背景时可启用；对于较暗的寄生虫应关闭，因为截断会擦除真实信号并使下游强度测量产生偏差。默认值为 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_arrays",
+      "source_sha256": "02d3b43a0147d7b2e95f277195a5dfecba71fce61ae0294c75ac395dc2bd44a7",
+      "source": "Also save each object as a raw .npy array - all channels, cropped to its bounding box, unnormalised - under a region_array/ folder. Enable when you need full bit depth or channels beyond png_dims for custom analysis; it uses far more disk than PNGs. Requires save_png to be True as well. Default False.",
+      "translation": "同时把每个对象保存为原始 .npy 数组，其中包含所有图像数据通道、裁剪到对象边界框且未经归一化，并放在 region_array/ 文件夹下。当自定义分析需要完整位深或 png_dims 之外的图像数据通道时可启用；其磁盘占用远大于 PNG。还要求 save_png 为 True。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "分割质量控制在掩膜写入时、测量开始前执行。'off' 跳过评分；'report' 对每个显微镜视野评分，写入 qc/segmentation_qc_<object>.csv，并显示检测到的质量问题；'flag' 还会写入逐视野 JSON 供下游处理；'stop' 在写入评分卡后，于微孔板结论为 'fail' 时抛出异常。任何模式都不会删除或遗漏视野，且 'stop' 不会因 'warn' 结论抛出异常。默认值为 'report'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test",
+      "source_sha256": "198a78439617c5b3a18784ab0d2c9acad00f00f6944a484566e7dc25fbda5474",
+      "source": "In classifier training, run the held-out evaluation pass, either with train or alone to score an existing model. In the sequencing barcode mapper, process only the first read chunk and print a preview so the regex and barcode CSVs can be validated quickly. Default False.",
+      "translation": "在分类器训练中，运行留出评估步骤，可与 train 组合，也可单独用于评估现有模型。在测序条形码映射器中，只处理第一个读段块并打印预览，以便快速验证正则表达式和条形码 CSV。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "test_mode",
+      "source_sha256": "56913ff97d92c5f890514b4e9d8c6708f7546106ce6e7810ddbbab87ce0cd190",
+      "source": "Run the pipeline on a small random subset instead of the whole folder. Mask generation copies test_images (default 10) complete image sets into <src>/test and works there; measure_crop copies test_nr (default 10) merged arrays into test/merged. Both also force verbose and plot on. Use it to check channel assignment, diameters and thresholds before committing to a full plate. Default False.",
+      "translation": "在整个文件夹的一个小型随机子集上运行流水线。生成掩模时，会把 test_images（默认 10）组完整图像复制到 <src>/test 并在那里处理；measure_crop 会把 test_nr（默认 10）个 merged 数组复制到 test/merged。两者还会强制开启 verbose 和 plot。可用它在处理完整微孔板前检查图像数据通道分配、直径和阈值。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse",
+      "source_sha256": "61bcb0c52d9a9c6a54943166278cfd3e24abd86786b6e612bb2349f935ed8a75",
+      "source": "Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
+      "translation": "把每个微孔/显微镜视野视为时间序列，而不是独立图像：文件会分组成时间堆栈，关闭随机化，写出逐图像数据通道影片，跨帧跟踪 timelapse_objects 中的对象，在测量表中加入 timeID 列，并让 measure_crop 停止写出单对象 PNG。仅当文件名包含时间索引时启用。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tracked_object",
+      "source_sha256": "b4fddf480ab808b7b8eeec29bfdc086d5c3c849886aad5a0d5dad8a66c598b7b",
+      "source": "Which object's feature block ({object}_* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.",
+      "translation": "XGBoost 感染分类器用于训练的对象特征块（{object}_* 列）：可选 'cell'、'nucleus' 或 'pathogen'；其他值会回退到 'cell'。此设置不会改变被跟踪的对象；轨迹几何和速度始终来自细胞质心。默认值为 'cell'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "treatment_plate_metadata",
+      "source_sha256": "1e7ed41533f616403bbc83f0b68a699c08538fba69c6bc3a58166fc72d01d6b7",
+      "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
+      "translation": "接受每种处理的微孔，每种处理对应一个内部列表且顺序一致，例如 [['r1','r2','r3'],['r4','r5','r6']]。条目必须以表示行的 'r' 或表示列的 'c' 开头；其他条目会被忽略且不会获得处理标签。未列出的微孔仍保留在输出中，其 condition 值仅包含可用的细胞、病原体或处理标签。默认值 None。Recruitment 以 [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']] 开始，并按位置与其最初的两个处理名称配对。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ultrack_max_distance",
+      "source_sha256": "2ebececd788113093dba125e4c4753f45db94979fd541525d5cc3afcad0ff29a",
+      "source": "The largest jump in pixels Ultrack will consider when linking an object in one frame to a candidate in the next; anything further apart is never joined, so the track breaks instead. Raise it for fast-moving or sparsely sampled cells, lower it on crowded fields where a generous radius invites identity swaps. Only consulted when timelapse_mode='ultrack'. Default 25.0.",
+      "translation": "Ultrack 把某一帧中的对象连接到下一帧候选对象时会考虑的最大像素跳跃距离；超过此距离的对象永远不会连接，因此轨迹会中断。对于快速移动或采样稀疏的细胞应提高此值；在拥挤视野中应降低，因为过大的半径会导致身份交换。仅当 timelapse_mode='ultrack' 时使用。默认值为 25.0。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "voxel_size_z_um",
+      "source_sha256": "a4cab815c31149a39bf7fe83b66e775fbc5750507f569905be7f93ab94a829a9",
+      "source": "Spacing between consecutive z planes in micrometres, obtained from the acquisition metadata. Together with voxel_size_xy_um it determines anisotropy and converts object volumes from voxel counts into cubic micrometres. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in physical units and records the units in measurement_units. Default None.",
+      "translation": "从采集元数据获得的相邻 z 图像层间距，单位为微米。它与 voxel_size_xy_um 一起确定各向异性，并将对象体积从体素计数转换为立方微米。更改此值会重新缩放所有物理 z 量和分割所用的各向异性；对 'project' 运行没有影响。Measure 使用这两个值以物理单位报告三维形态，并在 measurement_units 中记录单位。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_projection",
+      "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
+      "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
+      "translation": "当 z_segmentation_mode 为 'project' 时用于折叠 z 的方法。'max' 保留堆栈中的最亮值，适合稀疏荧光对象；'mean' 抑制噪声，但会稀释仅存在于少数图像层中的信号；'sum' 保留总信号；'best_focus' 仅保留最清晰的图像层，适合只有一个图像层对焦且最大强度投影会包含大量离焦信号的情况。其他模式会忽略此项。默认值为 'max'。"
+    }
+  ]
+}

@@ -290,8 +290,8 @@ def _mask_settings(src, **over):
     s = {"src": str(src), "cell_channel": 0, "nucleus_channel": 1,
          "pathogen_channel": None, "magnification": 20, "batch_size": 50,
          "verbose": False, "plot": False, "save": True, "timelapse": False,
-         "n_jobs": 1, "cell_min_object_area": 0,
-         "nucleus_min_object_area": 0, "pathogen_min_object_area": 0}
+         "n_jobs": 1, "cell_min_split_area": 0,
+         "nucleus_min_split_area": 0, "pathogen_min_split_area": 0}
     s.update(over)
     return s
 
@@ -458,7 +458,7 @@ def test_the_docs_say_which_parameters_cellpose4_still_reads():
 
 
 def test_the_model_choices_constant_offers_only_what_exists():
-    assert S.CELLPOSE_MODEL_CHOICES == ("cpsam",)
+    assert S.CELLPOSE_MODEL_CHOICES == (U.CPSAM_MODEL,) == ("cpsam",)
     for legacy in ("cyto", "cyto2", "cyto3", "nuclei"):
         assert legacy not in S.CELLPOSE_MODEL_CHOICES
 

@@ -206,15 +206,12 @@ def test_all_settings_booleans_use_switches(qtbot):
     assert all(isinstance(widget, Toggle) for widget in boolean_widgets)
 
 
-def test_qt_boolean_controls_do_not_construct_plain_checkboxes():
+def test_settings_model_does_not_construct_plain_checkboxes():
+    """Settings booleans are switches; compact dialog choices may be boxes."""
     qt_root = Path(__file__).resolve().parents[2] / "spacr" / "qt"
-    offenders = []
-    for path in qt_root.rglob("*.py"):
-        if path.name == "toggle.py":
-            continue
-        if "QCheckBox(" in path.read_text(encoding="utf-8"):
-            offenders.append(path.relative_to(qt_root).as_posix())
-    assert not offenders, f"plain checkbox controls remain: {offenders}"
+    source = (qt_root / "screens" / "settings_model.py").read_text(
+        encoding="utf-8")
+    assert "QCheckBox(" not in source
 
 
 @pytest.mark.parametrize("pct,expected", [

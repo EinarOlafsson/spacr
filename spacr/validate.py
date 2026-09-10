@@ -77,6 +77,11 @@ class Problem:
         return self.severity == ERROR
 
     def __str__(self) -> str:
+        """The problem and its fix, on two lines.
+
+        The setting's name leads when there is one, so a reader scanning a list of
+        problems sees WHICH setting each belongs to before the message.
+        """
         head = f"[{self.setting}] {self.message}" if self.setting else self.message
         return f"{head}\n    fix: {self.fix}"
 
@@ -110,13 +115,17 @@ APP_FUNCTIONS: Dict[str, str] = {
     "foreign": "spacr.foreign.import_project",
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
+    # OPS folds onto Align & Stitch: it is stitching too, over a plate
+    # acquired in sequencing cycles.
+    "ops": "spacr.spacrops.ops_preprocess",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
     "cellpose_masks": "spacr.spacr_cellpose.identify_masks_finetune",
-    "cellpose_all": "spacr.spacr_cellpose.check_cellpose_models",
     "map_barcodes": "spacr.sequencing.generate_barecode_mapping",
     "regression": "spacr.ml.perform_regression",
+    "explain_cv": "spacr.surrogate.run_explain_cv",
+    "investigate_hit": "spacr.hit_investigation.investigate_hit",
     "recruitment": "spacr.submodules.analyze_recruitment",
     "invasion": "spacr.submodules.analyze_invasion",
     "replication": "spacr.submodules.analyze_replication",
@@ -148,6 +157,11 @@ APP_ALIASES: Dict[str, str] = {
     "embedding": "umap",
     "analyze_replication": "replication",
     "analyze_endodyogeny": "endodyogeny",
+    # Cellpose 4 ships one model, so "benchmark every model" had a single
+    # entrant and was cellpose_masks under another name. Aliased rather than
+    # dropped so pre-flight still recognises the old key instead of reporting
+    # it as an unknown app and running only the generic checks.
+    "cellpose_all": "cellpose_masks",
 }
 
 try:
@@ -173,8 +187,8 @@ except Exception:
 # analyze_endodyogeny via spacr.io._read_and_merge_data, both on
 # ``os.path.join(src, 'measurements/measurements.db')``.
 DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
-                     "activation", "classify", "invasion", "replication",
-                     "endodyogeny"})
+                     "activation", "classify", "classify_merged",
+                     "invasion", "replication", "endodyogeny"})
 
 # Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
@@ -548,6 +562,63 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
 # ---------------------------------------------------------------------------
 
 
+def _check_regression_output_src(raw: Any) -> List[Problem]:
+    """Validate the optional regression output root without creating it.
+
+    Regression reads its score and count tables through dedicated settings;
+    ``src`` names only the output root. A missing final directory is valid
+    when its parent exists because :func:`spacr.ml.resolve_regression_src`
+    creates that one directory. Configurations that trigger the documented
+    automatic fallback are warnings rather than errors because the analysis
+    remains runnable.
+
+    :param raw: Configured ``src`` value.
+    :returns: Problems associated with the output-root configuration.
+    """
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return []
+    if not isinstance(raw, str):
+        return [Problem(
+            ERROR,
+            "src",
+            f"regression src={raw!r} is not a path string.",
+            "Set src to one output directory, or leave it blank to write "
+            "beside the first count table.",
+        )]
+    if raw in ("path", "/path/to/src"):
+        return [Problem(
+            ERROR,
+            "src",
+            f"regression src is still the placeholder {raw!r}.",
+            "Choose an output directory, or clear src to use the automatic "
+            "location beside the first count table.",
+        )]
+
+    requested = os.path.abspath(os.path.expanduser(raw.strip()))
+    if os.path.isdir(requested):
+        return []
+    if os.path.exists(requested):
+        return [Problem(
+            WARNING,
+            "src",
+            f"regression output path is not a directory: {requested}.",
+            "Choose a directory. If unchanged, spaCR will report the issue "
+            "and write beside the first count table instead.",
+        )]
+
+    parent = os.path.dirname(requested)
+    if os.path.isdir(parent):
+        return []
+    return [Problem(
+        WARNING,
+        "src",
+        f"regression output directory cannot be created because its parent "
+        f"does not exist: {parent}.",
+        "Create the parent directory or choose another output root. If "
+        "unchanged, spaCR will write beside the first count table instead.",
+    )]
+
+
 def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Inventory]) -> List[Problem]:
     """``src`` exists, is the right kind of thing, and holds what the app needs."""
     problems: List[Problem] = []
@@ -562,6 +633,11 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Set src to the folder holding the images (or, for measure, "
             "the merged folder).")
+    # Regression's ``src`` is an output root, not an image or project source.
+    # Its dedicated check also handles the blank automatic value.
+    if app == "regression":
+        return _check_regression_output_src(settings.get(key))
+
     if key not in settings:
         # spacr.core.preprocess_generate_masks raises ValueError('src is a
         # required parameter').
@@ -615,10 +691,33 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     "Re-run the Mask module: merged/ is written at the end of mask generation and is empty here."))
         elif app in MASK_APPS:
             if inv.raw_files == 0 and inv.stack_files == 0 and inv.merged_files == 0:
+                # A NESTED TREE IS AN IMPORT JOB, AND `consolidate` WAS THE
+                # WRONG ANSWER TO OFFER FIRST. Measured on the two layouts
+                # consolidate's own tooltip names (instruction 375):
+                # consolidate flattens by prefixing the folder names onto the
+                # filename, and `_get_regex('cellvoyager')` then matched NONE
+                # of what it produced -- `A01_img_F001C01.tif`,
+                # `DAPI_plate1_A01_F001.tif` -- so following this advice cost
+                # a second copy of the plate and still found nothing.
+                # `spacr.image_import` reads the folder segments as part of
+                # the name and placed all 12 files of the per-well tree with
+                # well, field and channel.
+                #
+                # consolidate is still named, second, because it is NOT
+                # retired: a per-well tree whose filenames already carry
+                # cellvoyager metadata is the one shape it parses and Import
+                # refuses rather than guesses at.
                 problems.append(Problem(
                     ERROR, "src",
                     f"no image files found in {inv.src} (looked for {', '.join(IMAGE_EXTENSIONS)}).",
-                    "Point src at the folder that holds the raw acquisition images, or set consolidate=True to gather them from subfolders."))
+                    "Point src at the folder that holds the raw acquisition "
+                    "images. If they sit in per-well or per-channel "
+                    "subfolders, run Import on this folder first — it reads "
+                    "the subfolder names as part of the image name and writes "
+                    "a plate the Mask module can read. consolidate=True is "
+                    "the older path and copies the whole plate into "
+                    "src/consolidated, which only helps when the flattened "
+                    "names still match metadata_type."))
             elif inv.raw_files and inv.raw_channels is None:
                 problems.append(Problem(
                     WARNING, "metadata_type",
@@ -790,6 +889,75 @@ _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
 }
 
 
+def coerce_expected_types(settings: Dict[str, Any],
+                          app: str = "") -> Dict[str, Any]:
+    """Return ``settings`` with text-written numbers as their declared type.
+
+    A settings CSV round-trip makes every value a string, and so does a number
+    typed into a GUI field. ``expected_types`` is the contract those values are
+    meant to satisfy, so converting them to it is restoring what the settings
+    already claim to be -- not reinterpreting them.
+
+    Doing it HERE, once, at the boundary, rather than at each point of use, is
+    what stops the next consumer from being the one that crashes: mask
+    generation died inside Cellpose on ``diameter > 0`` with
+    ``cell_diameter='60.0'``, and the same file had already been reported,
+    three times, as an error the user was told to fix by hand -- for a value
+    that was perfectly well-formed.
+
+    CONSERVATIVE BY CONSTRUCTION. Only ``bool``, ``int`` and ``float`` are
+    converted, only from a string, only when the conversion is exact, and
+    never when ``str`` is itself an accepted type for the key. Anything that
+    does not convert cleanly is left exactly as it was, for
+    :func:`validate_settings` to report.
+
+    :param settings: the settings mapping.
+    :param app: the pipeline, for the same per-app type overrides
+        :func:`_check_types` honours.
+    :returns: a new dict; the input is not modified.
+    """
+    from .settings import expected_types
+
+    per_app = _APP_TYPE_OVERRIDES.get(app, {})
+    out = dict(settings)
+    for key, value in settings.items():
+        if not isinstance(value, str) or key not in expected_types:
+            continue
+        text = value.strip()
+        if not text:
+            continue
+        expected = per_app.get(
+            key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
+        types = expected if isinstance(expected, tuple) else (expected,)
+        if str in types:
+            # The key legitimately holds text -- a path, a regex, a model
+            # name. "30" is a name here, not a number.
+            continue
+        # BOOL BEFORE INT, because bool is a subclass of int: checking int
+        # first would turn "True" into an error and, worse, "1" into 1 for a
+        # key that wanted True.
+        if bool in types:
+            lowered = text.lower()
+            if lowered in ("true", "yes", "1"):
+                out[key] = True
+            elif lowered in ("false", "no", "0"):
+                out[key] = False
+            continue
+        try:
+            number = float(text)
+        except ValueError:
+            continue
+        if int in types and float not in types:
+            # EXACT ONLY. '60.0' is 60; '60.5' is not an int, and silently
+            # truncating it would change the run without saying so -- so it
+            # is left for the validator to report.
+            if number.is_integer():
+                out[key] = int(number)
+        elif float in types:
+            out[key] = number
+    return out
+
+
 def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Values match ``spacr.settings.expected_types``.
 
@@ -860,6 +1028,111 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 }
 
 
+#: Settings that spaCR used to offer, and what replaced each.
+#:
+#: A RETIRED KEY IS THE ONE CASE FUZZY MATCHING CANNOT REACH. The check
+#: below only speaks up when a live setting is within a close match of the
+#: name it was handed, and that is deliberate: newer pipelines carry keys
+#: this module has never heard of, so warning about every one of them would
+#: be constant noise. But when a setting is deleted, its nearest neighbours
+#: usually go with it -- `upscale` and `upscale_factor` were removed in the
+#: same breath -- so nothing is left within matching distance and an old
+#: settings file naming one gets no warning at all. The value is ignored,
+#: the default is used, and the run differs from the file that describes it
+#: without a word.
+#:
+#: That is the worst place for silence, because a retired name is exactly
+#: what an OLD settings file contains, and its author has every reason to
+#: believe it still applies.
+#:
+#: An empty string means the setting was removed outright rather than
+#: renamed. Only renames that were verified against the live settings are
+#: recorded as such; a guess here would send a user to a name that is also
+#: not read.
+RETIRED_SETTINGS: Dict[str, str] = {
+    # ONE FILTER FOR THE PREVIEW AND THE RUN. organelle carried both a
+    # `_size` pair and an `_area` pair meaning the same thing, and they were
+    # read by DIFFERENT code: `_size` by the batch mask writer, `_area` by
+    # the shared filter the Qt live preview uses. So tuning the preview until
+    # it looked right and then pressing run applied a different filter, with
+    # nothing saying so. cell, nucleus and pathogen only ever had `_area`.
+    # ONE QUESTION, ONE ANSWER. The boolean sat beside
+    # `gradient_accumulation_steps`, and `steps = 1` already IS the off
+    # state, so the pair could disagree -- on with one step, off with eight.
+    # `settings._fold_gradient_accumulation` honours a stored `false` by
+    # collapsing the step count to 1, so a settings file in the wild keeps
+    # meaning what it meant instead of quietly starting to accumulate.
+    "gradient_accumulation": "gradient_accumulation_steps",
+    "organelle_min_size": "organelle_min_area",
+    "organelle_max_size": "organelle_max_area",
+    "minimum_cell_count": "min_cell_count",
+    "redunction_method": "reduction_method",
+    "barcode_coordinates": "",
+    "barcode_mapping": "",
+    "compartments": "",
+    "compression": "",
+    "complevel": "",
+    "correlate": "",
+    "downstream": "",
+    "upstream": "",
+    "split_axis_lims": "",
+    "upscale": "",
+    "upscale_factor": "",
+    "all_to_mip": "",
+    "custom_measurement": "",
+    "gene_weights_csv": "",
+    "metadata_types": "",
+    "pick_slice": "",
+    "skip_mode": "",
+    "signal_direction": "",
+    "measurement_rules": "",
+    "cells_per_page": "",
+    "extract_channels": "",
+    "infection_xgb_proba": "",
+    "highlight": "",
+    "guide_permutation_plot": "",
+    # Retired 2026-09-02 with the deprecated M1_correlation_<t> /
+    # M2_correlation_<t> columns it used to switch on. The correct
+    # coefficients it gated -- manders_m1, manders_m2 and
+    # manders_overlap_coefficient -- are now written unconditionally,
+    # so there is nothing left for it to choose and no replacement to
+    # name.
+    "corrected_manders": "",
+}
+#: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
+#: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
+#: regression panel and are read elsewhere, so naming one here would warn a
+#: user off a setting that works.
+
+
+def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
+    """Say so when a settings file names a setting spaCR has withdrawn.
+
+    Separate from the typo check because the two have opposite shapes: a
+    typo is caught by resembling something real, and a retired name is
+    missed for the same reason -- whatever it resembled was withdrawn with
+    it.
+    """
+    problems: List[Problem] = []
+    for key in settings:
+        if not isinstance(key, str) or key not in RETIRED_SETTINGS:
+            continue
+        replacement = RETIRED_SETTINGS[key]
+        if replacement:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was renamed to '{replacement}'.",
+                f"Rename '{key}' to '{replacement}' — as it stands the "
+                f"value is ignored and the default is used."))
+        else:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' is no longer a spaCR setting.",
+                f"Remove '{key}' — spaCR does not read it, so the value "
+                f"has no effect on the run."))
+    return problems
+
+
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Flag keys that look like a typo of a real setting.
 
@@ -871,6 +1144,9 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     problems: List[Problem] = []
     for key in settings:
         if not isinstance(key, str) or key in known:
+            continue
+        if key in RETIRED_SETTINGS:
+            # Answered by name, and better, in _check_retired_keys.
             continue
         close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.85)
         if close:
@@ -909,9 +1185,10 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     ERROR, key, f"{key}={value} must be greater than zero.",
                     "Give the expected object size in pixels, or None to let magnification derive it."))
 
-        if number is not None and key in ("batch_size", "test_images", "test_nr", "nr_imgs",
-                                          "epochs", "n_epochs", "image_size", "size",
-                                          "chunk_size", "magnification", "examples_to_plot"):
+        if number is not None and key in (
+                "batch_size", "test_images", "test_nr", "nr_imgs",
+                "epochs", "n_epochs", "image_size", "size", "chunk_size",
+                "magnification", "examples_to_plot", "guide_permutations"):
             if number < 1:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be at least 1.",
@@ -932,14 +1209,14 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     f"Set {key} between 0 and 100."))
 
         # cellprob_threshold is clamped to about -6..6 by Cellpose itself.
-        if number is not None and (key.endswith("_CP_prob") or key in ("CP_prob", "CP_probability")):
+        if number is not None and (key.endswith("_cellprob_threshold") or key in ("CP_prob", "CP_probability")):
             if not -6 <= number <= 6:
                 problems.append(Problem(
                     WARNING, key, f"{key}={value} is outside Cellpose's usable -6 to 6 range.",
                     "Lower it toward -6 to grow masks and keep faint objects; raise it toward 6 to shrink them."))
 
         # flow_threshold: 0 keeps only perfect masks, above ~3 keeps everything.
-        if number is not None and (key.endswith("_FT") or key in ("FT", "flow_threshold")):
+        if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flow_threshold")):
             if not 0 <= number <= 3:
                 problems.append(Problem(
                     WARNING, key, f"{key}={value} is outside the useful 0 to 3 flow-threshold range.",
@@ -998,6 +1275,11 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     problems: List[Problem] = []
 
     def _require_file(key: str, purpose: str, fix: str) -> None:
+        """Refuse a missing or unset path, saying what it was needed FOR.
+
+        Both the purpose and the fix are carried into the message: "not set" on
+        its own tells a user what happened and not what to do about it.
+        """
         value = settings.get(key)
         if value is None or (isinstance(value, str) and not value.strip()):
             problems.append(Problem(
@@ -1079,7 +1361,10 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                     "Choose Cell, Nucleus, Pathogen or Organelle for every "
                     "mask group."))
 
-    if app == "classify":
+    # BOTH SPELLINGS. `classify_merged` is the screen that took this rule's
+    # job over; without it here, scoring a dataset with no model_path fell
+    # through to the run itself.
+    if app in ("classify", "classify_merged"):
         train = settings.get("train", settings.get("generate_training_dataset", False))
         needs_model = bool(settings.get("apply_model_to_dataset", False)) or bool(settings.get("test", False))
         if needs_model and not train:
@@ -1121,6 +1406,51 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
+    if app == "explain_cv":
+        for key, label in (("db_path", "measurements database"),
+                           ("predictions_file", "prediction CSV")):
+            value = str(settings.get(key) or "").strip()
+            if not value:
+                problems.append(Problem(
+                    ERROR, key, f"no {label} is selected.",
+                    f"Set {key} to the exact existing file used by this run."))
+            elif not os.path.isfile(os.path.expanduser(value)):
+                problems.append(Problem(
+                    ERROR, key, f"{label} does not exist: {value}",
+                    f"Fix {key}; Explain CV Model never invents or reruns this input."))
+        family = str(settings.get("surrogate_model", "random_forest")).lower()
+        if family not in {"random_forest", "hist_gradient_boosting", "xgboost"}:
+            problems.append(Problem(
+                ERROR, "surrogate_model", f"unsupported surrogate family {family!r}.",
+                "Choose random_forest, hist_gradient_boosting, or xgboost."))
+        split = str(settings.get("surrogate_split_by", "well")).lower()
+        if split not in {"well", "plate"}:
+            problems.append(Problem(
+                ERROR, "surrogate_split_by", f"unsupported split unit {split!r}.",
+                "Choose well or plate; individual cells are not independent splits."))
+
+    if app == "investigate_hit":
+        for key in ("db_path", "predictions_file", "guide_fractions_file"):
+            value = str(settings.get(key) or "").strip()
+            if not value or not os.path.isfile(os.path.expanduser(value)):
+                problems.append(Problem(
+                    ERROR, key, f"{key} is not an existing file: {value or '(blank)'}.",
+                    f"Select the exact {key}; the investigation does not infer newest files."))
+        folder = str(settings.get("results_folder") or "").strip()
+        if not folder or not os.path.isdir(os.path.expanduser(folder)):
+            problems.append(Problem(
+                ERROR, "results_folder",
+                f"results_folder is not an existing regression folder: {folder or '(blank)' }.",
+                "Select the exact source run so its result bytes can be hashed."))
+        if not settings.get("target_gene") or not settings.get("target_guides"):
+            problems.append(Problem(
+                ERROR, "target_guides", "target_gene and target_guides are required.",
+                "Carry the selected hit and its exact supporting guide IDs from Hit List."))
+        if str(settings.get("hit_direction", "positive")) not in {"positive", "negative"}:
+            problems.append(Problem(
+                ERROR, "hit_direction", "hit_direction must be positive or negative.",
+                "Use the sign of the selected regression effect."))
+
     if app in MASK_APPS:
         # core.preprocess_generate_masks prints 'At least one of cell_channel,
         # nucleus_channel, pathogen_channel or organelle_channel must be
@@ -1130,17 +1460,56 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, "cell_channel",
                 "no segmentation channel is set: every registered object channel is None.",
                 "Set at least one *_channel setting to an acquisition-channel index."))
-        # pathogen_model: the bundled toxo checkpoints were Cellpose-3 and are
-        # gone. Anything set here is ignored, so say so rather than validating
-        # against a list of models that cannot load.
+        # pathogen_model: A CHECKPOINT PATH HERE IS HONOURED.
+        #
+        # This used to warn that the setting was IGNORED, which was true
+        # while the only values anyone set were the pre-SAM toxo names.
+        # It stopped being true: `object.py` reads `pathogen_model` for
+        # `object_type == 'pathogen'` and hands it to
+        # `_resolve_cellpose_pretrained`, which returns an existing file
+        # as-is -- so a cpsam fine-tune loads. Saying "ignored" now would
+        # tell a user their working setting will be discarded.
+        #
+        # Two things are still worth saying, and they are opposites:
+        #
+        #   a MISSING file is an ERROR, not a warning. The resolver
+        #   raises FileNotFoundError rather than falling back to cpsam,
+        #   deliberately -- segmenting with the wrong weights silently is
+        #   worse than stopping. But it raises INSIDE the run, after the
+        #   images are batched. Catching it here is the whole purpose of
+        #   a validator: the same failure, before the time is spent.
+        #
+        #   a LEGACY NAME still resolves to cpsam with only a log line,
+        #   so it is the case that DOES pass silently and is the one the
+        #   original warning was really about.
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
-            if model is not None and model != "cpsam":
-                problems.append(Problem(
-                    WARNING, "pathogen_model",
-                    f"pathogen_model={model!r} is ignored: Cellpose 4 ships only 'cpsam', "
-                    f"and the pre-SAM toxo_pv_lumen / toxo_cyto checkpoints have been removed.",
-                    "Drop the setting, or set it to 'cpsam' to be explicit."))
+            # Read the dependency-light fallback used to build the settings
+            # menu. Importing the runtime resolver here would pull in
+            # torch/cv2 during a dry run, before any model is meant to load.
+            from .settings import CELLPOSE_MODEL_CHOICES
+            stock_model = CELLPOSE_MODEL_CHOICES[0]
+
+            if isinstance(model, str) and model.strip():
+                model = model.strip()
+                looks_like_a_path = (
+                    os.sep in model or model.endswith((".pth", ".pt")))
+                if looks_like_a_path and not os.path.isfile(model):
+                    problems.append(Problem(
+                        ERROR, "pathogen_model",
+                        f"pathogen_model={model!r} names a checkpoint that "
+                        f"is not there.",
+                        "Point it at an existing .pth/.pt file, or drop the "
+                        "setting to segment pathogens with stock cpsam."))
+                elif not looks_like_a_path and model != stock_model:
+                    problems.append(Problem(
+                        WARNING, "pathogen_model",
+                        f"pathogen_model={model!r} is not a checkpoint on "
+                        f"disk, so Cellpose 4 will load stock "
+                        f"{stock_model!r} instead. The pre-SAM "
+                        f"toxo_pv_lumen / toxo_cyto checkpoints are gone.",
+                        "Give the path to a fine-tuned checkpoint, or set "
+                        f"{stock_model!r} to be explicit."))
 
     if app == "measure":
         # measure_crop returns early on both of these.
@@ -1284,6 +1653,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
+    problems.extend(_check_retired_keys(settings))
     problems.extend(_check_numeric_sanity(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))

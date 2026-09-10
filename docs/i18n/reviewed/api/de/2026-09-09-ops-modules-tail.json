@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.ops_accel#3",
+      "source_sha256": "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+      "source": "EVERY FUNCTION TAKES AND RETURNS NUMPY, so no caller learns which backend ran and no caller has to change when one is added. Every one has a test that runs BOTH paths on the same input and asserts they agree -- not \"the GPU version passes its own test\", which is how a fallback quietly becomes a second implementation nobody compares.",
+      "context": "EVERY FUNCTION TAKES AND RETURNS NUMPY, so no caller learns which backend ran and no caller has to change when one is added. Every one has a test that runs BOTH paths on the same input and asserts they agree -- not \"the GPU version passes its own test\", which is how a fallback quietly becomes a second implementation nobody compares.",
+      "translation": "JEDE FUNKTION NIMMT UND LIEFERT NUMPY, damit keine aufrufende Seite erfährt, welches Backend gelaufen ist, und keine sich ändern muss, wenn eines hinzukommt. Zu jeder gibt es einen Test, der BEIDE Wege auf derselben Eingabe laufen lässt und prüft, dass sie übereinstimmen -- und nicht \"die GPU-Fassung besteht ihren eigenen Test\", denn genau so wird aus einer Rückfallebene still und leise eine zweite Implementierung, die niemand vergleicht."
+    },
+    {
+      "label": "spacr.ops_accel#4",
+      "source_sha256": "6b7bee0d9d406e5763c5c3576999cd6bad2266f9bc6ba7e1df8b71f4c5ce52ba",
+      "source": "AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.",
+      "context": "And it never assumes the card is free. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.",
+      "translation": "UND SIE SETZT NIE VORAUS, DASS DIE KARTE FREI IST. Eine geteilte GPU ist der Normalfall -- auf dieser läuft auch Strukturvorhersage --, deshalb verweigert `ops_gpu=False` ein Gerät, das vorhanden ist, und ein Backend, das zur Laufzeit eine Ausnahme wirft (ein Speicherüberlauf, ein Treiber, der verschwunden ist), fällt auf das nächste zurück, statt die Platte scheitern zu lassen."
+    }
+  ]
+}

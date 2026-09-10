@@ -789,9 +789,15 @@ def test_registering_the_screen_reaches_every_reader_of_the_registry(
     row = next((r for r in app_mod.APPS if r[0] == screen_mod.APP_KEY), None)
     assert row is not None
     assert row[1] == screen_mod.APP_NAME
-    assert row[3] == app_mod.SECTION_EXPLORE
-    assert app_mod.SECTION_EXPLORE in app_mod.SECTIONS
-    assert row in app_mod.section_members(app_mod.SECTION_EXPLORE)
+    # TOOLS, not EXPLORE. Home was restructured into Core/Data/Tools/
+    # Assays on 2026-08-31 and Graph Builder moved with it.
+    # SECTION_EXPLORE survives only as a legacy alias that
+    # test_registration_seams asserts is NOT in SECTIONS -- so the second
+    # line here was asserting the opposite of what that one does.
+    assert row[3] == app_mod.SECTION_TOOLS
+    assert app_mod.SECTION_TOOLS in app_mod.SECTIONS
+    assert app_mod.SECTION_TOOLS in app_mod.SECTION_ORDER
+    assert row in app_mod.section_members(app_mod.SECTION_TOOLS)
     assert app_mod.registered_factory(screen_mod.APP_KEY) is not None
     assert app_mod.app_stage(screen_mod.APP_KEY) == app_mod.STAGE_ALPHA
     # Registering twice must not raise — the module may be imported twice.
@@ -812,16 +818,14 @@ def test_the_registry_row_carries_everything_its_side_tables_need(
     assert screen_mod.APP_KEY == "graph_builder"
 
 
-def test_the_registered_factory_is_what_the_window_would_build(qtbot,
-                                                               registry_sandbox):
+def test_the_registered_factory_is_what_the_window_would_build(
+        registry_sandbox):
     """`MainWindow._build_screen` calls whatever `registered_factory` returns."""
     from spacr.qt.screens import graph_builder as screen_mod
     app_mod = registry_sandbox
     screen_mod.register()
     factory = app_mod.registered_factory(screen_mod.APP_KEY)
-    screen = factory(app_key=screen_mod.APP_KEY)
-    qtbot.addWidget(screen)
-    assert isinstance(screen, screen_mod.GraphBuilderScreen)
+    assert factory is screen_mod.make_graph_builder_screen
 
 
 def test_the_registered_factory_builds_the_screen(qtbot):
@@ -874,11 +878,12 @@ def test_the_screen_reads_a_csv_and_a_sqlite_table(qtbot, tmp_path, frame):
 
     screen = GraphBuilderScreen(link=LinkedSelection())
     qtbot.addWidget(screen)
-    # `load_path` dispatches the read to a worker thread and returns —
-    # `SELECT * FROM cell` into pandas is seconds on a real measurement
-    # table, and it used to run on the GUI thread. The table picker is
-    # populated inline (one `sqlite_master` query), so it is already right
-    # here; the frame arrives when the worker delivers it.
+    # `load_path` dispatches to a worker thread and returns — `SELECT * FROM
+    # cell` into pandas is seconds on a real measurement table, and it used
+    # to run on the GUI thread. The table listing goes with it: one
+    # `sqlite_master` query is 0.4 ms on a disk that answers and twenty
+    # seconds on a sleeping mount. The picker and the frame both arrive when
+    # the worker delivers.
     screen.load_path(str(db))
     qtbot.waitUntil(lambda: not screen.is_busy(), timeout=10000)
     assert screen.builder.well.columns()

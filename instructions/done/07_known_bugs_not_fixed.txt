@@ -1,0 +1,684 @@
+================================================================================
+FOUND, CONFIRMED, DELIBERATELY LEFT
+================================================================================
+
+Status: DONE — every reachable defect is fixed or explicitly accepted, and
+        the reviewed Korean ``min_cell_count`` entry is in the final catalog.
+
+Each of these was measured rather than suspected. Each has a reason for
+not being fixed, and the reason is the useful part -- otherwise the next
+person rediscovers it and makes the same call from scratch, or worse,
+"fixes" one that was intentional.
+
+--------------------------------------------------------------------------------
+STATUS RECONCILIATION -- 2026-08-29
+--------------------------------------------------------------------------------
+
+Re-audit result, 2026-08-30:
+
+  * the original TSG101 provenance question is explicitly accepted as an
+    external library-designer decision. The shipped library and importer are
+    both unambiguous, so that unknowable history is not a product defect;
+  * the remaining Space implementation is retained. ``deep_field`` is a
+    supported wallpaper, the procedural variants are live Preferences choices,
+    and ``SPACE_PALETTE`` is deliberate settings-file compatibility;
+  * empty GLCMs now emit an honest missing value. Entirely unobservable
+    features are dropped, while partially observed features are median-imputed
+    before variance/correlation filtering and model use (``27bf3a46``);
+  * the Korean ``min_cell_count`` tooltip has been re-translated against the
+    exact current English contract, passes the semantic rejection gates, and
+    is now the exact reviewed entry in the generated final catalog.
+
+The old coverage count is historical and the final 100% statement-and-branch
+target is tracked by instruction 288. The timelapse, calibration,
+activation-grid, outlier, crop, align, layers and lineage defects below are
+fixed. Historical reproductions remain in this file so the reason for each
+repair is not lost; their inline status, rather than the original
+present-tense description, is authoritative.
+
+--------------------------------------------------------------------------------
+1. bundled barcodes_grna.csv duplicates
+   [FIXED 2026-08-15; ORIGINAL TSG101 DESIGN DECISION REMAINS EXTERNAL]
+--------------------------------------------------------------------------------
+
+The original TSG101 input contained 1,385 data rows. Three sequences were
+shared by more than one guide name, across EIGHT rows in all (3 + 3 + 2).
+Reachable nightly commit ``edb6d2fb`` removed all eight ambiguous rows from
+the bundled ``spacr/resources/data/barcodes_grna.csv``. The shipped file now
+contains exactly 1,377 data rows and zero duplicated sequences. The usable
+count is therefore 1,385 - 8 = 1,377, not 1,382; three was the number of
+distinct shared sequences, not the number of ambiguous rows.
+
+The importer is independently safe for an external library that still has
+this shape: ``map_sequences_to_names`` removes every row carrying a shared
+sequence, reports those sequences, leaves matching reads unassigned, and
+continues with the usable rows. A library with no usable barcode still raises.
+
+What remains unresolved is the provenance question. Only the TSG101 library
+designer can say whether those shared sequences were intentional. Do not
+silently assign any of them to one gene, and do not edit an external source
+library on the assumption that the bundled-file decision answers that
+experimental-design question.
+
+DECISION 2026-08-30 -- ACCEPTED EXTERNAL PROVENANCE. The historical intent is
+not recoverable from this repository and is not needed to make the software
+safe: the bundled file contains no ambiguity and imported libraries reject all
+rows carrying a shared sequence. Preserve the warning above for anyone who has
+the original library, but do not keep the product instruction open waiting for
+an answer only the library designer can supply. The four focused bundled,
+shared, duplicate and mapping checks pass on the exact Python 3.12 stack.
+
+--------------------------------------------------------------------------------
+2. timelapse.py called the feature selector without coercing
+   [FIXED 2026-08-29]
+--------------------------------------------------------------------------------
+
+The same class of fault as the Classify (ML) `ModelFeatureSchemaError`
+that WAS fixed: a column arrives as object dtype and the selector expects
+numeric.
+
+Reachable nightly commit ``0bc98d11`` applies the Classify schema boundary to
+the real PCA and XGBoost timelapse QC paths. It identifies only features the
+selected model can consume, coerces numeric text in a candidate-only frame,
+and raises ``ModelFeatureSchemaError`` with the bad column/value when an
+actual candidate is malformed. Unrelated metadata and other fluorescence
+channels are not coerced, and the durable measurement frame keeps its
+original dtypes.
+
+``tests/test_timelapse_model_feature_schema.py`` reproduces SQLite-shaped
+numeric-text and all-NULL object columns through combined and per-well PCA,
+both PCA and XGBoost schema errors, and the valid one-feature XGBoost case.
+The repair was also validated in the broader timelapse cohorts (203 tests on
+Python 3.12 and 126 on Python 3.9).
+
+--------------------------------------------------------------------------------
+3. historical coverage baseline; current target is tracked by instruction 288
+--------------------------------------------------------------------------------
+
+Not a bug; a standing goal. ``102 modules under 90%`` was the measured baseline
+when this entry was written, not a current count. The release target is now
+100% statement AND branch coverage per module, with the prohibited coverage
+pragmas reconciled, and instruction 288 owns the current counts and evidence.
+``timelapse`` is NOT legacy and must not be skipped as if it were.
+
+Note for whoever runs coverage: `pytest --cov` needs the sitecustomize
+torch pre-import shim or it dies with a `_has_torch_function` crash. That
+is in the coverage runner notes, not here.
+
+--------------------------------------------------------------------------------
+4. The Space theme retirement was left half-finished
+   [RE-AUDITED 2026-08-30; LIVE WALLPAPER CODE RETAINED]
+--------------------------------------------------------------------------------
+
+Reachable nightly commit ``e541ecf5`` retired Space as a selectable theme.
+Still present:
+
+    spacr/resources/themes/deep_field.jpg     1.4 MB, still ships
+    spacr/qt/imagery.py :: SPACE_PHOTO_VARIANTS = ("deep_field",)
+    spacr/qt/space.py                          1277 lines
+
+All THREE are still referenced -- `preferences.py` imports from space.py
+in four places, and `deep_field` survives as a wallpaper VARIANT even
+though "space" is no longer a theme. SPACE_PALETTE is kept deliberately so
+an old settings file naming "space" resolves rather than raising.
+
+DECISION 2026-08-30 -- KEEP IT. The retired thing is the selectable ``space``
+colour theme, not the ambient-wallpaper feature. ``deep_field`` remains an
+explicit Preferences choice, the procedural variants in ``space.py`` remain
+choices beside it, and the old palette is a safe compatibility fallback for a
+persisted setting. Deleting those files would remove supported behaviour and
+break old settings rather than finish a retirement. The names are historical,
+but the code and asset are live product surface. The 214-test Space/theme/photo
+cohort passes on Python 3.12 with PySide 6.11.2 after this decision.
+
+--------------------------------------------------------------------------------
+5. Diagnostic scripts wrote to the real user preferences
+--------------------------------------------------------------------------------
+
+Recorded because it caused a user-visible fault and will happen again.
+
+Nine scratch scripts called `preferences.set_ambient_enabled(False)` while
+reproducing a bug. Run as plain scripts rather than under pytest, they
+bypassed the test sandbox and wrote to the real ~/.config/spacr/qt.conf.
+The user's next launch had a flat grey interface, an opacity setting with
+nothing to show through, and an animation named in Preferences that was
+switched off by a flag they never touched.
+
+The habit that prevents it: a script that touches preferences points
+`preferences._settings` at a temp QSettings first, exactly as
+`tests/qt/test_preferences_reset.py::private_store` does. There is now a
+Reset to defaults button in Preferences, which is the repair path, but not
+touching them is better than repairing them.
+
+--------------------------------------------------------------------------------
+N. key_columns can return an object key with NO plate/well/field in it, and
+   the guard downstream lets it through            [FIXED 2026-08-10]
+--------------------------------------------------------------------------------
+
+FIXED 2026-08-10. `filters.require_full_identity(keys, what)` now demands
+every one of `IDENTITY_COLUMNS` plus `object_label`, and both write-back
+sites call it (`export_gate`, `export_annotation`) in place of the
+`if not keys or OBJECT_COLUMN not in keys` guard, which passed for
+`['object_label']`. The refusal names the missing columns. `key_columns`
+itself is unchanged -- it still reports what is there -- but its docstring
+now says nothing merges on its result without going through the guard.
+
+The reachability question below is ANSWERED, and the answer is "reachable":
+the Qt gate editor loads a table through `filters.read_sampled`, which is a
+raw `SELECT *`, so a database spelling its identity `plate`/`row`/`column`/
+`field` reaches `export_annotation` with exactly the frame that yielded
+`['object_label']`. It now raises a FilterError naming the four missing
+columns instead of merging on the label. Tightening also refuses a genuinely
+partial identity (e.g. no `fieldID`), which is intended: an object label
+repeats in every field, so a merge without one is a wrong answer rather than
+a reduced one. Regression tests: `tests/test_filters.py::
+test_a_gate_needs_the_whole_identity_not_just_the_object_label` and the three
+tests beside it.
+
+The record of the defect, as found:
+--------------------------------------------------------------------------------
+
+Found 2026-08-10 while auditing new parameter documentation, and confirmed by
+executing the real function rather than reading it.
+
+    key_columns(DataFrame with plateID/rowID/columnID/fieldID/object_label)
+        -> ['plateID', 'rowID', 'columnID', 'fieldID', 'object_label']
+
+    key_columns(DataFrame with plate/row/column/field/object_label)
+        -> ['object_label']
+
+`spacr/filters.py` builds the identity from `IDENTITY_COLUMNS`, which carry
+the canonical `*ID` spellings, and appends `OBJECT_COLUMN` unconditionally
+when present. A frame using the LEGACY spellings therefore yields an
+identity of `object_label` alone.
+
+THE GUARD DOES NOT CATCH IT. Both call sites read
+
+    if not keys or OBJECT_COLUMN not in keys:
+        raise FilterError("this table has no object identity ...")
+
+(`export_gate` around line 649, `export_annotation` around line 818.) For
+`['object_label']` the first half is False and the second half is False, so
+the guard PASSES and the merge proceeds on the label alone -- and
+`object_label` is only unique WITHIN a field. Objects with the same label in
+different plates, wells or fields would silently collide.
+
+WHY IT IS LEFT: reachability is unproven. The legacy spellings do exist --
+`utils.correct_metadata_column_names` exists precisely to rename them, and
+`schema.py:251` records that they were two conventions -- but every path that
+was checked normalises before reaching here (`ml.py:583`,
+`sequencing.py:1060`). So this may be an unreachable hazard rather than a
+live bug, and the honest fix depends on which:
+
+  * if unreachable, the guard should still be tightened to require the full
+    identity, as documentation of the invariant;
+  * if reachable, it is a silent data-corruption path and the guard must
+    reject, not warn.
+
+Deciding needs someone who knows whether a user-supplied or hand-queried
+frame can reach `export_gate`/`export_annotation` without passing through
+`correct_metadata_column_names`. That is a question about how people use the
+tool, not about the code.
+
+A DOCSTRING WAS WRONG ABOUT THIS TOO, and is now corrected: it claimed such a
+frame "yields an empty list here, which downstream reads as 'this table has
+no object identity'". Both halves were false -- it yields `['object_label']`
+and downstream accepts it. The docstring described a safe failure where the
+code has an unsafe one, which is the most misleading kind.
+
+--------------------------------------------------------------------------------
+N+1. SEVEN MORE, all found 2026-08-10 by documenting parameters and having a
+     second agent EXECUTE each claim before accepting it
+--------------------------------------------------------------------------------
+
+Writing a parameter description forces someone to state what a value does,
+and stating it forces a check. Every one below was reproduced, not read.
+
+  make_validation_holdout(seed=...) IS DEAD. The seed is forwarded to
+  make_cv_folds, which consumes its RNG only in the `groups is None` branch --
+  but make_validation_holdout REQUIRES groups and raises without them, so the
+  deterministic greedy path always runs. Verified: seed=0 and seed=12345 give
+  byte-identical holdouts. A caller varying the seed to get a different
+  validation set silently gets the same one.
+
+  make_validation_holdout SILENTLY CLAMPS. `requested_folds = max(2, ...)`
+  means any validation_fraction above 0.5 becomes a 2-way split:
+  fraction=0.9 holds out 0.5, with no warning. The `min(requested_folds,
+  distinct)` cap misses in the other direction -- 0.05 over 8 groups realises
+  0.125. Both are silent divergences from an explicitly requested size.
+
+  plot_single_array's panel title OVERSTATES THE OBJECT COUNT BY ONE. It
+  prints `len(np.unique(array))` under a "(obj.)" label, and background 0 is
+  one of those values -- a 3-object mask renders as "4 (obj.)". This one is
+  on screen, in every mask panel.
+
+  show_cam_on_image WRAPS INSTEAD OF CLIPPING. [FIXED 2026-08-10]
+  `np.uint8(255 * mask)` on an
+  un-normalised CAM sends anything above 1.0 to an arbitrary colormap
+  position rather than saturating: measured, 1.1 -> 24 (cold end), 1.5 -> 126
+  (mid), 2.0 -> 254. A `np.clip(mask, 0, 1)` before the cast is the fix.
+  FIX: the mask is clipped to [0, 1] before the cast, so 1.5 now renders the
+  same saturated red as 1.0 instead of mid-jet green, and a RuntimeWarning
+  names the range it clipped so the missing normalisation is not hidden. The
+  output cast is clipped too, so nothing wraps on the way out either.
+
+  show_cam_on_image TURNS NaN INTO BLACK. [FIXED 2026-08-10]
+  Its `else: cam.fill(0.0)` fallback
+  cannot fire for the reason it looks like it should -- COLORMAP_JET maps 0 to
+  BGR (128,0,0), so a zero input still has a positive peak. It is reachable
+  only via NaN or a sufficiently negative img, and then returns a silent
+  all-black image instead of surfacing the bad input.
+  FIX: a non-finite `img` or `mask` raises ValueError, and the peak <= 0 case
+  raises instead of filling black -- a black attribution map is
+  indistinguishable from "the model looked nowhere", which is a claim the
+  overlay must not make on the strength of bad input.
+
+  invert_image WRAPS ON SIGNED DTYPES. [FIXED 2026-08-10]
+  `max_value - image` on int8 with a
+  pixel of -100 gives 227, which wraps to -29. Verified. The function neither
+  checks signedness nor promotes.
+  FIX: the pivot is now `iinfo.min + iinfo.max`, i.e. the dtype maximum when
+  unsigned (uint8/uint16 are bit-for-bit unchanged) and -1 when signed, the
+  convention `skimage.util.invert` uses. int8 -100 -> 99, in range, and
+  inverting twice is the identity for every integer dtype. A non-integer
+  dtype raises ValueError naming the dtype rather than numpy's "Invalid
+  integer data type".
+
+  MergedCropSource.get_many RAISES WHERE ITS TYPE SAYS IT SKIPS. It calls
+  extract_crops without on_error, i.e. the default 'raise', so one row whose
+  label is missing from its mask plane aborts the whole batch -- while the
+  `List[Optional[np.ndarray]]` return type and the `if crop is not None`
+  guard on the next line (which can never take the None branch) both say
+  on_error='none' was intended, so a grid render survives one bad row.
+
+LEFT UNFIXED WHEN WRITTEN, deliberately: the task was documentation, and each
+of these changes behaviour. The docstrings describe what the code does TODAY,
+so none of them is hidden. Three are worth prioritising because a user sees
+the wrong answer rather than an error -- the object-count label, the dead
+seed, and the clamped validation fraction.
+
+STATUS 2026-08-10: the three image-attribution defects above are FIXED (both
+`show_cam_on_image` ones and `invert_image`), each with regression tests in
+`tests/test_cov_utils_saliency_gradcam.py` and
+`tests/test_cov_utils_mask_metrics.py`. The sentence that formerly called the
+other four "still open" is obsolete: the dead seed, clamped validation
+fraction and object-count label were fixed in ``62e5545f``;
+``MergedCropSource.get_many`` was reconciled in ``0bb1073a`` as an intentional
+fail-loud contract, with non-optional return annotations and a regression.
+No defect in this N+1 list remains open.
+
+--------------------------------------------------------------------------------
+2026-08-10 - TWENTY OF THE ABOVE ARE NOW FIXED
+--------------------------------------------------------------------------------
+
+Requested 2026-08-10 — "fix all bugs and logic that leads to erroneous and
+missleading results". Reachable nightly commit ``62e5545f``.
+
+Fixed, with the reproduction re-run before and after each:
+
+    retrain_round group_by            recorded a random split as grouped
+    retrain_round group_by='none'     same lie, through the DOCUMENTED path
+    holdout_report                    accuracy 1.0 on a set it got 2 of 3
+    annotation_coverage               denominator counted before its filter
+    crops_for_object_keys             escaped keys resolved to nothing
+    frac_missing                      printed 114.3%
+    describe()                        charged policy drops to the filter too
+    show_cam_on_image                 wrapped, so hot rendered as cold
+    show_cam_on_image                 NaN became a silent black image
+    invert_image                      wrapped on signed dtypes
+    key_columns guard                 accepted an identity with no plate/well
+    make_validation_holdout seed      inert; every seed gave one split
+    make_validation_holdout fraction  silently clamped 0.9 to 0.5
+    plot_single_array title           overstated the object count by one
+
+TWO WENT DEEPER THAN THE BRIEF, which is why the agents were told to
+reproduce first rather than patch what they were handed:
+
+  The retrain_round lie was ALSO reachable through `group_by='none'`, a
+  documented and legitimate value. It fell through to n singleton groups and
+  reported the same "no group appears on both sides". Fixing only the typo
+  case would have left the honest path lying.
+
+  holdout_report's fix is not a mask: the confusion matrix now covers every
+  class the TRUTH names, so a class the head cannot predict is an ERROR (its
+  row is all-error, its column stays empty) rather than being dropped. n is
+  the matrix total, so n, class_support and accuracy finally describe one
+  population.
+
+A LATENT DEFECT FOUND ON THE WAY: `export_anndata` rebuilt its ExportResult
+field by field, so it silently dropped any newly added field -- a count
+arriving as its default was indistinguishable from a real zero. It would have
+swallowed the two counts added by the frac_missing fix. Now
+`dataclasses.replace`.
+
+STATUS 2026-08-29: all four `postprocess_*_masks` settings were already
+removed from defaults, types, tooltips and categories. The last surviving
+reference, a `category_group_dependencies` entry for
+`postprocess_nucleus_masks`, is now gone; the compatibility map remains empty
+for callers that inspect it, and the retired-settings regression scans that
+map too. `MergedCropSource.get_many` deliberately remains fail-loud and its
+public return annotation and documentation now say so, with a regression that
+proves successful batches cannot contain `None`.
+
+--------------------------------------------------------------------------------
+N+2. An EMPTY GLCM returns plausible numbers instead of nothing, for most
+     nuclei and pathogens                              [FIXED 2026-08-30]
+--------------------------------------------------------------------------------
+
+Found 2026-08-10 while benchmarking the GLCM block, and measured rather than
+reasoned about.
+
+`graycomatrix` guards an empty co-occurrence matrix with
+`glcm_sums[glcm_sums == 0] = 1`, and `graycoprops` then reads a matrix of
+zeros. The result is not NaN and not an error: it is **0.0 for contrast,
+dissimilarity, homogeneity, ASM, energy and entropy, and 1.0 for
+correlation** (skimage guards std < 1e-15 by returning 1.0).
+
+The matrix is empty whenever the object is smaller than the offset distance,
+because no pixel pair at that separation lies inside it. Confirmed empty at
+d=32 for any patch 32 px or less across -- WHICH IS MOST NUCLEI AND MOST
+PATHOGENS at typical magnification.
+
+So `homogeneity_distance_32` for a small nucleus is not missing data that a
+model would drop; it is a confident 0.0, and `correlation_distance_32` is a
+confident 1.0 -- a perfect correlation reported for an object that has no
+pixel pairs at that distance at all. Both land in the feature table and
+enrol automatically in every classifier and UMAP matrix.
+
+FIXED in ``27bf3a46``. ``_calculate_homogeneity`` checks the normalized matrix
+before calling ``graycoprops`` and writes NaN when it contains no pixel pair.
+The downstream policy is explicit and shared by Classify and the unfiltered
+UMAP/statistics path: drop a feature only when every object lacks it; otherwise
+fill missing rows with that feature's median before variance/correlation
+filtering. Median is deliberately neutral and robust for long-tailed intensity
+features, so absence cannot masquerade as unusually strong or weak texture.
+
+The regressions pin a small region's finite d=2 value and missing d=6 value,
+partial median imputation, all-missing feature removal, and finite unfiltered
+preprocessing. The focused measurement/feature/ML/Qt cohorts passed 352 tests
+(135 direct plus 217 broader) on the exact Python 3.12 / PySide 6.11.2 stack.
+The earlier benchmark remains useful: at 32 grey levels a fully
+rotation-invariant seven-property block costs less than today's single
+rotation-dependent property at 256 levels (1.108 ms vs 1.206 ms per region),
+but expanding or renaming the public feature set is separate feature work.
+
+--------------------------------------------------------------------------------
+2026-08-11 - FOUND BY DOCUMENTING PARAMETERS. ALL ARE NOW FIXED.
+--------------------------------------------------------------------------------
+
+Writing `:param:` lines for 48 functions meant reading what each parameter
+actually DOES. That surfaced eighteen dead parameters (now documented as such)
+and the following defects, every one verified by calling the function.
+
+WRONG OUTPUT
+
+  FIXED 2026-08-29 -- utils.plot_images_by_cluster SILENTLY DROPPED THE LAST
+  CLUSTER. `colors` was
+  bound by `zip(np.unique(labels), colors)` and the colour itself is never
+  used -- only the zip LENGTH has an effect. Because np.unique counts the -1
+  DBSCAN noise label, a palette sized to the real clusters is one short and
+  the final cluster is plotted not at all. Verified: labels {-1,0,1} with a
+  2-colour palette plots cluster 0 only; a 4-colour palette plots both.
+
+  FIXED 2026-08-29 -- utils.plot_grid PAINTED ONE CLUSTER IN TWO DIFFERENT
+  COLOURS. The panel
+  border uses `colors[label]` (a direct integer index) while the side-legend
+  swatch is positional. With cluster keys {0, 3} and a 4-colour palette,
+  cluster 3's border is colors[3] and its swatch is colors[1]. Verified by
+  reading the patch facecolors back off the figure. A reader matching
+  swatches to panels matches them wrongly.
+
+  FIXED 2026-08-11 -- utils.plot_activation_grid(overlay=False) DREW NO IMAGE
+  AT ALL -- not the
+  input, not the saliency or Grad-CAM map. The result is a grid of bare
+  class-label boxes on empty axes (verified: len(ax.get_images()) == 0 for
+  every panel). `normalize` is then dead too. An incomplete last row also
+  renders as empty framed boxes, because ax.axis('off') runs only for i < N.
+
+SILENT NO-OP DRESSED AS SUCCESS
+
+  FIXED 2026-08-11 -- classifier_evaluation.cross_calibrate_probabilities DID
+  NOT VALIDATE
+  y_true against the probability columns. A label of 7 against a 2-column
+  matrix makes every fold's fit_temperature raise inside its try/except, each
+  falls back to temperature 1.0, and the function returns UNCALIBRATED
+  probabilities with only a printed warning. Verified: all four folds
+  returned 1.0. A caller who does not watch stdout is told calibration ran.
+
+  FIXED 2026-08-11 -- classifier_evaluation.calibration_table accepted an
+  out-of-range label the
+  same way: y_true=[5,5] against 2 columns matches no class, so every
+  observed_frequency reads 0.0 and the reliability curve looks
+  catastrophically miscalibrated rather than raising.
+
+  FIXED 2026-08-11 -- calibration_table on EMPTY input returned a DataFrame of
+  shape (0, 0) -- no
+  rows AND no columns -- so downstream code indexing 'class_name' or 'bin'
+  gets a KeyError instead of an empty column.
+
+DISAGREEING TWINS
+
+  FIXED 2026-08-11 -- the two plot_activation_grid implementations disagreed
+  on map shape. The
+  saliency one transposes a leading 3 to channels-last, so (N,H,W) and
+  (N,3,H,W) both work while (N,1,H,W) raises; the Grad-CAM one has no
+  transpose, so (N,3,H,W) raises there instead. Same name, same signature,
+  incompatible inputs.
+
+  FIXED 2026-08-11 -- utils.remove_outliers_by_group's two methods disagreed
+  on tiny groups. A
+  one-row group has std=NaN, so 'zscore' DELETES it while 'iqr' keeps it.
+  Verified on a 6-row frame: 'iqr' keeps the singleton and drops the 50.0
+  outlier; 'zscore' drops the singleton and KEEPS the 50.0, because the
+  outlier inflates its own group's std. It also accepts a NEGATIVE threshold,
+  which under 'iqr' inverts the band and deletes every row of every group
+  with a nonzero IQR.
+
+ALREADY CORRECTED IN THE DOCSTRING PASS: utils.filter_and_save_csv's summary
+claimed it filters for "> upper and < lower". The code uses `|`: it is a
+two-tailed selection that KEEPS the extremes, and passing upper < lower makes
+the conditions cover the line so nothing is filtered at all.
+
+STATUS 2026-08-29: none of the defects in this sweep remains open. Reachable
+nightly commit ``a7b2da80`` refuses labels outside calibration columns and
+returns a correctly columned empty calibration table. ``a5a089d9`` draws the
+activation map when ``overlay=False``, gives Saliency and Grad-CAM the same
+``(H,W)``/``(1,H,W)``/``(3,H,W)`` map contract, hides unused panels, keeps a
+singleton under both outlier methods, and rejects a negative threshold.
+``0bb1073a`` visits every non-noise cluster and resolves one color consistently
+for its panel and legend. The regressions exercise the formerly wrong output;
+the original reproductions above are retained as history, not current state.
+
+--------------------------------------------------------------------------------
+2026-08-11 - THE SECOND DOCUMENTATION SWEEP. Each verified by execution.
+--------------------------------------------------------------------------------
+
+SILENT WRONG OUTPUT
+
+  align.window: AN OUT-OF-RANGE CHANNEL INDEX BEHAVES DIFFERENTLY PER STORAGE
+  LAYOUT. A merged (H,W,C) .npy goes through crops.MergedField.read_window,
+  which validates and raises CropError. Every other layout -- 2-D .npy,
+  channel-first (C,H,W), TIFF, split channel files -- has NO validation and
+  silently leaves that output plane ZERO. Same call, same-looking tile, error
+  or silent zeros depending only on what is on disk.
+
+  A NEGATIVE index diverges three ways in the same function: merged raises;
+  a single-file memmap wraps Python-style, so channels=[-1] silently returns
+  the LAST plane; split-channel tiles fail a `0 <= group` guard and return
+  zeros.
+
+  align.window's dtype cast is a bare astype with no rescale or clip, so
+  narrowing WRAPS MODULO: a uint16 pixel of 300 read with dtype='uint8'
+  comes back as 44.
+
+  FIXED 2026-08-29. ``_TileReader.window`` now validates every requested
+  channel against the assembled site before reading, so merged, 2-D,
+  channel-first, TIFF and split-file storage all reject the same negative or
+  out-of-range index with ``AlignError``. Integer narrowing follows the
+  canvas writer's round-and-clip policy: uint16 300 becomes uint8 255, never
+  44. Focused regressions cover merged, channel-first, single-plane and split
+  layouts plus narrowing.
+
+  layers.Canvas.for_grid with depth=None pins every out-of-plane axis at
+  world 0 rather than at that axis's own translate. For a 3-D layer with
+  origin z=10.0 the canvas sits off the volume and EVERY LAYER RENDERS BLANK
+  -- coverage 0.0, no error, no warning. Verified: LabelsLayer and ImageLayer
+  both give coverage 0.0 by default and 12.0 with depth={'z': 10.0}.
+
+  FIXED 2026-08-29. An omitted depth now pins every out-of-plane axis to
+  that axis's own spacing translate, so the identity canvas for a translated
+  volume begins on its first plane. An explicit mapping remains authoritative,
+  including an explicit empty mapping. The regression renders both an
+  ImageLayer and a LabelsLayer at z=10 and proves neither is blank.
+
+  lineage.tree_for(typed=False) RESOLVES A COLLIDING KEY TO THE WRONG FAMILY.
+  With nucleus 3 in cell 8 and pathogen 3 in cell 7, both collapse to
+  'plate1_r1_c1_f1_3' and the call returns cell 7 -- the first root in
+  field-then-label order -- whichever the caller meant.
+
+  FIXED 2026-08-29. ``tree_for`` now gathers every family containing the
+  requested key before returning. An untyped collision inside one family
+  still identifies that family, preserving legacy lookup, while the same key
+  in different families raises ``LineageError`` and names every match instead
+  of choosing the first sorted root. Typed nucleus and pathogen keys continue
+  to resolve their respective families. A focused regression recreates the
+  documented cell-7/cell-8 failure.
+
+SHAPE THAT BREAKS BATCHING
+
+  crop_source.crop_at never calls _resize while crop_object does, so the same
+  `size` setting means "guaranteed size x size" on one path and "at most this,
+  unpadded" on the other. crop_at(a, 0, 0, size=6) on a 10x10 array returns
+  (3,3,1) and crop_at(a, 9, 9, size=6) returns (4,4,1): crops near a border
+  silently come out a different shape, which is what breaks naive batching.
+  `half = max(1, int(size) // 2)` also makes the box side always even and
+  never below 2, so size=5 cuts 4 px and size=0 or -4 cut 2 px.
+
+  FIXED 2026-08-29. ``size`` is now the exact positive side length on both
+  crop helpers. ``crop_at`` preserves the rounded coordinate and pixel scale,
+  zero-padding any part of its fixed window that crosses the array edge;
+  only a window with no overlap still returns None. Odd sides remain odd, and
+  centre and border crops can be stacked directly. ``crop_object(size=None)``
+  still returns the object's natural box, while an explicit zero, negative or
+  invalid size is refused instead of becoming a different shape silently.
+
+RESOURCE LEAKS
+
+  database_concurrency.run_concurrency_probe leaks its temporary directory
+  when journal_mode is rejected: 'MEMORY' and 'TRUNCATE' raise
+  DatabaseConfigurationError from connect() AFTER mkdtemp has run, and the
+  cleanup is the last statement of the function. Reproduced twice.
+  A stalled worker also leaks it, but that one is deliberate -- cleanup is
+  guarded by `not alive` so a hung thread's database survives for inspection.
+  An EXPLICIT path is never cleaned either, which is what makes the next run
+  on that path fail with FileExistsError.
+
+  FIXED 2026-08-17. The body moved into `_run_probe` and one handler around
+  it discards the scratch database on the way out, `-wal`/`-shm` sidecars
+  included -- so every failure between making the path and reading the
+  metrics back is covered, not only the two journal modes. Three cases in
+  `tests/test_database_concurrency.py`, each red before the change: the
+  rejected mode, an arbitrary failure in the setup, and the explicit path
+  that used to block its own next run. The stalled worker is untouched: it
+  is a normal return, still guarded by `not alive`. The docstring described
+  the leak as behaviour and now describes what happens instead.
+
+QUIET COERCION
+
+  FIXED 2026-08-29. ``run_concurrency_probe`` no longer truncates floats or
+  accepts text/booleans as work sizes: its type-annotated counts must be
+  genuine positive integers, while the shipped CLI remains compatible because
+  argparse already produces integers. ``journal_mode`` must be an explicit
+  ``WAL`` or ``DELETE`` string; ``None`` can no longer produce a quiet DELETE
+  run whose result describes a mode the caller never selected. Focused
+  regressions cover every count, lossy input class and unsupported/implicit
+  journal mode.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - THE 44-STRING i18n GAP [FIXED 2026-08-20]
+--------------------------------------------------------------------------------
+
+Found while working on the regression figure surface, not requested.
+
+`tests/qt/test_external_i18n_catalogs.py::
+ test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` was RED:
+
+    KeyError: '0 is invisible, 1 is solid:'
+
+The scraper finds 1,563 UI strings in the source; every catalog holds 1,519.
+The gap is 44 strings x 9 languages = 396 missing translations. Three of them
+are in the plot restyle menus alone -- "Point size", "Size in pixels:",
+"0 is invisible, 1 is solid:" -- so a non-English user right-clicking a graph
+gets English dialogs.
+
+NOT FIXED BY HAND AT THE TIME, DELIBERATELY.
+`tools/build_i18n_catalogs.py` regenerates
+them with a translation model (`--model-root`), and 396 strings typed in by
+someone who does not speak nine languages is how a catalog acquires
+plausible-looking wrong entries that nobody can audit. The tool exists; run
+it.
+
+Whoever does: the same run should check whether the gap is a one-off or
+whether every UI string added since the last regeneration has been missing,
+because the second is a process problem and the fix is a CI check that fails
+the build when the scraper finds a string with no catalog entry.
+
+STATUS 2026-08-29: this specific gap is closed. The current nightly catalogs
+all contain the three named strings (including ``0 is invisible, 1 is
+solid:``), and the runtime regression enumerates the canonical source tables
+for every supported locale. This does NOT close the broader final-source
+translation audit: instruction 306 owns freshness and semantic review on the
+release tree, including any strings added after this historical 44-string
+batch.
+
+
+--------------------------------------------------------------------------------
+2026-08-17 - ONE KOREAN TOOLTIP STILL NEEDS EXTERNAL REVIEW
+--------------------------------------------------------------------------------
+
+`min_cell_count`'s English tooltip was corrected: it said "Default None." and
+the actual default is 100. The correction is right and stays.
+
+That invalidated its reviewed Korean translation, which is the guard working
+as designed -- `tools/build_i18n_catalogs.py` pins a reviewed entry to the
+EXACT English it was translated from, so a source edit makes the entry stale
+rather than silently shipping a translation of a superseded string.
+
+The reviewed record was REMOVED rather than re-pinned. Re-pinning would have kept a
+Korean tooltip that states a default the software does not have, which is
+worse than no translation: a reader of the English sees "Default 100" and a
+reader of the Korean sees "Default None", and only one of them is right.
+At that point Korean fell back to English for this one tooltip.
+
+STATUS 2026-08-29: still open for external Korean language/domain review. The
+current English contract is more specific -- default 100 for regression and
+25 for the screen -- and the generated Korean catalog now contains Korean
+prose, so the old statement that it falls back to English is no longer current.
+That generated prose does not state the two current defaults, however, and a
+catalog entry is not evidence that a qualified reviewer found its scientific
+meaning correct. Re-translate/review it against the exact current English and
+record that evidence; never restore the superseded ``Default None`` entry.
+
+This is no longer the same debt as the fixed 44-string inventory gap above.
+Inventory presence is mechanical; this remaining item is semantic review.
+
+--------------------------------------------------------------------------------
+2026-08-30 - FINAL KOREAN FIXED POINT; THIS INSTRUCTION IS COMPLETE
+--------------------------------------------------------------------------------
+
+The external review record is
+``docs/i18n/reviewed/runtime/ko/2026-08-30-min-cell-count.json``. It carries
+the exact current English sentence, source SHA-256
+``a560bc25bdab1b2568d1d26ad95fdeb36ae7af320a907b3c829290967ae7dd80``,
+and Korean prose that says both live defaults: 100 for regression and 25 for
+the machine-learning screen. The reviewed source, its recomputed SHA-256,
+``spacr.qt.i18n_catalogs.ko.SOURCE_HASHES`` and the generated
+``SETTING_TOOLTIPS['min_cell_count']`` translation were compared directly on
+integration head ``93bf9e95``; all four agree exactly.
+
+The broader live-source audit reports all 4,960 runtime entries current and
+zero runtime orphans in Korean and every other supported locale. Broader API
+and translation quality work remains correctly owned by instruction 306; it
+does not reopen this narrowly recorded tooltip review. No defect deliberately
+left in this file remains a product blocker.

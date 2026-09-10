@@ -1,0 +1,35 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "37_batch",
+    "scene_count": 12,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Valide, preserve e execute uma fila ordenada de trabalhos reais de módulos do spaCR, com dependências e logs separados.",
+      "prerequisite": "Tenha um arquivo de configurações JSON ou CSV salvo para cada trabalho de módulo do spaCR executado sem interface gráfica.",
+      "objectives": [
+        "Adicionar trabalhos validados de módulo e configurações com rótulos, dependências e substituições de linha de comando.",
+        "Reordenar, validar, salvar e recarregar uma fila não supervisionada antes da execução.",
+        "Executar um trabalho de cada vez em processos isolados e auditar o estado e os logs de cada trabalho."
+      ],
+      "narrations": [
+        "Batch Runner organiza módulos e configurações arbitrários do spaCR em uma única fila não supervisionada. Ao contrário de Plate Queue, que aplica um pipeline a várias placas, Batch Runner pode combinar módulos, entradas, substituições e dependências. Os trabalhos são executados estritamente um de cada vez para não competir por uma única GPU.",
+        "Selecione um módulo sem interface gráfica e o arquivo de configurações exato que o trabalho deverá receber. Adicione um rótulo descritivo, identificadores opcionais dos trabalhos pré-requisitos e substituições opcionais no formato chave=valor. O primeiro trabalho realiza uma conversão real e sem perdas de um campo com quatro canais. Clique em Add job.",
+        "O trabalho recebe o identificador estável convert-1 e é verificado imediatamente. Batch Runner resolve os valores padrão do módulo, interpreta o arquivo de configurações e as substituições, valida caminhos e valores e rejeita agora um trabalho inválido, em vez de descobrir o problema durante uma execução noturna.",
+        "Na opção After da segunda conversão real, informe convert-1, para que ela seja executada somente se esse pré-requisito for concluído com êxito. A substituição plate_naming=name é aplicada sobre as configurações salvas sem copiar o arquivo. Se convert-1 falhar, esse trabalho será marcado como ignorado, em vez de ser executado com uma saída anterior incompleta. Clique em Add job.",
+        "A terceira conversão real não possui pré-requisito e pode ser executada mesmo que um trabalho não relacionado falhe sob a política de continuar após erros. Adicione-a como trabalho independente. Esta lição usa três campos de microscopia transferidos, copiados byte a byte para pastas isoladas; cada processo da fila executará uma conversão real.",
+        "A tabela mostra a ordem de execução, os identificadores estáveis, os módulos, os rótulos, as dependências, o estado pendente, o tempo decorrido e o log próprio de cada trabalho. Selecione uma linha para examinar as configurações e o log. Os controles Duplicate, Remove e Move permitem construir e reordenar uma sequência maior de trabalhos noturnos.",
+        "Selecione o terceiro trabalho independente e clique em Move up. A reordenação é segura porque a conversão dependente permanece abaixo de convert-1. Mover um pré-requisito para abaixo do trabalho dependente produziria um erro de validação visível e desabilitaria a execução.",
+        "Clique em Validate depois de editar ou carregar uma fila. A validação informa conjuntamente todos os erros e avisos: configurações ausentes, módulos desconhecidos, caminhos ou valores inválidos, identificadores duplicados, pré-requisitos posteriores e ciclos de dependência. O botão de execução permanece desabilitado enquanto existir qualquer problema impeditivo.",
+        "Os três trabalhos são válidos. Continue on failure permite que trabalhos independentes prossigam e ignora os dependentes; Stop at first failure interrompe tudo que viria depois. O limiar de falhas consecutivas encerra uma fila que falha repetidamente pela mesma causa sistemática. Stop aguarda o término seguro do trabalho atual, em vez de encerrá-lo durante uma gravação.",
+        "Clique em Save queue antes de deixar a fila sem supervisão. O JSON legível armazena a ordem, as dependências, as substituições e os estados. Batch Runner o atualiza de forma atômica após cada transição, permitindo que uma reinicialização retome trabalhos pendentes ou ainda não executados sem repetir os concluídos. Load queue restaura posteriormente o mesmo registro.",
+        "Com a fila revisada e salva, clique em Run queue. Cada trabalho é iniciado como um processo independente do spacr-run usando este ambiente do spaCR. Uma falha da segmentação encerra esse trabalho, mas não a interface nem os trabalhos independentes posteriores; a saída padrão e os erros são gravados no log separado do trabalho.",
+        "Os três trabalhos reais em subprocessos são concluídos com êxito. A barra de progresso chega a três de três, a tabela preserva o estado e a duração de cada trabalho, o resumo distingue resultados concluídos, com falha, ignorados, não executados e parciais, e o log do trabalho selecionado contém o comando exato e o relatório da conversão. Cada destino contém quatro arquivos TIFF e um mapa de proveniência; todos os hashes das origens permanecem inalterados."
+      ]
+    }
+  }
+}

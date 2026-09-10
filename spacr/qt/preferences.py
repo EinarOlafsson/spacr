@@ -12,17 +12,15 @@ Wire-up:
   whenever a setting changes; reapplies the stylesheet with the
   current theme + font scale.
 * :class:`PreferencesDialog` — the modal Settings dialog opened by
-  Ctrl+, (see :mod:`spacr.qt.shortcuts`).
+  Ctrl+P (see :mod:`spacr.qt.shortcuts`).
 
 Public API::
 
     from spacr.qt.preferences import (
         get_theme, set_theme, get_theme_choice, set_theme_choice,
         get_language, set_language,
-        get_space_variant, set_space_variant,
         get_cell_variant, set_cell_variant,
-        get_space_seed, set_space_seed,
-        space_background_path, cell_background_path,
+        cell_background_path,
         theme_background_path,
         get_ambient_enabled, set_ambient_enabled,
         get_ambient_animation, set_ambient_animation,
@@ -40,6 +38,7 @@ Public API::
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
+        get_figure_save_mode, set_figure_save_mode,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
         get_dock_mode, set_dock_mode,
@@ -53,24 +52,29 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"cell"`` |
-  ``"glass"`` | ``"system"`` (default ``"dark"``). ``"system"`` follows
-  the reader's OS colour scheme. ``"space"`` is a dark theme over a
-  generated deep-space background or a deep-field photograph; ``"cell"``
-  uses one of the bundled fluorescence micrographs; ``"glass"`` uses
-  neutral layered materials over a built-in light field.
-  Space and Cell variants appear directly in the single Theme dropdown;
-  their existing persisted variant keys remain backward compatible.
-* ``space_seed``: int; the generated sky is deterministic in this.
-* ``font_scale``: float, 1.0 = 100 %. Clamped to [0.75, 2.0].
+* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
+  ``"system"`` (default ``"system"``). ``"system"`` follows the operating
+  system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
+  uses neutral layered materials over a built-in light field. Legacy Space
+  accessors remain for old settings, but Space is not a selectable theme.
+* ``space_seed``: int; retained for deterministic legacy Space backgrounds.
+* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].
+* ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
+  (default ``"print"``). Controls the page and figure-element colours used
+  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local
+  override; see :func:`spacr.figure_style.figure_save_mode`.
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
   alternatives (viridis for continuous, Okabe-Ito for categorical).
+* ``performance_logging``: ``"off"`` | ``"summary"`` | ``"detailed"``
+  (default ``"summary"``). Records process-tree resource use independently
+  of verbose call tracing; see :func:`get_performance_logging` and
+  :mod:`spacr.resource_log`.
 * ``db_browser_editable``: bool, default ``False``. Permits the
   Database Browser to open a read-write connection at all; see
   :func:`get_db_browser_editable`.
-* ``dock_mode``: ``"auto"`` | ``"locked"`` | ``"hidden"`` (default
+* ``dock_mode``: ``"locked"`` | ``"hidden"`` (default
   ``"locked"``). Whether the left app dock reveals on hover, is pinned
   open as a permanent column, or is not there at all.
 * ``pane_opacity``: int percent, default ``60``. How solid shared surfaces
@@ -116,12 +120,9 @@ Values:
   to the ranges the engines declare
   (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).
 * ``ambient_blur``: float, default ``0.0`` — how much the finished picture
-  is softened, in units of eight screen pixels. **Its meaning changed**: it
-  used to run 0.25–3.0 with 1.0 as the shipped look and sharpened the
-  picture by enlarging the shading buffer, which made "sharp" and "not
-  blocky" the same slider. Sharpening is now ``ambient_resolution``'s job
-  and this one only softens. A value stored under the old scale is
-  translated once, on read — see :func:`_migrate_ambient_motion`.
+  is softened, in units of eight screen pixels. Image detail is controlled
+  separately by ``ambient_resolution``. Values stored under the legacy blur
+  scale are translated once on read by :func:`_migrate_ambient_motion`.
 * ``ambient_drift_direction``: ``"up"`` | ``"down"`` | ``"random"``
   (default ``"up"``). Which way the Starfield animation travels. A
   preference rather than three entries in the animation menu; see
@@ -129,11 +130,10 @@ Values:
 * ``spinner_delay``: float seconds, default ``2.0``. How long background
   work has to run before the activity spinner appears at all — see
   :func:`get_spinner_delay`.
-* ``setting_animations``: bool, default ``False``. Whether a setting's
-  hover tooltip plays its animation WITHOUT being asked. Off — the
-  default — leaves every hover text only until the reader presses the
-  **Animation** word in that tooltip's footer, which speaks for that one
-  setting; see :func:`get_setting_animations_enabled`.
+* ``setting_animations``: bool, default ``False``. Whether setting tooltips
+  play their animations automatically. When disabled, hover remains text-only
+  until the user activates **Animation** in that tooltip's footer; see
+  :func:`get_setting_animations_enabled`.
 * ``language``: one of the bundled language codes from
   :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
   persisted value is invalid.
@@ -158,6 +158,7 @@ _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
+_KEY_PERFORMANCE_LOG = "prefs/performance_logging"
 _KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
 # Stored as level names ("INFO,WARNING,ERROR") rather than numbers: QSettings
 # round-trips strings predictably across platforms, and a settings file a
@@ -186,7 +187,332 @@ _KEY_AMBIENT_SCALE   = "prefs/ambient_motion_scale"
 AMBIENT_MOTION_SCALE = 2
 _KEY_SPINNER_DELAY   = "prefs/spinner_delay"
 _KEY_SETTING_ANIMATIONS = "prefs/setting_animations"
+#: The two tooltip surfaces. INDEPENDENT: both on,
+#: both off, or either alone are all legal, which is why they are two
+#: booleans and not a three-way choice wearing two checkboxes.
+_KEY_TOOLTIPS_BOX = "prefs/tooltips_box"
+_KEY_OBJECT_GRID = "prefs/object_settings_grid"
+_KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
+_KEY_LAPTOP_MODE = "prefs/laptop_mode"
+_KEY_FONT_WEIGHT = "prefs/interface_font_weight"
+_KEY_PRELOAD = "prefs/preload_policy"
+_KEY_FRACTAL_PATTERN = "spaceout/fractal_pattern"
+_KEY_FRACTAL_BACKEND = "spaceout/fractal_backend"
+_KEY_FRACTAL_QUALITY = "spaceout/fractal_quality"
+_KEY_FRACTAL_SCALE = "spaceout/fractal_scale"
+_KEY_FRACTAL_SPEED = "spaceout/fractal_speed"
+_KEY_FRACTAL_DREAM = "spaceout/fractal_dream"
+_KEY_FRACTAL_VARIABLE_SPEED = "spaceout/fractal_variable_speed"
+_KEY_FRACTAL_SPEED_MIN = "spaceout/fractal_speed_min"
+_KEY_FRACTAL_SPEED_MAX = "spaceout/fractal_speed_max"
+
+#: What a fractal number must satisfy to be usable, as
+#: ``name -> (floor, ceiling, why)``. ``None`` for a bound means there is
+#: none.
+#:
+#: These are validation bounds, not display-field caps. A field accepts the
+#: typed value and :func:`explain_a_fractal_number` says plainly when it
+#: cannot be used and why; it never silently changes 8000 to 8.
+#:
+#: A bound is here only where a value outside it CANNOT WORK -- a
+#: supersampling of 0 takes no samples, a scale of 0 renders nothing, a
+#: negative iteration count is not a count. Values that are merely
+#: extravagant are the user's business.
+def _mandelbrot_defaults() -> dict:
+    """What the fractal settings start at, before anyone chooses a level.
+
+    THE SHIPPED DEFAULTS ARE THE LIGHT ONES, keeping first launch responsive
+    on modest hardware.
+
+    So the numbers that decide COST -- supersampling, render scale and the
+    iteration budget -- come from the `balanced` preset rather than from the
+    Mandelbrot renderer's published set, which is a `high` profile. The
+    published numbers are still what the Mandelbrot pattern documents and
+    what choosing High restores; they are not what a user who has chosen
+    nothing gets.
+
+    Everything that does not cost anything -- the steering behaviour, the
+    starting scale, the precision the reference orbit is built to -- keeps
+    the published value, because making those timid would change what the
+    pattern IS rather than how hard it works.
+    """
+    try:
+        from .widgets.fractal_mandelbrot import DEFAULTS
+
+        # EXACTLY WHAT WAS GIVEN. An earlier version overrode the cost
+        # numbers with the `balanced` preset to keep the first impression
+        # light; the maintainer then handed over the command line they
+        # actually run, supersampling 2 and render scale 1.0 among it, and
+        # a later instruction wins over an earlier inference.
+        return dict(DEFAULTS)
+    except Exception:                                        # noqa: BLE001
+        # A LITERAL COPY, because this branch exists for the build where the
+        # renderer cannot be imported at all -- so it cannot read the
+        # numbers it is mirroring. It had drifted from them twice:
+        # `supersampling` was still 1 and `max_depth` still 34.0 from the
+        # version that deliberately shipped a lighter preset, against the
+        # renderer's 2 and 21.0. A headless install therefore opened on a
+        # different pattern from the one that is documented.
+        # `test_the_fractal_defaults_are_the_published_ones_or_the_written_
+        # fallback` now compares every shared key, so a third drift fails.
+        return {"supersampling": 2, "seconds_per_decade": 24.0,
+                "base_iterations": 300, "iterations_per_decade": 55.0,
+                "max_iterations": 2200, "precision_digits": 320,
+                "initial_scale": 1.25, "zoom_rate": 1.0,
+                "render_scale": 1.0, "steering_strength": 0.09,
+                "steering_interval_decades": 0.40,
+                "steering_duration": 3.8, "candidate_count": 24,
+                "max_depth": 21.0}
+
+
+class _LazyDefaults(dict):
+    """The Mandelbrot defaults, resolved on first use.
+
+    NOT AT IMPORT. `_mandelbrot_defaults` reaches into
+    `spacr.qt.widgets.fractal_mandelbrot`, and importing that package pulls
+    QtWidgets in -- which `test_preferences_imports_without_touching_the_
+    ambient_widget` exists to prevent, because this module is imported by
+    headless paths that must never build a widget toolkit.
+
+    A dict subclass rather than a function, so every existing
+    `_MANDEL_DEFAULTS[name]` and `.get(name)` reads the same as before.
+    """
+
+    _loaded = False
+
+    def _load(self) -> None:
+        """Fill the defaults once, on first read.
+
+        The flag is set BEFORE the work so a failure part-way through does not
+        leave every subsequent read retrying an import that already failed.
+        """
+        if self._loaded:
+            return
+        # Set FIRST: `_mandelbrot_defaults` cannot recurse into this, but a
+        # failure part-way through must not leave it retrying on every read.
+        self._loaded = True
+        try:
+            self.update(_mandelbrot_defaults())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the fractal defaults", exc_info=True)
+
+    def __getitem__(self, key):
+        """Force the load, then read as a normal dict."""
+        self._load()
+        return dict.__getitem__(self, key)
+
+    def get(self, key, default=None):
+        """Read one default, loading the table on first use.
+
+        :param key: the setting name.
+        :param default: what to return when it has none.
+        :returns: the default value.
+        """
+        self._load()
+        return dict.get(self, key, default)
+
+    def __contains__(self, key) -> bool:
+        """Force the load, then answer as a normal dict.
+
+        Every access point forces it, not just ``__getitem__``: a caller testing
+        ``in`` before reading would otherwise see an empty mapping and conclude
+        the key does not exist.
+        """
+        self._load()
+        return dict.__contains__(self, key)
+
+    def keys(self):
+        """Return the setting names, loading the table on first use."""
+        self._load()
+        return dict.keys(self)
+
+    def items(self):
+        """Return the name/default pairs, loading the table on first use."""
+        self._load()
+        return dict.items(self)
+
+
+_MANDEL_DEFAULTS = _LazyDefaults()
+
+FRACTAL_LIMITS = {
+    "scale": (0.01, None,
+              "a scale of zero or less renders nothing at all"),
+    "speed": (0.0, None, "speed cannot run backwards"),
+    "dream": (0.0, None, "dream is an amount, and cannot be negative"),
+    "speed_min": (0.0, None, "speed cannot run backwards"),
+    "speed_max": (0.0, None, "speed cannot run backwards"),
+    "speed_period": (0.1, None,
+                     "a period of zero would change speed infinitely fast"),
+    "pointer_size": (0.0, None, "a reach cannot be negative"),
+    "pointer_strength": (0.0, None, "a strength cannot be negative"),
+    "supersampling": (1, None,
+                      "fewer than one sample a pixel draws nothing"),
+    "seconds_per_decade": (0.1, None,
+                           "a decade cannot take no time at all"),
+    "base_iterations": (1, None, "a frame needs at least one iteration"),
+    "iterations_per_decade": (0.0, None,
+                              "iterations cannot be taken away as you "
+                              "descend; the picture would go solid"),
+    "max_iterations": (1, 4096,
+                       "the shader's loop is bounded at 4096, so a larger "
+                       "number would be silently ignored"),
+    "precision_digits": (16, None,
+                         "below about sixteen digits the reference orbit "
+                         "is no better than the float it is meant to "
+                         "rescue"),
+    "initial_scale": (0.0000001, None,
+                      "a starting scale of zero has nothing to zoom out of"),
+    "tile_rows": (1, None, "a tile needs at least one row"),
+    "render_scale": (0.05, None,
+                     "below about a twentieth there are not enough pixels "
+                     "to see"),
+    "fps": (1, None, "a frame rate of zero never draws"),
+    "zoom_rate": (0.0, None, "the zoom cannot run backwards"),
+    "steering_strength": (0.0, None, "a strength cannot be negative"),
+    "steering_interval_decades": (0.01, None,
+                                  "steering every zero decades would never "
+                                  "stop choosing a new target"),
+    "steering_duration": (0.1, None,
+                          "a move that takes no time is a jump"),
+    "candidate_count": (1, None,
+                        "choosing between no candidates chooses nothing"),
+    "steering": (0.0, 1.0,
+                 "steering is an amount between none and restless"),
+    "max_depth": (0.1, 23.0,
+                  "the reference orbit is carried as three float32s and "
+                  "reproduces Z to about 4.2e-24, so past roughly "
+                  "twenty-three decades the perturbation is measuring noise "
+                  "and the picture turns to mush"),
+}
+
+
+#: Every setting that is really about SPEED, and what one Speed of 1.0
+#: means for each.
+#:
+#: One control drives the related timing values, preventing separate fields
+#: that answer the same question from contradicting one another.
+#:
+#: Speed multiplies the first four and DIVIDES seconds-per-decade, because
+#: that one is a duration: a bigger number there is a slower dive, and a
+#: control called Speed that made things slower as it rose would be a trap.
+SPEED_GROUP = {
+    "speed": 1.0,
+    "zoom_rate": 1.0,
+    "speed_min": 0.55,
+    "speed_max": 1.65,
+    "speed_period": 41.0,
+}
+
+#: The duration that Speed divides rather than multiplies.
+SPEED_SECONDS_PER_DECADE: float = 24.0
+
+#: Every setting that is really about SCALE -- how much is drawn, and how
+#: finely -- and what one Scale of 1.0 means for each.
+#:
+#: Supersampling is a whole number of samples a side, so it steps rather
+#: than scaling smoothly: below 1.0 it is 1, and it reaches 2 and 3 as the
+#: control rises. The cost is its square, which is why it is the last thing
+#: to go up.
+SCALE_GROUP = {
+    "scale": 1.0,
+    "render_scale": 1.0,
+}
+
+
+def speed_group_values(speed: float) -> dict:
+    """What one Speed means for every setting that follows it.
+
+    :param speed: the single user-facing number.
+    :returns: ``{setting: value}`` for the whole group.
+    """
+    amount = max(0.01, float(speed))
+    values = {name: round(base * amount, 4)
+              for name, base in SPEED_GROUP.items()}
+    # A DURATION, so it goes the other way: twice the speed is half the
+    # time a decade takes.
+    values["seconds_per_decade"] = round(
+        SPEED_SECONDS_PER_DECADE / amount, 4)
+    return values
+
+
+def scale_group_values(scale: float) -> dict:
+    """What one Scale means for every setting that follows it.
+
+    :param scale: the single user-facing number.
+    :returns: ``{setting: value}`` for the whole group.
+    """
+    amount = max(0.05, float(scale))
+    values = {name: round(base * amount, 4)
+              for name, base in SCALE_GROUP.items()}
+    # Whole samples a side: 1 below 1.5, then 2, then 3 at 2.5 and above.
+    values["supersampling"] = 1 if amount < 1.5 else (2 if amount < 2.5
+                                                      else 3)
+    return values
+
+
+def explain_a_fractal_number(name: str, value) -> str:
+    """Why ``value`` cannot be used for ``name``, or ``""`` if it can.
+
+    :param name: a fractal setting name.
+    :param value: whatever the field holds.
+    :returns: a sentence for the user, empty when the value is fine.
+
+    THE FIELD TAKES ANYTHING; this is what decides whether it WORKS. The
+    message names the setting, the value and the reason, because "invalid
+    input" tells a user only that the software disagrees with them.
+    """
+    floor, ceiling, why = FRACTAL_LIMITS.get(name, (None, None, ""))
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return f"{name}: {value!r} is not a number."
+    if number != number:                                     # NaN
+        return f"{name}: not a number."
+    if floor is not None and number < floor:
+        return (f"{name}: {value} is too small (needs at least {floor}) "
+                f"— {why}.")
+    if ceiling is not None and number > ceiling:
+        return (f"{name}: {value} is too large (at most {ceiling}) "
+                f"— {why}.")
+    return ""
+
+
+MAX_FRACTAL_SPEED: float = 1_000_000.0
+
+#: Whether the pointer pulls the backdrop about at all.
+_KEY_FRACTAL_POINTER = "spaceout/fractal_pointer_gravity"
+#: How far that pull reaches, and how hard it pulls.
+_KEY_FRACTAL_POINTER_SIZE = "spaceout/fractal_pointer_size"
+_KEY_FRACTAL_POINTER_STRENGTH = "spaceout/fractal_pointer_strength"
+
+#: Supersampling, and the Mandelbrot renderer's own numbers.
+_KEY_FRACTAL_SUPERSAMPLING = "spaceout/fractal_supersampling"
+_KEY_FRACTAL_SECONDS_PER_DECADE = "spaceout/fractal_seconds_per_decade"
+_KEY_FRACTAL_BASE_ITERATIONS = "spaceout/fractal_base_iterations"
+_KEY_FRACTAL_ITERATIONS_PER_DECADE = "spaceout/fractal_iterations_per_decade"
+_KEY_FRACTAL_MAX_ITERATIONS = "spaceout/fractal_max_iterations"
+_KEY_FRACTAL_PRECISION_DIGITS = "spaceout/fractal_precision_digits"
+_KEY_FRACTAL_INITIAL_SCALE = "spaceout/fractal_initial_scale"
+_KEY_FRACTAL_ZOOM_RATE = "spaceout/fractal_zoom_rate"
+_KEY_FRACTAL_RENDER_SCALE = "spaceout/fractal_render_scale"
+_KEY_FRACTAL_STEERING_STRENGTH = "spaceout/fractal_steering_strength"
+_KEY_FRACTAL_STEERING_INTERVAL_DECADES = "spaceout/fractal_steering_interval_decades"
+_KEY_FRACTAL_STEERING_DURATION = "spaceout/fractal_steering_duration"
+_KEY_FRACTAL_CANDIDATE_COUNT = "spaceout/fractal_candidate_count"
+_KEY_FRACTAL_MAX_DEPTH = "spaceout/fractal_max_depth"
+#: The one user-facing steering control, 0..1.
+_KEY_FRACTAL_STEERING = "spaceout/fractal_steering"
+#: "fixed" descends to one point; "guided" searches as it goes; "tour"
+#: floats between the twenty mapped regions.
+_KEY_FRACTAL_PATH = "spaceout/fractal_path"
+
+#: The memory budget: how long an unused thing may sit, how much may be
+#: held, and how much of the machine must stay free for everything else.
+_KEY_IDLE_MINUTES = "prefs/cache_idle_minutes"
+_KEY_CACHE_CEILING = "prefs/cache_ceiling_mb"
+_KEY_HEADROOM = "prefs/headroom_mb"
+_KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
 _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
@@ -206,6 +532,9 @@ VALID_THEMES = PALETTE_THEMES + ("system",)
 #: desktop app that ignores the system setting looks broken on a light desktop.
 DEFAULT_THEME = "system"
 
+#: RETIRED 2026-09-09. Kept as names only so a stored value can still be
+#: recognised and cleared; nothing reads them. See the note above
+#: `theme_background_path`.
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
@@ -216,9 +545,21 @@ FONT_SCALE_MAX = 2.00
 #: interface — spacing, tiles, dots and icons move with the type, so calling it
 #: a font setting undersells what the control does.
 #:
-#: 150% is the default: spaCR's natural size was laid out on a 1080p display,
-#: and on the 4K panels it is now used on everything reads small.
-DEFAULT_FONT_SCALE = 1.5
+#: 100% IS THE DEFAULT, and the reason it was 150% is worth keeping: spaCR's
+#: natural size was laid out on a 1080p display, and on a 4K panel driven at
+#: 1x everything read small.
+#:
+#: But this scales the whole interface, and on a HiDPI display the operating
+#: system is ALREADY scaling -- macOS reports a 2x device pixel ratio and
+#: draws accordingly. Applying 1.5 on top of that is 3x linear and NINE
+#: TIMES the pixels of a 100% layout, which is a laptop rendering nine
+#: screens' worth of work to show one. Reported as spaCR being "extremely
+#: slow" on a machine measurably faster than the workstation it runs well
+#: on.
+#:
+#: The 4K case is a preference a user on that display sets once. The laptop
+#: case was everybody, silently, by default.
+DEFAULT_FONT_SCALE = 1.0
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
@@ -226,14 +567,125 @@ DEFAULT_CB_MODE = "off"
 # Figure rendering
 _KEY_FIG_FORMAT = "prefs/figure_format"
 _KEY_FIG_PNG_DPI = "prefs/figure_png_dpi"
+_KEY_FIG_SAVE_MODE = "prefs/figure_save_mode"
 VALID_FIG_FORMATS = ("png", "pdf")
 DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
 DEFAULT_PNG_DPI = 300
+VALID_FIG_SAVE_MODES = ("print", "screen", "transparent")
+DEFAULT_FIG_SAVE_MODE = "print"
+
+# How many of the most recent figures keep their LIVE matplotlib Figure, and
+# what happens to the ones past that.
+#
+# A live Figure is what makes a figure restylable: it still has a legend to
+# toggle, an axis to set log, series to recolour. A pixmap has none of those
+# — it is a picture of a figure. Keeping every Figure forever is not an
+# option either, since each holds its own data arrays.
+_KEY_FIG_LIVE_CACHE = "prefs/figure_live_cache"
+_KEY_FIG_DYNAMIC = "prefs/figure_dynamic"
+DEFAULT_FIG_LIVE_CACHE = 20
+#: Bounds, not a menu: any number in range is legal.
+MIN_FIG_LIVE_CACHE = 1
+MAX_FIG_LIVE_CACHE = 500
+DEFAULT_FIG_DYNAMIC = True
 
 
-def _settings() -> QSettings:
-    return QSettings(_ORG, _APP)
+#: Set by :func:`enable_safe_mode` before anything reads a preference.
+#: Process-local and never persisted: safe mode is a way IN, not a state to
+#: get stuck in, so an ordinary `spacr` start can never inherit it.
+_SAFE_MODE = False
+
+
+#: What safe mode turns OFF outright, rather than leaving to a default.
+#:
+#: DEFAULTS ARE NOT SAFE BY THEMSELVES. The animated backdrop is on by
+#: default, and the backdrop and the GL path it can take are exactly what
+#: the crash log points at -- so a safe mode that merely ignored the stored
+#: preferences would start the very thing it exists to avoid. Verbose
+#: logging is here for the same reason: it traces per-frame paint calls and
+#: writes megabytes a minute, which is its own way of making the interface
+#: unusable.
+_SAFE_OVERRIDES = {}
+
+
+class _DefaultsForReadingRealForWriting:
+    """Reads answer with the caller's default; writes reach the real store.
+
+    THE POINT OF SAFE MODE IS TO ESCAPE A SAVED VALUE. When a preference is
+    what makes spaCR die on launch, a safe mode that reads that same
+    preference inherits the fault it exists to escape -- so here every read
+    returns the fallback the caller passed, exactly as a first-ever launch
+    would see it, without consulting the stored value at all.
+
+    Writes are NOT shadowed. The user opened safe mode to change a setting
+    and save it, and a write that went to a scratch file would leave the
+    broken value in place and the next ordinary start would die again.
+
+    :param real: the ``QSettings`` writes are forwarded to.
+    """
+
+    def __init__(self, real: QSettings):
+        """Hold the real store, which is where WRITES still go."""
+        self._real = real
+
+    def value(self, key, default=None, type=None):
+        """A forced-safe value where there is one, else the caller's default.
+
+        :returns: the entry in :data:`_SAFE_OVERRIDES` for ``key``, or
+            ``default`` -- so every other getter falls back to its own
+            documented default without a branch of its own.
+        """
+        if key in _SAFE_OVERRIDES:
+            return _SAFE_OVERRIDES[key]
+        return default
+
+    def setValue(self, key, value) -> None:
+        """Write through to the real store."""
+        self._real.setValue(key, value)
+
+    def remove(self, key) -> None:
+        """Remove from the real store."""
+        self._real.remove(key)
+
+    def sync(self) -> None:
+        """Flush the real store."""
+        self._real.sync()
+
+
+def _fill_safe_overrides() -> None:
+    """Populate :data:`_SAFE_OVERRIDES` once the key names exist."""
+    _SAFE_OVERRIDES.update({
+        _KEY_AMBIENT_ENABLED: False,
+        _KEY_SETTING_ANIMATIONS: False,
+        _KEY_VERBOSE_LOG: False,
+        _KEY_PRELOAD: "on_demand",
+    })
+
+
+def enable_safe_mode() -> None:
+    """Read preferences as defaults for the rest of this process.
+
+    Called by the ``safespacr`` entry point before any preference is read.
+    Idempotent.
+    """
+    global _SAFE_MODE
+    _fill_safe_overrides()
+    _SAFE_MODE = True
+
+
+def in_safe_mode() -> bool:
+    """Whether this process is running in safe mode.
+
+    :returns: ``True`` after :func:`enable_safe_mode`.
+    """
+    return _SAFE_MODE
+
+
+def _settings():
+    """The preference store: the real one, or safe mode's read shadow."""
+    real = QSettings(_ORG, _APP)
+    return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +718,283 @@ def set_language(language: str) -> None:
 # Figures — display format (png / pdf) + png resolution
 # ---------------------------------------------------------------------------
 
+#: Where the general figure style lives in QSettings.
+_KEY_FIG_STYLE = "figures/style_general"
+#: Where the per-graph overrides live, as one JSON blob keyed by graph kind.
+_KEY_FIG_STYLE_PER_GRAPH = "figures/style_per_graph"
+
+
+#: Name of the preferred AI provider used when the console opens.
+_KEY_AI_PROVIDER = "ai/preferred_provider"
+
+
+def get_preferred_provider() -> str:
+    """Return the preferred AI provider name.
+
+    An empty string allows the console to select an available provider.
+    """
+    return str(_settings().value(_KEY_AI_PROVIDER, "") or "")
+
+
+def set_preferred_provider(name: str) -> None:
+    """Store the preferred AI provider name.
+
+    Parameters
+    ----------
+    name : str
+        Provider name. An empty string clears the preference.
+    """
+    _settings().setValue(_KEY_AI_PROVIDER, str(name or ""))
+
+
+#: QSettings key for the mapping of panel identifiers to folded state. One
+#: mapping accommodates newly added panels without introducing new preference
+#: keys or requiring callers to discover them individually.
+_KEY_FOLDED = "ui/folded_panels"
+
+
+def get_folded_panels() -> dict:
+    """Which bottom panels the user left folded, ``{key: True}``.
+
+    Keyed by ``"<module>/<panel>"`` so folding the console on Mask does not
+    fold it on Sequencing -- the same rule the console/chat splitter already
+    follows, and for the same reason: the modules are used for different
+    work and want different amounts of room.
+    """
+    import json
+
+    raw = _settings().value(_KEY_FOLDED, "")
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return {str(k): bool(v) for k, v in value.items()} \
+            if isinstance(value, dict) else {}
+    except (TypeError, ValueError, AttributeError):
+        return {}
+
+
+def set_folded_panel(key: str, shut: bool) -> None:
+    """Remember that ``key`` is folded, or is not.
+
+    A PANEL THAT IS OPEN IS REMOVED rather than stored as False. The default
+    is open, so storing it would grow the dict by one entry for every panel
+    the user has ever touched and never shrink it.
+    """
+    import json
+
+    key = str(key or "").strip()
+    if not key:
+        return
+    state = get_folded_panels()
+    if shut:
+        state[key] = True
+    else:
+        state.pop(key, None)
+    _settings().setValue(_KEY_FOLDED, json.dumps(state))
+
+
+def get_figure_style() -> dict:
+    """The user's GENERAL figure settings, or an empty dict.
+
+    Empty rather than the defaults: :func:`spacr.figure_style.resolve` layers
+    the defaults underneath, so storing them here as well would freeze today's
+    defaults into every user's settings and make improving them impossible.
+    """
+    import json
+
+    raw = _settings().value(_KEY_FIG_STYLE, "")
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return value if isinstance(value, dict) else {}
+    except (TypeError, ValueError):
+        return {}
+
+
+def set_figure_style(style: dict) -> None:
+    """Store the general figure settings."""
+    import json
+
+    _settings().setValue(_KEY_FIG_STYLE, json.dumps(dict(style or {})))
+
+
+def get_figure_style_per_graph() -> dict:
+    """Per-graph overrides, ``{kind: {setting: value}}``."""
+    import json
+
+    raw = _settings().value(_KEY_FIG_STYLE_PER_GRAPH, "")
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return {k: v for k, v in value.items() if isinstance(v, dict)} \
+            if isinstance(value, dict) else {}
+    except (TypeError, ValueError):
+        return {}
+
+
+def set_figure_style_per_graph(overrides: dict) -> None:
+    """Store the per-graph overrides."""
+    import json
+
+    clean = {k: dict(v) for k, v in (overrides or {}).items()
+             if isinstance(v, dict) and v}
+    _settings().setValue(_KEY_FIG_STYLE_PER_GRAPH, json.dumps(clean))
+
+
+#: Where a SAVED STYLE OBJECT's per-project default lives.
+#:
+#: NOT the same store as `_KEY_FIG_STYLE_PER_GRAPH`, and the difference is
+#: worth stating because the two look alike from a distance. That one holds
+#: `spacr.figure_style`'s own vocabulary -- font, palette, marker size -- which
+#: `figure_style.resolve` merges into rcParams for every figure spaCR draws.
+#: THIS one holds a verbatim snapshot of one interactive plot's own style
+#: DATACLASS (`volcano_style.VolcanoStyle` and whatever joins it), keyed by the
+#: kind of style it is. Merging the two vocabularies would put `label_top_n`
+#: into `rcParams.update`, which raises rather than being ignored.
+_KEY_FIG_STYLE_DEFAULTS = "figures/style_defaults"
+#: Which graph is drawn FIRST, per data shape. ``{shape: graph_type}``.
+#:
+#: Regression lets the user right-click to change a drawn graph; this mapping
+#: also chooses what is drawn before the first right-click. Stored per shape
+#: rather than as one value
+#: because "Bar" is not an answer for two continuous axes -- a bar needs
+#: groups to summarise, and there are none -- so a single setting would be
+#: ignored by most graphs and look broken.
+_KEY_DEFAULT_GRAPH_TYPES = "figures/default_graph_types"
+
+
+def get_default_graph_types() -> dict:
+    """Every saved default graph type, as ``{shape: graph_type}``.
+
+    :returns: the saved mapping, empty when nothing has been chosen.
+    """
+    import json
+
+    raw = _settings().value(_KEY_DEFAULT_GRAPH_TYPES, "")
+    if isinstance(raw, dict):
+        return {str(k): str(v) for k, v in raw.items() if v}
+    if not isinstance(raw, str) or not raw.strip():
+        return {}
+    try:
+        loaded = json.loads(raw)
+    except ValueError:
+        return {}
+    if not isinstance(loaded, dict):
+        return {}
+    return {str(k): str(v) for k, v in loaded.items() if v}
+
+
+def get_default_graph_type(shape: str) -> str:
+    """The graph type the user wants drawn first for ``shape``.
+
+    :param shape: a `spacr.graph_types` data shape.
+    :returns: the saved graph type, or ``""`` when none is saved.
+
+    Empty rather than the table's default, so `graph_types.default_for` can
+    tell "the user chose this" from "nothing was chosen" -- the table moves
+    when the package does, and a stored copy of it is a preference that has
+    stopped tracking.
+    """
+    return str(get_default_graph_types().get(str(shape), ""))
+
+
+def set_default_graph_type(shape: str, graph_type: str) -> None:
+    """Persist which graph is drawn first for ``shape``.
+
+    :param shape: a `spacr.graph_types` data shape.
+    :param graph_type: a graph type, or ``""`` to go back to the default.
+    """
+    import json
+
+    saved = get_default_graph_types()
+    if graph_type:
+        saved[str(shape)] = str(graph_type)
+    else:
+        saved.pop(str(shape), None)
+    settings = _settings()
+    settings.setValue(_KEY_DEFAULT_GRAPH_TYPES, json.dumps(saved))
+    settings.sync()
+
+
+def get_figure_style_defaults() -> dict:
+    """Every saved per-project style default, as ``{kind: {field: value}}``."""
+    raw = _settings().value(_KEY_FIG_STYLE_DEFAULTS, None)
+    if isinstance(raw, dict):
+        return {str(kind): dict(values) for kind, values in raw.items()
+                if isinstance(values, dict)}
+    if isinstance(raw, str) and raw.strip():
+        import json
+        try:
+            loaded = json.loads(raw)
+        except ValueError:
+            return {}
+        if isinstance(loaded, dict):
+            return {str(kind): dict(values) for kind, values in loaded.items()
+                    if isinstance(values, dict)}
+    return {}
+
+
+def get_figure_style_default(kind: str) -> dict:
+    """The saved default for one kind of style, or ``{}``.
+
+    Empty rather than "today's defaults", for the reason the figure colour
+    section states at length: a stored resolution is a preference that has
+    stopped tracking. A style with no saved default is drawn from the
+    dataclass's own defaults, which move when the package does.
+    """
+    return dict(get_figure_style_defaults().get(str(kind), {}))
+
+
+def set_figure_style_default(kind: str, values) -> None:
+    """Make ``values`` the default for every future figure of ``kind``.
+
+    The design: "a per-project default so a lab's house style is
+    applied to every figure of that type without re-setting it each time".
+    """
+    import json
+
+    stored = get_figure_style_defaults()
+    stored[str(kind)] = dict(values or {})
+    settings = _settings()
+    # JSON rather than a nested QVariant map: QSettings' INI writer flattens a
+    # dict of dicts into keys containing the field names, and a style field
+    # called `x_label` would then be indistinguishable from a group.
+    settings.setValue(_KEY_FIG_STYLE_DEFAULTS, json.dumps(stored))
+    settings.sync()
+
+
+def clear_figure_style_default(kind: str) -> bool:
+    """Forget the default for ``kind``. True if there was one.
+
+    The way back, and it is not optional: a default that can only be set is
+    the same trap as a colour that can only be set.
+    """
+    import json
+
+    stored = get_figure_style_defaults()
+    if str(kind) not in stored:
+        return False
+    stored.pop(str(kind))
+    settings = _settings()
+    settings.setValue(_KEY_FIG_STYLE_DEFAULTS, json.dumps(stored))
+    settings.sync()
+    return True
+
+
+def apply_figure_style(kind: str | None = None) -> dict:
+    """Push the user's style for ``kind`` into matplotlib. Returns it.
+
+    The one call a plotting function needs: it reads the preferences, layers
+    them over the defaults and this graph kind's own, and applies the result.
+    """
+    from ..figure_style import apply
+
+    return apply(kind, get_figure_style(), get_figure_style_per_graph())
+
+
 def get_figure_format() -> str:
     """Return the saved figure format, falling back to ``pdf``.
 
@@ -292,6 +1021,107 @@ def set_figure_format(fmt: str) -> None:
         raise ValueError(f"unknown figure format {fmt!r}. "
                           f"Choose from {VALID_FIG_FORMATS}.")
     _settings().setValue(_KEY_FIG_FORMAT, fmt)
+
+
+def get_figure_save_mode() -> str:
+    """Return the saved figure appearance mode, defaulting to ``print``.
+
+    The environment override belongs to
+    :func:`spacr.figure_style.figure_save_mode`, not here. Keeping this getter
+    store-only lets the Preferences dialog show what it will persist even
+    while a command-line or notebook process temporarily overrides it.
+
+    Returns
+    -------
+    {'print', 'screen', 'transparent'}
+        Persisted mode, or ``print`` when the stored value is invalid.
+    """
+    raw = str(_settings().value(
+        _KEY_FIG_SAVE_MODE, DEFAULT_FIG_SAVE_MODE)).strip().lower()
+    return (raw if raw in VALID_FIG_SAVE_MODES
+            else DEFAULT_FIG_SAVE_MODE)
+
+
+def set_figure_save_mode(mode: str) -> None:
+    """Persist the saved-figure appearance mode.
+
+    Parameters
+    ----------
+    mode : {'print', 'screen', 'transparent'}
+        ``print`` writes a light page with dark figure elements, ``screen``
+        preserves the displayed appearance, and ``transparent`` removes the
+        page background.
+
+    Raises
+    ------
+    ValueError
+        If *mode* is not a supported figure save mode.
+    """
+    normalized = str(mode).strip().lower()
+    if normalized not in VALID_FIG_SAVE_MODES:
+        raise ValueError(
+            f"unknown figure save mode {mode!r}. "
+            f"Choose from {VALID_FIG_SAVE_MODES}.")
+    _settings().setValue(_KEY_FIG_SAVE_MODE, normalized)
+
+
+def get_figure_live_cache() -> int:
+    """How many of the most recent figures keep their live matplotlib Figure.
+
+    The Figures panel used to hold a pixmap per figure and a Figure for every
+    one of them, unbounded. The pixmap is what it displayed, so nothing could
+    be restyled from a picture; the Figures were retained but never capped, so
+    a long run accumulated all of them.
+
+    This bounds the live set. Figures past it keep their rendered page and
+    stay viewable -- see :func:`get_figure_dynamic` for what happens when the
+    user navigates back to one.
+
+    Larger is more restylable and more memory; a figure with a big ``imshow``
+    panel can hold tens of megabytes.
+    """
+    try:
+        value = int(_settings().value(_KEY_FIG_LIVE_CACHE,
+                                      DEFAULT_FIG_LIVE_CACHE))
+    except (TypeError, ValueError):
+        return DEFAULT_FIG_LIVE_CACHE
+    return max(MIN_FIG_LIVE_CACHE, min(value, MAX_FIG_LIVE_CACHE))
+
+
+def set_figure_live_cache(count: int) -> None:
+    """Persist how many figures keep their live Figure.
+
+    :raises ValueError: outside ``MIN_FIG_LIVE_CACHE..MAX_FIG_LIVE_CACHE``.
+    """
+    count = int(count)
+    if not MIN_FIG_LIVE_CACHE <= count <= MAX_FIG_LIVE_CACHE:
+        raise ValueError(
+            f"figure live cache must be between {MIN_FIG_LIVE_CACHE} and "
+            f"{MAX_FIG_LIVE_CACHE}; got {count}.")
+    _settings().setValue(_KEY_FIG_LIVE_CACHE, count)
+
+
+def get_figure_dynamic() -> bool:
+    """Whether an evicted figure is reloaded from its vector page on demand.
+
+    With this on, navigating back past the live-cache window and selecting a
+    figure loads its PDF if one exists, so an old figure is shown from the
+    vector page rather than from the display-capped raster and stays sharp at
+    any zoom. Off, it shows the raster it already has, which is faster and
+    touches no disk.
+
+    It cannot make an old figure restylable again -- a PDF is a finished page,
+    with no legend to toggle. It makes it *legible*.
+    """
+    raw = _settings().value(_KEY_FIG_DYNAMIC, DEFAULT_FIG_DYNAMIC)
+    if isinstance(raw, str):
+        return raw.strip().lower() in ("1", "true", "yes", "on")
+    return bool(raw)
+
+
+def set_figure_dynamic(enabled: bool) -> None:
+    """Persist whether evicted figures reload from their vector page."""
+    _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
 
 
 def get_figure_png_dpi() -> int:
@@ -326,11 +1156,52 @@ def set_figure_png_dpi(dpi: int) -> None:
     _settings().setValue(_KEY_FIG_PNG_DPI, dpi)
 
 
-# Figure colours. Stored as hex strings; "auto" (the default) follows the app
-# theme — dark → black background + white text, light → white + black.
+# Figure colours. Stored as TOKENS, never as answers: either an explicit
+# colour the user picked, or "auto" (the default), which is resolved against
+# the live theme on every read.
+#
+# NEVER PERSIST A RESOLVED DEFAULT.
+# ---------------------------------
+# This is the rule the whole section exists to enforce, and it is written
+# here because this is where the next person will be standing when they are
+# about to break it. Writing back what "auto" happened to resolve to turns a
+# preference that TRACKS into a preference that FREEZES, and the damage
+# outlives the session that caused it: a store holding "#ffffff" cannot be
+# told apart from a user who chose white, so nothing downstream can ever undo
+# it. That is not hypothetical -- `_FigureSettingsDialog` seeded itself from
+# `get_figure_colors()` (resolved) and wrote the same pair back on OK, so
+# opening the dialog once on a dark theme and pressing OK without touching
+# anything froze every future figure white, including on a light theme. See
+# `_migrate_frozen_figure_colors` for the clean-up that costs.
+#
+# The same reasoning is already recorded one screen up for `get_figure_style`,
+# which stores {} rather than today's defaults for exactly this reason.
+#
+# So: anything that can WRITE this preference back seeds itself from
+# `get_figure_color_tokens()`, shows `auto_figure_colors()` as a labelled
+# PREVIEW, and passes "auto" to `set_figure_colors` unless the user picked.
 _KEY_FIG_BG = "prefs/figure_bg"
 _KEY_FIG_FG = "prefs/figure_fg"
+#: Preference key for line colour, including axis spines and tick marks.
+#: Text and tick-label colour remains under :data:`_KEY_FIG_FG`.
+#: `_KEY_FIG_FG` is the font half and predates the split, which is why it is
+#: still spelled `fg` -- renaming the key would silently discard the colour of
+#: every store that already holds one.
+_KEY_FIG_LINE = "prefs/figure_line"
 _KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
+#: Marker recording which generation of the un-freeze migration a store has
+#: been through — see :func:`_migrate_frozen_figure_colors`.
+_KEY_FIG_COLOR_SCALE = "prefs/figure_color_scale"
+#: Distinguishes a current explicit choice from the indistinguishable colour
+#: pair written by the retired dialog. Older stores do not carry this marker.
+_KEY_FIG_COLORS_EXPLICIT = "prefs/figure_colors_explicit"
+
+#: Bump when a *new* family of frozen values needs unfreezing; every store
+#: below this number is examined once and then marked.
+FIGURE_COLOR_SCALE = 1
+
+#: The token meaning "ask the theme, every time". Not a colour.
+AUTO_FIGURE_COLOR = "auto"
 
 
 #: What "no background at all" is spelled as, in the one place that decides
@@ -345,41 +1216,255 @@ def figure_bg_is_transparent(bg: str) -> bool:
     return str(bg).strip().lower() in {"none", "transparent", ""}
 
 
+def figure_color_is_auto(token) -> bool:
+    """Whether ``token`` is the "follow the theme" token rather than a colour.
+
+    Matching is case- and space-insensitive because tokens can come from a
+    hand-edited INI file or the dialog.
+    """
+    return str(token).strip().lower() == AUTO_FIGURE_COLOR
+
+
+def auto_figure_colors() -> tuple:
+    """What :data:`AUTO_FIGURE_COLOR` resolves to *right now*, as
+    ``(background, text)``.
+
+    Public because a control that offers "Follow the theme" has to SHOW what
+    that currently means without storing it. Storing what this returns is the
+    bug the section header describes; previewing it is the fix.
+
+    TRANSPARENT, not the theme's window colour. "auto" used to resolve to
+    #000000 on a dark theme, which is where the black slab behind every plot
+    came from: an opaque black rectangle sitting on a container that is a
+    translucent SURFACE. ``bg`` is the window colour and a figure is not a
+    window (INVARIANTS 2).
+
+    Transparent also means the page-opacity preference reaches the plot for
+    free, and one value is right for both themes — baking in a grey would
+    freeze one opacity into every figure while everything around it kept
+    following the preference.
+    """
+    # Light is the only light theme; Space is a dark one, so a `== "dark"`
+    # test here would have handed it white figures.
+    dark = resolve_effective_theme() != "light"
+    return TRANSPARENT_FIGURE_BG, ("#ffffff" if dark else "#000000")
+
+
+#: Background values that a historical ``"auto"`` preference could persist:
+#: the current transparent value and the former opaque light/dark values. A
+#: stored value equal to one of these is
+#: indistinguishable from a resolution that was written back, which is why
+#: the migration below cannot be cleverer than "assume the bug".
+_FROZEN_BG_VALUES = frozenset({TRANSPARENT_FIGURE_BG, "#000000", "#ffffff"})
+#: The same, for the text colour. "auto" has only ever produced black or
+#: white, so any black or white in the store is suspect.
+_FROZEN_FG_VALUES = frozenset({"#000000", "#ffffff"})
+
+
+def _migrate_frozen_figure_colors() -> None:
+    """Restore persisted theme-derived figure colors to ``"auto"`` once.
+
+    Older dialogs could store the resolved theme colors as explicit values.
+    Values that match a known automatic background, text, or line color are
+    therefore returned to automatic mode. A scale marker prevents repeated
+    migration, and preference-access failures are ignored because they must
+    not interrupt figure rendering.
+    """
+    settings = _settings()
+    try:
+        if int(settings.value(_KEY_FIG_COLOR_SCALE, 0) or 0) >= \
+                FIGURE_COLOR_SCALE:
+            return
+    except (TypeError, ValueError):
+        pass
+    try:
+        changed = []
+        # The line key is examined on the same pass rather than behind a
+        # scale bump, and that is safe rather than lucky: it did not exist
+        # before this migration shipped, so a store already marked cannot
+        # hold a frozen one. A key that CAN predate the marker needs the
+        # bump; this one cannot.
+        for key, frozen, label in (
+                (_KEY_FIG_BG, _FROZEN_BG_VALUES, "background"),
+                (_KEY_FIG_FG, _FROZEN_FG_VALUES, "text colour"),
+                (_KEY_FIG_LINE, _FROZEN_FG_VALUES, "line colour")):
+            raw = settings.value(key, None)
+            if raw is None:
+                continue
+            token = str(raw).strip().lower()
+            if token != AUTO_FIGURE_COLOR and token in frozen:
+                settings.setValue(key, AUTO_FIGURE_COLOR)
+                changed.append(f"{label} {str(raw).strip()!r}")
+        settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+        settings.sync()
+        if changed:
+            # WARNING AND NOT INFO, AND THE LEVEL IS THE MESSAGE'S JOB. This
+            # line exists so that changing a stored preference underneath the
+            # user is not silent -- the docstring above says "with a line in
+            # the console". It was not reaching one: `spacr.qt` is pinned by
+            # the app's level policy, so an INFO logged from
+            # `spacr.qt.preferences` is dropped at the source before any
+            # handler sees it. Measured after pressing Save in Preferences:
+            # `spacr.qt` at level 30, `spacr.qt.preferences` at NOTSET, so
+            # the effective level for this module is WARNING.
+            #
+            # It is warning-grade on its own merits too: something the user
+            # did not ask for happened to their settings.
+            LOG.warning(
+                "Figure colours: %s had been saved as a fixed colour that is "
+                "exactly what \"follow the theme\" produces, which is how an "
+                "older Figure settings dialog left them. They now follow the "
+                "theme again. Pick a colour in Figure settings… to set one "
+                "deliberately.", " and ".join(changed))
+    except Exception:
+        LOG.debug("could not migrate the figure colour keys", exc_info=True)
+
+
+def get_figure_color_tokens() -> tuple:
+    """The STORED ``(background, text)`` tokens, *unresolved*.
+
+    Either half may be :data:`AUTO_FIGURE_COLOR`. Anything that will write the
+    preference back must seed itself from here rather than from
+    :func:`get_figure_colors`, because a resolved pair has already lost the
+    one bit that matters: whether the user chose it.
+    """
+    _migrate_frozen_figure_colors()
+    _unfreeze_figure_colors_that_fight_the_theme()
+    settings = _settings()
+    return (str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR)),
+            str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR)))
+
+
+def _unfreeze_figure_colors_that_fight_the_theme() -> None:
+    """Restore an implicit frozen color pair when it conflicts with the theme.
+
+    The repair applies only when neither color was explicitly selected, both
+    values are known automatic resolutions, and the pair differs from the
+    current theme. Explicit or custom colors remain unchanged. Preference
+    access failures are ignored so a cosmetic repair cannot stop rendering.
+    """
+    try:
+        settings = _settings()
+        if _as_bool(settings.value(_KEY_FIG_COLORS_EXPLICIT, False), False):
+            return                      # chosen through the current dialog/API
+        bg = str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR))
+        fg = str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR))
+        if figure_color_is_auto(bg) or figure_color_is_auto(fg):
+            return                      # nothing frozen to hand back
+        if bg.lower() not in _FROZEN_BG_VALUES:
+            return                      # a colour "auto" never produced
+        if fg.lower() not in _FROZEN_FG_VALUES:
+            return
+        if (bg.lower(), fg.lower()) == tuple(
+                str(v).lower() for v in auto_figure_colors()):
+            return                      # frozen, but at today's answer anyway
+        settings.setValue(_KEY_FIG_BG, AUTO_FIGURE_COLOR)
+        settings.setValue(_KEY_FIG_FG, AUTO_FIGURE_COLOR)
+        print(f"Figure colours were pinned to {bg} / {fg}, which is what "
+              f"'follow the theme' resolved to on a different theme. They "
+              f"have been handed back to the theme; set them explicitly in "
+              f"Preferences > Figures if that was deliberate.")
+    except Exception:                                        # noqa: BLE001
+        return
+
+
+def get_figure_line_token() -> str:
+    """The STORED line colour token, *unresolved*.
+
+    Seed a control that will write the preference back from HERE, never from
+    :func:`get_figure_line_colour` -- the section header says why, and the
+    line half is new enough that it has not yet been frozen by anybody.
+    """
+    _migrate_frozen_figure_colors()
+    return str(_settings().value(_KEY_FIG_LINE, AUTO_FIGURE_COLOR))
+
+
+def get_figure_line_colour() -> str:
+    """The colour a figure's LINES are drawn in, "auto" resolved.
+
+    Automatic means the same ink as the text, which is what every figure did
+    before there were two controls -- so a store that has never been touched
+    renders exactly as it did, and the split costs nobody a changed figure
+    until they choose one.
+
+    WHAT THIS REACHES AND WHAT IT DOES NOT. It is the colour of the figure's
+    CHROME: the axis spines and the tick marks. It is deliberately not pushed
+    over the data's own lines on every render, because a preference that
+    repainted every series in one ink would flatten every multi-series figure
+    in the package the first time a theme was read. The control that DOES
+    reach the data's lines is the per-figure one
+    (:func:`spacr.qt.widgets.figure_settings.apply_line_colour`), which
+    is a user asking for it about one figure -- the same division as the
+    pyqtgraph side, where the theme sets `_foreground` and `set_line_colour`
+    is a menu entry.
+
+    GRIDLINES ARE LEFT ALONE, and that is the one exclusion. A grid repainted
+    in the ink is a cage over the data; `spacr.figure_style.PRINT_GRID`
+    already states it for the save path and this agrees with it.
+    """
+    token = get_figure_line_token()
+    if not figure_color_is_auto(token):
+        return token
+    return get_figure_colors()[1]
+
+
+def set_figure_line_colour(token: str) -> None:
+    """Persist the line colour TOKEN. Pass :data:`AUTO_FIGURE_COLOR` for
+    "follow the text", never what it resolved to."""
+    settings = _settings()
+    settings.setValue(_KEY_FIG_LINE, token)
+    settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+    settings.sync()
+
+
 def get_figure_colors() -> tuple:
     """Return ``(background, text)`` hex colours for rendered figures,
-    resolving "auto" against the current theme."""
-    bg = str(_settings().value(_KEY_FIG_BG, "auto"))
-    fg = str(_settings().value(_KEY_FIG_FG, "auto"))
-    if bg == "auto" or fg == "auto":
-        # Light is the only light theme; Space is a dark one, so a
-        # `== "dark"` test here would have handed it white figures.
-        dark = resolve_effective_theme() != "light"
-        # TRANSPARENT, not the theme's window colour. "auto" used to resolve
-        # to #000000 on a dark theme, which is where the black slab behind
-        # every plot came from: an opaque black rectangle sitting on a
-        # container that is a translucent SURFACE. `bg` is the window
-        # colour and a figure is not a window (INVARIANTS 2).
-        #
-        # Transparent also means the page-opacity preference reaches the
-        # plot for free, and one value is right for both themes -- baking in
-        # a grey would freeze one opacity into every figure while everything
-        # around it kept following the preference.
-        #
+    resolving "auto" against the current theme.
+
+    For DRAWING. A caller that will later write the preference back wants
+    :func:`get_figure_color_tokens`; see the section header for why.
+    """
+    bg, fg = get_figure_color_tokens()
+    if figure_color_is_auto(bg) or figure_color_is_auto(fg):
+        auto_bg, auto_fg = auto_figure_colors()
         # An EXPLICIT colour the user has chosen is still honoured; only the
-        # "auto" resolution changed.
-        auto_bg = TRANSPARENT_FIGURE_BG
-        auto_fg = "#ffffff" if dark else "#000000"
-        if bg == "auto":
+        # "auto" halves are substituted.
+        if figure_color_is_auto(bg):
             bg = auto_bg
-        if fg == "auto":
+        if figure_color_is_auto(fg):
             fg = auto_fg
     return bg, fg
 
 
 def set_figure_colors(bg: str, fg: str) -> None:
-    """Persist background and text colour tokens for generated figures."""
-    _settings().setValue(_KEY_FIG_BG, bg)
-    _settings().setValue(_KEY_FIG_FG, fg)
+    """Persist background and text colour TOKENS for generated figures.
+
+    Pass :data:`AUTO_FIGURE_COLOR` for a half the user has not chosen — NEVER
+    what :func:`auto_figure_colors` returned for it. See the section header.
+
+    Writing also marks the store as migrated: a value set here is a decision
+    taken under the current scheme, so :func:`_migrate_frozen_figure_colors`
+    must not second-guess it afterwards.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_FIG_BG, bg)
+    settings.setValue(_KEY_FIG_FG, fg)
+    settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+    settings.setValue(_KEY_FIG_COLORS_EXPLICIT, True)
+    settings.sync()
+
+
+def set_figure_colors_auto() -> None:
+    """Put both halves back to "follow the theme".
+
+    The explicit way out. A user who has been frozen — by the old dialog or
+    by their own click — otherwise has no route back to automatic at all,
+    and a preference you can only ever set is a trap.
+    """
+    set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
+    # All THREE, because "follow the theme" that left one of them frozen
+    # would be the trap this function exists to be the way out of.
+    set_figure_line_colour(AUTO_FIGURE_COLOR)
 
 
 def get_figure_text_size() -> int:
@@ -443,8 +1528,13 @@ def theme_choices() -> tuple:
 def get_theme_choice() -> str:
     """Return the composite token representing the current visual theme."""
     theme = get_theme()
-    if theme == "space":
-        return f"space:{get_space_variant()}"
+    # NO `space` BRANCH. "space" is not in VALID_THEMES -- `set_theme`
+    # refuses it and `theme_choices` offers no `space:` token -- so a
+    # branch for it could not be reached by any route through this
+    # module, and coverage counted three items nothing could execute.
+    # The Space ARTWORK still exists and `spaceout` still draws it; what
+    # is gone is the theme by that name, which is why the variant
+    # accessors below stay.
     if theme == "cell":
         return f"cell:{get_cell_variant()}"
     return theme
@@ -456,43 +1546,13 @@ def set_theme_choice(choice: str) -> None:
     if choice not in valid:
         raise ValueError(
             f"unknown theme choice {choice!r}. Choose from {sorted(valid)}.")
-    if choice.startswith("space:"):
-        set_space_variant(choice.split(":", 1)[1])
-        set_theme("space")
-    elif choice.startswith("cell:"):
+    # Likewise no `space:` prefix: the validity check above rejects any
+    # token `theme_choices` does not offer, and it offers none.
+    if choice.startswith("cell:"):
         set_cell_variant(choice.split(":", 1)[1])
         set_theme("cell")
     else:
         set_theme(choice)
-
-
-def space_variants() -> tuple:
-    """Every background the Space theme offers.
-
-    The three procedural skies from :mod:`spacr.qt.space` plus the
-    photographic ones from :mod:`spacr.qt.imagery`. The photo keys are
-    kept out of ``space.VARIANTS`` because those three index
-    ``space._VARIANT_MIX`` and a photograph has no mix.
-    """
-    from .imagery import SPACE_PHOTO_VARIANTS
-    from .space import VARIANTS
-    return tuple(VARIANTS) + tuple(SPACE_PHOTO_VARIANTS)
-
-
-def get_space_variant() -> str:
-    """Which background the Space theme uses."""
-    from .space import DEFAULT_VARIANT
-    raw = str(_settings().value(_KEY_SPACE_VARIANT, DEFAULT_VARIANT))
-    return raw if raw in space_variants() else DEFAULT_VARIANT
-
-
-def set_space_variant(variant: str) -> None:
-    """Persist a supported procedural or photographic Space variant."""
-    valid = space_variants()
-    if variant not in valid:
-        raise ValueError(f"unknown space variant {variant!r}. "
-                          f"Choose from {valid}.")
-    _settings().setValue(_KEY_SPACE_VARIANT, variant)
 
 
 def get_cell_variant() -> str:
@@ -511,48 +1571,27 @@ def set_cell_variant(variant: str) -> None:
     _settings().setValue(_KEY_CELL_VARIANT, variant)
 
 
-def get_space_seed() -> int:
-    """Seed for the procedural sky. Same seed → same pixels, forever."""
-    from .space import DEFAULT_SEED
-    try:
-        return int(_settings().value(_KEY_SPACE_SEED, DEFAULT_SEED))
-    except (TypeError, ValueError):
-        return DEFAULT_SEED
-
-
-def set_space_seed(seed: int) -> None:
-    """Persist the deterministic seed used for procedural backgrounds."""
-    _settings().setValue(_KEY_SPACE_SEED, int(seed))
-
-
-def space_background_path(width: int = 0, height: int = 0):
-    """Path of the background image for the Space theme, or ``None``.
-
-    The selected photographic variant is used when its master is installed;
-    otherwise the selected procedural sky is generated and cached. Returns
-    ``None`` only when neither can be produced, at which point the stylesheet
-    paints a flat gradient.
-
-    A missing photo master is not an error and not a dead end — it
-    simply falls through to the generated sky, which needs no assets and
-    no network. **Never raises and never touches the network.**
-    """
-    try:
-        from . import space
-        variant = get_space_variant()
-        from .imagery import SPACE_PHOTO_VARIANTS, background_path
-        if variant in SPACE_PHOTO_VARIANTS:
-            photo = background_path(variant, width, height)
-            if photo is not None:
-                return photo
-        if width <= 0 or height <= 0:
-            width, height = space.screen_size()
-        return space.background_path(width, height,
-                                     variant=variant,
-                                     seed=get_space_seed())
-    except Exception:
-        return None
-
+#: THE SPACE THEME'S KEYS WERE RETIRED, 2026-09-09.
+#:
+#: `space_variants`, `get_space_variant`, `set_space_variant`,
+#: `get_space_seed`, `set_space_seed` and `space_background_path` lived here
+#: and only ever called each other. `space_background_path` had exactly one
+#: caller -- the `theme == "space"` branch of `theme_background_path` -- and
+#: `"space"` is not in `VALID_THEMES`, so `set_theme` refuses it,
+#: `theme_choices()` offers no space token, and `get_theme()` maps anything
+#: unrecognised to `DEFAULT_THEME`. The branch could not be entered by any
+#: route through this module.
+#:
+#: The comment in `get_theme_choice` above already made half this argument --
+#: "a branch for it could not be reached by any route through this module" --
+#: and then kept the accessors on the grounds that "spaceout still draws it".
+#: That half was wrong. `spaceout` is the fractal dressing, and the "space"
+#: fractal PATTERN is `widgets/fractal_space.py`, a starfield shader that
+#: reads neither key. `set_space_variant` and `set_space_seed` were called
+#: from nowhere at all.
+#:
+#: The Space ARTWORK is untouched; what is gone is the accessor pair for a
+#: theme name nothing can select.
 
 def cell_background_path(width: int = 0, height: int = 0):
     """Path of the background image for the Cell theme, or ``None``.
@@ -575,8 +1614,9 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
     :func:`apply_preferences_to_app` and anything else that re-applies
     the stylesheet cannot drift apart.
     """
-    if theme == "space":
-        return space_background_path(width, height)
+    # NO `space` BRANCH. It was unreachable -- see the retirement note above
+    # `space_variants`' former home -- and a branch nothing can enter is a
+    # branch that will be read as live by the next person to touch this.
     if theme == "cell":
         return cell_background_path(width, height)
     return None
@@ -595,10 +1635,14 @@ def resolve_effective_theme() -> str:
         return theme
     # system — poll Qt's palette hint
     try:
+        from PySide6.QtGui import QPalette
         from PySide6.QtWidgets import QApplication
         app = QApplication.instance()
         if app is not None:
-            bg = app.palette().color(app.palette().Window)
+            # THE ENUM, NOT THE INSTANCE. `palette.Window` was removed in
+            # PySide6 6.x, and the bare except below would swallow the
+            # AttributeError and hand every desktop the dark theme.
+            bg = app.palette().color(QPalette.ColorRole.Window)
             # crude luminance test — < 128 → dark scheme
             lum = (0.299 * bg.red() + 0.587 * bg.green()
                    + 0.114 * bg.blue())
@@ -622,6 +1666,13 @@ DEFAULT_AMBIENT_ENABLED = True
 def get_ambient_enabled() -> bool:
     """Whether module screens paint the animated background.
 
+    Answers ``False`` outright when ``SPACR_NO_BACKDROP`` is set, whatever
+    is stored. `spacr.qt.crash_recovery` sets it after spaCR has died on
+    launch twice running: the backdrop is the only thing spaCR asks a
+    driver to do at startup, and the setting that would turn it off is
+    behind the window that never appears. Process-local and never saved, so
+    the next clean run brings it back with nothing for the user to undo.
+
     Default ``True``. When this is ``False`` no ambient widget should be
     installed at all — and any already-installed one is hidden and
     stopped by :func:`apply_ambient_preferences`, so the toggle takes
@@ -640,6 +1691,10 @@ def get_ambient_enabled() -> bool:
     :mod:`spacr.qt.resource_cleanup` uses it, and so does any caller that
     wants the animation back exactly as the user had it.
     """
+    import os
+
+    if os.environ.get("SPACR_NO_BACKDROP"):
+        return False
     if _raw_ambient_animation() == _no_animation_key():
         return False
     return _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
@@ -786,7 +1841,7 @@ def ambient_default_palette(theme: str) -> str:
     :data:`spacr.qt.widgets.ambient.DEFAULT_PALETTE` when that theme
     offers it (spaCR's own brand colours are the intended default
     everywhere they exist), otherwise the theme's first palette. Never
-    raises for an unknown theme — it simply reports the global default.
+    raises for an unknown theme — it reports the global default.
     """
     from .widgets.ambient import DEFAULT_PALETTE, palettes_for
     try:
@@ -914,6 +1969,16 @@ def _migrate_ambient_motion() -> None:
 
 
 def _ambient_multiplier(key: str, index: int) -> float:
+    """Read one ambient-motion multiplier, clamped to its range.
+
+    A hand-edited INI can hold ``nan``, which compares false against every
+    bound and would pass a range check written as two comparisons -- so it
+    is tested for explicitly and falls back to the default.
+
+    :param key: the settings key.
+    :param index: which multiplier, indexing the range table.
+    :returns: the value, within range.
+    """
     _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
@@ -926,6 +1991,13 @@ def _ambient_multiplier(key: str, index: int) -> float:
 
 
 def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
+    """Write one ambient-motion multiplier, clamped to its range.
+
+    :param key: the settings key.
+    :param index: which multiplier, indexing the range table.
+    :param value: the value to store; anything unparseable, or ``nan``,
+        stores the default instead.
+    """
     _migrate_ambient_motion()
     (low, high), default = _ambient_ranges()[index]
     try:
@@ -1148,6 +2220,62 @@ def apply_ambient_preferences(app=None) -> None:
 #: them, so the default is at the bottom where a reader lands last).
 SPACR_MODES = ("extra_performance", "performance", "balanced")
 
+#: THE ONE PERFORMANCE SETTING, ordered by how much of the machine spaCR
+#: keeps for itself: least first.
+#:
+#: Laptop was a second control that quietly overrode this one, so a user who
+#: chose Workstation-like behaviour here could have it undone by a setting on
+#: another row -- two answers to one question. It is a LEVEL, not an
+#: independent axis: the most constrained end of the same scale.
+#:
+#: Scientific computation and results are identical at every level. Only
+#: scheduling, caching, memory retention and interface decoration differ.
+PERFORMANCE_LEVELS = ("laptop", "extra_performance", "performance",
+                      "balanced", "workstation")
+
+#: What the dialog calls each level.
+PERFORMANCE_LABELS = {
+    "laptop": "Laptop",
+    "extra_performance": "Extra Performance",
+    "performance": "Performance",
+    "balanced": "Balanced",
+    "workstation": "Workstation",
+}
+
+#: The hardware each level is for, and what it trades. Shown as the level's
+#: tooltip, so the choice can be made without guessing.
+PERFORMANCE_NOTES = {
+    "laptop": (
+        "For a machine with 8 GB of memory or less, or one running on "
+        "battery. spaCR keeps the least: caches are dropped as soon as a "
+        "run finishes, no animated backdrop is drawn, and background work "
+        "is kept to one worker. Everything is recomputed when you go back "
+        "to it, so revisiting a figure is slower."),
+    "extra_performance": (
+        "For a shared machine you do not want spaCR to crowd. It drops its "
+        "own caches, returns unused GPU blocks and retires idle threads at "
+        "launch AND before every run, and every visual setting goes to its "
+        "minimum."),
+    "performance": (
+        "For a machine with other work on it. spaCR frees its caches and "
+        "unused GPU blocks once, at launch, and then leaves the machine "
+        "alone."),
+    "balanced": (
+        "For an ordinary desktop with 16 GB or more. spaCR keeps a working "
+        "set of recent figures and images so going back to one is instant, "
+        "and cleans up when memory runs short."),
+    "workstation": (
+        "For a machine with 64 GB or more that is yours alone. spaCR keeps "
+        "the most: caches, live figures and loaded models stay in memory "
+        "for reuse, and nothing is dropped until you ask. Uses the most "
+        "memory of any level, by design."),
+}
+
+#: The level a machine gets when nothing has been chosen.
+DEFAULT_PERFORMANCE_LEVEL = "balanced"
+
+_KEY_PERFORMANCE_LEVEL = "prefs/performance_level"
+
 #: Balanced. A tool that starts by taking things away from you has made a
 #: decision you did not ask for; the other two are opt-in and both warn.
 DEFAULT_SPACR_MODE = "balanced"
@@ -1203,10 +2331,687 @@ _MODE_MINIMISED_VISUALS = (
 )
 
 
+#: What the laptop-mode preference may be set to. ``"automatic"`` leaves the
+#: decision to the measurement, which is what an unset preference has always
+#: meant; the other two override it in either direction.
+LAPTOP_MODE_CHOICES = ("automatic", "on", "off")
+
+#: What the dialog calls each one.
+LAPTOP_MODE_LABELS = {
+    "automatic": "Automatic (decide from this machine)",
+    "on": "On (turn the animation and blur down)",
+    "off": "Off (keep everything on)",
+}
+
+
+#: The spaceout fractal's settings. SPACEOUT ONLY -- the rows are not built
+#: in an ordinary launch, and these functions are the only readers, so a
+#: normal session neither shows them nor is affected by them.
+#:
+#: The published defaults use ``auto`` so one set of numbers selects the GPU
+#: when vispy is importable and the CPU otherwise.
+from .fractal_defaults import PATTERNS as FRACTAL_PATTERNS  # noqa: E402
+FRACTAL_BACKENDS = ("auto", "gpu", "cpu")
+#: The quality levels, least demanding first.
+#:
+#: A quality level governs the related render numbers. A level that only
+#: nudged an internal detail count while supersampling,
+#: render scale and the iteration budget sat at whatever they were is a
+#: label rather than a setting.
+#:
+#: `auto` stays first because it is not a level but a refusal to choose one:
+#: it asks the machine.
+FRACTAL_QUALITIES = ("auto", "balanced", "high", "ultra")
+
+#: What each level sets, as ``quality -> {setting: value}``.
+#:
+#: A LEVEL IS A SET OF NUMBERS, not an adjective. These are applied when the
+#: level is chosen, and every one of them remains a field the user can then
+#: change -- picking a level is a starting point, not a lock.
+QUALITY_PRESETS = {
+    # A LEVEL SETS THE GROUP'S CONTROL, not its members. Scale derives
+    # render scale and supersampling, so a preset that also named those
+    # fought the derivation and whichever was written last won -- which is
+    # how choosing High stopped giving High's supersampling.
+    "balanced": {
+        "scale": 0.75,
+        "base_iterations": 200,
+        "iterations_per_decade": 40.0,
+        "max_iterations": 1200,
+    },
+    "high": {
+        "scale": 1.75,
+        "base_iterations": 300,
+        "iterations_per_decade": 55.0,
+        "max_iterations": 2200,
+    },
+    "ultra": {
+        # 2.5 is where supersampling reaches three samples a side, which is
+        # nine a pixel. Past three the difference is smaller than the screen
+        # can show and the cost is the square.
+        "scale": 2.5,
+        "base_iterations": 500,
+        "iterations_per_decade": 90.0,
+        "max_iterations": 2200,
+    },
+}
+
+
+def apply_quality_preset(quality: str) -> dict:
+    """Set the numbers a quality level implies, and return them.
+
+    :param quality: one of :data:`FRACTAL_QUALITIES`.
+    :returns: what was applied; empty for ``auto`` or an unknown level.
+
+    ``auto`` applies nothing on purpose: it means "decide from the machine"
+    and the renderer does that per backend, so writing numbers here would
+    turn a decision that follows the hardware into one frozen at the moment
+    somebody opened Preferences.
+    """
+    preset = QUALITY_PRESETS.get(str(quality))
+    if not preset:
+        return {}
+    set_fractal_settings(**preset)
+    return dict(preset)
+
+
+def get_fractal_settings() -> dict:
+    """Every spaceout fractal setting, ready for `Settings`/`RuntimeControls`.
+
+    Read through one function so the dialog and the backdrop cannot disagree
+    about a default. Out-of-range stored values are clamped rather than
+    refused -- a backdrop must not stop the application from starting.
+    """
+    from .fractal_defaults import (
+        DEFAULT_BACKEND, DEFAULT_DREAM, DEFAULT_PATTERN, DEFAULT_QUALITY,
+        DEFAULT_SCALE, DEFAULT_SPEED, DEFAULT_SPEED_MAX, DEFAULT_SPEED_MIN,
+        DEFAULT_SPEED_PERIOD, DEFAULT_VARIABLE_SPEED, clamp,
+        DEFAULT_FOLLOW_POINTER, DEFAULT_POINTER_SIZE,
+        DEFAULT_POINTER_STRENGTH,
+    )
+
+    settings = _settings()
+
+    def _text(key, default, allowed):
+        """One stored string, or the default when it is not an allowed value.
+
+        Falls back rather than raising: a stale preference naming a theme that no
+        longer exists must not stop the settings loading.
+        """
+        raw = str(settings.value(key, default))
+        return raw if raw in allowed else default
+
+    def _number(key, default, low, high):
+        """A stored number, with only the bounds that are real.
+
+        ``None`` for a bound means there is none: the settings are FIELDS,
+        and a value the user typed is not quietly reduced on the way back
+        out. Only a value that cannot work at all is refused, and
+        `explain_a_fractal_number` is what says so, in words, at the point
+        it is entered.
+        """
+        try:
+            value = float(settings.value(key, default))
+        except (TypeError, ValueError):
+            return default
+        if value != value:                                   # NaN
+            return default
+        if low is not None and value < low:
+            return low
+        if high is not None and value > high:
+            return high
+        return value
+
+    def _truth(key, default):
+        """A stored boolean, however QSettings gave it back.
+
+        An INI file hands every value back as a string, so `bool("false")`
+        is True and a switch the user turned off comes back on.
+        """
+        raw = settings.value(key, default)
+        if isinstance(raw, str):
+            return raw.strip().lower() in ("1", "true", "yes", "on")
+        return bool(raw)
+
+    raw_variable = settings.value(_KEY_FRACTAL_VARIABLE_SPEED,
+                                  DEFAULT_VARIABLE_SPEED)
+    if isinstance(raw_variable, str):
+        variable = raw_variable.strip().lower() in ("1", "true", "yes", "on")
+    else:
+        variable = bool(raw_variable)
+
+    return {
+        "pattern": _text(_KEY_FRACTAL_PATTERN, DEFAULT_PATTERN,
+                         FRACTAL_PATTERNS),
+        "backend": _text(_KEY_FRACTAL_BACKEND, DEFAULT_BACKEND,
+                         FRACTAL_BACKENDS),
+        "quality": _text(_KEY_FRACTAL_QUALITY, DEFAULT_QUALITY,
+                         FRACTAL_QUALITIES),
+        "scale": _number(_KEY_FRACTAL_SCALE, DEFAULT_SCALE, 0.01,
+                         None),
+        "speed": _number(_KEY_FRACTAL_SPEED, DEFAULT_SPEED, 0.0, None),
+        "dream": _number(_KEY_FRACTAL_DREAM, DEFAULT_DREAM, 0.0, None),
+        "variable_speed": variable,
+        "speed_min": _number(_KEY_FRACTAL_SPEED_MIN, DEFAULT_SPEED_MIN,
+                             0.0, None),
+        "speed_max": _number(_KEY_FRACTAL_SPEED_MAX, DEFAULT_SPEED_MAX,
+                             0.0, None),
+        "speed_period": _number(_KEY_FRACTAL_SPEED_PERIOD,
+                                DEFAULT_SPEED_PERIOD, 0.1, None),
+        "pointer_gravity": _truth(_KEY_FRACTAL_POINTER,
+                                  DEFAULT_FOLLOW_POINTER),
+        "pointer_size": _number(_KEY_FRACTAL_POINTER_SIZE,
+                                DEFAULT_POINTER_SIZE, 0.0, None),
+        "pointer_strength": _number(_KEY_FRACTAL_POINTER_STRENGTH,
+                                    DEFAULT_POINTER_STRENGTH, 0.0, None),
+        "supersampling": int(_number(_KEY_FRACTAL_SUPERSAMPLING,
+                          _MANDEL_DEFAULTS["supersampling"],
+                          FRACTAL_LIMITS['supersampling'][0], None)),
+        "seconds_per_decade": _number(_KEY_FRACTAL_SECONDS_PER_DECADE,
+                     _MANDEL_DEFAULTS["seconds_per_decade"],
+                     FRACTAL_LIMITS['seconds_per_decade'][0], None),
+        "base_iterations": int(_number(_KEY_FRACTAL_BASE_ITERATIONS,
+                          _MANDEL_DEFAULTS["base_iterations"],
+                          FRACTAL_LIMITS['base_iterations'][0], None)),
+        "iterations_per_decade": _number(_KEY_FRACTAL_ITERATIONS_PER_DECADE,
+                     _MANDEL_DEFAULTS["iterations_per_decade"],
+                     FRACTAL_LIMITS['iterations_per_decade'][0], None),
+        "max_iterations": int(_number(_KEY_FRACTAL_MAX_ITERATIONS,
+                          _MANDEL_DEFAULTS["max_iterations"],
+                          FRACTAL_LIMITS['max_iterations'][0], None)),
+        "precision_digits": int(_number(_KEY_FRACTAL_PRECISION_DIGITS,
+                          _MANDEL_DEFAULTS["precision_digits"],
+                          FRACTAL_LIMITS['precision_digits'][0], None)),
+        "initial_scale": _number(_KEY_FRACTAL_INITIAL_SCALE,
+                     _MANDEL_DEFAULTS["initial_scale"],
+                     FRACTAL_LIMITS['initial_scale'][0], None),
+        "zoom_rate": _number(_KEY_FRACTAL_ZOOM_RATE,
+                     _MANDEL_DEFAULTS["zoom_rate"],
+                     FRACTAL_LIMITS['zoom_rate'][0], None),
+        "render_scale": _number(_KEY_FRACTAL_RENDER_SCALE,
+                     _MANDEL_DEFAULTS["render_scale"],
+                     FRACTAL_LIMITS['render_scale'][0], None),
+        "steering_strength": _number(_KEY_FRACTAL_STEERING_STRENGTH,
+                     _MANDEL_DEFAULTS["steering_strength"],
+                     FRACTAL_LIMITS['steering_strength'][0], None),
+        "steering_interval_decades": _number(_KEY_FRACTAL_STEERING_INTERVAL_DECADES,
+                     _MANDEL_DEFAULTS["steering_interval_decades"],
+                     FRACTAL_LIMITS['steering_interval_decades'][0], None),
+        "steering_duration": _number(_KEY_FRACTAL_STEERING_DURATION,
+                     _MANDEL_DEFAULTS["steering_duration"],
+                     FRACTAL_LIMITS['steering_duration'][0], None),
+        "candidate_count": int(_number(_KEY_FRACTAL_CANDIDATE_COUNT,
+                          _MANDEL_DEFAULTS["candidate_count"],
+                          FRACTAL_LIMITS['candidate_count'][0], None)),
+        "path": _text(_KEY_FRACTAL_PATH,
+                      _MANDEL_DEFAULTS.get("path", "tour"),
+                      ("fixed", "guided", "tour")),
+        "steering": _number(_KEY_FRACTAL_STEERING,
+                            _MANDEL_DEFAULTS.get("steering", 0.35),
+                            0.0, 1.0),
+        "max_depth": _number(_KEY_FRACTAL_MAX_DEPTH,
+                             _MANDEL_DEFAULTS["max_depth"],
+                             *FRACTAL_LIMITS["max_depth"][:2]),
+    }
+
+
+def set_fractal_settings(**values) -> None:
+    """Persist any subset of the fractal settings.
+
+    :raises ValueError: on an unknown name, or a backend/quality outside its
+        set. A number is stored as given; only one that cannot work at all
+        is moved, and `explain_a_fractal_number` says so in words before it
+        reaches here. What follows describes the old behaviour, kept because
+        the reasoning about a slider still applies to the two sliders left
+        produce one and a hand-edited file should still start.
+    """
+    from .fractal_defaults import clamp
+
+    keys = {
+        "pattern": (_KEY_FRACTAL_PATTERN, None),
+        "backend": (_KEY_FRACTAL_BACKEND, None),
+        "quality": (_KEY_FRACTAL_QUALITY, None),
+        "scale": (_KEY_FRACTAL_SCALE, (0.01, None)),
+        # ASKED FOR 2026-08-28: capped at 1000000, not 8. The speed is a
+        # multiplier on the flight's own clock, so there is no physical
+        # ceiling to respect -- past a few hundred the picture becomes a
+        # blur, and someone who wants that has asked for it.
+        "speed": (_KEY_FRACTAL_SPEED, (0.0, None)),
+        "dream": (_KEY_FRACTAL_DREAM, (0.0, None)),
+        "variable_speed": (_KEY_FRACTAL_VARIABLE_SPEED, None),
+        "speed_min": (_KEY_FRACTAL_SPEED_MIN, (0.0, None)),
+        "speed_max": (_KEY_FRACTAL_SPEED_MAX, (0.0, None)),
+        "speed_period": (_KEY_FRACTAL_SPEED_PERIOD, (0.1, None)),
+        "pointer_gravity": (_KEY_FRACTAL_POINTER, None),
+        "pointer_size": (_KEY_FRACTAL_POINTER_SIZE, (0.0, None)),
+        "pointer_strength": (_KEY_FRACTAL_POINTER_STRENGTH, (0.0, None)),
+        "supersampling": (_KEY_FRACTAL_SUPERSAMPLING,
+                (FRACTAL_LIMITS['supersampling'][0], FRACTAL_LIMITS['supersampling'][1])),
+        "seconds_per_decade": (_KEY_FRACTAL_SECONDS_PER_DECADE,
+                (FRACTAL_LIMITS['seconds_per_decade'][0], FRACTAL_LIMITS['seconds_per_decade'][1])),
+        "base_iterations": (_KEY_FRACTAL_BASE_ITERATIONS,
+                (FRACTAL_LIMITS['base_iterations'][0], FRACTAL_LIMITS['base_iterations'][1])),
+        "iterations_per_decade": (_KEY_FRACTAL_ITERATIONS_PER_DECADE,
+                (FRACTAL_LIMITS['iterations_per_decade'][0], FRACTAL_LIMITS['iterations_per_decade'][1])),
+        "max_iterations": (_KEY_FRACTAL_MAX_ITERATIONS,
+                (FRACTAL_LIMITS['max_iterations'][0], FRACTAL_LIMITS['max_iterations'][1])),
+        "precision_digits": (_KEY_FRACTAL_PRECISION_DIGITS,
+                (FRACTAL_LIMITS['precision_digits'][0], FRACTAL_LIMITS['precision_digits'][1])),
+        "initial_scale": (_KEY_FRACTAL_INITIAL_SCALE,
+                (FRACTAL_LIMITS['initial_scale'][0], FRACTAL_LIMITS['initial_scale'][1])),
+        "zoom_rate": (_KEY_FRACTAL_ZOOM_RATE,
+                (FRACTAL_LIMITS['zoom_rate'][0], FRACTAL_LIMITS['zoom_rate'][1])),
+        "render_scale": (_KEY_FRACTAL_RENDER_SCALE,
+                (FRACTAL_LIMITS['render_scale'][0], FRACTAL_LIMITS['render_scale'][1])),
+        "steering_strength": (_KEY_FRACTAL_STEERING_STRENGTH,
+                (FRACTAL_LIMITS['steering_strength'][0], FRACTAL_LIMITS['steering_strength'][1])),
+        "steering_interval_decades": (_KEY_FRACTAL_STEERING_INTERVAL_DECADES,
+                (FRACTAL_LIMITS['steering_interval_decades'][0], FRACTAL_LIMITS['steering_interval_decades'][1])),
+        "steering_duration": (_KEY_FRACTAL_STEERING_DURATION,
+                (FRACTAL_LIMITS['steering_duration'][0], FRACTAL_LIMITS['steering_duration'][1])),
+        "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
+                (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
+        "path": (_KEY_FRACTAL_PATH, None),
+        "steering": (_KEY_FRACTAL_STEERING, (0.0, 1.0)),
+        "max_depth": (_KEY_FRACTAL_MAX_DEPTH,
+                      (FRACTAL_LIMITS["max_depth"][0],
+                       FRACTAL_LIMITS["max_depth"][1])),
+    }
+    store = _settings()
+    for name, value in values.items():
+        if name not in keys:
+            raise ValueError(f"unknown fractal setting {name!r}; "
+                             f"expected one of {sorted(keys)}")
+        key, bounds = keys[name]
+        if name == "pattern" and value not in FRACTAL_PATTERNS:
+            raise ValueError(f"unknown fractal pattern {value!r}")
+        if name == "backend" and value not in FRACTAL_BACKENDS:
+            raise ValueError(f"unknown fractal backend {value!r}")
+        if name == "quality" and value not in FRACTAL_QUALITIES:
+            raise ValueError(f"unknown fractal quality {value!r}")
+        if name in ("speed", "scale"):
+            # ONE CONTROL, ITS WHOLE GROUP. Six fields answered "how fast"
+            # and three answered "how finely"; set by hand they could
+            # contradict each other, and changing the one a user thinks of
+            # as Speed left the other five where they were.
+            derived = (speed_group_values(value) if name == "speed"
+                       else scale_group_values(value))
+            store.setValue(key, float(value))
+            for _name, _value in derived.items():
+                if _name == name:
+                    continue
+                _key, _ = keys[_name]
+                store.setValue(_key, _value)
+            continue
+        if name == "steering":
+            # ONE CONTROL, THREE NUMBERS, derived together so they cannot
+            # contradict each other. Set by hand a short interval and a long
+            # duration make the camera re-target before it has finished
+            # moving, which is the jerkiness reported on 2026-08-28.
+            from .widgets.fractal_mandelbrot import steering_from_one_number
+
+            store.setValue(key, float(value))
+            derived = steering_from_one_number(
+                float(value),
+                float(get_fractal_settings().get("seconds_per_decade", 24.0)))
+            for _name, _value in derived.items():
+                _key, _ = keys[_name]
+                store.setValue(_key, _value)
+            continue
+        if bounds is not None:
+            # THE FIELD'S NUMBER IS KEPT. Only a value that cannot work at
+            # all is moved, and `explain_a_fractal_number` is what tells the
+            # user about it before they get here -- a store that silently
+            # reduced 8000 to 8 would make the field a control that lies
+            # about what it did.
+            low, high = bounds
+            value = float(value)
+            if low is not None and value < low:
+                value = low
+            if high is not None and value > high:
+                value = high
+        if name == "variable_speed":
+            value = bool(value)
+        store.setValue(key, value)
+    store.sync()
+
+
+#: The two weights the interface is drawn in. Bold and SemiBold stay
+#: registered for a stylesheet that asks for emphasis; this is what
+#: everything else defaults to.
+INTERFACE_FONT_WEIGHTS = ("regular", "light")
+
+
+#: When the heavy pipeline modules are imported.
+#:
+#: ``'on_demand'`` -- when the operation that needs them is called; this is
+#: the default.
+#: ``'eager'`` -- at startup, on a worker thread. It is useful only on a
+#: machine that will certainly run a pipeline and prefers to pay a potentially
+#: tens-of-seconds import cost at the beginning.
+PRELOAD_POLICIES = ("on_demand", "eager")
+
+
+def get_preload_policy() -> str:
+    """When to import torch and the rest. 'on_demand' or 'eager'."""
+    raw = str(_settings().value(_KEY_PRELOAD, "on_demand")).strip().lower()
+    return raw if raw in PRELOAD_POLICIES else "on_demand"
+
+
+def set_preload_policy(policy: str) -> None:
+    """Persist it. Takes effect at the next launch, and says so.
+
+    :raises ValueError: on anything but the two policies.
+    """
+    text = str(policy).strip().lower()
+    if text not in PRELOAD_POLICIES:
+        raise ValueError(f"unknown preload policy {policy!r}; expected one "
+                         f"of {list(PRELOAD_POLICIES)}")
+    _settings().setValue(_KEY_PRELOAD, text)
+    _settings().sync()
+
+
+#: Body text is Light while titles are Regular. Only the application font is
+#: set from this -- the headings,
+#: buttons and section titles carry their own `font-weight` in the
+#: stylesheet (400 and above), so making the default body weight lighter
+#: does not thin the titles with it.
+DEFAULT_INTERFACE_FONT_WEIGHT = "light"
+
+
+def get_interface_font_weight() -> str:
+    """Which Open Sans weight the interface's body text uses.
+
+    :returns: ``'light'`` or ``'regular'``, defaulting to
+        :data:`DEFAULT_INTERFACE_FONT_WEIGHT`.
+    """
+    raw = str(_settings().value(
+        _KEY_FONT_WEIGHT, DEFAULT_INTERFACE_FONT_WEIGHT)).strip().lower()
+    return raw if raw in INTERFACE_FONT_WEIGHTS \
+        else DEFAULT_INTERFACE_FONT_WEIGHT
+
+
+def set_interface_font_weight(weight: str) -> None:
+    """Persist the weight and apply it to the running application.
+
+    :raises ValueError: on anything but 'regular' or 'light'.
+    """
+    text = str(weight).strip().lower()
+    if text not in INTERFACE_FONT_WEIGHTS:
+        raise ValueError(f"unknown interface font weight {weight!r}; "
+                         f"expected one of {list(INTERFACE_FONT_WEIGHTS)}")
+    _settings().setValue(_KEY_FONT_WEIGHT, text)
+    _settings().sync()
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .app import _use_open_sans
+
+        instance = QApplication.instance()
+        if instance is not None:
+            _use_open_sans(instance, text)
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def get_laptop_mode() -> str:
+    """Whether laptop constraints apply.
+
+    :returns: ``"on"`` at the Laptop level, otherwise ``"off"``.
+
+    DERIVED, NOT STORED. This was a second control that quietly overrode
+    the mode selector, so a user could choose one posture on one row and
+    have another row undo it -- two answers to one question. Laptop is now
+    the most constrained LEVEL of the single selector, and this answers
+    from it so callers that still ask in these words agree with it.
+
+    There is no ``"automatic"`` any more: it meant "measure the machine and
+    decide", which is a guess presented as a setting. The five levels say
+    which hardware each is for and let the user pick.
+    """
+    return "on" if get_performance_level() == "laptop" else "off"
+
+
+def set_laptop_mode(choice: str) -> None:
+    """Persist the laptop-mode preference and apply it now.
+
+    :raises ValueError: on an unknown choice.
+
+    Applied immediately rather than at the next launch, because the two
+    things it changes -- the ambient animation and the backdrop blur -- are
+    both visible in the window behind the dialog. A performance setting
+    that needs a restart to show its effect cannot be judged by the person
+    setting it.
+    """
+    if choice not in LAPTOP_MODE_CHOICES:
+        raise ValueError(f"unknown laptop mode {choice!r}; "
+                         f"expected one of {list(LAPTOP_MODE_CHOICES)}")
+    _settings().setValue(_KEY_LAPTOP_MODE, choice)
+    _settings().sync()
+    from .laptop_mode import apply as _apply, wanted
+    _apply(None if choice == "automatic" else choice == "on")
+    return None
+
+
+def laptop_mode_note(choice: str) -> str:
+    """What the chosen setting will do on THIS machine, said before saving.
+
+    Automatic is the case that needs saying: the label cannot state the
+    outcome, because the outcome depends on the machine reading it.
+    """
+    from .laptop_mode import measure, wanted, what_it_turns_down
+
+    turns_down = ", ".join(what for what, _cost in what_it_turns_down())
+    if choice == "automatic":
+        # Asked with the override cleared, because what the note has to
+        # report is what the MEASUREMENT says -- an environment variable
+        # set for one launch would otherwise be read back as the machine's
+        # own answer.
+        _on, why = wanted({**measure(), "override": None})
+        return why
+    if choice == "on":
+        return (f"Turns down {turns_down}. Only the drawing changes: a run "
+                f"computes exactly the same answer either way.")
+    return "Keeps the animation and the blur on, whatever this machine is."
+
+
+def get_idle_minutes() -> float:
+    """How long an unused cache entry may sit before it is dropped.
+
+    :returns: minutes; 0 means "as soon as nothing is using it".
+    """
+    from .memory_budget import (DEFAULT_IDLE_MINUTES, MAX_IDLE_MINUTES,
+                                MIN_IDLE_MINUTES)
+    raw = _settings().value(_KEY_IDLE_MINUTES, DEFAULT_IDLE_MINUTES)
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return DEFAULT_IDLE_MINUTES
+    return max(MIN_IDLE_MINUTES, min(MAX_IDLE_MINUTES, value))
+
+
+def set_idle_minutes(minutes: float) -> None:
+    """Persist the idle timeout."""
+    settings = _settings()
+    settings.setValue(_KEY_IDLE_MINUTES, float(minutes))
+    settings.sync()
+
+
+def get_cache_ceiling_mb() -> int:
+    """How much cache spaCR may hold at once, in megabytes."""
+    from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
+                                MAX_CACHE_CEILING_MB, MIN_CACHE_CEILING_MB)
+    raw = _settings().value(_KEY_CACHE_CEILING, DEFAULT_CACHE_CEILING_MB)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        return DEFAULT_CACHE_CEILING_MB
+    return max(MIN_CACHE_CEILING_MB, min(MAX_CACHE_CEILING_MB, value))
+
+
+def set_cache_ceiling_mb(megabytes: int) -> None:
+    """Persist the cache ceiling."""
+    settings = _settings()
+    settings.setValue(_KEY_CACHE_CEILING, int(megabytes))
+    settings.sync()
+
+
+def get_headroom_mb() -> int:
+    """How much memory must stay free for everything else on the machine.
+
+    THE FIRST OF THE THREE. The idle timeout and the ceiling say what may be
+    kept; this says when keeping it stops being acceptable, and without it
+    neither of the others has anything to answer to.
+    """
+    from .memory_budget import (DEFAULT_HEADROOM_MB, MAX_HEADROOM_MB,
+                                MIN_HEADROOM_MB)
+    raw = _settings().value(_KEY_HEADROOM, DEFAULT_HEADROOM_MB)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        return DEFAULT_HEADROOM_MB
+    return max(MIN_HEADROOM_MB, min(MAX_HEADROOM_MB, value))
+
+
+def set_headroom_mb(megabytes: int) -> None:
+    """Persist the headroom floor."""
+    settings = _settings()
+    settings.setValue(_KEY_HEADROOM, int(megabytes))
+    settings.sync()
+
+
+def get_performance_level() -> str:
+    """The single performance level, one of :data:`PERFORMANCE_LEVELS`.
+
+    :returns: the stored level, migrating an older pair of settings on
+        first read.
+
+    MIGRATION HAPPENS HERE rather than in a startup step, because every
+    reader of the old settings comes through this function and a migration
+    that only ran at launch would be skipped by a headless run, a test, or
+    a second process. It is idempotent: once a level is stored the old
+    values are never consulted again.
+
+    An explicit Laptop mode of ``on`` becomes ``Laptop`` -- that user asked
+    for the most constrained profile and still gets it. With Laptop off or
+    automatic the previous mode is kept as-is, so ``balanced`` stays
+    ``Balanced``, and nobody's choice is silently changed.
+    """
+    settings = _settings()
+    stored = str(settings.value(_KEY_PERFORMANCE_LEVEL, "") or "")
+    if stored in PERFORMANCE_LEVELS:
+        return stored
+
+    laptop = str(settings.value(_KEY_LAPTOP_MODE, "automatic") or "automatic")
+    previous = str(settings.value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE) or "")
+    if laptop == "on":
+        level = "laptop"
+    elif previous in SPACR_MODES:
+        level = previous
+    else:
+        level = DEFAULT_PERFORMANCE_LEVEL
+
+    # WRITTEN BEFORE THE OLD KEYS ARE TRUSTED AGAIN, so a crash between the
+    # two cannot lose the answer: the worst case is a migration that runs
+    # twice and reaches the same level.
+    try:
+        settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
+        settings.sync()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not store the migrated performance level",
+                  exc_info=True)
+    return level
+
+
+def set_performance_level(level: str) -> None:
+    """Persist the performance level.
+
+    :param level: one of :data:`PERFORMANCE_LEVELS`.
+    :raises ValueError: on an unknown level.
+    """
+    if level not in PERFORMANCE_LEVELS:
+        raise ValueError(f"unknown performance level {level!r}. "
+                         f"Choose from {PERFORMANCE_LEVELS}.")
+    # THROUGH `set_spacr_mode`, so the visual stashing that entering and
+    # leaving Extra Performance does still happens. It writes both keys.
+    posture = spacr_mode_for_level(level)
+    set_spacr_mode(posture)
+    # `set_spacr_mode` wrote the posture as the level; correct it to the
+    # level the caller actually asked for, which is the finer value.
+    settings = _settings()
+    settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
+    settings.sync()
+
+
+def spacr_mode_for_level(level: str) -> str:
+    """The resource posture a level implies, in the old three-mode words.
+
+    :param level: one of :data:`PERFORMANCE_LEVELS`.
+    :returns: one of :data:`SPACR_MODES`.
+
+    Laptop is more constrained than Extra Performance and Workstation is
+    less constrained than Balanced, but neither has its own posture in the
+    cleanup code -- they differ in what is RETAINED, not in how launch
+    cleanup runs. Mapping them onto the nearest existing posture keeps one
+    answer to "how hard does spaCR try to stay out of the way".
+    """
+    return {
+        "laptop": "extra_performance",
+        "extra_performance": "extra_performance",
+        "performance": "performance",
+        "balanced": "balanced",
+        "workstation": "balanced",
+    }.get(str(level), DEFAULT_SPACR_MODE)
+
+
+#: What each level keeps, as multiples of the Balanced allowance.
+#:
+#: MONOTONIC BY CONSTRUCTION, and asserted by a test: the order of
+#: :data:`PERFORMANCE_LEVELS` is meant to be a resource scale, and a table
+#: that broke that order would make the selector a list of unrelated words.
+#: Laptop keeps the least, Workstation the most.
+PERFORMANCE_RETENTION = {
+    "laptop": 0.25,
+    "extra_performance": 0.5,
+    "performance": 0.75,
+    "balanced": 1.0,
+    "workstation": 2.5,
+}
+
+
+def retention_scale(level: str = "") -> float:
+    """How much reusable state this level allows, relative to Balanced.
+
+    :param level: a performance level; the current one when omitted.
+    :returns: a positive multiplier.
+    """
+    level = str(level or get_performance_level())
+    return float(PERFORMANCE_RETENTION.get(level, 1.0))
+
+
+def live_figure_allowance(level: str = "") -> int:
+    """How many figures stay editable at this level.
+
+    :param level: a performance level; the current one when omitted.
+    :returns: a count of at least one.
+
+    A live Figure is what makes a figure restylable -- it still has a
+    legend to toggle and series to recolour -- and each holds its own data
+    arrays, so this is the clearest thing the level scales. At least one,
+    always: a level that kept none would make the right-click menu useless
+    rather than cheap.
+    """
+    base = get_figure_live_cache()
+    return max(1, int(round(base * retention_scale(level))))
+
+
 def get_spacr_mode() -> str:
-    """Which resource posture spaCR is in — one of :data:`SPACR_MODES`."""
-    raw = str(_settings().value(_KEY_SPACR_MODE, DEFAULT_SPACR_MODE))
-    return raw if raw in SPACR_MODES else DEFAULT_SPACR_MODE
+    """Which resource posture spaCR is in — one of :data:`SPACR_MODES`.
+
+    DERIVED FROM THE PERFORMANCE LEVEL, which is the one stored setting.
+    Kept because the cleanup code speaks in these three words.
+    """
+    return spacr_mode_for_level(get_performance_level())
 
 
 def set_spacr_mode(mode: str) -> None:
@@ -1226,6 +3031,12 @@ def set_spacr_mode(mode: str) -> None:
     previous = get_spacr_mode()
     settings = _settings()
     settings.setValue(_KEY_SPACR_MODE, mode)
+    # AND THE LEVEL, because that is the value everything reads now. Each of
+    # the three modes is also a level, so setting one is an unambiguous
+    # statement about the other -- and leaving them to disagree is exactly
+    # the two-answers-to-one-question defect 286 removed. Written directly
+    # rather than through `set_performance_level`, which calls back here.
+    settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
         _stash_visuals()
@@ -1277,6 +3088,11 @@ def _visual_snapshot() -> dict:
 
 
 def _stash_visuals() -> None:
+    """Save the current visual settings, so a mode change can restore them.
+
+    Written and synced immediately: the stash exists to survive a crash
+    during the mode switch it is protecting.
+    """
     import json
     settings = _settings()
     settings.setValue(_KEY_MODE_VISUAL_STASH,
@@ -1409,6 +3225,105 @@ def set_spinner_delay(seconds: float) -> None:
 #: escape hatch for the reader who never wants to be asked.
 DEFAULT_SETTING_ANIMATIONS = False
 
+#: The two tooltip surfaces, BOTH ON by default.
+#:
+#: The box is today's behaviour -- `spacr.qt.widgets.hover_tooltip` has been
+#: the setting tooltip for some time -- and the bottom strip is the nearest
+#: thing to it, since the same strip already carries CATEGORY help on hover.
+#: Defaulting either to off would take away help nobody asked to lose.
+#:
+#: BOTH OFF IS A LEGAL STATE AND IT COSTS SOMETHING. On several forms the
+#: API link inside a setting's tooltip is the only route from that setting to
+#: its documentation, so a reader who clears both has no way from the control
+#: to the page describing it. The Preferences rows say so; see the tooltips
+#: on the two switches.
+#:
+#: NEITHER TOUCHES THE CATEGORY STRIP, which answers a different question --
+#: "what is this whole group of settings for" -- and was not part of the
+#: request.
+#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. On
+#: 2026-09-01 the maintainer asked: "i dont need the popup box if the tooltip
+#: is shown on the bottom of the window", and that preference has been wired
+#: in ever since -- the popup appeared only on screens with no strip.
+#: Both surfaces were asked to be CHOOSABLE, which is a request
+#: for a switch, not a request to reverse the earlier answer. Defaulting the
+#: box on would hand back the popup somebody had explicitly said they did not
+#: want, and they would have to find a checkbox to undo it.
+#:
+#: So the shipped behaviour is unchanged and the box is one click away.
+#: `tests/qt/test_setting_tooltip_footer.py::
+#: test_hovering_a_real_setting_shows_no_tooltip_box` is the guard for the
+#: 2026-09-01 request and still passes.
+DEFAULT_TOOLTIPS_BOX = False
+DEFAULT_TOOLTIPS_BOTTOM = True
+
+#: OFF until someone chooses it. The grid is a different way to read
+#: the most-used screen in the application, so it arrives as an offer
+#: rather than as a change to what everyone already knows.
+DEFAULT_OBJECT_GRID = False
+
+
+def get_tooltips_box_enabled() -> bool:
+    """Whether hovering a setting's title opens the tooltip box.
+
+    The box is `spacr.qt.widgets.hover_tooltip.HoverTooltip`: a QFrame the
+    pointer can move INTO, which is what lets its API and Animation links be
+    clicked at all. Cleared, no box opens and the bottom strip -- if it is on
+    -- is the only place a setting explains itself.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_BOX,
+                                      DEFAULT_TOOLTIPS_BOX),
+                    DEFAULT_TOOLTIPS_BOX)
+
+
+def set_tooltips_box_enabled(on: bool) -> None:
+    """Turn the hover tooltip box on or off, effective at the next hover."""
+    _settings().setValue(_KEY_TOOLTIPS_BOX, bool(on))
+    _settings().sync()
+
+
+def get_object_grid_enabled() -> bool:
+    """Whether the per-object settings are shown as one table.
+
+    78 of Mask's 201 settings are the same twenty-odd questions asked once
+    per object type, so a form that lists them flat asks 203 questions before
+    anything is segmented. Set, those rows are hidden and a grid takes their
+    place -- one row per question, one column per object.
+
+    THE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets
+    the flat rows do, so a settings file written with this on is the same file
+    written with it off.
+    """
+    return _as_bool(_settings().value(_KEY_OBJECT_GRID, DEFAULT_OBJECT_GRID),
+                    DEFAULT_OBJECT_GRID)
+
+
+def set_object_grid_enabled(on: bool) -> None:
+    """Turn the per-object grid on or off, effective at the next form build."""
+    _settings().setValue(_KEY_OBJECT_GRID, bool(on))
+    _settings().sync()
+
+
+def get_tooltips_bottom_enabled() -> bool:
+    """Whether a hovered setting's help also appears in the bottom strip.
+
+    The strip already shows CATEGORY help on hover; this puts SETTING help
+    there too, and holds it for ten seconds after the pointer leaves so its
+    API link can be reached. Without that hold the link is unreachable: it
+    appears only while the pointer is on the setting, and moving toward it
+    removes it.
+    """
+    return _as_bool(_settings().value(_KEY_TOOLTIPS_BOTTOM,
+                                      DEFAULT_TOOLTIPS_BOTTOM),
+                    DEFAULT_TOOLTIPS_BOTTOM)
+
+
+def set_tooltips_bottom_enabled(on: bool) -> None:
+    """Turn the bottom tooltip strip on or off, effective at the next hover."""
+    _settings().setValue(_KEY_TOOLTIPS_BOTTOM, bool(on))
+    _settings().sync()
+
+
 
 def get_setting_animations_enabled() -> bool:
     """Whether setting tooltips show their animation WITHOUT being asked.
@@ -1479,6 +3394,44 @@ ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
 
 
+#: Whether the AI assistant is on when spaCR opens (248).
+#:
+#: The setup card's three launch toggles ship ON together. The card still
+#: records an explicit opt-out, so a user who turns the assistant off stays
+#: opted out when the shipped default changes.
+#:
+#: A stored value that is not recognised reads as OFF for the same reason a
+#: bad `issue_prompt` reads as 'ask': the failure has to fall on the quiet
+#: side.
+_KEY_AI_DEFAULT_ON = "ai/on_by_default"
+
+
+#: The untouched-profile value required by the three-toggle setup contract.
+DEFAULT_AI_ON_AT_LAUNCH = True
+
+
+def get_ai_on_by_default() -> bool:
+    """Is the assistant on when spaCR opens?
+
+    :returns: :data:`DEFAULT_AI_ON_AT_LAUNCH` unless the user has said
+        otherwise. An explicit choice is always written, so an opt-out
+        survives a change to the default rather than being overwritten
+        by it.
+    """
+    raw = _settings().value(_KEY_AI_DEFAULT_ON, DEFAULT_AI_ON_AT_LAUNCH)
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).strip().lower() in ("1", "true", "yes", "on")
+
+
+def set_ai_on_by_default(enabled: bool) -> None:
+    """Persist whether the assistant starts enabled.
+
+    :param enabled: True to have it on at launch.
+    """
+    _settings().setValue(_KEY_AI_DEFAULT_ON, bool(enabled))
+
+
 def get_issue_prompt_mode() -> str:
     """How to behave when a report could be filed.
 
@@ -1534,18 +3487,44 @@ def scaled_px(base_px: int) -> int:
 #: ``"hidden"``  no strip, no reveal, no column. Apps stay reachable from
 #:               the spaCR menu, Ctrl+1..9 and the command palette — a
 #:               dock you cannot summon must not be a dead end.
-VALID_DOCK_MODES = ("auto", "locked", "hidden")
-DEFAULT_DOCK_MODE = "locked"
+VALID_DOCK_MODES = ("locked", "hidden")
+
+#: HIDDEN UNTIL ASKED FOR. The dock is a permanent 220 px column, and every
+#: app in it is already reachable from the spaCR menu, Ctrl+1..9 and Ctrl+K --
+#: so a first run spends that width on navigation nobody has asked for yet.
+#: The "All apps" action carries a tooltip saying where to turn it on.
+DEFAULT_DOCK_MODE = "hidden"
+
+#: Withdrawn: the dock used to slide in over the page when the pointer rested
+#: against the left edge. It overlaid the home screen -- the module tiles sat
+#: underneath it and did not move aside -- and it drew a second container
+#: behind the dock's own panel. A stored ``auto`` reads as ``locked`` rather
+#: than being refused, so an existing settings file keeps working and gets the
+#: column it was already half-asking for.
+#:
+#: NOT the new default. ``auto`` was somebody CHOOSING to have a dock, and the
+#: default changing underneath them is not a reason to take theirs away.
+RETIRED_DOCK_MODES = {"auto": "locked"}
 
 
 def get_dock_mode() -> str:
-    """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`."""
+    """How the left app dock behaves — one of :data:`VALID_DOCK_MODES`.
+
+    A withdrawn mode is MIGRATED rather than rejected; see
+    :data:`RETIRED_DOCK_MODES`.
+    """
     raw = str(_settings().value(_KEY_DOCK_MODE, DEFAULT_DOCK_MODE))
+    raw = RETIRED_DOCK_MODES.get(raw, raw)
     return raw if raw in VALID_DOCK_MODES else DEFAULT_DOCK_MODE
 
 
 def set_dock_mode(mode: str) -> None:
-    """Persist a valid left-navigation dock mode."""
+    """Persist a valid left-navigation dock mode.
+
+    A withdrawn mode is accepted and stored as its replacement, so code that
+    still names one is migrated rather than made to raise.
+    """
+    mode = RETIRED_DOCK_MODES.get(mode, mode)
     if mode not in VALID_DOCK_MODES:
         raise ValueError(f"unknown dock mode {mode!r}. "
                           f"Choose from {VALID_DOCK_MODES}.")
@@ -1614,12 +3593,15 @@ def effective_pane_alpha() -> float:
 #: values rather than as a wall of boxes, and it is the shipped look;
 #: the preference exists because an effect that touches every input in
 #: the app has to be refusable.
-#: Off. Hashing every file under every path-valued setting is proportional
-#: to the DATA and not to the run: on a plate of raw images it is minutes of
-#: reading before the first mask is made, and it happens whether or not
-#: anybody will ever compare the digests. The manifest is written either
-#: way and SAYS which it was, so the record is never ambiguous.
-DEFAULT_HASH_INPUTS = False
+#: On, and it is not free. Hashing every file under every path-valued
+#: setting is proportional to the DATA and not to the run: on a plate of raw
+#: images it is minutes of reading before the first mask is made, and it
+#: happens whether or not anybody ever compares the digests. It ships on
+#: anyway, because a result that cannot be traced back to its inputs is
+#: worth less than the minutes, and the cost is refusable in one click.
+#: The manifest is written either way and SAYS which it was, so the record
+#: is never ambiguous.
+DEFAULT_HASH_INPUTS = True
 _KEY_HASH_INPUTS = "prefs/hash_inputs"
 
 
@@ -1734,9 +3716,8 @@ def image_display_primaries() -> str:
 def color_blind_categorical_palette() -> list:
     """Return a list of hex colours safe for the active CB mode.
 
-    Uses the Okabe-Ito palette for all three deficiencies (empirically
-    the most robust choice for categorical distinctions across
-    common types of colour-blindness).
+    Uses the Okabe-Ito categorical palette whenever colour-blind mode is
+    enabled.
     """
     if get_color_blind_mode() == "off":
         # Default spaCR categorical palette — matches theme accents
@@ -1748,6 +3729,12 @@ def color_blind_categorical_palette() -> list:
 
 
 def _level_names(levels) -> str:
+    """Render a set of logging levels as their names.
+
+    :param levels: the level numbers.
+    :returns: a sorted, comma-separated list -- sorted so the same set
+        always writes the same string, which is what makes it comparable.
+    """
     return ",".join(logging.getLevelName(level) for level in sorted(levels))
 
 
@@ -1772,10 +3759,29 @@ def _parse_levels(raw, fallback) -> frozenset:
 
 
 def get_log_file_levels() -> frozenset:
-    """Levels written to the log files. The master switch of the pair."""
+    """Levels written to the log files. The master switch of the pair.
+
+    :returns: the levels the file handler admits.
+
+    VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings
+    contradict each other and the one the user did not touch wins.
+    With verbose on, the profile hook emits DEBUG records for calls and
+    returns. Omitting DEBUG from the file handler would incur all of that cost
+    while discarding the resulting trail.
+
+    Whatever verbose means, it cannot mean "do the work and write none of
+    it". It is not stored into the level preference: the user's own choice
+    of levels is left exactly as they set it, and DEBUG goes away again
+    when they turn verbose off.
+    """
+    import logging as _logging
+
     from ..logging_util import DEFAULT_FILE_LEVELS
-    return _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
-                         DEFAULT_FILE_LEVELS)
+    levels = _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
+                           DEFAULT_FILE_LEVELS)
+    if get_verbose_logging():
+        levels = frozenset(levels) | {_logging.DEBUG}
+    return frozenset(levels)
 
 
 def get_log_console_levels() -> frozenset:
@@ -1810,11 +3816,46 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     return files, console
 
 
+#: Verbose diagnostic logging is OFF unless the user turns it on.
+#:
+#: IT WAS BRIEFLY THE DEFAULT, and the measurement that reversed that is
+#: worth keeping: on this machine, offscreen, reaching a usable Home screen
+#: took 3.05 s with verbose off and 65.28 s with it on -- and the Mask
+#: module had still not finished opening when the run was cut short.
+#:
+#: The tracer fires on every call and every return in the process, and
+#: startup is where a Python application makes the most calls it will ever
+#: make. Excluding the paint path and halving the line length (297) took the
+#: cost from unusable to merely large; neither makes twenty times the
+#: startup acceptable as something a user did not ask for.
+#:
+#: A trail that exists before the bug is genuinely worth having, which is
+#: why this was tried. Making it affordable means not tracing every call --
+#: sampling, or tracing only the module a run is in -- and until that exists
+#: the honest default is off.
+DEFAULT_VERBOSE_LOGGING = False
+
+#: Process-tree accounting is cheap enough to leave on.  Unlike verbose
+#: logging it samples once a second and installs no Python profile hook.
+PERFORMANCE_LOGGING_LEVELS = ("off", "summary", "detailed")
+DEFAULT_PERFORMANCE_LOGGING = "summary"
+
+
 def get_verbose_logging() -> bool:
     """Return True when the user has opted into the verbose diagnostic
-    logger. Toggled via the Preferences dialog; consulted at startup
-    by :func:`apply_preferences_to_app`."""
-    raw = _settings().value(_KEY_VERBOSE_LOG, False)
+    logger. Toggled via the Preferences dialog; consulted at startup by
+    :func:`apply_preferences_to_app`.
+
+    The wording of that first paragraph is deliberate: a reviewed Korean
+    translation of it is held in `docs/i18n/reviewed/api`, and the
+    localisation audit refuses a source block that no longer matches what
+    was reviewed. Changing it discards a human translation, so it is left
+    exactly as it was and anything new goes below.
+
+    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is off: verbose
+    tracing costs about twenty times the startup, measured.
+    """
+    raw = _settings().value(_KEY_VERBOSE_LOG, DEFAULT_VERBOSE_LOGGING)
     if isinstance(raw, str):
         return raw.lower() in ("true", "1", "yes", "on")
     return bool(raw)
@@ -1825,13 +3866,53 @@ def set_verbose_logging(on: bool) -> None:
     _settings().setValue(_KEY_VERBOSE_LOG, bool(on))
 
 
+def get_performance_logging() -> str:
+    """Return the independent process-tree resource logging level.
+
+    ``summary`` is the default: it records whole-run totals and peaks at
+    roughly one sample per second. ``detailed`` additionally retains the
+    bounded process/thread series. This setting never enables verbose
+    logging or installs a profile hook.
+
+    :returns: one of :data:`PERFORMANCE_LOGGING_LEVELS`.
+    """
+    raw = str(_settings().value(
+        _KEY_PERFORMANCE_LOG, DEFAULT_PERFORMANCE_LOGGING)).strip().lower()
+    return (raw if raw in PERFORMANCE_LOGGING_LEVELS
+            else DEFAULT_PERFORMANCE_LOGGING)
+
+
+def set_performance_logging(level: str) -> None:
+    """Persist the process-tree resource logging level.
+
+    :param level: ``off``, ``summary`` or ``detailed``.
+    :raises ValueError: when ``level`` names no supported mode.
+    """
+    named = str(level).strip().lower()
+    if named not in PERFORMANCE_LOGGING_LEVELS:
+        raise ValueError(
+            f"Unknown performance-logging level {level!r}. "
+            f"Choose from {PERFORMANCE_LOGGING_LEVELS}.")
+    _settings().setValue(_KEY_PERFORMANCE_LOG, named)
+
+
+#: On, and only safe to be. A report no longer carries log lines in its
+#: body: the bundle is written to a local path and the body NAMES that
+#: path, so a public issue can never carry a user's logs. The preference
+#: governs whether that bundle is prepared at all, every report still
+#: stops at an editable preview, and nothing is sent without its own Send.
+DEFAULT_SHARE_DIAGNOSTIC_LOGS = True
+
+
 def get_share_diagnostic_logs() -> bool:
     """Whether report previews may include a redacted recent-log excerpt.
 
     This never authorises background submission. Every report still stops at
     the editable preview and needs its own Send click.
     """
-    return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS, False), False)
+    return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS,
+                                      DEFAULT_SHARE_DIAGNOSTIC_LOGS),
+                    DEFAULT_SHARE_DIAGNOSTIC_LOGS)
 
 
 def set_share_diagnostic_logs(on: bool) -> None:
@@ -1965,7 +4046,14 @@ def apply_preferences_to_app(app=None) -> None:
         ``QApplication.instance()``.
     """
     from PySide6.QtWidgets import QApplication
-    from .theme import apply_qpalette, stylesheet
+
+    from .theme import (
+        apply_qpalette,
+        clear_widget_qss_overlays,
+        set_widget_qss_context,
+        stylesheet,
+        widget_qss_names,
+    )
 
     app = app or QApplication.instance()
     if app is None:
@@ -1973,8 +4061,18 @@ def apply_preferences_to_app(app=None) -> None:
 
     app.setProperty("spacrLanguage", get_language())
 
+    # Instruction 180. Pushed on every preferences save and not only at
+    # startup: the run journal reads a module-level default it can see
+    # without Qt, and a user who changed the setting mid-session would
+    # otherwise not see it take effect until the next launch.
+    try:
+        apply_workspace_preference()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not push the workspace preference", exc_info=True)
+
     theme = resolve_effective_theme()
     scale = get_font_scale()
+    pane_opacity = get_pane_opacity()
 
     # Only the image themes want a picture, and only they pay for
     # producing one. Everything here degrades to None on any failure,
@@ -1984,8 +4082,6 @@ def apply_preferences_to_app(app=None) -> None:
     # at startup and on a preferences save — never from a resize, never
     # from a paint. See :func:`spacr.qt.imagery.decode_count`.
     background = theme_background_path(theme)
-
-    apply_qpalette(app, theme=theme)
 
     # Fields before the stylesheet, not after: importing the module is what
     # registers its QSS block, and dropping the cached preference is what
@@ -2000,18 +4096,56 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:
         LOG.exception("Could not install the field fade")
 
-    app.setStyleSheet(stylesheet(
-        theme=theme, font_scale=scale, background=background,
-        surface_opacity=get_pane_opacity()))
+    # Setting one application stylesheet asks Qt to unpolish and repolish
+    # EVERY live widget. Preferences used to do that even when the user only
+    # changed a logging, cache or export option, and a mature session can own
+    # thousands of controls. The complete visual input is small and stable;
+    # remember it and pay the global rebuild only when one of those inputs --
+    # or the set of late widget-QSS registrars -- actually changed.
+    style_signature = (
+        str(theme),
+        float(scale),
+        pane_opacity,
+        str(background or ""),
+        bool(get_field_fade_enabled()),
+        widget_qss_names(),
+    )
+    style_changed = (
+        getattr(app, "_spacr_preferences_style_signature", None)
+        != style_signature
+        # QApplication's sheet is public state.  Tests, embedding hosts and
+        # theme integrations may replace it without going through this
+        # function, so the signature is only valid while the exact sheet it
+        # describes is still installed.  Checking the text is cheap beside a
+        # global Qt repolish and also catches a non-empty foreign sheet.
+        or app.styleSheet()
+        != getattr(app, "_spacr_preferences_stylesheet", None)
+    )
+    if style_changed:
+        # Record the exact inputs any screen-local late block must share with
+        # the application sheet. The local copies are absorbed into the
+        # complete global rebuild below once that sheet is composed.
+        set_widget_qss_context(app, theme, scale, pane_opacity)
+        apply_qpalette(app, theme=theme)
+        sheet = stylesheet(
+            theme=theme, font_scale=scale, background=background,
+            surface_opacity=pane_opacity, load_widget_registrars=False)
+        # A local sheet outranks the application sheet. Remove old-theme
+        # copies only after the replacement exists, then install the complete
+        # sheet that now contains every block registered so far.
+        clear_widget_qss_overlays(app)
+        app.setStyleSheet(sheet)
+        setattr(app, "_spacr_preferences_style_signature", style_signature)
+        setattr(app, "_spacr_preferences_stylesheet", sheet)
 
-    # A field whose QSS did not change still has to redraw: turning the
-    # effect off while its block was already empty changes only what the
-    # paint hook does.
-    try:
-        from .widgets.field_fade import repaint_fields
-        repaint_fields(app)
-    except Exception:
-        pass
+        # A field whose QSS did not change still has to redraw when the paint
+        # hook is turned off. Field fade is part of the signature, so this is
+        # needed on visual changes and never on an unrelated save.
+        try:
+            from .widgets.field_fade import repaint_fields
+            repaint_fields(app)
+        except Exception:
+            pass
     # Run/Propagate and Stop/Close-style buttons are tagged centrally,
     # including QDialogButtonBox buttons created after startup.
     from .button_roles import install_button_roles
@@ -2109,25 +4243,226 @@ def _show_resource_result(action: str, result, parent=None) -> None:
     box.exec()
 
 
+#: The one worker the disk readout uses, for every caller.
+#:
+#: MODULE-SCOPED ON PURPOSE, AND NOT PARENTED TO THE DIALOG. A JobRunner
+#: collected while its QThread is still running ABORTS the process (see
+#: :mod:`spacr.qt.job_runner`), and a runner parented to the Preferences
+#: dialog is held alive by nothing else: closing Preferences during a slow
+#: read releases the dialog, its Python attributes, the runner and finally
+#: the QThread wrapper -- while the stat is still in the kernel. Twenty
+#: seconds on a sleeping automount is exactly the window in which a user
+#: gives up and closes the dialog, so that is the likely case, not the
+#: unlikely one. Held here instead, the runner outlives every dialog and the
+#: report is dropped by :func:`_still_asking` rather than by a crash.
+_DISK_RUNNER = None
+#: Whether :data:`_DISK_RUNNER` was built to use a thread.
+_DISK_RUNNER_THREADED = False
+#: Runners replaced by :func:`_disk_report_runner`, kept forever. See there.
+_RETIRED_DISK_RUNNERS = []
+
+
+def _disk_report_runner():
+    """The worker that reads the disk, made once for the whole module.
+
+    ``user_visible=False``: the run banner on Home is for module runs, and
+    ``spacr/qt/widgets/home.py`` filters on exactly this flag. This runner
+    carries the disk readout and nothing else -- it is not shared with any
+    user-started job that a banner would then hide -- and the readout is a
+    handful of stat calls behind a modal dialog that covers Home anyway. The
+    activity spinner still turns, so something IS visibly running.
+
+    Unthreaded when there is no ``QApplication``, because then there is no
+    event loop to deliver the callback on -- and no GUI thread to protect
+    either, which is the only reason the thread was wanted.
+    """
+    global _DISK_RUNNER, _DISK_RUNNER_THREADED
+    from PySide6.QtWidgets import QApplication
+    from .job_runner import JobRunner
+
+    threaded = QApplication.instance() is not None
+    if _DISK_RUNNER is None or _DISK_RUNNER_THREADED != threaded:
+        if _DISK_RUNNER is not None:
+            # Remade rather than reused when an application has appeared
+            # since: a runner that decided to be inline while there was no
+            # event loop would otherwise keep blocking its caller for the
+            # rest of the process.
+            #
+            # RETIRED, NEVER DROPPED. `cancel` abandons the results but
+            # cannot interrupt a stat already in the kernel, and the old
+            # runner's `_jobs` is the only strong reference to that QThread.
+            # Collecting it here would destroy a running QThread and take
+            # the process with it, so the retired runner is kept for the
+            # life of the module. There is at most one per transition, and
+            # transitions happen when an application appears or goes.
+            try:
+                _DISK_RUNNER.cancel()
+            except RuntimeError:
+                pass
+            _RETIRED_DISK_RUNNERS.append(_DISK_RUNNER)
+        _DISK_RUNNER = JobRunner(None, threaded=threaded,
+                                 app_key="disk report", user_visible=False)
+        _DISK_RUNNER_THREADED = threaded
+    return _DISK_RUNNER
+
+
+def _disk_button(parent=None):
+    """The "Check disk space" button inside ``parent``, if it is there."""
+    if parent is None:
+        return None
+    try:
+        from PySide6.QtWidgets import QPushButton
+        return parent.findChild(QPushButton, "CheckDiskButton")
+    except (AttributeError, RuntimeError):
+        # Not a widget, or its C++ half has already gone.
+        return None
+
+
+def _still_asking(parent) -> bool:
+    """True while ``parent`` is still on screen to be answered.
+
+    A report that lands after the user closed Preferences has no one left to
+    show it to: the question was abandoned, and a message box arriving out
+    of a dialog that is gone is not the answer to anything. ``None`` -- the
+    caller that owns no dialog -- is always answered.
+    """
+    if parent is None:
+        return True
+    try:
+        return bool(parent.isVisible())
+    except RuntimeError:
+        # The C++ half went with the dialog.
+        return False
+    except AttributeError:
+        # Not a widget. Nothing to close, so nothing to drop.
+        return True
+
+
+def _start_disk_report(parent=None) -> None:
+    """Read the disk on a worker thread and report it when it lands.
+
+    WHY THIS IS NOT A PLAIN CALL, which is what it was until 2026-09-04.
+    :func:`spacr.qt.resource_cleanup.disk_report` asks
+    :func:`~spacr.qt.resource_cleanup.project_paths` for every folder the
+    project touches — the source folders every module remembers, read back
+    out of QSettings — and then does ``os.stat`` and ``shutil.disk_usage`` on
+    each one. Those are paths the USER chose. Measured on one workstation that
+    day: one of them was under ``/nas_mnt``, an ``autofs`` mount
+    whose share was asleep, and a single stat on it had NOT RETURNED AFTER
+    TWENTY SECONDS — the stat is what triggers the automount.
+
+    Run from the button's ``clicked`` slot, that is the whole interface
+    frozen between the confirmation box and the result box, with no traceback
+    to show for it, because a stalled event loop is not a crash.
+
+    :mod:`spacr.qt.path_probe` is the wrong tool here and deliberately not
+    used: it answers a cheap yes/no optimistically from a cache, and a disk
+    readout needs real device ids and real byte counts. Work that must
+    genuinely touch the disk belongs on a worker, not behind a cache.
+
+    ``DiskReport`` and ``DiskEntry`` are frozen dataclasses of plain numbers,
+    so the result crosses the thread boundary safely and the message box is
+    still opened on the GUI thread, by the callback.
+
+    THE FAILURE PATH IS THE CALLBACK PATH. ``JobRunner`` calls ``on_done``
+    only for a job that succeeded, so a worker that raised would leave the
+    button disabled and reading "Reading the disk…" for the rest of the
+    session — the one failure a user cannot recover from, because the button
+    that would retry is the one that is stuck. The read is therefore wrapped
+    so the worker returns its exception instead of raising it, and the
+    callback always runs: it gives the button back first and decides what to
+    show second.
+    """
+    from . import resource_cleanup
+    from .i18n import tr
+
+    button = _disk_button(parent)
+    resting_tip = None
+    if button is not None:
+        try:
+            resting_tip = button.toolTip()
+            button.setEnabled(False)
+            # Instruction 106: disabled and SAYING WHY, never inert. The
+            # button was unpressable while the report ran before this change
+            # too — the application was frozen — so keeping it unpressable
+            # while the worker reads is the same affordance, minus the freeze.
+            button.setToolTip(tr("Reading the disk…"))
+        except RuntimeError:
+            button = None
+
+    def read():
+        """On the worker thread. Returns the report, or the exception.
+
+        Returned rather than raised so the callback below is reached either
+        way; see the failure paragraph above. ``disk_report`` is looked up
+        here, not captured, so a caller that replaces it still gets its own.
+        """
+        try:
+            return resource_cleanup.disk_report()
+        except Exception as exc:  # noqa: BLE001 — returned, not swallowed
+            return exc
+
+    def restore() -> None:
+        """Give the button back. The C++ half may be gone; that is fine."""
+        if button is None:
+            return
+        try:
+            button.setEnabled(True)
+            button.setToolTip(resting_tip or "")
+        except RuntimeError:
+            pass
+
+    def done(report) -> None:
+        """On the GUI thread, with whatever the worker came back with."""
+        restore()
+        if isinstance(report, BaseException):
+            # Same visible outcome as before this moved to a worker, where
+            # the exception left the clicked slot and no box was shown --
+            # but the button is usable again and the reason is in the log.
+            LOG.warning("the disk could not be read", exc_info=report)
+            return
+        if not _still_asking(parent):
+            LOG.debug("the disk report outlived the dialog that asked for it")
+            return
+        try:
+            _show_resource_result("disk", report, parent)
+        except RuntimeError:
+            # The dialog was closed while the disk was being read. There is
+            # nothing left to show the report to.
+            LOG.debug("the disk report outlived its dialog", exc_info=True)
+
+    if not _disk_report_runner().submit(read, done):
+        # Nothing was started, or `done` itself raised. A button left
+        # disabled would be the one failure the user cannot recover from.
+        restore()
+
+
 def run_resource_action(action: str, parent=None):
     """Confirm ``action``, run it, and report the measured result.
 
-    :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` or
-        :class:`~spacr.qt.resource_cleanup.DiskReport`, or ``None`` when the
-        user declined — in which case **nothing ran**. The confirmation is
-        asked before any work is started, not after, which is the whole
-        point of asking.
+    :returns: the :class:`~spacr.qt.resource_cleanup.Reclaim` for "ram",
+        "vram" and "cpu", or ``None`` when the user declined — in which case
+        **nothing ran**. The confirmation is asked before any work is
+        started, not after, which is the whole point of asking.
+
+        ``None`` for "disk" as well, and that one is not a refusal: the disk
+        readout stats folders the user chose, so it goes to a worker thread
+        (:func:`_start_disk_report`) and its result arrives in the same
+        message box a moment later rather than in this return value. The
+        other three free memory and threads and touch no path, so they stay
+        inline where their before/after measurements are taken.
     """
     from . import resource_cleanup
     if not confirm_resource_action(action, parent):
         return None
-    runner = {
+    if action == "disk":
+        _start_disk_report(parent)
+        return None
+    result = {
         "ram": lambda: resource_cleanup.clear_ram(aggressive=True),
         "vram": resource_cleanup.clear_vram,
         "cpu": resource_cleanup.clear_cpu,
-        "disk": resource_cleanup.disk_report,
-    }[action]
-    result = runner()
+    }[action]()
     _show_resource_result(action, result, parent)
     return result
 
@@ -2135,6 +4470,216 @@ def run_resource_action(action: str, parent=None):
 # ---------------------------------------------------------------------------
 # Preferences dialog
 # ---------------------------------------------------------------------------
+
+#: What each Preferences row means, keyed by the label it carries.
+#:
+#: ON THE LABEL, NOT THE FIELD, and that is the house rule everywhere in
+#: spaCR: the words are what a reader points at when they want to know
+#: what something is, and a tooltip on the control is one they find only
+#: after reaching for it. :func:`explain_every_row` moves any that were
+#: put on a field, so a row explained either way ends up explained the
+#: same way.
+PREFERENCE_TIPS = {
+    # -- logging -------------------------------------------------------
+    "Debug": "Record all diagnostic messages, including internal run steps. This produces large logs and is recommended when preparing a bug report.",
+    "Info": "Record one message for each major run step. Recommended for routine use.",
+    "Warning": "Record conditions that may require review or intervention.",
+    "Error": "Record failed operations.",
+    "Critical": "Record failures that stop the run.",
+    # -- figures: type -------------------------------------------------
+    "Font family": "Typeface used for text in saved figures.",
+    "Font size": "Base font size for saved figures. Title, label and tick sizes are scaled relative to this value.",
+    "Title size": "Figure-title size relative to the base font size.",
+    "Label size": "Axis-label size relative to the base font size.",
+    "Tick size": "Axis-tick label size relative to the base font size.",
+    # -- figures: colour ----------------------------------------------
+    "Palette": "Sequence of colours used when a figure contains multiple series.",
+    "Background": "Figure background colour. A transparent background uses the colour of the destination document or interface.",
+    "Foreground": "Axis lines, ticks and text.",
+    "Chrome colour": "Colour used for the figure frame, axis ticks and spines.",
+    "Mark colouring": "Assign point colours from the palette or from a selected data column.",
+    # -- figures: grid and frame ---------------------------------------
+    "Grid": "Draw grid lines behind the data.",
+    "Grid colour": "Colour used for grid lines.",
+    "Grid width": "Grid-line width in points.",
+    "Grid style": "Solid, dashed or dotted.",
+    "Spines": "Select which of the four plot-frame edges are drawn.",
+    "Spine width": "Plot-frame edge width in points.",
+    # -- figures: marks ------------------------------------------------
+    "Marker size": "Plotted-point area in points squared.",
+    "Marker style": "Shape used for plotted points.",
+    "Line width": "Plotted-line width in points.",
+    "Jitter width": "Horizontal displacement applied to overlapping points.",
+    "Point alpha": "Point opacity. Values below 1 make overlapping points appear darker.",
+    "Bar alpha": "Bar opacity.",
+    "Fill colour": "Interior colour of bars and histogram bins.",
+    "Edge colour": "Outline colour of bars and histogram bins.",
+    "Edge width": "Outline width in points.",
+    # -- figures: statistics drawn on the plot -------------------------
+    "Error bars": "Statistic represented by error bars: standard deviation, standard error or confidence interval.",
+    "Reference style": "Line style used for reference or baseline values.",
+    "Reference colour": "Reference-line colour.",
+    "Trend line": "Fit and draw a trend line through the points.",
+    "Trend colour": "Trend-line colour.",
+    "Threshold style": "Line style used for significance or effect-size thresholds.",
+    "Threshold colour": "Threshold-line colour.",
+    "Threshold width": "Threshold-line width in points.",
+    "Bins": "Number of intervals used to partition a histogram's range.",
+    "Log y": "Use a logarithmic y-axis scale.",
+    "Split axis": "Omit an intermediate axis interval when one group is separated substantially from the others.",
+    "Centred": "Centre a diverging colour scale on zero so colour indicates the sign of each value.",
+    "Colormap": "Colour scale used to represent continuous values.",
+    # -- figures: labels and layout ------------------------------------
+    "Annotate": "Display values on the plot.",
+    "Annotate cells": "Display each cell's value in a heatmap.",
+    "Label top n": "Number of highest-ranked points labelled by name.",
+    "Legend": "Display a legend at the selected location.",
+    "Per row": "Number of panels in each row of a grid figure.",
+    # KEYED BY THE LABEL THE ROW SHOWS, which for the `aspect` setting comes
+    # from `style_setting_label`. The setting itself offers 'equal' or
+    # 'auto', so it is the axis-scale lock -- one y unit drawn the same
+    # length as one x unit -- and not the shape of the figure. The shape is
+    # 'Page shape' below, and the explanation says so rather than describing
+    # shapes this control cannot take.
+    "Lock axis scales": "Whether one y unit is drawn the same length as one x "
+                   "unit ('equal', which is what keeps a plate's wells "
+                   "square), or the panel is filled instead ('auto'). This "
+                   "locks the axis scales, which is a statement about the "
+                   "data; the proportions of the figure are 'Page shape'.",
+    "Page shape": "Aspect of the saved page.",
+    "Dpi": "Resolution of the saved image in pixels per inch. A value of 300 is commonly required for print.",
+    "Format": "File format used when saving figures.",
+    "Tight layout": "Adjust margins to fit labels within the saved figure.",
+    # -- the application -----------------------------------------------
+    "Theme": "Application colour scheme. 'Follow system' uses the desktop colour scheme.",
+    "Font scale": "Scale interface text independently of saved-figure font sizes.",
+    "Colour-blind mode": "Use interface and figure colours designed to remain distinguishable for common colour-vision deficiencies.",
+    "Module visibility": "Select the module maturity levels shown in navigation: stable only, or stable with beta and alpha modules.",
+    "Show busy spinner after": "Delay before displaying the busy indicator for a running task.",
+    "Page opacity": "Page opacity relative to the animated background.",
+    # -- the backdrop and the rim --------------------------------------
+    "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
+    "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
+    "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
+    "Quality": "How much detail the fractal is asked for. Balanced costs less per frame; high adds an iteration to the fractal and raises the internal resolution. Automatic chooses from the number of cores on the CPU renderer and uses balanced on the GPU.",
+    "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
+    "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
+    "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.",
+    "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+    "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
+    "Animation blur": "Blur applied to background shapes.",
+    "Animation speed": "Background-animation speed.",
+    "Animation size": "Size of background shapes.",
+    "Animation density": "Number of background shapes.",
+    "Rim length": "Fraction of a card border covered by the moving highlight.",
+    "Rim chase": "Responsiveness of the border highlight to pointer movement.",
+    "Rim cycle": "Duration of one border-highlight cycle.",
+}
+
+
+def _widget_is_alive(widget) -> bool:
+    """Whether ``widget``'s C++ half still exists.
+
+    The same check :func:`spacr.qt.screens.settings_model._widget_is_alive`
+    and ``live_zoom._alive`` make, for the same reason: a Python wrapper
+    outlives the object it wraps, and reading through it is undefined rather
+    than an exception.
+
+    :param widget: any Qt object, or None.
+    :returns: whether it is safe to touch.
+    """
+    if widget is None:
+        return False
+    try:
+        from shiboken6 import isValid
+        return bool(isValid(widget))
+    except Exception:                                        # noqa: BLE001
+        try:
+            widget.objectName()
+            return True
+        except RuntimeError:
+            return False
+
+
+def explain_every_row(dialog) -> int:
+    """Put a tooltip on every Preferences LABEL. Returns how many it set.
+
+    Two jobs, and the second is why this walks the finished dialog rather
+    than being written at each call site: it fills in from
+    :data:`PREFERENCE_TIPS`, and it MOVES a tooltip that was put on the
+    control to the label beside it. A row explained either way ends up
+    explained the same way, and a row added later without a tooltip is
+    reported by the test rather than passing unnoticed.
+    """
+    from PySide6.QtWidgets import (QFormLayout, QLabel, QPushButton,
+                                   QToolButton)
+
+    from .widgets.hint_bar import explain_through_the_bar
+
+    from .i18n import tr
+
+    explained = 0
+    for form in dialog.findChildren(QFormLayout):
+        for index in range(form.rowCount()):
+            label_item = form.itemAt(index, QFormLayout.LabelRole)
+            field_item = form.itemAt(index, QFormLayout.FieldRole)
+            if label_item is None or field_item is None:
+                continue
+            label = label_item.widget()
+            field = field_item.widget()
+            # ALIVE ON THE C++ SIDE, checked before anything is read through
+            # it. `isinstance` does NOT establish that: a Python wrapper keeps
+            # its type after Qt has deleted the object it wraps, so the check
+            # below passes and `label.text()` then reads freed memory. That is
+            # not an exception, it is a segfault, and this walk runs while a
+            # dialog is being rebuilt -- exactly when a row's widgets are being
+            # replaced underneath it.
+            #
+            # The same shape took the whole process in
+            # `settings_model._sibling_label_for` (52f3642b6). Found here by
+            # sweeping for it rather than by meeting it.
+            if not _widget_is_alive(label) or not _widget_is_alive(field):
+                continue
+            if not isinstance(label, QLabel) or field is None:
+                continue
+            text = (label.text() or "").replace("&", "").strip()
+            tip = PREFERENCE_TIPS.get(text, "")
+            # A BUTTON IS NOT A SETTING, and its tooltip is not a row's
+            # explanation -- it says what pressing it DOES, which is often
+            # the confirmation the press will ask for. Moving that onto the
+            # label and clearing the button leaves the user hovering the
+            # thing they are about to press and being told nothing.
+            #
+            # So a button row gets its label explained and KEEPS its own
+            # tooltip. Every other kind of field hands its explanation over,
+            # which is the rule: on the setting's text, never on its field.
+            is_action = isinstance(field, (QPushButton, QToolButton))
+            if not tip:
+                # WHATEVER THE ROW ALREADY SAID, moved rather than
+                # duplicated: a tooltip on both reads as two answers.
+                tip = (field.toolTip() or "").strip()
+            if not tip:
+                continue
+            label.setToolTip(tr(tip))
+            if is_action:
+                # A BUTTON SAYS WHAT PRESSING IT DOES, AND IT SAYS IT AT
+                # THE FOOT OF THE WINDOW. A tooltip appears over the button
+                # -- where the pointer already is, and where the user is
+                # about to click -- so the sentence covers the thing it
+                # describes. The bar is out of the way, holds a long
+                # sentence without hiding anything, and does not flicker as
+                # the pointer crosses a row of buttons. This is what the
+                # module tiles on Home already do.
+                #
+                # With no bar in the window the tooltip STAYS: a control
+                # that explains itself nowhere is worse than one that
+                # explains itself awkwardly.
+                explain_through_the_bar(field)
+            else:
+                field.setToolTip("")
+            explained += 1
+    return explained
+
 
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
@@ -2145,13 +4690,44 @@ class PreferencesDialog:
     """
 
     def __new__(cls, parent=None):
+        """Build the dialog with the UI language resolved once.
+
+        The scope is the whole reason this wrapper exists. Building this
+        dialog was measured asking the preference store what language the
+        interface is in 346 times, through 415 ``QSettings`` reads, and none
+        of those answers could differ: nothing runs between them.
+
+        :param parent: parent widget, or ``None``.
+        :returns: the dialog, ready to ``exec``.
+        """
+        from .i18n import ui_language_resolved_once
+        with ui_language_resolved_once():
+            return cls._build_the_dialog(parent)
+
+    @classmethod
+    def _build_the_dialog(cls, parent=None):
+        """Build and return the preferences dialog.
+
+        A ``__new__`` returning a plain ``QDialog`` rather than an ``__init__``
+        on a subclass: everything Qt is imported inside the call, so importing
+        this module costs nothing until a dialog is actually asked for.
+
+        The window is detached from the window manager's point of view, so the
+        user can put it where they like -- it is still parented, still modal and
+        still calls ``exec``, and only the window TYPE changes.
+
+        :param parent: parent widget, or ``None``.
+        :returns: the dialog, ready to ``exec``.
+        """
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame,
-            QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
-            QTabWidget, QVBoxLayout, QWidget,
+            QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+            QDoubleSpinBox, QFormLayout,
+            QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
+            QSpinBox, QTabWidget, QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
+        from .theme import spaceout_enabled
         from .widgets.toggle import Toggle
 
         dlg = QDialog(parent)
@@ -2162,7 +4738,7 @@ class PreferencesDialog:
         from .dialogs import detach_from_window_manager
         detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
-        dlg.setMinimumWidth(460)
+        dlg.setMinimumWidth(scaled_px(460))
         outer = QVBoxLayout(dlg)
 
         # One scrollable column had grown to thirty controls, which is a
@@ -2202,11 +4778,41 @@ class PreferencesDialog:
         # read the interface has to be able to find that one without
         # understanding any of the others.
         form = _page("General", "PreferencesTabGeneral")
+        # THREE TABS WHERE APPEARANCE USED TO BE ONE, split on 2026-09-03:
+        # "in preferences the appearence tab has to much information in it.
+        # please divide the settings in it among the new tabs Appearence,
+        # Theme, Annimation."
+        #
+        # It had grown to seventeen rows -- which is the same complaint that
+        # produced the tabs in the first place, one level down. The split is
+        # by WHAT A SETTING IS ABOUT, on the same principle as the note
+        # above:
+        #
+        #   Appearance  chrome and layout: where a tooltip goes, how a
+        #               setting is laid out, which weight the interface font
+        #               is drawn at. Nothing here has a colour or moves.
+        #   Theme       the theme itself, and how its surfaces render: the
+        #               page's opacity, the field fade, and the six rim
+        #               controls. The rim is the accent light around a
+        #               card, so it belongs with the palette that colours
+        #               it rather than with the ambient animations.
+        #   Animation   anything that moves on its own: the ambient theme
+        #               and its palette, the setting animations, and the
+        #               backdrop behind a settings popup.
+        #
+        # The Theme PICKER moved here out of General with them. A tab called
+        # Theme that does not contain the theme is the kind of thing a
+        # reader looks for twice; Language stays in General, because
+        # somebody who cannot read the interface has to find that one
+        # without understanding any other tab's name.
         appearance = _page("Appearance", "PreferencesTabAppearance")
+        theme_tab = _page("Theme", "PreferencesTabTheme")
+        animation = _page("Animation", "PreferencesTabAnimation")
         performance = _page("Performance", "PreferencesTabPerformance")
         modules = _page("Modules", "PreferencesTabModules")
         figures = _page("Figures", "PreferencesTabFigures")
         logging_form = _page("Logging", "PreferencesTabLogging")
+        ai_form = _page("AI", "PreferencesTabAI")
 
         # Two independent switches per level rather than one severity
         # threshold. A threshold cannot express "record DEBUG but not INFO",
@@ -2294,7 +4900,7 @@ class PreferencesDialog:
         for i in range(theme_combo.count()):
             if theme_combo.itemData(i) == current:
                 theme_combo.setCurrentIndex(i); break
-        form.addRow(tr("Theme"), theme_combo)
+        theme_tab.addRow(tr("Theme"), theme_combo)
 
         # Animated background — the drifting shapes behind every module
         # page. The first entry is None, and it is an animation choice
@@ -2333,7 +4939,7 @@ class PreferencesDialog:
         for i in range(ambient_theme_combo.count()):
             if ambient_theme_combo.itemData(i) == current_ambient:
                 ambient_theme_combo.setCurrentIndex(i); break
-        appearance.addRow(tr("Animation"), ambient_theme_combo)
+        animation.addRow(tr("Animation"), ambient_theme_combo)
 
         ambient_palette_combo = QComboBox()
         ambient_palette_combo.setObjectName("AmbientPalette")
@@ -2380,7 +4986,7 @@ class PreferencesDialog:
             "Which colours the animation uses. \"spaCR\" is built from "
             "the app's own blue, magenta and green-cyan."
         )
-        appearance.addRow(tr("Animation palette"), ambient_palette_combo)
+        animation.addRow(tr("Animation palette"), ambient_palette_combo)
 
         # Which way the starfield goes. Only meaningful for that one
         # animation, so it is shown only when that animation is chosen
@@ -2401,9 +5007,10 @@ class PreferencesDialog:
             if ambient_dir_combo.itemData(i) == current_dir:
                 ambient_dir_combo.setCurrentIndex(i); break
         dir_label = QLabel(tr("Starfield direction"))
-        appearance.addRow(dir_label, ambient_dir_combo)
+        animation.addRow(dir_label, ambient_dir_combo)
 
         def _sync_direction_row(*_args):
+            """Show the drift direction only for the theme that travels."""
             wanted = ambient_theme_combo.currentData() == "drift"
             dir_label.setVisible(wanted)
             ambient_dir_combo.setVisible(wanted)
@@ -2431,6 +5038,7 @@ class PreferencesDialog:
 
         def _percent_row(name, label_text, low, high, current, tip,
                          designed=1.0, target=None):
+            """Build one labelled percentage slider and return its parts."""
             slider = QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setRange(int(round(low * 100)), int(round(high * 100)))
@@ -2445,6 +5053,10 @@ class PreferencesDialog:
             def _update(v):
                 # Say when it is the designed value, because "100%" alone
                 # does not tell a reader that it is the one to come back to.
+                """Show the percentage, saying when it is the designed value.
+
+                "100%" alone does not tell a reader that it is the one to come back to.
+                """
                 value.setText(f"{v}% — as designed" if v == mark
                               else f"{v}%")
 
@@ -2454,7 +5066,13 @@ class PreferencesDialog:
             column.setContentsMargins(0, 0, 0, 0)
             column.addWidget(slider)
             column.addWidget(value)
-            (appearance if target is None else target).addRow(
+            # THE ANIMATION TAB BY DEFAULT. It was `appearance` until the
+            # split on 2026-09-03, and these five are what shape the ambient
+            # animation chosen two rows above them -- detail, blur, speed,
+            # size and density. Leaving them behind would have put five rows
+            # named "Animation ..." on a tab that no longer has the
+            # animation on it, which is the confusion the split was for.
+            (animation if target is None else target).addRow(
                 tr(label_text), _hbox_wrap(column))
             return slider
 
@@ -2529,7 +5147,73 @@ class PreferencesDialog:
             "setting's animation only."
         )
         setting_anim_check.setChecked(get_setting_animations_enabled())
-        appearance.addRow(tr("Setting animations"), setting_anim_check)
+        animation.addRow(tr("Setting animations"), setting_anim_check)
+
+        # THE TWO TOOLTIP SURFACES, instruction 371. Two switches rather than
+        # one three-way control, because the request is explicit that both on,
+        # both off, and either alone are all legal -- and "both off" is a
+        # choice a user is allowed to make, not a state to be prevented.
+        tooltips_box_check = Toggle(tr("Tooltips box"))
+        tooltips_box_check.setObjectName("TooltipsBox")
+        tooltips_box_check.setToolTip(
+            "Hovering a setting's title opens a box beside it with the "
+            "explanation, an API link and an Animation link. The box stays "
+            "while the pointer moves into it, which is what makes those two "
+            "links clickable at all."
+        )
+        tooltips_box_check.setChecked(get_tooltips_box_enabled())
+        appearance.addRow(tr("Tooltips box"), tooltips_box_check)
+
+        tooltips_bottom_check = Toggle(tr("Tooltips bottom"))
+        tooltips_bottom_check.setObjectName("TooltipsBottom")
+        tooltips_bottom_check.setToolTip(
+            "The same explanation appears along the bottom of the window, "
+            "where a category's help already appears. It holds the LAST "
+            "setting you hovered for ten seconds, so you can move the "
+            "pointer down to its API link and press it."
+        )
+        tooltips_bottom_check.setChecked(get_tooltips_bottom_enabled())
+        appearance.addRow(tr("Tooltips bottom"), tooltips_bottom_check)
+
+        object_grid_check = Toggle(tr("Per-object settings as a table"))
+        object_grid_check.setObjectName("ObjectSettingsGrid")
+        object_grid_check.setToolTip(
+            "78 of Mask's 201 settings are the same twenty-odd questions "
+            "asked once per object type. Set, those rows are replaced by one "
+            "table: a row per question, a column per object. The stored "
+            "settings are identical either way, so a file written with this "
+            "on is the same file written with it off. Takes effect the next "
+            "time a module's form is built."
+        )
+        object_grid_check.setChecked(get_object_grid_enabled())
+        appearance.addRow(tr("Per-object settings as a table"),
+                          object_grid_check)
+
+        def _warn_when_both_are_off() -> None:
+            """Say what turning both off costs, on the rows themselves.
+
+            Not a refusal: both off is legal and the request says so. But on
+            several forms the API link inside a setting's tooltip is the only
+            route from that control to its documentation, so a reader who
+            clears both loses that route with nothing on screen to say why.
+            The warning is on the switches because that is where the choice
+            is made.
+            """
+            silent = not (tooltips_box_check.isChecked()
+                          or tooltips_bottom_check.isChecked())
+            for widget in (tooltips_box_check, tooltips_bottom_check):
+                widget.setProperty("warns", "true" if silent else "false")
+                widget.setToolTip(widget.toolTip().split("\n\nBOTH OFF")[0]
+                                  + ("\n\nBOTH OFF: no setting will explain "
+                                     "itself anywhere, and the API link in a "
+                                     "setting's tooltip is the only route "
+                                     "from some controls to their "
+                                     "documentation. Category help is "
+                                     "unaffected." if silent else ""))
+
+        tooltips_box_check.toggled.connect(_warn_when_both_are_off)
+        tooltips_bottom_check.toggled.connect(_warn_when_both_are_off)
+        _warn_when_both_are_off()
 
         # How long work has to run before the busy indicator appears.
         # Seconds, not a percentage: this one is a real duration and the
@@ -2552,6 +5236,7 @@ class PreferencesDialog:
         spinner_value = QLabel()
 
         def _update_spinner_lbl(v):
+            """Show the spinner delay in seconds, or "show immediately" at zero."""
             spinner_value.setText(
                 tr("show immediately") if v == 0 else f"{v / 10:.1f} s")
 
@@ -2576,6 +5261,7 @@ class PreferencesDialog:
         scale_value = QLabel(f"{int(get_font_scale() * 100)}%")
 
         def _update_scale_lbl(v):
+            """Show the font scale as a percentage."""
             scale_value.setText(f"{v}%")
         scale_slider.valueChanged.connect(_update_scale_lbl)
 
@@ -2585,10 +5271,9 @@ class PreferencesDialog:
         _wrap = _hbox_wrap(scale_row)
         form.addRow(tr("Font scale"), _wrap)
 
-        # The left dock — revealed on hover, pinned open, or gone.
+        # The left dock — a permanent column, or gone.
         dock_combo = QComboBox()
         for label, key in (
-            ("Reveal on hover", "auto"),
             ("Locked open",     "locked"),
             ("Hidden",          "hidden"),
         ):
@@ -2598,12 +5283,11 @@ class PreferencesDialog:
             if dock_combo.itemData(i) == current_dock:
                 dock_combo.setCurrentIndex(i); break
         dock_combo.setToolTip(
-            "Reveal on hover: the app list slides in when you rest the "
-            "pointer against the left edge, and slides out again.\n"
-            "Locked open: it is a permanent column instead — it never "
-            "covers the page, and costs its own width.\n"
-            "Hidden: no edge strip and no column. Apps stay reachable "
-            "from the spaCR menu, Ctrl+1..9 and Ctrl+K."
+            "Locked open: the app list is a permanent column to the left "
+            "of the page. It never covers what you are working on, and "
+            "costs its own width.\n"
+            "Hidden: no column. Apps stay reachable from the spaCR menu, "
+            "Ctrl+1..9 and Ctrl+K."
         )
         form.addRow(tr("App dock"), dock_combo)
 
@@ -2656,7 +5340,7 @@ class PreferencesDialog:
         opacity_col = QVBoxLayout()
         opacity_col.addWidget(opacity_slider)
         opacity_col.addWidget(opacity_value)
-        appearance.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
+        theme_tab.addRow(tr("Page opacity"), _hbox_wrap(opacity_col))
 
         # The one surface Page opacity does not reach, and why it sits
         # directly under the slider: this is the exception to the row above.
@@ -2670,7 +5354,133 @@ class PreferencesDialog:
             "opaque fields."
         )
         field_fade_check.setChecked(get_field_fade_enabled())
-        appearance.addRow(tr("Field fade"), field_fade_check)
+        theme_tab.addRow(tr("Field fade"), field_fade_check)
+
+        # ---- The travelling rim -------------------------------------
+        #
+        # THREE SETTINGS, NOT THREE CONSTANTS. How long the light is, how
+        # hard it chases and whether it sits centred on the pointer are
+        # matters of taste, and taste is what a preference is for.
+        rim_length_slider = QSlider(Qt.Horizontal)
+        rim_length_slider.setObjectName("RimLength")
+        rim_length_slider.setRange(*RIM_LENGTH_RANGE)
+        rim_length_slider.setSingleStep(10)
+        rim_length_slider.setPageStep(40)
+        rim_length_slider.setValue(get_rim_length())
+        rim_length_slider.setToolTip(
+            "How far the accent runs along the edge of a settings card, in "
+            "pixels. Short reads as a dash sitting on one edge; past about "
+            "half the perimeter it stops being a highlight and becomes a "
+            "border.")
+        rim_length_value = QLabel()
+
+        def _rim_length_says(px):
+            """Show the rim length in pixels."""
+            rim_length_value.setText(tr("%d px") % int(px))
+
+        _rim_length_says(rim_length_slider.value())
+        rim_length_slider.valueChanged.connect(_rim_length_says)
+        rim_length_row = QHBoxLayout()
+        rim_length_row.setContentsMargins(0, 0, 0, 0)
+        rim_length_row.addWidget(rim_length_slider, 1)
+        rim_length_row.addWidget(rim_length_value)
+        theme_tab.addRow(tr("Rim length"), _hbox_wrap(rim_length_row))
+
+        rim_lag_slider = QSlider(Qt.Horizontal)
+        rim_lag_slider.setObjectName("RimLag")
+        # Stored as a fraction; shown as a percentage, because a slider
+        # from 0.02 to 1.0 is a slider with no readable numbers on it.
+        rim_lag_slider.setRange(int(RIM_LAG_RANGE[0] * 100),
+                                int(RIM_LAG_RANGE[1] * 100))
+        rim_lag_slider.setSingleStep(1)
+        rim_lag_slider.setPageStep(5)
+        rim_lag_slider.setValue(int(round(get_rim_lag() * 100)))
+        rim_lag_slider.setToolTip(
+            "How much of the distance to the pointer the accent covers each "
+            "frame. Lower is a longer, lazier trail; at 100% it is under "
+            "the pointer with no travel at all, and the travel is the whole "
+            "effect.")
+        rim_lag_value = QLabel()
+
+        def _rim_lag_says(percent):
+            """Show the rim chase as a percentage."""
+            rim_lag_value.setText(tr("%d%%") % int(percent))
+
+        _rim_lag_says(rim_lag_slider.value())
+        rim_lag_slider.valueChanged.connect(_rim_lag_says)
+        rim_lag_row = QHBoxLayout()
+        rim_lag_row.setContentsMargins(0, 0, 0, 0)
+        rim_lag_row.addWidget(rim_lag_slider, 1)
+        rim_lag_row.addWidget(rim_lag_value)
+        theme_tab.addRow(tr("Rim chase"), _hbox_wrap(rim_lag_row))
+
+        rim_align_combo = QComboBox()
+        rim_align_combo.setObjectName("RimAlignment")
+        for label, key in (("Centred on the pointer", "centre"),
+                           ("Trailing behind it", "head")):
+            rim_align_combo.addItem(tr(label), key)
+        index = rim_align_combo.findData(get_rim_alignment())
+        rim_align_combo.setCurrentIndex(index if index >= 0 else 0)
+        rim_align_combo.setToolTip(
+            "Centred puts the middle of the lit run under the pointer; "
+            "trailing puts its leading end there and drags the rest of the "
+            "light behind.")
+        theme_tab.addRow(tr("Rim alignment"), rim_align_combo)
+
+        rim_mode_combo = QComboBox()
+        rim_mode_combo.setObjectName("RimMode")
+        for label, key in (("Glow", "glow"), ("Rainbow", "rainbow"),
+                           ("Beat", "beat")):
+            rim_mode_combo.addItem(tr(label), key)
+        index = rim_mode_combo.findData(get_rim_mode())
+        rim_mode_combo.setCurrentIndex(index if index >= 0 else 0)
+        rim_mode_combo.setToolTip(
+            "Glow is the theme's accent with a fading tail. Rainbow walks "
+            "the hue along the light and turns it over time. Beat keeps the "
+            "accent and pulses it. Rainbow and Beat repaint every frame; "
+            "Glow only repaints when the light moves.")
+        theme_tab.addRow(tr("Rim mode"), rim_mode_combo)
+
+        rim_period_slider = QSlider(Qt.Horizontal)
+        rim_period_slider.setObjectName("RimPeriod")
+        # Stored in seconds, shown in tenths, because a slider from 0.4 to
+        # 12.0 has no readable integer positions.
+        rim_period_slider.setRange(int(RIM_PERIOD_RANGE[0] * 10),
+                                   int(RIM_PERIOD_RANGE[1] * 10))
+        rim_period_slider.setSingleStep(1)
+        rim_period_slider.setPageStep(5)
+        rim_period_slider.setValue(int(round(get_rim_period() * 10)))
+        rim_period_slider.setToolTip(
+            "How long one pulse of Beat takes, or one full turn of "
+            "Rainbow's hue. Ignored by Glow, which does not animate.")
+        rim_period_value = QLabel()
+
+        def _rim_period_says(tenths):
+            """Show the rim period in seconds."""
+            rim_period_value.setText(tr("%.1f s") % (int(tenths) / 10.0))
+
+        _rim_period_says(rim_period_slider.value())
+        rim_period_slider.valueChanged.connect(_rim_period_says)
+        rim_period_row = QHBoxLayout()
+        rim_period_row.setContentsMargins(0, 0, 0, 0)
+        rim_period_row.addWidget(rim_period_slider, 1)
+        rim_period_row.addWidget(rim_period_value)
+        theme_tab.addRow(tr("Rim cycle"), _hbox_wrap(rim_period_row))
+
+        popup_backdrop_combo = QComboBox()
+        popup_backdrop_combo.setObjectName("PopupBackdrop")
+        for key in POPUP_BACKDROPS:
+            popup_backdrop_combo.addItem(
+                tr("None") if key == "off" else tr(key.capitalize()), key)
+        index = popup_backdrop_combo.findData(get_popup_backdrop())
+        popup_backdrop_combo.setCurrentIndex(index if index >= 0 else 0)
+        popup_backdrop_combo.setToolTip(
+            "Which animation drifts behind a settings window. Separate from "
+            "the module screens' own backdrop above: what belongs behind a "
+            "screen of figures is not necessarily what belongs behind a form "
+            "you are reading. None keeps the card and the rim and drops only "
+            "the movement.")
+        animation.addRow(tr("Settings backdrop"), popup_backdrop_combo)
 
         # Colour-blind mode
         cb_combo = QComboBox()
@@ -2693,13 +5503,42 @@ class PreferencesDialog:
         # the active ConsolePanel. Aimed at bug reports.
         verbose_check = Toggle(tr("Enable verbose logging"))
         verbose_check.setToolTip(
-            "When on, every spaCR log record — plus INFO-level chatter "
-            "from cellpose, torch, PIL and matplotlib — echoes into "
-            "the active app's Console. Very chatty; leave off unless "
-            "you're triaging a bug."
+            "Records every spaCR function entered and left, plus "
+            "INFO-level chatter from cellpose, torch, PIL and matplotlib, "
+            "and echoes every record into the active app's Console. It is "
+            "what makes a bug report worth reading.\n\n"
+            "IT IS EXPENSIVE, measured rather than estimated: starting "
+            "spaCR took 3 seconds with this off and 65 seconds with it on, "
+            "because startup is where the most function calls happen. Each "
+            "traced call writes about 156 bytes.\n\n"
+            "So turn it on to reproduce a specific problem, and off again "
+            "afterwards. The animated background is never traced whatever "
+            "this says: it draws sixty frames a second and tracing it wrote "
+            "megabytes a minute."
         )
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
+
+        performance_log_combo = QComboBox()
+        performance_log_combo.setObjectName("PerformanceLogging")
+        for label, key in (
+            ("Off", "off"),
+            ("Summary (recommended)", "summary"),
+            ("Detailed", "detailed"),
+        ):
+            performance_log_combo.addItem(tr(label), key)
+        performance_index = performance_log_combo.findData(
+            get_performance_logging())
+        performance_log_combo.setCurrentIndex(
+            performance_index if performance_index >= 0 else 1)
+        performance_log_combo.setToolTip(tr(
+            "Records what spaCR's process tree costs without tracing every "
+            "function call. Summary samples about once a second and keeps "
+            "whole-run totals and peaks. Detailed also retains a bounded "
+            "per-process and per-thread time series. Off starts no sampler "
+            "thread. This setting is independent of verbose logging."
+        ))
+        modules.addRow(tr("Performance log"), performance_log_combo)
 
         share_diagnostics_check = Toggle(
             tr("Include redacted log excerpts in issue previews")
@@ -2728,6 +5567,66 @@ class PreferencesDialog:
         db_edit_check.setChecked(get_db_browser_editable())
         modules.addRow(tr("Database Browser"), db_edit_check)
 
+        # THE PROVIDER PICKER LIVES HERE NOW, not on the actions row of every
+        # module. It was a chevron beside the AI switch on each screen, which
+        # put a preference -- "which assistant do I use" -- in the place where
+        # per-run choices are made, and repeated it on every module. It has
+        # one answer for the whole application, which is what a preference is.
+        #
+        # `get_preferred_provider` already existed and was READ BY NOTHING:
+        # the slot was here the whole time and the chevron wrote to the
+        # console instead, so a provider chosen on one screen was forgotten
+        # by the next.
+        ai_provider_combo = QComboBox()
+        ai_provider_combo.setObjectName("AiProvider")
+        ai_provider_combo.addItem(tr("Automatic (first available)"), "")
+        try:
+            from . import ai as _ai_module
+
+            for _p in _ai_module.configured_providers():
+                ai_provider_combo.addItem(_p.label, _p.name)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not list AI providers", exc_info=True)
+        _wanted = get_preferred_provider()
+        _at = ai_provider_combo.findData(_wanted)
+        ai_provider_combo.setCurrentIndex(_at if _at >= 0 else 0)
+        ai_provider_combo.setToolTip(tr(
+            "Which assistant the AI switch routes through. Automatic picks "
+            "the first vendor CLI that is installed and logged in."
+        ))
+        ai_form.addRow(tr("Provider"), ai_provider_combo)
+
+        ai_providers_btn = QPushButton(tr("Providers…"))
+        ai_providers_btn.setObjectName("AiProvidersButton")
+        ai_providers_btn.setToolTip(tr(
+            "Install a vendor CLI, or sign in to one you have."
+        ))
+
+        def _open_providers():
+            """Open the install/login dialog, then re-list the providers."""
+            from PySide6.QtWidgets import QDialog
+
+            from .widgets.ai_chat_panel import _ProvidersDialog
+
+            if _ProvidersDialog(dlg).exec() != QDialog.Accepted:
+                return
+            chosen = ai_provider_combo.currentData()
+            ai_provider_combo.clear()
+            ai_provider_combo.addItem(
+                tr("Automatic (first available)"), "")
+            try:
+                from . import ai as _ai
+
+                for _q in _ai.configured_providers():
+                    ai_provider_combo.addItem(_q.label, _q.name)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not re-list AI providers", exc_info=True)
+            back = ai_provider_combo.findData(chosen)
+            ai_provider_combo.setCurrentIndex(back if back >= 0 else 0)
+
+        ai_providers_btn.clicked.connect(_open_providers)
+        ai_form.addRow("", ai_providers_btn)
+
         # Module visibility. Both are opt-out: existing users and fresh
         # installs continue to see every feature until they choose a quieter,
         # stable-only interface.
@@ -2751,6 +5650,31 @@ class PreferencesDialog:
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
+
+        # The appearance shared by every saved-figure renderer. This differs
+        # from Figure format below: format governs the app's Figures panel;
+        # save mode governs the page and figure-element colours used when a
+        # figure is written. `spacr.figure_style.figure_save_mode` is the one
+        # production resolver and gives the environment override precedence.
+        figure_save_mode_combo = QComboBox()
+        figure_save_mode_combo.setObjectName("FigureSaveMode")
+        figure_save_mode_combo.addItem(tr("Print (light page)"), "print")
+        figure_save_mode_combo.addItem(tr("Screen (as shown)"), "screen")
+        figure_save_mode_combo.addItem(
+            tr("Transparent (no page)"), "transparent")
+        figure_save_mode_combo.setToolTip(tr(
+            "How saved figures handle their background, text and lines. "
+            "Print uses a light page with dark figure elements; Screen "
+            "keeps the colours shown in spaCR; Transparent removes the "
+            "page and chooses figure-element colours for the current theme. "
+            "SPACR_FIGURE_SAVE_MODE can temporarily override this setting "
+            "for command-line and notebook runs."
+        ))
+        save_mode_index = figure_save_mode_combo.findData(
+            get_figure_save_mode())
+        figure_save_mode_combo.setCurrentIndex(
+            save_mode_index if save_mode_index >= 0 else 0)
+        figures.addRow(tr("Figure save mode"), figure_save_mode_combo)
 
         # Figures — display format (png = lighter / faster, pdf = vector +
         # editable via the figure-settings button) and the PNG resolution.
@@ -2777,6 +5701,40 @@ class PreferencesDialog:
                 fig_format_combo.setCurrentIndex(i); break
         figures.addRow(tr("Figure format"), fig_format_combo)
 
+        # WHICH GRAPH IS DRAWN FIRST. Asked for 2026-08-28. One row per data
+        # SHAPE and not a single control, because "Bar" is not an answer for
+        # two continuous axes -- a bar needs groups to summarise and there
+        # are none -- so one setting would be ignored by most graphs and
+        # look broken. `graph_types.WHY_NOT` says why for each pair, and
+        # only the types that FIT a shape are offered here.
+        from ..graph_types import (DATA_SHAPES, GRAPH_NAMES, DEFAULTS,
+                                   types_for)
+
+        default_graph_combos = {}
+        for shape, shape_caption in DATA_SHAPES:
+            combo = QComboBox()
+            combo.setObjectName(f"DefaultGraphType_{shape}")
+            table_default = DEFAULTS.get(shape, "")
+            combo.addItem(
+                tr("Recommended — {name}").format(
+                    name=tr(GRAPH_NAMES.get(table_default, table_default))),
+                "")
+            for kind in types_for(shape):
+                combo.addItem(tr(GRAPH_NAMES.get(kind, kind)), kind)
+            saved = get_default_graph_type(shape)
+            index = combo.findData(saved) if saved else 0
+            combo.setCurrentIndex(index if index >= 0 else 0)
+            combo.setToolTip(tr(
+                "Which graph is drawn first for {shape}. Right-click any "
+                "graph to change that one; this chooses where they all "
+                "start. Leave it on Recommended to follow spaCR's own "
+                "choice, which moves as the package does."
+            ).format(shape=tr(shape_caption)))
+            figures.addRow(tr("First graph — {shape}").format(
+                shape=tr(shape_caption)), combo)
+            default_graph_combos[shape] = combo
+
+
         png_dpi_combo = QComboBox()
         for dpi in VALID_PNG_DPIS:
             png_dpi_combo.addItem(f"{dpi} dpi", dpi)
@@ -2793,21 +5751,94 @@ class PreferencesDialog:
                 png_dpi_combo.setCurrentIndex(i); break
         figures.addRow(tr("PNG resolution"), png_dpi_combo)
 
+        # How many figures stay EDITABLE, and what happens to the rest. The
+        # panel keeps a live matplotlib Figure for the most recent N: those
+        # can be restyled, because they still have a legend to toggle and
+        # axes to rescale. Older ones keep only their rendered page.
+        live_cache_spin = QSpinBox()
+        live_cache_spin.setRange(MIN_FIG_LIVE_CACHE, MAX_FIG_LIVE_CACHE)
+        live_cache_spin.setValue(get_figure_live_cache())
+        live_cache_spin.setToolTip(
+            "How many of the most recent figures keep their live figure, and "
+            "so stay restylable rather than being a picture of a figure. "
+            "Older ones are still shown and still on disk. Higher costs "
+            "memory: a figure with a large image panel can hold tens of "
+            "megabytes."
+        )
+        figures.addRow(tr("Editable figures kept"), live_cache_spin)
+
+        # CELLS PER ROW IN A MONTAGE, decided rather than measured. The well
+        # tab used to divide the panel width by a fixed cell size, so the
+        # montage changed shape whenever the window did and two wells looked
+        # at side by side were not laid out the same way.
+        montage_columns_spin = QSpinBox()
+        montage_columns_spin.setRange(*MONTAGE_COLUMNS_RANGE)
+        montage_columns_spin.setValue(get_montage_columns())
+        montage_columns_spin.setToolTip(
+            "How many cells a well's montage puts on a row. The count stays "
+            "the same whatever size the window is — a wider panel draws the "
+            "same cells larger, up to their natural size, rather than "
+            "fitting more of them in, so two wells are always laid out "
+            "alike. How many ROWS fit is still measured, because that is "
+            "what decides the page."
+        )
+        figures.addRow(tr("Cells per montage row"), montage_columns_spin)
+
+        dynamic_check = QCheckBox()
+        dynamic_check.setChecked(get_figure_dynamic())
+        dynamic_check.setToolTip(
+            "When you go back past the number above and select a figure, "
+            "load its PDF page if one exists, so an old figure stays sharp "
+            "at any zoom instead of being an enlarged screen raster. It "
+            "cannot make an old figure editable again — a PDF page has no "
+            "legend to toggle — but it does make it legible."
+        )
+        figures.addRow(tr("Dynamic figures"), dynamic_check)
+
+        # -- HOW THE GRAPHS LOOK (instruction 118) -------------------------
+        #
+        # Everything above this line is about the FILE: its format, its
+        # resolution, how many stay editable. Nothing above it is about how a
+        # plot LOOKS -- no font, no palette, no marker size, no grid default,
+        # and nothing specific to any one kind of graph -- which is what "the
+        # graphs look pretty ugly" means in practice: every plot inherited
+        # matplotlib's defaults.
+        #
+        # The panel builds itself from `spacr.figure_style`'s own tables, so a
+        # style key added there gains a control here without this file being
+        # touched. It stores DELTAS only; see its docstring for why that is
+        # not an optimisation.
+        from .widgets.figure_settings import FigureStylePreferences
+
+        style_panel = FigureStylePreferences(get_figure_style(),
+                                             get_figure_style_per_graph())
+        style_heading = QLabel(tr(
+            "<b>Graph style</b> — how every figure is drawn, and per graph "
+            "type where they differ."))
+        style_heading.setWordWrap(True)
+        figures.addRow(style_heading)
+        figures.addRow(style_panel)
+
         # -- Performance ---------------------------------------------------
         # The mode, then the four things the two performance modes press on
         # your behalf. They are in the same tab deliberately: a mode that
         # says "cleanup runs at launch" should be read next to the buttons
         # that say exactly what a cleanup is, or "cleanup" is a word the
         # user has to take on trust.
+        # ONE SELECTOR, FIVE LEVELS, ordered by how much of the machine
+        # spaCR keeps for itself. Laptop used to be a second control that
+        # quietly overrode this one, so a user could choose a posture on
+        # one row and have another row undo it -- two answers to one
+        # question. It is the most constrained end of the same scale.
         mode_combo = QComboBox()
-        mode_combo.setObjectName("SpacrMode")
-        for key in SPACR_MODES:
-            mode_combo.addItem(tr(mode_label(key)), key)
-        current_mode = get_spacr_mode()
+        mode_combo.setObjectName("PerformanceLevel")
+        for key in PERFORMANCE_LEVELS:
+            mode_combo.addItem(tr(PERFORMANCE_LABELS[key]), key)
+        current_mode = get_performance_level()
         for i in range(mode_combo.count()):
             if mode_combo.itemData(i) == current_mode:
                 mode_combo.setCurrentIndex(i); break
-        performance.addRow(tr("spaCR mode"), mode_combo)
+        performance.addRow(tr("Performance"), mode_combo)
 
         mode_note_label = QLabel()
         mode_note_label.setObjectName("SpacrModeNote")
@@ -2815,10 +5846,21 @@ class PreferencesDialog:
         performance.addRow("", mode_note_label)
 
         def _sync_mode_note(*_args):
+            """Say which hardware the selected mode is for.
+
+            A selector whose levels do not name their hardware makes the user guess
+            which one their machine is.
+            """
             key = mode_combo.currentData()
-            mode_combo.setToolTip(tr(mode_note(key)))
-            text = tr(mode_note(key))
-            warning = mode_warning(key)
+            # EACH LEVEL SAYS WHICH HARDWARE IT IS FOR. A selector whose
+            # entries are five adjectives asks the user to guess; the note
+            # states the memory profile, what is retained and what that
+            # costs.
+            said = PERFORMANCE_NOTES.get(key) or mode_note(
+                spacr_mode_for_level(key))
+            mode_combo.setToolTip(tr(said))
+            text = tr(said)
+            warning = mode_warning(spacr_mode_for_level(key))
             if warning:
                 # Warn on SELECTION, not on Save: a warning that arrives
                 # after the dialog has closed is a report, not a choice.
@@ -2826,6 +5868,428 @@ class PreferencesDialog:
             mode_note_label.setText(text)
 
         mode_combo.currentIndexChanged.connect(_sync_mode_note)
+
+        # THE MEMORY BUDGET, under the level it takes its suggestions from.
+        # Asked for 2026-08-27; the headroom floor comes FIRST because the
+        # other two say what may be kept and this says when keeping it stops
+        # being acceptable.
+        #
+        # NOTHING HERE CLAIMS TO UNLOAD A LIBRARY. Measured: importing torch
+        # costs 477 MB and deleting every torch entry from sys.modules
+        # returns none of it, because CPython has never supported unloading
+        # a C extension. What can be returned is caches, weights and GPU
+        # allocations, so that is what these are named for.
+        from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
+                                    DEFAULT_HEADROOM_MB,
+                                    DEFAULT_IDLE_MINUTES, HARDWARE_NOTES,
+                                    MAX_CACHE_CEILING_MB, MAX_HEADROOM_MB,
+                                    MAX_IDLE_MINUTES, MIN_CACHE_CEILING_MB,
+                                    MIN_HEADROOM_MB, MIN_IDLE_MINUTES,
+                                    RECOMMENDED)
+
+        def _suggestions(index: int) -> str:
+            """What each level suggests for this row, as one sentence."""
+            parts = []
+            for level in PERFORMANCE_LEVELS:
+                value = RECOMMENDED[level][index]
+                shown = (f"{value:g} min" if index == 0
+                         else f"{value} MB")
+                parts.append(
+                    f"{tr(PERFORMANCE_LABELS[level])} ({HARDWARE_NOTES[level]}): "
+                    f"{shown}")
+            return "\n".join(parts)
+
+        headroom_spin = QSpinBox()
+        headroom_spin.setObjectName("HeadroomMb")
+        headroom_spin.setRange(MIN_HEADROOM_MB, MAX_HEADROOM_MB)
+        headroom_spin.setSingleStep(256)
+        headroom_spin.setSuffix(tr(" MB"))
+        headroom_spin.setValue(get_headroom_mb())
+        headroom_spin.setToolTip(tr(
+            "How much memory must stay free for everything else on this "
+            "machine. When free memory falls below it, spaCR drops what it "
+            "is holding rather than competing for the last of it.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(2)))
+        performance.addRow(tr("Keep free"), headroom_spin)
+
+        idle_spin = QDoubleSpinBox()
+        idle_spin.setObjectName("CacheIdleMinutes")
+        idle_spin.setRange(MIN_IDLE_MINUTES, MAX_IDLE_MINUTES)
+        idle_spin.setDecimals(1)
+        idle_spin.setSingleStep(1.0)
+        idle_spin.setSuffix(tr(" min"))
+        idle_spin.setValue(get_idle_minutes())
+        idle_spin.setToolTip(tr(
+            "How long something spaCR is holding — a merged frame, a loaded "
+            "image, a model's weights — may sit unused before it is "
+            "dropped. Zero drops it as soon as nothing needs it, which "
+            "costs time when you go back to it.\n\n"
+            "This does NOT unload a library: a Python C extension cannot be "
+            "unloaded, and nothing here pretends otherwise. What it "
+            "governs is what spaCR chose to keep.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(0)))
+        performance.addRow(tr("Drop unused after"), idle_spin)
+
+        cache_spin = QSpinBox()
+        cache_spin.setObjectName("CacheCeilingMb")
+        cache_spin.setRange(MIN_CACHE_CEILING_MB, MAX_CACHE_CEILING_MB)
+        cache_spin.setSingleStep(256)
+        cache_spin.setSuffix(tr(" MB"))
+        cache_spin.setValue(get_cache_ceiling_mb())
+        cache_spin.setToolTip(tr(
+            "The most spaCR will hold in caches at once. Over it, the least "
+            "recently used goes first — the one least likely to be wanted "
+            "next — until what remains fits.\n\n"
+            "Suggested:\n{levels}").format(levels=_suggestions(1)))
+        performance.addRow(tr("Cache ceiling"), cache_spin)
+
+        # NO SEPARATE LAPTOP CONTROL. It is the first entry of the
+        # selector above, which is the whole point of 286: one value, not
+        # two that can disagree.
+        font_weight = QComboBox()
+        font_weight.setObjectName("InterfaceFontWeight")
+        for _key, _label in (("regular", "Regular"), ("light", "Light")):
+            font_weight.addItem(tr(_label), _key)
+        font_weight.setCurrentIndex(
+            max(0, font_weight.findData(get_interface_font_weight())))
+        appearance.addRow(tr("Interface font"), font_weight)
+
+        # THE SPACEOUT FRACTAL, and ONLY under spaceout. An ordinary launch
+        # builds none of these rows, so the hidden mode stays hidden: a
+        # settings page advertising it would be the giveaway.
+        if spaceout_enabled():
+            fractal = _page("Fractal", "PreferencesTabFractal")
+            _fractal_values = get_fractal_settings()
+
+            fractal_pattern = QComboBox()
+            fractal_pattern.setObjectName("FractalPattern")
+            from .widgets.fractal_travel import PATTERN_LABELS
+            for _key in FRACTAL_PATTERNS:
+                fractal_pattern.addItem(tr(PATTERN_LABELS.get(_key, _key)),
+                                        _key)
+            fractal_pattern.setCurrentIndex(
+                max(0, fractal_pattern.findData(_fractal_values["pattern"])))
+            # FIRST in the tab: it decides which fractal the rows below it
+            # are describing, and the two have different costs.
+            fractal.addRow(tr("Pattern"), fractal_pattern)
+
+            fractal_backend = QComboBox()
+            fractal_backend.setObjectName("FractalBackend")
+            for _key in FRACTAL_BACKENDS:
+                fractal_backend.addItem(tr(_key), _key)
+            fractal_backend.setCurrentIndex(
+                max(0, fractal_backend.findData(_fractal_values["backend"])))
+            fractal.addRow(tr("Backend"), fractal_backend)
+
+            fractal_note = QLabel()
+            fractal_note.setObjectName("FractalBackendNote")
+            fractal_note.setWordWrap(True)
+            fractal.addRow("", fractal_note)
+
+            def _sync_fractal_note(*_args):
+                """Say which renderer 'auto' will actually pick HERE.
+
+                The label cannot state it: it depends on whether vispy is
+                importable on this machine, and the honest answer is the one
+                the user will get.
+                """
+                from .widgets.fractal_travel import (
+                    gpu_is_available, platform_can_do_opengl, resolve_backend)
+
+                chosen = fractal_backend.currentData()
+                actual = resolve_backend(chosen)
+                wants_gpu = chosen in ("auto", "gpu")
+                if wants_gpu and not platform_can_do_opengl():
+                    text = tr(
+                        "No usable display/OpenGL context is available in "
+                        "this session, so the CPU renderer runs instead. "
+                        "Installing VisPy cannot enable GPU rendering in a "
+                        "headless session."
+                    )
+                elif wants_gpu and not gpu_is_available():
+                    text = tr(
+                        "VisPy is not installed, so the CPU renderer runs "
+                        "instead. Install the GPU renderer with pip install "
+                        "\"spacr[fractal]\"."
+                    )
+                elif chosen == "auto":
+                    text = tr(
+                        "Automatic: this machine will use the {renderer} "
+                        "renderer."
+                    ).format(renderer=actual.upper())
+                else:
+                    text = tr("The {renderer} renderer.").format(
+                        renderer=actual.upper())
+                fractal_note.setText(text)
+
+            fractal_backend.currentIndexChanged.connect(_sync_fractal_note)
+            _sync_fractal_note()
+
+            fractal_quality = QComboBox()
+            fractal_quality.setObjectName("FractalQuality")
+            for _key in FRACTAL_QUALITIES:
+                fractal_quality.addItem(tr(_key), _key)
+            fractal_quality.setCurrentIndex(
+                max(0, fractal_quality.findData(_fractal_values["quality"])))
+            fractal_quality.setToolTip(tr(
+                "A level is a set of numbers, not an adjective: choosing "
+                "one fills in supersampling, render scale, the iteration "
+                "budget and the scale below. Every one of them stays a "
+                "field you can then change — a level is a starting point, "
+                "not a lock.\n\n"
+                "Auto asks the machine instead, per backend, so it keeps "
+                "following the hardware rather than freezing an answer."))
+            fractal.addRow(tr("Quality"), fractal_quality)
+
+            def _tenths(name, value, low=None, high=None):
+                """A NUMBER FIELD, not a capped slider.
+
+                A spin box whose maximum is 2 turns a typed 40 into 2 without
+                explaining the change. These settings accept the typed number
+                and let validation report clearly when it cannot be used.
+
+                The range is opened to the widest a QDoubleSpinBox has, so
+                the widget refuses nothing; `explain_a_fractal_number` is
+                what decides whether a value can be used, and says why when
+                it cannot.
+                """
+                box = QDoubleSpinBox()
+                box.setObjectName(name)
+                box.setRange(-1e12, 1e12)
+                box.setSingleStep(0.05)
+                box.setDecimals(4)
+                box.setKeyboardTracking(False)
+                box.setValue(float(value))
+                return box
+
+            def _whole(name, value):
+                # NO `suffix` PARAMETER. It had one, defaulting to "",
+                # and the single caller below never passed it -- so the
+                # `setSuffix` it guarded could not run, and coverage
+                # counted two items nothing could reach. A parameter with
+                # no caller is not extensibility, it is a branch that
+                # cannot be tested and a reader wondering what uses it.
+                """A whole-number field, equally uncapped."""
+                box = QSpinBox()
+                box.setObjectName(name)
+                box.setRange(-2_000_000_000, 2_000_000_000)
+                box.setKeyboardTracking(False)
+                box.setValue(int(value))
+                return box
+
+            fractal_scale = _tenths("FractalScale",
+                                    _fractal_values["scale"], 0.25, 2.0)
+            fractal.addRow(tr("Scale"), fractal_scale)
+            fractal_speed = _tenths("FractalSpeed",
+                                    _fractal_values["speed"], 0.15,
+                                    MAX_FRACTAL_SPEED)
+            fractal.addRow(tr("Speed"), fractal_speed)
+            fractal_dream = _tenths("FractalDream",
+                                    _fractal_values["dream"], 0.0, 1.5)
+            fractal.addRow(tr("Dream"), fractal_dream)
+
+            fractal_variable = Toggle()
+            fractal_variable.setObjectName("FractalVariableSpeed")
+            fractal_variable.setChecked(bool(_fractal_values["variable_speed"]))
+            fractal.addRow(tr("Variable speed"), fractal_variable)
+
+            # SLOWEST AND FASTEST ARE GONE FROM THE PANEL. Variable speed
+            # breathes around the Speed above it; two more fields to say
+            # how far is three controls answering one question, and the
+            # three could be set to contradict each other.
+            fractal_speed_min = None
+            fractal_speed_max = None
+
+            # SUPERSAMPLING, called out as "a super important setting". It
+            # is the one that decides whether the picture is smooth or
+            # aliased, and it costs its own square: 2 is four samples a
+            # pixel, 3 is nine.
+            fractal_ss = _whole(
+                "FractalSupersampling", _fractal_values["supersampling"])
+            fractal_ss.setToolTip(tr(
+                "Samples per pixel along each axis. 1 is none, 2 is four "
+                "samples a pixel and is what the published defaults use, 3 "
+                "is nine. The cost is the square of this number, so it is "
+                "the first thing to turn down on a slow machine and the "
+                "first to turn up on a fast one."))
+            fractal.addRow(tr("Supersampling"), fractal_ss)
+
+            # THE MANDELBROT RENDERER'S OWN SETTINGS. They mean nothing for
+            # the other three patterns and are shown regardless, because a
+            # row that appears and disappears as the pattern changes is the
+            # form rearranging itself under the reader -- and these are all
+            # numbers a user may want to set BEFORE choosing the pattern.
+            # SUB-CATEGORIES, asked for 2026-08-28. Twenty-one fields in
+            # one column is a wall; three headings say which question each
+            # group answers, and a reader looking for the zoom does not have
+            # to read the steering to find it.
+            # ONE CONTROL PER QUESTION, and the same questions whichever
+            # pattern is chosen. Asked for 2026-08-28: "there need to be
+            # fewer options for speed so one option for speed that is user
+            # facing, one option for steering and so on... mak the settings
+            # easy to navigate aross themes."
+            #
+            # Speed is already one field above. Steering is one here, and it
+            # DERIVES the three numbers it stands for -- set by hand they
+            # contradict each other, and a short interval with a long
+            # duration is the jerkiness that was reported.
+            # THE PATH, and Steering only means anything when it is
+            # guided. Fixed is the default because the search moves the
+            # camera and that is what shook -- smoothing the motion does
+            # not remove the fact that it is being moved.
+            fractal_path = QComboBox()
+            fractal_path.setObjectName("FractalPath")
+            for _key, _label in (("fixed", "Straight down"),
+                                 ("guided", "Search as it goes"),
+                                 # THE TWENTY REGIONS, REACHABLE (327).
+                                 # `RegionTour` and `fractal_regions` were
+                                 # built and tested with no caller and no
+                                 # door; this is the door.
+                                 ("tour", "Tour the interesting places")):
+                fractal_path.addItem(tr(_label), _key)
+            fractal_path.setCurrentIndex(
+                max(0, fractal_path.findData(_fractal_values["path"])))
+            fractal_path.setToolTip(tr(
+                "Straight down descends to one point on the boundary and "
+                "stays pointed at it — the steadiest picture, and what the "
+                "published settings use.\n\n"
+                "Search as it goes looks for somewhere more interesting "
+                "every so often and moves the camera onto it. It finds more "
+                "variety, and moving the camera is visible: the Steering "
+                "control below sets how much.\n\n"
+                "Tour the interesting places floats between twenty "
+                "coordinates chosen in advance for keeping their detail "
+                "over four decades of zoom, easing out of one and into "
+                "the next. Dragging the view stops the tour; Ctrl+R hands "
+                "the camera back to it."))
+            fractal.addRow(tr("Path"), fractal_path)
+
+            fractal_steering = _tenths(
+                "FractalSteering", _fractal_values["steering"], 0.0, 1.0)
+            fractal_steering.setRange(0.0, 1.0)
+            fractal_steering.setSingleStep(0.05)
+            fractal_steering.setToolTip(tr(
+                "How much the view wanders while it descends. 0 goes "
+                "straight down; 1 keeps looking for somewhere more "
+                "interesting.\n\n"
+                "It sets how far each move reaches, how often one happens "
+                "and how long it takes, together — a move never takes more "
+                "than half the gap before the next, at any setting, so it "
+                "always settles rather than being caught mid-course."))
+            fractal.addRow(tr("Steering"), fractal_steering)
+
+            # DEPTH, asked for by name on 2026-08-28: "i want controll over
+            # the decades". It was a setting all along and was taken off the
+            # panel in the cut-down, which is the same mistake as hiding the
+            # numbers behind Advanced -- a control somebody asks for and
+            # cannot find is not a control.
+            fractal_depth = _tenths(
+                "FractalMaxDepth", _fractal_values["max_depth"], 0.1, 23.0)
+            fractal_depth.setDecimals(1)
+            fractal_depth.setSingleStep(1.0)
+            fractal_depth.setToolTip(tr(
+                "How many factors of ten the zoom descends before it starts "
+                "again. At the default speed each decade takes 24 seconds, "
+                "so 21 is about eight and a half minutes — and slower "
+                "Speed makes it longer.\n\n"
+                "It stops rather than running for ever because the "
+                "reference orbit is carried as three 32-bit floats, which "
+                "reproduce it to about 4.2e-24: past roughly 23 decades the "
+                "perturbation is measuring its own error and the picture "
+                "turns to mush. Going deeper needs more precision, not a "
+                "larger number here — which is why this one refuses to go "
+                "above it."))
+            fractal.addRow(tr("Depth (decades)"), fractal_depth)
+
+            def _steering_only_matters_when_guided(*_args):
+                """Grey Steering on the fixed path, where it does nothing.
+
+                Shown rather than hidden, so it is clear that choosing the
+                other path is what makes it live -- a control that vanishes
+                is one the user has to rediscover.
+                """
+                fractal_steering.setEnabled(
+                    fractal_path.currentData() == "guided")
+
+            fractal_path.currentIndexChanged.connect(
+                _steering_only_matters_when_guided)
+            _steering_only_matters_when_guided()
+
+            # THE DETAIL IS NOT ON THE PANEL. Asked for 2026-08-28:
+            # "there need to be fewer options... one option for speed that
+            # is user facing, one option for steering and so on."
+            #
+            # The twelve numbers behind Speed, Steering and Quality are
+            # still settings -- the renderer reads them and a settings file
+            # can carry them -- but they are DERIVED from the controls
+            # above, and offering both is what let a hand-set combination
+            # contradict itself: strength 0 with an interval of 0.01 and a
+            # duration of 0.1 moved the camera "every second in a random
+            # direction". A panel that offers a number and a control that
+            # overwrite each other is not a choice, it is a trap.
+            fractal_mandel = {}
+
+            # MOUSE GRAVITY. Asked for 2026-08-28, with a size and a
+            # strength, applying to every pattern and both backends.
+            fractal_pointer = Toggle(tr("Mouse gravity"))
+            fractal_pointer.setObjectName("FractalPointerGravity")
+            fractal_pointer.setChecked(
+                bool(_fractal_values["pointer_gravity"]))
+            fractal_pointer.setToolTip(tr(
+                "Let the backdrop follow the pointer: it drifts toward the "
+                "cursor and is shoved away by a click. The backdrop never "
+                "receives the click itself — it reads where the mouse is "
+                "rather than taking events, so nothing on top of it loses a "
+                "press."))
+            fractal.addRow(tr("Pointer"), fractal_pointer)
+
+            # SIZE IS OFFERED, STRENGTH IS NOT, asked for 2026-09-08: "id
+            # like a setting that controlls the size of the gravity ball".
+            #
+            # The note this replaces said "ONE MOUSE CONTROL, not three.
+            # Size and strength answer the same question -- how much does it
+            # pull -- and offering both let a size of 3 fight a strength of
+            # 0." The second half of that is still true and is why STRENGTH
+            # stays off the panel: two controls over one feeling is what
+            # produced the setting that cancelled itself. The first half was
+            # too strong. Size is not strength. It is the REACH -- how far
+            # from the cursor the pattern feels the pull at all -- and it is
+            # the one a user can see themselves changing.
+            #
+            # 1.0 is the widget's short edge, which is why the range runs to
+            # 3.0 rather than to some rounder number: past about three short
+            # edges the whole backdrop is inside the ball and there is
+            # nothing left for it to reach toward.
+            # `_tenths` is a QDoubleSpinBox holding the value itself -- the
+            # name is the helper's, not a unit. Scale, Speed and Dream above
+            # are saved straight from `.value()` and so is this.
+            fractal_pointer_size = _tenths(
+                "FractalPointerSize", _fractal_values["pointer_size"],
+                0.0, 3.0)
+            fractal_pointer_size.setToolTip(tr(
+                "How far the pointer reaches, as a share of the window's "
+                "short edge. 1.0 pulls the pattern within roughly one short "
+                "edge of the cursor; 0 turns the reach off without turning "
+                "the pointer off, so a click still shoves. The pull fades "
+                "toward the edge of the reach rather than stopping at it."))
+            fractal.addRow(tr("Pointer reach"), fractal_pointer_size)
+            fractal_pointer_size.setEnabled(fractal_pointer.isChecked())
+            fractal_pointer.toggled.connect(fractal_pointer_size.setEnabled)
+
+            fractal_pointer_strength = None
+
+            # HOW OFTEN IT BREATHES IS NOT A QUESTION ANYBODY ASKED.
+            # Variable speed uses one sensible period; a field for it was a
+            # third control on the same question as Speed.
+            fractal_speed_period = None
+
+            # NOTHING TO GREY ANY MORE. The three bounds this used to
+            # enable and disable are not on the panel: variable speed
+            # breathes around Speed by a fixed proportion, so there is one
+            # control and nothing that can disagree with it.
+
+
+
         _sync_mode_note()
 
         def _quit_spacr(parent) -> None:
@@ -2878,13 +6342,18 @@ class PreferencesDialog:
         # consent to — and each reports what was actually freed, measured
         # before and after, including when that is nothing.
         def _resource_button(action, label_text, row_label):
+            """Build one labelled action button for the resources row."""
             button = QPushButton(tr(label_text))
             button.setObjectName({
                 "ram": "ClearRamButton", "vram": "ClearVramButton",
                 "cpu": "ClearCpuButton", "disk": "CheckDiskButton",
             }[action])
             from . import resource_cleanup
-            button.setToolTip(resource_cleanup.confirmation_text(action))
+            # THE SHORT FORM ON HOVER. The confirmation still shows the full
+            # bulleted promise when the button is pressed; a hint bar that
+            # grew to eight lines made the dialog jump as the pointer moved
+            # between two buttons.
+            button.setToolTip(resource_cleanup.summary_text(action))
             button.clicked.connect(lambda: run_resource_action(action, dlg))
             performance.addRow(tr(row_label), button)
             return button
@@ -2905,6 +6374,59 @@ class PreferencesDialog:
         )
         hash_check.setChecked(get_hash_inputs())
         performance.addRow(tr("Reproducibility"), hash_check)
+
+        # Instruction 180. On this tab and beside the hashing switch because
+        # it is the same kind of decision -- how much of the machine a saved
+        # run is allowed to use -- and the two are read together: a user who
+        # wants a run they can hand to somebody else wants both.
+        workspace_combo = QComboBox()
+        workspace_combo.setObjectName("SaveWorkspaceMode")
+        for value, label in (
+            ("off", tr("Nothing — settings and manifest only")),
+            ("reference", tr("What was open, and where its files are")),
+            ("copy", tr("What was open, and copies of its files")),
+        ):
+            workspace_combo.addItem(label, value)
+        workspace_combo.setToolTip(tr(
+            "What a finished run records about the workspace around it — the "
+            "databases attached, the montage, and the view built on every "
+            "figure.\n\n"
+            "Where its files are: the paths, sizes and checksums, so a "
+            "restore can say a database moved instead of failing obscurely. "
+            "Kilobytes.\n\n"
+            "Copies of its files: the databases and tables as well, up to the "
+            "per-file limit below. A source folder of images is tens to "
+            "hundreds of gigabytes, so anything over the limit is named in "
+            "the run's own record rather than copied — nothing is skipped "
+            "silently.\n\n"
+            "Figures the session generated are copied either way: they exist "
+            "nowhere else."))
+        index = workspace_combo.findData(get_save_workspace())
+        workspace_combo.setCurrentIndex(max(0, index))
+        performance.addRow(tr("Saved runs carry"), workspace_combo)
+
+        workspace_limit = QSpinBox()
+        workspace_limit.setObjectName("WorkspaceCopyLimitMb")
+        workspace_limit.setRange(0, 1024 * 1024)
+        workspace_limit.setSingleStep(64)
+        workspace_limit.setSuffix(" MB")
+        workspace_limit.setValue(int(get_workspace_copy_limit_mb()))
+        workspace_limit.setToolTip(tr(
+            "The largest single file a saved run copies in. Files over it are "
+            "recorded with their size and the limit that excluded them."))
+        performance.addRow(tr("Copy files up to"), workspace_limit)
+
+        def _workspace_copying(mode: str) -> None:
+            """The limit only means anything when files are being copied."""
+            copying = mode == "copy"
+            workspace_limit.setEnabled(copying)
+            # Instruction 106: disabled and SAYING WHY, never inert.
+            workspace_limit.setToolTip(workspace_limit.toolTip() if copying else tr(
+                "Only used when saved runs carry copies of their files."))
+
+        workspace_combo.currentIndexChanged.connect(
+            lambda _i: _workspace_copying(str(workspace_combo.currentData())))
+        _workspace_copying(str(workspace_combo.currentData()))
 
         _resource_button("ram", "Clear RAM", "Memory")
         _resource_button("vram", "Clear VRAM", "GPU memory")
@@ -2933,15 +6455,12 @@ class PreferencesDialog:
 
         outer.addWidget(tabs)
 
-        preview = QLabel(
-            "<span style='color:gray;'>Theme, font scale and the "
-            "animated background apply instantly on Save. Colour-blind "
-            "mode affects plot colours the next time a figure is "
-            "generated.</span>"
-        )
-        preview.setTextFormat(Qt.RichText)
-        preview.setWordWrap(True)
-        outer.addWidget(preview)
+        # NO STANDING SENTENCES UNDER THE TABS. Two of them sat here on
+        # every visit -- what applies instantly on Save, and when
+        # colour-blind mode reaches a figure -- and a paragraph that is
+        # always true of the whole dialog is not read after the first time.
+        # Whatever a particular control does belongs to that control, and
+        # the hint bar below says it on hover.
 
         # Buttons
         buttons = QDialogButtonBox(
@@ -3006,8 +6525,15 @@ class PreferencesDialog:
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
                 _select(cb_combo, get_color_blind_mode())
+                _select(figure_save_mode_combo, get_figure_save_mode())
                 _select(fig_format_combo, get_figure_format())
                 _select(png_dpi_combo, get_figure_png_dpi())
+                live_cache_spin.setValue(get_figure_live_cache())
+                dynamic_check.setChecked(get_figure_dynamic())
+                # Told directly rather than re-read: this panel holds its
+                # controls, not its store, so the throwaway-settings trick
+                # every getter above uses does not reach it.
+                style_panel.reset()
                 _select(mode_combo, get_spacr_mode())
 
                 resolution_slider.setValue(
@@ -3028,6 +6554,7 @@ class PreferencesDialog:
                 field_fade_check.setChecked(get_field_fade_enabled())
                 hash_check.setChecked(get_hash_inputs())
                 verbose_check.setChecked(get_verbose_logging())
+                _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
                 db_edit_check.setChecked(get_db_browser_editable())
@@ -3039,6 +6566,20 @@ class PreferencesDialog:
         reset_button.clicked.connect(_reset_to_defaults)
 
         def _save():
+            # The rim first: every open card rereads these, and doing it
+            # before the theme work means one repaint rather than two.
+            """Write every preference this dialog owns, rim first.
+
+            THE RIM GOES FIRST because every open card rereads it: doing it before
+            the theme work means one repaint rather than two.
+            """
+            set_rim_length(rim_length_slider.value())
+            set_rim_lag(rim_lag_slider.value() / 100.0)
+            set_rim_alignment(rim_align_combo.currentData())
+            set_rim_mode(rim_mode_combo.currentData())
+            set_rim_period(rim_period_slider.value() / 10.0)
+            set_popup_backdrop(popup_backdrop_combo.currentData())
+            _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
             # One write for the whole Animation row: it stores the choice,
@@ -3064,13 +6605,31 @@ class PreferencesDialog:
                 set_ambient_drift_direction(direction_choice)
             set_spinner_delay(spinner_slider.value() / 10.0)
             set_setting_animations_enabled(setting_anim_check.isChecked())
+            set_tooltips_box_enabled(tooltips_box_check.isChecked())
+            set_tooltips_bottom_enabled(
+                tooltips_bottom_check.isChecked())
+            set_object_grid_enabled(object_grid_check.isChecked())
+            set_preferred_provider(ai_provider_combo.currentData() or "")
+            # AND TELL THE SCREENS THAT ARE ALREADY OPEN. The switch used to
+            # be read only while a settings panel was being built, so it did
+            # nothing at all until the module was closed and reopened -- in
+            # both directions, which is what makes a switch look broken
+            # rather than slow.
+            _tell_the_screens_the_object_grid_changed()
             set_font_scale(scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())
             set_hash_inputs(hash_check.isChecked())
+            # The limit FIRST: `set_save_workspace` pushes both down to
+            # spacr.workspace together, so setting the mode against a stale
+            # limit would leave the journal copying to the old ceiling until
+            # something else happened to push again.
+            set_workspace_copy_limit_mb(workspace_limit.value())
+            set_save_workspace(workspace_combo.currentData())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
+            set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             # set_log_levels re-clamps rather than trusting the dialog: the
             # console switch is disabled when its file switch is off, but a
@@ -3084,21 +6643,175 @@ class PreferencesDialog:
             set_db_browser_editable(db_edit_check.isChecked())
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
+            set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
+            for shape, combo in default_graph_combos.items():
+                # Empty data is the "Recommended" row, which CLEARS the
+                # saved choice rather than storing today's table: a stored
+                # copy of a default is a preference that has stopped
+                # tracking the package.
+                set_default_graph_type(shape, combo.currentData() or "")
             set_figure_png_dpi(png_dpi_combo.currentData())
+            set_figure_live_cache(live_cache_spin.value())
+            set_montage_columns(montage_columns_spin.value())
+            set_figure_dynamic(dynamic_check.isChecked())
+            style_general, style_per_graph = style_panel.values()
+            set_figure_style(style_general)
+            set_figure_style_per_graph(style_per_graph)
             # LAST of the writes, and deliberately: entering Extra
             # Performance overrides five of the settings written above with
             # their minimums, and leaving it puts back what it stashed. Do
             # it earlier and the dialog's own values would land on top,
             # which would mean the mode silently did not take effect.
-            set_spacr_mode(mode_combo.currentData())
+            if spaceout_enabled():
+                set_fractal_settings(
+                    pattern=fractal_pattern.currentData(),
+                    backend=fractal_backend.currentData(),
+                    quality=fractal_quality.currentData(),
+                    scale=fractal_scale.value(),
+                    speed=fractal_speed.value(),
+                    dream=fractal_dream.value(),
+                    variable_speed=fractal_variable.isChecked(),
+                    # DERIVED FROM SPEED, not set beside it: variable
+                    # speed breathes by a fixed proportion either way.
+                    speed_min=fractal_speed.value() * 0.55,
+                    speed_max=fractal_speed.value() * 1.65,
+                    pointer_gravity=fractal_pointer.isChecked(),
+                    # THE REACH IS THE USER'S NOW, so it is read from the
+                    # field rather than pinned at 1.0. Strength is still
+                    # derived: off is a strength of zero, which stops the
+                    # pull whatever reach is stored, and there is no control
+                    # for it because two knobs over one feeling is what let
+                    # a size of 3 fight a strength of 0.
+                    pointer_size=(fractal_pointer_size.value()
+                                  if fractal_pointer_size is not None
+                                  else 1.0),
+                    pointer_strength=(1.0 if fractal_pointer.isChecked()
+                                      else 0.0),
+                    supersampling=int(fractal_ss.value()),
+                    path=fractal_path.currentData(),
+                    steering=fractal_steering.value(),
+                    max_depth=fractal_depth.value(),
+                    **{name: box.value()
+                       for name, box in fractal_mandel.items()},
+                )
+                # A NUMBER THAT CANNOT BE USED IS SAID SO, in words, rather
+                # than silently reduced. The fields take anything; this is
+                # where the tool answers.
+                complaints = [
+                    explain_a_fractal_number(name, box.value())
+                    for name, box in
+                    list(fractal_mandel.items())
+                    + [("max_depth", fractal_depth),
+                       ("supersampling", fractal_ss),
+                       ("scale", fractal_scale),
+                       ("speed", fractal_speed)]
+                ]
+                complaints = [text for text in complaints if text]
+                # ALWAYS BACK TO THE SURFACE. A dive that resumed where it
+                # was would apply the new numbers thirty decades down, where
+                # a changed starting scale or iteration count has nothing
+                # recognisable to act on -- so the change would look as
+                # though it had done nothing.
+                try:
+                    from .widgets.fractal_travel import (
+                        apply_saved_controls, restart_the_dive)
+
+                    # THE NEW NUMBERS REACH THE RUNNING BACKDROP. It keeps
+                    # the controls it was built with, so writing them to the
+                    # store and restarting the dive left the old speed in
+                    # place -- which is why changing Speed appeared to do
+                    # nothing at all.
+                    apply_saved_controls()
+                    restart_the_dive()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not restart the dive", exc_info=True)
+                if complaints:
+                    from PySide6.QtWidgets import QMessageBox
+
+                    QMessageBox.warning(
+                        dlg, tr("Some numbers cannot be used"),
+                        tr("These were saved as the nearest value that "
+                           "works:") + "\n\n" + "\n".join(complaints))
+            set_interface_font_weight(font_weight.currentData())
+            # ONE VALUE. `set_performance_level` mirrors the level into
+            # the three-mode posture the cleanup code speaks in, so there
+            # is nothing else to write and nothing that can disagree.
+            set_performance_level(mode_combo.currentData())
+            set_headroom_mb(headroom_spin.value())
+            set_idle_minutes(idle_spin.value())
+            set_cache_ceiling_mb(cache_spin.value())
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
 
         buttons.accepted.connect(_save)
         buttons.rejected.connect(dlg.reject)
+        # A LINE AT THE FOOT, THE WAY THE HOME SCREEN DOES IT. Added before
+        # the rows are explained, because `explain_every_row` hands an
+        # action button's sentence to whatever bar its window has -- so the
+        # bar must exist by then or the button keeps a tooltip nobody
+        # asked for.
+        from .widgets.hint_bar import HintBar
+        hints = HintBar(parent=dlg)
+        # ABOVE THE BUTTONS, not under them. Asked for 2026-08-28. Appending
+        # put the explanation below Defaults/Close/Open, which reads as a
+        # footnote to the buttons rather than as the answer to the control
+        # the pointer is on -- and puts it furthest from the tabs it
+        # describes.
+        layout = dlg.layout()
+        row_of_buttons = layout.indexOf(buttons)
+        if row_of_buttons >= 0:
+            layout.insertWidget(row_of_buttons, hints)
+        else:
+            layout.addWidget(hints)
+        # EVERY ROW EXPLAINED, ON ITS LABEL. Done here, over the finished
+        # dialog, so a row added anywhere above is covered without the
+        # author having to remember the rule.
+        explain_every_row(dlg)
+        _everything_explains_itself_in_the_strip(dlg, hints)
         return dlg
+
+
+def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
+    """Move every remaining tooltip in ``dialog`` into ``bar``.
+
+    :param dialog: the finished Preferences dialog.
+    :param bar: its :class:`~spacr.qt.widgets.hint_bar.HintBar`.
+    :returns: how many were moved, so a test can assert a number.
+
+    THE STRIP IS THE ANSWER, NOT A SECOND ONE. A control that both writes to
+    the explanatory strip and pops a tooltip window answers twice, and the
+    window can cover the strip it duplicates.
+
+    `explain_every_row` pairs a row's label with its field, which reached 5
+    of this dialog's controls; the other 125 are labels and buttons that are
+    not settings rows -- log levels, figure options, the resource actions --
+    and each kept a tooltip of its own. Sweeping the finished dialog cannot
+    miss a shape, including one added later.
+
+    The strip's own label is skipped: it is the thing being written to.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    from .widgets.hint_bar import HintBar
+
+    moved = 0
+    for widget in dialog.findChildren(QWidget):
+        if isinstance(widget, HintBar) or widget is bar:
+            continue
+        if not (widget.toolTip() or "").strip():
+            continue
+        try:
+            # An empty `text` takes the widget's own tooltip and clears it,
+            # so the sentence MOVES rather than being said in two places.
+            if bar.explain(widget):
+                moved += 1
+        except Exception:                                    # noqa: BLE001
+            # Help that will not move is a blemish, never a reason for
+            # Preferences not to open.
+            continue
+    return moved
 
 
 def _refresh_owner_window(parent) -> None:
@@ -3129,8 +6842,583 @@ def _refresh_owner_window(parent) -> None:
             pass
 
 
+def _tell_the_cards_the_rim_changed() -> int:
+    """Make every card on screen take the new rim settings. Returns how many.
+
+    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
+    set twice. The cards read length, chase and alignment when they draw,
+    so all this has to do is tell them to draw -- and re-read the length,
+    which is the one they cache.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .widgets.setup_card import SetupCard
+    except Exception:                                        # noqa: BLE001
+        return 0
+    application = QApplication.instance()
+    if application is None:
+        return 0
+    told = 0
+    for widget in application.allWidgets():
+        if isinstance(widget, SetupCard):
+            try:
+                widget.reread_the_preferences()
+                told += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("a card would not reread the rim", exc_info=True)
+    return told
+
+
+def _tell_the_screens_the_object_grid_changed() -> int:
+    """Mount or unmount the per-object table on every open module.
+
+    A PREFERENCE THE USER CANNOT SEE TAKE EFFECT is a preference they will
+    set twice. Every screen decides for itself -- a module with too few
+    shared questions still declines the table -- so this only has to ask.
+
+    :returns: how many screens changed.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+
+        from .screens.app_screen import AppScreen
+    except Exception:                                        # noqa: BLE001
+        return 0
+    application = QApplication.instance()
+    if application is None:
+        return 0
+    changed = 0
+    for widget in application.allWidgets():
+        if not isinstance(widget, AppScreen):
+            continue
+        try:
+            changed += bool(widget.apply_object_grid_preference())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("a screen would not retake the grid switch",
+                      exc_info=True)
+    return changed
+
+
 def _hbox_wrap(layout):
+    """Wrap a layout in a widget so it can be placed where a widget is wanted.
+
+    :param layout: the layout to wrap.
+    :returns: the widget owning it.
+    """
     from PySide6.QtWidgets import QWidget
     w = QWidget()
     w.setLayout(layout)
     return w
+
+
+#: Where a panel's folded sections and divider positions live, as one JSON
+#: blob keyed by panel name.
+_KEY_SECTION_LAYOUT = "panels/section_layout"
+
+
+def get_section_layout(panel: str) -> dict:
+    """What ``panel`` looked like when it was last used.
+
+    Divider sizes and collapsed sections are remembered per category so the
+    next session restores the user's working layout.
+
+    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, plus
+        ``"steps"`` and ``"boxes"`` for a panel whose nested sections fold or
+        whose boxes are draggable -- see :func:`set_section_layout`. An empty
+        dict when the panel has never been arranged. EMPTY, not a default
+        layout -- the panel's own first-run arrangement is the right one, and
+        freezing today's into every user's settings would make improving it
+        impossible. Same reasoning as :func:`get_figure_style`.
+    """
+    import json
+
+    raw = _settings().value(_KEY_SECTION_LAYOUT, "")
+    if not raw:
+        return {}
+    try:
+        stored = json.loads(raw)
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(stored, dict):
+        return {}
+    layout = stored.get(str(panel))
+    return layout if isinstance(layout, dict) else {}
+
+
+def set_section_layout(panel: str, folded=(), sizes=(), steps=None,
+                       boxes=None) -> None:
+    """Remember which sections of ``panel`` are folded, and the divider sizes.
+
+    :param panel: stable category or panel name under which this layout is
+        stored, independently of every other panel's arrangement.
+    :param folded: the titles that are folded away.
+    :param sizes: the splitter's sizes, in its own order.
+    :param steps: the SUB-subsections -- ``{"1": False}`` for a numbered
+        workflow step folded away. A panel's nested sections
+        collapse too, and a collapse that is forgotten on the way out of the
+        module is a collapse the user does again every visit.
+    :param boxes: dragged heights, ``{name: px at 100 % font scale}``. STORED
+        UNSCALED on purpose: a user who drags the merge report to eleven
+        lines and then doubles the font wants eleven lines, not half of them,
+        so the number that comes back is re-scaled rather than replayed.
+
+    Both new mappings are written only when they hold something, so a panel
+    that has neither goes on producing exactly the record it always did.
+    """
+    import json
+
+    raw = _settings().value(_KEY_SECTION_LAYOUT, "")
+    try:
+        stored = json.loads(raw) if raw else {}
+    except (TypeError, ValueError):
+        stored = {}
+    if not isinstance(stored, dict):
+        stored = {}
+    record = {
+        "folded": [str(title) for title in (folded or ())],
+        "sizes": [int(size) for size in (sizes or ())],
+    }
+    if steps:
+        record["steps"] = {str(key): bool(value)
+                           for key, value in dict(steps).items()}
+    if boxes:
+        record["boxes"] = {str(key): int(value)
+                           for key, value in dict(boxes).items()}
+    stored[str(panel)] = record
+    _settings().setValue(_KEY_SECTION_LAYOUT, json.dumps(stored))
+
+
+#: How wide one figure tile is drawn in the grid.
+_KEY_FIGURE_GRID_SIZE = "figures/grid_cell_px"
+
+
+def get_figure_grid_size() -> int:
+    """The tile width the user last chose, or the grid's own default.
+
+    A READING preference, not a property of a run: someone who wants big
+    figures wants them on the next run too.
+    """
+    from .widgets.figure_grid_view import (MAX_CELL_PX, MIN_CELL_PX,
+                                           TARGET_CELL_PX)
+
+    raw = _settings().value(_KEY_FIGURE_GRID_SIZE, TARGET_CELL_PX)
+    try:
+        pixels = int(raw)
+    except (TypeError, ValueError):
+        return TARGET_CELL_PX
+    return max(MIN_CELL_PX, min(pixels, MAX_CELL_PX))
+
+
+def set_figure_grid_size(pixels: int) -> None:
+    """Remember the tile width, clamped to what the grid will accept."""
+    from .widgets.figure_grid_view import MAX_CELL_PX, MIN_CELL_PX
+
+    _settings().setValue(_KEY_FIGURE_GRID_SIZE,
+                         max(MIN_CELL_PX, min(int(pixels), MAX_CELL_PX)))
+
+
+# ---------------------------------------------------------------------------
+# Workspace content retained with a saved run
+# ---------------------------------------------------------------------------
+
+_KEY_SAVE_WORKSPACE = "runs/save_workspace"
+_KEY_WORKSPACE_COPY_LIMIT = "runs/workspace_copy_limit_mb"
+
+
+def get_save_workspace() -> str:
+    """Return how a completed run records its open workspace.
+
+    The result is ``"off"``, ``"reference"``, or ``"copy"``; see
+    :mod:`spacr.workspace`. This application preference applies to every run
+    until changed.
+    """
+    from ..workspace import resolve_mode
+
+    return resolve_mode(_settings().value(_KEY_SAVE_WORKSPACE, None))
+
+
+def set_save_workspace(mode) -> str:
+    """Store the workspace mode and update the process-wide default.
+
+    Updating both values makes the change available immediately to pipeline
+    code that cannot read Qt settings directly.
+    """
+    from ..workspace import resolve_mode, set_default_mode
+
+    resolved = resolve_mode(mode)
+    _settings().setValue(_KEY_SAVE_WORKSPACE, resolved)
+    set_default_mode(resolved, get_workspace_copy_limit_mb())
+    return resolved
+
+
+def get_workspace_copy_limit_mb() -> float:
+    """The per-file ceiling on what ``copy`` mode brings in, in megabytes."""
+    from ..workspace import DEFAULT_COPY_LIMIT_MB
+
+    raw = _settings().value(_KEY_WORKSPACE_COPY_LIMIT, DEFAULT_COPY_LIMIT_MB)
+    try:
+        limit = float(raw)
+    except (TypeError, ValueError):
+        return float(DEFAULT_COPY_LIMIT_MB)
+    return limit if limit >= 0 else float(DEFAULT_COPY_LIMIT_MB)
+
+
+def set_workspace_copy_limit_mb(limit) -> float:
+    """Remember the per-file copy limit, and push it down with the mode."""
+    from ..workspace import DEFAULT_COPY_LIMIT_MB, set_default_mode
+
+    try:
+        value = float(limit)
+    except (TypeError, ValueError):
+        value = float(DEFAULT_COPY_LIMIT_MB)
+    value = max(0.0, value)
+    _settings().setValue(_KEY_WORKSPACE_COPY_LIMIT, value)
+    set_default_mode(get_save_workspace(), value)
+    return value
+
+
+def apply_workspace_preference() -> str:
+    """Push the stored preference into :mod:`spacr.workspace`. Call at startup.
+
+    Without this the journal writes the module default on the first run of
+    every session, whatever the user chose last time.
+    """
+    from ..workspace import set_default_mode
+
+    return set_default_mode(get_save_workspace(), get_workspace_copy_limit_mb())
+
+
+# ---------------------------------------------------------------------------
+# The travelling rim
+# ---------------------------------------------------------------------------
+#
+# The accent that runs round a settings card follows the pointer, and how it
+# does that is a matter of taste rather than of correctness -- so it is three
+# settings rather than three constants.
+
+_KEY_RIM_LENGTH = "rim/length_px"
+#: How many cells the montage puts on a row, per well.
+_KEY_MONTAGE_COLUMNS = "montage/columns"
+
+#: The default number of cells per row in a well's montage tab.
+#:
+#: A DECIDED NUMBER, not one that falls out of the window. The tab used to
+#: compute `viewport_width // cell_px`, so a narrow panel showed three cells
+#: per well and widening it showed more -- "the cell tab shows 3 cells per
+#: well and then more if i change the size of the container". The count is
+#: now the same whatever the window does, and the THUMBNAILS take up the
+#: slack instead, which is the half of the geometry it makes sense to let a
+#: container drive.
+DEFAULT_MONTAGE_COLUMNS = 6
+
+#: Sensible bounds. One column is a list; past a dozen the thumbnails are
+#: smaller than the objects in them on any ordinary screen.
+MONTAGE_COLUMNS_RANGE = (1, 12)
+
+
+def get_montage_columns() -> int:
+    """Cells per row in a well's montage tab."""
+    low, high = MONTAGE_COLUMNS_RANGE
+    try:
+        value = int(_settings().value(_KEY_MONTAGE_COLUMNS,
+                                      DEFAULT_MONTAGE_COLUMNS))
+    except (TypeError, ValueError):
+        return DEFAULT_MONTAGE_COLUMNS
+    return max(low, min(high, value))
+
+
+def set_montage_columns(columns) -> int:
+    """Store the cells-per-row count. Returns the value actually stored."""
+    low, high = MONTAGE_COLUMNS_RANGE
+    try:
+        value = max(low, min(high, int(columns)))
+    except (TypeError, ValueError):
+        value = DEFAULT_MONTAGE_COLUMNS
+    _settings().setValue(_KEY_MONTAGE_COLUMNS, value)
+    return value
+
+
+_KEY_RIM_LAG = "rim/lag"
+_KEY_RIM_ALIGNMENT = "rim/alignment"
+
+#: How far the lit run reaches along the rim, in pixels.
+DEFAULT_RIM_LENGTH = 280
+
+#: How hard the accent chases the pointer, per frame. Smaller is slower.
+DEFAULT_RIM_LAG = 0.16
+
+#: Where the run sits relative to the pointer.
+RIM_ALIGNMENTS = ("centre", "head")
+DEFAULT_RIM_ALIGNMENT = "centre"
+
+#: Bounds the settings panel and the reader both honour.
+RIM_LENGTH_RANGE = (60, 900)
+RIM_LAG_RANGE = (0.02, 1.0)
+
+
+def get_rim_length() -> int:
+    """Pixels of rim the accent lights up.
+
+    Clamped on READ as well as on write: the stored value can come from a
+    settings file written by hand or by an older build, and a rim longer
+    than its own perimeter is a border rather than a highlight.
+    """
+    low, high = RIM_LENGTH_RANGE
+    try:
+        value = int(_settings().value(_KEY_RIM_LENGTH, DEFAULT_RIM_LENGTH))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_LENGTH
+    return max(low, min(high, value))
+
+
+def set_rim_length(pixels) -> int:
+    """Store the rim length. Returns the value actually stored."""
+    low, high = RIM_LENGTH_RANGE
+    try:
+        value = max(low, min(high, int(pixels)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_LENGTH
+    settings = _settings()
+    settings.setValue(_KEY_RIM_LENGTH, value)
+    settings.sync()
+    return value
+
+
+def get_rim_lag() -> float:
+    """How far the accent closes the gap to the pointer each frame.
+
+    SMALLER IS SLOWER, and the name is the user's: what they see is the lag
+    between the pointer arriving and the light catching up. 1.0 would put
+    the light under the pointer with no travel at all, and the travel is
+    the whole effect -- so that is the top of the range, not past it.
+    """
+    low, high = RIM_LAG_RANGE
+    try:
+        value = float(_settings().value(_KEY_RIM_LAG, DEFAULT_RIM_LAG))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_LAG
+    return max(low, min(high, value))
+
+
+def set_rim_lag(fraction) -> float:
+    """Store the chase fraction. Returns the value actually stored."""
+    low, high = RIM_LAG_RANGE
+    try:
+        value = max(low, min(high, float(fraction)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_LAG
+    settings = _settings()
+    settings.setValue(_KEY_RIM_LAG, value)
+    settings.sync()
+    return value
+
+
+def get_rim_alignment() -> str:
+    """Where the lit run sits relative to the pointer.
+
+    ``centre`` puts the MIDDLE of the run under the pointer, ``head`` puts
+    its leading end there and trails the rest behind.
+    """
+    value = str(_settings().value(_KEY_RIM_ALIGNMENT,
+                                  DEFAULT_RIM_ALIGNMENT) or "").strip().lower()
+    return value if value in RIM_ALIGNMENTS else DEFAULT_RIM_ALIGNMENT
+
+
+def set_rim_alignment(name: str) -> str:
+    """Store the alignment. An unknown name stores the default instead."""
+    value = str(name or "").strip().lower()
+    if value not in RIM_ALIGNMENTS:
+        value = DEFAULT_RIM_ALIGNMENT
+    settings = _settings()
+    settings.setValue(_KEY_RIM_ALIGNMENT, value)
+    settings.sync()
+    return value
+
+
+#: How the lit run of rim is coloured.
+#:
+#: `glow` is the accent colour with a fading tail. `rainbow` walks the hue
+#: along the run so the light carries a spectrum. `beat` keeps the accent
+#: colour and PULSES it, brightening and dimming on a steady cycle.
+_KEY_RIM_MODE = "rim/mode"
+RIM_MODES = ("glow", "rainbow", "beat")
+DEFAULT_RIM_MODE = "glow"
+
+#: Seconds for one full pulse of `beat`, or one full hue turn of `rainbow`.
+_KEY_RIM_PERIOD = "rim/period_s"
+DEFAULT_RIM_PERIOD = 2.4
+RIM_PERIOD_RANGE = (0.4, 12.0)
+
+
+def get_rim_mode() -> str:
+    """Which way the rim is coloured -- glow, rainbow or beat."""
+    value = str(_settings().value(_KEY_RIM_MODE,
+                                  DEFAULT_RIM_MODE) or "").strip().lower()
+    return value if value in RIM_MODES else DEFAULT_RIM_MODE
+
+
+def set_rim_mode(name: str) -> str:
+    """Store the rim mode. An unknown name stores the default instead."""
+    value = str(name or "").strip().lower()
+    if value not in RIM_MODES:
+        value = DEFAULT_RIM_MODE
+    settings = _settings()
+    settings.setValue(_KEY_RIM_MODE, value)
+    settings.sync()
+    return value
+
+
+def get_rim_period() -> float:
+    """Seconds for one pulse of `beat` or one hue turn of `rainbow`."""
+    low, high = RIM_PERIOD_RANGE
+    try:
+        value = float(_settings().value(_KEY_RIM_PERIOD, DEFAULT_RIM_PERIOD))
+    except (TypeError, ValueError):
+        return DEFAULT_RIM_PERIOD
+    return max(low, min(high, value))
+
+
+def set_rim_period(seconds) -> float:
+    """Store the pulse period. Returns the value actually stored."""
+    low, high = RIM_PERIOD_RANGE
+    try:
+        value = max(low, min(high, float(seconds)))
+    except (TypeError, ValueError):
+        value = DEFAULT_RIM_PERIOD
+    settings = _settings()
+    settings.setValue(_KEY_RIM_PERIOD, value)
+    settings.sync()
+    return value
+
+
+#: Which animation drifts behind a settings popup.
+#:
+#: SEPARATE FROM THE MODULE SCREENS' OWN. A backdrop that is right behind a
+#: full screen of figures is not necessarily the one somebody wants behind a
+#: form they are reading; `off` keeps the card and the rim and drops only the
+#: movement.
+_KEY_POPUP_BACKDROP = "rim/popup_backdrop"
+POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
+                   "ripple")
+#: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
+#: one. The card and the rim stay either way -- 'off' drops only the
+#: movement, which is what is distracting behind a form you are reading
+#: rather than behind a screen of figures.
+DEFAULT_POPUP_BACKDROP = "off"
+
+
+def get_popup_backdrop() -> str:
+    """Which ambient theme drifts behind a settings popup, or ``'off'``."""
+    value = str(_settings().value(_KEY_POPUP_BACKDROP,
+                                  DEFAULT_POPUP_BACKDROP) or "").strip().lower()
+    return value if value in POPUP_BACKDROPS else DEFAULT_POPUP_BACKDROP
+
+
+def set_popup_backdrop(name: str) -> str:
+    """Store the popup backdrop. An unknown name stores the default."""
+    value = str(name or "").strip().lower()
+    if value not in POPUP_BACKDROPS:
+        value = DEFAULT_POPUP_BACKDROP
+    settings = _settings()
+    settings.setValue(_KEY_POPUP_BACKDROP, value)
+    settings.sync()
+    return value
+
+
+# ---------------------------------------------------------------------------
+# Home's dashboard watermarks
+# ---------------------------------------------------------------------------
+
+#: When the user last pressed **Clear** on Home's Recent runs, and **Reset**
+#: on Totals, as a UTC ISO-8601 string. Empty means never.
+_KEY_RUNS_CLEARED = "home/runs_cleared_utc"
+_KEY_TOTALS_RESET = "home/totals_reset_utc"
+
+#: The two watermarks, by the name the panels ask for them under.
+DASHBOARD_WATERMARKS = {"runs": _KEY_RUNS_CLEARED,
+                        "totals": _KEY_TOTALS_RESET}
+
+
+def get_dashboard_watermark(which: str) -> str:
+    """When Home's ``which`` panel was last cleared, as a UTC ISO string.
+
+    A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on
+    Recent runs and **Reset** on Totals sit beside the queue's Clear, but
+    the queue holds plates waiting to start while
+    these two read the run journal -- which is the record of what this
+    installation has actually done, is what the Run History screen searches,
+    and is what a run's `manifest.json` is for. Emptying a dashboard panel
+    must not delete that.
+
+    So the panels remember a time instead and show only what happened after
+    it. The journal is untouched, Run History still has everything, and a
+    user who clears by accident loses a view rather than a history.
+
+    :param which: ``runs`` or ``totals``.
+    :returns: the stored ISO string, or ``""`` for never cleared.
+    """
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return ""
+    return str(_settings().value(key, "") or "").strip()
+
+
+def set_dashboard_watermark(which: str, when: str = "") -> str:
+    """Move ``which``'s watermark to ``when``, or to now when empty.
+
+    :param which: ``runs`` or ``totals``. An unknown name is ignored.
+    :param when: a UTC ISO-8601 string. Empty means "now".
+    :returns: what was stored, or ``""`` when nothing was.
+    """
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return ""
+    if not when:
+        from datetime import datetime, timezone
+        when = datetime.now(timezone.utc).isoformat()
+    settings = _settings()
+    settings.setValue(key, when)
+    settings.sync()
+    return when
+
+
+def clear_dashboard_watermark(which: str) -> None:
+    """Forget ``which``'s watermark, so its panel shows everything again."""
+    key = DASHBOARD_WATERMARKS.get(which)
+    if key is None:
+        return
+    settings = _settings()
+    settings.remove(key)
+    settings.sync()
+
+
+#: How tall the reader dragged Home's News list, in px at 100 % font scale.
+#: 0 means "never dragged" and the panel uses its own default.
+_KEY_NEWS_HEIGHT = "home/news_height_px"
+
+
+def get_news_height() -> int:
+    """The remembered height of Home's release-notes list, or 0.
+
+    Stored in FONT-SCALE-INDEPENDENT px, so a reader who drags the box tall
+    and then raises the interface zoom gets a box that is still the same
+    size relative to the text in it, rather than one that keeps the pixel
+    count and loses two of its four visible lines.
+    """
+    try:
+        return max(0, int(_settings().value(_KEY_NEWS_HEIGHT, 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_news_height(px: int) -> int:
+    """Remember how tall Home's release-notes list was dragged."""
+    try:
+        value = max(0, int(px))
+    except (TypeError, ValueError):
+        return 0
+    settings = _settings()
+    settings.setValue(_KEY_NEWS_HEIGHT, value)
+    settings.sync()
+    return value

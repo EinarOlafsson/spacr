@@ -112,6 +112,11 @@ def _make_screen(qtbot, app_key: str) -> AppScreen:
     return screen
 
 
+def _sections(screen: AppScreen) -> tuple:
+    """Category headers actually mounted in the settings panel."""
+    return screen.rendered_settings_sections()
+
+
 # ---------------------------------------------------------------------------
 # 1. Coverage — every category of every module has written help
 # ---------------------------------------------------------------------------
@@ -243,7 +248,7 @@ def test_hovering_a_category_header_fills_the_strip(qtbot):
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
     default = strip.text()
-    section = next(s for s in screen._settings_sections
+    section = next(s for s in _sections(screen)
                    if s.title() == "IMAGE PREPROCESSING")
 
     QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
@@ -258,24 +263,69 @@ def test_hovering_a_category_header_fills_the_strip(qtbot):
     assert strip.text() == default
 
 
+def _is_nested(section) -> bool:
+    """True when ``section`` is a heading drawn inside another heading."""
+    from spacr.qt.widgets.section import Section
+
+    parent = section.parentWidget()
+    while parent is not None:
+        if isinstance(parent, Section):
+            return True
+        parent = parent.parentWidget()
+    return False
+
+
 def test_every_rendered_category_reaches_the_strip(qtbot):
-    """Not just the one we happened to pick: all thirteen of Mask's."""
+    """Not just the one we happened to pick: every heading Mask draws.
+
+    The panel renders the settings TREE now, so the list holds sub-headings
+    as well as top-level categories, and a sub-heading is described by its
+    PATH: "Cell" under "Object filtration" is not the "Cell" segmentation
+    category. Asking `category_tooltip`, which is keyed on the bare word,
+    for every heading would therefore demand that a filtration sub-heading
+    show the blurb about Cellpose models and expected diameters. Each
+    heading is checked against what its own path resolved to instead, and
+    the top-level categories are still checked against `category_tooltip`
+    so that guarantee is not quietly weakened.
+    """
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
-    for section in screen._settings_sections:
+    nested_seen = 0
+    for section in _sections(screen):
+        source = section.property("settingsCategorySource") or section.title()
         QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
         QApplication.processEvents()
         assert section.title() in _strip_text(screen)
-        assert category_tooltip(screen.app_key, section.title()) in (
-            _strip_text(screen))
+        assert screen._category_blurbs[source] in _strip_text(screen)
+        if _is_nested(section):
+            nested_seen += 1
+        else:
+            assert category_tooltip(screen.app_key, source) in (
+                _strip_text(screen))
         QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Leave))
+    assert nested_seen, "Mask draws no sub-headings; the tree is flat again"
+
+
+def test_pruned_category_headers_are_owned_but_never_wired_live(qtbot):
+    """Dormant forms stay indexable without becoming hover targets/windows."""
+    screen = _make_screen(qtbot, "mask")
+    dormant = [
+        section for section in screen._settings_sections
+        if section.property("settingsSectionDiscarded")
+    ]
+    assert dormant, "Mask has no object-gated category to exercise"
+    assert not (set(dormant) & set(_sections(screen)))
+    for section in dormant:
+        assert section.parentWidget() is not None
+        assert section.isHidden()
+        assert not section.header().property("categoryHintWired")
 
 
 def test_expanding_a_category_pins_its_blurb(qtbot):
     """"Selected" outlives the pointer: the open category stays described."""
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
-    section = next(s for s in screen._settings_sections
+    section = next(s for s in _sections(screen)
                    if s.title() == "QUALITY CONTROL")
 
     section.set_expanded(True)
@@ -283,7 +333,7 @@ def test_expanding_a_category_pins_its_blurb(qtbot):
 
     # Wander over another header and back off it -- the open one is restored,
     # not the placeholder.
-    other = screen._settings_sections[0]
+    other = _sections(screen)[0]
     QApplication.sendEvent(other.header(), QEvent(QEvent.Type.Enter))
     QApplication.processEvents()
     assert other.title() in _strip_text(screen)
@@ -306,18 +356,18 @@ def test_the_category_strip_is_not_the_per_setting_strip(qtbot):
     setting_text = screen._hint_strip.text()
     assert setting_text != screen._default_hint()
 
-    header = screen._settings_sections[0].header()
+    header = _sections(screen)[0].header()
     QApplication.sendEvent(header, QEvent(QEvent.Type.Enter))
     QApplication.processEvents()
     assert screen._hint_strip.text() == setting_text, (
         "hovering a category header wiped the per-setting hint")
-    assert screen._settings_sections[0].title() in _strip_text(screen)
+    assert _sections(screen)[0].title() in _strip_text(screen)
 
 
 @pytest.mark.parametrize("app_key", ["measure", "umap", "regression"])
 def test_other_modules_get_the_same_region(qtbot, app_key):
     screen = _make_screen(qtbot, app_key)
-    section = screen._settings_sections[0]
+    section = _sections(screen)[0]
     QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
     QApplication.processEvents()
     assert section.title() in _strip_text(screen)
@@ -523,7 +573,7 @@ def test_rewiring_category_hints_stays_at_one_delivery(qtbot):
     per hover -- invisible in the text, but the same latent bug.
     """
     screen = _make_screen(qtbot, "mask")
-    section = screen._settings_sections[0]
+    section = _sections(screen)[0]
 
     calls = []
     original = AppScreen.show_category_hint
@@ -548,7 +598,7 @@ def test_rewiring_does_not_multiply_the_toggled_connection(qtbot):
     pass against a doubly-connected signal.
     """
     screen = _make_screen(qtbot, "mask")
-    section = screen._settings_sections[0]
+    section = _sections(screen)[0]
     for _ in range(3):
         screen._wire_category_hints()
 

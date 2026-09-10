@@ -65,6 +65,13 @@ from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
 CONTROLS_OBJECT = "OutlierControls"
 
 
+# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
+# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
+# still declared but are no longer in SECTION_ORDER. Every screen below now
+# files under Data. The docstrings keep their original reasoning because it
+# still says what each screen IS -- and they are published, translated API
+# prose, so editing them invalidates reviewed translations in nine languages.
+
 def _outliers_qss(palette: dict, opacity=None) -> str:
     """This screen's QSS block, appended to every generated stylesheet.
 
@@ -117,6 +124,8 @@ _METHOD_LABELS = (
     (METHOD_MAHALANOBIS, "Mahalanobis — robust multivariate (MCD)"),
 )
 from ..widgets.toggle import Toggle
+from ..widgets.sortable_table import install_sorting, table_item
+from ..app_catalog import declared_app, register_declared
 
 #: What the one threshold spinbox means under each method: label, tooltip,
 #: range, step, decimals and default.
@@ -145,6 +154,7 @@ class OutliersScreen(QWidget):
     :param threaded: ``False`` runs the table read and the scan inline, in the
         same order and through the same signals, so a test can drive the whole
         screen synchronously without the behaviour diverging.
+    :param parent: parent widget; ownership only.
     """
 
     #: A scan finished. Carries the
@@ -154,6 +164,12 @@ class OutliersScreen(QWidget):
     failed = Signal(str)
 
     def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the screen: the controls beside the object, well and report tabs.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: read and scan on a worker thread. Set ``False`` in
+            tests so ``scan`` finishes before it returns.
+        """
         super().__init__(parent)
         self.setObjectName("OutliersScreen")
         self._frame: Optional[pd.DataFrame] = None
@@ -233,11 +249,17 @@ class OutliersScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "outliers")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
     def _make_table(self, name: str) -> QTableWidget:
         """A read-only results grid. Two of them, built the same way."""
         table = QTableWidget(self)
+        install_sorting(table)
         table.setObjectName(name)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -251,7 +273,16 @@ class OutliersScreen(QWidget):
         """The right-hand column: what to test, how, and where the line is."""
         panel = QWidget(self)
         panel.setObjectName(CONTROLS_OBJECT)
-        panel.setMaximumWidth(360)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 360 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        panel.setMaximumWidth(scaled_px(360))
         layout = QVBoxLayout(panel)
         # Room for the panel's own rounded surface: the column sits ON a
         # page surface now rather than straight on the window.
@@ -382,6 +413,8 @@ class OutliersScreen(QWidget):
                   scan: bool = True) -> None:
         """Scan ``frame``. The one call a host needs.
 
+        :param frame: unmodified measurement table to expose in the feature
+            picker and pass to the configured outlier scan.
         :param scan: ``False`` loads the table and fills the feature picker
             without running anything, for a caller that wants to set the
             method first.
@@ -454,6 +487,11 @@ class OutliersScreen(QWidget):
                   f"× {len(frame.columns)} columns")
 
     def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
         if self._path and name:
             self.load_path(self._path, table=name)
 
@@ -596,6 +634,10 @@ class OutliersScreen(QWidget):
         # Abandon an in-flight read or scan rather than let it outlive the
         # screen: Qt aborts the process if a running QThread is destroyed, and
         # a worker that delivers into a closed widget is a use-after-free.
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
         self._jobs.shutdown()
         super().closeEvent(event)
 
@@ -615,7 +657,7 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame) -> None:
     for column, name in enumerate(frame.columns):
         values = frame[name].tolist()
         for row, value in enumerate(values):
-            table.setItem(row, column, QTableWidgetItem(_cell(value)))
+            table.setItem(row, column, table_item(_cell(value)))
 
 
 def _cell(value) -> str:
@@ -634,38 +676,30 @@ def make_outliers_screen(app_key: Optional[str] = None) -> QWidget:
     return OutliersScreen()
 
 
-APP_NAME = "Outliers"
-APP_DESCRIPTION = ("Robust per-object and per-well outlier detection — MAD, "
-                   "Tukey and MCD Mahalanobis")
-APP_INTRO = (
-    "Finds the objects that are wrong and, separately, the wells that are "
-    "wrong — which is usually the one that matters, and which per-object "
-    "flags are nearly blind to: a well shifted as a whole flags almost none "
-    "of its individual cells. Nothing is estimated from a mean or an SD, "
-    "because the outliers would move both. Pick features, pick a rule — a "
-    "modified z against the median, Tukey's fence, or a robust multivariate "
-    "distance whose threshold is a stated false-positive rate — and the flags "
-    "arrive as added columns. No row is ever dropped.")
-APP_CLI_NOTE = (
-    "Outliers is an interactive QC surface: the feature list, the method and "
-    "the threshold are the feature; run it in the GUI (spacr-qt). Headless, "
-    "spacr.qt.widgets.outlier_model.detect_outliers() computes exactly the "
-    "same object flags, well scores and report with no Qt involved.")
-#: The display name in the nine non-English UI languages, in
-#: `spacr.qt.i18n.LANGUAGES` order (sv, de, es, zh_CN, pt, hi, ko, is, fr).
-APP_NAME_TRANSLATIONS = (
-    "Avvikare", "Ausreißer", "Valores atípicos", "离群值",
-    "Valores atípicos", "आउटलायर", "이상치", "Frávik",
-    "Valeurs aberrantes")
+# The row this screen puts in the registry is declared in
+# `spacr.qt.app_catalog`, which is what lets the app be registered without
+# importing this module -- the launch reads the table, not the screen. These
+# read the same row back rather than restating it, so the name, the blurb and
+# the nine translations have one spelling and no second copy to drift from.
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
 
 
 def register() -> bool:
     """Put Outliers in the app registry, through the public seam. Idempotent.
 
-    Everything after the section is a table this key would otherwise need a
-    hand-edit in: the screen header and blurb, the "no headless run" sentence,
-    the API doc link and the nine translations of the display name.
-    :func:`spacr.qt.app.register_app` distributes them from this one call.
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
 
     ``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is
     worth writing down because the first instinct is the other one. This screen
@@ -702,12 +736,4 @@ def register() -> bool:
         again — a module imported from two paths, or a test that re-imports
         it, must not raise on the duplicate key.
     """
-    from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
-    if any(row[0] == APP_KEY for row in APPS):
-        return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_EXPLORE,
-                 factory=make_outliers_screen, stage=STAGE_ALPHA,
-                 intro=APP_INTRO, cli_note=APP_CLI_NOTE,
-                 api_module="qt/screens/outliers",
-                 translations=APP_NAME_TRANSLATIONS)
-    return True
+    return register_declared(__name__) is not None

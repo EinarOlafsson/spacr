@@ -1,0 +1,30 @@
+{
+  "_meta": {"schema": 2, "source_language": "en", "reviewed_date": "2026-08-26", "review_scope": "Human review of the remaining Spanish, French, and Italian metadata and objectives for lessons whose narration already had durable review; no narration changes."},
+  "lessons": {
+    "15_image_umap": {"languages": {
+      "es": {"description": "Proyecte objetos medidos en dos dimensiones y examine los vecindarios fenotípicos mediante sus recortes reales de microscopía.", "prerequisite": "Complete Measure con características de objeto válidas y con recortes de imágenes o matrices combinadas accesibles.", "objectives": ["Seleccionar características y exclusiones biológicamente pertinentes.", "Explorar un intervalo delimitado de parámetros y propagar un resultado revisado.", "Interpretar un mapa legible con superposición de recortes y localizar las salidas guardadas."]},
+      "fr": {"description": "Projetez les objets mesurés en deux dimensions et examinez les voisinages phénotypiques à l'aide de leurs véritables vignettes de microscopie.", "prerequisite": "Terminez Measure avec des caractéristiques d'objet valides et des vignettes d'images ou des matrices fusionnées accessibles.", "objectives": ["Sélectionner des caractéristiques et des exclusions biologiquement pertinentes.", "Explorer une plage délimitée de paramètres et propager un résultat vérifié.", "Interpréter une carte lisible avec superposition de vignettes et localiser les sorties enregistrées."]},
+      "it": {"description": "Proietta gli oggetti misurati in due dimensioni ed esamina i vicinati fenotipici mediante i relativi ritagli di microscopia reali.", "prerequisite": "Completa Measure con caratteristiche degli oggetti valide e con ritagli di immagini o array uniti accessibili.", "objectives": ["Selezionare caratteristiche ed esclusioni biologicamente pertinenti.", "Esplorare un intervallo delimitato di parametri e propagare un risultato verificato.", "Interpretare una mappa leggibile con sovrapposizione di ritagli e individuare gli output salvati."]}
+    }},
+    "70_explain_cv": {"languages": {
+      "es": {"prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de etapas previas.", "objectives": ["Comprender cuándo utilizar Explain CV Model.", "Configurar las entradas y los ajustes importantes.", "Ejecutar el flujo de trabajo y localizar sus resultados."]},
+      "fr": {"prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module nécessite des résultats produits en amont.", "objectives": ["Comprendre quand utiliser Explain CV Model.", "Configurer les entrées et les paramètres importants.", "Exécuter le flux de travail et localiser ses résultats."]},
+      "it": {"prerequisite": "Segui le lezioni precedenti del flusso di lavoro quando questo modulo richiede risultati prodotti nelle fasi precedenti.", "objectives": ["Comprendere quando utilizzare Explain CV Model.", "Configurare gli input e le impostazioni principali.", "Eseguire il flusso di lavoro e individuare i risultati."]}
+    }},
+    "71_investigate_hit": {"languages": {
+      "es": {"prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de etapas previas.", "objectives": ["Comprender cuándo utilizar Investigate Hit.", "Configurar las entradas y los ajustes importantes.", "Ejecutar el flujo de trabajo y localizar sus resultados."]},
+      "fr": {"prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module nécessite des résultats produits en amont.", "objectives": ["Comprendre quand utiliser Investigate Hit.", "Configurer les entrées et les paramètres importants.", "Exécuter le flux de travail et localiser ses résultats."]},
+      "it": {"prerequisite": "Segui le lezioni precedenti del flusso di lavoro quando questo modulo richiede risultati prodotti nelle fasi precedenti.", "objectives": ["Comprendere quando utilizzare Investigate Hit.", "Configurare gli input e le impostazioni principali.", "Eseguire il flusso di lavoro e individuare i risultati."]}
+    }},
+    "72_volcano_explorer": {"languages": {
+      "es": {"prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de etapas previas.", "objectives": ["Comprender cuándo utilizar Volcano Explorer.", "Configurar las entradas y los ajustes importantes.", "Ejecutar el flujo de trabajo y localizar sus resultados."]},
+      "fr": {"prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module nécessite des résultats produits en amont.", "objectives": ["Comprendre quand utiliser Volcano Explorer.", "Configurer les entrées et les paramètres importants.", "Exécuter le flux de travail et localiser ses résultats."]},
+      "it": {"prerequisite": "Segui le lezioni precedenti del flusso di lavoro quando questo modulo richiede risultati prodotti nelle fasi precedenti.", "objectives": ["Comprendere quando utilizzare Volcano Explorer.", "Configurare gli input e le impostazioni principali.", "Eseguire il flusso di lavoro e individuare i risultati."]}
+    }},
+    "73_parameter_sweep": {"languages": {
+      "es": {"prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de etapas previas.", "objectives": ["Comprender cuándo utilizar Parameter Sweep.", "Configurar las entradas y los ajustes importantes.", "Ejecutar el flujo de trabajo y localizar sus resultados."]},
+      "fr": {"prerequisite": "Suivez les leçons précédentes du flux de travail lorsque ce module nécessite des résultats produits en amont.", "objectives": ["Comprendre quand utiliser Parameter Sweep.", "Configurer les entrées et les paramètres importants.", "Exécuter le flux de travail et localiser ses résultats."]},
+      "it": {"prerequisite": "Segui le lezioni precedenti del flusso di lavoro quando questo modulo richiede risultati prodotti nelle fasi precedenti.", "objectives": ["Comprendere quando utilizzare Parameter Sweep.", "Configurare gli input e le impostazioni principali.", "Eseguire il flusso di lavoro e individuare i risultati."]}
+    }}
+  }
+}

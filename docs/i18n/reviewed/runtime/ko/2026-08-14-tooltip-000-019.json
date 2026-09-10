@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "activation",
+      "source_sha256": "aadb73e83ed703b886912443db370f3b050eb4e88644c0e46ad5ca09a6b88c68",
+      "source": "Generate attribution maps for a trained image classifier using methods such as Grad-CAM, SmoothGrad, occlusion or integrated gradients. These maps describe model sensitivity and do not by themselves establish a biological mechanism.",
+      "translation": "훈련된 이미지 분류기에 대해 Grad-CAM, SmoothGrad, occlusion, integrated gradients 등의 방법으로 기여도 지도를 생성합니다. 이 지도는 모델의 민감도를 나타내며, 그 자체로 생물학적 기전을 입증하지는 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_nan_policy",
+      "source_sha256": "9dae4ee77d763706d2d07586ef76c3a858875bf6ed9b7eb59cec8a8f30faae25",
+      "source": "What happens to missing values in X: 'keep' (default; AnnData stores them, scanpy's scale/pca/neighbors do not), 'drop_features', 'drop_objects', 'zero' or 'mean'. The two imputing policies also write a layers['missing'] mask.",
+      "translation": "X 의 결측값 처리 방식입니다. 'keep'(기본값, AnnData 는 저장하지만 scanpy 의 scale/pca/neighbors 는 처리하지 못함), 'drop_features', 'drop_objects', 'zero', 'mean' 중 하나입니다. 두 대치 방식은 layers['missing'] 마스크도 기록합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotated_classes",
+      "source_sha256": "eb19b7c6a9b9a9722dc9d7d85bc4aae99ed004280496fed923929a933d3f2cbe",
+      "source": "Legacy setting that is not read from a module configuration. It remains available only as a direct parameter of io.training_dataset_from_annotation and io.training_dataset_from_annotation_metadata. Define classes with the Classes editor instead: select metadata values in metadata mode, or annotation columns and values in annotation mode. Default [1, 2], with no effect in module settings.",
+      "translation": "모듈 구성에서 읽지 않는 레거시 설정입니다. io.training_dataset_from_annotation 및 io.training_dataset_from_annotation_metadata 의 직접 매개변수로만 사용할 수 있습니다. 대신 Classes 편집기에서 클래스를 정의하십시오. metadata 모드에서는 메타데이터 값을, annotation 모드에서는 어노테이션 열과 값을 선택합니다. 기본값 [1, 2]이며 모듈 설정에서는 적용되지 않습니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_column",
+      "source_sha256": "6dc38816451c8d20e52a9a4b75edc9e79f857dd8927ad9d81e0cdbe70cc6aa40",
+      "source": "Integer column in the png_list table that stores manual class labels. The Annotate app adds it with ALTER TABLE if it is absent and writes labels to it. This column provides the reference labels when dataset_mode is 'annotation' and is the fallback when annotation_columns is unset. Supplying it while dataset_mode is unset also selects annotation mode for compatibility with older settings files. Default None.",
+      "translation": "수동 클래스 레이블을 저장하는 png_list 테이블의 정수 열입니다. Annotate 앱은 열이 없으면 ALTER TABLE 로 추가하고 레이블을 기록합니다. dataset_mode 가 'annotation' 일 때 참조 레이블을 제공하며 annotation_columns 가 설정되지 않았을 때의 대체 열입니다. dataset_mode 를 설정하지 않고 이 값만 지정해도 이전 설정 파일과의 호환성을 위해 annotation 모드를 선택합니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "attribution_baseline",
+      "source_sha256": "de23b8430366e4c6579da80c0b4043df8b6f811e9b1d12500409f81f4f55b1f9",
+      "source": "Replacement used when deletion/insertion curves remove a pixel: 'blur', 'zero', or 'noise'. Replacing pixels with zero can create an out-of-distribution edge, causing part of the score change to reflect the replacement artifact rather than removed information. 'blur' generally produces the smallest distribution shift and is the default. Comparing multiple baselines quantifies the sensitivity of the AUC to this choice. Default 'blur'.",
+      "translation": "삭제/삽입 곡선에서 픽셀을 제거할 때 사용하는 대체값으로 'blur', 'zero', 'noise' 중 하나를 선택합니다. 픽셀을 0으로 대체하면 분포 밖 경계가 생겨 점수 변화의 일부가 제거된 정보가 아니라 대체 인공물을 반영할 수 있습니다. 'blur' 는 일반적으로 분포 변화를 가장 작게 만들어 기본값으로 사용됩니다. 여러 기준선을 비교하면 이 선택에 대한 AUC의 민감도를 정량화할 수 있습니다. 기본값 'blur'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "batch_missing_control",
+      "source_sha256": "3a1350f744ad27a293f659239e4a8535c5e7bf17c2876efe3943e057182bedcc",
+      "source": "Policy when control_center cannot find enough reference controls on a plate: 'error' stops rather than silently mixing corrected and raw plates; 'skip' leaves that plate unchanged and records a warning. Default 'error'. API: spacr.batch_correction.correct_batch_effects.",
+      "translation": "control_center 가 한 플레이트에서 충분한 기준 대조군을 찾지 못했을 때의 정책입니다. 'error' 는 보정된 플레이트와 원시 플레이트가 조용히 섞이지 않도록 중지합니다. 'skip' 은 그 플레이트를 바꾸지 않고 경고를 기록합니다. 기본값 'error'. API: spacr.batch_correction.correct_batch_effects."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_intensity_percentile",
+      "source_sha256": "39b5b2a7d1c2e5e5efc47322606f76f32ce9b109a308ed401519401fbba7c842",
+      "source": "Percentile from 0 to 100 of the dimmer cell's interior intensity used as the merge reference when cell_intensity_threshold_method is 'percentile'. Raising it toward 95 sets a higher bar for the shared boundary to clear, so fewer pairs merge; lowering it merges more. Ignored when the method is 'mean'. Default 75.",
+      "translation": "cell_intensity_threshold_method 가 'percentile' 일 때 합칠 기준으로 쓰는, 더 어두운 세포 내부 강도의 0~100 분위수입니다. 95 쪽으로 올리면 공유 경계가 넘어야 할 기준이 높아져 합쳐지는 쌍이 줄고, 낮추면 더 많이 합쳐집니다. 방법이 'mean' 이면 무시됩니다. 기본값 75."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_intensity_threshold_method",
+      "source_sha256": "58f329e2197af3d7fba96001373baa55ec8abc9d1f8aae17cf3d6b05483408af",
+      "source": "Reference statistic that cell_intensity_merge compares the shared-boundary intensity against: 'mean' uses the mean interior intensity of the dimmer of the two cells, 'percentile' uses its cell_intensity_percentile instead. Any value other than 'mean' is treated as 'percentile'. Choose 'percentile' with a high percentile to make merging rarer. Default 'mean'.",
+      "translation": "cell_intensity_merge 가 공유 경계 강도와 비교할 기준 통계량입니다. 'mean' 은 두 세포 중 더 어두운 세포의 평균 내부 강도를 사용하고, 'percentile' 은 cell_intensity_percentile 을 사용합니다. 'mean' 이외의 값은 모두 'percentile' 로 처리됩니다. 병합을 드물게 하려면 높은 분위수와 함께 'percentile' 을 선택하십시오. 기본값 'mean'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_loc",
+      "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
+      "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
+      "translation": "cells 의 각 항목에 대응하는 웰 식별자 목록으로 각 숙주 세포주의 플레이트 위치를 지정합니다. 예: [['c1','c2'],['c3']]. 식별자는 행이면 'r', 열이면 'c' 로 시작해야 하며 다른 값은 무시되어 해당 웰이 어노테이션되지 않습니다. None 은 모든 행에 cells 의 첫 번째 항목을 지정합니다. 기본값은 없습니다. annotate_filter_vision 이 settings['cell_loc'] 를 직접 읽으므로 이 키는 사전에 포함되어야 하며 위치 매핑이 필요하지 않을 때는 명시적으로 None 으로 설정해야 합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "translation": "세포 분할 가중치입니다. Cellpose 4 는 기본 'cpsam' 모델을 제공합니다. 또는 Train Cellpose 에서 생성한 CPSAM 체크포인트를 pretrained_model 로 불러올 수 있습니다. 기존 이름 ('cyto', 'cyto2', 'cyto3', 'nuclei')도 계속 허용되지만, Cellpose 4 가 해당 모델을 더 이상 제공하지 않으므로 cpsam으로 해석됩니다. 추론을 변경하는 매개변수는 diameter뿐이며(30/diameter로 스케일링), model_type 과 diam_mean 은 v4.0.1+에서 사용되지 않습니다. 기본값은 'cpsam' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_plate_metadata",
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "cell_types 의 각 항목이 차지하는 웰을 동일한 순서의 내부 목록으로 지정합니다. 예: [['c2','c3'],['c4']]. 각 식별자는 열이면 'c', 행이면 'r' 로 시작해야 합니다. 잘못된 식별자는 예외 없이 건너뛰며 해당 웰에는 host_cells 레이블이 지정되지 않습니다. 'condition' 은 존재하는 레이블을 결합하므로 오타가 있어도 오류가 발생하지 않고 비교 대상이 달라집니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_types",
+      "source_sha256": "0e492a9791016485f993f749dd1833acb2942798fa299b6d9606b11ebd302aaa",
+      "source": "Names of the host cell lines in the experiment, e.g. ['HeLa']. Each name is written into the host_cells column and folded into the combined condition label used for grouping and plotting; the list is positionally paired with cell_plate_metadata, which says which wells hold each one. Default ['HeLa'].",
+      "translation": "실험의 숙주 세포주 이름입니다. 예: ['HeLa']. 각 이름은 host_cells 열에 기록되고 그래프와 통계의 그룹화에 쓰는 결합 condition 레이블에 포함됩니다. 목록은 각 세포주가 있는 웰을 지정하는 cell_plate_metadata 와 위치별로 짝을 이룹니다. 기본값 ['HeLa']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classes",
+      "source_sha256": "a4c339cac867e72eb0c819222e2f8ee338aa18531a083cb6c5ac5c85c9cf5329",
+      "source": "Class definitions in the form class name -> {column, value}; for example, 'pc' might be {'column': 'columnID', 'value': 'c3'}. In the Classes editor, select a column and assign names to its distinct values; definitions may span several columns. One row may instead define a random complement containing objects not assigned by any other class, sampled to match the largest class. This setting defines which objects belong to each class; class_folder_names defines the training subfolders. A pre-split settings file contains a plain list and is converted when read. Default {}.",
+      "translation": "클래스 정의는 class name -> {column, value} 형식입니다. 예를 들어 'pc' 는 {'column': 'columnID', 'value': 'c3'} 일 수 있습니다. Classes 편집기에서 열을 선택하고 각 고유 값에 이름을 지정하며, 정의는 여러 열에 걸칠 수 있습니다. 한 행은 다른 클래스에 할당되지 않은 객체를 포함하는 무작위 보완 집합으로 정의할 수 있으며, 가장 큰 클래스 크기에 맞춰 표본을 추출합니다. 이 설정은 각 클래스에 속하는 객체를 정의하고 class_folder_names 는 학습 하위 폴더를 정의합니다. 분할 이전 설정 파일의 단순 목록은 읽을 때 변환됩니다. 기본값 {}."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_quantile",
+      "source_sha256": "d2e572aca8b49963d6102e5482cfcf899a2c7a92f40e25ba4670ef8ccd4c4296",
+      "source": "Quantile of the control wells' outside-stain distribution used as the threshold. A value of 0.99 classifies approximately one percent of genuinely unstained parasites as attached. Lowering it toward 0.95 reduces false invaded classifications while increasing false attached classifications; raising it has the opposite effect. Default 0.99.",
+      "translation": "대조 웰의 외부 염색 분포에서 임계값으로 사용할 분위수입니다. 0.99는 실제로 염색되지 않은 기생충의 약 1%를 부착으로 분류합니다. 값을 0.95 쪽으로 낮추면 침입으로 잘못 분류되는 비율은 감소하지만 부착으로 잘못 분류되는 비율은 증가하며, 값을 높이면 반대 효과가 나타납니다. 기본값 0.99."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_wells",
+      "source_sha256": "c2973f1861aec26da18854b73c62efeb1b764afbda87f3489a8737d342588dd7",
+      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+      "translation": "이 웰은 투과 전 염색의 경험적 음성 분포를 설정하며 효율 계산에서 제외됩니다. 기생충이 염색되지 않은 열('c12'), 행('r1'), 웰('r1_c12') 또는 전체 플레이트 키를 지정합니다. None 은 자동 필드별 방법을 사용합니다. 스크린 회귀는 이 키를 filter_value 와 일치하는 목록으로 재사용합니다. 회귀는 filter_value 와 선언된 모든 대조 블록으로 초기화합니다(제공되는 기본값은 ['c1', 'c2', 'c3']). 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "crop_mode",
+      "source_sha256": "e5b4bf52a8f58befd1a1ebb9691aa2be756cff9e75238a10ef06ed6c8a3718df",
+      "source": "Mask used to center each PNG crop: 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, as are dialate_pngs and dialate_png_ratios; use lists only when modes require different values. A list shorter than crop_mode reuses its final entry for the remaining modes and records a warning. Default ['cell'].",
+      "translation": "각 PNG 이미지 영역의 중심으로 사용할 마스크로 'cell', 'nucleus', 'pathogen', 'cytoplasm', 'organelle' 중 하나를 선택합니다. 각 항목마다 <mode>_png/ 폴더에 이미지 세트 하나를 쓰므로 ['cell','nucleus']는 이미지 수와 png_list 행을 두 배로 만듭니다. [224,224] 같은 단일 png_size 는 모든 모드에 적용되며 dialate_pngs 와 dialate_png_ratios 도 같습니다. 모드마다 다른 값이 필요한 경우에만 목록을 사용합니다. crop_mode 보다 짧은 목록은 나머지 모드에 마지막 항목을 재사용하고 경고를 기록합니다. 기본값 ['cell']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cv_group_by",
+      "source_sha256": "ff80ee44bc17dec739551dcee2460f5d298c281faa14ee5c728d4a390846e85e",
+      "source": "Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
+      "translation": "훈련/ 시험 독립성 단위입니다. 'cell', 'field', 'well'(기본값), 'plate' 중 하나입니다. cell 은 한 웰의 자매 이미지 영역을 양쪽에 놓을 수 있고 field 는 그 누출을 줄이지만 없애지 못합니다. well 은 보통의 실험 배정 단위이고 plate 는 전체 배치를 보류합니다. 그룹 전체를 유지하면 요청 비율은 근사값이므로 실행 결과에 보류 그룹과 세포를 보고합니다. 이전 값 'none'/'off' 는 'cell' 의 별칭입니다. 이미지 영역 식별자는 spaCR 의 plate_well_field_object.png 이름에서 가져옵니다. 검증할 수 없는 그룹 설계는 조용히 무작위화하지 않고 거부합니다."
+    }
+  ]
+}

@@ -48,7 +48,7 @@ from PySide6.QtWidgets import (
 
 from ..linked_selection import linked_selection
 from ...selection import CategoryFilter, DataFilter, RangeFilter
-from ..theme import SPACING
+from ..theme import SPACING, apply_close_mark
 from .toggle import Toggle
 
 __all__ = ["DataFilterPanel", "MAX_CATEGORY_VALUES", "classify_columns"]
@@ -152,12 +152,19 @@ def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
 
 
 class _ClauseRow(QFrame):
-    """One active clause, with its own controls and a remove button."""
+    """One active clause, with its own controls and a remove button.
+
+    :param column: the column this clause filters. Kept as an attribute and
+        emitted with :attr:`removed`, so it is the clause's IDENTITY in the
+        panel and not just its caption -- one clause per column.
+    :param parent: parent widget; ownership only.
+    """
 
     changed = Signal()
     removed = Signal(str)
 
     def __init__(self, column: str, parent=None):
+        """Build the row's heading, its remove button and its controls."""
         super().__init__(parent)
         self.column = column
         self.setObjectName("FilterClauseRow")
@@ -170,22 +177,47 @@ class _ClauseRow(QFrame):
         label = QLabel(column)
         label.setObjectName("FilterClauseTitle")
         head.addWidget(label, 1)
-        drop = QPushButton("×")
+        drop = QPushButton()
         drop.setObjectName("FilterClauseRemove")
-        drop.setFixedWidth(22)
-        drop.setToolTip(f"Stop filtering on {column}")
+        # THE APPLICATION'S CLOSE MARK. The glyph, its square and its two
+        # colours come from the theme, which is also what keeps the target
+        # from shrinking when the mark grows. See `theme.apply_close_mark`.
+        apply_close_mark(drop, tooltip=f"Stop filtering on {column}")
         drop.clicked.connect(lambda: self.removed.emit(self.column))
         head.addWidget(drop)
         self._outer.addLayout(head)
 
-    def clause(self):  # pragma: no cover - overridden
+    def clause(self):
+        # THE CONTRACT EVERY ROW IS HELD TO. A subclass that forgets it
+        # fails loudly here rather than filtering on nothing, which reads
+        # as a filter that silently matches everything.
+        """Return the filter clause this row describes.
+
+        :returns: the clause.
+        :raises NotImplementedError: always, on the base row. A subclass that
+            forgets it fails loudly here rather than filtering on nothing, which
+            reads as a filter that silently matches everything.
+        """
         raise NotImplementedError
 
 
 class _RangeRow(_ClauseRow):
-    """Low/high bounds for a numeric column."""
+    """Low/high bounds for a numeric column.
+
+    :param column: the column this clause filters.
+    :param series: that column's values, read ONCE to set the spinboxes'
+        range. A snapshot, not a live view: the bounds do not follow a
+        later edit of the frame.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
+        """Build the low/high spinboxes from the column's own range.
+
+        A CONSTANT column would give a spinbox with no travel, so the range is
+        widened rather than left inert -- a control the user cannot move reads as
+        broken, not as "there is nothing to choose".
+        """
         super().__init__(column, parent)
         values = pd.to_numeric(series, errors="coerce")
         lo = float(np.nanmin(values)) if values.notna().any() else 0.0
@@ -236,14 +268,26 @@ class _RangeRow(_ClauseRow):
                                     self._high.maximum())))
 
     def clause(self) -> RangeFilter:
+        """Return this row's numeric range clause.
+
+        :returns: the low and high bounds as a range filter.
+        """
         return RangeFilter(self.column,
                            low=self._low.value(), high=self._high.value())
 
 
 class _CategoryRow(_ClauseRow):
-    """A tick per distinct value."""
+    """A tick per distinct value.
+
+    :param column: the column this clause filters.
+    :param series: that column's values; its distinct non-null entries
+        become the ticks, sorted as text. Read once, so a value that
+        appears in the frame later gets no box.
+    :param parent: parent widget; ownership only.
+    """
 
     def __init__(self, column: str, series: pd.Series, parent=None):
+        """Build one tick per distinct value, all ticked to start."""
         super().__init__(column, parent)
         self._boxes: List[Toggle] = []
         values = sorted({str(v) for v in series.dropna().unique()})
@@ -270,6 +314,10 @@ class _CategoryRow(_ClauseRow):
             self._outer.addWidget(holder)
 
     def state(self) -> dict:
+        """Return this row's ticked categories, for saving.
+
+        :returns: the row's kind, its column, and which values are ticked.
+        """
         return {"kind": "category", "column": self.column,
                 "chosen": [b.text() for b in self._boxes if b.isChecked()]}
 
@@ -285,6 +333,10 @@ class _CategoryRow(_ClauseRow):
             box.setChecked(box.text() in chosen)
 
     def clause(self) -> CategoryFilter:
+        """Return this row's category clause.
+
+        :returns: the ticked values as a category filter.
+        """
         return CategoryFilter(
             self.column,
             tuple(b.text() for b in self._boxes if b.isChecked()))
@@ -295,11 +347,23 @@ class DataFilterPanel(QWidget):
 
     Emits :attr:`filter_changed` after publishing, for a host that wants to
     update a count label without subscribing to the shared model itself.
+
+    :param parent: parent widget.
+    :param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` the
+        filter publishes into, so filtering here narrows every view on it.
+        ``None`` joins the shared one; pass a private one in a test.
     """
 
     filter_changed = Signal()
 
     def __init__(self, parent=None, *, link=None):
+        """Build the shared-filter panel.
+
+        :param parent: parent widget, or ``None``.
+        :param link: the selection link to publish into. Injectable so a test
+            drives a private one rather than the process-wide link every other
+            open view is listening to.
+        """
         super().__init__(parent)
         self.setObjectName("DataFilterPanel")
         # Injectable so a test can drive a private instance rather than the
@@ -389,6 +453,10 @@ class DataFilterPanel(QWidget):
         self._schedule()
 
     def remove_column(self, column: str) -> None:
+        """Drop one column's filter.
+
+        :param column: the column's name.
+        """
         row = self._rows.pop(column, None)
         if row is None:
             return
@@ -407,12 +475,18 @@ class DataFilterPanel(QWidget):
         self._schedule()
 
     def _add_selected(self) -> None:
+        """Add a clause on the column currently in the picker."""
         text = self._picker.currentText()
         if text:
             self.add_column(text)
 
     # -- publishing ----------------------------------------------------
     def _schedule(self) -> None:
+        """Queue a re-filter.
+
+        One debounce is shared across every clause, so a burst of edits over
+        several of them still costs one re-filter.
+        """
         self._debounce.start()
 
     # -- saving a filter set -------------------------------------------
@@ -486,6 +560,11 @@ class DataFilterPanel(QWidget):
         return data_filter
 
     def _publish(self) -> None:
+        """Publish the assembled filter and restate it.
+
+        The summary is written from the filter's own description rather than
+        from the widgets, so what is shown is what was actually published.
+        """
         data_filter = self.current_filter()
         self._summary.setText(data_filter.describe())
         self._link.set_filter(data_filter)

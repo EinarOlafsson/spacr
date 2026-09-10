@@ -1,14 +1,6 @@
-"""What a crop holds on disk, and what the model sees at load time.
+"""Control crop storage precision and model-input normalization.
 
-Instruction 91:
-
-    "i would like the user to be able to choose to keep the origional dtpe or
-     scale the images to either 1-255 (uint8) or between 0 and 1. what do you
-     think, and what is the current code doing, i tried to keep uint16
-     throughout whenever possible to not loose any information. was this a
-     good call?"
-
-IT WAS A GOOD CALL, AND THE CODE ALREADY DOES IT. `.npy` crops keep whatever
+``.npy`` crops keep whatever
 the merged stack held, PNG crops narrow once through
 :func:`spacr.crops.narrow_to_uint8` -- the high byte of a uint16, a linear
 rescale rather than a clip -- and measurements are taken from the
@@ -16,13 +8,14 @@ full-precision array. So the structure the request asks for is the structure:
 original precision wherever it can be, one declared narrowing at the only
 boundary that requires one.
 
-THE CHOICE IS NOT REALLY THE DTYPE, and this module exists to say so in code
-rather than only in a comment. ``transforms.ToTensor()`` divides by 255 and
+Storage dtype and model input scaling are separate choices.
+``transforms.ToTensor()`` divides by 255 and
 hands the model a float in [0, 1] whatever the file held, so "scale to 0-1"
 is already what happens at the point it matters. The dtype on disk decides
 file size and what other tools can open the crop -- a storage decision.
 
-THE SETTING THAT MOVES A NUMBER IS THE ONE AFTER IT. spaCR normalises with
+The subsequent normalization setting changes the model input. spaCR has
+historically normalized with
 
     mean = std = (0.5, 0.5, 0.5)
 
@@ -36,10 +29,9 @@ differently from the ones they learned. A long finetune adapts; a short one,
 or a frozen backbone, pays for it. That was a literal in two places and is
 now a choice.
 
-THE DEFAULT IS UNCHANGED, deliberately. ``symmetric`` is what spaCR has
+The default remains ``symmetric`` for compatibility. This is what spaCR has
 always done, and switching it silently would move every existing model's
-scores with nothing in the artifact to say why. Somebody should measure both
-on a real dataset and then change the default on the evidence.
+scores with nothing in the artifact to say why.
 """
 from __future__ import annotations
 
@@ -155,6 +147,13 @@ def normalization_stats(mode: Any, *,
 
 
 def _broadcast(values: Sequence[float], channels: int) -> Tuple[float, ...]:
+    """Convert normalization values to floats and expand a singleton.
+
+    :param values: Per-channel values, or one value shared by all channels.
+    :param channels: Requested channel count for singleton expansion.
+    :returns: Float tuple, with one input repeated to at least one channel;
+        multi-value inputs retain their original length.
+    """
     out = [float(v) for v in values]
     if len(out) == 1:
         return tuple(out * max(1, int(channels)))
@@ -192,15 +191,12 @@ def _clean_std(values: Sequence[float], channels: int) -> Tuple[float, ...]:
 
 def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
                        ) -> Tuple[Tuple[float, ...], Tuple[float, ...]]:
-    """Per-channel mean and standard deviation of the data itself.
+    """Return the dataset's per-channel mean and standard deviation.
 
-    WHY THIS IS THE ONE WITH AN ARGUMENT BEHIND IT FOR MICROSCOPY. ImageNet's
-    statistics describe photographs: three broadly correlated channels, most
-    of the frame occupied by something. A fluorescence crop is mostly black
-    with one bright compartment, and its channels are unrelated stains whose
-    exposures were set independently. Nothing about 0.485/0.456/0.406
-    describes that, and normalising by it centres the data somewhere that has
-    no meaning for it.
+    Dataset-specific statistics are appropriate when fluorescence channels
+    differ substantially from the natural-image distribution represented by
+    ImageNet statistics. Fluorescence channels may contain independently
+    exposed stains and a large background fraction.
 
     Computed in one streaming pass with the sum-of-squares identity, so a
     dataset that does not fit in memory still yields exact statistics rather
@@ -253,7 +249,10 @@ def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
 
 
 def describe_normalization(mode: Any, **kwargs) -> str:
-    """One line for the log, so a model card records what it was trained on."""
+    """One line for the log, so a model card records what it was trained on.
+
+    :param mode: normalization preset or explicit normalization mode.
+    """
     try:
         stats = normalization_stats(mode, **kwargs)
     except ValueError as exc:
@@ -282,16 +281,10 @@ def apply_crop_dtype(array: np.ndarray, dtype: Any = "original") -> np.ndarray:
     :param dtype: one of :data:`CROP_DTYPES`.
     :returns: the array, unchanged for ``original``.
 
-    NARROWING GOES THROUGH THE ONE RULE. ``uint8`` uses
-    :func:`spacr.crops.narrow_to_uint8`, which is documented there as "the one
-    and only narrowing rule" -- the high byte of a uint16, a linear rescale
-    rather than a clip. A second rescale written here would be a second answer
-    to the question of what a 16-bit value means as an 8-bit one, and the two
-    would disagree on the crop the user compares.
-
-    WIDENING TO ``uint16`` IS A CAST AND NOT A STRETCH. An 8-bit crop asked
-    for as uint16 keeps its numbers; multiplying by 257 to "use the range"
-    would change every measured intensity for no information gained.
+    Conversion to ``uint8`` delegates to
+    :func:`spacr.crops.narrow_to_uint8`, which applies the project's declared
+    16-to-8-bit linear mapping. Conversion to ``uint16`` is a cast rather than
+    an intensity stretch; values from an 8-bit input remain unchanged.
     """
     name = str(dtype or "original").strip().lower()
     if name not in CROP_DTYPES:

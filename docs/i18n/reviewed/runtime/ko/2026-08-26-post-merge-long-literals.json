@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
+      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "translation": "미리 생성된 크롭 이미지의 파일 형식을 확장자로 지정합니다: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' 또는 'npy'. 이 설정은 형식만 필터링하며, 크롭이 어떤 객체를 나타내는지는 path_string 이 결정합니다. 따라서 두 설정으로 '형식과 관계없이 모든 nucleus 크롭'과 '객체 유형과 관계없이 모든 TIFF'를 각각 표현할 수 있습니다. 하나의 통합 설정으로는 이를 표현할 수 없었습니다. '<object>_png' 형식의 이전 값도 계속 허용되며 해당 확장자로 해석되므로 기존 설정 파일이 계속 작동합니다. 비워 두면 모든 형식을 허용합니다. 기본값은 'cell_png' 이며 'png' 로 해석됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source_sha256": "57890823b4e07244c7de00402b9e38dc214caabf9f3e35b98e1d14c6da501a12",
+      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits TWICE — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "translation": "각 탭에 그릴 계수 계열을 선택합니다.\n\nlevel='both' 로 실행하면 두 모델을 각각 적합합니다. 즉 guide 수준에서 한 번, gene 수준에서 한 번 적합하고 두 결과를 하나의 테이블에 기록합니다. 이들은 서로 다른 두 개의 다중 검정 계열이므로 q-values, Q-Q의 팽창 지표 및 유의성 기준선은 두 계열을 합치지 않고 각 계열 안에서 계산합니다.\n\nBoth는 두 계열을 함께 표시합니다. 이때 하나의 gene과 해당 guides는 서로 다른 레이블을 가진 별도 행으로 나타납니다. 예를 들어 gene_fraction:gene[225160] 옆에 fraction:grna[225160_1]이 표시되며, 테이블의 level 열이 각 행의 계열을 나타냅니다."
+    }
+  ]
+}

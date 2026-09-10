@@ -103,6 +103,15 @@ def _settings(merged, **over):
     settings.update({
         "src": merged,
         "channels": [0, 1],
+        # SIZE FILTERS OFF FOR SYNTHETIC FIELDS. Instruction 337 adopted the
+        # maintainer's own screening defaults, which are for a 40x plate:
+        # cell 8000 px2, nucleus 2000, pathogen 500. The objects drawn in
+        # these fixtures are a few dozen pixels, so the real defaults
+        # correctly remove every one of them and the test measures nothing.
+        # Stated here rather than relying on a permissive default, which is
+        # what made these tests depend on a value they never named.
+        "cell_min_size": 0, "nucleus_min_size": 0,
+        "pathogen_min_size": 0, "cytoplasm_min_size": 0,
         "cell_mask_dim": 2, "nucleus_mask_dim": 3, "pathogen_mask_dim": 4,
         "save_measurements": True, "save_png": False, "save_arrays": False,
         "plot": False, "verbose": False, "timelapse": False,
@@ -311,12 +320,43 @@ def test_region_filter_removes_exactly_the_excluded_objects(tmp_path):
     assert filtered["nucleus"]["object_label"].tolist() == [1, 3]
     assert filtered["pathogen"]["object_label"].tolist() == [1, 3]
 
-    # The surviving objects are measured exactly as they were: the filter
-    # suppressed objects, it did not perturb the measurement of the rest.
+    # The surviving objects are measured exactly as they were -- EXCEPT for
+    # the measurements that are ABOUT the other objects.
+    #
+    # This assertion used to cover every column and could not hold. A
+    # neighbourhood statistic is computed over the objects that are PRESENT:
+    # remove cells 2 and 4 and cell 1's second-nearest neighbour is a
+    # different cell, so `cell_second_neighbor_distance` changes by 100%. The
+    # code is right and the blanket claim was wrong.
+    #
+    # AND THE CHANGE IS THE DESIRABLE BEHAVIOUR, not a tolerated one. A region
+    # filter exists to say "these objects are not part of the analysis" --
+    # debris, edge fragments, a bad field. Counting an excluded object as a
+    # neighbour of a kept one would report a density the user explicitly
+    # filtered out.
+    #
+    # So the split is asserted in BOTH directions: per-object measurements are
+    # untouched, and neighbourhood ones DO move. Asserting only the first half
+    # would pass just as well against a build that stopped computing
+    # neighbours at all.
+    spatial = [column for column in baseline["cell"].columns
+               if any(mark in column for mark in
+                      ("neighbor", "neighbour", "percent_touching",
+                       "touching_neighbors"))]
+    assert spatial, "no neighbourhood columns to test the distinction with"
+
     kept = baseline["cell"][baseline["cell"]["object_label"].isin([1, 3])]
+    per_object = [c for c in baseline["cell"].columns if c not in spatial]
     pd.testing.assert_frame_equal(
-        kept.reset_index(drop=True),
-        filtered["cell"].reset_index(drop=True))
+        kept[per_object].reset_index(drop=True),
+        filtered["cell"][per_object].reset_index(drop=True))
+
+    moved = [c for c in spatial
+             if not kept[c].reset_index(drop=True).equals(
+                 filtered["cell"][c].reset_index(drop=True))]
+    assert moved, (
+        "no neighbourhood measurement changed when half the cells were "
+        f"excluded, which means the filter did not reach them: {spatial}")
 
 
 def test_verbose_reports_what_the_region_filter_dropped(tmp_path, capsys):
@@ -623,9 +663,11 @@ def test_a_broken_hook_fails_the_field_instead_of_measuring_it(tmp_path,
     mh.register_preprocessing_hook(broken, name="broken-gain")
     (result, tables) = _run(tmp_path)
 
-    index, _average, cells, _figs = result
+    index, _average, cells, _figs, error_text = result
     assert index == 0
     assert isinstance(cells, int) and cells == 0
+    assert "MeasurementHookError" in error_text
+    assert "flat-field model missing for plate1" in error_text
     assert tables == {}
 
     printed = capsys.readouterr()
@@ -847,6 +889,7 @@ def test_region_context_handles_a_3d_mask():
     mask[1:3, 2:4, 2:4] = 1
     context = mh.RegionContext(object_type="cell", file_name="f", mask=mask,
                                settings={}, spacing=(2.0, 0.5, 0.5))
+    assert ":param spacing:" in (mh.RegionContext.__init__.__doc__ or "")
     assert context.ndim == 3
     assert context.centroids.shape == (1, 3)
     np.testing.assert_allclose(context.centroids[0], [1.5, 2.5, 2.5])
@@ -857,6 +900,9 @@ def test_preprocessing_context_reports_spacing_and_volumetric():
     context = mh.PreprocessingContext(
         file_name="f", channels=np.array([2, 0]), settings={"src": "/x"},
         volumetric=True, spacing=(2.0, 0.5, 0.5))
+    docs = mh.PreprocessingContext.__init__.__doc__ or ""
+    assert ":param volumetric:" in docs
+    assert ":param spacing:" in docs
     assert context.channels == (2, 0)
     assert context.volumetric is True
     assert context.spacing == (2.0, 0.5, 0.5)

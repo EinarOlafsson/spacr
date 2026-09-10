@@ -1,0 +1,138 @@
+================================================================================
+THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT
+================================================================================
+
+Status:    done, 2026-08-25. All three asks and the fourth defect are
+           built and measured; a fifth, found while driving the gesture,
+           is fixed with them. Reported again 2026-08-25, having been
+           asked for once before and never built -- "a long time ago i
+           told you that ... none of this is true".
+Owner:     spacr/qt/widgets/plate_map_picker.py, and every screen that
+           offers a plate map (the regression control-well pickers are
+           where it was met). Every one of those screens opens the same
+           dialog through `AppScreen.pick_wells_for`, so the widget is
+           the only place any of this had to be built.
+
+--------------------------------------------------------------------------------
+THE THREE ASKS
+--------------------------------------------------------------------------------
+
+1. EVERY PART OF THE PLATE IS LOCKED TO EVERY OTHER PART.
+
+   "all elements of the plate locked to each other (wells and column and
+   row axis labels)."
+
+   The row letters, the column numbers and the wells are one grid, not
+   three things that happen to be near each other. Resize the window and
+   they move together; scroll and they scroll together; a column label
+   sits over its column at every size, and a row letter beside its row.
+
+   The failure this is aimed at is the ordinary one: labels laid out in
+   their own strip drift out of register with the wells as soon as the
+   two are given different amounts of space.
+
+2. A WELL IS A SQUARE.
+
+   "the wells should be squares not rectangles."
+
+   A plate well is round in life and square on a map. Stretched into a
+   rectangle it reads as a grid of something else, and the eye stops
+   being able to count across it. The square survives every window size:
+   the grid takes the space it needs to keep them square and leaves the
+   rest, rather than dividing whatever it is given.
+
+3. CLICK AND DRAG SELECTS A RECTANGLE.
+
+   "the user should be able to click and drag to select not only click."
+
+   Press on a well, move, release: every well the pointer swept is
+   selected. Selecting a block of a plate is the common case -- a whole
+   column of controls, a quadrant, four wells in a corner -- and clicking
+   ninety-six times is not a way to do it.
+
+   NOTE, from the coverage pass: the drag gesture was WRITTEN and is
+   dead. `_Well._picker` walks exactly two parents to find the picker,
+   and `area.setWidget(self._holder)` reparents the holder into the
+   scroll area's VIEWPORT, so the walk lands on the viewport instead.
+   Every `hasattr(picker, "begin_drag")` guard is then False and a press
+   selects nothing. Pinned by
+   `tests/qt/test_cov_w2_6_plate_map_picker.py`. The walk has to find the
+   PlateMapPicker ancestor rather than counting steps.
+
+--------------------------------------------------------------------------------
+A FOURTH THING, FOUND WITH THEM
+--------------------------------------------------------------------------------
+
+`PlateMapPicker.set_selection` blocks the well's signals around
+`setChecked`, so the `toggled -> _paint` connection never fires: a
+programmatically chosen well -- which includes the picker's own starting
+value and everything kept across a layout change -- is checked and still
+painted EMPTY. It has to repaint after setting the state.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Driven, not eyeballed, at more than one window size:
+
+* a column label's centre x equals its column's centre x, and a row
+  label's centre y equals its row's centre y, at 700 px wide and at
+  1400 px wide;
+* every well's width equals its height, at both sizes;
+* press on B2, move to D5, release -> exactly the twelve wells of that
+  rectangle are selected, and the ones outside it are not;
+* `set_selection(["A01"])` leaves A01 painted as selected.
+
+--------------------------------------------------------------------------------
+WHAT IS TRUE NOW, MEASURED
+--------------------------------------------------------------------------------
+
+The wells, the row letters and the column numbers are items of ONE
+`QGridLayout`, each centred in its cell, carried by one holder inside the
+scroll area. The wells are a fixed 22 px square, and the spare space goes
+to an empty trailing row and column rather than being shared out among the
+cells -- which is what used to pull the labels off the wells they name.
+
+Driven at 700 px and at 1400 px on a 96-well plate, geometry read back off
+the widgets:
+
+* every column label's centre x equals its column's centre x, and every
+  row letter's centre y equals its row's centre y, at both widths, and the
+  numbers are IDENTICAL at the two sizes (column 1 at x=55, column 2 at
+  x=79, ... row A at y=78, row B at y=102): 700 px of extra window moves
+  nothing;
+* every well measures 22 x 22 at both widths -- and at all six layouts
+  (6, 12, 24, 96, 384, 1536) across widths from 400 px to 2000 px, with no
+  label off its well anywhere in that sweep;
+* press on B2, move, release on D5 selects exactly B02..D05, twelve wells,
+  with nothing outside the rectangle checked, at both widths;
+* `set_selection(["A01"])` leaves A01 both checked and painted CHOSEN.
+
+The drag reaches the dialog because `_Well._picker` walks its ANCESTRY for
+a `PlateMapPicker` instead of counting two parents; a scroll area reparents
+the holder into its own viewport, so the fixed walk landed there and every
+`hasattr(picker, "begin_drag")` guard read False.
+
+--------------------------------------------------------------------------------
+A FIFTH THING, FOUND DRIVING THE GESTURE
+--------------------------------------------------------------------------------
+
+A CLICK THAT WOBBLED LANDED NOTHING. No hand holds still, so a real click
+delivers a move event or two before the release. `drag_to` treated any
+move as a drag: it cleared the selection, drew the one-well rectangle on
+the pressed well, and then -- because the pointer had not left that well --
+reported no drag, so the release fell through to the button's own toggle
+and turned the well straight back off. One pixel of travel therefore
+emptied the whole plate and chose nothing. A move that never leaves the
+well it was pressed on is no longer a drag, and once the pointer HAS left
+that well the gesture stays a drag, so sweeping out and back to the anchor
+ends with the anchor chosen rather than clicked off again.
+
+--------------------------------------------------------------------------------
+STILL OPEN
+--------------------------------------------------------------------------------
+
+Nothing that blocks the ask. One thing was noticed and not built: a drag
+that reaches the edge of the scroll area does not scroll the plate, so on
+a 1536-well map in a narrow window the rectangle can only span the wells
+already in view. Selecting past the edge means scrolling first.

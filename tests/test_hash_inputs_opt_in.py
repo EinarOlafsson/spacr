@@ -103,20 +103,44 @@ def test_the_cli_can_force_it_either_way():
     assert "--no-hash-inputs" in out
 
 
-def test_the_slow_line_is_only_printed_when_hashing(monkeypatch, capsys,
-                                                    source):
+MESSAGE = "Recording reproducibility input hashes"
+
+
+def test_the_slow_line_is_only_printed_when_hashing():
     """The line names a pause. With hashing off there is no pause to name.
 
     Printing it anyway claims a record that was not made, which is the
     same failure as a manifest that silently lacks hashes.
+
+    Asked of the job runner that emits the line -- ``spacr.qt.bridge``, the
+    one place a run is started with somebody watching. Parsed rather than
+    read as text, and rather than imported: the enclosing ``if`` is the
+    thing under test, a character window around the message would pass on a
+    condition that merely sits nearby, and importing the module would drag
+    Qt into a test that only needs the source.
     """
-    import inspect
+    import ast
+    import pathlib
 
-    from spacr import gui_utils
+    import spacr
 
-    text = inspect.getsource(gui_utils)
-    marker = text.index("Recording reproducibility input hashes")
-    window = text[max(0, marker - 300):marker]
-    assert "hash_inputs" in window, (
+    bridge = pathlib.Path(spacr.__file__).resolve().parent / "qt" / "bridge.py"
+    tree = ast.parse(bridge.read_text(encoding="utf-8"))
+
+    def announces(node):
+        return any(isinstance(sub, ast.Constant)
+                   and isinstance(sub.value, str)
+                   and MESSAGE in sub.value
+                   for sub in ast.walk(node))
+
+    assert announces(tree), (
+        f"nothing in {bridge.name} announces the hashing pause any more; "
+        "either the line moved or the announcement was lost")
+
+    guarded = [node for node in ast.walk(tree)
+               if isinstance(node, ast.If)
+               and any(announces(stmt) for stmt in node.body)
+               and "hash_inputs" in ast.dump(node.test)]
+    assert guarded, (
         "the message is printed unconditionally, so a run that skips "
         "hashing still announces it")

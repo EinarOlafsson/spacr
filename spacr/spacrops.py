@@ -9,6 +9,11 @@ import numpy as np
 
 from .tiff_io import write_tiff
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 class _DiskFeatureStore:
     """Disk-backed feature cache with a bounded in-RAM LRU.
 
@@ -20,6 +25,7 @@ class _DiskFeatureStore:
     :param verbose: emit progress messages. Default ``False``.
     """
     def __init__(self, root_dir: str, max_ram_items: int = 256, verbose: bool = False):
+        """Open (creating if needed) the on-disk feature cache."""
         self.root = os.path.abspath(root_dir)
         os.makedirs(self.root, exist_ok=True)
         self.max_ram = int(max_ram_items)
@@ -29,10 +35,18 @@ class _DiskFeatureStore:
 
     @staticmethod
     def _key_for_path(path: str) -> str:
+        """A short, stable cache key for ``path``.
+
+        The ABSOLUTE path is hashed, so the same image reached through a
+        relative path and through its full one is one cache entry rather
+        than two. The key is truncated to 16 hex characters, which is a
+        filename rather than a collision guarantee.
+        """
         h = hashlib.sha1(os.path.abspath(path).encode("utf-8")).hexdigest()
         return h[:16]
 
     def _npz_path(self, path: str) -> str:
+        """Where ``path``'s features are cached on disk."""
         return os.path.join(self.root, f"{self._key_for_path(path)}.npz")
 
     def get(self, path: str) -> Optional[Dict[str, np.ndarray]]:
@@ -109,7 +123,7 @@ class spacrStitcher:
     """
     Pairwise stitcher with downsampled scoring and whole-well mosaic assembly.
 
-    Robustness features for very large datasets:
+    Memory and concurrency controls for very large datasets:
       - feature_cache_mode: "disk" (default) writes DS features to disk with an LRU RAM cap
       - pair_batch_size:    limit number of concurrent pair futures
       - stream_csv:         write pairwise rows immediately (low RAM)
@@ -236,7 +250,16 @@ class spacrStitcher:
                  z_index: int = 0,
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
+                 # hardware
+                 ops_gpu: bool = True,
                  ):
+        """Configure the feature detector and the match tolerances.
+
+        ``downsample`` is the scale every match runs at; the transforms it
+        produces are expressed at full size, so lowering it costs accuracy rather
+        than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE
+        pixels.
+        """
         self.detector = detector.upper()
         self.nfeatures = int(nfeatures)
         self.max_keypoints = None if max_keypoints is None else int(max_keypoints)
@@ -245,6 +268,13 @@ class spacrStitcher:
         self.allow_scale = bool(allow_scale)
         self.allow_rotation = bool(allow_rotation)
     
+        # WHETHER THIS RUN MAY TAKE THE CARD. Not "is there one" --
+        # `spacr.accelerator` answers that -- but whether this run is
+        # allowed to, which is a different question on a machine whose GPU
+        # is running somebody else's screen. False keeps every step on the
+        # CPU even where a device resolves.
+        self.ops_gpu = bool(ops_gpu)
+
         self.outline_source = outline_source.lower()
         self.cellpose_model = cellpose_model
         self.cellpose_diameter = (None if cellpose_diameter is None
@@ -324,12 +354,19 @@ class spacrStitcher:
     # ------------------------- utilities (static) ------------------------
     @staticmethod
     def _ensure_dir(p: str) -> str:
+        """Create ``p`` if needed and return its absolute path."""
         p = os.path.abspath(p)
         os.makedirs(p, exist_ok=True)
         return p
 
     @staticmethod
     def _norm01(x: np.ndarray) -> np.ndarray:
+        """Scale an array into ``[0, 1]`` by its own min and max.
+
+        PER-IMAGE, not per-plate: two tiles normalised this way are no
+        longer on a common intensity scale, which is why it feeds feature
+        detection rather than anything that compares brightness.
+        """
         x = x.astype(np.float32, copy=False)
         mn, mx = float(np.nanmin(x)), float(np.nanmax(x))
         if mx <= mn + 1e-12:
@@ -367,6 +404,11 @@ class spacrStitcher:
 
     @staticmethod
     def _to_uint8(img: np.ndarray) -> np.ndarray:
+        """An 8-bit view of ``img``, stretched to its own min and max.
+
+        A FLAT IMAGE BECOMES ZEROS rather than dividing by nothing, so a
+        blank tile yields no keypoints instead of raising.
+        """
         m, M = float(np.nanmin(img)), float(np.nanmax(img))
         if M <= m + 1e-12:
             return np.zeros_like(img, dtype=np.uint8)
@@ -374,6 +416,7 @@ class spacrStitcher:
 
     @staticmethod
     def _affine_to_3x3(M2x3: np.ndarray) -> np.ndarray:
+        """A 2x3 affine as a 3x3 matrix, so transforms can be composed."""
         A = np.eye(3, dtype=np.float32); A[:2, :3] = M2x3.astype(np.float32)
         return A
 
@@ -411,14 +454,27 @@ class spacrStitcher:
         from .utils import _resolve_cellpose_pretrained
 
         pretrained = _resolve_cellpose_pretrained(self.cellpose_model)
-        try:
-            import torch
-            gpu = torch.cuda.is_available()
-        except Exception:
-            gpu = False
+        if not getattr(self, "ops_gpu", True):
+            # ASKED FOR THE CPU, SO TAKE THE CPU. The card may exist and be
+            # busy with an AlphaFold screen; "there is a GPU" and "this run
+            # may use it" are different questions.
+            kwargs = {"gpu": False}
+        else:
+            try:
+                from .accelerator import cellpose_kwargs
+
+                kwargs = cellpose_kwargs()
+            except Exception:
+                kwargs = {"gpu": False}
+        # THE DEVICE IS NOT POPPED ANY MORE. `cellpose_kwargs` produces
+        # `gpu`, `device` and `use_bfloat16` TOGETHER because they have to
+        # agree -- cellpose branches on `gpu` before it looks at `device`,
+        # and dropping the resolved device left this call site picking
+        # cellpose's default rather than the one the resolver chose. On a
+        # machine with two cards that is the wrong card.
         # No model_type= / diam_mean=: Cellpose 4 logs "not used in v4.0.1+"
         # and drops both.
-        self._cp_model = cp_models.CellposeModel(gpu=gpu, pretrained_model=pretrained)
+        self._cp_model = cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
         return self._cp_model
 
     def _cellpose_labels(self, img_u8: np.ndarray) -> np.ndarray:
@@ -495,10 +551,26 @@ class spacrStitcher:
     # --------------------------- Axis helpers ----------------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
+        """Whether ``n`` is big enough to be an image axis rather than a stack.
+
+        THE WHOLE AXIS GUESS RESTS ON THIS ONE THRESHOLD: an extent of 128 or
+        more is taken for Y or X, and anything smaller for channels, Z or T.
+        A genuinely tiny field -- under 128 px on a side -- is therefore
+        mis-read, which is the limit of guessing a layout from a shape.
+        """
         return n >= 128
 
     @staticmethod
     def _guess_axes_from_shape(shape: Tuple[int, ...]) -> str:
+        """Guess an axis order such as ``"CYX"`` from an array shape alone.
+
+        A GUESS, AND ONLY USED WHEN ``arr_axes`` IS ``"AUTO"``. The rule is
+        that the two axes passing :meth:`_is_large_dim` are Y and X, and a
+        remaining axis of 8 or fewer is channels rather than Z. A 10-plane
+        Z-stack of one channel and a 10-channel single plane have the same
+        shape and cannot be told apart here -- say ``arr_axes`` when it
+        matters.
+        """
         nd = len(shape)
         if nd == 2:
             return "YX"
@@ -534,6 +606,13 @@ class spacrStitcher:
 
     def _normalize_to_yx(self, arr: np.ndarray, ch: int, axes_hint: Optional[str] = None) -> np.ndarray:
         # Choose base axes
+        """Reduce any TCZYX array to one 2-D ``(Y, X)`` plane of float32.
+
+        Axes come from ``arr_axes`` when it is set, then from ``axes_hint``, and
+        only then from the SHAPE -- see :meth:`_guess_axes_from_shape` for why the
+        last of those can be wrong. ``ch`` selects the channel; Z collapses by
+        maximum projection when ``mip`` is set and by index otherwise.
+        """
         if self.arr_axes and self.arr_axes.upper() != "AUTO":
             axes = "".join(a for a in self.arr_axes.upper() if a in "TCZYX")
         elif axes_hint:
@@ -623,10 +702,20 @@ class spacrStitcher:
 
 
     def set_meta_regex(self, pattern: Union[str, re.Pattern]):
-        """Replace the filename regex used to parse well, site, channel and magnification."""
+        """Replace the filename regex used to parse image metadata.
+
+        :param pattern: string or compiled regex with well, site, channel, and
+            magnification groups.
+        """
         self._meta_re = re.compile(pattern, re.IGNORECASE) if isinstance(pattern, str) else pattern
 
     def _parse_meta(self, path: str) -> Dict[str, Union[str, int, None]]:
+        """Read well, site, channel and magnification out of a FILENAME.
+
+        The regex is the one given to :meth:`set_meta_pattern`, applied to the
+        basename only. EVERY FIELD IS OPTIONAL and a name the pattern does not
+        match yields all-``None`` rather than raising.
+        """
         fn = os.path.basename(path)
         out = {"well": None, "site": None, "chan": None, "mag": None}
         m = self._meta_re.search(fn)
@@ -647,6 +736,12 @@ class spacrStitcher:
 
     # ----------------------- feature extraction/cache --------------------
     def _detect_and_describe(self, I8: np.ndarray):
+        """Keypoints and descriptors for an 8-bit image.
+
+        FEWER THAN FOUR KEYPOINTS IS RETURNED AS EMPTY ARRAYS, not as a short
+        list: four is the minimum an affine fit needs, so a blank or featureless
+        tile fails at the match rather than inside the solver.
+        """
         kp, desc = self._det.detectAndCompute(I8, None)
         if kp is None or desc is None or len(kp) < 4:
             pts = np.zeros((0, 2), np.float32)
@@ -661,6 +756,12 @@ class spacrStitcher:
         return pts, desc
 
     def _compute_features_one(self, path: str, channel_index: int) -> Dict[str, np.ndarray]:
+        """Detect features for one image, at the downsampled size.
+
+        The returned dict carries the DOWNSAMPLED image and points along with the
+        original ``H``/``W``, because every match runs at the small size while the
+        transform it produces has to be expressed at the full one.
+        """
         I = self._read_plane(path, ch=channel_index)
         H, W = I.shape
         s = self.downsample if self.downsample > 0 else 1.0
@@ -672,7 +773,12 @@ class spacrStitcher:
         pts, desc = self._detect_and_describe(I8)
         # post-cap (if requested)
         if self.max_keypoints is not None and pts.shape[0] > self.max_keypoints:
-            idx = np.argsort(-np.linalg.norm(pts - pts.mean(0), axis=1))[:self.max_keypoints]
+            distances = np.linalg.norm(pts - pts.mean(0), axis=1)
+            # NumPy's default quicksort does not define which equal-distance
+            # point wins. Use the original index as an explicit descending
+            # tie-break so minimum and newest NumPy keep the same descriptors.
+            idx = np.lexsort((-np.arange(pts.shape[0]), -distances))[
+                :self.max_keypoints]
             pts = pts[idx]
             desc = desc[idx]
         return dict(ds8=I8, Hds=np.int32(Hds), Wds=np.int32(Wds),
@@ -715,6 +821,7 @@ class spacrStitcher:
         start = time.time()
 
         def _job(p):
+            """Return ``p`` with its features for the captured channel index."""
             return p, self._compute_features_one(p, channel_index)
 
         total = len(todo)
@@ -765,6 +872,13 @@ class spacrStitcher:
 
     # ---------------------------- matching/RANSAC ------------------------
     def _match(self, fA: Dict[str, np.ndarray], fB: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """Matched point pairs between two feature dicts.
+
+        Returns two equal-length coordinate arrays, EMPTY when either side has
+        fewer than four keypoints. Hamming distance for ORB's binary descriptors
+        and L2 for the float ones, so the detector the features were built with
+        has to be the one matching them.
+        """
         if fA["pts"].shape[0] < 4 or fB["pts"].shape[0] < 4:
             return np.zeros((0,2), np.float32), np.zeros((0,2), np.float32)
         if self.detector == "ORB":
@@ -852,11 +966,14 @@ class spacrStitcher:
     
         # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
         def _common_dtype(*dts: np.dtype) -> np.dtype:
+            """Return the NumPy result dtype shared by ``dts``."""
             return np.result_type(*dts)
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -911,9 +1028,8 @@ class spacrStitcher:
     
         # lift DS → full-res
         M_full = M_ds.astype(np.float32).copy()
-        if s != 0:
-            M_full[0, 2] /= s
-            M_full[1, 2] /= s
+        M_full[0, 2] /= s
+        M_full[1, 2] /= s
     
         a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
         c, d, ty = float(M_full[1, 0]), float(M_full[1, 1]), float(M_full[1, 2])
@@ -944,11 +1060,24 @@ class spacrStitcher:
     
             stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
             p_outline = os.path.join(self.outdir, f"{stem}__qc_outlines.png")
-            fig, ax = plt.subplots(figsize=(8, 8))
-            ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
-            ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
-            fig.savefig(p_outline, dpi=200, bbox_inches="tight"); plt.close(fig)
-            qc_paths["qc_outline_png"] = p_outline
+            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+            # rcParams reach an artist when it is CREATED, so a
+            # context opened after `plt.subplots` would leave the
+            # spines, ticks and labels at the caller's globals.
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(8, 8))
+                ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
+                ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
+                # 108 point 6: the resolution and the repaint for paper.
+                # `fmt` STAYS PNG because the key this is stored under is
+                # `qc_outline_png` and the stitch result's schema names it
+                # that way -- a preference must not rename a file the rest
+                # of the pipeline refers to by extension.
+                from .plot import save_figure
+
+                p_outline = save_figure(fig, p_outline, fmt="png",
+                                        close=True, bbox_inches="tight")
+                qc_paths["qc_outline_png"] = p_outline
     
         # decide whether to stitch now
         if save_stitched is None:
@@ -1092,10 +1221,26 @@ class spacrStitcher:
     
     @staticmethod
     def _get_channel_count_tif(path: str) -> int:
+        """How many channels a TIFF holds, from its own axis metadata.
+
+        Falls back on the shape when the file declares no axes, which is the same
+        guess :meth:`_guess_axes_from_shape` makes and carries the same risk.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
             shape = series.shape
+        # A DECLARED AXIS ORDER IS TAKEN AT ITS WORD, and a file that names
+        # no channel axis has one channel. That is deliberate, not an
+        # oversight: `tifffile` labels a bare 3-D write 'QYX' or 'SYX' --
+        # "unspecified" -- and a stack of three planes with no metadata could
+        # equally be three channels, three z-planes or three timepoints.
+        # Guessing turns a z-stack's planes into channels silently, which is
+        # worse than declining. Multi-channel tiles must say so:
+        # `tifffile.imwrite(path, stack, metadata={"axes": "CYX"})`.
+        #
+        # The shape fallback below applies only when the file declares NO
+        # axes at all, where a guess is the only thing available.
         if axes:
             axes = "".join(a for a in axes.upper() if a in "TCZYX")
             return int(shape[axes.index("C")]) if "C" in axes else 1
@@ -1103,6 +1248,11 @@ class spacrStitcher:
         return int(shape[gh.index("C")]) if "C" in gh else 1
     
     def _read_all_channels_cyx(self, path: str) -> np.ndarray:
+        """Every channel of an image as one ``(C, Y, X)`` float32 array.
+
+        Reads the channels ONE AT A TIME rather than loading the file whole, so a
+        many-channel plate costs one plane of memory at a time.
+        """
         nC = self._get_channel_count_tif(path)
         planes = []
         for c in range(nC):
@@ -1138,19 +1288,39 @@ class spacrStitcher:
         return float(s[k])
 
     def _plot_sorted_scores(self, scores: List[float], thr: float, out_png: str):
+        """Write a sorted-score plot with the threshold marked.
+
+        A DIAGNOSTIC, not an input to any decision: the threshold is drawn where
+        the caller set it so a human can see how many pairs it accepts.
+        """
         s = np.array(sorted(scores), dtype=np.float64)
-        fig, ax = plt.subplots(figsize=(8,6))
-        ax.plot(np.arange(len(s)), s, lw=1)
-        ax.axhline(thr, linestyle='--')
-        ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
-        ax.set_xlabel("pair index (sorted)")
-        ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
-        fig.savefig(out_png, dpi=200, bbox_inches="tight")
-        plt.close(fig)
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(8,6))
+            ax.plot(np.arange(len(s)), s, lw=1)
+            ax.axhline(thr, linestyle='--')
+            ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
+            ax.set_xlabel("pair index (sorted)")
+            ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
+            # 108 point 6: the resolution and the repaint for paper.
+            # `fmt` STAYS PNG for the same reason as the outline QC above --
+            # `score_sorted_line.png` is a fixed name the run's own output
+            # is checked by, and a preference must not rename it.
+            from .plot import save_figure
+
+            out_png = save_figure(fig, out_png, fmt="png", close=True,
+                                  bbox_inches="tight")
 
     # ------------------------------ pairing ------------------------------
     @staticmethod
     def _list_tifs(folder: str, recursive: bool, exts: Tuple[str,...]) -> List[str]:
+        """Every image under ``folder`` with one of ``exts``, sorted.
+
+        Sorted so a run is reproducible -- the filesystem's order is not.
+        """
         exts = tuple(e.lower() for e in exts)
         out = []
         if recursive:
@@ -1165,6 +1335,12 @@ class spacrStitcher:
         return out
 
     def _group_by_well(self, paths: List[str]) -> Dict[str, List[str]]:
+        """Bucket paths by the well in their filename.
+
+        Anything the pattern cannot read a well from goes to ``"UNK"`` rather than
+        being dropped, so an unparsed name is stitched as its own group instead of
+        vanishing.
+        """
         buckets: Dict[str, List[str]] = {}
         for p in paths:
             w = self._parse_meta(p).get("well") or "UNK"
@@ -1174,12 +1350,31 @@ class spacrStitcher:
         return buckets
 
     def _pairs_by_site_window(self, files: List[str], max_site_gap: int) -> List[Tuple[str,str]]:
+        """Candidate neighbour pairs, by site number within ``max_site_gap``.
+
+        An assumption about the ACQUISITION ORDER, not about the stage: tiles
+        whose site numbers are close are taken to be near each other. A snake
+        pattern breaks that at the end of every row, which is why the window is a
+        parameter and not a constant.
+        """
         n = len(files)
         site = [self._parse_meta(p).get("site") for p in files]
-        idx_by_site = {}
+        # EVERY INDEX AT A SITE, not one. A site holds one file PER CHANNEL,
+        # and `idx_by_site[s] = i` kept only the last of them -- so every
+        # candidate partner was a channel-2 file, two tiles of the same
+        # channel were never compared with each other, and the c1/c2 rows in
+        # the pairs CSV were the same comparison written twice.
+        #
+        # It also ORPHANED a tile. With the files ordered
+        # c1_S1, c2_S1, c1_S2, c2_S2, ... the map is {1:1, 2:3, 3:5, 4:7},
+        # so `10X_c1_A1_Site-4.tif` at index 6 had exactly one candidate --
+        # index 5, which fails `j > i` -- and appeared in no pair at all.
+        # No pair means no features, which means no place in the mosaic:
+        # a corner arrived with no channel-1 data and no warning.
+        idx_by_site: Dict[Any, List[int]] = {}
         for i, s in enumerate(site):
             if s is not None:
-                idx_by_site[s] = i
+                idx_by_site.setdefault(s, []).append(i)
         cand = set()
         for i, p in enumerate(files):
             si = site[i]
@@ -1189,9 +1384,9 @@ class spacrStitcher:
                 continue
             for k in range(1, max_site_gap+1):
                 for s_adj in (si + k, si - k):
-                    j = idx_by_site.get(s_adj)
-                    if j is not None and j > i:
-                        cand.add((files[i], files[j]))
+                    for j in idx_by_site.get(s_adj, ()):
+                        if j > i:
+                            cand.add((files[i], files[j]))
         return sorted(list(cand))
 
     # ------------------------------ driver -------------------------------
@@ -1304,6 +1499,7 @@ class spacrStitcher:
         too_many_pairs = (total_pairs > int(qc_pairs_threshold))
     
         def _job(pair):
+            """Stitch one path pair under the current QC policy, or return ``None``."""
             A, B = pair
             try:
                 thr_now = score_threshold if score_threshold is not None else self.score_threshold
@@ -1531,6 +1727,7 @@ class spacrStitcher:
     
         # --- Helpers to read channels from TIFFs (local, minimal axis handling) ---
         def _get_channel_count_tif_local(path: str) -> int:
+            """Infer and return TIFF ``path``'s channel count from axes or shape."""
             with tifffile.TiffFile(path) as tf:
                 series = tf.series[0]
                 axes = getattr(series, "axes", None)
@@ -1543,6 +1740,7 @@ class spacrStitcher:
             return 1
     
         def _read_plane_local(path: str, ch: int = 0) -> np.ndarray:
+            """Return channel ``ch`` of TIFF ``path`` as a float32 2-D plane."""
             with tifffile.TiffFile(path) as tf:
                 series = tf.series[0]
                 axes = getattr(series, "axes", None)
@@ -1927,12 +2125,10 @@ class spacrStitcher:
                 break
 
         # Choose root = node with max degree in MST
-        root = max(nodes, key=lambda p: len(adj[p])) if nodes else None
+        root = max(nodes, key=lambda p: len(adj[p]))
 
         # BFS to compute transforms to root (homogeneous 3x3 to avoid shape bugs)
         T3: Dict[str, np.ndarray] = {}
-        if root is None:
-            return {}, used_edges
         T3[root] = np.eye(3, dtype=np.float32)
         stack = [root]
         visited = set([root])
@@ -1986,10 +2182,12 @@ class spacrStitcher:
         """
         # dtype helpers
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
     
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2183,10 +2381,12 @@ class spacrStitcher:
         """
         # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
     
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2357,8 +2557,8 @@ class StitchedMultiAligner:
 
     Output image axes: CYX (channels stacked in the order inputs are provided).
 
-    Args
-    ----
+    Parameters
+    ----------
     detector : {"ORB","SIFT"}
         Feature detector for keypoint matching.
     nfeatures : int
@@ -2414,6 +2614,11 @@ class StitchedMultiAligner:
                  z_index: int = 0,
                  t_index: int = 0,
                  squeeze_singleton: bool = True):
+        """Configure the detector and tolerances for cross-acquisition alignment.
+
+        Same contract as :class:`spacrStitcher`: matching happens at
+        ``downsample`` scale and ``ransac_thresh_px`` is in full-size pixels.
+        """
         self.detector = detector.upper()
         self.nfeatures = int(nfeatures)
         self.max_keypoints = None if max_keypoints is None else int(max_keypoints)
@@ -2454,10 +2659,26 @@ class StitchedMultiAligner:
     # ---------------------- basic IO / axis helpers ----------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
+        """Whether ``n`` is big enough to be an image axis rather than a stack.
+
+        THE WHOLE AXIS GUESS RESTS ON THIS ONE THRESHOLD: an extent of 128 or
+        more is taken for Y or X, and anything smaller for channels, Z or T.
+        A genuinely tiny field -- under 128 px on a side -- is therefore
+        mis-read, which is the limit of guessing a layout from a shape.
+        """
         return n >= 128
 
     @staticmethod
     def _guess_axes_from_shape(shape: Tuple[int, ...]) -> str:
+        """Guess an axis order such as ``"CYX"`` from an array shape alone.
+
+        A GUESS, AND ONLY USED WHEN ``arr_axes`` IS ``"AUTO"``. The rule is
+        that the two axes passing :meth:`_is_large_dim` are Y and X, and a
+        remaining axis of 8 or fewer is channels rather than Z. A 10-plane
+        Z-stack of one channel and a 10-channel single plane have the same
+        shape and cannot be told apart here -- say ``arr_axes`` when it
+        matters.
+        """
         nd = len(shape)
         if nd == 2:
             return "YX"
@@ -2488,6 +2709,13 @@ class StitchedMultiAligner:
         return "CZYX" if nd >= 4 else "CYX"
 
     def _normalize_to_yx(self, arr: np.ndarray, ch: int, axes_hint: Optional[str] = None) -> np.ndarray:
+        """Reduce any TCZYX array to one 2-D ``(Y, X)`` plane of float32.
+
+        Axes come from ``arr_axes`` when it is set, then from ``axes_hint``, and
+        only then from the SHAPE -- see :meth:`_guess_axes_from_shape` for why the
+        last of those can be wrong. ``ch`` selects the channel; Z collapses by
+        maximum projection when ``mip`` is set and by index otherwise.
+        """
         if self.arr_axes and self.arr_axes != "AUTO":
             axes = "".join(a for a in self.arr_axes if a in "TCZYX")
         elif axes_hint:
@@ -2542,6 +2770,11 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _to_uint8(img: np.ndarray) -> np.ndarray:
+        """An 8-bit view of ``img``, stretched to its own min and max.
+
+        A FLAT IMAGE BECOMES ZEROS rather than dividing by nothing, so a
+        blank tile yields no keypoints instead of raising.
+        """
         m, M = float(np.nanmin(img)), float(np.nanmax(img))
         if M <= m + 1e-12:
             return np.zeros_like(img, dtype=np.uint8)
@@ -2549,6 +2782,12 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _edge_zncc(a: np.ndarray, b: np.ndarray, mask: Optional[np.ndarray] = None) -> float:
+        """Zero-mean normalised cross-correlation of two images' EDGE energy.
+
+        Gradient energy rather than intensity, so two acquisitions of different
+        brightness or stain still score on the structure they share. ``mask``
+        restricts the comparison to the overlap.
+        """
         a = a.astype(np.float32, copy=False)
         b = b.astype(np.float32, copy=False)
         ea = cv2.Sobel(a, cv2.CV_32F, 1, 0, ksize=3)**2 + cv2.Sobel(a, cv2.CV_32F, 0, 1, ksize=3)**2
@@ -2563,6 +2802,10 @@ class StitchedMultiAligner:
         return float((ea * eb).mean() / den)
 
     def _read_plane(self, path: str, ch: int = 0) -> np.ndarray:
+        """One 2-D ``(Y, X)`` plane from a possibly multi-axis TIFF.
+
+        Prefers the file's own declared axes and falls back on the shape.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes_hint = getattr(series, "axes", None)
@@ -2581,6 +2824,10 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _get_channel_count_tif(path: str) -> int:
+        """How many channels a TIFF holds, from its own axis metadata.
+
+        Falls back on the shape when the file declares no axes.
+        """
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
@@ -2592,12 +2839,22 @@ class StitchedMultiAligner:
         return int(shape[gh.index("C")]) if "C" in gh else 1
 
     def _read_all_channels_cyx(self, path: str) -> np.ndarray:
+        """Every channel of an image as one ``(C, Y, X)`` float32 array.
+
+        Reads channels one at a time; see :class:`spacrStitcher` for why.
+        """
         nC = self._get_channel_count_tif(path)
         planes = [self._read_plane(path, ch=c).astype(np.float32, copy=False) for c in range(nC)]
         return np.stack(planes, axis=0)  # (C,H,W)
 
     # --------------------------- feature/matching ------------------------
     def _detect_and_describe(self, I8: np.ndarray):
+        """Keypoints and descriptors for an 8-bit image.
+
+        FEWER THAN FOUR KEYPOINTS IS RETURNED AS EMPTY ARRAYS, not as a short
+        list: four is the minimum an affine fit needs, so a blank or featureless
+        tile fails at the match rather than inside the solver.
+        """
         kp, desc = self._det.detectAndCompute(I8, None)
         if kp is None or desc is None or len(kp) < 4:
             pts = np.zeros((0, 2), np.float32)
@@ -2611,6 +2868,13 @@ class StitchedMultiAligner:
         return pts, desc
 
     def _match(self, fA: Dict[str, np.ndarray], fB: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+        """Matched point pairs between two feature dicts.
+
+        Returns two equal-length coordinate arrays, EMPTY when either side has
+        fewer than four keypoints. Hamming distance for ORB's binary descriptors
+        and L2 for the float ones, so the detector the features were built with
+        has to be the one matching them.
+        """
         if fA["pts"].shape[0] < 4 or fB["pts"].shape[0] < 4:
             return np.zeros((0,2), np.float32), np.zeros((0,2), np.float32)
         if self.detector == "ORB":
@@ -2633,6 +2897,12 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _affine_from_pts(ptsA: np.ndarray, ptsB: np.ndarray, ransac_thresh_px: float):
+        """Fit a partial affine from matched points, by RANSAC.
+
+        PARTIAL: rotation, uniform scale and translation, no shear -- the
+        transform a stage makes. Returns ``(None, None, 0.0)`` for fewer than four
+        points rather than raising.
+        """
         if ptsA.shape[0] < 4 or ptsB.shape[0] < 4:
             return None, None, 0.0
         M, inliers = cv2.estimateAffinePartial2D(
@@ -2654,6 +2924,11 @@ class StitchedMultiAligner:
 
     @staticmethod
     def _closest_rotation(A: np.ndarray) -> np.ndarray:
+        """The nearest pure rotation to a 2x2 matrix, by SVD.
+
+        Reflections are excluded: a negative determinant is flipped back, because
+        an image cannot be mirrored by moving a stage.
+        """
         U, _, Vt = np.linalg.svd(A, full_matrices=False)
         R = U @ Vt
         if np.linalg.det(R) < 0:
@@ -2692,11 +2967,14 @@ class StitchedMultiAligner:
     
         # dtype helpers (local)
         def _series_dtype(p: str) -> np.dtype:
+            """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
                 return np.dtype(tf.series[0].dtype)
         def _common_dtype(dts: List[np.dtype]) -> np.dtype:
+            """Return the NumPy result dtype shared by ``dts``."""
             return np.result_type(*dts)
         def _cast(arr: np.ndarray, dtype: np.dtype) -> np.ndarray:
+            """Cast ``arr`` to ``dtype``, rounding and clipping integer targets."""
             dtype = np.dtype(dtype)
             if np.issubdtype(dtype, np.integer):
                 info = np.iinfo(dtype)
@@ -2777,9 +3055,8 @@ class StitchedMultiAligner:
     
             # lift to full res
             M_full = M_ds.copy()
-            if s != 0:
-                M_full[0, 2] /= s
-                M_full[1, 2] /= s
+            M_full[0, 2] /= s
+            M_full[1, 2] /= s
     
             a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
             c, d, ty = float(M_full[1, 0]), float(M_full[1, 1]), float(M_full[1, 2])
@@ -2841,8 +3118,13 @@ def stitch_cycle_wells(settings):
 
     Groups images by well from filename metadata, optionally moves or
     symlinks them into per-well folders, then runs :class:`spacrStitcher`
-    on each well to produce pairwise CSVs and single- or multi-channel
-    mosaics.
+    on each well to produce pairwise CSVs, and -- when asked -- single- or
+    multi-channel mosaics.
+
+    THE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``)
+    to build one. It is off by default because assembling a mosaic raises
+    when too few tiles overlapped to place any, and a plate that cannot be
+    stitched should not become a plate that cannot be organised.
 
     :param settings: dict of preprocess settings; see
         :func:`get_preprocess_ops_settings` for supported keys.
@@ -2886,6 +3168,7 @@ def stitch_cycle_wells(settings):
 
     # ---- Scan files ----
     def _iter_files(root: str, recursive_flag: bool, _exts: tuple):
+        """Yield matching files from ``root``, recursively when requested."""
         if recursive_flag:
             for r, _, files in os.walk(root):
                 for fn in files:
@@ -2936,6 +3219,7 @@ def stitch_cycle_wells(settings):
         os.makedirs(link_root, exist_ok=True)
 
     def _resolve_collision(dst_path: str) -> Optional[str]:
+        """Return the policy-selected destination, or ``None`` to skip."""
         if not os.path.exists(dst_path):
             return dst_path
         if collision == "skip":
@@ -2967,14 +3251,17 @@ def stitch_cycle_wells(settings):
                 if rp is None:
                     skipped += 1
                     continue
-                if not dry_run:
+                already_in_place = (
+                    os.path.normcase(os.path.realpath(sp))
+                    == os.path.normcase(os.path.realpath(rp))
+                )
+                if not dry_run and not already_in_place:
                     if collision == "overwrite" and os.path.exists(dp) and rp == dp:
                         try:
                             os.remove(dp)
                         except FileNotFoundError:
                             pass
-                    if sp != rp:
-                        shutil.move(sp, rp)
+                    shutil.move(sp, rp)
                     moved += 1
                 out_paths.append(rp if rp is not None else dp)
             else:
@@ -2996,6 +3283,7 @@ def stitch_cycle_wells(settings):
 
         # sort by site number if present
         def _site_key(pth: str) -> int:
+            """Return the filename's site number, or a large sort-last key."""
             m = re.search(r"Site[-_](\d+)", os.path.basename(pth), re.IGNORECASE)
             return int(m.group(1)) if m else 10**9
 
@@ -3059,10 +3347,11 @@ def stitch_cycle_wells(settings):
 
         do_mc = bool(do_multichannel)
 
-        if settings.get("write_mosaic", False):
-            mosaic_out = None
-        else:
-            mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
+        # THE PATH IS ALWAYS PREPARED; whether a mosaic is BUILT is decided
+        # by `want_mosaic` below. This read the other way round -- asking for
+        # a mosaic set the output path to None -- so `write_mosaic=True` was
+        # the one value guaranteed to produce nothing.
+        mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
 
         # Instantiate stitcher with your settings
         # NOTE: outdir now points at qc/pairs (so qc is not mixed with tiles)
@@ -3103,6 +3392,7 @@ def stitch_cycle_wells(settings):
             z_index=int(settings.get("z_index", 0)),
             t_index=int(settings.get("t_index", 0)),
             squeeze_singleton=bool(settings.get("squeeze_singleton", True)),
+            ops_gpu=bool(settings.get("ops_gpu", True)),
         )
 
         # Run per-well; enable mosaic here (single- or multi-channel)
@@ -3122,7 +3412,13 @@ def stitch_cycle_wells(settings):
             stitch=settings.get("stitch", False),
             score_threshold=settings.get("score_threshold", None),
             meta_regex=meta_re,  # use compiled regex here
-            mosaic=settings.get("mosaic", False),
+            # `write_mosaic` and `mosaic` are synonyms, and either turns it
+            # on. They were separate keys with separate defaults, so the one
+            # a reader would reach for -- `write_mosaic` -- was not the one
+            # `run_folder` consulted, and this function never built the
+            # mosaic its own docstring promises.
+            mosaic=bool(settings.get("write_mosaic", False)
+                        or settings.get("mosaic", False)),
             mosaic_out=mosaic_out,
             mosaic_min_score=mosaic_min_score,
             mosaic_csv_out=mosaic_csv,
@@ -3148,8 +3444,7 @@ def stitch_cycle_wells(settings):
                             os.remove(dp)
                         except FileNotFoundError:
                             pass
-                    if os.path.abspath(sp) != os.path.abspath(rp):
-                        shutil.move(sp, rp)
+                    shutil.move(sp, rp)
                 else:
                     # create a symlink into orig_outdir (keep source untouched)
                     target = os.path.realpath(sp)
@@ -3216,6 +3511,46 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("dry_run", False)
     settings.setdefault("verbose", True)
 
+    # HARDWARE. Named `ops_gpu` and not `gpu` on purpose: `gpu` is already
+    # declared by Image UMAP, where it means "use the RAPIDS cuML backend",
+    # and two modules disagreeing about what a shared key means is the bug
+    # `register_defaults` refuses `src` to prevent. Same reasoning, applied
+    # before the collision rather than after it.
+    settings.setdefault("ops_gpu", True)
+
+    # THE TWO SWITCHES THE PIPELINE'S OWN PURPOSE DEPENDS ON, and they were
+    # not here. `stitch_cycle_wells` reads both with a `False` fallback
+    # (~:3178 and ~:3181) and this factory never set either, so a settings
+    # panel generated from it would not OFFER them -- and a default run
+    # therefore wrote no mosaic, after which `align_image_to_stitch` found
+    # none and returned `{}` WITH NO ERROR. The pipeline succeeded and
+    # produced nothing.
+    #
+    # FALSE, WHICH IS WHAT THEY ALREADY WERE. Adding them here changes no
+    # run: the fallback at the read sites is `False` and that is what is set.
+    # What changes is that a panel generated from this factory now OFFERS
+    # them, which was the audit's actual complaint -- the switches existed
+    # and were unreachable.
+    #
+    # THEY PROBABLY SHOULD DEFAULT TRUE AND THAT IS NOT MINE TO DECIDE.
+    # `ops_preprocess`'s docstring is "per-genotype stitching + phenotype
+    # alignment", and with `mosaic` off the alignment half has nothing to
+    # align to, so the default run succeeds and produces nothing. But
+    # flipping it was tried and it turns that silent no-op into a RAISE on
+    # input that cannot be mosaicked --
+    # `test_the_post_stitch_move_never_finds_a_tile_already_at_its_target`
+    # goes from passing to `RuntimeError: mosaic_all_channels_from_csv: CSV
+    # has no usable rows`. Silence and a crash are both wrong and the choice
+    # between them is a product decision about what an OPS run is FOR, made
+    # with the maintainer awake. Recorded in instruction 372.
+    settings.setdefault("stitch", False)
+    settings.setdefault("mosaic", False)
+
+    # Read at ~:2931 as `plate` or `plate_id` or `experiment`, falling back to
+    # the destination folder's name. Offered here so a panel can show it; ""
+    # is falsy, so leaving it empty keeps the existing fallback exactly.
+    settings.setdefault("plate", "")
+
     # pipeline toggles
     settings.setdefault("do_organize", True)
     settings.setdefault("do_nuc_stitch", True)
@@ -3248,8 +3583,13 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("line_thickness", 1)
     settings.setdefault("outline_alpha", 1.0)
     settings.setdefault("feature_cache_mode", "disk")
-    settings.setdefault("max_qc_plots_total", 1000)   # hard cap across the whole run
-    settings.setdefault("plot_only_above_threshold", True)
+    # REMOVED 2026-09-03: `max_qc_plots_total` and `plot_only_above_threshold`
+    # were read by nothing. Each appeared exactly once in the package -- on
+    # its own `setdefault` here -- so the cap was never applied and the
+    # threshold never consulted. Instruction 364's standard is that a setting
+    # offered and never acted on is deleted rather than documented, because a
+    # tooltip on a dead control teaches the user a lie about what the run
+    # will do. Found by 372's audit.
     settings.setdefault("feature_cache_dir", None)     # per well
     settings.setdefault("max_ram_features", 256)
     settings.setdefault("n_workers_features", None)
@@ -3261,6 +3601,12 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("z_index", 0)
     settings.setdefault("t_index", 0)
     settings.setdefault("squeeze_singleton", True)
+    # FALSE, and the docstring of `stitch_cycle_wells` was corrected to match
+    # rather than the other way round. Defaulting it True was tried and
+    # reverted: `mosaic_all_channels_from_csv` RAISES when the pairs CSV has
+    # no usable rows, so a plate with too few overlapping tiles would go from
+    # succeeding quietly to failing loudly, for a mosaic nobody asked for.
+    # The flag now WORKS when set, which is the fix that was wanted.
     settings.setdefault("write_mosaic", False)
 
     # --- st.run_folder(...) ---
@@ -3327,12 +3673,7 @@ class FOVAlignAndCropper:
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
                  folder_image_scale: float = 1.0):
-        """Initialize the FOV aligner. See class docstring for arguments.
-
-        :param folder_image_scale: default FOV-to-mosaic pixel-scale factor
-            used by :meth:`run` when the caller does not override it
-            (e.g. mosaic 10x + FOV 20x -> ``0.5``; mosaic 20x + FOV 10x -> ``2.0``).
-        """
+        """Initialize the FOV aligner. See class docstring for arguments."""
         self._aligner = StitchedMultiAligner(detector=detector, nfeatures=nfeatures,
                                              max_keypoints=max_keypoints, downsample=downsample,
                                              ransac_thresh_px=ransac_thresh_px,
@@ -3347,18 +3688,50 @@ class FOVAlignAndCropper:
         self.folder_image_scale = float(folder_image_scale) if folder_image_scale and folder_image_scale > 0 else 1.0
 
 
-    # small proxies for IO helpers
-    def _read_plane(self, *a, **k): return self._aligner._read_plane(*a, **k)
-    def _read_all_channels_cyx(self, *a, **k): return self._aligner._read_all_channels_cyx(*a, **k)
-    def _to_uint8(self, *a, **k): return self._aligner._to_uint8(*a, **k)
-    def _detect_and_describe(self, *a, **k): return self._aligner._detect_and_describe(*a, **k)
-    def _match(self, *a, **k): return self._aligner._match(*a, **k)
-    def _affine_from_pts(self, *a, **k): return self._aligner._affine_from_pts(*a, **k)
-    def _closest_rotation(self, *a, **k): return self._aligner._closest_rotation(*a, **k)
-    def _edge_zncc(self, *a, **k): return self._aligner._edge_zncc(*a, **k)
+    # Small proxies for IO helpers.
+    #
+    # DELEGATED RATHER THAN INHERITED OR COPIED. The cropper is not a kind of
+    # aligner -- it holds one -- so the eight helpers it shares with
+    # :class:`StitchedMultiAligner` are forwarded to that instance. One
+    # definition, and changing the aligner's reader changes the cropper's too.
+    def _read_plane(self, *a, **k):
+        """One channel of an image, as the aligner reads it."""
+        return self._aligner._read_plane(*a, **k)
+
+    def _read_all_channels_cyx(self, *a, **k):
+        """Every channel as ``(C, Y, X)``, as the aligner reads it."""
+        return self._aligner._read_all_channels_cyx(*a, **k)
+
+    def _to_uint8(self, *a, **k):
+        """The aligner's 8-bit view of an array, for feature detection."""
+        return self._aligner._to_uint8(*a, **k)
+
+    def _detect_and_describe(self, *a, **k):
+        """Keypoints and descriptors, from the aligner's detector."""
+        return self._aligner._detect_and_describe(*a, **k)
+
+    def _match(self, *a, **k):
+        """Descriptor matches between two images, as the aligner matches."""
+        return self._aligner._match(*a, **k)
+
+    def _affine_from_pts(self, *a, **k):
+        """The aligner's RANSAC affine fit between two point sets."""
+        return self._aligner._affine_from_pts(*a, **k)
+
+    def _closest_rotation(self, *a, **k):
+        """The nearest pure rotation to an affine, as the aligner finds it."""
+        return self._aligner._closest_rotation(*a, **k)
+
+    def _edge_zncc(self, *a, **k):
+        """The aligner's edge-correlation score between two images."""
+        return self._aligner._edge_zncc(*a, **k)
 
     @staticmethod
     def _list_tifs(folder: str, recursive: bool, exts: Tuple[str, ...]) -> List[str]:
+        """Every image under ``folder`` with one of ``exts``, sorted.
+
+        Sorted so a run is reproducible.
+        """
         exts = tuple(e.lower() for e in exts)
         out = []
         if recursive:
@@ -3374,11 +3747,17 @@ class FOVAlignAndCropper:
 
     @staticmethod
     def _affine_to_3x3(M2x3: np.ndarray) -> np.ndarray:
+        """A 2x3 affine as a 3x3 matrix, so transforms can be composed."""
         A = np.eye(3, dtype=np.float32); A[:2, :3] = M2x3.astype(np.float32)
         return A
 
     @staticmethod
     def _invert_affine(M: np.ndarray) -> np.ndarray:
+        """Invert a 2x3 affine.
+
+        The tiny ridge added before inversion keeps a degenerate matrix from
+        raising; it does not make the result meaningful, only finite.
+        """
         A = M[:,:2]
         t = M[:,2:]
         Ai = np.linalg.inv(A + 1e-12*np.eye(2, dtype=np.float32))
@@ -3502,9 +3881,8 @@ class FOVAlignAndCropper:
                     # ⇒ A_full = s_known * A_ds ; t_full = t_ds / s
                     M_full = M_ds.astype(np.float32).copy()
                     M_full[:2, :2] *= float(s_known)
-                    if s != 0:
-                        M_full[0, 2] /= float(s)
-                        M_full[1, 2] /= float(s)
+                    M_full[0, 2] /= float(s)
+                    M_full[1, 2] /= float(s)
     
                     # Decompose
                     a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
@@ -3621,6 +3999,7 @@ def align_image_to_stitch(
 
     # ---------- helpers ----------
     def _scan_tifs(root: str, recursive: bool, exts: tuple) -> List[str]:
+        """Return matching TIFF paths from ``root``, optionally recursively."""
         out = []
         if recursive:
             for r, _, fs in os.walk(root):
@@ -3635,6 +4014,7 @@ def align_image_to_stitch(
         return out
 
     def _group_by_well(paths: List[str], meta_re: re.Pattern, well_group: str) -> Dict[str, List[str]]:
+        """Return parsed, uppercased well buckets with paths sorted by site."""
         buckets: Dict[str, List[str]] = {}
         for p in paths:
             m = meta_re.search(os.path.basename(p))
@@ -3646,6 +4026,7 @@ def align_image_to_stitch(
             buckets.setdefault(w, []).append(p)
         # sort per site if present
         def _site_key(p):
+            """Return a site, field, or FOV number, or a large sort-last key."""
             m = re.search(r"(?:Site|Field|FOV)[-_]?(\d+)", os.path.basename(p), re.IGNORECASE)
             return int(m.group(1)) if m else 10**9
         for w in list(buckets.keys()):
@@ -3653,6 +4034,7 @@ def align_image_to_stitch(
         return buckets
 
     def _symlink_list(files: List[str], target_dir: str) -> List[str]:
+        """Link or copy ``files`` into ``target_dir`` and return made paths."""
         os.makedirs(target_dir, exist_ok=True)
         made = []
         for sp in files:

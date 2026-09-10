@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import contextlib
 import fnmatch
+import html
 import json
 import shutil
 import subprocess
@@ -17,13 +18,35 @@ from urllib.parse import urlsplit
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
 CONF = ROOT / "docs" / "source" / "conf.py"
 ENGLISH_CATALOG = (
     ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
 )
+REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
+REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+#: Symbols in the shipped English API catalog, which every locale must
+#: match exactly. 8,861 until 2026-09-08; the gap to 10,242 is not one
+#: change but every public-docstring addition since the number was last
+#: touched -- chiefly 368, which gave every public method in the package
+#: its own docstring. It was a bare number with no sentence beside it,
+#: which is how it came to be a year of growth behind while the catalog
+#: it describes was regenerated repeatedly. The surface count and its
+#: accounting live in tests/test_api_i18n_extractor.py; this one exists
+#: to assert the BROWSER renders all of them, so it tracks the catalog
+#: file rather than the extractor.
+#:
+#: 10,243 -> 10,296 on 2026-09-10, from one night's public docstrings: the
+#: OPS modules `ops_cycles`, `ops_solve` and `ops_phenotype`, plus
+#: `i18n.ui_language_resolved_once` and the `fractal_travel` region-tour
+#: helpers. Every one of those cost a nine-language rebuild, which is why
+#: 288 now carries a rule about batching them.
+#:
+#: 10,296 -> 10,306 on merging origin/nightly the same night: the other
+#: session's `layout_policy`, `TourPilot` and two `qt.app` helpers, less the
+#: two tour helpers written here that TourPilot replaced.
+REAL_SYMBOL_COUNT = 10_306
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -94,6 +117,27 @@ window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
 </article></main></body></html>""".encode()
 
 
+def _complete_catalog_page(
+    symbols: tuple[str, ...], harness: str, *, before_script: str = "",
+) -> bytes:
+    """One browser page whose AutoAPI-shaped definitions expose every key."""
+    definitions = "".join(
+        '<dl class="py"><dt id="{}"></dt><dd></dd></dl>'.format(
+            html.escape(symbol, quote=True),
+        )
+        for symbol in symbols
+    )
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>Complete API frontend fixture</title>
+<script>{before_script}</script>
+<script src="/api/api_i18n.js" data-api-catalog-version="unit-content-v1"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
+</script></head><body>
+<main><article role="main" id="furo-main-content">{definitions}</article></main>
+</body></html>""".encode()
+
+
 @contextlib.contextmanager
 def _server(files, *, delays=None, statuses=None):
     requests = []
@@ -149,7 +193,20 @@ def _browser_files(page: bytes, **catalogs):
     return files
 
 
-def _dump_dom(url: str, *, budget=1800) -> str:
+def _real_browser_files(page: bytes):
+    """Serve the complete checked-in catalogs, not reduced fixtures."""
+    files = {
+        "/api/page.html": page,
+        "/api/api_i18n.js": SCRIPT.read_bytes(),
+    }
+    for language in ("en", *REAL_LANGUAGES):
+        files[f"/api/i18n/api/{language}.json"] = (
+            REAL_CATALOG_ROOT / f"{language}.json"
+        ).read_bytes()
+    return files
+
+
+def _dump_dom(url: str, *, budget=1800, wall_timeout=60) -> str:
     if not CHROME:
         pytest.skip("Chrome/Chromium is required for the focused browser test")
     with tempfile.TemporaryDirectory(prefix="spacr-api-i18n-chrome-") as profile:
@@ -175,7 +232,12 @@ def _dump_dom(url: str, *, budget=1800) -> str:
             check=False,
             capture_output=True,
             text=True,
-            timeout=20,
+            # Six fast-suite Python cells can launch Chrome concurrently on
+            # hosted runners.  Startup alone exceeded 20 seconds once under
+            # that contention even though the page's virtual-time budget is
+            # only 1.8 seconds.  Keep every DOM assertion and allow the
+            # external process enough wall time to start deterministically.
+            timeout=wall_timeout,
         )
     assert completed.returncode == 0, completed.stderr[-2000:]
     return completed.stdout
@@ -206,7 +268,11 @@ def test_frontend_source_has_failure_and_freshness_guards():
 def test_autoapi_emits_only_canonical_module_members():
     options = _conf_assignment("autoapi_options")
     ignored = _conf_assignment("autoapi_ignore")
-    assert "members" in options and "undoc-members" in options
+    assert "members" in options
+    # Undocumented objects are implementation surface, not a usable API.
+    # The API catalog contains source-bound public docstrings, so publishing
+    # undoc-members would also create visible objects that cannot be localized.
+    assert "undoc-members" not in options
     # Imported members are duplicate aliases. Their generated ids can be
     # noncanonical and therefore cannot be joined exactly to `spacr.*` catalog
     # keys without ambiguous suffix matching.
@@ -445,3 +511,102 @@ setTimeout(() => {
 
     assert 'data-result="pass"' in dom
     assert not any(path.endswith("zh_CN.json") for path, _query in requests)
+
+
+def test_every_complete_real_catalog_renders_through_the_browser_selector():
+    """Render the complete 10,243-symbol union for every real locale."""
+    assert CHROME, (
+        "Chrome/Chromium is required for the exhaustive API-catalog gate; "
+        "this required-CI assertion must not be skipped"
+    )
+    english = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
+    symbols = tuple(english["symbols"])
+    assert len(symbols) == REAL_SYMBOL_COUNT
+    assert len(set(symbols)) == REAL_SYMBOL_COUNT
+
+    harness = f"""
+const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
+const expectedCount = {REAL_SYMBOL_COUNT};
+const signatures = [...document.querySelectorAll('dl.py dt[id]')];
+const expectedKeys = new Set(signatures.map((signature) => signature.id));
+const seen = [];
+const select = document.querySelector('.spacr-api-language select');
+let position = 0;
+let polls = 0;
+
+function finish(result, reason = '') {{
+  document.body.dataset.result = result;
+  document.body.dataset.reason = reason;
+  document.body.dataset.rendered = seen.join(',');
+  document.querySelector('article[role="main"]').replaceChildren();
+}}
+
+function completePanels(language) {{
+  const panels = [...document.querySelectorAll('.spacr-api-translation')];
+  const renderedLanguage = language.replace('_', '-');
+  if (panels.length !== expectedCount ||
+      panels.some((panel) => panel.lang !== renderedLanguage)) return false;
+  const renderedKeys = new Set(panels.map((panel) => {{
+    const definition = panel.parentElement && panel.parentElement.previousElementSibling;
+    return definition ? definition.id : '';
+  }}));
+  return renderedKeys.size === expectedCount &&
+    [...expectedKeys].every((key) => renderedKeys.has(key));
+}}
+
+function chooseNext() {{
+  if (position === languages.length) {{
+    const wanted = languages.map((language) =>
+      `${{language}}:${{expectedCount}}`).join(',');
+    finish(seen.join(',') === wanted && window.unhandled === 0 ? 'pass' : 'fail',
+      window.unhandled === 0 ? '' : 'unhandled-rejection');
+    return;
+  }}
+  const language = languages[position];
+  select.value = language;
+  select.dispatchEvent(new Event('change'));
+  polls = 0;
+  const poll = setInterval(() => {{
+    polls += 1;
+    if (select.value === language && completePanels(language)) {{
+      clearInterval(poll);
+      seen.push(`${{language}}:${{expectedCount}}`);
+      position += 1;
+      chooseNext();
+    }} else if (select.value === 'en' || polls >= 600) {{
+      clearInterval(poll);
+      finish('fail', `${{language}}:${{select.value}}:${{polls}}`);
+    }}
+  }}, 100);
+}}
+if (signatures.length !== expectedCount || expectedKeys.size !== expectedCount) {{
+  finish('fail', `fixture:${{signatures.length}}:${{expectedKeys.size}}`);
+}} else {{
+  chooseNext();
+}}
+"""
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    page = _complete_catalog_page(symbols, harness, before_script=before)
+    files = _real_browser_files(page)
+    with _server(files) as (base, requests):
+        dom = _dump_dom(
+            f"{base}/api/page.html",
+            budget=30_000,
+            wall_timeout=180,
+        )
+
+    assert 'data-result="pass"' in dom
+    rendered = ",".join(
+        f"{language}:{REAL_SYMBOL_COUNT}" for language in REAL_LANGUAGES
+    )
+    assert f'data-rendered="{rendered}"' in dom
+    requested = {path for path, _query in requests if path.endswith(".json")}
+    assert {
+        f"/api/i18n/api/{language}.json"
+        for language in ("en", *REAL_LANGUAGES)
+    } <= requested

@@ -6,6 +6,7 @@ database browser rather than mocking SQLite's lock state.
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import json
 import os
 import sqlite3
@@ -19,12 +20,28 @@ from spacr.cli_database import main as database_cli
 from spacr.database_concurrency import (
     MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS,
     DatabaseBusy,
+    DatabaseConfigurationError,
     connect,
     inspect_database,
     run_concurrency_probe,
     transaction,
 )
 from spacr.errors import RUN_STATUS_TABLE, RunLedger
+
+
+@pytest.mark.parametrize(
+    "record",
+    (db_concurrency.DatabaseHealth, db_concurrency.ConcurrencyProbeResult),
+)
+def test_database_audit_records_document_every_reported_field(record):
+    """Every health and stress-probe value is explained in the public API."""
+    documentation = record.__doc__ or ""
+    missing = [
+        item.name
+        for item in fields(record)
+        if f":param {item.name}:" not in documentation
+    ]
+    assert not missing, f"{record.__name__}: {missing}"
 
 
 def _create_database(path, *, journal_mode=None):
@@ -237,6 +254,25 @@ def test_exhausted_lock_budget_raises_database_busy(tmp_path):
         contender.close()
 
 
+def test_zero_attempts_is_clamped_to_one_lock_attempt(tmp_path):
+    path = tmp_path / "busy.sqlite"
+    _create_database(path)
+    holder = connect(path, timeout=0.01)
+    contender = connect(path, timeout=0.01)
+    try:
+        holder.execute("BEGIN IMMEDIATE")
+        with pytest.raises(DatabaseBusy, match="after 1 transaction attempt"):
+            with transaction(
+                contender, attempts=0, initial_delay=0,
+                maximum_delay=0, busy_timeout=0,
+            ):
+                pytest.fail("a locked transaction body must never start")
+    finally:
+        holder.rollback()
+        holder.close()
+        contender.close()
+
+
 def test_read_only_connection_is_enforced_by_sqlite(tmp_path):
     path = tmp_path / "readonly.sqlite"
     _create_database(path)
@@ -276,6 +312,62 @@ def test_disposable_probe_has_exact_rows_and_concurrent_reads():
     assert not os.path.exists(result.path)
 
 
+def test_a_probe_that_never_starts_leaves_nothing_in_the_temp_directory():
+    """A journal mode the connection refuses is rejected AFTER the scratch
+    database has been created, and the cleanup was the last statement of the
+    function -- so every rejected run left an empty scratch database in the
+    system temp directory, for good. Nothing has been written by then, so
+    there is nothing to keep: the deliberate survivor is the STALLED one,
+    whose database is worth inspecting."""
+    import glob
+    import tempfile
+
+    pattern = os.path.join(tempfile.gettempdir(), "spacr-db-concurrency-*")
+    before = set(glob.glob(pattern))
+
+    with pytest.raises(DatabaseConfigurationError):
+        run_concurrency_probe(writers=1, readers=1, writes_per_writer=1,
+                              journal_mode="MEMORY")
+
+    assert set(glob.glob(pattern)) == before
+
+
+def test_a_probe_whose_setup_fails_leaves_nothing_behind(monkeypatch):
+    """Any failure between making the directory and reading the metrics back
+    is the same leak, and there are several -- the table create, the barrier,
+    the read back. One handler rather than one per raise site."""
+    import glob
+    import tempfile
+
+    import spacr.database_concurrency as module
+
+    pattern = os.path.join(tempfile.gettempdir(), "spacr-db-concurrency-*")
+    before = set(glob.glob(pattern))
+    monkeypatch.setattr(module.threading, "Barrier",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            RuntimeError("no threads today")))
+
+    with pytest.raises(RuntimeError, match="no threads today"):
+        run_concurrency_probe(writers=1, readers=1, writes_per_writer=1)
+
+    assert set(glob.glob(pattern)) == before
+
+
+def test_a_probe_at_an_explicit_path_that_fails_still_clears_that_path(
+        tmp_path):
+    """The scratch file is created before the journal mode is rejected, and
+    it stays -- which makes the NEXT run on that path fail with
+    FileExistsError against a database the user never got a probe out of."""
+    path = tmp_path / "scratch.sqlite"
+
+    with pytest.raises(DatabaseConfigurationError):
+        run_concurrency_probe(path, writers=1, readers=1,
+                              writes_per_writer=1, journal_mode="MEMORY")
+
+    assert not path.exists(), (
+        "the next run on this path now fails with FileExistsError")
+
+
 def test_probe_refuses_to_touch_an_existing_database(tmp_path):
     path = tmp_path / "scientific-results.sqlite"
     _create_database(path)
@@ -297,6 +389,34 @@ def test_probe_rejects_nonpositive_work_sizes(keyword):
     options[keyword] = 0
     with pytest.raises(ValueError, match=rf"{keyword} must be at least 1"):
         run_concurrency_probe(**options)
+
+
+@pytest.mark.parametrize(
+    "invalid", [True, 1.9, "2", None],
+)
+@pytest.mark.parametrize(
+    "keyword", ["writers", "readers", "writes_per_writer"],
+)
+def test_probe_refuses_lossy_or_implicit_work_size_coercion(keyword, invalid):
+    """A diagnostic never reports a different workload from the one asked."""
+    options = {"writers": 1, "readers": 1, "writes_per_writer": 1}
+    options[keyword] = invalid
+    with pytest.raises(
+        TypeError, match=rf"{keyword} must be a positive integer"
+    ):
+        run_concurrency_probe(**options)
+
+
+@pytest.mark.parametrize("invalid", [None, 1, "", "TRUNCATE"])
+def test_probe_requires_an_explicit_supported_journal_mode(invalid):
+    """A result cannot quietly mean DELETE when no mode was requested."""
+    with pytest.raises(
+        DatabaseConfigurationError, match="journal_mode must be one of"
+    ):
+        run_concurrency_probe(
+            writers=1, readers=1, writes_per_writer=1,
+            journal_mode=invalid,
+        )
 
 
 def test_health_check_is_read_only_and_reports_integrity(tmp_path):

@@ -20,7 +20,6 @@ import threading
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Fake Popen — the transport boundary
 # ---------------------------------------------------------------------------
@@ -227,8 +226,10 @@ def test_stream_process_cleanup_escalates_wait_terminate_kill(monkeypatch):
 
     assert list(_stream_process(["claude"])) == ["x\n"]
     kinds = [c[0] for c in proc.calls]
-    # first wait raised -> terminate -> second wait raised -> kill
-    assert kinds == ["wait", "terminate", "wait", "kill"]
+    # first wait raised -> terminate -> second wait raised -> kill -> reap
+    assert kinds == ["wait", "terminate", "wait", "kill", "wait"]
+    assert [timeout for kind, timeout in proc.calls if kind == "wait"] == [
+        1, 1, 1]
 
 
 def test_stream_process_cleanup_survives_terminate_failure(monkeypatch):
@@ -310,6 +311,7 @@ def test_cancel_stream_swallows_terminate_errors():
 def speed(monkeypatch, tmp_path):
     """Isolate ai settings QSettings into a temp .ini file."""
     from PySide6.QtCore import QSettings
+
     from spacr.qt.ai import settings as ai_settings
 
     store = QSettings(str(tmp_path / "ai.ini"), QSettings.IniFormat)
@@ -689,6 +691,7 @@ def test_worker_stderr_print_failure_does_not_mask_the_error(
 def test_make_stream_thread_parents_thread_and_detaches_worker(
         qtbot, qt_theme_applied):
     from PySide6.QtCore import QObject, QThread
+
     from spacr.qt.ai.worker import make_stream_thread
 
     owner = QObject()
@@ -720,6 +723,7 @@ def _thread_stopped(thread) -> bool:
 
 def test_make_stream_thread_runs_the_stream_and_quits(qtbot, qt_theme_applied):
     from PySide6.QtCore import QObject
+
     from spacr.qt.ai.worker import make_stream_thread
 
     owner = QObject()
@@ -746,6 +750,7 @@ def test_make_stream_thread_runs_the_stream_and_quits(qtbot, qt_theme_applied):
 def test_make_stream_thread_worker_runs_off_the_gui_thread(qtbot,
                                                             qt_theme_applied):
     from PySide6.QtCore import QObject
+
     from spacr.qt.ai.worker import make_stream_thread
 
     seen = {}

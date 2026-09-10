@@ -21,9 +21,10 @@ reproducibility hole: six months later nobody can say which fields were
 touched, by whom, or what they looked like before — and a reviewer asking "did
 you edit the data?" gets an answer based on memory. So every correction here
 goes through :class:`CurationLog`: an append-only ledger, written beside the
-artefact it describes, recording what changed, when, and to what. Nothing can
-be edited without leaving one, because the edit methods are the only way in
-and they all append.
+artefact it describes, recording what changed, when, and to what. Every
+correction made through the supported edit methods leaves an entry. The public
+layer and table objects remain accessible to views and advanced callers;
+mutating those objects directly bypasses this provenance guarantee.
 
 What the ledger is, and is not
 ------------------------------
@@ -45,10 +46,12 @@ import json
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-import pandas as pd
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 __all__ = [
     "CurationError",
@@ -62,6 +65,23 @@ __all__ = [
     "log_path_for",
     "is_curated",
 ]
+
+
+def _pandas():
+    """``pandas``, imported on first use rather than at module scope.
+
+    THIS MODULE IS ON THE STARTUP PATH. `app.folded_children()` imports every
+    fold host to read its `FOLDED_APPS`, and `make_masks` imports
+    :class:`CurationLog` from here -- so a module-level ``import pandas`` put
+    pandas into the process before Home had painted. The packaged smoke test
+    asserts Home crosses no operation-only import boundary and named pandas
+    for exactly that reason.
+
+    :returns: the ``pandas`` module.
+    """
+    import pandas
+
+    return pandas
 
 
 class CurationError(ValueError):
@@ -152,19 +172,19 @@ def is_curated(artifact: Any) -> bool:
 class CurationEdit:
     """One recorded correction.
 
-    :ivar kind: what was done — ``"paint"``, ``"join"``, ``"split"``,
-        ``"delete"``.
-    :ivar target: what it was done to, in the terms of that kind: a label, a
-        track id, a pair of track ids.
-    :ivar when: UTC ISO-8601, from :func:`_now`.
-    :ivar who: the operating-system user, so a shared dataset says which
-        person made a call. Not identity in any security sense — it is the
-        name to ask, not a signature.
-    :ivar n_changed: how much moved (voxels painted, rows re-assigned). The
-        number that makes a stroke that did nothing distinguishable from one
-        that repainted a third of the field.
-    :ivar detail: anything else worth keeping — the brush radius, the frame a
-        split happened at, the labels that were overwritten.
+    :param kind: correction verb, normally ``"paint"``, ``"undo"``,
+        ``"join"``, ``"split"``, or ``"delete"``; the ledger groups and
+        displays this value verbatim.
+    :param target: corrected object in that operation's terms, such as a
+        painted label, track identifier, or pair of track identifiers.
+    :param when: UTC ISO-8601 timestamp; direct construction defaults to
+        :func:`_now`.
+    :param who: operating-system user recorded for human provenance, not a
+        cryptographic identity.
+    :param n_changed: number of voxels painted or rows reassigned; zero records
+        that nothing moved.
+    :param detail: additional operation-specific provenance such as brush
+        radius, split frame, or overwritten labels.
     """
 
     kind: str
@@ -175,6 +195,7 @@ class CurationEdit:
     detail: Mapping[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Return the field mapping stored for this edit in a ledger."""
         return {"kind": self.kind, "target": self.target, "when": self.when,
                 "who": self.who, "n_changed": int(self.n_changed),
                 "detail": dict(self.detail)}
@@ -224,6 +245,13 @@ class CurationLog:
     """
 
     def __init__(self, artifact: Any = "", *, source: str = "spacr"):
+        """Initialize an empty ledger for one artifact and editing source.
+
+        :param artifact: artifact identity recorded in future serialized
+            ledgers; a falsey value becomes ``""``.
+        :param source: description of the editing application, coerced to
+            text.
+        """
         self.artifact = str(artifact or "")
         self.source = str(source)
         self._edits: List[CurationEdit] = []
@@ -266,6 +294,7 @@ class CurationLog:
         return edit
 
     def __len__(self) -> int:
+        """Return the number of corrections currently recorded."""
         return len(self._edits)
 
     def counts(self) -> Dict[str, int]:
@@ -289,6 +318,7 @@ class CurationLog:
 
     # -- persistence --------------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
+        """Return the versioned mapping written as the ledger JSON document."""
         return {"schema_version": 1, "artifact": self.artifact,
                 "source": self.source,
                 "edits": [edit.to_dict() for edit in self._edits]}
@@ -312,8 +342,7 @@ class CurationLog:
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         temporary = os.path.join(parent, f".{os.path.basename(target)}.tmp")
         with open(temporary, "w", encoding="utf-8") as handle:
             json.dump(self.to_dict(), handle, indent=2, sort_keys=True,
@@ -387,16 +416,17 @@ class LabelEdit:
     brush stroke touches a few thousand voxels of a field that is tens of
     millions, so a hundred strokes cost less than one copy of the mask.
 
-    :ivar index: one integer array per axis — what
-        :meth:`spacr.layers.LabelsLayer.brush_index` returned, restricted to
-        the elements that actually changed.
-    :ivar before: the label each of those elements held.
-    :ivar after: the label they were set to.
-    :ivar radius: the brush radius this dab was laid with, in world units.
-        Carried on the dab rather than read off the session when the stroke
-        closes, because the session's radius is a mutable default and the
-        ledger has to say what *happened*, not what the controls read
-        afterwards.
+    :param index: one integer coordinate array per labels-data axis,
+        restricted to positions this dab actually changed and aligned
+        element-for-element with ``before``.
+    :param before: previous label value at each coordinate in ``index``; undo
+        groups these values and writes each one back to its original
+        positions.
+    :param after: integer label written at every indexed position; stroke
+        summaries record it as the value painted.
+    :param radius: brush radius used for this dab in world units. It is
+        retained as provenance even if the session radius changes later;
+        defaults to ``0.0`` for manually constructed records.
     """
 
     index: Tuple[np.ndarray, ...]
@@ -405,6 +435,7 @@ class LabelEdit:
     radius: float = 0.0
 
     def __len__(self) -> int:
+        """Return the number of label elements changed by this dab."""
         return int(len(self.before))
 
     def revert(self, layer) -> int:
@@ -444,16 +475,33 @@ class MaskCuration:
     :param history: how many strokes :meth:`undo` can walk back. Bounded, so a
         long session cannot grow without limit; the *ledger* is unbounded and
         is what a reviewer reads.
+    :param log: the :class:`CurationLog` every edit is recorded in. Defaults
+        to a fresh one for this artifact; pass an existing log to record a
+        mask and its tracks into a single ledger.
 
     Strokes, not points. A drag is dozens of :meth:`paint` calls and one thing
     the user did, so :meth:`begin_stroke` / :meth:`end_stroke` group them and
     undo takes back the whole stroke. Painting without opening a stroke is
     still legal — one dab is one stroke — because a click is a legitimate
     edit and should not need ceremony.
+
+    :meth:`save_mask` is how a session ends: it writes the corrected labels
+    and the ledger together. :meth:`save_log` writes only the ledger, and is
+    for a caller that has already written the pixels itself.
     """
 
     def __init__(self, layer, *, artifact: Any = "", history: int = 64,
                  log: Optional[CurationLog] = None):
+        """Attach a labels layer, bounded undo history, and provenance log.
+
+        :param layer: labels layer whose data the brush edits.
+        :param artifact: artifact identity for persistence; a falsey value
+            falls back to the layer name and then ``"mask"``.
+        :param history: maximum completed strokes retained for undo, clamped
+            to at least one.
+        :param log: existing ledger to share, or ``None`` for a new curation
+            ledger.
+        """
         self.layer = layer
         self.artifact = str(artifact or getattr(layer, "name", "") or "mask")
         self.history = max(1, int(history))
@@ -656,6 +704,7 @@ class MaskCuration:
 
     @property
     def can_undo(self) -> bool:
+        """Return whether at least one completed stroke remains undoable."""
         return bool(self._strokes)
 
     def __len__(self) -> int:
@@ -677,6 +726,45 @@ class MaskCuration:
         """
         return self.log.write_beside(artifact or self.artifact)
 
+    def save_mask(self, artifact: Optional[Any] = None) -> str:
+        """Write the corrected labels to disk, with the ledger beside them.
+
+        The pixels and the record are requested by one call, because either
+        one alone is a lie. They are two sequential filesystem writes, not an
+        atomic transaction; if a process stops between them, call this method
+        again to bring the ledger back in step. A ledger written on its own
+        asserts corrections to a file whose pixels are untouched, and
+        :func:`is_curated` then reports that untouched file as hand-edited;
+        labels written on their own are a curated mask that is
+        byte-indistinguishable from a segmented one, which is the hole this
+        module exists to close.
+
+        :param artifact: where the labels go; anything falsy — including the
+            default ``None`` — means :attr:`artifact`. The extension chooses
+            the format: ``.npy`` writes NumPy, anything else writes a
+            compressed uint16 TIFF, so the resolved path is what comes back
+            and need not be what went in.
+        :returns: the path the labels were written to. The ledger sits at that
+            path plus :data:`LOG_SUFFIX`, so the two can never name different
+            files.
+        :raises CurationError: when there is no path to write to.
+
+        A session that painted nothing writes the labels and no ledger, for
+        the same reason :meth:`save_log` records nothing: a sidecar beside
+        every mask ever opened answers no question.
+        """
+        target = artifact or self.artifact
+        if not target:
+            raise CurationError(
+                "this curation session has no artefact path, so there is "
+                "nowhere to write the mask; pass one to save_mask()")
+        from .mask_io import save_mask as write_mask
+
+        written = str(write_mask(target, np.asarray(self.layer.data)))
+        if len(self.log):
+            self.log.write_beside(written)
+        return written
+
 
 # ---------------------------------------------------------------------------
 # Curating tracks
@@ -689,22 +777,36 @@ class TrackCuration:
         i.e. ``frame``, ``track_id``, ``original_label`` and the centroid.
         Copied, so the caller's frame is never edited underneath them.
     :param artifact: the tracks CSV, for the ledger.
+    :param log: the :class:`CurationLog` every edit is recorded in. Defaults
+        to a fresh one for this artifact; pass the log a :class:`MaskCuration`
+        is using to keep both halves of one curation session on one record.
 
-    Every operation leaves the table *consistent*, and consistency here has a
-    definition worth stating because it is what the checks enforce:
+    Every operation preserves a consistent input table, and consistency here
+    has a definition worth stating because it is what the checks enforce:
 
     * one row per ``(track_id, frame)`` — a track is one object's path, so a
       track that is in two places at one time is not a track;
     * every track's frames are the frames it actually has, and a join may not
       produce a track that overlaps itself in time.
 
-    :meth:`check` returns the violations rather than raising, so a table that
-    arrived broken can be *shown* to be broken instead of making every
-    operation on it fail with the same message.
+    Construction validates only the two key columns. :meth:`check` returns
+    pre-existing violations rather than raising, so a table that arrived
+    broken can be *shown* to be broken instead of making every operation on
+    it fail with the same message.
     """
 
-    def __init__(self, tracks: pd.DataFrame, *, artifact: Any = "",
+    def __init__(self, tracks: "pd.DataFrame", *, artifact: Any = "",
                  log: Optional[CurationLog] = None):
+        """Validate key columns and attach a copied table and provenance log.
+
+        :param tracks: source track table; it must contain ``frame`` and
+            ``track_id`` and is copied before any operation.
+        :param artifact: persisted track artifact identity; a falsey value
+            becomes ``"tracks"``.
+        :param log: existing ledger to share, or ``None`` for a new curation
+            ledger.
+        :raises CurationError: if either required key column is absent.
+        """
         columns = _track_columns()
         missing = [c for c in ("frame", "track_id") if c not in tracks.columns]
         if missing:
@@ -750,7 +852,7 @@ class TrackCuration:
         frames = self.frames_of(track_id)
         return (frames[0], frames[-1]) if frames else None
 
-    def to_frame(self) -> pd.DataFrame:
+    def to_frame(self) -> "pd.DataFrame":
         """The curated table, sorted by track then frame."""
         return self.tracks.sort_values(
             ["track_id", "frame"], kind="stable").reset_index(drop=True)
@@ -762,9 +864,9 @@ class TrackCuration:
         track deleted ten minutes ago makes the ledger ambiguous, and the
         ledger is the point.
         """
-        numeric = pd.to_numeric(self.tracks["track_id"], errors="coerce")
+        numeric = _pandas().to_numeric(self.tracks["track_id"], errors="coerce")
         top = numeric.max()
-        return int(top) + 1 if pd.notna(top) else 1
+        return int(top) + 1 if _pandas().notna(top) else 1
 
     # -- consistency ---------------------------------------------------------
     def check(self) -> List[str]:
@@ -787,6 +889,11 @@ class TrackCuration:
         return problems
 
     def _require_track(self, track_id: Any) -> None:
+        """Require an exact current track identifier before an edit.
+
+        :param track_id: identifier compared exactly with current table values.
+        :raises CurationError: if no current row carries ``track_id``.
+        """
         if track_id not in set(self.tracks["track_id"]):
             raise CurationError(
                 f"no track {track_id!r} in this table; have "
@@ -910,7 +1017,9 @@ class TrackCuration:
 
         One call, deliberately. A curated table written without its ledger is
         exactly the reproducibility hole this module exists to close, and
-        leaving the second write to the caller is how that happens.
+        leaving the second write to the caller is how that happens. The CSV
+        and ledger remain sequential filesystem writes rather than one atomic
+        transaction; retry this method if a process stops between them.
 
         :param path: where the CSV goes; missing parent directories are
             created. Two files are written, not one — the ledger lands at
@@ -924,8 +1033,7 @@ class TrackCuration:
         """
         target = os.fspath(path)
         parent = os.path.dirname(os.path.abspath(target))
-        if parent:
-            os.makedirs(parent, exist_ok=True)
+        os.makedirs(parent, exist_ok=True)
         self.to_frame().to_csv(target, index=False)
         self.log.artifact = target
         self.log.write_beside(target)

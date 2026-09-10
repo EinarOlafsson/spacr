@@ -1,0 +1,110 @@
+{
+  "id": "37_batch",
+  "number": 37,
+  "slug": "batch",
+  "title": "Batch Runner",
+  "series": 5,
+  "app_key": "batch",
+  "section": "Data and batch runs",
+  "description": "Validate, persist, and execute an ordered queue of real spaCR module jobs with dependencies and separate logs.",
+  "objectives": [
+    "Add validated module-and-settings jobs with labels, dependencies, and command-line overrides.",
+    "Reorder, validate, save, and reload an unattended queue before execution.",
+    "Run jobs one at a time in isolated processes and audit per-job status and logs."
+  ],
+  "prerequisite": "One saved JSON or CSV settings file for each headless spaCR module job.",
+  "scenes": [
+    {
+      "narration": "Batch Runner stacks arbitrary spaCR modules and settings into one unattended queue. Unlike Plate Queue, which applies one pipeline to many plates, Batch Runner can mix modules, inputs, overrides, and dependencies. Jobs run strictly one at a time so they do not compete for one GPU.",
+      "visual": "01_overview",
+      "focus_key": "screen",
+      "click_key": "nav",
+      "hold_after": 0.82,
+      "speech_text": "Batch Runner stacks arbitrary spacer modules and settings into one unattended queue. Unlike Plate Queue, which applies one pipeline to many plates, Batch Runner can mix modules, inputs, overrides, and dependencies. Jobs run strictly one at a time so they do not compete for one G P U."
+    },
+    {
+      "narration": "Choose a headless module and the exact settings file that job should receive. Add a descriptive label, optional prerequisite job identifiers, and optional key-equals-value overrides. This first job performs a real lossless conversion of one four-channel field. Click Add job.",
+      "visual": "02_add_first",
+      "focus_key": "editor",
+      "click_key": "add",
+      "hold_after": 0.76,
+      "speech_text": "Choose a headless module and the exact settings file that job should receive. Add a descriptive label, optional prerequisite job identifiers, and optional key equals value overrides. This first job performs a real lossless conversion of one four channel field. Click Add job."
+    },
+    {
+      "narration": "The job receives the stable identifier convert-1 and is checked immediately. Batch Runner resolves module defaults, parses the settings file and overrides, validates paths and values, and refuses an invalid job now instead of discovering it during an overnight run.",
+      "visual": "03_first_ready",
+      "focus_key": "table",
+      "hold_after": 0.76,
+      "speech_text": "The job receives the stable identifier convert one and is checked immediately. Batch Runner resolves module defaults, parses the settings file and overrides, validates paths and values, and refuses an invalid job now instead of discovering it during an overnight run."
+    },
+    {
+      "narration": "The second real conversion names convert-1 in After, so it runs only if that prerequisite succeeds. Its plate_naming equals name override is layered over the saved settings without copying the file. If convert-1 fails, this job is marked skipped rather than running on incomplete upstream output. Click Add job.",
+      "visual": "04_add_dependent",
+      "focus_key": "editor",
+      "click_key": "add",
+      "hold_after": 0.82,
+      "speech_text": "The second real conversion names convert one in After, so it runs only if that prerequisite succeeds. Its plate naming equals name override is layered over the saved settings without copying the file. If convert one fails, this job is marked skipped rather than running on incomplete upstream output. Click Add job."
+    },
+    {
+      "narration": "The third real conversion has no prerequisite and can still run when an unrelated job fails under continue-on-error policy. Add it as an independent job. This lesson uses three transferred microscopy fields copied byte-for-byte into isolated folders; every queued process will perform a genuine conversion.",
+      "visual": "05_add_independent",
+      "focus_key": "editor",
+      "click_key": "add",
+      "hold_after": 0.8,
+      "speech_text": "The third real conversion has no prerequisite and can still run when an unrelated job fails under continue on error policy. Add it as an independent job. This lesson uses three transferred microscopy fields copied byte for byte into isolated folders; every queued process will perform a genuine conversion."
+    },
+    {
+      "narration": "The table now shows run order, stable job identifiers, modules, labels, dependencies, pending status, elapsed time, and each job's own log. Select a row to inspect its settings and log. Duplicate, Remove, and Move controls build and reorder a larger night of work.",
+      "visual": "06_queue_ready",
+      "focus_key": "table",
+      "hold_after": 0.8,
+      "speech_text": "The table now shows run order, stable job identifiers, modules, labels, dependencies, pending status, elapsed time, and each job's own log. Select a row to inspect its settings and log. Duplicate, Remove, and Move controls build and reorder a larger night of work."
+    },
+    {
+      "narration": "Select the independent third job and click Move up. Reordering is safe here because the dependent conversion remains below convert-1. Moving a prerequisite below its dependent would produce a visible validation error and disable the run.",
+      "visual": "07_reorder",
+      "focus_key": "toolbar",
+      "click_key": "move_up",
+      "hold_after": 0.7,
+      "speech_text": "Select the independent third job and click Move up. Reordering is safe here because the dependent conversion remains below convert one. Moving a prerequisite below its dependent would produce a visible validation error and disable the run."
+    },
+    {
+      "narration": "Click Validate after editing or loading a queue. Validation reports every error and warning together: missing settings, unknown modules, invalid paths or values, duplicate identifiers, later prerequisites, and dependency cycles. The run button remains disabled while any blocking problem exists.",
+      "visual": "08_validate",
+      "focus_key": "toolbar",
+      "click_key": "validate",
+      "hold_after": 0.74,
+      "speech_text": "Click Validate after editing or loading a queue. Validation reports every error and warning together: missing settings, unknown modules, invalid paths or values, duplicate identifiers, later prerequisites, and dependency cycles. The run button remains disabled while any blocking problem exists."
+    },
+    {
+      "narration": "All three jobs are valid. Continue on failure permits independent jobs to proceed while dependents are skipped; Stop at first failure halts everything later. The consecutive-failure threshold stops a queue that is repeatedly failing for the same systematic reason. Stop waits for the current job to finish safely rather than killing it mid-write.",
+      "visual": "09_validated",
+      "focus_key": "run",
+      "hold_after": 0.9,
+      "speech_text": "All three jobs are valid. Continue on failure permits independent jobs to proceed while dependents are skipped; Stop at first failure halts everything later. The consecutive failure threshold stops a queue that is repeatedly failing for the same systematic reason. Stop waits for the current job to finish safely rather than killing it mid write."
+    },
+    {
+      "narration": "Click Save queue before leaving it unattended. The readable JSON stores order, dependencies, overrides, and status. Batch Runner updates it atomically after every transition, so a restart can resume pending or not-run jobs without duplicating completed work. Load queue restores the same ledger later.",
+      "visual": "10_save",
+      "focus_key": "toolbar",
+      "click_key": "save",
+      "hold_after": 0.8,
+      "speech_text": "Click Save queue before leaving it unattended. The readable J S O N stores order, dependencies, overrides, and status. Batch Runner updates it atomically after every transition, so a restart can resume pending or not run jobs without duplicating completed work. Load queue restores the same ledger later."
+    },
+    {
+      "narration": "With the reviewed queue saved, click Run queue. Each job launches as its own spacr-run process using this spaCR environment. A segmentation crash would end that job rather than the interface or later independent work, and standard output plus errors go into that job's separate log.",
+      "visual": "11_run",
+      "focus_key": "run",
+      "click_key": "run_queue",
+      "hold_after": 0.78,
+      "speech_text": "With the reviewed queue saved, click Run queue. Each job launches as its own spacer run process using this spacer environment. A segmentation crash would end that job rather than the interface or later independent work, and standard output plus errors go into that job's separate log."
+    },
+    {
+      "narration": "All three real subprocess jobs finish successfully. The progress bar reaches three of three, the table preserves each status and duration, the summary distinguishes success, failure, skip, not-run, and partial outcomes, and the selected job's log contains its exact command and conversion report. Each destination holds four TIFFs and a provenance map; all source hashes remain unchanged.",
+      "visual": "12_result",
+      "focus_key": "summary",
+      "hold_after": 0.92,
+      "speech_text": "All three real subprocess jobs finish successfully. The progress bar reaches three of three, the table preserves each status and duration, the summary distinguishes success, failure, skip, not run, and partial outcomes, and the selected job's log contains its exact command and conversion report. Each destination holds four T I F F files and a provenance map; all source hashes remain unchanged."
+    }
+  ]
+}

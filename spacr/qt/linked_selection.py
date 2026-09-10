@@ -97,11 +97,8 @@ ObjectOpener = Callable[[ObjectRequest], Any]
 class NoObjectOpener(LookupError):
     """Nothing is registered to open objects of the requested kind.
 
-    Raised rather than returning quietly. A silent no-op here is a button that
-    does nothing on click, which is indistinguishable from a slow one and gets
-    reported as "the app froze". A caller that legitimately might have no
-    destination — a context-menu entry it wants to grey out rather than
-    offer — should ask :func:`has_object_opener` first.
+    A caller for which a missing destination is expected, such as an optional
+    context-menu action, should call :func:`has_object_opener` first.
     """
 
 
@@ -125,6 +122,8 @@ class LinkedSelection(QObject):
     The opener registry lives on the instance rather than in a module global
     so that a test — or a second window — gets its own routing table by
     constructing its own :class:`LinkedSelection`.
+
+    :param parent: parent widget.
     """
 
     filter_changed = Signal()
@@ -132,6 +131,10 @@ class LinkedSelection(QObject):
     objects_opened = Signal(object)
 
     def __init__(self, parent=None):
+        """Create the shared link with no filter, no selection and no openers.
+
+        :param parent: parent object, or ``None``.
+        """
         super().__init__(parent)
         self._filter = DataFilter()
         self._selection = Selection.none()
@@ -161,11 +164,21 @@ class LinkedSelection(QObject):
         self.filter_changed.emit()
 
     def clear_filter(self) -> None:
+        """Drop the shared filter, showing every row again.
+
+        BROADCAST, like any other filter change: every linked view is showing
+        a subset because of this filter, so clearing it silently would leave
+        them all filtered by something no longer there.
+        """
         self.set_filter(DataFilter())
 
     # -- selection -----------------------------------------------------
     @property
     def selection(self) -> Selection:
+        """What is currently selected across the linked views.
+
+        :returns: the selection.
+        """
         return self._selection
 
     def set_selection(self, selection: Selection) -> None:
@@ -457,9 +470,17 @@ class LinkedView:
 
     # -- internals -------------------------------------------------------
     def _linked_filter_changed(self) -> None:
+        """Hand the link's new filter to this view."""
         self.on_linked_filter_changed(self.link.filter)
 
     def _linked_selection_changed(self) -> None:
+        """Hand the link's new selection to this view, unless this view published it.
+
+        A view that published a selection has already applied it, so hearing it
+        back would be an echo -- and for a view that re-publishes on apply, an
+        endless one. Echo suppression is switched off by ``_link_echo`` for the
+        tests that need to see the round trip.
+        """
         selection = self.link.selection
         if (not self._link_echo and self.link_source
                 and selection.source == self.link_source):

@@ -111,12 +111,17 @@ def _screen(qtbot, opacity, *, ambient=True):
     window.show()
     QApplication.processEvents()
 
-    # The bars poll psutil / GPUtil on a timer. Freeze them at 0 so every
+    # The bars poll psutil / GPUtil on a worker. Freeze them at 0 so every
     # track is entirely unfilled: the chunk is opaque on purpose (it is the
     # reading), and a live value would move the boundary between renders.
+    # Stopping the timer prevents the next poll; advancing the generation is
+    # what rejects the poll that showEvent already started. Without both, its
+    # queued result can arrive between the dark and light renders and make a
+    # real filled chunk look like an opaque empty track.
     timer = getattr(screen, "_usage_timer", None)
     if timer is not None:
         timer.stop()
+    screen._usage_generation += 1
     for _, attr in BARS:
         getattr(screen, attr).set_value(0)
     QApplication.processEvents()

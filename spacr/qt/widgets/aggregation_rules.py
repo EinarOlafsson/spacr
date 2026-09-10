@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from ...merge_tables import AGGREGATIONS, aggregation_for, aggregation_plan
 from ..theme import SPACING
+from .sortable_table import install_sorting, tree_item
 
 
 class AggregationRulesDialog(QDialog):
@@ -27,12 +28,26 @@ class AggregationRulesDialog(QDialog):
     Only columns that were CHANGED become overrides. Recording every row would
     freeze today's defaults into the settings, so a later improvement to the
     rules would never reach a user who had once opened this window.
+
+    :param frame: the loaded table. Its COLUMNS are what the dialog offers a
+        rule for, so a screen with nothing loaded offers nothing.
+    :param parent: parent widget.
+    :param overrides: the rules the user has already chosen, column to rule.
+        Copied, and only the columns named here differ from the default the
+        rules derive -- which is the mechanism behind the paragraph above.
     """
 
     rules_changed = Signal(dict)
 
     def __init__(self, frame: pd.DataFrame, parent=None, *,
                  overrides: Optional[Mapping[str, str]] = None):
+        """Build the per-measurement aggregation rules dialog.
+
+        :param frame: the table whose measurements are listed.
+        :param parent: parent widget, or ``None``.
+        :param overrides: rules the user has already changed, applied over the
+            inferred plan.
+        """
         super().__init__(parent)
         self.setWindowTitle("Aggregation rules")
         self.setObjectName("AggregationRulesDialog")
@@ -56,6 +71,7 @@ class AggregationRulesDialog(QDialog):
         outer.addWidget(self.search)
 
         self.tree = QTreeWidget(self)
+        install_sorting(self.tree)
         self.tree.setObjectName("AggregationRules")
         self.tree.setColumnCount(2)
         self.tree.setHeaderLabels(["Measurement", "Combine by"])
@@ -70,9 +86,15 @@ class AggregationRulesDialog(QDialog):
         outer.addWidget(buttons)
 
     def _fill(self, frame: pd.DataFrame) -> None:
+        """List every measurement with the rule it would roll up by.
+
+        :param frame: the table to infer the plan from; the caller's overrides
+            are applied on top, so a row the user has changed opens on their
+            answer rather than on the inferred one.
+        """
         plan = aggregation_plan(frame, overrides=self._overrides)
         for column, how in sorted(plan.items()):
-            item = QTreeWidgetItem([str(column), ""])
+            item = tree_item([str(column), ""])
             self.tree.addTopLevelItem(item)
             box = QComboBox(self.tree)
             box.addItems(AGGREGATIONS)
@@ -98,10 +120,21 @@ class AggregationRulesDialog(QDialog):
         self.rules_changed.emit(dict(self._overrides))
 
     def _filter(self, text: str) -> None:
+        """Hide the measurements whose names do not contain the filter text.
+
+        :param text: the needle; matched case-insensitively, and an empty one
+            shows everything.
+        """
         needle = str(text).strip().lower()
         for index in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(index)
             item.setHidden(bool(needle) and needle not in item.text(0).lower())
 
     def overrides(self) -> Dict[str, str]:
+        """The per-column aggregations the user chose.
+
+        A COPY, so the dialog's own state cannot be edited through it.
+
+        :returns: ``{column: aggregation}``.
+        """
         return dict(self._overrides)

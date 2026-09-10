@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "60_pca",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Resuma medições correlacionadas por componentes principais e examine as características que mais contribuem para eles.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar PCA.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta PCA. Resuma medições correlacionadas por componentes principais e examine as características que mais contribuem para eles.",
+        "Selecione uma tabela de medições, características numéricas e rótulos ou grupos opcionais.",
+        "Na área principal de configuração, defina a filtragem, o tratamento dos valores ausentes, o escalonamento, os componentes e a amostragem.",
+        "Ajuste a PCA e examine conjuntamente as pontuações, a variância explicada, as cargas e os valores atípicos vinculados às imagens.",
+        "Ao término do fluxo de trabalho, as pontuações, as cargas, as configurações e os gráficos podem ser exportados para uma exploração reproduzível."
+      ]
+    }
+  }
+}

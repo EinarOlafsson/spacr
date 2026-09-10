@@ -1,0 +1,161 @@
+================================================================================
+HOW MANY CELLS, AND WHICH ONES
+================================================================================
+
+Status:    DONE 2026-08-20. Validated on the maintainer's four plates.
+Requested: 2026-08-19 -- "now i see that each tab here is a well. then we need
+           to work on the math for desiding which images get chosen. the
+           number of images should be equivelent to the fraction. so first
+           calculate what all the fractions in that well add up to if not 1
+           then normalize to 1 and save the normalization factor then take the
+           chosen grna fraction and apply that normalization factor. that
+           number multiplied with the number of classified cells in that well
+           is what should be shown, x cells. then for determining which cells
+           to show rank all cells by classefication score and take the top x
+           cells and show them or encircle them if the setting for show all is
+           chosen."
+
+THE RULE, IN TWO HALVES
+
+HOW MANY -- x
+
+    total   = sum of every guide's fraction in this well
+    factor  = 1 / total          (1 when the fractions already sum to 1)
+    share   = this guide's fraction x factor
+    x       = round(share x number of CLASSIFIED cells in the well)
+
+WHICH ONES
+
+    rank every cell in the well by classification score
+    take the top x
+    show those -- or show the whole well and ENCIRCLE those, when
+    `show_all_in_well` is on.
+
+WHY THE NORMALISATION IS NOT A NO-OP, measured on the maintainer's screen:
+
+    the raw count tables      1,536 wells, fraction sum EXACTLY 1.000000
+    after fraction_threshold  1,536 wells, sum median 0.5526, min 0.1515
+                              -- a normalisation factor of up to 6.60x
+
+`fraction_threshold` defaults to 0.02, so the filtered table is the ordinary
+case and the un-normalised share understates every count by roughly half.
+
+WHAT THIS REPLACES. The montage chose cells by a SCORE WINDOW -- baseline plus
+the coefficient's effect, plus or minus a robust scale -- and took the objects
+closest to that target. That rule made the count and the choice independent:
+a well could expect 23 objects and contribute 0 because none of its cells fell
+inside the window, which is what the maintainer saw. Ranking by score and
+taking the top x cannot do that: x cells are shown whenever the well has x
+cells.
+
+THE DIRECTION OF THE RANK, and it is an assumption until it is confirmed. "the
+top x" is read here as the HIGHEST classification scores for a positive
+coefficient and the LOWEST for a negative one, because the cells a
+gene-knockout coefficient points at are the ones whose phenotype moved the way
+the coefficient says. Ranking always-descending would, for a negative
+coefficient, show the cells least consistent with the effect.
+
+HOW TO KNOW IT WORKED
+
+* A well with a guide at fraction 0.2 among fractions summing to 0.5, holding
+  100 classified cells, shows round(0.2 / 0.5 x 100) = 40 cells.
+* No well that has cells contributes zero because of a window.
+* The caption states total, factor, share and x, so a reader can redo the
+  arithmetic from what is on screen -- which the window version already did
+  and must not lose.
+* With `show_all_in_well`, every cell in the well is drawn and exactly x of
+  them are encircled.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- VALIDATED ON THE MAINTAINER'S OWN FOUR PLATES.
+--------------------------------------------------------------------------------
+
+Screen: /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen, plates 1-4.
+Run it with `SPACR_SCREEN=<that folder> pytest -m slow
+tests/test_the_screen_validates_the_attribution.py`. 15 checks, all passing.
+
+EVERY NUMBER IN THIS INSTRUCTION REPRODUCED EXACTLY.
+
+    raw count tables      1,536 wells, fraction sum EXACTLY 1.000000  (1536/1536
+                          within 1e-9)
+    after fraction_threshold=0.02
+                          1,536 wells, sum median 0.5526, min 0.1515
+    normalisation factor  median 1.66x, max 6.60x
+
+WHAT THE NORMALISATION IS WORTH, measured rather than argued:
+
+    cells shown, normalised      226,444
+    cells shown, un-normalised   155,919      -- 45.2% fewer
+    guide-well pairs rounding to zero
+      with normalisation           153 of 5,615
+      without                      270        -- 117 wells silently emptied
+
+CONTRACTS THAT HOLD
+
+  * x never exceeds the cells a well has: 0 violations in 5,615 pairs.
+  * The worked example is exact: fraction 0.2, fractions summing to 0.5,
+    100 cells -> factor 2.0, x = 40.
+  * No well contributes zero because of a WINDOW -- the window is reported
+    (`n_in_window`) and no longer selects, so the failure the maintainer saw
+    cannot recur.
+
+ONE DEFECT FOUND AND FIXED
+
+  The x == 0 branch reported `round(n_objects x fraction)` while the count is
+  `round(n_classified x share)` -- a different count off a different base, and
+  it named the UN-NORMALISED fraction, the one number this instruction exists
+  to stop anyone reading. On these plates the factor runs to 6.6x, so a reader
+  checking that line would compute a share up to six times too small and
+  conclude the montage had dropped their well. It covered 153 of 5,615
+  guide-well pairs holding cells. The note now states the same four numbers
+  the non-zero case does.
+
+STILL OPEN
+  * sum over guides of x exceeds the well's cell count in 190 of 1,366 wells.
+    This is CORRECT for heuristic 1 -- guides sharing the top-ranked cells is
+    exactly the flaw instruction 173 exists to fix -- but it is worth a word
+    in the caption so a reader is not surprised by it.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- THE LAST OPEN ITEM IS CLOSED.
+--------------------------------------------------------------------------------
+
+"sum over guides of x exceeds the well's cell count in 190 of 1,366 wells ...
+it is worth a word in the caption so a reader is not surprised by it."
+
+The arithmetic block now ends with it:
+
+    note: each guide in a well is counted against that well's own cells, and
+    the guides are not given DIFFERENT cells -- so the counts of a well's
+    guides can add to more than the well holds. That is this heuristic, not a
+    miscount; the per-cell attribution is what separates them.
+
+WITH THE NUMBER WHEN THERE IS ONE. A plan whose wells are over their own
+object count adds "(N object(s) here come from a well already at its own
+count.)", so the reader sees the specific case rather than only the general
+warning.
+
+BOTH HALVES MATTER. Without the note a reader who adds the guides up and gets
+more cells than the well holds concludes the count is wrong. Without naming
+the fix -- the per-cell attribution of 173 -- the note reads as a shrug.
+
+6 tests in tests/test_the_montage_caption_says_the_guides_share_cells.py.
+
+--------------------------------------------------------------------------------
+RE-AUDIT -- THE FIFTEEN CHECKS HAD BECOME TWO
+--------------------------------------------------------------------------------
+
+The validation above reports "15 checks, all passing". Re-run against the same
+screen it names, it reported 2 passed and 13 SKIPPED, and exited green while
+doing so: `tests/test_the_screen_validates_the_attribution.py` looked for the
+count tables at `<screen>/claude/plate_N_unique_combinations.csv` and that
+folder no longer holds them -- they sit at the screen root. A missing count
+table skips, so the whole normalisation half of this instruction stopped being
+checked without anything going red.
+
+The fixture now asks `_count_table(root, n)` for the table and tries the screen
+root, `claude/` and `test/` in that order, skipping only when no folder holds
+it and naming all three when it does. Re-run on the maintainer's four plates:
+15 passed. The behaviour this instruction is about was never wrong; the
+evidence for it had quietly stopped being collected.
+

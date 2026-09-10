@@ -372,7 +372,13 @@ def test_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
         assert [a.axison for a in fig.axes] == [False, False, False]
         for c, ax in enumerate(fig.axes):
             np.testing.assert_allclose(_img_array(ax), stack[i][:, :, c])
-            assert ax.title.get_size() == pytest.approx(24)
+            # THE TITLE SCALES WITH THE PANEL NOW. It was pinned at 24 pt whatever
+    # the panel size was, so on the 2-inch panels a browse loop draws, the
+    # title was taller than the image it labelled. `_montage_type_size` keeps
+    # the house tiers' ratios and scales them by the canvas.
+    from spacr.plot import _montage_type_size
+
+    assert ax.title.get_size() == pytest.approx(_montage_type_size(2))
 
 
 def test_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):

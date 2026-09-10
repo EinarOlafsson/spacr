@@ -21,7 +21,7 @@ This module is the missing half:
     column.
 
 :func:`register`
-    puts the panel in the app registry (Explore section) and its QSS in the
+    puts the panel in the app registry (Tools section) and its QSS in the
     theme, through the ``register_app`` / ``register_widget_qss`` seams —
     this module owns its own registration and edits neither ``app.py`` nor
     ``theme.py``.
@@ -82,8 +82,17 @@ LOG = logging.getLogger("spacr.qt.feature_dictionary")
 #: App registry key. Load-bearing once shipped — saved user state keys off it.
 APP_KEY = "feature_dict"
 APP_NAME = "Feature Dictionary"
-APP_DESC = ("What does cell_channel_1_percentile_75 mean? Search every "
-            "measured feature by name or by idea")
+APP_DESC = "Search definitions of measured features by name or concept"
+APP_CLI_NOTE = (
+    "Feature Dictionary is an interactive browser; open it from spaCR's "
+    "Help menu or call spacr.feature_dict from Python."
+)
+APP_NAME_TRANSLATIONS = (
+    "Egenskapsordlista", "Merkmalswörterbuch",
+    "Diccionario de características", "特征词典",
+    "Dicionário de características", "विशेषता शब्दकोश", "특성 사전",
+    "Eiginleikaorðabók", "Dictionnaire des caractéristiques",
+)
 
 #: ``objectName`` of the panel, and the name its QSS block registers under.
 OBJECT_NAME = "FeatureDictionary"
@@ -156,6 +165,7 @@ def _doc_html(doc: FeatureDoc, entry=None) -> str:
     rows: list[str] = []
 
     def field(name: str, value: object) -> None:
+        """Add one field to the entry, skipping empty values."""
         if value in (None, "", ()):
             return
         rows.append(
@@ -253,6 +263,12 @@ class FeatureDictionaryPanel(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None,
                  column: Optional[str] = None):
+        """Build the feature dictionary panel.
+
+        :param parent: parent widget, or ``None``.
+        :param column: a measurement to open pinned to; ``None`` opens on the
+            whole dictionary.
+        """
         super().__init__(parent)
         self.setObjectName(OBJECT_NAME)
 
@@ -269,8 +285,8 @@ class FeatureDictionaryPanel(QWidget):
         outer.setSpacing(8)
 
         blurb = QLabel(
-            "Every number spaCR measures, and what it means. Search a column "
-            "name you are looking at, or just say what you are after.")
+            "Definitions for measurements produced by spaCR. Search by "
+            "column name or by the biological or quantitative concept.")
         blurb.setObjectName("FeatureDictionaryBlurb")
         blurb.setWordWrap(True)
         outer.addWidget(blurb)
@@ -433,6 +449,14 @@ class FeatureDictionaryPanel(QWidget):
                 "<p><i>No feature matches that search.</i></p>")
 
     def _on_row_changed(self, row: int) -> None:
+        """Show the selected feature, unpinning the asked-about column if it moved.
+
+        The detail pane is pinned to a concrete column only while the selection
+        is still that column's feature -- once the user moves off it, the pane
+        describes the feature in general rather than that one instance of it.
+
+        :param row: the newly selected row; out of range does nothing.
+        """
         if not (0 <= row < len(self._hits)):
             return
         doc = self._hits[row].doc
@@ -448,16 +472,33 @@ class FeatureDictionaryPanel(QWidget):
         self._render(doc, entry)
 
     def _render(self, doc: FeatureDoc, entry=None) -> None:
+        """Render one feature into the detail pane and announce it.
+
+        :param doc: the feature to describe.
+        :param entry: the concrete column it was reached through, when there is
+            one, so the pane can name the object and channel as well.
+        """
         self._doc = doc
         self._detail.setHtml(_doc_html(doc, entry))
         self.feature_selected.emit(doc.key)
 
 
 class FeatureDictionaryDialog(QDialog):
-    """:class:`FeatureDictionaryPanel` in a non-modal window."""
+    """:class:`FeatureDictionaryPanel` in a non-modal window.
+
+    :param parent: parent widget.
+    :param column: the measurement to open on. ``None`` opens on the whole
+        dictionary rather than on a lookup nobody asked for.
+    """
 
     def __init__(self, parent: Optional[QWidget] = None,
                  column: Optional[str] = None):
+        """Wrap the dictionary panel in a non-modal window.
+
+        :param parent: parent widget, or ``None``.
+        :param column: the measurement to open on; ``None`` opens on the whole
+            dictionary.
+        """
         super().__init__(parent)
         self.setObjectName("FeatureDictionaryDialog")
         self.setWindowTitle(APP_NAME)
@@ -566,10 +607,19 @@ def register() -> bool:
     """
     ok = True
     try:
-        from ..app import APPS, SECTION_EXPLORE, STAGE_ALPHA, register_app
+        from ..app import APPS, SECTION_TOOLS, STAGE_ALPHA, register_app
         if not any(row[0] == APP_KEY for row in APPS):
-            register_app(APP_KEY, APP_NAME, APP_DESC, SECTION_EXPLORE,
-                         factory=make_screen, stage=STAGE_ALPHA)
+            register_app(
+                APP_KEY,
+                APP_NAME,
+                APP_DESC,
+                SECTION_TOOLS,
+                factory=make_screen,
+                stage=STAGE_ALPHA,
+                translations=APP_NAME_TRANSLATIONS,
+                api_module="feature_dict",
+                cli_note=APP_CLI_NOTE,
+            )
     except Exception:
         # A registry that cannot take one more app is not a reason for the
         # GUI to refuse to start; the Help menu route still works.
@@ -765,6 +815,38 @@ def set_menu_runner(runner) -> None:
     _MENU_RUNNER = runner or _default_menu_runner
 
 
+
+# RESOLVED ONCE, NOT PER EVENT. `_still_alive` is called twice for every
+# event in the application -- 323,014 times while a single Regression screen
+# is built -- because `FeatureHelpFilter` is installed on the QApplication
+# and has to check liveness BEFORE it may touch `event.type()`. With the
+# import inside the function that is 323,014 executions of an import
+# statement: 625 ms per screen build, against 33 ms resolved once. Measured,
+# not assumed. The fallback stays a module-level None so the "cannot ask the
+# question" branch below behaves exactly as it did.
+try:
+    from shiboken6 import isValid as _SHIBOKEN_IS_VALID
+except Exception:                                        # noqa: BLE001
+    _SHIBOKEN_IS_VALID = None
+
+
+def _still_alive(wrapped) -> bool:
+    """Whether a PySide wrapper still owns a live C++ object.
+
+    True when the question cannot be asked -- a plain Python object, or a
+    shiboken without `isValid` -- because refusing an event that is perfectly
+    fine would break the feature this module exists for.
+    """
+    if wrapped is None:
+        return False
+    if _SHIBOKEN_IS_VALID is None:
+        return True
+    try:
+        return bool(_SHIBOKEN_IS_VALID(wrapped))
+    except Exception:                                    # noqa: BLE001
+        return True
+
+
 class FeatureHelpFilter(QObject):
     """Adds **What is this?** to the context menu of every results table.
 
@@ -774,7 +856,47 @@ class FeatureHelpFilter(QObject):
     """
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        if event.type() != QEvent.Type.ContextMenu:
+        # THIS RUNS FOR EVERY EVENT IN THE APPLICATION, and it segfaulted.
+        #
+        # Captured by the crash dump on 2026-08-19, milliseconds after a
+        # regression closed [success] while that run's figure widgets were
+        # being torn down:
+        #
+        #     Fatal Python error: Segmentation fault
+        #     Current thread (most recent call first):
+        #       feature_dictionary.py, line 776 in eventFilter
+        #       app.py, line 3110 in launch
+        #
+        # The frame EXISTS at the `def` line, so PySide had already built both
+        # wrappers and the crash is on the first bytecode -- `event.type()`,
+        # reading a QEvent whose C++ half was already freed. An
+        # application-wide filter is handed every event in the process,
+        # including ones whose receiver is being destroyed at that instant.
+        #
+        # THE FILTER STAYS APPLICATION-WIDE. Installing it on the item views
+        # instead was tried and REVERTED: the feature deliberately answers a
+        # right-click on an arbitrary child widget INSIDE a cell by walking
+        # back to the table behind it, and a per-view install cannot see
+        # those events. Three tests name that case.
+        #
+        # So this is a seatbelt, and its limit is worth stating: `isValid`
+        # reports a wrapper whose deletion shiboken was TOLD about. It turns
+        # that case from a segfault into a no-op. A C++ object freed without
+        # shiboken being told still dereferences, and the fix for that is
+        # wherever the object is being freed, not here.
+        """Watch the widgets this filter is installed on.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
+        if not _still_alive(event) or not _still_alive(obj):
+            return False
+        try:
+            kind = event.type()
+        except (RuntimeError, ReferenceError):   # died between the two checks
+            return False
+        if kind != QEvent.Type.ContextMenu:
             return False
         try:
             if not isinstance(obj, (QHeaderView, QAbstractItemView, QWidget)):

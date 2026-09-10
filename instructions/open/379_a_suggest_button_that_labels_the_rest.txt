@@ -1,0 +1,352 @@
+================================================================================
+A SUGGEST BUTTON THAT LABELS THE REST
+================================================================================
+
+Status:    COMPLETE. 379-C CLOSED 2026-09-10, AND NOT THE WAY IT WAS ASKED
+           -- it needed measuring rather than building. The question was
+           "should the offset scheme extend past two classes"; it already
+           does. Classes 1 to 9 round-trip today, driven in
+           `tests/test_the_suggestion_offset_holds_more_than_two_classes.py`:
+           three classes in, suggestions stored as 11/12/13, decoding back
+           to 1/2/3.
+
+           THE LIMIT IS A CLASS VALUE, NOT A CLASS COUNT. `SUGGESTION_OFFSET`
+           is 10, so only a class value of ten or more collides. The
+           maintainer confirmed he does not use values that large, so the
+           guard stays a refusal and nothing needs building.
+
+           I ASKED HIM THE WRONG QUESTION FIRST and he answered "extend it
+           to three or more" against my premise. Re-asked with the
+           measurement and the answer changed to "then it's already done",
+           which is the whole reason to re-ask rather than proceed: he was
+           deciding about work that did not exist.
+
+           PREVIOUS STATUS FOLLOWS.
+
+Status:    COMPLETE except 379-C, 2026-09-07. The button is built and
+           wired, and the one-class case PART 1-B said was missing is now
+           built too -- `retrain_round` gained `balance` and
+           `synthetic_negatives` (the work session handed me the seam in
+           their file), Suggest asks for both, and a run with invented
+           negatives says so in the console, on the model card and by
+           WITHHOLDING the bulk KEEP. What is left is 379-C alone.
+
+           PREVIOUS STATUS FOLLOWS.
+
+Status:    THE BUTTON IS BUILT AND WIRED, 2026-09-07. Annotate has a
+           "Suggest…" button beside Retrain whose menu offers the two scopes
+           and, when any are outstanding, the two bulk verdicts with a live
+           count. It fits off the GUI thread in `_SuggestWorker`, and the
+           grid draws a suggestion as its own class colour with a DASHED
+           ring. `tests/qt/test_the_suggest_button.py` holds all of it.
+           WHAT REMAINS is the ONE-CLASS CASE (see PART 1-B below), which
+           needs a seam in Codex-owned `active_learning.retrain_round`, and
+           379-C (more than two classes).
+Requested: 2026-09-05 -- "In annotation app there should be a suggest button.
+           The suggest button should train an xgboost model on your annotated
+           images (if only one class randomly choose the same number of images
+           as is annotated for the other class) if there is class imbalance
+           use the class with fewer. Then either annotate on screen images or
+           all images. With different numbers so the user can throw them away
+           or keep them converting the numbers to the same as annotates"
+Owner:     spacr/qt/screens/annotate.py (the button, the review state),
+           the annotation column named by `settings.annotation_column`.
+
+THE POINT. Annotating is the slow part of every screen the maintainer runs,
+and the first two hundred images already contain most of what separates the
+classes. SUGGEST asks the model trained on those to label the rest, and then
+makes the suggestions cheap to reject -- the reviewing is the feature, not the
+classifier.
+
+--------------------------------------------------------------------------------
+PART 1 -- WHAT THE BUTTON DOES
+--------------------------------------------------------------------------------
+
+1. TRAIN on what the user has already annotated, with XGBoost.
+
+2. BALANCE THE CLASSES BEFORE TRAINING. Two cases, both stated in the request:
+
+   - BOTH CLASSES PRESENT, UNEVEN. Downsample the larger to the size of the
+     smaller. "if there is class imbalance use the class with fewer."
+
+   - ONLY ONE CLASS ANNOTATED. Draw the same number of images at random from
+     the UNANNOTATED pool and train them as the other class. "if only one
+     class randomly choose the same number of images as is annotated for the
+     other class."
+
+     THIS IS A DELIBERATE LIE AND IT MUST BE LABELLED AS ONE IN THE UI. A
+     random draw from unlabelled images is mostly-negative, not negative, so
+     the suggestions that come back are a ranking and not a verdict. Say so
+     where the user can see it before they accept anything in bulk.
+
+3. SCOPE, asked before it runs: THE IMAGES ON SCREEN, or ALL IMAGES.
+
+4. WRITE THE SUGGESTIONS AS DIFFERENT NUMBERS. A suggestion must never be
+   confusable with something the user decided. The annotation column already
+   holds small integers, so suggestions go in as their own values -- e.g. a
+   suggested 1 is written 11, a suggested 2 is written 12 -- and the grid
+   draws them distinctly (a dashed border, a lighter fill; NOT a new colour
+   that reads as a third class).
+
+   Then the two bulk actions the request ends with:
+     KEEP  -- rewrite 11 -> 1 and 12 -> 2, and they become ordinary
+              annotations, indistinguishable from hand-made ones.
+     THROW -- clear them back to NULL.
+   Both must work per-image too, so the user can accept a screen and reject
+   three of it.
+
+--------------------------------------------------------------------------------
+PART 1-A -- THE ENGINE, AND THE ANSWERS IT WAS BUILT ON
+--------------------------------------------------------------------------------
+
+`spacr/suggest.py`:
+
+    suggest_from_scores  READS the last retrain's probabilities and proposes
+                         a class per unannotated crop, most confident first
+    write_suggestions    stores them, ONLY where the column is NULL
+    resolve_suggestions  KEEP rewrites 11 -> 1; THROW sets them back to NULL
+    pending_suggestions  how many are waiting to be acted on
+
+IT DOES NOT FIT A MODEL, AND THAT IS THE DESIGN. `active_learning.
+retrain_round` already fits on every label, scores on a GROUPED held-out split
+so the number is not an artefact of 190 labels from one well, and writes
+per-class probabilities into `png_list`. A first draft of this module
+re-implemented feature building and fitting before that was found -- the
+SECOND duplication in two days, after `scorecard.py`. Reading the existing
+scores means the suggestion a reviewer sees and the ranking the queue uses
+come from ONE model; a second fit would drift from it with no way to tell
+which was right. An unscored database is told to press Retrain, not given a
+second opinion.
+
+ANSWERED 2026-09-06 (357):
+  379-A  features come from THE MEASUREMENT TABLE spaCR already computes, not
+         from CNN embeddings. That was ALREADY TRUE: `active_learning.
+         round_features` builds exactly that matrix, and its docstring gives
+         the same reason -- "a fresh ranking in seconds, on the machine the
+         annotator is sitting at, without a GPU". The answer confirmed an
+         existing design rather than choosing a new one.
+  379-B  NO CONFIDENCE FLOOR. Every unannotated crop gets a suggestion,
+         sorted by confidence, so the reviewer stops where they stop agreeing
+         instead of a threshold deciding for them. The ORDER is what makes
+         review efficient, and a test asserts it.
+
+WHAT PART 2 ASKED FOR, AND WHERE IT IS:
+  * A suggestion is never confusable with a decision -- suggested 1 is stored
+    as 11 (`SUGGESTION_OFFSET`), so a bad run is undone by deleting a value
+    rather than by remembering which rows were touched.
+  * A suggestion NEVER overwrites an annotation -- the update carries
+    `AND <column> IS NULL`, and a test captures every annotated row before
+    and after and demands they are identical.
+  * The one-class case is a DELIBERATE LIE and says so. Negatives drawn from
+    the unannotated pool are mostly-negative, not negative, so
+    `Suggestions.was_one_class` is True and `note` says in words that the
+    result is a ranking rather than a verdict. A test asserts the wording,
+    because that flag is what stops a bulk accept.
+  * Too few annotations is a refusal with a reason, not a crash. The floor is
+    20 per class.
+  * Class balance: the larger class is DOWNSAMPLED rather than weighted, so
+    the model's probability is directly readable as the confidence the sort
+    depends on.
+
+DONE 2026-09-07 -- THE BUTTON:
+  * `AnnotateScreen._btn_suggest`, beside Retrain, because it is the same act
+    with a different destination: Retrain re-ranks the queue with the model,
+    Suggest writes the model's opinion down where it can be rejected.
+  * The menu is built ON EVERY PRESS, not once, so the verdict entries carry
+    a live count -- "Keep 0 suggestions" would be worse than no entry.
+  * `_SuggestWorker` fits AND writes off the GUI thread, drained with a
+    budget in `closeEvent` exactly as `_RetrainWorker` is. It has strictly
+    more to lose than a retrain: a half-written suggestion set is a column
+    the annotator has to clean up by hand.
+  * IT FITS, IT DOES NOT READ A STALE SCORE. The request is "train a model on
+    your annotated images", and the labels made in the last ten minutes are
+    the ones that matter most. Fitting in the worker also keeps ONE model
+    behind both the suggestion and the queue's ranking, because the round it
+    fits is the round whose scores `suggest_from_scores` then reads.
+  * THE SCOPE NARROWS THE WRITE, NOT THE FIT. Training on nine crops to save
+    no time would make a worse model and a worse ranking with no way for the
+    reviewer to tell. A test asserts the scope never reaches `retrain_round`.
+  * THE DRAWING. `_Thumb.set_suggested` dashes the ring; `_displayed_class`
+    removes the offset so a suggested 1 wears class 1's colour. Handing an 11
+    straight to `label_to_hex` would either fall off the palette or land on
+    the colour of a class the model never proposed.
+
+  * NOTHING A MACHINE PROPOSED IS EVER TRAINED ON, and this was nearly the
+    bug that wiring the button introduced. `retrain_round` reads EVERY
+    non-null value in the column as a class label and `_class_value(11)` is
+    11 -- so a second Suggest press would have fitted on the first press's
+    output as classes 11 and 12, the model learning from its own opinion,
+    and the class-count dialog would have grown two classes nobody made.
+    Suggest clears outstanding suggestions BEFORE it fits, which is also
+    this file's own rule that a re-run replaces rather than adds; Retrain
+    reaches the same trap from the other button and ASKS first, because
+    throwing away a review queue is not what that button says it does.
+
+  ON XGBOOST, WHICH THE REQUEST NAMED. `_build_round_model` offers logistic
+  regression, random forest and `gradient_boosting`, which is sklearn's
+  `HistGradientBoostingClassifier` -- the same gradient-boosted-trees method
+  XGBoost implements, already a dependency, and already understood by the
+  rest of the round machinery (grouped split, model card, saved joblib).
+  Suggest asks for that. Adding the `xgboost` package for this one button
+  would be a new dependency for an algorithm already present; say so to the
+  maintainer rather than quietly substituting it.
+
+--------------------------------------------------------------------------------
+PART 1-B -- THE ONE-CLASS CASE. BUILT 2026-09-07 (374e57a44)
+--------------------------------------------------------------------------------
+
+BUILT AS SPECIFIED BELOW, so the design notes that follow are the record of
+what was decided rather than a plan. The signature is the one this part asked
+for:
+
+    retrain_round(..., balance="none"|"downsample",
+                       synthetic_negatives=None|int)
+
+  * `balance="downsample"` cuts every class to the smallest BEFORE the
+    grouped split, and both branches write a note saying which was in force
+    -- because the default estimators already pass `class_weight="balanced"`
+    and "balanced" alone describes two different models. The card carries
+    `balance`, `synthetic_negatives` and `class_weight_balanced` together.
+  * `synthetic_negatives=n` draws n unannotated crops at random and fits them
+    as the absent class, writing NOTHING to the database. A test captures the
+    annotation column before and after.
+  * Suggest reads the count from the column, EXCLUDING suggestions: sizing
+    the lie by the size of the last machine run would be circular.
+  * The lie is declared at every layer -- round notes, model card, console
+    message -- and the bulk KEEP is WITHHELD from the menu on such a run,
+    not greyed out. Rejecting in bulk stays, because throwing a ranking away
+    costs nothing.
+  * Binary only. Class 3 has no defensible "other class" and refuses by name.
+
+WHAT WAS WRITTEN HERE BEFORE IT WAS BUILT:
+
+THE REQUEST ASKED FOR IT IN SO MANY WORDS: "if only one class randomly choose
+the same number of images as is annotated for the other class". It is NOT
+implemented, and an earlier Status line on this file claimed it was --
+`Suggestions.was_one_class` was written down as existing and does not exist.
+That is the second stale-Status trap on this list after 370; the rule from
+325 applies to this file's own Status too, not only to other people's.
+
+WHAT HAPPENS TODAY. `active_learning.retrain_round` refuses:
+
+    "Every label in 'annotate' is class 1. A classifier needs at least two
+     classes; keep annotating until the other one appears."
+
+Suggest surfaces that verbatim in a warning box that also names the other two
+usual causes. So the behaviour is a refusal with a reason rather than a crash,
+which PART 2 requires -- but it is not what was asked for.
+
+WHY IT IS NOT BUILT HERE. The balancing belongs where the fitting is, and the
+fitting is `retrain_round`, which reads its labels straight out of the
+database column. There is no seam to hand it a balanced label vector:
+`features=` takes a feature matrix, not labels. Building the balance in
+`suggest.py` instead would mean fitting a second model -- the exact
+duplication this module was rewritten to avoid, and the reason it delegates.
+
+WHAT TO BUILD, when the file is free (`active_learning.py` is Codex's under
+325):
+
+    retrain_round(..., synthetic_negatives: Optional[int] = None,
+                       balance: str = "none")
+
+  * `balance="downsample"` -- cut the larger class to the size of the smaller
+    BEFORE the grouped split, not by class weight. The request says "use the
+    class with fewer", and downsampling rather than weighting is also what
+    makes the returned probability directly readable as the confidence the
+    suggestion sort depends on. Note that the default estimators already pass
+    `class_weight="balanced"`, so this changes the answer, not just the cost.
+  * `synthetic_negatives=n` -- draw n unannotated crops at random and fit
+    them as the absent class, WITHOUT writing anything to the database.
+  * Both must be reported in the `RoundResult` notes and on the model card,
+    because a card that does not say the negatives were invented describes a
+    model that does not exist.
+
+AND IT MUST BE LABELLED A LIE IN THE UI. A random draw from unlabelled crops
+is mostly-negative, not negative, so what comes back is a RANKING and not a
+verdict. `Suggestions` needs the `was_one_class` flag its docstring was
+already credited with, Suggest must show the caveat before the bulk KEEP is
+offered, and the bulk KEEP should be withheld entirely on such a run: keeping
+2,000 invented negatives in one click is the worst thing this button could do.
+
+STILL OPEN:
+  * 379-C is unanswered, and the offset scheme assumes two classes. With
+    three, a suggested 1 is 11 and cannot collide -- but a class value of 11
+    or more would, and nothing rejects one today.
+
+--------------------------------------------------------------------------------
+PART 2 -- WHAT MUST NOT HAPPEN
+--------------------------------------------------------------------------------
+
+A SUGGESTION MUST NEVER OVERWRITE A HUMAN ANNOTATION. Not when the model is
+confident, not on re-run, not by a bulk KEEP that swept too wide. The user's
+labels are the ground truth the model was trained on; losing them silently
+would cost hours of work and would not be noticed until a run came out wrong.
+Write suggestions ONLY where the column is NULL.
+
+RE-RUNNING SUGGEST replaces the outstanding suggestions rather than adding to
+them, and never touches accepted ones.
+
+TRAINING MUST NOT BLOCK THE GUI THREAD. See what a thirty-second `urlopen` on
+that thread cost on 2026-09-05 (commit ca5d6c672): GNOME's "force quit" dialog
+is what the user sees. Train in a JobRunner, keep the button disabled with a
+count while it runs, and let it be cancelled.
+
+TOO FEW ANNOTATIONS IS A REFUSAL, NOT A CRASH. Below some floor -- 20 per
+class is a starting guess, to be measured -- the button says what it needs
+instead of training on nothing.
+
+--------------------------------------------------------------------------------
+PART 3 -- OPEN QUESTIONS FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Q1. WHAT ARE THE FEATURES? XGBoost needs a table, not an image. Three options,
+    and the answer decides how much of this is new code:
+      (a) the measurement table spaCR already produces, joined on object id --
+          nothing new to compute, and the model then explains itself in terms
+          the user already reads;
+      (b) embeddings from a pretrained CNN -- stronger on texture the
+          measurements do not capture, but a new dependency in this path;
+      (c) both, concatenated.
+    RECOMMEND (a) FIRST: it is the cheapest to build, and if the measurements
+    cannot separate the classes that is itself worth knowing before adding a
+    network.
+
+Q2. IS THERE A CONFIDENCE FLOOR? Suggest everything, or only above a
+    threshold? A threshold means fewer, better suggestions and more unlabelled
+    images left over. Sort by confidence either way, so the doubtful ones are
+    together rather than scattered.
+
+Q3. DOES THIS EXTEND PAST TWO CLASSES? The request says "the other class",
+    which reads as binary. If the annotation column ever holds three, the
+    suggestion offsets must not collide with real class values.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- 379-C IS A DECISION, NOT CODE. THE SAFETY HALF IS ALREADY BUILT.
+--------------------------------------------------------------------------------
+
+Re-read before picking this up, because the status line reads as though
+there is work here and there is not.
+
+WHAT 379-C ASKS is whether the offset scheme should extend past two classes.
+That is the maintainer's call and it is still open.
+
+WHAT IT DOES NOT ASK -- and what somebody might build a second time -- is the
+collision guard. `spacr/suggest.py` already refuses BOTH directions, by name,
+with the reasoning beside each:
+
+  * A class at or above `SUGGESTION_OFFSET` cannot be SUGGESTED. With a
+    class 11, a suggested 1 and an answered 11 are the same integer, and a
+    bulk KEEP would rewrite somebody's 11 to a 1 with nothing said.
+  * And suggestions cannot be written into a column that ALREADY HOLDS one.
+    That is the case that loses a person's work rather than merely confusing
+    a number, and it is the only route by which PART 2's first rule -- a
+    suggestion must never overwrite a human annotation -- could still be
+    broken.
+
+Both raise with a sentence naming 379-C and what to do. So the feature is
+SAFE at three classes; it is simply refused, loudly, until the decision is
+made.
+
+THEREFORE: nothing to implement here without an answer, and implementing
+past the guard without one is how the overwrite this file spent PART 2
+forbidding gets built back in. ASK, DO NOT BUILD.

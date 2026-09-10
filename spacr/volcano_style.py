@@ -1,0 +1,1002 @@
+"""The complete appearance of a volcano plot, as data rather than arguments.
+
+:class:`VolcanoStyle` holds every setting the interactive explorer exposes, so
+one object can be handed to the renderer, saved beside a figure, reloaded, and
+replayed to reproduce a plot exactly. The renderer is a plain function of
+``(results, style)`` with no Qt in it, which is what lets the same code draw
+the headless PDF written by a pipeline run and the live canvas the user clicks
+on -- they cannot drift, because there is only one of them.
+
+Splitting the style out this way is also what makes "export exactly what I am
+looking at" true: the export path re-renders from the same object at a
+different size and dpi rather than screenshotting the widget.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import asdict, dataclass, field, fields
+
+# THE SHARED VOCABULARY (108 point 1). `FigureStyle` holds every field a
+# reader would recognise on any figure -- axes, type, grid, legend, page --
+# so a house style saved on a volcano can be applied to another figure that
+# shares those names, and "font size" is one setting in spaCR.
+from .style_base import SCALES as _SCALES
+from .style_base import SHARED_CHOICES, FigureStyle
+from typing import Any, Sequence
+
+import numpy as np
+import pandas as pd
+
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
+__all__ = [
+    "VolcanoStyle",
+    "MARKER_SHAPES",
+    "COLORMAPS",
+    "FONT_FAMILIES",
+    "LINE_STYLES",
+    "SCALES",
+    "render_volcano",
+    "page_ground",
+    "validate_style",
+    "point_details",
+    "point_localizations",
+    "localizations_present",
+]
+
+#: Marker shapes offered, as ``(matplotlib code, label)``. Restricted to the
+#: filled shapes, because an unfilled marker cannot carry a colour mapping.
+MARKER_SHAPES: tuple[tuple[str, str], ...] = (
+    ("o", "Circle"),
+    ("s", "Square"),
+    ("^", "Triangle up"),
+    ("v", "Triangle down"),
+    ("<", "Triangle left"),
+    (">", "Triangle right"),
+    ("D", "Diamond"),
+    ("d", "Thin diamond"),
+    ("p", "Pentagon"),
+    ("h", "Hexagon"),
+    ("H", "Hexagon (rotated)"),
+    ("8", "Octagon"),
+    ("*", "Star"),
+    ("P", "Plus (filled)"),
+    ("X", "Cross (filled)"),
+)
+
+#: Colormaps, grouped by what they are for. A categorical mapping must not be
+#: drawn with a sequential map, and a continuous one must not be drawn with a
+#: qualitative map, so the explorer picks the default from the column's dtype.
+COLORMAPS: dict[str, tuple[str, ...]] = {
+    "sequential": ("viridis", "plasma", "inferno", "magma", "cividis",
+                   "Blues", "Greens", "Oranges", "Purples", "Reds",
+                   "YlGnBu", "YlOrRd"),
+    "diverging": ("coolwarm", "RdBu_r", "RdYlBu_r", "BrBG", "PiYG",
+                  "PuOr", "Spectral_r", "bwr", "seismic"),
+    "qualitative": ("tab10", "tab20", "Set1", "Set2", "Set3", "Dark2",
+                    "Paired", "Accent"),
+}
+
+FONT_FAMILIES: tuple[str, ...] = (
+    "sans-serif", "serif", "monospace", "DejaVu Sans", "DejaVu Serif",
+    "DejaVu Sans Mono", "Arial", "Helvetica", "Times New Roman", "Courier New",
+)
+
+LINE_STYLES: tuple[tuple[str, str], ...] = (
+    ("-", "Solid"), ("--", "Dashed"), ("-.", "Dash-dot"), (":", "Dotted"),
+    ("none", "None"),
+)
+
+#: Re-exported from :mod:`spacr.style_base`, which is now where the shared
+#: vocabulary lives (108 point 1). Kept as a name here because callers and
+#: tests import it from this module.
+SCALES = _SCALES
+
+
+@dataclass
+class VolcanoStyle(FigureStyle):
+    """Every knob the volcano exposes. Defaults reproduce the pipeline plot.
+
+    THE GENERAL HALF IS INHERITED (108 point 1). Axes, type, grid, legend,
+    spines and the page come from :class:`spacr.style_base.FigureStyle`, so
+    "font size" is one setting in spaCR rather than one per figure and a
+    house style saved on a volcano can be applied to any other figure that
+    shares those names. What stays here is what only a volcano has: the
+    columns, the thresholds, the marks and the labelling.
+    """
+
+    # ---- what is plotted -------------------------------------------------
+    x_column: str = "standardized_marginal_effect"
+    y_column: str = "adjusted_p_value"
+    #: -log10 the y column. Off means "plot the value as it is", which is what
+    #: you want if the column already holds a -log10 value.
+    y_neg_log10: bool = True
+    label_column: str = "guide"
+
+    # ---- axes -------------------------------------------------------------
+    # `y_label`, `title`, the two scales, the two limits and the two inverts
+    # are INHERITED. Only the default LABEL is restated: a base class cannot
+    # know what this figure's x axis is, and the volcano's has been
+    # "Standardized marginal effect" since it was written.
+    x_label: str = "Standardized marginal effect"
+    #: Broken y axis: ``[(lo1, hi1), (lo2, hi2)]`` draws two stacked panels
+    #: with a break, for a screen whose hits sit far above the null cloud.
+    split_axis: bool = False
+    split_y_lims: tuple[tuple[float, float], tuple[float, float]] | None = None
+    split_height_ratio: float = 0.35
+    # ---- thresholds ------------------------------------------------------
+    alpha: float = 0.05
+    #: Effect-size cut. ``None`` draws none. ``threshold_multiplier`` scales
+    #: whichever rule ``threshold_method`` names.
+    effect_threshold: float | None = None
+    #: ``'value' | 'std' | 'mad' | 'quantile' | 'control'``.
+    #:
+    #: ``'control'`` is the principled one: the non-targeting controls ARE
+    #: the empirical null. They went through the same library prep, the same
+    #: plates and the same model, and they are known to have no effect, so a
+    #: cut at k x MAD of the controls says "further than a guide with no
+    #: effect ever got" -- which is the statement a reader takes a volcano
+    #: threshold to mean.
+    #:
+    #: HOW MUCH IT MATTERS, MEASURED rather than argued, on the tsg101 screen
+    #: (823 guides, 24 controls, 3x multiplier):
+    #:
+    #:     std, all guides      1.8685      2.2x too high
+    #:     mad, all guides      0.8379      1.01x -- 88 guides pass
+    #:     mad, controls only   0.8322              89 guides pass
+    #:
+    #: So the "the hits inflate the null" objection is decisive against
+    #: ``std`` and nearly irrelevant against ``mad`` -- which is exactly what
+    #: a median absolute deviation is for. Do not reach for ``control``
+    #: expecting a different number from ``mad``; reach for it because it is
+    #: the defensible one to describe in a methods section, and because a
+    #: screen with a stronger signal than this one WILL pull ``mad`` up while
+    #: leaving the controls where they are.
+    threshold_method: str = "value"
+    threshold_multiplier: float = 3.0
+    #: Which rows are non-targeting controls, for ``threshold_method``
+    #: ``'control'``. A boolean column name in the results frame. Without it
+    #: that method cannot resolve and says so rather than silently falling
+    #: back to a different rule.
+    control_column: str | None = None
+    show_alpha_line: bool = True
+    show_effect_lines: bool = True
+    show_zero_line: bool = True
+
+    # ---- marks -----------------------------------------------------------
+    marker: str = "o"
+    marker_size: float = 26.0
+    significant_marker_size: float = 52.0
+    marker_alpha: float = 0.85
+    marker_edge_width: float = 0.35
+    marker_edge_color: str = "#FFFFFF"
+    base_color: str = "#B8BDC5"
+    significant_color: str = "#D55E00"
+    #: Column whose values choose each point's colour. ``None`` uses the
+    #: two-tone significant / not-significant scheme.
+    color_by: str | None = None
+    colormap: str = "viridis"
+    color_vmin: float | None = None
+    color_vmax: float | None = None
+    show_colorbar: bool = True
+    #: Column whose values choose each point's SHAPE. Categorical only --
+    #: a shape cannot encode a continuous value.
+    shape_by: str | None = None
+    #: Which LOPIT compartments the colour channel is about. Empty leaves the
+    #: plot's own colouring alone. SEVERAL AT ONCE on purpose: "dense granules
+    #: and rhoptries 1" is one comparison, not two, so every point in ANY
+    #: ticked compartment is coloured -- each compartment its own colour --
+    #: and everything else stays `base_color`. Ticking a compartment takes the
+    #: colour channel over from `color_by`, because a dot cannot be coloured
+    #: for two things at once.
+    localizations: tuple[str, ...] = ()
+    #: Which column names each row's gene, for the compartment lookup. None
+    #: takes the first of ``feature``, ``gene``, the label column and
+    #: ``guide`` that the results actually have.
+    localization_column: str | None = None
+
+    # ---- lines -----------------------------------------------------------
+    line_width: float = 1.0
+    #: BLACK, because the volcano is read as a publication figure: the
+    #: fold-change verticals and the significance horizontal are the two
+    #: lines a reader measures a point against, and a grey rule competes
+    #: with the grey non-significant cloud it is drawn over.
+    line_color: str = "#000000"
+    line_style: str = "--"
+    zero_line_color: str = "#000000"
+    zero_line_width: float = 0.7
+
+    # ---- the ground and the ink ------------------------------------------
+    #: What the INTERACTIVE explorer paints behind the plot.
+    #:
+    #: SEPARATE FROM ``background_color`` ON PURPOSE, and the separation is
+    #: the whole point. ``background_color`` is inherited and ships as
+    #: ``"none"`` so a figure written to a file drops onto any page without
+    #: carrying a rectangle with it; that is a house rule about ASSETS. A
+    #: volcano on screen is not an asset, it is something being read, and
+    #: black text and black axes on a transparent ground over spaCR's dark
+    #: panel are unreadable. So the screen gets its own ground, and a file
+    #: keeps the transparent default until the user names
+    #: ``background_color`` -- which then wins on both.
+    screen_background: str = "#FFFFFF"
+    #: The colour of the axis lines, the tick marks, the tick labels and
+    #: every piece of text. One setting rather than two because the ask was
+    #: one sentence -- "black lines for the x axis and y axis ... black
+    #: font" -- and a volcano whose axes and labels disagreed about their
+    #: colour would be a figure nobody asked for.
+    #:
+    #: Empty leaves every one of them at whatever the ambient matplotlib
+    #: settings supply, which is what the volcano did before this shipped
+    #: and is why it is a setting rather than a constant: a figure whose ink
+    #: depends on what the process drew before it is not reproducible.
+    axis_color: str = "#000000"
+
+    # ---- text: the SIZES are inherited (font_family, font_size,
+    # title_font_size, label_font_size, tick_font_size, font_weight). What is
+    # here is the labelling, which is a volcano's own question.
+    #: Guides to annotate: ``{guide id: printed label}``.
+    annotations: dict = field(default_factory=dict)
+    #: Annotate everything called significant, in addition to `annotations`.
+    annotate_significant: bool = False
+
+    # ---- frame: INHERITED in full (figure_width, figure_height, dpi, grid,
+    # grid_axis, grid_color, grid_width, hide_top_right_spines, legend,
+    # legend_location, background_color, transparent).
+
+    # ------------------------------------------------------------------ i/o
+
+    def to_dict(self) -> dict:
+        """Return every style field as a recursively copied plain mapping."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, values: dict) -> "VolcanoStyle":
+        """Build from a dict, ignoring keys this version does not know.
+
+        Forwards-compatible on purpose: a style saved by a newer spaCR still
+        loads here, minus the settings that did not exist yet.
+
+        :param values: serialized style fields; unknown names are ignored.
+        """
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in (values or {}).items() if k in known})
+
+    def save(self, path) -> str:
+        """Write this style as JSON and return its filesystem path.
+
+        :param path: path-like destination to create or replace.
+        """
+        path = os.fspath(path)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(self.to_dict(), handle, indent=2, sort_keys=True)
+        return path
+
+    @classmethod
+    def load(cls, path) -> "VolcanoStyle":
+        """Load a JSON style from a filesystem path.
+
+        :param path: path-like JSON source previously written by :meth:`save`.
+        """
+        with open(os.fspath(path), encoding="utf-8") as handle:
+            return cls.from_dict(json.load(handle))
+
+
+#: Fewest control guides an empirical null may be estimated from. Below this
+#: a MAD is noise pretending to be a threshold -- and a threshold that is too
+#: LOW calls everything a hit, which is worse than drawing no line at all.
+_MIN_CONTROLS_FOR_THRESHOLD = 8
+
+
+def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle,
+                              control_mask: np.ndarray | None = None):
+    """Turn ``threshold_method`` + multiplier into a symmetric cut, or None.
+
+    :param values: the effect column, all guides.
+    :param control_mask: which of them are non-targeting controls. Required
+        by ``threshold_method='control'`` and ignored by the rest.
+
+    A NOTE ON THE NON-CONTROL METHODS, because it is easy to reach for one
+    and get a number that looks principled: ``std``, ``mad`` and ``quantile``
+    estimate the spread from EVERY guide, hits included. A screen with real
+    hits therefore inflates its own threshold, and the stronger the screen,
+    the higher the bar it sets itself. They are fine for a quick look and
+    they are not a null.
+    """
+    method = str(style.threshold_method or "value").lower()
+    multiplier = float(style.threshold_multiplier)
+    finite = values[np.isfinite(values)]
+    if finite.size == 0:
+        return None
+
+    if method == "control":
+        if control_mask is None:
+            raise ValueError(
+                "threshold_method='control' needs to know which guides are "
+                "controls. Set VolcanoStyle.control_column to a boolean "
+                "column of the results frame.")
+        controls = values[np.asarray(control_mask, bool) & np.isfinite(values)]
+        if controls.size < _MIN_CONTROLS_FOR_THRESHOLD:
+            raise ValueError(
+                f"threshold_method='control' needs at least "
+                f"{_MIN_CONTROLS_FOR_THRESHOLD} control guides to estimate a "
+                f"null from; this screen has {controls.size}. Use 'mad' and "
+                f"read it as a rough spread, or set an explicit "
+                f"effect_threshold.")
+        # MAD rather than std: one control that went wrong should not widen
+        # the null it is supposed to define. 1.4826 makes it a consistent
+        # estimator of sigma under normality, the same scaling the 'mad'
+        # branch uses, so the two are directly comparable and the difference
+        # between them is exactly "did the hits inflate it".
+        median = float(np.median(controls))
+        mad = float(np.median(np.abs(controls - median)))
+        if mad <= 0.0:
+            # Controls all identical -- degenerate, and a zero cut would mark
+            # every guide significant. Say so instead.
+            raise ValueError(
+                "the control guides have zero spread, so no null can be "
+                "estimated from them. Check that control_column selects the "
+                "non-targeting controls and not a single guide.")
+        return mad * 1.4826 * multiplier
+    if method == "value":
+        if style.effect_threshold is None:
+            return None
+        return abs(float(style.effect_threshold)) * multiplier
+    if method == "std":
+        return float(np.std(finite, ddof=1)) * multiplier
+    if method == "mad":
+        median = float(np.median(finite))
+        mad = float(np.median(np.abs(finite - median)))
+        # 1.4826 makes the MAD a consistent estimator of sigma under normality.
+        return mad * 1.4826 * multiplier
+    if method == "quantile":
+        # The multiplier is the quantile itself here, e.g. 0.99.
+        quantile = min(max(multiplier, 0.5), 0.999999)
+        return float(np.quantile(np.abs(finite), quantile))
+    raise ValueError(
+        f"threshold_method={style.threshold_method!r} must be one of "
+        f"'value', 'std', 'mad', 'quantile' or 'control'.")
+
+
+def _prepare(results: pd.DataFrame, style: VolcanoStyle):
+    """Extract x, y, significance and the label series the plot needs."""
+    frame = results.copy()
+    if style.x_column not in frame.columns:
+        raise ValueError(
+            f"x_column={style.x_column!r} is not a column of the results "
+            f"({sorted(frame.columns)[:15]}).")
+    if style.y_column not in frame.columns:
+        raise ValueError(
+            f"y_column={style.y_column!r} is not a column of the results "
+            f"({sorted(frame.columns)[:15]}).")
+    x = pd.to_numeric(frame[style.x_column], errors="coerce").to_numpy(float)
+    raw_y = pd.to_numeric(frame[style.y_column], errors="coerce").to_numpy(float)
+    if style.y_neg_log10:
+        y = -np.log10(np.clip(raw_y, np.finfo(float).tiny, None))
+    else:
+        y = raw_y
+    if "significant" in frame.columns:
+        significant = frame["significant"].astype(bool).to_numpy()
+    else:
+        significant = raw_y < float(style.alpha)
+    control_mask = None
+    if style.control_column:
+        if style.control_column not in frame.columns:
+            raise ValueError(
+                f"control_column={style.control_column!r} is not a column of "
+                f"the results ({sorted(frame.columns)[:15]}).")
+        control_mask = frame[style.control_column].astype(bool).to_numpy()
+    effect_cut = _resolve_effect_threshold(x, style, control_mask)
+    if effect_cut is not None:
+        significant = significant & (np.abs(x) >= effect_cut)
+    return frame, x, y, raw_y, significant, effect_cut
+
+
+def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
+                   figure=None, save_path=None, screen: bool = False):
+    """Draw the volcano described by ``style`` and return ``(figure, axes)``.
+
+    :param results: coefficient table supplying the effect, significance and
+        annotation columns named by ``style``.
+    :param style: complete volcano appearance and data-mapping specification,
+        including cut-offs, labels, colours and figure geometry.
+    :param figure: draw into this figure instead of creating one, so a live
+        canvas can be redrawn in place.
+    :param save_path: also write the figure here. The extension chooses the
+        format; ``.pdf`` stays vector.
+    :param screen: this render is going onto a screen someone is reading,
+        not into a file. It is the one bit that tells
+        ``VolcanoStyle.screen_background`` from
+        ``VolcanoStyle.background_color`` -- see :func:`page_ground`. A
+        renderer that could not tell them apart would have to choose between
+        an unreadable canvas and an exported figure carrying a white
+        rectangle onto every page it is placed on.
+    """
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+
+    frame, x, y, raw_y, significant, effect_cut = _prepare(results, style)
+
+    if figure is None:
+        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+        # rcParams reach an artist when it is CREATED, so a
+        # context opened after `plt.subplots` would leave the
+        # spines, ticks and labels at the caller's globals.
+        with figure_style(theme_target()):
+            figure = plt.figure(figsize=(style.figure_width, style.figure_height),
+                                dpi=style.dpi)
+    else:
+        figure.clear()
+
+    with mpl.rc_context({
+        "font.family": style.font_family,
+        "font.size": style.font_size,
+        "font.weight": style.font_weight,
+    }):
+        if style.split_axis and style.split_y_lims:
+            lower, upper = style.split_y_lims
+            ratio = max(min(float(style.split_height_ratio), 0.9), 0.1)
+            axes = figure.subplots(
+                2, 1, sharex=True,
+                gridspec_kw={"height_ratios": [ratio, 1 - ratio],
+                             "hspace": 0.08})
+            panels = [axes[0], axes[1]]
+            panels[0].set_ylim(*upper)
+            panels[1].set_ylim(*lower)
+        else:
+            panels = [figure.add_subplot(111)]
+
+        mappable = _draw_points(panels, frame, x, y, significant, style)
+        _draw_reference_lines(panels, style, effect_cut)
+        _annotate(panels, frame, x, y, significant, style)
+        _finish_axes(figure, panels, style, mappable,
+                     ground=page_ground(style, screen=screen))
+
+    if save_path is not None:
+        path = os.fspath(save_path)
+        parent = os.path.dirname(os.path.abspath(path))
+        os.makedirs(parent, exist_ok=True)
+        # 108 point 6, through the one writer -- and the style still wins
+        # where it has an opinion. THE EXTENSION IS THE CALLER'S: this is the
+        # headless renderer and its `save_path` is a filename someone chose,
+        # so `fmt` is taken from it rather than from the preference, which
+        # would rename the file under them. What it gains is the DPI rule,
+        # the TrueType embedding, and the repaint for paper.
+        from .plot import save_figure
+
+        suffix = os.path.splitext(path)[1].lstrip(".").lower() or None
+        raster = path.lower().endswith((".png", ".jpg", ".jpeg", ".tif",
+                                        ".tiff"))
+        save_figure(figure, path, fmt=suffix,
+                    dpi=style.dpi if raster else None,
+                    transparent=style.transparent, bbox_inches="tight")
+    return figure, panels
+
+
+def _colour_values(frame: pd.DataFrame, style: VolcanoStyle):
+    """Return ``(values, is_categorical)`` for the colour mapping, or None."""
+    if not style.color_by or style.color_by not in frame.columns:
+        return None
+    column = frame[style.color_by]
+    numeric = pd.to_numeric(column, errors="coerce")
+    # A column that is mostly unparseable is a category, whatever its dtype.
+    if numeric.notna().mean() > 0.9:
+        return numeric.to_numpy(float), False
+    return column.astype(str).to_numpy(), True
+
+
+def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
+    """Each row's LOPIT compartment as an array of names, ``''`` where unknown.
+
+    :func:`spacr.localisation.of` resolves genes encoded in bracketed
+    regression terms such as ``fraction:grna[233460_1]``. Explorer tables may
+    instead contain bare accessions or guide identifiers such as
+    ``TGGT1_233460`` or ``233460_1``. This function accepts both forms and
+    queries the bundled localization table first with the normalized accession
+    and then, when applicable, with its terminal gene number.
+
+    :param results: result rows containing a usable gene or guide column.
+    :param style: style whose localization and label columns guide lookup.
+    :returns: a numpy array of compartment names, or ``None`` when no column
+        of ``results`` can name a gene and when no table is bundled -- a
+        volcano is still a volcano without compartment colouring.
+    """
+    from .hits import _gene_id_of, gene_of
+    from .localisation import table
+
+    candidates = [style.localization_column, "feature", "gene",
+                  style.label_column, "guide"]
+    key = next((name for name in candidates
+                if name and name in results.columns), None)
+    lookup = table()
+    if key is None or not lookup:
+        return None
+    places = []
+    for value in results[key]:
+        text = str(value).strip()
+        gene = gene_of(text) or _gene_id_of(text) or ""
+        place = lookup.get(gene)
+        if place is None and "_" in gene:
+            place = lookup.get(gene.rsplit("_", 1)[-1])
+        places.append(place or "")
+    return np.asarray(places, dtype=object)
+
+
+def localizations_present(results: pd.DataFrame, style: VolcanoStyle,
+                          minimum: int | None = None) -> list:
+    """The compartments this screen actually has, commonest first.
+
+    NOT ALL 27. A menu listing every compartment in the reference table offers
+    choices that would colour nothing, and a choice that colours nothing is
+    indistinguishable from a broken one -- the same threshold
+    :func:`spacr.localisation.present` applies.
+
+    :param results: result rows whose genes or guides are localized.
+    :param style: style selecting the localization or fallback label column.
+    """
+    from .localisation import MIN_GENES
+
+    places = point_localizations(results, style)
+    if places is None or not len(places):
+        return []
+    counts = pd.Series(places)
+    counts = counts[counts != ""].value_counts()
+    floor = MIN_GENES if minimum is None else int(minimum)
+    return [str(name) for name, count in counts.items() if count >= floor]
+
+
+def _draw_by_localization(panels, frame, x, y, places, style, shapes) -> None:
+    """Colour the ticked compartments; leave every other point grey.
+
+    Several at once, because "dense granules and rhoptries 1" is one question.
+    The ticked compartments are what the figure is about, so they are drawn at
+    ``significant_marker_size`` and the rest at ``marker_size``: the emphasis
+    is on the compartment here, and the effect-size and alpha lines are still
+    where significance is read off.
+    """
+    import matplotlib as mpl
+
+    # `dict.fromkeys` keeps the offered order and drops a repeat, so the same
+    # combination is drawn the same however it was ticked.
+    wanted = list(dict.fromkeys(str(name) for name in style.localizations))
+    cmap = mpl.colormaps[style.colormap]
+    for axis in panels:
+        rest = np.ones(places.shape, bool)
+        for index, name in enumerate(wanted):
+            mask = places == name
+            rest &= ~mask
+            if not mask.any():
+                continue
+            colour = (cmap(index % cmap.N) if cmap.N <= 32
+                      else cmap(index / max(len(wanted) - 1, 1)))
+            _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
+                              color=colour,
+                              size=style.significant_marker_size, label=name)
+        if rest.any():
+            _scatter_by_shape(axis, frame, x, y, rest, style, shapes,
+                              color=style.base_color, size=style.marker_size,
+                              label="elsewhere")
+
+
+def _draw_points(panels, frame, x, y, significant, style):
+    """Scatter the points onto every panel; returns a mappable or None."""
+    shapes = {}
+    if style.shape_by and style.shape_by in frame.columns:
+        categories = list(pd.unique(frame[style.shape_by].astype(str)))
+        codes = [code for code, _label in MARKER_SHAPES]
+        shapes = {name: codes[index % len(codes)]
+                  for index, name in enumerate(categories)}
+
+    if style.localizations:
+        places = point_localizations(frame, style)
+        if places is not None:
+            _draw_by_localization(panels, frame, x, y, places, style, shapes)
+            # No mappable: a compartment is a category, and a colour bar over
+            # categories is a scale that reads as continuous when it is not.
+            return None
+    colours = _colour_values(frame, style)
+
+    mappable = None
+    for axis in panels:
+        if colours is None:
+            groups = [
+                (~significant, style.base_color, style.marker_size,
+                 "not significant"),
+                (significant, style.significant_color,
+                 style.significant_marker_size, "significant"),
+            ]
+            for mask, colour, size, label in groups:
+                if not mask.any():
+                    continue
+                _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
+                                  color=colour, size=size, label=label)
+        else:
+            values, categorical = colours
+            if categorical:
+                categories = list(pd.unique(values))
+                import matplotlib as mpl
+                cmap = mpl.colormaps[style.colormap]
+                for index, name in enumerate(categories):
+                    mask = values == name
+                    if not mask.any():
+                        continue
+                    colour = cmap(index % getattr(cmap, "N", 256)
+                                  if cmap.N <= 32 else index / max(len(categories) - 1, 1))
+                    _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
+                                      color=colour, size=style.marker_size,
+                                      label=str(name))
+            else:
+                sizes = np.where(significant, style.significant_marker_size,
+                                 style.marker_size)
+                mappable = axis.scatter(
+                    x, y, c=values, cmap=style.colormap,
+                    vmin=style.color_vmin, vmax=style.color_vmax,
+                    s=sizes, marker=style.marker, alpha=style.marker_alpha,
+                    edgecolor=style.marker_edge_color,
+                    linewidth=style.marker_edge_width)
+    return mappable
+
+
+def _scatter_by_shape(axis, frame, x, y, mask, style, shapes, *, color, size,
+                      label):
+    """One scatter per shape category, so each can carry its own marker."""
+    if not shapes:
+        axis.scatter(x[mask], y[mask], s=size, marker=style.marker,
+                     color=color, alpha=style.marker_alpha,
+                     edgecolor=style.marker_edge_color,
+                     linewidth=style.marker_edge_width, label=label)
+        return
+    values = frame[style.shape_by].astype(str).to_numpy()
+    # When colour and shape encode the SAME column, "GRA · GRA" is noise.
+    same_source = style.shape_by == style.color_by
+    for name, code in shapes.items():
+        combined = mask & (values == name)
+        if not combined.any():
+            continue
+        axis.scatter(x[combined], y[combined], s=size, marker=code,
+                     color=color, alpha=style.marker_alpha,
+                     edgecolor=style.marker_edge_color,
+                     linewidth=style.marker_edge_width,
+                     label=name if same_source else f"{label} · {name}")
+
+
+def _draw_reference_lines(panels, style, effect_cut):
+    """Draw each enabled significance, zero, and symmetric effect rule.
+
+    :param panels: axes that receive identical reference rules.
+    :param style: validated :class:`VolcanoStyle` controlling visibility and
+        line appearance.
+    :param effect_cut: nonzero absolute effect threshold, or ``None`` when no
+        effect rule can be drawn.
+    :returns: ``None``; the axes are modified in place.
+    """
+    for axis in panels:
+        if style.show_alpha_line and style.line_style != "none":
+            level = (-np.log10(max(float(style.alpha), np.finfo(float).tiny))
+                     if style.y_neg_log10 else float(style.alpha))
+            axis.axhline(level, color=style.line_color,
+                         linestyle=style.line_style,
+                         linewidth=style.line_width)
+        if style.show_zero_line:
+            axis.axvline(0, color=style.zero_line_color,
+                         linewidth=style.zero_line_width)
+        if style.show_effect_lines and effect_cut:
+            for sign in (-1.0, 1.0):
+                axis.axvline(sign * effect_cut, color=style.line_color,
+                             linestyle=style.line_style,
+                             linewidth=style.line_width)
+
+
+def _annotate(panels, frame, x, y, significant, style):
+    """Print the requested labels, alternating sides so they do not collide."""
+    if style.label_column not in frame.columns:
+        return
+    labels = frame[style.label_column].astype(str).to_numpy()
+    wanted: dict[str, str] = {str(k): str(v)
+                              for k, v in (style.annotations or {}).items()}
+    if style.annotate_significant:
+        for index in np.flatnonzero(significant):
+            wanted.setdefault(labels[index], labels[index])
+    if not wanted:
+        return
+    rows = [(text, index) for index, name in enumerate(labels)
+            if (text := wanted.get(name)) is not None]
+    rows.sort(key=lambda item: x[item[1]])
+    for order, (text, index) in enumerate(rows):
+        offset, align = ((-5, 8), "right") if order % 2 == 0 else ((5, -15), "left")
+        point_y = y[index]
+        anchor_y = point_y
+        target = panels[0]
+        visible = False
+        for panel in panels:
+            low, high = sorted(panel.get_ylim())
+            if low <= point_y <= high:
+                target = panel
+                visible = True
+                break
+        if not visible and np.isfinite(point_y):
+            # A break has no data coordinate to draw on. Put the anchor on its
+            # nearest visible edge and move the text towards the panel's
+            # interior, or clipping erases the label while retaining its Text.
+            edges = []
+            for panel in panels:
+                bottom, top = panel.get_ylim()
+                edges.extend(((abs(point_y - bottom), panel, bottom, 1),
+                              (abs(point_y - top), panel, top, -1)))
+            _distance, target, anchor_y, inward = min(
+                edges, key=lambda candidate: candidate[0])
+            offset = (offset[0], inward * abs(offset[1]))
+        target.annotate(text, (x[index], anchor_y), xytext=offset,
+                        textcoords="offset points",
+                        fontsize=style.label_font_size,
+                        fontweight="bold", ha=align)
+
+
+def page_ground(style: VolcanoStyle, *, screen: bool = False):
+    """Resolve the background colour for a volcano-plot render.
+
+    An explicit ``background_color`` applies to screen and file output. If it
+    is unset, screen rendering uses ``screen_background`` and file rendering
+    preserves the figure's existing transparency.
+
+    :param style: Volcano-plot style settings.
+    :param screen: Resolve for interactive screen display.
+    :returns: A matplotlib colour value, or ``None`` to preserve the current
+        figure background.
+    """
+    named = str(style.background_color or "none").strip()
+    if named and named.lower() != "none":
+        return named
+    if screen:
+        chosen = str(style.screen_background or "none").strip()
+        if chosen and chosen.lower() != "none":
+            return chosen
+    return None
+
+
+def _paint_ink(figure, panels, style, ground) -> None:
+    """Put the ground behind the plot and the ink on everything drawn on it.
+
+    The ink reaches the axis spines, the tick marks, the tick labels, both
+    axis titles, the plot title, every annotation and the legend, because
+    they are one thing to a reader: a figure whose axes are black and whose
+    tick labels followed the ambient rcParams is a figure that changes
+    colour depending on what the process drew before it.
+    """
+    if ground:
+        figure.patch.set_facecolor(ground)
+        figure.patch.set_alpha(1.0)
+    ink = str(style.axis_color or "").strip()
+    for axis in panels:
+        if ground:
+            axis.set_facecolor(ground)
+        if not ink:
+            continue
+        for spine in axis.spines.values():
+            spine.set_edgecolor(ink)
+        axis.tick_params(colors=ink, labelsize=style.tick_font_size)
+        axis.xaxis.label.set_color(ink)
+        axis.yaxis.label.set_color(ink)
+        axis.title.set_color(ink)
+        for text in axis.texts:
+            text.set_color(ink)
+        legend = axis.get_legend()
+        if legend is not None:
+            for text in legend.get_texts():
+                text.set_color(ink)
+    if ink:
+        for text in figure.texts:
+            text.set_color(ink)
+
+
+def _finish_axes(figure, panels, style, mappable, ground=None):
+    """Apply labels, scales, furniture, ink, and eligible layout in place.
+
+    :param figure: matplotlib figure containing the volcano panels.
+    :param panels: one ordinary axis or the two axes of a split volcano.
+    :param style: validated :class:`VolcanoStyle` to render.
+    :param mappable: numeric-colour artist, or ``None`` when no colorbar is
+        available.
+    :param ground: optional resolved page colour.
+    :returns: ``None``.
+    """
+    y_label = style.y_label
+    if not y_label:
+        y_label = (f"-log10({style.y_column})" if style.y_neg_log10
+                   else style.y_column)
+    bottom = panels[-1]
+    for axis in panels:
+        if style.x_scale != "linear":
+            axis.set_xscale(style.x_scale)
+        if style.y_scale != "linear" and not style.split_axis:
+            axis.set_yscale(style.y_scale)
+        if style.x_lim:
+            axis.set_xlim(*style.x_lim)
+        if style.y_lim and not style.split_axis:
+            axis.set_ylim(*style.y_lim)
+        if style.invert_x:
+            axis.invert_xaxis()
+        if style.invert_y:
+            axis.invert_yaxis()
+        if style.grid and style.grid_axis != "none":
+            axis.grid(axis=style.grid_axis, color=style.grid_color,
+                      linewidth=style.grid_width)
+        else:
+            axis.grid(False)
+        if style.hide_top_right_spines:
+            axis.spines[["top", "right"]].set_visible(False)
+        axis.tick_params(labelsize=style.tick_font_size)
+
+    if len(panels) == 2:
+        # The break marks. Hide the shared edge, then draw the diagonal ticks.
+        panels[0].spines["bottom"].set_visible(False)
+        panels[1].spines["top"].set_visible(False)
+        panels[0].tick_params(bottom=False, labelbottom=False)
+        # THE BREAK MARKS ARE AXIS FURNITURE, so they take the axis ink
+        # rather than a grey of their own: a black-axes volcano with two
+        # grey ticks at the break reads as a rendering fault.
+        break_ink = str(style.axis_color or "").strip() or "#404040"
+        kwargs = dict(marker=[(-1, -0.6), (1, 0.6)], markersize=7,
+                      linestyle="none", color=break_ink, mec=break_ink,
+                      mew=1, clip_on=False)
+        panels[0].plot([0, 1], [0, 0], transform=panels[0].transAxes, **kwargs)
+        panels[1].plot([0, 1], [1, 1], transform=panels[1].transAxes, **kwargs)
+
+    bottom.set_xlabel(style.x_label, fontsize=style.label_font_size)
+    if len(panels) == 2:
+        figure.supylabel(y_label, fontsize=style.label_font_size)
+    else:
+        bottom.set_ylabel(y_label, fontsize=style.label_font_size)
+    if style.title:
+        panels[0].set_title(style.title, fontsize=style.title_font_size,
+                            fontweight="bold")
+    if style.legend:
+        handles, labels = panels[0].get_legend_handles_labels()
+        if handles:
+            panels[0].legend(handles, labels, frameon=False,
+                             loc=style.legend_location,
+                             fontsize=style.label_font_size)
+    if mappable is not None and style.show_colorbar:
+        bar = figure.colorbar(mappable, ax=panels, fraction=0.046, pad=0.02)
+        bar.set_label(style.color_by, fontsize=style.label_font_size)
+        bar.ax.tick_params(labelsize=style.tick_font_size)
+        ink = str(style.axis_color or "").strip()
+        if ink:
+            bar.ax.tick_params(colors=ink, labelsize=style.tick_font_size)
+            bar.ax.yaxis.label.set_color(ink)
+    # LAST, so it reaches the legend and the colour bar the lines above
+    # have only just created.
+    _paint_ink(figure, panels, style, ground)
+    # tight_layout cannot lay out a broken axis or a figure-level colorbar and
+    # warns instead of doing nothing, so it is only run when it applies.
+    if not style.split_axis and not (mappable is not None and style.show_colorbar):
+        figure.tight_layout()
+
+
+#: Settings that name a column of the results, and whether the plot can be
+#: drawn without one. The two axes cannot; everything else is optional and
+#: ``None`` means "not mapped".
+_COLUMN_SETTINGS: tuple[tuple[str, bool], ...] = (
+    ("x_column", True), ("y_column", True), ("label_column", False),
+    ("color_by", False), ("shape_by", False), ("control_column", False),
+    ("localization_column", False),
+)
+
+#: Settings whose value is a colour matplotlib has to be able to parse.
+_COLOUR_SETTINGS: tuple[str, ...] = (
+    "marker_edge_color", "base_color", "significant_color", "line_color",
+    "zero_line_color", "grid_color", "background_color", "screen_background",
+    "axis_color",
+)
+
+
+def _is_a_colour(value) -> bool:
+    """Whether matplotlib can turn ``value`` into a colour.
+
+    ``"none"`` counts: it is how a ground is taken back off, and refusing it
+    would turn the transparent default into a permanent complaint. So does
+    an empty one, and for the same reason -- every reader of these fields
+    already treats a blank as "not set", so a cleared box is a choice rather
+    than a mistake and must not be reported as one.
+    """
+    import matplotlib.colors as mcolors
+
+    if value is None or str(value).strip() == "":
+        return True
+    try:
+        mcolors.to_rgba(value)
+    except (ValueError, TypeError):
+        return False
+    return True
+
+
+def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
+    """Validate volcano-plot style fields without stopping at the first error.
+
+    :param results: Results table used to validate referenced column names.
+    :param style: Style configuration to validate.
+    :returns: Mapping from invalid field names to explanatory messages. An
+        empty mapping indicates that the style can be rendered.
+    """
+    import matplotlib as mpl
+
+    problems: dict[str, str] = {}
+    columns = set(results.columns) if results is not None else set()
+    for name, required in _COLUMN_SETTINGS:
+        value = getattr(style, name, None)
+        if value is None or value == "":
+            if required:
+                problems[name] = "Select a results column."
+            continue
+        if columns and value not in columns:
+            problems[name] = (
+                f"{value!r} is not present in the results columns "
+                f"({', '.join(sorted(columns)[:6])}...).")
+    for name in _COLOUR_SETTINGS:
+        value = getattr(style, name, None)
+        if not _is_a_colour(value):
+            problems[name] = f"{value!r} is not a valid matplotlib colour."
+    if str(style.colormap) not in mpl.colormaps:
+        problems["colormap"] = f"{style.colormap!r} is not a colormap."
+    if str(style.marker) not in {code for code, _ in MARKER_SHAPES}:
+        problems["marker"] = f"{style.marker!r} is not a marker shape."
+    if str(style.line_style) not in {code for code, _ in LINE_STYLES}:
+        problems["line_style"] = f"{style.line_style!r} is not a line style."
+    for name in ("x_scale", "y_scale"):
+        if str(getattr(style, name)) not in SCALES:
+            problems[name] = (
+                f"{getattr(style, name)!r} is not one of "
+                f"{', '.join(SCALES)}.")
+    method = str(style.threshold_method or "value").lower()
+    if method not in ("value", "std", "mad", "quantile", "control"):
+        problems["threshold_method"] = (
+            f"{style.threshold_method!r} must be one of 'value', 'std', "
+            f"'mad', 'quantile' or 'control'.")
+    elif method == "control" and "control_column" not in problems:
+        # The control rule is the one that can fail on DATA rather than on a
+        # typo -- too few controls, or controls with no spread -- so it is
+        # asked rather than guessed, and the resolver is the thing that
+        # knows. Attributed to `threshold_method`, because that is the
+        # control the reader chose and can take back.
+        try:
+            mask = None
+            if style.control_column and style.control_column in columns:
+                mask = results[style.control_column].astype(bool).to_numpy()
+            values = pd.to_numeric(results[style.x_column],
+                                   errors="coerce").to_numpy(float)
+            _resolve_effect_threshold(values, style, mask)
+        except ValueError as error:
+            problems["threshold_method"] = str(error)
+        except Exception:                                     # noqa: BLE001
+            # A fault that is not about this setting -- a missing x column,
+            # say -- is already reported against the setting it belongs to.
+            pass
+    order = [f.name for f in fields(VolcanoStyle)]
+    return {name: problems[name] for name in order if name in problems}
+
+
+def point_details(results: pd.DataFrame, index: int, style: VolcanoStyle
+                  ) -> dict:
+    """Everything known about one plotted point, for the click handler.
+
+    Returns every column of the row, plus the derived plotted coordinates, so
+    the panel can show both what was plotted and what it came from.
+
+    :param results: result frame in the same row order as the plotted points.
+    :param index: positional row index of the selected point.
+    :param style: style selecting the plotted x and y columns and transform.
+    """
+    row = results.iloc[int(index)]
+    detail: dict[str, Any] = {str(k): row[k] for k in results.columns}
+    raw_y = pd.to_numeric(pd.Series([row[style.y_column]]),
+                          errors="coerce").iloc[0]
+    detail["_plotted_x"] = pd.to_numeric(
+        pd.Series([row[style.x_column]]), errors="coerce").iloc[0]
+    detail["_plotted_y"] = (
+        -np.log10(max(float(raw_y), np.finfo(float).tiny))
+        if style.y_neg_log10 and pd.notna(raw_y) else raw_y)
+    return detail

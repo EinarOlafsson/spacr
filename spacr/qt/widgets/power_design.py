@@ -183,18 +183,17 @@ CAVEATS: Tuple[Caveat, ...] = (
     Caveat(
         key="advi_not_nuts",
         headline=(
-            "The default backend is mean-field ADVI, not NUTS: the ranking "
-            "is trustworthy, the intervals are not."
+            "The default backend is mean-field ADVI, not NUTS: it can reach "
+            "a local optimum, and its intervals are not calibrated."
         ),
         detail=(
             "spaCRPower fits with brms + cmdstanr (full NUTS). There is no "
             "pip-installable equivalent, so the default here is variational "
-            "inference in torch. Mean-field VI underestimates posterior "
-            "variance, has no R-hat and can land in a local optimum. What it "
-            "does get right is the ORDER of the per-gene coefficients — and "
-            "AUROC and average precision depend on nothing else, which is "
-            "why it is defensible for a power analysis and not defensible "
-            "for quoting a per-gene credible interval. Install numpyro or "
+            "inference in torch. Mean-field VI has no R-hat, cannot represent "
+            "posterior correlations, can underestimate posterior variance, "
+            "and can land in a local optimum. AUROC and average precision use "
+            "coefficient ordering, but ADVI does not guarantee that ordering; "
+            "treat its result as a fast approximation. Install numpyro or "
             "pymc and pick that backend when the interval is the deliverable."
         ),
         changes_the_number=True,
@@ -424,8 +423,9 @@ class DesignSpec:
     :ivar n_replicates: simulated screens per grid point.
     :ivar detection_auroc: the AUROC a replicate must reach to count as a
         detection.
-    :ivar seed: master seed. Every number on the screen is reproducible
-        from this plus the fields above.
+    :ivar seed: master seed used to derive each grid-point replicate seed.
+        Reproduction also requires the complete design, the same sweep grid
+        and order, resolved backend, and software stack.
     :ivar backend: inference backend, passed straight to
         :func:`spacr.power_model.scan_parameters`.
     """
@@ -510,15 +510,12 @@ class DesignSpec:
         return float(self.n_library_units) * float(self.hit_rate)
 
     def validate(self) -> List[str]:
-        """Every reason this design cannot be simulated, in plain words.
+        """Return validation messages for parameters that prevent simulation.
 
-        Called before the run starts. The library would raise on each of
-        these too — but it raises inside ``scan_parameters``, which records
-        the point as ``status="failed"`` and carries on, so a design that is
-        simply impossible would come back as a full grid of failures rather
-        than as one sentence saying which box is wrong.
-
-        :returns: list of problems; empty means the design will run.
+        Returns
+        -------
+        list of str
+            User-facing problems. An empty list means the design is valid.
         """
         problems: List[str] = []
         if int(self.n_genes) < 2:

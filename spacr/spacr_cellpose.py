@@ -1,4 +1,4 @@
-"""Cellpose model evaluation, comparison, and mask-generation workflows."""
+"""Cellpose model evaluation and mask-generation workflows."""
 
 import os, gc, torch, time, random
 import numpy as np
@@ -12,8 +12,8 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Discard display payloads when IPython's helper is unavailable."""
         pass
-from multiprocessing import Pool
 from skimage.transform import resize as resizescikit
 
 from .tiff_io import write_tiff
@@ -86,6 +86,25 @@ def parse_cellpose4_output(output):
     if not isinstance(flows, (list, tuple)):
         raise ValueError(f"Unrecognized Cellpose flows type: {type(flows)}")
 
+    # A BARE 2-D EVAL RETURNS ONE IMAGE'S FLOWS, FLAT.
+    #
+    # Handed a single (H, W) array, ``CellposeModel.eval`` returns a 2-D
+    # ``masks`` and a ``flows`` list holding the three arrays for that ONE
+    # image -- an RGB rendering, the (2, H, W) vectors and the
+    # cell-probability map -- rather than a list with one entry per image.
+    # ``len(masks)`` is then the image HEIGHT, so both branches below go
+    # looking for H entries in a list of three and a field that segmented
+    # perfectly raises.
+    #
+    # The check goes FIRST because a 2-D mask is one image whatever the
+    # flows look like. Nothing else reaches it: a list of 2-D arrays fails
+    # the isinstance, and a batched (N, H, W) stack has ndim 3.
+    if isinstance(masks, np.ndarray) and masks.ndim == 2:
+        items = list(flows)
+        first, second, third, fourth = (
+            items[i] if i < len(items) else None for i in range(4))
+        return masks, [first], [second], [third], [fourth]
+
     # Determine number of images
     try:
         num_images = len(masks)
@@ -157,11 +176,16 @@ def identify_masks_finetune(settings):
             print(f"Custom model not found: {settings['custom_model']}")
             return 
 
-    if not torch.cuda.is_available():
-        print(f'Torch CUDA is not available, using CPU')
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+    from .accelerator import cellpose_gpu, cellpose_kwargs, describe
+
+    # ONE RESOLVER, NOT A CUDA TEST. `torch.cuda.is_available()` answers
+    # "is there CUDA", and this line meant "is there a GPU" -- which on a
+    # Mac or a ROCm box is a different answer. See instruction 319.
+    if not cellpose_gpu():
+        print('No GPU available to spaCR, using CPU')
+    else:
+        print(f'Segmenting on {describe()}')
+
     # 'cpsam' unless the user pointed at a checkpoint. custom_model wins when
     # set (its existence was checked above); otherwise model_name is resolved,
     # which maps a pre-SAM name forward and reports it once.
@@ -173,9 +197,11 @@ def identify_masks_finetune(settings):
     # No model_type= / diam_mean= : Cellpose 4 logs "not used in v4.0.1+" and
     # drops both. diameter is NOT dropped — it is passed to eval() below,
     # where the image is rescaled by 30/diameter, and that still works.
-    model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
-                                    pretrained_model=pretrained,
-                                    device=device)
+    # gpu= AND device= TOGETHER. Cellpose branches on `gpu` before it
+    # looks at `device`, so passing a device without the flag still takes
+    # the CPU path -- which is exactly what pinned every Mac to the CPU.
+    model = cp_models.CellposeModel(pretrained_model=pretrained,
+                                    **cellpose_kwargs())
     print(f"Loaded model: {getattr(model, 'pretrained_model', pretrained)}")
 
     if settings['grayscale']:
@@ -331,7 +357,13 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         if normalize:
             images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files, None, channels, percentiles, invert, plot, remove_background, background, Signal_to_noise, target_height, target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-            orig_dims = [(image.shape[0], image.shape[1]) for image in images]
+            # orig_dims is deliberately NOT recomputed from `images` here.
+            # The loader was handed target_height/target_width, so it has
+            # already resized them; measuring them now records the TARGET
+            # size as the original, which makes the `resize back to
+            # orig_dims` below a no-op and writes every mask at target
+            # resolution instead of the source's. identify_masks_finetune
+            # keeps the loader's dims for exactly this reason.
         else:
             images, _, image_names, _ = _load_images_and_labels(image_files, None, invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
@@ -398,114 +430,13 @@ def check_cellpose_models(settings):
     # one. It is left as a list rather than collapsed so a future release
     # that ships more than one needs no other change here.
     cellpose_models = ['cpsam']
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    from .accelerator import cellpose_kwargs
 
     for model_name in cellpose_models:
 
-        model = cp_models.CellposeModel(gpu=torch.cuda.is_available(),
-                                        pretrained_model=model_name,
-                                        device=device)
+        model = cp_models.CellposeModel(pretrained_model=model_name,
+                                        **cellpose_kwargs())
         print(f'Using {model_name}')
         generate_masks_from_imgs(src, model, model_name, settings['batch_size'], settings['diameter'], settings['CP_prob'], settings['flow_threshold'], settings['grayscale'], settings['save'], settings['normalize'], settings['channels'], settings['percentiles'], settings['invert'], settings['plot'], settings['resize'], settings['target_height'], settings['target_width'], settings['remove_background'], settings['background'], settings['Signal_to_noise'], settings['verbose'])
 
-    return
-
-def save_results_and_figure(src, fig, results):
-    """Persist a comparison DataFrame and figure under ``<src>/results``.
-
-    :param src: Root directory used to locate/create the ``results/`` folder.
-    :param fig: Matplotlib figure to save as PDF.
-    :param results: DataFrame or list-of-dicts of comparison metrics.
-    :returns: None.
-    """
-    if not isinstance(results, pd.DataFrame):
-        results = pd.DataFrame(results)
-
-    results_dir = os.path.join(src, 'results')
-    os.makedirs(results_dir, exist_ok=True)
-    results_path = os.path.join(results_dir,f'results.csv')
-    fig_path = os.path.join(results_dir, f'model_comparison_plot.pdf')
-    results.to_csv(results_path, index=False)
-    fig.savefig(fig_path, format='pdf')
-    print(f'Saved figure to {fig_path} and results to {results_path}')
-
-def compare_mask(args):
-    """Return pairwise IoU/F1/AP scores for one image across multiple mask directories.
-
-    Multiprocessing-friendly worker: unpacks its single tuple argument so it can
-    be dispatched with ``Pool.map``.
-
-    :param args: Tuple ``(src, filename, dirs, conditions)`` where ``dirs`` are
-        the mask directories to compare and ``conditions`` are their labels.
-    :returns: Dict of per-pair metrics, or None when the file is missing in
-        any directory.
-    """
-    src, filename, dirs, conditions = args
-    paths = [os.path.join(d, filename) for d in dirs]
-
-    if not all(os.path.exists(path) for path in paths):
-        return None
-
-    from .io import _read_mask
-    from .utils import boundary_f1_score, compute_segmentation_ap, jaccard_index
-
-    masks = [_read_mask(path) for path in paths]
-    file_results = {'filename': filename}
-
-    for i in range(len(masks)):
-        for j in range(i + 1, len(masks)):
-            mask_i, mask_j = masks[i], masks[j]
-            f1_score = boundary_f1_score(mask_i, mask_j)
-            jac_index = jaccard_index(mask_i, mask_j)
-            ap_score = compute_segmentation_ap(mask_i, mask_j)
-
-            file_results.update({
-                f'jaccard_{conditions[i]}_{conditions[j]}': jac_index,
-                f'boundary_f1_{conditions[i]}_{conditions[j]}': f1_score,
-                f'ap_{conditions[i]}_{conditions[j]}': ap_score
-            })
-    
-    return file_results
-
-def compare_cellpose_masks(src, verbose=False, processes=None, save=True):
-    """Compare masks across sibling subdirectories of ``src`` and plot the results.
-
-    :param src: Root directory whose subdirectories each hold masks from a
-        different condition/model.
-    :param verbose: When True, render per-image mask overlays via
-        :func:`spacr.plot.visualize_cellpose_masks`.
-    :param processes: Worker-pool size for :func:`compare_mask`. None uses the
-        default from ``multiprocessing.Pool``.
-    :param save: When True, persist overlay images to disk.
-    :returns: None.
-    """
-    from .plot import visualize_cellpose_masks, plot_comparison_results
-    from .io import _read_mask
-
-    dirs = [os.path.join(src, d) for d in os.listdir(src) if os.path.isdir(os.path.join(src, d)) and d != 'results']
-    dirs.sort()
-    conditions = [os.path.basename(d) for d in dirs]
-
-    # Get common files in all directories
-    common_files = set(os.listdir(dirs[0]))
-    for d in dirs[1:]:
-        common_files.intersection_update(os.listdir(d))
-    common_files = list(common_files)
-
-    # Create a pool of n_jobs
-    with Pool(processes=processes) as pool:
-        args = [(src, filename, dirs, conditions) for filename in common_files]
-        results = pool.map(compare_mask, args)
-
-    # Filter out None results (from skipped files)
-    results = [res for res in results if res is not None]
-    print(results)
-    if verbose:
-        for result in results:
-            filename = result['filename']
-            masks = [_read_mask(os.path.join(d, filename)) for d in dirs]
-            visualize_cellpose_masks(masks, titles=conditions, filename=filename, save=save, src=src)
-
-    fig = plot_comparison_results(results)
-    save_results_and_figure(src, fig, results)
     return

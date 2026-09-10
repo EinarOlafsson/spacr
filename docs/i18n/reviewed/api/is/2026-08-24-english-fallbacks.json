@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.legacy_tk.gui_elements.ModifyMaskApp.erase_brush#0",
+      "source_sha256": "0e6aa7e5eea15a68a3f8cfef8c189796869348c15cb86b69e6c7bd8c07e4221d",
+      "source": "Record an erase-brush stroke segment and draw a preview line.",
+      "context": "Record an erase-brush stroke segment and draw a preview line.",
+      "translation": "Skráir strokubút með strokleðurspensli og teiknar forskoðunarlínu."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_elements.ModifyMaskApp.use_magic_wand#0",
+      "source_sha256": "b54965d69aea4253a74fa561b66e50a15122877bae90d21062fea00d0d944455",
+      "source": "Run a magic-wand add (left) or erase (right) at the click position.",
+      "context": "Run a magic-wand add (left) or erase (right) at the click position.",
+      "translation": "Keyrir töfrasprota: bætir við (vinstri) eða strokar út (hægri) þar sem smellt er."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_elements.spacrContainer.on_configure#0",
+      "source_sha256": "1250bccb1cb15a2c3460ec84e1f46719d28c492e8f0d1a04ba004eab00d6834e",
+      "source": "Re-run layout when the container is resized.",
+      "context": "Re-run layout when the container is resized.",
+      "translation": "Endurreiknar uppsetninguna þegar stærð umgjarðarinnar breytist."
+    },
+    {
+      "label": "spacr.legacy_tk.gui_elements.spacrToolTip.hide_tooltip#0",
+      "source_sha256": "d84f7d4ad729507fc74bac5b02045e9b329356ef912149748b9e3f1b982b9e53",
+      "source": "Destroy the tooltip Toplevel when the pointer leaves the widget.",
+      "context": "Destroy the tooltip Toplevel when the pointer leaves the widget.",
+      "translation": "Eyðir ábendingarglugganum þegar bendillinn fer af viðmótshlutnum."
+    },
+    {
+      "label": "spacr.uniprot.canonical#0",
+      "source_sha256": "2ebc4e7ea388bdabcb4662336a0b45ad9eadb0fa6914a477e9c6212502379205",
+      "source": "The lookup form of an organism name: lower case, single spaces.",
+      "context": "The lookup form of an organism name: lower case, single spaces.",
+      "translation": "Uppflettiform á heiti lífveru: lágstafir og stök bil."
+    }
+  ]
+}

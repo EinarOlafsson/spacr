@@ -15,63 +15,32 @@
     │  Hover a tile to see what it does.                             │
     └────────────────────────────────────────────────────────────────┘
 
-Seven decisions worth knowing about before editing this file:
+The first tab displays every registered app grouped into the same sections as
+the category-filter tabs. :class:`AppTile` supplies one consistent icon-and-
+name tile in every view; tooltips and the hint bar provide descriptions.
+``categories`` and ``bands`` remain separate inputs so navigation and the
+all-app layout can evolve independently while both derive from
+:data:`spacr.qt.app.APPS`.
 
-1. **The first tab is everything, in the same categories as the rest.**
-   Home is not a summary of the other tabs — it holds every app, at a
-   density that fits one screen, banded by the *same* sections the
-   category tabs use. It used to band them into Prepare / Run / Review
-   instead, a second grouping that existed nowhere else: an app read as
-   "Prepare" on the first tab and "Data" on the second, and adding a
-   section meant editing two tables that could disagree. There is one
-   table now (:data:`spacr.qt.app.APPS`) and both the bands and the
-   tabs are computed from it, by the *registry*, and handed in — this
-   widget takes ``categories`` and ``bands`` already grouped and does
-   not know what a section means.
+Maturity is represented by each tile's ``stage`` property and the legend,
+using :data:`spacr.qt.app.APP_STAGE` and
+:data:`spacr.qt.theme.STAGE_HOVER`. The right column presents state rather
+than navigation: queued work, recent runs, system information, release news,
+totals, and maturity labels.
 
-   ``bands`` and ``categories`` are therefore the same list today, and
-   the two arguments are kept apart anyway: they answer different
-   questions ("what does Home list" and "what tabs are there"), and the
-   version of this file that assumed they could not differ is the one
-   that had to be undone.
-
-   The categories are a *filter*, not a hierarchy you have to descend;
-   category tabs with no "everything" view read as an empty page, which
-   is the version this one replaced.
-2. **One tile, everywhere.** :class:`AppTile` — icon over name, nothing
-   else — on Home and on every category tab alike. There used to be two
-   sizes: a dense icon-beside-name row on Home and a tall card carrying
-   the one-line description on the category tabs. That made the first
-   tab look like a list of links and the rest like a launcher, and the
-   description was a third copy of text already in the tooltip and in
-   the hint bar. The tiles are large, packed tight, and say the module's
-   name; :attr:`HomePage._hint_bar` and the tooltip say the rest.
-3. **Maturity is a colour, not a place.** Every tile carries a ``stage``
-   property (``stable`` / ``beta`` / ``alpha``) which the app
-   stylesheet turns into its hover colour, and the legend at the foot of
-   the right-hand column says what each colour means. #16i made staging
-   two extra TABS instead, which drained three of the five real
-   categories and gave "where is the format converter" two answers.
-   The classification lives in :data:`spacr.qt.app.APP_STAGE`; the
-   colours in :data:`spacr.qt.theme.STAGE_HOVER`. This widget only
-   passes them on.
-4. **The right-hand column is state, not navigation.** Queue, recent
-   runs, machine, release, then the legend. Putting it *beside* the apps
-   rather than under them is what stops it pushing the tiles off the
-   page. Three of those panels are marked ``(beta)`` — see
-   :data:`BETA_SUFFIX`.
-5. **A running job is shown here even though Home did not start it.**
-   ``spacr.qt.bridge.registry`` knows, because every screen goes through
-   ``make_thread``. Home subscribes; nothing had to report in.
-6. **Pause is disabled, on purpose, and says why.** See
-   :class:`RunningBanner` and :class:`spacr.qt.bridge.PauseGate`.
-7. **Every colour is resolved per instance, not imported.** See
-   :func:`active_palette` — ``theme.PALETTE`` is a frozen dark palette
-   and inlining it renders black-on-black in the light theme.
+Home subscribes to :data:`spacr.qt.bridge.registry` to display jobs started by
+any screen. :class:`RunningBanner` exposes only the controls supported by the
+worker; cooperative Pause remains disabled when the pipeline has no
+:class:`spacr.qt.bridge.PauseGate` checkpoints. Widget colors are resolved
+from :func:`spacr.qt.theme.active_palette` so runtime theme changes remain
+consistent.
 """
 from __future__ import annotations
 
 import os
+import re
+import warnings
+from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
@@ -90,10 +59,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..hidpi import follow_device_ratio, scaled_for
 from ..theme import (
-    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px, palette_for,
+    SPACING, TILE_H, TILE_ICON_PX, TILE_MAX_W, TILE_W, font_px,
+    make_transparent, palette_for,
 )
 from .divider import Divider
+from .height_grip import HeightGrip
 
 #: Hero brand sizes. The mark and wordmark are the first thing on the first
 #: screen, so they are sized to read as a masthead rather than as a row of
@@ -191,6 +163,12 @@ def _find_logo_pixmap() -> Optional[QPixmap]:
 
 
 def _fmt_elapsed(seconds: float) -> str:
+    """Render an elapsed time compactly.
+
+    :param seconds: the duration; negatives read as zero.
+    :returns: seconds, then minutes and seconds, then hours and minutes --
+        each with the smaller unit zero-padded so a column of them lines up.
+    """
     seconds = int(max(0, seconds))
     if seconds < 60:
         return f"{seconds}s"
@@ -246,6 +224,24 @@ class AppTile(QPushButton):
     def __init__(self, text: str, description: str = "",
                  icon: Optional[QIcon] = None, *, width: int, height: int,
                  icon_px: int = 52, stage: str = "stable", parent=None):
+        """Build one tile: an icon over a module name.
+
+        :param text: the module name drawn on the tile, and what the tile is
+            identified by.
+        :param description: accepted and NOT DRAWN. The tile stopped showing
+            it because it was a third copy of a sentence already on the
+            tooltip and in the hint bar, and three lines of grey under every
+            tile is what forced two tile sizes in the first place. Kept in
+            the signature so callers that pass it still work.
+        :param icon: the module's mark, drawn above the name.
+        :param width: tile width in pixels.
+        :param height: tile height in pixels.
+        :param icon_px: the icon's edge in pixels.
+        :param stage: maturity -- ``"stable"``, ``"beta"`` or ``"alpha"``.
+            Set as a Qt property, so the theme paints the badge and the
+            maturity filter can find the tile without reading its text.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self._text = text
@@ -326,9 +322,20 @@ class AppTile(QPushButton):
 
     @property
     def name_label(self):
+        """The label showing the module's name.
+
+        Exposed so the text-fits sweep can measure it: a tile that elides
+        its own name is a module the user cannot identify.
+
+        :returns: the label.
+        """
         return self._name_lbl
 
     def is_name_elided(self) -> bool:
+        """Whether the module name is being cut short to fit.
+
+        :returns: True when the label is eliding.
+        """
         return self._name_lbl.is_elided()
 
     # -- geometry ------------------------------------------------------
@@ -338,10 +345,22 @@ class AppTile(QPushButton):
         return max(self._size.height(), natural)
 
     def sizeHint(self) -> QSize:               # noqa: N802
+        """The tile's preferred size, height derived from its width.
+
+        HEIGHT FOLLOWS WIDTH because the tile is icon-over-name in a fixed
+        proportion; asking for a free height would let the grid stretch one
+        tile and not its neighbours.
+
+        :returns: the preferred size.
+        """
         return QSize(self._size.width(),
                      self.heightForWidth(self._size.width()))
 
     def minimumSizeHint(self) -> QSize:        # noqa: N802
+        """The same as :meth:`sizeHint`: a tile does not shrink below its shape.
+
+        :returns: the minimum size.
+        """
         return self.sizeHint()
 
 
@@ -360,9 +379,24 @@ class Panel(QWidget):
     :param beta: mark the header with :data:`BETA_SUFFIX`. The suffix is
         appended *after* the upper-casing, so it stays lower case and
         reads as a mark on the heading rather than part of it.
+
+    :param title: the caption above the panel. Drawn OUTSIDE the panel's
+        frame, beside any action word, rather than inside it.
+    :param parent: parent widget; ownership only.
     """
 
+    #: Which palette colour an action word turns when the pointer is on it.
+    #: `Clear` and `Reset` throw something away and are red; `Refresh` only
+    #: re-reads and is blue. Specified as a clear button -- the word "clear" alone, turning red on hover or click)" and "a refresh
+    #: button (like clear button but blue)".
+    ACTION_INKS = {"danger": "error", "safe": "accent"}
+
     def __init__(self, title: str, parent=None, *, beta: bool = False):
+        """Build a captioned box for the right-hand column.
+
+        :param title: the caption.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self.is_beta = bool(beta)
@@ -370,6 +404,15 @@ class Panel(QWidget):
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["xs"])
 
+        # THE CAPTION IS A ROW, not a label, because the panels carry an
+        # action word on the right of their heading. Kept out of the box
+        # below so the word sits on the page beside the caption rather than
+        # inside the panel's own frame, which is where a reader looks for a
+        # control that acts on the whole panel.
+        head = QWidget()
+        head_row = QHBoxLayout(head)
+        head_row.setContentsMargins(0, 0, 0, 0)
+        head_row.setSpacing(SPACING["sm"])
         self.header = QLabel(title.upper()
                              + (BETA_SUFFIX if self.is_beta else ""))
         self.header.setObjectName("HomePanelHeader")
@@ -380,7 +423,12 @@ class Panel(QWidget):
             f"color: {P['fg_muted']};")
         if self.is_beta:
             self.header.setToolTip(BETA_PANEL_TOOLTIP)
-        col.addWidget(self.header)
+        head_row.addWidget(self.header)
+        head_row.addStretch(1)
+        self._head_row = head_row
+        self._actions: Dict[str, QPushButton] = {}
+        col.addWidget(head)
+        self._head = head
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
@@ -407,13 +455,91 @@ class Panel(QWidget):
         # rule, and six of these stacked down the aside read as one large
         # black column behind every panel — which is exactly what they looked
         # like.
-        from ..theme import make_transparent
         make_transparent(self)
+        # The caption ROW too. Untagged it takes the blanket
+        # `QWidget { background-color: bg }` rule and draws a black strip
+        # above every panel, which is the mistake the note above records
+        # for the wrapper.
+        make_transparent(self._head)
 
     def add(self, widget: QWidget) -> QWidget:
+        """Add a widget to the panel body, transparent so the box shows through.
+
+        The border and fill live on the frame around the body, so a child
+        painting its own background would draw a square inside the rounded
+        box rather than sitting in it.
+
+        :param widget: the widget to add.
+        :returns: the same widget, for chaining.
+        """
         widget.setStyleSheet("background: transparent;")
         self.body_layout.addWidget(widget)
         return widget
+
+    def add_action(self, text: str, *, kind: str = "danger",
+                   tip: str = "") -> QPushButton:
+        """Put an action WORD on the right of the panel's caption.
+
+        Not a button in the styled sense -- no frame, no fill, no padding
+        that would make it look pressable. It is the word alone, in the
+        muted caption ink, and it takes its colour when the pointer is on
+        it or while it is held down: "just the text clear which turns red
+        upon hover or click" (2026-09-03).
+
+        Rendered through a QPushButton rather than a QLabel because the
+        word is a CONTROL: a button is what Tab reaches, what Space
+        activates, what a screen reader announces as pressable, and what
+        already has a `:pressed` state to hang the click colour on. A
+        clickable QLabel has none of that.
+
+        :param text: the word to draw. Not upper-cased -- the caption
+            beside it is, and matching it would make the word read as a
+            second heading.
+        :param kind: ``danger`` for a word that throws something away, drawn
+            red; ``safe`` for one that only re-reads, drawn in the accent.
+        :param tip: optional hover help. Also becomes the accessible
+            description, because that is what a screen reader reads.
+        :returns: the button, so the caller can connect it.
+        """
+        P = active_palette()
+        ink = P[self.ACTION_INKS.get(kind, "error")]
+        word = QPushButton(text)
+        word.setObjectName("HomePanelAction")
+        word.setCursor(Qt.PointingHandCursor)
+        word.setFlat(True)
+        word.setStyleSheet(
+            "QPushButton#HomePanelAction {"
+            " background: transparent; border: none; padding: 0px;"
+            " font-family: 'Open Sans', sans-serif; font-weight: 600;"
+            f" font-size: {font_px(10)}px; letter-spacing: 1px;"
+            f" color: {P['fg_dim']}; }}"
+            f"QPushButton#HomePanelAction:hover {{ color: {ink}; }}"
+            f"QPushButton#HomePanelAction:pressed {{ color: {ink}; }}"
+            f"QPushButton#HomePanelAction:disabled {{"
+            f" color: {P['fg_dim']}; }}")
+        if tip:
+            word.setToolTip(tip)
+            word.setAccessibleDescription(tip)
+        self._head_row.addWidget(word)
+        self._actions[text.lower()] = word
+        return word
+
+    def action(self, text: str) -> Optional[QPushButton]:
+        """The action word named ``text``, or ``None``. For tests."""
+        return self._actions.get(text.lower())
+
+    def _clear_body(self) -> None:
+        """Take every row out of the panel's box and delete it.
+
+        The same six lines were written out in five panels; they are here
+        because a panel that forgets the `deleteLater` leaks a widget on
+        every Home revisit, and Home is revisited constantly.
+        """
+        while self.body_layout.count():
+            item = self.body_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
 
 
 def _row(label: str, value: str, value_colour: Optional[str] = None,
@@ -458,12 +584,25 @@ class RunningBanner(QFrame):
     tooltip. That is the whole point: a Pause button that stops the
     thread wherever it happens to be is not a pause, and the honest
     thing to draw is a control that says so.
+
+    :param icon_provider: called with a module key for that module's icon.
+        A callable rather than a dict of icons, so the banner does not build
+        artwork for modules that never run.
+    :param names: module key to the name a human reads, for the banner's
+        text and for :attr:`open_requested`'s meaning.
+    :param parent: parent widget.
     """
 
     open_requested = Signal(str)
 
     def __init__(self, icon_provider: Callable[[str], Optional[QIcon]],
                  names: Dict[str, str], parent=None):
+        """Build the banner for one running module.
+
+        :param icon_provider: how to get a module's icon.
+        :param names: display names, keyed by module.
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         P = active_palette()
         self.setObjectName("HomeRunningBanner")
@@ -637,6 +776,12 @@ class RunningBanner(QFrame):
         self.show()
 
     def _sync_pause_control(self) -> None:
+        """Make the pause button say what the run is actually doing.
+
+        READ FROM THE RUN, not from the last press: a run can pause itself at
+        a checkpoint, and a button showing what the user last clicked would
+        then be wrong.
+        """
         handle = self._handle
         pausable = bool(handle is not None and handle.supports_pause)
         self._btn_pause.setEnabled(pausable)
@@ -676,6 +821,7 @@ class RunningBanner(QFrame):
 
     # -- actions -------------------------------------------------------
     def _on_open(self) -> None:
+        """Go to the module this banner is about."""
         if self._handle is not None:
             self.open_requested.emit(self._handle.app_key)
 
@@ -691,6 +837,10 @@ class RunningBanner(QFrame):
     # -- introspection for tests ---------------------------------------
     @property
     def pause_button(self) -> QPushButton:
+        """The pause control, exposed so a test can drive it.
+
+        :returns: the button.
+        """
         return self._btn_pause
 
 
@@ -706,29 +856,80 @@ class QueuedPanel(Panel):
     hides itself when the queue is empty rather than drawing an empty
     box, which is the difference between "nothing queued" and "queue
     broken".
+
+    :param parent: parent widget.
     """
 
     #: Rows drawn before the rest collapse into a "+N more" line.
     MAX_ROWS = 4
 
+    #: Emitted after **Clear** has emptied the queue, so anything else
+    #: showing it -- the Queue screen, if it is built -- can re-read.
+    queue_cleared = Signal()
+
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Queued", parent)
+        self._clear = self.add_action(
+            "Clear", kind="danger",
+            tip="Empty the plate queue and hide this panel.")
+        self._clear.clicked.connect(self.clear_queue)
         self.refresh()
 
     def queue_items(self) -> List:
+        """Whatever is in the saved plate queue right now.
+
+        Read from disk on each call rather than cached: the queue is written
+        by other screens, and a Home page showing a stale count is worse
+        than one that costs a file read when it is looked at.
+
+        :returns: the queued items, empty when there is no queue.
+        """
         try:
             from ..plate_queue import PlateQueue
             return list(PlateQueue().items())
         except Exception:
             return []
 
+    def clear_queue(self) -> int:
+        """Drop every item from the plate queue. Returns how many went.
+
+        WRITES, which no other part of this panel does -- the class docstring
+        says the Queue screen owns writes, and this is the one exception:
+        **Clear** empties the queue from here rather than sending the reader
+        to another screen to do it.
+
+        Not confirmed, and deliberately. A queue entry is a plate waiting to
+        be processed -- settings and a source path, no results -- so clearing
+        one throws away a few seconds of setting up, not any data. A
+        confirmation on a two-word action that costs that little is a
+        dialog people learn to dismiss without reading.
+
+        Every failure mode ends with the panel telling the truth about what
+        is in the queue, because it re-reads from disk afterwards either way.
+        """
+        removed = 0
+        try:
+            from ..plate_queue import PlateQueue
+            queue = PlateQueue()
+            removed = len(list(queue.items()))
+            queue.clear()
+        except Exception:                                        # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning(
+                "could not clear the plate queue", exc_info=True)
+        self.refresh()
+        if removed:
+            self.queue_cleared.emit()
+        return removed
+
     def refresh(self) -> None:
+        """Re-read the queue and redraw the panel."""
         P = active_palette()
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         items = self.queue_items()
         pending = [i for i in items
                    if str(getattr(i.status, "value", i.status)) in
@@ -743,7 +944,13 @@ class QueuedPanel(Panel):
                           P["accent"] if state == "running"
                           else P["fg_muted"]))
         if len(pending) > self.MAX_ROWS:
-            more = QLabel(f"+{len(pending) - self.MAX_ROWS} more")
+            # THE COUNT IS A VALUE, NOT PART OF THE KEY. Composing "+3 more"
+            # first asks the catalog for a phrase that changes with the queue
+            # depth, so no row could ever match it; tr() formats the count
+            # into the translation instead.
+            from ..i18n import tr
+
+            more = QLabel(tr("+{n} more", n=len(pending) - self.MAX_ROWS))
             more.setStyleSheet(
                 f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
                 "background: transparent;")
@@ -752,30 +959,139 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few automatically journalled runs; each row navigates."""
+    """Last few journalled runs of a REAL module; each row navigates.
+
+    "Real module" is doing work here. The panel used to list whatever the
+    run journal's newest manifests said, and those rows were clickable
+    without representing runs -- they opened a ``_job`` module. On one
+    machine the journal held 11,046 run folders of which 7,323 were written
+    under the app_key ``_job`` or ``job``: a test fixture's key, written
+    straight into the real `~/.spacr/runs` because nothing sandboxed it
+    (fixed in ``tests/conftest.py``). So most rows named a module that does
+    not exist, and clicking one asked the window to open it.
+
+    The pollution is stopped at the source now, but a filter here is still
+    the right thing: this panel NAVIGATES, so a row it draws is a promise
+    that pressing it goes somewhere. Anything whose key is not a module Home
+    knows about is dropped.
+
+    :param limit: how many journalled runs to show.
+    :param known_keys: callable returning the module keys that exist, or a
+        mapping of key to display name (or either, directly). ``None``
+        filters nothing, which is what a standalone panel with no registry
+        to consult has to do.
+    :param parent: parent widget.
+    """
 
     run_clicked = Signal(str)
+    #: Emitted after **Clear** moved the watermark, so Home can re-read.
+    cleared = Signal()
 
-    def __init__(self, limit: int = 4, parent=None):
+    def __init__(self, limit: int = 4, known_keys=None, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Recent runs", parent)
         self._limit = limit
+        self._known_keys = known_keys
+        self._clear = self.add_action(
+            "Clear", kind="danger",
+            tip="Hide the runs listed here. The run journal and Run "
+                "History keep them.")
+        self._clear.clicked.connect(self.clear_list)
         self.refresh()
+
+    def _registry(self):
+        """Whatever ``known_keys`` resolves to right now, or ``None``."""
+        source = self._known_keys
+        if source is None:
+            return None
+        try:
+            return source() if callable(source) else source
+        except Exception:                                        # noqa: BLE001
+            # Home is mid-construction, or the registry is gone. Filtering
+            # nothing is the safe answer: it is what the panel did before.
+            return None
+
+    def known(self) -> Optional[set]:
+        """The module keys that exist, or ``None`` for "do not filter"."""
+        value = self._registry()
+        return None if value is None else {str(k) for k in value}
+
+    def name_for(self, key: str) -> str:
+        """``key``'s display name when Home knows one, else ``key`` itself.
+
+        A row used to be captioned with the raw app_key, which is what put
+        ``_job`` and ``mask`` on the dashboard in the same typeface as each
+        other. The names are already in Home; the panel just had no way to
+        ask for them.
+        """
+        value = self._registry()
+        if isinstance(value, dict):
+            return str(value.get(key, key) or key)
+        return key
+
+    def clear_list(self) -> None:
+        """Hide every run listed, by moving the watermark to now.
+
+        NOTHING IS DELETED. See
+        :func:`spacr.qt.preferences.get_dashboard_watermark` for why: this
+        panel reads the run journal, and the journal is the record Run
+        History searches and a run's manifest documents.
+        """
+        from ..preferences import set_dashboard_watermark
+
+        set_dashboard_watermark("runs")
+        self.refresh([])
+        self.cleared.emit()
 
     def read(self) -> list:
         """The journal entries this panel would show. **Worker-thread safe.**
 
         Split out of :meth:`refresh` so :class:`HomePage` can call it off the
         GUI thread: it touches no widget, only the run journal.
-        ``recent_runs`` opens and JSON-parses *every* manifest under the runs
-        root before it sorts and truncates — 4 865 of them on this developer's
-        machine, measured at 540 ms — so it is not something the GUI thread
-        should be doing on the way back to Home.
+        ``recent_runs`` opens and JSON-parses every manifest in a bounded
+        window of the newest run folders before it sorts and truncates --
+        measured at 540 ms over 4,865 of them -- so it is not something the
+        GUI thread should be doing on the way back to Home.
+
+        THE FILTERING HAPPENS HERE, not in `refresh`, for two reasons. It is
+        the half that runs off the GUI thread, and it changes how much has to
+        be read: dropping four rows in five after asking for five leaves one,
+        so this asks for a multiple of the limit and truncates afterwards.
         """
         try:
             from spacr.run_journal import recent_runs
-            return recent_runs(limit=self._limit)
-        except Exception:
+            from ..preferences import get_dashboard_watermark
+        except Exception:                                        # noqa: BLE001
             return []
+        try:
+            # A MARGIN, because the filter below can drop most of what comes
+            # back. Bounded rather than unlimited: the whole point of
+            # `limit` in `recent_runs` is that the cost must not grow with
+            # the size of the journal.
+            entries = recent_runs(limit=max(self._limit * 8, 32))
+        except Exception:                                        # noqa: BLE001
+            return []
+        keys = self.known()
+        since = get_dashboard_watermark("runs")
+        kept = []
+        for entry in entries:
+            key = str(entry.get("app_key") or "")
+            if keys is not None and key not in keys:
+                continue
+            if since and str(entry.get("start_utc") or "") <= since:
+                # ISO-8601 UTC strings compare lexicographically in time
+                # order, which is the whole reason the watermark is stored
+                # as one. An entry with NO start time is kept: it is a real
+                # run whose manifest is incomplete, and hiding it would be
+                # guessing that it is old.
+                continue
+            kept.append(entry)
+            if len(kept) >= self._limit:
+                break
+        return kept
 
     def refresh(self, runs: Optional[list] = None) -> None:
         """Redraw the panel.
@@ -786,13 +1102,10 @@ class RecentRunsPanel(Panel):
             not.
         """
         P = active_palette()
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         if runs is None:
             runs = self.read()
+        self._clear.setEnabled(bool(runs))
         if not runs:
             hint = QLabel("No runs yet.")
             hint.setStyleSheet(
@@ -805,6 +1118,11 @@ class RecentRunsPanel(Panel):
             self.add(self._run_row(entry))
 
     def _run_row(self, entry: dict) -> QWidget:
+        """One row describing a finished run.
+
+        :param entry: the run to describe.
+        :returns: the row widget.
+        """
         P = active_palette()
         ok = entry.get("status") == "success"
         key = entry.get("app_key", "?")
@@ -824,7 +1142,7 @@ class RecentRunsPanel(Panel):
         dot.setStyleSheet(
             f"color: {P['success'] if ok else P['error']};"
             f"font-size: {font_px(11)}px; background: transparent;")
-        name = QLabel(key)
+        name = QLabel(self.name_for(key))
         name.setStyleSheet(f"color: {P['fg']}; font-size: {font_px(12)}px;"
                            "background: transparent;")
         when = QLabel(_fmt_elapsed(elapsed))
@@ -841,56 +1159,76 @@ class SystemPanel(Panel):
     """GPU / VRAM / Disk, read on build and on every Home revisit.
 
     Every reading degrades to a string rather than vanishing — a blank
-    row reads as "broken", "no CUDA" reads as an answer.
+    row reads as "broken", while ``n/a`` honestly says the lightweight
+    system probe could not measure a device.  Home must not import a model
+    runtime merely to decorate the dashboard.
+
+    :param parent: parent widget.
     """
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("System", parent)
+        # BLUE, not red: it takes nothing away. Asked for on 2026-09-03 --
+        # "should have a refresh button (like clear button but blue)".
+        self._refresh = self.add_action(
+            "Refresh", kind="safe", tip="Re-read GPU, VRAM and disk now.")
+        self._refresh.clicked.connect(self.refresh)
         self.refresh()
 
     def refresh(self) -> None:
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        """Re-read GPU, VRAM and disk, and redraw the panel."""
+        self._clear_body()
         self.add(_row("GPU", self.gpu_util()))
         self.add(_row("VRAM", self.gpu_vram()))
         self.add(_row("Disk", self.disk_used()))
 
     @staticmethod
     def gpu_util() -> str:
+        """Current GPU utilisation, as text for display.
+
+        NEVER RAISES. A missing NVML, a machine with no GPU and a driver
+        mismatch are all ordinary here, and none of them is a reason for the
+        Home page to fail to build.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
-            import pynvml
-            pynvml.nvmlInit()
-            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-            return f"{pynvml.nvmlDeviceGetUtilizationRates(handle).gpu}%"
+            nvml = _nvml()
+            if nvml is None:
+                raise RuntimeError("no NVML")
+            handle = nvml.nvmlDeviceGetHandleByIndex(0)
+            return f"{nvml.nvmlDeviceGetUtilizationRates(handle).gpu}%"
         except Exception:
-            try:
-                import torch
-                return "idle" if torch.cuda.is_available() else "no CUDA"
-            except Exception:
-                return "n/a"
+            return "n/a"
 
     @staticmethod
     def gpu_vram() -> str:
+        """Current VRAM use, as text for display.
+
+        Never raises, for the same reason as :meth:`gpu_util`.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
-            import pynvml
-            pynvml.nvmlInit()
-            handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-            info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            nvml = _nvml()
+            if nvml is None:
+                raise RuntimeError("no NVML")
+            handle = nvml.nvmlDeviceGetHandleByIndex(0)
+            info = nvml.nvmlDeviceGetMemoryInfo(handle)
             return f"{info.used / 1e9:.1f} / {info.total / 1e9:.0f} GB"
         except Exception:
-            try:
-                import torch
-                if torch.cuda.is_available():
-                    return f"{torch.cuda.memory_allocated() / 1e9:.1f} GB"
-            except Exception:
-                pass
             return "n/a"
 
     @staticmethod
     def disk_used() -> str:
+        """Disk use for the working volume, as text for display.
+
+        :returns: the reading, or a dash when it cannot be taken.
+        """
         try:
             import shutil
             usage = shutil.disk_usage(os.path.expanduser("~"))
@@ -899,23 +1237,130 @@ class SystemPanel(Panel):
             return "n/a"
 
 
+#: Sentinel so a machine with no GPU is probed once, not once per refresh.
+_UNSET = object()
+_NVML = _UNSET
+
+
+def _nvml():
+    """Return an initialised NVML module, or None when there is no NVIDIA GPU.
+
+    ``nvidia-ml-py`` is the maintained package and ``pynvml`` is the retired
+    one, and BOTH install a module called ``pynvml`` -- so the import line is
+    the same either way and only the installed distribution differs. The
+    retired one warns on import, which reached the console at every start.
+
+    The suppression is local rather than a global filter because a global
+    one was already in place and did not hold: the warning is raised while
+    the module body executes, and anything that has reset the warning
+    filters by then -- a Qt plugin, a library imported earlier -- lets it
+    through. ``catch_warnings`` around the import itself cannot be reset by
+    somebody else.
+
+    :returns: the NVML module with ``nvmlInit`` already called, or None.
+    """
+    global _NVML
+    if _NVML is _UNSET:
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", FutureWarning)
+                warnings.simplefilter("ignore", DeprecationWarning)
+                import pynvml
+            pynvml.nvmlInit()
+            _NVML = pynvml
+        except Exception:                                        # noqa: BLE001
+            # No NVIDIA driver, no package, or a driver too old to init.
+            _NVML = None
+    return _NVML
+
+
 class TotalsPanel(Panel):
-    """Aggregate counts from the automatically complete run journal."""
+    """Aggregate counts from the automatically complete run journal.
+
+    :param parent: parent widget.
+    """
+
+    #: Emitted after **Reset** moved the watermark.
+    reset_requested = Signal()
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Totals", parent)
+        self._reset = self.add_action(
+            "Reset", kind="danger",
+            tip="Start these counts from now. The run journal and Run "
+                "History keep every run.")
+        self._reset.clicked.connect(self.reset_counts)
         self.refresh()
+
+    def reset_counts(self) -> None:
+        """Count from now on, by moving the watermark.
+
+        NOTHING IS DELETED, for the same reason **Clear** on Recent runs
+        deletes nothing — see
+        :func:`spacr.qt.preferences.get_dashboard_watermark`. What these
+        counts are FOR is telling the user how much this installation has
+        done, and a reset that removed the manifests would take Run History
+        and every run's provenance with it.
+        """
+        from ..preferences import set_dashboard_watermark
+
+        set_dashboard_watermark("totals")
+        self.refresh()
+        self.reset_requested.emit()
 
     def read(self) -> dict:
         """The journal totals. **Worker-thread safe** — see
         :meth:`RecentRunsPanel.read`; ``journal_totals`` walks the same
-        thousands of manifests, measured at 247 ms."""
+        thousands of manifests, measured at 247 ms.
+
+        Counted from the **Reset** watermark when one is set, which is the
+        one case this cannot answer out of the cached totals file: that file
+        holds LIFETIME counts, so a windowed count has to walk the runs the
+        window covers. It is bounded by the window, which is the property
+        that makes the feature affordable — somebody who reset yesterday
+        is counting yesterday's runs, not eleven thousand of them.
+        """
         try:
+            from ..preferences import get_dashboard_watermark
+            since = get_dashboard_watermark("totals")
+        except Exception:                                        # noqa: BLE001
+            since = ""
+        try:
+            if since:
+                return self._totals_since(since)
             from spacr.run_journal import journal_totals
             return journal_totals()
         except Exception:
             return {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
                     "models_recorded": 0}
+
+    @staticmethod
+    def _totals_since(since: str) -> dict:
+        """Counts over the runs that started after ``since``.
+
+        ISO-8601 UTC strings compare lexicographically in time order, and
+        ``recent_runs`` hands them back newest-first, so the walk stops at
+        the first entry at or before the watermark.
+        """
+        from spacr.run_journal import recent_runs
+
+        counts = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
+                  "classify_runs": 0, "models_recorded": 0}
+        # `limit=None`, NOT a negative number. `recent_runs` truncates with
+        # `all_entries[:limit]`, so -1 quietly drops the OLDEST entry --
+        # measured: 11,027 runs come back for None and 11,026 for -1.
+        for entry in recent_runs(limit=None):
+            if str(entry.get("start_utc") or "") <= since:
+                break
+            counts["total_runs"] += 1
+            bucket = f"{str(entry.get('app_key') or '')}_runs"
+            if bucket in counts:
+                counts[bucket] += 1
+        return counts
 
     def refresh(self, totals: Optional[dict] = None) -> None:
         """Redraw the panel.
@@ -923,13 +1368,10 @@ class TotalsPanel(Panel):
         :param totals: counts a worker has already read; ``None`` reads them
             on the calling thread.
         """
-        while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
+        self._clear_body()
         if totals is None:
             totals = self.read()
+        self._reset.setEnabled(bool(totals.get("total_runs", 0)))
         self.add(_row("Runs", str(totals.get("total_runs", 0))))
         self.add(_row("Mask", str(totals.get("mask_runs", 0))))
         self.add(_row("Meas.", str(totals.get("measure_runs", 0))))
@@ -939,11 +1381,8 @@ class TotalsPanel(Panel):
 class StageLegend(Panel):
     """What the three hover colours mean. One row per stage.
 
-    Sits under the rest of the right-hand column because that is where
-    the user asked for it, and because it is the only panel there that
-    is not a number: it explains the tiles rather than reporting on the
-    machine, so it belongs at the end of the column rather than at the
-    top of it.
+    The legend follows the numeric status panels in the right-hand column
+    because it explains the module tiles rather than reporting machine state.
 
     Each row draws the stage's hue as a filled swatch *and* names the
     stage in words. Colour alone would fail WCAG 1.4.1 and would be
@@ -953,12 +1392,18 @@ class StageLegend(Panel):
     The rows are built from :data:`spacr.qt.theme.STAGE_HOVER`, which is
     the same table the stylesheet builds the hover rules from, so the
     swatch and the tile it explains cannot drift apart.
+
+    :param parent: parent widget.
     """
 
     #: Side of the colour chip in px, at 100 % font scale.
     SWATCH = 12
 
     def __init__(self, parent=None):
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
         super().__init__("Module state", parent)
         from ..theme import STAGE_LABEL, STAGE_NOTE
         self.header.setToolTip(
@@ -974,6 +1419,11 @@ class StageLegend(Panel):
 
     def _legend_row(self, stage: str, colour: str, label: str,
                     note: str) -> QWidget:
+        """One row explaining what a maturity colour means.
+
+        :param stage: the stage's name.
+        :returns: the row widget.
+        """
         from ..preferences import scaled_px
         P = active_palette()
         row = QWidget()
@@ -1014,53 +1464,305 @@ class StageLegend(Panel):
         return stage_hover(stage)
 
     def row_for(self, stage: str) -> Optional[QWidget]:
+        """The legend row explaining one maturity stage.
+
+        :param stage: the stage's name.
+        :returns: the row widget, or None when that stage has no row.
+        """
         return self._rows.get(stage)
 
 
 class NewsPanel(Panel):
-    """What changed in this release — and the slot for it.
+    """Every spaCR release, with links, in a box the reader can resize.
 
-    **There is no release-notes feed in spaCR.** Rather than invent one
-    (a hardcoded list of bullets is a lie the moment it is committed),
-    this panel names the installed version, offers the update check the
-    Help menu already has, and exposes the surface itself through
-    :meth:`HomePage.set_reserved_content` so a real feed can be dropped
-    in without touching layout code. Nothing here contacts the network
-    on its own — the check is a button, so a test and an offline user
-    both get a page that just renders.
+    THE NOTES ARE BUNDLED, not fetched. They come from
+    ``spacr/resources/release_notes.json``, which
+    ``tools/build_release_notes.py`` writes from the GitHub releases before
+    a tag. This panel is on the first screen the application shows, so
+    making its content depend on api.github.com would mean a dashboard that
+    is empty offline, throttled behind a shared NAT, and slower to draw than
+    the window it is in. The notes also belong to the release: what shipped
+    in 1.5.0.4 does not change afterwards.
+
+    There was previously no feed at all and this panel said so -- "No
+    release notes bundled with this build" -- which was honest and useless.
+    What it shows now is the real thing: "News should contain all the
+    releas information with links. i nkow that there was release information
+    for the current 1.5.0.4 version. this one as well as all of the other
+    ones should be scrollable and the user should be able to controll the
+    height."
+
+    So: every release newest-first, each one's body rendered with its links
+    live, the whole list inside a scroll area, and a grip along the bottom
+    edge that drags the box taller or shorter. The height is remembered
+    between sessions -- a reader who made it tall wants it tall next time.
+
+    The update check stays a BUTTON. It is the one thing here that does
+    touch the network, and it does so only when pressed.
+
+    :param version: the build to name in the heading. Empty leaves the
+        heading as the translated word alone -- the two are kept separate
+        because the catalog is keyed on "News", so composing the release into
+        the caption first would leave the only aside panel that names a build
+        in English.
+    :param parent: parent widget.
     """
 
     check_requested = Signal()
 
+    #: Height of the scrolling list in px at 100 % font scale: the default,
+    #: and how far the grip may drag it. The floor has to show a heading and
+    #: a line under it or dragging to it looks like a bug; the ceiling is
+    #: about the height of the window's content area, past which the panel
+    #: pushes everything below it off the page.
+    #:
+    #: 100 IS A BUDGET, NOT A TASTE. `test_no_variant_clips_elides_or_
+    #: overflows` measures the shipped layout at 1440x900 and today it fits
+    #: exactly; at 190 the aside needed 989 px of a 900 px canvas, so the
+    #: dashboard would have arrived needing a scrollbar on the smallest
+    #: common laptop. The reader drags it taller when they want to read a
+    #: release, and that height is remembered -- which is the whole point of
+    #: the grip, and why the default does not have to be generous.
+    NOTES_H = 100
+    NOTES_H_MIN = 90
+    NOTES_H_MAX = 720
+
     def __init__(self, version: str = "", parent=None):
-        super().__init__(f"News · spaCR {version}" if version else "News",
-                         parent, beta=True)
+        # THE HEADING AND THE VERSION ARE SEPARATE. The catalog is keyed on
+        # "News", so composing the release into the caption first leaves the
+        # only aside panel that names a build in English.
+        """Build the panel and its caption.
+
+        :param parent: parent widget.
+        """
+        from ..i18n import tr
+
+        heading = tr("News")
+        # NOT `beta=True` ANY MORE. The mark meant "this panel is a slot
+        # with nothing in it yet", which was true for as long as the body
+        # said "Reserved for featured content". It now lists every release
+        # with its notes and its links, so the mark would be labelling a
+        # finished panel as unfinished.
+        super().__init__(f"{heading} \u00b7 spaCR {version}" if version
+                         else heading, parent)
         P = active_palette()
         self.content: Optional[QWidget] = None
+        self._releases = self.read_releases()
+
+        self._notes = QScrollArea()
+        self._notes.setObjectName("HomeNewsScroll")
+        self._notes.setWidgetResizable(True)
+        self._notes.setFrameShape(QFrame.NoFrame)
+        self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._notes.setStyleSheet(
+            "QScrollArea#HomeNewsScroll { background: transparent;"
+            " border: none; }")
+        inner = QWidget()
+        make_transparent(inner)
+        self._notes_column = QVBoxLayout(inner)
+        self._notes_column.setContentsMargins(0, 0, 0, 0)
+        self._notes_column.setSpacing(SPACING["sm"])
+        self._notes.setWidget(inner)
+        self.body_layout.addWidget(self._notes)
+
         self._placeholder = QLabel(
-            "No release notes bundled with this build. "
-            "Reserved for featured content — news and what's new land here.")
+            "No release notes bundled with this build.")
         self._placeholder.setWordWrap(True)
         self._placeholder.setStyleSheet(
-            f"color: {P['fg_dim']}; font-size: {font_px(11)}px;"
+            # `fg_muted`, for the same reason as the date stamps below: this
+            # is the panel telling the reader there is nothing to show, not
+            # a disabled control. `fg_dim` reads 3.66:1 dark and 3.11:1
+            # light against a 4.5:1 floor.
+            f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
             "font-style: italic; background: transparent;")
-        self.add(self._placeholder)
+        self._notes_column.addWidget(self._placeholder)
+        self._placeholder.setVisible(not self._releases)
+        for entry in self._releases:
+            self._notes_column.addWidget(self._release_block(entry))
+        self._notes_column.addStretch(1)
 
-        check = QPushButton("Check for updates…")
+        self._grip = _HeightGrip(self._notes, self.NOTES_H_MIN,
+                                 self.NOTES_H_MAX,
+                                 name="Resize the release notes")
+        self._grip.height_changed.connect(self._remember_height)
+        self.body_layout.addWidget(self._grip)
+        self._notes.setFixedHeight(self._stored_height())
+
+        check = QPushButton("Check for updates\u2026")
         check.setObjectName("GhostButton")
         check.setCursor(Qt.PointingHandCursor)
         check.clicked.connect(self.check_requested)
         self.add(check)
         self._check = check
 
+    # -- the bundled feed ----------------------------------------------
+    @staticmethod
+    def read_releases() -> list:
+        """The bundled release records, newest first, or ``[]``.
+
+        Degrades to an empty list on ANY failure, and the panel then draws
+        the placeholder it drew before there was a feed. A dashboard must
+        not fail to appear because a resource file is missing from a wheel.
+        """
+        try:
+            import json
+            from importlib.resources import files
+
+            raw = (files("spacr.resources") / "release_notes.json")
+            data = json.loads(raw.read_text(encoding="utf-8"))
+            releases = data.get("releases") or []
+            return [r for r in releases if isinstance(r, dict)]
+        except Exception:                                        # noqa: BLE001
+            return []
+
+    def _release_block(self, entry: dict) -> QWidget:
+        """One release: its name, its date, and its notes with links live."""
+        P = active_palette()
+        block = QWidget()
+        make_transparent(block)
+        column = QVBoxLayout(block)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+
+        tag = str(entry.get("tag") or "")
+        url = str(entry.get("url") or "")
+        name = str(entry.get("name") or tag or "spaCR")
+        when = str(entry.get("published") or "")
+        # THE TITLE IS THE LINK to the release page, so the whole record is
+        # one click from the panel even when its body carries no URL of its
+        # own -- which is true of four of the seven releases bundled today.
+        title = QLabel(
+            f'<a href="{escape(url, quote=True)}"'
+            f' style="color: {P["accent"]}; text-decoration: none;">'
+            f'{escape(name)}</a>' if url else escape(name))
+        title.setOpenExternalLinks(True)
+        title.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        title.setWordWrap(True)
+        title.setStyleSheet(
+            f"color: {P['fg']}; font-size: {font_px(12)}px;"
+            "font-weight: 600; background: transparent;")
+        column.addWidget(title)
+        if when:
+            stamp = QLabel(when)
+            stamp.setStyleSheet(
+                # `fg_muted`, NOT `fg_dim`. A release-note date is real
+                # content that happens to be secondary -- it is not
+                # disabled and it is not a hint, which is what `fg_dim` is
+                # for. Chosen as the wrong ROLE rather than the wrong
+                # colour, and it showed up as a contrast failure:
+                # `fg_dim` reads 3.66:1 on the dark card and 3.11:1 on the
+                # light one, against the 4.5:1 floor
+                # `test_theme_blind_widgets` holds. `fg_muted` is the
+                # secondary-text role and clears it in both.
+                #
+                # Fixing the role rather than lightening `fg_dim` keeps
+                # disabled text receding everywhere else -- that colour has
+                # 73 call sites, and making it louder to satisfy one panel
+                # would change screens nobody complained about.
+                f"color: {P['fg_muted']}; font-size: {font_px(10)}px;"
+                "background: transparent;")
+            column.addWidget(stamp)
+
+        body = self.render_body(str(entry.get("body") or ""), P["accent"])
+        if body:
+            notes = QLabel(body)
+            notes.setWordWrap(True)
+            notes.setOpenExternalLinks(True)
+            notes.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            notes.setStyleSheet(
+                f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
+                "background: transparent;")
+            column.addWidget(notes)
+        return block
+
+    @staticmethod
+    def render_body(body: str, link_colour: str) -> str:
+        """Turn a release body into the small HTML subset a QLabel draws.
+
+        NOT A MARKDOWN RENDERER, and not trying to be. Release bodies are
+        GitHub-flavoured markdown; what they actually contain is bullet
+        lists, bare URLs and ``**bold**``, and a QLabel understands a
+        handful of tags. So: escape everything first -- a body is text from
+        a web page and must never reach a rich-text widget as markup --
+        then put back the three constructs that are worth having.
+
+        Escaping FIRST is what makes this safe. Linkifying first and
+        escaping after would escape the anchors too and show the reader
+        their own tags; escaping after building the HTML is the mistake that
+        turns a release note into an injection.
+        """
+        text = escape(body or "").strip()
+        if not text:
+            return ""
+        # Bare URLs become anchors. Applied to the ESCAPED text, so the
+        # pattern cannot match inside a tag -- there are none yet.
+        text = re.sub(
+            r"(https?://[^\s<>\"']+?)([.,;:]?)(?=\s|$)",
+            lambda m: (f'<a href="{m.group(1)}" style="color: {link_colour};'
+                       f' text-decoration: none;">{m.group(1)}</a>'
+                       f"{m.group(2)}"),
+            text)
+        text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+        lines = []
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("## "):
+                lines.append(f"<b>{stripped[3:]}</b>")
+            elif stripped.startswith(("* ", "- ")):
+                lines.append(f"\u2022 {stripped[2:]}")
+            else:
+                lines.append(stripped)
+        return "<br>".join(lines)
+
+    # -- height ---------------------------------------------------------
+    def _stored_height(self) -> int:
+        """The reader's remembered height, clamped, in device px."""
+        from ..preferences import get_news_height, scaled_px
+
+        wanted = get_news_height() or self.NOTES_H
+        return scaled_px(max(self.NOTES_H_MIN,
+                             min(self.NOTES_H_MAX, int(wanted))))
+
+    def _remember_height(self, px: int) -> None:
+        """Store a dragged height, back in font-scale-independent units."""
+        from ..preferences import scaled_px, set_news_height
+
+        scale = max(1, scaled_px(100)) / 100.0
+        set_news_height(int(round(px / scale)))
+
+    @property
+    def notes_view(self) -> QScrollArea:
+        """The scrolling list of releases. For tests."""
+        return self._notes
+
+    @property
+    def grip(self) -> "_HeightGrip":
+        """The drag handle under the list. For tests."""
+        return self._grip
+
     def set_content(self, widget: QWidget) -> None:
-        """Replace the placeholder with real content."""
+        """Replace the release list with real content.
+
+        The escape hatch :meth:`HomePage.set_reserved_content` exposes. It
+        hides the bundled notes rather than deleting them, so a caller that
+        drops content in has not thrown the feed away.
+        """
         self._placeholder.hide()
+        self._notes.hide()
+        self._grip.hide()
         if self.content is not None:
             self.content.setParent(None)
             self.content.deleteLater()
         self.content = widget
         self.body_layout.insertWidget(0, widget)
+
+
+#: THE DRAG HANDLE UNDER THE NEWS LIST, and it is no longer Home's own.
+#: It was written here, and the nested Regression containers need the same affordance on
+#: every nested container in Regression's Measurements tab -- so it moved to
+#: :mod:`spacr.qt.widgets.height_grip` and this name is kept pointing at it.
+#: A second implementation would be a second set of bugs.
+_HeightGrip = HeightGrip
 
 
 # ---------------------------------------------------------------------------
@@ -1092,6 +1794,7 @@ class HomePage(QWidget):
         Becomes each tile's ``stage`` property, which is what the app
         stylesheet turns into its hover colour, and what the legend at
         the foot of the aside is drawn from. Anything missing is stable.
+    :param parent: parent widget; ownership only.
     """
 
     tile_clicked = Signal(str)
@@ -1103,6 +1806,11 @@ class HomePage(QWidget):
     #: answer instead of an ``AttributeError``. ``AppScreen`` learned the
     #: same lesson; see its backdrop-state block.
     _ambient = None
+
+    #: The masthead's logo label, or ``None`` on a build where the bundled
+    #: artwork could not be read. Declared here so anything asking for the
+    #: mark gets an answer rather than an ``AttributeError``.
+    _hero_mark = None
 
     #: The tile, at 100 % font scale. One size for every tab, and read
     #: from :mod:`spacr.qt.theme` rather than written here, because the
@@ -1135,13 +1843,30 @@ class HomePage(QWidget):
         bands: Optional[Sequence[Tuple[str, Sequence[str]]]] = None,
         stages: Optional[Dict[str, str]] = None,
     ):
+        """Build Home: the hero, the module tabs and the right-hand column.
+
+        :param parent: parent widget.
+        """
         super().__init__(parent)
         self._P = active_palette()
         # The run-journal walk behind Recent runs and Totals goes through
         # here, so returning to Home never blocks on it. journal=False:
         # reading the journal is not itself a run.
         from ..job_runner import JobRunner
-        self._journal_jobs = JobRunner(self, app_key="home journal")
+        # `user_visible=False`: NOTHING THE USER STARTED. This walk is
+        # housekeeping -- it reads the run journal to fill Recent runs and
+        # Totals on the way back to Home -- and a visible job claims a run
+        # BANNER, which is the blue "home journal - running" box reported
+        # over the Home screen on 2026-09-03. It still turns the activity
+        # spinner, because something is genuinely running.
+        #
+        # The same mistake the usage poller made, and `JobRunner`'s own
+        # docstring records that one: "without this Home flashes '<module>
+        # usage - running' on and off for as long as a module screen is
+        # open." A journal of 11,000 runs takes long enough for this one to
+        # sit there rather than flash.
+        self._journal_jobs = JobRunner(self, app_key="home journal",
+                                       user_visible=False)
         self._apps = list(apps)
         self._icon_provider = icon_provider
         self._section_notes = dict(section_notes or {})
@@ -1187,16 +1912,15 @@ class HomePage(QWidget):
 
         outer.addWidget(body, 1)
 
-        self._hint_bar = QLabel(_DEFAULT_HINT)
-        self._hint_bar.setObjectName("HintBar")
-        self._hint_bar.setAlignment(Qt.AlignHCenter)
-        # Derived from the font rather than pinned at 32. A hard number is a
-        # promise about text metrics that no longer holds the moment the font
-        # scale, the theme's font stack or a label's size role changes — the
-        # hint text needed 35 px against a 32 px floor and clipped. Asking the
-        # label for its own sizeHint keeps the bar correct across all of them.
-        self._hint_bar.setMinimumHeight(
-            max(32, self._hint_bar.sizeHint().height() + SPACING["xs"]))
+        # A `ModuleHintBar`, not a plain QLabel, since 2026-09-03: the strip
+        # carries an API link and a Tutorial link now and holds the last
+        # module hovered for thirty seconds, because a link that vanishes
+        # when the pointer moves toward it cannot be clicked. It sizes itself
+        # from the font for the reason the plain bar did -- a hard 32 px is a
+        # promise about text metrics that breaks the moment the font scale or
+        # the theme's font stack changes, and the hint needed 35 px.
+        from .module_hint_bar import ModuleHintBar
+        self._hint_bar = ModuleHintBar(_DEFAULT_HINT)
         outer.addWidget(self._hint_bar)
 
         # Live job state. The registry is process-wide and outlives this
@@ -1245,7 +1969,13 @@ class HomePage(QWidget):
 
         Never raises.
         """
-        if self._ambient is not None:
+        # A backdrop the WINDOW owns counts as "a backdrop is installed".
+        # Without this the guard that declines to build a second one would
+        # leave `_ambient` None, `page_fill` would return the flat page
+        # colour, and the screen would paint that colour straight over the
+        # window's animation -- the black slab, reported three times.
+        if (self._ambient is not None
+                or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
             from ..preferences import resolve_effective_theme
@@ -1298,6 +2028,13 @@ class HomePage(QWidget):
         that second call for why the old "stay opaque on failure" rule was
         the black-slab bug rather than a safety net.
         """
+        if self._ambient is not None:
+            # A RETRY THAT IS NO LONGER NEEDED. The handler below comes
+            # back on a timer while the backdrop is waiting for a heavy
+            # import, and Home is also rebuilt on a theme change -- so two
+            # installs can be in flight, and the second would leave the
+            # first parented, ticking and invisible behind it.
+            return
         widget = None
         try:
             from ..preferences import (get_ambient_enabled,
@@ -1305,7 +2042,20 @@ class HomePage(QWidget):
                                        get_ambient_theme)
             if not get_ambient_enabled():
                 return
-            from .ambient import install_ambient
+            from .ambient import (install_ambient,
+                                  _the_heavy_import_lock_is_free)
+            # NOT WHILE A HEAVY IMPORT IS RUNNING. Home is built at
+            # startup, which is exactly when the pipeline preloader is
+            # importing torch under the lock the spaceout backdrop's GL
+            # context needs. Trying anyway costs the bounded wait on the
+            # GUI thread and then fails; asking first costs a
+            # non-blocking acquire. The screen is what matters and the
+            # backdrop is decoration, so the decoration is what waits.
+            if not _the_heavy_import_lock_is_free():
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
+                return
             widget = install_ambient(
                 self, None,
                 theme=get_ambient_theme(),
@@ -1313,9 +2063,26 @@ class HomePage(QWidget):
                 backdrop=self._ambient_backdrop())
             self._clear_page_surfaces()
             self._ambient = widget
-        except Exception:
+        except Exception as error:
             self._ambient = None
             self._discard_ambient(widget)
+            # The peek above is a check, not a reservation: the preloader
+            # re-takes the lock between two imports, so a refusal can
+            # still arrive here. It means "not yet", and Home has no
+            # second chance of its own -- it is built once and rebuilt
+            # only on a theme change -- so without this a spaceout launch
+            # would lose Home's backdrop for the session.
+            # DEFENSIVELY: a missing ambient module is one of the things
+            # this handler exists to absorb, so it cannot be the thing
+            # asked to classify the failure without a guard of its own.
+            try:
+                from .ambient import _the_backdrop_wants_a_retry
+            except Exception:                                # noqa: BLE001
+                return
+            if _the_backdrop_wants_a_retry(error):
+                from PySide6.QtCore import QTimer
+
+                QTimer.singleShot(120, self._install_ambient)
 
     @staticmethod
     def _ambient_backdrop():
@@ -1435,6 +2202,10 @@ class HomePage(QWidget):
 
     # -- pieces --------------------------------------------------------
     def _new_running_banner(self) -> RunningBanner:
+        """Build a banner for a run that has just started.
+
+        :returns: the banner.
+        """
         banner = RunningBanner(self._icon_provider, self._names)
         banner.open_requested.connect(self.tile_clicked)
         self._running_layout.addWidget(banner)
@@ -1442,6 +2213,11 @@ class HomePage(QWidget):
         return banner
 
     def _refresh_run_banners(self) -> None:
+        """Add and remove banners so they match the runs actually going.
+
+        RECONCILED RATHER THAN APPENDED: a run that ends while Home is not
+        visible leaves a banner claiming it is still running otherwise.
+        """
         for banner in self._banners:
             if banner.isVisible():
                 banner.refresh()
@@ -1474,10 +2250,50 @@ class HomePage(QWidget):
         return out
 
     def _build_hero(self) -> QWidget:
+        """Build the masthead over the tiles."""
         P = self._P
         hero = QWidget()
+        # Named so `_clear_page_surfaces` can find it and clear the fill off
+        # the labels inside it; without the name that sweep reaches nothing
+        # and the masthead's type keeps the blanket window background.
+        hero.setObjectName("Hero")
+        # THE MASTHEAD IS A PANEL, NOT A BLACK BAND. The mark and the
+        # wordmark sat on the blanket window fill, which over a light theme
+        # or an animated backdrop reads as a black box drawn behind the
+        # logo. It wears the surface every other panel in the application
+        # wears -- the translucent one, at the user's own pane opacity, with
+        # the same corner radius -- so it sits ON the backdrop rather than
+        # punching a hole in it.
+        try:
+            from ..preferences import resolve_effective_theme
+            from ..theme import RADIUS, pane_surface
+
+            # THE SAME CALL EVERY OTHER PANEL MAKES, told which theme it is
+            # in. Left to resolve its own, it answered a different question
+            # from "what is this page painted in" and put a near-white panel
+            # behind the wordmark on a dark page. Told, it matches the rest
+            # of the application by construction: the same surface, the same
+            # scrim, and the user's own pane-opacity preference.
+            hero.setStyleSheet(
+                f"QWidget#Hero {{"
+                f" background-color:"
+                f" {pane_surface('surface_alt', resolve_effective_theme())};"
+                f" border-radius: {RADIUS['lg']}px;"
+                f" }}")
+        except Exception:                                # noqa: BLE001
+            # This module has no module-level logger, and the one other
+            # place that logs imports it where it is used. Same here: a
+            # masthead without its surface is a smaller masthead, and the
+            # reason belongs in the log rather than on the screen.
+            import logging
+
+            logging.getLogger(__name__).debug(
+                "the masthead would not take its surface", exc_info=True)
         row = QHBoxLayout(hero)
-        row.setContentsMargins(0, 0, 0, 0)
+        # Padding, because the panel now has an edge: type flush against a
+        # rounded corner reads as clipped.
+        row.setContentsMargins(SPACING["md"], SPACING["sm"],
+                               SPACING["md"], SPACING["sm"])
         row.setSpacing(SPACING["md"])
 
         # The mark and the wordmark move together, so both take the Zoom
@@ -1488,11 +2304,25 @@ class HomePage(QWidget):
         logo = _find_logo_pixmap()
         if logo is not None:
             label = QLabel()
-            label.setPixmap(logo.scaled(logo_px, logo_px,
-                                        Qt.KeepAspectRatio,
-                                        Qt.SmoothTransformation))
+            label.setObjectName("HeroMark")
             label.setFixedSize(logo_px, logo_px)
             label.setStyleSheet("background: transparent;")
+
+            def _draw_mark(label=label, source=logo, side=logo_px):
+                """Redraw the mark at the ratio of the screen it is on.
+
+                Always from the 3334 px master. Re-scaling whatever is
+                already on the label would compound one resample for every
+                screen the window has been dragged across.
+                """
+                label.setPixmap(scaled_for(source, label, side))
+
+            _draw_mark()
+            # The masthead is the one picture in the application that is up
+            # for the whole session and never rebuilt, so it is the one that
+            # would stay soft after a move onto a denser display.
+            follow_device_ratio(label, _draw_mark)
+            self._hero_mark = label
             row.addWidget(label)
 
         title = QLabel("spaCR")
@@ -1517,7 +2347,7 @@ class HomePage(QWidget):
 
         # No "All apps" button: the first tab IS all apps. The edge
         # drawer still exists for the screens that are not Home, and is
-        # reachable there from the spaCR menu or Ctrl+B.
+        # reachable there from the spaCR menu or Ctrl+Shift+A.
         return hero
 
     def _build_tabs(self) -> QWidget:
@@ -1538,16 +2368,12 @@ class HomePage(QWidget):
         """
         self._tabs = QTabWidget()
         self._tabs.setObjectName("HomeTabs")
-        # documentMode(True) suppresses the pane frame, and without the
-        # frame the tab strip floats with nothing under it.
+        # Keep ordinary tab geometry; the QSS deliberately suppresses the
+        # pane's decorative frame, while the selected tab keeps its own
+        # meaningful indicator.
         self._tabs.setDocumentMode(False)
-        try:
-            from ..preferences import resolve_effective_theme
-            glass = resolve_effective_theme() == "glass"
-        except Exception:
-            glass = False
         self._tabs.setStyleSheet(
-            _tab_qss(self._P, self._pane_alpha(), glass=glass))
+            _tab_qss(self._P, self._pane_alpha()))
         # The QStackedWidget QTabWidget keeps its pages in is a plain
         # QWidget, and the blanket `QWidget { background-color: bg }`
         # rule makes it paint the window colour over the ::pane it sits
@@ -1559,11 +2385,18 @@ class HomePage(QWidget):
 
         self._section_names = [title for title, _e in self._categories]
 
+        # THE NAME AND THE COUNT ARE TRANSLATED SEPARATELY. The catalog is
+        # keyed on "Core", not on "Core  (6)", so composing first and
+        # translating after finds nothing and leaves the one part of the
+        # Home screen that is a proper noun in English.
+        from ..i18n import tr
+
         self._tabs.addTab(self._build_home_tab(),
-                          f"Home  ({len(self._apps)})")
+                          f"{tr('Home')}  ({len(self._apps)})")
         for section, entries in self._categories:
-            self._tabs.addTab(self._build_category_tab(section, entries),
-                              _escape_amp(f"{section}  ({len(entries)})"))
+            self._tabs.addTab(
+                self._build_category_tab(section, entries),
+                _escape_amp(f"{tr(section)}  ({len(entries)})"))
         return self._tabs
 
     # -- tab 1: everything ---------------------------------------------
@@ -1577,6 +2410,7 @@ class HomePage(QWidget):
     # silently dropped its apps into a fallback band.
 
     def _build_home_tab(self) -> QWidget:
+        """Build the first tab: every module, grouped by band."""
         from ..preferences import scaled_px
         page = QWidget()
         col = QVBoxLayout(page)
@@ -1590,9 +2424,9 @@ class HomePage(QWidget):
             holder = QWidget()
             grid = QGridLayout(holder)
             grid.setContentsMargins(0, 0, 0, SPACING["xs"])
-            # Tiles are packed tight — the rim is what separates them
-            # now, not the gap, so the gap only has to stop two rims
-            # touching and reading as one line.
+            # The gap is the quiet separation between rimless resting tiles.
+            # Keep this vertical rhythm even though there is no decorative
+            # edge to reinforce it.
             grid.setHorizontalSpacing(SPACING["xs"])
             grid.setVerticalSpacing(SPACING["xs"])
             tiles = [self._make_tile(k, n, d) for k, n, d in entries]
@@ -1604,6 +2438,12 @@ class HomePage(QWidget):
         return self._scrolled(page)
 
     def _band_header(self, title: str, count: int) -> QWidget:
+        """One band's heading and its one-line description.
+
+        :param title: the band's name.
+        :param count: how many modules it holds.
+        :returns: the header widget.
+        """
         P = self._P
         wrap = QWidget()
         col = QVBoxLayout(wrap)
@@ -1631,6 +2471,12 @@ class HomePage(QWidget):
     # -- tabs 2..6: one category each -----------------------------------
     def _build_category_tab(self, section: str,
                             entries: List[Tuple[str, str, str]]) -> QWidget:
+        """Build one band's own tab.
+
+        :param section: the band to build.
+        :param entries: its modules.
+        :returns: the tab widget.
+        """
         from ..preferences import scaled_px
         P = self._P
         page = QWidget()
@@ -1676,9 +2522,8 @@ class HomePage(QWidget):
         holder = QWidget()
         grid = QGridLayout(holder)
         grid.setContentsMargins(0, SPACING["xs"], 0, 0)
-        # Packed tight, in both axes: each tile carries its own rim, so
-        # the gap no longer has to do the work of telling two of them
-        # apart — it only has to stop two rims reading as one line.
+        # Match Home's quiet separation: resting tiles have no decorative
+        # rim, and this small gap alone keeps adjacent launchers distinct.
         grid.setHorizontalSpacing(SPACING["xs"])
         grid.setVerticalSpacing(SPACING["xs"])
         width = scaled_px(self.TILE_MIN_W)
@@ -1707,6 +2552,11 @@ class HomePage(QWidget):
 
     # -- shared ---------------------------------------------------------
     def _wire_tile(self, tile, key: str, desc: str):
+        """Connect one tile so pressing it opens its module.
+
+        :param tile: the tile.
+        :param key: the module it opens.
+        """
         self._tile_hints[tile] = (key, desc)
         from ..theme import STAGE_LABEL
         tile.setProperty("moduleAppKey", key)
@@ -1719,6 +2569,11 @@ class HomePage(QWidget):
         return tile
 
     def _scrolled(self, page: QWidget) -> QScrollArea:
+        """Wrap a page in a scroll area.
+
+        :param page: the widget to wrap.
+        :returns: the scroll area.
+        """
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
@@ -1815,6 +2670,7 @@ class HomePage(QWidget):
             return 1.0
 
     def _build_aside(self) -> QWidget:
+        """Build the right-hand column of status panels."""
         from ..preferences import scaled_px
         from ..theme import make_transparent
         aside = QWidget()
@@ -1829,19 +2685,46 @@ class HomePage(QWidget):
         col.setSpacing(SPACING["md"])
 
         self._queued = QueuedPanel()
-        self._recent = RecentRunsPanel()
-        self._recent.run_clicked.connect(self.tile_clicked)
-        self._system = SystemPanel()
+        self._recent = RecentRunsPanel(known_keys=lambda: self._names)
+        self._recent.run_clicked.connect(self._on_run_clicked)
+        self._recent.cleared.connect(self.refresh)
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
         self._totals = TotalsPanel()
+        self._system = SystemPanel()
         self._legend = StageLegend()
 
-        for panel in (self._queued, self._recent, self._system,
-                      self._news, self._totals, self._legend):
+        # THE ORDER IS THE ANSWER TO A QUESTION EACH PANEL ANSWERS, and it
+        # was rearranged on 2026-09-03 at the maintainer's request: "system
+        # is fine but should be at the bottom". What is happening now
+        # (Queued), what just happened (Recent runs), what is new in the
+        # build (News) and how much has been done (Totals) are all about the
+        # work; the machine's GPU and disk are about the machine, and belong
+        # after them.
+        #
+        # `Module state` -- the colour-to-maturity legend -- is NOT in this
+        # column any more: "you can remove modual state". The class stays
+        # and `HomePage.legend` still answers, because the tiles' hover
+        # colours are still drawn from `StageLegend.swatch_colour` and the
+        # tests that keep the swatch and the tile from drifting apart go
+        # through it. It is simply not built into the page.
+        for panel in (self._queued, self._recent, self._news,
+                      self._totals, self._system):
             col.addWidget(panel)
         col.addStretch(1)
         return aside
+
+    def _on_run_clicked(self, key: str) -> None:
+        """Open the module a Recent runs row names, if it still exists.
+
+        The panel already filters to modules Home knows about, so this is
+        the second of two guards rather than the only one. It is here
+        because the filter depends on `known_keys` resolving, and a signal
+        that navigates has to be safe when it does not: a row for a module
+        that is not registered used to ask the window to open `_job`.
+        """
+        if key and key in self._names:
+            self.tile_clicked.emit(key)
 
     @property
     def legend(self) -> "StageLegend":
@@ -1850,6 +2733,10 @@ class HomePage(QWidget):
 
     @staticmethod
     def _version() -> str:
+        """The version string shown on the masthead.
+
+        :returns: the version.
+        """
         try:
             import spacr
             version = str(getattr(spacr, "__version__", "") or "").strip()
@@ -1912,11 +2799,6 @@ class HomePage(QWidget):
         """How many journal-reading threads are still winding down."""
         return self._journal_jobs.active_jobs()
 
-    def closeEvent(self, event):        # noqa: N802 - Qt override
-        """Do not let a journal walk outlive the page that asked for it."""
-        self._journal_jobs.shutdown()
-        super().closeEvent(event)
-
     # -- API kept from the page this replaces --------------------------
     def set_reserved_content(self, widget: QWidget) -> None:
         """Fill the featured/news surface with real content."""
@@ -1929,12 +2811,52 @@ class HomePage(QWidget):
 
     # -- events --------------------------------------------------------
     def resizeEvent(self, event):               # noqa: N802
+        """Re-flow the tile grid for the new width.
+
+        :param event: the Qt resize event.
+        """
         super().resizeEvent(event)
         for _holder, grid, tiles, tile_w in self._grids:
             self._fill_grid(grid, tiles,
                             self._columns_for(self.width(), tile_w))
 
+    def show_module_hint(self, key: str, summary: str = "") -> bool:
+        """Explain ``key`` in the strip. Called by the DOCK as well as Home.
+
+        The dock's rows and Home's tiles name the same modules, so they say
+        the same thing in the same place -- `MainWindow._show_module_hint`
+        routes a dock hover here whenever Home is the page on screen.
+
+        :param key: the module to explain.
+        :param summary: the sentence, already resolved and translated by the
+            caller. Empty falls back to Home's own registry, which is what a
+            tile hover uses -- it has the description in hand and has no
+            reason to ask the window for it.
+        :returns: whether anything was written. A key Home does not know is
+            not an error: the dock lists Help modules that have no tile.
+        """
+        key = str(key or "")
+        from ..theme import STAGE_LABEL
+
+        if not summary:
+            entry = self._by_key.get(key)
+            if entry is None:
+                return False
+            from ..i18n_module_summaries import module_summary
+            summary = module_summary(key, entry[2])
+        if not summary:
+            return False
+        stage = STAGE_LABEL.get(str(self._stages.get(key, "stable")), "")
+        self._hint_bar.show_module(key, summary, stage)
+        return True
+
     def eventFilter(self, obj, event):          # noqa: N802
+        """Watch the widgets this filter is installed on.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if event.type() == QEvent.Enter:
             hint = self._tile_hints.get(obj)
             if hint:
@@ -1950,14 +2872,30 @@ class HomePage(QWidget):
                 # reads neither the hue nor the accessibility tree.
                 mark = STAGE_LABEL.get(
                     str(obj.property("stage") or "stable"), "")
-                self._hint_bar.setText(
-                    f"{summary} — {mark}" if mark else summary)
+                self._hint_bar.show_module(key, summary, mark)
         elif event.type() == QEvent.Leave:
-            from ..i18n import tr
-            self._hint_bar.setText(tr(_DEFAULT_HINT))
+            # THE STRIP IS NOT CLEARED ON LEAVE, which is the whole point of
+            # the thirty-second hold: the API and Tutorial words appeared
+            # only while the pointer was on the tile, so moving toward them
+            # removed them and neither could ever be pressed. The hold in
+            # `ModuleHintBar` puts the prompt back instead, thirty seconds
+            # later or as soon as another module is hovered.
+            #
+            # A tile with nothing registered still clears, because it never
+            # wrote anything to reach.
+            if not self._hint_bar.is_holding():
+                self._hint_bar.release()
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):                # noqa: N802
+        """Stop Home-page background activity before closing.
+
+        Shut down the journal reader, disconnect run-registry notifications,
+        and stop the refresh ticker before delegating to the base close
+        handler. This prevents pending work from invoking a page that Qt is
+        destroying.
+        """
+        self._journal_jobs.shutdown()
         try:
             self._registry.changed.disconnect(self._on_runs_changed)
         except (RuntimeError, TypeError):
@@ -1966,34 +2904,19 @@ class HomePage(QWidget):
         super().closeEvent(event)
 
 
-def _tab_qss(P: dict, pane_alpha: float = 1.0,
-             glass: bool = False) -> str:
-    """QSS for the Home tab widget.
+def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
+    """Return styling for the transparent Home tab container.
 
-    :param pane_alpha: accepted so the call sites and their tests keep one
-        signature; the pane itself paints nothing.
-
-    The box behind the tiles is GONE, not dialled. This went back and forth:
-    it was a surface at the effective alpha, then transparent, then briefly
-    painted at the preference again on the reading that opacity should "apply
-    to the containers the tiles are in". The final instruction is the clearest
-    of the three — remove the black boxes behind the tiles and make the TILES
-    subject to opacity instead — so the container is transparent and the
-    dialling moved to the tile fill, where it is actually visible.
-
-    The 1px outline stays: it is what the selected tab joins onto, and without
-    it the tab strip floats with nothing under it.
+    ``pane_alpha`` controls only the selected tab's surface fill; the pane and
+    tab-bar backgrounds remain transparent. The pane has no decorative rim;
+    the selected tab's own edge is the meaningful state indicator.
     """
     from ..theme import css_color
-    pane_border = (css_color("#ffffff", 0.27)
-                   if glass else P["border_soft"])
-    radius = 14 if glass else 8
     selected_fill = ("transparent" if pane_alpha <= 0.0
                      else css_color(P["surface"], pane_alpha))
     return f"""
 QTabWidget#HomeTabs::pane {{
-    border: 1px solid {pane_border};
-    border-radius: {radius}px;
+    border: none;
     background: transparent;
     top: -1px;
 }}
@@ -2019,10 +2942,8 @@ QTabWidget#HomeTabs > QTabBar::tab:hover {{
     color: {P['fg']};
     background: {P['surface_alt']};
 }}
-/* The selected tab takes the page opacity like everything else. It paints
-   `surface` so it joins onto the pane's edge — but with the pane transparent
-   that made it the last solid black rectangle on the page, which is exactly
-   what "the tabs still have black backgrounds" was pointing at. */
+/* The selected tab takes the page opacity like everything else. Its own edge
+   carries selection without drawing a decorative rim around the empty pane. */
 QTabWidget#HomeTabs > QTabBar::tab:selected {{
     color: {P['accent']};
     background: {selected_fill};

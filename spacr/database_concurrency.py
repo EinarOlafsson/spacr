@@ -18,6 +18,8 @@ without pulling in pandas, Qt, torch, or Cellpose.
 from __future__ import annotations
 
 import contextlib
+import logging
+import operator
 import os
 import queue
 import shutil
@@ -29,6 +31,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence
 from urllib.parse import quote
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "ConcurrencyProbeResult",
@@ -243,7 +247,6 @@ def transaction(
             "transaction before starting another.")
     attempts = max(1, int(attempts))
     delay = max(0.0, float(initial_delay))
-    last_error: Optional[BaseException] = None
     timeout_row = connection.execute("PRAGMA busy_timeout").fetchone()
     original_busy_timeout = int(timeout_row[0]) if timeout_row else 0
     # sqlite's busy_timeout applies to *each* BEGIN. Without dividing the
@@ -261,22 +264,21 @@ def transaction(
     if changed_timeout:
         connection.execute(f"PRAGMA busy_timeout = {attempt_busy_timeout}")
     try:
-        for attempt in range(1, attempts + 1):
+        attempt = 0
+        while True:
+            attempt += 1
             try:
                 connection.execute(f"BEGIN {selected}")
                 break
             except sqlite3.OperationalError as exc:
                 if not is_busy_error(exc):
                     raise
-                last_error = exc
-                if attempt == attempts:
+                if attempt >= attempts:
                     raise DatabaseBusy(
                         f"database remained locked after {attempts} "
                         f"transaction attempts: {exc}") from exc
                 time.sleep(delay)
                 delay = min(maximum_delay, max(initial_delay, delay * 2))
-        else:  # pragma: no cover - loop always breaks or raises
-            raise DatabaseBusy(str(last_error))
     finally:
         if changed_timeout:
             try:
@@ -308,16 +310,72 @@ def transaction(
             raise
 
 
-def filesystem_type(path: os.PathLike | str) -> Optional[str]:
-    """Best-effort Linux filesystem type for ``path``; None elsewhere.
+def _filesystem_type_via_psutil(target: Path) -> Optional[str]:
+    """Filesystem type for ``target`` off psutil's partition table.
 
-    The longest matching mount point in ``/proc/mounts`` wins. This is
-    advisory only—containers and automounters can hide the real backing store.
+    The longest matching mount point wins, exactly as the ``/proc/mounts``
+    reader does -- ``/`` matches everything, so the nested mount has to beat
+    it or an SMB share under ``/Volumes`` would be reported as the root
+    filesystem and treated as safe.
+
+    ``all=True`` because the default hides network mounts on some platforms,
+    which are the ones this function exists to find.
     """
+    try:
+        import psutil
+    except Exception:                                        # noqa: BLE001
+        return None
+    # NO WALK-UP BEFORE MATCHING. A mount point either is a prefix of this
+    # path or it is not, and that is true whether or not the leaf exists yet --
+    # a measurement.db about to be created on a share is still on the share.
+    # Walking up to the nearest EXISTING ancestor first sent a path under a
+    # share that had no file yet all the way to "/", which matches the root
+    # mount and reports the local disk. That is the one wrong answer that
+    # matters here: the root is usually apfs, apfs is on WAL_SAFE_FILESYSTEMS,
+    # and the result would be WAL enabled on a network share.
+    best: Optional[tuple] = None
+    try:
+        partitions = psutil.disk_partitions(all=True)
+    except Exception:                                        # noqa: BLE001
+        # Advisory only: a platform that refuses to enumerate mounts leaves
+        # the answer unknown, which wal_is_safe_here already treats as unsafe.
+        return None
+    for part in partitions:
+        mount = str(getattr(part, "mountpoint", "") or "")
+        fstype = str(getattr(part, "fstype", "") or "")
+        if not mount or not fstype:
+            continue
+        try:
+            target.relative_to(mount)
+        except ValueError:
+            continue
+        if best is None or len(mount) > best[0]:
+            best = (len(mount), fstype)
+    return None if best is None else str(best[1])
+
+
+def filesystem_type(path: os.PathLike | str) -> Optional[str]:
+    """Best-effort filesystem type for ``path``, or None when unknowable.
+
+    Reads ``/proc/mounts`` on Linux and falls back to psutil's partition table
+    elsewhere, so macOS and Windows get a real answer rather than None. The
+    longest matching mount point wins on both paths. Advisory only--containers
+    and automounters can hide the real backing store.
+    """
+    target = Path(path).expanduser().resolve()
     mounts = Path("/proc/mounts")
     if not mounts.is_file():
-        return None
-    target = Path(path).expanduser().resolve()
+        # NOT LINUX. Until this branch existed the answer here was None on
+        # every macOS and Windows machine, and `wal_is_safe_here` turns None
+        # into False -- so every Mac ran without WAL even on local APFS, and,
+        # worse, `doctor` could not tell a user on an SMB share that they WERE
+        # on one. Issue 115 is exactly that reporter: Apple Silicon, a
+        # measurement.db on an SMB server, and nothing in spaCR able to name
+        # the filesystem in its own diagnosis.
+        #
+        # psutil is already a declared dependency and reports fstype on every
+        # platform spaCR supports, so this needs no new requirement.
+        return _filesystem_type_via_psutil(target)
     while not target.exists() and target != target.parent:
         target = target.parent
     best: Optional[tuple] = None
@@ -425,7 +483,30 @@ def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
 
 @dataclass(frozen=True)
 class DatabaseHealth:
-    """Read-only SQLite configuration and integrity snapshot."""
+    """Read-only SQLite configuration and integrity snapshot.
+
+    :param path: normalized absolute path of the inspected database.
+    :param sqlite_version: SQLite runtime version exposed by Python.
+    :param sqlite_threadsafe: DB-API thread-safety level reported by
+        :data:`sqlite3.threadsafety`.
+    :param journal_mode: actual uppercase journal mode read from the database.
+    :param foreign_keys: whether enforcement is enabled on the audit
+        connection, not a persistent database-wide promise.
+    :param busy_timeout_ms: audit connection's effective busy timeout in
+        milliseconds.
+    :param filesystem: detected filesystem type, or ``None`` when unavailable.
+    :param network_filesystem: whether the detected type is in the known
+        network-filesystem set; false with an unknown type does not prove the
+        storage is local.
+    :param quick_check: joined ``PRAGMA quick_check`` result when requested,
+        otherwise ``None``.
+    :param file_bytes: main database-file size at inspection time.
+    :param wal_bytes: ``-wal`` sidecar size at inspection time, or zero when it
+        is absent.
+    :param shm_bytes: ``-shm`` sidecar size at inspection time, or zero when it
+        is absent.
+    :param warnings: actionable integrity or unsafe network-WAL findings.
+    """
 
     path: str
     sqlite_version: str
@@ -501,7 +582,23 @@ def inspect_database(
 
 @dataclass(frozen=True)
 class ConcurrencyProbeResult:
-    """Outcome of a disposable simultaneous reader/writer stress probe."""
+    """Outcome of a disposable simultaneous reader/writer stress probe.
+
+    :param path: scratch database path; a clean temporary probe removes it,
+        while explicit or stalled probes retain it for inspection.
+    :param journal_mode: actual uppercase journal mode read after the run.
+    :param writers: validated number of writer threads launched.
+    :param readers: validated number of polling reader threads launched.
+    :param writes_per_writer: one-row committed transactions each writer tries.
+    :param expected_rows: ``writers * writes_per_writer``, independent of any
+        worker failures.
+    :param actual_rows: final row count verified after the bounded joins.
+    :param reader_queries: total successful ``COUNT`` queries across readers.
+    :param duration_seconds: monotonic worker start-to-join elapsed time,
+        excluding setup and final verification.
+    :param errors: immutable worker exceptions and surviving-thread timeout
+        messages collected by the probe.
+    """
 
     path: str
     journal_mode: str
@@ -526,6 +623,35 @@ class ConcurrencyProbeResult:
         return result
 
 
+def _positive_probe_count(name: str, value: Any) -> int:
+    """Return one genuine positive integer, without lossy coercion."""
+    if isinstance(value, bool):
+        raise TypeError(
+            f"{name} must be a positive integer, got {value!r}")
+    try:
+        count = operator.index(value)
+    except TypeError as exc:
+        raise TypeError(
+            f"{name} must be a positive integer, got {value!r}") from exc
+    if count < 1:
+        raise ValueError(f"{name} must be at least 1, got {count}")
+    return int(count)
+
+
+def _probe_journal_mode(value: Any) -> str:
+    """Return the explicit SQLite mode a stress probe must exercise."""
+    if not isinstance(value, str):
+        raise DatabaseConfigurationError(
+            f"journal_mode must be one of {sorted(SAFE_JOURNAL_MODES)}, "
+            f"got {value!r}.")
+    requested = value.strip().upper()
+    if requested not in SAFE_JOURNAL_MODES:
+        raise DatabaseConfigurationError(
+            f"journal_mode must be one of {sorted(SAFE_JOURNAL_MODES)}, "
+            f"got {value!r}.")
+    return requested
+
+
 def run_concurrency_probe(
     path: Optional[os.PathLike | str] = None,
     *,
@@ -542,43 +668,47 @@ def run_concurrency_probe(
 
     :param path: scratch database to create. It must not already exist
         (:exc:`FileExistsError`); missing parent directories are created, and
-        the file is left on disk afterwards along with any ``-wal`` and
-        ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it
-        to probe a temporary database instead, which is deleted only after a
-        clean finish: a worker that outlives the 30-second join deadline, or
-        a rejected ``journal_mode``, leaves the temporary directory behind.
+        a run that FINISHES leaves the file on disk along with any ``-wal``
+        and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit
+        it to probe a temporary database instead, which is removed after a
+        clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect`
+        refuses, most often -- removes its scratch database either way: it
+        never ran, so there is nothing in it to keep, and leaving one at an
+        explicit path made the next run on it fail with
+        :exc:`FileExistsError`. The one deliberate survivor is a worker that
+        outlives the 30-second join deadline, whose database is kept for
+        inspection.
     :param writers: concurrent writer threads. Each owns a connection opened
         with a 50 ms busy timeout and commits one transaction per row, so
-        ``expected_rows`` is ``writers * writes_per_writer``.
+        ``expected_rows`` is ``writers * writes_per_writer``. Must be a
+        genuine positive integer; booleans, text and floats are refused.
     :param readers: concurrent read-only threads polling ``COUNT(*)`` until
         the last writer exits. They move only ``reader_queries``, never
         ``expected_rows``; at least one is required, so a writers-only probe
-        cannot be expressed.
+        cannot be expressed. Must be a genuine positive integer.
     :param writes_per_writer: rows each writer inserts, one row per
-        transaction.
+        transaction. Must be a genuine positive integer.
     :param journal_mode: mode applied once by the setup connection and then
         inherited by every worker connection. Only ``"WAL"`` (the default)
         and ``"DELETE"`` are accepted, case-insensitively; anything else
-        raises :exc:`DatabaseConfigurationError` from :func:`connect` after
-        the scratch database has already been created. Passing ``None`` skips
-        the PRAGMA, leaving the new database in SQLite's default DELETE mode.
+        raises :exc:`DatabaseConfigurationError` after the scratch database
+        has already been created. ``None`` is refused: a stress result must
+        state which locking mode it actually intended to exercise.
     :returns: result whose ``journal_mode`` is read back from the finished
         database rather than echoed from this argument, and whose ``errors``
         carry per-thread failures instead of raising.
     :raises ValueError: when ``writers``, ``readers``, or
-        ``writes_per_writer`` is below 1. All three are coerced with
-        :func:`int` first, so ``2.9`` silently becomes 2.
+        ``writes_per_writer`` is below 1.
+    :raises TypeError: when one of the work sizes is not an integer. In
+        particular, ``2.9`` is not silently truncated and ``"2"`` is not
+        accepted merely because the CLI parser would have converted it.
+    :raises DatabaseConfigurationError: when ``journal_mode`` is not an
+        explicit ``"WAL"`` or ``"DELETE"`` string.
     """
-    writers = int(writers)
-    readers = int(readers)
-    writes_per_writer = int(writes_per_writer)
-    for name, value in (
-        ("writers", writers),
-        ("readers", readers),
-        ("writes_per_writer", writes_per_writer),
-    ):
-        if value < 1:
-            raise ValueError(f"{name} must be at least 1, got {value}")
+    writers = _positive_probe_count("writers", writers)
+    readers = _positive_probe_count("readers", readers)
+    writes_per_writer = _positive_probe_count(
+        "writes_per_writer", writes_per_writer)
     temporary_dir = None
     if path is None:
         temporary_dir = tempfile.mkdtemp(prefix="spacr-db-concurrency-")
@@ -591,6 +721,60 @@ def run_concurrency_probe(
                 "choose a new scratch path.")
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
+    # A PROBE THAT NEVER RAN LEAVES NOTHING BEHIND. Everything from here to
+    # the metrics is inside one handler, because a failure anywhere in it
+    # happens AFTER the scratch database has been created and the cleanup
+    # used to be the last statement of the function. The commonest is a
+    # journal mode `connect` refuses -- 'MEMORY', 'TRUNCATE' -- which left an
+    # empty scratch database in the system temp directory for good, and at an
+    # explicit path left a file that makes the NEXT run on it fail with
+    # FileExistsError against a database the user never got a probe out of.
+    #
+    # The deliberate survivor is the STALLED one: a worker that outlives the
+    # join deadline is a normal return, guarded by `not alive` at the end, and
+    # its database is worth keeping to look at.
+    try:
+        journal_mode = _probe_journal_mode(journal_mode)
+        return _run_probe(
+            db_path, writers=writers, readers=readers,
+            writes_per_writer=writes_per_writer, journal_mode=journal_mode,
+            temporary_dir=temporary_dir)
+    except BaseException:
+        _discard_scratch(db_path, temporary_dir)
+        raise
+
+
+def _discard_scratch(db_path: str, temporary_dir: Optional[str]) -> None:
+    """Remove a scratch database the probe created and never used.
+
+    Never raises: the caller is already unwinding, and a cleanup error would
+    replace the real reason with a filesystem one.
+    """
+    try:
+        if temporary_dir is not None:
+            shutil.rmtree(temporary_dir, ignore_errors=True)
+            return
+        # An explicit path, with the sidecars WAL leaves beside it.
+        for suffix in ("", "-wal", "-shm"):
+            try:
+                os.remove(db_path + suffix)
+            except OSError:
+                pass
+    except Exception:      # below OSError: a path the OS rejects outright
+        LOG.debug("could not remove the probe's scratch database",
+                  exc_info=True)
+
+
+def _run_probe(
+    db_path: str,
+    *,
+    writers: int,
+    readers: int,
+    writes_per_writer: int,
+    journal_mode: Optional[str],
+    temporary_dir: Optional[str],
+) -> ConcurrencyProbeResult:
+    """The probe itself, once the scratch database's path is settled."""
     setup = connect(db_path, timeout=5, journal_mode=journal_mode)
     try:
         with transaction(setup):
@@ -610,6 +794,11 @@ def run_concurrency_probe(
     reader_lock = threading.Lock()
 
     def writer_task(writer_id: int) -> None:
+        """Insert this writer's rows and signal when the last writer exits.
+
+        Worker failures are collected for the probe result, and the thread's
+        connection is closed whether setup, synchronization, or writing fails.
+        """
         connection = None
         try:
             connection = connect(db_path, timeout=0.05)
@@ -634,6 +823,11 @@ def run_concurrency_probe(
                     finished.set()
 
     def reader_task(reader_id: int) -> None:
+        """Poll during writes, then contribute this reader's query count.
+
+        A final query observes the completed database; failures are collected
+        and the thread-owned read-only connection is always closed.
+        """
         connection = None
         local_queries = 0
         try:
@@ -676,9 +870,16 @@ def run_concurrency_probe(
         for thread in alive:
             thread.join(timeout=1.0)
         alive = [thread for thread in threads if thread.is_alive()]
+    # ``is_alive`` can change between the post-join snapshot above and this
+    # final check. Keep only workers that are still alive now, so a thread
+    # that exits in that small window is neither reported as stalled nor used
+    # to preserve an otherwise disposable scratch database.
+    survivors = []
     for thread in alive:
-        if thread.is_alive():  # explicit for type checkers and readability
+        if thread.is_alive():
             errors.put(f"thread {thread.name} did not finish within 30 seconds")
+            survivors.append(thread)
+    alive = survivors
     elapsed = time.monotonic() - started
 
     verify = connect(db_path, readonly=True, timeout=2)

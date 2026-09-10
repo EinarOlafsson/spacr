@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "56_lineage",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Examine relações de contenção, como as atribuições de células, núcleos, patógenos e organelas.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Lineage.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Lineage. Examine relações de contenção, como as atribuições de células, núcleos, patógenos e organelas.",
+        "Abra objetos medidos que contenham identificadores de relacionamentos.",
+        "Na área principal de configuração, selecione as classes pai e filha, os filtros, os campos e os atributos dos relacionamentos que serão exibidos.",
+        "Examine em imagens representativas relações inesperadamente ausentes, duplicadas ou que atravessam limites.",
+        "Ao término do fluxo de trabalho, a tabela de relacionamentos revisada ajuda a distinguir estruturas biológicas de erros de atribuição."
+      ]
+    }
+  }
+}

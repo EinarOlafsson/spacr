@@ -1,0 +1,138 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "02_conda_install",
+    "scene_count": 7,
+    "source_language": "en",
+    "reviewed_date": "2026-08-27",
+    "review_scope": "Direct official conda-forge installation guidance with exact environment, package, command, and diagnostic identifiers."
+  },
+  "languages": {
+    "es": {
+      "description": "Cree un entorno aislado con Python 3.12 e instale el paquete de escritorio completo de spaCR directamente desde conda-forge.",
+      "prerequisite": "Instale Miniforge, Miniconda, Anaconda u otro gestor compatible con Conda.",
+      "objectives": [
+        "Crear y activar un entorno aislado para spaCR.",
+        "Instalar spaCR directamente desde el canal oficial de conda-forge.",
+        "Verificar el paquete y los diagnósticos antes de iniciar spaCR."
+      ],
+      "narrations": [
+        "Instale spaCR desde conda-forge en un entorno Conda específico. El paquete incluye la interfaz de escritorio y declara las dependencias de spaCR.",
+        "Abra una terminal con Conda disponible y cree un entorno llamado spacr con Python 3.12.",
+        "Active el entorno. Antes de instalar nada, confirme que Python pertenece al entorno spacr.",
+        "Instale el paquete oficial con conda install conda-forge::spacr. El comando con el canal especificado selecciona explícitamente la compilación de conda-forge.",
+        "Confirme que Conda muestra spaCR en el entorno; después, impórtelo y muestre la versión instalada.",
+        "Ejecute spacr-doctor antes del primer inicio. La herramienta informa sobre la instalación activa, Qt, PyTorch, los componentes opcionales y la compatibilidad del hardware, y propone una solución para cada comprobación fallida.",
+        "Cuando spacr-doctor no indique errores, inicie spaCR con el comando spacr. Mantenga este entorno activado siempre que ejecute spaCR."
+      ]
+    },
+    "fr": {
+      "description": "Créez un environnement Python 3.12 isolé et installez le paquet de bureau spaCR complet directement depuis conda-forge.",
+      "prerequisite": "Installez Miniforge, Miniconda, Anaconda ou un autre gestionnaire compatible avec Conda.",
+      "objectives": [
+        "Créer et activer un environnement spaCR isolé.",
+        "Installer spaCR directement depuis le canal conda-forge officiel.",
+        "Vérifier le paquet et les diagnostics avant de lancer spaCR."
+      ],
+      "narrations": [
+        "Installez spaCR depuis conda-forge dans un environnement Conda dédié. Le paquet comprend l’interface de bureau et déclare les dépendances de spaCR.",
+        "Ouvrez un terminal dans lequel Conda est disponible et créez un environnement nommé spacr avec Python 3.12.",
+        "Activez l’environnement. Avant toute installation, confirmez que Python appartient à l’environnement spacr.",
+        "Installez le paquet officiel avec conda install conda-forge::spacr. Cette commande qualifiée par le canal sélectionne explicitement la version conda-forge.",
+        "Vérifiez que Conda répertorie spaCR dans l’environnement, puis importez-le et affichez la version installée.",
+        "Exécutez spacr-doctor avant le premier démarrage. L’outil présente l’installation active, Qt, PyTorch, les composants facultatifs et la prise en charge du matériel, puis propose une solution pour chaque contrôle en échec.",
+        "Lorsque spacr-doctor ne signale plus d’erreur, lancez spaCR avec la commande spacr. Gardez cet environnement actif chaque fois que vous exécutez spaCR."
+      ]
+    },
+    "it": {
+      "description": "Crea un ambiente isolato con Python 3.12 e installa il pacchetto desktop completo di spaCR direttamente da conda-forge.",
+      "prerequisite": "Installa Miniforge, Miniconda, Anaconda o un altro gestore compatibile con Conda.",
+      "objectives": [
+        "Creare e attivare un ambiente isolato per spaCR.",
+        "Installare spaCR direttamente dal canale ufficiale conda-forge.",
+        "Verificare il pacchetto e la diagnostica prima di avviare spaCR."
+      ],
+      "narrations": [
+        "Installa spaCR da conda-forge in un ambiente Conda dedicato. Il pacchetto include l’interfaccia desktop e dichiara le dipendenze di spaCR.",
+        "Apri un terminale in cui Conda sia disponibile e crea un ambiente denominato spacr con Python 3.12.",
+        "Attiva l’ambiente. Prima di installare qualsiasi componente, verifica che Python appartenga all’ambiente spacr.",
+        "Installa il pacchetto ufficiale con conda install conda-forge::spacr. Il comando qualificato con il canale seleziona esplicitamente la build di conda-forge.",
+        "Verifica che Conda elenchi spaCR nell’ambiente, quindi importalo e visualizza la versione installata.",
+        "Esegui spacr-doctor prima del primo avvio. Lo strumento mostra l’installazione attiva, Qt, PyTorch, i componenti facoltativi e il supporto hardware e propone una soluzione per ogni controllo non superato.",
+        "Quando spacr-doctor non segnala errori, avvia spaCR con il comando spacr. Mantieni attivo questo ambiente ogni volta che esegui spaCR."
+      ]
+    },
+    "hi": {
+      "description": "एक पृथक Python 3.12 वातावरण बनाएँ और पूरा spaCR डेस्कटॉप पैकेज सीधे conda-forge से इंस्टॉल करें।",
+      "prerequisite": "Miniforge, Miniconda, Anaconda या कोई अन्य Conda-संगत प्रबंधक इंस्टॉल करें।",
+      "objectives": [
+        "एक पृथक spaCR वातावरण बनाएँ और सक्रिय करें।",
+        "आधिकारिक conda-forge चैनल से सीधे spaCR इंस्टॉल करें।",
+        "spaCR शुरू करने से पहले पैकेज और निदान की जाँच करें।"
+      ],
+      "narrations": [
+        "spaCR को conda-forge से एक समर्पित Conda वातावरण में इंस्टॉल करें। पैकेज में डेस्कटॉप इंटरफ़ेस शामिल है और यह spaCR की निर्भरताएँ घोषित करता है।",
+        "Conda-सक्षम टर्मिनल खोलें और Python 3.12 के साथ spacr नाम का वातावरण बनाएँ।",
+        "वातावरण सक्रिय करें। कुछ भी इंस्टॉल करने से पहले पुष्टि करें कि सक्रिय Python, spacr वातावरण का है।",
+        "आधिकारिक पैकेज conda install conda-forge::spacr कमांड से इंस्टॉल करें। चैनल सहित यह कमांड conda-forge बिल्ड को स्पष्ट रूप से चुनता है।",
+        "पुष्टि करें कि Conda वातावरण में spaCR को सूचीबद्ध करता है; फिर इसे इंपोर्ट करके इंस्टॉल किया गया संस्करण दिखाएँ।",
+        "पहली बार शुरू करने से पहले spacr-doctor चलाएँ। यह सक्रिय इंस्टॉलेशन, Qt, PyTorch, वैकल्पिक घटकों और हार्डवेयर समर्थन की जाँच करता है तथा हर विफल जाँच के लिए समाधान सुझाता है।",
+        "spacr-doctor की सभी जाँचें सफल होने के बाद spacr कमांड से spaCR शुरू करें। spaCR चलाते समय इस वातावरण को सक्रिय रखें।"
+      ]
+    },
+    "ja": {
+      "description": "独立した Python 3.12 環境を作成し、完全な spaCR デスクトップパッケージを conda-forge から直接インストールします。",
+      "prerequisite": "Miniforge、Miniconda、Anaconda、または Conda 互換の環境管理ツールをインストールしてください。",
+      "objectives": [
+        "独立した spaCR 環境を作成して有効化する。",
+        "公式 conda-forge チャネルから spaCR を直接インストールする。",
+        "spaCR を起動する前にパッケージと診断結果を確認する。"
+      ],
+      "narrations": [
+        "spaCR を conda-forge から専用の Conda 環境へインストールします。このパッケージにはデスクトップインターフェースが含まれ、spaCR の依存パッケージが宣言されています。",
+        "Conda を使用できるターミナルを開き、Python 3.12 を含む spacr という名前の環境を作成します。",
+        "環境を有効化します。何かをインストールする前に、現在の Python が spacr 環境のものであることを確認してください。",
+        "公式パッケージを conda install conda-forge::spacr でインストールします。チャネルを明示したこのコマンドは、conda-forge ビルドを確実に選択します。",
+        "Conda の一覧に spaCR が表示されることを確認し、次にインポートしてインストール済みバージョンを表示します。",
+        "初回起動の前に spacr-doctor を実行します。現在のインストール、Qt、PyTorch、オプション機能、ハードウェア対応を確認し、失敗した項目ごとに修正方法を提示します。",
+        "spacr-doctor のすべての検査に合格したら、spacr コマンドで spaCR を起動します。spaCR を実行するときは常にこの環境を有効にしておきます。"
+      ]
+    },
+    "pt-BR": {
+      "description": "Crie um ambiente isolado com Python 3.12 e instale o pacote de desktop completo do spaCR diretamente pelo conda-forge.",
+      "prerequisite": "Instale o Miniforge, o Miniconda, o Anaconda ou outro gerenciador compatível com Conda.",
+      "objectives": [
+        "Criar e ativar um ambiente isolado para o spaCR.",
+        "Instalar o spaCR diretamente pelo canal oficial do conda-forge.",
+        "Verificar o pacote e o diagnóstico antes de iniciar o spaCR."
+      ],
+      "narrations": [
+        "Instale o spaCR pelo conda-forge em um ambiente Conda dedicado. O pacote inclui a interface de desktop e declara as dependências do spaCR.",
+        "Abra um terminal com Conda disponível e crie um ambiente chamado spacr com Python 3.12.",
+        "Ative o ambiente. Antes de instalar qualquer pacote, confirme que o Python ativo pertence ao ambiente spacr.",
+        "Instale o pacote oficial com conda install conda-forge::spacr. O comando com o canal especificado seleciona explicitamente a compilação do conda-forge.",
+        "Confirme que o Conda lista o spaCR no ambiente; depois, importe o pacote e exiba a versão instalada.",
+        "Execute spacr-doctor antes da primeira inicialização. A ferramenta verifica a instalação ativa, o Qt, o PyTorch, os componentes opcionais e o suporte de hardware e sugere uma correção para cada verificação com falha.",
+        "Quando todas as verificações do spacr-doctor forem aprovadas, inicie o spaCR com o comando spacr. Mantenha esse ambiente ativo sempre que executar o spaCR."
+      ]
+    },
+    "zh-CN": {
+      "description": "创建独立的 Python 3.12 环境，并直接从 conda-forge 安装完整的 spaCR 桌面软件包。",
+      "prerequisite": "请安装 Miniforge、Miniconda、Anaconda 或其他兼容 Conda 的环境管理器。",
+      "objectives": [
+        "创建并激活独立的 spaCR 环境。",
+        "直接从官方 conda-forge 通道安装 spaCR。",
+        "启动 spaCR 前验证软件包和诊断结果。"
+      ],
+      "narrations": [
+        "从 conda-forge 将 spaCR 安装到专用 Conda 环境中。该软件包包含桌面界面，并声明 spaCR 的依赖项。",
+        "打开可使用 Conda 的终端，创建一个名为 spacr、包含 Python 3.12 的环境。",
+        "激活该环境。安装任何软件包之前，请确认当前 Python 来自 spacr 环境。",
+        "使用 conda install conda-forge::spacr 安装官方软件包。此命令明确指定通道，从而选择 conda-forge 构建。",
+        "确认 Conda 在该环境中列出 spaCR，然后导入软件包并显示已安装的版本。",
+        "首次启动前请运行 spacr-doctor。该工具会检查当前安装、Qt、PyTorch、可选组件和硬件支持，并为每项失败的检查提供修复建议。",
+        "spacr-doctor 的所有检查通过后，使用 spacr 命令启动 spaCR。每次运行 spaCR 时都应保持该环境处于激活状态。"
+      ]
+    }
+  }
+}

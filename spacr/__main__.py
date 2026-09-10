@@ -1,8 +1,8 @@
-"""Entry point for ``python -m spacr``.
+"""Command-line entry point for ``python -m spacr``.
 
-Builds the argument parser for the ``spacr`` CLI subcommands and
-dispatches to them. The GUI entry points live elsewhere: ``spacr`` starts
-the Tk interface and ``spacr-qt`` the PySide6 one.
+The module builds and dispatches spaCR's command-line subcommands. Every
+window command opens the PySide6 application; with no subcommand it opens on
+the Home tab.
 
 Copyright © 2025 olafsson lab
 """
@@ -38,11 +38,29 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+#: The subcommand a user types -> the Qt tab it should open on.
+#:
+#: `gui` names no tab: it opens on Home, which is what it always did.
+_APP_KEYS = {
+    "mask": "mask",
+    "measure": "measure",
+    "classify": "classify_merged",
+    "annotate": "annotate",
+    "sequencing": "map_barcodes",
+    "umap": "umap",
+    "make-masks": "make_masks",
+}
+
+
 def main(argv: list[str] | None = None) -> int:
     """CLI entry point; dispatch to the requested spacr subcommand.
 
     :param argv: Argument list to parse. When None, ``sys.argv[1:]`` is used.
-    :returns: Process exit code (0 on success, 2 on unknown command).
+    :returns: ``0`` for the version command; window commands return the Qt
+        launcher's integer exit status.
+    :raises SystemExit: with code ``2`` when argparse rejects the arguments or
+        a command accepted by the parser has no dispatcher. ``parser.error``
+        never returns, so there is no exit code to hand back in either case.
     """
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -52,48 +70,23 @@ def main(argv: list[str] | None = None) -> int:
         print(version_str)
         return 0
 
-    if args.command == "gui":
-        from .gui import gui_app
-        gui_app()
-        return 0
+    # EVERY WINDOW COMMAND OPENS THE Qt APPLICATION. The seven Tk screens
+    # these used to start are tabs in it, so a script that still says
+    # `python -m spacr mask` lands on the Mask tab rather than failing to
+    # import a module that no longer exists.
+    if args.command in ("gui", "mask", "measure", "classify", "annotate",
+                        "sequencing", "umap", "make-masks"):
+        from .qt import run
 
-    if args.command == "mask":
-        from .app_mask import start_mask_app
-        start_mask_app()
-        return 0
+        # `run` takes the argv the launcher would have had, and its first
+        # positional IS the screen to open on.
+        key = _APP_KEYS.get(args.command)
+        return int(run([key] if key else []) or 0)
 
-    if args.command == "measure":
-        from .app_measure import start_measure_app
-        start_measure_app()
-        return 0
-
-    if args.command == "classify":
-        from .app_classify import start_classify_app
-        start_classify_app()
-        return 0
-
-    if args.command == "annotate":
-        from .app_annotate import start_annotate_app
-        start_annotate_app()
-        return 0
-
-    if args.command == "sequencing":
-        from .app_sequencing import start_seq_app
-        start_seq_app()
-        return 0
-
-    if args.command == "umap":
-        from .app_umap import start_umap_app
-        start_umap_app()
-        return 0
-
-    if args.command == "make-masks":
-        from .app_make_masks import start_make_mask_app
-        start_make_mask_app()
-        return 0
-
+    # `parser.error` is annotated NoReturn and raises SystemExit(2); a
+    # `return 2` after it is unreachable, and an unreachable line is a line
+    # no test can ever justify.
     parser.error(f"Unknown command: {args.command}")
-    return 2
 
 
 if __name__ == "__main__":

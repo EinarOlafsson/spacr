@@ -71,17 +71,22 @@ import ast
 import datetime
 import json
 import os
+import re
 import sqlite3
+import sys
 import tempfile
-from dataclasses import dataclass, field as _dc_field, replace
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+import time
+from collections import OrderedDict
+from dataclasses import dataclass, replace
+from dataclasses import field as _dc_field
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
 
 try:
     # Normal package import: schema is the dependency-light role registry.
     from .schema import ALL_ROLES, ORGANELLE_ROLES, SEGMENTED_ROLES
-except ImportError:  # pragma: no cover - exercised by the standalone probe
+except ImportError:  # exercised by the standalone probe
     # ``tests/test_crops.py`` loads this file directly, without a package, to
     # prove the thumbnail path does not pull in spacr (and therefore torch).
     # Load the same standalone schema source under a private module name; do
@@ -318,6 +323,60 @@ def _rescale_intensity(image, in_range, out_range):
     return np.clip(image, omin, omax)
 
 
+#: The percentile pair spaCR stretches a crop between when nothing else is
+#: asked for. The same pair `_normalize_to_dtype` defaults to and the same
+#: pair the annotator ships in `percentiles`, named once so the parser's
+#: fallback and every panel's starting value cannot drift apart.
+DEFAULT_PERCENTILES: Tuple[float, float] = (2.0, 98.0)
+
+#: What separates the two halves of a percentile pair, in every spelling one
+#: has ever arrived in. A pair is TWO NUMBERS, however it was written:
+#: `[2, 98]` from a settings CSV, `(2, 98)` from the annotator's own
+#: defaults, `2,98` typed into a box, `[1 99]` typed into the same box by
+#: somebody who used a space, and `2;98` from a locale that separates lists
+#: with semicolons.
+_PAIR_SEPARATORS = re.compile(r"[\s,;]+")
+
+
+def percentile_pair(value, default=DEFAULT_PERCENTILES) -> Tuple[float, float]:
+    """Parse a percentile range and return ``(low, high)``.
+
+    :param value: two numbers or a string representation separated by spaces,
+        commas or semicolons.
+    :param default: range returned when two numeric values cannot be parsed.
+    :returns: two floats in ascending order, clipped to ``[0, 100]``.
+
+    This parser treats the values as percentiles rather than channel indices;
+    numeric values such as ``0``, ``1`` and ``2`` therefore retain their
+    literal meaning.
+    """
+    parts = None
+    if value is None or isinstance(value, bool):
+        parts = None
+    elif isinstance(value, str):
+        text = value.strip()
+        if text.startswith(("[", "(")) and text.endswith(("]", ")")):
+            text = text[1:-1]
+        parts = [p for p in _PAIR_SEPARATORS.split(text.strip()) if p]
+    else:
+        try:
+            parts = [p for p in value]
+        except TypeError:
+            parts = None
+    if not parts or len(parts) < 2:
+        return (float(default[0]), float(default[1]))
+    try:
+        low = float(str(parts[0]).strip().strip("'\""))
+        high = float(str(parts[1]).strip().strip("'\""))
+    except (TypeError, ValueError):
+        return (float(default[0]), float(default[1]))
+    low, high = min(low, high), max(low, high)
+    # A PERCENTILE OUTSIDE 0-100 IS NOT A PERCENTILE. numpy raises on one, so
+    # the alternative to clamping is a montage that dies inside the worker
+    # and reports "the montage load failed" without naming the setting.
+    return (max(0.0, min(100.0, low)), max(0.0, min(100.0, high)))
+
+
 def _normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
     """Clone of :func:`spacr.utils.normalize_to_dtype` with ``new_dtype=None``.
 
@@ -445,6 +504,11 @@ class CropSpec:
     normalize_by: str = "png"
 
     def __post_init__(self):
+        """Normalize integer fields and reject unsupported crop options.
+
+        :raises CropError: If ``object_type`` or ``normalize_by`` is
+            unsupported.
+        """
         object.__setattr__(self, "channels", tuple(int(c) for c in self.channels))
         w, h = self.size
         object.__setattr__(self, "size", (int(w), int(h)))
@@ -480,6 +544,14 @@ class _LabelIndex:
                  "count", "_ysum", "_xsum", "shape")
 
     def __init__(self, mask: np.ndarray):
+        """Build compact per-label geometry from a two-dimensional mask.
+
+        :param mask: a 2-D label image. Scanned ONCE, vectorised, and the
+            result cached on the field -- which is the whole point: a grid
+            drawing 100 objects out of one field must not scan the plane
+            100 times. TWO-DIMENSIONAL ONLY: a 3-D array fails on the
+            unpack below rather than being measured plane by plane.
+        """
         self.shape = (int(mask.shape[0]), int(mask.shape[1]))
         ys, xs = np.nonzero(mask)
         if ys.size == 0:
@@ -510,9 +582,14 @@ class _LabelIndex:
         self._pos = {int(lbl): i for i, lbl in enumerate(self.labels)}
 
     def __contains__(self, label: int) -> bool:
+        """Return whether ``label`` occurs among nonbackground mask pixels."""
         return int(label) in self._pos
 
     def _index(self, label: int) -> int:
+        """Return the compact-array offset for ``label``.
+
+        :raises LabelMissing: If the label is absent from the mask.
+        """
         try:
             return self._pos[int(label)]
         except KeyError:
@@ -574,9 +651,18 @@ class MergedField:
     Only ``shape``, ``dtype``, ``ndim`` and ``__getitem__`` are ever used on the
     underlying array, so tests can substitute a recording proxy to assert on the
     access pattern.
+
+    :param path: the ``merged/<fov>.npy`` field on disk.
+    :param array: the opened array. Defaults to memory-mapping ``path``;
+        pass one to substitute a proxy or an already-open handle.
+    :param mask_dims: which channel of the field holds each object's mask,
+        as ``{object: plane index}``. Defaults to the layout recorded beside
+        the file, and to ``DEFAULT_MASK_DIMS`` when the file records none.
+    :raises CorruptMergedFile: when the array is not ``(H, W, C)``.
     """
 
     def __init__(self, path: str, array=None, mask_dims: Optional[Mapping[str, int]] = None):
+        """Open or adopt a three-dimensional field and resolve its mask layout."""
         self.path = os.fspath(path)
         if mask_dims is None:
             layout = read_merged_plane_layout(self.path)
@@ -799,16 +885,91 @@ def _load_mmap(path: str):
 # A tiny LRU of open fields, so a grid that walks a handful of fields keeps
 # their label indices between calls. Keyed on (path, mtime, size) so a
 # regenerated merged file is never served from a stale entry.
-_FIELD_CACHE: "Dict[Tuple[str, int, int], MergedField]" = {}
+_FIELD_CACHE: "OrderedDict[Tuple[str, int, int], MergedField]" = OrderedDict()
 _FIELD_CACHE_MAX = 8
+# Epoch seconds are kept separately so the cache's public values remain real
+# ``MergedField`` objects.  The resource-budget sweep reads this clock and the
+# measured byte count without having to wrap (and thereby change) them.
+_FIELD_CACHE_USED: "Dict[Tuple[str, int, int], float]" = {}
 
 
 def clear_field_cache() -> None:
     """Drop every cached :class:`MergedField` (and its label indices)."""
     _FIELD_CACHE.clear()
+    _FIELD_CACHE_USED.clear()
+
+
+def _merged_field_cache_bytes(field: MergedField) -> int:
+    """Bytes addressable through a cached field, counted without reading it.
+
+    A merged array is memory-mapped, so ``nbytes`` describes the mapping
+    without faulting its pages into RAM.  Derived masks and label indices are
+    ordinary arrays and are added once each.  This is deliberately an
+    accounting measurement, not an RSS guess: RSS includes shared pages and
+    allocator state that this one cache cannot honestly claim to own.
+    """
+    arrays = [getattr(field, "array", None)]
+    arrays.extend(getattr(field, "_derived", {}).values())
+    for index in getattr(field, "_indices", {}).values():
+        # A label index defines __slots__ and therefore has no __dict__, so
+        # vars() raised TypeError here and took the whole memory sweep with it
+        # the moment any cached field had been indexed -- i.e. always, after
+        # the first crop was cut out of it.
+        slots = getattr(type(index), "__slots__", None)
+        held = ([getattr(index, name, None) for name in slots] if slots
+                else list(vars(index).values()))
+        arrays.extend(value for value in held if hasattr(value, "nbytes"))
+    total = 0
+    seen = set()
+    for value in arrays:
+        if value is None or id(value) in seen:
+            continue
+        seen.add(id(value))
+        try:
+            total += max(0, int(value.nbytes))
+        except (AttributeError, TypeError, ValueError):
+            continue
+    return total
+
+
+def cache_budget_entries():
+    """Budget records for the live merged-field cache.
+
+    Each row is ``(opaque key, measured bytes, last-use epoch, in-use)``.
+    Removing a field from this dictionary cannot invalidate a caller that is
+    already using it -- that caller owns its own reference -- so entries are
+    safely evictable here.  The active object itself survives until the caller
+    releases it.
+    """
+    now = time.time()
+    return [
+        (key, _merged_field_cache_bytes(field),
+         float(_FIELD_CACHE_USED.get(key, now)), False)
+        for key, field in list(_FIELD_CACHE.items())
+    ]
+
+
+def drop_cache_budget_entry(key) -> bool:
+    """Evict one merged field selected by the global memory policy."""
+    existed = key in _FIELD_CACHE
+    _FIELD_CACHE.pop(key, None)
+    _FIELD_CACHE_USED.pop(key, None)
+    return existed
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Start the GUI sweep if resource cleanup was registered before Qt."""
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
 
 
 def _cache_key(path: str) -> Tuple[str, int, int]:
+    """Return absolute path, nanosecond mtime, and size as a cache key.
+
+    :raises MergedFileMissing: If the path cannot be inspected.
+    """
     try:
         st = os.stat(path)
     except OSError as exc:
@@ -837,11 +998,16 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
     key = _cache_key(path)
     cached = _FIELD_CACHE.get(key)
     if cached is not None and cached.mask_dims == dims:
+        _FIELD_CACHE.move_to_end(key)
+        _FIELD_CACHE_USED[key] = time.time()
         return cached
     fld = MergedField(path, mask_dims=dims)
     if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
-        _FIELD_CACHE.pop(next(iter(_FIELD_CACHE)))
+        oldest, _ = _FIELD_CACHE.popitem(last=False)
+        _FIELD_CACHE_USED.pop(oldest, None)
     _FIELD_CACHE[key] = fld
+    _FIELD_CACHE_USED[key] = time.time()
+    _ensure_cache_budget_sweep()
     return fld
 
 
@@ -850,24 +1016,13 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
 # ---------------------------------------------------------------------------
 
 def _region_for(fld: MergedField, spec: CropSpec):
-    """Return ``(centroid_yx, region_bounds, region_mask_or_None)``.
+    """Return ``(centroid_yx, region_bounds, region_mask)``.
 
-    ``region_mask`` is the boolean region restricted to ``region_bounds``; when
-    it is ``None`` the region covers the whole field (the ``iterations=0``
-    dilation quirk, see below) and no masking is applied.
-
-    Mirrors ``_measure_crop_core`` exactly, including two behaviours that are
-    almost certainly bugs but are matched rather than fixed, because an
-    annotation made on a PNG has to be comparable with a crop cut here:
-
-    * with ``use_bounding_box`` *and* ``dilate`` both on, the PNG path measures
-      the region area with ``np.sum(region)`` on a mask filled with the *label
-      value*, not with ``True`` -- so the dilation radius is inflated by
-      ``sqrt(label)``;
-    * when the dilation radius rounds down to 0, the PNG path calls
-      ``scipy.ndimage.binary_dilation(..., iterations=0)``, which means "repeat
-      until nothing changes" and fills the entire field -- the crop ends up
-      being an unmasked window centred on the middle of the field.
+    ``region_mask`` is always the boolean region restricted to
+    ``region_bounds``. Bounding-box dilation is based on the number of pixels,
+    independent of the object's integer label. A dilation radius that rounds
+    down to zero is skipped, because ``scipy.ndimage.binary_dilation`` assigns
+    a different, surprising meaning to ``iterations=0`` (dilate to stability).
     """
     H, W, _ = fld.shape
     idx = None
@@ -965,14 +1120,15 @@ def _crop_from_field(fld: MergedField, spec: CropSpec) -> np.ndarray:
 
     crop = fld.read_window(wy0, wy1, wx0, wx1, spec.channels, dtype)
 
-    if region is not None:
-        keep = np.zeros((height, width), dtype=bool)
-        oy0, oy1 = max(wy0, ry0), min(wy1, ry1)
-        ox0, ox1 = max(wx0, rx0), min(wx1, rx1)
-        if oy1 > oy0 and ox1 > ox0:
-            keep[oy0 - wy0:oy1 - wy0, ox0 - wx0:ox1 - wx0] = \
-                region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
-        crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
+    # ``_region_for`` always returns a region, and the crop window is centred
+    # on a point inside its bounds.  The former ``if region is not None:`` and
+    # ``if oy1 > oy0 and ox1 > ox0:`` therefore re-checked its contract.
+    keep = np.zeros((height, width), dtype=bool)
+    oy0, oy1 = max(wy0, ry0), min(wy1, ry1)
+    ox0, ox1 = max(wx0, rx0), min(wx1, rx1)
+    keep[oy0 - wy0:oy1 - wy0, ox0 - wx0:ox1 - wx0] = \
+        region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
+    crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
 
     if isinstance(spec.normalize, (list, tuple)):
         crop = _normalize_to_dtype(crop, spec.normalize[0], spec.normalize[1],
@@ -1232,10 +1388,9 @@ def legacy_png_view(crop: np.ndarray) -> np.ndarray:
 #: on disk are in the order the user declared, so it is read back as-is.
 CROP_FORMAT_LEGACY_BGR = 1
 
-#: Format 2: ``png_dims[0]`` is the file's red channel. Written between
-#: 2026-07-26 and 2026-08-06 only. This is the format that is *wrong* --
-#: it puts the first-listed channel, conventionally the 405/DAPI plane, in
-#: red -- so it is the one that gets reversed on read.
+#: Legacy RGB format in which ``png_dims[0]`` occupies the file's red slot.
+#: Because the first-listed channel is conventionally the 405/DAPI plane,
+#: this transitional format is reversed when read.
 CROP_FORMAT_RGB = 2
 
 #: Format 3: the file's red, green and blue slots hold exactly the source
@@ -1324,7 +1479,7 @@ def _coerce_format(value: Any) -> Optional[int]:
 # ---------------------------------------------------------------------------
 
 def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
-    """Narrow ``arr`` to ``uint8`` -- the one and only narrowing rule.
+    """Convert ``arr`` to ``uint8`` using the crop-writer convention.
 
     ``uint16`` (and anything wider) is narrowed by **taking the high byte**,
     which is a plain linear rescale of a crop that ``normalize_to_dtype``
@@ -1332,7 +1487,7 @@ def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
     when a caller hands in something the crop path never produces, are clipped
     -- there is no dtype range to rescale from.
 
-    Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit
+    This differs from PIL's format-dependent behaviour: PIL takes the high byte of a 16-bit
     RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel
     value survives or saturates depending on how many channels its neighbours
     have. One behaviour, applied here, replaces both.
@@ -1409,12 +1564,12 @@ def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
 #: The colour slots a crop PNG has, in file order.
 PNG_COLOR_KEYS = ("r", "g", "b")
 
-#: What ``png_dims=[0, 1, 2]`` has always meant on screen, stated outright.
+#: Default colour mapping for the legacy ``png_dims=[0, 1, 2]`` setting.
 #:
 #: Microscope channels arrive in wavelength order -- 0 is 405, 1 is 488, 2 is
 #: 555, 3 is 647 -- so the first channel is the nuclear stain and belongs in
-#: blue. This default reproduces, exactly, what every spaCR crop written
-#: before 2026-07-26 looks like.
+#: blue. This mapping preserves the appearance of crops written with the
+#: legacy convention.
 DEFAULT_PNG_CHANNEL_MAPPING = {"r": 2, "g": 1, "b": 0}
 
 
@@ -1505,7 +1660,7 @@ def resolve_png_channel_mapping(settings) -> Dict[str, Optional[int]]:
         except (TypeError, ValueError):
             raise CropError(
                 f"png_channel_mapping['{key}'] must be a source channel index "
-                f"or blank; got {val!r}")
+                f"or blank; got {val!r}") from None
     if all(v is None for v in out.values()):
         raise CropError(
             "png_channel_mapping leaves every colour empty, so every crop "
@@ -1542,10 +1697,8 @@ def build_png_channels(data: np.ndarray, mapping: Dict[str, Optional[int]],
                        dtype=None) -> np.ndarray:
     """Assemble the crop planes in **file order** -- red, green, blue.
 
-    The array this returns is in the order the PNG's slots are in, so a reader
-    that opens the file and a caller that keeps the array in memory are
-    looking at the same thing. That is the whole point of the mapping: there
-    is one order, it is stated, and it survives to disk.
+    The returned array uses the same channel order as the PNG file, so in-memory
+    and decoded representations have the same colour semantics.
 
     Greyscale is preserved: when all three colours name the same source
     channel the result is a single plane, so cv2 writes a one-channel PNG
@@ -1611,6 +1764,7 @@ def clear_crop_format_cache() -> None:
 
 
 def _sidecar_path(folder: str) -> str:
+    """Return the crop-format sidecar path inside ``folder``."""
     return os.path.join(os.fspath(folder), CROP_FORMAT_SIDECAR)
 
 
@@ -1711,26 +1865,19 @@ def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
 
 
 def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[str]:
-    """Make sure ``folder`` carries the format marker. Cheap enough to call per crop.
+    """Ensure that ``folder`` contains a crop-format marker.
 
-    Called by the crop writer immediately *before* the first PNG lands, so a
-    run killed part-way through leaves a marked folder holding fewer crops --
-    never an unmarked folder of format-2 crops, which is the one state that
-    would be silently misread as legacy.
+    The crop writer calls this before writing the first PNG. An interrupted
+    run therefore leaves a marked, possibly incomplete folder rather than an
+    unmarked folder that could be interpreted as the legacy format.
 
-    One listing per folder per process: after that the folder is remembered.
-    A marker that cannot be written is a loud warning rather than an
-    exception, because failing the whole measure run over a 300-byte sidecar
-    helps nobody -- but it is never silent, because the consequence is that
-    the crops read back reversed.
+    Each folder is checked once per process. Failure to write the marker emits
+    a warning instead of aborting the measurement run, because the image data
+    remain valid but their stored channel convention becomes ambiguous.
 
-    Writing new crops into a folder that already holds *old* ones is the one
-    case a single folder-level marker cannot describe, so it is called out
-    rather than papered over: the run's own crops are marked, and the message
-    says which files were there first and what to do about them. (Migrating
-    them here instead would mean several measure workers converting the same
-    folder at once, which is exactly the race
-    :func:`migrate_crop_folder`'s single-process design rules out.)
+    If a folder already contains crops in another format, the function reports
+    the conflict but does not migrate files. Migration remains a separate,
+    single-process operation in :func:`migrate_crop_folder`.
 
     :param folder: the crop folder.
     :param fmt: format to record; defaults to :data:`CROP_FORMAT_CURRENT`.
@@ -2057,14 +2204,18 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
 class MigrationResult:
     """What :func:`migrate_crop_folder` did to one folder.
 
-    :ivar folder: the folder.
-    :ivar converted: files whose channel order was rewritten.
-    :ivar skipped: files that needed no rewrite (already converted, or
-        single-channel, where there is no order to fix).
-    :ivar failed: ``(name, reason)`` for files that could not be converted.
-    :ivar already: the folder was already at the target format; nothing done.
-    :ivar dry_run: nothing was written.
-    :ivar mode: ``'rewrite'`` or ``'mark'``.
+    :param folder: crop folder that was examined or migrated.
+    :param converted: filenames whose channel order was or would be rewritten.
+    :param skipped: filenames needing no rewrite, including already-processed
+        or single-channel crops.
+    :param failed: ``(filename, reason)`` pairs for crops that could not be
+        converted.
+    :param already: whether the folder was already in a format requiring no
+        migration.
+    :param dry_run: whether the result describes planned work without writing
+        files.
+    :param mode: ``"rewrite"`` for pixel conversion or ``"mark"`` for
+        recording legacy format without touching pixels.
     """
 
     folder: str
@@ -2152,14 +2303,11 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
                         dry_run: bool = False, on_error: str = "raise",
                         db_path: Optional[str] = None,
                         progress: Optional[Any] = None) -> MigrationResult:
-    """Repair one folder of reversed crops and stamp it. Idempotent.
+    """Repair reversed format-2 crops and stamp the folder. Idempotent.
 
-    **The direction of this function inverted on 2026-08-06.** It used to
-    convert format-1 folders to format 2, on the belief that ``png_dims[0]``
-    belonged in the red channel. It does not: channel 0 is 405 and belongs in
-    blue, so format-1 folders were right all along and format 2 -- everything
-    written, or migrated, between 2026-07-26 and 2026-08-06 -- is the one
-    holding reversed pixels. This now repairs *those*.
+    Format 2 stores three-channel crops in the reverse of their declared
+    channel mapping. Formats 1 and 3, as well as unmarked folders, already
+    use declared order and require no pixel rewrite.
 
     ``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a
     **format-2** folder with its channels put back, and marks the folder
@@ -2183,7 +2331,7 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
       **"a staging file exists ⇒ the crop beside it is still legacy"**
       resolves every file at every point in the sequence. That is what
       :func:`crop_format_for_png` reads, and it is why a killed migration is
-      still read correctly and can simply be re-run.
+      still read correctly and can be run again.
 
     Running it on an already-converted folder is an immediate no-op: nothing
     is decoded, nothing is written, and ``result.already`` is True. Running it
@@ -2560,14 +2708,16 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
     ``use_bounding_box``, ``dialate_pngs``, ``dialate_png_ratios``, ``crop_mode``
     and the ``*_mask_dim`` keys -- i.e. everything that shaped the PNG folder.
 
-    :param settings: the ``measure_crop`` settings. The per-``crop_mode``
-        lists (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) are
-        indexed by where the chosen object type sits in ``crop_mode``, and
-        fall back to entry 0 when it is not listed there. The crop's
-        channels come from ``png_channel_mapping`` -- or the legacy
-        ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in
-        colour order, not ``png_dims`` list order. A ``normalize`` that is a
-        sequence of any length but 2 is discarded as ``False``.
+    :param settings: The ``measure_crop`` settings. A scalar ``png_size``
+        defines a square crop. Object-specific values in nested ``png_size``,
+        ``dialate_pngs``, and ``dialate_png_ratios`` are selected by the
+        object's position in ``crop_mode`` and fall back to the first entry
+        when that object is absent. Channels are resolved from
+        ``png_channel_mapping``, or legacy ``png_dims``, through
+        :func:`channels_from_settings` and stored in colour order. Text forms
+        such as ``"[2, 98]"``, ``"2,98"``, and ``"[1 99]"`` are parsed as
+        percentile windows; a non-text sequence with a length other than two
+        disables normalization.
     :param merged_path: the ``merged/<fov>.npy`` to record on the spec. The
         default ``""`` builds a *template* spec, which is what
         :class:`MergedCropSource` wants: it fills the path (and label) in per
@@ -2586,6 +2736,18 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
     obj = object_type or (crop_mode[0] if crop_mode else "cell")
 
     size = settings.get("png_size", [224, 224])
+    # A BARE NUMBER IS A SQUARE. The annotator's `img_size` is one integer --
+    # it is a single spin box -- and mapping it straight onto `png_size` gave
+    # this function a scalar, where `size[0]` raises
+    #
+    #     TypeError: 'int' object is not subscriptable
+    #
+    # inside the montage worker, surfacing as "The montage load failed" with
+    # no hint that the cause was a settings shape. Normalised here as well as
+    # at the mapping, because every caller of this function reaches the same
+    # line and a settings CSV can carry the scalar too.
+    if isinstance(size, (int, float)) and not isinstance(size, bool):
+        size = [int(size), int(size)]
     if size and isinstance(size[0], (list, tuple)):
         # png_size may be a list-of-lists, one per crop_mode.
         try:
@@ -2613,6 +2775,15 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
         dilate = False
 
     normalize = settings.get("normalize", False)
+    if isinstance(normalize, str) and normalize.strip():
+        # A PAIR WRITTEN AS TEXT IS STILL A PAIR. `_coerce` recovers the
+        # spellings `ast.literal_eval` accepts, and leaves the ones it does
+        # not -- `[1 99]`, separated by a space rather than a comma -- as a
+        # string. Passed through, a non-empty string is TRUTHY but is not a
+        # sequence, so the cut fell to the full 0-100 stretch: the user
+        # configured a window, the crop ignored it, and nothing said so.
+        low, high = percentile_pair(normalize, (0.0, 100.0))
+        normalize = [low, high]
     if isinstance(normalize, (list, tuple)) and len(normalize) != 2:
         normalize = False
 
@@ -2639,6 +2810,346 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
 # ---------------------------------------------------------------------------
 # Crop sources
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Re-anchoring a recorded path after the folder has moved
+# ---------------------------------------------------------------------------
+
+#: The folders under an experiment root that a recorded path can be anchored
+#: on. The structure a spaCR run writes is ``<root>/data/`` (the exported
+#: crop PNGs), ``<root>/merged/`` (the arrays a crop is cut from) and
+#: ``<root>/measurements/measurements.db``, so BOTH anchors live under one
+#: root and one function can re-anchor every path-bearing column against
+#: whichever anchor its own path happens to contain.
+PATH_ANCHORS: Tuple[str, ...] = ("data", "merged")
+
+#: The columns a measurement frame records a path in. ``png_path`` is the
+#: exported crop, ``path_name`` / ``merged_path`` the array it was cut from --
+#: re-anchoring only the first is why a moved folder used to show its PNGs and
+#: fail on its merged arrays.
+PATH_COLUMNS: Tuple[str, ...] = ("png_path", "path_name", "merged_path")
+
+#: :func:`reanchor_path` outcomes.
+ALREADY_ANCHORED = "already"     #: the path is already under the root.
+REANCHORED = "reanchored"        #: the path was rewritten under the root.
+NO_ANCHOR = "no-anchor"          #: no anchor folder in it; left untouched.
+
+
+def normalise_separators(path: Any) -> str:
+    """Return ``path`` with every ``\\`` turned into ``/``.
+
+    A database written on Windows records ``C:\\lab\\exp1\\data\\plate1\\a.png``
+    and is then opened on Linux, where ``str.split('/data/')`` cannot match
+    and :func:`os.path.basename` returns the WHOLE string because posix knows
+    nothing of backslashes. Every path comparison in this module therefore
+    starts here, so the re-anchor works on a share mounted both ways.
+
+    :param path: anything path-like. ``None`` becomes ``''``.
+    :returns: the path in forward-slash spelling. A UNC ``\\\\server\\share``
+        becomes ``//server/share``, which is the same location.
+    """
+    if path is None:
+        return ""
+    return os.fspath(path).replace("\\", "/") if not isinstance(path, str) \
+        else path.replace("\\", "/")
+
+
+def basename_any(path: Any) -> str:
+    """The file name after the last separator of EITHER kind.
+
+    :param path: a recorded path, written on any OS.
+    :returns: the last component. ``os.path.basename`` cannot be used for
+        this: on Linux it hands back the whole of
+        ``C:\\lab\\exp1\\merged\\x.npy``, which then fails as a missing file
+        with no hint that the separator was the problem.
+    """
+    return normalise_separators(path).rstrip("/").rpartition("/")[2]
+
+
+def path_components(path: Any) -> Tuple[str, ...]:
+    """Split ``path`` into components, separator-agnostically and resolved.
+
+    ``.`` is dropped and ``..`` pops the component before it, so two spellings
+    of one location compare equal. The leading ``''`` of an absolute posix
+    path is kept, which is what stops ``old/data/x`` matching ``/old/data/x``.
+
+    :param path: a recorded path.
+    :returns: the components, root first.
+    """
+    text = normalise_separators(path)
+    if not text:
+        return ()
+    parts = text.split("/")
+    out: List[str] = []
+    for index, part in enumerate(parts):
+        if part == "" and index > 0:
+            continue                      # a doubled or trailing separator
+        if part == ".":
+            continue
+        if part == ".." and out and out[-1] not in ("", ".."):
+            out.pop()
+            continue
+        out.append(part)
+    return tuple(out)
+
+
+def path_is_under(path: Any, root: Any) -> bool:
+    """True when ``path`` already sits under ``root``.
+
+    Comparison is component-wise rather than substring-based, preventing
+    similarly named sibling directories from being treated as descendants.
+
+    :param path: the recorded path.
+    :param root: the destination root.
+    :returns: whether ``path`` is ``root`` or lies inside it.
+    """
+    here = path_components(path)
+    there = path_components(root)
+    if not there or not here:
+        return False
+    return len(there) <= len(here) and here[:len(there)] == there
+
+
+def reanchor_path(path: Any, root: Any,
+                  anchors: Sequence[str] = PATH_ANCHORS) -> Tuple[str, str]:
+    """Re-anchor one recorded path under ``root`` and report the outcome.
+
+    The rightmost recognized anchor is used so nested directories with the
+    same name retain the path components nearest the file.
+
+    :param path: the recorded path, in any OS's spelling.
+    :param root: the experiment root on this machine.
+    :param anchors: the folder names that may anchor the rewrite, e.g.
+        ``('data', 'merged')``. The rightmost occurrence of ANY of them wins.
+    :returns: ``(path, outcome)`` where outcome is
+        :data:`ALREADY_ANCHORED`, :data:`REANCHORED` or :data:`NO_ANCHOR`.
+        The path is unchanged for :data:`ALREADY_ANCHORED` and
+        :data:`NO_ANCHOR`.
+    """
+    text = path if isinstance(path, str) else normalise_separators(path)
+    if not text or not root:
+        return text, NO_ANCHOR
+    if path_is_under(text, root):
+        return text, ALREADY_ANCHORED
+    parts = path_components(text)
+    wanted = {str(a).strip("/\\") for a in anchors if str(a).strip("/\\")}
+    # From the RIGHT, and never the final component: an anchor with nothing
+    # after it names a folder, and there would be no file left to re-anchor.
+    for index in range(len(parts) - 2, -1, -1):
+        if parts[index] in wanted:
+            remainder = parts[index + 1:]
+            return os.path.join(str(root), parts[index], *remainder), REANCHORED
+    return text, NO_ANCHOR
+
+
+@dataclass(frozen=True)
+class ReanchorReport:
+    """Summary of one path re-anchoring pass.
+
+    :param root: the root everything was re-anchored under.
+    :param n_paths: how many non-null paths were looked at.
+    :param n_reanchored: how many were rewritten.
+    :param n_already: how many were already under ``root``.
+    :param failures: the paths that carried no anchor folder, in order.
+    """
+
+    root: str
+    n_paths: int = 0
+    n_reanchored: int = 0
+    n_already: int = 0
+    failures: Tuple[str, ...] = ()
+
+    @property
+    def n_failed(self) -> int:
+        """How many paths could not be re-anchored."""
+        return len(self.failures)
+
+    def describe(self) -> str:
+        """Return a log summary, or ``''`` when all paths were placed.
+
+        Failure summaries include one example path to make the unresolved
+        route identifiable.
+        """
+        if not self.failures:
+            return ""
+        # A ROUTE THAT IS NOT ON THIS MACHINE IS NOT N FAILURES.
+        #
+        # Measured on the maintainer's screen: all 60,816 `png_path` values
+        # re-anchored and all 60,816 `path_name` values could not, because
+        # that screen has PNG crops and no `merged/` folder -- and it is
+        # completely healthy. Reported together they read as "60,816 of
+        # 121,632 could not be re-anchored", which is the false alarm that
+        # teaches a reader to ignore the true one. Same distinction
+        # `spacr.portable_paths.RerootReport` draws.
+        if self.n_reanchored == 0 and self.n_already == 0:
+            return (f"none of the {self.n_failed:,} recorded path(s) are "
+                    f"under {self.root} -- that route's files are not on this "
+                    f"machine")
+        return (f"{self.n_failed:,} of {self.n_paths:,} recorded paths could "
+                f"not be re-anchored under {self.root} -- they contain none "
+                f"of {list(PATH_ANCHORS)}; the first is {self.failures[0]}")
+
+
+def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
+                   anchors: Sequence[str] = PATH_ANCHORS):
+    """Re-anchor every path-bearing column of ``df`` under one experiment root.
+
+    Each configured column is matched to its own rightmost anchor, allowing a
+    relocated project to resolve both exported crops and merged arrays in one
+    pass.
+
+    :param df: a measurement frame. Not copied -- the named columns are
+        written in place, which is what the callers already expect.
+    :param root: the experiment root on this machine.
+    :param columns: the columns to re-anchor. Absent ones are skipped.
+    :param anchors: the anchor folder names.
+    :returns: ``(df, report)`` with a :class:`ReanchorReport`.
+    """
+    seen = 0
+    moved = 0
+    already = 0
+    failures: List[str] = []
+    # WHAT ONE FOLDER ANSWERS, THE WHOLE FOLDER ANSWERS. Both of these exist
+    # in `spacr.portable_paths.reroot_frame` already, with its own measurement
+    # beside them -- 8.2 s over 60,816 rows against 0.6 s once a prefix is
+    # known -- and this function, which is the one the cell montage calls,
+    # never got them.
+    #
+    # WHAT IT COST, measured on the reporter's shape in GitHub issue 116:
+    # `_reroot_with_prefix` asks the filesystem about ~22 candidate locations
+    # for every path it cannot place, so 16,000 recorded paths produced
+    # 360,000 stat calls. His four plates carry roughly a million paths, and
+    # he had just RENAMED the databases, so not one of them was already
+    # anchored -- about 22 million filesystem probes before the montage
+    # selected the few hundred cells it was going to draw. "Show the cells"
+    # sat on "reading 4 database(s)" for as long as he left it.
+    #
+    #: (recorded prefix, prefix on this machine) pairs already discovered.
+    #: Every crop of a plate shares one, so the first row that resolves pays
+    #: for the search and the rest are a string replacement and one stat.
+    prefixes: List[Tuple[str, str]] = []
+    #: Folders whose search has failed, and how many times. Without this a
+    #: route that is not on this machine at all -- a screen with PNG crops
+    #: and no `merged/`, which is healthy and common -- costs a full search
+    #: per ROW.
+    #:
+    #: A COUNT AND NOT A SET, and the difference is a bug this file's first
+    #: version had: a folder written off after ONE failed search takes every
+    #: later row in it down too, and the first row of a folder is not
+    #: guaranteed to be one whose file was exported. Measured -- a single
+    #: never-exported crop at the head of a folder lost all three real crops
+    #: behind it. Three strikes costs at most two extra searches per folder,
+    #: which is nothing against the per-row search this replaces, and a
+    #: folder does not hang on its unluckiest row.
+    #:
+    #: `spacr.portable_paths.reroot_frame` gives up after one and has the
+    #: same hole; it is left alone here rather than changed blind, and is
+    #: named in the instruction record.
+    unresolvable: Dict[str, int] = {}
+    #: How many failed searches condemn a folder.
+    give_up_after = 3
+    for column in columns:
+        if column not in getattr(df, "columns", ()):
+            continue
+        values = df[column].tolist()
+        out = []
+        for value in values:
+            if not isinstance(value, str) or not value:
+                out.append(value)
+                continue
+            seen += 1
+            new, outcome = reanchor_path(value, root, anchors=anchors)
+            # THE STRUCTURAL PASS NEVER ASKS THE DISK, and it needs `root` to
+            # be the folder that holds `data/`. Measured on the TSG101 screen
+            # with 3,000 recorded crops: the plate folder resolves all 3,000,
+            # and the SCREEN folder above it, the `measurements/` folder and
+            # the database file each resolve NONE -- the rewrite lands
+            # somewhere plausible that is not there. A caller holding one of
+            # those is not doing anything wrong, so fall back to the resolver
+            # that searches the recorded structure under every folder the root
+            # could mean and returns only what EXISTS.
+            if outcome != ALREADY_ANCHORED and not os.path.exists(new):
+                from .portable_paths import _reroot_with_prefix
+
+                forward = value.replace("\\", "/")
+                # A PREFIX ALREADY DISCOVERED, FIRST. One string replacement
+                # and one stat, against the ~22 stats a fresh search costs.
+                #
+                # `placed`, NOT `outcome`, decides whether the search still
+                # has to run: the structural pass above returns REANCHORED
+                # for a path it rewrote WITHOUT asking the disk, and that
+                # path may not exist -- which is the whole reason the search
+                # below exists. Reading the search's necessity off `outcome`
+                # skipped it exactly when it was needed, and a root one level
+                # above the plate stopped resolving.
+                placed = False
+                for was, now in prefixes:
+                    if not forward.startswith(was):
+                        continue
+                    candidate = now + forward[len(was):]
+                    if os.path.exists(candidate):
+                        new, outcome, placed = candidate, REANCHORED, True
+                    break
+                if not placed:
+                    folder = os.path.dirname(forward)
+                    # Only the SEARCH is skipped for a folder that has failed
+                    # its allowance -- the prefix above is still tried for
+                    # every row, so a folder where one crop is missing and
+                    # the next is present still places the next one.
+                    if unresolvable.get(folder, 0) < give_up_after:
+                        found, discovered = _reroot_with_prefix(value, root)
+                        if discovered is not None and discovered not in prefixes:
+                            prefixes.append(discovered)
+                        if found and found != value and os.path.exists(found):
+                            new, outcome = found, REANCHORED
+                            # It resolves after all: the folder is on this
+                            # machine and its earlier misses were missing
+                            # FILES, which is a different fact.
+                            unresolvable.pop(folder, None)
+                        else:
+                            unresolvable[folder] = (
+                                unresolvable.get(folder, 0) + 1)
+            if outcome == REANCHORED:
+                moved += 1
+            elif outcome == ALREADY_ANCHORED:
+                already += 1
+            else:
+                failures.append(value)
+            out.append(new)
+        df[column] = out
+    return df, ReanchorReport(root=str(root), n_paths=seen, n_reanchored=moved,
+                              n_already=already, failures=tuple(failures))
+
+
+def object_label(value: Any) -> int:
+    """Return the integer object label from a measurement or crop-table value.
+
+    Measurement tables store ``object_label`` as an integer. ``png_list``
+    stores the equivalent ``cell_id`` in ``o<n>`` form. Both representations
+    are accepted.
+
+    :raises CropError: for anything that is not a label at all, naming the
+        value rather than leaving a bare ValueError from int().
+    """
+    if isinstance(value, (int, np.integer)) and not isinstance(value, bool):
+        return int(value)
+    text = str(value).strip()
+    if text[:1].isalpha():
+        # `o2`, and the same shape for the other object types.
+        text = text[1:]
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        raise CropError(
+            f"object label {value!r} is not a label: spaCR writes it as an "
+            f"integer in the measurement tables and as 'o<n>' in png_list, "
+            f"and this is neither.") from None
+
+
+#: The old private name. Kept because the function is now the ONE parser for
+#: an object label and other modules import it.
+_object_label = object_label
+
 
 def _row_get(row: Any, *names: str, default: Any = None) -> Any:
     """Read the first present key/attribute of ``row`` out of ``names``."""
@@ -2696,22 +3207,54 @@ class CropSource:
         from PIL import Image
         return Image.fromarray(self.get(row))
 
-    def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
         """Return crops for many rows. Overridden by sources that can batch.
 
         :param rows: rows to crop. The result has one entry per row in the
             same order, so a caller can zip the two. This base implementation
             is a plain loop over :meth:`get` and therefore raises on the first
             row it cannot crop, and so does the one override shipped here,
-            on :class:`MergedCropSource` -- despite the ``Optional`` in the
-            return type, no implementation in this module ever puts ``None``
-            in the list, so a caller need not test for it.
+            on :class:`MergedCropSource`. Successful calls therefore never
+            contain ``None``.
         """
         return [self.get(r) for r in rows]
 
     def describe(self) -> str:
         """Return a one-line description for logs / the GUI status bar."""
         return f"{self.kind} crop source ({self.reason})" if self.reason else f"{self.kind} crop source"
+
+
+
+#: Whether to print each crop path as it is read. Enabled by default to make
+#: crop-source problems visible; disable it when loading large montages if
+#: the per-file output is not needed.
+PRINT_CROP_PATHS = True
+
+#: Paths announced since the last :func:`forget_announced_crops` call.
+_ANNOUNCED_CROPS: set = set()
+
+
+def say_crop_paths(on: bool = True) -> None:
+    """Turn the per-crop path printing on or off."""
+    global PRINT_CROP_PATHS
+    PRINT_CROP_PATHS = bool(on)
+
+
+def forget_announced_crops() -> None:
+    """Announce every path again -- a new montage is a new question."""
+    _ANNOUNCED_CROPS.clear()
+
+
+def _say_which_crop(path: str) -> None:
+    """Print the crop being opened, once per path."""
+    if not PRINT_CROP_PATHS or not path:
+        return
+    text = str(path)
+    if text in _ANNOUNCED_CROPS:
+        return
+    _ANNOUNCED_CROPS.add(text)
+    exists = "" if os.path.exists(text) else "   <- NOT ON DISK"
+    print(f"crop: {text}{exists}", flush=True)
 
 
 class PngCropSource(CropSource):
@@ -2735,6 +3278,7 @@ class PngCropSource(CropSource):
 
     def __init__(self, root: Optional[str] = None, folder: str = "data",
                  reason: str = "", db_path: Optional[str] = None):
+        """Configure reanchoring and discover an existing default database."""
         self.root = root
         self.folder = folder
         self.reason = reason
@@ -2748,20 +3292,39 @@ class PngCropSource(CropSource):
 
         :param row: a row carrying ``png_path`` (or ``path``), or a bare path
             string, which is accepted as-is and only re-anchored. A row with
-            neither raises :class:`CropError`. Re-anchoring is attempted only
-            when ``root`` is set and is not already a substring of the path,
-            and only when the path contains a literal ``/<folder>/`` segment;
-            a path that does not is returned untouched even if it points
-            nowhere on this machine, and the failure surfaces on read.
+            neither raises :class:`CropError`. Re-anchoring goes through
+            :func:`reanchor_path`, so it is separator-agnostic (a Windows
+            path opened on Linux re-anchors), it takes the LAST ``<folder>``
+            component rather than the first (an old root that itself
+            contained a ``data`` folder used to produce a path naming a
+            directory), and "already under the root" is a component-wise
+            prefix test rather than a substring one. A path carrying no
+            anchor at all is returned untouched even if it points nowhere on
+            this machine, and the failure surfaces on read.
         """
         path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
         if not path:
             raise CropError("row has no 'png_path'")
-        path = str(path)
-        if self.root and self.root not in path:
-            parts = path.split(f"/{self.folder}/")
-            if len(parts) > 1:
-                path = os.path.join(self.root, self.folder, parts[1])
+        recorded = str(path)
+        path = recorded
+        if self.root:
+            path, _outcome = reanchor_path(path, self.root,
+                                           anchors=(self.folder,))
+        # A RE-ANCHORED PATH THAT DOES NOT EXIST IS NOT A RESOLUTION.
+        # `reanchor_path` rewrites on structure alone and never asks the
+        # filesystem, which is right for its callers -- but it needs the root
+        # to be the folder holding `data/`, and a caller may hold the screen
+        # folder above it, the `measurements/` folder, or the database file.
+        # `portable_paths` searches the recorded structure under every folder
+        # the root could mean and returns ONLY what exists, so this cannot
+        # replace a good path with a worse one. Measured on the TSG101 screen:
+        # 0 of 60,816 recorded crops existed, 60,816 of 60,816 after this.
+        if path and not os.path.exists(path):
+            from .portable_paths import reroot_crop_path
+
+            found = reroot_crop_path(recorded, self.root or self.db_path)
+            if found and os.path.exists(found):
+                return found
         return path
 
     def get(self, row: Any) -> np.ndarray:
@@ -2777,7 +3340,9 @@ class PngCropSource(CropSource):
             legitimately give different pixels before and after a folder is
             marked or migrated.
         """
-        return read_crop_png(self.resolve(row), db_path=self.db_path)
+        path = self.resolve(row)
+        _say_which_crop(path)
+        return read_crop_png(path, db_path=self.db_path)
 
 
 class MergedCropSource(CropSource):
@@ -2804,6 +3369,7 @@ class MergedCropSource(CropSource):
                  merged_root: Optional[str] = None,
                  object_type: Optional[str] = None,
                  reason: str = ""):
+        """Configure on-demand crops, optionally overriding the object type."""
         self.spec = spec or CropSpec(merged_path="")
         if object_type:
             self.spec = replace(self.spec, object_type=object_type)
@@ -2814,12 +3380,8 @@ class MergedCropSource(CropSource):
     def resolve_path(self, row: Any) -> str:
         """Return the merged ``.npy`` path for ``row``.
 
-        The rowID -> well-letter step goes through :mod:`spacr.schema`, which
-        is imported lazily *inside* this method on purpose: this module's
-        contract is that importing it costs nothing (``tests/test_crops.py``
-        loads it standalone, outside the package, and asserts the sys.modules
-        delta is empty), and a module-scope relative import would break that
-        probe. Nothing above this point needs schema.
+        The row-to-well conversion uses :mod:`spacr.schema`, imported lazily
+        to keep this module's import path dependency-light.
 
         :param row: a measurement row. ``merged_path`` or ``path_name`` is
             used directly, and -- when that path does not exist here --
@@ -2835,7 +3397,18 @@ class MergedCropSource(CropSource):
         if path:
             path = str(path)
             if self.merged_root and not os.path.isfile(path):
-                candidate = os.path.join(self.merged_root, os.path.basename(path))
+                # The anchor first -- it preserves any sub-folder under
+                # merged/ -- then the flat basename, which is the older
+                # fallback and is kept because a hand-built project may have
+                # no `merged` component in the recorded path at all.
+                # `basename_any` and not `os.path.basename`: on Linux the
+                # latter hands back the whole of C:\lab\exp1\merged\x.npy.
+                anchored, outcome = reanchor_path(
+                    path, os.path.dirname(os.path.abspath(self.merged_root)),
+                    anchors=("merged",))
+                if outcome == REANCHORED and os.path.isfile(anchored):
+                    return anchored
+                candidate = os.path.join(self.merged_root, basename_any(path))
                 if os.path.isfile(candidate):
                     return candidate
             return path
@@ -2871,7 +3444,32 @@ class MergedCropSource(CropSource):
                     f"row has no 'path_name' and its metadata does not name a "
                     f"field: {exc}") from exc
             stem = f"{plate}_{well}_{field}"
-        return os.path.join(self.merged_root, f"{stem}.npy")
+        return self._merged_named(stem)
+
+    def _merged_named(self, stem: str) -> str:
+        """Return ``<merged_root>/<stem>.npy``, dropping a crop's object suffix.
+
+        The two tables spell ``file_name`` differently. ``cell`` holds the
+        field it was measured in -- ``plate1_E01_16_1`` -- while ``png_list``
+        holds the crop -- ``plate1_E01_17_1_2.png``, the same field with the
+        object label appended. Rebuilding the merged name from ``png_list``
+        therefore asked for ``plate1_E01_17_1_2.npy``, which no run writes,
+        and every annotator row failed with :class:`MergedFileMissing`.
+        png_list rows are the annotator's rows, so streaming crops for it
+        could not work against any database spaCR writes.
+
+        The trailing ``_<n>`` is dropped only when the full name is absent
+        and the shortened one is really there, so a field whose own name ends
+        in a number is never mistaken for a crop.
+        """
+        path = os.path.join(self.merged_root, f"{stem}.npy")
+        if not os.path.isfile(path):
+            head, sep, tail = stem.rpartition("_")
+            if sep and head and tail.isdigit():
+                candidate = os.path.join(self.merged_root, f"{head}.npy")
+                if os.path.isfile(candidate):
+                    return candidate
+        return path
 
     def spec_for(self, row: Any) -> CropSpec:
         """Return the :class:`CropSpec` describing ``row``'s crop.
@@ -2893,6 +3491,7 @@ class MergedCropSource(CropSource):
                          "pathogen_id", "cytoplasm_id")
         if label is None:
             raise CropError("row has no 'object_label'")
+        label = object_label(label)
         obj = _row_get(row, "object_type", default=self.spec.object_type)
         bbox = None
         # skimage regionprops stores bbox as (min_row, min_col, max_row, max_col);
@@ -2901,7 +3500,7 @@ class MergedCropSource(CropSource):
         if all(v is not None for v in b):
             bbox = (int(b[0]), int(b[2]), int(b[1]), int(b[3]))
         return replace(self.spec, merged_path=self.resolve_path(row),
-                       object_type=str(obj), label=int(label), bbox=bbox)
+                       object_type=str(obj), label=label, bbox=bbox)
 
     # -- crops -------------------------------------------------------------
     def get_array(self, row: Any) -> np.ndarray:
@@ -2930,7 +3529,7 @@ class MergedCropSource(CropSource):
         """
         return png_view(self.get_array(row))
 
-    def get_many(self, rows: Iterable[Any]) -> List[Optional[np.ndarray]]:
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
         """Return crops for many rows, opening each merged file only once.
 
         :param rows: rows to crop; :meth:`spec_for` says which fields each has
@@ -2939,6 +3538,8 @@ class MergedCropSource(CropSource):
             merged file so each ``.npy`` is memory-mapped and label-indexed
             once for the whole bucket. Every spec is built up front, so one
             row missing its label fails the batch before any file is opened.
+            The default fail-loud extraction policy means successful calls
+            never contain ``None``.
         """
         rows = list(rows)
         specs = [self.spec_for(r) for r in rows]
@@ -2950,7 +3551,9 @@ class MergedCropSource(CropSource):
             crops = extract_crops(path, [specs[i] for i in positions])
             for i, crop in zip(positions, crops):
                 out[i] = png_view(crop) if crop is not None else None
-        return out
+        # ``extract_crops`` supports a separate ``on_error='none'`` API, but
+        # this source deliberately uses its default fail-loud contract.
+        return cast(List[np.ndarray], out)
 
 
 def _looks_like_experiment_root(src: str) -> str:
@@ -2976,9 +3579,69 @@ def _has_png_folder(root: str) -> bool:
     return False
 
 
-def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
+
+# --------------------------------------------------------------------------- #
+#  What the two picture sources are CALLED (instruction 171)
+# --------------------------------------------------------------------------- #
+#
+# One idea had three spellings: 'auto'/'png'/'merged' here,
+# 'pre_generated'/'on_demand'/'generate' in the training settings, and two more
+# proposed for the Cells tab. These are the names a USER sees; the stored
+# values stay 'png' and 'merged', so no settings file already on disk changes
+# meaning.
+#
+# 'auto' is not retired from the code -- it is still the answer to "what is
+# available here" -- it is retired from the panels, where it is not an answer
+# to "which mode do you want".
+
+#: Read the crops already written under ``data/``. THE DEFAULT, always.
+LOAD_IMAGES = "png"
+LOAD_IMAGES_LABEL = "load images"
+
+#: Cut them out of ``merged/*.npy`` as it goes, locating each object by the
+#: LABEL it carries in a mask plane of that array.
+#:
+#: The stored value stays ``'merged'``: it is what every settings file and
+#: every recorded run already holds, and it is still the mode that streams.
+STREAM_IMAGES = "merged"
+STREAM_IMAGES_LABEL = "stream images (array)"
+
+#: Cut them out of ``merged/*.npy`` too, locating each object by its row in
+#: the measurement database instead.
+#:
+#: THE SAME PIXELS, A DIFFERENT WAY OF FINDING THEM. The array route reads
+#: the object's label out of a mask plane, so it can follow the outline; this
+#: one reads a coordinate column, which gives a rectangle and nothing to
+#: follow. Separating them at the source is what makes that difference
+#: visible before a crop is cut, rather than after.
+STREAM_FROM_DB = "merged_db"
+STREAM_FROM_DB_LABEL = "stream images (database)"
+
+#: ``(value, label)`` in the order a panel should offer them.
+PICTURE_SOURCES: Tuple[Tuple[str, str], ...] = (
+    (LOAD_IMAGES, LOAD_IMAGES_LABEL),
+    (STREAM_IMAGES, STREAM_IMAGES_LABEL),
+    (STREAM_FROM_DB, STREAM_FROM_DB_LABEL),
+)
+
+#: Every value that cuts from ``merged/*.npy``, whichever way it locates.
+STREAMING_SOURCES: Tuple[str, ...] = (STREAM_IMAGES, STREAM_FROM_DB)
+
+
+def picture_source_label(value: str) -> str:
+    """The user-facing name for a stored crop-source value."""
+    text = str(value or "").strip().lower()
+    for stored, label in PICTURE_SOURCES:
+        if text == stored:
+            return label
+    return text or LOAD_IMAGES_LABEL
+
+
+def resolve_crop_source(
+        settings_or_src: Union[str, Sequence[str], Mapping[str, Any]],
                         *, object_type: Optional[str] = None,
-                        prefer: Optional[str] = None) -> CropSource:
+                        prefer: Optional[str] = None,
+                        ask: Optional[Any] = None) -> CropSource:
     """Pick the crop source for a run, and record which one it picked.
 
     The returned object's :attr:`CropSource.kind` is ``'png'`` or ``'merged'``
@@ -2998,8 +3661,8 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     on-demand crops match the PNGs that run would have produced.
 
     :param settings_or_src: a settings dict (with ``src``, optionally
-        ``crop_source``) or a source path -- the experiment root or its
-        ``merged`` folder.
+        ``crop_source``), a source path, or a list/tuple whose first entry is
+        the source path -- the experiment root or its ``merged`` folder.
     :param object_type: default object type for the merged source.
     :param prefer: force ``'png'`` or ``'merged'``.
     :raises CropError: the requested source is not available.
@@ -3007,11 +3670,16 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     if isinstance(settings_or_src, Mapping):
         settings = dict(settings_or_src)
         src = settings.get("src")
-        if isinstance(src, (list, tuple)):
-            src = src[0] if src else None
     else:
         settings = {}
         src = settings_or_src
+    # ``src`` is multi-source in several settings panels, and those callers
+    # also pass the stored value directly.  Normalise both the mapping form
+    # and that bare list/tuple form here; stringifying the latter creates a
+    # path containing Python's brackets or parentheses and can never find the
+    # experiment it names.
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
     if not src:
         raise CropError("no 'src' to resolve a crop source from")
 
@@ -3028,14 +3696,54 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     has_png = _has_png_folder(root)
     has_merged = os.path.isdir(merged_dir)
 
-    if choice == "png":
-        return PngCropSource(root=root, reason="requested explicitly")
+    # LOAD IMAGES, AND FALL BACK TO STREAM IMAGES RATHER THAN FAIL LATER.
+    #
+    # Instruction 171: "the default should always be loade images which loades
+    # from data folder. if that fails it should always try the other."
+    #
+    # `choice == "png"` used to return a PngCropSource WITHOUT asking whether
+    # `data/` was there, so an explicit request on a screen that has only
+    # `merged/` handed back a source that could not read anything and failed
+    # later, somewhere with less context.
+    #
+    # THE FALLBACK IS RECORDED IN `reason`, which is the condition 171 puts on
+    # it: a fallback nobody can see is what makes a user believe they are
+    # looking at a crop they are not. Every caller already shows `reason`.
+    if choice == "png" and has_png:
+        return PngCropSource(root=root, reason=LOAD_IMAGES_LABEL)
     if choice == "auto" and has_png:
         return PngCropSource(
             root=root,
-            reason=f"pre-generated PNG crops found under {os.path.join(root, 'data')}")
+            reason=f"{LOAD_IMAGES_LABEL}: pre-generated crops found under "
+                   f"{os.path.join(root, 'data')}")
 
     if not has_merged:
+        if choice == "merged" and has_png:
+            return PngCropSource(
+                root=root,
+                reason=f"{STREAM_IMAGES_LABEL} was asked for and there is no "
+                       f"'merged/' folder under {root}, so this is "
+                       f"{LOAD_IMAGES_LABEL} instead")
+        # THE FALLBACK, AND ONLY AFTER THE USUAL RESOLUTION HAS FAILED.
+        #
+        # `ask` is INJECTED rather than imported: this module must not depend
+        # on Qt, and a caller with nobody in front of it -- a script, a test,
+        # a batch run -- simply passes none and gets the error below, which
+        # is what it has always got. That makes "never prompt headless"
+        # structural instead of something each call site has to remember.
+        #
+        # The program already knows exactly what is missing here, which is
+        # why asking is more useful than reporting it.
+        if ask is not None:
+            tried = (f"no '*_png' folder under 'data/' and no 'merged/' "
+                     f"folder in {root}")
+            answer = ask(tried=tried, root=root)
+            if answer:
+                # Resolved AGAINST THE ANSWER, with no `ask` this time: one
+                # question per run, and a wrong answer must not open a
+                # second dialog on top of the first.
+                return resolve_crop_source(answer, object_type=object_type,
+                                           prefer=prefer)
         raise CropError(
             f"no crop source available for {root}: no '*_png' folder under "
             f"'data/' and no 'merged/' folder")
@@ -3057,9 +3765,16 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     spec = crop_spec_from_settings(merged_settings, object_type=object_type)
 
     if choice == "merged":
-        reason = "requested explicitly"
+        reason = f"{STREAM_IMAGES_LABEL}: selected by the user"
+    elif choice == "png":
+        # Asked for by name, and `data/` is not there. The other route is,
+        # so it draws -- and says that it is not what was asked for.
+        reason = (f"{LOAD_IMAGES_LABEL} was asked for and there is no "
+                  f"'*_png' folder under {os.path.join(root, 'data')}, so "
+                  f"this is {STREAM_IMAGES_LABEL} instead")
     else:
-        reason = "no pre-generated PNG crops found; cutting from merged/*.npy"
+        reason = (f"{STREAM_IMAGES_LABEL}: no pre-generated crops found, "
+                  f"cutting from merged/*.npy")
     if saved:
         reason += " (crop settings recovered from measurements.db)"
     return MergedCropSource(spec=spec, merged_root=merged_dir,
@@ -3099,23 +3814,16 @@ def display_order_indices(order: str) -> Tuple[int, int, int]:
 
 
 def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
-    """Permute an RGB image's channels for DISPLAY only.
+    """Apply a display-only permutation to an RGB image.
 
-    THIS IS NOT THE CROP FORMAT, and keeping the two apart is the whole point
-    of having a separate function. ``read_crop_png`` answers "how was this
-    file written" -- a fact about the bytes, resolved from a sidecar marker or
-    the database, and getting it wrong means showing the wrong stain.
-    ``apply_display_order`` answers "how do I want to look at it" -- a
-    preference, with no claim about the file at all.
-
-    That distinction is why a project authored before the crop-format fix can
-    get its original picture back WITHOUT marking the folder as a format it is
-    not. Marking it would work, and would then lie to every later reader.
+    Crop-format decoding and display preference are separate operations.
+    :func:`read_crop_png` resolves how channel bytes were stored;
+    ``apply_display_order`` changes only their presentation and does not alter
+    or infer the on-disk format.
 
     :param image: ``(H, W, 3)`` array, already in the corrected format.
     :param order: one of :data:`DISPLAY_ORDERS`. The default is the identity
-        and returns the array unchanged, so this costs nothing for the
-        overwhelming majority who never set it.
+        and returns the original array unchanged.
     :returns: the permuted array, or ``image`` itself for the identity.
     :raises CropError: an order that is not a permutation of rgb.
     """

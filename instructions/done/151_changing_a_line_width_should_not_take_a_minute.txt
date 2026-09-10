@@ -1,0 +1,234 @@
+================================================================================
+CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "for some reason changing the line width takes like 1 minut to implement,
+   this is a bug. look over the figure modefications in and saving code for
+   the regression model."
+
+Related: 108/147 are the restyle menus this lives on. 126 is the other
+         responsiveness item.
+
+--------------------------------------------------------------------------------
+IT IS NOT THE RESTYLE. MEASURED 2026-08-18.
+--------------------------------------------------------------------------------
+
+Timed on a 1,200-point volcano, the size of a real screen:
+
+    set_results          0.008 s
+    line_items()         0.000 s
+    set_line_style       0.000 s
+    build_style_menu     0.003 s
+    numeric_columns      0.000 s
+    point_reason         0.000 s
+    line_reason          0.000 s
+
+So the work the control does is FREE and the minute is somewhere else. Nothing
+here needs optimising and an afternoon spent making `set_line_style` faster
+would have moved nothing.
+
+--------------------------------------------------------------------------------
+A. THE CAUSE: ONE CONTROL ASKS TWO QUESTIONS, AND THE SECOND IS SLOW
+--------------------------------------------------------------------------------
+
+`FastPlot._ask_line_style` -- the method no longer exists under that name;
+B.1 below split it into `_ask_line_width` and `_ask_line_colour`, which is the
+fix. What it did, in order, was:
+
+    QInputDialog.getDouble(...)        "Line width"     <- what was asked for
+    QColorDialog.getColor(...)         "Line colour"    <- not asked for
+    self.set_line_style(colour, width) <- the width lands only HERE
+
+THE WIDTH IS APPLIED AFTER THE COLOUR DIALOG CLOSES. That is deliberate and
+the reasoning in the code is sound as far as it goes -- a cancelled colour
+still applies the width, so the user does not lose the answer they gave. But
+it means a user who wants ONLY a width waits for a colour picker they did not
+ask for, and cannot get their width until it is dismissed.
+
+AND THE COLOUR PICKER IS THE SLOW PART. Six sites call
+`QColorDialog.getColor` and NOT ONE passes `DontUseNativeDialog`:
+
+    spacr/qt/widgets/fast_plots.py:2216, 2259, 2318
+    spacr/qt/widgets/figure_queue.py:2008
+    spacr/qt/widgets/figure_settings.py:106
+    spacr/qt/widgets/dna_rain.py:1503
+
+so every one asks the platform for its native picker. On this machine that is
+GNOME with `xdg-desktop-portal`, `-gnome` AND `-gtk` all running
+(XDG_CURRENT_DESKTOP=ubuntu:GNOME), and a Qt native colour dialog brokered
+through the portal is the classic tens-of-seconds stall. The reported minute
+is the portal, not spaCR.
+
+HONEST ABOUT THE EVIDENCE: the timings above are measured and the six
+unguarded call sites are counted, but the portal stall itself CANNOT be
+reproduced headless -- offscreen Qt never asks the portal. So that half is
+a named, checkable hypothesis rather than a measurement, and the first step
+is to confirm it on the real display (below) rather than to assume it.
+
+--------------------------------------------------------------------------------
+B. WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. SPLIT THE CONTROL. "Line width…" and "Line colour…" are two entries, and
+   each asks one question and applies it. A user who wants a width gets one
+   dialog. This is worth doing whatever the portal turns out to be doing,
+   because chaining an unrelated modal onto a control is a defect on its own.
+
+2. PASS `QColorDialog.DontUseNativeDialog` AT ALL SIX SITES. Qt's own colour
+   dialog opens instantly, is identical on every platform, and matches the
+   application's theme -- which the GNOME one does not, so this is a
+   consistency win as well as a speed one. One helper, `pick_colour(parent,
+   initial, title)`, so the option cannot be forgotten at a seventh site.
+
+3. APPLY THE WIDTH BEFORE ASKING ANYTHING ELSE, if the two are ever chained
+   again. An answer the user has given should take effect when they give it.
+
+4. CHECK THE REST OF THE RESTYLE AND SAVE PATH FOR THE SAME SHAPE, which is
+   what the request asks for in its second sentence. Any restyle that opens a
+   file dialog, a colour dialog or a font dialog has the same exposure --
+   `_ask_font_colour`, `_ask_point_colour`, `_ask_export_size` and the export
+   itself. A save that goes through a native FILE dialog is the same portal
+   round trip.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* On the maintainer's real display, in the app: right-click a plot, change a
+  line width, and the line changes at once. Timed with a watch, not judged.
+* Confirm the cause before fixing it: open the current build, pick a line
+  width, and time how long the COLOUR dialog takes to appear. If that is the
+  minute, A is right; if the width dialog itself is slow, this file is wrong
+  and the next place to look is the menu build on the real screen with a real
+  results table.
+* No `QColorDialog.getColor` call in the tree lacks the non-native option --
+  a grep test, so a seventh site cannot reintroduce it.
+* Choosing a width does not open a colour dialog at all.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- ITEM 2 DONE FOR THREE OF THE SIX SITES (TERRITORY B). ITEMS 1, 3,
+4 ARE fast_plots.py AND ARE NOT.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`spacr/qt/widgets/colour_picker.py` -- `pick_colour(parent, initial, title)`,
+the one colour picker, passing `QColorDialog.ColorDialogOption
+.DontUseNativeDialog`. Returns an INVALID QColor on cancel rather than None,
+deliberately: every existing call site already tests `.isValid()`, so adopting
+it is a one-line change per site and a cancel cannot silently become a colour.
+An unusable initial value ("auto", "none", "") opens on white instead of
+transparent black.
+
+Wired at the three sites in this territory:
+
+    figure_queue.py  _FigureSettingsDialog._pick
+    figure_settings.py  _colour_button
+    dna_rain.py  DnaRainSettingsBar.pick_color
+
+`QColorDialog` is no longer imported by any of the three.
+
+STILL OPEN, another agent's file: the sites in `fast_plots.py` (there were
+three when this file was written; there are four now). They are named in
+`tests/qt/test_colour_picker.py::PENDING`, which is a DEBT AND NOT A DESIGN --
+delete the entry when they land, and never add to it.
+
+TESTS  tests/qt/test_colour_picker.py, 8 tests. Two are structural greps over
+the whole package, done with `ast` rather than a regex so a call spanning
+lines is still one call:
+
+    test_no_call_site_asks_for_the_platform_colour_dialog
+    test_only_the_helper_names_get_color_at_all       <- so a seventh cannot
+                                                        appear anywhere
+
+The rest drive the helper and the two swatch widgets and assert the option
+actually reaches Qt.
+
+HONEST ABOUT THE EVIDENCE, as this file already insists. The portal stall
+CANNOT be reproduced headless -- offscreen Qt never asks the portal, so
+nothing in the suite can watch it appear or disappear. "The portal is the
+minute" remains a named hypothesis; what is now proven is only that no call
+site can ask for the platform dialog. Confirming it needs the maintainer's
+real display: open the current build, pick a line width, and time how long the
+COLOUR dialog takes to appear.
+
+
+================================================================================
+2026-08-18 -- SHIPPED (the fast_plots half).
+================================================================================
+
+B.1  THE CONTROL IS SPLIT. "Line colour and width…" is gone; there are two
+     entries and each asks ONE question and applies it:
+
+         "Line width…"   -> _ask_line_width   -> set_line_style(width=...)
+         "Line colour…"  -> _ask_line_colour  -> set_line_colour(...)
+
+     Choosing a width does not open a colour dialog at all, and there is a
+     test that fails if it ever does again
+     (`test_asking_for_a_width_never_opens_a_colour_dialog`).
+
+B.3  is therefore moot: nothing is chained any more.
+
+B.2  ALL FOUR SITES IN THIS FILE GO THROUGH THE SHARED HELPER --
+     `spacr.qt.widgets.colour_picker.pick_colour`, which the other agent in
+     this wave had already landed at f6b70739. `fast_plots.pick_colour` is a
+     thin re-export of it so this module's own call sites read naturally;
+     there is no second implementation.
+
+     THE COUNT IN THIS FILE WAS LOW. It says six unguarded
+     `QColorDialog.getColor` sites, three of them in fast_plots
+     (`_ask_point_colour`, `_ask_font_colour`, `_ask_line_style`). There is a
+     FOURTH in this file: `_ask_style_value`, which edits the colour fields
+     of a figure's own style object (instruction 108's menu). It was not on
+     the list and it would have been left behind -- which is precisely the
+     "an option that has to be remembered will be forgotten at the seventh
+     site" argument, demonstrated on the seventh site.
+
+     `tests/qt/test_colour_picker.py::PENDING` carried
+     `spacr/qt/widgets/fast_plots.py` as a debt with a note asking its owner
+     to delete the entry once the calls moved. Done -- the set is now empty,
+     and its comment says so.
+
+B.4  THE REST OF THE RESTYLE AND SAVE PATH. `_ask_font_colour` and
+     `_ask_point_colour` are covered above. `_ask_export_size` and
+     `_ask_screen_size` are QInputDialog only, which is a Qt widget and never
+     goes near the portal. THE EXPORT ITSELF STILL USES A NATIVE FILE DIALOG
+     and is the same exposure -- see the handoff; `FastPlot.export` is mine
+     but `QFileDialog` sites are spread across the widget package and are
+     worth one sweep by whoever owns that, not four uncoordinated ones. The
+     one new file dialog added today ("Write this correction as a table…")
+     passes `DontUseNativeDialog`.
+
+STILL NOT PROVEN, AND THE FILE WAS RIGHT TO SAY SO: the portal stall cannot
+be reproduced headless -- offscreen Qt never asks the portal. What is proven
+here is that no call site can ask for the platform dialog. Timing it on the
+maintainer's real display is still the confirmation.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+B.4's remainder is closed, and not the way the file proposed. It asked for "one
+coordinated sweep" of the QFileDialog sites; there are 117 of them across the
+widget package and five passed the option, so a sweep would have been 112 edits
+that any new call site could undo.
+
+`Qt.AA_DontUseNativeDialogs`, set before the QApplication is constructed, covers
+every dialog Qt opens -- file, font, colour and any added later. Set AFTER
+construction it is ignored silently, which would look exactly like it had
+worked, so a test asserts the ordering in the source.
+
+THE TRADE, stated rather than glossed: Qt's own dialogs do not carry the
+desktop's bookmarks or recent-files list. A chooser that opens beats a beautiful
+one that takes a minute, and QT_QPA_PLATFORMTHEME is still there for anyone who
+wants the native one.
+
+The per-site `pick_colour` helper stays: it also carries spaCR's own defaults,
+so it is not made redundant by the attribute.
+
+STILL NOT REPRODUCIBLE HEADLESS, and still recorded as such: offscreen Qt never
+asks the portal, so what is proven is that no dialog can ask for the platform's
+own. That this was the minute needs a watch on the real display.

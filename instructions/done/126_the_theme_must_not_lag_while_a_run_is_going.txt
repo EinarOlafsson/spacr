@@ -1,0 +1,144 @@
+================================================================================
+THE THEME MUST NOT LAG WHILE A RUN IS GOING
+================================================================================
+
+Status:    filed 2026-08-17, not started.
+Requested: 2026-08-17 --
+
+           "when something is running after hitting run, the theme starts
+            lagging, i would like the theme to be on a separate thread if
+            possible, or precomputed, or something so it never laggs."
+
+Related:  the backdrop is spacr/qt/widgets/ambient.py; 32 is its ray work; 74
+          is the loading screen; INVARIANTS 10 says decoration must cost the
+          decoration and nothing else.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY KNOWN, SO NOBODY RE-DERIVES IT
+--------------------------------------------------------------------------------
+
+The per-frame cost is NOT the problem, and the measurement is already in
+ambient.py's own header: at 1920x1080 the aurora shading pass is 0.487 /
+0.546 ms, ripple 0.398, best of thirteen interleaved runs, with one
+allocation on resize and none per frame. A 0.5 ms frame does not lag a
+60 Hz timer on an idle machine.
+
+So the lag is CONTENTION, not cost, and that changes what the fix is. The
+run already happens on a worker QThread. Three candidate causes, and they
+want different fixes -- MEASURE BEFORE CHOOSING:
+
+  1. THE GIL. The worker is Python/numpy code holding the interpreter lock;
+     the GUI thread cannot get it to run the animation timer. Moving the
+     shading to another Python thread does NOTHING for this -- it is the
+     same lock. Precomputing does, because a blit releases the GIL.
+  2. SIGNAL FLOOD. `line_ready` fires per stdout line and `figure_ready` per
+     figure; each is a queued cross-thread signal that must be serviced on
+     the GUI thread. A chatty run can post thousands. This is throttling
+     work, not threading work.
+  3. CPU SATURATION. The run uses every core, so the compositor gets no
+     time. Nothing in the application fixes this except asking for less.
+
+--------------------------------------------------------------------------------
+WHAT "ON A SEPARATE THREAD" CAN AND CANNOT MEAN
+--------------------------------------------------------------------------------
+
+Qt WIDGET PAINTING MUST HAPPEN ON THE GUI THREAD. That is not a spaCR rule,
+it is Qt's, and a QWidget painted from another thread is undefined behaviour
+rather than a slow one.
+
+What IS legal, and is probably the answer:
+
+  * QImage can be created and painted off the GUI thread. A producer thread
+    can shade frames into QImages and the GUI thread can blit them. That is
+    genuinely "the theme on a separate thread" and it is supported.
+  * BUT see cause 1: if the shading thread is Python, it queues behind the
+    worker for the same GIL. The producer has to be numpy-heavy (which
+    releases the GIL) for this to help at all.
+
+PRECOMPUTING is the other half of the request and is the more robust answer:
+the scenes are `seed, time` pure functions -- ambient.py says so explicitly
+-- so a fixed-length loop can be rendered ONCE and replayed. A cyclic buffer
+of N frames turns every frame into a blit with no shading at all. The costs
+to state: memory (N x width x height x 4 bytes) and the loop becoming
+visibly periodic if N is small.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE WHICH CAUSE IT IS, on a real run, before writing anything. Frame
+   interval during idle vs during a run, and the count of queued signals per
+   second. A fix aimed at the wrong cause will not be noticed by the person
+   who reported it.
+2. Then fix that one. If it is the GIL or saturation, precompute; if it is
+   the signal flood, coalesce the console updates.
+3. Whatever is built must degrade rather than stutter: a frame that is not
+   ready is a repeated frame, never a blocked GUI thread.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The measured frame interval during a real run is within a small factor of
+the idle interval, on the machine that reported the lag, with the same
+theme -- and the reporter says it stopped lagging.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- MEASURED, THEN FIXED AT THE CAUSE.
+--------------------------------------------------------------------------------
+
+STEP 1 WAS THE MEASUREMENT, as this file insists. Offscreen, 1280x800,
+`blobs` with its shading already on `ambient._FrameProducer`, a 16 ms timer,
+two worker threads:
+
+    idle                                 median 16.00 ms   p95  16.04 ms
+    numpy worker (what a run mostly is)  median 16.00 ms   p95  20.05 ms
+    pure-Python worker                   median 42.42 ms   p95 118.63 ms
+    pure-Python, switchinterval 0.001    median 17.74 ms   p95  48.46 ms
+
+THREE THINGS FOLLOW AND ONLY ONE NEEDED WRITING.
+
+THE PRODUCER THREAD ALREADY FIXED THE COMMON CASE. A numpy worker costs the
+animation NOTHING -- 16.00 against 16.00 idle -- because numpy releases the
+lock and the GUI thread's frame is one `drawImage`. Segmentation, measurement
+and the fits are all in that class.
+
+CAUSE 1 IS REAL AND WAS UNADDRESSED. A pure-Python worker takes the animation
+to 42 ms a frame, which is the lag that was reported, and this file predicted
+that moving the shading to another Python thread would not touch it. It does
+not: it is the same lock, and the GUI thread cannot wake up to blit.
+
+WHAT DOES TOUCH IT is asking for the lock more often. Python hands the GIL
+over every `sys.getswitchinterval()` seconds, 5 ms by default; a 60 Hz timer
+needs it every 16 ms and is competing with a thread that never blocks. At 1 ms
+the median comes back to within 11% of idle -- a 2.4x improvement in both the
+median and the p95, from one line.
+
+`spacr/qt/gil_priority.py`, claimed by `PipelineWorker.run` and RESTORED
+after. Counted, so two modules running at once do not hand it back early, and
+in a `finally`, so a run that raises does not leave the process at 1 ms for as
+long as it lives -- which would be a standing tax on every headless
+`spacr-run` in the same interpreter.
+
+WHAT IT COSTS, said because it is not free: more context switches, so a
+pure-Python worker runs marginally slower. That is the right trade for an
+interactive application. The run is already the long pole, and a user watching
+a frozen window cannot tell it from a hang.
+
+NOT BUILT, and the measurement is why: precomputing a cyclic buffer of frames.
+It was the instruction's other candidate and it answers a cost problem, and
+the cost was never the problem -- 0.5 ms a frame does not lag a 60 Hz timer.
+It would also cost N x width x height x 4 bytes and make the loop visibly
+periodic. Reach for it only if a future measurement says shading cost, not
+contention.
+
+THE TESTS HOLD THE CONTRACT, not the milliseconds: claimed for the run,
+restored after, nesting, and given back on a raise. A timing assertion on a
+shared machine is a test that fails for reasons that have nothing to do with
+the code; the numbers above are the evidence and they are written where they
+were taken.
+
+8 tests in tests/qt/test_the_theme_does_not_lag_while_a_run_is_going.py.
+
+STILL OWED: the reporter's own confirmation on the machine that lagged. Cause
+3 (every core busy) remains outside the application's reach by construction.

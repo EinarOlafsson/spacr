@@ -12,7 +12,13 @@ class Toggle(QCheckBox):
     """A compact switch that can be clicked or dragged between states."""
 
     def __init__(self, text: str = "", parent=None):
-        """Initialize the switch with an optional trailing label."""
+        """Initialize the switch with an optional trailing label.
+
+        :param text: the label drawn after the switch. Empty leaves the
+            switch alone, which is what a settings row wants -- the caption
+            beside it is the form's, not the control's.
+        :param parent: parent widget.
+        """
         super().__init__(text, parent)
         # Approximately 75% of the original 40 x 22 px switch.
         # Leave two physical pixels before the track: a track starting at x=0
@@ -140,6 +146,15 @@ class Toggle(QCheckBox):
         event.accept()
 
     def _start_anim(self, _state):
+        """Slide the knob to whichever end the new state calls for.
+
+        A toggle that is not on screen jumps rather than animating: there is
+        nothing to see, and an animation running for a hidden widget costs
+        frames for nobody.
+
+        :param _state: the new check state; the switch is re-read, so it is not
+            used.
+        """
         end_x = float(
             self._maximum_knob_x()
             if self.isChecked()
@@ -155,9 +170,18 @@ class Toggle(QCheckBox):
         self._anim.start()
 
     def _get_knob_pos(self) -> float:
+        """Return the knob's current horizontal position.
+
+        :returns: the position in pixels. This is the property the animation
+            drives.
+        """
         return self._knob_pos
 
     def _set_knob_pos(self, v: float) -> None:
+        """Move the knob and repaint.
+
+        :param v: the new horizontal position in pixels.
+        """
         self._knob_pos = float(v)
         self.update()
 

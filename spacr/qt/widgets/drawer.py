@@ -45,6 +45,7 @@ class EdgeDrawer(QWidget):
     :param host: the widget the drawer overlays. Must outlive the drawer.
     :param panel: the content — typically the app ``Sidebar``.
     :param width: drawn width in px; defaults to the panel's own.
+    :param parent: parent widget; ownership only.
     """
 
     #: Width in px of the invisible strip along the left edge that arms
@@ -69,6 +70,21 @@ class EdgeDrawer(QWidget):
 
     def __init__(self, host: QWidget, panel: QWidget, width: int = 0,
                  parent=None):
+        """Build the sliding drawer and its edge trigger.
+
+        The drawer starts fully off-screen rather than hidden: a hidden widget
+        reports no geometry, and the tutorial overlay needs a rectangle to point
+        at. Whether it is open is tracked as its own flag rather than derived
+        from position -- the slide takes 170 ms, and for those 170 ms a
+        position-derived answer would call an opening drawer closed, which is
+        how a caller ends up racing the animation.
+
+        :param host: the widget the drawer slides over; also where the hot strip
+            lives.
+        :param panel: the contents; re-parented into the drawer.
+        :param width: the drawer's width; ``0`` takes the panel's.
+        :param parent: parent widget; defaults to ``host``.
+        """
         super().__init__(parent or host)
         self.setObjectName("EdgeDrawer")
         self._host = host
@@ -212,6 +228,12 @@ class EdgeDrawer(QWidget):
         self.opened.emit()
 
     def relayout_for_open(self) -> None:
+        """Resize to the host's full height and lay the panel out.
+
+        Called on open rather than on construction, because the host can be
+        resized while the drawer is closed and a drawer sized to a stale
+        height opens as a stripe down part of the window.
+        """
         h = self._host.height()
         self.resize(self._width, h)
         if self._owns_panel():
@@ -241,6 +263,13 @@ class EdgeDrawer(QWidget):
             self._close_timer.stop()
 
     def is_held(self) -> bool:
+        """Whether the drawer is pinned open.
+
+        HELD IS NOT OPEN. A hovered drawer is open and closes when the
+        pointer leaves; a held one stays until it is released.
+
+        :returns: True when pinned.
+        """
         return self._held
 
     def toggle(self) -> None:
@@ -264,6 +293,10 @@ class EdgeDrawer(QWidget):
             target.setFocus(Qt.TabFocusReason)
 
     def _first_focusable(self):
+        """Return the first control in the panel that can take focus.
+
+        :returns: the widget, or ``None`` when nothing in the panel takes focus.
+        """
         for child in self._panel.findChildren(QWidget):
             if child.focusPolicy() != Qt.NoFocus and child.isVisibleTo(
                     self._panel):
@@ -272,34 +305,59 @@ class EdgeDrawer(QWidget):
 
     # -- animation -----------------------------------------------------
     def _animate_to(self, x: int) -> None:
+        """Slide the drawer to a horizontal position.
+
+        :param x: where to end up; any animation already running is stopped, so
+            a reverse mid-slide starts from where it actually is.
+        """
         self._anim.stop()
         self._anim.setStartValue(self.pos())
         self._anim.setEndValue(QPoint(x, 0))
         self._anim.start()
 
     def _on_anim_finished(self) -> None:
+        """Hide the drawer once it has finished sliding shut."""
         if not self._open_state:
             self.hide()
 
     def _close_unless_held(self) -> None:
+        """Close the drawer, unless something is holding it open."""
         if not self._held:
             self.close()
 
     # -- events --------------------------------------------------------
     def eventFilter(self, obj, event):
+        """Watch the host for the events that open and close the drawer.
+
+        :param obj: the object the event is for.
+        :param event: the event.
+        :returns: True to stop the event going further.
+        """
         if obj is self._host and event.type() == QEvent.Resize:
             self.relayout()
         return super().eventFilter(obj, event)
 
     def enterEvent(self, event):
+        """Open on hover.
+
+        :param event: the Qt enter event.
+        """
         self._close_timer.stop()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
+        """Close on leave, unless the drawer is held open.
+
+        :param event: the Qt leave event.
+        """
         self.schedule_close()
         super().leaveEvent(event)
 
     def keyPressEvent(self, event):
+        """Close on Escape.
+
+        :param event: the Qt key event.
+        """
         if event.key() == Qt.Key_Escape:
             self.close()
             self._host.setFocus(Qt.OtherFocusReason)
@@ -313,9 +371,16 @@ class _EdgeTrigger(QWidget):
     Transparent to paint but *not* to mouse events — it has to receive
     the hover. It never takes focus and never accepts a click, so a
     press near the edge still reaches whatever is underneath.
+
+    :param host: the widget whose left edge is armed; also the QWidget
+        parent, so the strip is positioned in the host's coordinates.
+    :param drawer: the drawer to open. Held SEPARATELY from the host
+        because the drawer is not the host's child -- the strip is the only
+        thing that knows about both.
     """
 
     def __init__(self, host: QWidget, drawer: EdgeDrawer):
+        """Install the invisible strip on ``host`` and arm it for ``drawer``."""
         super().__init__(host)
         self.setObjectName("EdgeDrawerTrigger")
         self._drawer = drawer
@@ -324,14 +389,22 @@ class _EdgeTrigger(QWidget):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setFocusPolicy(Qt.NoFocus)
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip("All apps — hover to reveal (Ctrl+B)")
+        self.setToolTip("All apps — hover to reveal (Ctrl+Shift+A)")
         self.setGeometry(0, 0, EdgeDrawer.TRIGGER_W, host.height())
 
     def enterEvent(self, event):
+        """Arm the drawer's open delay when the pointer reaches the hot strip.
+
+        :param event: the enter event.
+        """
         self._drawer.arm()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
+        """Cancel the pending open when the pointer leaves the hot strip.
+
+        :param event: the leave event.
+        """
         self._drawer.disarm()
         super().leaveEvent(event)
 

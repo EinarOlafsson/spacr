@@ -609,14 +609,22 @@ def test_a_git_lfs_pointer_is_listed_but_flagged(tmp_path):
 # 7. catalogue and resolution
 # ---------------------------------------------------------------------------
 
-def test_the_bundled_catalogue_declares_its_provenance_and_its_missing_hash():
-    entry = zoo._entry_from_mapping(zoo.BUNDLED_REMOTE_MODELS[0])
-    assert entry.uri.startswith(
-        f"https://huggingface.co/datasets/{zoo.HF_MODELS_REPO}/resolve/main/")
-    assert entry.trained_on != zoo.UNKNOWN
-    assert entry.trained_by != zoo.UNKNOWN
-    assert entry.checksum_state == "none"
-    assert any("no published checksum" in n for n in entry.notes)
+def test_every_bundled_catalogue_entry_is_provenanced_and_verifiable():
+    """Bundled models may live in separate model repos, but none is anonymous."""
+    entries = [zoo._entry_from_mapping(item)
+               for item in zoo.BUNDLED_REMOTE_MODELS]
+
+    assert entries
+    for mapping, entry in zip(zoo.BUNDLED_REMOTE_MODELS, entries):
+        assert entry.uri.startswith(
+            f"https://huggingface.co/{mapping['repo_id']}/resolve/main/"
+        )
+        assert entry.name in entry.uri
+        assert entry.trained_on != zoo.UNKNOWN
+        assert entry.trained_by != zoo.UNKNOWN
+        assert entry.checksum_state == "published"
+        assert len(entry.sha256) == 64
+        assert not any("no published checksum" in note for note in entry.notes)
 
 
 def test_a_catalogue_file_is_read_and_its_hashes_are_what_make_it_useful(tmp_path):
@@ -714,6 +722,23 @@ def test_benchmark_delegates_segmentation_to_model_compare(tmp_path,
     assert config.resolved_model == str(path.resolve())
     assert result.total_objects == 4
     assert result.fields == ["f1", "f2"]
+
+
+def test_benchmark_reports_each_expensive_stage(tmp_path):
+    path = tmp_path / "m.CP_model"
+    write_checkpoint(path)
+    seen = []
+
+    zoo.benchmark(
+        zoo.entry_from_file(path), images=[a_field()],
+        segment_fn=FakeSegmenter(),
+        progress=lambda message, done, total: seen.append(
+            (message, done, total)))
+
+    assert [done for _message, done, _total in seen] == [0, 1, 2]
+    assert all(total == 2 for _message, _done, total in seen)
+    assert seen[0][0].startswith("Segmenting 1 field(s)")
+    assert seen[-1][0] == "Done"
 
 
 def test_benchmark_surfaces_the_arguments_cellpose_4_ignores(tmp_path):
@@ -990,6 +1015,11 @@ def test_hf_uri_matches_the_url_the_shipped_downloader_builds():
     assert zoo.hf_uri("me/models", "a.CP_model") == (
         "https://huggingface.co/datasets/me/models/resolve/main/"
         "a.CP_model?download=true")
+
+
+def test_hf_uri_refuses_an_unknown_repository_type():
+    with pytest.raises(ValueError, match="dataset.*model"):
+        zoo.hf_uri("me/models", "a.CP_model", repo_type="space")
 
 
 # ---------------------------------------------------------------------------

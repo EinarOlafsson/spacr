@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "all_scores",
+      "source_sha256": "a1785a57c3401c9a5439f7bfe00ebd49ca172188ce94a0aab7f4f5c2705c996e",
+      "source": "Keep every scored pair in the report, not only the ones that passed. Turning it on makes the report larger and lets you see how close a failed stitch came; it changes nothing about the mosaic. Default False.",
+      "translation": "Halda öllum stigagefnum pörum í skýrslunni, ekki aðeins þeim sem stóðust. Ef kveikt er verður skýrslan stærri og þú sérð hversu nærri misheppnuð samsetning komst; það breytir engu um mósaíkina. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "allow_rotation",
+      "source_sha256": "74c821358b5433e4e0936971c804bac84bbd6760fd8108ae44efebf06c789ec8",
+      "source": "Let the fit rotate one tile relative to another. Leave it off for a motorised stage, which does not rotate between fields; turning it on adds a degree of freedom that can absorb a bad match into a plausible-looking angle. Default False.",
+      "translation": "Leyfa mátuninni að snúa einni flís miðað við aðra. Hafðu þetta slökkt fyrir vélknúið sýnaborð, sem snýst ekki milli sviða; ef kveikt er bætist við frígráða sem getur falið slæma pörun í horni sem lítur trúlega út. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "allow_scale",
+      "source_sha256": "2a13696be01ad767f90386239c68ea5ab4275b6c0268d86cfab2ccfe6f134392",
+      "source": "Let the fit change size between tiles. Off for a single acquisition, where the magnification cannot differ; on, a weak match can be explained away as a scale change. Default False.",
+      "translation": "Leyfa mátuninni að breyta stærð milli flísa. Slökkt fyrir eina upptöku, þar sem stækkunin getur ekki verið önnur; ef kveikt er má afsaka veika pörun sem stærðarbreytingu. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "blend",
+      "source_sha256": "c8784751685b8e7b48b06505204b27226e37297376bef8bfab4952d3fe837c92",
+      "source": "How overlapping tiles are combined where they meet: 'max' takes the brighter pixel, 'overwrite' lets the later tile win. 'max' hides a seam, 'overwrite' shows you where one is. Default 'max'.",
+      "translation": "Hvernig flísar sem skarast eru sameinaðar þar sem þær mætast: 'max' tekur bjartari dílinn, 'overwrite' lætur síðari flísina ráða. 'max' felur samskeyti, 'overwrite' sýnir þér hvar þau eru. Sjálfgefið 'max'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose_diameter",
+      "source_sha256": "20ae110bc8e54cfab7d8af96b10d56fbb77930d5dd8114e03b828fb61753af14",
+      "source": "Expected nucleus diameter in pixels for the segmentation used to align acquisitions. Empty lets Cellpose estimate it, which is usually right and occasionally very wrong on a sparse field; setting it removes that variance. Default None.",
+      "translation": "Væntanlegt þvermál kjarna í dílum fyrir hlutunina sem notuð er til að stilla upptökur saman. Autt lætur Cellpose meta það, sem er oftast rétt en stundum mjög rangt á strjálu sviði; að setja gildi fjarlægir þann breytileika. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cellpose_model",
+      "source_sha256": "f83a901bc2bd270722f02ee37a6e8c023e84657ef7593c7e12bf6bb0459c1108",
+      "source": "Which Cellpose model segments the nuclei that the phenotype- to-genotype alignment matches on. Changing it changes which objects are found, and so which points the alignment is solved from. Default 'cpsam'.",
+      "translation": "Hvaða Cellpose líkan hlutar kjarnana sem samstilling svipgerðar og arfgerðar parar saman. Ef því er breytt breytast þeir hlutir sem finnast, og þar með punktarnir sem samstillingin er leyst út frá. Sjálfgefið 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "channel_indices",
+      "source_sha256": "4d08f895fbd7dff0f92cf26f2beec952c8c35cfd88521d8ce749ebe5f1f7d179",
+      "source": "Which channels go into a multi-channel mosaic, in the order they are written. Empty uses every channel the tiles share. Default None.",
+      "translation": "Hvaða rásir fara í fjölrása mósaík, í þeirri röð sem þær eru skrifaðar. Autt notar allar rásir sem flísarnar eiga sameiginlegar. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "collision",
+      "source_sha256": "12b1194a5a4ed109a3cb3781cb6d0048f46120d50b9d289d539f8aac2e9d3763",
+      "source": "What to do when a destination filename already exists: 'rename' the incoming file, 'skip' it, or 'overwrite' it. Overwrite destroys the earlier file. Default 'rename'.",
+      "translation": "Hvað skal gera þegar skráarnafn á áfangastað er þegar til: 'rename' á innkomnu skrána, 'skip' hana eða 'overwrite' hana. overwrite eyðir fyrri skránni. Sjálfgefið 'rename'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "do_multichannel",
+      "source_sha256": "b6b3f5383907bf90677b1063517a6d935bff18e10f259f1c56318330671c3b21",
+      "source": "Write one mosaic holding every channel instead of a single channel. Off gives a smaller file that carries only the channel named by channel_index. Default True.",
+      "translation": "Skrifa eina mósaík sem geymir allar rásir í stað einnar rásar. Slökkt gefur minni skrá sem ber aðeins rásina sem channel_index tilgreinir. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "dst_root",
+      "source_sha256": "3fd4968d210bc94321bc0421091348e422f58fa362792ca7dd5aa95db5dc7f59",
+      "source": "Where the organised wells, mosaics and reports are written. Empty writes beside the source, which mixes outputs with inputs and makes a second run ambiguous about what it is reading. Default None.",
+      "translation": "Hvar skipulögðu brunnarnir, mósaíkin og skýrslurnar eru skrifuð. Autt skrifar við hlið upprunans, sem blandar úttaki saman við inntak og gerir aðra keyrslu óljósa um hvað hún er að lesa. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "feature_cache_mode",
+      "source_sha256": "243c4b623af1f236615ef3a14b39d72c9f465b3c5980f9200768491fa8765857",
+      "source": "Whether features are cached on 'disk', held in memory, or not cached. Disk pays the cost once and makes a re-run fast; memory is faster and bounded by max_ram_features. Default 'disk'.",
+      "translation": "Hvort eiginleikar eru geymdir á 'disk', hafðir í minni, eða ekki geymdir. Diskur greiðir kostnaðinn einu sinni og gerir endurkeyrslu hraða; minni er hraðara og takmarkast af max_ram_features gildinu. Sjálfgefið 'disk'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "genotype_source",
+      "source_sha256": "ba05502e478674a32d779fd04ae69318c28a63c2e0781832b3d4af978be53d9b",
+      "source": "The folder holding the low-magnification acquisition that carries the barcodes. This is the one that gets stitched into per-well mosaics; the phenotype images are placed onto its output. Default None.",
+      "translation": "Mappan sem geymir lágstækkunarupptökuna sem ber strikamerkin. Það er hún sem er sett saman í mósaík fyrir hvern brunn; svipgerðarmyndirnar eru lagðar ofan á úttak hennar. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mip",
+      "source_sha256": "aa44a5b0894897af0432b05b7b53e9fd583f50f9a324ab6830350a4003f51796",
+      "source": "Take the maximum across z instead of a single plane. Usually right for spots, which sit at different depths across a field; off reads the plane named by z_index. Default True.",
+      "translation": "Taka hámarkið yfir z í stað eins plans. Yfirleitt rétt fyrir bletti, sem liggja á mismunandi dýpi innan sviðs; slökkt les planið sem z_index tilgreinir. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mosaic_min_score",
+      "source_sha256": "dfff2e1341d672f0a0f930f84ff89984388445cb93d0b33909b66887f149c8d5",
+      "source": "The lowest pair score allowed to place a tile in the mosaic. Empty uses the automatic knee of the score distribution, which adapts to the run; a fixed value is reproducible but can drop a whole well on a dim plate. Default None.",
+      "translation": "Lægsta parastig sem leyfir að flís sé sett í mósaíkina. Autt notar sjálfvirka hnéð á stigadreifingunni, sem aðlagast keyrslunni; fast gildi er endurtakanlegt en getur fellt heilan brunn á daufri plötu. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mosaic_out",
+      "source_sha256": "042825ee88cbfccd2f141ec5f8bcf395f8787b6f82cc6c69e9c3afadaccc5c04",
+      "source": "Explicit path for the assembled mosaic image. Empty writes it beside the well's other outputs under its own name. Default None.",
+      "translation": "Skýr slóð fyrir samsettu mósaíkmyndina. Autt skrifar hana við hlið annarra úttaka brunnsins undir hennar eigin nafni. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n_workers_features",
+      "source_sha256": "a6124f31dc9f1851c5abad47f4e823b6ca18989986e90e22c5602401df01c8e3",
+      "source": "Workers for feature detection specifically. Empty follows n_workers. Lower it when feature extraction is what is exhausting memory. Default None.",
+      "translation": "Vinnsluþræðir sérstaklega fyrir eiginleikagreiningu. Autt fylgir n_workers stillingunni. Lækkaðu hana þegar það er eiginleikaútdrátturinn sem tæmir minnið. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "on_missing",
+      "source_sha256": "ec2dae93153db363b5d124fa9afe0a63e9cce05833b7fdaecaa4927cc85e6c33",
+      "source": "What to do when a file named in the plan is not there: 'error' stops the run, 'skip' carries on without it and leaves a hole in the mosaic. Default 'error'.",
+      "translation": "Hvað skal gera þegar skrá sem nefnd er í áætluninni er ekki til: 'error' stöðvar keyrsluna, 'skip' heldur áfram án hennar og skilur eftir gat í mósaíkinni. Sjálfgefið 'error'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "out_png",
+      "source_sha256": "67a18e3460fbca2d362bc7df5fcc2a81b65515a546be3ef9af00d950414a5b13",
+      "source": "Explicit path for the downsampled preview PNG. Empty writes it beside the mosaic. The preview is for looking at; the TIFF is for measuring. Default None.",
+      "translation": "Skýr slóð fyrir niðurkvarðaða forskoðunar PNG skrána. Autt skrifar hana við hlið mósaíkarinnar. Forskoðunin er til að horfa á; TIFF skráin er til að mæla. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_source",
+      "source_sha256": "ed81c19cced4656667ef21f54810820001e47d6b6e09e3a812559f1ade96f4f1",
+      "source": "How the foreground is found when drawing quality-control outlines: 'otsu' thresholds the intensity, other values use the edge detector above. Changes what the overlay traces, never the mosaic. Default 'otsu'.",
+      "translation": "Hvernig forgrunnurinn er fundinn þegar gæðaeftirlitsútlínur eru dregnar: 'otsu' þröskuldar styrkinn, önnur gildi nota brúnaskynjarann að ofan. Það breytir því sem yfirlagið rekur, aldrei mósaíkinni. Sjálfgefið 'otsu'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source_sha256": "58dfbbbd086a1944f41541e8b6d52e6777051d79455cfb924603a4947224542d",
+      "source": "The folder holding the high-magnification acquisition that carries the morphology. These images are PLACED onto the stitched genotype mosaic, not stitched themselves. Default None.",
+      "translation": "Mappan sem geymir hástækkunarupptökuna sem ber formgerðina. Þessar myndir eru LAGÐAR ofan á samsettu arfgerðarmósaíkina, ekki settar saman sjálfar. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "4fa995189d8fcf8ae41bb59a0a722fffe8ca7a4f111c7cb8694e7717b6363d6d",
+      "source": "Search sub-folders as well as the source folder. Turn it off when a plate's wells are already separated and you want only this level. Default True.",
+      "translation": "Leita einnig í undirmöppum, ekki aðeins í upprunamöppunni. Slökktu á því þegar brunnar plötu eru þegar aðskildir og þú vilt aðeins þetta þrep. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_panel_manifest",
+      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
+      "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
+      "translation": "Birtingarspjöld sem eru byggð eftir að aðhvarfs CSV skrárnar eru skrifaðar. None sleppir þeim. Gefðu upp vörpun, eða slóð á JSON/YAML skrá, sem lýsir fyrir hvert spjald uppruna niðurstaðna, svipgerð, gena/gRNA þrepi og myndgerð; pakkarnir lenda undir publication_panels/. Þetta er formgerður reitur en ekki einnar línu reitur, svo hann er settur úr skriftu eða vistaðri stillingaskrá en ekki í GUI viðmótinu. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "save_stitched_default",
+      "source_sha256": "ca7d1734c3b4310986ea3b10a1d03344b94828a94faa8c0a362a03b1b597031c",
+      "source": "Also write each stitched PAIR, not only the whole-well mosaic. A great many files; useful when diagnosing one bad seam and wasteful otherwise. Default False.",
+      "translation": "Skrifa einnig hvert samsett PAR, ekki aðeins mósaík heils brunns. Afar margar skrár; gagnlegt þegar ein slæm samskeyti eru greind og sóun annars. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "squeeze_singleton",
+      "source_sha256": "28405bdd05d8c8c7682a73cc47706a14b1b3c80a9143fe117a2b209733c879e2",
+      "source": "Drop axes of length one when reading a file. Off keeps a (1, Y, X) file three-dimensional, which matters when downstream code counts dimensions. Default True.",
+      "translation": "Sleppa ásum af lengd einn þegar skrá er lesin. Slökkt heldur (1, Y, X) skrá þrívíðri, sem skiptir máli þegar kóði neðar í keðjunni telur víddir. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch",
+      "source_sha256": "9ddcec4e580c117636e1b2d7235954d9b38f719a116b12ca00d6ccce2fb7fa30",
+      "source": "Run the pairwise stitch. Off scores no pairs and only organises the plate into per-well folders, which is what you want when the images are already stitched. Default False.",
+      "translation": "Keyra samsetningu para. Slökkt gefur engum pörum stig og skipuleggur plötuna aðeins í möppur fyrir hvern brunn, sem er það sem þú vilt þegar myndirnar eru þegar samsettar. Sjálfgefið False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stream_csv",
+      "source_sha256": "8c28c558f06ad945b69d2f76c95feae83ce2e647fe4caaf13462d35def5dcada",
+      "source": "Write each result to the report as it is produced rather than at the end, so a long run can be watched and an interrupted one keeps what it had. Off is marginally faster and loses everything on a crash. Default True.",
+      "translation": "Skrifa hverja niðurstöðu í skýrsluna jafnóðum og hún verður til frekar en í lokin, svo hægt sé að fylgjast með langri keyrslu og trufluð keyrsla haldi því sem hún hafði. Slökkt er örlítið hraðara og tapar öllu við hrun. Sjálfgefið True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "tmp_dir",
+      "source_sha256": "8dd7dcdf9e4360d1182a33e718ee38c6d44f017b010b45ece21a641e99b0b155",
+      "source": "Scratch space for intermediate files and the mosaic's memory map. Empty uses the system temporary folder, which may be too small for a large plate. Default None.",
+      "translation": "Vinnusvæði fyrir milliskrár og minnisvörpun mósaíkarinnar. Autt notar tímabundnu möppu kerfisins, sem gæti verið of lítil fyrir stóra plötu. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "well_group",
+      "source_sha256": "b42889003f5adb8574954a63b9dba9cd8835283411d6e6a05ccd5b342b529394",
+      "source": "Which named group in meta_regex holds the well identifier. Change it when your filenames name the well under a different group; getting it wrong groups every tile into one well. Default 'well'.",
+      "translation": "Hvaða nefndi hópur í meta_regex mynstrinu geymir auðkenni brunnsins. Breyttu því þegar skráarnöfnin þín nefna brunninn undir öðrum hópi; ef það er rangt lenda allar flísar í einum brunni. Sjálfgefið 'well'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "write_mosaic",
+      "source_sha256": "1c31beb8b462495407e7f33469a2bb1336d2b7412526cb5a202047126908cc4e",
+      "source": "Write the assembled mosaic to disk. Off still produces the pairwise report and the manifest, which is enough to assemble it later without re-scoring. Default False.",
+      "translation": "Skrifa samsettu mósaíkina á disk. Slökkt framleiðir enn parasýrsluna og skrána yfir flísar, sem nægir til að setja hana saman síðar án þess að gefa stig að nýju. Sjálfgefið False."
+    }
+  ]
+}

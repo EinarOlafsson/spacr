@@ -50,11 +50,165 @@ APP_KEYS = [key for key, _name, _desc, _section in APPS]
 HEADLESS_ONLY = {
     "train_only": "the training stage of `classify` on an existing dataset "
                   "folder; the Classify button runs the whole pipeline",
-    "cellpose_all": "benchmarks every Cellpose model on one folder; Model Zoo "
-                    "is the interactive version of the same question",
+    # An ALIAS now, not a Module of its own: "benchmark every Cellpose model
+    # on one folder" became "Mask the whole folder" on the Make Masks
+    # masthead, and `cellpose_all` was pointed at `cellpose_masks` so a script
+    # or settings CSV that still names it keeps running. Kept here because
+    # `spacr-run cellpose_all` still resolves and still has no tile.
+    "cellpose_all": "an alias of `cellpose_masks` kept so older scripts run; "
+                    "the interactive version is the Make Masks masthead's "
+                    "\u201cMask the whole folder\u201d button",
     "endodyogeny": "the legacy area-derived size proxy remains headless; the "
                    "Replication button runs the parasite-count assay",
     "simulation": "the pooled-screen simulator, which has no GUI screen at all",
+    # THE TWO CLASSIFY SCREENS WERE REMOVED, their entry points were not.
+    # "Classify (CV)" and "Classify (ML)" were the originals kept beside the
+    # merged screen; three entries for one job is three places to look, and
+    # two of them are the same run with half the choices. Removed from the
+    # app registry on 2026-08-23.
+    #
+    # They stay in `cli.MODULES` and `validate.APP_FUNCTIONS` on purpose: a
+    # settings CSV written for either still runs, and a notebook importing
+    # `deep_spacr` or `generate_ml_scores` still works. The merged screen
+    # dispatches to exactly those two functions, so nothing is duplicated --
+    # only the second and third front doors are gone.
+    "classify": "the CV half of Classify, still runnable headless and from a "
+                "settings CSV; the Classify screen is the GUI for it",
+    "ml_analyze": "the ML half of Classify, same arrangement as `classify`",
+    # THE SAME ARRANGEMENT AGAIN, and it went unrecorded when it happened:
+    # Cellpose Masks lost its row to the merged Cellpose Workbench, whose
+    # Apply tab it is. `spacr-run cellpose_masks` and a settings CSV written
+    # for it both still work, and this ledger has been red about it ever
+    # since -- not folded (no host offers `cellpose_masks` as a button), just
+    # the second half of a page reached by its tab.
+    "cellpose_masks": "the applying half of the Cellpose Workbench, reached "
+                      "as that page's Apply tab; still runnable headless and "
+                      "from a settings CSV written before the merge",
+}
+
+
+# Modules that were FOLDED into a host screen and then had their registry row
+# dropped. "Not in APPS" is the point for these, not an omission: the tile went
+# and the module did not. Each is still runnable headless, still validated, and
+# still reachable in the GUI -- from the host named beside it -- so the reason
+# recorded here is WHERE THE USER FINDS IT NOW.
+#
+# The rule this preserves is the one HEADLESS_ONLY protects from the other
+# side: "missing from APPS" must always come with a reason somebody wrote
+# down, or a genuinely unwired module hides behind the exception.
+FOLDED = {
+    # SIX FOLDED BY THE DOCK REWRITE, recorded here on 2026-09-08. f43b5a42e
+    # scrapped the sub-category dock ("SCRAP THE SUB CATEGORIES"), and
+    # eafec5441 gave each of these a `spacr-run` answer naming where it went
+    # rather than "unknown module". They left `cli.INTERACTIVE_ONLY` and
+    # stopped being tiles, which is exactly the state this set exists to
+    # record: not a ghost, folded.
+    #
+    # Five are views with no batch equivalent and name the callable that does
+    # the same work headlessly; `import_images` names both its host screen and
+    # `spacr.image_import.apply_import`, which is what that screen drives.
+    "control_chart": "a view folded off the dock; headless, call "
+                     "spacr.qt.widgets.control_chart.control_chart "
+                     "(spacr.cli.INTERACTIVE_ONLY names the same route)",
+    "feature_explorer": "a view folded off the dock; headless, call "
+                        "spacr.qt.widgets.feature_rank.rank_features",
+    "import_images": "folded into the foreign-format importer; open 'foreign' "
+                     "in the GUI, or call spacr.image_import.apply_import, "
+                     "which is what that screen drives",
+    "outliers": "a view folded off the dock; headless, call "
+                "spacr.qt.widgets.outlier_model.detect_outliers",
+    "regression_diagnostics": "folded into Regression, which writes the "
+                              "diagnostics as part of its own run; "
+                              "'spacr-run regression' produces them beside "
+                              "its output",
+    "trellis": "a view folded off the dock; headless, call "
+               "spacr.qt.widgets.trellis_spec.trellis",
+    "ops": "a switch in Mask Generation's actions row, beside Live, that "
+           "opens the optical-pooled-screening form as a page on that "
+           "screen -- it was on the Align & Stitch masthead until "
+           "2026-09-09, because OPS IS stitching, and it is reached from "
+           "the segmentation screen instead because that is what the plate "
+           "it stitches is acquired for (spacr.qt.screens.mask.PAGE_FOLDS)",
+    "activation": "a button on the Classify masthead that opens the "
+                  "activation-map workbench as a page beside the training "
+                  "settings -- an activation map is a view of what a "
+                  "trained classifier looked at, which is Classify's own "
+                  "output (spacr.qt.screens.classify)",
+    "illumination": "nine settings on the Measure panel rather than a "
+                    "button, because the flat-field correction is applied "
+                    "BEFORE any intensity feature is computed -- it has to "
+                    "be settable on the measure run it changes, and a "
+                    "separate screen could only ever be a second place to "
+                    "set the same thing (spacr.qt.screens.measure)",
+    "timelapse": "a switch on the Mask Generation masthead that reveals its "
+                 "tracking settings categories and turns the pipeline's "
+                 "`timelapse` gate on (spacr.qt.screens.mask)",
+    "motility": "a button on the Measure masthead that opens the assay's own "
+                "screen as a page beside the measure form "
+                "(spacr.qt.screens.measure)",
+    "agreement": "a button on the Annotate masthead that opens the kappa "
+                 "table and the disagreement review, whole "
+                 "(spacr.qt.screens.annotate)",
+    "barcode_qc": "a button on the Map Barcodes masthead that opens the "
+                  "QC's own settings form and Run button as a page beside "
+                  "the mapping settings, so the mapping and its QC are one "
+                  "visit (spacr.qt.screens.map_barcodes)",
+    "classifier_evaluation": "a button on the Classify masthead that opens "
+                             "the evaluation bundle browser -- held-out "
+                             "predictions, calibration, per-plate metrics "
+                             "and the leakage report -- as a page beside "
+                             "the training settings "
+                             "(spacr.qt.screens.classify)",
+    "explain_cv": "a button on the Classify masthead that opens the "
+                  "fidelity, permutation-importance and SHAP workbench as a "
+                  "page beside the training settings "
+                  "(spacr.qt.screens.classify)",
+    "anndata_export": "a button on the Measure masthead that opens the "
+                      "export's own settings form and Run button as a page "
+                      "beside the measure settings "
+                      "(spacr.qt.screens.measure)",
+    "image_scatter": "a button on the Image UMAP masthead that opens the "
+                     "scatter's own screen as a page, pointed at the "
+                     "measurements database the UMAP screen is reading "
+                     "(spacr.qt.screens.image_umap)",
+    "pca": "a button on the Image UMAP masthead that opens the decomposition "
+           "with its feature picker, scree plot and loadings biplot, loaded "
+           "from the same measurements database "
+           "(spacr.qt.screens.image_umap)",
+    # The segmentation workbench's four. Make Masks is the screen a user is
+    # already on when they want any of them -- segment, look, correct, train,
+    # segment again is one loop -- so each is a button on its masthead that
+    # opens the module's own screen as a page beside the editor.
+    "train_cellpose": "a button on the Make Masks masthead that opens the "
+                      "Cellpose Workbench as a page, on its Train tab with "
+                      "its own path untouched (spacr.qt.screens.make_masks)",
+    "model_compare": "a button on the Make Masks masthead that opens the A/B "
+                     "harness as a page, pointed at the open folder; Model "
+                     "Zoo's compare hand-off opens the same one "
+                     "(spacr.qt.screens.make_masks)",
+    "model_zoo": "a button on the Make Masks masthead that opens the browser "
+                 "as a page, benching models on the open folder's fields "
+                 "(spacr.qt.screens.make_masks)",
+    "curate": "a button on the Make Masks masthead that opens the brush and "
+              "the track surgery as a page, handed the field on screen -- and "
+              "the fold is where Curate got the Save-mask it never had "
+              "(spacr.qt.screens.make_masks)",
+    "volcano_explorer": "\u201cPublication figure\u2026\u201d on the "
+                        "Regression volcano's own right-click menu, and a "
+                        "button on that masthead; both open the explorer "
+                        "seeded with the frame on screen "
+                        "(spacr.qt.screens.regression)",
+    "hit_list": "a tab on the Regression results and a button on that "
+                "masthead; the ranked, annotated, filterable hits are read "
+                "off the run already on screen "
+                "(spacr.qt.screens.regression)",
+    "methods_export": "a button on the Regression masthead that opens the "
+                      "methods-and-results draft for the run on screen, with "
+                      "every number traced back to the digest "
+                      "(spacr.qt.screens.regression)",
+    "napari_bridge": "a button on the Make Masks masthead that hands the "
+                     "field on screen to napari and reads the corrected "
+                     "labels back (spacr.qt.screens.make_masks)",
 }
 
 
@@ -138,25 +292,113 @@ def live_app_keys():
 
 
 def test_the_gui_only_list_holds_no_apps_that_no_longer_exist():
-    """A stale entry hides a genuinely unknown module behind a helpful lie."""
-    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - live_app_keys())
+    """A stale entry hides a genuinely unknown module behind a helpful lie.
+
+    A folded module is exempt and named in :data:`FOLDED`: its sentence is
+    the only thing `spacr-run <key>` can say, and it is more useful after
+    the fold than before -- "run it in spacr-qt" is a worse answer than
+    "it is a button on the Annotate masthead".
+    """
+    ghosts = sorted(set(cli.INTERACTIVE_ONLY) - live_app_keys() - set(FOLDED))
     assert not ghosts, (
-        f"cli.INTERACTIVE_ONLY names apps that are not in spacr.qt.app.APPS: "
-        f"{ghosts}")
+        f"cli.INTERACTIVE_ONLY names apps that are not in spacr.qt.app.APPS "
+        f"and are not recorded as folded: {ghosts}")
 
 
 def test_every_cli_module_is_an_app_or_a_declared_headless_only_one():
     """The other direction: a module nobody can reach from the GUI."""
-    orphans = sorted(set(cli.MODULES) - set(APP_KEYS) - set(HEADLESS_ONLY))
+    orphans = sorted(set(cli.MODULES) - set(APP_KEYS) - set(HEADLESS_ONLY)
+                       - set(FOLDED))
     assert not orphans, (
         f"spacr.cli.MODULES has modules with no APPS entry and no reason "
-        f"recorded in this test's HEADLESS_ONLY: {orphans}")
-    stale = sorted(set(HEADLESS_ONLY) - set(cli.MODULES))
+        f"recorded in this test's HEADLESS_ONLY or FOLDED: {orphans}")
+    # Aliases count as existing: a retired key that was pointed at its
+    # successor still resolves from the command line, and recording why it
+    # has no button is exactly what this table is for.
+    stale = sorted(set(HEADLESS_ONLY) - set(cli.MODULES) - set(cli.ALIASES))
     assert not stale, f"HEADLESS_ONLY names modules that no longer exist: {stale}"
+    for key in HEADLESS_ONLY:
+        assert cli.resolve_module(key) is not None, (
+            f"`spacr-run {key}` does not resolve, so HEADLESS_ONLY's claim "
+            f"that it runs headless is not true")
+
+
+def test_every_folded_module_really_is_folded_and_really_is_reachable():
+    """FOLDED is an exemption, so it has to be paid for in both directions.
+
+    A key here must be genuinely OUT of the registry -- otherwise the
+    exemption is dead text hiding nothing -- and genuinely IN some host's
+    fold table, which is what makes it something a user can still press.
+    A key that is in neither is the failure this whole exercise exists to
+    avoid: a module folded out of the GUI and into nothing.
+    """
+    import importlib
+
+    import spacr.qt.screens                            # noqa: F401
+    from spacr.qt.screens import make_masks
+    from spacr.qt.widgets.fold_strip import FOLD_HOST_MODULES
+
+    live = live_app_keys()
+    # EVERY host, DERIVED rather than listed. A key folded onto a host
+    # missing from this union reads as "folded into nothing", which is the
+    # failure below -- and it would be reported against the module rather
+    # than against the list that had fallen behind.
+    #
+    # This WAS a hand-written tuple of seven screens, and its own comment
+    # said it should be every host. It was not: Align & Stitch grew a fold
+    # and the tuple did not follow, so a correctly wired module failed here
+    # for a reason that had nothing to do with it. `FOLD_HOST_MODULES` is
+    # the same list the application itself reads, so the two cannot now
+    # disagree.
+    hosted = set()
+    for module_name in FOLD_HOST_MODULES:
+        try:
+            host = importlib.import_module(module_name)
+        except Exception:                              # noqa: BLE001
+            continue
+        hosted |= set(getattr(host, "FOLDED_APPS", ()))
+    hosted |= set(make_masks.FOLD_ORDER)
+
+    still_registered = sorted(set(FOLDED) & live)
+    assert not still_registered, (
+        f"FOLDED names apps that still have a registry row: "
+        f"{still_registered}")
+    unreachable = sorted(set(FOLDED) - hosted)
+    assert not unreachable, (
+        f"FOLDED names modules no host screen offers, so nothing in the "
+        f"GUI can open them: {unreachable}")
+    assert all(reason.strip() for reason in FOLDED.values())
+
+
+def test_a_folded_module_still_answers_everywhere_it_used_to():
+    """The row went; the module did not.
+
+    Each folded key is checked against the four tables a run actually
+    reads -- the CLI module list or the GUI-only sentence, the pre-flight
+    entry, the pipeline entry point and the settings defaults -- because
+    "it is a button now" is only true if pressing it, or naming it on the
+    command line, still starts the same work.
+    """
+    from spacr.qt.bridge import resolve_pipeline_entry
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    for key in FOLDED:
+        headless = key in cli.MODULES
+        assert headless or key in cli.INTERACTIVE_ONLY, (
+            f"{key} can neither run headless nor say why not")
+        if not headless:
+            continue
+        assert key in APP_FUNCTIONS, f"{key} lost its pre-flight entry"
+        assert resolve_pipeline_entry(key) is not None, (
+            f"{key} has no entry point, so its Run button is dead")
+        defaults = resolve_default_settings(key)
+        assert len(defaults) > 1, (
+            f"{key} resolves to an empty settings form: {defaults}")
 
 
 def test_every_validate_entry_is_an_app_or_a_headless_only_module():
-    orphans = sorted(set(APP_FUNCTIONS) - set(APP_KEYS) - set(HEADLESS_ONLY))
+    orphans = sorted(set(APP_FUNCTIONS) - set(APP_KEYS) - set(HEADLESS_ONLY)
+                       - set(FOLDED))
     assert not orphans, (
         f"spacr.validate.APP_FUNCTIONS describes apps that exist nowhere else: "
         f"{orphans}")
@@ -488,3 +730,57 @@ def test_replication_preflight_rejects_invalid_scoring_settings(key, value):
     settings[key] = value
     problems = validate_settings(settings, "replication")
     assert any(p.setting == key and p.is_error for p in problems)
+
+
+def test_every_screen_that_declares_folded_apps_is_a_known_host():
+    """`FOLD_HOST_MODULES` is hand-written, and has fallen behind TWICE.
+
+    First Align & Stitch, whose fold arrived after the tuple was written;
+    the fix then was to make callers read this tuple instead of their own
+    local copies, which was right and left the tuple itself unguarded. Then
+    Graph Builder, QC Dashboard and Database Browser, whose folds --
+    plate_view, trellis, layer_viewer, control_chart, outliers, lineage and
+    tabulate -- were offered by hosts that nothing was looking at.
+    `test_every_folded_module_really_is_folded_and_really_is_reachable`
+    reported the symptom, three modules the GUI could not open, and pointed
+    at the folds rather than at the list, because the list is not something
+    it can see.
+
+    So the list is derived HERE and compared, rather than derived in
+    `fold_strip` and used. That walk runs while the menu bar and the dock
+    are being built, and it goes to some length to read module source rather
+    than import it, precisely to keep work off the path Home paints on;
+    globbing the screens package at startup to save a line of maintenance
+    would give that back.
+
+    READ, NOT IMPORTED, for the same reason it is in the application: a test
+    that imports every screen pulls pandas and scipy in behind them.
+    """
+    import importlib.util
+    import re
+    from pathlib import Path
+
+    from spacr.qt.widgets.fold_strip import FOLD_HOST_MODULES
+
+    # The PACKAGE's directory, found without importing it -- `find_spec` reads
+    # the package's metadata and stops, where `import spacr.qt.screens` would
+    # execute every screen's module body.
+    spec = importlib.util.find_spec("spacr.qt.screens")
+    screens = Path(next(iter(spec.submodule_search_locations)))
+    declaring = {
+        f"spacr.qt.screens.{path.stem}"
+        for path in sorted(screens.glob("*.py"))
+        if re.search(r"^FOLDED_APPS\b", path.read_text(encoding="utf-8"),
+                     re.MULTILINE)
+    }
+
+    missing = sorted(declaring - set(FOLD_HOST_MODULES))
+    assert not missing, (
+        "these screens declare FOLDED_APPS but are not in FOLD_HOST_MODULES, "
+        "so the folds they offer are reachable from no host: "
+        f"{missing}")
+
+    # NOT THE OTHER DIRECTION. `make_masks` is in the tuple and declares no
+    # FOLDED_APPS -- it builds its strip from a local table -- and listing a
+    # host that turns out to offer nothing costs one source read, while
+    # omitting one costs a module the user cannot open.

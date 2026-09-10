@@ -2,7 +2,7 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    done, 2026-08-14.
+Status:    done, 2026-08-15.
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 
@@ -35,6 +35,36 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
            2026-08-13 — "continue where you left of please complete the tutorials task"
            2026-08-13 — "og go through what is left and dont stop untill it is done.  this is tour goal."
            2026-08-14 — "the screens and tests that you have done, I hope you are saving them so they can be applied later next time I order an audit of the tutorials, save them in the package if you have not already done so, as tests, as a skill, or in whatever format you want as long as all this effor you have put in to building quality controlls for the Tutorials can be reapplied."
+           2026-08-15 — "how much is finished of the tutorials? please finish the tutorials.then finish the API documentation translations. but first tell me as a percentage how much is left of both then start"
+
+--------------------------------------------------------------------------------
+AUTHORITATIVE FINAL RELEASE ADDENDUM — 2026-08-15
+--------------------------------------------------------------------------------
+
+The current module registry added four user-facing modules after the prior
+69-lesson release: Explain CV, Investigate Hit, Volcano Explorer, and Parameter
+Sweep. All four now have native 4K input/action/result lessons with reviewed
+narration in every supported language. The complete release is therefore 73
+lessons, 507 purposeful scenes, eight languages, 50 intentional voices, 3,650
+strict-freshness AAC tracks, and 73 4K silent masters. The derived Pages bundle
+is 102.3 MiB, below the 700 MiB ceiling.
+
+The external release verifier passed exactly
+``lessons=73 languages=8 voices=50 tracks=3650 videos_4k=73``; the strict audio
+verifier decoded all 3,650 tracks at AAC/24 kHz/mono, found no dead air, and
+matched every language's current media hash, render fingerprint, scene
+provenance, and 75 ms duration tolerance. The external tutorial suite passed
+69 tests. Two hundred new audio/timing pairs and four 4K masters were uploaded
+to the existing Hugging Face release surface.
+
+The durable repository QA remains in
+``.claude/skills/tutorial-release-audit`` with its release contract, source
+frame sampler, live browser verifier, and tutorial release tests. The current
+73-lesson bundle was committed on nightly in ``4caa7db1`` (with the main-lag
+coverage correction in ``6aeb6693``), then merged independently to ``main``
+through PR #105 at ``ea0d96b7d6f545bae8f73c1a7af2460f8457979a``. This
+addendum supersedes the 69-lesson counts below; the older record remains as
+implementation history.
 
 --------------------------------------------------------------------------------
 AUTHORITATIVE FINAL RELEASE RECORD — 2026-08-14

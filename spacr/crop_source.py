@@ -1,22 +1,36 @@
 """Where a classifier's training images come from.
 
-Three sources, and the settings that apply differ completely between them:
+TWO NAMES FOR THE ONE CHOICE, and they are the same two every other panel in
+spaCR asks it with -- LOAD IMAGES and STREAM IMAGES. Training used to ask the
+same question in a private vocabulary (``pre_generated`` / ``on_demand``),
+which is one idea in two spellings: a user reading the annotation panel and
+the training panel could not tell they were being asked the same thing, and
+the two halves of the code could not tell either.
 
-``pre_generated``
-    Crops already written to disk by the measure step. Selected by
-    ``path_string`` (a substring the path must contain) and ``file_type`` (the
-    image extension). Nothing is cut here; the images exist.
-``on_demand``
-    Crops cut from ``merged/*.npy`` as training runs. A merged array holds
-    both intensity planes and mask planes, so this needs to be told which are
-    which: ``extract_channels`` names the intensity planes and ``object_array``
-    names the object whose mask defines each crop's extent. Optionally the
-    objects come from a DATABASE instead, via ``coordinate_columns``.
-``generate``
-    Cut a full crop set to disk first, then train on it as
-    ``pre_generated`` would.
+``png`` — load pre-generated images (default)
+    Read crops previously written by the measurement workflow.
+    ``path_string`` filters paths by substring and ``file_type`` filters by
+    image extension. This source performs no cropping.
+``merged`` — stream images
+    Extract crops during training from ``merged/*.npy`` arrays.
+    ``extract_channels`` selects the intensity planes and ``object_array``
+    selects the labelled mask plane that defines each object's extent. When
+    ``coordinate_columns`` are configured, database coordinates instead
+    define fixed bounding-box crops.
+``generate`` — generate images, then load them
+    Materialize a complete crop set on disk before training, then read it
+    through the same file-backed path as ``png``. This is a preprocessing
+    action rather than a streaming source.
 
-**Why on-demand exists.** Pre-cutting every crop writes a copy of the dataset
+**The stored values did not change.** ``png`` and ``merged`` are what
+``spacr.crops.resolve_crop_source`` has always read, so a settings file
+written under either vocabulary means what it always meant:
+``pre_generated``, ``load_images`` and ``auto`` all arrive as LOAD IMAGES,
+``on_demand`` and ``stream_images`` as STREAM IMAGES. :data:`CROP_SOURCE_ALIASES`
+is that migration, in one place, and it is what stops a panel that has been
+renamed from handing this module a word it refuses.
+
+**Why streaming exists.** Pre-cutting every crop writes a copy of the dataset
 to disk before a single epoch runs, and every change of crop size or channel
 selection writes another. Cutting as training runs costs a slice per object
 and no disk at all.
@@ -37,8 +51,47 @@ import numpy as np
 
 LOG = logging.getLogger("spacr.crop_source")
 
-#: The three sources, in the order the settings panel offers them.
-CROP_SOURCES: Tuple[str, ...] = ("pre_generated", "on_demand", "generate")
+#: What a crop source can be, in the order the settings panel offers them.
+#: LOAD IMAGES first, because it is the default.
+CROP_SOURCES: Tuple[str, ...] = ("png", "merged", "generate")
+
+#: Every spelling a settings file has ever carried, and the source it names.
+#:
+#: ACCEPTED, NOT REFUSED. Three panels and two renames have written this one
+#: setting, and every value any of them wrote is still on somebody's disk:
+#: ``pre_generated``/``on_demand`` from the training panel, ``load_images``/
+#: ``stream_images`` from its rename, ``png``/``merged`` from the viewers, and
+#: ``auto`` from before the question was asked out loud. They resolve here, so
+#: this module accepts what the panels produce instead of raising on it --
+#: which is what it did when the training panel was renamed and left this
+#: reader behind: every computer-vision run refused at the door with
+#: "crop_source='load_images' is not one of ...".
+#:
+#: ``auto`` means LOAD IMAGES rather than "whichever folder exists". It stays
+#: readable because settings files hold it; it is not an answer a user is
+#: offered, because "what is available here" is not an answer to which mode
+#: they want.
+CROP_SOURCE_ALIASES: Dict[str, str] = {
+    "auto": "png",
+    "png": "png",
+    "load_images": "png",
+    "pre_generated": "png",
+    "merged": "merged",
+    "stream": "merged",
+    "stream_images": "merged",
+    "on_demand": "merged",
+    "generate": "generate",
+}
+
+#: The choice as a panel shows it: the value stored, and the words shown.
+#:
+#: The same words the annotation and montage panels use, because it is the
+#: same question. A panel that renders these renders LOAD IMAGES first.
+CROP_SOURCE_OPTIONS: Tuple[Tuple[str, str], ...] = (
+    ("png", "load images — crops already in data/"),
+    ("merged", "stream images — cut from merged/"),
+    ("generate", "generate crops — write a crop set, then load it"),
+)
 
 #: Image extensions a pre-generated crop may have. The setting is a FILTER on
 #: the extension, which is what it always should have been -- it and
@@ -54,9 +107,9 @@ CROP_SHAPES: Tuple[str, ...] = ("bounding_box", "object")
 #: Settings each source reads. Drives the greying -- a control the user can
 #: edit that changes nothing is worse than one that is not there.
 SOURCE_SETTINGS: Dict[str, Tuple[str, ...]] = {
-    "pre_generated": ("path_string", "file_type", "file_metadata", "tar_path"),
-    "on_demand": ("extract_channels", "object_array", "coordinate_columns",
-                  "crop_shape", "image_size"),
+    "png": ("path_string", "file_type", "file_metadata", "tar_path"),
+    "merged": ("extract_channels", "object_array", "coordinate_columns",
+               "crop_shape", "image_size"),
     "generate": ("extract_channels", "object_array", "crop_shape",
                  "image_size", "path_string", "file_type"),
 }
@@ -67,22 +120,26 @@ class CropSourceError(ValueError):
 
 
 def resolve_source(settings: Mapping[str, Any]) -> str:
-    """Which crop source a settings dict asks for.
+    """Which crop source a settings dict asks for, in the two names.
 
-    ``auto`` -- what the setting used to default to -- means pre-generated,
-    which is what it always did in practice.
+    Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file
+    from any panel spaCR has shipped answers this question. Unset means LOAD
+    IMAGES, which is the default everywhere the question is asked.
 
     :raises CropSourceError: an unrecognised source. Guessing would train on a
-        different set of images than the user asked for and report success.
+        different set of images than was asked for and report success.
     """
     declared = str(settings.get("crop_source") or "").strip().lower()
-    if not declared or declared == "auto":
-        return "pre_generated"
-    if declared not in CROP_SOURCES:
+    if not declared:
+        return "png"
+    resolved = CROP_SOURCE_ALIASES.get(declared)
+    if resolved is None:
         raise CropSourceError(
             f"crop_source={settings.get('crop_source')!r} is not one of "
-            f"{list(CROP_SOURCES)}")
-    return declared
+            f"{list(CROP_SOURCES)} (load images, stream images, or generate "
+            f"a crop set); accepted spellings are "
+            f"{sorted(name for name in CROP_SOURCE_ALIASES if name)}")
+    return resolved
 
 
 def inapplicable_settings(source: str) -> Tuple[str, ...]:
@@ -91,8 +148,12 @@ def inapplicable_settings(source: str) -> Tuple[str, ...]:
     Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the
     pipeline fall back to its own default, which can differ from the value the
     module needs and says nothing when it does.
+
+    Any spelling :data:`CROP_SOURCE_ALIASES` knows is accepted, because what a
+    panel has in hand is the value stored in the settings file, not the name
+    this module resolved it to.
     """
-    key = str(source).strip().lower()
+    key = CROP_SOURCE_ALIASES.get(str(source).strip().lower(), "")
     if key not in SOURCE_SETTINGS:
         raise CropSourceError(
             f"{source!r} is not one of {list(CROP_SOURCES)}")
@@ -164,6 +225,13 @@ def select_crops(paths: Iterable[str], settings: Mapping[str, Any]
 # ---------------------------------------------------------------------------
 
 def _as_indices(value, what: str) -> List[int]:
+    """Normalize one plane selection to integer indices.
+
+    :param value: One integer index or an iterable of integer-like indices.
+    :param what: Setting name used to identify an invalid selection.
+    :returns: Selected plane indices as ordinary integers.
+    :raises CropSourceError: The selection is unset or cannot be converted.
+    """
     if value is None:
         raise CropSourceError(f"{what} is not set")
     if isinstance(value, (int, np.integer)):
@@ -172,6 +240,18 @@ def _as_indices(value, what: str) -> List[int]:
         return [int(v) for v in value]
     except (TypeError, ValueError) as exc:
         raise CropSourceError(f"{what}={value!r} is not a list of planes") from exc
+
+
+def _positive_size(value: Any) -> int:
+    """Return an integer crop side, refusing an empty or inverted image."""
+    try:
+        side = int(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise CropSourceError(
+            f"size={value!r} is not a positive integer") from exc
+    if side <= 0:
+        raise CropSourceError(f"size must be positive, got {value!r}")
+    return side
 
 
 def object_bounds(mask: np.ndarray, label: int) -> Optional[Tuple[int, int, int, int]]:
@@ -200,9 +280,11 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
         ``object`` zeroes everything outside the object itself. The background
         around a cell is sometimes signal and sometimes contamination, which
         is why this is a choice rather than a default.
-    :param size: resize the result to ``size × size`` when given.
+    :param size: resize the result to ``size × size`` when given. It must
+        be positive; ``None`` preserves the object's natural bounding box.
     :returns: ``(h, w, len(channels))``, or None if the object is not there.
-    :raises CropSourceError: a plane the array does not have.
+    :raises CropSourceError: a plane the array does not have, or an explicit
+        ``size`` that is not positive.
     """
     if shape not in CROP_SHAPES:
         raise CropSourceError(
@@ -216,6 +298,7 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
         raise CropSourceError(
             f"extract_channels asks for plane {max(planes)} but the merged "
             f"array has {array.shape[2]}")
+    target_size = _positive_size(size) if size is not None else None
 
     bounds = object_bounds(mask, label)
     if bounds is None:
@@ -231,8 +314,8 @@ def crop_object(array: np.ndarray, mask: np.ndarray, label: int, *,
     if shape == "object":
         inside = (mask[row0:row1, col0:col1] == label)
         cut = cut * inside[:, :, None]
-    if size:
-        cut = _resize(cut, int(size))
+    if target_size is not None:
+        cut = _resize(cut, target_size)
     return cut
 
 
@@ -258,24 +341,32 @@ def crop_at(array: np.ndarray, row: float, column: float, *,
         the array does not have raises ``IndexError``, and a negative one
         silently counts back from the last plane. An empty list yields a
         zero-channel crop rather than None.
-    :param size: the box asked for, not the shape returned -- nothing on this
-        path is resized or padded, unlike ``size`` in :func:`crop_object`. The
-        side is rounded DOWN to even (``size=5`` cuts 4 px) and never falls
-        below 2 (``0`` and negative values cut 2 px), and an array edge clips
-        it further, so a coordinate near a border yields a smaller crop than
-        one from the middle.
-    :returns: ``(h, w, len(channels))`` as float32, or None when the box falls
-        entirely off the array.
-    :raises CropSourceError: ``channels`` is None, or is not planes.
+    :param size: the positive side length returned. Odd sizes keep the rounded
+        coordinate at index ``size // 2``. A box crossing an array edge is
+        zero-padded rather than clipped or rescaled, preserving its centre and
+        pixel scale.
+    :returns: ``(size, size, len(channels))`` as float32, or None when the box
+        falls entirely off the array.
+    :raises CropSourceError: ``channels`` is None or is not planes, or ``size``
+        is not positive.
     """
     planes = _as_indices(channels, "extract_channels")
-    half = max(1, int(size) // 2)
+    side = _positive_size(size)
     r, c = int(round(float(row))), int(round(float(column)))
-    row0, row1 = max(0, r - half), min(array.shape[0], r + half)
-    col0, col1 = max(0, c - half), min(array.shape[1], c + half)
-    if row1 <= row0 or col1 <= col0:
+    row0, row1 = r - side // 2, r - side // 2 + side
+    col0, col1 = c - side // 2, c - side // 2 + side
+    source_row0, source_row1 = max(0, row0), min(array.shape[0], row1)
+    source_col0, source_col1 = max(0, col0), min(array.shape[1], col1)
+    if source_row1 <= source_row0 or source_col1 <= source_col0:
         return None
-    return array[row0:row1, col0:col1, :][:, :, planes].astype(np.float32)
+    cut = array[source_row0:source_row1, source_col0:source_col1, :][
+        :, :, planes].astype(np.float32)
+    return np.pad(
+        cut,
+        ((source_row0 - row0, row1 - source_row1),
+         (source_col0 - col0, col1 - source_col1),
+         (0, 0)),
+        mode="constant")
 
 
 def _resize(image: np.ndarray, size: int) -> np.ndarray:
@@ -320,6 +411,11 @@ def crops_from_merged(array: np.ndarray, settings: Mapping[str, Any], *,
                       ) -> List[Tuple[int, np.ndarray]]:
     """Every object's crop from one merged array.
 
+    :param array: merged ``(height, width, planes)`` image whose configured
+        object-mask plane supplies the labels and whose other planes supply
+        the crop pixels.
+    :param settings: crop settings used to choose the object mask, extracted
+        channels, crop shape and optional fixed image size.
     :param labels: only these objects; by default every label in the mask.
     :returns: ``(label, image)`` pairs, skipping objects that are not present.
     :raises CropSourceError: a setting that makes cutting impossible.
@@ -348,23 +444,40 @@ def crops_from_merged(array: np.ndarray, settings: Mapping[str, Any], *,
     return out
 
 
+def stream_planes(settings: Mapping[str, Any]) -> List[int]:
+    """Which planes of a merged array become image channels, by either name.
+
+    ``channel_arrays`` is the current spelling and ``extract_channels`` the
+    older one; both are a list of plane indices and both are still written to
+    settings files, so both are read here. The current spelling wins when a
+    file carries both, because that is the one the panel is editing.
+
+    :raises CropSourceError: neither is set, naming the one to set.
+    """
+    for name in ("channel_arrays", "extract_channels"):
+        if settings.get(name) is not None:
+            return _as_indices(settings.get(name), name)
+    raise CropSourceError(
+        "channel_arrays is not set, so nothing says which planes of the "
+        "merged array become the image's channels")
+
+
 def validate(settings: Mapping[str, Any]) -> str:
     """Check a settings dict can actually produce crops. Returns the source.
 
-    Run before training rather than during it: discovering that
-    ``extract_channels`` was never set after an hour of dataset building is a
-    worse failure than refusing at the start, and the message here names the
-    setting to fix.
+    Run before training rather than during it: discovering that the planes
+    were never named after an hour of dataset building is a worse failure than
+    refusing at the start, and the message here names the setting to fix.
 
     :raises CropSourceError: with what to change.
     """
     source = resolve_source(settings)
-    if source == "pre_generated":
+    if source == "png":
         if settings.get("file_type"):
             normalise_extension(settings.get("file_type"))
         return source
 
-    _as_indices(settings.get("extract_channels"), "extract_channels")
+    stream_planes(settings)
     shape = str(settings.get("crop_shape") or "bounding_box")
     if shape not in CROP_SHAPES:
         raise CropSourceError(
@@ -376,10 +489,12 @@ def validate(settings: Mapping[str, Any]) -> str:
             raise CropSourceError(
                 "objects taken from a database can only be cut as bounding "
                 "boxes: a coordinate has no outline to mask against")
-        if len(list(coordinates)) < 2:
-            raise CropSourceError(
-                "coordinate_columns needs a row and a column, e.g. "
-                "['centroid_y', 'centroid_x']")
+        # ONE COLUMN OR TWO, because there are two ways a database says where
+        # an object is and both are in use. One column NAMES THE OBJECT --
+        # `cell_id` -- and the mask plane supplies its extent; two give a
+        # centroid's row and column, and the box is cut around it. Demanding
+        # two refused spaCR's own derived value, which is the single
+        # identifier column `stream_dataset.coordinate_column` produces.
         if not settings.get("image_size"):
             raise CropSourceError(
                 "image_size is what decides how big a coordinate-centred crop "

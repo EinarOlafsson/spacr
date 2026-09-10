@@ -1,0 +1,30 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "29_report",
+    "scene_count": 7,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Crie um resumo compartilhável em HTML ou PDF com controle de qualidade, figuras, estatísticas, configurações e versões.",
+      "prerequisite": "Conclua e revise as execuções que devem constar no relatório.",
+      "objectives": [
+        "Selecionar as evidências relevantes para o relatório.",
+        "Resolver lacunas de qualidade e proveniência.",
+        "Gerar e revisar um relatório portátil."
+      ],
+      "narrations": [
+        "Report reúne um resumo rastreável do projeto, evitando a cópia manual de figuras e configurações.",
+        "Selecione um projeto concluído ou uma pasta de execução e examine as evidências disponíveis.",
+        "Examine o parecer de qualidade detectado e as entradas ausentes antes de selecionar as seções do relatório.",
+        "Inclua somente as verificações de qualidade, figuras, estatísticas, configurações e informações de proveniência necessárias ao público.",
+        "Defina o título, a autoria, o formato de saída, os limites das figuras e qualquer exclusão necessária para preservar dados sensíveis.",
+        "Gere o relatório depois de resolver os arquivos ausentes e as verificações de qualidade com falha que poderiam tornar o documento enganoso.",
+        "Examine a prévia do relatório concluído e verifique as conclusões, as versões e os links antes de compartilhá-lo."
+      ]
+    }
+  }
+}

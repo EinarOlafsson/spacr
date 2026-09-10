@@ -34,6 +34,7 @@ failure.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import re
 import subprocess
@@ -177,17 +178,19 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_39_through_314_except_3141():
+def test_requires_python_admits_39_through_315_except_3141():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.9: this is a supported interpreter in real use. Its resolver
     selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
     pingouin and IPython lines; a blocking CI cell exercises that branch.
 
-    Ceiling <3.15: every admitted minor has a blocking CI cell. Native
-    dependencies without CPython 3.14 wheels are optional and lazily loaded.
-    Python 3.14.1 is excluded because torchvision excludes that exact patch
-    release in its own package metadata.
+    Ceiling <3.16: every admitted minor has a CI cell. The 3.15 cell is
+    deliberately experimental until PySide6 raises its own <3.15 ceiling;
+    all earlier minor cells are blocking. Native dependencies without CPython
+    3.14 wheels are optional and lazily loaded. Python 3.14.1 is excluded
+    because torchvision excludes that exact patch release in its own package
+    metadata.
 
     This test used to be called
     ``test_requires_python_admits_310_through_312_and_nothing_else`` and it
@@ -205,8 +208,8 @@ def test_requires_python_admits_39_through_314_except_3141():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-    unsupported = ["3.7", "3.8", "3.14.1", "3.15"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+    unsupported = ["3.7", "3.8", "3.14.1", "3.16"]
 
     for v in supported:
         version = Version(v if v.count(".") == 2 else v + ".0")
@@ -235,6 +238,7 @@ def test_python_classifiers_match_requires_python_exactly():
     admitted = sorted(
         v for v in (
             "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14",
+            "3.15",
         )
         if spec.contains(Version(v + ".0"))
     )
@@ -262,47 +266,112 @@ def test_operating_system_classifiers_are_named_explicitly():
         assert expected in cls, f"missing OS classifier: {expected}"
 
 
-def test_the_license_metadata_says_bsd_and_says_it_everywhere():
-    """spaCR is BSD 3-Clause, and every place that states a licence agrees.
+def test_the_licence_is_bsd_three_clause_everywhere_it_is_declared():
+    """One licence, named the same way in all five places that declare it.
 
-    It was PolyForm Noncommercial for a few weeks. GitHub reads the LICENSE
-    file on the DEFAULT BRANCH and reported `NOASSERTION`, because PolyForm
-    is a real SPDX licence that is not in the set GitHub's detector matches
-    against -- so the repository showed no licence at all while the README
-    claimed BSD and linked to a file that served PolyForm.
+    spaCR was relicensed from PolyForm Noncommercial 1.0.0 to BSD
+    3-Clause -- the licence CellProfiler, napari, Cellpose and the rest
+    of the scientific Python stack use. A noncommercial layer on top of
+    an all-BSD dependency set made spaCR the one component a core
+    facility, a company reproducing a published analysis, or a distro
+    packager could not use.
 
-    Three separate claims have to agree and are checked together here,
-    because keeping two of them right is what produced that state: the
-    LICENSE file (GitHub), the classifier (PyPI), and the README.
+    The declarations are checked TOGETHER because they are read by
+    different tools -- pip, Zenodo, GitHub's licence detector, CFF
+    parsers -- and one left behind is a package that claims two licences.
     """
+    # A PEP 639 SPDX EXPRESSION, checked as a string. It was
+    # `license = { file = "LICENSE" }` until 2026-09-07, and setuptools >= 77
+    # rejects that table outright -- "configuration error: `project.license`
+    # must be string" -- while READING pyproject.toml, so the build stops
+    # before it starts. Every cell of the compat matrix failed on it: the
+    # sdist, the wheel, and `pip install spacr` on all six interpreters.
     data = _toml_loads(_pyproject_text())
     if data is not None:
-        assert data["project"]["license"] == {"file": "LICENSE"}
+        assert data["project"]["license"] == "BSD-3-Clause"
+        assert data["project"]["license-files"] == ["LICENSE"]
     else:
         assert re.search(
-            r'^license\s*=\s*\{\s*file\s*=\s*"LICENSE"\s*\}',
+            r'^license\s*=\s*"BSD-3-Clause"',
+            _pyproject_text(),
+            re.MULTILINE,
+        )
+        assert re.search(
+            r'^license-files\s*=\s*\[\s*"LICENSE"\s*\]',
             _pyproject_text(),
             re.MULTILINE,
         )
 
+    # AND NO License:: CLASSIFIER BESIDE IT. PEP 639 deprecates them once a
+    # SPDX expression is declared, and carrying both is the "package that
+    # claims two licences" this test exists to prevent -- the same fault as
+    # the old proprietary classifier, in the other direction.
     classifiers = _classifiers()
-    assert "License :: OSI Approved :: BSD License" in classifiers
-    assert "License :: Other/Proprietary License" not in classifiers
+    assert not [c for c in classifiers if c.startswith("License ::")], (
+        "a License:: classifier alongside the SPDX expression")
 
     license_text = (REPO_ROOT / "LICENSE").read_text(encoding="utf-8")
     assert license_text.startswith("BSD 3-Clause License")
-    # The three clauses and the disclaimer are what make it BSD 3-Clause
-    # rather than 2-Clause or a lookalike. A file missing one of them is a
-    # different licence, and GitHub would decline to name it.
+    assert "Einar Birnir Olafsson" in license_text
+    # The three conditions, which are the whole of what a redistributor
+    # owes. A BSD file missing one of them is a different licence.
     assert "Redistributions of source code must retain" in license_text
     assert "Redistributions in binary form must reproduce" in license_text
     assert "Neither the name of the copyright holder" in license_text
-    assert "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS" in license_text
-    assert "PolyForm" not in license_text
+    assert "AS IS" in license_text and "NO EVENT SHALL" in license_text
+    assert "Noncommercial" not in license_text
 
-    readme = (REPO_ROOT / "README.rst").read_text(encoding="utf-8")
-    assert "BSD 3-Clause License" in readme
-    assert ":alt: BSD 3-Clause license" in readme
+    zenodo = json.loads(
+        (REPO_ROOT / ".zenodo.json").read_text(encoding="utf-8")
+    )
+    assert zenodo["license"] == "bsd-3-clause"
+
+    citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    assert re.search(r"^license:\s*BSD-3-Clause\s*$", citation, re.MULTILINE)
+
+
+def test_nothing_still_describes_spacr_as_source_available():
+    """"Source-available" was the honest word under PolyForm and is the
+    wrong one now: BSD 3-Clause IS open source, and hedging reads as a
+    restriction that is no longer there."""
+    for name in (".zenodo.json", "CITATION.cff", "README.rst"):
+        text = (REPO_ROOT / name).read_text(encoding="utf-8")
+        assert "source-available" not in text, (
+            f"{name} still calls spaCR source-available")
+
+
+def test_the_in_app_terms_name_the_same_licence():
+    """The setup screen asks the user to accept terms that name a
+    licence. If it names a different one from the package metadata, the
+    thing they agreed to is not the thing that ships."""
+    from spacr.qt import terms
+
+    assert terms.LICENSE_NAME == "BSD 3-Clause License"
+    assert terms.LICENSE_URL == "https://opensource.org/licenses/BSD-3-Clause"
+    assert "Noncommercial Purpose" not in "\n".join(terms.TERMS)
+
+
+def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
+    """A profile re-accepts when the DOCUMENT changes, not when wording does.
+
+    4.0 was the relicence: the noncommercial restriction a profile accepted
+    under 3.0 was gone, so 3.0 profiles were asked again.
+
+    4.1 is the governing-language clause, Section 11.4, added on 2026-09-02
+    when the agreement began being presented in nine languages. That is a TERM
+    of the agreement -- it says a translation is a convenience and the English
+    governs -- rather than a note about it, so it is in the document and 4.0
+    profiles are asked again too.
+
+    Pinned rather than asserted-nonempty so a bump is deliberate: whoever
+    changes the agreement updates this line in the same commit and says which
+    clause moved.
+    """
+    from spacr.qt import terms
+
+    assert terms.TERMS_VERSION == "4.1"
+    assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
+        "4.1 is defined by the governing-language clause; it is missing")
 
 
 # ---------------------------------------------------------------------------
@@ -463,9 +532,24 @@ def test_setup_py_contains_no_pip_install_shellout():
 # 4. The unused Qt binding stays gone
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("banned", ["pyqt6", "pyqtgraph", "qtpy", "superqt"])
+@pytest.mark.parametrize("banned", ["pyqt6", "qtpy", "superqt"])
 def test_no_second_qt_binding_is_declared(banned):
-    """spaCR uses PySide6 in 75 files and none of these in any file.
+    """spaCR uses PySide6 and none of these in any file.
+
+    PYQTGRAPH WAS ON THIS LIST AND CAME OFF IT on 2026-08-17. It was on it
+    for a true reason -- the hand-copied `gui` extra pulled it in and zero
+    files imported it -- and that stopped being true when
+    spacr/qt/widgets/fast_plots.py was written: the volcano, the Q-Q, the
+    p-histogram, the control panel and the guide-agreement plot are all
+    pyqtgraph, and the regression results panel builds all five.
+
+    It is also not the same KIND of thing as the other three. PyQt6, qtpy and
+    superqt are Qt bindings or binding shims, and two bindings in one process
+    is the ABI hazard this test exists for. pyqtgraph is a plotting library
+    that draws through whichever binding is already installed. Keeping it
+    banned meant the dependency spaCR actually imports could not be declared,
+    which is how an install ends up with PySide6, no pyqtgraph, and a
+    RuntimeError out of the screen factory on every module.
 
     The old subprocess loop installed all four (plus pyqt6.sip), which is
     ~100 MB of second Qt binding, an ABI hazard next to PySide6, and a
@@ -640,36 +724,381 @@ def test_attribution_extra_is_not_in_all():
     )
 
 
-def test_the_python_313_limits_of_the_extras_are_written_down():
-    """Two extras cannot be installed on Python 3.13, and both are upstream.
-
-    This test does not assert the limitation — it asserts that the limitation
-    is *documented next to the pin*, because the failure mode it guards is
-    somebody re-deriving it from a confusing pip error six months from now.
-    Both were measured in a throwaway CPython 3.13.14 env on 2026-07-27:
-
-    * ``ultrack`` — every release from 0.1.0 through 0.7.2 declares
-      ``requires-python >=3.9,<3.13``. pip refuses cleanly. This is what makes
-      ``spacr[all]`` uninstallable on 3.13, *not* torchcam.
-    * ``torchcam`` — declares ``numpy<2.0.0``, which has no cp313 wheel, so a
-      plain install backtracks into a numpy 1.26.4 source build.
-
-    Neither is a spaCR bug and neither blocks ``pip install spacr``, which is
-    the promise that matters and which resolves entirely to wheels on 3.13.
-    """
+def test_the_torchcam_python_313_limit_is_written_down():
+    """The attribution extra's upstream NumPy ceiling remains documented."""
     src = SETUP_PY.read_text(encoding="utf-8")
-    for needle, why in (
-        ("requires-python >=3.9,<3.13",
-         "ultrack's own Python ceiling, which is what stops spacr[all] on 3.13"),
-        ("numpy<2.0.0",
-         "torchcam's spurious numpy pin, the reason it is an extra at all"),
-    ):
-        assert needle in src, (
-            f"setup.py no longer documents {needle!r} ({why}). If the upstream "
-            f"limitation is gone, say so and widen the extra; do not just "
-            f"delete the note — the next person will hit the same pip error "
-            f"with no explanation."
+    assert "numpy<2.0.0" in src, (
+        "setup.py no longer documents torchcam's spurious NumPy pin. If the "
+        "upstream limitation is gone, widen the extra with resolver evidence; "
+        "do not silently delete the reason it remains outside `all`."
+    )
+
+
+def test_tracker_extras_follow_their_upstream_python_ranges():
+    """The aggregate extra resolves on 3.9 through 3.14.
+
+    Trackastra requires Python 3.10 or newer. Ultrack 0.8 supports 3.13 but
+    declares a strict Python 3.14 ceiling; older ultrack metadata admits 3.9
+    while its required geff release does not. Both depend on torch, whose
+    wheels end at Python 3.12 on Intel macOS. The same complete markers must
+    appear in the named extra and the spelled-out ``all`` union.
+    """
+    from packaging.requirements import Requirement
+
+    extras = _extras()
+    expected = {
+        "trackastra": (
+            'python_version >= "3.10" and (sys_platform != "darwin" or '
+            'platform_machine != "x86_64" or python_version < "3.13")'
+        ),
+        "ultrack": (
+            'python_version >= "3.10" and python_version < "3.14" and '
+            '(sys_platform != "darwin" or platform_machine != "x86_64" '
+            'or python_version < "3.13")'
+        ),
+    }
+    for name, marker in expected.items():
+        for extra in (name, "all"):
+            matches = [Requirement(spec) for spec in extras[extra]
+                       if _name_of(spec) == name]
+            assert len(matches) == 1, f"{extra}: expected one {name} pin"
+            assert str(matches[0].marker) == marker
+
+
+def test_intel_macos_313_does_not_request_nonexistent_torch_wheels():
+    """Core metadata excludes only the unsupported Intel-macOS combination."""
+    from packaging.requirements import Requirement
+
+    for name in ("torch", "torchvision"):
+        matches = [Requirement(spec) for spec in _core_dependencies()
+                   if _name_of(spec) == name]
+        assert len(matches) == 1
+        marker = str(matches[0].marker)
+        assert 'sys_platform != "darwin"' in marker
+        assert 'platform_machine != "x86_64"' in marker
+        assert 'python_version < "3.13"' in marker
+
+
+def test_the_default_fractal_renderer_is_core_and_bundled():
+    """A documented install and a PyInstaller app both contain VisPy."""
+    core = {_name_of(spec) for spec in _core_dependencies()}
+    assert "vispy" in core
+    assert any(_name_of(spec) == "vispy" for spec in _extras()["fractal"])
+
+    spec = (REPO_ROOT / "packaging" / "spacr.spec").read_text(
+        encoding="utf-8")
+    assert '"vispy"' in spec
+
+    manifest = (REPO_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    assert "include packaging/spacr.spec" in manifest
+
+
+def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
+    """Dependency declarations are exercised as installs, not only parsed.
+
+    The six-version job must actually import from a core-only environment.
+    Separately, the compatibility alias has to construct and paint the real
+    VisPy widget under a software OpenGL display; an import-only check would
+    miss VisPy's dynamically selected Qt backend.
+    """
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]' in workflow
+    assert "continue-on-error: ${{ matrix.python-version == '3.15' }}" in workflow
+    assert "allow-prereleases: ${{ matrix.python-version == '3.15' }}" in workflow
+    assert "Install the core graph and import spaCR" in workflow
+    assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
+    install_step = workflow.split(
+        "- name: Install the core graph and import spaCR", 1
+    )[1].split("python - <<'PY'", 1)[0]
+    assert "--only-binary :all:" in install_step
+    assert "--no-binary trackpy,matplotlib-venn,gputil" in install_step
+    assert "import spacr" in workflow
+    assert "an extras-only distribution leaked into the core install" in workflow
+
+    assert "fractal-runtime:" in workflow
+    assert '".[fractal]"' in workflow
+    assert "xvfb-run -a python" in workflow
+    assert "libxcb-cursor0" in workflow
+    assert "libxcb-icccm4" in workflow
+    assert "libxcb-keysyms1" in workflow
+    assert "Verify Qt xcb plugin dependencies resolve" in workflow
+    assert '["ldd", str(plugin)]' in workflow
+    assert 'assert "not found" not in result.stdout' in workflow
+    assert 'assert DEFAULT_PATTERN == "orbit"' in workflow
+    assert 'assert widget.backend_name == "gpu"' in workflow
+    assert "app.processEvents()" in workflow
+
+
+def test_ci_installs_and_runs_both_built_distribution_formats():
+    """A build artifact must work away from the checkout, not merely exist."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    assert "Install and run the built wheel and sdist" in workflow
+    assert "for artifact in \"$wheel\" \"$sdist\"" in workflow
+    assert 'pip install --no-deps "$artifact"' in workflow
+    assert '"$environment/bin/python" -I' in workflow
+    assert "spacr resolved outside the isolated install" in workflow
+    assert 'importlib.metadata.version("spacr") == spacr.__version__' in workflow
+    assert workflow.count("SPACR_DISABLE_PLUGINS=1") >= 3
+    assert '"$environment/bin/spacr-run" --version' in workflow
+    assert '"$environment/bin/spacr-run" --list' in workflow
+
+
+def test_platform_matrix_consumes_both_exact_distribution_artifacts():
+    """Every supported cell tests downloads, never the editable checkout."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+    metadata_job = workflow.split("\n  metadata:\n", 1)[1].split(
+        "\n  current-python-installs:\n", 1
+    )[0]
+    install_job = workflow.split("\n  install:\n", 1)[1].split(
+        "\n  wheel-availability:\n", 1
+    )[0]
+
+    assert "distribution_artifact: ${{ steps.distribution_name.outputs.name }}" in metadata_job
+    assert "actions/upload-artifact@v7" in metadata_job
+    assert "dist/*.whl" in metadata_job
+    assert "dist/*.tar.gz" in metadata_job
+    assert "${{ github.run_id }}-${{ github.run_attempt }}" in metadata_job
+
+    assert "needs: metadata" in install_job
+    assert "actions/download-artifact@v8" in install_job
+    assert "name: ${{ needs.metadata.outputs.distribution_artifact }}" in install_job
+    assert "Install and smoke the exact wheel and sdist" in install_job
+    assert "packaging/smoke_distribution_artifacts.py" in install_job
+    assert '--dist-dir "${{ runner.temp }}/spacr-dist"' in install_job
+    assert '--extras "${{ matrix.extras }}"' in install_job
+    assert "python -m pip install -e" not in install_job
+    assert "pip install -e" not in install_job
+    assert "PYTHONPATH:" not in install_job
+
+    assert "Upload installed-artifact smoke evidence" in install_job
+    assert "${{ strategy.job-index }}" in install_job
+    assert "${{ github.run_id }}-${{ github.run_attempt }}" in install_job
+
+
+def test_distribution_smoke_is_isolated_cross_platform_and_functional():
+    """The handoff harness proves origin, CLI, core and Qt for both formats."""
+    helper = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    source = helper.read_text(encoding="utf-8")
+
+    # The harness itself runs in the declared floor cell.
+    ast.parse(source, filename=str(helper), feature_version=(3, 9))
+    assert 'dist_dir.glob("*.whl")' in source
+    assert 'dist_dir.glob("*.tar.gz")' in source
+    assert '(("wheel", wheel), ("sdist", sdist))' in source
+    assert 'name.endswith(".dist-info/METADATA")' in source
+    assert "expected_version = _wheel_version(wheel)" in source
+    assert 'distribution.read_text("direct_url.json")' in source
+    assert 'f"checkout masked the installed artifact: {installed}"' in source
+    assert 'environment.pop("PYTHONPATH", None)' in source
+    assert '"-I",' in source
+
+    assert '"--no-cache-dir"' in source
+    assert '"--no-deps"' in source
+    assert '"--force-reinstall"' in source
+    assert 'sysconfig.get_path("scripts")' in source
+    assert 'shutil.which("spacr-run", path=str(scripts))' in source
+    assert '[entrypoint, "--version"]' in source
+    assert '[entrypoint, "--list"]' in source
+    assert 'AppScreen("measure")' in source
+    assert '"spacr.timelapse"' in source
+
+    # Durations are preserved for comparison, but only a generous hang guard
+    # decides the job; hosted ARM and Windows runners are not microbenchmarks.
+    assert "SMOKE_TIMEOUT_SECONDS = 180" in source
+    assert '"install_seconds"' in source
+    assert '"elapsed_seconds"' in source
+    assert '"qt_seconds"' in source
+    assert '"sha256": _sha256(artifact)' in source
+
+
+def test_distribution_smoke_runs_the_installed_public_home_to_readiness():
+    """A constructed screen is not proof that the installed app launches."""
+    helper = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    source = helper.read_text(encoding="utf-8")
+    exercise = source.split("def _exercise_artifacts", 1)[1].split(
+        "def _parser", 1
+    )[0]
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+
+    # Home has its own fresh isolated child and is observed after the event
+    # loop and a real paint, before the older core/AppScreen proxy runs.
+    assert exercise.index('"--home-probe"') < exercise.index('"--probe"')
+    assert 'item["home"] = _parse_json_line(home_process.stdout)' in exercise
+    assert 'spacr_qt.run(["--no-setup"])' in source
+    assert "timing.subscribe_readiness(observe)" in source
+    assert 'entry.get("detail") != "__home__"' in source
+    assert 'readiness.get("screen_tree_painted") is True' in source
+    assert 'readiness.get("thread") == "MainThread"' in source
+    assert '"painted_usable_controls"' in source
+    assert '"SPACR_TIMING": "1"' in source
+    assert '"SPACR_TIMING_IMPORTS": "0"' in source
+
+    # The launch observation is made before shutdown can import cleanup code,
+    # so an operation-only stack crossing the Home boundary fails the cell.
+    assert "HEAVY_HOME_MODULES" in source
+    for module in ("pandas", "scipy", "sklearn", "torch", "cellpose"):
+        assert f'"{module}"' in source
+    assert 'assert not heavy_at_ready' in source
+
+    # Uploaded evidence is self-describing instead of relying on the job name
+    # to recover which interpreter/platform produced its timing rows.
+    assert "REPORT_SCHEMA_VERSION = 1" in source
+    assert '"schema_version": REPORT_SCHEMA_VERSION' in source
+    assert source.count('"environment": _runtime_environment()') >= 2
+    assert "run the public Qt" in workflow
+    assert "installed Home has painted a usable control" in workflow
+
+
+@pytest.mark.parametrize("heavy_loaded", [False, True])
+def test_installed_home_probe_requires_painted_lightweight_readiness(
+        tmp_path, monkeypatch, capsys, heavy_loaded):
+    """The child probe exits from readiness and rejects an eager stack."""
+    import importlib.util
+    import types
+
+    helper_path = REPO_ROOT / "packaging" / "smoke_distribution_artifacts.py"
+    spec = importlib.util.spec_from_file_location(
+        "_spacr_distribution_smoke_test", helper_path
+    )
+    assert spec is not None and spec.loader is not None
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+
+    callbacks = []
+    timing = types.ModuleType("spacr.qt.timing")
+    timing.subscribe_readiness = callbacks.append
+    timing.unsubscribe_readiness = callbacks.remove
+
+    class FakeApplication:
+        quit_called = False
+
+        @classmethod
+        def instance(cls):
+            return cls
+
+        @classmethod
+        def quit(cls):
+            cls.quit_called = True
+
+        @staticmethod
+        def platformName():
+            return "offscreen-test"
+
+    qt = types.ModuleType("spacr.qt")
+
+    def run(argv):
+        assert argv == ["--no-setup"]
+        assert len(callbacks) == 1
+        callbacks[0]({
+            "at": 1.25,
+            "started_at": 0.25,
+            "event_loop_started_at": 0.75,
+            "duration_s": 1.0,
+            "detail": "__home__",
+            "name": "interactive Home",
+            "screen_tree_painted": True,
+            "painted_usable_controls": 2,
+            "usable_controls": 3,
+            "controls": ["StartButton", "SettingsButton"],
+            "thread": "MainThread",
+        })
+        return 0
+
+    qt.run = run
+    qt.timing = timing
+    spacr = types.ModuleType("spacr")
+    spacr.__path__ = []
+    spacr.__version__ = "1.5.test"
+    spacr.qt = qt
+    pyside = types.ModuleType("PySide6")
+    pyside.__path__ = []
+    pyside.__version__ = "6.test"
+    widgets = types.ModuleType("PySide6.QtWidgets")
+    widgets.QApplication = FakeApplication
+
+    monkeypatch.setitem(sys.modules, "spacr", spacr)
+    monkeypatch.setitem(sys.modules, "spacr.qt", qt)
+    monkeypatch.setitem(sys.modules, "spacr.qt.timing", timing)
+    monkeypatch.setitem(sys.modules, "PySide6", pyside)
+    monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", widgets)
+    helper.HEAVY_HOME_MODULES = ("test_only_heavy_stack",)
+    monkeypatch.setattr(
+        helper,
+        "_verified_install",
+        lambda *_args: (spacr, tmp_path / "site-packages/spacr/__init__.py"),
+    )
+    if heavy_loaded:
+        monkeypatch.setitem(
+            sys.modules, "test_only_heavy_stack", types.ModuleType("heavy")
         )
+
+    if heavy_loaded:
+        with pytest.raises(
+                AssertionError, match="operation-only import boundary"):
+            helper._home_probe("1.5.test", "spacr-test.whl", tmp_path)
+        return
+
+    assert helper._home_probe(
+        "1.5.test", "spacr-test.whl", tmp_path
+    ) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["entry_point"] == "spacr.qt.run"
+    assert result["home_readiness"]["painted_usable_controls"] == 2
+    assert result["heavy_modules_at_ready"] == []
+    assert result["environment"]["qt"] == "6.test"
+    assert result["environment"]["qt_platform"] == "offscreen-test"
+    assert FakeApplication.quit_called is True
+
+
+def test_built_artifacts_are_audited_for_required_and_forbidden_files():
+    """Runtime omissions and accidentally bundled review assets fail CI."""
+    workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
+    manifest = (REPO_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+
+    assert "Audit built artifact inventories" in workflow
+    assert '["git", "ls-files", "spacr"]' in workflow
+    assert 'f"{label} omits runtime files: {missing}"' in workflow
+    assert 'f"{label} ships excluded files: {forbidden}"' in workflow
+    assert '"spacr/resources/icons/loading_spinner_logo (1).gif"' in workflow
+    assert "exclude spacr/resources/icons/loading_spinner_logo*" in manifest
+    assert "exclude spacr/resources/icons/loading_spinner_logo (1).gif" not in manifest
+
+
+def test_packaged_icon_integrity_manifest_covers_every_flat_png():
+    """The shipped icon inventory must describe the bytes users receive.
+
+    The artifact inventory above proves both the PNGs and
+    ``chosen_icons.json`` are present, but presence alone cannot catch a
+    stale digest after artwork changes.  Keep this dependency-free so the
+    packaging metadata job validates the complete installed icon set before
+    uploading either distribution.
+    """
+    icon_root = REPO_ROOT / "spacr" / "resources" / "icons"
+    recorded = json.loads(
+        (icon_root / "chosen_icons.json").read_text(encoding="utf-8")
+    )
+    installed = {path.stem: path for path in icon_root.glob("*.png")}
+
+    assert set(recorded) == set(installed), (
+        "chosen_icons.json and the packaged flat PNG set disagree: "
+        f"unrecorded={sorted(set(installed) - set(recorded))}, "
+        f"stale={sorted(set(recorded) - set(installed))}"
+    )
+    digests = {
+        name: hashlib.sha256(path.read_bytes()).hexdigest()
+        for name, path in installed.items()
+    }
+    mismatched = {
+        name: {
+            "actual": digests[name],
+            "recorded": row.get("sha256"),
+        }
+        for name, row in recorded.items()
+        if digests[name] != row.get("sha256")
+    }
+    assert not mismatched, f"packaged icon digests are stale: {mismatched}"
 
 
 @pytest.mark.parametrize(
@@ -708,17 +1137,93 @@ def test_every_core_dependency_is_a_valid_requirement():
             pytest.fail(f"invalid requirement {spec!r}: {exc}")
 
 
+#: The platforms a marker is evaluated against when asking whether two
+#: requirements for one package can both apply.
+#:
+#: Four, because that is the matrix spaCR ships to and the only thing a
+#: marker here has ever had to distinguish. Python version is included
+#: since several requirements key on it.
+_PLATFORMS = (
+    {"sys_platform": "linux", "platform_machine": "x86_64"},
+    {"sys_platform": "darwin", "platform_machine": "x86_64"},
+    {"sys_platform": "darwin", "platform_machine": "arm64"},
+    {"sys_platform": "win32", "platform_machine": "AMD64"},
+)
+_PYTHONS = ("3.11", "3.12", "3.13", "3.14")
+
+
+def _can_both_apply(first, second) -> bool:
+    """Whether two requirements for one package are ever active together."""
+    for platform in _PLATFORMS:
+        for python in _PYTHONS:
+            environment = dict(platform, python_version=python,
+                               python_full_version=python + ".0")
+            if all(r.marker is None or r.marker.evaluate(environment)
+                   for r in (first, second)):
+                return True
+    return False
+
+
 def test_no_duplicate_core_dependencies():
     """The deleted block declared pyqtgraph, pyqt6, pyqt6.sip, qtpy and
-    superqt twice each. Duplication is how that went unnoticed."""
-    seen: dict[str, str] = {}
-    dupes = []
+    superqt twice each. Duplication is how that went unnoticed.
+
+    MARKER-AWARE, because two entries for one name are not always a
+    duplicate. A package whose newest release has no wheel on one
+    architecture is declared twice ON PURPOSE, with mutually exclusive
+    markers -- llvmlite and numba are, for Intel macOS, where 0.46+
+    publishes no wheel and pip would otherwise reach a source build that
+    needs CMake.
+
+    What makes that legitimate and a real duplicate not is whether the
+    two can ever be active AT ONCE. A pair that can is a conflict the
+    resolver reports as unsatisfiable; a pair that cannot is one
+    requirement written per platform. So the question asked here is that
+    one, over the four platforms spaCR ships to.
+    """
+    from packaging.requirements import Requirement
+
+    by_name: dict[str, list] = {}
     for spec in _core_dependencies():
-        n = _name_of(spec)
-        if n in seen:
-            dupes.append((seen[n], spec))
-        seen[n] = spec
-    assert not dupes, f"duplicate core dependencies: {dupes}"
+        by_name.setdefault(_name_of(spec), []).append(Requirement(spec))
+
+    dupes = []
+    for name, requirements in by_name.items():
+        for index, first in enumerate(requirements):
+            for second in requirements[index + 1:]:
+                if _can_both_apply(first, second):
+                    dupes.append((str(first), str(second)))
+    assert not dupes, (
+        f"core dependencies declared twice for one platform: {dupes}. "
+        f"Two that can both apply is a conflict; split them with mutually "
+        f"exclusive markers or declare one.")
+
+
+def test_a_package_split_by_marker_covers_every_platform():
+    """The other half: mutually exclusive markers must not leave a gap.
+
+    Two requirements that can never BOTH apply are correct; two that can
+    never EITHER apply on some platform are an undeclared dependency,
+    which shows up as an ImportError at runtime rather than at install.
+    """
+    from packaging.requirements import Requirement
+
+    by_name: dict[str, list] = {}
+    for spec in _core_dependencies():
+        by_name.setdefault(_name_of(spec), []).append(Requirement(spec))
+
+    gaps = []
+    for name, requirements in by_name.items():
+        if len(requirements) < 2:
+            continue
+        for platform in _PLATFORMS:
+            environment = dict(platform, python_version="3.12",
+                               python_full_version="3.12.0")
+            if not any(r.marker is None or r.marker.evaluate(environment)
+                       for r in requirements):
+                gaps.append((name, platform))
+    assert not gaps, (
+        f"packages declared per platform with a platform left out: {gaps}")
 
 
 def test_native_features_are_optional_on_python_314():
@@ -802,8 +1307,9 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     """
     extras = _extras()
     assert "all" in extras, "the `all` extra disappeared"
-    aggregated = ("qt", "tutorial", "trackastra", "ultrack", "boosting",
-                  "czi", "nd2", "lif", "zernike", "btrack", "anndata")
+    aggregated = ("qt", "fractal", "tutorial", "trackastra", "ultrack",
+                  "boosting", "plaque", "czi", "nd2", "lif", "zernike",
+                  "btrack", "anndata")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"
@@ -932,3 +1438,44 @@ def test_console_scripts_and_extras_agree_about_qt():
             "PySide6 is in neither the core dependencies nor the `qt` extra, "
             f"yet these console scripts launch the Qt GUI: {qt_scripts}"
         )
+
+
+# --- the measured layout policy ships in both distributions (359) ----------
+
+def test_the_layout_policy_is_declared_for_the_wheel_and_the_sdist():
+    """Both, or the artifact reaches half the users who install spaCR.
+
+    Instruction 359 asks that the generated policy "be installed in both
+    wheel and sdist". Those are two different declarations -- `package_data`
+    in setup.py fills the wheel, `MANIFEST.in` fills the sdist -- and
+    listing one is the failure mode, because a wheel install would work and
+    a source install would silently fall back to the default window size
+    with nothing to say why.
+    """
+    root = Path(__file__).resolve().parent.parent
+    setup_py = (root / "setup.py").read_text(encoding="utf-8")
+    manifest = (root / "MANIFEST.in").read_text(encoding="utf-8")
+
+    assert "resources/layout_policy.json" in setup_py, (
+        "the wheel would not carry the measured layout policy")
+    assert "spacr/resources/layout_policy.json" in manifest, (
+        "the sdist would not carry the measured layout policy")
+
+
+def test_the_layout_policy_reader_imports_nothing_heavy():
+    """359: loaded "without importing heavy scientific or GPU libraries".
+
+    Asserted on the SOURCE rather than on `sys.modules`, because by the
+    time a test runs, half the package is imported already and an
+    accidental `import numpy` at the top of the reader would be invisible.
+    """
+    root = Path(__file__).resolve().parent.parent
+    source = (root / "spacr" / "qt" / "layout_policy.py").read_text(
+        encoding="utf-8")
+    for heavy in ("import numpy", "import pandas", "import torch",
+                  "import matplotlib", "from PySide6", "import PySide6",
+                  "import cellpose"):
+        assert heavy not in source, (
+            f"the layout-policy reader imports {heavy!r}; the Qt metrics "
+            "are supposed to arrive as arguments so this can be read "
+            "without a display")

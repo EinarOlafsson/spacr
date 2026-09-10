@@ -212,7 +212,7 @@ class Port:
         labels the problem messages and the registered artifact.
     :param path: location relative to the project root. ``""`` is the root.
     :param pattern: glob applied inside ``path``. Empty means ``path`` names a
-        single file or folder that must simply exist. ``**`` is honoured, and
+        single file or folder that must exist. ``**`` is honoured, and
         ``|`` separates alternatives, all of which are searched.
     :param required: False for an output that may legitimately be absent
         (``masks/`` after cleanup) or an input a module can do without.
@@ -429,6 +429,29 @@ def register_module_ports(ports: ModulePorts, *,
 for _declaration in (_MASK_PORTS, _MEASURE_PORTS, _CLASSIFY_PORTS, _UMAP_PORTS,
                      _REGRESSION_PORTS, _ML_PORTS, _BARCODE_PORTS):
     register_module_ports(_declaration)
+
+# THE MERGED CLASSIFY IS BOTH CLASSIFIERS, so it consumes and produces
+# what either of them did. Without this the Core chain reads
+# measure -> (nothing) -> regression: `chained_app_keys` is the registry
+# intersected with the modules declared here, and the screen that took
+# over from `classify` and `ml_analyze` declared nothing.
+register_module_ports(ModulePorts(
+    key="classify_merged",
+    summary="crops or measured features to a trained classifier and "
+            "per-object scores",
+    # THE UNION OF BOTH HALVES, because the screen fits either family.
+    # The image classifier needs `png_list` to find its crops; the
+    # gradient-boosting one needs only the feature table, so requiring
+    # png_list here would report the screen as blocked on a project where
+    # it can perfectly well run.
+    consumes=(
+        Port(MEASUREMENTS_DB, "db", "measurements/measurements.db",
+             description="the feature table, and png_list when the image "
+                         "classifier is the one being fitted"),
+        Port(CROPS, "crops", "data", "**/*_png", required=False,
+             description="the crops themselves, when not read from a tar"),
+    ),
+    produces=_CLASSIFY_PORTS.produces))
 
 # The timelapse module *is* the mask pipeline with tracking on —
 # spacr.core.preprocess_generate_masks_timelapse calls
@@ -869,14 +892,12 @@ def _port_problems(resolved: ResolvedPort, *, sample: int) -> List[Problem]:
 
 def port_problems(port: Port, root: str, *,
                   sample: int = 3) -> Tuple[Problem, ...]:
-    """Return every blocking problem with one port resolved against ``root``.
+    """Validate one input port after resolving it against ``root``.
 
-    The per-port half of :func:`check_ready`, exposed for callers that hold a
-    :class:`Port` but no module — a screen that says "I want a
-    ``measurements-db``" rather than "I am Measure". The sentences are the
-    ones :func:`check_ready` writes, because they are produced by the same
-    code: a drop that lands on nothing has to name what is missing in exactly
-    the words the readiness check would have used.
+    This is the per-port validation used by :func:`check_ready` and is
+    suitable for callers that have a :class:`Port` without a module key. It
+    returns the same missing-input, count, shape, and table problems as the
+    full readiness check.
 
     :param port: the declaration.
     :param root: absolute project root to resolve it against.

@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "nb",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Correct crops, parent modules, time-series workflows and measured-feature classification.", "Use Bokmål with English UI names and preserve every source instruction; caption-only."]},
+  "title": "Home og navigering",
+  "description": "Finn de seks trinnene i Core, utforsk de gjeldende kategoriene i Home og finn tilknyttede verktøy i hovedmodulene deres.",
+  "objectives": ["Følge Core-arbeidsflyten fra bilder til regresjonsresultater.", "Finne Data, Tools og Assays uten å forveksle en integrert handling med en manglende modul.", "Skille nedlastbare, virkelige datasett fra genererte demonstrasjoner og finne tilhørende fordypningsveiledninger."],
+  "prerequisite": "Installer spaCR og åpne skrivebordsappen. Opptaket bruker mørkt tema og større tekst i grensesnittet.",
+  "scenes": [
+    "Home organiserer spaCR i Core, Data, Tools og Assays. Dette er kategorier for arbeidsflyter. Tilknyttede verktøy kan også ligge inne i en hovedmodul, så knappene i Home viser ikke alle funksjonene.",
+    "Core følger analyseflyten for screening: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Begynn med trinnet som passer til inndataene dine. Du trenger ikke gjenta segmenteringen hvis du allerede har kompatible måledata eller utsnitt av bilder.",
+    "Data samler Import, Run Compare, Experiment Design, Power and Design, Dose Response og kvalitetskontroll. Import er også inngangen til Import Images, Format Converter og External Masks. Åpne hovedmodulen først for å finne disse arbeidsflytene.",
+    "Tools inneholder Make Masks, Align and Stitch, Image UMAP, Gate Editor og Graph Builder. Hver modul samler tilknyttede handlinger. Make Masks inneholder for eksempel modelltrening og modellsammenligning, mens Graph Builder inneholder Plate Viewer og Small Multiples.",
+    "Assays samler Plaque Assay, Recruitment, Invasion Assay og Replication Assay. Velg en arbeidsflyt som passer til eksperimentet og inndataene den krever. Fargen som viser modulens modenhet, er uavhengig av kategorien; les verktøytipset før du baserer deg på en eksperimentell funksjon.",
+    "Classify er én modul. Innstillingen Classifier family velger mellom bildebasert maskinsyn og maskinlæring fra målte egenskaper. De tidligere veiledningene for maskinsyn og maskinlæring forklarer fortsatt disse to alternativene, ikke separate knapper i Home.",
+    "Ikonene øverst i Classify åpner Classifier Evaluation, Explain CV Model, Activation, Training Runs og Feature Explorer. Hold pekeren over et ikon for å se navn og beskrivelse. Bruk den lenkede fordypningsveiledningen når du vil undersøke en trent modell eller resultatene dens.",
+    "Core-veiledningene bruker de virkelige datasettene som tilbys via Load test data. Nedlastingen fyller inn relevante inndata og kompatible innstillinger. De genererte demonstrasjonene under Help er et annet alternativ. I Mask viser bryterne Time og 3D arbeidsflyter for tidsserier og volumdata; Live åpner forhåndsvisningen.",
+    "Bruk Help for å gå tilbake til guidede gjennomganger og veiledninger. Ha veiledningen for den aktuelle modulen åpen ved siden av appen, og følg kontrollene av data, innstillinger og resultater. Neste leksjon viser hvordan de samme arbeidsflytene brukes via Python-API-et og kommandolinjen."
+  ]
+}

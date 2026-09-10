@@ -29,7 +29,7 @@
   },
   "app_icon": {
     "candidate": null,
-    "sha256": "2a19c083b9405ffb001af6fa3cab9cb5b7eb5d17a1982b107f9d18eb345d5272"
+    "sha256": "1a26627576bf56c012101b60de7df62577e79fe4e2ef5ab58b2b2957f4ed9c60"
   },
   "barcode_qc": {
     "candidate": "barcode_qc/barcode_qc_01.png",
@@ -127,6 +127,10 @@
     "candidate": "hit_list/hit_list_02.png",
     "sha256": "1904f71837d8215c37a174c4423997568207ffc3009cc0f51e20507eccc9c091"
   },
+  "home": {
+    "candidate": null,
+    "sha256": "226e3167cfb39e07c1765c314cb5e00669110ad49e1930f61e4441eecde3111e"
+  },
   "illumination": {
     "candidate": "illumination/illumination_12.png",
     "sha256": "9d6702b74d3f70f3499d2c799176e85ac6bcf9fb35af762170a812ca93118ec4"
@@ -149,7 +153,11 @@
   },
   "logo_spacr": {
     "candidate": null,
-    "sha256": "67b904fbc8416dfcaa3608c363c2bbf637e9cddc64b552c38ed0d1144e19a3f2"
+    "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761"
+  },
+  "logo_spacr_readme": {
+    "candidate": null,
+    "sha256": "ef9091ca6c52af9e073305a5700a0ade04031aff649fc6abc5ca6adc52fdd5e9"
   },
   "logo_spacr_v1": {
     "candidate": null,
@@ -243,6 +251,10 @@
     "candidate": "regression/regression_03.png",
     "sha256": "7699b6233fc64e62e48c7937cc2363df5bfcb9f01e0e258c4f3cec7a4cee867d"
   },
+  "regression_diagnostics": {
+    "candidate": null,
+    "sha256": "fb1499754fec8294ce65ff9a4f9cd169cad5b5d9f16e6ec3ca6fe7959b42f91b"
+  },
   "replication": {
     "candidate": "replication/replication_04.png",
     "sha256": "f000c0fd8b5e5051c2317136286aa150559ed41cda7a24b6b883000eee0931bd"
@@ -294,5 +306,9 @@
   "umap": {
     "candidate": "umap/umap_01.png",
     "sha256": "484a0ec2a19a370419ce13871e3f5040acb596486b2bb7d6ab6c83a6008912a8"
+  },
+  "volcano_explorer": {
+    "candidate": "tools/draw_volcano_explorer_icon.py",
+    "sha256": "5403829f18e1b17bf8e0708a11bb076e2d9f71a14ab9e0731f172b481ef0434a"
   }
 }

@@ -38,6 +38,7 @@ caller doing anything.
 from __future__ import annotations
 
 import logging
+import weakref
 from typing import Any, Callable, Dict, Optional, Tuple
 
 from PySide6.QtCore import QObject, Signal
@@ -58,6 +59,35 @@ def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
     touches nothing but ``payload``.
     """
     payload["result"] = fn()
+
+
+#: Every JobRunner alive in this process. Weak, so a runner whose widget has
+#: gone leaves no entry behind.
+#:
+#: WHY A REGISTRY. Qt ABORTS THE PROCESS if a running QThread is destroyed --
+#: no Python exception, no traceback, nothing in the log. Each runner shuts
+#: down in its own widget's `closeEvent`, which covers a widget being closed
+#: and does NOT cover the application quitting with a job still in flight: the
+#: widget is never closed, it is destroyed. The registry lets application
+#: shutdown retire those threads before their widgets disappear.
+_LIVE_RUNNERS: "weakref.WeakSet" = weakref.WeakSet()
+
+
+def shutdown_all(timeout_ms: int = 3000) -> int:
+    """Stop every live JobRunner. Returns how many were asked.
+
+    Call once on the way out, before Qt starts destroying widgets. Ordering
+    matters more than completeness here: a runner that cannot stop in time is
+    parked by `bridge.drain_thread` rather than terminated, so this is bounded.
+    """
+    asked = 0
+    for runner in list(_LIVE_RUNNERS):
+        try:
+            runner.shutdown(timeout_ms)
+            asked += 1
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not shut down a job runner", exc_info=True)
+    return asked
 
 
 class JobRunner(QObject):
@@ -91,7 +121,25 @@ class JobRunner(QObject):
     def __init__(self, parent: Optional[QObject] = None, *,
                  threaded: bool = True, app_key: str = "",
                  user_visible: bool = True) -> None:
+        """Create a runner for one widget's background work.
+
+        It registers itself the moment it exists, so a runner cannot be created
+        and then missed by the quit-time drain; the registration is weak, so it
+        holds nothing alive that Qt would otherwise collect.
+
+        :param parent: the owning object, or ``None``.
+        :param threaded: run jobs on a worker thread. ``False`` runs each one
+            inline, emitting the same signals in the same order.
+        :param app_key: how this runner's work is named in the run registry.
+        :param user_visible: whether these jobs count as runs the user started.
+            Set ``False`` for housekeeping, or Home's run banner announces work
+            nobody asked for.
+        """
         super().__init__(parent)
+        # REGISTERED THE MOMENT IT EXISTS, so a runner cannot be created and
+        # then missed by the quit-time drain. Weak, so this holds nothing
+        # alive that Qt would otherwise collect.
+        _LIVE_RUNNERS.add(self)
         self._threaded = bool(threaded)
         self._app_key = app_key or "loading"
         self._user_visible = bool(user_visible)
@@ -142,7 +190,7 @@ class JobRunner(QObject):
         thread, worker = make_thread(
             lambda payload, _fn=fn: _capture(_fn, payload), box,
             app_key=self._app_key, journal=False,
-            user_visible=self._user_visible)
+            user_visible=self._user_visible, capture_figures=False)
         # Strong references. PySide6 does not keep the worker alive through
         # the started->run connection alone, and a collected worker means the
         # thread spins forever without ever calling run().
@@ -184,7 +232,14 @@ class JobRunner(QObject):
         try:
             self._settled.emit(job_id, bool(ok))
         except RuntimeError:
-            pass
+            # The runner's C++ half died with its parent before this worker
+            # finished.  No queued receiver remains to retire the pending
+            # result, but the Python closure still owns ``self`` and may clear
+            # its bookkeeping safely under the GIL.  Do not drop ``_jobs``
+            # here: its strong references keep the QThread alive until the
+            # worker has actually stopped.
+            self._pending.pop(job_id, None)
+            self._busy = bool(self._pending)
 
     def _on_settled(self, job_id: int, ok: bool) -> None:
         """Finish one job by id. Always on the GUI thread."""
@@ -218,6 +273,12 @@ class JobRunner(QObject):
                 self._jobs.pop(job_id, None)
 
     def _on_worker_error_text(self, text: str) -> None:
+        """Report a worker failure given as raw text.
+
+        :param text: the worker's error output. The last non-blank line is what
+            is shown -- for a traceback that is the exception itself -- and an
+            entirely blank one still reports something rather than nothing.
+        """
         line = ""
         for candidate in reversed(str(text).strip().splitlines()):
             if candidate.strip():
@@ -226,12 +287,22 @@ class JobRunner(QObject):
         self.job_failed.emit(line or "unknown error")
 
     def _fail(self, exc: Exception) -> None:
+        """Log and report a failed job.
+
+        :param exc: the exception raised; its class name is used when it carries
+            no message, so a bare ``KeyError`` still says something.
+        """
         LOG.info("background job failed", exc_info=True)
         self.job_failed.emit(str(exc) or exc.__class__.__name__)
 
     # -- state ------------------------------------------------------------
 
     def _set_busy(self, busy: bool) -> None:
+        """Announce a change in whether work is in flight.
+
+        :param busy: the new state; announced only when it actually changed, so
+            a burst of jobs does not emit per job.
+        """
         busy = bool(busy)
         if busy != self._busy:
             self._busy = busy

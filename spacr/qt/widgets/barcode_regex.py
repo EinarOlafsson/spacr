@@ -13,6 +13,8 @@ import re
 from typing import Dict
 
 from PySide6.QtCore import Qt, Signal
+
+from ..i18n import tr
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import (
     QDialog,
@@ -21,6 +23,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPlainTextEdit,
+    QSizePolicy,
     QPushButton,
     QToolButton,
     QVBoxLayout,
@@ -102,12 +105,36 @@ def evaluate_barcode_regex(pattern: str, sample: str = "") -> BarcodeRegexResult
 
 
 class BarcodeRegexDialog(QDialog):
-    """Edit and test a barcode regex against a representative read."""
+    """Edit and test a barcode regex against a representative read.
+
+    :param initial_regex: the expression to open with. Empty opens the field
+        empty; the dialog proposes nothing until the user tests a read.
+    :param parent: parent widget.
+    """
 
     def __init__(self, initial_regex: str = "", parent=None):
+        """Build the barcode-regex tester.
+
+        Sized in scaled pixels rather than raw ones: a size set from Python does
+        not grow with the stylesheet's font size, and at the 200% scale the
+        prose inside wrapped to more height than the window had.
+
+        :param initial_regex: the pattern to open with; empty uses spaCR's
+            default.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         self.setWindowTitle("spaCR — Barcode regex tester")
-        self.setMinimumSize(760, 430)
+        from ..preferences import scaled_px
+
+        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
+        # Python does not grow when the stylesheet's font size does, so at
+        # the 200%% font scale the prose inside this window wrapped to more
+        # height than the window had and the last line was cut off. The
+        # size-policy fix on the label was necessary and not sufficient:
+        # a policy stops a parent handing a label less than it asks for, but
+        # it cannot make a window grow that has no room to give.
+        self.setMinimumSize(scaled_px(760), scaled_px(430))
         self.regex = ""
 
         outer = QVBoxLayout(self)
@@ -120,6 +147,14 @@ class BarcodeRegexDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        intro.setSizePolicy(QSizePolicy.Preferred,
+                               QSizePolicy.Minimum)
         outer.addWidget(intro)
 
         mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -131,7 +166,7 @@ class BarcodeRegexDialog(QDialog):
 
         actions = QHBoxLayout()
         self._default_button = QPushButton("Reset spaCR default", self)
-        self._example_button = QPushButton("Use bundled example", self)
+        self._example_button = QPushButton(tr("Load test data"), self)
         actions.addWidget(self._default_button)
         actions.addWidget(self._example_button)
         actions.addStretch(1)
@@ -143,13 +178,21 @@ class BarcodeRegexDialog(QDialog):
         self._sample_input.setFont(mono)
         self._sample_input.setMaximumHeight(90)
         self._sample_input.setPlaceholderText(
-            "Paste a DNA sequence here, or click “Use bundled example”."
+            "Paste a DNA sequence here, or click “Load test data”."
         )
         outer.addWidget(self._sample_input)
 
         self._status = QLabel(self)
         self._status.setObjectName("BarcodeRegexStatus")
         self._status.setWordWrap(True)
+        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
+        # Preferred height a parent is free to hand it less than its
+        # heightForWidth. This is the house rule `prerun._label` documents.
+        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
+        # label clipped at 2.0x, because the container above it does not grow
+        # either. See 350; the remaining fix is the dialog's layout, not this.
+        self._status.setSizePolicy(QSizePolicy.Preferred,
+                                      QSizePolicy.Minimum)
         outer.addWidget(self._status)
 
         outer.addWidget(QLabel("Captured values:"))
@@ -178,6 +221,12 @@ class BarcodeRegexDialog(QDialog):
         self._refresh()
 
     def _refresh(self) -> None:
+        """Re-evaluate the pattern against the pasted read and show the captures.
+
+        The status line carries the verdict and is repolished so its style
+        follows it, and the captures pane shows exactly what would be written to
+        the mapping table.
+        """
         result = evaluate_barcode_regex(
             self._regex_input.text(),
             self._sample_input.toPlainText(),
@@ -201,6 +250,11 @@ class BarcodeRegexDialog(QDialog):
         self._buttons.button(QDialogButtonBox.Save).setEnabled(result.valid)
 
     def _save(self) -> None:
+        """Accept the pattern, but only while it is valid.
+
+        An invalid pattern does nothing rather than closing: saving one that
+        cannot compile would fail on the next run instead of here.
+        """
         result = evaluate_barcode_regex(
             self._regex_input.text(),
             self._sample_input.toPlainText(),
@@ -212,11 +266,22 @@ class BarcodeRegexDialog(QDialog):
 
 
 class BarcodeRegexWidget(QWidget):
-    """Compact settings-row field with inline validation and a test dialog."""
+    """Compact settings-row field with inline validation and a test dialog.
+
+    :param value: the regular expression already saved. Empty opens the field
+        empty rather than with a suggestion, so a blank setting stays blank
+        until the user or the test dialog fills it.
+    :param parent: parent widget.
+    """
 
     valueChanged = Signal(str)
 
     def __init__(self, value: str = "", parent=None):
+        """Build the inline regex field with its verdict mark and Test button.
+
+        :param value: the pattern to start with.
+        :param parent: parent widget, or ``None``.
+        """
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -248,12 +313,20 @@ class BarcodeRegexWidget(QWidget):
         self._on_text_changed(self._line_edit.text())
 
     def _on_text_changed(self, text: str) -> None:
+        """Re-evaluate the typed pattern and update the inline verdict.
+
+        The verdict's full message is the mark's tooltip, so why a pattern is
+        refused is reachable without opening the tester.
+
+        :param text: the pattern now in the field.
+        """
         result = evaluate_barcode_regex(text)
         self._status.setText("✓" if result.valid else "⚠")
         self._status.setToolTip(result.message)
         self.valueChanged.emit(text)
 
     def _open_tester(self) -> None:
+        """Open the full tester on the current pattern and take back what it saves."""
         dialog = BarcodeRegexDialog(self.get_value() or "", parent=self)
         if dialog.exec() == QDialog.Accepted:
             self.set_value(dialog.regex)

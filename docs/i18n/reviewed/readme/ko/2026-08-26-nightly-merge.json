@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "headless-module-list",
+      "source_sha256": "ba692202a90d45cc9c603ecd4496cc0dc0ab15e50cb585983e67a3e4c576dee3",
+      "source": "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
+      "translation": "``spacr-run --list``\\ 는 그래픽 인터페이스 없이 실행할 수 있는 명령줄 진입점이 있는 모듈을 나열합니다. GUI에서만 제공되는 주석, 큐레이션, 비교 및 탐색 모듈은 목록에서 제외됩니다."
+    },
+    {
+      "label": "host-modules-heading",
+      "source_sha256": "8974e5e3d47e0eecbbbc6339f970a9f05e5c855e0bc0aa42bfa6e25a5577b722",
+      "source": "Modules available from host screens",
+      "translation": "호스트 화면에서 사용할 수 있는 모듈"
+    },
+    {
+      "label": "host-modules-introduction",
+      "source_sha256": "12a5d01d329b5b5525d7816855f4e3f214c4e91a729b3173a6c5d734097bf4b9",
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "translation": "20개 모듈은 별도의 Home 타일로 표시되지 않고 관련 호스트 화면에 통합되어 있습니다. 각 모듈은 호스트 화면의 상단 헤더에서 열리며 활성 프로젝트를 사용합니다. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP 및 Make Masks에서 이러한 통합 모듈을 제공합니다. 도움말과 API 문서는 계속 사용할 수 있으며, 파이프라인 진입점이 있는 모듈은 그래픽 인터페이스 없이도 실행할 수 있습니다. `기능 안내서 <docs/source/features.rst>`_\\ 에는 각 통합 모듈과 해당 호스트 화면이 나열되어 있습니다."
+    },
+    {
+      "label": "make-masks-heading",
+      "source_sha256": "3b6b87a84692b587aa2299fc27a05cbe60c36d7c0c53f37d68e9e3e7e3d780e3",
+      "source": "Make Masks",
+      "translation": "Make Masks"
+    },
+    {
+      "label": "make-masks-tools",
+      "source_sha256": "cf42b5d15a73956955227f308b7278340d7169c0dcd43c4b8b782ce04b030ded",
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "translation": "Make Masks는 **Data** 아래에 있으며 세그멘테이션 마스크를 수동으로 수정하는 기능을 제공합니다. 상단 헤더에서 Cellpose 워크플로에도 접근할 수 있습니다. 캔버스에는 아홉 가지 도구가 있습니다: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** 및 **Recrop**. Draw는 자유 형식의 닫힌 윤곽선으로 채워진 레이블 하나를 생성합니다. Divide는 사용자가 지정한 선을 따라 합쳐진 객체를 분리하면서 다른 객체 레이블은 모두 보존합니다."
+    },
+    {
+      "label": "make-masks-recrop",
+      "source_sha256": "c5dc0f507fac105cec72a090640d29182dcb99677f21a2d3f4e0d5f43e659d83",
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "translation": "Recrop은 큐레이션을 위해 준비된 여러 객체 이미지에서 단일 객체 필드를 추출합니다. 한 객체 주위에 경계 상자를 지정하면 대응하는 이미지 및 마스크 영역을 새 필드로 기록하고, 해당 필드를 현재 필드 다음에 배치하며, 원래의 다중 객체 필드를 큐레이션 대기열에서 제거합니다. Recrop은 레이블 픽셀을 편집하는 대신 활성 필드를 바꿉니다."
+    },
+    {
+      "label": "make-masks-cellpose-sam",
+      "source_sha256": "0a66d7dfcafc418b8d544c33f766ee40df8a6dcb12ec4aa855c992c64beba969",
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "translation": "Make Masks에서 Cellpose-SAM을 실행하면 마스크 옆에 두 가지 중간 출력인 **세포 확률 맵**\\ 과 **흐름장**\\ 이 표시됩니다. 마스크는 확률 맵의 임계값으로 정의되며, 흐름 일관성 검사는 계산된 흐름이 예측된 흐름장과 다른 객체를 제외할 수 있습니다. 잘못되거나 불완전한 마스크를 평가할 때 이 출력들을 확인하여 낮은 세포 확률과 일관되지 않은 흐름을 구분하십시오."
+    },
+    {
+      "label": "objects-settings-heading",
+      "source_sha256": "5320cf91af838c922615828f8276df4446d13c513c12bfa245d9b3f09de909fd",
+      "source": "Objects and settings",
+      "translation": "객체 및 설정"
+    },
+    {
+      "label": "objects-settings-inventory",
+      "source_sha256": "24b939c6e8e38f0b312c7f55263277e8dca9da0d4405aa2cc83722f6e7628e9c",
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "translation": "spaCR는 세포, 핵 및 병원체 객체, 이 객체들의 마스크에서 파생되는 세포질, 그리고 0개에서 26개까지의 세포소기관 슬롯을 지원합니다. 각 세포소기관 슬롯에는 독립적인 채널, 직경, 형태 프리셋 및 검출 방법이 있습니다."
+    },
+    {
+      "label": "objects-settings-visibility",
+      "source_sha256": "2e03aefa953cc86eac19f424339cca26dc2e704c5ef13485a756f95018e8fd63",
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "translation": "설정 패널은 적용되는 경우에만 컨트롤을 표시합니다. 설정된 개수를 초과하는 세포소기관 슬롯은 숨겨지고, 채널이 지정되지 않은 객체는 실행에서 제외되며, 형태별 컨트롤은 선택한 방법에 해당할 때만 표시됩니다. **3D**와 **Time** 스위치는 차원을 정의합니다. ``z_stack``\\ 은 체적 설정을 활성화하고, ``timelapse``\\ 는 추적 설정을 활성화하며, 두 스위치를 모두 활성화하면 4차원 설정이 표시됩니다."
+    },
+    {
+      "label": "performance-heading",
+      "source_sha256": "3cca4da3c2a1c9529adaa3e2b0e38b7a94d84eb65fc08e0429484abc75276b3a",
+      "source": "Diagnosing performance",
+      "translation": "성능 진단"
+    },
+    {
+      "label": "performance-report-heading",
+      "source_sha256": "f84f94d824bd95e3df7b1c4c3dff1fc57dff13079e145c43b00e83f6fd35786e",
+      "source": "Generate a hardware report and attach it to a performance-related issue",
+      "translation": "하드웨어 보고서를 생성하여 성능 관련 이슈에 첨부하세요"
+    },
+    {
+      "label": "performance-report-location",
+      "source_sha256": "ea84a760589415ed93d0dd9086ecdd13b5d2e32e0c2d75c6aa019c15b3e1b021",
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "translation": "이 명령은 보고서를 출력하고 ``~/.spacr/reports`` 아래에 사본을 저장하며, 마지막 줄에 저장된 경로를 표시합니다. ``--quick``\\ 은 시간이 오래 걸리는 벤치마크를 생략하고, ``--out PATH``\\ 는 다른 출력 위치를 지정합니다."
+    },
+    {
+      "label": "performance-report-scope",
+      "source_sha256": "f7a25b53879a3d74d166fbc6eeeeb3a83608aaf21e42749381eca6467ff1c0a1",
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "translation": "이 보고서는 프로젝트를 열거나 프로젝트 데이터를 읽지 않습니다. 가져오기 및 수치 라이브러리 실행 시간, 디스플레이 배율, 활성 환경 설정, 기본 창과 모듈 화면의 구성, 애니메이션 성능을 기록합니다. 보고서 파일이 생성되는 유일한 출력입니다."
+    },
+    {
+      "label": "performance-report-platform",
+      "source_sha256": "c9d044f42e7b846be8dc37dbc88d2b39a7a7b0dd86044e4b2545ed5bb33fc49d",
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "translation": "또한 Apple Silicon에서 실행되는 x86_64 Python 빌드와 같은 프로세서 아키텍처 에뮬레이션과 NumPy가 사용하는 BLAS 구현을 확인합니다. 어느 쪽이든 성능에 상당한 영향을 줄 수 있습니다."
+    },
+    {
+      "label": "support-performance-context",
+      "source_sha256": "75d5a4b6f9960ae3ac303786f491da789e21b9b4eafe434645aa44d1a542e3ba",
+      "source": "Submit bug reports and focused feature requests through `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of this information; include the hardware report when reporting performance problems.",
+      "translation": "버그 보고와 범위가 명확한 기능 요청은 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_\\ 를 통해 제출하세요. 오류를 보고할 때는 spaCR 버전, 운영 체제, Python 버전, 모듈 설정 및 관련 로그 일부를 포함하십시오. ``spacr-doctor``\\ 가 이 정보의 대부분을 수집합니다. 성능 문제를 보고할 때는 하드웨어 보고서도 포함하십시오."
+    },
+    {
+      "label": "debug-log-location",
+      "source_sha256": "0de8a1be0b0750ef6a744a16c65c099aa9518fc71609d05bfcf6174668b9ca87",
+      "source": "Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written to ``~/.spacr/logs/spacr.log``.",
+      "translation": "문제를 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``\\ 로 설정하세요. 순환 로그는 ``~/.spacr/logs/spacr.log``\\ 에 기록됩니다."
+    },
+    {
+      "label": "primary-workflow-introduction",
+      "source_sha256": "7316054874b435fb4973b106b8f88d2d3c5aab456a43e2db41954aafb6d94a26",
+      "source": "The primary workflow comprises six modules:",
+      "translation": "기본 워크플로는 6개 모듈로 구성됩니다:"
+    },
+    {
+      "label": "additional-project-capabilities",
+      "source_sha256": "8c884d15546a2332066e175a59b258b23bf0af33a09dcd833eda7e15f1ff13fd",
+      "source": "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.",
+      "translation": "동일한 프로젝트에서 플레이트 설계, 검정력 추정, 배치 효과 보정, 세그멘테이션 품질 점검, 연결된 플롯과 크롭 탐색, AnnData 내보내기, 중단된 작업 재개 및 각 결과에 사용된 설정 기록도 수행할 수 있습니다."
+    },
+    {
+      "label": "macos-installer-instructions",
+      "source_sha256": "bdcd4ea97ba611f2a263e0e9c67fda6b93076dcac39417cd11f984ba22eb1016",
+      "source": "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.",
+      "translation": "macOS에서는 ``.pkg``\\ 를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**\\ 를 선택하세요."
+    },
+    {
+      "label": "installer-guide-instructions",
+      "source_sha256": "1509676bb2466866d9073a2b630405836381b550e0ac1addec1328943bbee968",
+      "source": "See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions.",
+      "translation": "업데이트, 제거, 오프라인 설치 및 문제 해결 지침은 `설치 가이드 <docs/source/installer_guide.rst>`_\\ 를 참조하십시오."
+    },
+    {
+      "label": "optional-integrations",
+      "source_sha256": "e60f911d08c33f84e4ee6182a3e6f926a243f470bedb949058ff4c5802f0d609",
+      "source": "Optional integrations are installed separately, for example ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `installation guide <docs/source/installer_guide.rst>`_ for the complete extras and Python-version compatibility table.",
+      "translation": "선택적 통합 기능은 ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``\\ 과 같이 별도로 설치합니다. 전체 추가 기능 목록과 Python 버전 호환성 표는 `설치 안내서 <docs/source/installer_guide.rst>`_\\ 를 참조하십시오."
+    },
+    {
+      "label": "citation-line",
+      "source_sha256": "ea97369c0445cf03bc0d73c4ee41f3a4307d54ce29b15ecaf6a32ec84dd82e45",
+      "source": "Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies EAF1 as a *T. gondii* modulator of ESCRT subversion.",
+      "translation": "Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*\\ 의 ESCRT 기능 탈취 조절 인자로 규명합니다."
+    }
+  ]
+}

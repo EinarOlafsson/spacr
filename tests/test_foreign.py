@@ -29,6 +29,7 @@ produces a real project or a plausible-looking wrong one:
 """
 from __future__ import annotations
 
+from dataclasses import fields
 import os
 import sqlite3
 
@@ -42,6 +43,14 @@ from spacr import crops as cropping
 from spacr import feature_dict as fdict
 from spacr import foreign as fg
 from spacr.errors import ConfigurationError
+
+
+@pytest.mark.parametrize("record", (fg.ImportPlan, fg.ImportResult))
+def test_import_records_document_every_generated_constructor_field(record):
+    """The executable plan and its result explain every value they expose."""
+    documentation = record.__doc__ or ""
+    for item in fields(record):
+        assert f":param {item.name}:" in documentation
 
 
 # ---------------------------------------------------------------------------
@@ -1343,12 +1352,16 @@ def test_more_than_twenty_ragged_fields_are_summarised(tmp_path):
 
 def test_the_join_report_summarises_long_lists_rather_than_dumping_them():
     report = fg.JoinReport(
-        image_key="Image", label_key="Object", rows_total=100, rows_matched=0,
+        image_key="Image", label_key="Object", object_type="nucleus",
+        rows_total=100, rows_matched=0,
         unresolved_fields=[(f"img{i}", 1) for i in range(15)],
         rows_no_object=[(f"stem{i}", 2) for i in range(15)],
         objects_unmeasured=[(f"stem{i}", 3) for i in range(15)],
         ambiguous_keys=[f"k{i}" for i in range(3)],
         examples=["one", "two"])
+    assert ":ivar object_type:" in (fg.JoinReport.__doc__ or "")
+    assert ":ivar examples:" in (fg.JoinReport.__doc__ or "")
+    assert report.object_type == "nucleus"
     text = report.summary()
     assert "and 5 more distinct value(s)" in text
     assert "and 5 more field(s)" in text
@@ -1525,6 +1538,8 @@ def test_a_mask_tree_shaped_like_the_image_tree_matches_exactly(tmp_path):
                           layout="plate_well")
     assert plan.ok, fg.format_plan(plan)
     field = next(iter(plan.masks.fields.values()))["cell"]
+    assert ":param labels:" in (fg.MaskMapping.__doc__ or "")
+    assert field.labels == (1, 2)
     assert field.match == "exact"
     assert plan.join.rows_matched == 1
 

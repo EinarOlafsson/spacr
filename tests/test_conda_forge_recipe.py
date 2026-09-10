@@ -10,7 +10,6 @@ import pytest
 import yaml
 from packaging.requirements import Requirement
 
-
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE = ROOT / "conda-forge" / "recipe" / "recipe.yaml"
 BOT_CONFIG = ROOT / "conda-forge" / "conda-forge.yml"
@@ -21,19 +20,21 @@ CONDA_NAMES = {
     "opencv-python-headless": "opencv",
     "matplotlib": "matplotlib-base",
     "matplotlib-venn": "matplotlib-venn",
-    "nvidia-ml-py": "pynvml",
     "tables": "pytables",
     "huggingface-hub": "huggingface_hub",
 }
 
 # The conda package is an application distribution, not only setup.py's core
-# library wheel. These are deliberate conda-only runtime additions: Cellpose's
-# recipe currently omits its SAM import, while spaCR's Qt extra cannot be
-# selected through conda package extras.
+# library wheel. This is the one deliberate conda-only runtime addition:
+# Cellpose's recipe currently omits its SAM import.
+#
+# pyside6 and qtawesome used to be here for the reason the name says -- spaCR's
+# Qt extra cannot be selected through conda package extras. They are core
+# dependencies of the wheel as of 2026-08-17 ("lets stop hiding the qt behind
+# a qt"), so they arrive through `expected` now and naming them here as well
+# would only hide it if they were ever removed from setup.py.
 CONDA_APPLICATION_DEPENDENCIES = {
     "segment-anything",
-    "pyside6",
-    "qtawesome",
 }
 
 
@@ -49,9 +50,17 @@ def _core_dependency_names() -> set[str]:
             for target in node.targets
         ):
             requirements = ast.literal_eval(node.value)
+            # A REQUIREMENT WITH AN ENVIRONMENT MARKER IS NOT EXPECTED IN
+            # THE RECIPE. `win10toast` is declared
+            # `platform_system == "Windows"`, and this recipe is
+            # `noarch: python` -- one package for every platform, with no way
+            # to express the marker. Listing it would make a Windows-only
+            # toast library a hard runtime dependency on Linux and macOS,
+            # where it does not build.
             return {
                 _normalise(Requirement(requirement).name)
                 for requirement in requirements
+                if not Requirement(requirement).marker
             }
     raise AssertionError("setup.py has no literal dependencies assignment")
 
@@ -71,12 +80,15 @@ def test_conda_recipe_covers_every_core_dependency():
     assert conda_names == expected | CONDA_APPLICATION_DEPENDENCIES
 
 
-def test_conda_recipe_is_noarch_and_uses_a_verified_tag_archive():
+def test_conda_recipe_is_noarch_and_uses_a_verified_pypi_archive():
     text = RECIPE.read_text(encoding="utf-8")
     recipe = yaml.safe_load(text)
     assert recipe["build"]["noarch"] == "python"
     assert "--no-deps" in recipe["build"]["script"]
-    assert "archive/refs/tags/v${{ version }}.tar.gz" in recipe["source"]["url"]
+    assert (
+        "pypi.org/packages/source/s/spacr/spacr-${{ version }}.tar.gz"
+        in recipe["source"]["url"]
+    )
     assert re.fullmatch(r"[0-9a-f]{64}", recipe["source"]["sha256"])
     assert recipe["extra"]["recipe-maintainers"] == ["EinarOlafsson"]
 
@@ -101,10 +113,10 @@ def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata()
     assert "pip check" not in RECIPE.read_text(encoding="utf-8")
 
 
-def test_conda_recipe_preserves_the_license_of_its_tagged_source():
+def test_conda_recipe_preserves_the_license_of_its_pypi_source():
     recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
-    assert recipe["context"]["version"] in {"1.4.9.8", "1.4.9.9"}
-    assert recipe["about"]["license"] == "MIT"
+    assert recipe["context"]["version"] == "1.5.0.4"
+    assert recipe["about"]["license"] == "BSD-3-Clause"
     assert recipe["about"]["license_file"] == "LICENSE"
 
 
@@ -136,8 +148,13 @@ def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
 #: `opencv-python-headless 4.9.0.80` is a wrapper whose fourth component is
 #: the wrapper build, not the OpenCV release; conda-forge ships the library
 #: itself as `opencv 4.9.0`, so the two spellings name the same floor.
+#: PyPI's maintained `nvidia-ml-py` distribution uses NVIDIA driver-branch
+#: versions such as `11.450.51`, whereas conda-forge exposes the compatible
+#: `pynvml` line as `11.5`. The translated floors are the minimum compatible
+#: releases in their respective package indexes.
 FLOOR_TRANSLATIONS = {
     "opencv": {"4.9.0.80": "4.9.0"},
+    "pynvml": {"11.450.51": "11.5"},
 }
 
 

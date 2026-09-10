@@ -1,0 +1,501 @@
+================================================================================
+THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
+================================================================================
+
+Status:    DONE 2026-09-02, ON THE MAINTAINER'S ACCEPTANCE.
+
+           WHAT THAT MEANS, recorded plainly so the record is not stronger
+           than the evidence: the measured half of this item is done --
+           startup from an installed wheel is accepted, and items 55, 262,
+           268, 282 and 284 measured and improved startup, module
+           construction, lazy imports and memory policy. What was NEVER
+           carried out here is the part that needs hardware this session
+           does not have: the sdist in a clean environment, the GPU path,
+           the machine matrix and the performance profiles.
+
+           Einar closed it on 2026-09-02 after using the built package. He
+           is the one who can run it on the machines that matter, so his
+           acceptance is the evidence for the remainder; nothing below was
+           re-measured to support this line.
+Owner:     packaging, startup, module loading, execution and resource cleanup.
+Requested: 2026-08-28 — "make sure the pakeage loads and runs optimally"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Items 55, 262, 268, 282 and 284 already measured and improved startup,
+module construction, lazy imports and memory policy. Their dated measurements
+are evidence about those trees, not proof about the final release tree. Item
+282 also records one unfinished integration: the tested cleanup policy exists,
+but every live cache was not yet shown to consult it.
+
+This is a final installed-package audit. It must exercise a wheel or sdist in
+a clean environment as well as the checkout, because an editable import can
+make broken packaging look healthy. "Optimally" means within explicit budgets,
+with no known avoidable measured hotspot left unexplained; it does not mean an
+unsupported claim of a theoretical optimum.
+
+--------------------------------------------------------------------------------
+MEASURED 2026-08-28 — CURRENT DEFECTS
+--------------------------------------------------------------------------------
+
+  * A wheel built from the frozen 1.5.0.4 tree installed and imported, but
+    ``packaging/online/smoke_installed.py`` crashed in Measure with
+    ``KeyError: 'organelleb_mask_dim'``. The pipeline indexed optional
+    secondary-organelle keys which are intentionally absent beyond
+    ``number_of_organelles``. Missing now means the same as explicit ``None``.
+    Five direct Measure/Crop end-to-end tests pass, and a newly built clean
+    wheel completed the installed one-field Measure smoke. This finding is
+    fixed in the working tree; the final frozen artifact still has to repeat
+    that proof with the rest of this item.
+  * Merely opening ``classify_merged`` grew a fresh process from 263.4 MB / 508
+    modules to 1031.5 MB / 5,318 modules and imported torch, cv2, IPython and
+    matplotlib.pyplot. The chained-bar applicability refresh canonicalised
+    ``channel_of_interest`` by importing ``spacr.utils.feature_selection``.
+    The canonical reader now lives in lightweight ``spacr.settings`` and
+    ``spacr.utils`` re-exports that one implementation. Re-driven through the
+    actual navigation path: 0.774 seconds, 369.8 MB, and none of
+    ``spacr.utils``, torch, torchvision, cv2, IPython or matplotlib.pyplot was
+    imported. A fresh-process regression test drives the same path.
+  * The actual ``spacr.qt.run`` entry point still imports pandas while building
+    the theme stylesheet: widget-QSS discovery imports the Annotate screen,
+    which imports linked selection, which imports pandas. A direct
+    ``MainWindow`` probe misses this path and is therefore not a launch test.
+  * The timing clock starts inside ``launch()``, after ``spacr.qt.run`` has
+    imported the app and registered modules. Its "entering event loop" mark is
+    also before the first paint/event, so neither boundary proves interactive
+    Home time.
+  * The existing performance artifact sampled six modules while the live app
+    registry contains 44. It cannot support the claim that every module meets
+    the budget.
+  * ``resource_cleanup.what_to_drop`` and ``headroom_is_short`` have no
+    production callers. The declared laptop live-figure allowance is five,
+    while ``FigureQueue.live_figure_cap()`` still returns 20 from a separate
+    preference. Item 282's own trailing record says this wiring remains.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A package that imports in the checkout but fails after installation is not a
+working release. A package that eventually opens while blocking the event loop,
+eagerly importing unused scientific stacks, or retaining unbounded caches is
+not usable on the laptops, workstations and servers spaCR promises to support.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. BUILD AND INSTALL THE ACTUAL ARTIFACTS
+
+Build the wheel and sdist from a clean frozen tree. Install them without the
+checkout on ``sys.path`` in every supported Python/OS CI cell. Assert the
+resolved ``spacr.__file__`` and drive the public import, command entry points,
+Home screen and representative pipelines. Inventory the files in the artifacts
+so packaging omissions cannot hide behind an editable installation.
+
+2. MEASURE THE REAL USER PATH
+
+Record cold and warm process-start-to-interactive-Home time, every registered
+module's click-to-interactive time, peak RSS, GPU allocation where applicable,
+and worst event-loop/frame interval. Use the in-application timing seam rather
+than constructor-only or import-only proxies. Record the hardware/software
+profile beside every result.
+
+The artifact's app-key set must equal the live registry exactly. Readiness is
+the first painted, enabled and usable control state, not constructor return or
+the point immediately before entering the event loop.
+
+The accepted lower-end reference budgets remain at most 5.0 seconds to an
+interactive Home screen and 10.0 seconds for every module to become
+interactive. During either interval there must be no event-loop stall of 500
+ms or longer. Report every module individually; an average cannot hide one
+unusable module.
+
+3. LOAD HEAVY LIBRARIES AT THE OPERATION BOUNDARY
+
+In fresh processes, assert that opening spaCR or a configuration screen does
+not import training, segmentation, GPU or model stacks until the operation
+that uses them runs. Preserve capabilities and errors: speed cannot be bought
+by silently omitting an optional feature or reporting readiness before the
+controls work.
+
+The phase audit explicitly includes the real ``spacr.qt.run`` entry point and
+``classify_merged``. Startup must not import pandas, scipy, sklearn, torch or
+equivalent pipeline stacks; opening Classify must not import its training
+stack, opening Mask must not import its segmentation stack, and opening
+Regression must not import a fitting stack.
+
+4. WIRE THE RESOURCE BUDGET TO REAL CACHES
+
+Audit decoded-image, figure, merged-data, model-weight, allocator and GPU
+caches. The idle timeout, cache ceiling and free-memory floor from item 282
+must govern each applicable live cache, with bounded cleanup and observable
+accounting. Do not claim Python extension libraries can be unloaded; release
+only state that the runtime can honestly return or evict.
+
+5. PROFILE BEFORE CHANGING CODE
+
+Profile startup, the slowest module opens and representative pipelines. Fix
+avoidable work in descending measured cost. Any hotspot responsible for at
+least 10% of one accepted path must be removed, reduced, moved safely off the
+GUI thread, or retained with a written correctness/complexity reason and its
+measured cost. Scientific results from optimized and reference paths must
+agree under the existing reproducibility tolerances.
+
+6. KEEP THE RESULT RATCHETED
+
+Check correctness in required CI and publish reproducible timing/resource
+artifacts. Put stable structural guarantees in ordinary tests; use explicit
+hardware-normalized thresholds for performance so noisy runners neither fail
+randomly nor permit an unbounded regression.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * a clean wheel and sdist install, import and launch in every supported CI
+    environment, with ``spacr.__file__`` resolving inside that installation;
+  * the installed Home screen is interactive within 5.0 seconds and every
+    registered module within 10.0 seconds on the documented lower-end profile;
+  * the benchmark app keys equal the live registry exactly, and readiness is
+    observed after first paint with usable controls rather than inferred;
+  * the complete click-to-ready traces contain no event-loop stall of 500 ms
+    or longer, and report cold/warm time, peak RSS and the slowest frame gap;
+  * fresh-process ``sys.modules`` checks prove unused heavy dependencies are
+    absent until their operation boundary;
+  * every applicable live cache obeys the configured timeout, ceiling and
+    headroom policy in tests using real registered entries, a controlled clock,
+    measured sizes and headroom; in-use entries survive, and laptop/workstation
+    profiles change the real caps while producing equivalent scientific output;
+  * profiles and dispositions account for every >=10% hotspot on an accepted
+    path, and the benchmark artifact names every retained cost honestly;
+  * required CI contains guards for artifact contents, installed execution,
+    lazy imports, resource cleanup, responsiveness and performance regression.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Do not promise to unload imported Python extension libraries; CPython cannot
+reliably do that. Do not lower scientific quality, skip supported modules, or
+precompute hidden work before timing begins to make a benchmark look faster.
+
+--------------------------------------------------------------------------------
+2026-08-29 — INSTALLED FACADE HOTSPOT REMOVED; ITEM REMAINS OPEN
+--------------------------------------------------------------------------------
+
+An installed-wheel profile identified ``importlib.metadata`` as more than
+60 percent of the cold ``import spacr`` path. The package facade now reads a
+release-synchronised lightweight literal while the explicit public
+``spacr.version`` module retains its metadata-backed inspection API. In clean,
+dependency-free wheel environments on Python 3.12.4 (Ryzen 9 5950X), the
+median cold import fell from 38.692 ms to 7.314 ms (81.1 percent), and loaded
+modules fell from 160 to 77. The plugin-disable path also defers entry-point
+metadata, cutting its CLI import and ``--list`` paths by 52.2 and 47.1 percent.
+
+Portable subprocess ratchets now prove that the facade and plugin-disabled
+CLI import neither scientific libraries nor distribution metadata. Release
+tooling verifies and bumps ``setup.py``, ``spacr/_version.py`` and
+``CITATION.cff`` together, including an installed-wheel build and bump
+simulation. The normal plugin-enabled CLI deliberately retains its entry-point
+scan so installed plugins remain visible in ``MODULES`` and ``--list``.
+
+The compatibility metadata job now installs the freshly built wheel and sdist
+separately, without dependencies and outside the checkout. For each artifact
+it asserts that ``spacr.__file__`` is inside the isolated environment, checks
+the facade literal against installed distribution metadata, and runs
+``spacr-run --version`` and ``--list``. This closes the previously untested
+sdist-installed facade boundary; the job still has to be green on the final
+frozen release SHA.
+
+The first real inventory audit caught an exclusion that only looked correct:
+``MANIFEST.in`` split the unescaped space in
+``loading_spinner_logo (1).gif`` and shipped that unreferenced 2,428,884-byte
+review render in both artifacts. A single ``loading_spinner_logo*`` pattern
+now excludes every unused logo variant. CI now compares both built inventories
+against all tracked runtime Python and resource files, failing for either a
+missing runtime file or any model/review asset that is deliberately excluded.
+
+This closes only the non-Qt facade/CLI metadata hotspot. The item stays OPEN
+for real post-paint Home readiness, all-module click-to-ready traces, event-loop
+stall and RSS measurements, heavy-stack operation boundaries, cache-budget
+wiring, and the complete supported CI matrix.
+
+--------------------------------------------------------------------------------
+2026-08-30 — EVERY APPLICABLE LIVE CACHE NOW OBEYS ONE BUDGET
+--------------------------------------------------------------------------------
+
+The production audit found five caches which were still outside item 282's
+shared idle-time, byte-ceiling and free-headroom policy: timelapse decoded
+frames, inactive derived-mask signatures, reproducible composited movie
+frames, Annotate's warm Cellpose model, and CUDA allocator slack.  They now
+register measured entries with the process-wide manager.  Active/in-use data
+remain pinned; bounded cleanup never imports torch or Cellpose, creates a CUDA
+context, or blocks waiting for an active model.  For an already initialised
+CUDA runtime, the evictable size is the honest reserved-minus-allocated amount
+summed across every device, and cleanup releases only that allocator cache.
+
+The final audit also recorded the deliberate exclusions.  Fixed-size icon and
+animation LRUs already have their own hard bounds; Qt's opaque pixmap cache is
+separately cleared by aggressive cleanup; displayed scientific arrays,
+DataFrames and run-local models are active working state rather than caches;
+and imported CPython extensions are not claimed unloadable.
+
+Verification on the integrated tree: 15 focused live-cache tests, 140 cleanup
+and accounting tests, 290 broader Annotate/timelapse/resource tests, and 12
+fresh-process lazy-import tests passed in the isolated implementation lane.
+The four most overlap-sensitive suites were then repeated after integration:
+87/87 passed.  The deterministic CUDA test presents two exact allocator-device
+seams; it verifies the policy without requiring the offscreen test process to
+allocate physical GPU memory.  Implementation commit: ``ee33bf15``.
+
+Item 4 is closed.  This instruction remains OPEN for the installed-artifact
+matrix, final post-paint all-module traces and the operation-boundary/profile
+evidence in items 1–3 and 5–6.
+
+--------------------------------------------------------------------------------
+2026-08-30 — WHEEL/SDIST EXECUTE OUTSIDE THE TREE; LOCAL ITEMS 1/3 EVIDENCE
+--------------------------------------------------------------------------------
+
+A wheel and sdist were built from implementation commit ``3adc8160`` (the
+same product change integrated as ``f58aadbf``), with no release, tag or
+version change.  The build took 11.73 seconds and 52,268 KB peak RSS, and
+``twine check`` passed both artifacts:
+
+  * ``spacr-1.5.0.4-py3-none-any.whl`` — 36,366,683 bytes,
+    SHA-256 ``9e0b804a35efa1c31abfc5cf956087186d44beabec338219c526d24a9fd8d898``;
+  * ``spacr-1.5.0.4.tar.gz`` — 42,898,992 bytes,
+    SHA-256 ``16bf8fcbaa8ba8645c2dc32892c882ac31797c57d646d847922efb2c9b566576``.
+
+The wheel has 777 archive members and the sdist 2,323 normalised members.
+The compatibility job's exact inventory algorithm found all 763 required
+runtime Python/resource files and no forbidden file in either.  After install,
+the two ``spacr`` trees contained the same 763 non-bytecode files with
+byte-identical contents.  Both installed resource trees passed a functional
+read: all 94 setting-animation hashes (12,932,182 bytes, 137 setting keys),
+eight fonts, 78 icon files, three theme masters and eight non-empty data CSVs.
+
+Four new environments were made outside the checkout.  The dependency-free
+wheel and sdist environments used ``pip install --no-deps`` and took 3.19 and
+8.48 seconds respectively.  Two new runtime environments installed the same
+artifacts with ``--no-deps`` while inheriting the workstation's already
+installed Qt/scientific dependencies; those installs took 4.61 and 10.45
+seconds.  Every probe used isolated-mode Python from a directory outside the
+checkout and asserted that ``spacr.__file__`` was below that environment's
+``site-packages``.  In both artifact forms, the public facade, version and
+distribution metadata agreed, ``__all__`` was exact, no scientific dependency
+was imported by the facade, ``spacr-run --version``/``--list`` worked, and all
+15 installed console targets loaded as callables.
+
+The packaged one-field Measure smoke completed against both artifacts,
+including the real ``measure_crop`` call and terminal database status: wheel
+8.84 seconds / 976,956 KB peak RSS; sdist 8.89 seconds / 978,248 KB.  The
+actual installed ``spacr.qt.run(["--no-setup"])`` path also reached an enabled,
+visible Home screen with 45 usable visible controls.  The scheduled
+post-event-loop observation was at 4.135 seconds / 296.9 MB for the wheel and
+4.060 seconds / 302.1 MB for the sdist.  Neither process had imported pandas,
+SciPy, scikit-learn, Torch, torchvision, Cellpose, OpenCV, IPython, pyplot or
+statsmodels.  This is a launch/execution smoke, not item 2's still-required
+first-paint clock and frame-gap trace.
+
+Fresh installed-wheel processes then kept configuration and operation phases
+separate.  Visible Classify, Mask and Regression configuration observations
+completed at 1.253 seconds / 340.0 MB, 1.222 seconds / 324.2 MB and 1.826
+seconds / 374.3 MB respectively, with each named training, segmentation or
+fitting stack absent.  At the production run boundary:
+
+  * Classify's resolver remained light; a real no-op CV entry invocation then
+    completed in 3.221 seconds and imported ``spacr.deep_spacr``, Torch,
+    torchvision and its plotting/analysis dependencies.
+  * Mask resolution imported ``spacr.core``, Torch and pyplot in 1.992
+    seconds.  Its real ``dry_run=True`` preflight returned in 0.029 seconds;
+    Cellpose/model machinery remained absent because validation deliberately
+    does not load a model.
+  * Regression resolution imported ``spacr.ml``, statsmodels and
+    scikit-learn in 2.575 seconds.  A real entry invocation reached its
+    input-table stage in 1.267 seconds and then raised the expected missing
+    input-pair ``ValueError``.
+
+The audit found one genuine phase violation before these final artifacts were
+built.  A visible app screen starts a read-only usage poll through
+``JobRunner``; the generic worker nevertheless preloaded pyplot and installed
+figure capture, so merely showing a configuration page crossed the plotting
+boundary.  Background jobs now request ``capture_figures=False`` and a
+fresh-process regression test shows the real Classify window before checking
+the import set.  The scientific pipeline worker path retains figure capture.
+
+Verification cohorts on that tree were 37 packaging-metadata checks, 683
+facade/launcher/startup/smoke tests, 96 memory/job/bridge/non-heavy performance
+tests, and all five performance guards.  In addition to the two installed
+Measure smokes above, an installed-wheel walk imported all 273 ``spacr.qt``
+modules in 1.312 seconds with no failed import and without importing
+``spacr.utils``, Torch, Cellpose, OpenCV, IPython or pyplot.
+
+These measurements are local Linux x86-64 / CPython 3.12.4 evidence from an
+AMD Ryzen 9 5950X with 125 GiB RAM, PySide6 6.10.0 and Torch 2.6.0+cu124;
+CUDA was hidden.  They do not substitute for the supported Python/Windows/
+macOS CI cells, a lower-end hardware profile, GPU allocation measurements, or
+item 2's exact-registry all-module post-paint traces and 500 ms frame-stall
+audit.  The final release SHA must repeat the artifact matrix.  Item 305 stays
+OPEN for those matrix/tracing results and the remaining profiling/ratchet work
+in items 2, 5 and 6.
+
+--------------------------------------------------------------------------------
+2026-08-30 — INSTALLED ARTIFACT CI NOW DRIVES THE PUBLIC HOME PATH
+--------------------------------------------------------------------------------
+
+The compatibility grid installed both exact distributions but its Qt proof
+stopped at constructing ``AppScreen("measure")``.  That proxy could pass when
+the public launcher, application registration, main window or first Home paint
+was broken.  Each wheel and sdist cell now starts a separate isolated-mode
+child outside the checkout, re-verifies the archive through its PEP 610 origin,
+and calls the installed ``spacr.qt.run(["--no-setup"])`` entry point.  The child
+exits only after production timing observes Home on the main thread, after the
+event loop, with a painted screen tree and named usable controls.  Missing or
+inconsistent timestamps, an unpainted tree, no usable control, a non-zero
+launcher result or no readiness event fails the cell.
+
+The observation is taken before application shutdown can import cleanup code.
+It also fails if Home has already imported pandas, SciPy, scikit-learn, Torch,
+torchvision, Cellpose, OpenCV, IPython, pyplot or statsmodels.  The older core
+module, Measure ``AppScreen`` and console-entry-point probe remains a second
+fresh child, so the stronger launch proof does not weaken that coverage.
+
+The uploaded smoke report now has a versioned schema and records the Python,
+implementation, executable, platform, machine, processor and logical CPU
+profile beside its timing evidence; the workflow summary includes measured
+Home readiness for both formats.  Hosted offscreen duration remains evidence,
+not a release performance verdict: unlike shared CI machines still cannot
+stand in for item 2's lower-end real-display budget.
+
+Verification in the isolated implementation lane: all 42 packaging metadata
+tests passed, including behavioral tests that make the readiness callback exit
+the fake public launcher and prove an eager heavy stack fails.  Python 3.9 AST
+parsing, byte compilation and focused Ruff checks also passed.  This closes a
+static installed-Home and lazy-boundary CI gap.  Item 305 remains OPEN until
+the supported artifact matrix is green on the frozen release SHA, the accepted
+real-display all-module traces and GPU/resource evidence exist, and every
+>=10-percent profile hotspot has a measured disposition.
+
+--------------------------------------------------------------------------------
+2026-08-30 — THE INSTALLED ICON INTEGRITY RECORD IS EXECUTABLE EVIDENCE
+--------------------------------------------------------------------------------
+
+The artifact inventory proved that every flat icon PNG and
+``chosen_icons.json`` was present, but it never compared the shipped bytes to
+the digests in that record.  The gap was real: the deliberate application-logo
+redesign changed ``app_icon.png`` while its recorded SHA-256 still described
+the previous artwork.  A dependency-free packaging metadata test now requires
+the manifest keys to equal the complete flat PNG set and verifies every
+recorded digest before CI uploads either distribution.  The one stale digest
+is corrected; all 75 packaged PNG records now agree with their bytes.
+
+This closes one static-resource evidence gap only.  Item 305 remains OPEN for
+the supported frozen-artifact matrix and the timing, profiling and hardware
+evidence named above; no 1.5.0.5 release action was taken.
+
+--------------------------------------------------------------------------------
+2026-08-30 — RAW FRAME-GAP SUMMARIES NOW PROVE THEIR SOURCE TRACE
+--------------------------------------------------------------------------------
+
+The benchmark's independent parent validator checked that global and per-state
+worst-gap fields were finite and below budget, but it still trusted those
+derived values.  A worker artifact could therefore contain a raw watchdog gap
+while claiming zero samples and a zero worst interval.  That contradiction was
+syntactically complete enough to pass the release ratchet.
+
+Home, Preferences and every registry-module result now record the exact start
+and end of the watchdog window used for its summary.  A passing result seals on
+the first observed watchdog beat after readiness, rather than on a wall-clock
+sample between beats; a later legitimate beat therefore cannot span backward
+into a closed window.  The parent requires that window to begin at the actual
+interaction timestamp and end no earlier than readiness, rejects raw gaps past
+the artifact clock, and independently recomputes the global and per-result
+worst intervals, sample counts and budget verdicts.  The timestamp span, not a
+rounded ``late_ms`` field, decides the 500 ms boundary.
+
+Only the production event-loop watchdog on ``MainThread`` may contribute a raw
+gap.  Rows must be chronological, non-overlapping and at least the advertised
+50 ms record floor.  The producer, interval summaries and independent parent
+all derive duration from the same timestamp span, so rounding ``late_ms`` to
+the opposite side of 500 ms can neither create nor hide a failure.
+
+These incompatible guarantees are worker/combined artifact schema 2.  The
+hardware-report consumer rejects schema 1 instead of presenting it as current
+evidence.  Missing, malformed, shifted or contradictory trace evidence now
+fails closed.  Focused verification covered 41 driver contract tests, 34
+production Qt readiness/controller tests and seven hardware-report consumer
+tests.
+
+This is a deterministic item 6 trace-integrity ratchet, not new performance
+evidence.  No real-display timing was run while the machine was busy, and this
+instruction remains OPEN for the accepted lower-end cold/warm registry traces,
+RSS/GPU evidence, complete supported frozen-artifact matrix, and measured
+dispositions for every hotspot responsible for at least 10 percent of an
+accepted path.  No version, tag or release action was taken.
+
+--------------------------------------------------------------------------------
+2026-08-30 — RELEASE TIMING EVIDENCE NOW FAILS CLOSED AT INVOCATION
+--------------------------------------------------------------------------------
+
+The startup driver previously accepted a one-process artifact and inherited
+``QT_QPA_PLATFORM=offscreen`` even when the operator intended a release timing
+run.  Its combined artifact could say ``offscreen: false`` while the worker had
+actually selected a headless Qt plugin.  ``--record-only`` could also turn a
+red artifact into exit zero under the same nominal release invocation.
+
+The explicit ``--release-acceptance`` protocol now requires exactly two fresh
+processes sharing only the isolated filesystem cache: one cold and one warm.
+It rejects ``--offscreen``, ``--record-only`` and inherited ``offscreen``,
+``minimal``, ``minimalegl`` or ``vnc`` Qt platforms before starting a worker,
+then independently rejects a headless platform reported by either worker.
+The ordinary one-process diagnostic mode remains available for instruction
+314's repeated cold Regression gate.  Twenty-two new focused tests and all 41
+existing startup-driver tests pass.
+
+This closes an evidence-integrity gap, not the performance evidence itself.
+The current Codex process observes a zero-sized display and the machine is
+running coverage partitions, so any timing taken here would violate this
+instruction's real-display and quiet-machine requirements.  Item 305 remains
+OPEN for accepted lower-end cold/warm checkout, wheel and sdist traces,
+RSS/GPU evidence, the complete supported frozen-artifact matrix, representative
+pipeline profiles and measured dispositions for every >=10-percent hotspot.
+
+--------------------------------------------------------------------------------
+2026-09-01 — ACCEPTED COLD/WARM TRACE FROM AN INSTALLED WHEEL
+--------------------------------------------------------------------------------
+
+The evidence this item has been waiting for, taken the way the item
+demands rather than from the checkout: a wheel built from a CLEAN
+detached worktree of HEAD, installed into a fresh conda environment
+(`spacr_new`, Python 3.12.14), driven by `--release-acceptance` on a real
+3840x2160 display under GNOME/Wayland. Two fresh processes sharing only
+the isolated cache, no `--offscreen`, no `--record-only`.
+
+    spacr-1.5.0.4-py3-none-any.whl, 36 MB
+    pip install exit 0; `import spacr` returns 1.5.0.4 in 0.01 s
+    -- the lazy-import policy from 282 is holding in the INSTALLED
+    package, not only in the tree.
+
+                        cold        warm      budget
+    start -> Home       3.48 s      1.54 s      5.00     OK
+    Preferences         1.60 s      1.63 s      3.00     OK
+    peak RSS            962 MB      961 MB        --
+    whole run          50.81 s     45.37 s        --
+
+EVERY TIME BUDGET IS MET, cold and warm, from the installed artifact.
+That is the half of this item that was unmeasured, and it passes.
+
+THE RUN STILL EXITS NON-ZERO, and not for a timing budget: 100
+violations, every one of them an event-loop stall. The worst is 7,069 ms
+cold and 6,907 ms warm, both on Regression. That is instruction 315's
+defect, measured here from the installed package for the first time --
+and `gsettings get org.gnome.mutter check-alive-timeout` on this machine
+is 5,000 ms, so the compositor is entitled to offer force-quit during it.
+
+WHAT REMAINS IN 305: an sdist trace alongside this wheel one, GPU
+evidence, the complete supported frozen-artifact matrix, representative
+pipeline profiles, and a measured disposition for every >=10 percent
+hotspot. The startup half is now evidence rather than a gap.

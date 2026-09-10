@@ -1,4 +1,64 @@
-"""Core image preprocessing, segmentation, and image-UMAP pipelines."""
+"""Create microscopy masks and explore measured phenotypes in two dimensions.
+
+WHAT IT IS FOR
+==============
+This landing page currently serves two spaCR tiles.  **Mask** runs
+:func:`preprocess_generate_masks` to turn raw multichannel acquisitions into
+preprocessed arrays and Cellpose masks for cells, nuclei, pathogens, and
+organelles.  **Image UMAP** runs :func:`generate_image_umap` to reduce measured
+single-object features, cluster them, and optionally place representative
+image crops on the embedding.  The same module also exposes the timelapse-mask
+entry point; the two main workflows remain independent, and UMAP does not
+segment images.
+
+WHAT IT NEEDS
+=============
+Mask generation needs one or more source folders, a filename metadata scheme
+(``cellvoyager`` or an automatic/custom regex), zero-based channel indices for
+the objects to segment, and suitable object diameters and model choices.  At
+least one segmentation channel must be enabled.  Start with ``dry_run=True``
+to validate paths, channels, models, and the planned writes without loading a
+model or changing the project.
+
+Image UMAP needs an existing ``measurements/measurements.db`` for every source,
+the object tables and features to include, and reduction/clustering settings.
+It embeds numeric measurements rather than raw pixels.  Thumbnail images come
+from the measured ``png_list`` table when ``crop_source='png'`` or are cut from
+``merged/*.npy`` on demand when ``crop_source='merged'``; the latter is useful
+when measurement crops were not saved.
+
+WHAT IT PRODUCES
+================
+A normal Mask run writes preprocessed stacks, object masks, overlays and
+segmentation-QC artifacts, settings CSVs, counts in ``measurements.db``, and a
+run manifest beneath the source tree; it normally returns ``None``.  A dry run
+instead returns its preflight problem list.  Timelapse mask generation also
+writes movies and masks relabelled with track identities.
+
+Image UMAP returns an annotated DataFrame containing the two-dimensional
+coordinates and ``cluster`` labels, or a Matplotlib figure when
+``return_fig=True``.  Depending on the save and plotting settings, it also
+writes the embedding, cluster views, representative-crop grids, feature
+summaries, and the resolved settings alongside the project.
+
+WHAT TO DO NEXT
+===============
+After Mask finishes, inspect overlays and segmentation-QC flags before running
+:func:`spacr.measure.measure_crop`; inaccurate masks make every downstream
+feature inaccurate.  After measurement, use Image UMAP to inspect phenotype
+structure, colour by plate or condition to expose batch effects, and validate
+clusters against their representative crops before treating them as biology.
+Use the Mask tile for :func:`preprocess_generate_masks` and the Image UMAP tile
+for :func:`generate_image_umap` until those tiles receive separate API pages.
+
+Three details are deliberately explicit.  Channel numbers are zero-based and
+diameters are pixels, so values copied from one magnification are not portable
+without conversion.  The default v1 mask pipeline preserves the directory
+layout expected by downstream tools; ``pipeline_style='v2'`` is opt-in and
+writes a different streaming layout.  Finally, removing UMAP cluster noise
+also removes those objects from the returned frame, keeping the table and the
+visible embedding aligned rather than silently returning different samples.
+"""
 
 import os, gc, torch, time, random
 import numpy as np
@@ -12,6 +72,7 @@ except Exception:
     # never blocks. spaCR only calls display() from notebook
     # contexts anyway; the Qt GUI ignores it.
     def display(*args, **kwargs):
+        """Discard display payloads when IPython's helper is unavailable."""
         pass
 import warnings
 
@@ -28,7 +89,65 @@ from .plot import save_figure  # every kept figure goes through the format/DPI p
 from .object_roles import (ORGANELLE_ROLES, SEGMENTED_ROLES,
                            enabled_organelle_roles)
 
+# THE HOUSE STYLE (136). `figures.style` imports matplotlib
+# only inside its own functions, so naming it here costs
+# nothing at import time.
+from .figures.style import figure_style, theme_target
+
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
+
+def _score_v2_masks(src, settings, object_type: str = "cell"):
+    """Score the masks a v2 run just wrote, the way v1 scores its own.
+
+    v1 reaches this through :func:`spacr.object._run_seg_qc`, which globs a
+    `<object_type>_mask_stack` folder. v2 has no such folder -- its mask is a
+    CHANNEL of `merged/stack_<field>.npy` -- so it goes through
+    :func:`spacr._v1_v2_bridge.v2_mask_source`, which reads
+    `channel_order.json` to find the plane and hands back one lazy reader per
+    field. Both layouts then meet in the same scorecard, which is the point:
+    `seg_qc` means the same thing whichever pipeline produced the masks.
+
+    :param src: the plate folder handed to `run_v2`; `merged/` sits under it.
+    :returns: what :func:`spacr.seg_qc.run_segmentation_qc` returns, or None
+        when QC is off, there are no masks to score, or scoring failed.
+
+    Never raises into a finished run. A plate that has just spent hours
+    segmenting must not lose its masks to a scorecard bug, which is the same
+    rule `_run_seg_qc` follows.
+    """
+    try:
+        from .seg_qc import qc_mode, run_segmentation_qc, thresholds_from_settings
+        from ._v1_v2_bridge import v2_mask_source
+
+        mode = qc_mode(settings)
+        if mode == 'off':
+            return None
+
+        merged = os.path.join(os.fspath(src), 'merged')
+        source = v2_mask_source(merged, object_type)
+        if not source:
+            print(f"Segmentation QC found no {object_type} masks to score in "
+                  f"{merged}: channel_order.json names none, so the stacks do "
+                  f"not say which plane is a mask.")
+            return None
+
+        result = run_segmentation_qc(
+            source,
+            object_type=object_type,
+            dst=os.fspath(src),
+            mode=mode,
+            thresholds=thresholds_from_settings(settings),
+            verbose=bool(settings.get('verbose', True)),
+        )
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"Segmentation QC skipped for {object_type}: "
+              f"{type(exc).__name__}: {exc}")
+        return None
+
+    if result is not None and result.get('mode') == 'flag':
+        settings.setdefault('seg_qc_flags', {})[object_type] = result['flags']
+    return result
+
 
 def preprocess_generate_masks(settings):
     """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
@@ -54,8 +173,11 @@ def preprocess_generate_masks(settings):
           ``organelle_channel`` — 0-based channel indices; ``None`` skips.
         - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``
           — Cellpose object diameters in pixels.
-        - ``pathogen_model`` — removed. Pathogens are segmented with cpsam
-          like every other object; the pre-SAM toxo checkpoints are gone.
+        - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment
+          pathogens with, instead of stock ``cpsam``. The pre-SAM
+          ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to
+          ``cpsam``; a PATH to a fine-tune is honoured, and a path that is
+          not there stops the run rather than silently using stock weights.
         - ``consolidate`` — copy nested images into ``src/consolidated``
           before processing.
         - ``preprocess`` / ``masks`` — toggle the two pipeline halves.
@@ -99,8 +221,11 @@ def preprocess_generate_masks(settings):
         return run_preflight(settings, 'mask')
 
     #from .timelapse import _summarise_object_relationships
-    from .object import generate_organelle_masks_sam, generate_cellpose_masks_sam
-    from .io import preprocess_img_data, _load_and_concatenate_arrays, convert_to_yokogawa, convert_separate_files_to_yokogawa
+    from .object import (_eval_diameter, generate_organelle_masks_sam,
+                         generate_cellpose_masks_sam)
+    from .io import (preprocess_img_data, _load_and_concatenate_arrays,
+                     _normalized_npz_field_ids, convert_to_yokogawa,
+                     convert_separate_files_to_yokogawa)
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
@@ -138,7 +263,7 @@ def preprocess_generate_masks(settings):
         # answering with its own inline fallback rather than the declared
         # default.
         #
-        # One of them changes segmentation: `cell_FT` is declared 1.0 and the
+        # One of them changes segmentation: `cell_flow_threshold` is declared 1.0 and the
         # fallback here was 0.4, and it goes straight to
         # `model.eval(flow_threshold=...)`. Cellpose's remove_bad_flow_masks
         # drops a mask whose flow error exceeds the threshold, so on a field
@@ -170,399 +295,451 @@ def preprocess_generate_masks(settings):
                 channel_names=channel_names,
                 model_name=settings.get('cell_model_name', 'cpsam'),
                 channels_for_cellpose=tuple(cellpose_channels),
-                diameter=settings.get('cell_diameter'),
+                # COERCED, like every other numeric on this call. A
+                # diameter typed into the GUI or read from a CSV is a
+                # string, and Cellpose compares it with `> 0`.
+                diameter=_eval_diameter(
+                    settings.get('cell_diameter'), 'cell'),
                 batch_fields=int(settings.get('batch_fields', 8)),
                 metadata_type=settings.get('metadata_type', 'auto'),
                 custom_regex=settings.get('custom_regex'),
                 keep_npz=bool(settings.get('keep_npz', False)),
-                cellprob_threshold=float(settings.get('cell_CP_prob', 0.0)),
-                flow_threshold=float(settings.get('cell_FT', 0.4)),
+                cellprob_threshold=float(settings.get('cell_cellprob_threshold', 0.0)),
+                flow_threshold=float(settings.get('cell_flow_threshold', 0.4)),
                 min_size=int(settings.get('cell_min_area', 0)),
                 resample=True,
                 postprocess_settings=settings,
                 object_type='cell',
+                illumination_settings=settings,
             )
             report_disk_savings(src, result['stacks'])
+            _score_v2_masks(src, settings, object_type='cell')
         return
     
     # settings defaults (incl. 'consolidate') are only applied further down,
     # inside the per-source loop; read defensively here so a settings dict
     # without the key doesn't raise KeyError before that point.
     if settings.get('consolidate', False):
-        image_map = generate_image_path_map(settings['src'])
-        copy_images_to_consolidated(image_map, settings['src'])
-        settings['src'] = os.path.join(settings['src'], 'consolidated')
+        sources = (settings['src'] if isinstance(settings['src'], list)
+                   else [settings['src']])
+        consolidated_sources = []
+        for source in sources:
+            image_map = generate_image_path_map(source)
+            copy_images_to_consolidated(image_map, source)
+            consolidated_sources.append(os.path.join(source, 'consolidated'))
+        settings['src'] = consolidated_sources
 
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
-    if isinstance(settings['src'], list):
-        source_folders = settings['src']
-        # One ledger for the whole invocation: a run over four plates that
-        # only managed three must not report as if it did four.
-        ledger = RunLedger('preprocess_generate_masks')
-        # One run: one id on every log line and on every artifact this run
-        # registers (so the two can be joined), one seed reaching numpy /
-        # random / torch / cellpose, and one on_error policy honoured at
-        # the plate boundary below. See spacr.runctx.
-        module_key = 'timelapse' if settings.get('timelapse') else 'mask'
-        with run_context(module_key, settings, ledger=ledger) as run:
-            for source_folder in source_folders:
-                # on_error, at the plate boundary. stop (default) lets the
-                # failure out and the run ends here; skip records the plate on
-                # the ledger and in run.policy.skips and moves to the next one;
-                # retry re-attempts this plate with a backoff and then behaves
-                # like stop. See spacr.runctx.
-                for attempt in run.policy.attempts_for(source_folder,
-                                                       stage='plate'):
-                    with attempt:
-                        cancellation_checkpoint()
+    # Input validation admits only str/list, normalize_src_path preserves that
+    # contract, and the str arm above finishes the conversion.  Use the list
+    # directly: a second type check could only skip the run silently.
+    source_folders = settings['src']
+    # One ledger for the whole invocation: a run over four plates that
+    # only managed three must not report as if it did four.
+    ledger = RunLedger('preprocess_generate_masks')
+    # One run: one id on every log line and on every artifact this run
+    # registers (so the two can be joined), one seed reaching numpy /
+    # random / torch / cellpose, and one on_error policy honoured at
+    # the plate boundary below. See spacr.runctx.
+    module_key = 'timelapse' if settings.get('timelapse') else 'mask'
+    with run_context(module_key, settings, ledger=ledger) as run:
+        for source_folder in source_folders:
+            # on_error, at the plate boundary. stop (default) lets the
+            # failure out and the run ends here; skip records the plate on
+            # the ledger and in run.policy.skips and moves to the next one;
+            # retry re-attempts this plate with a backoff and then behaves
+            # like stop. See spacr.runctx.
+            for attempt in run.policy.attempts_for(source_folder,
+                                                   stage='plate'):
+                with attempt:
+                    cancellation_checkpoint()
 
-                        print(f'Processing folder: {source_folder}')
+                    print(f'Processing folder: {source_folder}')
 
-                        source_folder = format_path_for_system(source_folder)
-                        settings['src'] = source_folder
-                        src = source_folder
-                        settings = set_default_settings_preprocess_generate_masks(settings)
+                    source_folder = format_path_for_system(source_folder)
+                    settings['src'] = source_folder
+                    src = source_folder
+                    settings = set_default_settings_preprocess_generate_masks(settings)
 
-                        settings = _set_organelle_defaults(settings)
+                    settings = _set_organelle_defaults(settings)
 
-                        if settings['metadata_type'] == 'auto':
-                            if settings['custom_regex'] != None:
-                                try:
-                                    print(f"using regex: {settings['custom_regex']}")
-                                    convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
-                                except Exception:
-                                    try:
-                                        convert_to_yokogawa(folder=source_folder)
-                                    except Exception as e:
-                                        # Category B: no file was renamed, so every step
-                                        # below would operate on an empty/unrecognised
-                                        # folder. Historically this printed and returned
-                                        # None, which reads exactly like success.
-                                        print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
-                                        print(f'Error: {e}')
-                                        ledger.record_failure(source_folder,
-                                                              stage='convert_metadata', exc=e)
-                                        ledger.finalize()
-                                        raise_if_strict(
-                                            f"Could not apply Yokogawa naming to {source_folder} "
-                                            f"with regex {settings['custom_regex']!r} or without "
-                                            f"one; nothing downstream can run on this folder.",
-                                            exc=e, settings=settings)
-                                        return
-                            else:
+                    if settings['metadata_type'] == 'auto':
+                        if settings['custom_regex'] != None:
+                            try:
+                                print(f"using regex: {settings['custom_regex']}")
+                                convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
+                            except Exception:
                                 try:
                                     convert_to_yokogawa(folder=source_folder)
                                 except Exception as e:
-                                    print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
+                                    # Category B: no file was renamed, so every step
+                                    # below would operate on an empty/unrecognised
+                                    # folder. Historically this printed and returned
+                                    # None, which reads exactly like success.
+                                    print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
                                     print(f'Error: {e}')
                                     ledger.record_failure(source_folder,
                                                           stage='convert_metadata', exc=e)
                                     ledger.finalize()
                                     raise_if_strict(
-                                        f"Could not apply Yokogawa naming to {source_folder}; "
-                                        f"nothing downstream can run on this folder.",
+                                        f"Could not apply Yokogawa naming to {source_folder} "
+                                        f"with regex {settings['custom_regex']!r} or without "
+                                        f"one; nothing downstream can run on this folder.",
                                         exc=e, settings=settings)
                                     return
+                        else:
+                            try:
+                                convert_to_yokogawa(folder=source_folder)
+                            except Exception as e:
+                                print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
+                                print(f'Error: {e}')
+                                ledger.record_failure(source_folder,
+                                                      stage='convert_metadata', exc=e)
+                                ledger.finalize()
+                                raise_if_strict(
+                                    f"Could not apply Yokogawa naming to {source_folder}; "
+                                    f"nothing downstream can run on this folder.",
+                                    exc=e, settings=settings)
+                                return
 
-                        if all(settings.get(f'{role}_channel') is None
-                               for role in SEGMENTED_ROLES):
-                            # Category B: with no object channel there is nothing to
-                            # segment, so returning None here is indistinguishable from
-                            # a successful run that produced no masks.
-                            print('Error: At least one registered object channel must be defined')
-                            raise_if_strict(
-                                'At least one registered *_channel (for example '
-                                'cell_channel or organelle_channel) must be set; '
-                                'no masks can be generated.', settings=settings)
-                            return
-            
-                        save_settings(settings, name='gen_mask_settings')
-            
-                        # The bundled toxo_pv_lumen / toxo_cyto models were Cellpose-3
-                        # checkpoints and are gone: Cellpose 4 ships only cpsam, and their
-                        # CPnet weights cannot load into its Transformer. This guard also
-                        # never fired — it *constructed* a ValueError without raising it.
-            
-                        if settings['timelapse']:
-                            settings['randomize'] = False
-            
-                        if settings['preprocess']:
-                            if not settings['masks']:
-                                print(f'WARNING: channels for mask generation are defined when preprocess = True')
-            
-                        if isinstance(settings['save'], bool):
-                            settings['save'] = [settings['save']]*3
+                    if all(settings.get(f'{role}_channel') is None
+                           for role in SEGMENTED_ROLES):
+                        # Category B: with no object channel there is nothing to
+                        # segment, so returning None here is indistinguishable from
+                        # a successful run that produced no masks.
+                        print('Error: At least one of the registered object channels must be defined')
+                        raise_if_strict(
+                            'At least one registered *_channel (for example '
+                            'cell_channel or organelle_channel) must be set; '
+                            'no masks can be generated.', settings=settings)
+                        return
 
-                        if settings['verbose']:
-                            from .utils import pretty_print_settings
-                            pretty_print_settings(settings, title="Mask Generation Settings")
+                    save_settings(settings, name='gen_mask_settings')
 
-                        if settings['test_mode']:
-                            print(f'Starting Test mode ...')
+                    # The bundled toxo_pv_lumen / toxo_cyto models were Cellpose-3
+                    # checkpoints and are gone: Cellpose 4 ships only cpsam, and their
+                    # CPnet weights cannot load into its Transformer. This guard also
+                    # never fired — it *constructed* a ValueError without raising it.
 
-                        if settings['preprocess']:
-                            settings, src = preprocess_img_data(settings)
+                    if settings['timelapse']:
+                        settings['randomize'] = False
 
-                        organelle_roles = enabled_organelle_roles(settings)
-                        files_to_process = sum([
-                            settings['cell_channel'] is not None,
-                            settings['nucleus_channel'] is not None,
-                            settings['pathogen_channel'] is not None,
-                        ]) + len(organelle_roles)
-                        files_processed = 0
+                    if settings['preprocess']:
+                        if not settings['masks']:
+                            print(f'WARNING: channels for mask generation are defined when preprocess = True')
 
-                        if settings['masks']:
-                            mask_src = os.path.join(src, 'masks')
-                            # CREATE IT IF IT IS NOT THERE.
-                            #
-                            # Only preprocess_img_data makes this folder, and
-                            # `preprocess` is exactly the box a user unticks
-                            # when re-masking a plate that has already been
-                            # measured. Delete masks/ first -- which is what
-                            # re-masking means -- and the run died on a
-                            # missing directory that it was about to fill
-                            # anyway (issue #13). The reported workaround was
-                            # to mkdir it by hand.
-                            #
-                            # exist_ok, so the normal path where preprocessing
-                            # just made it is unaffected.
-                            os.makedirs(mask_src, exist_ok=True)
-                
-                            if settings['cell_channel'] != None:
-                                cancellation_checkpoint()
-                                time_ls=[]
-                                if check_mask_folder(
-                                        src, 'cell_mask_stack',
-                                        resume=settings.get('resume', False)):
-                                    start = time.time()
-                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
-                                    stop = time.time()
-                                    duration = (stop - start)
-                                    time_ls.append(duration)
-                                    files_processed += 1
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
-                    
-                            if settings['nucleus_channel'] != None:
-                                cancellation_checkpoint()
-                                time_ls=[]
-                                if check_mask_folder(
-                                        src, 'nucleus_mask_stack',
-                                        resume=settings.get('resume', False)):
-                                    start = time.time()
-                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
-                                    stop = time.time()
-                                    duration = (stop - start)
-                                    time_ls.append(duration)
-                                    files_processed += 1
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
-                    
-                            if settings['pathogen_channel'] != None:
-                                cancellation_checkpoint()
-                                time_ls=[]
-                                if check_mask_folder(
-                                        src, 'pathogen_mask_stack',
-                                        resume=settings.get('resume', False)):
-                                    start = time.time()
-                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
-                                    stop = time.time()
-                                    duration = (stop - start)
-                                    time_ls.append(duration)
-                                    files_processed += 1
-                                    print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
-                        
-                            for organelle_role in organelle_roles:
-                                cancellation_checkpoint()
-                                time_ls=[]
-                                if check_mask_folder(
-                                        src, f'{organelle_role}_mask_stack',
-                                        resume=settings.get('resume', False)):
-                                    start = time.time()
-                                    generate_organelle_masks_sam(
-                                        mask_src, settings, organelle_role)
-                                    stop = time.time()
-                                    duration = (stop - start)
-                                    time_ls.append(duration)
-                                    files_processed += 1
-                                    print_progress(
-                                        files_processed, files_to_process,
-                                        n_jobs=1, time_ls=time_ls,
-                                        batch_size=None,
-                                        operation_type=f'{organelle_role}_mask_gen')
+                    if isinstance(settings['save'], bool):
+                        settings['save'] = [settings['save']]*3
 
-                            if settings['adjust_cells']:
-                                if not settings['timelapse']:
-                                    if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
-                                        start = time.time()
-                                        cell_folder = os.path.join(mask_src, 'cell_mask_stack')
-                                        nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-                                        parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
-                            
-                                        organelle_folder = None
-                                        if settings.get('organelle_channel') is not None:
-                                            candidate = os.path.join(mask_src, 'organelle_mask_stack')
-                                            if os.path.exists(candidate):
-                                                organelle_folder = candidate
-                            
-                                        print(f'Adjusting cell masks with nuclei and pathogen masks')
-                                        adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
-                                        stop = time.time()
-                                        adjust_time = (stop-start)/60
-                                        print(f'Cell mask adjustment: {adjust_time} min.')
-                            
-                            if os.path.exists(os.path.join(src,'measurements')):
-                                _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
+                    if settings['verbose']:
+                        from .utils import pretty_print_settings
+                        pretty_print_settings(settings, title="Mask Generation Settings")
 
-                            # resume (opt-in, default False): skip fields whose merged
-                            # stack is already present and verified complete, so a crash
-                            # at field 900 of 1000 does not cost the first 900. Validated
-                            # rather than stat'ed — see spacr.resume.
-                            _load_and_concatenate_arrays(
-                                src,
-                                settings.get('channels'),
-                                settings.get('cell_channel'),
-                                settings.get('nucleus_channel'),
-                                settings.get('pathogen_channel'),
-                                settings.get('organelle_channel'),
-                                organelle_chann_dims={
-                                    role: settings.get(f'{role}_channel')
-                                    for role in ORGANELLE_ROLES[1:]},
-                                resume=settings.get('resume', False)
+                    if settings['test_mode']:
+                        print(f'Starting Test mode ...')
+
+                    if settings['preprocess']:
+                        settings, src = preprocess_img_data(settings)
+
+                    organelle_roles = enabled_organelle_roles(settings)
+                    files_to_process = sum([
+                        settings['cell_channel'] is not None,
+                        settings['nucleus_channel'] is not None,
+                        settings['pathogen_channel'] is not None,
+                    ]) + len(organelle_roles)
+                    files_processed = 0
+
+                    if settings['masks']:
+                        mask_src = os.path.join(src, 'masks')
+                        # CREATE IT IF IT IS NOT THERE.
+                        #
+                        # Only preprocess_img_data makes this folder, and
+                        # `preprocess` is exactly the box a user unticks
+                        # when re-masking a plate that has already been
+                        # measured. Delete masks/ first -- which is what
+                        # re-masking means -- and the run died on a
+                        # missing directory that it was about to fill
+                        # anyway (issue #13). The reported workaround was
+                        # to mkdir it by hand.
+                        #
+                        # exist_ok, so the normal path where preprocessing
+                        # just made it is unaffected.
+                        os.makedirs(mask_src, exist_ok=True)
+
+                        if (not settings['preprocess'] and
+                                settings.get('illumination_correction', False)):
+                            # The normalized V1 NPZs are already on disk, so
+                            # fitting or rewriting here would make the masks
+                            # impossible to trace. Accept them only when the
+                            # prior application record proves the same model,
+                            # pipeline style, and exact field set completed.
+                            from .illumination import (
+                                load_segmentation_illumination_resume,
                             )
-                
-                            if settings['plot']:
-                                if not settings['timelapse']:
-                                    if settings['test_mode'] == True:
-                                        # Test mode plots every merged field. This used to
-                                        # take len() of the merged *path string*, i.e. a
-                                        # number that tracks how deeply the run folder is
-                                        # nested and has nothing to do with how many
-                                        # fields exist.
-                                        merged_dir = os.path.join(src, 'merged')
-                                        settings['examples_to_plot'] = len(
-                                            [f for f in os.listdir(merged_dir)
-                                             if f.endswith('.npy')]
-                                        ) if os.path.isdir(merged_dir) else 0
+                            load_segmentation_illumination_resume(
+                                settings,
+                                provenance_path=os.path.join(
+                                    src, 'illumination',
+                                    'segmentation_application.json'),
+                                pipeline_style='v1',
+                                expected_fields=(
+                                    _normalized_npz_field_ids(mask_src)),
+                                verbose=settings.get('verbose', True),
+                            )
 
-                                    # A separate ledger: an overlay PDF that fails to
-                                    # render is cosmetic and must NOT brand the masks
-                                    # themselves as partial. It still gets accounted for.
-                                    plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
-                                    try:
-                                        merged_src = os.path.join(src,'merged')
-                                        files = os.listdir(merged_src)
-                                    except Exception as e:
-                                        print(f'Failed to plot image mask overly. Error: {e}')
-                                        plot_ledger.record_failure(os.path.join(src, 'merged'),
-                                                                   stage='list_merged', exc=e)
-                                        files = []
-                                    else:
-                                        random.shuffle(files)
-                                    time_ls = []
+                        if settings['cell_channel'] != None:
+                            cancellation_checkpoint()
+                            time_ls=[]
+                            if check_mask_folder(
+                                    src, 'cell_mask_stack',
+                                    resume=settings.get('resume', False)):
+                                start = time.time()
+                                generate_cellpose_masks_sam(mask_src, settings, 'cell')
+                                stop = time.time()
+                                duration = (stop - start)
+                                time_ls.append(duration)
+                                files_processed += 1
+                                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
 
-                                    for i, file in enumerate(files):
-                                        cancellation_checkpoint()
-                                        start = time.time()
-                                        if i+1 <= settings['examples_to_plot']:
-                                            file_path = os.path.join(merged_src, file)
+                        if settings['nucleus_channel'] != None:
+                            cancellation_checkpoint()
+                            time_ls=[]
+                            if check_mask_folder(
+                                    src, 'nucleus_mask_stack',
+                                    resume=settings.get('resume', False)):
+                                start = time.time()
+                                generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                stop = time.time()
+                                duration = (stop - start)
+                                time_ls.append(duration)
+                                files_processed += 1
+                                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
 
-                                            # Per example, not per batch: the old single
-                                            # try around the whole loop meant one
-                                            # unplottable field silently cancelled every
-                                            # remaining example.
-                                            with plot_ledger.item(
-                                                    file, stage='plot_mask_overlay',
-                                                    echo='Failed to plot image mask overly. Error'):
-                                                plot_image_mask_overlay(
-                                                    file_path,
-                                                    settings['channels'],
-                                                    settings['cell_channel'],
-                                                    settings['nucleus_channel'],
-                                                    settings['pathogen_channel'],
-                                                    organelle_channel=settings.get('organelle_channel'),
-                                                    figuresize=10,
-                                                    percentiles=(1,99),
-                                                    thickness=3,
-                                                    save_pdf=True,
-                                                    outline_palette=settings.get(
-                                                        'outline_palette',
-                                                        'default')
-                                                )
-                                                stop = time.time()
-                                                duration = stop-start
-                                                time_ls.append(duration)
-                                                files_processed = i+1
-                                                files_to_process = settings['examples_to_plot']
-                                                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
+                        if settings['pathogen_channel'] != None:
+                            cancellation_checkpoint()
+                            time_ls=[]
+                            if check_mask_folder(
+                                    src, 'pathogen_mask_stack',
+                                    resume=settings.get('resume', False)):
+                                start = time.time()
+                                generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                stop = time.time()
+                                duration = (stop - start)
+                                time_ls.append(duration)
+                                files_processed += 1
+                                print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'pathogen_mask_gen')
 
-                                    plot_ledger.finalize()
+                        for organelle_role in organelle_roles:
+                            cancellation_checkpoint()
+                            time_ls=[]
+                            if check_mask_folder(
+                                    src, f'{organelle_role}_mask_stack',
+                                    resume=settings.get('resume', False)):
+                                start = time.time()
+                                generate_organelle_masks_sam(
+                                    mask_src, settings, organelle_role)
+                                stop = time.time()
+                                duration = (stop - start)
+                                time_ls.append(duration)
+                                files_processed += 1
+                                print_progress(
+                                    files_processed, files_to_process,
+                                    n_jobs=1, time_ls=time_ls,
+                                    batch_size=None,
+                                    operation_type=f'{organelle_role}_mask_gen')
+
+                        if settings['adjust_cells']:
+                            if not settings['timelapse']:
+                                if settings['pathogen_channel'] != None and settings['cell_channel'] != None and settings['nucleus_channel'] != None:
+                                    start = time.time()
+                                    cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+                                    nuclei_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+                                    parasite_folder = os.path.join(mask_src, 'pathogen_mask_stack')
+
+                                    organelle_folder = None
+                                    if settings.get('organelle_channel') is not None:
+                                        candidate = os.path.join(mask_src, 'organelle_mask_stack')
+                                        if os.path.exists(candidate):
+                                            organelle_folder = candidate
+
+                                    print(f'Adjusting cell masks with nuclei and pathogen masks')
+                                    adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                    stop = time.time()
+                                    adjust_time = (stop-start)/60
+                                    print(f'Cell mask adjustment: {adjust_time} min.')
+
+                        if os.path.exists(os.path.join(src,'measurements')):
+                            _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
+
+                        # resume (opt-in, default False): skip fields whose merged
+                        # stack is already present and verified complete, so a crash
+                        # at field 900 of 1000 does not cost the first 900. Validated
+                        # rather than stat'ed — see spacr.resume.
+                        _load_and_concatenate_arrays(
+                            src,
+                            settings.get('channels'),
+                            settings.get('cell_channel'),
+                            settings.get('nucleus_channel'),
+                            settings.get('pathogen_channel'),
+                            settings.get('organelle_channel'),
+                            # THE SLOTS THIS RUN CONFIGURED, not every slot
+                            # that can be named. 326 widened
+                            # `ORGANELLE_ROLES` from four to 702, so this
+                            # comprehension built a 701-entry dict of which
+                            # all but a handful were None, on every mask run
+                            # -- the same per-VOCABULARY shape 42417ea28
+                            # fixed one file over in the measure loop.
+                            #
+                            # Nothing downstream loses anything:
+                            # `_load_and_concatenate_arrays` reads this with
+                            # `extra_dims.get(role)` inside its own loop over
+                            # the same roles, so an absent key and a key
+                            # holding None are already the same answer. What
+                            # changes is what lands in the settings record
+                            # and the run manifest, where 701 nulls buried
+                            # the slots a run actually used.
+                            organelle_chann_dims={
+                                role: dim
+                                for role in ORGANELLE_ROLES[1:]
+                                if (dim := settings.get(
+                                    f'{role}_channel')) is not None},
+                            resume=settings.get('resume', False)
+                        )
+
+                        if settings['plot']:
+                            if not settings['timelapse']:
+                                if settings['test_mode'] == True:
+                                    # Test mode plots every merged field. This used to
+                                    # take len() of the merged *path string*, i.e. a
+                                    # number that tracks how deeply the run folder is
+                                    # nested and has nothing to do with how many
+                                    # fields exist.
+                                    merged_dir = os.path.join(src, 'merged')
+                                    settings['examples_to_plot'] = len(
+                                        [f for f in os.listdir(merged_dir)
+                                         if f.endswith('.npy')]
+                                    ) if os.path.isdir(merged_dir) else 0
+
+                                # A separate ledger: an overlay PDF that fails to
+                                # render is cosmetic and must NOT brand the masks
+                                # themselves as partial. It still gets accounted for.
+                                plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
+                                try:
+                                    merged_src = os.path.join(src,'merged')
+                                    files = os.listdir(merged_src)
+                                except Exception as e:
+                                    print(f'Failed to plot image mask overly. Error: {e}')
+                                    plot_ledger.record_failure(os.path.join(src, 'merged'),
+                                                               stage='list_merged', exc=e)
+                                    files = []
                                 else:
-                                    plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
-                    
-                        torch.cuda.empty_cache()
-                        gc.collect()
-            
-                        # By default keep only merged/ (masks are embedded there + labels
-                        # are in the database). keep_intermediate / keep_original_images
-                        # opt out. The legacy delete_intermediate flag forces cleanup too.
-                        from .utils import cleanup_pipeline_folders
-                        keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
-                        keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
-                        cleanup_pipeline_folders(src,
-                                                 keep_intermediate=keep_intermediate,
-                                                 keep_original=keep_original)
+                                    random.shuffle(files)
+                                time_ls = []
 
-                        print("Successfully completed run")
+                                for i, file in enumerate(files):
+                                    cancellation_checkpoint()
+                                    start = time.time()
+                                    if i+1 <= settings['examples_to_plot']:
+                                        file_path = os.path.join(merged_src, file)
 
-            # Last thing on screen: a four-plate run that only completed three
-            # says so here, and the per-folder db carries the same verdict.
-            ledger.finalize()
-            for source_folder in source_folders:
-                db_path = os.path.join(format_path_for_system(source_folder),
-                                       'measurements', 'measurements.db')
-                if os.path.isfile(db_path):
-                    ledger.stamp(db_path)
-                    # The `relationships` table -- which nucleus is in which
-                    # cell, and so on. Rebuilt rather than topped up: the
-                    # masks that define those relationships have just
-                    # changed, so the previous answer is about objects that
-                    # no longer exist.
-                    #
-                    # Inside this loop and not after it. `db_path` is the
-                    # loop variable, so a write placed after the loop would
-                    # silently do one plate -- the last -- and leave every
-                    # other plate in a multi-plate run without the table.
-                    #
-                    # Never fatal, for the same reason the artifact registry
-                    # above is not: masking succeeded, and a missing
-                    # relationships table is rebuilt on demand by the Gate
-                    # Editor anyway. Failing here would throw away hours of
-                    # segmentation to protect a lookup that costs seconds.
-                    try:
-                        from .filters import write_relationships
-                        write_relationships(db_path)
-                    except Exception as exc:
-                        print(f"WARNING: could not write the relationships "
-                              f"table for {db_path}: "
-                              f"{type(exc).__name__}: {exc}")
+                                        # Per example, not per batch: the old single
+                                        # try around the whole loop meant one
+                                        # unplottable field silently cancelled every
+                                        # remaining example.
+                                        with plot_ledger.item(
+                                                file, stage='plot_mask_overlay',
+                                                echo='Failed to plot image mask overly. Error'):
+                                            plot_image_mask_overlay(
+                                                file_path,
+                                                settings['channels'],
+                                                settings['cell_channel'],
+                                                settings['nucleus_channel'],
+                                                settings['pathogen_channel'],
+                                                organelle_channel=settings.get('organelle_channel'),
+                                                figuresize=10,
+                                                percentiles=(1,99),
+                                                thickness=3,
+                                                save_pdf=True,
+                                                outline_palette=settings.get(
+                                                    'outline_palette',
+                                                    'default')
+                                            )
+                                            stop = time.time()
+                                            duration = stop-start
+                                            time_ls.append(duration)
+                                            files_processed = i+1
+                                            files_to_process = settings['examples_to_plot']
+                                            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type="Plot mask outlines")
 
-            # Run completion hook: record what this run produced, and what it was
-            # produced from, in the project's artifact registry. strict=False —
-            # a registry that cannot be written is worth one printed line, never
-            # a lost run. See spacr/artifacts.py.
-            #
-            #
-            # run_id is the same id every log line this run emitted carries,
-            # which is what makes "show me the log of the run that produced
-            # this file" answerable:
-            # spacr.runctx.read_run_log(artifact.run_id).
-            from .artifacts import register_run_outputs
-            register_run_outputs(
-                module_key, settings, roots=source_folders, strict=False,
-                run_id=run.run_id,
-                status=(artifact_status.STATUS_COMPLETE if ledger.is_complete
-                        else artifact_status.STATUS_PARTIAL))
+                                plot_ledger.finalize()
+                            else:
+                                plot_arrays(src=os.path.join(src,'merged'), figuresize=settings['figuresize'], cmap=settings['cmap'], nr=settings['examples_to_plot'], normalize=settings['normalize'], q1=1, q2=99)
+
+                    torch.cuda.empty_cache()
+                    gc.collect()
+
+                    # By default keep only merged/ (masks are embedded there + labels
+                    # are in the database). keep_intermediate / keep_original_images
+                    # opt out. The legacy delete_intermediate flag forces cleanup too.
+                    from .utils import cleanup_pipeline_folders
+                    keep_intermediate = settings.get('keep_intermediate', False) and not settings.get('delete_intermediate', False)
+                    keep_original = settings.get('keep_original_images', False) and not settings.get('delete_intermediate', False)
+                    cleanup_pipeline_folders(src,
+                                             keep_intermediate=keep_intermediate,
+                                             keep_original=keep_original)
+
+                    print("Successfully completed run")
+
+        # Last thing on screen: a four-plate run that only completed three
+        # says so here, and the per-folder db carries the same verdict.
+        ledger.finalize()
+        for source_folder in source_folders:
+            db_path = os.path.join(format_path_for_system(source_folder),
+                                   'measurements', 'measurements.db')
+            if os.path.isfile(db_path):
+                ledger.stamp(db_path)
+                # The `relationships` table -- which nucleus is in which
+                # cell, and so on. Rebuilt rather than topped up: the
+                # masks that define those relationships have just
+                # changed, so the previous answer is about objects that
+                # no longer exist.
+                #
+                # Inside this loop and not after it. `db_path` is the
+                # loop variable, so a write placed after the loop would
+                # silently do one plate -- the last -- and leave every
+                # other plate in a multi-plate run without the table.
+                #
+                # Never fatal, for the same reason the artifact registry
+                # above is not: masking succeeded, and a missing
+                # relationships table is rebuilt on demand by the Gate
+                # Editor anyway. Failing here would throw away hours of
+                # segmentation to protect a lookup that costs seconds.
+                try:
+                    from .filters import write_relationships
+                    write_relationships(db_path)
+                except Exception as exc:
+                    print(f"WARNING: could not write the relationships "
+                          f"table for {db_path}: "
+                          f"{type(exc).__name__}: {exc}")
+
+        # Run completion hook: record what this run produced, and what it was
+        # produced from, in the project's artifact registry. strict=False —
+        # a registry that cannot be written is worth one printed line, never
+        # a lost run. See spacr/artifacts.py.
+        #
+        #
+        # run_id is the same id every log line this run emitted carries,
+        # which is what makes "show me the log of the run that produced
+        # this file" answerable:
+        # spacr.runctx.read_run_log(artifact.run_id).
+        from .artifacts import register_run_outputs
+        register_run_outputs(
+            module_key, settings, roots=source_folders, strict=False,
+            run_id=run.run_id,
+            status=(artifact_status.STATUS_COMPLETE if ledger.is_complete
+                    else artifact_status.STATUS_PARTIAL))
     return
 
 
@@ -601,6 +778,27 @@ def preprocess_generate_masks_timelapse(settings):
               "to True. Use the Mask module for non-timelapse segmentation.")
     settings = get_timelapse_settings(settings)
     return preprocess_generate_masks(settings)
+
+
+#: The column a multi-plate UMAP carries so a user can colour by source.
+#:
+#: Deliberately the same name :mod:`spacr.multi_database` uses, so a frame
+#: coming out of the UMAP and a frame coming out of the Gate Editor's merge
+#: answer "where did this row come from" under one column name. Two names for
+#: one idea is how a user ends up unable to compare the two.
+UMAP_SOURCE_COLUMN = "source_database"
+
+
+def _umap_source_label(src):
+    """A short, readable name for one source root.
+
+    The plate folder's own name, because that is what the user called it and
+    what they will look for in a legend -- ``get_db_paths`` appends
+    ``measurements/measurements.db`` to it, so the file name is the same for
+    every plate and useless as a label.
+    """
+    text = str(src).rstrip(os.sep)
+    return os.path.basename(text) or text
 
 
 def _validate_umap_source_db(db_path, tables, require_png_list=True):
@@ -691,7 +889,7 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
 
 
 def generate_image_umap(settings=None, return_fig=False):
-    """Generate a UMAP or tSNE embedding of per-object features and plot it.
+    """Reduce per-object features and plot the resulting 2-D embedding.
 
     Reads measurements from the SQLite backend(s), applies preprocessing and
     dimensionality reduction, clusters the embedding, and renders scatter/grid
@@ -710,7 +908,7 @@ def generate_image_umap(settings=None, return_fig=False):
     :param settings: Configuration dict; canonicalized via
         :func:`spacr.settings.set_default_umap_image_settings`. Common keys:
         ``src``, ``tables``, ``row_limit``, ``clustering``,
-        ``reduction_method`` (``'UMAP'`` or ``'tSNE'``),
+        ``reduction_method`` (UMAP, t-SNE, PCA, Isomap or Spectral),
         ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,
         ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.
     :param return_fig: When True, return the Matplotlib figure instead of the
@@ -733,6 +931,33 @@ def generate_image_umap(settings=None, return_fig=False):
     from .settings import set_default_umap_image_settings
     from .batch_correction import correction_kwargs
     settings = set_default_umap_image_settings(settings)
+
+    reduction_method = str(settings.get('reduction_method', 'umap')).lower()
+    reducer_options = {
+        'tsne': {
+            'perplexity': settings['tsne_perplexity'],
+            'learning_rate': settings['tsne_learning_rate'],
+            'early_exaggeration': settings['tsne_early_exaggeration'],
+            'max_iter': settings['tsne_max_iter'],
+        },
+        'pca': {
+            'whiten': settings['pca_whiten'],
+            'svd_solver': settings['pca_svd_solver'],
+        },
+        'isomap': {
+            'n_neighbors': settings['isomap_n_neighbors'],
+            'path_method': settings['isomap_path_method'],
+        },
+        'spectral': {
+            'affinity': settings['spectral_affinity'],
+            'n_neighbors': settings['spectral_n_neighbors'],
+        },
+    }.get(reduction_method, {})
+    reducer_runtime = {
+        'reducer_options': reducer_options,
+        'prefer_gpu': bool(settings.get('gpu', False)),
+        'random_seed': int(settings.get('random_seed', 42)),
+    }
 
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
@@ -757,6 +982,38 @@ def generate_image_umap(settings=None, return_fig=False):
     db_paths = get_db_paths(settings['src'])
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
+
+    # WARN ABOUT PLATE IDS THAT APPEAR IN MORE THAN ONE DATABASE
+    # (instruction 109). This function has always accepted several sources and
+    # concatenated them, and has never checked that their plates are actually
+    # different plates. Two runs that both call a plate 'plate1' produce one
+    # key per object across both, so every per-well number computed downstream
+    # -- and every cluster the embedding shows -- is over two experiments at
+    # once, with nothing on screen to say so.
+    #
+    # A warning rather than a refusal: unlike a fresh merge, this is an
+    # existing entry point with existing callers, and stopping a run that
+    # worked yesterday is a worse failure than telling the truth loudly. The
+    # source column below is what lets a user check the answer.
+    if len(db_paths) > 1:
+        try:
+            from .multi_database import describe_merge
+            _plan = describe_merge(db_paths, 'cell')
+            if _plan.colliding_plates:
+                _detail = '; '.join(
+                    f"{plate!r} in {', '.join(labels)}"
+                    for plate, labels in sorted(_plan.colliding_plates.items()))
+                print(f"WARNING: the same plate id appears in more than one "
+                      f"source database, so objects from different runs share "
+                      f"one key and every per-well number below is computed "
+                      f"over both at once: {_detail}. Rename the plates, or "
+                      f"colour by '{UMAP_SOURCE_COLUMN}' to see which is "
+                      f"which.")
+        except Exception:
+            # Never let the advisory check stop a run that would otherwise
+            # work -- a database missing a 'cell' table is a legitimate shape
+            # here, and this is only advice.
+            pass
     # Where the thumbnails come from. 'png' (and 'auto' on any project that
     # has a crop folder) reads the folder, exactly as before; 'merged' (and
     # 'auto' with no folder) cuts each thumbnail out of merged/*.npy on
@@ -790,6 +1047,14 @@ def generate_image_umap(settings=None, return_fig=False):
         # png_path for display on this machine. These columns are removed
         # before the result CSV/DataFrame leaves this function.
         df['_spacr_umap_db_path'] = db_path
+        # The SOURCE, as something a user can group and colour by
+        # (instruction 109). The private column above is dropped before the
+        # result leaves this function; this one is not, because a merged
+        # embedding whose clusters turn out to be the source databases rather
+        # than biology is the single most important thing a multi-plate UMAP
+        # can show -- and it cannot show it if provenance never reaches the
+        # frame the user plots.
+        df[UMAP_SOURCE_COLUMN] = _umap_source_label(settings['src'][i])
         df['_spacr_umap_db_png_path'] = (
             df['png_path'] if 'png_path' in df.columns else None)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])
@@ -892,7 +1157,7 @@ def generate_image_umap(settings=None, return_fig=False):
         control_numeric_data = control_numeric_data_df.values
 
         # Train the reducer on control data
-        _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False)
+        _, _, reducer = reduction_and_clustering(control_numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode='fit', model=False, **reducer_runtime)
         
         # Apply the trained reducer to the entire dataset
         numeric_data = preprocess_data(
@@ -908,7 +1173,7 @@ def generate_image_umap(settings=None, return_fig=False):
                 default_control_values=settings.get('neg'),
             ),
         )
-        embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer)
+        embedding, labels, reducer = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], mode=None, model=reducer, **reducer_runtime)
 
     else:
         if settings['resnet_features']:
@@ -937,7 +1202,7 @@ def generate_image_umap(settings=None, return_fig=False):
                     default_control_values=settings.get('neg'),
                 ),
             )
-            embedding, labels, _ = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'])
+            embedding, labels, reducer = reduction_and_clustering(numeric_data, settings['n_neighbors'], settings['min_dist'], settings['metric'], settings['eps'], settings['min_samples'], settings['clustering'], settings['reduction_method'], settings['verbose'], n_jobs=settings['n_jobs'], **reducer_runtime)
     
     clusters_found = (
         len(labels) > 0 and np.any(np.asarray(labels) != -1)
@@ -1008,6 +1273,8 @@ def generate_image_umap(settings=None, return_fig=False):
     interactive_payload = {
         'embedding': np.asarray(embedding),
         'labels': cluster_labels,
+        'reduction_method': reduction_method,
+        'backend': str(getattr(reducer, '_spacr_backend', 'cpu')),
         'records': records,
         # What the STATIC figure was coloured by, which is not always the
         # cluster label: `color_by` swaps in a metadata column. Carried
@@ -1079,13 +1346,17 @@ def generate_image_umap(settings=None, return_fig=False):
     all_df.to_csv(results_csv, index=False)
     print(f'Results saved to {results_csv}')
 
-    if settings['analyze_clusters']:
+    if settings['analyze_clusters'] and all_df['cluster'].nunique(dropna=True) >= 2:
         combined_results = cluster_feature_analysis(all_df)
         results_dir = os.path.join(settings['src'][0], 'results')
         cluster_results_csv = os.path.join(results_dir,'cluster_results.csv')
         os.makedirs(results_dir, exist_ok=True)
         combined_results.to_csv(cluster_results_csv, index=False)
         print(f'Cluster results saved to {cluster_results_csv}')
+    elif settings['analyze_clusters']:
+        print(
+            "Cluster analysis skipped: at least two clusters are required "
+            "for between-cluster statistical tests.")
 
     fig = umap_plt.gcf() if hasattr(umap_plt, "gcf") else plt.gcf()
 
@@ -1248,74 +1519,79 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
     fig_width = grid_cols*10
     fig_height = grid_rows*10
 
-    fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
+    # rcParams reach an artist when it is CREATED, so a
+    # context opened after `plt.subplots` would leave the
+    # spines, ticks and labels at the caller's globals.
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
 
-    # Make sure axs is always an array of axes
-    axs = np.atleast_1d(axs)
+        # Make sure axs is always an array of axes
+        axs = np.atleast_1d(axs)
     
-    # Iterate through the Cartesian product of reduction and clustering hyperparameters
-    for i, reduction_param in enumerate(reduction_params):
-        for j, clustering_param in enumerate(clustering_params):
-            if len(clustering_params) <= 1:
-                axs[i].axis('off')
-                ax = axs[i]
-            elif len(reduction_params) <= 1:
-                axs[j].axis('off')
-                ax = axs[j]
-            else:
-                ax = axs[i, j]
+        # Iterate through the Cartesian product of reduction and clustering hyperparameters
+        for i, reduction_param in enumerate(reduction_params):
+            for j, clustering_param in enumerate(clustering_params):
+                if len(clustering_params) <= 1:
+                    axs[i].axis('off')
+                    ax = axs[i]
+                elif len(reduction_params) <= 1:
+                    axs[j].axis('off')
+                    ax = axs[j]
+                else:
+                    ax = axs[i, j]
 
-            # Perform dimensionality reduction and clustering. The method is
-            # 'umap' or 'tsne' and nothing else — it is validated once, above,
-            # before any data is read.
-            if settings['reduction_method'].lower() == 'umap':
-                n_neighbors = reduction_param.get('n_neighbors', 15)
+                # Perform dimensionality reduction and clustering. The method is
+                # 'umap' or 'tsne' and nothing else — it is validated once, above,
+                # before any data is read.
+                if settings['reduction_method'].lower() == 'umap':
+                    n_neighbors = reduction_param.get('n_neighbors', 15)
 
-                if isinstance(n_neighbors, float):
-                    n_neighbors = int(n_neighbors * len(numeric_data))
+                    if isinstance(n_neighbors, float):
+                        n_neighbors = int(n_neighbors * len(numeric_data))
 
-                min_dist = reduction_param.get('min_dist', 0.1)
-                embedding, labels = search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, settings['metric'], 
-                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
-                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                    min_dist = reduction_param.get('min_dist', 0.1)
+                    embedding, labels = search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, settings['metric'], 
+                                                                        clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5), 
+                                                                        clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
                 
-            else:  # 'tsne'
-                perplexity = reduction_param.get('perplexity', 30)
+                else:  # 'tsne'
+                    perplexity = reduction_param.get('perplexity', 30)
 
-                if isinstance(perplexity, float):
-                    perplexity = int(perplexity * len(numeric_data))
+                    if isinstance(perplexity, float):
+                        perplexity = int(perplexity * len(numeric_data))
 
-                embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'],
-                                                                    clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5),
-                                                                    clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
+                    embedding, labels = search_reduction_and_clustering(numeric_data, perplexity, 0.1, settings['metric'],
+                                                                        clustering_param.get('eps', 0.5), clustering_param.get('min_samples', 5),
+                                                                        clustering_param['method'], settings['reduction_method'], settings['verbose'], reduction_param, n_jobs=settings['n_jobs'])
 
-            # Plot the results
-            if settings['color_by']:
-                unique_groups = all_df[settings['color_by']].unique()
-                colors = generate_colors(len(unique_groups), False)
-                for group, color in zip(unique_groups, colors):
-                    indices = all_df[settings['color_by']] == group
-                    ax.scatter(embedding[indices, 0], embedding[indices, 1], s=pointsize, label=f"{group}", color=color)
-            else:
-                unique_labels = np.unique(labels)
-                colors = generate_colors(len(unique_labels), False)
-                for label, color in zip(unique_labels, colors):
-                    ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
+                # Plot the results
+                if settings['color_by']:
+                    unique_groups = all_df[settings['color_by']].unique()
+                    colors = generate_colors(len(unique_groups), False)
+                    for group, color in zip(unique_groups, colors):
+                        indices = all_df[settings['color_by']] == group
+                        ax.scatter(embedding[indices, 0], embedding[indices, 1], s=pointsize, label=f"{group}", color=color)
+                else:
+                    unique_labels = np.unique(labels)
+                    colors = generate_colors(len(unique_labels), False)
+                    for label, color in zip(unique_labels, colors):
+                        ax.scatter(embedding[labels == label, 0], embedding[labels == label, 1], s=pointsize, label=f"Cluster {label}", color=color)
 
-            ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
-            ax.legend()
+                ax.set_title(f"{settings['reduction_method']} {reduction_param}\n{clustering_param['method']} {clustering_param}")
+                ax.legend()
 
-    plt.tight_layout()
-    if save:
-        results_dir = os.path.join(settings['src'], 'results')
-        os.makedirs(results_dir, exist_ok=True)
-        save_figure(plt.gcf(),
-                    os.path.join(results_dir, 'hyperparameter_search'))
-    if return_fig:
-        return fig
-    if show and not save:
-        plt.show()
-    return
+        plt.tight_layout()
+        if save:
+            results_dir = os.path.join(settings['src'], 'results')
+            os.makedirs(results_dir, exist_ok=True)
+            save_figure(plt.gcf(),
+                        os.path.join(results_dir, 'hyperparameter_search'))
+        if return_fig:
+            return fig
+        if show and not save:
+            plt.show()
+        return
 
 def _finite_ratio(numerator, denominator):
     """Divide aligned Series while representing invalid observations as NaN.

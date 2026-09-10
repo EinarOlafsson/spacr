@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "min_cell_count",
+      "source": "Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
+      "source_sha256": "a560bc25bdab1b2568d1d26ad95fdeb36ae7af320a907b3c829290967ae7dd80",
+      "table": "setting_tooltips",
+      "translation": "이 수보다 세포가 적은 웰은 제외됩니다. 회귀 분석에서는 점수가 계산된 객체 수를 기준으로 하며 해당 웰은 모델 적합에서 제외됩니다. 머신 러닝 화면에서는 측정된 세포 수를 기준으로 하며 해당 웰은 플레이트 히트맵에서 제외됩니다. 이후 피벗 테이블의 빈 값이 0으로 채워지므로, 제외된 웰은 빈칸이 아니라 색상 척도의 최하단 색으로 표시됩니다. 값을 높이면 통계적 검정력이 감소하는 대신 노이즈가 많고 촬영된 세포가 적은 웰을 제거할 수 있습니다. 비활성화하려면 0으로 설정하십시오. 기본값은 회귀 분석에서 100, 화면에서 25입니다."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "de",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Correct image crops, screening, host modules and hovering.", "Preserve English UI labels and all source instructions; caption-only, no new voice."]},
+  "title": "Home und Navigation",
+  "description": "Finden Sie die sechs Core-Schritte, die aktuellen Home-Kategorien und die zugehörigen Werkzeuge innerhalb ihrer Hauptmodule.",
+  "objectives": ["Den Core-Ablauf von Bildern bis zu Regressionsergebnissen nachvollziehen.", "Data, Tools und Assays finden, ohne integrierte Aktionen mit fehlenden Modulen zu verwechseln.", "Herunterladbare echte Datensätze von erzeugten Demos unterscheiden und passende Spezialtutorials finden."],
+  "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung. Die Aufnahme verwendet das dunkle Design und vergrößerte Oberflächentexte.",
+  "scenes": [
+    "Home gliedert spaCR in Core, Data, Tools und Assays. Das sind Kategorien für unterschiedliche Arbeitsabläufe. Zugehörige Werkzeuge können auch innerhalb eines Hauptmoduls liegen; die Home-Schaltflächen bilden daher nicht sämtliche Funktionen ab.",
+    "Core folgt dem Analyseablauf eines Screenings: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Beginnen Sie bei dem Schritt, der zu Ihren Eingabedaten passt. Wenn bereits passende Messdaten oder Bildausschnitte vorliegen, müssen Sie die Segmentierung nicht wiederholen.",
+    "Data umfasst Import, Run Compare, Experiment Design, Power and Design, Dose Response und Qualitätskontrolle. Import ist außerdem der Einstieg zu Import Images, Format Converter und External Masks. Öffnen Sie zunächst das Hauptmodul, um diese Abläufe zu finden.",
+    "Tools enthält Make Masks, Align and Stitch, Image UMAP, Gate Editor und Graph Builder. Jedes Modul bündelt zusammengehörige Aktionen. Make Masks bietet beispielsweise Modelltraining und Modellvergleich; Graph Builder enthält Plate Viewer und Small Multiples.",
+    "Assays umfasst Plaque Assay, Recruitment, Invasion Assay und Replication Assay. Wählen Sie einen Ablauf passend zum Experiment und den benötigten Eingabedaten. Die Farbe für den Reifegrad eines Moduls ist unabhängig von seiner Kategorie; lesen Sie den Tooltip, bevor Sie sich auf eine experimentelle Funktion verlassen.",
+    "Classify ist ein einziges Modul. Die Einstellung Classifier family wählt zwischen bildbasierter Computer Vision und maschinellem Lernen anhand gemessener Merkmale. Die bisherigen Computer-Vision- und Machine-Learning-Tutorials erläutern weiterhin diese beiden Wege, nicht separate Home-Schaltflächen.",
+    "Die Symbole oben in Classify öffnen Classifier Evaluation, Explain CV Model, Activation, Training Runs und Feature Explorer. Halten Sie den Mauszeiger über ein Symbol, um Namen und Beschreibung zu lesen. Nutzen Sie das verlinkte Spezialtutorial, wenn Sie ein trainiertes Modell oder dessen Ergebnisse untersuchen möchten.",
+    "Die Core-Tutorials verwenden die echten Datensätze von Load test data. Der Download trägt die passenden Eingaben und kompatiblen Einstellungen ein. Die unter Help erzeugten Demos sind eine andere Möglichkeit. In Mask blenden die Schalter Time und 3D die Zeitreihen- und volumetrischen Abläufe ein; Live öffnet die Vorschau.",
+    "Über Help gelangen Sie zurück zu geführten Einführungen und Tutorials. Öffnen Sie das Tutorial zum aktuellen Modul neben der Anwendung und folgen Sie seinen Prüfungen von Daten, Einstellungen und Ergebnissen. Die nächste Lektion zeigt, wie dieselben Abläufe über die Python-API und die Kommandozeile zugänglich sind."
+  ]
+}

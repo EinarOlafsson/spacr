@@ -1,0 +1,346 @@
+================================================================================
+EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
+================================================================================
+
+Status:    not started, filed 2026-09-02. Follows 362, which made the grid
+           one size and six a row.
+Requested: 2026-09-02 -- "in the readme make the modual tiles the same size
+           and on a grid where the distance to the mogule above, below left
+           and right is the same. also in the readme make masks gets its own
+           section but no other moduals do. the information in this section
+           should be available in the api by clicking th emodual so remove
+           this text. and make sure each modual has a thorough explanation in
+           the api."
+Owner:     packaging/generate_readme_visuals.py, README.rst,
+           docs/source/_autoapi_templates/, the module docstrings themselves.
+
+--------------------------------------------------------------------------------
+PART 1 -- THE VERTICAL GUTTER MUST MATCH THE HORIZONTAL ONE  [DONE 2026-09-02]
+--------------------------------------------------------------------------------
+
+MEASURED ON THE REAL PAGE, which this file insisted on and was right to: the
+maintainer reported the gap between rows as "~2.5 to 3x the gap between
+columns". That number identifies the cause without ambiguity -- GitHub's
+paragraph bottom margin is about 16px and the tiles' own padding renders at
+about 9px a side, so a row that is its own PARAGRAPH carries both while a
+column carries only the padding.
+
+FIXED BY APPROACH (a)'s HALF THAT KEEPS THE ROW LENGTH: the grid is emitted
+as an RST LINE BLOCK, one line per row. A line block has no paragraph
+margin, so what separates two rows is the line box and the only space left
+is the same transparent padding that makes the horizontal gap. The two
+gutters become one measurement rather than two numbers that happen to be
+close.
+
+  NOT the flowing single paragraph this file proposed first. That also drops
+  the margins, and it hands the row length to the browser -- a narrow
+  viewport or a different font size gives five or seven per row. The line
+  block keeps six ours, so the "6 per row" and "equal gutters" requirements
+  stop being in conflict.
+
+  A test now fails if a grid row goes back to being a bare paragraph, naming
+  the symptom, because the difference is one character in the source and
+  three times the gap on the page.
+
+
+
+362 made every tile identical and six to a row. The HORIZONTAL gutter is
+solved and solved deliberately: each tile is `TILE_SIZE` centred in a
+`BUTTON_SIZE` canvas with `TILE_PADDING` transparent margin, rows are joined
+with RST's zero-width `\ ` separator, so two margins meet between
+neighbours and the gap is exactly `2 * TILE_PADDING`.
+
+THE VERTICAL GUTTER IS NOT CONTROLLED AT ALL. Each row is its own RST
+paragraph, so the space between rows is the browser's paragraph margin plus
+the line box -- a number nothing in this repository sets, and one that has
+no reason to equal `2 * TILE_PADDING`.
+
+  DO NOT GUESS AT IT. Measure the rendered gap on the real GitHub page
+  before and after. GitHub's own stylesheet is what decides this, a local
+  docutils render will not show it, and 362's part 1 was preceded by two
+  confidently wrong measurements taken against a page that had not settled.
+
+  THREE APPROACHES, in the order they should be tried:
+
+  a. ONE PARAGRAPH, NO BLANK LINES between rows. All 21 substitutions in a
+     single flowing run, wrapping naturally at six because 6 x 16% = 96% and
+     a seventh does not fit. Vertical spacing then comes from the line box
+     rather than paragraph margins. RISK: the wrap is the browser's decision,
+     not ours, so a narrow viewport or a different font size can produce five
+     or seven per row. The 6-per-row requirement and this approach may be in
+     direct conflict -- establish which the maintainer wants more before
+     building it.
+
+  b. AN RST TABLE, one tile per cell. Puts both gutters under the same
+     mechanism. RISK: GitHub styles table cells with borders and padding of
+     its own, which may be worse than the problem.
+
+  c. BAKE THE VERTICAL MARGIN INTO THE CANVAS. If the residual paragraph
+     margin proves to be a constant, reduce `TILE_PADDING` and add the
+     difference to the canvas height so the drawn gaps come out equal. Ugly,
+     exact, and the only one that does not depend on GitHub's CSS staying
+     put. Record the measurement if this is chosen, because the number is
+     otherwise unexplainable.
+
+--------------------------------------------------------------------------------
+PART 2 -- MAKE MASKS KEEPS ITS SECTION; NO OTHER MODULE GETS ONE  [DONE 2026-09-02]
+--------------------------------------------------------------------------------
+
+The README currently has a "Make Masks" subsection listing its nine tools
+(Brush, Erase, Erase object, Wand +, Wand -, Draw, Divide, Zoom, Recrop) and
+what three of them do. It is the only module with prose of its own, and the
+maintainer wants that kept -- Make Masks is a manual tool whose vocabulary a
+reader needs before they open it -- while every other module's explanation
+lives behind its tile in the API.
+
+  SO THE WORK IS SUBTRACTIVE IN THE README AND ADDITIVE IN THE API. Check
+  what other per-module prose has accumulated: the "Core workflow" section
+  currently describes all six pipeline modules in a bulleted list. That list
+  IS per-module explanation, and by this instruction it belongs in the API.
+  Confirm with the maintainer whether the six-line summary goes too, or only
+  longer sections -- the request says "no other moduals" get a section, and
+  a bulleted list is arguably not a section.
+
+  THE TEST `test_readme_keeps_the_feature_catalog_curated_and_points_to_detail`
+  asserts "The primary workflow comprises six modules" is present. If that
+  list goes, that assertion goes with it, and the editorial word ceiling in
+  the same test should come DOWN to lock in the reduction rather than leave
+  the freed budget available for new sprawl.
+
+--------------------------------------------------------------------------------
+PART 3 -- "A THOROUGH EXPLANATION IN THE API" FOR EVERY MODULE
+--------------------------------------------------------------------------------
+
+This is the largest part and the one that makes parts 1 and 2 safe: text is
+only being REMOVED from the README on the promise that it is better said in
+the API, so the API has to actually say it first. Do part 3 BEFORE part 2.
+
+Every tile in the grid links to an API page. Those links already exist and
+`test_every_workflow_button_tracks_the_home_screen_registry_and_api` pins
+them, so the destinations are right; the question is whether what is THERE
+is worth arriving at.
+
+  MEASURE IT FIRST, per module, and write the numbers down: does the landing
+  page open with prose a user can read, or with an autoapi member list? Does
+  it say what the module is for, what it needs as input, what it produces,
+  and which settings matter -- or only what its functions are called?
+
+  WHAT "THOROUGH" SHOULD MEAN, judged from the reader's side: someone who
+  clicked the tile because they do not know what the module does can, after
+  reading, say what it is for, what it needs, what it produces, and what to
+  do next. That is the bar, not a word count.
+
+  The existing docstrings in `spacr/qt/screens/foreign.py` are the house
+  standard: what the screen is for, an ASCII layout, and design notes saying
+  WHY each decision was made. Modules already written to that standard need
+  their prose surfaced on the landing page, not rewritten.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* The rendered vertical and horizontal gaps between tiles are equal, MEASURED
+  on github.com and recorded in this file, not asserted.
+* The README has exactly one per-module section, and it is Make Masks.
+* Every module the grid links to opens on prose, and a test fails when a
+  module's landing page has no explanation -- otherwise part 2 has moved
+  information from somewhere into nowhere.
+* The README's editorial word ceiling is lowered by what part 2 removed.
+
+--------------------------------------------------------------------------------
+2026-09-02: PART 3 MEASURED, AND IT IS WORSE THAN "SOME PAGES ARE THIN"
+--------------------------------------------------------------------------------
+
+This file said to measure per module before writing anything. Measured, as
+words in the module docstring the tile's API page opens with:
+
+    measure           spacr.measure            6   <- fixed, now 476
+    regression        spacr.ml                 6
+    mask              spacr.core               7
+    umap              spacr.core               7
+    map_barcodes      spacr.sequencing         8
+    analyze_plaques   spacr.submodules         8
+    recruitment       spacr.submodules         8
+    invasion          spacr.submodules         8
+    replication       spacr.submodules         8
+    ---------------------------------------------------
+    qc_dashboard      qt.screens.qc_dashboard        133
+    gate_editor       qt.screens.gate_editor         146
+    classify_merged   spacr.classify                 154
+    graph_builder     qt.screens.graph_builder       178
+    experiment_design qt.screens.experiment_design   239
+    run_compare       qt.screens.run_compare         275
+    make_masks        qt.screens.make_masks          281
+    dose_response     qt.screens.dose_response       296
+    annotate          qt.screens.annotate            384
+    power             qt.screens.power               509
+    align             spacr.align                    715
+    foreign           spacr.foreign                1180
+
+NINE OF TWENTY-ONE TILES LAND ON SIX TO EIGHT WORDS, and four of those nine
+are CORE pipeline modules -- Mask, Measure, Regression and Map Barcodes.
+There is nothing in between 8 and 133, so there is no judgement call about
+where the line is.
+
+AND THE DEEPER PROBLEM, which prose alone cannot fix: SIX TILES SHARE THREE
+PAGES. Mask and UMAP both open `spacr.core`; all four toxoplasma assays --
+Analyze Plaques, Recruitment, Invasion, Replication -- open
+`spacr.submodules`. A reader who clicks "Recruitment" because they do not
+know what it does lands on the same text as somebody who clicked "Analyze
+Plaques", and one page cannot answer for both. Those tiles need pages of
+their own, which is a change to where the tiles POINT (packaging + docs) and
+not to any docstring. Part 3 is not finished by writing prose.
+
+DONE HERE: `spacr/measure.py`, 6 words -> 476, written to this file's own bar
+rather than to a length -- what it is for, what it needs, what it produces,
+what to do next, and the three non-obvious things that are load-bearing (a
+field that fails to measure is recorded and stamped into the database rather
+than passed over; the 2-D path is bit-identical so a re-measured screen gives
+the same numbers; the neighbour radius is in the column name so two plates
+measured differently will not silently concatenate).
+
+NOT DONE, AND WHY: `spacr/core.py`, `spacr/ml.py`, `spacr/sequencing.py` and
+`spacr/submodules.py` are the OTHER SESSION'S files under the two-session
+protocol in instruction 325. They are the four biggest gaps and they are
+recorded rather than taken. See 325's channel section.
+
+`tests/test_every_module_lands_on_prose.py` makes the rest safe: a ratchet
+with each owed module's current word count, so a page may improve and leave
+the table but may not get thinner, a tile added tomorrow that lands on
+nothing fails immediately, and the six-tiles-three-pages fact is asserted as
+a KNOWN shape so that a new sharing has to be noticed and recorded.
+
+A WORD COUNT IS NOT THOROUGHNESS and the test says so in as many words. Six
+words cannot answer four questions, which is all a machine can tell; whether
+the prose is any good is a reader's judgement and stays one.
+
+
+--------------------------------------------------------------------------------
+2026-09-02: PART 2 DONE. WHAT CAME OUT, AND WHERE IT NOW LIVES
+--------------------------------------------------------------------------------
+
+DONE AFTER PART 3, which this file insisted on and was right to: every claim
+below was READ ON THE API PAGE BEFORE IT WAS DELETED, not assumed to be there.
+
+THE JUDGEMENT CALL THIS FILE RAISED WAS RULED ON, AND THE SIX-LINE LIST STAYS.
+The maintainer's ruling: "Core workflow"'s six bullets are a TABLE OF CONTENTS
+for the pipeline, not an explanation of any one module, and they are the only
+place the six are named apart from the other fifteen -- which instruction 374,
+filed the same day, needs the API homepage to do. So
+`test_readme_keeps_the_feature_catalog_curated_and_points_to_detail` keeps its
+"The primary workflow comprises six modules" assertion. Longer per-module PROSE
+came out; the list did not.
+
+REMOVED FROM THE README -- both were the last per-module prose left:
+
+1. "The same project can also design plates, estimate power, correct batch
+   effects, inspect segmentation quality, explore linked plots and crops,
+   export AnnData, resume interrupted work and record the settings behind each
+   result." (36 words, closing "Core workflow".) It is the fifteen
+   non-pipeline modules explained in one sentence. Each of its eight claims,
+   verified on the page before deleting:
+
+     design plates ................ spacr.qt.screens.experiment_design
+                                    "Design the plate before it is acquired"
+     estimate power ............... spacr.qt.screens.power
+                                    "how many cells per well, and how many
+                                    wells, do I need?"
+     correct batch effects ........ spacr.batch_correction
+                                    "Plate/batch-effect correction for tabular
+                                    microscopy measurements"
+     inspect segmentation quality . spacr.qt.screens.qc_dashboard
+                                    "the segmentation, units, leakage,
+                                    plate-effect and agreement verdicts"
+     explore linked plots + crops . spacr.qt.linked_selection ("lassoing a
+                                    cluster in the UMAP highlights the same
+                                    cells ... in the crop grid") and
+                                    spacr.qt.screens.graph_builder
+     export AnnData ............... spacr.anndata_export
+     resume interrupted work ...... spacr.qt.plate_queue ("the queue serialises
+                                    ... so a crash or restart doesn't lose the
+                                    plan") and spacr.batch
+     record the settings .......... spacr.run_journal ("settings.csv -- exact
+                                    settings dict")
+
+   All eight are ALSO in docs/source/features.rst, under "Planning, quality
+   control and exploration" and "Reproducibility and interoperability", which
+   the README still links twice.
+
+2. "Cellpose-SAM runs here show the cell-probability map and the flow field
+   beside the mask." (16 words, in the Make Masks section.) The section stays
+   -- it is kept for the TOOL VOCABULARY, which a reader needs before opening a
+   manual tool -- but this sentence is not vocabulary and
+   `spacr.qt.screens.make_masks` already said it: "applies the pipeline's
+   resolved Cellpose-SAM model to the open field and displays the mask,
+   cell-probability map, and flow field". The pointer to the feature guide,
+   which carries the longer version, stays.
+
+ALSO STRUCTURAL: the "Other resources" bullet list was a bold paragraph INSIDE
+the Make Masks subsection, so the one protected per-module section read as
+though the tutorials and the API reference belonged to Make Masks. It is now a
+sibling heading. Nothing moved, nothing was cut.
+
+ADDED TO THE API, because the request's second clause asks for it: the
+information in the Make Masks section must be reachable by clicking the tile.
+`spacr/qt/screens/make_masks.py`, 281 words -> 577. It had never named Recrop
+at all, and described the palette generically ("brush and erase operations ...
+region drawing and division, zooming"). It now names all NINE tools in
+TOOL_MODES order with what each does, and gives Recrop its own paragraph --
+what it writes, where the multi-object original is retired to, and the three
+ways a box is refused -- sourced from `spacr.qt.mask_engine` rather than
+restated from the README.
+
+WORD COUNT: 1753 -> 1708. THE CEILING: 1800 -> 1750, which is 50 against 45
+removed, so none of the freed budget survives. A ceiling left at 1800 hands
+the 45 words to whoever writes the next paragraph, and the reduction lasts
+only until somebody does.
+
+NEW GUARD: `test_make_masks_is_the_only_module_with_a_section_of_its_own` in
+tests/test_readme_presentation.py compares README headings against the
+registry's own labels, so the contract in "HOW IT WILL BE CHECKED" is checked
+rather than asserted. Both halves were mutation-tested: a "Regression" heading
+fails it, and putting "Other resources" back inside the Make Masks section
+fails it.
+
+ONE KNOWN CONSEQUENCE, RECORDED RATHER THAN FIXED, because it is 306's file
+and this session may not edit tools/: the deleted "The same project can also
+..." sentence is a key in `REVIEWED_README_BLOCKS` in
+tools/build_documentation_i18n.py, and `test_documentation_i18n.py::
+test_github_summary_has_reviewed_domain_translations` asserts every such key
+is still in README.rst. THAT TEST WAS ALREADY RED at HEAD, on a block nothing
+to do with this work: 17 of its 47 keys are bound to text that left the README
+in earlier restructures, and it fails on the first of them ("For image-based
+pooled CRISPR screens ..."). This work makes it 18. The repair is the same one
+the gap ledger already uses for exactly this case -- retire the reviewed block
+with a reason, keeping the reviewer and locales -- and it belongs to whoever
+owns tools/build_documentation_i18n.py.
+
+NOT RUN: tools/build_documentation_i18n.py, and docs/i18n/** was left alone,
+another session being mid-rewrite there. `packaging/generate_readme_visuals.py`
+was re-run as required; it also writes the nine localized READMEs and clobbered
+their translated hardware legend with the English one, so those nine files were
+reverted to HEAD. THE GENERATOR DOES THAT ON EVERY RUN, which is worth knowing
+before the next person runs it against a dirty i18n tree.
+
+--------------------------------------------------------------------------------
+2026-09-02: CODEX-OWNED PART 3 LANDING PAGES ARE DONE
+--------------------------------------------------------------------------------
+
+The four pages previously recorded as the other session's work now meet this
+item's reader-facing bar:
+
+* `spacr/core.py` (`11fed2ece`) explains Mask and Image UMAP;
+* `spacr/ml.py` (`c50ca0860`) explains regression and classical ML;
+* `spacr/sequencing.py` (`670bee72a`) explains barcode mapping; and
+* `spacr/submodules.py` (`342c9d5f4`) explains the four assay workflows.
+
+Each page explicitly answers WHAT IT IS FOR, WHAT IT NEEDS, WHAT IT PRODUCES,
+and WHAT TO DO NEXT. The six formerly shared tile destinations now carry
+entry-point anchors (`a48c16999`), so Mask/UMAP and the four assays land on
+their own relevant function prose rather than merely sharing a module page.
+`STILL_OWED` is empty, and the current focused verifier is green: 11 passed in
+7.49 s from `tests/test_every_module_lands_on_prose.py` at `82121ce1e`.
+
+This closes the Codex-owned 366b subset. Instruction 366 itself remains open
+for its README editorial work and any final rendered-page review in the other
+session's lane.
