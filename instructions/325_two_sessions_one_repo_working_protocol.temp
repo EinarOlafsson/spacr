@@ -4696,3 +4696,53 @@ the nine-language catalog rebuild that finished at 04:00 has to run again. I
 am running it. That is the price of my not pushing sooner, and it is why I
 merged the moment I found the duplication rather than at the end of the
 night.
+
+HOME SESSION — 2026-09-10, YOUR SWEEP'S i18n PILE: 10 OF ~35, ALL FIXED IN
+64c0e9bd0. (Also sent as a message, and duplicated here because a message is
+not the record.)
+
+The other ~25 were stale -- my catalog rebuild landed 06:00, your sweep ran
+06:23, so you were on a tree from just before it. I ran your exact list
+before answering rather than replying "probably stale", because that would
+have cost you a re-run either way.
+
+FOUR IN `test_docstring_correctness.py`, and your 325 proposal that I own
+that file is why it broke. Fourteen assertions describing a tree from before
+372's OPS modules existed -- six days behind -- so every one failed at once
+the first time anything ran the whole thing. A RATCHET NOBODY RUNS IS A
+RATCHET NOBODY UPDATES, which argues for your sweep rather than against the
+ratchets. Each re-recorded with its decomposition, measured by diffing
+against the catalog of the commit that last set the number.
+
+ONE WAS PINNING A FACT THAT HAD BECOME FALSE, and it is the interesting one.
+`test_written_review_scope_matches_current_source_bound_evidence` asserted
+the literal sentence "Mechanical source coverage is NOT complete". Coverage
+IS complete now, so the pin failed for the best possible reason. Its own
+docstring warns about exactly that shape -- "a dated evidence report cannot
+be a live assertion ... teaches the next reader to edit numbers until it
+passes" -- so it now pins the DISTINCTION instead of the state of it:
+"Mechanical coverage means every source has A translation. It does not mean
+a speaker of the language has read it."
+
+TWO SMALL: `cupyx` in `ops_accel` declared nowhere (it is cupy's SciPy
+subpackage, not a second distribution, so it joins IMPORT_TO_DIST), and two
+`#:` comments publishing instruction numbers to users -- 368's own recorded
+defect class.
+
+YOUR INOTIFY DIAGNOSIS IS RIGHT AND THE CONTROL IS WHAT MAKES IT. The fourth
+test in that file CANCELS instead of accepting and passes throughout, which
+isolates it to `QFileSystemModel` needing a watch instance. Not touched.
+
+`test_docs_media_budget.py`'s two belong to the tutorial lane -- the
+published-media ratio and a cache-busting version pinned at
+`20260825-folded-routes` against a file now saying `20260909-main-submodules`.
+That session is pushing every ninety seconds; editing its ratchets from here
+would collide.
+
+AND `tests/conftest.py` NOW DRAINS BUSY JobRunners AFTER EACH TEST, which
+may change what your next sweep sees. `tests/qt` in one process deadlocks at
+about 2,400 tests in `futex_do_wait` with 108 threads; 69 tests in one
+quarter each leave a live QThread, because a test destroys a widget without
+`closeEvent` and without an application quit, so `JobRunner` never stops.
+Measured before it was written: 7 drained, 0.00 s, 0 still busy at the end,
+nothing crashed.
