@@ -1,0 +1,36 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "bcfb47d8a1476df804e6b294bf1ae3c784f337f8f8cee6c1b17b7bedcba89e2e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Analisi delle placche",
+  "description": "Riutilizza maschere sintetiche, scegli esplicitamente il modello di anteprima e verifica filtri e tabelle salvate.",
+  "objectives": [
+    "Distinguere le maschere salvate da nuove predizioni.",
+    "Provare un filtro reversibile senza ripetere la segmentazione.",
+    "Leggere conteggi e aree senza inventare calibrazione o effetti biologici."
+  ],
+  "prerequisite": "Scarica ed estrai l’esempio SINTETICO in una nuova cartella. I quattro TIFF e le quattro maschere conservano i byte originali; non sono inclusi vecchi risultati, impostazioni o modelli. Source deve indicare SYNTHETIC_plaque e Masks deve restare disattivato. Dieci oggetti costruiti: quattro, tre, due e uno; nessuna immagine acquisita né calibrazione fisica. Il modello dell’anteprima viene scaricato e verificato separatamente, senza valutarne l’accuratezza. La soglia 26211 mantiene due predizioni; zero ripristina le quattro. L’anteprima non eredita automaticamente plaque_model. Indica un modello esistente anche con Masks disattivato. API: spacr.submodules.analyze_plaques. Nessuna elaborazione batch con nuove maschere o validazione biologica è dichiarata.",
+  "scenes": [
+    "Apri Plaque Analysis nella sezione Assays di Home. Usiamo quattro immagini sintetiche con maschere costruite, non immagini di un’infezione reale. Conteremo le maschere salvate, proveremo un’anteprima separata e ispezioneremo il database senza presentare queste forme didattiche come risultati biologici.",
+    "Scarica l’esempio sintetico collegato qui sotto ed estrailo in una nuova cartella. Imposta Source sulla cartella con i quattro TIFF e la sottocartella masks. Conserva gli originali; usa un’altra copia prima di provare una segmentazione che potrebbe sostituire le maschere.",
+    "Lascia Masks disattivato per riutilizzare le maschere fornite. I conteggi sono quattro, tre, due e uno. Attivarlo richiede una segmentazione: diametro, normalizzazione e modello influiscono quindi su un altro calcolo. Riutilizzare le maschere non mette alla prova quel modello.",
+    "Well detection è disattivato perché ogni immagine rappresenta già un campo. L’area fisica richiede la geometria reale del pozzetto e una dimensione nota; qui mancano entrambe. Lascia la calibrazione vuota. Un nome, un diametro ipotizzato o un’esecuzione riuscita non stabiliscono una scala in millimetri.",
+    "Plaque model richiede un modello disponibile anche riutilizzando maschere. La registrazione parte da un modello incluso già presente. In una nuova installazione, scarica il modello per le placche tramite Model zoo e inserisci qui il percorso locale. L’anteprima ha un selettore separato, che verificheremo dopo.",
+    "Apri Live preview e poi Live settings. Controlla Model: questa versione mostra inizialmente il modello generale anche quando Plaque model indica un altro file. Non presumere che anteprima e modulo di analisi siano sincronizzati. Fai coincidere esplicitamente i modelli prima di creare nuove maschere.",
+    "Apri Model zoo e seleziona il modello per le placche. Occupa circa uno virgola due gigabyte: scegli una cartella Save to adatta e scaricalo una volta. I byte sono verificati rispetto alla somma di controllo pubblicata. On this machine significa disponibile, non che l’esperimento sia validato.",
+    "Scegli la prima immagine sintetica e Run preview. Il modello selezionato trova quattro oggetti. View alterna contorni e maschere colorate; nessuna visualizzazione misura l’accuratezza del modello. Questa nuova segmentazione è separata dalle maschere fornite usate dall’analisi completata.",
+    "In Live settings, aumenta Min area a ventiseimiladuecentoundici pixel. Le due predizioni più piccole vengono eliminate. Il filtro riutilizza le maschere in memoria senza eseguire nuovamente il modello. Cambia un’impostazione alla volta per vedere quali oggetti esclude.",
+    "Riporta Min area a zero: ricompaiono tutti e quattro gli oggetti con esattamente i pixel iniziali. Zero disattiva questo limite inferiore di area. Le modifiche dell’anteprima non riscrivono le maschere di ingresso o il database dei risultati; un’anteprima gradevole non equivale a un’analisi batch completata.",
+    "Il riutilizzo delle maschere salva un database nella cartella masks. Questo percorso produce tabelle, non un grafico incorporato: una zona Figures vuota non dimostra un errore. Leggi la console. AI resta disattivato; una risposta dell’assistente non sostituirebbe la verifica dei risultati salvati.",
+    "Apri Database browser da Help e seleziona il database dell’analisi delle placche in masks. Lascia Edit mode disattivato. Il browser mostra le tabelle effettivamente salvate, non una schermata di risultati inventati, e l’ispezione lascia invariati i byte del database.",
+    "Seleziona summary e identifica ogni riga dal nome del file, non dalla posizione. Object count deriva dalle maschere fornite: quattro, tre, due e uno. Average size è l’area media etichettata in pixel. Control e treatment sono nomi didattici arbitrari, non prove di un effetto.",
+    "Seleziona stats per il numero di placche, l’area media e la dispersione per immagine. La deviazione standard descrive le singole aree, non un intervallo di incertezza per un esperimento biologico. Interpreta i conteggi solo dopo aver validato scala e segmentazione su dati reali.",
+    "Seleziona details per esaminare ogni area. Le colonne dell’area fisica restano vuote perché manca la calibrazione. Conserva insieme immagini, maschere, impostazioni e database e usa repliche sperimentali indipendenti per i confronti biologici. Il tutorial verifica il software su forme sintetiche, non l’infezione o l’efficacia di un farmaco."
+  ]
+}
