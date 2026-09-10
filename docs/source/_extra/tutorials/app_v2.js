@@ -924,7 +924,7 @@ function tutorialExampleFiles(lesson) {
   if (!Array.isArray(lesson.example_files)) return [];
   return [...new Set(lesson.example_files.filter(name =>
     typeof name === "string" && name.length <= 128 &&
-    /^[A-Za-z0-9][A-Za-z0-9_.-]*\.csv$/.test(name)))];
+    /^[A-Za-z0-9][A-Za-z0-9_.-]*\.(?:csv|zip)$/.test(name)))];
 }
 
 function updateGuide() {
