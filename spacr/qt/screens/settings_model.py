@@ -1144,7 +1144,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Data", (
             "src", "tables", "crop_source", "filter_by", "row_limit",
             "exclude", "exclude_rows", "remove_highly_correlated",
-            "log_data", "resnet_features", "visualize",
+            "log_data", "resnet_features",
         )),
         ("Dimensionality Reduction", (
             "reduction_method", "random_seed", "metric",
@@ -1212,7 +1212,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Feature Selection & Importance", (
             "prune_features", "top_features", "n_repeats",
         )),
-        ("Output & Database", ("save_to_db",)),
+        # ("Output & Database", ("save_to_db",)) went with the setting on
+        # 2026-09-09 (357-Q4): `save_to_db` was read by nothing but its own
+        # defaults setter, and a heading whose only row is gone is a
+        # heading with nothing under it.
         ("Plots & Heatmaps", (
             "cmap", "heatmap_feature", "grouping", "min_max",
         )),
@@ -1246,7 +1249,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
-            "denoise",
         )),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
@@ -1280,8 +1282,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
-            "plot", "cmap", "figuresize", "normalize_plots",
-            "examples_to_plot",
+            "plot", "cmap", "figuresize", "examples_to_plot",
         )),
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
@@ -1422,7 +1423,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Image Preprocessing", (
             "normalize", "lower_percentile", "randomize", "batch_fields",
             "consolidate",
-            "denoise",
         )),
         ("Illumination Correction", (
             "illumination_correction", "illumination_model",
@@ -1467,8 +1467,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "t_project_for_tracking",
         )),
         ("Visualization & Diagnostics", (
-            "plot", "cmap", "figuresize", "normalize_plots",
-            "examples_to_plot",
+            "plot", "cmap", "figuresize", "examples_to_plot",
         )),
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
@@ -2520,17 +2519,17 @@ def categories_for_app(
                 "val_split", "sample"],
 
             "Images & Cropping": [
-                "image_source", "load_path_regex", "tables",
+                "image_source", "tables",
                 "channel_of_interest", "stream_method", "object_array",
-                "mask_array", "channel_arrays", "bounding_box",
+                "channel_arrays", "bounding_box",
                 "crop_shape", "train_channels", "image_size", "augment"],
 
             "Model & Regularization": [
                 "classifier_family",
                 "model_type", "custom_model_path",
                 "resume_checkpoint", "init_weights",
-                "normalize", "normalization", "normalization_scope",
-                "dropout_rate", "weight_decay", "use_checkpoint"],
+                "normalize", "dropout_rate", "weight_decay",
+                "use_checkpoint"],
 
             "Training & Loss": [
                 "epochs", "optimizer_type", "learning_rate", "schedule",
@@ -2554,7 +2553,7 @@ def categories_for_app(
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
-                "leakage_require_identity", "n_top_examples", "save_to_db",
+                "leakage_require_identity", "n_top_examples",
                 "plot", "tensorboard", "intermedeate_save", "pin_memory",
                 "random_seed", "n_jobs", "verbose", "strict_errors",
                 "max_failure_rate"],
@@ -3340,10 +3339,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Whether features are pruned before the final fit, and how repeated "
         "permutation importance is computed afterwards. These settings "
         "identify the measurements contributing to model decisions.",
-    "OUTPUT & DATABASE":
-        "Whether model scores are written back into the measurements "
-        "database so later modules can read them. Leave it off for "
-        "exploratory fits you would rather not record.",
+    # "OUTPUT & DATABASE" went with `save_to_db` on 2026-09-09 (357-Q4).
+    # Its whole subject was that one setting -- "whether model scores are
+    # written back into the measurements database" -- and nothing read it,
+    # so the hint described a choice the run did not offer.
     "PLOTS & HEATMAPS":
         "Which feature the heatmap shows, how wells are grouped, and the "
         "colour map and value range used to draw it. Presentation of the "

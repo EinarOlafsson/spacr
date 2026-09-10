@@ -1466,3 +1466,93 @@ plot labels and as the setting.
 THE SURVEY IS DONE AND IS WRITTEN ABOVE so the next pass starts from the
 classification rather than from the grep. The mechanism is proven, the two
 traps are recorded as steps, and the branch is one `git checkout` away.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE EIGHT UNREAD SETTINGS ARE RETIRED, AND TWO OF THEM LIED
+--------------------------------------------------------------------------------
+
+357-Q4, answered: RETIRE ALL EIGHT. Broader than the entry recommended --
+it proposed keeping `denoise` and `normalization` pending a decision about
+whether they were features never wired -- and the maintainer took the whole
+set.
+
+    denoise            load_path_regex     mask_array
+    normalization      normalization_scope normalize_plots
+    save_to_db         visualize
+
+Each had exactly one consumer in the generated map and in every case it was
+the setting's own `set_default_*` function. Nothing read the value back.
+
+TWO OF THEM DOCUMENTED A JOB THEY DID NOT DO, which is worse than a dead
+control, and finding it is the argument for having asked rather than
+retiring quietly:
+
+  * `mask_array` said it named the labelled plane for the 'array' stream
+    method. `stream_dataset` takes that plane from `object_array` -- for
+    BOTH methods -- so the route's own documented input was never read.
+    `picture_settings` even WROTE it: a panel naming a plane by index sent
+    `mask_array` an integer that nothing consulted, and the value was
+    silently the object type's default instead.
+  * `load_path_regex` said it selected already-exported crops, and carried
+    a dependency RULE explaining when it did not apply. Both described a
+    control nothing read in either branch.
+
+WHAT CAME OUT WITH THEM, because a retirement is not just four table rows:
+
+    the eight setdefaults, expected_types rows, tooltips and categories
+    the "Output & Database" SECTION, whose only member was `save_to_db`
+    its SECTION_HINTS paragraph, which described a choice the run did
+      not offer
+    `load_path_regex`'s dependency rule
+    two entries in `classify.FAMILY_SETTINGS` and one in
+      `stream_dataset.METHOD_SETTINGS` -- greying tables naming settings
+      that no longer exist grey nothing
+    two VERIFIED_TOOLTIP_FACTS waivers whose own text said "Legacy
+      compatibility" and "do not read", which is the audit recording that
+      a control did nothing rather than the control being fixed
+
+AND FIVE PINNED COUNTS MOVED, each named rather than nudged: the tooltip
+census 679 -> 671, the witnessed inapplicable defaults 49 -> 48 and their
+distinct keys 35 -> 34, and -- from the `control_wells` split in the same
+batch -- the default variants 47 -> 46 with its repaired-tooltip reason and
+repaired fact, 23 -> 22 apiece. Three of those five are one cause seen from
+three sides, which is why all three are kept: a change that moved only one
+would be a change nobody had understood.
+
+AND THE PROSE THAT STILL NAMED THEM. `stream_method`'s tooltip told the
+user the 'array' route required `mask_array`; it now says what the route
+actually reads. Four comment passages in `settings.py` explained category
+membership by naming `save_to_db` and `load_path_regex` as live settings.
+A comment that describes a key nothing defines is the same defect as the
+key itself, one indirection later.
+
+`tests/qt/test_cov_app_screen.py` used `denoise` nine times as its
+stand-in for "a boolean on the mask screen" -- in the widget-construction
+census, in three CSV round trips, and in the crash-report test. It now
+uses `plot`, which is a live boolean whose default is False, so the
+import assertions still observe a value CHANGING rather than agreeing
+with a default.
+
+STILL OUTSTANDING: the runtime i18n catalogs (`spacr/qt/i18n_catalogs/*.py`)
+carry a label and a tooltip for each of the eight in all languages. They
+are GENERATED -- `tools/build_i18n_catalogs.py` -- and the rebuild is held
+until the other session's catalog audit is green, so the stale entries go
+when it runs, not by hand.
+
+A STEP THE SURVEY WAS MISSING, AND THE THIRD TIME IN ONE NIGHT A RULE WAS
+RIGHT ABOUT THE FAMILY AND BLIND TO THE INSTANCE. A blanket replace of a
+setting's name also hits every identifier that merely SPELLS it the same.
+`control_wells` caught two: a FUNCTION in `gene_measurement_compare` that
+derives the control wells from the count table, and
+`app_screen._migrate_control_wells`, which is the migration for the very
+trio being renamed -- so the rename broke the code whose job was to carry
+old files across it. `min_cell_count` caught a third, an internal field
+name in `regression_summary`.
+
+So the survey has a step before the replace: list every occurrence and
+mark each as THE SETTING, A FUNCTION OR FIELD OF THE SAME NAME, or THE
+MIGRATION FOR THIS SETTING. Only the first is renamed. The other two are
+not exceptions to the rule -- they are what the rule cannot see, and the
+migration is the one that stings, because it is the code that exists to
+protect the user from the rename.

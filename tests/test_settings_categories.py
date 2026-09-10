@@ -178,6 +178,15 @@ KEYS_RETIRED = frozenset({
     # one before any default is filled in, so a settings file in the wild
     # keeps working.
     "expected_end",
+    # THE EIGHT THE PACKAGE READ NOWHERE, retired 2026-09-09 (357-Q4).
+    # Each had exactly one consumer and it was the setting's own defaults
+    # setter. Two of them documented a job they did not do: `mask_array`
+    # claimed to choose the labelled plane for the 'array' stream method
+    # while `stream_dataset` takes it from `object_array` for both, and
+    # `load_path_regex` claimed to select already-exported crops while
+    # nothing consulted it.
+    "denoise", "load_path_regex", "mask_array", "normalization",
+    "normalization_scope", "normalize_plots", "save_to_db", "visualize",
     # RENAMED to `min_observations_per_hit` on 2026-09-09, instruction 364.
     # "min_n" is the minimum of an unnamed n, and the tooltip had to say
     # which n twice over: "gRNA hits need n_grna > min_n, gene hits need
@@ -1262,7 +1271,10 @@ def _rendered_sections(app_key):
             "Labels & Classes", "Feature Preparation",
             "Plate & Batch Correction",
             "Classifier & Validation", "Feature Selection & Importance",
-            "Output & Database", "Plots & Heatmaps",
+            # "Output & Database" went with `save_to_db` on 2026-09-09
+            # (357-Q4): that section held one setting, nothing read it, and
+            # a heading with nothing under it is worse than no heading.
+            "Plots & Heatmaps",
             "Runtime & Reliability",
         ]),
             ("mask", [

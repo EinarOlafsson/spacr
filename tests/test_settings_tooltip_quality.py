@@ -29,13 +29,13 @@ from spacr.settings import expected_types, tooltips
 # length and non-tautology rules as every other shipped tooltip.
 VERIFIED_TOOLTIP_FACTS = {
     "backgrounds": ("Legacy compatibility", "cell_background", "does not alter"),
-    "normalize_plots": ("Legacy compatibility", "do not read", "Default True"),
+    # `normalize_plots` and `visualize` were here and are RETIRED (357-Q4,
+    # 2026-09-09). Both waivers said the quiet part out loud -- "Legacy
+    # compatibility", "do not read" -- which is the audit recording that a
+    # control did nothing rather than the control being fixed. Retiring
+    # them is the fix, and a waiver for a setting that no longer exists is
+    # a fact about a tooltip nobody can read.
     "organelle_chann_dim": ("organelle_channel", "organelle_mask_dim", "Default None"),
-    "visualize": (
-        "always joins measurement tables",
-        "crops cell images",
-        "Default 'cell'",
-    ),
     "from_scratch": ("randomly initialised weights", "pretrained model", "Default False"),
     "width_height": ("target_size", "does not change training", "Default [1000, 1000]"),
     "pathogen_model": ("CPSAM-architecture", "pathogen_model_name", "Default None"),
@@ -673,7 +673,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # setting` refuses. The pair that left is NAMED rather than inferred from
     # the total, so a claim that quietly stopped being compared could not
     # hide behind a new one arriving.
-    assert comparisons == 679
+    # 679 -> 671 on 2026-09-09, -8/-0, and the eight are named because a
+    # census that moves by a number nobody can list is a census nobody can
+    # check: `denoise`, `load_path_regex`, `mask_array`, `normalization`,
+    # `normalization_scope`, `normalize_plots`, `save_to_db` and
+    # `visualize`, retired under 357-Q4 because the package read none of
+    # them. A retired setting is resolved by no app, so its tooltip claim
+    # is compared against nothing.
+    assert comparisons == 671
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
@@ -775,8 +782,15 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
             if not reason.strip() or not any(source in reason for source in sources):
                 failures.append((app_key, key, reason))
 
-    assert len(witnessed) == 49
-    assert len({key for _app, key in witnessed}) == 35
+    # 49 -> 48 on 2026-09-09. `load_path_regex` carried a dependency rule
+    # -- "image_source is 'stream_images', which cuts crops from the merged
+    # arrays instead" -- and the setting was retired with it (357-Q4). The
+    # rule explained when a control did not apply; nothing read the control
+    # in either case.
+    assert len(witnessed) == 48
+    # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
+    # so the pair count and the distinct-key count fall by one together.
+    assert len({key for _app, key in witnessed}) == 34
     assert not failures
 
 

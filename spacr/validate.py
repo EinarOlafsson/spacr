@@ -37,7 +37,7 @@ import re
 import shutil
 import sys
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from .object_roles import ALL_ROLES, SEGMENTED_ROLES
 
 __all__ = [
@@ -1049,7 +1049,9 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 #: renamed. Only renames that were verified against the live settings are
 #: recorded as such; a guess here would send a user to a name that is also
 #: not read.
-RETIRED_SETTINGS: Dict[str, str] = {
+#: A value is the replacement's name, a TUPLE of names when the setting
+#: was split in two, or an empty string when there is no replacement.
+RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     # ONE FILTER FOR THE PREVIEW AND THE RUN. organelle carried both a
     # `_size` pair and an `_area` pair meaning the same thing, and they were
     # read by DIFFERENT code: `_size` by the batch mask writer, `_area` by
@@ -1082,6 +1084,26 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # other. `settings._fold_renamed_settings` sends an old value to BOTH,
     # so a file written before the split behaves exactly as it did.
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
+    # THE EIGHT THE PACKAGE READ NOWHERE (357-Q4, answered 2026-09-09:
+    # retire all eight). Each had exactly one consumer in the generated
+    # map and in every case it was the setting's own defaults setter --
+    # nothing read the value back. No replacement, so the message says the
+    # value has no effect rather than sending the reader somewhere.
+    #
+    # TWO OF THEM DOCUMENTED A JOB THEY DID NOT DO, which is worse than a
+    # dead control and is the reason this list is worth reading:
+    # `mask_array` said it chose the labelled plane for the 'array' stream
+    # method, and `stream_dataset` takes that plane from `object_array` for
+    # both methods; `load_path_regex` said it selected already-exported
+    # crops, and nothing consults it. A user setting either got silence.
+    "denoise": "",
+    "load_path_regex": "",
+    "mask_array": "",
+    "normalization": "",
+    "normalization_scope": "",
+    "normalize_plots": "",
+    "save_to_db": "",
+    "visualize": "",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
     # POINTS AT THE LIVE NAME, NOT AT THE ONE IT WAS MERGED INTO. This was
