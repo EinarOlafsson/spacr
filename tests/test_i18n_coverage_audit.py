@@ -215,7 +215,23 @@ def test_written_review_scope_matches_current_source_bound_evidence():
         "this is an evidence report and not a certificate that every sentence "
         "was read by a fluent speaker" in flowed
     )
-    assert "Mechanical source coverage is NOT complete" in flowed
+    # PIN THE DISTINCTION, NOT THE STATE OF IT. This asserted the literal
+    # "Mechanical source coverage is NOT complete" until 2026-09-10, when
+    # the catalogs reached 5,260/5,260 runtime and 10,306/10,306 API in
+    # every locale and the sentence stopped being true. A test that pins a
+    # FACT goes red when the fact changes for the better, and this file's
+    # own docstring says why that is the wrong shape: "a dated evidence
+    # report cannot be a live assertion ... teaches the next reader to edit
+    # numbers until it passes -- the opposite of what it is for."
+    #
+    # What must never go missing is the DISTINCTION the report exists to
+    # draw: having a translation for every source is not the same as having
+    # had one read. That sentence is true whether coverage is complete or
+    # not, so it is the one worth holding.
+    assert (
+        "Mechanical coverage means every source has A translation. It does "
+        "not mean a speaker of the language has read it" in flowed
+    )
 
 
 def test_superseded_review_scope_is_kept_unedited_as_history():

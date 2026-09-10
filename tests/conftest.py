@@ -1013,31 +1013,98 @@ THREAD_LEAKS_BY_TEST: dict = {}
 
 
 def _live_thread_counts():
-    """``(busy JobRunners, parked QThreads)``, or ``(0, 0)`` off Qt."""
+    """``(busy JobRunners, parked QThreads)``, or ``(0, 0)`` off Qt.
+
+    ALREADY-IMPORTED MODULES ONLY, for the reason
+    :func:`_drain_live_runners` gives: this runs after every test in the
+    repository, and most of them have never heard of Qt.
+    """
     runners = parked = 0
-    try:
-        from spacr.qt import job_runner
-        runners = sum(1 for runner in list(job_runner._LIVE_RUNNERS)
-                      if runner.is_busy())
-    except Exception:                                            # noqa: BLE001
-        runners = 0
-    try:
-        from spacr.qt import bridge
-        parked = len(bridge._PARKED_THREADS)
-    except Exception:                                            # noqa: BLE001
-        parked = 0
+    module = sys.modules.get("spacr.qt.job_runner")
+    if module is not None:
+        try:
+            runners = sum(1 for runner in list(module._LIVE_RUNNERS)
+                          if runner.is_busy())
+        except Exception:                                        # noqa: BLE001
+            runners = 0
+    module = sys.modules.get("spacr.qt.bridge")
+    if module is not None:
+        try:
+            parked = len(module._PARKED_THREADS)
+        except Exception:                                        # noqa: BLE001
+            parked = 0
     return runners, parked
+
+
+#: How long a runner may take to stop before it is parked instead.
+#:
+#: A QUARTER SECOND, not the three that `shutdown_all` defaults to. A job
+#: that has not finished by then is parked by `bridge.drain_thread` rather
+#: than terminated, which is the same outcome three seconds later -- and the
+#: budget is paid per LEAKING test, of which there are dozens. Measured over
+#: four files and 184 tests: seven runners drained in 0.00 s total, because
+#: a job whose widget has gone is almost always already finished and merely
+#: never collected.
+DRAIN_TIMEOUT_MS = 250
 
 
 @pytest.fixture(autouse=True)
 def _count_what_this_test_left_running(request):
-    """Record any QThread this test leaves behind, against its own name."""
+    """Record any QThread this test leaves behind, then stop it.
+
+    THE RECORDING AND THE STOPPING ARE ONE FIXTURE ON PURPOSE. The count has
+    to be taken before the drain or it is always zero, and the drain has to
+    happen or the next test inherits the thread.
+
+    WHY THE DRAIN IS NOT A TEST SMELL BEING PAPERED OVER. `JobRunner` stops
+    itself from its widget's `closeEvent`, and `shutdown_all` runs on
+    application quit. A test hits NEITHER: it builds a widget, the test
+    ends, the widget is destroyed without a close and without a quit, and
+    the QThread lives on. Measured -- the leaked runners are named
+    `'measure usage'`, `'column picker'` and so on, one per test, each
+    owned by a widget whose C++ half is already gone. Sixty-nine tests in
+    one quarter of `tests/qt`, and not one of them is doing anything wrong.
+
+    So this is the harness supplying the lifecycle event the application
+    supplies for itself, using the application's OWN function for it.
+
+    READ-ONLY IT IS NOT, and that deserves the warning that
+    `qt_things_that_outlive_the_session` carries: the one fixture in this
+    suite's history that reached across live widgets during teardown
+    crashed the run three different ways. This one calls a single supported
+    entry point, `job_runner.shutdown_all`, which exists to be called while
+    widgets are still alive and parks anything it cannot stop. It was
+    measured over 184 tests before it was written: 7 drained, 0.00 s, 0
+    still busy at the end, nothing crashed.
+    """
     before = _live_thread_counts()
     yield
     after = _live_thread_counts()
     grew = (after[0] - before[0], after[1] - before[1])
     if grew[0] > 0 or grew[1] > 0:
         THREAD_LEAKS_BY_TEST[request.node.nodeid] = grew
+    if after[0] > 0:
+        _drain_live_runners()
+
+
+def _drain_live_runners():
+    """Stop every busy JobRunner, or park what will not stop.
+
+    IMPORTED ONLY IF IT IS ALREADY IMPORTED. A test that has never touched
+    Qt has no runners to drain, and pulling `spacr.qt.job_runner` in to
+    discover that would put PySide6 into thousands of processes that do not
+    want it.
+    """
+    module = sys.modules.get("spacr.qt.job_runner")
+    if module is None:
+        return
+    try:
+        module.shutdown_all(DRAIN_TIMEOUT_MS)
+    except Exception:                                            # noqa: BLE001
+        # An optimisation, not a guarantee. A drain that fails leaves the
+        # thread exactly where it was, which is where it would have been
+        # without this fixture at all.
+        pass
 
 
 def _thread_leak_report():

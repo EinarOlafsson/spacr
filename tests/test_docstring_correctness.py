@@ -1942,18 +1942,25 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `dataclass_constructor` and `method` each move by one.
     # 8,465 -> 8,459 on 2026-09-09: the six space accessors retired under
     # instruction 364, for a theme nothing could select.
-    assert len(callables) == len(by_symbol) == 8_459
+    # 8,459 -> 8,508 on 2026-09-10, +49. The same OPS surface the
+    # documented-symbol count decomposes below, less the entries that
+    # are modules and attributes rather than callables.
+    assert len(callables) == len(by_symbol) == 8_508
+    # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
+    # on 2026-09-10 -- the OPS modules are mostly module-level functions,
+    # which is why `function` carries most of the move, and the four
+    # dataclasses are Registration, StitchedWell, Alignment and WellLayout.
     assert Counter(item.category for item in callables) == {
-        "function": 3_648,
-        "method": 3_776,
-        "constructor": 393,
-        "dataclass_constructor": 443,
+        "function": 3_678,
+        "method": 3_790,
+        "constructor": 394,
+        "dataclass_constructor": 447,
         "namedtuple_constructor": 6,
         "exception_constructor": 137,
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_454,
+        "autoapi": 8_503,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -1962,20 +1969,25 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # seven two-variant entries are unchanged, which is the part worth
     # asserting -- a new overload pair would be a different event.
     # 8,472 -> 8,466 with the six retired space accessors.
-    assert sum(item.variant_count for item in callables) == 8_466
+    # 8,466 -> 8,515, the same +49: none of the new callables carries a
+    # second prose variant, so variants track callables one for one.
+    assert sum(item.variant_count for item in callables) == 8_515
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_452,
+        1: 8_501,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
     # constructor that gained an ``__init__`` docstring, so the number is the
     # documentation count and it may only go up; a fall means prose was lost.
+    # 393 -> 394 on 2026-09-10: one constructor gained an __init__
+    # docstring. The direction check the comment above states still
+    # holds -- it rose.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 393
+    ) == 394
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 393
+    ) == 394
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -1994,8 +2006,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #       moves by four.
     # 16,694 -> 16,690: four parameters left with the six retired space
     # accessors (two took none). Required falls 8,454 -> 8,452.
-    assert sum(len(item.parameters) for item in callables) == 16_690
-    assert sum(len(item.required_parameters) for item in callables) == 8_452
+    # 16,690 -> 16,837 on 2026-09-10: the OPS surface again. Required
+    # rises 8,452 -> 8,521 over the same span, so 147 new parameters
+    # carry 69 required ones and the rest are optional -- which is
+    # what a module of tuned numerical entry points looks like.
+    assert sum(len(item.parameters) for item in callables) == 16_837
+    assert sum(len(item.required_parameters) for item in callables) == 8_521
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2005,7 +2021,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "2b848bb4562d565e8d644d640388e5ce679e1e0bb0d28732caa0925083b055ed"
+    ) == "37bf20957041d10a2ed532349640d6165c88b162dcab73f05e19f2b942d71f3f"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2337,14 +2353,34 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 10,237 -> 10,242 over the same span and decomposes the difference:
     # +12 admitted, -7 retired with spacr.seg_metrics gone.
     # 10,243 -> 10,237 with the same six retirements.
-    assert len(docs) == 10_237
+    # 10,237 -> 10,306 on 2026-09-10, +69/-6, MEASURED against the catalog
+    # of the commit that last set this number rather than reconstructed:
+    #     12  spacr.ops_layout      the round well's geometry
+    #     11  spacr.ops_stitch      the driver and StitchedWell
+    #     10  spacr.ops_phenotype   Phase A4
+    #      8  spacr.ops_register    Registration and phase correlation
+    #      5  spacr.ops_accel       the three array primitives
+    #      4  spacr.ops_cycles      cycle registration without a nuclear stain
+    #      2  spacr.ops_solve       the placement solve
+    #     17  spacr.qt              layout_policy (5), TourPilot (5),
+    #                               two qt.app helpers, the language scope,
+    #                               and the rest of two sessions' Qt work
+    #     -6  the space accessors, already accounted for above
+    # THIS FILE'S RATCHETS WERE SIX DAYS BEHIND, which is the thing worth
+    # noticing rather than the number: instruction 372's whole OPS surface
+    # had landed and none of these four assertions had been re-recorded, so
+    # every one of them failed at once the first time the full non-Qt sweep
+    # ran to the end. A ratchet nobody runs is a ratchet nobody updates.
+    assert len(docs) == 10_306
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
     # figure in this test: RegexEditorDialog.resizeEvent is both a public
     # callable and a rendered documented one.
     # 8,460 -> 8,454: the six space accessors retired under 364.
-    assert len(rendered_documented_callables) == 8_454
+    # 8,454 -> 8,503, the same +49: every one of the new callables is
+    # rendered, so this tracks the total rather than diverging from it.
+    assert len(rendered_documented_callables) == 8_503
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2381,12 +2417,19 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         if by_symbol[symbol].category not in GENERATED_CONSTRUCTOR_CATEGORIES
     }
 
-    assert len(required_ivars) == 34
-    assert sum(map(len, required_ivars.values())) == 156
-    assert len(generated) == 30
-    assert sum(map(len, generated.values())) == 145
+    # 34 -> 36 on 2026-09-10: `ops_phenotype.Alignment` and
+    # `ops_stitch.StitchedWell`, both dataclasses whose constructors
+    # are generated and whose fields are therefore required ivars.
+    assert len(required_ivars) == 36
+    # 156 -> 165 on 2026-09-10: nine fields across Alignment and
+    # StitchedWell, the two dataclasses the count above admitted.
+    assert sum(map(len, required_ivars.values())) == 165
+    # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
+    # their nine fields between them.
+    assert len(generated) == 32
+    assert sum(map(len, generated.values())) == 154
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 29,
+        "dataclass_constructor": 31,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2394,7 +2437,7 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 140,
+        "dataclass_constructor": 149,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2407,7 +2450,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         symbol: _missing_required_parameters(by_symbol[symbol])
         for symbol in generated
     }
-    assert sum(not names for names in remaining.values()) == 30
+    # 30 -> 32, tracking `generated` above: every generated constructor
+    # still documents every required field, which is what the zero on
+    # the next line asserts and is the point of this test.
+    assert sum(not names for names in remaining.values()) == 32
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(
@@ -2587,23 +2633,29 @@ def test_no_new_undocumented_required_public_parameters():
     # 2,280 -> 2,278. Two of the six retired space accessors were
     # omissions rather than rendered symbols, so this falls by two where
     # the surface falls by six.
-    assert len(omissions) == 2_278
+    # 2,278 -> 2,281 on 2026-09-10, +3 against a surface that grew by
+    # 69. That ratio is the point: the OPS modules document their
+    # parameters, so almost none of them land here.
+    assert len(omissions) == 2_281
     # 1,635 -> 1,633: two of the six retired accessors were omissions.
-    assert sum(omitted_callables.values()) == 1_633
+    # 1,633 -> 1,636 on 2026-09-10, +2 function and +1 method against a
+    # surface that grew by 69 -- the OPS modules document their
+    # parameters, which is what keeps this from tracking the total.
+    assert sum(omitted_callables.values()) == 1_636
     assert omitted_callables == {
-        "function": 755,
-        "method": 834,
+        "function": 757,
+        "method": 835,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_126,
-        "method": 1_010,
+        "function": 1_128,
+        "method": 1_011,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "49e7242e3f2a3f78c75bf50f5397f5c461bfad34ea2864e98b80449af1d7f999"
+        "0f86a60f8cd6e306a16057a0e1210c8edf2c6e19ed001beacecfa90f819b372f"
     )
 
 

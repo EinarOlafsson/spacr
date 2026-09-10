@@ -34,7 +34,7 @@ SUPPORTED_SCHEMA = 1
 
 #: What every caller gets when there is no usable artifact.
 #:
-#: 1200x850 is the size instruction 350's sweep builds every screen at, and
+#: 1200x850 is the size the text-fitting sweep builds every screen at, and
 #: every declared app has come up clean there in 192 combinations. So it is
 #: not a guess: it is the one width the package already has evidence for,
 #: and it is the right thing to fall back to when the measured file is

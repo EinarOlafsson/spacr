@@ -34,7 +34,18 @@ TOOLS = ROOT / "tools"
 #: the cost this ratchet exists to make visible rather than to prevent:
 #: overriding a Qt event handler is a normal thing to do and it is not
 #: free.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_243
+#: 10,243 -> 10,306 on 2026-09-10, +69/-6, and it is the same lesson at
+#: sixty-nine times the scale. Instruction 372's OPS modules (52 symbols
+#: across ops_layout, ops_stitch, ops_phenotype, ops_register, ops_accel,
+#: ops_cycles and ops_solve), 359's layout_policy, 327's TourPilot and the
+#: rest of two sessions' Qt work, less the six retired space accessors.
+#:
+#: FIVE REBUILD PASSES IN ONE NIGHT, because the surface moved five times.
+#: The rule that came out of it is in 288: finish the code, THEN rebuild,
+#: and never mid-batch -- a public docstring added between passes stales
+#: every locale that has already been rebuilt and nothing reports it until
+#: the counts are compared across all ten catalogs.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_306
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

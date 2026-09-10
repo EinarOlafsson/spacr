@@ -143,6 +143,12 @@ IMPORT_TO_DIST = {
     "cv2": "opencv-python-headless",
     "cuml": "cuml-cu12",
     "cupy": "cupy-cuda12x",
+    # `cupyx` is a SUBPACKAGE of the same distribution, not a second
+    # one -- `cupyx.scipy.ndimage` is where cupy keeps the SciPy-
+    # compatible half. `ops_accel` imports it by that name for the
+    # windowed maximum, function-local and guarded, and without this
+    # line the sweep looks for a PyPI project called "cupyx".
+    "cupyx": "cupy-cuda12x",
     # mpl_toolkits ships INSIDE matplotlib -- there is no `mpl-toolkits` on
     # PyPI to depend on, so without this the check asks for a distribution
     # that cannot be installed.

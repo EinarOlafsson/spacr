@@ -1571,7 +1571,7 @@ def set_cell_variant(variant: str) -> None:
     _settings().setValue(_KEY_CELL_VARIANT, variant)
 
 
-#: THE SPACE THEME'S KEYS WERE RETIRED, 2026-09-09 (instruction 364).
+#: THE SPACE THEME'S KEYS WERE RETIRED, 2026-09-09.
 #:
 #: `space_variants`, `get_space_variant`, `set_space_variant`,
 #: `get_space_seed`, `set_space_seed` and `space_background_path` lived here
