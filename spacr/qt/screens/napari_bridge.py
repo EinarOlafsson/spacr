@@ -362,10 +362,19 @@ def register() -> bool:
         again: a module imported twice, or a test that re-imports it, must
         not raise on the duplicate key.
     """
-    from ..app import APPS, SECTION_MODELS, STAGE_ALPHA, register_app
+    from ..app import APPS, SECTION_TOOLS, STAGE_ALPHA, register_app
     if any(row[0] == APP_KEY for row in APPS):
         return False
-    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_MODELS,
+    # TOOLS, for the reason curate.py gives at its own register_app call:
+    # this screen fixes a mask by hand, and Core is the pipeline you run.
+    #
+    # It asked for SECTION_MODELS, which is still DEFINED and still described
+    # but was dropped from SECTION_ORDER when Home was restructured to
+    # Core / Data / Tools / Assays -- so the call raised "app 'napari_bridge'
+    # has unknown section 'Segmentation models'" and the screen could not
+    # register at all. curate hit this on 2026-09-03; this screen never did,
+    # because it was deleted from nightly before the restructure reached it.
+    register_app(APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_TOOLS,
                  factory=make_napari_bridge_screen, stage=STAGE_ALPHA,
                  intro=APP_INTRO, cli_note=APP_CLI_NOTE,
                  api_module="napari_bridge",

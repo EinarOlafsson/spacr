@@ -347,7 +347,13 @@ def test_register_is_idempotent_and_fans_the_strings_out():
     assert register() is False
     try:
         row = next(r for r in app_mod.APPS if r[0] == APP_KEY)
-        assert row[3] == app_mod.SECTION_MODELS
+        # Tools, not SECTION_MODELS. That constant is still defined and still
+        # described, but Home's restructure to Core / Data / Tools / Assays
+        # dropped it from SECTION_ORDER, so registering under it raises. This
+        # assertion is re-pointed rather than relaxed: it still pins ONE
+        # section, and `in SECTION_ORDER` is what makes it a real check.
+        assert row[3] == app_mod.SECTION_TOOLS
+        assert row[3] in app_mod.SECTION_ORDER
         meta = app_mod.APP_META[APP_KEY]
         assert meta["intro"] and meta["cli_note"]
         assert meta["api_module"] == "napari_bridge"
