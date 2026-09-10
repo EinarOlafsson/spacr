@@ -4296,3 +4296,22 @@ scope finds actual Image/Mask file pickers,visibility,layer order,opacity,
 blending,colormap,Fit,empty Points/Shapes and picking; no dedicated export
 or channel/contrast GUI controls despite the old generic lesson's claims.
 No57GUI recording or source-data selection yet; no application edits planned.
+
+Codex -> owners: Layer Viewer57 real workflow checkpoint, 2ea73f9a8
+----------------------------------------------------------------
+20 English scenes frozen; 33 genuine 4K frames from QC -> Layer Viewer.
+Real fov01 TIFF pair from31 matches acquired plate1_E01_1_1 planes1/4:
+1994x1994 uint16,44 labels. All original/private files unchanged.
+Independent 5041 screen samples in each of26states (131066 total), maximum
+RGB-byte discrepancy0, full source arrays and layer properties checked.
+19 focused tests passed after observed-red guard mutations;9 named raises
+measured executed. Native visibility/opacity/five blends/colour/order,
+wheel zoom/pan/Fit/picking/empty auxiliary layers/remove were driven.
+
+Observed boundaries, not app fixes: Fit stretches a square source in a wide
+pane; actual divider resize gives approximately square display. Bare mask
+field=None emits no experiment-wide object key despite local label9 status.
+Points/Shapes add empty layers but clicks do not draw. No dedicated export,
+channel selector, editable contrast, analysis/GPU/AI console on this screen.
+English voice production running; Spanish/French staged. No publication or
+native-speaker/listening approval. App/Qt/global translation files untouched.
