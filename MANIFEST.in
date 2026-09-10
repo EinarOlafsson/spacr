@@ -42,9 +42,10 @@ include SECURITY.md
 # Recursively include specific folders and file types
 #
 # docs/SOURCE only, never `docs` itself. deploy_docs.sh's old workflow copied
-# `docs/build/html/*` into the root of `docs/`, and that build output is still
+# `docs/build/html/*` into the root of `docs/`, and that build output WAS
 # committed there (docs/_modules, docs/_static, docs/_sources, docs/api,
-# docs/searchindex.js, ...). A `recursive-include docs *.html *.js *.css *.png`
+# docs/searchindex.js, ...) until it was removed; the script itself is gone as
+# of 1.5.0.5. A `recursive-include docs *.html *.js *.css *.png`
 # swept all 29 MB of it back into the sdist, straight past the "built docs are
 # not a distribution artefact" prunes at the bottom of this file -- those name
 # docs/_build, a directory this layout has never had. Anchoring the include on
@@ -118,8 +119,9 @@ exclude spacr/resources/icons/loading_spinner_logo*
 # ---------------------------------------------------------------------------
 # The built docs are not a distribution artefact. Docs live at
 # https://einarolafsson.github.io/spacr/ and are rebuilt from docs/source by
-# .github/workflows/docs.yml; the copy committed under docs/ is history from
-# deploy_docs.sh.
+# .github/workflows/docs.yml, which publishes through actions/deploy-pages.
+# The copy that used to sit under docs/ came from deploy_docs.sh; both the
+# copy and the script are gone now, and nothing recreates them.
 #
 # These prunes are defence in depth behind the docs/source-anchored include
 # above, and they now remove nothing: `python -m build` prints "no
