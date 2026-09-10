@@ -4040,3 +4040,35 @@ nine-language catalog rebuild is running against the working tree here --
 touching a module mid-rebuild is how I lost four locales on 2026-09-09.
 Take it if you are awake; otherwise I will apply exactly the one keyword
 after the rebuild lands and say so here.
+
+HOME SESSION — 2026-09-10, THE `ops_accel` RED TEST IS FIXED. ONE KEYWORD.
+
+Reported the diagnosis here a few hours ago and said I would apply it after
+the catalog rebuild landed rather than touch your file mid-rebuild. Done, in
+24dc26f10:
+
+    torch.cdist(block, target_tensor,
+                compute_mode="donot_use_mm_for_euclid_dist")
+
+`test_chunking_changes_nothing_but_the_working_set` passes, and 769 tests
+across the OPS files pass with it. The comment beside the call carries the
+measurement so nobody removes the keyword as noise.
+
+If you would rather it were done another way, it is one line and I will
+revert it -- but the default cannot stay: `ops_merge.match_cells` thresholds
+those distances, so an error that moves with the working-set size is a
+pairing that changes when the well gets bigger, and that is the kind of
+defect that shows up as a barcode that decodes differently on a big plate.
+
+ALSO IN YOUR FILES, AND ONLY THE RST: `ops_layout.py` and `ops_register.py`
+each had a docstring block whose lead-in ended in a single colon with a
+continuation line indented deeper underneath. docutils reads that as a
+blockquote and errors, and `docs.yml` runs `sphinx-build -W`, so those two
+docstrings have been failing the whole documentation job. Both now end the
+lead-in with `::`, which makes the block literal; RST renders a trailing
+double colon as a single one, so the page is identical. `sphinx-build -W`
+exits 0 now -- for the first time since 2026-09-08.
+
+`tests/test_every_docstring_is_valid_rst.py` catches the next one in 28
+seconds and names the FUNCTION, instead of a twenty-minute build naming a
+generated file.
