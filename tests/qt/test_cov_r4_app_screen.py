@@ -1908,7 +1908,7 @@ class TestMigratingTheControlWells:
         already = {"location_column": "col", "positive_control": "A1",
                    "classes": [["A1"], ["B2"]]}
 
-        assert screen._migrate_analysis_excluded_wells(already) is already
+        assert screen._migrate_control_wells(already) is already
 
     def test_a_translation_that_fails_leaves_the_settings_untouched(
             self, screen, monkeypatch, caplog):
@@ -1922,7 +1922,7 @@ class TestMigratingTheControlWells:
         monkeypatch.setattr(
             classify_classes, "normalize_settings",
             lambda settings: dict(settings, classes=[["A1"], ["B2"]]))
-        migrated = screen._migrate_analysis_excluded_wells(old)
+        migrated = screen._migrate_control_wells(old)
         assert migrated["classes"] == [["A1"], ["B2"]]
 
         def refusing(_settings):
@@ -1931,7 +1931,7 @@ class TestMigratingTheControlWells:
         caplog.set_level(logging.DEBUG, logger=aps.LOG.name)
         monkeypatch.setattr(classify_classes, "normalize_settings", refusing)
 
-        assert screen._migrate_analysis_excluded_wells(old) is old
+        assert screen._migrate_control_wells(old) is old
         assert "could not migrate the control wells" in caplog.text
 
     def test_a_trio_that_translates_to_nothing_is_not_written(self, screen,
@@ -1944,7 +1944,7 @@ class TestMigratingTheControlWells:
         monkeypatch.setattr(classify_classes, "normalize_settings",
                             lambda settings: {"classes": []})
 
-        assert screen._migrate_analysis_excluded_wells(old) is old
+        assert screen._migrate_control_wells(old) is old
 
 
 # -- the first count table a settings mapping names ---------------------------

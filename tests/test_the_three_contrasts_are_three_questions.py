@@ -18,7 +18,7 @@ import pandas as pd
 import pytest
 
 from spacr.gene_measurement_compare import (CONTRASTS, REST, build,
-                                            contrast_note, analysis_excluded_wells,
+                                            contrast_note, control_wells,
                                             well_labels, wells_of)
 
 
@@ -85,7 +85,7 @@ class TestEachContrastHoldsADifferentSetOfCells:
         rest = where[made.frame["group"].astype(str) == REST]
         assert set(rest) == {"1_A_03", "1_A_04", "1_B_01", "1_B_02"}
 
-    def test_against_controls_keeps_only_the_analysis_excluded_wells(
+    def test_against_controls_keeps_only_the_control_wells(
             self, objects, groups):
         made = build(objects, "area", groups=groups, level="cell",
                      contrast="against_controls",
@@ -174,7 +174,7 @@ class TestControlsHaveToBeNamed:
         assert not len(made.frame)
         assert "needs the controls named" in made.note
 
-    def test_the_analysis_excluded_wells_come_from_the_count_data(self):
+    def test_the_control_wells_come_from_the_count_data(self):
         counts = pd.DataFrame({
             "plateID": ["1", "1", "1"],
             "rowID": ["A", "B", "B"],
@@ -183,7 +183,7 @@ class TestControlsHaveToBeNamed:
             "gene": ["000001", "000000", "000000"],
         })
 
-        assert analysis_excluded_wells(counts, ["000000"]) == ("1_B_01", "1_B_02")
+        assert control_wells(counts, ["000000"]) == ("1_B_01", "1_B_02")
 
     def test_one_control_written_as_a_bare_string(self):
         """`resolve_controls` iterates its argument, so a bare string used to
@@ -195,7 +195,7 @@ class TestControlsHaveToBeNamed:
             "gene": ["000001", "000000"],
         })
 
-        assert analysis_excluded_wells(counts, "000000") == ("1_B_01",)
+        assert control_wells(counts, "000000") == ("1_B_01",)
 
     def test_a_control_named_as_a_guide_works_too(self):
         """184's whole point: gene or guide, either spelling."""
@@ -206,7 +206,7 @@ class TestControlsHaveToBeNamed:
             "gene": ["000000", "000000"],
         })
 
-        assert analysis_excluded_wells(counts, ["000000_2"]) == ("1_B_02",)
+        assert control_wells(counts, ["000000_2"]) == ("1_B_02",)
 
     def test_a_control_that_matches_nothing_is_empty(self):
         counts = pd.DataFrame({
@@ -214,7 +214,7 @@ class TestControlsHaveToBeNamed:
             "grna": ["000001_1"], "gene": ["000001"],
         })
 
-        assert analysis_excluded_wells(counts, ["999999"]) == ()
+        assert control_wells(counts, ["999999"]) == ()
 
 
 class TestTheWellsAreChosen:
