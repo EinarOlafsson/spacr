@@ -71,3 +71,34 @@ def test_replacing_moved_only_media_is_rejected(catalogs):
     (folder / 'voice.m4a').write_bytes(b'existing replacement, not an absent path')
     with pytest.raises(ValueError, match='replacement media'):
         audit(*catalogs, {'changed'})
+
+
+def test_visual_only_allows_actual_legacy_caption_shape_without_rewriting(catalogs):
+    baseline, stage = catalogs
+    for name in CATALOGS:
+        if name.startswith('captions_'):
+            for path in [baseline / name, stage / 'catalog' / name]:
+                value = json.loads(path.read_text())
+                value['lessons'][0].pop('number')
+                path.write_text(json.dumps(value))
+    proof = audit(*catalogs, {'changed', 'kept'}, visual_only={'kept'})
+    assert proof['visual_only_lesson_ids'] == ['kept']
+    assert proof['retained_count'] == 0
+    with pytest.raises(ValueError, match='route disagrees'):
+        audit(*catalogs, {'changed', 'kept'})
+
+
+@pytest.mark.parametrize('field,value', [('narration', 'Changed'), ('app_key', 'wrong')])
+def test_visual_only_requires_identical_original_content(catalogs, field, value):
+    def edit(lessons):
+        target = lessons[0]['scenes'][0] if field == 'narration' else lessons[0]
+        target[field] = value
+    change_spanish(catalogs[1], edit)
+    with pytest.raises(ValueError, match='Visual-only refresh changed'):
+        audit(*catalogs, {'changed', 'kept'}, visual_only={'kept'})
+
+
+def test_visual_only_cannot_name_a_new_or_unselected_lesson(catalogs):
+    for identities in [{'missing'}, {'kept'}]:
+        with pytest.raises(ValueError, match='must select existing'):
+            audit(*catalogs, {'changed'}, visual_only=identities)
