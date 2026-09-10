@@ -78,6 +78,20 @@ def main() -> int:
         private_runs.mkdir(parents=True, exist_ok=True)
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
+        manager_binds = []
+        if args.module == 'data_manager':
+            from manager_data import prepare
+            state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Data Manager project')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            # Keep the original readable at an immutable alias, then shadow
+            # only its original pathname with the verified disposable copy.
+            # Existing artifact/project paths remain valid without rewriting
+            # their registry or confusing a copied project with a new run.
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
         if args.module == 'queue':
             # Queue persists outside XDG_CONFIG_HOME. Isolate the whole app
             # state directory before constructing Home/Queue, without changing
@@ -91,6 +105,7 @@ def main() -> int:
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
                           '--dev-bind', '/dev', '/dev',
                           *queue_binds,
+                          *manager_binds,
                           '--bind', str(private_cache), str(destination),
                           '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
@@ -251,6 +266,10 @@ def main() -> int:
     elif args.module == 'run_history':
         from capture_run_history import record_history
         record_history(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'data_manager':
+        from capture_data_manager import record_manager
+        record_manager(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
