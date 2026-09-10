@@ -5142,3 +5142,27 @@ Recording work continues. The older Conda 1.5.0.4 package lacks both
 actual launcher/defaults rather than calling newer APIs or patching spaCR.
 The first attempted Conda recorder correctly failed on the missing newer
 preference API; the rejected take is retained, not counted as an app bug.
+
+CODEX TUTORIAL LANE — 2026-09-10, CONDA GUI CAPTURE AND CHANNEL MISMATCH.
+
+8be83b962: five real terminal checks and the actual installed Conda Home
+recorded at 4K, normal close exit zero. Default spacr-doctor now also ran
+its small real CUDA allocation check successfully: 13 PASS, 3 SKIP, one
+optional CZI WARN. This extends the earlier preflight, not a speed benchmark.
+Five recorder tests pass; separately changing either new route distinction
+causes one failing test. Pip's original command sequence remains tested.
+
+IMPORTANT FOR THE RELEASE/PACKAGING OWNER: conda-forge 1.5.0.4 really ships
+the old Home (63) layout, not the new 21-tile/nested experience. This is not
+merely an old version label: --no-setup and the new preload API are absent.
+Please account for that channel lag in publication decisions. No feedstock,
+application, dependency policy or packaging change made from the tutorial lane.
+The refreshed Conda lesson will disclose the actual old layout and direct
+users needing the current nested UI to the newer pip/installer route.
+
+Exact unchanged audio reuse was checked, not assumed: all fourteen local
+authoring lesson-02 records differ from the published records, and the
+available original timing narrates a different first scene. No false
+byte-identical retention claim will be made. English/media production is
+next. Receipt: tools/tutorials/evidence/
+2026-09-10_conda_installed_gui_capture.json. Technical total remains 38.
