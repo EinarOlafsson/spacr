@@ -1,0 +1,32 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "de",
+  "title": "Project Browser: echte Projekte finden und ihre Nachweise einordnen",
+  "description": "Registrierte und unregistrierte Beispiele finden, Suchtiefe einstellen, echten Speicherbedarf sortieren und Nachweise ohne Analyse oder Löschung lesen.",
+  "objectives": [
+    "Project browser über Help öffnen und begrenzte Suchordner wählen.",
+    "Mit Depth und Scan Projekte finden und tatsächliche Bytes sortieren.",
+    "Fehlende Herkunftsnachweise und deklarierte Ausgabestufen von echtem Verlauf unterscheiden.",
+    "Details lesen, nur Suchwurzeln entfernen und Spezialwerkzeuge für Daten und Protokolle nutzen."
+  ],
+  "prerequisite": "Verwenden Sie die abgeschlossenen Beispiele aus External Masks und Batch Runner. Die Aufnahme vergleicht eine geprüfte private Kopie des vermessenen Zwei-Bildfeld-Projekts mit einer Vierkanal-Konvertierungskopie samt verstecktem Checkpoint und zwei weiteren Konvertierungsnachweisen. Es sind unterschiedliche Beispiele, kein Vorher-nachher-Vergleich. Alle 131 Originaldateien des Messprojekts und sieben Konvertierungsdateien bleiben unverändert. Nur im isolierten Aufnahmeprozess zeigen die ursprünglichen Artefaktpfade auf die Messkopie; die Herkunft wird nicht umgeschrieben. Project Browser hat keinen eigenen Download, keine Live-Vorschau, keinen Plot-Schalter und kein AI-Feld. Scan liest Projektnachweise, nicht sämtliche Ausführungsjournale. Sortierung, Tiefe und Entfernen von Suchwurzeln verwenden echte Bedienelemente; keine Analyse, Löschung, externe Dateimanageröffnung oder automatische Übergabe erfolgt. SQLite entfernt lediglich die leere WAL und die 32768-Byte-SHM des privaten Registers. Datenbanken und übrige Dateien bleiben bytegleich.",
+  "scenes": [
+    "Öffnen Sie Help und dann Project browser. Diese gemeinsame Ansicht findet Projektordner und fasst zusammen, was registriert ist oder auf dem Datenträger liegt. Wir nutzen private Kopien echter Ergebnisse aus External Masks und Batch Runner. Das ist eine Bestandsübersicht, keine Bildanalyse.",
+    "Add folder wählt den Suchort. Bei Depth null wird nur dieser Ordner selbst geprüft. Unser gewählter übergeordneter Ordner enthält ein Projekt eine Ebene darunter; daher ist die Tabelle leer. Ein leeres Ergebnis bei dieser Tiefe bedeutet nicht, dass Projekt oder Bilder fehlen.",
+    "Setzen Sie Depth auf eins und wählen Sie Scan. Der konvertierte Bildordner erscheint: etwa zweiunddreißig Megabyte in sieben Dateien. Das sind vier aufgenommene Kanalbilder, eine Konvertierungszuordnung, ein Statusnachweis und ein versteckter Checkpoint. Dateizahlen sind keine Zellzahlen oder Zahlen unabhängiger Experimente.",
+    "State meldet unknown, nothing recorded, weil der Ordner kein Artefaktregister hat. Stage zeigt nothing run und Last run never, obwohl die Konvertierung tatsächlich abgeschlossen wurde. Diese Spalten spiegeln deklarierte Ausgaben und registrierte Artefakte wider, nicht den gesamten Konvertierungsverlauf. Unknown belegt weder gute Datenqualität noch einen unbearbeiteten Zustand.",
+    "Fügen Sie das Messprojekt als zweite Suchwurzel hinzu. Seine Zeile zeigt Measure, etwa einundneunzig Megabyte, einhundertneunundzwanzig Dateien und einen Registerzeitstempel. Bleiben die Details der ausgewählten Zeile nach dem Scan leer, wählen Sie eine andere Zeile und kehren zurück. Wir zeigen diesen Umweg ohne Änderung der Anwendung.",
+    "Wählen Sie das Messprojekt und ziehen Sie den Trenner, um die Details zu verbreitern. Drei Artefakteinträge sind hier current, aber etwa siebenundachtzig Megabyte bleiben unregistriert. Current beschreibt den registrierten Vergleich, nicht vollständige Herkunft oder wissenschaftliche Gültigkeit. Last run nennt ausdrücklich das Register als Zeitquelle.",
+    "Lesen Sie Stages, bevor Sie eine Abschlussmarkierung auslegen. Hier gelten Mask-Ausgaben als vollständig, weil importierte Arrays, Zählungen und Masken vorhanden sind; das beweist keinen ausgeführten Mask-Segmentierungslauf. What could run next listet Vorschläge, keine Schaltflächen und keine Bestätigung, dass jede Analyse zu diesen experimentellen Daten passt.",
+    "Klicken Sie auf Size, um die Reihenfolge zu ändern. Wir prüften beide Sortierrichtungen anhand echter Bytes; die Zeilenauswahl verweist weiter auf das richtige Projekt. Hier gibt es keine separaten Filter für Stufe, Alter, Modulstatus oder veraltete Ergebnisse. Nutzen Sie die tatsächlich vorhandenen sortierbaren Spalten und Suchwurzeln.",
+    "Mit beiden Wurzeln findet Depth null weiterhin das direkt ausgewählte Messprojekt, nicht jedoch die Konvertierung unter ihrem übergeordneten Ordner. Depth eins stellt beide Zeilen wieder her. Die Tiefe verändert die Suche; sie entfernt keine Daten und verändert nicht den abgeschlossenen Analyseumfang.",
+    "Remove beendet die Suche unter der gewählten Wurzel; der Ordner wird nicht gelöscht. Wir entfernen die Messwurzel und fügen das unveränderte Projekt wieder hinzu. Ein Doppelklick meldet in dieser Version die Auswahl, bleibt aber im Project Browser. Erwarten Sie kein automatisch geöffnetes Projekt- oder Letzter-Lauf-Fenster.",
+    "Für echte Ausführungsjournale nutzen Sie Run History, für Messtabellen Database Browser und zur Bereinigung oder Archivierung Data Manager. In Python bietet spacr.projects discover, scan und browse. Alle Originaldateien sind unverändert; keine neue Analyse wurde gestartet. Folgen Sie der passenden Workflow-Lektion, bevor Sie einen vorgeschlagenen Schritt ausführen."
+  ]
+}
