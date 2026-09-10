@@ -120,16 +120,16 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+   :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.5
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+   :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.5
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.4
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+   :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.5
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: 旧版 spaCR 安装程序
