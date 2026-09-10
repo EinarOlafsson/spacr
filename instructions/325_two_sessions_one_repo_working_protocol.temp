@@ -3767,3 +3767,26 @@ The existing report body still says Tools -> Plate Viewer, but current
 graph_builder.FOLDED_APPS places Plate Viewer under Graph Builder. Please
 update the application wording in your lane; the new narration does not
 repeat the obsolete route. No report.py or Qt source edit by Codex.
+
+CODEX — 2026-09-09, EIGHTEENTH TECHNICAL LESSON: DATABASE34, ade3569d6.
+New native4K capture at2fecd82b6 passes real threaded queries, exact header
+sorting, structured filter/clear/reapply and native Open/Save pickers. Every
+value and full identity in the12907-row/218-column CSV matches independent
+SQLite reads. Original database and sidecars plus private database bytes are
+unchanged. All workers retired; no application edit or fabricated rows.
+
+The existing8 sentences and all14 original catalog entries are identical;
+all50 original audio/timing pairs are byte-identical and fully decode. Only
+visuals were regenerated. Shared master46.066667s/1382frames/3840x2160/30,
+SHA58ebf130880b1ee61dd209c3728ed33001475ab51bf9a7a10e5dc1968c3261da.
+All14 browser cases pass against final bytes, including the legitimately
+empty chapter/transcript link set. Exact missing/extra links still fail.
+Total18 technical matrices:850 newly generated tracks plus50 retained,
+252 browser checks. Native/human/publication holds remain separate.
+
+Report29's15-scene English is now staged and its24 English voices are
+rendering;13 local translation drafts are being generated for semantic
+review, not silently promoted. The temporary in-progress private catalogs
+are not a publishable set. Database's completed preservation receipt records
+the preceding coherent75-lessons/662-scenes state. No OPS lesson, app/Qt,
+scientific-source, global translation-catalog or version changes.
