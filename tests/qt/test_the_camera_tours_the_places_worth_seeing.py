@@ -171,3 +171,130 @@ def test_the_shipped_regions_are_spread_out():
         for name_b, bx, by, _hw2, _s2 in SHIPPED[i + 1:]:
             assert math.hypot(ax - bx, ay - by) > 0.05, (
                 f"{name_a} and {name_b} are the same place")
+
+
+# ---------------------------------------------------------------------------
+# AND SOMETHING CALLS IT. Everything above passed for days while nothing in
+# `spacr/` imported RegionTour or REGIONS -- the twenty places were mapped,
+# tested and never on screen. 327's own closing note said so: "the pieces
+# are there; the wire is not." These test the wire.
+# ---------------------------------------------------------------------------
+
+def test_one_leg_of_the_tour_is_one_dive():
+    """The move belongs at the surface, and this is what puts it there.
+
+    A lateral step thirty decades down crosses a view narrower than the gap
+    between two regions by thirty orders of magnitude: a white flash, which
+    is the jump the request was about. Sizing the dwell as "the dive, less
+    the move" leaves the camera holding one region for the whole descent
+    and moving to the next as the dive restarts.
+    """
+    from spacr.qt.widgets.fractal_travel import tour_leg_seconds
+
+    dwell, travel = tour_leg_seconds(24.0, 23.0, 9.0)
+    assert travel == 9.0
+    assert dwell + travel == pytest.approx(24.0 * 23.0), (
+        "a leg no longer matches the dive it is supposed to sit inside")
+
+
+def test_a_dive_shorter_than_the_move_still_produces_a_tour_that_moves():
+    """A hand-edited settings file must not be able to stop the tour."""
+    from spacr.qt.widgets.fractal_travel import tour_leg_seconds
+
+    dwell, travel = tour_leg_seconds(0.1, 1.0, 60.0)
+    assert dwell > 0.0 and travel > 0.0
+
+
+def test_the_offset_is_measured_from_the_reference_orbit():
+    """`u_center_offset` is relative to the orbit, not to the plane.
+
+    The shader knows one point exactly -- the reference orbit's centre --
+    and measures every pixel as a small offset from it. A region's absolute
+    coordinate handed over unconverted would point the camera at whatever
+    happens to sit that far from the reference instead.
+    """
+    from spacr.qt.widgets.fractal_travel import tour_offset
+
+    tour = _tour()
+    assert tour_offset(tour, 0.0, (0.0, 0.0)) == (0.0, 0.0)
+    assert tour_offset(tour, 0.0, (0.25, -0.5)) == (-0.25, 0.5)
+
+
+def test_the_offset_follows_the_reference_when_it_is_refined():
+    """The reference MOVES, and the tour must not be dragged along with it.
+
+    `_refine_the_reference` rebases the orbit onto the boundary as the dive
+    descends and zeroes the camera's offset when it lands. A tour that
+    integrated its own offset would be thrown off the region every time
+    that happened; recomputing from the current centre is immune, and this
+    is the assertion that says so: the same instant of the tour, two
+    different references, one absolute destination.
+    """
+    from spacr.qt.widgets.fractal_travel import tour_offset
+
+    tour = _tour()
+    before = tour_offset(tour, 3.0, (0.1, 0.2))
+    after = tour_offset(tour, 3.0, (0.4, -0.1))
+    assert before is not None and after is not None
+    assert (before[0] + 0.1, before[1] + 0.2) == pytest.approx(
+        (after[0] + 0.4, after[1] - 0.1)), (
+        "the same moment of the tour points at two different places "
+        "depending on where the reference happens to be")
+
+
+def test_a_taken_over_tour_offers_no_offset_at_all():
+    from spacr.qt.widgets.fractal_travel import tour_offset
+
+    tour = _tour()
+    tour.take_over()
+    assert tour_offset(tour, 0.0, (0.0, 0.0)) is None
+
+
+def test_the_dive_can_be_told_to_tour():
+    """"tour" is a value the settings accept and hand back.
+
+    Persisted rather than asserted in the abstract: the path is read
+    through `get_fractal_settings`, which validates against a fixed set,
+    and a value missing from that set is silently replaced by the default
+    -- so the renderer would never see it and nothing would fail.
+    """
+    from spacr.qt import preferences as P
+
+    P.set_fractal_settings(path="tour")
+    try:
+        assert P.get_fractal_settings()["path"] == "tour"
+    finally:
+        P.set_fractal_settings(path="fixed")
+
+
+def test_the_preferences_panel_offers_the_tour():
+    """A mode nothing can select is a mode nobody has."""
+    import inspect
+
+    from spacr.qt import preferences as P
+
+    source = inspect.getsource(P.PreferencesDialog._build_the_dialog)
+    assert '("tour", "Tour the mapped regions")' in source, (
+        "the Path dropdown no longer offers the tour")
+
+
+def test_the_renderer_steers_by_the_tour():
+    """The wire itself, asserted where it is made.
+
+    The GPU canvas cannot be built without a GL context, so the branch is
+    read out of the source rather than driven. That is weaker than running
+    it and it is the assertion that would have failed for the days this
+    feature existed and did nothing.
+    """
+    import inspect
+
+    from spacr.qt.widgets import fractal_travel as F
+
+    source = inspect.getsource(F._make_gpu_widget)
+    assert 'if path == "tour":' in source
+    assert "self._tour_centre(camera, orbit)" in source
+    assert "tour_offset(" in source
+    assert "tour.take_over()" in source, (
+        "dragging no longer stops the tour, so the camera and the user "
+        "fight over where to point")
+    assert "tour.restart()" in source, "Ctrl+R no longer hands it back"

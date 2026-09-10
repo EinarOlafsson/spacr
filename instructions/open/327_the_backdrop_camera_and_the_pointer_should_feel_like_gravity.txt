@@ -291,3 +291,59 @@ STILL OPEN AFTER THIS SESSION
     in `spacr/` imports it or `fractal_regions.REGIONS`, so the twenty
     places worth looking at are not on screen and the camera never floats
     between them. The pieces are there; the wire is not.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- (3) IS WIRED. THE CAMERA ACTUALLY TOURS THE TWENTY REGIONS NOW.
+--------------------------------------------------------------------------------
+
+The closing note above said "(3)'s `RegionTour` is built and tested and
+NOTHING CALLS IT... The pieces are there; the wire is not." The wire exists.
+
+A THIRD PATH, beside "fixed" and "guided". `path = "tour"` in the fractal
+settings, offered in Preferences as **Tour the mapped regions**, next to
+Straight down and Search as it goes.
+
+ONE LEG OF THE TOUR IS ONE DIVE, and that is the whole design decision.
+`tour_leg_seconds(seconds_per_decade, max_depth, travel)` sizes the dwell as
+"the dive, less the move", so the camera holds one region for the entire
+descent and moves to the next in the seconds around a restart. At the
+shipped numbers -- 24 s a decade, 23 decades, a 9 s move -- that is 543 s on
+a region, 9 s in flight, and 3.07 hours for a full circuit of the twenty.
+
+WHY IT HAS TO BE AT THE SURFACE. Thirty decades down the view is narrower
+than the gap between two regions by thirty orders of magnitude. Travelling
+that gap there is a white flash, which is precisely the jump the request was
+about: "it ruins the immersion when it jumps."
+
+THE OFFSET IS RECOMPUTED, NEVER INTEGRATED. `u_center_offset` is measured
+from the reference orbit, and `_refine_the_reference` MOVES that orbit onto
+the boundary as the dive descends, zeroing the camera's offset when it
+lands. A tour that remembered its own offset would be thrown off the region
+every time that happened. `tour_offset(tour, seconds, orbit_centre)` asks
+where the region is relative to wherever the reference is NOW, which is
+immune to it -- and there is a test that drives the same instant of the tour
+against two different references and asserts they point at one place.
+
+DRAGGING ENDS IT, Ctrl+R HANDS IT BACK. `RegionTour` documented that
+contract and nothing honoured it; the drag branch now calls `take_over()`
+and the restart-token branch calls `restart()`.
+
+THE DECIDING IS OUT OF THE CANVAS, which is this file's own rule and the
+reason `SteeringCamera` exists. `tour_leg_seconds` and `tour_offset` are
+module-level and have no Qt in them, so they are driven frame by frame in
+tests rather than reasoned about; `_tour_centre` is only the settings read
+and the clock.
+
+Eight new tests in `tests/qt/test_the_camera_tours_the_places_worth_seeing.py`
+(20 in the file now), including the two that would have caught the original
+gap: that the Preferences dropdown offers the mode, and that the renderer's
+steering actually branches on it.
+
+NOT THE DEFAULT. `path` stays "fixed". Making a mode that changes what every
+user sees the default is the maintainer's call, not a side effect of wiring
+it up -- and it is worth asking, because "the camera will automatically
+smoothely float towards" the regions reads like it was meant to be on.
+ASK BEFORE THE NEXT RELEASE.
+
+STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget.

@@ -41,6 +41,26 @@ class TestImportingWithoutNumba:
             return real_import(name, g, l, fromlist, level)
 
         monkeypatch.setattr(builtins, "__import__", refuse)
+        # THE PACKAGE ATTRIBUTE IS A THIRD PIECE OF STATE, and monkeypatch
+        # does not know about it. `delitem` restores sys.modules; the
+        # re-import below ALSO rebinds `spacr.qt.widgets.fractal_travel`
+        # as an attribute of the package, and nothing puts that back.
+        #
+        # The two then disagree, which is worse than either being wrong.
+        # `monkeypatch.setattr("spacr...fractal_travel.create_fractal_widget",
+        # ...)` resolves through sys.modules and patches the ORIGINAL, while
+        # `from .fractal_travel import create_fractal_widget` resolves
+        # through the package attribute and gets the numba-less re-import --
+        # so a spy installed in one test file was invisible to the code
+        # under test in another. Three tests in
+        # test_the_spaceout_fractal.py failed exactly that way, in this
+        # combination only, and passed in every run of that file alone.
+        #
+        # Recorded here with its current value, so teardown restores it.
+        package = sys.modules.get("spacr.qt.widgets")
+        if package is not None and hasattr(package, "fractal_travel"):
+            monkeypatch.setattr(package, "fractal_travel",
+                                package.fractal_travel)
         for name in [n for n in sys.modules
                      if n.startswith("spacr.qt.widgets.fractal_travel")]:
             monkeypatch.delitem(sys.modules, name, raising=False)

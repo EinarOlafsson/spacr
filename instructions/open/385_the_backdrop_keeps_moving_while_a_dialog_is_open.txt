@@ -275,3 +275,57 @@ and nothing here explains a freeze that lasts as long as the dialog is up.
 
 WHAT WOULD CLOSE IT is still the GPU test in the previous note, on the
 machine with the card. Everything measured so far used the CPU renderer.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE GPU CANDIDATE IS ALSO CLOSED. XVFB HAS A GL PATH.
+--------------------------------------------------------------------------------
+
+The previous note said the GPU backend was "the one thing this harness
+structurally cannot reach". That was wrong, and cheaply so:
+
+    gpu_is_available()  ->  True, under xvfb-run
+
+Mesa's llvmpipe gives a real GLX context on a real X server. It is software
+rendering, so it says nothing about how FAST a card draws -- but the question
+here was never speed. It was whether an X server stops feeding a NATIVE GL
+SURFACE that is fully obscured, and llvmpipe's surface is native in exactly
+the same way a driver's is.
+
+    backend: gpu, pattern orbit, 600x460 behind a 760x600 modal dialog
+
+    base             94 draws / 1.5 s
+    fully covered    94 draws / 1.5 s
+    uncovered again  94 draws / 1.5 s
+
+Not one frame lost. The GPU backdrop does not stop when a dialog covers it.
+
+AND A COUNTER THAT READS ZERO IS NOT A FREEZE. The first attempt at this
+counted `QEvent.Paint` on the wrapper widget and got 0 in every column,
+BASE INCLUDED -- a vispy canvas draws through its own GL surface and never
+delivers a Qt paint event to the QWidget around it. Reported without the
+base column that would have read as "the GPU backdrop is completely
+frozen", which is the failure mode this file has now avoided twice. The
+draw count comes from hooking the canvas's own `on_draw`.
+
+WHERE THAT LEAVES 385. Every mechanism this file has named is now measured
+and none of them freezes anything:
+
+    the modal nested event loop     ruled out 2026-09-09
+    all six ambient engines         ruled out 2026-09-09
+    the widget's own gates          ruled out 2026-09-09
+    apply_ambient_preferences       ruled out 2026-09-09 (one caller, on save)
+    occlusion, CPU renderer         ruled out 2026-09-09 (real X server)
+    occlusion, GPU renderer         ruled out 2026-09-10 (this note)
+
+ONE REAL FREEZE WAS FOUND AND FIXED: 902 ms of dialog construction with the
+backdrop stopped for all of it, now 139 ms. See 380.
+
+WHAT IS LEFT IS A QUESTION FOR THE MAINTAINER, not another measurement.
+Everything above is on Mesa's software GL with no compositor. The remaining
+difference from the report is a real NVIDIA driver, a compositing desktop,
+and a 4K screen. The useful thing to ask -- and it decides whether there is
+anything left to fix at all -- is whether the UNCOVERED part of the backdrop
+keeps moving while Preferences is up. If it does, the report is about the
+covered part and the answer is "that is the window manager, and it is
+correct". If the whole thing stops, that is a driver-level buffer-swap
+policy and the fix is in the GL canvas, not in any gate in this package.

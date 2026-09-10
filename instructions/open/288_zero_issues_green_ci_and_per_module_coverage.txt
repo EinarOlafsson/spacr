@@ -1414,3 +1414,42 @@ them were fixed the same evening:
   owe a translation for. It is the same lesson this file already carries,
   arriving from a third direction in one evening -- which is the argument
   for the two-second drift check rather than for more coordination.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- SEQUENCING RULE: REBUILD THE CATALOGS ONCE, AT THE END OF A BATCH
+OF CODE WORK, NEVER AFTER EACH CHANGE
+--------------------------------------------------------------------------------
+
+Demonstrated on myself tonight, which is the only reason it is worth writing
+down. The API catalogs had just reached EXIT=0 at 10,283 symbols. Two new
+public docstrings were then added by an unrelated performance fix --
+`i18n.ui_language_resolved_once` and `PreferencesDialog` -- and the very next
+audit went red:
+
+    is: 2 API prose blocks remain exact English
+        (spacr.qt.i18n.ui_language_resolved_once#1,
+         spacr.qt.preferences.PreferencesDialog#1)
+    wrote English API manifest: symbols=10284
+
+TWO DOCSTRINGS, NINE LANGUAGES, AND A GREEN AUDIT TURNED RED. This file
+already records that "a public docstring in any lane silently stales all
+nine catalogs". What it did not say is what follows from it for scheduling:
+
+  * A rebuild takes tens of minutes per language on this GPU. Doing it
+    after each change multiplies that by the number of changes, and every
+    intermediate result is thrown away by the next one.
+  * The work does not shrink by being spread out. Ten docstrings translated
+    in one pass and ten translated in ten passes are the same translations.
+  * An intermediate rebuild leaves the tree in a state where en.json is
+    ahead of the other nine, which is the one state the audit cannot pass
+    and a reader cannot interpret.
+
+SO: finish the code, THEN rebuild. Commit the code without the catalogs --
+they are generated, and a commit that carries source without its catalogs is
+honest and fixable, while one that carries nine catalogs built against a
+source that has already moved is neither.
+
+A PRIVATE NAME COSTS NOTHING. `_build_the_dialog`, which took the whole body
+of `PreferencesDialog.__new__`, does not appear in the manifest at all; the
+public wrapper's docstring does. Where a helper does not need to be public,
+not making it public is a translation cost avoided rather than deferred.

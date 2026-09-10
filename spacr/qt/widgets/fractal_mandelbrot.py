@@ -90,6 +90,12 @@ DEFAULTS: Final[dict] = {
     # width.
     "gpu_fp64": False,
     "path": "fixed",
+    # Seconds spent floating from one mapped region to the next when
+    # `path` is "tour". The dwell is not a setting: it is whatever is
+    # left of one dive, so the move happens at the surface where a
+    # lateral step is a flight over the set rather than a jump across a
+    # view a fraction of its own width.
+    "tour_travel_seconds": 9.0,
     # Kept so a guided path can still be asked for, at the values the
     # original uses for it.
     "steering_strength": 0.09,

@@ -1630,6 +1630,54 @@ class RegionTour:
                 float(here[2]) + (float(there[2]) - float(here[2])) * eased)
 
 
+def tour_leg_seconds(seconds_per_decade: float, max_depth: float,
+                     travel: float) -> tuple:
+    """Dwell and travel so that ONE LEG OF THE TOUR IS ONE DIVE.
+
+    :param seconds_per_decade: how long the descent spends per decade.
+    :param max_depth: decades before the dive restarts at the surface.
+    :param travel: seconds to spend moving between two regions.
+    :returns: ``(dwell, travel)`` for :class:`RegionTour`.
+
+    The move has to happen near the surface. Thirty decades down the view
+    is narrower than the gap between two regions by thirty orders of
+    magnitude, so travelling that gap there is a white flash rather than a
+    float -- and the whole request was that it not read as a jump. Sizing
+    the dwell as "the dive, less the move" puts the move at the restart,
+    where a lateral step is a flight across the set.
+
+    Both are floored above zero, so a settings file that asks for a dive
+    shorter than the move still produces a tour that moves.
+    """
+    period = max(0.1, float(seconds_per_decade)) * max(1.0, float(max_depth))
+    travel = max(0.1, float(travel))
+    return max(0.1, period - travel), travel
+
+
+def tour_offset(tour: RegionTour, seconds: float, orbit_centre) -> Optional[tuple]:
+    """The tour's target, as an offset from the reference orbit's centre.
+
+    :param tour: the tour steering the camera.
+    :param seconds: seconds since the tour started.
+    :param orbit_centre: ``(re, im)`` of the reference orbit.
+    :returns: ``(offset_re, offset_im)``, or ``None`` when the tour is not
+        steering -- so a caller leaves the camera where the user put it
+        rather than being handed a coordinate it has to ignore.
+
+    RECOMPUTED FROM THE ORBIT, never integrated. The reference orbit is
+    moved onto the boundary as the dive descends and the camera's offset
+    is reset to zero when it lands; a tour that remembered its own offset
+    would be thrown off the region every time that happened. Asking where
+    the region is relative to wherever the reference is NOW is immune to
+    it.
+    """
+    target = tour.target_at(seconds)
+    if target is None:
+        return None
+    return (float(target[0]) - float(orbit_centre[0]),
+            float(target[1]) - float(orbit_centre[1]))
+
+
 def default_region_tour(**kwargs) -> RegionTour:
     """A tour over the committed regions, or an empty one without them."""
     try:
@@ -2018,6 +2066,9 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 camera = getattr(self, "_camera", None)
                 if camera is not None:
                     camera.restart()
+                tour = getattr(self, "_tour", None)
+                if tour is not None:
+                    tour.restart()
                 self._refine_due = None
                 self._refined = None
 
@@ -2107,6 +2158,13 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             span = scale_at(depth, float(_mandel_setting("initial_scale")))
             pointer = getattr(self, "_pointer", None)
             if pointer is not None and (pointer.drag_x or pointer.drag_y):
+                # AND THE TOUR DOES NOT ARGUE. Dragging is a statement
+                # about where the user wants to be; a tour that resumes
+                # over it is the application taking the camera back.
+                # Ctrl+R hands it over again, through the restart token.
+                tour = getattr(self, "_tour", None)
+                if tour is not None:
+                    tour.take_over()
                 here = camera.drag(pointer.drag_x, pointer.drag_y, span,
                                    depth)
                 pointer.drag_x = 0.0
@@ -2126,7 +2184,10 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # sharp to eleven, against one or two without.
             self._refine_the_reference(camera, orbit, budget, depth, span)
 
-            if str(_mandel_setting("path", "fixed")) != "guided":
+            path = str(_mandel_setting("path", "fixed"))
+            if path == "tour":
+                return self._tour_centre(camera, orbit)
+            if path != "guided":
                 # NO AUTOMATIC AIMING. Choosing a "more interesting" point
                 # by surveying the surface was tried and made it worse: a
                 # point on a busy edge at the starting scale was measured
@@ -2173,6 +2234,69 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                                  name="spacr-mandelbrot-steer").start()
 
             return camera.advance(time.perf_counter())
+
+        def _tour_centre(self, camera, orbit):
+            """Where the mapped-region tour has the camera pointed now.
+
+            Instruction 327 (3): "map out which coordinates show interesting
+            visuals like spirals and texture and have say 20 regions on the
+            image that the camera will automatically smoothely float
+            towards." `RegionTour` and `fractal_regions.REGIONS` are that
+            map, and this is what steers by them.
+
+            ONE LEG IS ONE DIVE. The tour dwells on a region for the whole
+            descent and moves to the next in the seconds around a restart,
+            because a lateral move is only legible near the surface: thirty
+            decades down the view is narrower than the gap between two
+            regions by thirty orders of magnitude, and travelling it would
+            be a white flash, not a float.
+
+            THE DECIDING IS IN `tour_leg_seconds` AND `tour_offset`, which
+            have no Qt in them and can be driven frame by frame in a test.
+            This method is the part that cannot be: reading the settings
+            and keeping the clock.
+
+            :returns: ``(offset_re, offset_im)`` for ``u_center_offset``.
+            """
+            dwell, travel = tour_leg_seconds(
+                _mandel_setting("seconds_per_decade"),
+                _mandel_setting("max_depth", 34.0),
+                _mandel_setting("tour_travel_seconds", 9.0))
+
+            tour = getattr(self, "_tour", None)
+            if tour is None:
+                tour = default_region_tour(dwell=dwell, travel=travel)
+                self._tour = tour
+                self._tour_seconds = 0.0
+                self._tour_clock = None
+            else:
+                # Re-read rather than rebuilt: rebuilding would restart a
+                # tour the user has taken over, and a settings save is not
+                # a request to take the camera back.
+                tour.dwell = dwell
+                tour.travel = travel
+
+            now = time.perf_counter()
+            previous = getattr(self, "_tour_clock", None)
+            self._tour_clock = now
+            if previous is not None:
+                # Clamped like the camera's own step, and for the same
+                # reason: a frame that arrives after the machine slept
+                # would otherwise advance the tour by hours in one go.
+                self._tour_seconds = (getattr(self, "_tour_seconds", 0.0)
+                                      + max(0.0, min(0.25, now - previous)))
+
+            centre = orbit.center
+            offset = tour_offset(tour, getattr(self, "_tour_seconds", 0.0),
+                                 (float(centre.real), float(centre.imag)))
+            if offset is None:
+                # Taken over, or there are no regions to tour. Leave the
+                # camera exactly where it is rather than aiming it at
+                # nothing.
+                return camera.advance(now)
+            camera.centre = offset
+            camera.target = None
+            return camera.centre
 
         def _refine_the_reference(self, camera, orbit, budget, depth, span):
             """Move the reference back onto the boundary, now and then.
