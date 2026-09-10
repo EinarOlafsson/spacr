@@ -250,6 +250,33 @@ def _a_measurement_table():
     })
 
 
+def _a_window():
+    """A main window for the command palette to sit over.
+
+    THE PALETTE SEARCHES A WINDOW and reads nothing off it at build time,
+    so an ordinary `QMainWindow` is the object it is handed rather than a
+    stand-in for one. That is the last of the six this file filed under
+    "a live panel or screen"; every one of them turned out to construct
+    from something real.
+    """
+    from PySide6.QtWidgets import QMainWindow
+
+    return QMainWindow()
+
+
+def _a_module_screen():
+    """A built module screen, which is what Recipes is opened from.
+
+    `screen_in_a_container` in the sibling sweep already builds one of
+    these for all 24 declared apps, so a real `AppScreen` is the least
+    invented argument in this file -- it is the same object the
+    application hands the dialog.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    return AppScreen("measure")
+
+
 def _live_preview_panel():
     """The live-preview panel, built the way the application builds it.
 
@@ -348,6 +375,8 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.hyperparam", "UmapSearchSettingsDialog",
      _hyperparam_panel),
     ("spacr.qt.screens.hyperparam", "WalkAxesDialog", _hyperparam_panel),
+    ("spacr.qt.command_palette", "CommandPalette", _a_window),
+    ("spacr.qt.recipes", "RecipeDialog", _a_module_screen),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.

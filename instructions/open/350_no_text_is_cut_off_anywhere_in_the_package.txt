@@ -1640,3 +1640,47 @@ reading and a current). The first two may fall to the same argument as the
 four above -- `screen_in_a_container` already builds a real AppScreen for
 every declared module. The last four want a domain object and are the
 honest remainder.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- ALL 47 DIALOGS ARE SWEPT, AND THE LAST TWO FOUND A GERMAN CLIP
+--------------------------------------------------------------------------------
+
+`CommandPalette` and `RecipeDialog` were the last two the file filed under
+"a live panel or screen". Neither is a fixture either: the palette takes an
+ordinary `QMainWindow`, which is the window it searches and reads nothing
+off at build time, and Recipes takes a real `AppScreen` -- the same object
+`screen_in_a_container` already builds for all 24 declared apps in the
+sibling sweep.
+
+    THAT IS THREE EXCLUSIONS OVERTURNED IN ONE DAY, all written as reasons
+    and none of them tested: `GateSettingsDialog` ("wants an object with a
+    sample_fraction attribute"), the four panel dialogs ("a live panel or
+    screen"), and these two. Every one constructed from something real on
+    the first try. A LINE DRAWN ON AN ASSUMPTION IS WORTH RE-DRAWING ONCE
+    SOMEBODY CAN CHECK IT CHEAPLY.
+
+AND THE LAST ONE IN FOUND A DEFECT. `RecipeDialog` in German, at both font
+scales:
+
+    QPushButton 'Aktuelle Einstellungen speichern…'  399 px wide, wants 440
+
+Five buttons in a `QHBoxLayout` want more width than the dialog's own
+`scaled_px(520)` floor once the captions are German, and Qt's answer to a
+box it cannot satisfy is to shrink every child BELOW its hint rather than
+to wrap. The caption goes, silently. NOT the device-pixel class this file
+found seven of -- that minimum was already scaled.
+
+FIXED THE WAY THIS PACKAGE ALREADY FIXES IT. `app_screen._WrappingButtonStrip`
+records the identical defect on the module action row, with its own numbers
+(a single box made that row's minimum 1,092 px in German against 908 in
+English), and the remedy is that buttons wrap instead of squeezing. The
+recipes row is a `FlowLayout` now.
+
+WHAT IT COST, stated because a fix that quietly changes a layout is worse
+than one that says so: the `addStretch(1)` between {Save, Import} and
+{Share, Delete, Apply} is gone -- a flow layout has no notion of it. That
+grouping was a nicety; a caption nobody can read is not.
+
+VERIFIED THAT ENGLISH DID NOT MOVE, which is the half a wrap fix can break:
+after the change all five buttons sit on ONE row at exactly their size
+hints -- 163, 78, 72, 66 and 60 px, none squeezed. 173 dialog cases pass.

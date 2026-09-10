@@ -66,6 +66,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .widgets.flow import FlowLayout
 from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.recipes")
@@ -435,15 +436,28 @@ class RecipeDialog(QDialog):
         self._detail.setWordWrap(True)
         column.addWidget(self._detail)
 
-        row = QHBoxLayout()
-        row.setSpacing(6)
+        # A FLOW, NOT A BOX, AND THE REASON IS A MEASURED CLIP. Five
+        # buttons in a `QHBoxLayout` want more width than this dialog's
+        # 520 px floor in German -- "Aktuelle Einstellungen speichern…"
+        # asks for 440 px and was given 399 -- and Qt's answer to a box it
+        # cannot satisfy is to shrink every child BELOW its hint rather
+        # than to wrap. The caption goes, silently.
+        #
+        # `app_screen._WrappingButtonStrip` records the same defect on the
+        # module action row, with its own numbers: a single box made that
+        # row's minimum 1,092 px in German against 908 in English. The
+        # remedy there and here is that buttons wrap instead of squeezing.
+        #
+        # WHAT IS LOST IS THE STRETCH between {Save, Import} and {Share,
+        # Delete, Apply}, which a flow layout has no notion of. That
+        # grouping was a nicety; a caption nobody can read is not.
+        row = FlowLayout(spacing=6)
         self._btn_save = QPushButton("Save current settings…", self)
         self._btn_save.clicked.connect(self._on_save)
         row.addWidget(self._btn_save)
         self._btn_import = QPushButton("Import…", self)
         self._btn_import.clicked.connect(self._on_import)
         row.addWidget(self._btn_import)
-        row.addStretch(1)
         self._btn_export = QPushButton("Share…", self)
         self._btn_export.clicked.connect(self._on_export)
         row.addWidget(self._btn_export)
