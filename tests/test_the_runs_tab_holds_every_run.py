@@ -63,7 +63,7 @@ def _settings(**over):
         "regression_type": "ols",
         "multiple_testing_method": "fdr_bh",
         "fdr_alpha": 0.05,
-        "min_cell_count": 25,
+        "min_cells_per_well": 25,
         "plot": True,
     }
     settings.update(over)

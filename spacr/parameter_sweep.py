@@ -72,7 +72,7 @@ __all__ = [
 #: built under a different rule -- so it is kept beside the code that uses it
 #: and asserted against the settings the preparation actually reads.
 PREPARATION_KEYS: tuple[str, ...] = (
-    "score_data", "count_data", "dependent_variable", "min_cell_count",
+    "score_data", "count_data", "dependent_variable", "min_cells_per_well",
     "fraction_threshold", "agg_type", "analysis_unit", "transform",
     "invert_dependent_variable", "filter_column", "filter_value",
     "target_unique_count", "outlier_detection", "plateID",
@@ -116,8 +116,8 @@ DEFAULT_SWEEP_SPACE: dict[str, list] = {
     "threshold_multiplier": [2, 3],
     # --- filtration ----------------------------------------------------------
     "fraction_threshold": [0.02],
-    "min_cell_count": [100],
-    "min_n": [0],
+    "min_cells_per_well": [100],
+    "min_observations_per_hit": [0],
     "outlier_detection": [False],
 }
 

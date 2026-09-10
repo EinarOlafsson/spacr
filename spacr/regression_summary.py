@@ -182,7 +182,11 @@ LABELS: Dict[Tuple[str, str], str] = {
     ("call", "effect_size_cut"): "effect-size cut",
     ("call", "positive_rank"): "positive control rank",
     ("call", "positive_percentile"): "positive control percentile",
-    ("excluded", "min_cell_count"): "min_cell_count",
+    # THE FIELD KEY STAYS AND THE LABEL FOLLOWS THE SETTING. The key is
+    # this summary's own vocabulary and is read back by its tests; the
+    # label is what a user sees, and it must name the setting they typed
+    # -- `min_cells_per_well` since 364 renamed it.
+    ("excluded", "min_cell_count"): "min_cells_per_well",
     ("excluded", "exclude_grnas"): "pre-fraction exclusions",
     ("excluded", "fraction_threshold"): "fraction_threshold",
     ("excluded", "missing_metadata"): "unpaired / missing metadata",
@@ -211,6 +215,9 @@ COMPARISON_FIELDS: Dict[str, str] = {
     "multiple_testing_method": "multiple_testing_method",
     "fdr_alpha": "fdr_alpha",
     "fraction_threshold": "fraction_threshold",
+    # THE VALUE IS A FIELD NAME, NOT A SETTING NAME, and changing it named
+    # a field that does not exist. The label a user reads followed 364's
+    # rename; this mapping is the summary's internal wiring and did not.
     "min_cell_count": "min_cell_count",
     "n_wells": "n_wells",
     "n_guides": "n_guides",
@@ -1835,11 +1842,12 @@ def _call_section(run: "_Run") -> List[SummaryField]:
                       ("positive_percentile", "positive_control_percentile")):
         value = run.metrics.get(key)
         if value is None:
-            named = _clean(_setting(run.settings, "positive_control"))
+            named = _clean(_setting(run.settings, "positive_control_id"))
             add(name, reason=(
                 f"the positive control {named!r} has no coefficient in this "
                 f"table" if named else
-                "no positive_control was named in the settings, so there is "
+                "no positive_control_id was named in the settings, so there "
+                "is "
                 "no yardstick to rank against"))
         elif name == "positive_rank":
             total = _count(run.metrics.get("n_ranked"))
@@ -1971,7 +1979,7 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
         out.append(SummaryField(name, LABELS[("excluded", name)],
                                 value=value, reason=reason, kind=kind))
 
-    minimum = _count(_setting(settings, "min_cell_count"))
+    minimum = _count(_setting(settings, "min_cells_per_well"))
     if minimum is None:
         add("min_cell_count",
             value="not set, so no well was dropped for having too few objects")

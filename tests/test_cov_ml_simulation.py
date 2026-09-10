@@ -54,13 +54,13 @@ def _write_scores(path, wells, n_cells, seed, prc_value=None):
     return df
 
 
-def _settings(tmp_path, score_data, tolerance, min_cell_count=None,
+def _settings(tmp_path, score_data, tolerance, min_cells_per_well=None,
               count_name="counts.csv"):
     return {
         "score_data": score_data,
         "dependent_variable": "pred",
         "tolerance": tolerance,
-        "min_cell_count": min_cell_count,
+        "min_cells_per_well": min_cells_per_well,
         "count_data": [str(tmp_path / count_name)],
     }
 
@@ -129,9 +129,9 @@ def test_minimum_cell_simulation_falls_back_to_last_point(tmp_path):
     assert int(out) == 32
 
 
-def test_minimum_cell_simulation_min_cell_count_overrides_marker(tmp_path,
+def test_minimum_cell_simulation_min_cells_per_well_overrides_marker(tmp_path,
                                                                  monkeypatch):
-    """min_cell_count moves the plotted marker but not the returned elbow."""
+    """min_cells_per_well moves the plotted marker but not the returned elbow."""
     from spacr.ml import minimum_cell_simulation
 
     csv = tmp_path / "scores.csv"
@@ -140,7 +140,7 @@ def test_minimum_cell_simulation_min_cell_count_overrides_marker(tmp_path,
     # count_data with no directory component -> dst == '' -> 'results' is
     # created relative to the CWD.
     monkeypatch.chdir(tmp_path)
-    settings = _settings(tmp_path, str(csv), tolerance=0.9, min_cell_count=15)
+    settings = _settings(tmp_path, str(csv), tolerance=0.9, min_cells_per_well=15)
     settings["count_data"] = ["counts.csv"]
 
     from spacr import ml as ml_module
@@ -157,7 +157,7 @@ def test_minimum_cell_simulation_min_cell_count_overrides_marker(tmp_path,
     assert int(out) == 2                     # elbow itself is unchanged
     assert (tmp_path / "results" / "cell_min_threshold.pdf").is_file()
 
-    # The marker is at min_cell_count rather than at the elbow -- asserted
+    # The marker is at min_cells_per_well rather than at the elbow -- asserted
     # on the value handed to the drawing helper, which is the decision this
     # test is about; the drawing itself is covered directly below.
     assert plt.get_fignums() == [], "a matplotlib figure came back"

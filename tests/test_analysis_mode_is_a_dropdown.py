@@ -138,8 +138,9 @@ def test_controls_and_filters_is_one_section():
     assert "Controls & Filters" in sections
     assert "Controls & Plate Design" not in sections
     assert "Quality Filters" not in sections
-    for key in ("min_cell_count", "min_n", "fraction_threshold",
-                "outlier_detection", "filter_column", "negative_control"):
+    for key in ("min_cells_per_well", "min_observations_per_hit",
+                "fraction_threshold",
+                "outlier_detection", "filter_column", "negative_control_id"):
         assert key in sections["Controls & Filters"], key
 
 
@@ -190,7 +191,7 @@ def test_no_setting_was_dropped_by_the_regroup():
     # `Toxoplasma` left this list when it stopped being offered: it is
     # superseded by `annotation_source`, hidden on the panel, and still
     # read from a settings file. A key nothing draws needs no section.
-    for key in ("min_cell_count", "outlier_detection", "cov_type",
+    for key in ("min_cells_per_well", "outlier_detection", "cov_type",
                 "multiple_testing_method", "fdr_alpha", "annotation_source",
                 "threshold_method", "threshold_multiplier", "tolerance",
                 "target_unique_count"):

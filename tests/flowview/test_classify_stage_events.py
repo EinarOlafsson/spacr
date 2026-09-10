@@ -414,8 +414,8 @@ def test_ml_pipeline_events_wrap_load_fit_evaluate_and_writeback(
         "annotation_column": None,
         "channel_of_interest": 3,
         "location_column": "columnID",
-        "positive_control": "c2",
-        "negative_control": "c1",
+        "positive_control_id": "c2",
+        "negative_control_id": "c1",
         "exclude": None,
         "n_repeats": 1,
         "top_features": 2,
@@ -436,7 +436,7 @@ def test_ml_pipeline_events_wrap_load_fit_evaluate_and_writeback(
         "grouping": "mean",
         "min_max": None,
         "cmap": "viridis",
-        "min_cell_count": 1,
+        "min_cells_per_well": 1,
     }
 
     monkeypatch.setattr(

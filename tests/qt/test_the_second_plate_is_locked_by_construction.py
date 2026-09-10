@@ -168,7 +168,7 @@ class TestABlanketRuleCannotUnlockThePlate:
         QApplication.processEvents()
 
         drawn = {well.property("spacrWellRole") for well in plate._well_labels}
-        assert {"negative_control", "positive_control", "treatment", "blank",
+        assert {"negative_control_id", "positive_control_id", "treatment", "blank",
                 "empty"} <= drawn, f"not every role was on the plate: {drawn}"
         assert not _oblong(plate)
 
@@ -223,7 +223,7 @@ class TestChoosingAWellDoesNotResizeIt:
         # And the states the table says draw no rim draw none: a border put
         # here alone is a border the well overrides back to nothing, so the
         # outline you typed is not the one you get.
-        for role in ("negative_control", "positive_control", "treatment"):
+        for role in ("negative_control_id", "positive_control_id", "treatment"):
             block = sheet[sheet.index(f'spacrWellRole="{role}"'):]
             block = block[:block.index("}")]
             assert "border:" not in block and "border-width" not in block, \

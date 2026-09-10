@@ -363,7 +363,7 @@ class TestItSaysWhenAControlMatchedNothing:
             pd.DataFrame({"condition": labels}), "nowhere", None, None)
 
         said = capsys.readouterr().out
-        assert "negative_control" in said and "nowhere" in said
+        assert "negative_control_id" in said and "nowhere" in said
         assert "nothing to measure" in said, "name the consequence"
         assert "GENE" in said and "GUIDE" in said, "and how it was read"
 

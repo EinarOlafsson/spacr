@@ -239,7 +239,7 @@ def test_metadata_controls_with_no_folder_names_are_named_after_the_setting():
     """Nothing recorded a folder list, so the control's own name is the only
     thing left to call the class."""
     settings = {"dataset_mode": "metadata", "location_column": "columnID",
-                "negative_control": "c1", "positive_control": "c3"}
+                "negative_control_id": "c1", "positive_control_id": "c3"}
 
     rules = cc._rules_from_metadata(settings)
 
@@ -249,7 +249,7 @@ def test_metadata_controls_with_no_folder_names_are_named_after_the_setting():
 
 def test_a_metadata_run_with_no_location_column_derives_nothing():
     settings = {"dataset_mode": "metadata", "location_column": "   ",
-                "positive_control": "c3"}
+                "positive_control_id": "c3"}
 
     assert cc._rules_from_metadata(settings) == []
 

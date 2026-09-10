@@ -920,11 +920,25 @@ function updateLessonHeader() {
   document.title = `${lesson.title} · spaCR Learning Path`;
 }
 
+function tutorialExampleFiles(lesson) {
+  if (!Array.isArray(lesson.example_files)) return [];
+  return [...new Set(lesson.example_files.filter(name =>
+    typeof name === "string" && name.length <= 128 &&
+    /^[A-Za-z0-9][A-Za-z0-9_.-]*\.csv$/.test(name)))];
+}
+
 function updateGuide() {
   const lesson = localizedLesson(activeLesson.id);
   elements.duration.textContent = "Selectable narration";
   elements.objectives.innerHTML = lesson.objectives.map(item => `<li>${escapeHTML(item)}</li>`).join("");
   elements.prerequisite.textContent = lesson.prerequisite;
+  for (const name of tutorialExampleFiles(lesson)) {
+    const link = document.createElement("a");
+    link.href = "examples/" + encodeURIComponent(name);
+    link.download = name;
+    link.textContent = name;
+    elements.prerequisite.append(document.createElement("br"), link);
+  }
 }
 
 function mediaReady(media) {

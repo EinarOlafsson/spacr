@@ -89,8 +89,8 @@ class TestTheWellFieldsHaveTheirPicker:
         """The picker writes the WHOLE field, so one on `negative_control` --
         which mixes wells with another vocabulary -- would destroy a value it
         does not understand."""
-        assert "negative_control" not in WELL_ONLY_SETTINGS
-        labels = [b.text() for b in _buttons_beside(screen, "negative_control")]
+        assert "negative_control_id" not in WELL_ONLY_SETTINGS
+        labels = [b.text() for b in _buttons_beside(screen, "negative_control_id")]
 
         assert "Plate…" not in labels
 

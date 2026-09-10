@@ -52,7 +52,25 @@ def test_a_renamed_setting_names_its_replacement():
     problem = _check_retired_keys({"minimum_cell_count": 30})[0]
     text = " ".join(str(getattr(problem, f, "")) for f in
                     ("message", "fix", "advice", "hint", "remedy"))
-    assert "min_cell_count" in text
+    assert "min_cells_per_well" in text
+
+
+def test_a_split_setting_names_BOTH_of_its_replacements():
+    """One key that meant two things is now two keys, and both are named.
+
+    A message offering only one of them sends half the readers to the
+    wrong control -- and it is the half that cannot tell, because the old
+    key did both jobs at once and a settings file that set it was setting
+    both.
+    """
+    problem = _check_retired_keys({"control_wells": ["c12"]})[0]
+    text = " ".join(str(getattr(problem, f, "")) for f in
+                    ("message", "fix", "advice", "hint", "remedy"))
+    assert "stain_baseline_wells" in text
+    assert "analysis_excluded_wells" in text
+    assert "split" in text.lower(), (
+        "the message calls it a rename, which invites the reader to pick "
+        "one of the two and lose the other")
 
 
 def test_every_named_replacement_is_a_live_setting():
@@ -60,8 +78,14 @@ def test_every_named_replacement_is_a_live_setting():
     from spacr.settings import expected_types
 
     live = set(expected_types)
-    wrong = {old: new for old, new in RETIRED_SETTINGS.items()
-             if new and new not in live}
+    wrong = {}
+    for old, new in RETIRED_SETTINGS.items():
+        if not new:
+            continue
+        # A TUPLE IS A SPLIT and every one of its targets has to be live.
+        for name in ((new,) if isinstance(new, str) else tuple(new)):
+            if name not in live:
+                wrong[old] = new
     assert wrong == {}, f"these replacements are not live settings: {wrong}"
 
 

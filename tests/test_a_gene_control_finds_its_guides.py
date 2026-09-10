@@ -103,7 +103,7 @@ class TestTheDefault:
         from spacr.settings import get_perform_regression_default_settings
 
         assert str(get_perform_regression_default_settings({})
-                   ["negative_control"]) == "233460"
+                   ["negative_control_id"]) == "233460"
 
     def test_the_old_thirty_name_list_still_loads(self):
         """A settings CSV written before this must keep meaning what it

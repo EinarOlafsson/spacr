@@ -1640,7 +1640,7 @@ def default_region_tour(**kwargs) -> RegionTour:
     return RegionTour(REGIONS, **kwargs)
 
 
-class TourPilot:
+class _TourPilot:
     """Points a steering camera at the twenty regions, frame by frame.
 
     It joins :class:`RegionTour` to the camera, and it is a PLAIN OBJECT
@@ -1659,11 +1659,18 @@ class TourPilot:
     :param tour: the tour to fly, or None for the committed regions.
     """
 
-    __slots__ = ("tour",)
+    __slots__ = ("tour", "_floor_px")
 
     def __init__(self, tour: Optional[RegionTour] = None) -> None:
         """Fly `tour`, or the committed regions when none is given."""
         self.tour = default_region_tour() if tour is None else tour
+        # COMPUTED ONCE, BECAUSE THIS IS NOW THE DEFAULT PATH. The floor is
+        # a property of the itinerary and the itinerary does not change
+        # while the pilot exists, so recomputing it per frame was twenty
+        # float conversions sixty times a second for an answer that never
+        # moves. Cheap either way; on the frame path of the backdrop every
+        # user now gets, "cheap" is not the standard.
+        self._floor_px = self._measure_the_floor()
 
     @property
     def flying(self) -> bool:
@@ -1719,7 +1726,14 @@ class TourPilot:
         point where its coordinates were measured to hold up -- rather
         than at a constant somebody would have to keep in step with the
         generated data.
+
+        Answered from the value measured in ``__init__``: see there for
+        why it is not recomputed.
         """
+        return self._floor_px
+
+    def _measure_the_floor(self) -> float:
+        """Read the floor out of the itinerary. Called once, at build."""
         widths = [float(row[3]) for row in self.tour.regions
                   if len(row) > 3]
         return max(widths) if widths else 0.0
@@ -2239,7 +2253,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 # one motion rather than a slide that starts and stops.
                 pilot = getattr(self, "_pilot", None)
                 if pilot is None:
-                    pilot = TourPilot()
+                    pilot = _TourPilot()
                     self._pilot = pilot
                 pilot.steer(camera, float(seconds), span)
                 return camera.advance(time.perf_counter())

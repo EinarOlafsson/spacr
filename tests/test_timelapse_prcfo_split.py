@@ -264,7 +264,7 @@ def test_process_scores_on_a_timelapse_scores_frame(tmp_path):
         _legacy_five_name_split(scores.copy())
 
     dependent_df, name = process_scores(scores.copy(), 'pred', plate=None,
-                                        min_cell_count=1, agg_type='mean')
+                                        min_cells_per_well=1, agg_type='mean')
     assert name == 'pred'
     assert sorted(dependent_df['prc']) == ['plate1_r1_c1', 'plate1_r1_c2']
     assert dependent_df['cell_count'].tolist() == [18, 18]

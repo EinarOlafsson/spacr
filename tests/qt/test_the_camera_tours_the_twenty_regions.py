@@ -17,7 +17,7 @@ import pytest
 
 from spacr.qt.widgets.fractal_mandelbrot import SteeringCamera
 from spacr.qt.widgets.fractal_regions import REGIONS
-from spacr.qt.widgets.fractal_travel import RegionTour, TourPilot
+from spacr.qt.widgets.fractal_travel import RegionTour, _TourPilot as TourPilot
 
 
 WIDE = 1.0          # a surface-scale view; every region is still about it.

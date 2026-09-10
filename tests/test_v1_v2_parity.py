@@ -164,7 +164,6 @@ def test_v1_v2_mask_parity(_synthetic_pair):
         "nucleus_intensity_range": None,
         "pathogen_intensity_range": None,
         "cytoplasm_intensity_range": None,
-        "denoise": False,
         "remove_background_intensity": False,
         "skip_extraction": False,
     }.items():

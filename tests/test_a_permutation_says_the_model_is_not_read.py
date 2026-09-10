@@ -28,7 +28,7 @@ def _run(tmp_path, capsys, **overrides):
          ("toxo", "False"), ("metadata_files", "[]")],
         columns=["Key", "Value"]).to_csv(settings_csv, index=False)
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    settings["min_cell_count"] = None
+    settings["min_cells_per_well"] = None
     settings.update(overrides)
     np.random.seed(0)
     out = perform_regression(settings)

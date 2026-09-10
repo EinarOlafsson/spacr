@@ -1,0 +1,39 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "f5f1a3f649e5b4c7d83a6a340ed9a86783f720d44f3cad82146dc1e813fb8bad",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, disclosed synthetic truth, native fits and independently checked intervals; literal GUI and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Dose–resposta: curvas ajustadas, incerteza e recusas justificadas",
+  "description": "Use a tela atual Dose Response com uma tabela sintética reproduzível, compare intervalos de perfil e de Wald e diferencie resultados ajustados, não delimitados e recusados.",
+  "objectives": [
+    "Carregar concentrações e respostas explícitas e ajustar uma curva por série.",
+    "Interpretar pontos de meia resposta, intervalos, controles de veículo e curvas recusadas.",
+    "Comparar antes de ordenar, copiar o relatório real e distinguir controles da interface de exportações pela API."
+  ],
+  "prerequisite": "Baixe o CSV SINTÉTICO anexo. São 120 linhas construídas: quatro séries, nove concentrações positivas e um veículo de dose zero, com três observações por concentração. Os desvios equilibrados de −0,5, zero e +0,5 não são réplicas biológicas nem um estudo de calibração. Os pontos de meia resposta definidos são 1,5, 2 e 500, este último fora da faixa; a quarta série inverte a tendência. Não se demonstra um download próprio de dados de Dose Response, normalização, ponderação, seletor de réplicas, botão de exportação ou console de IA. Unit muda um rótulo, não os dados. Nesta versão, reajustar após ordenar pode misturar as identidades das linhas exibidas; a gravação termina todos os reajustes antes da ordenação. Preserve as recusas e leia o relatório completo. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame e DoseResponseSet.table. Os testes dos dados e gráficos são independentes do ajuste do spaCR; os extremos de perfil são verificados com a precisão declarada do intervalo de busca em log10, sem garantir cobertura.",
+  "scenes": [
+    "Abra Dose Response na seção Data de Home. Este visualizador independente ajusta uma curva logística de quatro parâmetros a uma série de concentrações. Ele exige as concentrações e respostas de entrada; não deduz doses de nomes de poços, coordenadas de imagens ou rótulos de tratamentos.",
+    "Baixe o CSV sintético indicado nos pré-requisitos da lição e escolha Load table. São exemplos de software construídos deliberadamente, não compostos medidos. O arquivo e os nomes de todas as séries dizem que são sintéticos, para que essas curvas limpas não sejam confundidas com resultados experimentais.",
+    "O arquivo contém cento e vinte linhas distribuídas em quatro séries. Cada uma tem nove concentrações positivas, um veículo de dose zero e três observações por concentração. Os pequenos desvios artificiais equilibrados preservam a média do modelo em cada dose; este exemplo conveniente não valida o desempenho estatístico em experimentos reais.",
+    "Selecione concentration como coluna de concentração, response como resposta e series em One curve per. Forneça concentrações originais, não seus logaritmos. O agrupamento importa: ajustar as quatro séries diferentes como uma única curva responderia à pergunta errada.",
+    "Unit é apenas um rótulo. Aqui digitamos u M para indicar concentrações ilustrativas em micromolar; mudar esse texto nunca reescala os números. Faça previamente qualquer normalização ou conversão de unidades necessária, pois esta tela não oferece controles de normalização ou ponderação.",
+    "Mantenha Profile likelihood selecionado e Fit non-monotone data desligado; depois escolha Fit. O gráfico e a tabela são atualizados juntos. Todas as quatro séries continuam presentes, incluindo um resultado não delimitado e uma recusa; uma estimativa ausente não significa uma série ausente.",
+    "Selecione a inibição sintética. O ponto de meia resposta recuperado é um vírgula cinco, com inclinação de Hill negativa porque a resposta cai conforme a concentração aumenta. Meia resposta é o ponto entre os platôs ajustados, aqui cinco e noventa e cinco; não significa automaticamente cinquenta por cento de viabilidade.",
+    "Selecione a ativação sintética. Seu ponto de meia resposta recuperado é dois e a inclinação de Hill é positiva. A curva selecionada fica destacada enquanto as demais curvas ajustadas permanecem visíveis. Leia a linha selecionada junto com seu relatório, sem atribuir a esta série a estimativa de outra curva.",
+    "O exemplo fora da faixa foi construído com um ponto de meia resposta de quinhentos, mas suas concentrações param em cem. A tela informa um resultado não delimitado, deixa vazias as células da estimativa e do intervalo e mostra um limite na borda. Uma extrapolação ajustada não é uma estimativa pontual sustentada.",
+    "A série que inverte a tendência é recusada porque uma logística monótona tem a forma errada. Leia a explicação completa abaixo da tabela. Uma inversão da resposta não estabelece, sozinha, citotoxicidade ou outra causa biológica; investigue o experimento em vez de remover doses às cegas ou forçar um ajuste.",
+    "O relatório de inibição conta vinte e sete observações ajustadas e três controles de dose zero. Concentrações zero são excluídas do ajuste logarítmico e resumidas separadamente; não são convertidas silenciosamente em pequenas doses positivas. A média do veículo sintético é noventa e cinco, igual ao platô construído para doses baixas.",
+    "Leia também o erro residual e a avaliação de falta de ajuste, não apenas R ao quadrado. Este exemplo deliberadamente equilibrado tem diagnósticos excepcionalmente limpos. As observações repetidas por concentração são usadas sem um seletor separado de réplicas; essas repetições artificiais não demonstram independência em um experimento real.",
+    "Para comparar métodos de intervalo, escolha Wald e pressione Fit novamente. Mudar apenas o seletor não recalcula um resultado existente. O intervalo é calculado para o logaritmo do ponto de meia resposta e depois transformado de volta; não é uma barra de erro simétrica somada diretamente à concentração.",
+    "Os exemplos que delimitam bem a meia resposta mantêm suas estimativas, enquanto os extremos do intervalo mudam um pouco. O exemplo fora da faixa continua sem fornecer um ponto estimado. Intervalos finitos nestes exemplos limpos não provam que outro experimento identifica sua meia resposta nem que tenha cobertura nominal com seu ruído e amostragem.",
+    "Restaure Profile likelihood e escolha Fit outra vez. Confira se os resultados agora correspondem a esse método. A curva, a tabela e o relatório selecionado são visualizações ligadas do ajuste concluído, não uma prévia que refaz o ajuste automaticamente a cada mudança de controle.",
+    "Termine as comparações de ajuste antes de ordenar a tabela. Esta versão pode misturar as linhas exibidas ao reajustar uma tabela ordenada; não confie nessa sequência. Aqui só ordenamos depois dos ajustes, selecionamos a inibição e verificamos que o relatório correspondente aparece.",
+    "Selecione e copie o texto do relatório com o atalho habitual. Preserve os avisos, as explicações das recusas, as concentrações de entrada e o método de intervalo escolhido. Copiar apenas uma estimativa sem esse contexto elimina as informações necessárias para decidir se ela pode ser interpretada.",
+    "Esta tela não tem botão de exportação. Para saídas programáticas, a API de dose–resposta oferece fit_frame e uma tabela de resultados; a lição da API explica o uso com Python. Ao exportar, preserve as linhas não delimitadas e recusadas, em vez de guardar apenas compostos que produziram números convenientes."
+  ]
+}

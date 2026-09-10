@@ -124,6 +124,17 @@ AUTOAPI_IGNORE = (
 AUTOAPI_NON_RENDERED_MODULES = frozenset({
     "spacr.qt.__main__",
     "spacr._v1_v2_bridge",
+    # A LEADING-UNDERSCORE MODULE IS HIDDEN BY AutoAPI AND NOT BY THIS
+    # EXTRACTOR, which is why the two have to be told separately.
+    # `conf.py` sets `autoapi_options` without `private-members`, so
+    # AutoAPI renders no `_*` module -- but `public_docstrings` skips a
+    # module only on AUTOAPI_IGNORE (four globs, none of them `_*`) or on
+    # membership here. Leave a private module out of this set and the
+    # catalog carries rows for pages the site never builds: nine
+    # translations describing documentation that does not exist, and a
+    # drift between extractor and site that is exactly what the audit is
+    # for. `spacr._v1_v2_bridge` above is the same case.
+    "spacr.qt._layout_policy",
 })
 AUTOAPI_NON_RENDERED_SYMBOLS = frozenset({
     "spacr.qt.run_without_setup",

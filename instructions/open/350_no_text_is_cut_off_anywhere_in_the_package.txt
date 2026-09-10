@@ -1387,3 +1387,256 @@ field sized to its own content -- `dose_response`'s 70 px unit box and
 The table of seven is written down in that file rather than discovered, and a
 third test asserts the table has not drifted from the code in either
 direction.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- A THIRD INSTRUMENT, FROM 359, AND IT FOUND THE SAME BLIND SPOT
+--------------------------------------------------------------------------------
+
+The note above says the sweep's blind spot is that "a container that cannot
+grow answers no, because everything inside it elides politely", and that a
+SOURCE sweep was the second instrument needed. There is now a third, built
+for 359 and worth knowing about here, because it measures the same blind
+spot from the RENDERED side rather than the source side.
+
+`tests/qt/test_the_layout_matrix.py` builds every module at fifteen
+container widths and asks two questions per rung: this file's own
+`_offenders` -- is any caption clipped -- and whether the SETTINGS COLUMN
+is holding more content than its viewport can show.
+
+THE FIRST QUESTION SAID EVERY MODULE WAS CLEAN AT 700 PX, the narrowest
+width tried. That is this file's blind spot stated as a number: a settings
+form does not clip its captions when it runs out of room, it puts the
+right-hand side past the edge and offers a horizontal scrollbar.
+
+THE SECOND QUESTION SAID MOST MODULES NEED 2,100 PX OF WINDOW, and that 28
+of 192 cases have no width at all that shows them whole -- `regression` in
+every locale and at both scales among them. Measured at a 2,560 px window:
+the settings column's viewport is 832 px and regression's content wants 970.
+
+WHAT THIS MEANS FOR THIS FILE. Nothing here is wrong and nothing here is
+owed. The sweep answers the question it asks, correctly, and the 208 green
+cases are green. But "no text is cut off anywhere in the package" is not
+fully answered by "no caption is clipped", and the second half of it lives
+in 359 now. The BOUNDARY section of 359 already says this item should stop
+carrying ad-hoc per-screen geometry once the shared policy exists; the
+policy exists as of today, in `spacr/resources/layout_policy.json`.
+
+THE PATTERN IS THE SAME ONE THIS FILE ALREADY RECORDS TWICE. Every defect
+class after the first was found by an instrument the previous one could not
+have seen -- a locale, then a font scale, then a container that cannot
+grow, then device pixels, and now a viewport narrower than its content.
+That is five instruments for one question, and the argument for the next
+one is the same as the argument for all of them: an absence is only as good
+as the thing that looked.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FIVE MORE DIALOGS, AND THE TWO HALVES OF RULE 5 DISAGREED
+--------------------------------------------------------------------------------
+
+The uncovered dialogs were a NUMBER in this file and are now a LIST.
+Enumerated by walking `spacr.qt` for QDialog subclasses and diffing against
+what the sweep builds: 47 classes, 26 covered, 21 not -- and the count had
+grown from the 18 recorded above without anyone noticing, which is what a
+number rather than a list does.
+
+FIVE WERE ADDED, chosen because their arguments are honestly suppliable
+rather than invented:
+
+    _ProvidersDialog        no argument
+    SetupSlides             no argument
+    FigureSettingsDialog    a live matplotlib figure
+    SaveFigureDialog        the same
+    UmapDisplaySettings     an EMPTY dict, which is the real case: its own
+                            docstring promises "a settings file written
+                            before a field existed still opens"
+
+The figure is built with a labelled line, axis captions and a legend, NOT
+empty -- `FigureSettingsDialog` builds its controls "from the figure's
+current axes, artists, legends", so a blank figure would build a blank
+dialog and the sweep would measure nothing while reporting a pass.
+
+TWELVE RED COMBINATIONS, AND THE FIRST FINDING WAS AGAINST THE INSTRUMENT.
+
+RULE 5 HAD ONLY EVER BEEN APPLIED TO HEIGHT. The 2026-09-06 note above adds
+`QTextDocument` measurement for rich text and explains why -- "a rich-text
+label's string is its markup: measuring `<span style='color:gray;'>` counts
+thirty characters nobody sees". That was written into the WRAPPED branch.
+The width branch, which is where every non-wrapping caption is judged, went
+on handing the markup to `QFontMetrics`:
+
+    <span style='color:#3fb950;'>● installed</span>   reported 291 px
+                                                      of text in 75, where
+                                                      the ten characters Qt
+                                                      draws need about 70
+    <b>Claude (via Claude Code)</b>                   reported 400, needs 280
+
+So the two halves of one rule had disagreed for as long as both existed, and
+nothing found it because no swept dialog until now had a non-wrapping label
+carrying a tag. Both halves now use `QTextDocument`.
+
+AND `_is_rich` WAS TOO NARROW. It asked for an explicit `Qt.RichText`,
+because the first attempt used `Qt.mightBeRichText` and reported eighty
+false offences. The distinction that makes it safe is A REAL TAG rather than
+an angle bracket: `<b>`, `</div>` and `<span style=…>` match; `2 < 3` and
+`a -> b` do not. Checked against those eighty: none of them match.
+
+ONE REAL DEFECT, AND IT IS THIS FILE'S SIXTH CLASS AGAIN.
+`_ProvidersDialog.__init__` reads
+
+    self.setMinimumWidth(scaled_px(620))
+    self.setMinimumHeight(560)
+
+-- a raw device-pixel floor beside a scaled width. At a doubled font the
+dialog kept its height while every caption in it grew, and the intro
+paragraph was squeezed to 81 px of the 180 it needs. Scaling it closed three
+of the four combinations.
+
+ONE ENTRY IN `KNOWN_OFFENDERS`, THE FIRST THIS SWEEP HAS EVER CARRIED, with
+the diagnosis beside it: German at 100 %, where the intro wraps to 108 px in
+97. The dialog opens at exactly its minimum height and the layout cannot
+discover it needs more, because the page is inside a `QTabWidget` and
+QTabWidget does not propagate `heightForWidth`. A height-for-width size
+policy on the label was tried, changed nothing for that reason, and was
+REVERTED rather than left in as code that does nothing. The fix is a scroll
+area around the providers page -- this file's own "visible, accessible
+fallback rather than silently clipping" -- and it is a layout change worth
+making with a display in front of the person making it.
+
+320 pass across both sweeps. SIXTEEN DIALOGS REMAIN uncovered and they are
+listed rather than counted now: CommandPalette, RecipeDialog,
+ConfirmDeleteDialog, UmapSearchSettingsDialog, WalkAxesDialog,
+AggregationRulesDialog, _FigureSettingsDialog (figure_queue),
+GateSettingsDialog, LiveSettingsDialog, CropSettingsDialog,
+MeasurementCompareDialog, MetadataColumnDialog, MetadataTableDialog,
+QCFieldBrowser, SettingsAdvisorDialog, UmapAppearanceDialog. Five of those
+want a live panel or screen, which is a fixture; the rest want a frame, a
+plan or a request, which is the line this file already drew.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- SIX MORE, AND ONE WAS EXCLUDED ON A PREMISE THAT IS NOT TRUE
+--------------------------------------------------------------------------------
+
+37 of the 47 dialogs are swept now, from 26 this morning. All six added
+here came up clean, so this is coverage repaid rather than defects found --
+which is worth recording, because a sweep that only ever appears in the log
+when it finds something looks like it is not running.
+
+    GateSettingsDialog          the real GateEditorSettings()
+    AggregationRulesDialog      a measurements frame
+    MetadataTableDialog         preview rows and a destination
+    MeasurementCompareDialog    object rows and their groups
+    _FigureSettingsDialog       a live figure, as the other two take
+    UmapAppearanceDialog        an empty mapping, which is documented
+
+THE FIRST ONE WAS EXCLUDED BY THIS FILE, BY NAME, AND THE REASON DOES NOT
+HOLD. The 2026-09-07 note says `GateSettingsDialog` "is deliberately absent:
+it wants an object with a ``sample_fraction`` attribute, and handing it a
+stand-in WOULD be building a fixture. It belongs with the other 24."
+
+But `GateEditorSettings` is a frozen dataclass that constructs with NO
+arguments and comes up with `sample_fraction = 1.0`. The real object is
+free. So this is the same case as `AnnotateSettings()`, which the very same
+note ACCEPTS on the grounds that it "is the object Annotate itself
+constructs before it opens the dialog" -- and the two were filed on opposite
+sides of the line for no difference that exists.
+
+  THE EXCLUSION WAS NEVER TESTED, which is how it survived. "It wants an
+  object with a sample_fraction attribute" is true and reads like a
+  reason; nobody tried `GateEditorSettings()` to see whether supplying one
+  cost anything. A LINE DRAWN ON AN ASSUMPTION IS WORTH RE-DRAWING ONCE
+  SOMEBODY CAN CHECK IT CHEAPLY.
+
+AND THE FIXTURES ARE THE DIALOG'S CONTENT, NOT A PLACEHOLDER FOR IT.
+`AggregationRulesDialog` offers one row per COLUMN, so a frame with two
+made-up names would build a two-row dialog and measure almost nothing; the
+frame carries the names a measure run actually writes, including
+`cytoplasm_channel_3_standard_deviation`, because the long ones are what
+overrun a header. The same rule governed the figure fixture added earlier.
+
+TEN LEFT, and they divide cleanly:
+
+    a live panel or screen   CommandPalette, RecipeDialog,
+                             UmapSearchSettingsDialog, WalkAxesDialog,
+                             LiveSettingsDialog, CropSettingsDialog
+    a domain object          ConfirmDeleteDialog (a PrunePlan),
+                             MetadataColumnDialog (a request),
+                             QCFieldBrowser (targets_from_digest records),
+                             SettingsAdvisorDialog (a reading and a current)
+
+THE FIRST SIX MAY NOT BE FIXTURES EITHER, by the same argument that moved
+`GateSettingsDialog`. A real `AppScreen` is what the user has, and
+`screen_in_a_container` in the sibling sweep already builds one for every
+declared module -- so a panel taken off a built screen is the object the
+dialog is handed in production, not a stand-in for it. That is worth
+trying before it is written off; the four domain objects are the harder
+half and may genuinely be fixtures.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FOUR PANEL DIALOGS, AND A SEGFAULT THAT WAS THE HARNESS'S FAULT
+--------------------------------------------------------------------------------
+
+41 of the 47 dialogs are swept now. The four added here are the ones the
+note above filed under "a live panel or screen", and that line does not hold
+either:
+
+    LiveSettingsDialog        LivePreviewPanel()
+    CropSettingsDialog        MeasurePreviewPanel()
+    UmapSearchSettingsDialog  HyperparamPanel()
+    WalkAxesDialog            HyperparamPanel()
+
+EVERY ONE OF THOSE PANELS CONSTRUCTS WITH NO ARGUMENTS. A panel is not a
+fixture when the application builds it the same way. And the two live
+dialogs RE-PARENT the panel's own widgets into themselves for the duration,
+returning them in `closeEvent` -- so the rows this sweep measures are the
+panel's real controls, and handing them anything else would be the stand-in.
+
+THEN IT CRASHED THE PROCESS, and the chase is the part worth keeping.
+
+`CropSettingsDialog` segfaulted the run. Isolating it went through three
+negatives before the answer:
+
+    built once, standalone            survives
+    built four times in one process   survives
+    built across a font-scale restyle survives
+
+so it was none of the obvious things. The faulthandler traceback named the
+site, and it was not in the test that crashed -- it was in the NEXT test's
+setup, inside `tests/conftest.py`'s
+`_the_widget_tree_does_not_outgrow_the_session`, at
+
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+which is the fixture whose entire job is to deliver deletions their owners
+already requested. It was delivering one to freed memory.
+
+THE MECHANISM, AND IT IS AN OWNERSHIP BUG IN THE HARNESS RATHER THAN THE
+PRODUCT. These dialogs do `super().__init__(panel)`, so the PANEL OWNS THE
+DIALOG. The sweep registered only the dialog with `qtbot`, so once the test
+function returned nothing held a Python reference to the panel: it was
+collected, its C++ half destroyed its children including the dialog, and the
+`DeferredDelete` already queued for that dialog was then delivered to an
+object that no longer existed.
+
+    A PARENT MUST OUTLIVE THE CHILD IT OWNS, and a test harness that
+    registers the child and not the parent has inverted that. `_build_with`
+    now registers every QWidget it supplied as an argument, so pytest-qt
+    keeps the parent alive and tears the pair down in one place.
+
+WHY THIS IS NOT FILED AS A PRODUCT DEFECT: in the application the panel is
+owned by a screen and outlives every dialog opened over it, which is the
+ordering the code is written for -- `closeEvent` returning the widgets to
+`self._panel` only makes sense if the panel is still there. The crash needs
+a caller that lets the panel go first, and only the sweep did that.
+
+  IT IS STILL WORTH THE PARAGRAPH. A segfault delivered one test LATER than
+  its cause, in a fixture that is doing exactly what it says, is the hardest
+  shape of failure to read in this repository -- and the next person to add
+  a parented dialog to any sweep will hit it. 165 pass.
+
+SIX LEFT: CommandPalette (a window), RecipeDialog (a screen),
+ConfirmDeleteDialog (a PrunePlan), MetadataColumnDialog (a request),
+QCFieldBrowser (targets_from_digest records), SettingsAdvisorDialog (a
+reading and a current). The first two may fall to the same argument as the
+four above -- `screen_in_a_container` already builds a real AppScreen for
+every declared module. The last four want a domain object and are the
+honest remainder.

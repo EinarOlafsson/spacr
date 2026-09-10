@@ -50,7 +50,7 @@ METADATA_COLUMNS: Tuple[str, ...] = (
 RETIRED = (
     "annotation_column", "annotation_columns", "annotation_values",
     "annotated_classes", "write_random_annotation_column",
-    "location_column", "positive_control", "negative_control",
+    "location_column", "positive_control_id", "negative_control_id",
 )
 
 
@@ -370,11 +370,18 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
     names = folder_names(settings)
 
     rules: List[ClassRule] = []
-    for i, key in enumerate(("negative_control", "positive_control")):
+    for i, key in enumerate(("negative_control_id", "positive_control_id")):
         value = settings.get(key)
         if value in (None, ""):
             continue
-        name = names[i] if i < len(names) else key.replace("_", " ")
+        # STRIP THE IDENTIFIER SUFFIX BEFORE SHOWING IT. These two settings
+        # were renamed to negative_control_id / positive_control_id, and this
+        # fallback is a DISPLAY name -- de-underscoring the key verbatim put
+        # "negative control id" on a user's class and on the folder written
+        # for it. The `_id` says what the setting holds, not what the class
+        # is called.
+        name = (names[i] if i < len(names)
+                else key.removesuffix("_id").replace("_", " "))
         # A control setting can name several wells.
         if isinstance(value, (list, tuple)):
             for item in value:

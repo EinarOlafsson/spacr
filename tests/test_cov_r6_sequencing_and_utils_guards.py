@@ -211,7 +211,10 @@ def test_the_threshold_sweep_always_has_a_folder_to_write_into(tmp_path,
 
     threshold = SEQ.graph_sequencing_stats({
         "count_data": "counts.csv", "target_unique_count": 2,
-        "filter_column": "columnID", "control_wells": ["c4"]})
+        # `analysis_excluded_wells` is the sequencing half of the
+        # `control_wells` split (364); this dict goes straight to the
+        # function, so the factory's fold does not run over it.
+        "filter_column": "columnID", "analysis_excluded_wells": ["c4"]})
 
     assert 0.0 < float(threshold) <= 0.99
     assert (tmp_path / "results" / "fraction_threshold.pdf").is_file(), (

@@ -17,7 +17,7 @@ import sys
 
 import pytest
 
-from spacr.qt.app import the_missing_pip_escape
+from spacr.qt.app import _the_missing_pip_escape as the_missing_pip_escape
 
 
 class TestItOnlyAnswersTheFailureItRecognises:

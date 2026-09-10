@@ -1945,22 +1945,32 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,459 -> 8,508 on 2026-09-10, +49. The same OPS surface the
     # documented-symbol count decomposes below, less the entries that
     # are modules and attributes rather than callables.
-    assert len(callables) == len(by_symbol) == 8_508
+    # 8,508 -> 8,498, -10. Ten of the twelve withdrawn entries are
+    # CALLABLES -- the two module-level helpers, TourPilot and its four
+    # members, and three of layout_policy's four functions; the modules
+    # themselves are not callables and do not count here.
+    assert len(callables) == len(by_symbol) == 8_498
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
     # dataclasses are Registration, StitchedWell, Alignment and WellLayout.
+    # -6 function, -3 method, -1 constructor on the withdrawal of the
+    # same four symbols: the two module-level helpers and three of
+    # `layout_policy`'s functions are the six, `TourPilot.dragged`,
+    # `.restarted` and `.steer` are the three methods, and `TourPilot`
+    # itself is the constructor. `.flying` is a property and lands in
+    # neither bucket, which is why the numbers do not sum to twelve.
     assert Counter(item.category for item in callables) == {
-        "function": 3_678,
-        "method": 3_790,
-        "constructor": 394,
+        "function": 3_672,
+        "method": 3_787,
+        "constructor": 393,
         "dataclass_constructor": 447,
         "namedtuple_constructor": 6,
         "exception_constructor": 137,
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_503,
+        "autoapi": 8_493,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -1971,9 +1981,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,472 -> 8,466 with the six retired space accessors.
     # 8,466 -> 8,515, the same +49: none of the new callables carries a
     # second prose variant, so variants track callables one for one.
-    assert sum(item.variant_count for item in callables) == 8_515
+    # 8,515 -> 8,505, the same -10 as every other callable figure: none
+    # of the withdrawn ones carried a second prose variant either, so
+    # variants keep tracking callables one for one.
+    assert sum(item.variant_count for item in callables) == 8_505
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_501,
+        1: 8_491,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -1982,12 +1995,25 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 393 -> 394 on 2026-09-10: one constructor gained an __init__
     # docstring. The direction check the comment above states still
     # holds -- it rose.
+    #
+    # 394 -> 393 LATER THE SAME DAY, AND THIS ONE IS A FALL. The rule
+    # above says a fall means prose was lost, and that is the right alarm
+    # -- but the event here is different and is why the number moves
+    # rather than the rule. `TourPilot.__init__`'s prose was WITHDRAWN
+    # with the class, which was never public API: it has one caller,
+    # inside `fractal_travel` itself. The prose still exists in the
+    # source and still explains the constructor to anyone reading it; it
+    # simply is not on a surface nine locales have to translate.
+    #
+    # A LOST DOCSTRING AND A WITHDRAWN SYMBOL LOOK IDENTICAL TO THIS
+    # ASSERTION, which is the reason to write down which one happened.
+    # If this falls again with no note beside it, assume the first.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 394
+    ) == 393
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 394
+    ) == 393
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2010,8 +2036,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # rises 8,452 -> 8,521 over the same span, so 147 new parameters
     # carry 69 required ones and the rest are optional -- which is
     # what a module of tuned numerical entry points looks like.
-    assert sum(len(item.parameters) for item in callables) == 16_837
-    assert sum(len(item.required_parameters) for item in callables) == 8_521
+    # 16,837 -> 16,823 and 8,521 -> 8,514 with the ten withdrawn
+    # callables: fourteen parameters and seven required ones leave with
+    # them. The ratio holds -- these are ordinary helpers, not the tuned
+    # numerical entry points the note above describes.
+    assert sum(len(item.parameters) for item in callables) == 16_823
+    assert sum(len(item.required_parameters) for item in callables) == 8_514
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2021,7 +2051,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "37bf20957041d10a2ed532349640d6165c88b162dcab73f05e19f2b942d71f3f"
+    ) == "06d04cc86d4577f3e95980d416cb5058c5a0eec4753065525e0d35f5323adc85"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2371,7 +2401,19 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # had landed and none of these four assertions had been re-recorded, so
     # every one of them failed at once the first time the full non-Qt sweep
     # ran to the end. A ratchet nobody runs is a ratchet nobody updates.
-    assert len(docs) == 10_306
+    # 10,306 -> 10,299, -12/+5. 2026-09-10, SECOND MOVE THAT DAY: four symbols added the night
+    # before came OFF the public surface. `open_at_the_measured_width`
+    # and `the_missing_pip_escape` have one caller each inside
+    # `qt/app.py`, `TourPilot` is instantiated once inside
+    # `fractal_travel`, and `layout_policy` is read by nothing but
+    # `app.py` -- none of the four was API, and twelve entries were
+    # about to be translated into nine languages for helpers nobody
+    # outside the package calls.
+    # A MODULE KEEPS ITS DOCSTRING ON THE INVENTORY whatever it is
+    # called, so `_layout_policy` and its four functions come back under
+    # the new name; only the underscore on a FUNCTION or CLASS removes
+    # one. That is why twelve leave and five return.
+    assert len(docs) == 10_294
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2380,7 +2422,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,460 -> 8,454: the six space accessors retired under 364.
     # 8,454 -> 8,503, the same +49: every one of the new callables is
     # rendered, so this tracks the total rather than diverging from it.
-    assert len(rendered_documented_callables) == 8_503
+    # 8,503 -> 8,493, the same -10 as the callable total above: every
+    # withdrawn callable was a rendered one, so this keeps tracking the
+    # total rather than diverging from it.
+    assert len(rendered_documented_callables) == 8_493
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2636,26 +2681,33 @@ def test_no_new_undocumented_required_public_parameters():
     # 2,278 -> 2,281 on 2026-09-10, +3 against a surface that grew by
     # 69. That ratio is the point: the OPS modules document their
     # parameters, so almost none of them land here.
-    assert len(omissions) == 2_281
+    # 2,281 -> 2,280, -1: exactly one of the twelve withdrawn symbols
+    # was an omission rather than a rendered docstring. The ratio is the
+    # same point the note above makes in the other direction -- a surface
+    # that shrinks by twelve moves this by one.
+    assert len(omissions) == 2_280
     # 1,635 -> 1,633: two of the six retired accessors were omissions.
     # 1,633 -> 1,636 on 2026-09-10, +2 function and +1 method against a
     # surface that grew by 69 -- the OPS modules document their
     # parameters, which is what keeps this from tracking the total.
-    assert sum(omitted_callables.values()) == 1_636
+    # 1,636 -> 1,635, -1: one of the ten withdrawn callables omitted a
+    # parameter. Nine of the ten documented theirs, which is the same
+    # ratio the OPS note above records in the other direction.
+    assert sum(omitted_callables.values()) == 1_635
     assert omitted_callables == {
-        "function": 757,
+        "function": 756,
         "method": 835,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_128,
+        "function": 1_127,
         "method": 1_011,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "0f86a60f8cd6e306a16057a0e1210c8edf2c6e19ed001beacecfa90f819b372f"
+        "69a9bd1b622a1fd2a5ff9be8b0487c1a95421a0d9d66b6be1394f205bf1668ba"
     )
 
 

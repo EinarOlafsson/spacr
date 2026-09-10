@@ -328,6 +328,18 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'dose_response':
+        from capture_dose_response import record_dose_response
+        record_dose_response(app, window, stage, captures, capture,
+                             settle, write_json, args.timeout)
+    elif args.module == 'barcode_qc':
+        from capture_barcode_qc import record_barcode_qc
+        record_barcode_qc(app, window, stage, captures, capture,
+                         settle, write_json, args.timeout)
+    elif args.module == 'activation':
+        from capture_activation import record_activation
+        record_activation(app, window, stage, captures, capture,
+                          settle, write_json, args.timeout)
     elif args.module == 'image_scatter':
         from capture_image_scatter import record_scatter
         record_scatter(app, window, stage, captures, capture,

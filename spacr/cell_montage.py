@@ -1471,7 +1471,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     # read a table the contaminant has already left.
     #
     # GUIDES AND GENES, several of each, resolved by `control_names` -- the
-    # same resolver `controls` and `positive_control` use, so an exclusion
+    # same resolver `controls` and `positive_control_id` use, so an exclusion
     # is typed in the spelling those already accept.
     excluded_note = ""
     if exclude_grnas:

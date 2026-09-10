@@ -21,8 +21,9 @@ Status:    ENGINE BUILT 2026-09-10 -- steps 1, 2 and half of 4. The hold is
            consumers, which should need no changes; step 6, a GUI, which the
            instruction puts last if at all.
 
-           Filed 2026-09-09 and held until the bump at the maintainer's
-           instruction: "for all of these add them to instructions but add
+           THE HOLD LIFTED at 1.5.0.5, which spacr/_version.py reached
+           on 2026-09-10 in merge 82918f29d. Filed 2026-09-09, held at the
+           maintainer's instruction: "for all of these add them to instructions but add
            to the instruction to hold of on working on them untill the next
            version bump 1.5.0.5."
 Requested: 2026-09-09 -- asked what would be most valuable to add; this was

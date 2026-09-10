@@ -630,7 +630,7 @@ Image normalization percentiles
    :alt: Image normalization percentiles setting animation
    :width: 300px
 
-**Settings:** ``normalization_percentiles``, ``normalize``, ``normalize_plots``
+**Settings:** ``normalization_percentiles``, ``normalize``
 
 Organelle preprocessing
 -----------------------

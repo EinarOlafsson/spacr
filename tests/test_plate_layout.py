@@ -269,7 +269,7 @@ def test_a_whole_row_layout_exports_as_settings_the_pipeline_reads():
     assert fragment["expressible"] is True
     assert fragment["settings"]["treatments"] == ["dmso", "drug"]
     assert fragment["settings"]["treatment_plate_metadata"] == [["r1"], ["r2"]]
-    assert fragment["settings"]["negative_control"] == "dmso"
+    assert fragment["settings"]["negative_control_id"] == "dmso"
 
 
 def test_the_exported_settings_are_what_annotate_conditions_consumes():

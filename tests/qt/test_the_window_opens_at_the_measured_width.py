@@ -42,7 +42,7 @@ def _policy(monkeypatch, width, screen, window, scale=1.0):
     monkeypatch.setattr(qt_app, "QApplication", type(
         "App", (), {"primaryScreen": staticmethod(lambda: screen)}))
     monkeypatch.setattr(window, "screen", lambda: screen)
-    monkeypatch.setattr("spacr.qt.layout_policy.recommended_window_size",
+    monkeypatch.setattr("spacr.qt._layout_policy.recommended_window_size",
                         lambda available, font_scale: (width, 850))
     monkeypatch.setattr("spacr.qt.preferences.get_font_scale", lambda: scale)
 
@@ -51,7 +51,7 @@ class TestItGrowsAndNeverShrinks:
 
     def test_a_wider_requirement_widens_the_window(self, window, monkeypatch):
         _policy(monkeypatch, 2100, _Screen(2560, 1440), window)
-        assert qt_app.open_at_the_measured_width(window) is True
+        assert qt_app._open_at_the_measured_width(window) is True
         assert window.width() == 2100
 
     def test_a_narrower_requirement_is_ignored(self, window, monkeypatch):
@@ -62,18 +62,18 @@ class TestItGrowsAndNeverShrinks:
         shrink would take that claim seriously.
         """
         _policy(monkeypatch, 800, _Screen(2560, 1440), window)
-        assert qt_app.open_at_the_measured_width(window) is False
+        assert qt_app._open_at_the_measured_width(window) is False
         assert window.width() == 1200
 
     def test_the_same_width_is_not_a_resize(self, window, monkeypatch):
         _policy(monkeypatch, 1200, _Screen(2560, 1440), window)
-        assert qt_app.open_at_the_measured_width(window) is False
+        assert qt_app._open_at_the_measured_width(window) is False
         assert window.width() == 1200
 
     def test_the_height_is_left_alone(self, window, monkeypatch):
         """This item is about the RIGHT side being cut off."""
         _policy(monkeypatch, 2100, _Screen(2560, 1440), window)
-        qt_app.open_at_the_measured_width(window)
+        qt_app._open_at_the_measured_width(window)
         assert window.height() == 720
 
 
@@ -81,13 +81,13 @@ class TestItNeverOpensPastTheEdge:
 
     def test_it_is_clamped_to_the_display(self, window, monkeypatch):
         _policy(monkeypatch, 2100, _Screen(1600, 900), window)
-        assert qt_app.open_at_the_measured_width(window) is True
+        assert qt_app._open_at_the_measured_width(window) is True
         assert window.width() == 1600
 
     def test_a_display_narrower_than_the_window_changes_nothing(
             self, window, monkeypatch):
         _policy(monkeypatch, 2100, _Screen(1024, 768), window)
-        qt_app.open_at_the_measured_width(window)
+        qt_app._open_at_the_measured_width(window)
         assert window.width() <= 1200, (
             "the window was widened past a display that cannot hold it")
 
@@ -98,7 +98,7 @@ class TestItIsNeverWorthFailingALaunchOver:
         monkeypatch.setattr(qt_app, "QApplication", type(
             "App", (), {"primaryScreen": staticmethod(lambda: None)}))
         monkeypatch.setattr(window, "screen", lambda: None)
-        assert qt_app.open_at_the_measured_width(window) is False
+        assert qt_app._open_at_the_measured_width(window) is False
 
     def test_a_policy_that_throws_is_swallowed(self, window, monkeypatch):
         def _explode(*_a, **_k):
@@ -107,19 +107,19 @@ class TestItIsNeverWorthFailingALaunchOver:
         monkeypatch.setattr(qt_app, "QApplication", type(
             "App", (), {"primaryScreen": staticmethod(
                 lambda: _Screen(2560, 1440))}))
-        monkeypatch.setattr("spacr.qt.layout_policy.recommended_window_size",
+        monkeypatch.setattr("spacr.qt._layout_policy.recommended_window_size",
                             _explode)
-        assert qt_app.open_at_the_measured_width(window) is False
+        assert qt_app._open_at_the_measured_width(window) is False
         assert window.width() == 1200
 
     def test_without_an_artifact_the_window_is_untouched(self, window,
                                                          monkeypatch):
         """Every wheel built before the generator ran is this case."""
-        monkeypatch.setattr("spacr.qt.layout_policy.read_policy",
+        monkeypatch.setattr("spacr.qt._layout_policy.read_policy",
                             lambda refresh=False: {})
         monkeypatch.setattr(qt_app, "QApplication", type(
             "App", (), {"primaryScreen": staticmethod(
                 lambda: _Screen(2560, 1440))}))
         monkeypatch.setattr(window, "screen", lambda: _Screen(2560, 1440))
-        assert qt_app.open_at_the_measured_width(window) is False
+        assert qt_app._open_at_the_measured_width(window) is False
         assert window.width() == 1200

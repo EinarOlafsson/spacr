@@ -113,7 +113,7 @@ def test_blank_entries_between_commas_are_skipped(screen):
 
 def test_values_that_are_not_literals_stay_strings(screen):
     """`fdr_bh` is a name; `100` is a number. Both have to survive."""
-    include, editor = screen._axis_rows["min_cell_count"]
+    include, editor = screen._axis_rows["min_cells_per_well"]
     include.setChecked(True)
     editor.setText("100, 250")
     method_include, method_editor = screen._axis_rows[
@@ -123,7 +123,7 @@ def test_values_that_are_not_literals_stay_strings(screen):
 
     space = screen.space()
 
-    assert space.axes["min_cell_count"] == [100, 250]
+    assert space.axes["min_cells_per_well"] == [100, 250]
     assert space.axes["multiple_testing_method"] == ["fdr_bh", "bonferroni"]
 
 

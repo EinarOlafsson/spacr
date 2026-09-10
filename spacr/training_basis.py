@@ -78,7 +78,7 @@ BASIS_SETTINGS: Dict[str, Tuple[str, ...]] = {
         # `metadata_type_by` is gone: it named the column a class is defined
         # by, which is the Classes editor's own column field.
         "class_metadata", "metadata_rules",
-        "location_column", "positive_control", "negative_control",
+        "location_column", "positive_control_id", "negative_control_id",
     ),
     "annotation": (
         "annotation_column", "annotation_columns", "annotation_values",

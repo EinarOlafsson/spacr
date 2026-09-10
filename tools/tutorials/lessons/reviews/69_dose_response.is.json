@@ -1,0 +1,39 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "f5f1a3f649e5b4c7d83a6a340ed9a86783f720d44f3cad82146dc1e813fb8bad",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, disclosed synthetic truth, native fits and independently checked intervals; literal GUI and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Dose Response: aðlagaðir ferlar, óvissa og rökstudd höfnun",
+  "description": "Notaðu núverandi Dose Response-skjá með endurgeranlegri tilbúinni töflu, berðu saman prófíl- og Wald-bil og greindu á milli aðlagaðra, óafmarkaðra og hafnaðra niðurstaðna.",
+  "objectives": [
+    "Hlaða inn skýrum styrkgildum og svörunum og aðlaga einn feril fyrir hverja nafngreinda röð.",
+    "Túlka miðpunktsmat, bilaðferðir, burðarefnisviðmið og ferla sem er hafnað.",
+    "Bera saman niðurstöður áður en töflu er raðað, afrita raunverulegu skýrsluna og greina viðmótsstýringar frá API-útflutningi."
+  ],
+  "prerequisite": "Sæktu meðfylgjandi SYNTHETIC CSV-skrá. Hún hefur 120 tilbúnar línur: fjórar nafngreindar raðir, níu jákvæð styrkgildi og burðarefnisviðmið við núllskammt, með þremur athugunum við hvern styrk. Jöfnuð frávik upp á mínus 0,5, núll og plús 0,5 eru hvorki líffræðilegar endurtekningar né kvörðunarrannsókn. Fyrirfram gefnir miðpunktar eru 1,5, 2 og 500 utan sviðsins; fjórða röðin snýr við. Hér er ekki sýnt skráð niðurhal Dose Response-gagnasafns, stöðlun, vægi, val á endurtekningum, útflutningshnappur í viðmóti eða AI-stjórnborð. Unit breytir merkingu en ekki gögnum. Í þessari útgáfu getur enduraðlögun eftir röðun ruglað auðkennum sýndra lína; upptakan lýkur öllum enduraðlögunum áður en raðað er. Varðveittu höfnun og lestu alla skýrsluna. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame og DoseResponseSet.table. Dæmisgögn og athuganir á myndritum eru óháð aðlögunarföllum spaCR; endapunktar prófílbila eru athugaðir með tilliti til yfirlýstrar nákvæmni rótabilsins á log10-kvarða, ekki sem trygging fyrir tölfræðilegri þekju.",
+  "scenes": [
+    "Opnaðu Dose Response í Data-hluta Home. Þessi sjálfstæði skoðari aðlagar logistískan feril með fjórum stikum að styrkröð. Hann þarf raunveruleg styrkgildi og svörun; hann ályktar ekki skammta út frá heitum brunna, myndhnitum eða meðferðarmerkingum.",
+    "Sæktu tilbúnu CSV-skrána sem er tengd í forsendum kennslunnar og veldu Load table. Þetta eru vísvitandi smíðuð hugbúnaðardæmi, ekki mælingar á efnum. Skráin og öll raðaheiti segja að gögnin séu tilbúin svo að snyrtilegir ferlar verði ekki teknir fyrir tilraunaniðurstöður.",
+    "Skráin inniheldur 120 línur í fjórum röðum. Hver röð hefur níu jákvæð styrkgildi, burðarefnisviðmið við núllskammt og þrjár athuganir við hvern styrk. Litlu, jöfnuðu tilbúnu frávikin varðveita meðaltal líkansins við hvern skammt; þetta hentuga dæmi sannreynir ekki tölfræðilega eiginleika í raunverulegum tilraunum.",
+    "Veldu concentration sem styrkdálk, response sem svörunardálk og series undir One curve per. Gefðu hrá styrkgildi, ekki lógaritma þeirra. Hópun skiptir máli: einn ferill fyrir allar fjórar ólíku raðirnar myndi svara rangri spurningu.",
+    "Unit-reiturinn er aðeins merking. Hér sláum við inn u M til að merkja dæmisstyrkina sem míkrómólar; breyting á textanum endurskalar aldrei tölurnar. Framkvæmdu nauðsynlega stöðlun eða einingaumreikning fyrirfram því að skjárinn hefur ekki stýringar fyrir stöðlun eða vægi.",
+    "Hafðu Profile likelihood valið og Fit non-monotone data óvirkt, og veldu síðan Fit. Ferlasvæðið og niðurstöðutaflan uppfærast saman. Allar fjórar raðirnar eru með, þar á meðal óafmörkuð niðurstaða og höfnun; vantað mat er ekki það sama og vantar röð.",
+    "Veldu synthetic inhibition. Endurheimti miðpunkturinn er 1,5 með neikvæðum Hill-halla því að svörunin lækkar þegar styrkur eykst. Hálfhámark er mitt á milli aðlagaðra jafnvægisgilda, hér fimm og 95; það þýðir ekki sjálfkrafa 50 prósenta lífvænleika.",
+    "Veldu synthetic activation. Endurheimti miðpunkturinn er tveir og Hill-hallinn er jákvæður. Valdi ferillinn er dreginn fram en aðrir aðlagaðir ferlar sjást áfram. Lestu valda línu og skýrslu saman í stað þess að eigna þessari röð mat úr öðrum ferli.",
+    "Dæmið utan sviðsins var smíðað með miðpunkt 500 en styrkgildin ná aðeins upp í 100. Skjárinn sýnir óafmarkaða niðurstöðu, skilur miðpunkts- og bilareiti eftir tóma og sýnir mörk við jaðarinn. Aðlöguð framreiknun er ekki stutt punktmat.",
+    "Röðinni sem snýr við er hafnað því að einhalla logistískur ferill hefur ranga lögun. Lestu alla skýringuna undir töflunni. Svörun sem snýr við sannar ekki ein og sér frumueitrun eða aðra líffræðilega orsök; rannsakaðu tilraunina í stað þess að fjarlægja skammta í blindni eða þvinga fram aðlögun.",
+    "Hömlunarskýrslan telur 27 athuganir í aðlögun og þrjú núllskammtsviðmið. Núllstyrkir eru útilokaðir frá lógaritmískri aðlögun og teknir saman sérstaklega; þeim er ekki breytt í örlitla jákvæða skammta án tilkynningar. Meðaltal tilbúna burðarefnisviðmiðsins er 95, eins og fyrirfram gefna gildið við lágan skammt.",
+    "Lestu líka leifavillu og mat á skorti á aðlögun, ekki aðeins R í öðru veldi. Þetta vísvitandi jafnaða dæmi hefur óvenju snyrtilegar greiningarniðurstöður. Endurteknar athuganir við hvern styrk eru notaðar án sérstakrar endurtekningavalsstýringar og þessar tilbúnu endurtekningar sýna ekki fram á óháðar mælingar í raunverulegri tilraun.",
+    "Veldu Wald og ýttu aftur á Fit til að bera saman bilaðferðir. Að breyta valinu einu sér endurreiknar ekki fyrirliggjandi niðurstöðu. Bilið er reiknað fyrir lógaritma miðpunktsins og síðan umbreytt til baka; það er ekki samhverf skekkjustika lögð beint við styrkinn.",
+    "Dæmin þar sem miðpunkturinn er vel afmarkaður halda miðpunktsmati sínu þótt endapunktar bilanna breytist lítillega. Dæmið utan sviðsins fær enn ekkert miðpunktsmat. Endanleg bil í þessum snyrtilegu dæmum sanna hvorki að önnur tilraun ákvarði miðpunkt sinn né að nafngildi þekju gildi fyrir suð og sýnatökuhönnun hennar.",
+    "Veldu aftur Profile likelihood og síðan Fit. Athugaðu að niðurstöðurnar samsvari nú þeirri aðferð. Ferill, tafla og valin skýrsla eru tengdar sýnir á lokið aðlögunarferli; þetta er ekki lifandi forskoðun sem aðlagar sjálfkrafa aftur við hverja stillingabreytingu.",
+    "Ljúktu samanburði aðlagana áður en þú raðar töflunni. Þessi útgáfa getur ruglað sýndum línum þegar aðlagað er aftur eftir röðun, svo ekki treysta þeirri aðgerðaröð. Hér röðum við fyrst eftir aðlögun, veljum inhibition og staðfestum að rétt skýrsla birtist.",
+    "Veldu og afritaðu skýrslutextann með venjulegri flýtileið. Varðveittu viðvaranir, skýringar á höfnun, inntaksstyrki og valda bilaðferð með niðurstöðunni. Einn miðpunktur án þess samhengis sleppir upplýsingunum sem ráða því hvort hægt sé að túlka hann.",
+    "Það er enginn útflutningshnappur á þessum skjá. Dose-response-API býður fit_frame og niðurstöðutöflu fyrir forritað úttak; API-kennslan útskýrir notkun í Python. Varðveittu óafmarkaðar og hafnaðar línur við útflutning í stað þess að halda aðeins efnum sem gáfu þægilegar tölur."
+  ]
+}

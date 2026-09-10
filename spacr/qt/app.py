@@ -138,13 +138,13 @@ class _FractalFollowsItsScreen(QObject):
         return False
 
 
-def open_at_the_measured_width(window) -> bool:
+def _open_at_the_measured_width(window) -> bool:
     """Widen a fresh window to what the modules were measured to need.
 
     :returns: True when the window was resized.
 
     A window that opens too narrow cuts off the right-hand side of a
-    module's settings. The width comes from `spacr.qt.layout_policy`,
+    module's settings. The width comes from `spacr.qt._layout_policy`,
     which reads a generated artifact -- every number in it measured by
     building each module offscreen and asking whether its settings column
     is holding more than it can show.
@@ -166,7 +166,7 @@ def open_at_the_measured_width(window) -> bool:
     Never raises. An opening size is not worth failing a launch over.
     """
     try:
-        from .layout_policy import recommended_window_size, why
+        from ._layout_policy import recommended_window_size, why
         from .preferences import get_font_scale
 
         handle = window.screen() or QApplication.primaryScreen()
@@ -2286,7 +2286,7 @@ def _current_font_scale() -> float:
 _NO_PIP_IN_THE_OUTPUT = "no module named pip"
 
 
-def the_missing_pip_escape(output: str) -> Optional[str]:
+def _the_missing_pip_escape(output: str) -> Optional[str]:
     """The command that WOULD work, when the upgrade failed for want of pip.
 
     :param output: everything the upgrade wrote, as the worker captured it.
@@ -4189,7 +4189,7 @@ class MainWindow(QMainWindow):
         # the updater. Here the application knows the exact command that
         # would work, so it says it rather than leaving the user with an
         # exit code.
-        escape = the_missing_pip_escape(output)
+        escape = _the_missing_pip_escape(output)
         if escape:
             detail += (
                 "\n\nThis environment has no pip -- it was built with "
@@ -6175,7 +6175,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # window arrives unusable either way. The user can still maximise it,
     # and the 1200x720 minimum this window declares is a sane opening size
     # on a real display.
-    open_at_the_measured_width(win)
+    _open_at_the_measured_width(win)
     win.show()
 
     # AND ONLY NOW THE DIALOG FILTERS. See :data:`_DIALOG_FILTERS`: they are

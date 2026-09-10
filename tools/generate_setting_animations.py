@@ -2064,9 +2064,13 @@ def _specs() -> List[Spec]:
             "outline_thickness", ("outline_thickness",),
         ),
         Spec(
+            # `normalize_plots` was a third key here and is RETIRED
+            # (357-Q4, 2026-09-09): nothing read it, so an animation
+            # offered under its name illustrated a control the run does
+            # not have. The two that are left are the two that act.
             "normalization_percentiles", "Image normalization percentiles",
             "Image preprocessing", "normalization",
-            ("normalization_percentiles", "normalize", "normalize_plots"),
+            ("normalization_percentiles", "normalize"),
         ),
     ])
 

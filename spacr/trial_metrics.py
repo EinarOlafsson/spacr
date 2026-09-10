@@ -213,8 +213,8 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
     n_ranked = int(len(frame))
     condition = _first_column(frame, "condition")
 
-    for key, label in (("positive_control", "positive"),
-                       ("negative_control", "negative")):
+    for key, label in (("positive_control_id", "positive"),
+                       ("negative_control_id", "negative")):
         identifier = settings.get(key)
         if identifier in (None, ""):
             continue

@@ -856,7 +856,8 @@ def _controls(reading: Reading, answers: Dict[str, Any],
 
 def _thresholds(reading: Reading, chosen: List[Choice],
                 undecided: List[Undecided]) -> None:
-    """`fraction_threshold`, the cell-count floor and `min_n`.
+    """`fraction_threshold`, the cell-count floor and
+    `min_observations_per_hit`.
 
     THE FRACTION THRESHOLD IS THE ONE THAT QUIETLY DELETES A SCREEN. It is a
     constant by default, and a constant cannot know how crowded a well is:
@@ -910,16 +911,16 @@ def _thresholds(reading: Reading, chosen: List[Choice],
     per_guide = reading.wells_per_guide
     if per_guide is None:
         undecided.append(Undecided(
-            "min_n", "the replication per guide could not be measured"))
+            "min_observations_per_hit", "the replication per guide could not be measured"))
     elif per_guide >= 4:
         chosen.append(Choice(
-            "min_n", 1,
+            "min_observations_per_hit", 1,
             f"a guide is in {per_guide:.0f} wells here, so requiring more "
             f"than one observation costs almost nothing and drops hits "
             f"resting on a single well"))
     else:
         chosen.append(Choice(
-            "min_n", 0,
+            "min_observations_per_hit", 0,
             f"a guide is in only {per_guide:.0f} well(s), so any floor above "
             f"zero would delete real hits along with the fragile ones"))
 
@@ -927,7 +928,7 @@ def _thresholds(reading: Reading, chosen: List[Choice],
     if objects is not None and objects > 0:
         floor = max(int(objects * 0.1), 1)
         chosen.append(Choice(
-            "min_cell_count", floor,
+            "min_cells_per_well", floor,
             f"a well holds {objects:.0f} objects here; a well with fewer "
             f"than {floor} has a fraction too noisy to model, and dropping "
             f"it is cheaper than letting it set a coefficient"))

@@ -29,13 +29,13 @@ from spacr.settings import expected_types, tooltips
 # length and non-tautology rules as every other shipped tooltip.
 VERIFIED_TOOLTIP_FACTS = {
     "backgrounds": ("Legacy compatibility", "cell_background", "does not alter"),
-    "normalize_plots": ("Legacy compatibility", "do not read", "Default True"),
+    # `normalize_plots` and `visualize` were here and are RETIRED (357-Q4,
+    # 2026-09-09). Both waivers said the quiet part out loud -- "Legacy
+    # compatibility", "do not read" -- which is the audit recording that a
+    # control did nothing rather than the control being fixed. Retiring
+    # them is the fix, and a waiver for a setting that no longer exists is
+    # a fact about a tooltip nobody can read.
     "organelle_chann_dim": ("organelle_channel", "organelle_mask_dim", "Default None"),
-    "visualize": (
-        "always joins measurement tables",
-        "crops cell images",
-        "Default 'cell'",
-    ),
     "from_scratch": ("randomly initialised weights", "pretrained model", "Default False"),
     "width_height": ("target_size", "does not change training", "Default [1000, 1000]"),
     "pathogen_model": ("CPSAM-architecture", "pathogen_model_name", "Default None"),
@@ -136,7 +136,7 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'focal_loss'", "'auto'", REPAIRED_TOOLTIP,
         "The merged classifier resolves auto from the output-head shape.",
     ),
-    ("classify_merged", "min_cell_count"): DefaultVariant(
+    ("classify_merged", "min_cells_per_well"): DefaultVariant(
         "100", "25", ACCURATE_SHARED,
         "The tooltip explicitly names 25 for the screen classifier.",
     ),
@@ -237,10 +237,13 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'regression'", "'guide_permutation'", REPAIRED_TOOLTIP,
         "Nonparametric inference resolves the initial mode to permutation.",
     ),
-    ("regression", "control_wells"): DefaultVariant(
-        "None", "['c1', 'c2', 'c3']", REPAIRED_TOOLTIP,
-        "Regression derives the controls from filter_value and control blocks.",
-    ),
+    # ("regression", "control_wells") WAS HERE AND THE SPLIT REMOVED IT.
+    # The old key served the invasion assay AND Regression, so its tooltip
+    # ended "Default None." -- true for the assay, false for Regression,
+    # which derives the list from filter_value and the control blocks. That
+    # is the drift this entry recorded. `analysis_excluded_wells` states
+    # Regression's own default and claims no other, so there is nothing left
+    # to record: the variant is gone because the confusion behind it is.
     ("regression", "fraction_threshold"): DefaultVariant(
         "None", "0.02", REPAIRED_TOOLTIP,
         "Regression uses a reproducible fixed fraction cutoff initially.",
@@ -352,10 +355,12 @@ REPAIRED_TOOLTIP_FACTS = {
         "starts with inference='nonparametric'",
         "resolved initial mode is 'guide_permutation'",
     ),
-    ("regression", "control_wells"): (
-        "Regression initializes it from filter_value plus any declared control blocks",
-        "['c1', 'c2', 'c3']",
-    ),
+    # ("regression", "control_wells") was here. Its repaired tooltip existed
+    # to explain a default that DISAGREED with the printed one, and the
+    # split (357-Q6) removed the disagreement rather than the explanation:
+    # `analysis_excluded_wells` still carries the same sentence about
+    # deriving from filter_value, it simply no longer has a "Default None."
+    # from the other meaning to contradict.
     ("regression", "fraction_threshold"): (
         "Regression starts at the reproducible fixed cutoff 0.02",
     ),
@@ -668,13 +673,26 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # setting` refuses. The pair that left is NAMED rather than inferred from
     # the total, so a claim that quietly stopped being compared could not
     # hide behind a new one arriving.
-    assert comparisons == 679
+    # 679 -> 671 on 2026-09-09, -8/-0, and the eight are named because a
+    # census that moves by a number nobody can list is a census nobody can
+    # check: `denoise`, `load_path_regex`, `mask_array`, `normalization`,
+    # `normalization_scope`, `normalize_plots`, `save_to_db` and
+    # `visualize`, retired under 357-Q4 because the package read none of
+    # them. A retired setting is resolved by no app, so its tooltip claim
+    # is compared against nothing.
+    assert comparisons == 671
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
     # instead of leaving the difference to be recorded here as drift. A
     # variant that the tooltip itself explains is not drift.
-    assert len(variants) == 47
+    # 47 -> 46 on 2026-09-09. `control_wells` was split (357-Q6) into
+    # `stain_baseline_wells` and `analysis_excluded_wells`, and the variant
+    # it carried went with it: one key documented "Default None." while
+    # Regression derived a list from filter_value, so the drift was two
+    # meanings sharing a tooltip rather than a wrong default. Each half now
+    # states its own, and neither disagrees with itself.
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -684,7 +702,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
         ACCURATE_SHARED: 24,
-        REPAIRED_TOOLTIP: 23,
+        # 23 -> 22 on 2026-09-09, and it is the same one variant: the
+        # `control_wells` split (357-Q6) took its repaired-tooltip entry
+        # with it, because the tooltip it repaired documented two meanings
+        # at once and there is now one tooltip per meaning.
+        REPAIRED_TOOLTIP: 22,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -714,7 +736,12 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     }
     # 25 since 2026-09-02: the six organelleb/c/d min_size entries went with
     # the fixed slot floor removed by instruction 326.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 23
+    # 23 -> 22 on 2026-09-09, the `control_wells` split again (357-Q6).
+    # Three counts move together for one cause, which is the point of
+    # keeping all three: a repaired tooltip, the variant it explained, and
+    # the fact it carried are one entry seen from three sides, and a change
+    # that moved only one of them would be a change nobody had understood.
+    assert len(REPAIRED_TOOLTIP_FACTS) == 22
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}
@@ -755,8 +782,15 @@ def test_inapplicable_real_defaults_always_explain_which_setting_gated_them():
             if not reason.strip() or not any(source in reason for source in sources):
                 failures.append((app_key, key, reason))
 
-    assert len(witnessed) == 49
-    assert len({key for _app, key in witnessed}) == 35
+    # 49 -> 48 on 2026-09-09. `load_path_regex` carried a dependency rule
+    # -- "image_source is 'stream_images', which cuts crops from the merged
+    # arrays instead" -- and the setting was retired with it (357-Q4). The
+    # rule explained when a control did not apply; nothing read the control
+    # in either case.
+    assert len(witnessed) == 48
+    # 35 -> 34 with it: `load_path_regex` was witnessed in exactly one app,
+    # so the pair count and the distinct-key count fall by one together.
+    assert len({key for _app, key in witnessed}) == 34
     assert not failures
 
 

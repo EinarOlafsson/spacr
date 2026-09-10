@@ -3447,8 +3447,8 @@ def load_search_data(app_key: str, settings: Mapping[str, Any]) -> SearchData:
         data.notes.append(warn)
 
     ann_col = settings.get("annotation_column")
-    pos = settings.get("positive_control", "c2")
-    neg = settings.get("negative_control", "c1")
+    pos = settings.get("positive_control_id", "c2")
+    neg = settings.get("negative_control_id", "c1")
     loc_col = settings.get("location_column", "columnID")
     if ann_col and ann_col in frame.columns:
         labels = pd.to_numeric(frame[ann_col], errors="coerce")

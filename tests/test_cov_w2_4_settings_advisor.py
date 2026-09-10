@@ -305,11 +305,11 @@ def test_a_missing_shape_test_does_not_lose_the_range(tmp_path,
 def test_a_reason_is_available_for_every_key_and_empty_for_the_rest():
     advice = Advice(
         chosen=(Choice("regression_type", "beta", "the response is a share"),),
-        undecided=(Undecided("min_n", "replication was not measured"),),
+        undecided=(Undecided("min_observations_per_hit", "replication was not measured"),),
         reading=Reading())
 
     assert advice.why("regression_type") == "the response is a share"
-    assert advice.why("min_n") == "replication was not measured"
+    assert advice.why("min_observations_per_hit") == "replication was not measured"
     assert advice.why("a_setting_nobody_proposed") == ""
 
 

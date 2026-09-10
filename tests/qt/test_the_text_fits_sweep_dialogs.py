@@ -34,6 +34,7 @@ import tempfile
 import warnings
 
 import pytest
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt import i18n as I
 from spacr.qt.preferences import FONT_SCALE_MAX
@@ -59,6 +60,11 @@ DIALOGS = [
     ("spacr.qt.widgets.setup_dialog", "SetupDialog"),
     ("spacr.qt.widgets.test_data_chooser", "TestDataChooser"),
     ("spacr.qt.widgets.umap_search_viewer", "UmapGalleryDialog"),
+    # ADDED 2026-09-10. Both take no required argument and had simply
+    # never been tried -- which is the whole of why the count of
+    # uncovered dialogs was a number rather than a list.
+    ("spacr.qt.widgets.ai_chat_panel", "_ProvidersDialog"),
+    ("spacr.qt.widgets.setup_slides", "SetupSlides"),
 ]
 
 LOCALES = ("en", "de")
@@ -104,7 +110,34 @@ SCALES = (1.0, FONT_SCALE_MAX)
 #: and re-running is what showed six still failing. A ``<=`` ratchet cannot
 #: tell "fixed" from "unchanged" -- only tightening it can, which is why
 #: tightening it is part of claiming a fix here rather than a follow-up.
-KNOWN_OFFENDERS: dict = {}
+KNOWN_OFFENDERS: dict = {
+    # ONE ENTRY, ADDED 2026-09-10 WITH ITS DIAGNOSIS, and it is the first
+    # this file has ever carried. `_ProvidersDialog`'s intro paragraph
+    # wraps to 108 px of height in the 97 it is given -- eleven pixels, in
+    # German only, at 100 % only.
+    #
+    # WHAT WAS FIXED, and it closed the other three of the four
+    # combinations: the dialog set `setMinimumWidth(scaled_px(620))` and
+    # `setMinimumHeight(560)`. The height was a raw device-pixel constant
+    # beside a scaled width, so at a doubled font the floor stayed put
+    # while every caption in the dialog grew. Same defect class as the
+    # seven settings columns 350 already records.
+    #
+    # WHY THIS ONE IS LEFT: the dialog opens at exactly its minimum height,
+    # and the German text wraps to one line more than the English. The
+    # layout cannot discover that, because the page is inside a
+    # QTabWidget, and QTabWidget does not propagate `heightForWidth` --
+    # so the wrapped label's true height never reaches the dialog's own
+    # sizeHint. Giving the label a height-for-width size policy was tried
+    # and changed nothing for exactly that reason; it was reverted rather
+    # than left in as code that does nothing.
+    #
+    # THE FIX IS A SCROLL AREA around the providers page, which is 350's
+    # own rule ("a visible, accessible fallback rather than silently
+    # clipping") and is a layout change worth making with a display in
+    # front of the person making it.
+    ("_ProvidersDialog", "de", 1.0): 1,
+}
 
 
 #: Dialogs that take an argument the caller can supply GENUINELY.
@@ -154,6 +187,133 @@ def _axis_cutoff():
     return AxisCutoff(12.0, 980.0)
 
 
+def _a_figure():
+    """A live matplotlib figure with something on it to draw controls from.
+
+    NOT AN EMPTY ONE. `FigureSettingsDialog` builds its controls "from the
+    figure's current axes, artists, legends, and optional spaCR metadata",
+    so a blank figure would build a blank dialog and the sweep would
+    measure nothing while reporting a pass. The axes carry a labelled line
+    and a legend so there is a row per artist to lay out.
+    """
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(4, 3))
+    axes = figure.add_subplot(111)
+    axes.plot([0, 1, 2], [0, 1, 4], label="a labelled series")
+    axes.set_xlabel("An x axis with a long enough caption to lay out")
+    axes.set_ylabel("And a y axis")
+    axes.set_title("A figure the settings dialog has something to say about")
+    axes.legend()
+    return figure
+
+
+def _gate_settings():
+    """The Gate Editor's own default settings object.
+
+    THIS DIALOG WAS EXCLUDED ON A PREMISE THAT IS NOT TRUE. The note below
+    says `GateSettingsDialog` "wants an object with a ``sample_fraction``
+    attribute, and handing it a stand-in WOULD be building a fixture", and
+    files it with the 24. But `GateEditorSettings` is a frozen dataclass
+    that constructs with NO arguments and comes up with
+    ``sample_fraction = 1.0`` -- so the real object is free, and this is
+    the same case as `AnnotateSettings()`, which the same note accepts
+    because it "is the object Annotate itself constructs before it opens
+    the dialog".
+    """
+    from spacr.qt.widgets.gate_settings import GateEditorSettings
+
+    return GateEditorSettings()
+
+
+def _a_measurement_table():
+    """A measurements frame, with the column names spaCR actually writes.
+
+    `AggregationRulesDialog` offers one row per COLUMN, so the frame's
+    columns are the dialog's content: a frame with two made-up names
+    would build a two-row dialog and measure almost nothing. These are the
+    names a measure run produces, and the long ones are the point --
+    `cell_channel_1_percentile_75` is the kind of caption that overruns a
+    column header.
+    """
+    import pandas as pd
+
+    return pd.DataFrame({
+        "plateID": ["plate1"], "rowID": ["r1"], "columnID": ["c1"],
+        "cell_area": [1024.0],
+        "cell_perimeter": [128.0],
+        "cell_channel_1_mean_intensity": [0.42],
+        "cell_channel_1_percentile_75": [0.61],
+        "nucleus_channel_0_mean_intensity": [0.33],
+        "pathogen_channel_2_integrated_intensity": [98.7],
+        "cytoplasm_channel_3_standard_deviation": [0.07],
+    })
+
+
+def _live_preview_panel():
+    """The live-preview panel, built the way the application builds it.
+
+    A PANEL IS NOT A FIXTURE WHEN IT CONSTRUCTS WITH NO ARGUMENTS. The
+    note above files six dialogs under "a live panel or screen" as though
+    supplying one meant inventing it. `LivePreviewPanel()` takes nothing,
+    and `LiveSettingsDialog` then RE-PARENTS the panel's own widgets into
+    itself for the lifetime of the dialog -- so the rows this sweep
+    measures are the panel's real controls, not copies of them. Handing it
+    anything else would be the fixture.
+    """
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    return LivePreviewPanel()
+
+
+def _measure_preview_panel():
+    """The measure-preview panel. Takes no arguments either."""
+    from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+
+    return MeasurePreviewPanel()
+
+
+def _hyperparam_panel():
+    """The hyperparameter panel, which two dialogs hang off."""
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    return HyperparamPanel()
+
+
+def _compare_inputs():
+    """Object rows and the groups they are split into.
+
+    Both halves are what the Compare screen holds before it opens this:
+    a frame of object rows and a mapping of group name to the object-index
+    values in it. The group names are deliberately long, because they are
+    drawn as captions and a short one measures nothing.
+    """
+    import pandas as pd
+
+    objects = pd.DataFrame({
+        "object_index": [0, 1, 2, 3],
+        "plateID": ["plate1"] * 4,
+        "rowID": ["A", "A", "B", "B"],
+        "columnID": ["01", "02", "01", "02"],
+        "cell_area": [900.0, 1100.0, 850.0, 1250.0],
+    })
+    groups = {"TSG101 knockout": [0, 1],
+              "non-targeting control": [2, 3]}
+    return objects, groups
+
+
+def _metadata_rows():
+    """Preview rows and a destination, as the mapper hands them over."""
+    return ([
+        {"filename": "plate1_A01_f01_DAPI.tif", "plateID": "plate1",
+         "rowID": "A", "columnID": "01", "fieldID": "1", "channel": "0"},
+        {"filename": "plate1_A01_f01_GFP.tif", "plateID": "plate1",
+         "rowID": "A", "columnID": "01", "fieldID": "1", "channel": "1"},
+        {"filename": "plate1_B12_f09_Cy5.tif", "plateID": "plate1",
+         "rowID": "B", "columnID": "12", "fieldID": "9", "channel": "2"},
+    ], tempfile.gettempdir())
+
+
 DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_SettingsDialog", _annotate_settings),
     ("spacr.qt.screens.annotate", "_GenerateAnnotationDatabaseDialog",
@@ -161,6 +321,33 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_AutoAnnotateDialog", _annotate_settings),
     ("spacr.qt.widgets.refit_dialog", "RefitDialog", dict),
     ("spacr.qt.hf_download", "_DownloadDialog", lambda: "Downloading model"),
+    # ADDED 2026-09-10. Three more whose one argument is honestly
+    # suppliable: two take a figure, and the third takes the settings it
+    # opens on -- and an EMPTY dict is the real case rather than a
+    # shortcut, because its own docstring promises that "a settings file
+    # written before a field existed still opens".
+    ("spacr.qt.widgets.figure_settings", "FigureSettingsDialog", _a_figure),
+    ("spacr.qt.widgets.save_figure_dialog", "SaveFigureDialog", _a_figure),
+    ("spacr.qt.widgets.umap_explorer", "UmapDisplaySettings", dict),
+    # ADDED 2026-09-10. The first was excluded on a premise that does not
+    # hold -- see `_gate_settings`; the second's frame IS its content.
+    ("spacr.qt.widgets.gate_settings", "GateSettingsDialog", _gate_settings),
+    ("spacr.qt.widgets.aggregation_rules", "AggregationRulesDialog",
+     _a_measurement_table),
+    # The figure-queue one takes a figure like the other two, and
+    # `UmapAppearanceDialog` reads its argument with `.get`, so an empty
+    # mapping is the documented case rather than a shortcut.
+    ("spacr.qt.widgets.figure_queue", "_FigureSettingsDialog", _a_figure),
+    ("spacr.qt.widgets.umap_search_viewer", "UmapAppearanceDialog", dict),
+    # THE FOUR PANEL-BASED ONES. Every panel constructs with no arguments,
+    # so none of these is the fixture the note above assumed.
+    ("spacr.qt.widgets.live_preview", "LiveSettingsDialog",
+     _live_preview_panel),
+    ("spacr.qt.widgets.measure_preview", "CropSettingsDialog",
+     _measure_preview_panel),
+    ("spacr.qt.screens.hyperparam", "UmapSearchSettingsDialog",
+     _hyperparam_panel),
+    ("spacr.qt.screens.hyperparam", "WalkAxesDialog", _hyperparam_panel),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.
@@ -179,6 +366,10 @@ DIALOGS_WITH_ARGUMENTS_MULTI = [
                "plate1_A01_f02_DAPI.tif", "plate1_B12_f09_Cy5.tif"],)),
     ("spacr.qt.widgets.measurement_compare_dialog", "_WellChoice",
      lambda: (["A01", "A02", "A03", "B01", "B02", "B03"],)),
+    ("spacr.qt.widgets.metadata_table", "MetadataTableDialog",
+     _metadata_rows),
+    ("spacr.qt.widgets.measurement_compare_dialog",
+     "MeasurementCompareDialog", _compare_inputs),
     ("spacr.qt.ai.issue_preview", "IssuePreviewDialog",
      lambda: ({"title": "Mask fails on 16-bit input from a Nikon ND2",
                "body": "Steps to reproduce, the settings used, and the "
@@ -205,6 +396,22 @@ def _build_with(module_path: str, class_name: str, make_argument, qtbot):
         # entries to add six new ones.
         args = supplied if isinstance(supplied, tuple) else (supplied,)
         dialog = getattr(module, class_name)(*args)
+    # ANY WIDGET WE SUPPLIED IS REGISTERED TOO, and this is not tidiness.
+    # Four of these dialogs take a PANEL and parent themselves to it, so the
+    # panel owns the dialog. Registering only the dialog left the panel with
+    # no Python reference once the test returned: it was collected, its C++
+    # half destroyed its children, and the DeferredDelete already queued for
+    # the dialog was then delivered to freed memory. That crashed the
+    # process -- not in this test but in the NEXT one, inside
+    # `_the_widget_tree_does_not_outgrow_the_session`, which is the fixture
+    # whose whole job is to deliver deletions their owners requested.
+    #
+    # A PARENT MUST OUTLIVE THE CHILD IT OWNS. Registering both makes
+    # pytest-qt keep the panel alive for the test and tear the pair down in
+    # one place.
+    for supplied_widget in args:
+        if isinstance(supplied_widget, QWidget):
+            qtbot.addWidget(supplied_widget)
     qtbot.addWidget(dialog)
     dialog.show()
     qtbot.waitExposed(dialog)

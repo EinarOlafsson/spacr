@@ -27,7 +27,11 @@ STREAM_METHODS: Tuple[Tuple[str, str], ...] = (
 #: Settings consumed by each selection method.
 METHOD_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "column": ("object_array", "channel_arrays"),
-    "array": ("mask_array", "channel_arrays", "bounding_box"),
+    # `mask_array` was here and is retired (357-Q4): it claimed to name the
+    # labelled plane and this module takes that from `object_array` for
+    # BOTH methods, so the 'array' route's own documented input was never
+    # read. Greying a setting that does not exist greys nothing.
+    "array": ("object_array", "channel_arrays", "bounding_box"),
 }
 
 #: Canonical object-identifier column for each object-array type.

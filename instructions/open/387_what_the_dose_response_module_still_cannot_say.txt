@@ -2,10 +2,13 @@
 WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
 ================================================================================
 
-Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
-           maintainer's instruction: "for all of these add them to
-           instructions but add to the instruction to hold of on working on
-           them untill the next version bump 1.5.0.5."
+Status:    OPEN AND ACTIONABLE from 2026-09-10. THE HOLD IS LIFTED: the
+           condition was the version bump, and `spacr/_version.py` reached
+           1.5.0.5 on 2026-09-10 (merge 82918f29d, "Merge main into nightly:
+           the 1.5.0.5 bump and the Qt merge"). Nothing else gates this file.
+           Held until then at the maintainer's instruction: "for all of these
+           add them to instructions but add to the instruction to hold of on
+           working on them untill the next version bump 1.5.0.5."
 Requested: 2026-09-09 -- "We already have a dose response modual, if you can
            think of anything to add to it then please do."
 Owner:     unassigned. `spacr/qt/widgets/dose_response.py` is the engine and

@@ -74,7 +74,7 @@ class TestAClassNobodyNamed:
         _fit(_three_classes(), "c3")
         said = capsys.readouterr().out.lower()
         assert "list" in said
-        assert "positive_control" in said and "negative_control" in said
+        assert "positive_control_id" in said and "negative_control_id" in said
 
     def test_two_classes_say_nothing(self, capsys):
         """The ordinary case must stay quiet, or the warning is noise."""

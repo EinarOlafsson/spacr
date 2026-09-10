@@ -4870,3 +4870,150 @@ TWO THINGS IT IS NOT, recorded so they are not re-proposed:
   * NOT `paths-ignore` on the tutorial data. `tests/test_tutorial_release_audit.py`
     and `tests/test_tutorial_catalog_i18n.py` READ those files, so CI would
     go quiet on precisely the change that had happened.
+
+CODEX TUTORIAL LANE — 2026-09-10, ACTIVATION MAPS: SAVED IS NOT DISPLAYED.
+
+Lesson 16 checkpoint f666ee2fa, not a completed lesson. The real route is
+Home -> Classify (classify_merged) -> Activation Maps. Nineteen native 4K
+frames, four byte-identical downloaded Annotate crops with the RGB format
+marker retained, and the trusted locally generated one-epoch ResNet18. The
+earlier training split shares wells; no accuracy or biological claim is made.
+
+Two actual runs, saliency_channel with overlay and saliency_image without,
+both with Plot/Save enabled. Each saves four maps and a real batch-grid PNG,
+but each finishes with zero GUI figures and the Figures card still hidden.
+The console prints Figure(1920x240): generate_activation_map calls IPython
+display after plot.save_figure, while PipelineWorker listens to plt.show and
+figure_sink.publish, neither of which this path calls. Please publish the
+actual batch figure through the existing sink without fabricating a GUI
+completion or double-saving it. No application file was edited here.
+
+Both also print '[settings] ERROR [src]: src is missing from the settings.'
+The form takes dataset, not src, and the pipeline derives src from the TAR
+path after wrapper validation. Please make preflight use the actual input
+contract; do not tell the user to fill a setting this form does not expose.
+
+Independent CPU autograd of the predicted-class logits reproduces ALL
+262,144 saved pixel values exactly (eight maps), and the training transform
+matches 196,608 independently prepared RGB/crop/normalization values. All
+eight database rows preserve the original full cell identities. The final
+recording explicitly uses the supported SPACR_DEVICE=cpu override. Earlier
+GPU comparisons exceeded the predefined one-level pixel tolerance; they are
+not presented as a bitwise-reproducibility result or a corrected GPU bug.
+
+37 focused tests pass. Disabling all ten measured guards gives 31 failures;
+each guard also fails tests when disabled in isolation, and every restored
+raise is measured as executed. Original database/sidecars, crops, marker,
+checkpoint and card are unchanged. Zero active jobs after normal shutdown.
+No English script, narration or video was generated for this held workflow.
+Evidence: tools/tutorials/evidence/2026-09-10_activation_native_figure_hold.json.
+
+The once-per-lesson push decision is accepted: translations are already
+batched as lesson checkpoints, not pushed one caption at a time. The next
+lesson checkpoint will include its handoff commit in the same push.
+
+CODEX TUTORIAL LANE — 2026-09-10, BARCODE QC: SAME FIGURE/PREFLIGHT HOLD.
+
+Checkpoint 9529a2389; lesson 47 is NOT complete. Recorded the actual
+Home -> Map Barcodes -> Barcode QC fold on 63ef3e79f / spaCR 1.5.0.5.
+Twelve native 4K frames, the actual count-file picker, Plot and Save enabled,
+and a successful 6.835-second worker. Input is one byte-identical private
+copy of the already downloaded Regression plate_1_unique_combinations.csv:
+172,756 source rows, 49,464,341 reads, 384 wells and 1,379 observed guides.
+This is reused published count data, not a successful fresh Map Barcodes run
+or a separate Barcode QC download. Target 5 is an illustrative setting, not
+a claim about the experiment's design or single-guide phenotype attribution.
+
+The independent CSV oracle checks all 384 well rows, 40 position summaries,
+the empty starved-well table and all ten fields of all 26 sweep rows: 2,884
+fields, zero numeric error. All 384 wells pass the 12,574.45-read cutoff.
+Two real, legible PNGs are saved, but the GUI figure queue is empty and its
+Figures card stays hidden. sequencing_qc.barcode_qc saves then closes both
+figures without calling the installed figure sink or plt.show. Please have
+the application lane publish the actual figures through the existing sink
+before closing, without fabricating output or double-saving. This is the
+same integration failure as lesson 16, not a reason to alter the tutorial.
+
+It also prints '[settings] ERROR [src]: src is missing from the settings.'
+This form takes count_data, not an image src. Please make preflight use the
+actual module contract. Optional qc_data and reference barcode files were
+left blank: the demonstration does NOT establish an unmapped fraction,
+reference-library dropout, or sequence collisions. The sweep's budget
+exceedance statistic must not be narrated as sequence-collision evidence.
+
+27 focused tests pass after restoration. All 15 guards are measured as
+executed; removing each one individually makes its tests fail. Original
+and copied inputs are unchanged, zero active jobs after normal closure.
+No application files, English lesson, narration or video were changed.
+Evidence: tools/tutorials/evidence/2026-09-10_barcode_qc_native_figure_hold.json.
+The technical-staging total stays 35 lessons; this hold is not number 36.
+Code and this handoff are included in one push, per the maintainer's rule.
+
+CODEX TUTORIAL LANE — 2026-09-10, DOSE RESPONSE AND A SORTED-REFIT DEFECT.
+
+Lesson 69 staged technical checkpoint d097829b2: 18 scenes, 783 English
+words, one 3840x2160/30 silent master, all 50 preserved voices fully decoded
+and fingerprint-checked in the production virtualenv, all 14 browser cases
+passed. The player now supports an optional local CSV example link; all
+14 cases fetched the exact committed synthetic example. This is technical
+staging, not publication or native-speaker/human-listening approval. Total:
+36 technical matrices, 1,800 tracks (100 retained), 504 browser checks;
+14 catalogs agree on 75 lessons / 804 scenes, 40 unselected lessons unchanged.
+
+Native Home -> Data -> Dose Response on 57d62385c / spaCR 1.5.0.5.
+The input is explicitly SYNTHETIC, not a claimed biological download:
+120 rows, four series, nine positive concentrations plus zero, three
+balanced artificial observations each. Actual profile -> Wald -> profile
+fits, correct per-series reports, three plotted curves and copied report.
+Independent planted curves, SVD/profile roots and analytic-Jacobian Wald
+intervals agree to their stated tolerances. The profile implementation's
+0.001 tolerance is a log10 bracket width, NOT a root-SSE tolerance or a
+claim about confidence-interval coverage. 43 oracle tests and 12 link tests
+pass; each of 13 measured oracle guards fails when individually removed,
+and removing the real JavaScript filename filter causes 10 failures.
+
+APPLICATION-LANE BUG, NOT FIXED HERE: sort Group between profile and Wald
+fits, then press Fit. DoseResponseScreen._on_fitted inserts cells while
+QTableWidget sorting remains enabled: setting a group moves a row, then
+other cells go into the old row. Native reproduction loses activation,
+duplicates inhibition, labels reversal fitted and misassigns estimates.
+The fit objects are correct; the displayed table is not. Please disable
+sorting during complete table repopulation and restore it afterward, with
+a real multi-row sort/refit regression test. I did not edit app/Qt files.
+Evidence includes the failed native screenshot, exact corrupt rows and
+successful fit-before-sort counterexample. Scene 16 and every translated
+prerequisite explicitly warn about this limitation; no claim it is fixed.
+
+Capture: refresh_2026-09-09/captures/dose_response_sort_refit_reproduction
+under the shared tutorials workspace. The successful capture is
+dose_response_fit_before_sort. Source unchanged, zero active jobs after
+normal shutdown. No normalization/weighting/replicate picker, GUI export,
+AI console or automatic refit/live-preview capability is invented.
+Receipts: tools/tutorials/evidence/2026-09-10_dose_response_*.json.
+
+Also taking only the tutorial-specific checks in tests/test_docs_media_budget.py
+next: the obsolete player cache key and the old assumption that any partial
+local audio tree must triple the total site size. The absolute published
+byte ceiling and exclusion of all narration remain mandatory. No doc gate,
+translation catalog, application file or narration asset will be changed.
+
+CODEX TUTORIAL LANE — 2026-09-10, BOTH TUTORIAL MEDIA CHECK FAILURES CLOSED.
+
+tests/test_docs_media_budget.py: baseline 18 pass / 2 fail, now 26 pass.
+The old cache key was stale; it now pins the actual example-download player.
+The ratio assumed a complete local narration tree, but the 540 accidentally
+tracked files are only a partial copy: 101.0 MiB published, 117.8 MiB excluded.
+Replacing that ratio with an exact all-files partition keeps EVERY non-audio
+file and excludes EVERY narration/timing file. The absolute 700 MiB ceiling,
+85% whole-site limit, external audio policy and complete 50-voice picker are
+unchanged. No media removed. Tests exercise zero, one and ten local tracks,
+then reject publishing real audio, losing a real video and losing a timing
+file. Removing the two new assertions separately causes one and two failures;
+restored lines 69/70 are measured as executed. No full-suite CI claim.
+Receipt: tools/tutorials/evidence/2026-09-10_tutorial_media_budget_checks.json.
+
+Next: installation lessons. Initial source audit already shows lesson 03's
+headless-versus-Qt-extra explanation is stale: core now declares PySide6.
+Live PyPI JSON is 1.5.0.5 while conda-forge is still 1.5.0.4; a version in a
+cached web page is not an installed-version check. Tutorial changes only;
+no packaging fixes, uploads, dependency policy edits or release actions.

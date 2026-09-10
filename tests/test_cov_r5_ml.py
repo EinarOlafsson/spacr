@@ -590,7 +590,7 @@ def test_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
         'score_data': _score_csv(tmp_path / 'scores.csv'),
         'dependent_variable': 'pred',
         'tolerance': 2,
-        'min_cell_count': None,
+        'min_cells_per_well': None,
     }
 
     monkeypatch.setattr(ml, '_draw_the_cell_count_sweep',
@@ -655,7 +655,7 @@ def test_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
         'pred': [0.2, 0.4, 0.6, 0.8],
     })
 
-    scored, name = ml.process_scores(frame, 'pred', None, min_cell_count=1,
+    scored, name = ml.process_scores(frame, 'pred', None, min_cells_per_well=1,
                                      agg_type='mean')
 
     assert name == 'pred'
@@ -677,7 +677,7 @@ def test_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         'columnID': pd.Series([], dtype=str), 'pred': pd.Series([], dtype=float),
     })
 
-    scored, name = ml.process_scores(empty, 'pred', None, min_cell_count=0,
+    scored, name = ml.process_scores(empty, 'pred', None, min_cells_per_well=0,
                                      agg_type='mean', regression_type='poisson')
     assert len(scored) == 0
     assert list(scored.columns) == ['prc', 'pred', 'cell_count']
@@ -691,7 +691,7 @@ def test_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         'columnID': ['c1'] * 2, 'pred': [0.14, 0.21],
     })
     with pytest.raises(ValueError, match='models the well'):
-        ml.process_scores(scores, 'pred', None, min_cell_count=0,
+        ml.process_scores(scores, 'pred', None, min_cells_per_well=0,
                           agg_type='mean', regression_type='poisson')
 
 

@@ -296,7 +296,7 @@ def _permutation_settings(**over):
         "threshold_method": "std",
         "threshold_multiplier": 3.0,
         "controls": ["control_1", "control_2"],
-        "negative_control": "control",
+        "negative_control_id": "control",
     }
     base.update(over)
     return base

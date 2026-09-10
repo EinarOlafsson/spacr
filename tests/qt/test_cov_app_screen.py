@@ -223,8 +223,8 @@ class TestWidgetConstruction:
         defaults = scr._settings_model._defaults
         assert isinstance(widgets["batch_size"], QSpinBox)
         assert widgets["batch_size"].value() == int(defaults["batch_size"])
-        assert isinstance(widgets["denoise"], QCheckBox)
-        assert widgets["denoise"].isChecked() == bool(defaults["denoise"])
+        assert isinstance(widgets["plot"], QCheckBox)
+        assert widgets["plot"].isChecked() == bool(defaults["plot"])
         assert isinstance(widgets["metadata_type"], QComboBox)
         assert widgets["metadata_type"].currentText() == str(
             defaults["metadata_type"])
@@ -539,7 +539,7 @@ class TestRoundTrip:
         n = scr.apply_settings_dict({
             "src": "/data/plate1",
             "batch_size": "64",
-            "denoise": "True",
+            "plot": "True",
             "seg_qc_count_ratio": "0.25",
             "metadata_type": "cq1",
         })
@@ -547,7 +547,7 @@ class TestRoundTrip:
         out = scr._settings_model.collect()
         assert out["src"] == "/data/plate1"
         assert out["batch_size"] == 64 and isinstance(out["batch_size"], int)
-        assert out["denoise"] is True
+        assert out["plot"] is True
         assert out["seg_qc_count_ratio"] == pytest.approx(0.25)
         assert out["metadata_type"] == "cq1"
 
@@ -598,7 +598,7 @@ class TestRoundTrip:
         """One unwritable widget must not abort the rest of the import."""
         scr = _make_screen(qtbot, "mask")
         real = scr._apply_value
-        broken = scr._settings_model._widgets["denoise"]
+        broken = scr._settings_model._widgets["plot"]
 
         def _flaky(widget, val):
             if widget is broken:
@@ -606,7 +606,7 @@ class TestRoundTrip:
             return real(widget, val)
 
         scr._apply_value = _flaky
-        n = scr.apply_settings_dict({"src": "/data/x", "denoise": "True",
+        n = scr.apply_settings_dict({"src": "/data/x", "plot": "True",
                                      "batch_size": "5"})
         assert n == 2
         out = scr._settings_model.collect()
@@ -685,7 +685,7 @@ class TestImportSettings:
         """The header spacr.utils.save_settings writes."""
         path = _write_csv(tmp_path / "s.csv",
                           [("src", "/data/p1"), ("batch_size", 12),
-                           ("denoise", "True")])
+                           ("plot", "True")])
         monkeypatch.setattr(QFileDialog, "getOpenFileName",
                             staticmethod(lambda *a, **k: (str(path), "")))
         scr = _make_screen(qtbot, "mask")
@@ -693,7 +693,7 @@ class TestImportSettings:
         out = scr._settings_model.collect()
         assert out["src"] == "/data/p1"
         assert out["batch_size"] == 12
-        assert out["denoise"] is True
+        assert out["plot"] is True
         assert "Loaded 3 settings" in _console_text(scr._console)
 
     def test_import_setting_key_setting_value_csv_applies_values(
@@ -1339,7 +1339,7 @@ class TestErrorRouting:
         scr = _make_screen(qtbot, "mask")
         scr._settings_model._widgets["src"].setText("/data/for_issue")
         scr._settings_model._widgets["batch_size"].setValue(11)
-        scr._settings_model._widgets["denoise"].setChecked(True)
+        scr._settings_model._widgets["plot"].setChecked(True)
         scr._on_pipeline_error("BOOM-TB")
         # Consent reveals an action. A crash is never itself permission to
         # publish anything.

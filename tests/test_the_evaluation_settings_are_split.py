@@ -20,14 +20,25 @@ from spacr.classify import FAMILY_SETTINGS
 from spacr.settings import categories
 
 #: What the one list held before the split.
+#:
+#: FOURTEEN, NOT FIFTEEN. `save_to_db` was the fifteenth and was retired on
+#: 2026-09-09 under 357-Q4: the generated consumer map found exactly one
+#: reader for it and that reader was its own `set_default_*` function, so
+#: the control that decided "whether model scores are written back into the
+#: measurements database" decided nothing. It is named here rather than
+#: silently dropped, because a set that shrinks by one with no explanation
+#: is a set nobody can check.
 BEFORE = {
     "cross_validation_enabled", "cross_validation_folds", "cv_group_by",
     "nested_cv_inner_folds", "classifier_evaluation",
     "evaluation_calibration", "evaluation_bins",
     "evaluation_fail_on_leakage", "leakage_audit_train_test",
     "leakage_hash_content", "leakage_require_identity", "score_threshold",
-    "n_top_examples", "score_column", "save_to_db",
+    "n_top_examples", "score_column",
 }
+
+#: The one that left, and why it is asserted GONE rather than forgotten.
+RETIRED_WITH_ITS_HEADING = "save_to_db"
 
 #: Where they went.
 HEADINGS = ("Model Evaluation", "Evaluation Reports", "Leakage Audit",
@@ -122,16 +133,32 @@ class TestTheExclusivesWentToTheirFamily:
         assert _family_of("n_top_examples") == "cv"
         assert _heading_of("n_top_examples") == "Computer Vision Training"
 
-    def test_the_ml_only_one_is_under_an_ml_heading(self):
-        assert _family_of("save_to_db") == "ml"
-        assert _heading_of("save_to_db") == \
-            "Machine Learning Model and Features"
+    def test_the_ml_only_one_left_with_its_heading(self):
+        """It was `save_to_db`, and it is gone -- along with the section.
 
-    def test_they_are_the_only_two(self):
+        The split filed it under "Machine Learning Model and Features"
+        because it was the one ML-exclusive member of the fifteen. It was
+        retired on 2026-09-09: nothing read it, and the "Output & Database"
+        section whose only member it was went with it. A heading with
+        nothing under it is worse than no heading.
+        """
+        from spacr.settings import expected_types, tooltips
+        from spacr.validate import RETIRED_SETTINGS
+
+        assert RETIRED_WITH_ITS_HEADING not in expected_types
+        assert RETIRED_WITH_ITS_HEADING not in tooltips
+        assert RETIRED_WITH_ITS_HEADING in RETIRED_SETTINGS
+        assert _heading_of(RETIRED_WITH_ITS_HEADING) == ""
+        assert _family_of(RETIRED_WITH_ITS_HEADING) == "shared", (
+            "a retired setting must not still be claimed by a family "
+            "table -- `classify.FAMILY_SETTINGS` names what each family "
+            "reads exclusively, and it reads nothing")
+
+    def test_the_cv_only_one_is_now_the_only_exclusive(self):
         """Checked against the table rather than a hand-written list, so the
         split and the families cannot drift apart."""
         exclusive = [k for k in BEFORE if _family_of(k) != "shared"]
-        assert sorted(exclusive) == ["n_top_examples", "save_to_db"]
+        assert sorted(exclusive) == ["n_top_examples"]
 
 
 class TestTheLeakageAuditIsItsOwnQuestion:

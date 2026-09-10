@@ -72,7 +72,7 @@ def _settings(tmp_path, **changes):
         "score_data": _scores(tmp_path),
         "positive_control_wells": ["c1"],
         "negative_control_wells": ["c2"],
-        "positive_control": "pc_1",
+        "positive_control_id": "pc_1",
         "dependent_variable": "pred",
         "count_well_column": "prc",
     }

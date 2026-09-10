@@ -41,7 +41,7 @@ def _call(settings, frame=None):
 def _settings(**over):
     base = {"multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
             "threshold_method": "none", "threshold_multiplier": 1.0,
-            "min_n": 0, "negative_control": "", "positive_control": "",
+            "min_observations_per_hit": 0, "negative_control_id": "", "positive_control_id": "",
             "controls": []}
     base.update(over)
     return base

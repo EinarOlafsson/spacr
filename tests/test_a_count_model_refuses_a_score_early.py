@@ -48,7 +48,7 @@ def test_a_fractional_response_is_refused_before_the_fit(model):
     frame = _scores(np.linspace(0.1, 0.9, 12))
 
     with pytest.raises(ValueError) as excinfo:
-        process_scores(frame, "pred", plate="plate1", min_cell_count=1,
+        process_scores(frame, "pred", plate="plate1", min_cells_per_well=1,
                        regression_type=model)
 
     message = str(excinfo.value)
@@ -77,7 +77,7 @@ def test_the_refusal_names_the_offending_number():
     frame = _scores([0.3] * 8)
 
     with pytest.raises(ValueError) as excinfo:
-        process_scores(frame, "pred", plate="plate1", min_cell_count=1,
+        process_scores(frame, "pred", plate="plate1", min_cells_per_well=1,
                        regression_type="horseshoe")
 
     assert "1.2" in str(excinfo.value)    # the per-well sum, 4 x 0.3
@@ -91,7 +91,7 @@ def test_a_real_count_still_fits():
     frame = _scores(rng.integers(0, 5, 12).astype(float))
 
     out, name = process_scores(frame, "pred", plate="plate1",
-                               min_cell_count=1, regression_type="horseshoe")
+                               min_cells_per_well=1, regression_type="horseshoe")
 
     assert name == "pred"
     assert len(out)
@@ -104,7 +104,7 @@ def test_a_continuous_model_is_untouched_by_the_guard():
     frame = _scores(np.linspace(0.1, 0.9, 12))
 
     out, name = process_scores(frame, "pred", plate="plate1",
-                               min_cell_count=1, regression_type="ols")
+                               min_cells_per_well=1, regression_type="ols")
 
     assert name == "pred"
     assert len(out)

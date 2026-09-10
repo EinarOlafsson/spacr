@@ -1,0 +1,39 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "f5f1a3f649e5b4c7d83a6a340ed9a86783f720d44f3cad82146dc1e813fb8bad",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, disclosed synthetic truth, native fits and independently checked intervals; literal GUI and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Dos–respons: anpassade kurvor, osäkerhet och motiverade avslag",
+  "description": "Använd den aktuella vyn Dose Response med en reproducerbar syntetisk tabell, jämför profil- och Wald-intervall och skilj mellan anpassade, obestämda och avvisade resultat.",
+  "objectives": [
+    "Läsa in uttryckliga koncentrationer och responser och anpassa en kurva per namngiven serie.",
+    "Tolka halvmaximal koncentration, intervallmetoder, vehikelkontroller och avvisade kurvor.",
+    "Jämföra före sortering, kopiera den verkliga rapporten och skilja gränssnittets reglage från API-export."
+  ],
+  "prerequisite": "Hämta den bifogade SYNTETISKA CSV-filen. Den innehåller 120 konstruerade rader: fyra serier, nio positiva koncentrationer och en vehikelkontroll vid dos noll, med tre observationer per koncentration. Balanserade avvikelser på −0,5, noll och +0,5 är varken biologiska replikat eller en kalibreringsstudie. De inlagda halvmaximala koncentrationerna är 1,5, 2 och 500 utanför intervallet; den fjärde serien vänder riktning. Ingen egen datanedladdare för Dose Response, normalisering, viktning, replikatväljare, exportknapp eller AI-konsol demonstreras. Unit ändrar en etikett, inte data. I denna version kan en ny anpassning efter sortering blanda ihop de visade radernas identiteter; inspelningen avslutar därför alla anpassningar före sortering. Behåll avvisade resultat och läs hela rapporten. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame och DoseResponseSet.table. Data- och grafkontrollerna är oberoende av spaCR:s anpassningsfunktioner; profilgränserna kontrolleras mot den angivna precisionen för sökintervallet i log10, inte som en täckningsgaranti.",
+  "scenes": [
+    "Öppna Dose Response i avsnittet Data på Home. Denna fristående vy anpassar en logistisk kurva med fyra parametrar till en koncentrationsserie. Den behöver de inmatade koncentrationerna och responserna; doser härleds inte från brunnsnamn, bildkoordinater eller behandlingsetiketter.",
+    "Hämta den syntetiska CSV-filen via länken i lektionens förkunskapsruta och välj Load table. Detta är avsiktligt konstruerade programexempel, inte uppmätta substanser. Filen och varje serienamn anger att data är syntetiska, så att de rena kurvorna inte misstas för experimentella resultat.",
+    "Filen innehåller hundratjugo rader fördelade på fyra serier. Varje serie har nio positiva koncentrationer, en vehikelkontroll vid dos noll och tre observationer per koncentration. Små, balanserade konstgjorda avvikelser bevarar modellmedelvärdet vid varje dos; detta praktiska exempel validerar inte statistisk prestanda i verkliga experiment.",
+    "Välj concentration som koncentrationskolumn, response som responskolumn och series under One curve per. Ange ursprungliga koncentrationer, inte deras logaritmer. Grupperingen är viktig: en enda kurva anpassad till alla fyra olika serier skulle besvara fel fråga.",
+    "Unit är bara en etikett. Här skriver vi u M för att beteckna exempelkoncentrationerna som mikromolära; ändrad text skalar aldrig om siffrorna. Gör nödvändig normalisering eller enhetsomvandling i förväg, eftersom den här vyn saknar reglage för normalisering och viktning.",
+    "Behåll Profile likelihood valt och Fit non-monotone data avstängt och välj sedan Fit. Kurvpanelen och resultattabellen uppdateras tillsammans. Alla fyra serier finns kvar, även ett obestämt resultat och ett avslag; ett saknat skattningsvärde är inte en saknad serie.",
+    "Välj den syntetiska hämningsserien. Den återfunna halvmaximala koncentrationen är ett komma fem, med negativ Hill-lutning eftersom responsen minskar när koncentrationen ökar. Halvmaximum ligger mellan de anpassade platåerna, här fem och nittiofem; det betyder inte automatiskt femtio procents viabilitet.",
+    "Välj den syntetiska aktiveringsserien. Dess halvmaximala koncentration är två och Hill-lutningen är positiv. Den valda kurvan framhävs medan de andra anpassade kurvorna finns kvar. Läs den valda raden och rapporten tillsammans i stället för att ge denna serie en annan kurvas skattning.",
+    "Exemplet utanför området skapades med en halvmaximal koncentration på femhundra, men koncentrationerna slutar vid hundra. Vyn anger ett obestämt resultat, lämnar skattnings- och intervallceller tomma och visar en gräns vid kanten. En anpassad extrapolation är inte en underbyggd punktskattning.",
+    "Serien som vänder riktning avvisas eftersom en monoton logistisk kurva har fel form. Läs hela förklaringen under tabellen. En vändande respons fastställer inte i sig cytotoxicitet eller någon annan biologisk orsak; undersök experimentet i stället för att blint ta bort doser eller tvinga fram en anpassning.",
+    "Hämningsrapporten räknar tjugosju anpassade observationer och tre nolldoskontroller. Nollkoncentrationer utesluts från den logaritmiska anpassningen och sammanfattas separat; de omvandlas inte i tysthet till små positiva doser. Den syntetiska vehikelns medelvärde är nittiofem, samma som den konstruerade lågdosplatån.",
+    "Läs även residualfelet och bedömningen av bristande anpassning, inte bara R-kvadrat. Detta avsiktligt balanserade exempel ger ovanligt rena diagnoser. Upprepade observationer per koncentration används utan en separat replikatväljare; dessa konstgjorda upprepningar visar inte att mätningarna i ett verkligt experiment är oberoende.",
+    "För att jämföra intervallmetoder väljer du Wald och trycker på Fit igen. Att bara ändra väljaren räknar inte om ett befintligt resultat. Intervallet beräknas för logaritmen av den halvmaximala koncentrationen och transformeras tillbaka; det är inte en symmetrisk felstapel som läggs direkt till koncentrationen.",
+    "De exempel som väl täcker halvmaximal respons behåller sina punktskattningar medan intervallgränserna ändras något. Exemplet utanför området anger fortfarande inget punktvärde. Ändliga intervall i dessa rena exempel bevisar varken identifierbarhet i ett annat experiment eller nominell täckning med dess brus och urvalsdesign.",
+    "Återställ Profile likelihood och välj Fit igen. Kontrollera att resultaten nu hör till den metoden. Kurvan, tabellen och den valda rapporten är sammankopplade vyer av en avslutad anpassning, inte en liveförhandsvisning som automatiskt anpassar på nytt när ett reglage ändras.",
+    "Avsluta anpassningsjämförelserna innan du sorterar tabellen. Denna version kan blanda ihop visade rader vid ny anpassning av en sorterad tabell; lita inte på den följden av steg. Här sorterar vi först efter alla anpassningar, väljer hämning och kontrollerar att rätt rapport visas.",
+    "Markera och kopiera rapporttexten med det vanliga kortkommandot. Behåll varningar, avslagsförklaringar, ingångskoncentrationer och vald intervallmetod tillsammans med resultatet. Att bara kopiera en punktskattning utan sammanhang tar bort informationen som avgör om den går att tolka.",
+    "Den här vyn har ingen exportknapp. För programstyrd utmatning erbjuder dos–respons-API:t fit_frame och en resultattabell; API-lektionen förklarar arbetet i Python. Bevara obestämda och avvisade rader vid export, inte bara substanser som gav bekväma siffror."
+  ]
+}

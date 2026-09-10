@@ -117,3 +117,57 @@ def test_no_commit_is_authored_or_committed_by_claude():
     offenders = [line for line in people.splitlines()
                  if "claude" in line.lower()]
     assert not offenders, f"{len(offenders)} commit(s) name Claude as a person"
+
+
+# --- the push boundary, which is the only one that does not depend on CI ---
+
+PRE_PUSH = REPO / "tools" / "hooks" / "pre-push"
+
+
+def test_the_push_guard_is_tracked_too():
+    """A hook that is not in the tree protects one checkout.
+
+    The same reasoning as the commit-msg guard above, and it applies
+    harder here: a session working in a fresh worktree has never run
+    `git config core.hooksPath tools/hooks`, so a guard living only in
+    `.git/hooks/` was never there at all.
+    """
+    tracked = _git("ls-files", "--", "tools/hooks/pre-push").strip()
+    assert tracked == "tools/hooks/pre-push"
+    assert PRE_PUSH.exists()
+    assert os.access(PRE_PUSH, os.X_OK), "the hook is not executable"
+
+
+def test_the_push_guard_matches_a_trailer_and_not_a_mention():
+    """Anchored, because this repository discusses the trailer in prose.
+
+    Three commits describe the problem -- the 38 removed, the strip
+    regex, the 70 that came back -- and an unanchored pattern counts them
+    as instances. Not hypothetical: it produced a "3 -> 6" report on
+    2026-09-10 about a branch whose real count was zero.
+    """
+    source = PRE_PUSH.read_text(encoding="utf-8")
+    assert "^[[:space:]]*claude" in source, (
+        "the trailer match is not anchored, so prose about the trailer "
+        "counts as a trailer")
+
+
+def test_the_push_guard_survives_a_branch_deletion():
+    """`git push --delete` sends an all-zero local sha and pushes nothing.
+
+    Without the guard clause the range becomes `<sha>..0000000` and git
+    errors on a push that is entirely legitimate.
+    """
+    source = PRE_PUSH.read_text(encoding="utf-8")
+    assert '[ "$local_sha" = "$zero" ] && continue' in source
+
+
+def test_the_push_guard_bounds_a_new_branch():
+    """A first push has no remote side to subtract from.
+
+    Scanning from the root would read the whole history every time a
+    topic branch is first pushed; `--not --remotes` keeps it to the
+    commits the push actually introduces.
+    """
+    source = PRE_PUSH.read_text(encoding="utf-8")
+    assert "--not --remotes" in source

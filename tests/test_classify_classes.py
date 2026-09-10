@@ -198,7 +198,7 @@ def test_old_metadata_controls_become_rules():
     """"the logic in Classes should remove the need to have location column,
     positive controll and negative controll settings"."""
     old = {"dataset_mode": "metadata", "location_column": "columnID",
-           "negative_control": "c1", "positive_control": "c3",
+           "negative_control_id": "c1", "positive_control_id": "c3",
            "classes": ["nc", "pc"]}
     settings = normalize_settings(old)
     labels = assign_classes(_annotated(), settings)
@@ -208,7 +208,7 @@ def test_old_metadata_controls_become_rules():
 
 def test_a_control_naming_several_wells_becomes_several_rules():
     old = {"dataset_mode": "metadata", "location_column": "columnID",
-           "negative_control": ["c1"], "positive_control": ["c3"],
+           "negative_control_id": ["c1"], "positive_control_id": ["c3"],
            "classes": ["nc", "pc"]}
     settings = normalize_settings(old)
     assert class_names(settings) == ["nc", "pc"]
@@ -372,8 +372,8 @@ def test_an_empty_definition_still_derives_from_the_older_keys():
         "classes": {},
         "class_folder_names": ["nc", "pc"],
         "location_column": "columnID",
-        "negative_control": "c1",
-        "positive_control": "c3",
+        "negative_control_id": "c1",
+        "positive_control_id": "c3",
     })
 
     assert isinstance(out["classes"], dict) and out["classes"], (

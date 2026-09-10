@@ -174,6 +174,21 @@ def main():
             page.wait_for_function('(voice) => [...elements.voice.options].some(o => o.value === voice)',
                                    arg=args.voice, timeout=30000)
             page.select_option('#voice-select', args.voice)
+            example_files = list(dict.fromkeys(lesson.get('example_files', [])))
+            example_links = page.locator('#prerequisite-copy a[download]')
+            assert example_links.all_text_contents() == example_files
+            evidence['example_files'] = []
+            from stage_lesson import REPO
+            for name in example_files:
+                assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.csv', name) and len(name) <= 128
+                link = page.get_by_role('link', name=name, exact=True)
+                assert link.get_attribute('download') == name
+                response = context.request.get(base + '/web/' + link.get_attribute('href'))
+                assert response.ok
+                digest = hashlib.sha256(response.body()).hexdigest()
+                expected = REPO / 'docs/source/_extra/tutorials/examples' / name
+                assert digest == hashlib.sha256(expected.read_bytes()).hexdigest()
+                evidence['example_files'].append({'name': name, 'sha256': digest})
             try:
                 page.wait_for_function('(voice) => audioTimings?.voice === voice && narrationAudioAvailable && elements.audio.readyState >= 2',
                                        arg=args.voice, timeout=30000)

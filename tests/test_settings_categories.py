@@ -85,11 +85,11 @@ KEYS_BEFORE_REGROUP = frozenset({
     "log_data", "log_x", "log_y", "loss_type", "lower_percentile", "magnification",
     "manders_thresholds", "masks", "max_displacement", "measurement",
     "merge_edge_pathogen_cells", "merge_pathogens", "metadata_files", "metadata_type",
-    "metadata_type_by", "metadata_types", "metric", "min_cell_count", "min_dist", "min_max",
+    "metadata_type_by", "metadata_types", "metric", "min_cells_per_well", "min_dist", "min_max",
     "min_n", "min_samples", "minimum_cell_count", "mix", "mode", "model_name", "model_path",
     "model_type", "model_type_ml", "motility_analysis", "motility_xlim", "motility_ylim",
     "n_epochs", "n_estimators", "n_jobs", "n_neighbors", "n_repeats", "nc", "nc_loc", "neg",
-    "negative_control", "normalize", "normalize_by", "normalize_input", "normalize_plots",
+    "negative_control_id", "normalize", "normalize_by", "normalize_input", "normalize_plots",
     "nr_imgs", "nuclei_limit", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "nucleus_signal_to_noise",
     "nucleus_area_multiplier", "nucleus_background", "nucleus_chann_dim", "nucleus_channel",
     "nucleus_diameter", "nucleus_intensity_merge", "nucleus_intensity_percentile",
@@ -129,7 +129,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "pathogen_size_range", "pathogen_types", "pathogens", "pc", "pc_loc", "percentiles",
     "pin_memory", "pixels_per_um", "plate", "plot", "plot_by_cluster", "plot_cluster_grids",
     "plot_control", "plot_images", "plot_nr", "plot_outlines", "plot_points", "png_dims",
-    "png_size", "png_type", "pos", "positive_control", "preprocess", "prune_features",
+    "png_size", "png_type", "pos", "positive_control_id", "preprocess", "prune_features",
     "radial_dist", "random_row_column_effects", "random_test", "randomize", "reduction_method",
     "reg_alpha", "reg_lambda", "regex", "regression_type", "remove_background",
     "remove_background_cell", "remove_background_nucleus", "remove_background_pathogen",
@@ -169,6 +169,33 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # RENAMED to `window_length` on 2026-09-09, instruction 364. "Expected
+    # end" reads as a coordinate and the value is a LENGTH -- the
+    # parameter's own docstring had to say "window *length*, not an end
+    # coordinate", which is a name explaining itself away. The new name is
+    # categorised in its place, `validate.RETIRED_SETTINGS` maps the pair,
+    # and `settings._fold_renamed_settings` moves an old key onto the new
+    # one before any default is filled in, so a settings file in the wild
+    # keeps working.
+    "expected_end",
+    # THE EIGHT THE PACKAGE READ NOWHERE, retired 2026-09-09 (357-Q4).
+    # Each had exactly one consumer and it was the setting's own defaults
+    # setter. Two of them documented a job they did not do: `mask_array`
+    # claimed to choose the labelled plane for the 'array' stream method
+    # while `stream_dataset` takes it from `object_array` for both, and
+    # `load_path_regex` claimed to select already-exported crops while
+    # nothing consulted it.
+    "denoise", "load_path_regex", "mask_array", "normalization",
+    "normalization_scope", "normalize_plots", "save_to_db", "visualize",
+    # RENAMED to `min_observations_per_hit` on 2026-09-09, instruction 364.
+    # "min_n" is the minimum of an unnamed n, and the tooltip had to say
+    # which n twice over: "gRNA hits need n_grna > min_n, gene hits need
+    # n_gene > min_n".
+    "min_n",
+    # RENAMED to `min_cells_per_well` on 2026-09-09, instruction 364.
+    # It counts cells and drops WELLS, and the count is per well --
+    # which the tooltip has to say because the name does not.
+    "min_cells_per_well",
     # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
     # 364. The boolean sat beside the step count and could contradict it:
     # `gradient_accumulation: false` with the default four steps says two
@@ -177,10 +204,10 @@ KEYS_RETIRED = frozenset({
     # `false` to one step, and `validate.RETIRED_SETTINGS` tells an old
     # settings CSV what replaced it.
     "gradient_accumulation",
-    # MERGED into `min_cell_count` on 2026-08-23, at the maintainer's
+    # MERGED into `min_cells_per_well` on 2026-08-23, at the maintainer's
     # instruction ("Merge the names, and fix whatever breaks, never mind
     # old runs"). The two were one idea under two names that differ by
-    # four letters: drop a well that holds too few cells. `min_cell_count`
+    # four letters: drop a well that holds too few cells. `min_cells_per_well`
     # did it before a regression fit, `minimum_cell_count` before the
     # machine-learning plate heatmap. They never appeared on the same
     # screen, so nobody could see they were different -- which is what made
@@ -297,6 +324,17 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
     # owns `gpu` with a different meaning.
     "ops_gpu",
+    # `window_length`, the new name for `expected_end` (364, 2026-09-09).
+    "window_length",
+    # and `min_observations_per_hit`, the new name for `min_n`.
+    "min_observations_per_hit",
+    # and `min_cells_per_well`, the new name for `min_cell_count`.
+    "min_cells_per_well",
+    # and the two halves of `control_wells` (357-Q6): the invasion assay's
+    # stain baseline, and the wells Regression and sequencing drop before
+    # fitting. One key meant both, with different defaults and no way to
+    # set one without setting the other.
+    "stain_baseline_wells", "analysis_excluded_wells",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",
@@ -1233,7 +1271,10 @@ def _rendered_sections(app_key):
             "Labels & Classes", "Feature Preparation",
             "Plate & Batch Correction",
             "Classifier & Validation", "Feature Selection & Importance",
-            "Output & Database", "Plots & Heatmaps",
+            # "Output & Database" went with `save_to_db` on 2026-09-09
+            # (357-Q4): that section held one setting, nothing read it, and
+            # a heading with nothing under it is worse than no heading.
+            "Plots & Heatmaps",
             "Runtime & Reliability",
         ]),
             ("mask", [

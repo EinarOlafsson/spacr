@@ -47,7 +47,7 @@ def test_the_response_stays_a_whole_number(regression_type):
     from spacr.ml import process_scores
 
     frame, column = process_scores(
-        _wells(), "pred", plate="plate1", min_cell_count=5,
+        _wells(), "pred", plate="plate1", min_cells_per_well=5,
         agg_type="mean", transform="log", regression_type=regression_type)
 
     assert column == "pred", (
@@ -70,7 +70,7 @@ def test_the_validator_that_used_to_refuse_it_now_accepts(regression_type):
     from spacr.ml import _validate_poisson_response, process_scores
 
     frame, column = process_scores(
-        _wells(seed=3), "pred", plate="plate1", min_cell_count=5,
+        _wells(seed=3), "pred", plate="plate1", min_cells_per_well=5,
         agg_type="mean", transform="log", regression_type=regression_type)
 
     response = frame[column]
@@ -88,7 +88,7 @@ def test_an_ordinary_model_still_gets_its_transform():
     from spacr.ml import process_scores
 
     frame, column = process_scores(
-        _wells(seed=1), "pred", plate="plate1", min_cell_count=5,
+        _wells(seed=1), "pred", plate="plate1", min_cells_per_well=5,
         agg_type="mean", transform="log", regression_type="ols")
 
     assert column == "log_pred", f"the transform was dropped: got {column!r}"
@@ -99,7 +99,7 @@ def test_no_transform_asked_for_is_still_no_transform():
     from spacr.ml import process_scores
 
     frame, column = process_scores(
-        _wells(seed=2), "pred", plate="plate1", min_cell_count=5,
+        _wells(seed=2), "pred", plate="plate1", min_cells_per_well=5,
         agg_type="mean", transform=None, regression_type="poisson")
 
     assert column == "pred"
@@ -111,7 +111,7 @@ def test_it_says_it_ignored_the_transform(capsys):
     result nobody can explain."""
     from spacr.ml import process_scores
 
-    process_scores(_wells(seed=4), "pred", plate="plate1", min_cell_count=5,
+    process_scores(_wells(seed=4), "pred", plate="plate1", min_cells_per_well=5,
                    agg_type="mean", transform="log",
                    regression_type="poisson")
 

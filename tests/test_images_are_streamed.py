@@ -54,16 +54,33 @@ class TestTheSettingsAreRenamedAndMerged:
         assert deep_spacr_defaults(
             {"crop_source": "nonsense"})["image_source"] == "load_images"
 
-    def test_three_settings_became_one(self):
-        """file_metadata, path_string and file_type described one pattern
-        between them, which is three chances to describe it
-        inconsistently."""
-        got = deep_spacr_defaults({"path_string": "nucleus_png"})
-        assert got["load_path_regex"] == "nucleus_png"
+    def test_the_three_that_became_one_are_all_gone_now(self):
+        """`file_metadata`, `path_string` and `file_type` described one
+        pattern between them, which is three chances to describe it
+        inconsistently. They were merged into `load_path_regex` -- and on
+        2026-09-09 that was RETIRED too (357-Q4), because nothing ever
+        read it: it claimed to select already-exported crops and carried
+        a dependency rule explaining when it did not apply, and both
+        described a control that was never consulted in either branch.
 
-    def test_an_old_file_type_still_loads(self):
-        got = deep_spacr_defaults({"file_type": "pathogen_png"})
-        assert got["load_path_regex"] == "pathogen_png"
+        So the merge is still the right story and its destination is not
+        a setting any more. What an old file gets is silence, which is
+        what it always got -- `validate.RETIRED_SETTINGS` now says so out
+        loud instead.
+        """
+        from spacr.settings import expected_types
+        from spacr.validate import RETIRED_SETTINGS
+
+        assert "load_path_regex" not in expected_types
+        assert RETIRED_SETTINGS["load_path_regex"] == "", (
+            "a retired setting with a replacement name would send the "
+            "reader somewhere; this one has nowhere to send them")
+
+    def test_an_old_file_that_names_any_of_the_three_still_opens(self):
+        """The point of the merge was that an old CSV keeps working."""
+        for old in ("path_string", "file_type", "file_metadata"):
+            got = deep_spacr_defaults({old: "pathogen_png"})
+            assert got["image_source"] in ("load_images", "stream_images")
 
     def test_tables_defaults_to_the_four_objects(self):
         assert deep_spacr_defaults({})["tables"] == [
@@ -122,9 +139,18 @@ class TestTheStreamMethod:
         assert set(settings_for_method("column")) == {"object_array",
                                                       "channel_arrays"}
 
-    def test_array_needs_the_mask_the_channels_and_the_box(self):
+    def test_array_needs_the_plane_the_channels_and_the_box(self):
+        """AND THE PLANE IS `object_array`, WHICH IT ALWAYS WAS.
+
+        This asked for `mask_array` until 2026-09-09. That setting said
+        it named the labelled plane for this route, and `stream_dataset`
+        has always taken the plane from `object_array` -- for BOTH
+        methods -- so the route's own documented input was never read.
+        `picture_settings` even wrote it an integer plane index that
+        nothing consulted. Retired under 357-Q4.
+        """
         assert set(settings_for_method("array")) == {
-            "mask_array", "channel_arrays", "bounding_box"}
+            "object_array", "channel_arrays", "bounding_box"}
 
     def test_the_two_read_different_settings(self):
         """Which is why it is one control rather than a pair of flags."""
@@ -425,7 +451,7 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
 
     def test_loading_images_greys_every_streaming_setting(self):
         loading = {"image_source": "load_images"}
-        for key in ("stream_method", "object_array", "mask_array",
+        for key in ("stream_method", "object_array",
                     "channel_arrays", "bounding_box"):
             assert not self._applicable(key, loading), key
 
@@ -438,13 +464,20 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
         assert self._applicable("stream_method",
                                 {"image_source": "stream_images"})
 
-    def test_loading_keeps_the_path_pattern_live(self):
-        assert self._applicable("load_path_regex",
-                                {"image_source": "load_images"})
+    def test_there_is_no_path_pattern_to_grey_any_more(self):
+        """`load_path_regex` HAD A RULE FOR WHEN IT DID NOT APPLY, and
+        nothing read it in either branch.
 
-    def test_streaming_greys_the_path_pattern(self):
-        assert not self._applicable("load_path_regex",
-                                    {"image_source": "stream_images"})
+        Two tests stood here -- one asserting the pattern was live while
+        loading, one asserting it was greyed while streaming -- and both
+        described a control that was never consulted. The rule went with
+        the setting on 2026-09-09 (357-Q4). Greying a setting that does
+        not exist greys nothing, and a dependency rule for one is a
+        sentence about a control the run does not offer.
+        """
+        from spacr.settings import get_setting_dependencies
+
+        assert "load_path_regex" not in get_setting_dependencies()
 
     @pytest.mark.parametrize("method", sorted(METHOD_SETTINGS))
     def test_a_method_leaves_only_its_own_settings_live(self, method):
@@ -462,11 +495,11 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
 
         monkeypatch.setattr(
             stream, "METHOD_SETTINGS",
-            {"column": ("mask_array",), "array": ("object_array",)})
+            {"column": ("bounding_box",), "array": ("object_array",)})
         monkeypatch.setattr(settings_module, "setting_dependencies", {})
         rules = settings_module.get_setting_dependencies()
         chosen = {"image_source": "stream_images", "stream_method": "column"}
-        assert rules["mask_array"]["predicate"](chosen, {})
+        assert rules["bounding_box"]["predicate"](chosen, {})
         assert not rules["object_array"]["predicate"](chosen, {})
 
     def test_an_unknown_method_greys_nothing(self):
@@ -474,8 +507,7 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
         one: a settings file naming a method spaCR never had must not
         disable every streaming control it also names."""
         odd = {"image_source": "stream_images", "stream_method": "sideways"}
-        for key in ("object_array", "mask_array", "channel_arrays",
-                    "bounding_box"):
+        for key in ("object_array", "channel_arrays", "bounding_box"):
             assert self._applicable(key, odd), key
 
     def test_the_reason_names_the_setting_that_greyed_it(self):
@@ -485,4 +517,4 @@ class TestTheStreamingSettingsAreInertUntilStreamingIsChosen:
         loading = {"image_source": "load_images"}
         assert "image_source" in rules["object_array"]["reason"](loading, {})
         chosen = {"image_source": "stream_images", "stream_method": "column"}
-        assert "stream_method" in rules["mask_array"]["reason"](chosen, {})
+        assert "stream_method" in rules["bounding_box"]["reason"](chosen, {})

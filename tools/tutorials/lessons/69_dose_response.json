@@ -1,0 +1,128 @@
+{
+  "id": "69_dose_response",
+  "number": 69,
+  "slug": "dose_response",
+  "series": 5,
+  "app_key": "dose_response",
+  "section": "Data",
+  "title": "Dose Response: fitted curves, uncertainty and honest refusals",
+  "description": "Use the current Dose Response screen with a reproducible synthetic table, compare profile and Wald intervals, and distinguish fitted, unbounded and refused results.",
+  "objectives": [
+    "Load explicit concentrations and responses and fit one curve per named series.",
+    "Interpret midpoint estimates, interval methods, vehicle controls and refused curves.",
+    "Compare results before sorting, copy the actual report and distinguish GUI controls from API exports."
+  ],
+  "example_files": ["SYNTHETIC_dose_response_examples.csv"],
+  "prerequisite": "Download the accompanying SYNTHETIC CSV. It has 120 constructed rows: four named series, nine positive concentrations plus a zero-dose vehicle, and three observations per concentration. Balanced offsets of minus 0.5, zero and plus 0.5 are not biological replicates or a calibration study. Planted midpoints are 1.5, 2 and an out-of-range 500; the fourth series reverses. No registered Dose Response dataset downloader, normalization, weighting, replicate selector, GUI export button or AI console is demonstrated. The Unit field changes a label, not the data. In this build, refitting after sorting can corrupt the displayed row identities; this recording completes every refit before sorting. Preserve refusals and inspect the full report. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame and DoseResponseSet.table. The example data and plot checks are independent of spaCR's fitting functions; profile endpoints are checked to the implementation's declared log10 bracket precision, not as a coverage guarantee.",
+  "scenes": [
+    {
+      "visual": "01_home_data",
+      "narration": "Open Dose Response in Home's Data section. This standalone viewer fits a four-parameter logistic curve to a concentration series. It needs the actual concentrations and responses; it does not infer doses from well names, image coordinates or treatment labels.",
+      "hold_after": 0.7,
+      "focus_modules": ["dose_response"]
+    },
+    {
+      "visual": "03_choose_disclosed_synthetic_csv",
+      "narration": "Download the synthetic CSV linked in this lesson's prerequisites, then choose Load table. These are deliberately constructed software examples, not measured compounds. The file and every series name say synthetic, so the clean curves must not be mistaken for experimental results.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_loaded_120_synthetic_rows",
+      "narration": "The file contains one hundred twenty rows across four series. Each has nine positive concentrations, a zero-dose vehicle, and three observations at each concentration. The small, balanced artificial offsets preserve the model mean at every dose; this convenient example does not validate statistical performance on real experiments.",
+      "hold_after": 0.7,
+      "focus": [285, 40, 2200, 170]
+    },
+    {
+      "visual": "05_explicit_columns_and_profile",
+      "narration": "Select concentration as the concentration column, response as the response column, and series under One curve per. Supply raw concentrations, not their logarithms. Grouping is important: fitting all four different series as one curve would answer the wrong question.",
+      "hold_after": 0.7,
+      "focus": [285, 145, 1470, 75]
+    },
+    {
+      "visual": "05_explicit_columns_and_profile",
+      "narration": "The Unit field is only a label. Here we type u M to label the illustrative concentrations as micromolar; changing this text never rescales the numbers. Prepare any required normalization or unit conversion upstream, because this screen has no normalization or weighting controls.",
+      "hold_after": 0.7,
+      "focus": [285, 145, 1470, 75],
+      "related_lessons": ["61_tabulate"]
+    },
+    {
+      "visual": "06_profile_results",
+      "narration": "Leave Profile likelihood selected and Fit non-monotone data switched off, then choose Fit. The curve panel and results table update together. All four series stay accounted for, including an unbounded result and a refusal; a missing estimate is not the same as a missing series.",
+      "hold_after": 0.7,
+      "focus": [2000, 190, 1810, 210]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "Select synthetic inhibition. The recovered midpoint is one point five, with a negative Hill slope because the response falls as concentration increases. Half-maximum means halfway between the fitted plateaus, which are five and ninety-five here; it does not automatically mean fifty percent viability.",
+      "hold_after": 0.7,
+      "focus": [285, 210, 1710, 1900]
+    },
+    {
+      "visual": "08_activation_midpoint",
+      "narration": "Select synthetic activation. Its recovered midpoint is two and its Hill slope is positive. The selected curve is emphasized while the other fitted curves remain visible. Read the selected row and report together rather than assigning another curve's estimate to this series.",
+      "hold_after": 0.7,
+      "focus": [285, 210, 1710, 1900]
+    },
+    {
+      "visual": "09_unbounded_not_a_point_estimate",
+      "narration": "The beyond-range example was constructed with a midpoint of five hundred, but its concentrations stop at one hundred. The screen reports an unbounded result, leaves the midpoint and interval cells blank, and shows a bound at the edge. A fitted extrapolation is not a supported point estimate.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 450]
+    },
+    {
+      "visual": "10_refused_reversing_series",
+      "narration": "The reversing series is refused because a monotonic logistic curve is the wrong shape. Read the full explanation below the table. A turning response does not by itself establish cytotoxicity or another biological cause; investigate the experiment instead of blindly removing doses or forcing a fit.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 450]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "The inhibition report counts twenty-seven fitted observations and three zero-dose controls. Zero concentrations are excluded from the logarithmic fit and summarized separately; they are not silently converted to tiny positive doses. The synthetic vehicle mean is ninety-five, matching the constructed low-dose plateau.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 450]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "Also read residual error and the lack-of-fit assessment, not just R squared. This deliberately balanced example has exceptionally tidy diagnostics. Repeated observations at each concentration are used without a separate replicate selector, and these artificial repeats do not establish the independence of measurements in a real experiment.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 450]
+    },
+    {
+      "visual": "13_choose_wald",
+      "narration": "To compare interval methods, choose Wald and press Fit again. Changing the selector alone does not recompute an existing result. The interval is calculated for the logarithm of the midpoint and transformed back; it is not a symmetric error bar added directly to concentration.",
+      "hold_after": 0.7,
+      "focus": [285, 145, 1470, 75]
+    },
+    {
+      "visual": "14_wald_results",
+      "narration": "The well-bracketed examples keep their midpoint estimates while the interval endpoints change slightly. The beyond-range example still withholds its midpoint. Finite intervals on these tidy examples do not prove that another experiment identifies its midpoint or that nominal coverage holds for its noise and sampling design.",
+      "hold_after": 0.7,
+      "focus": [2000, 190, 1810, 210]
+    },
+    {
+      "visual": "15_profile_restored",
+      "narration": "Restore Profile likelihood and choose Fit again. Check that the results now correspond to that method. The curve, table and selected report are linked views of the completed fit; they are not a live preview that automatically refits whenever a control changes.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 450]
+    },
+    {
+      "visual": "16_select_after_sorting",
+      "narration": "Finish the fitting comparisons before sorting the table. This build can misalign displayed rows when a sorted table is refitted, so do not rely on that sequence. Here we sort only after fitting, then select inhibition and verify that its matching report is shown.",
+      "hold_after": 0.7,
+      "focus": [2000, 190, 1810, 210]
+    },
+    {
+      "visual": "17_copy_actual_report",
+      "narration": "Select and copy the report text using the normal copy shortcut. Keep the warnings, refusal explanations, input concentrations and chosen interval method with the result. Copying a single midpoint without that context discards the information that determines whether it can be interpreted.",
+      "hold_after": 0.7,
+      "focus": [2000, 1140, 1810, 500]
+    },
+    {
+      "visual": "15_profile_restored",
+      "narration": "There is no export button in this screen. For programmatic output, the dose-response API provides fit_frame and a result table; the API lesson explains working from Python. Preserve unbounded and refused rows when exporting, rather than keeping only the compounds that produced convenient numbers.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api"],
+      "focus": [2000, 190, 1810, 210]
+    }
+  ]
+}

@@ -449,8 +449,8 @@ def test_cli_requirements_drive_the_structured_notebook_statuses():
     expected = {
         "04_classify_machine_learning.ipynb": {
             "src": "required",
-            "positive_control": "conditionally required",
-            "negative_control": "conditionally required",
+            "positive_control_id": "conditionally required",
+            "negative_control_id": "conditionally required",
             "annotation_column": "conditionally required",
         },
         "05_map_barcodes.ipynb": {
@@ -512,7 +512,7 @@ def _setting_categories(path):
 def test_key_inputs_use_the_current_curated_desktop_headings():
     expected = {
         "04_classify_machine_learning.ipynb": {
-            "positive_control": "Labels & Classes",
+            "positive_control_id": "Labels & Classes",
             "n_estimators": "Classifier & Validation",
         },
         "05_map_barcodes.ipynb": {

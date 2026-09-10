@@ -60,6 +60,16 @@ def _bytes(paths):
     return sum(path.stat().st_size for path in paths)
 
 
+def _assert_external_narration_partition(extra, published, dropped):
+    """Check every local file, whether the audio copy is full or partial."""
+    local = {path for path in extra.rglob("*") if path.is_file()}
+    narration = {path for path in local
+                 if "audio" in path.relative_to(extra).parts
+                 and path.suffix.lower() in (".m4a", ".json")}
+    assert set(dropped) == narration
+    assert set(published) == local - narration
+
+
 # ---------------------------------------------------------------------------
 # The budget itself
 # ---------------------------------------------------------------------------
@@ -69,7 +79,6 @@ def test_the_published_tutorial_library_is_under_its_ceiling(real_plan):
     """The number the whole exercise exists to move."""
     published, dropped, _keep = real_plan
     after = _bytes(published)
-    before = after + _bytes(dropped)
     mib = 1024 * 1024
 
     assert after <= budget.PUBLISHED_MEDIA_CEILING, (
@@ -86,14 +95,10 @@ def test_the_published_tutorial_library_is_under_its_ceiling(real_plan):
     assert not voice_assets, (
         f"the derived tree still publishes {len(voice_assets)} narration "
         "asset(s); narration belongs on the configured host")
-    # Older checkouts can still contain the pre-policy narration tree. In
-    # those, prove that staging makes a material reduction. The current
-    # publisher removes those derived copies entirely, so there is correctly
-    # nothing left for the staging filter to drop.
-    if dropped:
-        assert after < before / 3, (
-            f"the filter is not doing its job: {after / mib:.1f} MiB "
-            f"published out of {before / mib:.1f} MiB")
+    # A checkout may contain zero, some, or all of the external voice assets.
+    # Its audio/video size ratio does not establish whether the filter works.
+    # Check the exact file partition without relaxing the byte ceiling above.
+    _assert_external_narration_partition(_LIBRARY, published, dropped)
 
 
 @requires_library
@@ -211,9 +216,9 @@ def test_narration_is_the_stable_mobile_clock():
     syllables. Narration therefore drives the silent visual master; only an
     explicit seek/load boundary may move the audio clock.
 
-    Pin the current cache key too: the 2026-08-25 player keeps narration in
+    Pin the current cache key too: the current player keeps narration in
     charge through visual EOF, derives caption cues from measured sentence
-    timings, and includes the folded lesson routes. Phones must not reuse a
+    timings, and includes nested routes and example downloads. Phones must not reuse a
     superseded player asset.
     """
     player = (_LIBRARY / "tutorials" / "app_v2.js").read_text(
@@ -226,7 +231,8 @@ def test_narration_is_the_stable_mobile_clock():
     assert "function syncAudio(" not in player
     assert "elements.audio.playbackRate = userPlaybackRate" not in player
     index = (_LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
-    assert 'app_v2.js?v=20260825-folded-routes' in index
+    assert 'app_v2.js?v=20260910-example-downloads' in index
+    assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
 
@@ -376,6 +382,38 @@ def test_staging_publishes_the_default_voice_and_nothing_else(tiny_library,
     assert "tutorials/catalog/captions_de.json" in kept
     assert "tutorials/production/07_mask/poster.jpg" in kept
     assert "tutorials/production/07_mask/video/07_mask_silent.mp4" in kept
+
+
+@pytest.mark.parametrize("local_tracks", [0, 1, 10])
+def test_external_policy_handles_absent_partial_and_full_local_audio(
+        tiny_library, local_tracks):
+    """A small audio copy must not need to outweigh the videos threefold."""
+    tracks = sorted(tiny_library.rglob("*.m4a"))
+    assert len(tracks) == 10
+    for path in tracks[local_tracks:]:
+        path.unlink()
+        path.with_suffix(".json").unlink()
+    published, dropped, _ = budget.plan(tiny_library, budget.NARRATION_EXTERNAL)
+    assert len(dropped) == local_tracks * 2
+    _assert_external_narration_partition(tiny_library, published, dropped)
+
+
+@pytest.mark.parametrize("fault", ["publish_audio", "lose_video", "lose_timing"])
+def test_partition_rejects_real_wrong_plans_after_a_passing_counterpart(
+        tiny_library, fault):
+    published, dropped, _ = budget.plan(tiny_library, budget.NARRATION_EXTERNAL)
+    _assert_external_narration_partition(tiny_library, published, dropped)
+    if fault == "publish_audio":
+        audio = next(path for path in dropped if path.suffix == ".m4a")
+        published.append(audio)
+    elif fault == "lose_video":
+        video = next(path for path in published if path.suffix == ".mp4")
+        published.remove(video)
+    else:
+        timing = next(path for path in dropped if path.suffix == ".json")
+        dropped.remove(timing)
+    with pytest.raises(AssertionError):
+        _assert_external_narration_partition(tiny_library, published, dropped)
 
 
 def test_the_staged_catalog_offers_exactly_what_was_staged(tiny_library,

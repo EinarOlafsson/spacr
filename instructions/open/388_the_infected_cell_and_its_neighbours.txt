@@ -2,10 +2,13 @@
 WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
-           maintainer's instruction: "for all of these add them to
-           instructions but add to the instruction to hold of on working on
-           them untill the next version bump 1.5.0.5."
+Status:    OPEN AND ACTIONABLE from 2026-09-10. THE HOLD IS LIFTED: the
+           condition was the version bump, and `spacr/_version.py` reached
+           1.5.0.5 on 2026-09-10 (merge 82918f29d, "Merge main into nightly:
+           the 1.5.0.5 bump and the Qt merge"). Nothing else gates this file.
+           Held until then at the maintainer's instruction: "for all of these
+           add them to instructions but add to the instruction to hold of on
+           working on them untill the next version bump 1.5.0.5."
 Requested: 2026-09-09 -- filed with 386 and 387 after a review of what the
            package cannot currently measure.
 Owner:     unassigned. Builds directly on `spacr/object_distances.py`; the

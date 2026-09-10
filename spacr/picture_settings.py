@@ -583,12 +583,13 @@ def to_crop_settings(picture) -> Dict[str, object]:
             out["stream_method"] = "array"
             plane = str(items.get("object_array", "")).strip()
             if plane not in ("", "None"):
-                try:
-                    out["mask_array"] = int(plane)
-                except (TypeError, ValueError):
-                    # Not an index: the crop layer also accepts the object
-                    # type's own name for the plane.
-                    out["object_array"] = plane
+                # ALWAYS `object_array`, WHICH IS WHAT THE CROP LAYER READS.
+                # This used to write an integer plane index to `mask_array`,
+                # a setting `stream_dataset` never consulted -- it takes the
+                # plane from `object_array` for both methods -- so a panel
+                # that named a plane by index was answered by silence.
+                # `mask_array` was retired on 2026-09-09 (357-Q4).
+                out["object_array"] = plane
         # AND THE BOX WINS WHERE IT IS THE ONLY CUT AVAILABLE, rather than
         # the panel promising an outline the route cannot follow.
         if bounding_box_only(items):

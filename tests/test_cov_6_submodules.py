@@ -130,7 +130,7 @@ def _well_frame():
 def test_one_control_well_named_as_a_bare_string_selects_that_well():
     """Iterating the string would test 'r', '1', '_', 'c'... and match nothing.
 
-    ``control_wells='r1_c12'`` is what a settings CSV carrying a single
+    ``stain_baseline_wells='r1_c12'`` is what a settings CSV carrying a single
     staining control holds. Treating it as a sequence of characters gives an
     all-False mask, and an invasion run with no control wells silently falls
     back to the per-field threshold with nothing to judge it against.
@@ -142,7 +142,7 @@ def test_one_control_well_named_as_a_bare_string_selects_that_well():
 
 
 def test_an_empty_control_list_selects_nothing():
-    """``control_wells=[]`` is "none named", not "everything"."""
+    """``stain_baseline_wells=[]`` is "none named", not "everything"."""
     from spacr.submodules import _invasion_control_mask
 
     mask = _invasion_control_mask(_well_frame(), [])
