@@ -1,0 +1,195 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "status": "Native inspection recorded; partial numerical checkpoint, not staged media acceptance",
+  "preparation_sha256": "df8d7aec0bcde920396dafb4c32e7ba5be42fe7199dd78fbadd56a7f96f74034",
+  "capture_sha256": "61715ce8968a18afbf7ab0d5997ece5dc649f1ceeaef153a64f84af5c0d793da",
+  "provenance": {
+    "commit": "6cf22e8808f2be73735e2f56cdc79db497e19e36",
+    "version": "1.5.0.5",
+    "module": "classifier_evaluation",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_summary": {
+    "accuracy": 0.9188034188034188,
+    "balanced_accuracy": 0.918560467665327,
+    "brier_multiclass": 0.1200728476447023,
+    "calibration_method": "none",
+    "calibration_warnings": [],
+    "classes": [
+      "infected_1",
+      "infected_2"
+    ],
+    "expected_calibration_error": 0.01241393831922228,
+    "f1_macro": 0.9187306925987533,
+    "f1_weighted": 0.9187722504299907,
+    "log_loss": 0.2034181948927701,
+    "mean_confidence": 0.909575143342768,
+    "n": 234,
+    "n_classes": 2,
+    "precision_macro": 0.9192037470725996,
+    "probability_column_names": [
+      "infected_1",
+      "infected_2"
+    ],
+    "raw_expected_calibration_error": 0.01241393831922228,
+    "recall_macro": 0.918560467665327,
+    "temperatures_by_held_out_fold": {},
+    "tutorial_scope": "Inspection of real saved one-epoch test predictions; actual database wells overlap training. Not independent biological validation, not cross-validated or nested predictions. Class names are inherited dataset labels, not newly validated infection states. Original probabilities preserved subject only to the API row-normalization of rounding error."
+  },
+  "source_csv": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_time_260909_test_acc.csv",
+  "source_csv_sha256": "47ba4d843d764cc59cd211768da1b173cf39dbf6d40d18c6f5cab9807102115a",
+  "source_db_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "original_audit": {
+    "critical_levels": [],
+    "examples": {
+      "augmentation_family": [],
+      "content_sha256": [],
+      "exact": [],
+      "field": [],
+      "object": [],
+      "plate": [
+        "plate1_E02",
+        "plate1_L01",
+        "plate1_L02"
+      ],
+      "well": []
+    },
+    "group_by": "well",
+    "hash_errors": [],
+    "overlap_counts": {
+      "augmentation_family": 0,
+      "content_sha256": 0,
+      "exact": 0,
+      "field": 0,
+      "object": 0,
+      "plate": 3,
+      "well": 0
+    },
+    "passed": true,
+    "split_name": "train_vs_test",
+    "train_samples": 2102,
+    "unverifiable_counts": {},
+    "validation_samples": 234,
+    "warnings": []
+  },
+  "actual_database_audit": {
+    "group_by": "well",
+    "train_samples": 2102,
+    "validation_samples": 234,
+    "overlap_counts": {
+      "exact": 0,
+      "augmentation_family": 0,
+      "object": 0,
+      "field": 0,
+      "well": 3,
+      "plate": 1,
+      "content_sha256": 0
+    },
+    "examples": {
+      "exact": [],
+      "augmentation_family": [],
+      "object": [],
+      "field": [],
+      "well": [
+        "plate1_r12_c1",
+        "plate1_r12_c2",
+        "plate1_r5_c2"
+      ],
+      "plate": [
+        "plate1"
+      ],
+      "content_sha256": []
+    },
+    "split_name": "recorded_train_vs_test_with_database_identities",
+    "critical_levels": [
+      "well"
+    ],
+    "warnings": [],
+    "unverifiable_counts": {},
+    "hash_errors": [],
+    "passed": false
+  },
+  "status_text": "Loaded 234 held-out prediction(s) · leakage audit: review required.",
+  "snapshot_names": [
+    "04_actual_summary",
+    "05_actual_leakage_requires_review",
+    "06_actual_confusion_counts",
+    "07_actual_error_cell",
+    "08_actual_confidence_threshold",
+    "09_actual_per_plate",
+    "10_actual_calibration_table",
+    "11_actual_all_predictions",
+    "12_actual_prediction_filter",
+    "13_actual_filter_cleared",
+    "14_actual_final_leakage"
+  ],
+  "bundle_unchanged": true,
+  "original_inputs_preserved": true,
+  "error_breakdown": "well: 11 object(s) across 3 well(s); worst is plate1_r5_c2 with 6 (55%).\nSpread over 3 well(s), so this confusion is the model's, not one well's.\nplate: 11 object(s) across 1 plate(s); worst is plate1 with 11 (100%).\n11 of 11 come from a single plate (plate1) — that is a plate-level problem (staining, focus, seeding), not a model problem. Fix it upstream rather than re-labelling these crops.",
+  "preparation": "Standard evaluate_predictions/write_evaluation_bundle APIs consumed the real saved 234 test predictions. Byte-identical private copies of all 2336 train/test crops were named using database prcfo identities. This reveals existing overlap and does not repair or retrain the classifier.",
+  "numerical_checks": {
+    "passed": true,
+    "predictions": 234,
+    "independently_checked_summary_fields": 11,
+    "independently_checked_calibration_rows": 10,
+    "confusion": [
+      [
+        104,
+        11
+      ],
+      [
+        8,
+        111
+      ]
+    ],
+    "native_gui_confusion_cells_checked": 44,
+    "native_gui_snapshots": 11,
+    "full_prediction_table_cell_check_complete": false,
+    "confidence_list_check_complete": false,
+    "biological_validation": false
+  },
+  "focused_tests": {
+    "passed": 16,
+    "red_in_memory_mutations": 7,
+    "scope": "Independent arithmetic helper and canonical identity guard; no full suite or coverage run"
+  },
+  "observed_interactions": {
+    "prediction_rows": [
+      234,
+      128,
+      234
+    ],
+    "prediction_filter": "r5_c2",
+    "error_cell_total": 11,
+    "confidence_thresholds": [
+      0.75,
+      0.95
+    ],
+    "displayed_high_low_counts": [
+      [
+        6,
+        5
+      ],
+      [
+        2,
+        9
+      ]
+    ],
+    "crop_open_buttons_enabled": false
+  },
+  "limits": [
+    "The original filename-derived audit incorrectly reported no shared wells; actual database identities give three shared wells.",
+    "A single saved test split is not out-of-fold or nested validation, despite generic bundle names and UI wording.",
+    "Confidence disagreement is not proof of annotation error.",
+    "The actual GUI describes the same error as the model's problem across wells and not a model problem because all errors are on one plate. A one-plate example cannot identify that cause. Protected application text was not changed.",
+    "The crop-opening buttons require an Annotate opener; it was not initialized or falsely shown as working.",
+    "A saved-figure contrast warning occurred during API preparation; exported PNG visual quality has not been approved."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

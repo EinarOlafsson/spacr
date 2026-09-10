@@ -51,6 +51,7 @@ def main() -> int:
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
+    parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
@@ -341,6 +342,12 @@ def main() -> int:
         record_motility(app, window, stage, captures, capture,
                        settle, write_json, args.timeout,
                        probe_screen_export=args.motility_screen_export_probe)
+    elif args.module == 'classifier_evaluation':
+        from capture_evaluation import record_evaluation
+        if args.evaluation_from is None:
+            raise ValueError('The evaluation inspector requires --evaluation-from')
+        record_evaluation(app, window, stage, captures, capture, settle, write_json,
+                          args.timeout, args.evaluation_from)
     elif args.module == 'illumination':
         from capture_illumination import record_illumination
         record_illumination(app, window, stage, captures, capture,
