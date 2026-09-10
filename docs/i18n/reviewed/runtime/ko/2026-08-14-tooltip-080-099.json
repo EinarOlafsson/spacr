@@ -81,13 +81,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "positive_control",
-      "source_sha256": "2756812b188101d4307d8ffdf0a5ee28de6f92292b079dee2c93b84912009f16",
-      "source": "Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
-      "translation": "양성 대조 클래스 식별자입니다. ML 스크리닝에서는 location_column 의 값(예: 'c2') 이며 해당 객체를 훈련 클래스 1 로 표시합니다. gRNA 회귀에서는 계수 이름에 맞출 유전자/gRNA ID 부분 문자열(예: '239740') 이며 결과와 화산 그림에 'pc' 태그를 붙입니다. 각 기본값은 'c2' 와 '239740' 입니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "queue_diversity",
       "source_sha256": "6fa3b9bcf90491200a7026eda9b6d0393072921742aa4eaefeba02ad954d4bdf",
       "source": "Metadata level across which the annotation queue is distributed. Ranking solely by uncertainty can concentrate the highest-ranked crops in one or two wells, repeatedly sampling the same source of ambiguity. Distribution across wells or plates increases experimental coverage at a modest cost in per-item uncertainty. Default 'well'.",

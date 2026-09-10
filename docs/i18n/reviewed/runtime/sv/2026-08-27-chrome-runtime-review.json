@@ -136,13 +136,6 @@
       "translation": "GPU"
     },
     {
-      "table": "setting_labels",
-      "key": "min_n",
-      "source_sha256": "cf112e915b77eeac1f0a397fa092744e1286a1de7266aa82acf79bcbc331ecf3",
-      "source": "Min n",
-      "translation": "Minsta n"
-    },
-    {
       "table": "ui",
       "key": "End-to-end demo",
       "source_sha256": "c0c2495a8ff1c22537c1a759b62586ac1e3d6dbddf07b12e1568910af25b4b2c",

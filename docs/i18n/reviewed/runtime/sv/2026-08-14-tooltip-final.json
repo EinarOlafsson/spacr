@@ -81,24 +81,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "negative_control",
-      "source_sha256": "d4ad22ab908cdd34ab6d58d288b1918e8efcd8444e8105f8ec5578bddeb5be18",
-      "source": "Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
-      "translation": "Identifierare för den negativa kontrollklassen. Vid ML-screening är detta värdet i location_column (t.ex. 'c1') vars objekt märks som klass 0 för träning; vid gRNA-regression är det en delsträng i gen-/gRNA-ID (t.ex. '233460') som matchas mot koefficientnamn för att märka dem 'nc' i resultatet och vulkandiagrammet. Standardvärdena är 'c1' respektive '233460'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "path_string",
       "source_sha256": "ab9508713fe61c4b57be76f8430878c6f738e991f30572ee773a129ea74767d2",
       "source": "Substring that must occur in a crop path for that crop to enter the dataset, for example 'cell_png' or 'nucleus_png'. The legacy name png_type remains accepted, although the setting performs only path filtering. Default 'cell_png'.",
       "translation": "Delsträng som måste förekomma i sökvägen till ett bildutsnitt för att bildutsnittet ska ingå i datamängden, till exempel 'cell_png' eller 'nucleus_png'. Det äldre namnet png_type godtas fortfarande, även om inställningen endast filtrerar sökvägar. Standardvärde 'cell_png'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "positive_control",
-      "source_sha256": "2756812b188101d4307d8ffdf0a5ee28de6f92292b079dee2c93b84912009f16",
-      "source": "Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
-      "translation": "Identifierare för den positiva kontrollklassen. Vid ML-screening är detta värdet i location_column (t.ex. 'c2') vars objekt märks som klass 1 för träning; vid gRNA-regression är det en delsträng i gen-/gRNA-ID (t.ex. '239740') som matchas mot koefficientnamn för att märka dem 'pc' i resultatet och vulkandiagrammet. Standardvärdena är 'c2' respektive '239740'."
     },
     {
       "table": "setting_tooltips",

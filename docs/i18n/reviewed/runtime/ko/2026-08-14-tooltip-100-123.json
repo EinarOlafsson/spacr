@@ -25,13 +25,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "save_to_db",
-      "source_sha256": "057593e8b74e3ed8514eb6c928bb34abe339657d948b36860e1835dd0d77c738",
-      "source": "After ML screen analysis, write the per-object model scores back into measurements.db as a 'predictions' column on the png_list table, matched on prcfo. Enable when you want to sort, filter or plot objects by score in the GUI; the CSV result files are written either way. Default False.",
-      "translation": "ML 화면 분석 뒤 객체별 모델 점수를 measurements.db 의 png_list 표에 'predictions' 열로 기록하며 prcfo 로 일치시킵니다. GUI 에서 점수로 객체를 정렬, 필터링, 그래프로 보려면 켜십시오. CSV 결과 파일은 어느 쪽이든 기록됩니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "schedule",
       "source_sha256": "1b4e1179b74d3af8f77aadff073c73576fe61b9e34539cd6eae2d706f51719df",
       "source": "Learning-rate scheduler used by spacr.deep_spacr.train_model: 'cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', or 'none'. Plateau reacts to validation loss; cosine and linear use the epoch budget; warm restarts periodically raise the rate to escape a narrow minimum. API: train_model(schedule=...). Default 'cosine'.",
@@ -103,9 +96,9 @@
     {
       "table": "setting_tooltips",
       "key": "tolerance",
-      "source_sha256": "0eb1e0609cd53905e17cdf9e8374e6486cff98590e6615ee6722f84e54dee72d",
-      "source": "How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
-      "translation": "minimum_cell_simulation 이 표본 수를 충분하다고 판단하려면 하위 표본 웰 평균이 전체 웰 평균에 얼마나 가까워야 하는지 정합니다. min_cell_count 를 None 으로 두면 이 값으로 그 수를 정합니다. int 는 백분율(2 는 2%), float 는 비율(0.02 는 같은 값) 로 읽으며 다른 형식은 ValueError 를 냅니다. 0.01 쪽으로 엄격하게 하면 웰마다 더 많은 세포를 요구해 더 많은 웰을 버리고, 0.05 쪽으로 완화하면 웰별 점수 잡음이 늘지만 드문 웰을 유지합니다. 기본값 0.02."
+      "source_sha256": "b84b7431ad4a7aa493ea08d88faa646c745e931b687e063003d4defc27f36bc1",
+      "source": "How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cells_per_well when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
+      "translation": "minimum_cell_simulation 이 표본 수를 충분하다고 판단하려면 하위 표본 웰 평균이 전체 웰 평균에 얼마나 가까워야 하는지 정합니다. min_cells_per_well 를 None 으로 두면 이 값으로 그 수를 정합니다. int 는 백분율(2 는 2%), float 는 비율(0.02 는 같은 값) 로 읽으며 다른 형식은 ValueError 를 냅니다. 0.01 쪽으로 엄격하게 하면 웰마다 더 많은 세포를 요구해 더 많은 웰을 버리고, 0.05 쪽으로 완화하면 웰별 점수 잡음이 늘지만 드문 웰을 유지합니다. 기본값 0.02."
     },
     {
       "table": "setting_tooltips",

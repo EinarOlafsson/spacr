@@ -719,32 +719,6 @@ The `interactive spaCR tutorial library
 captioned walkthroughs of installation and of each application workflow, in
 73 lessons with 50 voices across eight languages.
 
-Contributing and support
-------------------------
-
-Bug reports and focused feature requests are welcome through
-`GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.
-When reporting a failure, include the spaCR version, operating system, Python
-version, module settings and the relevant log excerpt. ``spacr-doctor``
-collects most of that for you.
-
-Licensing
-~~~~~~~~~
-
-spaCR is released under the `BSD 3-Clause License
-<https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_. Released
-versions through spaCR 1.4.9.9 remain available under the MIT License that
-accompanied those releases, and the PolyForm Noncommercial License that
-briefly applied between them has been withdrawn in favour of BSD 3-Clause.
-
-Tutorials
-~~~~~~~~~
-
-The `interactive spaCR tutorial library
-<https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
-captioned walkthroughs of installation and of each application workflow, in
-69 lessons with 50 voices across eight languages.
-
 Citing spaCR
 ~~~~~~~~~~~~
 
