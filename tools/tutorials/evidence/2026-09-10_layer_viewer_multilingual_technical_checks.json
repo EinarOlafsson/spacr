@@ -1,0 +1,162 @@
+{
+  "lesson": "57_layer_viewer",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_layer_viewer_current_workflow.json",
+  "canonical_english_sha256": "baa9efcdba48d277e8a0e1d5083527989563b55348b0eb88246a8eb655c6f978",
+  "scene_count": 20,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "e1c04f70e2ade85ea1d8d89516d561a6b08d7aa1",
+    "version": "1.5.0.4",
+    "module": "layer_viewer",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "57_layer_viewer.da.json": "63b3b7dc722bf5a9055b32aea0e4d187728e193df49f28db40e8a56818e42d42",
+    "57_layer_viewer.de.json": "292386994f0e83efcea181e37b942bdb7b2a2d192c8f855de9e2fc50c2a42a91",
+    "57_layer_viewer.es.json": "4756e12699ae3fe128565ff546acf7edfd1774fb2b8542d66afed24ca3b2520c",
+    "57_layer_viewer.fr.json": "1ace543091fd976be8f1608be87728cca0660b7b8007737844d570075aa16a66",
+    "57_layer_viewer.hi.json": "f01320f458f049e79571ff5dfd12c4d548f4bad63d69905f959353b510bb9104",
+    "57_layer_viewer.is.json": "b74e4f8d393c474a76fac2b002e2b8d4ea798b1e258261b7891e1427df35577c",
+    "57_layer_viewer.it.json": "9505a55ca460ff6a65691264a61cbcf7065155b4f4b55e22ae3ff918717fb3a9",
+    "57_layer_viewer.ja.json": "695a3a44ed4f77195cee9acc9c8bde912be611f51a5ca4e6af9ef267dad81f80",
+    "57_layer_viewer.ko.json": "3fe1b8fcaf9f9f10661c0e112cfedc95c80049ba4157f05d93643a7517a71f18",
+    "57_layer_viewer.nb.json": "2f254626e74d5a20006a499d53b240c3c81d1f173540d2e42727bacb6efee6a7",
+    "57_layer_viewer.pt-BR.json": "ccc2f8c15bd04435ad86f564e739768d4f8ba317204775670e49cc9788fc1d5a",
+    "57_layer_viewer.sv.json": "5c9374a4bbc444fa5bb87667cddcb1858cf0fd33e18f9fcbfa1375ed4974c9b7",
+    "57_layer_viewer.zh-CN.json": "2b2baf4363b0ed3a747d1514c38e28efd17dd63ab483ec26e75cc867e82338bc"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked real image-mask layers, sampled rendered pixels and native controls; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "cfbb5dacf61d35e3ec73b05a95edee704b162773eebe8b13b1b46aa87801010a",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "12463"
+        }
+      ],
+      "format": {
+        "duration": "415.433333",
+        "size": "27063344"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 54.66,
+        "content": "Actual approximately square pane after native divider resize and Fit, raw source image unchanged"
+      },
+      {
+        "seconds": 95.15,
+        "content": "Selected mask and visibility checkbox highlighted in actual top-first list"
+      },
+      {
+        "seconds": 277.275,
+        "content": "Actual world-coordinate status and mask label9, no field key or object handoff"
+      },
+      {
+        "seconds": 358.262,
+        "content": "Actual empty Shapes auxiliary layer, source overlay unchanged, no drawing tool"
+      }
+    ]
+  },
+  "poster_sha256": "376a3097688c6c0ea8eaa0b1f1719770bdae78741064c4ba71f50b07719e73a2",
+  "final_artifact_checks_sha256": "47d4dca625a123b83bae3e7d262044e2ef7578736fd3b76bfa4fabec14cc4f74",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "e038c516774c8e31f9bc4f048eff39d08b48be35600d09d1ad5276193bc9b49d"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "865d118e25ee10379349dd8144dc43f41444d54d9e51217fc2b320d2144c46f4"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "6ac25181f916e6b3ce8e310afb460c24fd19885c1c82ca8adb80389682858bad"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "a049e42c2238e90d96f5dd8bee23da06e46dcddb47d749eb356307a7816c04c3"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "a441cb368ba4800b5a8513589f3fab655fa07fb53401c341fde236975ecebfd8"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "706e08eced7da58093c9839de8351c02bae60e7147cd1615795e79ab5d5e42c8"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "4b97f6c2dcef2ce9f09fe0bc773810f61658c77977ec8d871675f806706c3068"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "9c974f456255d9ea038d23bf838267d13061eef81733b8d62842b8ce80f7e335"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "0fb4f21b11aa6b11da59d0c1152b65a7e9650408b26bd236851f221bb1381847"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "691cf3b4b6828b692adbff998d2d8b5b2bc0561c44275ff16ac5b050a23baddb"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "94bff01f4f4be0315b66dc7443bbbfa72fde91359b5be2b386c7cde167d7a2f2"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "cc6ada08a3a623940885f43fe6f5ff8ea02e0016533bba2d20a24f0cf898980a"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "4a42b7b155b8f6272c4a6fc59f4a483dce0033880bf5e4cda7bf9b6a65751a12"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "2ef7b29da1f5531281b6ae72df4da219cedf1e16f8e3fa4a0aae79be8c55c2a3"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "49a0dd699a0529da34a2afdf28f5291bf512327e47dfec28c9bc073c206f89a6"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.19266311089158705,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "14_make_masks",
+    "31_external_masks",
+    "54_qc_dashboard"
+  ],
+  "catalog_preservation_sha256": "1f1dc20345514689f2b13ebff505bd1da20338f95a58b76e30ea70b45b3a5619",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 773,
+    "selected_refreshed_lessons": 32,
+    "unselected_lessons_unchanged": 43
+  },
+  "scope_limits": [
+    "Reuse the verified fov01 TIFF pair from the External Masks tutorial: a 1994×1994 uint16 intensity plane and aligned 44-object cell-label plane. They exactly match planes 1 and 4 of the preserved acquired plate1_E01_1_1 array, with 3,976,036 pixels and no physical calibration supplied. Neutral fov01 filenames are not acquisition metadata. Private copies and all originals remain byte-identical. Nineteen small oracle tests and observed-red mutations accompany independent checks of 5,041 actual screen pixels in each of 26 states, with zero RGB-byte discrepancy. Full source arrays, histogram-derived 2/98 contrast limits, layer properties and gesture geometry are also checked; this is not complete pixel-by-pixel validation of arbitrary layers, multichannel/3D data, soft coverage, biological segmentation accuracy or physical calibration. Fit can stretch the image to its pane. No pipeline, AI request, image editing, direct export, linked-view object handoff or Points/Shapes drawing was performed. This screen's controls differ from the other image previews.",
+    "The actual wide-pane Fit stretches the source: y step 1.2249025398700533 and x step 0.6638156209987197. Native divider resize yields an approximately square pane; no application fix is claimed.",
+    "A bare GUI-loaded mask has field=None and selected_label=0. The demonstrated click reports label9 and world coordinates, but emits no experiment-wide object selection.",
+    "Native Plus Points and Plus Shapes add empty layers; ordinary clicks add no geometry. Removing layers changes only this view. No drawing/export/pipeline/AI action is claimed."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}
