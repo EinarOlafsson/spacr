@@ -9,6 +9,9 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from manager_data import verify_bind, verify_crop_plan
 from capture_report import snapshot_source
+from manager_data import verify_pruned_files, verify_pruned_registry, verify_archive_plan, verify_archived_files
+import copy
+import json
 
 
 @pytest.fixture
@@ -87,3 +90,78 @@ def test_original_and_writable_source_must_be_different_inodes(example):
     inputs['original_readonly'] = str(source)
     with pytest.raises(ValueError, match='isolated writable clone'):
         verify_crop_plan(plan, inputs)
+
+
+@pytest.mark.parametrize('change', ['left-crop', 'lost-measurement', 'changed-measurement', 'new-file'])
+def test_cleanup_preserves_every_other_byte(example, change):
+    _, inputs, _ = example
+    before = inputs['clone_files']
+    after = {k: v for k, v in before.items() if not k.startswith('data/')}
+    assert verify_pruned_files(before, after)['unchanged_non_registry_files'] == 1
+    after = copy.deepcopy(after)
+    if change == 'left-crop': after['data/one.png'] = before['data/one.png']
+    if change == 'lost-measurement': after.pop('measurements.db')
+    if change == 'changed-measurement': after['measurements.db']['sha256'] = 'wrong'
+    if change == 'new-file': after['unrelated'] = before['data/one.png']
+    with pytest.raises(ValueError, match='Cleanup changed files'):
+        verify_pruned_files(before, after)
+
+
+@pytest.mark.parametrize('change', ['lost-row', 'changed-recipe', 'other-row', 'wrong-bytes', 'no-mark'])
+def test_cleanup_retains_recipe_and_exact_mark(change):
+    before = [dict(artifact_id='a', kind='crops', extra_json='{}', settings='recorded'),
+              dict(artifact_id='b', kind='measurements-db', extra_json='{}', settings='recorded')]
+    after = copy.deepcopy(before)
+    mark = dict(pruned_utc='real-time', pruned_by_spacr='real-version', pruned_freed_bytes=20)
+    after[0]['extra_json'] = json.dumps(mark)
+    assert verify_pruned_registry(before, after, 20)[0]['artifact_id'] == 'a'
+    if change == 'lost-row': after.pop()
+    if change == 'changed-recipe': after[0]['settings'] = 'changed'
+    if change == 'other-row': after[1]['settings'] = 'changed'
+    if change == 'wrong-bytes': after[0]['extra_json'] = json.dumps({**mark, 'pruned_freed_bytes': 21})
+    if change == 'no-mark': after[0]['extra_json'] = '{}'
+    with pytest.raises(ValueError):
+        verify_pruned_registry(before, after, 20)
+
+
+@pytest.mark.parametrize('change', ['wrong-root', 'wrong-destination', 'not-whole', 'missing-item',
+                                     'duplicate-item', 'occupied-destination', 'count', 'bytes'])
+def test_archive_target_is_exact_and_empty(example, tmp_path, change):
+    source, inputs, _ = example
+    archive = tmp_path/'archive'
+    archive.mkdir()
+    inputs['archive'] = str(archive)
+    inv = snapshot_source(source)
+    plan = SimpleNamespace(root=str(source), destination=str(archive), whole_project=True,
+                           items=[SimpleNamespace(source=str(p), destination=str(archive/p.name))
+                                  for p in source.iterdir()], total_files=len(inv),
+                           total_bytes=sum(r['bytes'] for r in inv.values()))
+    assert verify_archive_plan(plan, inputs) == inv
+    if change == 'wrong-root': plan.root = str(tmp_path)
+    if change == 'wrong-destination': plan.destination = str(tmp_path)
+    if change == 'not-whole': plan.whole_project = False
+    if change == 'missing-item': plan.items.pop()
+    if change == 'duplicate-item': plan.items.append(plan.items[0])
+    if change == 'occupied-destination': (archive/'keep.txt').write_text('existing data')
+    if change == 'count': plan.total_files += 1
+    if change == 'bytes': plan.total_bytes += 1
+    with pytest.raises(ValueError, match='exact private project'):
+        verify_archive_plan(plan, inputs)
+
+
+@pytest.mark.parametrize('change', ['missing', 'changed', 'extra', 'no-manifest', 'no-ledger', 'left-behind'])
+def test_archive_every_file_is_accounted_for(example, change):
+    _, inputs, _ = example
+    before = inputs['clone_files']
+    dest = copy.deepcopy(before)
+    dest['spacr_archive.json'] = {'bytes': 12, 'sha256': 'manifest'}
+    origin = {'spacr_archive_log.json': {'bytes': 12, 'sha256': 'ledger'}}
+    assert verify_archived_files(before, dest, origin)['byte_identical_non_registry_files'] == 3
+    if change == 'missing': dest.pop('measurements.db')
+    if change == 'changed': dest['measurements.db']['sha256'] = 'changed'
+    if change == 'extra': dest['unexpected'] = before['data/one.png']
+    if change == 'no-manifest': dest.pop('spacr_archive.json')
+    if change == 'no-ledger': origin.clear()
+    if change == 'left-behind': origin['measurements.db'] = before['measurements.db']
+    with pytest.raises(ValueError, match='Archive did not preserve'):
+        verify_archived_files(before, dest, origin)
