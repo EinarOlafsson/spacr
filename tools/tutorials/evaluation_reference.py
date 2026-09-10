@@ -95,3 +95,63 @@ def verify_gui_matrix(table, reference, names=('infected_1', 'infected_2')):
             raise ValueError('Actual confusion columns differ')
         check_numbers(rows[name], dict(zip(names, reference['confusion'][index])))
     return dict(passed=True, cells=4)
+
+
+def verify_gui_predictions(table, saved, filter_text=''):
+    """Compare the complete bounded GUI table with its real saved records."""
+    if not saved or len(saved) > 2000:
+        raise ValueError('This tutorial check requires a complete bounded prediction table')
+    columns = list(saved[0])
+    if table['columns'] != columns:
+        raise ValueError('Prediction columns differ')
+    terms = filter_text.casefold().split()
+    expected = [r for r in saved if all(term in ' '.join(str(r[c]) for c in columns).casefold()
+                                      for term in terms)]
+    expected = {r['basename']: r for r in expected}
+    if len(expected) != sum(all(term in ' '.join(str(r[c]) for c in columns).casefold()
+                               for term in terms) for r in saved):
+        raise ValueError('The saved prediction identities are duplicated')
+    actual = {}
+    for row in table['rows']:
+        if len(row) != len(columns):
+            raise ValueError('A GUI prediction row has missing cells')
+        values = dict(zip(columns, row))
+        if values['basename'] in actual:
+            raise ValueError('A GUI prediction is duplicated')
+        actual[values['basename']] = values
+    if set(actual) != set(expected):
+        raise ValueError('Filtered prediction identities differ')
+    checked = 0
+    for name, row in actual.items():
+        for column in columns:
+            value = expected[name][column]
+            if column in {'fold','true_label','predicted_label','confidence'} or column.startswith(('prob_', 'raw_prob_')):
+                check_numbers({column: row[column]}, {column: float(value)}, formatted=True)
+            elif row[column] != str(value):
+                raise ValueError('Prediction text differs: ' + column)
+            checked += 1
+    return dict(passed=True, rows=len(actual), checked_cells=checked, filter_text=filter_text)
+
+
+def verify_error_lists(snapshot, saved, true_class='infected_1', predicted_class='infected_2'):
+    """Independently check the unchanged error cell and both confidence lists."""
+    threshold = float(snapshot['threshold'])
+    if not math.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError('Invalid inspection confidence threshold')
+    rows = [r for r in saved if r['true_class'] == true_class and r['predicted_class'] == predicted_class]
+    high = sorted([r for r in rows if float(r['confidence']) >= threshold], key=lambda r: -float(r['confidence']))
+    low = sorted([r for r in rows if float(r['confidence']) < threshold], key=lambda r: float(r['confidence']))
+    for key, expected in [('high',high),('low',low)]:
+        actual = snapshot[key]
+        if not expected:
+            if actual != ['(none)']:
+                raise ValueError('The empty confidence list differs')
+            continue
+        if len(actual) != len(expected):
+            raise ValueError('Confidence list count differs')
+        for text, row in zip(actual, expected):
+            confidence, name = text.split(maxsplit=1)
+            if name != row['basename'] or abs(float(confidence) - float(row['confidence'])) > .000500001:
+                raise ValueError('Confidence list identity, order or rounded value differs')
+    return dict(passed=True, error_cell_count=len(rows), high=len(high), low=len(low), threshold=threshold,
+                causal_diagnosis_validated=False)

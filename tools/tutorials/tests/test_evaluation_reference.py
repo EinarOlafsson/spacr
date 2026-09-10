@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from evaluation_reference import binary_reference, check_numbers, verify_saved, verify_gui_matrix
 from build_evaluation_example import canonical_identity
+from evaluation_reference import verify_gui_predictions, verify_error_lists
 
 
 def example():
@@ -71,3 +72,61 @@ def test_database_identity_is_not_guessed_from_legacy_filename_or_traversal():
 def test_formatted_gui_numbers_and_nonfinite_values():
     check_numbers({'speed':'0.9188'},{'speed':.9188034188},formatted=True)
     with pytest.raises(ValueError): check_numbers({'speed':'nan'},{'speed':.9188034188},formatted=True)
+
+
+def saved_predictions():
+    return [dict(basename=f'object_{i}.png', true_class='infected_1', predicted_class='infected_2',
+                 confidence=str(value), well=well, true_label='0', predicted_label='1', correct='False')
+            for i,value,well in [(0,.9543,'plate1_r5_c2'),(1,.63,'plate1_r5_c2'),(2,.866,'plate1_r12_c2')]]
+
+
+def gui_table(rows):
+    return dict(columns=list(rows[0]),rows=[[str(v) for v in r.values()] for r in rows])
+
+
+def test_filter_has_exact_rows_and_restores_unchanged_table():
+    rows=saved_predictions();table=gui_table(rows)
+    assert verify_gui_predictions(table,rows)['checked_cells']==24
+    assert verify_gui_predictions(gui_table(rows[:2]),rows,'r5_c2')['rows']==2
+    assert verify_gui_predictions(gui_table(rows[1:2]),rows,'r5_c2 object_1')['rows']==1
+    assert verify_gui_predictions(table,rows)['rows']==3
+    with pytest.raises(ValueError,match='identities'):
+        verify_gui_predictions(table,rows,'r5_c2')
+
+
+@pytest.mark.parametrize('change', ['columns','duplicate','missing_cell','text','number'])
+def test_prediction_table_changes_go_red_after_positive_counterpart(change):
+    rows=saved_predictions();table=gui_table(rows)
+    verify_gui_predictions(table,rows)
+    if change=='columns': table['columns'][1]='wrong'
+    elif change=='duplicate':table['rows'][1]=table['rows'][0][:]
+    elif change=='missing_cell':table['rows'][0].pop()
+    elif change=='text':table['rows'][0][1]='wrong'
+    else:table['rows'][0][3]='0.2'
+    with pytest.raises(ValueError):verify_gui_predictions(table,rows)
+
+
+def test_confidence_threshold_repartitions_same_errors_without_reclassification():
+    rows=saved_predictions()
+    initial=dict(threshold=.75,high=['0.954  object_0.png','0.866  object_2.png'],low=['0.630  object_1.png'])
+    assert verify_error_lists(initial,rows)['high']==2
+    initial['threshold']=.866
+    assert verify_error_lists(initial,rows)['high']==2
+    raised=dict(threshold=.95,high=['0.954  object_0.png'],low=['0.630  object_1.png','0.866  object_2.png'])
+    assert verify_error_lists(raised,rows)['low']==2
+    raised['threshold']=1
+    with pytest.raises(ValueError):verify_error_lists(raised,rows)
+    raised.update(high=['(none)'],low=['0.630  object_1.png','0.866  object_2.png','0.954  object_0.png'])
+    assert verify_error_lists(raised,rows)['high']==0
+
+
+@pytest.mark.parametrize('change',['order','rounding','count','identity'])
+def test_wrong_confidence_list_does_not_pass(change):
+    rows=saved_predictions()
+    s=dict(threshold=.75,high=['0.954  object_0.png','0.866  object_2.png'],low=['0.630  object_1.png'])
+    verify_error_lists(s,rows)
+    if change=='order':s['high'].reverse()
+    elif change=='rounding':s['low']=['0.620  object_1.png']
+    elif change=='count':s['high'].pop()
+    else:s['low']=['0.630  unknown.png']
+    with pytest.raises(ValueError):verify_error_lists(s,rows)
