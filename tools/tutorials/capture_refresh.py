@@ -328,6 +328,10 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'activation':
+        from capture_activation import record_activation
+        record_activation(app, window, stage, captures, capture,
+                          settle, write_json, args.timeout)
     elif args.module == 'image_scatter':
         from capture_image_scatter import record_scatter
         record_scatter(app, window, stage, captures, capture,
