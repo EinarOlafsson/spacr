@@ -5081,3 +5081,22 @@ Receipt: tools/tutorials/evidence/
 
 Next: verify the conda-forge installation route in a NEW private environment,
 without touching any existing environment or the other sessions' work.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLER PREFLIGHT CHECKPOINT.
+
+2955f4c9d verifies the actual public v1.5.0.5 Linux installer against that
+release's SHA256SUMS.txt: 69,453 bytes, SHA256
+21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488.
+It is a plain Bash .run, not a Makeself archive. My first verifier wrongly
+tried --info/--check; both were correctly rejected. That rejected receipt
+remains, and the corrected Bash syntax / --help / --dry-run checks pass.
+The real dry-run says default PyTorch backend auto and spaCR[qt]==1.5.0.5.
+No package installation, GUI or benchmark success is inferred from a plan.
+Seven focused tests pass; all four separately changed guards make tests
+fail, and restored guard lines are measured as executed. Tutorial 04 is
+NOT complete. No application/packaging files or release assets changed.
+
+In parallel, the private Conda installation is still running under the
+110-GiB guard: conda-forge 1.5.0.4, 472-package plan, 4,764,939,474 bytes to
+fetch. A solve is not installation acceptance. Its environment registry
+and package caches are isolated, and no existing environment is updated.
