@@ -1,0 +1,39 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "f5f1a3f649e5b4c7d83a6a340ed9a86783f720d44f3cad82146dc1e813fb8bad",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, disclosed synthetic truth, native fits and independently checked intervals; literal GUI and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Dose Response: tilpassede kurver, usikkerhet og begrunnede avvisninger",
+  "description": "Bruk dagens Dose Response-skjerm med en reproduserbar syntetisk tabell, sammenlign profil- og Wald-intervaller, og skill mellom tilpassede, ubegrensede og avviste resultater.",
+  "objectives": [
+    "Last inn eksplisitte konsentrasjoner og responser, og tilpass én kurve per navngitte serie.",
+    "Tolk midtpunktsestimater, intervallmetoder, vehikkelkontroller og avviste kurver.",
+    "Sammenlign resultater før sortering, kopier den faktiske rapporten, og skill GUI-kontroller fra API-eksport."
+  ],
+  "prerequisite": "Last ned den vedlagte SYNTHETIC-CSV-filen. Den inneholder 120 konstruerte rader: fire navngitte serier, ni positive konsentrasjoner pluss en vehikkelkontroll ved dose null og tre observasjoner per konsentrasjon. Balanserte avvik på minus 0,5, null og pluss 0,5 er verken biologiske replikater eller en kalibreringsstudie. De innlagte midtpunktene er 1,5, 2 og 500 utenfor området; den fjerde serien snur. Ingen registrert datasett-nedlaster for Dose Response, normalisering, vekting, replikatvelger, GUI-eksportknapp eller AI-konsoll demonstreres. Unit endrer en etikett, ikke data. I denne versjonen kan ny tilpasning etter sortering ødelegge identitetene til de viste radene; opptaket fullfører alle tilpasninger før sortering. Behold avvisninger og les hele rapporten. API: spacr.qt.widgets.dose_response.DoseResponseSpec, fit_frame og DoseResponseSet.table. Eksempeldata og plottkontroller er uavhengige av spaCRs tilpasningsfunksjoner; profilendepunktene kontrolleres mot implementasjonens oppgitte presisjon for log10-rotintervallet, ikke som en garanti for statistisk dekningsgrad.",
+  "scenes": [
+    "Åpne Dose Response i Data-delen på Home. Denne selvstendige visningen tilpasser en logistisk kurve med fire parametere til en konsentrasjonsserie. Den trenger faktiske konsentrasjoner og responser; den utleder ikke doser fra brønnnavn, bildekoordinater eller behandlingsetiketter.",
+    "Last ned den syntetiske CSV-filen som er lenket under leksjonens forutsetninger, og velg Load table. Dette er bevisst konstruerte programvareeksempler, ikke målte forbindelser. Filen og alle serienavn er merket syntetiske, slik at de pene kurvene ikke forveksles med forsøksresultater.",
+    "Filen inneholder 120 rader fordelt på fire serier. Hver har ni positive konsentrasjoner, en vehikkelkontroll ved dose null og tre observasjoner ved hver konsentrasjon. De små, balanserte kunstige avvikene bevarer modellens middelverdi ved hver dose; eksemplet validerer ikke statistiske egenskaper i virkelige forsøk.",
+    "Velg concentration som konsentrasjonskolonne, response som responskolonne og series under One curve per. Oppgi rå konsentrasjoner, ikke logaritmene deres. Gruppering er viktig: én kurve tilpasset alle fire ulike seriene ville besvare feil spørsmål.",
+    "Unit-feltet er bare en etikett. Her skriver vi u M for å merke de illustrative konsentrasjonene som mikromolare; tekstendringen skalerer aldri tallene. Gjør nødvendig normalisering eller enhetsomregning på forhånd, siden denne skjermen ikke har kontroller for normalisering eller vekting.",
+    "La Profile likelihood være valgt og Fit non-monotone data være avslått, og velg Fit. Kurvepanelet og resultattabellen oppdateres sammen. Alle fire serier tas med, også et ubegrenset resultat og en avvisning; et manglende estimat er ikke en manglende serie.",
+    "Velg synthetic inhibition. Det gjenfunne midtpunktet er 1,5 med negativ Hill-helning, fordi responsen faller når konsentrasjonen øker. Halvmaksimum betyr halvveis mellom de tilpassede platåene, her fem og 95; det betyr ikke automatisk 50 prosent levedyktighet.",
+    "Velg synthetic activation. Det gjenfunne midtpunktet er to, og Hill-helningen er positiv. Den valgte kurven fremheves mens de andre tilpassede kurvene forblir synlige. Les den valgte raden og rapporten sammen, slik at du ikke tilordner en annen kurves estimat til denne serien.",
+    "Eksemplet utenfor området er konstruert med et midtpunkt på 500, men konsentrasjonene stopper ved 100. Skjermen viser et ubegrenset resultat, lar midtpunkt- og intervallfeltene stå tomme og angir en grense ved kanten. En tilpasset ekstrapolasjon er ikke et støttet punktestimat.",
+    "Serien som snur, avvises fordi en monoton logistisk kurve har feil form. Les hele forklaringen under tabellen. En respons som snur, påviser ikke i seg selv cytotoksisitet eller en annen biologisk årsak; undersøk forsøket i stedet for blindt å fjerne doser eller tvinge frem en tilpasning.",
+    "Inhibisjonsrapporten teller 27 tilpassede observasjoner og tre kontroller ved dose null. Nullkonsentrasjoner utelates fra den logaritmiske tilpasningen og oppsummeres separat; de omgjøres ikke skjult til svært små positive doser. Det syntetiske vehikkelgjennomsnittet er 95, lik det konstruerte lavdoseplatået.",
+    "Les også residualfeil og vurderingen av manglende modelltilpasning, ikke bare R i annen. Dette bevisst balanserte eksemplet har uvanlig pene diagnostiske mål. Gjentatte observasjoner ved hver konsentrasjon brukes uten en egen replikatvelger, og disse kunstige gjentakelsene dokumenterer ikke uavhengighet mellom målinger i et virkelig forsøk.",
+    "Velg Wald og trykk Fit igjen for å sammenligne intervallmetoder. Å endre velgeren alene beregner ikke et eksisterende resultat på nytt. Intervallet beregnes for logaritmen til midtpunktet og transformeres tilbake; det er ikke en symmetrisk feilmargin lagt direkte til konsentrasjonen.",
+    "Eksemplene med godt avgrensede midtpunkter beholder punktestimatene, mens intervallenes endepunkter endres litt. Eksemplet utenfor området får fortsatt ikke noe midtpunktsestimat. Endelige intervaller i disse pene eksemplene beviser verken at et annet forsøk identifiserer sitt midtpunkt, eller at nominell dekningsgrad holder for dets støy og forsøksdesign.",
+    "Gjenopprett Profile likelihood og velg Fit igjen. Kontroller at resultatene nå tilsvarer den metoden. Kurven, tabellen og den valgte rapporten er koblede visninger av den fullførte tilpasningen; de er ikke en live-forhåndsvisning som automatisk tilpasser på nytt når en kontroll endres.",
+    "Fullfør sammenligningene av tilpasninger før du sorterer tabellen. Denne versjonen kan blande de viste radene når en sortert tabell tilpasses på nytt, så ikke stol på den rekkefølgen. Her sorterer vi først etter tilpasningen, velger inhibition og bekrefter at riktig rapport vises.",
+    "Marker og kopier rapportteksten med den vanlige hurtigtasten. Behold advarsler, begrunnelser for avvisning, inngangskonsentrasjoner og valgt intervallmetode sammen med resultatet. Et enkelt midtpunkt uten denne sammenhengen utelater opplysningene som avgjør om det kan tolkes.",
+    "Denne skjermen har ingen eksportknapp. Dose-response-API-et tilbyr fit_frame og en resultattabell for programmatisk utdata; API-leksjonen forklarer bruk fra Python. Behold ubegrensede og avviste rader ved eksport, fremfor bare forbindelsene som ga bekvemme tall."
+  ]
+}
