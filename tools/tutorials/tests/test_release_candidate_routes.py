@@ -16,7 +16,11 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     lessons = english['lessons']
     unavailable = [x for x in lessons if x.get('status') == 'coming_soon']
     ready = [x for x in lessons if x.get('status') != 'coming_soon']
-    assert len(ready) == 71 and len(lessons) == 76
+    # 76 -> 77 on 2026-09-11: Embeddings shipped a Home tile after this
+    # candidate was verified, so it is carried as an explicit Coming soon
+    # route rather than excluded. Playable stays 71 -- a placeholder is
+    # not a lesson and must never be counted as one.
+    assert len(ready) == 71 and len(lessons) == 77
     assert [x['id'] for x in unavailable] == list(PLACEHOLDERS)
     nav = build(english)
     assert nav['missing_tutorials'] == []

@@ -94,8 +94,22 @@ print(json.dumps({
 
 
 def _registered_gui_modules():
-    """Return the live Home-module keys."""
+    """Every key in APPS, tiled or not."""
     return set(_live_gui_inventory()["registry"])
+
+
+def _home_tile_modules():
+    """The keys that actually draw a tile on Home.
+
+    APPS MEMBERSHIP DOES NOT IMPLY A HOME TILE, and conflating the two is
+    what made this audit reject correct lessons. Several modules are
+    registered AND reached through a parent -- `train_compare` under
+    Classify, `profiler` under Regression -- so their lesson rightly names a
+    `host_app_key`, and a rule keyed on APPS called that an error. Whether a
+    lesson may name a host is a question about TILES, which is what
+    `tiled_apps()` answers.
+    """
+    return set(_live_gui_inventory()["home_tiles"])
 
 
 def _folded_lesson_hosts():
@@ -114,8 +128,31 @@ def _folded_lesson_hosts():
 
 
 def _tutorial_catalog():
+    """The PUBLISHED collection -- what the live site currently serves."""
     return frames.load_catalog(
         ROOT / "docs" / "source" / "_extra" / "tutorials" /
+        "lesson_catalog.js"
+    )
+
+
+def _candidate_catalog():
+    """The RELEASE CANDIDATE -- the course as it will next be published.
+
+    THE TWO ARE DELIBERATELY SEPARATE while publication is held, and which
+    one a check reads is part of what the check MEANS. A deployed-site
+    assertion must keep reading the published collection: pointed at the
+    candidate it would report a site as updated that has not been.
+
+    Route COMPLETENESS is the other kind. It compares the course against the
+    LIVE module registry, and the registry moves whenever a module ships --
+    so asking it of a frozen published collection makes every new module a
+    failure of the tutorials rather than a fact about them. Embeddings
+    landed on 2026-09-11 and did exactly that. The candidate is where a new
+    module gets its route, as a lesson or as an explicit Coming soon screen,
+    so the candidate is what completeness is a question about.
+    """
+    return frames.load_catalog(
+        ROOT / "tools" / "tutorials" / "release_candidate" / "web" /
         "lesson_catalog.js"
     )
 
@@ -131,7 +168,8 @@ def test_every_module_and_fold_has_exactly_one_current_tutorial_route():
     """
     registry = _registered_gui_modules()
     folded_hosts = _folded_lesson_hosts()
-    lessons = _tutorial_catalog()["lessons"]
+    # THE CANDIDATE, not the published collection -- see `_candidate_catalog`.
+    lessons = _candidate_catalog()["lessons"]
     routed = [lesson for lesson in lessons if lesson.get("app_key")]
     lesson_keys = [lesson["app_key"] for lesson in routed]
 
@@ -139,15 +177,24 @@ def test_every_module_and_fold_has_exactly_one_current_tutorial_route():
         "each module or folded workflow must have exactly one lesson")
     assert set(lesson_keys) == registry | set(folded_hosts)
 
+    home_tiles = _home_tile_modules()
     failures = []
     for lesson in routed:
         key = lesson["app_key"]
         host = lesson.get("host_app_key")
-        if key in registry:
+        if key in home_tiles:
             if host is not None:
                 failures.append(
-                    f"{lesson['id']}: live module {key!r} must not name "
-                    f"a folded host ({host!r})")
+                    f"{lesson['id']}: {key!r} draws its own Home tile and "
+                    f"must not name a folded host ({host!r})")
+            continue
+        if key in registry:
+            # REGISTERED BUT NOT TILED, and that is allowed to look two ways.
+            # `train_compare` and `profiler` are reached through a parent and
+            # name it; `report` and `run_history` are reached from Help and
+            # utilities and name nothing. Both are correct, so this rule says
+            # nothing about them -- it constrains TILES, which must not claim
+            # a host, and folds, which must name the right one.
             continue
         expected = folded_hosts.get(key)
         if host != expected:
@@ -238,10 +285,15 @@ if (LESSONS[2].host_app_key !== 'measure') process.exit(4);
 
 def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
     """A move changes navigation, not a retained lesson's media identity."""
-    source = (ROOT / "docs/source/_extra/tutorials/module_navigation.js").read_text(
-        encoding="utf-8")
+    # THE CANDIDATE, for the same reason the route audit reads it: this
+    # asserts placement against the LIVE Home tiles, and the live app moves
+    # while a published collection is frozen. Asked of the published files,
+    # every newly shipped module reads as a navigation error. The published
+    # collection's own checks are the ones that stay pointed at it.
+    source = (ROOT / "tools/tutorials/release_candidate/web/module_navigation.js"
+              ).read_text(encoding="utf-8")
     navigation = json.loads(source.split("Object.freeze(", 1)[1].rsplit(");", 1)[0])
-    lessons = _tutorial_catalog()["lessons"]
+    lessons = _candidate_catalog()["lessons"]
     sections = navigation["sections"]
     assert [section["id"] for section in sections] == ["main", "submodules"]
     assigned = navigation["intro"]["lessons"] + [

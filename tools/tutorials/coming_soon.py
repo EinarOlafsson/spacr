@@ -7,7 +7,17 @@ from copy import deepcopy
 
 HELD = ('12_map_barcodes', '21_model_compare', '22_model_zoo', '71_investigate_hit')
 OPS = '76_ops'
-PLACEHOLDERS = (*HELD, OPS)
+# Embeddings shipped a Home tile on 2026-09-11 (instruction 386 step 6) after
+# this candidate was verified, so the course had a registered module with no
+# route at all -- which the route audit is there to catch and did. A
+# placeholder is the honest entry: the module exists and the lesson does not.
+#
+# NO host_app_key, unlike OPS. `tiled_apps()` reports Embeddings AS a Home
+# tile and OPS as a fold on Mask, so OPS is a submodule route and this is a
+# main one. Giving it a host would nest it under a module it does not belong
+# to and the navigation contract would place it wrongly.
+EMBEDDINGS = '77_embeddings'
+PLACEHOLDERS = (*HELD, OPS, EMBEDDINGS)
 
 # Interface copy only: no narration is synthesized for an unavailable lesson.
 COPY = {
@@ -32,8 +42,10 @@ def release_catalog(source, language):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
     ids = [lesson['id'] for lesson in result['lessons']]
-    if len(ids) != len(set(ids)) or not set(HELD) <= set(ids) or OPS in ids:
-        raise ValueError('Expected distinct original lessons, four holds and no OPS lesson')
+    if (len(ids) != len(set(ids)) or not set(HELD) <= set(ids)
+            or OPS in ids or EMBEDDINGS in ids):
+        raise ValueError('Expected distinct original lessons, four holds, '
+                         'and neither generated placeholder already present')
     title, description = COPY[language]
     for lesson in result['lessons']:
         if lesson['id'] in HELD:
@@ -47,5 +59,12 @@ def release_catalog(source, language):
         'app_key': 'ops', 'host_app_key': 'mask', 'section': 'Segmentation models',
         'status': 'coming_soon', 'availability_title': title,
         'description': description, 'objectives': [], 'prerequisite': '', 'scenes': [],
+    })
+    result['lessons'].append({
+        'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
+        'title': 'Embeddings', 'series': 2, 'app_key': 'embeddings',
+        'section': 'Data', 'status': 'coming_soon',
+        'availability_title': title, 'description': description,
+        'objectives': [], 'prerequisite': '', 'scenes': [],
     })
     return result

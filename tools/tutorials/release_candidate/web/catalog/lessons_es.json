@@ -10824,6 +10824,21 @@
       "objectives": [],
       "prerequisite": "",
       "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Próximamente",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ],
   "language": "es"

@@ -9808,6 +9808,21 @@
       "objectives": [],
       "prerequisite": "",
       "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

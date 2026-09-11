@@ -9808,6 +9808,21 @@
       "objectives": [],
       "prerequisite": "",
       "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

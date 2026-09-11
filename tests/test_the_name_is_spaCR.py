@@ -69,6 +69,19 @@ ALLOWED_LINES = (
 #:
 #: DELIBERATELY NARROW: it matches an installer ASSET name, not the word.
 #: `SpaCR is a tool for...` in the same file is still a failure.
+#: A PUBLISHED RELEASE TITLE, which is somebody else's text. GitHub serves
+#: v1.5.0.4 under the title "SpaCR 1.5.0.4" -- mis-cased at the time and
+#: unchangeable now -- while v1.5.0.5 and v1.5.0.6 are correctly "spaCR".
+#: `capture_install_web.py` waits for the release page to CONTAIN its title,
+#: so the spelling there has to be the spelling GitHub renders; correcting it
+#: makes the wait time out and the capture fail on a page that is fine.
+#:
+#: Same reasoning as the asset URLs above, and it expires the same way: the
+#: pin is `RELEASE_VERSION = "1.5.0.4"`, and the moment it moves to a release
+#: titled correctly the exemption stops matching anything.
+RELEASE_TITLE = re.compile(
+    r"\bSpaCR (?:\{RELEASE_VERSION\}|\d+(?:\.\d+)+)")
+
 ASSET = re.compile(
     r"\bSpaCR-[\w.*<>-]+-(?:Windows|macOS|Linux)[\w.*-]*"
     r"\.(?:exe|pkg|run|dmg|deb|zip|tar\.gz)")
@@ -111,12 +124,35 @@ def _offenders():
         defines_a_constant = bool(
             path.suffix == ".py"
             and re.search(r"^SPACR\s*[:=]", text, re.M))
+        # DOES THIS FILE HANDLE THE ALL-CAPS PLACEHOLDER TOKEN? Same shape as
+        # the rule above -- file-scoped, and only for a file that actually
+        # WORKS with the token rather than one that mentions the project in
+        # shouting.
+        #
+        # `translate_pre_app.py` protects a placeholder across machine
+        # translation, and the sentence model welds it into a conjunction:
+        # `SPACRANDTOKEN` in German. Its recovery is
+        # `re.sub(r"SPACR[A-Z]*TOKEN", "spaCR", text)`, where SPACR is a
+        # PREFIX BEING MATCHED, not a spelling of the project -- the
+        # replacement on the same line is already "spaCR". Lowercase the
+        # pattern to satisfy this test and it stops matching, the placeholder
+        # is never restored, and the raw token ships inside the translation.
+        #
+        # `SPACRANDTOKEN` itself never tripped this rule: `\bSPACR\b` has no
+        # boundary before `A`. It is the regex literal, where `[` follows,
+        # and the prose naming the prefix, where a space does.
+        handles_the_placeholder = bool(
+            path.suffix == ".py"
+            and re.search(r"SPACR\[A-Z\]\*TOKEN", text))
         for number, line in enumerate(text.splitlines(), 1):
             # The asset name is removed rather than the LINE being skipped,
             # so a line that names an installer AND mis-cases the project
             # still fails on the second one.
             line = ASSET.sub("", line)
+            line = RELEASE_TITLE.sub("", line)
             line = LEGACY_IDENTIFIERS.sub("", line)
+            if handles_the_placeholder and "SPACR" in line:
+                line = line.replace("SPACR", "")
             if defines_a_constant and "SPACR" in line:
                 # `SPACR` IS AN IDENTIFIER IN THIS FILE, not a mention of the
                 # project. Several tests do `SPACR = <path to the package>`

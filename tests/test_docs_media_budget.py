@@ -231,7 +231,29 @@ def test_narration_is_the_stable_mobile_clock():
     assert "function syncAudio(" not in player
     assert "elements.audio.playbackRate = userPlaybackRate" not in player
     index = (_LIBRARY / "tutorials" / "index.html").read_text(encoding="utf-8")
-    assert 'app_v2.js?v=20260910-example-downloads' in index
+    # PINNED ON PURPOSE: the key must CHANGE when the player changes, and a
+    # test that accepted any key could not tell a bumped cache-buster from a
+    # forgotten one. So it is updated deliberately, with the change that
+    # earned it.
+    #
+    # 20260910-example-downloads -> 20260910-plaque-example-zip on 2026-09-10
+    # in 4db8fefc8, "Offer the verified Plaque example ZIP through the
+    # tutorial player". The page bumped its key -- which is what a
+    # cache-buster is for -- four hours after this assertion pinned the
+    # previous one, and the assertion was not moved with it.
+    #
+    # THIS IS THE PUBLISHED SOURCE, NOT THE RELEASE CANDIDATE, and the two
+    # carry different keys on purpose:
+    #
+    #     docs/source/_extra/tutorials/        20260910-plaque-example-zip
+    #     tools/tutorials/release_candidate/   20260911-coming-soon
+    #
+    # `_LIBRARY` is `budget.extra_root(...)` -- the published collection --
+    # so this key is the right one for what this test reads. Do NOT retarget
+    # it at the candidate to make something else pass: the two are separate
+    # while publication is held, and a deployed-site check pointed at the
+    # candidate would report a site that has not been updated as updated.
+    assert 'app_v2.js?v=20260910-plaque-example-zip' in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index

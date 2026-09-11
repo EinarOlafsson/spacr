@@ -10824,6 +10824,21 @@
       "objectives": [],
       "prerequisite": "",
       "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ],
   "language": "hi"
