@@ -51,6 +51,7 @@ def main() -> int:
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
+    parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
@@ -68,6 +69,8 @@ def main() -> int:
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
         parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
+    if args.classifier_existing_split and (args.module != 'classify_merged' or args.classifier_family != 'cv' or not args.run):
+        parser.error('--classifier-existing-split requires --module classify_merged --classifier-family cv --run')
     if args.anndata_api_introduction and args.module != 'anndata_export':
         parser.error('--anndata-api-introduction requires --module anndata_export')
     if args.barcode_saved_plots and args.module != 'barcode_qc':
@@ -997,6 +1000,17 @@ def main() -> int:
                 presets['classify_merged'] = bounded_settings()
                 write_json(captures / 'scientific_acceptance.json', {
                     'accepted': False, 'reason': 'Actual ML output identities not yet checked'})
+            if args.classifier_existing_split:
+                from classify_split_evidence import inspect_inputs
+                input_proof = inspect_inputs(args.classifier_existing_split)
+                write_json(captures / 'canonical_input_checks.json', input_proof)
+                write_json(captures / 'scientific_acceptance.json', {
+                    'accepted': False, 'reason': 'The prepared split has not completed a verified native run'})
+                presets['classify_merged'].pop('gradient_accumulation', None)
+                presets['classify_merged'].update(
+                    src=[str(args.classifier_existing_split.resolve())],
+                    generate_training_dataset=False, n_jobs=0, val_split=0.5,
+                    test_split=0.5, train_channels=['r', 'g', 'b'])
             if args.module == 'recruitment':
                 from recruitment_data import prepare_subset
                 source = WORKSPACE.parent / 'test_datasets/spacr/tutorials'
@@ -1195,7 +1209,12 @@ def main() -> int:
             if not final_acceptance['accepted']:
                 raise RuntimeError('The completed result tour exposed an error: '
                                    + '; '.join(final_acceptance['reasons']))
-            if args.module == 'classify_merged' and args.classifier_family == 'cv':
+            if args.classifier_existing_split:
+                from classify_split_evidence import inspect_finished, inspect_metrics
+                proof = inspect_finished(args.classifier_existing_split)
+                proof['independent_test_metrics'] = inspect_metrics(args.classifier_existing_split)
+                write_json(captures / 'scientific_acceptance.json', proof)
+            elif args.module == 'classify_merged' and args.classifier_family == 'cv':
                 from capture_classify import inspect_database_split
                 generated = [line.partition('Generated Train set: ')[2]
                              for block in blocks for line in block.splitlines()
