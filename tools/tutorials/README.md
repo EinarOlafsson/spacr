@@ -42,6 +42,31 @@ The user confirmed these requirements on 9 September:
 An inventory or passing structural test is not a completed tutorial. Only
 validated recordings, narration, captions, and links close a lesson.
 
+### Final library and web-copy checkpoints
+
+`verify_library_checkpoint.py --held 12_map_barcodes 21_model_compare
+22_model_zoo 71_investigate_hit --output <private-report.json>` reconciles
+every other staged lesson, including the explicit whole-media retention path.
+It checks final bytes against existing audio/browser reports, all fourteen
+catalogs, and the current navigation registry. Listed holds and missing routes
+(including OPS) remain visible; passing the checked subset is not whole-library
+or publication approval. No model, synthesis or full-suite coverage run occurs.
+
+`stage_web_renditions.py --all-verified` consumes the private
+`library-checkpoint-2026-09-11.json` and uses the existing publisher encoder to
+prepare 1440p copies under `web-renditions/`, never in the live docs/media tree.
+Use the 100-GiB memory guard. Encoding is serial with two encoder/filter threads;
+frame counts, every presentation timestamp and full decoding are checked.
+Matching completed copies are reused on restart. Plate Viewer's moved-only
+1440p file is copied byte-for-byte from the existing docs asset, not re-encoded.
+
+`verify_staged_lesson.py --lesson <id> --web-rendition` tests the actual private
+1440p bytes in the unchanged player, with independent `browser-web/` evidence.
+For whole-media retention also pass `--retained-media`. It checks the loaded
+video hash and decoded dimensions, narration/scene synchronization, links and
+mobile layout without replacing the original 4K browser reports. This does not
+replace visual review, listening approval, or the whole-set publication hold.
+
 ### Visual-only refresh with retained narration
 
 `retain_narration.py --lesson 34_database` compares the selected lesson in all

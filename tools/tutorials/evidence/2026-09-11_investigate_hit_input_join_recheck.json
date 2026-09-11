@@ -1,0 +1,21 @@
+{
+  "lesson": "71_investigate_hit",
+  "scope": "Current read-only input join recheck, not full hit investigation",
+  "error": {
+    "type": "KeyError",
+    "message": "'prcfo'"
+  },
+  "input_sha256": {
+    "measurements.db": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "recorded_predictions.csv": "47ba4d843d764cc59cd211768da1b173cf39dbf6d40d18c6f5cab9807102115a"
+  },
+  "inputs_unchanged": true,
+  "metadata_rows": 2341,
+  "prediction_rows": 234,
+  "metadata_basenames_unique": true,
+  "prediction_basenames_unique": true,
+  "matching_prediction_basenames": 234,
+  "complete_matched_workflow_established": false,
+  "application_modified": false,
+  "published": false
+}
