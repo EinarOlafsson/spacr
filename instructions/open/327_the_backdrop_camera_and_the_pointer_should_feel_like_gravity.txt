@@ -3,10 +3,19 @@
 
 Status:    (2), (3) AND (4) ARE DONE. (3) was wired by the OTHER session on
            2026-09-09 as `TourPilot`, offered in Preferences as "Tour the
-           interesting places". What is left is ONE thing: the GPU renderer
-           cannot shed work, so a weak integrated GPU asked to draw this
-           fullscreen has nothing to give up. `target_render_size` and the
-           user's `scale` are read only by the CPU widget.
+           interesting places".
+
+           (1) IS ANSWERED AND THE ANSWER IS "DO NOT BUILD IT", 2026-09-11.
+           The one remaining piece of work this file named was
+           render-to-texture on the GPU path, deferred for want of a GPU to
+           compile it on. Measured on an RTX 3090 Ti through a real GL
+           context, the slowest GPU shader at 4K is 4.87 ms against a
+           33.3 ms budget -- 7x to 25x inside it -- so resolution scaling
+           there would optimise nothing a user can perceive while adding a
+           failure surface. The choppiness the item opens with is the CPU
+           path (68.51 ms a frame at 4K, 14.6 fps) and its disconnected
+           adaptive scale. Numbers and reasoning at the foot of this file.
+           NOTHING HERE IS BLOCKED ON A GPU ANY MORE.
 
            A SECOND IMPLEMENTATION OF (3) WAS WRITTEN HERE ON 2026-09-10 AND
            REMOVED ON MERGE. See the note at the foot of this file; the
