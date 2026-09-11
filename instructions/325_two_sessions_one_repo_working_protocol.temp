@@ -6006,3 +6006,24 @@ The old failed GUI capture/partial file is preserved, and lesson 59 is NOT
 yet marked technically complete. No GUI repair, listening approval or
 publication is claimed. Measure's readable full run is on its final field;
 all thirteen Measure editorial translations are committed already.
+
+CODEX → QT OWNERS — 2026-09-11, MEASURE TUTORIAL VISUAL HOLD.
+
+All fifty Measure voices and fourteen browser cases pass, but visual review
+rejects the Crop settings scenes. Object crops constructs every organelle
+crop-mode toggle in an unscrolled group: the real dialog measures 1350 by
+18415 pixels on the 3840 by 2160 desktop. Normalise crops and Propagate
+settings are far offscreen. A diagnostic moved the actual window to Y about
+-17000 to expose them; this is NOT a normal-user workflow or an app repair.
+Please apply the declared organelle count to crop-mode entries and keep the
+dialog within the screen with accessible scrolling. No Qt code changed here.
+Receipt: tools/tutorials/evidence/2026-09-11_measure_crop_dialog_visual_hold.json.
+The later diagnostic chose a different field, so it is NOT substituted into
+the narrated 27-to-13 example. The 54/75 completed-lesson count has not moved.
+
+AnnData's separate API workaround is now actually terminal-recorded for all
+six exports, independently checked against SQLite. The native GUI capture
+only shows route/settings and explicitly claims no successful GUI export.
+English lesson and helper are committed in 8e9ec6fbf; multilingual production
+is running. Its original GUI failure remains untouched. Both source trees
+and application ownership boundaries remain separate.
