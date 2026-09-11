@@ -259,7 +259,19 @@ def main():
             check_related_links(transcript_links, expected)
             evidence['chapter_and_transcript_links'] = expected
             page.set_viewport_size({'width': 390, 'height': 844})
-            assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
+            mobile_geometry = page.evaluate('''() => ({
+                viewport: window.innerWidth, width: document.documentElement.scrollWidth,
+                overflowing: [...document.querySelectorAll('body *')].filter(node => {
+                    const r = node.getBoundingClientRect();
+                    return r.width > 0 && (r.right > window.innerWidth + 1 || r.left < -1);
+                }).slice(0, 30).map(node => ({tag: node.tagName, id: node.id,
+                    className: String(node.className), text: node.textContent.slice(0, 160),
+                    width: node.getBoundingClientRect().width}))
+            })''')
+            if mobile_geometry['width'] > mobile_geometry['viewport']:
+                write(output / 'mobile-overflow.json', mobile_geometry)
+                page.screenshot(path=str(output / 'mobile-overflow.png'), full_page=True)
+                raise AssertionError(f'Mobile overflow: {mobile_geometry}')
             page.screenshot(path=str(output / 'mobile.png'), full_page=True)
             assert not errors, errors
             evidence['passed'] = True

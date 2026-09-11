@@ -664,8 +664,8 @@
     },
     {
       "path": "web/styles.css",
-      "sha256": "8bb0f367a8809199610d3b12c5853b721dffa8055d45962caf6ae58d34a2262f",
-      "bytes": 35337
+      "sha256": "764feea88162a44168040aa6313dce9c7473141b996576c86f865d29e989f309",
+      "bytes": 35375
     },
     {
       "path": "web/voice_catalog.js",
