@@ -243,39 +243,22 @@ def _restore_app_registry():
     it tomorrow is covered without anyone remembering. Driven off
     ``_META_TARGETS`` so a new side table is undone without this being edited.
     """
-    import sys
-
     try:
         from spacr.qt import app as app_mod
     except Exception:
         yield
         return
 
-    apps = list(app_mod.APPS)
-    factories = dict(app_mod.APP_FACTORIES)
-    stages = dict(app_mod.APP_STAGE)
-    meta = dict(app_mod.APP_META)
-    side = []
-    for module_name, attribute, _field in app_mod._META_TARGETS:
-        module = sys.modules.get(module_name)
-        table = getattr(module, attribute, None) if module else None
-        if isinstance(table, dict):
-            side.append((table, dict(table)))
+    # TAKEN AT FUNCTION SETUP, so it cannot see past a module- or
+    # session-scoped fixture that registered first: putting it back would
+    # re-install that registration rather than remove it. That half is
+    # `_the_app_registry_is_left_as_the_session_found_it` below, which holds
+    # the session's own state and gives it back when the file ends.
+    snapshot = _app_registry_snapshot(app_mod)
     try:
         yield
     finally:
-        if list(app_mod.APPS) != apps:
-            app_mod.APPS[:] = apps
-            app_mod._refresh_sections()
-        app_mod.APP_FACTORIES.clear()
-        app_mod.APP_FACTORIES.update(factories)
-        app_mod.APP_STAGE.clear()
-        app_mod.APP_STAGE.update(stages)
-        app_mod.APP_META.clear()
-        app_mod.APP_META.update(meta)
-        for table, saved in side:
-            table.clear()
-            table.update(saved)
+        _restore_app_registry_to(app_mod, snapshot)
         # A side table that was only imported DURING the test is restored on
         # the next test instead; the snapshot above cannot hold what did not
         # exist yet, and re-snapshotting every teardown would defeat the point.
@@ -297,6 +280,102 @@ def _sandbox_remote_execution_state(monkeypatch, tmp_path):
     monkeypatch.setenv(
         "SPACR_REMOTE_STATE_DIR", str(tmp_path / "remote-execution-state")
     )
+
+
+@pytest.fixture(scope="session")
+def _registry_baseline():
+    """The app registry as the SESSION found it, captured once.
+
+    ``_restore_app_registry`` above is the right fixture for a leak a test
+    makes itself, and the wrong one for a leak made by a fixture with a
+    broader scope: it snapshots at function-setup time, which is AFTER any
+    module- or session-scoped fixture has already run, so its "restore"
+    puts the registration back rather than taking it out. Measured --
+    ``tests/qt/test_home_variants.py``'s module-scoped ``gen`` runs
+    ``common.bootstrap()``, the registry goes 39 -> 44 during that file's
+    first setup, and the count stays 44 for the rest of the session.
+
+    A session-start capture is the only fixed point available.
+    """
+    try:
+        from spacr.qt import app as app_mod
+    except Exception:                                        # noqa: BLE001
+        return None
+    return _app_registry_snapshot(app_mod)
+
+
+def _app_registry_snapshot(app_mod):
+    """Everything ``register_self_registering_modules()`` writes to.
+
+    The same shape ``_restore_app_registry`` saves, in one place so the
+    per-test restore and the per-module one cannot drift apart. Driven off
+    ``_META_TARGETS`` so a new side table is covered without an edit here.
+    """
+    import sys
+
+    side = []
+    for module_name, attribute, _field in app_mod._META_TARGETS:
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module else None
+        if isinstance(table, dict):
+            side.append((table, dict(table)))
+    return (list(app_mod.APPS), dict(app_mod.APP_FACTORIES),
+            dict(app_mod.APP_STAGE), dict(app_mod.APP_META), side)
+
+
+def _restore_app_registry_to(app_mod, snapshot):
+    """Put ``snapshot`` back. ``APPS`` is rebuilt only if it actually moved."""
+    apps, factories, stages, meta, side = snapshot
+    if list(app_mod.APPS) != apps:
+        app_mod.APPS[:] = apps
+        app_mod._refresh_sections()
+    app_mod.APP_FACTORIES.clear()
+    app_mod.APP_FACTORIES.update(factories)
+    app_mod.APP_STAGE.clear()
+    app_mod.APP_STAGE.update(stages)
+    app_mod.APP_META.clear()
+    app_mod.APP_META.update(meta)
+    for table, saved in side:
+        table.clear()
+        table.update(saved)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _the_app_registry_is_left_as_the_session_found_it(_registry_baseline):
+    """Undo a registration a module-scoped fixture made, when that module ends.
+
+    PER MODULE RATHER THAN PER TEST, and the scope is the whole point. A
+    module-scoped fixture registers once and the rest of that file is
+    entitled to see it -- ``test_home_variants`` has 89 tests that read the
+    registry ``gen`` built. Wiping after the first of them would break the
+    other 88. What must not happen is the registration outliving the file,
+    and that is what this stops.
+
+    THE FAILURE IT CLOSES. ``test_home_v2``'s
+    ``test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for`` finds
+    ``feature_explorer``, ``trellis``, ``outliers`` and ``control_chart`` in
+    the alpha set and fails -- in a full run, under some orderings only,
+    with the blame landing on whichever file drew the short straw. It is the
+    same hazard ``tests/qt/test_layout_drops.py`` writes out in full in its
+    own ``_app_keys``: "calling it here would register rows globally for the
+    whole test session -- including the ones a screen's own test asserts are
+    still switched off."
+
+    A FUNCTION-SCOPED VERSION OF THIS DOES NOT WORK and the reason is worth
+    keeping. Teardown runs in reverse setup order, so a function-scoped
+    restore tears down BEFORE ``_restore_app_registry`` -- which then puts
+    its own post-registration snapshot back over the top. Two fixtures
+    restoring to two different fixed points, and the later one wins.
+    """
+    if _registry_baseline is None:
+        yield
+        return
+    from spacr.qt import app as app_mod
+
+    try:
+        yield
+    finally:
+        _restore_app_registry_to(app_mod, _registry_baseline)
 
 
 @pytest.fixture(autouse=True)

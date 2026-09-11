@@ -2122,3 +2122,87 @@ and diffed against a backup.
   WHEN A THEORY FITS, THE NEXT STEP IS TO MEASURE THE THING IT PREDICTS,
   NOT TO ACT ON IT. Both diagnoses turned on making the program say what
   it actually held.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- "ORDER-DEPENDENCE IS ZERO" WAS TRUE OF ONE ORDERING. SEED 4 WAS
+NOT IT, AND THE SECOND CAUSE WAS IN THE FIRST FIX
+--------------------------------------------------------------------------------
+
+The 2026-09-10 note above closes with "SO THE SUITE'S ORDER-DEPENDENCE, AS
+OF TODAY, IS ZERO", confirmed on seeds 1, 2 and 3. SEED 4 FAILS THE SAME
+TEST, and did so immediately when it was tried. Three seeds agreeing is
+evidence about three orderings; the claim was about all of them.
+
+  A FIX CONFIRMED ON THE ORDERINGS THAT FOUND THE BUG IS CONFIRMED ON THE
+  ORDERINGS THAT FOUND THE BUG. Widening the seed set costs one command.
+
+THE SECOND CAUSE, and it is a different one. `APP_STAGE` left behind was
+real and is fixed. What seed 4 finds is the WHOLE REGISTRY GROWING: `APPS`
+goes from 39 rows to 44 and stays there, so `by_stage["alpha"]` gains
+`feature_explorer`, `trellis`, `outliers` and `control_chart`.
+
+THE REGISTRAR IS A MODULE-SCOPED FIXTURE.
+`tests/qt/test_home_variants.py::gen` runs the home-screen generators'
+`common.bootstrap()`, which registers. That file is entitled to the grown
+registry -- 89 of its tests read it -- and the growth must not outlive the
+file.
+
+AND `conftest`'s `_restore_app_registry` ALREADY EXISTED TO CATCH THIS AND
+STRUCTURALLY COULD NOT. It is function-scoped and snapshots at its own
+setup, which runs AFTER any module- or session-scoped fixture. So its
+snapshot already contains the registration and putting it back RE-INSTALLS
+it. The fixture is not wrong about anything it can see; it cannot see past
+its own scope.
+
+    A SAVE/RESTORE FIXTURE CANNOT UNDO WORK DONE BY A BROADER SCOPE THAN
+    ITS OWN. The same shape as `_widget_qss_registrars_loaded` in the same
+    file, which exists because two sandbox fixtures snapshot a lazily
+    filled global and restoring one DELETES entries. Written down there
+    for QSS and reproduced here for the app registry.
+
+THREE WRONG FIXES BEFORE THE RIGHT ONE, recorded because each looked
+finished:
+
+  1. A per-file fixture in the two files that call
+     `register_self_registering_modules()` directly. Fixed those two
+     pairs; seed 4 still failed. There was a third registrar.
+  2. The same fixture moved to `tests/qt/conftest.py`, function-scoped.
+     Still seed 4. Diagnosed by the detector PASSING IN THE SAME RUN where
+     `test_home_v2` failed -- the registry was clean when the detector
+     looked and grown when the alpha/beta lists did.
+  3. Function-scoped again, restoring to a SESSION-scoped baseline. Still
+     seed 4, and this one is the interesting failure: teardown runs in
+     reverse setup order, so it tore down BEFORE `_restore_app_registry`,
+     which then put its own post-registration snapshot back over the top.
+     TWO FIXTURES RESTORING TO TWO DIFFERENT FIXED POINTS, AND THE LATER
+     ONE WINS.
+
+WHAT FOUND IT, after three rounds of reasoning produced three wrong
+answers: a twenty-line pytest plugin that prints the registry length around
+every test's protocol, setup and teardown. It named the test in one run.
+
+    REGWATCH 39 -> 44 tests/qt/test_home_variants.py::test_every_categor...
+    SETUP-IN (39) ... SETUP-OUT (44) ... TEAR-IN (44) ... TEAR-OUT (44)
+
+  The same lesson as the duplicated console line and the autoapi warning,
+  for the third time in two days: PRINT THE STATE. Every hypothesis fitted
+  what was visible.
+
+THE FIX. `tests/qt/conftest.py` keeps `_restore_app_registry` for what it
+is good at -- a test that registers -- and gains
+`_the_app_registry_is_left_as_the_session_found_it`, MODULE-scoped and
+autouse, restoring to a session-start baseline when each file ends. Per
+module rather than per test because a module-scoped registrar's own file is
+entitled to see it; what must not happen is the registration outliving the
+file. Both drive off one `_app_registry_snapshot` / `_restore_app_registry_to`
+pair so the two fixed points cannot drift.
+
+CONFIRMED. chunk_014, seeds 4 and 1:
+
+    before   seed 4: 2 failed   seed 1: 1 failed
+    after    seed 4: 1 failed   seed 1: 1 failed
+
+and the one that remains on both is
+`test_i18n_caption_ratchet::test_external_caption_layer_is_complete_
+exclusive_and_pinned` -- the catalog staleness waiting on the merge from
+main, confirmed by running it against HEAD's own files.

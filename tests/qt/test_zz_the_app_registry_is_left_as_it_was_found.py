@@ -43,3 +43,52 @@ def test_the_registry_still_holds_what_the_package_declares():
     assert not orphans, (
         f"{orphans} have a stage but no row in APPS; a test registered a "
         f"screen and put back only half of what `register_app` wrote")
+
+
+@pytest.fixture(scope="session")
+def registry_at_session_start():
+    """The app keys present before any test in this session registered one.
+
+    THE ONLY FIXED POINT THERE IS. My first attempt compared against
+    `SELF_REGISTERING_MODULES`, on the theory that a self-registering module
+    in `APPS` must have been registered by a test. It is not true: five of
+    them -- `dose_response`, `gate_editor`, `investigate_hit`,
+    `project_browser`, `run_compare` -- are already there at import, which
+    is why that check failed on a clean run. "Self-registering" describes
+    how a module CAN be registered, not whether it already is.
+    """
+    from spacr.qt.app import APPS
+
+    return {key for key, *_rest in APPS}
+
+
+def test_no_test_left_an_app_registered_that_was_not_there_before(
+        registry_at_session_start):
+    """APPS itself must not have GROWN, which consistency cannot detect.
+
+    THE CHECK ABOVE MISSED A REAL LEAK, and this is the one it missed.
+    `spacr.qt.register_self_registering_modules()` adds rows to `APPS` AND
+    stages to `APP_STAGE`, so the two stay perfectly consistent -- no
+    orphans, nothing for the first test to see -- while the registry now
+    holds screens the package leaves switched off. `test_home_v2`'s
+    alpha/beta lists then found `feature_explorer`, `trellis` and
+    `outliers` among the alpha modules and failed, under some orderings
+    only.
+
+    A CONSISTENCY CHECK CANNOT SEE A CONSISTENT ADDITION.
+    """
+    from spacr.qt.app import APPS
+
+    present = {key for key, *_rest in APPS}
+    gained = sorted(present - registry_at_session_start)
+    assert not gained, (
+        f"{gained} were registered during this session and never removed. "
+        f"Every later test now sees screens that were not there when the "
+        f"session began. Ten files call "
+        f"`register_self_registering_modules()` deliberately and none of "
+        f"them is wrong to; the putting back belongs to "
+        f"tests/qt/conftest.py -- `_restore_app_registry` for a test that "
+        f"registers, and "
+        f"`_the_app_registry_is_left_as_the_session_found_it` for a "
+        f"module-scoped fixture that does, which the per-test one cannot "
+        f"see past.")
