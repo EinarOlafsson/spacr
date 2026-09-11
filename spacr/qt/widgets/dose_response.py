@@ -193,6 +193,10 @@ __all__ = [
     "SYNERGY_BLISS", "SYNERGY_LOEWE", "SYNERGY_MODELS",
     "InteractionSurface", "bliss_surface", "loewe_surface",
     "checkerboard_from_frame",
+    "NORMALISE_NONE", "NORMALISE_PERCENT", "NORMALISATIONS",
+    "PERCENT_COLUMN", "ZPRIME_MARGINAL",
+    "PlateSpec", "PlateReport",
+    "normalise_to_controls", "plate_reports",
     "candidate_concentration_columns", "candidate_response_columns",
 ]
 
@@ -2314,3 +2318,381 @@ def _dose_for_effect(result: DoseResponseResult,
             np.log10(ratio) / abs(float(result.hill))
     dose = np.where(np.isfinite(log10_dose), 10.0 ** log10_dose, np.nan)
     return np.where((e > 0) & (e < 1), dose, np.nan)
+
+
+# ---------------------------------------------------------------------------
+# The plate: normalisation to its controls, and the Z' it already has
+# ---------------------------------------------------------------------------
+
+#: Leave the response column alone. The default, because a table that is
+#: already percent inhibition must not be normalised twice.
+NORMALISE_NONE = "none"
+
+#: Percent inhibition against each plate's own controls: the negative control
+#: reads 0 and the positive control reads 100, whatever the raw units were.
+NORMALISE_PERCENT = "percent_inhibition"
+
+#: Every normalisation this module offers.
+NORMALISATIONS = (NORMALISE_NONE, NORMALISE_PERCENT)
+
+#: Column :func:`normalise_to_controls` writes when the caller names no other.
+PERCENT_COLUMN = "percent_inhibition"
+
+#: The Z' below which a plate is conventionally called unusable. Offered as a
+#: default for :attr:`PlateSpec.min_zprime`, never applied unless the caller
+#: asks for it -- a threshold nobody chose is a threshold nobody can defend.
+ZPRIME_MARGINAL = 0.5
+
+
+@dataclass(frozen=True)
+class PlateSpec:
+    """Which column is the plate, and which wells on it are the controls.
+
+    THE ENGINE HAD NO NOTION OF A PLATE, which is why it could fit a clean
+    EC50 on a plate the rest of the package already knew was bad. This is
+    that notion: the plate column, the control column, and the levels in it
+    that mean "full effect" and "no effect".
+
+    Frozen and JSON round-tripping like :class:`DoseResponseSpec`, so the
+    normalisation behind a figure travels with the fit that used it.
+
+    :param plate: column identifying the plate. Required.
+    :param control: column naming each well's control role. Required.
+    :param positive: levels of ``control`` that are the positive control --
+        the full-effect wells, which normalise to 100.
+    :param negative: levels that are the negative control -- vehicle or
+        untreated, which normalise to 0.
+    :param min_zprime: refuse every plate whose Z' falls below this, and say
+        the Z' in the refusal. ``None`` (default) gates nothing and still
+        reports the Z' beside each plate. :data:`ZPRIME_MARGINAL` is the
+        conventional 0.5 if you want one.
+    :raises DoseResponseError: when a column or a control level is missing,
+        at the point the spec is built rather than halfway through a plate.
+    """
+
+    plate: str = ""
+    control: str = ""
+    positive: Tuple[str, ...] = ()
+    negative: Tuple[str, ...] = ()
+    min_zprime: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        """Normalise the names and insist both controls exist.
+
+        :raises DoseResponseError: when ``plate`` or ``control`` is blank, or
+            when either control has no levels -- percent inhibition is a
+            two-point scale and one control cannot define it.
+        """
+        object.__setattr__(self, "plate", str(self.plate or "").strip())
+        object.__setattr__(self, "control", str(self.control or "").strip())
+        object.__setattr__(self, "positive",
+                           tuple(str(level) for level in self.positive))
+        object.__setattr__(self, "negative",
+                           tuple(str(level) for level in self.negative))
+        if not self.plate:
+            raise DoseResponseError(
+                "plate normalisation needs the column that identifies the "
+                "plate; without it every well on every plate would be scaled "
+                "by one pooled pair of controls, which is the error "
+                "normalising per plate exists to prevent")
+        if not self.control:
+            raise DoseResponseError(
+                "plate normalisation needs control_column set, so the "
+                "positive and negative levels have a column to be levels of")
+        if not self.positive or not self.negative:
+            raise DoseResponseError(
+                "percent inhibition is a two-point scale and needs BOTH "
+                "controls named: positive (full effect, reads 100) and "
+                "negative (vehicle, reads 0). With one of them there is an "
+                "offset but no assay window to divide by.")
+        if self.min_zprime is not None:
+            gate = float(self.min_zprime)
+            if not np.isfinite(gate):
+                raise DoseResponseError(
+                    f"min_zprime must be a finite number, not {self.min_zprime!r}")
+            object.__setattr__(self, "min_zprime", gate)
+
+    def to_json(self) -> Dict[str, Any]:
+        """A plain dict, for a settings file or a methods section."""
+        return {
+            "plate": self.plate,
+            "control": self.control,
+            "positive": list(self.positive),
+            "negative": list(self.negative),
+            "min_zprime": self.min_zprime,
+        }
+
+    @classmethod
+    def from_json(cls, payload: Mapping[str, Any]) -> "PlateSpec":
+        """Rebuild from :meth:`to_json`, validating on the way in."""
+        gate = payload.get("min_zprime")
+        return cls(plate=str(payload.get("plate", "")),
+                   control=str(payload.get("control", "")),
+                   positive=tuple(payload.get("positive", ()) or ()),
+                   negative=tuple(payload.get("negative", ()) or ()),
+                   min_zprime=None if gate is None else float(gate))
+
+
+@dataclass(frozen=True)
+class PlateReport:
+    """What one plate's controls said, and whether the plate may be fitted.
+
+    ONE ROW PER PLATE, REFUSALS INCLUDED. A plate that is dropped leaves a
+    report saying why it was dropped, so a user comparing eight plates and
+    seeing six curves can find the other two without re-running anything.
+
+    :param status: :data:`STATUS_FITTED` when the plate normalised, or
+        :data:`STATUS_REFUSED` -- the same vocabulary the curve fits speak.
+    :param zprime: the plate's Z-factor, or ``None`` when it has no Z'
+        because a control had fewer than two wells. ``None`` is not a
+        failure; it is the absence of a number, and is reported as such.
+    :param note: the sentence to show the user. Empty when nothing is wrong.
+    """
+
+    plate: str
+    status: str
+    n_positive: int
+    n_negative: int
+    mean_positive: Optional[float] = None
+    mean_negative: Optional[float] = None
+    separation: Optional[float] = None
+    zprime: Optional[float] = None
+    note: str = ""
+
+    @property
+    def usable(self) -> bool:
+        """Whether wells on this plate carry a normalised response."""
+        return self.status == STATUS_FITTED
+
+    def summary_row(self) -> Dict[str, Any]:
+        """One row for the plate table, refusal included."""
+        blank = float("nan")
+        return {
+            "plate": self.plate,
+            "status": self.status,
+            "zprime": blank if self.zprime is None else self.zprime,
+            "mean_positive": (blank if self.mean_positive is None
+                              else self.mean_positive),
+            "mean_negative": (blank if self.mean_negative is None
+                              else self.mean_negative),
+            "separation": blank if self.separation is None else self.separation,
+            "n_positive": self.n_positive,
+            "n_negative": self.n_negative,
+            "note": self.note,
+        }
+
+
+def _zprime_by_plate(frame: pd.DataFrame, spec: PlateSpec,
+                     response: str) -> Dict[str, float]:
+    """Per-plate Z', computed by the module that already computes it.
+
+    CALLS :func:`spacr.qt.widgets.control_chart.zprime_frame` RATHER THAN
+    REPEATING THE FORMULA. Two screens computing Z' two ways would be worse
+    than the gap this closes: the Control Chart screen would show 0.62 and
+    Dose-Response would refuse the same plate at 0.48, and no user could tell
+    which one to believe. The import is local because the only thing
+    dose-response needs from that module is this one function.
+
+    :returns: plate label to Z'. Plates whose controls have fewer than two
+        wells are absent -- ``zprime_frame`` leaves them out rather than
+        giving them a zero, and inventing one here would undo that. A table
+        where NO plate has a Z' comes back empty rather than raising: that is
+        an error for a Z' chart, which would have nothing to draw, but it is
+        an ordinary state for normalisation, which never needed a Z' to scale
+        a plate to its own controls.
+    """
+    from .control_chart import ControlChartError, ControlChartSpec
+    from .control_chart import ZPRIME_PLATE, ZPRIME_VALUE, zprime_frame
+
+    chart = ControlChartSpec(
+        value=response,
+        plate=spec.plate,
+        control_column=spec.control,
+        control_levels=tuple(spec.positive) + tuple(spec.negative),
+        positive_levels=tuple(spec.positive),
+        negative_levels=tuple(spec.negative),
+    )
+    try:
+        table = zprime_frame(frame, chart)
+    except ControlChartError:
+        return {}
+    return {str(row[ZPRIME_PLATE]): float(row[ZPRIME_VALUE])
+            for _, row in table.iterrows()}
+
+
+def normalise_to_controls(frame: pd.DataFrame, spec: PlateSpec, *,
+                          response: str,
+                          out: str = PERCENT_COLUMN,
+                          ) -> Tuple[pd.DataFrame, Tuple[PlateReport, ...]]:
+    """Percent inhibition against each plate's own controls.
+
+    RAW RESPONSES ARE NOT COMPARABLE ACROSS PLATES. Two plates read on
+    different days differ in absolute signal by more than most compounds
+    move it, so three replicate plates fitted raw produce three EC50s whose
+    spread is mostly instrument drift. Scaling each plate to its own controls
+    -- negative reads 0, positive reads 100 -- removes exactly that and
+    leaves the biology.
+
+    ``percent = 100 * (value - mean_negative) / (mean_positive - mean_negative)``
+
+    The formula is signed and direction-agnostic on purpose: whichever way
+    the raw readout runs, the positive control reads 100 by construction, so
+    a viability readout and a burden readout normalise the same way and the
+    fit downstream does not need to be told which it got.
+
+    REFUSED RATHER THAN SCALED BY NOISE. When a plate's two controls do not
+    separate there is no assay window, and dividing by that near-zero
+    difference would turn well-to-well noise into hundreds of percent
+    inhibition and a confident EC50 on a plate that measured nothing. Such a
+    plate's rows come back with a NaN response and a :class:`PlateReport`
+    saying so.
+
+    :param frame: one row per well, with the plate, control and response
+        columns the spec and this call name.
+    :param spec: the plate, its control column and its two control levels.
+    :param response: the raw column to normalise.
+    :param out: column to write the percent into. Defaults to
+        :data:`PERCENT_COLUMN`; pass another name to keep several readouts
+        (host viability and parasite burden, say) side by side.
+    :returns: ``(frame, reports)`` -- a copy of the frame carrying ``out``,
+        and one :class:`PlateReport` per plate in the order the plates first
+        appear. Rows on a refused plate carry NaN, so a caller that fits the
+        whole table drops those plates without having to filter first.
+    :raises DoseResponseError: when a named column is missing, or when no
+        plate has both controls -- there is nothing to normalise against and
+        a frame of NaN would be a worse answer than a sentence.
+    """
+    percent, reports = _scan_plates(frame, spec, response)
+    if not any(report.usable for report in reports):
+        raise DoseResponseError(
+            "no plate in this table has a usable pair of controls, so there "
+            "is nothing to normalise against. " +
+            (reports[0].note if reports else
+             f"no plate was found in column {spec.plate!r}."))
+    normalised = frame.copy()
+    normalised[out] = percent
+    return normalised, reports
+
+
+def _scan_plates(frame: pd.DataFrame, spec: PlateSpec, response: str
+                 ) -> Tuple[np.ndarray, Tuple[PlateReport, ...]]:
+    """Walk the plates once: the percent column and the verdict per plate.
+
+    THE ONE PLACE THE RULES LIVE, so :func:`normalise_to_controls` and
+    :func:`plate_reports` cannot disagree about whether a plate is usable --
+    which they would, sooner or later, if each carried its own copy.
+
+    :returns: ``(percent, reports)``, the percent array aligned to the frame's
+        rows and NaN wherever its plate was refused.
+    """
+    for column in (spec.plate, spec.control, response):
+        if column not in frame.columns:
+            raise DoseResponseError(
+                f"column {column!r} is not in the table; it has "
+                f"{', '.join(map(str, frame.columns[:12]))}"
+                f"{' ...' if len(frame.columns) > 12 else ''}")
+
+    values = pd.to_numeric(frame[response], errors="coerce").to_numpy(float)
+    plates = frame[spec.plate].astype(str).to_numpy()
+    roles = frame[spec.control].astype(str).to_numpy()
+    positive = set(spec.positive)
+    negative = set(spec.negative)
+
+    zprimes = _zprime_by_plate(frame, spec, response)
+
+    percent = np.full(values.shape, np.nan, dtype=float)
+    reports: List[PlateReport] = []
+    seen: List[str] = []
+    for plate in plates:
+        if plate not in seen:
+            seen.append(plate)
+
+    for plate in seen:
+        on_plate = plates == plate
+        pos = values[on_plate & np.isin(roles, list(positive))]
+        neg = values[on_plate & np.isin(roles, list(negative))]
+        pos = pos[np.isfinite(pos)]
+        neg = neg[np.isfinite(neg)]
+        zprime = zprimes.get(plate)
+        common = dict(plate=plate, n_positive=int(pos.size),
+                      n_negative=int(neg.size), zprime=zprime)
+
+        if pos.size == 0 or neg.size == 0:
+            missing = ("positive" if pos.size == 0 else "negative")
+            if pos.size == 0 and neg.size == 0:
+                missing = "positive and negative"
+            reports.append(PlateReport(
+                status=STATUS_REFUSED,
+                note=(f"plate {plate} has no {missing} control well with a "
+                      f"finite {response}; percent inhibition is measured "
+                      f"against this plate's own controls and there are none "
+                      f"to measure against"),
+                **common))
+            continue
+
+        mean_pos = float(pos.mean())
+        mean_neg = float(neg.mean())
+        separation = mean_pos - mean_neg
+        common.update(mean_positive=mean_pos, mean_negative=mean_neg,
+                      separation=abs(separation))
+
+        if not np.isfinite(separation) or separation == 0.0:
+            reports.append(PlateReport(
+                status=STATUS_REFUSED,
+                note=(f"plate {plate} has no assay window: its positive and "
+                      f"negative controls both read {mean_pos:.4g}, so there "
+                      f"is nothing to scale by. Dividing by that difference "
+                      f"would report noise as percent inhibition."),
+                **common))
+            continue
+
+        gate = spec.min_zprime
+        if gate is not None and zprime is None:
+            reports.append(PlateReport(
+                status=STATUS_REFUSED,
+                note=(f"plate {plate} cannot be gated on Z': a Z-factor needs "
+                      f"at least two wells of each control for the SDs to "
+                      f"exist and this plate has {pos.size} positive and "
+                      f"{neg.size} negative. Drop min_zprime to normalise it "
+                      f"ungated, or fill the control wells."),
+                **common))
+            continue
+        if gate is not None and zprime < gate:
+            shown = "-inf" if not np.isfinite(zprime) else f"{zprime:.3g}"
+            reports.append(PlateReport(
+                status=STATUS_REFUSED,
+                note=(f"plate {plate} fails Z': {shown}, below the {gate:g} "
+                      f"asked for. A plate this noisy could not have detected "
+                      f"the effect, so an EC50 fitted on it would be a number "
+                      f"about the instrument, not the compound."),
+                **common))
+            continue
+
+        percent[on_plate] = 100.0 * (values[on_plate] - mean_neg) / separation
+        note = ""
+        if zprime is None:
+            note = (f"plate {plate} normalised, but has no Z': a Z-factor "
+                    f"needs two wells of each control and this plate has "
+                    f"{pos.size} positive and {neg.size} negative.")
+        elif np.isfinite(zprime) and zprime < ZPRIME_MARGINAL:
+            note = (f"plate {plate} normalised with Z' {zprime:.3g}, below "
+                    f"the conventional {ZPRIME_MARGINAL:g}. Nothing was "
+                    f"gated -- set min_zprime if it should have been.")
+        reports.append(PlateReport(status=STATUS_FITTED, note=note, **common))
+
+    return percent, tuple(reports)
+
+
+def plate_reports(frame: pd.DataFrame, spec: PlateSpec, *,
+                  response: str) -> Tuple[PlateReport, ...]:
+    """The per-plate verdict alone, without normalising anything.
+
+    For the screen that wants to show the plate table before the user has
+    chosen a readout to fit, and for a caller that only wants to know which
+    plates would be dropped. A table where every plate is refused returns its
+    refusals rather than raising -- here the refusals ARE the answer.
+
+    :raises DoseResponseError: when a named column is missing.
+    """
+    _, reports = _scan_plates(frame, spec, response)
+    return reports
