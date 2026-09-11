@@ -2324,21 +2324,34 @@ Halving the file list changes the shuffle anyway, so a seeded bisect of a
 SUBSET is not the same ordering either. A different method is needed for
 this one.
 
-THE MECHANISM THAT MAKES IT POSSIBLE, which is the useful part.
-`settings_model`'s per-row visibility has an early return:
+A MECHANISM WAS PROPOSED HERE AND MEASURED FALSE, which is recorded
+because the measurement left a better lead than the guess did.
 
-    # NOT UNTIL THE SCREEN HAS TAKEN THE WIDGET. ...
-    if widget.parentWidget() is None:
-        return
+THE GUESS. `SettingsWidgets._set_row_visible` has an early return -- "NOT
+UNTIL THE SCREEN HAS TAKEN THE WIDGET ... if widget.parentWidget() is None:
+return" -- so a row not yet parented when the object rule runs is silently
+left visible. A timing-sensitive no-op, and timing is what an ordering
+changes. It fits perfectly.
 
-So a row whose widget is not yet parented when the object rule runs is
-SILENTLY LEFT VISIBLE. That is a timing-sensitive no-op, and timing is
-exactly what an ordering changes: the rule is right, and whether it reaches
-the row is not guaranteed. A test asserting `isHidden()` is therefore
-asserting that the parenting won a race.
+IT IS NOT THE CAUSE. Counted with a plugin that wraps that method, the
+early return fires in the PASSING run too:
 
-  WHERE TO START: not with the ordering. Either the rule has to be re-run
-  once the row has a parent (the comment says "the scheduled pass takes the
-  label once the row has one" -- so there IS a later pass, and the question
-  is whether the FIELD is covered by it or only the label), or the early
-  return has to record what it skipped so the later pass can finish it.
+    failing (chunk_020, seed 288)   parentless 6,228   row 15,179
+    passing (the file alone)        parentless 1,442   row  7,260
+
+It is ordinary, it happens constantly, and it does not discriminate.
+
+WHAT THE SAME COUNT DID FIND, and this is the lead. The two runs do not
+handle the same SET of nucleus keys. Three appear in the failing run and in
+neither the passing one nor its panel:
+
+    nucleus_mask_dim     nucleus_max_size     nucleus_min_size
+
+So the failing panel is built from a DIFFERENT SETTINGS SHAPE, not from the
+same shape mis-hidden. That points at the defaults or the settings
+dictionary the panel is built from being mutated by something earlier in
+the process -- process-global state of the kind this item has now found
+four times tonight -- rather than at the visibility rule at all.
+
+  WHOEVER TAKES IT: instrument what the panel is BUILT FROM, not what the
+  rule does to it. The rule has been ruled out by measurement.
