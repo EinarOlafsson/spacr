@@ -52,8 +52,10 @@ including all five screens in fourteen languages, mobile text visibility,
 each ready English video/audio pair, seeking, and ready/unavailable transitions.
 `checkpoint_release_candidate.py <candidate>` saves its exact player, fourteen
 catalogs, route metadata, browser evidence and all media hashes under
-`tools/tutorials/release_candidate/`. Large media remain in the private candidate
-and original authoring workspace, not duplicated into Git.
+`tools/tutorials/release_candidate/`. The maintainer subsequently requested all
+remaining work pushed: `--include-web-media` includes web videos, posters, fonts
+and examples. Narration and 4K media remain in the private candidate/original
+workspace pending separate media-host upload approval; they are not in Git.
 
 The candidate is an **offline preview**: its narration and 4K roots are relative
 to its sibling `media_host/`. Do not copy that index directly into live docs or

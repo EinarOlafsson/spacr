@@ -15,12 +15,14 @@ from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
 
 
-def checkpoint(root):
+def checkpoint(root, *, include_web_media=False):
     root = Path(root).resolve()
     manifest = read(root / 'release-manifest.json')
     if manifest.get('release_hold') is not True or manifest.get('published') is not False:
         raise ValueError('Expected an unpublished release candidate')
     target = REPO / 'tools/tutorials/release_candidate'
+    previous = target / 'checkpoint.json'
+    include_web_media = include_web_media or (previous.exists() and read(previous).get('web_media_in_git', False))
     selected = {'index.html', 'app_v2.js', 'styles.css', 'voice_catalog.js',
                 'module_navigation.js', 'lesson_catalog.js', 'TUTORIAL_MEDIA_NOTICE.md', 'favicon.svg'}
     copied = []
@@ -28,7 +30,7 @@ def checkpoint(root):
         relative = Path(record['path'])
         if relative.parts[0] != 'web':
             continue
-        if relative.parts[1] == 'catalog' or relative.name in selected:
+        if include_web_media or relative.parts[1] == 'catalog' or relative.name in selected:
             copy_checked(root / relative, target / relative, copied, target, record['sha256'])
     copy_checked(root / 'release-manifest.json', target / 'release-manifest.json', copied, target)
     checks = root / 'checks/candidate-browser-checks.json'
@@ -45,11 +47,15 @@ def checkpoint(root):
         copy_checked(mutations, target / 'placeholder-mutation-checks.json', copied, target)
     write(target / 'checkpoint.json', {'private_candidate': str(root),
           'manifest_sha256': digest(root / 'release-manifest.json'), 'files': copied,
+          'web_media_in_git': bool(include_web_media), 'narration_and_4k_in_git': False,
           'browser_checks_complete': checks.exists(), 'published': False, 'release_hold': True})
-    print('Checkpointed', len(copied), 'candidate text/evidence files at', target)
+    print('Checkpointed', len(copied), 'candidate files at', target)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('candidate', type=Path)
-    checkpoint(parser.parse_args().candidate)
+    parser.add_argument('--include-web-media', action='store_true',
+                        help='Also checkpoint the web videos, posters, fonts and examples; not narration/4K')
+    args = parser.parse_args()
+    checkpoint(args.candidate, include_web_media=args.include_web_media)
