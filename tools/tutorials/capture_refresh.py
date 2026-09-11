@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
+    parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
     parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
@@ -62,6 +63,8 @@ def main() -> int:
         parser.error('--preview-variants requires --preview')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
+    if args.anndata_api_introduction and args.module != 'anndata_export':
+        parser.error('--anndata-api-introduction requires --module anndata_export')
     if args.napari_reopen_each_edit and args.module != 'napari_bridge':
         parser.error('--napari-reopen-each-edit requires --module napari_bridge')
     if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap', 'recruitment'} or not args.run):
@@ -418,7 +421,7 @@ def main() -> int:
     elif args.module == 'anndata_export':
         from capture_anndata import record_anndata
         record_anndata(app, window, stage, captures, capture,
-                      settle, write_json, args.timeout)
+                      settle, write_json, args.timeout, route_only=args.anndata_api_introduction)
     elif args.module == 'pca':
         from capture_pca import record_pca
         record_pca(app, window, stage, captures, capture,
@@ -667,6 +670,7 @@ def main() -> int:
                 settle(0.2)
             if not panel._crops:
                 raise RuntimeError(f'Measure preview has no visible crops: {panel._status.text()}')
+            settle(2)  # Crop metadata can arrive before the queued thumbnail paint.
             capture('04_live_crops')
             QTest.mouseClick(panel._settings_btn, Qt.LeftButton)
             settle()
@@ -679,6 +683,22 @@ def main() -> int:
             tabs.setCurrentIndex(1)
             settle()
             capture('06_crop_options')
+            # The current dialog can exceed the desktop because its Crop modes
+            # list includes every organelle. Move the genuine window, never
+            # hide/reparent controls or paint a replacement panel. Keep evidence
+            # of this limitation rather than imply the dialog fits normally.
+            def expose_dialog_control(control):
+                origin = control.mapToGlobal(QPoint(0, 0))
+                available = app.primaryScreen().availableGeometry()
+                if not available.contains(control.mapToGlobal(control.rect().bottomRight())) or origin.y() < available.top():
+                    dialog.move(dialog.x(), dialog.y() + available.center().y() - origin.y())
+                    settle()
+                if not available.contains(control.mapToGlobal(control.rect().center())):
+                    raise RuntimeError('Crop control remains outside the actual desktop')
+                return {'dialog_position': [dialog.x(), dialog.y()],
+                        'dialog_size': [dialog.width(), dialog.height()],
+                        'control_screen_y': control.mapToGlobal(QPoint(0, 0)).y()}
+            normalization_geometry = expose_dialog_control(panel._normalise)
             # The archived example has normalization off and its low-valued
             # channels are nearly black. Show the actual crop control making
             # them inspectable; this is not brightness editing of an image.
@@ -692,6 +712,7 @@ def main() -> int:
                     settle(0.2)
             capture('06_normalised_crops')
             tabs.setCurrentIndex(2)
+            dialog.move(window.mapToGlobal(QPoint(60, 110)))
             settle()
             capture('07_crops_before')
             def crop_rows():
@@ -726,16 +747,20 @@ def main() -> int:
                     raise RuntimeError('The live filter did not visibly reduce the nonempty crop grid')
                 if screen._settings_model.collect()['cell_min_size'] != main_before:
                     raise RuntimeError('Preview changed batch settings while propagation was off')
+                propagation_geometry = expose_dialog_control(panel._propagate_btn)
                 QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
                 settle()
                 if screen._settings_model.collect()['cell_min_size'] != threshold:
                     raise RuntimeError('Propagate settings did not reach the real batch form')
                 capture('09_crops_propagated')
+                dialog.move(window.mapToGlobal(QPoint(60, 110)))
                 set_area(original)
                 restored = crop_rows()
                 if restored != before:
                     raise RuntimeError('Restoring the filter did not restore the same crops')
+                expose_dialog_control(panel._propagate_btn)
                 QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
+                dialog.move(window.mapToGlobal(QPoint(60, 110)))
                 capture('10_crops_restored')
                 if hashlib.sha256(panel._data.tobytes()).hexdigest() != source_hash:
                     raise RuntimeError('Filtering unexpectedly modified the loaded array')
@@ -745,6 +770,11 @@ def main() -> int:
                     'minimum_area_after': threshold, 'before': before, 'after': after,
                     'restored': restored, 'source_unchanged': True,
                     'propagation_off_preserved_batch': True, 'propagation_on_updated_batch': True})
+                write_json(captures / 'preview_dialog_framing.json', {
+                    'normalization': normalization_geometry,
+                    'propagation': propagation_geometry,
+                    'actual_window_moved': True, 'application_layout_fixed': False,
+                    'controls_hidden_or_reparented': False})
             dialog.close()
             settle()
         elif args.preview:
