@@ -135,6 +135,7 @@ def main() -> int:
             queue_binds = ['--bind', str(queue_state), str(Path.home() / '.spacr')]
         os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
+                          *(['--unshare-net'] if args.module == 'distributed_jobs' else []),
                           '--dev-bind', '/dev', '/dev',
                           *queue_binds,
                           *manager_binds,
@@ -154,6 +155,12 @@ def main() -> int:
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():
         os.environ[key] = value
+    if args.module == 'distributed_jobs':
+        remote_state = stage / 'distributed_state' / (args.capture_name or args.module)
+        remote_state.mkdir(parents=True, exist_ok=True)
+        if (remote_state / 'profiles.json').exists() or (remote_state / 'jobs.json').exists():
+            raise RuntimeError('Use a fresh capture name for isolated distributed profiles')
+        os.environ['SPACR_REMOTE_STATE_DIR'] = str(remote_state)
     sys.path.insert(0, str(REPO))
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtGui import QPainter
@@ -286,6 +293,9 @@ def main() -> int:
         from capture_database import record_database
         screen = record_database(app, window, None, stage, captures, capture,
                                  settle, write_json, args.timeout)
+    elif args.module == 'distributed_jobs':
+        from capture_distributed import record_distributed
+        record_distributed(app, window, stage, captures, capture, settle, write_json)
     elif args.module == 'curate':
         from capture_curate import record_curate
         record_curate(app, window, stage, captures, capture,
