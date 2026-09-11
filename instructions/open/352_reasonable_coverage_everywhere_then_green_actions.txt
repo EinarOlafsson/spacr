@@ -426,6 +426,27 @@ in each case rather than from the module's name.
     ordinary missing coverage rather than a reason.
 
 SO THE LIST IS: one crash (fixed), five reasonable-as-is, one deliberately
-never to be tested, and TWO worth writing tests for -- `terms_i18n` because
-it is six lines, and `regression_layout` because its gap is genuinely
-untested branches. Neither is release-blocking.
+never to be tested, and TWO worth writing tests for. BOTH ARE NOW DONE:
+
+    spacr/qt/terms_i18n/__init__.py     52.94 % -> 100.00 %   10 tests
+    spacr/regression_layout.py          79.45 % -> 100.00 %   18 tests
+                                        (100 statements, 46 branches, all)
+
+  AND THE SECOND ONE TURNED OUT TO BE A PROMISE NOBODY HAD CHECKED. Its
+  gap was not a scatter of layout arms as the line numbers suggested from
+  a distance -- it was EIGHT REFUSALS, which is the whole of what the
+  module's opening sentence claims: "a value is never silently selected
+  when duplicate rows disagree". Every one of them is now exercised,
+  including the two that matter most: a (well, gRNA) pair carrying
+  conflicting counts, and a metadata column that is not constant within
+  one observation. A refusal nobody has run is a promise nobody has
+  checked, and the risk was never that the arm was missing -- it was that
+  it might not fire.
+
+  The control cases went in beside them, because eight refusals with no
+  positive case is a module that might be refusing everything: a
+  well-formed wide frame converts, and the SAME pair twice with the SAME
+  value is explicitly not a disagreement.
+
+So the nine are: one fixed, five reasoned, one deliberately untested, two
+at 100 %. Nothing below 80 % is now unexplained.
