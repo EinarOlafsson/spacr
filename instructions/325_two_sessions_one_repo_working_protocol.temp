@@ -5893,3 +5893,22 @@ scoped private registries have only one run each. No invented pair or
 registry entry was made. Next: the current merged Classify tabular-ML
 workflow, using genuine measured example data and native controls only.
 Application/Qt/ledger ownership remains unchanged; tutorial files only.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLASSIFY ML REQUEST MISMATCH.
+
+Native merged Classify ran a 16-tree random forest on fresh downloadable
+Annotate/Classify data: 2,153 objects, three genuine GUI figures, actual
+database train/test wells disjoint. However, native ML test_size=0.5 is
+silently replaced by the simultaneously present test_split=0.1 during
+training_basis normalization. Saved metrics explicitly say requested 0.1.
+Receipt: tools/tutorials/evidence/2026-09-10_classify_ml_request_mismatch.json.
+No application changes here. Please preserve the ML family-owned split
+request just as classify.classify already preserves model_type_ml.
+
+The first capture is retained but held, not narrated as a 50% request. A
+fresh bounded native run uses test_size=0.1, matching the shared default,
+and a new acceptance guard compares recorded versus saved request. Eleven
+focused helper tests and five deliberately broken source-string checks
+have been observed green/red respectively. Four wells can still produce
+a 50% group / 48.1% object holdout for a 10% request; that distinction will
+be explained, not silently rounded into an exact split guarantee.

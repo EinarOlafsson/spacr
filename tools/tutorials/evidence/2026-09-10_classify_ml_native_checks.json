@@ -1,0 +1,119 @@
+{
+  "lesson": "11_classify_ml",
+  "status": "Native tutorial capture verified; multilingual production pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/classify_ml_ten_percent_native",
+  "provenance": {
+    "commit": "4351af7b987bca4ceb4b03f77983784f82499e59",
+    "version": "1.5.0.6",
+    "module": "classify_merged",
+    "download_requested": true,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_ml_ten_percent/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 3,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "lineage": {
+    "accepted": true,
+    "reasons": [],
+    "rows": 2153,
+    "sample_counts": {
+      "train": 1118,
+      "test": 1035,
+      "not_used": 0
+    },
+    "actual_wells": {
+      "train": [
+        [
+          "plate1",
+          "r12",
+          "c1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2"
+        ]
+      ],
+      "test": [
+        [
+          "plate1",
+          "r12",
+          "c2"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1"
+        ]
+      ]
+    },
+    "overlapping_actual_wells": [],
+    "labels_are_plate_columns_not_validated_phenotypes": true,
+    "all_saved_probabilities_checked": true,
+    "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/results.csv"
+  },
+  "independent_metrics": {
+    "confusion_matrix_true_rows_predicted_columns": [
+      [
+        467,
+        116
+      ],
+      [
+        277,
+        175
+      ]
+    ],
+    "class_zero": "columnID=c1",
+    "class_one": "columnID=c2",
+    "test_objects": 1035,
+    "accuracy": 0.6202898550724638,
+    "majority_class_accuracy_on_test": 0.5632850241545894,
+    "metrics_compared": 9,
+    "maximum_metric_error": 1.1102230246251565e-16,
+    "database_predictions_checked": 2153
+  },
+  "database_rows": 2341,
+  "unscored_class_rows": 188,
+  "unscored_probability_rows": 188,
+  "plot_enabled": true,
+  "requested_test_fraction": 0.1,
+  "native_figures": 3,
+  "ai_demo": {
+    "prompt_submitted": false,
+    "response_generated": false,
+    "toggle_enabled": true
+  },
+  "focused_helper_tests": 14,
+  "limitations": [
+    "Only four wells on one plate; this is a workflow demonstration, not biological validation.",
+    "c1/c2 are explicit plate-column labels, not independently verified phenotypes.",
+    "A 10% request produces 2/4 held-out well groups and 1035/2153 held-out objects.",
+    "188 objects lack matching nucleus data and remain unscored; they are not negative predictions.",
+    "The displayed heatmap averages binary predicted class, not class-one probability.",
+    "Permutation importance is calculated on training data; feature filtering precedes the split.",
+    "Native ML-specific test_size differs from shared test_split unless deliberately matched; mismatch filed separately.",
+    "No SHAP output or calibrated probability claim; only the three actual figure outputs are taught."
+  ],
+  "hashes": {
+    "captures/classify_ml_ten_percent_native/configured_settings.json": "e09631a11bd4ed71c5ea6eff9c58ddb7e4f50c1853b0f656ea955899485b0abf",
+    "captures/classify_ml_ten_percent_native/scientific_acceptance.json": "2de4db091f630746b82088e708a88c67dcb58d6406225a909bbba1bb1a1f2d74",
+    "captures/classify_ml_ten_percent_native/batch_console_after_tour.json": "2e14b3b4262e27809817662a0400e3f0cbb2e6f204cb7cfc11ccccedf11be5a4",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/feature_importance.csv": "36128745a887f7463e303cd249c4a48ef28706390488b5b0aba1df969001995f",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/feature_importance.pdf": "954eabfc4f7759bcd2b654d4d4b4a693ded69e52931bfff971292372091f01fc",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/ml_features.csv": "994b9427c5918142d79802742e5ebea7dc59ecec1b66989973b29aea2a32a0a6",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/permutation.csv": "06881d368e346fe07900bc9bffdb5ec71c18b915c045ab9f0fd9eb6c4c514459",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/permutation.pdf": "a6de08a5e582d072117d7f363c34d975fda2c1ff6c736a3c0d7177207c254a48",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/plate_heatmap.pdf": "642dacbac31de4be381043c4aec407b1d629b3732654e9d37ebc5be118e11e97",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/random_forest_model.csv": "47cd137d12c15325a4c8e68755d9c2fbe5ca75c69053fc04410488615b325995",
+    "classify_ml_ten_percent/example_data/plate1/results/random_forest/channel_1/results.csv": "066597100b496711f2eac551e29cb77f656dc547aa986285c03645e152bace7c"
+  },
+  "published": false,
+  "listening_reviewed": false
+}

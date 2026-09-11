@@ -50,6 +50,7 @@ def main() -> int:
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
+    parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
@@ -934,6 +935,11 @@ def main() -> int:
                     'guide_min_wells': [2], 'guide_permutation_seed': 0,
                     'level': 'both', 'annotation_source': 'none',
                 }
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                from capture_classify_ml import bounded_settings
+                presets['classify_merged'] = bounded_settings()
+                write_json(captures / 'scientific_acceptance.json', {
+                    'accepted': False, 'reason': 'Actual ML output identities not yet checked'})
             if args.module == 'recruitment':
                 from recruitment_data import prepare_subset
                 source = WORKSPACE.parent / 'test_datasets/spacr/tutorials'
@@ -1110,7 +1116,7 @@ def main() -> int:
             if not final_acceptance['accepted']:
                 raise RuntimeError('The completed result tour exposed an error: '
                                    + '; '.join(final_acceptance['reasons']))
-            if args.module == 'classify_merged':
+            if args.module == 'classify_merged' and args.classifier_family == 'cv':
                 from capture_classify import inspect_database_split
                 generated = [line.partition('Generated Train set: ')[2]
                              for block in blocks for line in block.splitlines()
@@ -1123,6 +1129,18 @@ def main() -> int:
                 write_json(captures / 'scientific_acceptance.json', proof)
                 if not proof['accepted']:
                     raise RuntimeError(proof['reason'])
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                from capture_classify_ml import inspect_output
+                sources = settings['src']
+                source = Path(sources[0] if isinstance(sources, list) else sources)
+                outputs = list((source / 'results/random_forest').glob('*/results.csv'))
+                if len(outputs) != 1:
+                    raise RuntimeError(f'Expected one fresh actual ML result, found {outputs}')
+                proof = inspect_output(source / 'measurements/measurements.db', outputs[0],
+                                       requested_fraction=settings['test_size'])
+                write_json(captures / 'scientific_acceptance.json', proof)
+                if not proof['accepted']:
+                    raise RuntimeError('; '.join(proof['reasons']))
             if args.module == 'recruitment':
                 from recruitment_evidence import inspect_results
                 from recruitment_data import _sha256

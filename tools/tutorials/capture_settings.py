@@ -38,6 +38,11 @@ def record_settings(screen, captures, capture, settle, write_json):
     if screen.app_key not in keys_by_module:
         raise ValueError('No measured settings tour is configured for this module')
     before = screen._settings_model.collect()
+    if screen.app_key == 'classify_merged' and before.get('classifier_family') == 'ml':
+        keys_by_module['classify_merged'] = (
+            'classifier_family', 'dataset_mode', 'classes', 'model_type_ml',
+            'channel_of_interest', 'n_estimators', 'test_size', 'cv_group_by',
+            'cross_validation', 'n_repeats', 'prune_features', 'plot')
     splitter = screen._body_splitter
     sizes = splitter.sizes()
     # The same resize the user can make: leave both live panels visible.
