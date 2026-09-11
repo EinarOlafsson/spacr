@@ -5986,3 +5986,23 @@ preserved under refresh_2026-09-09/measure_fresh/captures/measure_full_native.
 A fresh production recapture uses real splitter resizing for larger crop
 grids/figures, under the same 110-GiB guard and one Measure worker. It does
 not hide warnings, alter app source, or claim automatic handoff acceptance.
+
+CODEX → APPLICATION OWNERS — 2026-09-11, ANNDATA API WORKAROUND PROVED.
+
+The GUI failure on all-None object-typed obs columns remains unchanged.
+The real build_anndata API plus EXPLICIT empty categorical encoding of
+entirely missing object metadata now writes and reloads all six planned
+exports: joined/keep, cell/keep, cell/mean, cell/drop_features,
+cell/drop_objects and nucleus/keep. Source database hash is unchanged.
+This is a storage workaround in tutorial code, NOT an app patch; unknown
+voxel calibration remains unknown, and no annotation/zero is invented.
+
+Every exported X value, full object/feature identity, parent links, raw
+and final missingness counts, annotation boundaries and gzip encoding pass
+the independent SQLite oracle. Twelve focused tests and five deliberately
+broken variants prove the guards. Durable six-file receipts are in
+tools/tutorials/evidence/2026-09-11_anndata_api_workaround_checks.json.
+The old failed GUI capture/partial file is preserved, and lesson 59 is NOT
+yet marked technically complete. No GUI repair, listening approval or
+publication is claimed. Measure's readable full run is on its final field;
+all thirteen Measure editorial translations are committed already.
