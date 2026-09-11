@@ -31,9 +31,15 @@ from __future__ import annotations
 import os
 import sys
 
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QElapsedTimer, QTimer, Qt
 from PySide6.QtGui import QColor, QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication, QWidget
+
+#: How long to let the window manager actually map and composite the
+#: probe before grabbing. 1.5 s is generous on purpose: this tool exists
+#: to answer "can this display be measured at all", and a false
+#: "unmeasurable" costs far more than a second.
+SETTLE_MS = 1500
 
 MARKER = QColor(7, 199, 123)      # nothing else on a desktop is this colour
 
@@ -48,8 +54,22 @@ def main():
     palette.setColor(QPalette.Window, MARKER)
     w.setPalette(palette)
     w.move(40, 40)
+    # RAISED AND KEPT ON TOP. `grabWindow` under X returns what is in FRONT of
+    # the rectangle, not the widget's own painting, so an unraised probe
+    # measures whatever happens to be stacked above it.
+    w.setWindowFlags(w.windowFlags() | Qt.WindowStaysOnTopHint)
     w.show()
-    for _ in range(40):
+    w.raise_()
+    w.activateWindow()
+    # REAL ELAPSED TIME, NOT A SPIN. Forty processEvents() calls take
+    # microseconds; a compositing WM needs MILLISECONDS to map, raise and
+    # composite a new window. The spin was the whole bug: the grab happened
+    # before the probe was on screen, came back as the dark UI underneath,
+    # and near-black is the exact signature 381 is looking for -- so an
+    # unmeasurable verdict was returned on a display that measures fine.
+    settle = QElapsedTimer()
+    settle.start()
+    while settle.elapsed() < SETTLE_MS:
         app.processEvents()
 
     screen = w.screen() or QGuiApplication.primaryScreen()
