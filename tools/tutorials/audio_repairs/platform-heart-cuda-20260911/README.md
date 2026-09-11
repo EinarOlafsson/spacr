@@ -1,5 +1,10 @@
 # Platform Installers: first CUDA, English Heart
 
+Published and reverified at media-host commit
+`003f4c8e88e6050dab5aad7750fb2f990974b636`. Only the two Heart files changed.
+`hosted-browser-check.json` verifies the final served hash and the actual
+requested seek positions, not merely whichever caption happens to be active.
+
 Only the first CUDA sentence of the **hosted** Heart track was synthesized
 again, using the same pinned Kokoro model and voice with `/kˈudə/` instead
 of `/kˈuːdᵊ/`: a full final schwa instead of the reduced vowel. No other

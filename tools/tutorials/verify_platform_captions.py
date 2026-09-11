@@ -76,6 +76,7 @@ def verify(output, media_override=None):
                 assert page.locator('#caption-track').count() == 1
             cases = []
             for seconds in (27, 37, 55, 76):
+                page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking', timeout=10000)
                 page.evaluate('(s) => seekTo(s)', seconds)
                 page.wait_for_timeout(300)
                 page.evaluate('elements.video.pause()')
@@ -88,6 +89,8 @@ def verify(output, media_override=None):
                     return {audioTime:at, videoTime:elements.video.currentTime,
                         expectedText:spoken?.text, activeCues:cues};
                 }''')
+                sample['requestedAudioTime'] = seconds
+                assert abs(sample['audioTime'] - seconds) < 1, sample
                 assert sample['expectedText'] and sample['expectedText'] in sample['activeCues'], sample
                 cases.append(sample)
             result = {'scope':'Local fixed player with ' + ('staged' if media_override else 'current hosted')

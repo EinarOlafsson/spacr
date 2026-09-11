@@ -69,5 +69,6 @@
   },
   "media_sha256": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
   "metadata_sha256": "62d932445b75191911ca9210fae0b9379dce8c37e95b97fa04f108bcea797b03",
-  "published": false
+  "published": true,
+  "media_host_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636"
 }
