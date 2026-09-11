@@ -339,3 +339,76 @@ def test_a_screen_shown_later_arrives_wearing_the_theme(sheeted, qtbot):
     assert _resolved(probe) == SECOND_HEX, (
         "a screen shown after the theme change arrived in the previous "
         "theme, which is exactly what the deferral must not cost")
+
+
+@pytest.mark.slow
+def test_a_module_opened_after_the_theme_change_wears_it(sheeted, qtbot):
+    """THE GAP THE DEFERRAL OPENS THAT THE TEST ABOVE DOES NOT COVER.
+
+    `test_a_screen_shown_later_arrives_wearing_the_theme` uses a page that
+    ALREADY EXISTED when the sheet was applied, so it was marked while
+    `stylesheet_roots` ran and the event filter sheets it on show. A module
+    opened for the first time AFTER that point was never marked, because
+    the marking only happens while a sheet is being applied.
+
+    Before per-screen sheeting this could not happen: the window carried
+    the sheet and every descendant added later inherited it by cascade.
+    Now the window is deliberately bare, so a page with no mark and no
+    sheet of its own has nobody to inherit from -- which is a whole module
+    screen in the wrong theme, not a stray widget.
+
+    MEASURED BEFORE THE FIX, one module open, the sheet applied, then a
+    second module opened::
+
+        page                     visible   own sheet   wears the sentinel
+        AppScreen                False     yes         True
+        AppScreen                True      no          False   <-- new
+
+    A SENTINEL AND NOT THE PALETTE, for the reason this file's header
+    gives twice over: `apply_qpalette` sets the text colour independently
+    of the stylesheet, so probing the palette alone reports white on the
+    dark theme whether or not the sheet ever arrived.
+    """
+    from spacr.qt import register_self_registering_modules
+    from spacr.qt.app import MainWindow
+
+    app = QApplication.instance()
+    register_self_registering_modules()
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    for _ in range(60):
+        app.processEvents()
+    try:
+        window._on_nav_selected("mask")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("mask would not open here")
+    for _ in range(60):
+        app.processEvents()
+
+    # The sheet is applied while `mask` is the only module open, so nothing
+    # about the module below has been seen by the theme engine.
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+
+    before = {id(page) for page in window._stack.children()}
+    try:
+        window._on_nav_selected("regression")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("regression would not open here")
+    for _ in range(90):
+        app.processEvents()
+
+    fresh = [page for page in window._stack.children()
+             if id(page) not in before and isinstance(page, QWidget)]
+    if not fresh:
+        pytest.skip("the second module reused a page that already existed")
+
+    page = fresh[-1]
+    probe = QLabel(page)
+    assert _resolved(probe) == SECOND_HEX, (
+        "a module opened after the theme change is wearing no sheet at "
+        "all: the window is bare by design and the new page was never "
+        "marked, so it inherits nothing")

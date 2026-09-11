@@ -3491,6 +3491,16 @@ _WINDOW_SHEET_ATTRIBUTE = "_spacr_window_stylesheet"
 #: a `Polish` and a `Show` for the same window do the work once.
 _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 
+#: A digest of the sheet text this widget was last given. THE SERIAL ALONE
+#: IS NOT ENOUGH: it records that we sheeted a widget, not that the widget
+#: still carries what we gave it. `AppScreen._sync_page_palette` calls
+#: `setStyleSheet("")` on its own root -- correct when the APPLICATION
+#: carried the sheet and the screen's own was a local suffix, and fatal now
+#: that the screen carries the whole thing. Measured: a module opened after
+#: the last theme change had the serial stamped, an empty stylesheet, and a
+#: probe under it resolving to `#000000` on the dark theme.
+_WINDOW_SHEET_DIGEST = "_spacr_window_stylesheet_digest"
+
 #: Whatever stylesheet a window had of its OWN before the application sheet
 #: was put on it. Kept because a parentless widget IS a window -- Qt says so
 #: -- and several of them set their own rules: a 26px field in a render
@@ -3604,7 +3614,14 @@ def _sheet_one_window(window) -> bool:
         return False
     serial = getattr(app, _WINDOW_SHEET_SERIAL, 0)
     try:
-        if getattr(window, _WINDOW_SHEET_SERIAL, None) == serial:
+        # SEEN IT AND STILL WEARING IT, which are two questions. The second
+        # is what catches a widget whose sheet was replaced by somebody
+        # else since -- and re-sheeting is then correct rather than
+        # wasteful, because whoever replaced it did so believing the
+        # application carried the theme.
+        if (getattr(window, _WINDOW_SHEET_SERIAL, None) == serial
+                and getattr(window, _WINDOW_SHEET_DIGEST, None)
+                == _sheet_digest(window.styleSheet())):
             return False
         setattr(window, _WINDOW_SHEET_SERIAL, serial)
         # THE WINDOW'S OWN RULES SURVIVE, AND GO LAST so they still win.
@@ -3616,10 +3633,24 @@ def _sheet_one_window(window) -> bool:
         # the other end of this: a root that has been given its own late
         # block keeps it appended, or setting the window sheet would strand
         # that screen on the previous preference values.
-        window.setStyleSheet(preserve_widget_qss_overlay(window, sheet + own))
+        text = preserve_widget_qss_overlay(window, sheet + own)
+        window.setStyleSheet(text)
+        setattr(window, _WINDOW_SHEET_DIGEST, _sheet_digest(text))
     except (AttributeError, RuntimeError):
         return False
     return True
+
+
+def _sheet_digest(text):
+    """A cheap fingerprint of a stylesheet, for "is this still ours".
+
+    Length and hash rather than the text, because the sheet is ~73 KB and
+    there is one of these per sheeted root. Python's string hash is
+    randomised per process and consistent within one, which is exactly the
+    lifetime this has to be right for.
+    """
+    text = text or ""
+    return (len(text), hash(text))
 
 
 def _forget_window_stylesheets(app=None) -> int:

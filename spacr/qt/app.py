@@ -4629,6 +4629,7 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
         self._stack.addWidget(self._startup)
+        self._a_page_joined_the_stack(self._startup)
         self._drop_a_redundant_screen_backdrop(self._startup)
 
     def _show_the_screensaver(self) -> bool:
@@ -4880,6 +4881,7 @@ class MainWindow(QMainWindow):
         self._screens[key] = fresh
         self._screen_scales[key] = _current_font_scale()
         self._stack.addWidget(fresh)
+        self._a_page_joined_the_stack(fresh)
         self._drop_a_redundant_screen_backdrop(fresh)
         self._stack.setCurrentWidget(fresh)
         if old is not None:
@@ -4988,6 +4990,7 @@ class MainWindow(QMainWindow):
                 # Decoration must never stop a screen from opening.
                 LOG.exception("Could not theme the %s screen", key)
             self._stack.addWidget(self._screens[key])
+            self._a_page_joined_the_stack(self._screens[key])
             self._drop_a_redundant_screen_backdrop(self._screens[key])
             try:
                 from .i18n import retranslate_widget_tree
@@ -5302,6 +5305,35 @@ class MainWindow(QMainWindow):
                 clear()
         except Exception:                                    # noqa: BLE001
             pass
+
+    def _a_page_joined_the_stack(self, page) -> None:
+        """Mark a page so the sheet reaches it, however late it arrives.
+
+        THE GAP `stylesheet_roots` OPENS IF NOBODY CLOSES IT. Marking
+        happens while a sheet is being applied, so a module opened for the
+        FIRST time after that point was never marked -- and the window is
+        deliberately bare, so the page inherits nothing. Measured before
+        this existed: one module open, the sheet applied, a second module
+        opened, and a probe under the new page resolved to ``#000000`` on
+        the dark theme. Black text on a dark screen, a whole module wide.
+
+        Before per-screen sheeting this could not happen: the window
+        carried the sheet and every descendant added later inherited it.
+
+        Marking rather than sheeting, because the event filter sheets a
+        marked widget on its ``Polish`` or ``Show`` -- which is before its
+        first paint, and is also the only moment at which a page that is
+        added but not raised should cost anything.
+
+        :param page: the widget that has just been added to the stack.
+        """
+        try:
+            from .theme import mark_as_a_sheet_target
+            mark_as_a_sheet_target(page)
+        except Exception:                                    # noqa: BLE001
+            # Marking must never stop a screen from opening; an unmarked
+            # page is repainted by the next theme change either way.
+            LOG.exception("Could not mark a new page for the theme sheet")
 
     def stylesheet_roots(self):
         """The widgets that carry the application sheet, instead of me.
