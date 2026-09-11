@@ -36,8 +36,21 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            anyway and which means the 1.4 GB canvas is never materialised. A
            3,000 x 3,000 window of A1 built from the 333 solved placements
            gives coverage 1 to 4, mean 1.30, and an OVERLAP GAIN OF 1.142x --
-           independently reproducing PART 15's measured 1.15x. B2, B3, B4
-           and Phases C and D are unstarted.
+           independently reproducing PART 15's measured 1.15x.
+
+           B2, B3 AND B4 ARE BUILT, 2026-09-11: `spacr/ops_objects.py`
+           segments window by window through an INJECTED segmenter, sews the
+           seams and numbers the well once. B1's overlap did half the work --
+           a nucleus near a seam is seen WHOLE by at least one window, so B3
+           is deduplication rather than reconstruction. An object larger than
+           the overlap is REFUSED rather than fragmented, because fragments
+           count as nuclei and look like a real result. Ids are raster order
+           on the well-frame centroid so two runs number identically.
+           Fifteen tests against planted truth.
+
+           STILL UNSTARTED: B5 (the on-disk gate), and Phases C, D and E.
+           B5 needs `ops_objects` written to measurements.db, which is the
+           Phase D contract, so those two land together.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
