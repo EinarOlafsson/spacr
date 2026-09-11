@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Record real headless commands in a terminal on an isolated X11 desktop.
 
-Only listing, description, signature inspection and dry-run commands are allowed.
-The terminal executes the commands; its output is never painted into a mock UI.
+The default API driver only lists, describes, inspects and dry-runs commands.
+Explicit workflow drivers may export to private tutorial directories. The
+terminal executes the commands; its output is never painted into a mock UI.
 """
 from __future__ import annotations
 
@@ -61,18 +62,23 @@ def terminal_driver(stage):
     return 0
 
 
-def capture_terminal(stage):
+def capture_terminal(stage, *, driver=None, capture_name='api_terminal',
+                     window_title='spaCR Python API', expected_scenes=6,
+                     module='api', pipeline_requested=False):
+    if (Path(capture_name).name != capture_name or capture_name in {'', '.', '..'}
+            or expected_scenes < 1):
+        raise ValueError('A terminal workflow needs a simple name and positive scene count')
     from PySide6.QtWidgets import QApplication
     from capture_diagnostics import PrivateDesktop
 
     app = QApplication([])
-    captures = stage / 'captures/api_terminal'
+    captures = stage / 'captures' / capture_name
     captures.mkdir(parents=True, exist_ok=True)
     write(captures / 'provenance.json', {'completed_capture': False})
     write(captures / 'terminal_ready.json', {'scene': None})
     terminal = subprocess.Popen([
-        'gnome-terminal', '--wait', '--hide-menubar', '--title=spaCR Python API',
-        '--zoom=1.6', '--', sys.executable, str(Path(__file__).resolve()),
+        'gnome-terminal', '--wait', '--hide-menubar', '--title=' + window_title,
+        '--zoom=1.6', '--', sys.executable, str(driver or Path(__file__).resolve()),
         '--stage', str(stage), '--terminal-driver'])
 
     def settle(seconds=0.6):
@@ -103,7 +109,7 @@ def capture_terminal(stage):
 
     frames = {}
     try:
-        wid, title = desktop.find('spaCR Python API', settle)
+        wid, title = desktop.find(window_title, settle)
         desktop.show(wid)
         desktop.x.XSetInputFocus(desktop.display, wid, 1, 0)
         desktop.x.XFlush(desktop.display)
@@ -111,12 +117,12 @@ def capture_terminal(stage):
         deadline = time.monotonic() + 600
         while terminal.poll() is None:
             if time.monotonic() > deadline:
-                raise TimeoutError('The read-only terminal recording exceeded its limit')
+                raise TimeoutError('The bounded terminal recording exceeded its limit')
             ready = read(captures / 'terminal_ready.json')
             scene = ready.get('scene')
             if scene and scene not in seen:
                 settle(1)
-                if scene == '02_list':
+                if module == 'api' and scene == '02_list':
                     for _ in range(12):
                         key(0xff55, shift=True)  # Actual terminal scrollback, Shift+PageUp.
                     settle()
@@ -130,20 +136,21 @@ def capture_terminal(stage):
                                  'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                                  'buttons': [], 'terminal_title': title}
                 write(captures / 'frames.json', frames)
-                print('captured api/' + scene, flush=True)
+                print('captured ' + module + '/' + scene, flush=True)
                 if not ready['accepted']:
                     raise RuntimeError('The actual command did not meet its expected outcome')
                 seen.add(scene)
                 key(0xff0d)  # Return advances only our private terminal driver.
             settle(0.2)
-        if terminal.returncode != 0 or len(seen) != 6:
-            raise RuntimeError('The terminal recording did not finish all six real commands')
+        if terminal.returncode != 0 or len(seen) != expected_scenes:
+            raise RuntimeError('The terminal recording did not finish every real command')
         write(captures / 'provenance.json', {
-            'completed_capture': True, 'module': 'api',
+            'completed_capture': True, 'module': module,
             'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
             'version': __import__('spacr').__version__,
             'app_source_modified': False, 'actual_system_terminal': True,
-            'pipeline_execution_requested': False, 'private_display': os.environ['DISPLAY']})
+            'pipeline_execution_requested': bool(pipeline_requested),
+            'private_display': os.environ['DISPLAY']})
     finally:
         if terminal.poll() is None:
             terminal.terminate()

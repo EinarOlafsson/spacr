@@ -101,3 +101,26 @@ def export_example(database, destination, *, single_table=None, nan_policy='keep
             'single_table': single_table or '', 'nan_policy': nan_policy,
             'settings': settings, 'api_workaround': True, 'gui_defect_fixed': False,
             'result_summary': result.describe(), 'published': False}
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source', type=Path, required=True)
+    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--single-table', choices=('cell', 'nucleus'))
+    parser.add_argument('--nan-policy', choices=('keep', 'mean', 'drop_features', 'drop_objects'), default='keep')
+    args = parser.parse_args()
+    report = export_example(args.source, args.out, single_table=args.single_table,
+                            nan_policy=args.nan_policy)
+    print(report['result_summary'])
+    print('Verified saved file:', report['path'])
+    print('Missing observation columns explicitly encoded:', ', '.join(report['empty_metadata_columns']))
+    print('Feature values checked after reopening:', report['roundtrip']['matrix_values_checked'])
+    print('Original database unchanged:', report['source_unchanged'])
+    print('This is an API storage workaround. The GUI exporter is NOT fixed.')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
