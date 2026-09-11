@@ -53,6 +53,7 @@ def main() -> int:
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
+    parser.add_argument('--barcode-saved-plots', action='store_true', help='Show independently verified Barcode QC PNGs in the actual external viewer; no claim of GUI figure repair')
     parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
@@ -65,6 +66,8 @@ def main() -> int:
         parser.error('--measure-full-example requires --module measure --run')
     if args.anndata_api_introduction and args.module != 'anndata_export':
         parser.error('--anndata-api-introduction requires --module anndata_export')
+    if args.barcode_saved_plots and args.module != 'barcode_qc':
+        parser.error('--barcode-saved-plots requires --module barcode_qc')
     if args.napari_reopen_each_edit and args.module != 'napari_bridge':
         parser.error('--napari-reopen-each-edit requires --module napari_bridge')
     if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap', 'recruitment'} or not args.run):
@@ -409,7 +412,7 @@ def main() -> int:
     elif args.module == 'barcode_qc':
         from capture_barcode_qc import record_barcode_qc
         record_barcode_qc(app, window, stage, captures, capture,
-                         settle, write_json, args.timeout)
+                      settle, write_json, args.timeout, saved_plots=args.barcode_saved_plots)
     elif args.module == 'activation':
         from capture_activation import record_activation
         record_activation(app, window, stage, captures, capture,
