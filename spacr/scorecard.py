@@ -1068,3 +1068,112 @@ def scorecard_is_present(metrics: Mapping[str, Any]) -> bool:
 #: voice `provenance_known` already uses for the training set.
 NO_SCORECARD = ("This model does not carry a scorecard, so nothing here "
                 "tells you how accurate it is on data it was not trained on.")
+
+
+#: The metrics the published chart shows, in the order it shows them. A
+#: scorecard carries forty numbers and a chart that drew all of them would be
+#: unreadable; these are the ones that answer "is this model better, and where".
+#: Names checked against the real round-3 scorecard rather than guessed --
+#: an earlier draft asked for "dice" and "ap_50_90", which that file does not
+#: carry, so the chart silently drew three bars instead of six.
+CHART_METRICS: Tuple[str, ...] = ("f1", "precision", "recall",
+                                  "dice_per_object", "iou_mean", "ap_mean")
+
+
+def scorecard_figure(metrics: Mapping[str, object], path, *,
+                     title: str = "", dpi: int = 150):
+    """Draw finetuned against stock as paired bars, and write it to ``path``.
+
+    370 asks for the scorecard "in graph form" on Hugging Face and on the API
+    page, beside the CSV and the table. This is that rendering, and it reads
+    the SAME parsed metrics the tooltip and the zoo screen do, so the picture
+    cannot disagree with the numbers printed next to it.
+
+    MATPLOTLIB IS IMPORTED INSIDE, deliberately. This module's contract is
+    that the Model Zoo can import it with neither torch nor cellpose present
+    -- a test asserts it -- and a drawing dependency at module scope would
+    break that for every caller who only wanted to READ a scorecard.
+
+    ONLY THE METRICS THAT ANSWER THE QUESTION. A scorecard holds forty
+    numbers; a chart of forty bars is a wall, not an answer. The ones in
+    :data:`CHART_METRICS` that the scorecard actually carries are drawn, in
+    that order, and anything absent is skipped rather than drawn as zero --
+    a missing metric and a metric that scored nothing look identical at a
+    glance and mean opposite things.
+
+    :param metrics: as :func:`read_scorecard_csv` returns.
+    :param path: where to write the PNG.
+    :param title: heading; the model's name is the useful thing to pass.
+    :returns: the path written.
+    :raises ValueError: when none of the chart metrics are present, since an
+        empty chart published beside a model would imply it scored zero.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    names, fine, stock = [], [], []
+    for key in CHART_METRICS:
+        row = metrics.get(key)
+        if not isinstance(row, Mapping):
+            continue
+        a, b = row.get("finetuned"), row.get("vanilla")
+        if a is None or b is None:
+            continue
+        names.append(key.replace("_", " "))
+        fine.append(float(a))
+        stock.append(float(b))
+
+    if not names:
+        raise ValueError(
+            "this scorecard carries none of the metrics the chart draws "
+            f"({', '.join(CHART_METRICS)}), so there is nothing to plot. An "
+            f"empty chart published beside a model would read as a model that "
+            f"scored zero.")
+
+    positions = np.arange(len(names), dtype=float)
+    width = 0.38
+    figure, axes = plt.subplots(figsize=(1.6 * len(names) + 2.0, 4.2))
+    axes.bar(positions - width / 2, stock, width, label="stock",
+             color="#b0b7c3")
+    axes.bar(positions + width / 2, fine, width, label="finetuned",
+             color="#2f6df6")
+
+    for x, value in zip(positions - width / 2, stock):
+        axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8)
+    for x, value in zip(positions + width / 2, fine):
+        axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8,
+                  fontweight="bold")
+
+    axes.set_xticks(positions)
+    axes.set_xticklabels(names)
+    # 0 TO 1 ALWAYS, never autoscaled. Every metric here is a fraction, and a
+    # y-axis that started at 0.8 would make a 0.02 gain look like a landslide
+    # -- which is exactly the misreading a published chart must not invite.
+    axes.set_ylim(0.0, 1.08)
+    axes.set_ylabel("score")
+    # OUTSIDE THE AXES. `lower right` sat on top of the recall bars, which is
+    # the corner a high-scoring model fills -- the legend would hide exactly
+    # the result the chart is published to show.
+    axes.legend(frameon=False, loc="upper center", ncol=2,
+                bbox_to_anchor=(0.5, -0.12))
+    axes.spines[["top", "right"]].set_visible(False)
+
+    holdout = metrics.get("holdout")
+    version = metrics.get("holdout_version")
+    objects = metrics.get("n_objects")
+    caption = []
+    if title:
+        caption.append(str(title))
+    if holdout:
+        caption.append(f"hold-out {holdout}"
+                       + (f" @ {version}" if version else ""))
+    if isinstance(objects, (int, float)):
+        caption.append(f"{int(objects)} objects")
+    if caption:
+        axes.set_title("  -  ".join(caption), fontsize=10)
+
+    figure.tight_layout()
+    figure.savefig(str(path), dpi=dpi)
+    plt.close(figure)
+    return path
