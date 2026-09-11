@@ -6258,3 +6258,34 @@ Total: 63/75 originals technically complete, 3150 checked tracks (100 retained),
 native-speaker approved or human-listening approved. Continuing Apply Cellpose:
 its batch result is verified, but its preview preprocessing differs and must
 be explained rather than presented as an equivalent batch prediction.
+
+CODEX TUTORIAL LANE — 2026-09-11, APPLY CELLPOSE 20 TECHNICAL MATRIX.
+
+19dd413ce closes eleven scenes, 533 English words, thirteen editorial
+translations, fifty checked voices and fourteen browser cases. The corrected
+4K master fully decodes and all eleven final scene midpoints were inspected.
+Visual inspection caught a recorder error: reopening Live settings created a
+new dialog, while the recorder closed the old reference. 00ede6ea9 fixes only
+the recorder; a new guard rejects that real bad recording and fails under a
+deliberate removed-guard mutation. Fifteen focused tests pass (eleven existing
+arithmetic tests, four scope tests); four new mutations and seven earlier
+arithmetic mutations were observed RED. Earlier captures remain preserved.
+
+The actual stock-CPSAM CUDA run saves three masks with 9/94/46 objects and
+three real GUI figures. Independent direct calls reproduce every saved mask
+pixel and the original/contour/flow arrays. Live preview on image02 still gives
+95 rather than the batch's 94: raw-image Cellpose defaults differ from the
+Apply preprocessing/resampling path. This is explicitly narrated, NOT fixed
+or waived as equivalent. Area 1838 gives 95 -> 47 -> 95 without another model
+run; original labels and saved batch TIFFs stay unchanged. Native wheel zoom
+is synchronized but crops the detail and does not fix the narrow preview card.
+Apply_Cellpose_stock_example.zip contains the exact three unchanged inputs
+and recorded settings; no custom training checkpoint or accuracy claim.
+
+Total: 64/75 originals technically complete, 3200 checked tracks (100 retained),
+896 browser cases. Eleven originals plus held OPS remain; no publication or
+human-listening/native-speaker signoff. Run Compare is next: two independent
+Measure databases still exactly match their original full fingerprints and
+object identities. I am assessing a clearly labelled relocated comparison
+index, preserving real run IDs/settings/versions/times rather than fabricating
+a rerun or pretending two historical entries point at different current bytes.

@@ -283,10 +283,16 @@ def record_preview(app,window,screen,work,captures,capture,settle,write_json,tim
     dialog.close();settle(.3);capture('22a_filtered_preview_dialog_closed')
     zoom_detail('22b_actual_zoomed_filtered_preview')
     panel.open_live_settings();settle(.3)
+    # Opening again constructs a new dialog. Closing the old reference leaves
+    # the real current dialog covering the restored image.
+    dialog=panel._live_settings_dialog
+    dialog.resize(1850,1250);settle(.2)
     fill(minimum,original)
     if not np.array_equal(panel._masks['cell'],baseline):raise ValueError('Restoring the filter did not restore every pixel')
     proof['filter']['restored']=True
     capture('23_native_filter_restored');dialog.close();settle(.3)
+    if panel._live_settings_dialog is not None and panel._live_settings_dialog.isVisible():
+        raise ValueError('The current Live settings dialog did not close')
     np.save(captures/'preview_cell_restored.npy',panel._masks['cell'],allow_pickle=False)
     capture('23a_restored_preview_dialog_closed')
     zoom_detail('23b_actual_zoomed_restored_preview')

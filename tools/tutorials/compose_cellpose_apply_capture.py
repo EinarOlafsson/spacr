@@ -27,9 +27,15 @@ def require_scope(proof, reference):
         raise ValueError('Filtering must preserve raw labels and restore the result')
 
 
+def require_closed_dialogs(frames):
+    for name in ('22b_actual_zoomed_filtered_preview','23b_actual_zoomed_restored_preview'):
+        if frames[name].get('dialogs'):
+            raise ValueError('A dialog covers the narrated unobstructed filter result')
+
+
 def compose(stage=DEFAULT_STAGE):
-    stage=Path(stage); source=stage/'captures/cellpose_apply_native_zoom_v1'
-    destination=stage/'captures/cellpose_apply_disclosed_verified'
+    stage=Path(stage); source=stage/'captures/cellpose_apply_native_zoom_v2'
+    destination=stage/'captures/cellpose_apply_disclosed_verified_v2'
     if destination.exists():raise FileExistsError('Preserve the previous composition')
     hashes={}
     proof=_read(source/'scientific_acceptance.json',hashes)
@@ -61,7 +67,9 @@ def compose(stage=DEFAULT_STAGE):
     if not provenance['completed_capture'] or provenance['module']!='cellpose_masks':
         raise ValueError('Expected a completed native Apply recording')
     frames={}
-    for key,original in _read(source/'frames.json',hashes).items():
+    original_frames=_read(source/'frames.json',hashes)
+    require_closed_dialogs(original_frames)
+    for key,original in original_frames.items():
         frame=deepcopy(original);path=_frame(source/frame['image'],frame['sha256'],source,hashes)
         frame['image']=os.path.relpath(path,destination);frames[key]=frame
     if any(sha(path)!=value for path,value in hashes.items()):
