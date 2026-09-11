@@ -1004,6 +1004,9 @@ def main() -> int:
                 from classify_split_evidence import inspect_inputs
                 input_proof = inspect_inputs(args.classifier_existing_split)
                 write_json(captures / 'canonical_input_checks.json', input_proof)
+                from capture_classify_existing import choose_existing_folder
+                choose_existing_folder(app, screen, args.classifier_existing_split,
+                                       capture, settle)
                 write_json(captures / 'scientific_acceptance.json', {
                     'accepted': False, 'reason': 'The prepared split has not completed a verified native run'})
                 presets['classify_merged'].pop('gradient_accumulation', None)
@@ -1049,7 +1052,9 @@ def main() -> int:
             write_json(captures / 'batch_settings.json', settings)
             if args.settings_tour:
                 from capture_settings import record_settings
-                record_settings(screen, captures, capture, settle, write_json)
+                record_settings(screen, captures, capture, settle, write_json,
+                    extra_keys=('src', 'generate_training_dataset', 'val_split', 'train_channels')
+                    if args.classifier_existing_split else ())
             if getattr(screen, '_preview_switch', None) is not None:
                 screen._preview_switch.setChecked(False)
             settle()

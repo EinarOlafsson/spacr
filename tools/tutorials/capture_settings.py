@@ -13,7 +13,7 @@ def require_unchanged_settings(before, after):
         raise RuntimeError(f'A display-only tutorial tour changed settings: {changed}')
 
 
-def record_settings(screen, captures, capture, settle, write_json):
+def record_settings(screen, captures, capture, settle, write_json, *, extra_keys=()):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
 
@@ -55,7 +55,7 @@ def record_settings(screen, captures, capture, settle, write_json):
         QTest.mouseClick(bar._disclosure, Qt.LeftButton)
     observations = []
     try:
-        for key in keys_by_module[screen.app_key]:
+        for key in dict.fromkeys((*extra_keys, *keys_by_module[screen.app_key])):
             bar._input.setFocus()
             QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
             QTest.keyClicks(bar._input, key)
