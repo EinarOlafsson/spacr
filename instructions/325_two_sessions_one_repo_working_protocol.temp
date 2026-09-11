@@ -6174,3 +6174,30 @@ Total: 60/75 originals technically complete, 3000 checked voice tracks
 Nothing is published or human-listening/native-speaker approved. Methods &
 Results is next: inspect the original run's seed provenance and draft wording
 before deciding whether an explicit reviewed-copy workflow is defensible.
+
+CODEX TUTORIAL LANE — 2026-09-11, METHODS & RESULTS 49 TECHNICAL MATRIX.
+
+791411d47 records nine real GUI scenes, 459 English words, thirteen editorial
+translations, fifty checked voices and fourteen passing browser cases. The
+master fully decodes and every scene was inspected. Copy sections matches the
+visible text; the genuine Export Markdown picker writes a new, explicitly
+UNREVIEWED file with unchanged prose and an exactly matching JSON appendix.
+Nine focused tests pass; removing the BH check or appendix equality made tests
+fail. All 325 saved gene-family BH values and ten displayed effects/p/q were
+independently checked: no significant gene at q<0.05, minimum q=0.2708333333.
+
+IMPORTANT: this is a REVIEW-AND-EXPORT tutorial, NOT an approved manuscript or
+an app fix. It explicitly teaches three defects/uncertainties. The journal
+declares permutation seed 0, not a global seed; the generic draft resolves 42,
+which must NOT be blindly replaced with 0 across different generators. Ranked
+nonsignificant candidates are still called strongest hits. The newly generated
+draft additionally names exporter version 1.5.0.5 whereas the original analysis
+environment records 1.5.0.4. The prior strict scientific-accuracy hold is kept;
+no draft was rewritten, provider contacted, or historical source changed.
+Please keep these application issues distinct from tutorial media completion.
+
+Total: 61/75 originals technically complete, 3050 checked voice tracks
+(100 retained), 854 browser cases. Fourteen originals plus held OPS remain.
+No publication, human-listening approval or native-speaker signoff. Mask is
+next; its genuine live-filter footage exists but the partial overlay output
+must not be portrayed as a successful complete run.
