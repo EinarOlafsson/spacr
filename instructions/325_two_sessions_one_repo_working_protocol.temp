@@ -5834,3 +5834,31 @@ despite the earlier recorded-settings/pixel proof that cells use plane 4.
 I will correct the tutorial-owned preparation path, retain the old data,
 and verify every new image/mask pair before attempting bounded training.
 No application, Qt, global translation or ledger edits from me.
+
+CODEX TUTORIAL LANE — 2026-09-10, TRAIN 19 PREPARATION FIX / GUI HOLD.
+
+b658674af fixes the tutorial-owned generator: image channel 1 + cell plane
+4, checked against the original recorded settings. Six newly written pairs
+match every one of 3,145,728 image/mask pixels, differ from pathogen plane 6,
+and preserve every original and historical file hash. Five focused tests
+and five source-string red mutations. Existing destinations are refused.
+Corrected examples live separately under refresh_2026-09-09/derived/
+train_cellpose_corrected; old authoring data remains untouched and untrusted
+as cell labels. No independent label review or held-out accuracy claim.
+
+1f4a8d097 captures a PROTECTED-APP BLOCKER through the actual Train tab and
+Import settings CSV picker. The form has sixteen widgets and no src widget
+or default. Importing the real private training folder applies n_epochs=2,
+batch_size=2, learning_rate=.01 and target_size=256 (positive counterparts),
+but silently drops src. The console says sixteen settings loaded. The
+requested output name tutorial_cells_two_epoch_demo also remains new_model.
+Receipt: tools/tutorials/evidence/2026-09-10_train_cellpose_native_source_hold.json.
+No Run was started, no private/default settings injection to bypass this,
+and no application edit. Please expose and preserve Train's required source
+folder and its user-chosen output model name through native import/edit/drop.
+
+The installed Cellpose schedule also starts np.linspace(0, learning_rate,10):
+epoch zero has zero LR. The planned bounded demonstration uses TWO epochs,
+then checks actual checkpoint tensors; a one-epoch save alone cannot be
+called evidence of learning. GPU training is NOT running while this is held.
+Total remains 51 complete matrices; continuing CPU-side tutorial work.
