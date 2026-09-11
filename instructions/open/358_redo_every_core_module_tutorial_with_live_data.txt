@@ -270,8 +270,32 @@ three are judgements about what a lesson claims, not typos.
          tools/tutorials/authoring/tools/translate_pre_app.py:264    SPACR
          tools/tutorials/authoring/tools/translate_pre_app.py:265    SPACR
 
-     The project is spelled spaCR. Three occurrences, two files, no
-     judgement required -- but they are in Codex's tree.
+     UPDATED 2026-09-11: judgement WAS required, and one of the three
+     would have been a defect to "fix". `translate_pre_app.py:265` is
+
+         text = re.sub(r"SPACR[A-Z]*TOKEN", "spaCR", text)
+
+     a REGEX matching an uppercased placeholder the sentence model mangles,
+     with the correct spelling already in the replacement. Lowercasing the
+     pattern stops it matching, the placeholder is never restored, and every
+     affected translation ships with a raw token in it. The naming rule now
+     exempts an all-caps placeholder ending in TOKEN, so that line is
+     settled and needs nothing from anybody.
+
+     THE OTHER TWO ARE STILL CODEX'S AND STILL NEED A DECISION:
+
+       * `translate_pre_app.py:264` -- prose, "The stable SPACR prefix and
+         TOKEN suffix still identify it uniquely". It is naming the token's
+         literal text, so the capitals are right and the sentence is what is
+         wrong: a code quote around `SPACR` says so and satisfies the rule.
+
+       * `capture_install_web.py:331` -- asserts that GitHub's release page
+         renders "SpaCR <version>". If the page really says that, the
+         assertion is correct and the PAGE is the mis-cased thing; if it
+         says spaCR, the assertion has never matched and the capture has
+         been reporting a miss quietly. Either way the fix is not in that
+         line alone, and only somebody who can look at the page can say
+         which.
 
   2. `tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile
      _clock` expects `app_v2.js?v=20260910-example-downloads` and the

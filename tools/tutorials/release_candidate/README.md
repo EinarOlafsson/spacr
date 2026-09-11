@@ -22,8 +22,10 @@ instead of waiting for those fixes.
 All original held recordings and catalogs are preserved. The candidate only
 adds availability and current-parent metadata; ready narration and visual
 masters are not regenerated for this change. Complete text sources, scripts,
-catalogs and evidence are in Git; large recordings/audio remain in the original
-workspace and the separately copied candidate, indexed by the committed hashes.
+catalogs and evidence are in Git. At the maintainer's request the web videos,
+posters, fonts and example downloads are also committed; the 6.5-GiB narration
+and 4K package remains in the original workspace and separately copied candidate,
+indexed by the committed hashes, pending media-host upload approval.
 
 ## Verification and preview
 
@@ -37,7 +39,8 @@ Use the existing isolated tutorial environment, not a new application install:
 
 For an interactive local preview, add `--serve`. It binds only to localhost,
 prints the URL, supports media seeking and serves the complete candidate.
-Stop it with Ctrl-C. The small Git text checkpoint alone has no media.
+Stop it with Ctrl-C. Git contains the web media, but the complete narration and
+4K files are still required from the local candidate or a verified media host.
 
 ## Release hold
 
