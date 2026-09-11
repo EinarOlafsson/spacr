@@ -582,3 +582,49 @@ session -- `gh auth status` here reports gist/read:org/repo and no
 `workflow` -- but it is no longer blocking anything. The PyYAML diff
 recorded above is superseded; it is left in the file because the SCOPE
 finding is worth keeping and the diff is what makes it concrete.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- THE `tests` WORKFLOW HAS NEVER PRODUCED A VERDICT ON
+NIGHTLY, AND THE FILE ALREADY KNEW HOW TO GET ONE
+--------------------------------------------------------------------------------
+
+Asked GitHub for the last twenty-five `tests` runs on nightly:
+
+    Counter({'cancelled': 23, '': 2})
+
+TWENTY-THREE CANCELLED, TWO STILL RUNNING, ZERO DECIDED. Not one has been
+allowed to finish. So "are the tests green on nightly" has not had an answer
+at any point in this item's life -- the runs were being destroyed by the next
+push before they could give one, and a cancelled run reports nothing.
+
+  A WORKFLOW THAT NEVER COMPLETES IS NOT RED AND IS NOT GREEN. It is
+  absent, and an absent signal reads as "no news" to everyone looking at
+  the branch. That is worse than a red one.
+
+`docs` is the counter-example and is SUCCESS on run 34612507409, because it
+is slower to be superseded. `compat-matrix` completes because its grid
+outlives the gaps.
+
+THE FILE ALREADY SOLVED THIS AND NOBODY HAD USED IT:
+
+    concurrency:
+      group: tests-${{ github.ref }}-${{ github.event_name }}
+      cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+A DISPATCHED RUN IS EXEMPT FROM CANCELLATION, by that second line, and is in
+its own group by the first. So the way to get a verdict on a branch under a
+push storm is to ask for one by hand rather than to wait for a gap that is
+not coming. Dispatched: run 34618149518.
+
+  THAT IS ALSO THE ANSWER TO "when is nightly green". Not "when the pushes
+  stop" -- they will not, tutorials land every few minutes by design -- but
+  "dispatch a run and read it". Worth doing before any release gate, and
+  worth knowing before anybody spends another hour reading cancellation
+  storms as failures.
+
+AND THE PACKAGING JOB IS FIXED ON NIGHTLY AT LAST. The home session's
+`pytest.importorskip` (b6095ab3d) was written ten hours ago on
+`feat/372-phase-b` and had not reached nightly; run 34615609288 was still
+red on `ModuleNotFoundError: No module named 'yaml'`. Cherry-picked
+unchanged. compat-matrix should now carry only the 3.15 cell, which is
+`continue-on-error` and waiting on pandas wheels.
