@@ -47,6 +47,7 @@ def main() -> int:
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
+    parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
     parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
     parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
@@ -70,6 +71,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.hit_list_companion and args.module != 'hit_list':
+        parser.error('--hit-list-companion requires --module hit_list')
     if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
         parser.error('--methods-review-export requires methods_export without a run or download')
     if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
@@ -412,7 +415,7 @@ def main() -> int:
     elif args.module == 'hit_list':
         from capture_hit_list import record_hits
         record_hits(app, window, stage, captures, capture,
-                    settle, write_json, args.timeout)
+                    settle, write_json, args.timeout, companion=args.hit_list_companion)
     elif args.module == 'methods_export':
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
