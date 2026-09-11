@@ -31,7 +31,7 @@
       "hold_after": 0.7
     },
     {
-      "visual": "03_01_model_path",
+      "visual": "03_03_image_size",
       "narration": "Choose the matching trusted model and retain its model card. This is a ResNet eighteen checkpoint trained for only one epoch in the earlier demonstration. Its split shared wells, so we make no independent accuracy claim. A convincing attribution picture cannot rescue an inadequately validated model. Do not load an untrusted checkpoint for convenience.",
       "hold_after": 0.7
     },

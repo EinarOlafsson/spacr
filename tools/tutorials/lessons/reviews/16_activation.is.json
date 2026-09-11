@@ -1,6 +1,6 @@
 {
   "lesson": "16_activation",
-  "english_sha256": "bd0a28eca9222f51fb481f2779bd46d2e3433b118e9505280c4798fe03dffd6a",
+  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -13,7 +13,7 @@
     "Skoða vistaðar skrár þegar Figures er tómt.",
     "Aðgreina tölulega sannprófun, spár og vísindalegt réttmæti."
   ],
-  "prerequisite": "Fjórir óbreyttir RGB-frumumyndbútar úr niðurhalaða Annotate-dæminu og traust staðbundið ResNet18-líkan þjálfað eina umferð. Fyrra dæmið deilir holum milli gagnaskipta: ENGIN fullyrðing um óháða spánákvæmni. Geyma sniðmerki 3/RGB og líkanaspjald. Stærð 128, bunki 4, rásir [1,2,3], normalize_input/normalize/Plot/Save virkt, shuffle/correlation óvirkt, einn CPU-þráður fyrir vinnsluferlið. saliency_channel með yfirlagi, saliency_image án þess. 196608 inntaksgildi og 262144 kortshlutar sannreyndir með mest einu átta bita námundunarþrepi. Auðkenni og frumrit óbreytt. src-viðvörun og tómt Figures EKKI löguð; PNG birt í raunverulegum ytri myndskoðara. Fjögur ónotuð sæti eru tóm. Engin staðfesting framlags, óháð spánákvæmni, AI-fyrirspurn, líffræðileg staðfesting eða birting. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
+  "prerequisite": "Fjórir óbreyttir RGB-frumumyndbútar úr niðurhalaða Annotate-dæminu og traust staðbundið ResNet18-líkan þjálfað eina umferð. Fyrra dæmið deilir holum milli gagnaskipta: ENGIN fullyrðing um óháða spánákvæmni. Geyma sniðmerki 3/RGB og líkanaspjald. Stærð 128, bunki 4, rásir [1,2,3], normalize_input/normalize/Plot/Save virkt, shuffle/correlation óvirkt, eitt CPU-vinnsluferli. saliency_channel með yfirlagi, saliency_image án þess. 196608 inntaksgildi og 262144 kortshlutar sannreyndir með mest einu átta bita námundunarþrepi. Auðkenni og frumrit óbreytt. src-viðvörun og tómt Figures EKKI löguð; PNG birt í raunverulegum ytri myndskoðara. Fjögur ónotuð sæti eru tóm. Engin staðfesting framlags, óháð spánákvæmni, AI-fyrirspurn, líffræðileg staðfesting eða birting. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
   "scenes": [
     "Opnaðu Classify og síðan innbyggða verkfærið Activation Maps. Þessi verkferill skoðar hvernig spá þjálfaðs líkans bregst við mynddílum. Hann þjálfar ekki flokkara og staðfestir ekki orsök svipgerðar sem sést. Við sýnum tvær raunverulegar næmniskortakeyrslur, keyrslugluggann og skýra leið til að skoða vistaðar skrár.",
     "Notaðu raunverulega myndbútaarkífið, ekki sýndarmöppu. Litla arkífið okkar inniheldur fjóra óbreytta RGB-frumumyndbúta úr niðurhalaða Annotate-dæminu ásamt sniðmerki. Við varðveitum upprunaskrár og vinnum í einkaverkefni. Fjórar hentugar myndir sýna virkni; þær eru ekki dæmigerður sannprófunarhópur.",
