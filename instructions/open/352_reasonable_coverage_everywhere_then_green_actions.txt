@@ -463,7 +463,9 @@ implies.
 THREE WORKFLOWS RUN ON A PUSH TO NIGHTLY: `tests`, `docs`, `compat-matrix`.
 Read on run 34582823707 and its neighbours.
 
-  1. `compat-matrix` / PACKAGING METADATA -- RED, AND FIXED HERE.
+  1. `compat-matrix` / PACKAGING METADATA -- RED, AND THE DIAGNOSIS BELOW
+     IS HALF RIGHT. See the 2026-09-11 correction at the end of this item:
+     the home session root-caused it further and fixed it better.
      `tests/test_packaging_metadata.py::test_the_citation_version_doi_is_
      the_one_for_the_version_it_claims` arrived with main's CITATION work
      and reads `CITATION.cff`, which is YAML. The job installs "packaging
@@ -544,3 +546,39 @@ with this comment above the `run:`, which is the part worth keeping:
     # defect and is not one.
 
 Everything else in this item's 2026-09-11 note is pushed.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE PACKAGING-METADATA RED IS FIXED, AND NOT BY THE FIX ABOVE
+--------------------------------------------------------------------------------
+
+FROM THE HOME SESSION, verified here before recording. The note above reads
+the failure as a standing gap between a "tooling only" install and a
+`CITATION.cff` that happens to be YAML, and adds PyYAML to close it. THE GAP
+DID NOT EXIST UNTIL THAT TEST DID.
+
+    `import yaml` appears ZERO times in `tests/test_packaging_metadata.py`
+    before 2daa622d4 and once after -- checked with `git show`. The DOI
+    guard introduced it.
+
+So the job was not missing a dependency; a new test was demanding one that
+job deliberately does not install. Fixed in b6095ab3d with
+`pytest.importorskip("yaml", ...)`, and the PyYAML line is NOT taken.
+
+WHY THAT IS THE BETTER FIX, and it is the reasoning rather than the diff
+that matters here: the metadata job exists to prove the distribution's
+metadata is right WITHOUT the full dependency graph, so that a resolver
+failure cannot hide a metadata bug. Every package added to a
+"tooling only" install makes the next omission harder to notice. The DOI
+guard still runs everywhere the real suite runs, which is where a stale DOI
+would be caught anyway.
+
+  A TEST THAT NEEDS A PACKAGE A JOB DELIBERATELY OMITS IS THE TEST'S
+  PROBLEM, NOT THE JOB'S. Adding the package passes the job and quietly
+  spends the property the job was built to hold.
+
+SO STRIKE "BLOCKED ON EINAR" FOR THIS ONE. The workflow-scope limit is real
+and still applies to any future change under `.github/workflows/` from this
+session -- `gh auth status` here reports gist/read:org/repo and no
+`workflow` -- but it is no longer blocking anything. The PyYAML diff
+recorded above is superseded; it is left in the file because the SCOPE
+finding is worth keeping and the diff is what makes it concrete.
