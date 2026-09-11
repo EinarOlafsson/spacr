@@ -412,3 +412,75 @@ def test_a_module_opened_after_the_theme_change_wears_it(sheeted, qtbot):
         "a module opened after the theme change is wearing no sheet at "
         "all: the window is bare by design and the new page was never "
         "marked, so it inherits nothing")
+
+
+@pytest.mark.slow
+def test_a_screen_that_repaints_its_page_keeps_the_theme(sheeted, qtbot):
+    """A SHEET ROOT'S OWN RULE IS NOW A SUFFIX, NOT A REPLACEMENT.
+
+    `AppScreen._sync_page_palette` writes the page colour into the screen's
+    OWN stylesheet, and clears it when the page has no colour. That was a
+    local, safe thing to do while the APPLICATION carried the theme. Under
+    per-screen sheeting the screen may be carrying all ~73 KB of it, and a
+    plain `setStyleSheet` throws the theme away.
+
+    THE TIMING IS WHY THIS NEEDS ITS OWN TEST. The digest check in
+    `_sheet_one_window` repairs a wiped sheet at the widget's next polish,
+    which covers a wipe during `__init__` because a `Show` follows it. A
+    page already on screen gets no such event, so a wipe there stood until
+    the next theme change. Measured: a probe under the page resolved to
+    `#000000` on the dark theme and stayed there.
+
+    Both branches are exercised, because the colour-setting one is the half
+    that has to keep its own rule as well as the sheet.
+    """
+    from PySide6.QtGui import QColor
+
+    from spacr.qt import register_self_registering_modules
+    from spacr.qt.app import MainWindow
+
+    app = QApplication.instance()
+    register_self_registering_modules()
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    for _ in range(60):
+        app.processEvents()
+    try:
+        window._on_nav_selected("mask")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("mask would not open here")
+    for _ in range(60):
+        app.processEvents()
+
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+
+    page = window._stack.currentWidget()
+    if not hasattr(page, "_sync_page_palette"):
+        pytest.skip("this screen does not paint its own page")
+    assert _resolved(QLabel(page)) == SECOND_HEX, "the page began unsheeted"
+
+    # The clearing branch: no page colour, so the screen owns no rule.
+    page.page_fill = lambda: None
+    page._page_applied = "force a run"
+    page._sync_page_palette()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(page)) == SECOND_HEX, (
+        "clearing the page colour took the whole window sheet with it")
+
+    # The setting branch: a page colour, which the screen owns AND keeps.
+    page.page_fill = lambda: QColor("#123456")
+    page._page_applied = "force a run"
+    page._sync_page_palette()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(page)) == SECOND_HEX, (
+        "setting the page colour replaced the window sheet instead of "
+        "being appended to it")
+    assert "#123456" in page.styleSheet(), (
+        "the screen's own page-colour rule was lost, which is the other "
+        "way for this to be wrong")
