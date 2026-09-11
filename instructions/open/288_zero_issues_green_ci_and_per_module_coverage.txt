@@ -1916,3 +1916,78 @@ That is not the same as CI green and this file should not pretend it is.
 What it IS: every failure mode `docs.yml` has exhibited in the last hundred
 runs is now accounted for, and the only untested step left is the artifact
 upload.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- 69 FAILURES NAMED AND CLASSIFIED. THE SUITE WAS NOT ORDER-DEPENDENT.
+--------------------------------------------------------------------------------
+
+This item's standing belief was that `tests/qt` has no clean full-suite
+signal because the suite carries state between tests -- the crash, the
+deceleration, and the caption that measures as clipped only after 700
+other tests. The complete sweep of 2026-09-10 tested that belief against
+the whole suite for the first time, and it is largely WRONG.
+
+    2,738 files, 69 chunks, one process each, frozen at 2e9e8a907.
+    27 chunks reported failures. Re-run WITHOUT coverage to name them:
+    69 failures across 30 chunks, in 37 files.
+    Every one of those 37 files then run ALONE.
+
+    ALONE-RED    27 files   real, and red on nightly right now
+    ALONE-GREEN  10 files   pass by themselves
+
+AND THE TEN ARE NOT TEN. Nine of them were files I had already FIXED before
+the classification ran, so they passed alone because they were repaired,
+not because they are order-dependent. The genuine order-dependent set from
+this sweep is ONE file: `tests/qt/test_home_v2.py`, whose
+`test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for` passes in
+a run of 163 and fails in company.
+
+    SO THE SUITE'S PROBLEM WAS NOT ORDER. It was 27 files that had been red
+    on nightly for days with nobody running them -- which is exactly what
+    an item called "zero issues, green CI" exists to find, and what no
+    amount of running `tests/qt` alone could have shown.
+
+WHAT THE 69 WERE, by cause rather than by file:
+
+  364'S RENAME, IN BOTH DIRECTIONS -- the single largest cause.
+    OVER-REACHED: `spacr/core.py` (the pathogen CONDITION list, which is
+      not the regression setting), and the plate-layout ROLE names
+      `positive_control` / `negative_control`, which are well roles and
+      not settings at all.
+    MISSED: dict literals in test settings (`"controls": []` -- twelve
+      failures from one key), dict SUBSCRIPTS, KEYWORD ARGUMENTS to test
+      helpers, and FIVE user-facing messages.
+    THE MESSAGES ARE THE WORST OF IT because they break nothing: the
+      identifiers are PROSE inside f-strings, so nothing imports them,
+      nothing subscripts them, and the only test that noticed was the one
+      that happened to assert the wording.
+
+  A NUMPY 2 REMOVAL. `ops_phenotype.py` called `ndarray.ptp()`, removed in
+    NumPy 2.0. It is why that module measured 52.16 %, the lowest of 560 --
+    not untested code, a crash. No other NumPy 2 removal is left in the
+    package.
+
+  CONTRACTS THAT HAD DRIFTED FROM THEIR OWN DOCSTRINGS. `installed()`
+    promised to bind a mouse gesture; `_calibration_inputs` refused
+    something that could no longer be refused.
+
+  TESTS ASSERTING THE OPPOSITE OF THE TRUTH. The popup-hold guard 385
+    deleted; the space accessors 364 retired; a `control_wells` union that
+    no longer exists; `"379-C"` required inside a user-facing message.
+
+  A LEDGER GUARD THAT COULD NOT MODEL A REOPENED ITEM, which nearly cost
+    the home session's live instruction 83.
+
+WHAT IS LEFT, and none of it is a defect in this lane:
+
+  * TWELVE FILES ARE MERGE-PENDING. nightly is 41 commits behind main,
+    including the nine-language catalog rebuild (20 files, +9,414/-6,704).
+    Every i18n failure on nightly is that gap -- Swedish 115 against 118,
+    97 against 99. Counts, not defects.
+  * THREE FILES ARE THE TUTORIAL LANE'S: `test_docs_media_budget`,
+    `test_the_name_is_spaCR` (spellings in
+    `tools/tutorials/authoring/tools/capture_install_web.py` and
+    `translate_pre_app.py`) and `test_tutorial_release_audit`.
+  * ONE ORDER-DEPENDENT FILE, `test_home_v2.py`, which is the only
+    survivor of this item's original suspicion and the one thing here
+    still worth bisecting.
