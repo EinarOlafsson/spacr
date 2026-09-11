@@ -582,7 +582,26 @@ def test_the_gpu_note_is_placed_whatever_the_greeting_is_doing(slides):
     # wins and this assertion measures the clamp instead of the placement
     # it is about -- which is what happened when the note grew a per-task
     # capability list and became several lines taller.
-    card.resize(max(card.width(), 600), 1000)
+    # TALL ENOUGH FOR THE NOTE THIS APP ACTUALLY HAS, measured rather than
+    # guessed. 1000 was hard-coded here and it is not enough once the
+    # application stylesheet is on: the themed note wraps taller, the band
+    # plus its height overflows the floor, the clamp lifts it, and this
+    # assertion measured the clamp -- the very thing the paragraph above
+    # says it must not do.
+    #
+    # THE SHEET IS NOT A LEAK. `qt_theme_applied` is session-scoped and the
+    # conftest deliberately never restores an EMPTY sheet, because doing so
+    # would ratchet the whole run to an unstyled app. So a test that runs
+    # after anything themed sees the theme, and that is the real condition;
+    # running alone, with a 0-byte sheet, is the unusual one. Measured:
+    # 0 bytes alone against 71,472 in company.
+    #
+    # The band needs (1 - GPU_NOTE_BAND) of the card to hold the note plus
+    # the nav row, so size the card from the note instead of from a number.
+    note = slides._gpu_note
+    tall = note.heightForWidth(max(note.width(), 1)) or note.sizeHint().height()
+    needed = int((max(tall, 1) + 200) / (1.0 - GPU_NOTE_BAND)) + 1
+    card.resize(max(card.width(), 600), max(1000, needed))
     slides._greeting = None
     slides._place_the_greeting()
     assert slides._gpu_note.y() == int(card.height() * GPU_NOTE_BAND)
