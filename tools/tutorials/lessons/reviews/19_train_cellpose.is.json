@@ -1,0 +1,31 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Train Cellpose: yfirfarin pör og skýr API-hjáleið",
+  "description": "Finndu Train í Cellpose Workbench, þekktu núverandi innflutningsvillu gagnaslóðar og fylgdu raunverulegri tveggja umferða Python-þjálfun með sex niðurhalanlegum frumumynda- og grímupörum.",
+  "objectives": [
+    "Finna Train og Apply innan Make Masks, ekki sem sérflísar á Home.",
+    "Athuga samsvarandi skráarnöfn og greina núverandi merkingar frá yfirförnum viðmiðum.",
+    "Þekkja hlutainnflutning og aðgreina API-leið frá gölluðu GUI.",
+    "Skoða inntak, upphitunarhraða, breytt vægi og staðfesta slóð.",
+    "Greina þjálfunartap, frátekin prófunargildi og lestur vægja frá óháðri nákvæmni."
+  ],
+  "prerequisite": "Notaðu sexpara pakkann með upptökuhjálparforritinu og upprunaskrá. Raunveruleg myndsvið varðveita frumustyrk rásar 1 og frumugrímu plans 4; plan 6 er sýkill. Núverandi merkingar og kantafskornir hlutir eru EKKI óháð yfirfarin viðmið. Train tapar enn src og heldur model_name=new_model þótt tölur flytjist inn; engin GUI-þjálfun byrjar. spacr.submodules.train_cellpose notar nýjan áfangastað, tvær umferðir, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 og enga auka gagnamögnun spaCR. normalize=False slekkur á hundraðshlutamarkaforvinnslu spaCR, ekki kvörðun með hámarki eða stöðlun Cellpose. Cellpose snýr og stærðarbreytir enn og notar innri 256-díla búta. Upphafsfræ 19; innri slembivinnsla helst. CUDA takmarkað við 65% á RTX 3090; 100 GiB vinnsluminnisvakt á aðeins við þessa stöð. 3,145,728 inntaksgildi og tólf myndfylki skoðuð; öll sex pör héldust í þjálfun. Hraðar 0 og 1.1111111111111112e-6; 345 af 347 þjálfanlegum stikatenserum breyttust. Tap hækkaði úr 1.496740683913231 í 1.5215517828861873. Engin prófunargögn: núllin eru fráteknir reitir. Vistunarskrá undir models/cellpose_model/models lesin með weights_only=True; samantekt stjórnborðs sleppir öðru models. Lestur er ekki ályktun eða nákvæmnispróf. Raunveruleg mynd í ytri skoðara, ekki sett í GUI. Frumgögn, mistök og fyrri GUI-stöðvun varðveitt. Engin AI-beiðni, þjónustusvar, vísindalegt samþykki eða birting.",
+  "scenes": [
+    "Opnaðu Make Masks og síðan innbyggða Cellpose Workbench. Train og Apply eru flipar þar, ekki sérflísar á Home. Kennslan sýnir núverandi leið, innflutningsvillu og skýra Python-hjáleið. Tengda Make Masks-kennslan fjallar um að skoða og breyta grímum fyrir þjálfun.",
+    "Í Train skaltu skoða upphafspunkt og þjálfunaráætlun. Ekki afrita upphaflegan umferðafjölda eða námshraða sem ráðleggingu. Þjálfun krefst paraðra mynda og tilvikagríma, gagnamöppu og úttaksheitis. Sýnilegt eyðublað þýðir ekki að þessum kröfum sé fullnægt.",
+    "Raunverulega Import settings-gluggann notarðu til að opna CSV með afmörkuðum stillingum. Eftir innflutning sjást tvær umferðir, minibatch eitt og lítill námshraði. En nauðsynleg gagnaslóð tapast og líkananafnið helst new model. Þetta er hlutainnflutningur, ekki tilbúin uppsetning; ekki ýta á Run.",
+    "Python-leiðin hér fyrir neðan er aðskilin frá GUI-villunni. Hún setur ekki gagnaslóð í leyni og lagar ekki eyðublaðið. Notaðu tengda pakkann í nýrri möppu. Hjálparforritið hafnar fyrirliggjandi áfangastað, varðveitir upprunapör og skráir nákvæmlega API-útfærslu og inntak.",
+    "Sex raunveruleg 512-díla mynd- og grímupör bera samsvarandi skráarnöfn. Upprunalegar stillingar auðkenna frumustyrk sem rás eitt og frumugrímur sem plan fjögur; plan sex er sýkill. Núverandi merkingar eru ekki óháð yfirfarin viðmið. Skoðaðu mörk og kantafskorna hluti fyrir eiginlega þjálfun.",
+    "Þetta er raunverulega sexpara myndin sem API-keyrslan vistaði og ytri skoðari opnaði, ekki mynd sett inn í spaCR. Hver efri mynd samsvarar grímunni beint undir. Öll inntaksgildi og tólf birt fylki voru borin við upprunapör. Það staðfestir samsvörun, ekki gæði merkinga.",
+    "Keyrðu hjálparforritið með gagnauppsprettu og nýjum áfangastað. Afmarkaða CUDA-dæmið notar sex pör, tvær umferðir og minibatch eitt. Inntaksstærð er 512 dílar, en Cellpose þjálfar innri 256-díla búta. Að sleppa auka gagnamögnun spaCR slekkur ekki á stöðlun, snúningi og stærðarbreytingu Cellpose.",
+    "Fyrsta upphitunarumferð hefur námshraða núll. Önnur notar lítinn jákvæðan hraða og leyfir raunverulegar vægisbreytingar. Vistuð vægi voru borin við upphafleg þjálfanleg vægi: 345 af 347 stikatenserum breyttust. Breyting á þvermáli einu nægði ekki. Breytt vægi sanna samt ekki gott líkan.",
+    "Þjálfunartap hækkaði lítillega úr um 1,497 í 1,522. Engin prófunargögn voru gefin. Núll í prófunartapsreitum eru staðgenglar, ekki fullkominn árangur. Þetta sýnir vélræna framkvæmd, ekki samleitni, betri sundurgreiningu eða óháða nákvæmni. Haltu sjálfstæðu mati aðskildu frá þjálfun.",
+    "Notaðu slóð vistuðu vægjanna í yfirförnu athuganaskránni. Hún hefur aðra models-möppu sem almenna stjórnborðssamantektin sleppir. Geymdu vægi, stillingar, upprunaskrá og athuganir saman. Öruggur lestur tensora staðfestir læsilega skrá, ekki ályktun; pakkinn inniheldur pör og hjálparforrit, ekki vottað líkan.",
+    "Apply hefur eigin gagnamöppu, reit fyrir sérlíkan og lifandi forskoðun. Að opna flipann velur ekki ytri vægjaskrána okkar og keyrir ekki ályktun. Fylgdu tengdri kennslu og staðfestu á óháðum myndum. Valfrjálsa spaCR AI er ónotað hér; spurningar eða þjónustusvör koma ekki í stað skoðunar raunverulegra gagna."
+  ]
+}
