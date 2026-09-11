@@ -156,3 +156,31 @@ advantage.
 RE-SPECIFYING C1, C2 OR C3 HERE. If any of the three grows detail, it goes in
 386 or 387. Two homes for one instruction is how 60 became a ghost, which
 352 already records at length.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE GATE IS CHECKED AND IT IS STILL SHUT
+--------------------------------------------------------------------------------
+
+Recorded so that this file's untouched state is a DECISION on the record
+rather than something that looks like neglect the next time the ledger is
+read.
+
+THE GATE, in this file's own words: "Nothing here is picked up while ANY
+other open item is unfinished -- including 352, which is itself the 'when
+open/ is otherwise empty' item. This file sits BELOW 352."
+
+STATE AT THE TIME OF CHECKING: 20 items open. 352 in particular is not
+finished -- its complete sweep landed today (98.86 % over 560 modules) and
+the nine modules below 80 % still owe written reasons, which is the next
+pass. So the gate is shut on the plainest possible reading.
+
+AND IT DOES NOT OPEN BY ATTRITION. Several remaining items -- 381, 327's
+render-to-texture, 380's per-window stylesheet, 359's DPI axis -- are
+blocked on hardware rather than on effort. It would be convenient to read
+"unfinished" as "unfinishable by me, therefore finished", and that reading
+is wrong: they are open, they have owners, and a display or a GPU closes
+them. Parts A and B of this file stay untouched until they are.
+
+  WHAT WOULD CHANGE THIS is the maintainer promoting it explicitly, which
+  is the same mechanism the header already names for its priority. Nothing
+  else.
