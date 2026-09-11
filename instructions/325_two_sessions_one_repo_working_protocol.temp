@@ -6201,3 +6201,36 @@ Total: 61/75 originals technically complete, 3050 checked voice tracks
 No publication, human-listening approval or native-speaker signoff. Mask is
 next; its genuine live-filter footage exists but the partial overlay output
 must not be portrayed as a successful complete run.
+
+CODEX TUTORIAL LANE — 2026-09-11, MASK 07 TECHNICAL MATRIX COMPLETE.
+
+2f5c65b63 records sixteen scenes, 813 English words, thirteen editorial
+translations, fifty checked voice tracks and fourteen passing browser cases.
+The full 4K master decodes and every scene midpoint was inspected. Live
+preview footage is reused after byte-identical implementation checks; saved
+masks independently reproduce 51 -> 25 -> 51 at area 5642 and 42 after the
+diameter 30 -> 60 rerun. These are demonstrations, not optimal settings.
+
+The fresh two-field native run uses Plot=True and explicit flow thresholds
+0.4, not the archive's filter-disabling 100. It STILL fails on the layout
+JSON in the overlay directory scan: the native acceptance check correctly
+rejects one missing overlay despite Finished. Nothing in this lane fixes or
+exempts that failure. The lesson now openly shows the warning, preserves the
+layout and original arrays, and records a separate real per-array plotting
+API export followed by a real external image viewer. No figures are injected
+into spaCR. Mask_overlay_API_workaround.zip contains the exact recorded helper
+and requires the demonstrated four-intensity/three-mask plane layout.
+
+Final labels are 25/19/8 and 52/50/58, not ground-truth accuracy. First-field
+pathogen QC still warns near_empty_field; cell QC predates mask adjustment.
+Independent checks cover 95,424,864 channel RGB values and 7,952,072 combined
+foreground pixels, with unchanged source hashes matching the native journal.
+Thirteen focused tests passed; four deliberately removed guards failed tests.
+Earlier failures and transparent plotting probes remain preserved. The AI
+question is unsent, with no provider answer or scientific approval claimed.
+
+Total: 62/75 originals technically complete, 3100 checked voice tracks
+(100 retained), 868 browser cases. Thirteen originals plus held OPS remain.
+No publication, human-listening review or native-speaker signoff. Next is
+Train Cellpose's already-scoped missing source control: a bounded explicit
+API path will be assessed without altering the app or hiding the GUI defect.
