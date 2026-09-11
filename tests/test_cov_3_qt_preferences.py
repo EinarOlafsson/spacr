@@ -463,7 +463,12 @@ def test_applying_preferences_survives_every_optional_subsystem_failing(
 
     prefs.apply_preferences_to_app(qapp)
 
-    assert qapp.styleSheet(), "the application was left unthemed"
+    from spacr.qt import theme as _theme
+    # THE SHEET IS ON THE WINDOWS, NOT ON THE APPLICATION, since 380's
+    # last lever moved it there -- a preference save with four modules
+    # open went from 10.2 s to 3.1 s. `qapp.styleSheet()` is empty by
+    # design now.
+    assert _theme.window_stylesheet(qapp), "the application was left unthemed"
 
 
 def test_turning_the_field_fade_off_survives_a_missing_painter(monkeypatch):

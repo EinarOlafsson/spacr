@@ -4186,6 +4186,13 @@ def apply_preferences_to_app(app=None) -> None:
         # guard exists to skip.
         or window_stylesheet(app)
         != getattr(app, "_spacr_preferences_stylesheet", None)
+        # AND A NON-EMPTY APPLICATION SHEET IS FOREIGN BY CONSTRUCTION.
+        # `apply_stylesheet_per_window` clears it every time, so anything
+        # there was put there by somebody else -- a test, an embedding host,
+        # a theme integration -- and it applies to every widget including
+        # the ones inside our windows. That is the case this guard was
+        # written for and the window comparison above cannot see it.
+        or bool(app.styleSheet())
     )
     if style_changed:
         # Record the exact inputs any screen-local late block must share with

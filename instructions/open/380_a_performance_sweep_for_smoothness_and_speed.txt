@@ -837,6 +837,30 @@ test's theme. Measured as `HomePage inlines #000000 (dark bg)` under the
 light, cell and glass themes, in a run of 1,045 and in none of the three
 files alone.
 
+AND THE CHANGE HAD A REAL BUG IN IT, FOUND BY THE SWEEP RATHER THAN BY THE
+GUARD. A PARENTLESS WIDGET IS A WINDOW -- Qt says so -- and several of them
+set their own rules. Under `QApplication.setStyleSheet` those rules were
+MERGED with the global ones by Qt; replacing the window's sheet outright
+threw them away.
+
+    NOT A TEST ARTEFACT. It cost `test_field_fade::
+    test_the_text_stays_fully_opaque_all_the_way_across` an alpha of 254
+    where it demands 255, and made a provider-mark pixel comparison fail
+    two runs in ten -- which read as ORDER-DEPENDENCE in the sweep and was
+    nothing of the kind. Measured both ways, same command, ten runs each:
+    10/10 green before the change, 8/10 after, 8/8 after the fix.
+
+The window's own sheet is now remembered the first time and appended AFTER
+the global one, where it still wins. Remembered rather than re-read,
+because by the second pass the widget is wearing ours and reading it back
+would fold the global rules into "its own" and grow the sheet at every
+theme change. Both properties are pinned in the guard file, which is now
+15 tests.
+
+  WHAT IT SAYS ABOUT THE SWEEP: a change whose blast radius is public Qt
+  state does not show up in the tests written for it. Seven tests moved,
+  and only one of the seven was about theming.
+
 WHAT IS STILL ON THE TABLE. 3,057 ms is not 222 ms. The floor is not
 sheeting the hidden screens either, which needs a per-SCREEN sheet plus a
 dirty mark applied on `showEvent` -- a bigger change than this one, and one

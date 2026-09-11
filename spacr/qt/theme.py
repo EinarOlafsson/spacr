@@ -3430,6 +3430,15 @@ _WINDOW_SHEET_ATTRIBUTE = "_spacr_window_stylesheet"
 #: a `Polish` and a `Show` for the same window do the work once.
 _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 
+#: Whatever stylesheet a window had of its OWN before the application sheet
+#: was put on it. Kept because a parentless widget IS a window -- Qt says so
+#: -- and several of them set their own rules: a 26px field in a render
+#: test, a card, a status label. Under `QApplication.setStyleSheet` those
+#: rules were MERGED with the global ones by Qt; replacing the widget's
+#: sheet outright would throw them away, which is a regression and not a
+#: test artefact.
+_WINDOW_OWN_SHEET = "_spacr_window_own_stylesheet"
+
 #: The one filter instance, kept off the QApplication's children so it is
 #: not collected.
 _WINDOW_SHEET_FILTER = None
@@ -3480,11 +3489,16 @@ def _sheet_one_window(window) -> bool:
         if getattr(window, _WINDOW_SHEET_SERIAL, None) == serial:
             return False
         setattr(window, _WINDOW_SHEET_SERIAL, serial)
+        # THE WINDOW'S OWN RULES SURVIVE, AND GO LAST so they still win.
+        # Remembered the first time, because by the second pass the sheet on
+        # the widget is ours and reading it back would fold the global rules
+        # into "its own" for ever.
+        own = _the_windows_own_stylesheet(window)
         # PRESERVE A SCREEN-LOCAL SUFFIX. `preserve_widget_qss_overlay` owns
         # the other end of this: a root that has been given its own late
         # block keeps it appended, or setting the window sheet would strand
         # that screen on the previous preference values.
-        window.setStyleSheet(preserve_widget_qss_overlay(window, sheet))
+        window.setStyleSheet(preserve_widget_qss_overlay(window, sheet + own))
     except (AttributeError, RuntimeError):
         return False
     return True
@@ -3515,7 +3529,9 @@ def _forget_window_stylesheets(app=None) -> int:
             if getattr(window, _WINDOW_SHEET_SERIAL, None) is None:
                 continue
             delattr(window, _WINDOW_SHEET_SERIAL)
-            window.setStyleSheet(preserve_widget_qss_overlay(window, ""))
+            own = str(window.property(_WINDOW_OWN_SHEET) or "")
+            window.setProperty(_WINDOW_OWN_SHEET, None)
+            window.setStyleSheet(preserve_widget_qss_overlay(window, own))
             removed += 1
         except (AttributeError, RuntimeError):
             continue
@@ -3540,6 +3556,26 @@ def window_stylesheet(app=None) -> Optional[str]:
         return None
     sheet = getattr(app, _WINDOW_SHEET_ATTRIBUTE, None)
     return None if sheet is None else str(sheet)
+
+
+def _the_windows_own_stylesheet(window) -> str:
+    """What ``window`` had set on itself before spaCR sheeted it.
+
+    Captured once. On the second pass the widget is wearing our sheet, so
+    reading it back would fold the global rules into "its own" and they
+    would accumulate at every theme change.
+    """
+    own = window.property(_WINDOW_OWN_SHEET)
+    if own is not None:
+        return str(own)
+    current = str(window.styleSheet() or "")
+    suffix = getattr(window, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
+    if suffix and current.endswith(suffix):
+        # The late screen block belongs to `preserve_widget_qss_overlay`,
+        # which re-appends it; keeping it here too would double it.
+        current = current[:-len(suffix)]
+    window.setProperty(_WINDOW_OWN_SHEET, current)
+    return current
 
 
 def apply_stylesheet_per_window(app, sheet: str) -> int:

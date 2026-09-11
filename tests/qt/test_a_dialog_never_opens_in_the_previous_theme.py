@@ -278,3 +278,58 @@ def test_applying_the_same_sheet_twice_does_not_re_sheet_a_window(
     finally:
         QWidget.setStyleSheet = real
     assert window not in calls
+
+
+def test_a_window_that_had_its_own_stylesheet_keeps_it(per_window, qtbot):
+    """THE REGRESSION THE PER-WINDOW SHEET ACTUALLY CAUSED, pinned.
+
+    A PARENTLESS WIDGET IS A WINDOW -- Qt says so -- and several of them set
+    their own rules: a 26px field in a render test, a provider mark, a card.
+    Under `QApplication.setStyleSheet` those rules were MERGED with the
+    global ones by Qt. Replacing the window's sheet outright threw them
+    away, which is not a test artefact: it cost
+    `test_field_fade::test_the_text_stays_fully_opaque_all_the_way_across`
+    an alpha of 254 where it demands 255, and made
+    `test_provider_marks_uncovered_paths::test_a_failed_paint_latches_
+    nothing_and_the_next_one_draws` fail two runs in ten.
+
+    So the window's own sheet is remembered and appended AFTER the global
+    one, where it still wins.
+    """
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(window)
+    window.setStyleSheet("QLabel { color: rgb(9, 9, 9); }")
+    window.show()
+
+    per_window(app, FIRST)
+
+    assert _resolved(label) == "#090909", (
+        "the window's own rule was replaced by the application sheet")
+    assert "QLabel { color: rgb(9, 9, 9); }" in window.styleSheet()
+    assert FIRST in window.styleSheet(), (
+        "the global sheet has to be there too, or the window is unstyled "
+        "apart from its own handful of rules")
+
+
+def test_the_windows_own_rules_are_not_folded_into_the_global_sheet(
+        per_window, qtbot):
+    """Captured ONCE, or they accumulate at every theme change.
+
+    By the second pass the widget is wearing our sheet; reading it back as
+    "its own" would append the whole application stylesheet again, and
+    again, for the life of the process.
+    """
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.setStyleSheet("QLabel { color: rgb(9, 9, 9); }")
+    window.show()
+
+    per_window(app, FIRST)
+    after_one = len(window.styleSheet())
+    per_window(app, SECOND)
+    after_two = len(window.styleSheet())
+
+    assert after_two == after_one - len(FIRST) + len(SECOND)
