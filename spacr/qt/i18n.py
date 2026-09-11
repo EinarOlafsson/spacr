@@ -3510,6 +3510,13 @@ CATALOGS = _build_catalogs(_ROWS)
 TERM_CATALOGS = _build_catalogs(_TERM_ROWS)
 
 
+#: Bumped whenever a catalog GAINS a row. A widget stamped before its source
+#: was catalogued would otherwise keep the English string for the life of the
+#: process, and `add_translation` is called at app-registration time -- after
+#: screens exist.
+_CATALOG_GENERATION = 0
+
+
 def add_translation(source: str, values: Iterable[str]) -> bool:
     """Add one parallel translation row after the catalogs are built.
 
@@ -3548,6 +3555,11 @@ def add_translation(source: str, values: Iterable[str]) -> bool:
     _ROWS[source] = row
     for code, value in zip(_TRANSLATED_CODES, row):
         CATALOGS[code][source] = value
+    # A widget stamped by an earlier pass was compared against a catalog that
+    # did not have this row. Move the generation on so `only_new` re-visits it
+    # rather than leaving the new source in English for the process's life.
+    global _CATALOG_GENERATION
+    _CATALOG_GENERATION += 1
     return True
 
 
@@ -4104,7 +4116,19 @@ def _follow_qt_own_catalogs(code: str) -> None:
     install_qt_translations(app, code)
 
 
-def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
+#: Stamped onto every widget a pass has translated, as ``<code>@<generation>``.
+#: A Qt dynamic property rather than a Python attribute, for the same reason
+#: `_LateCaptionTranslator._HANDLED` is one: it has to survive the Python
+#: wrapper being collected and recreated.
+_PASS_STAMP = "_spacr_i18n_pass"
+
+def _pass_stamp(code: str) -> str:
+    """The value a widget carries once it has been translated into ``code``."""
+    return f"{code}@{_CATALOG_GENERATION}"
+
+
+def retranslate_widget_tree(root, language: Optional[str] = None, *,
+                            only_new: bool = False) -> None:
     """Retranslate static text in ``root`` and all existing descendants.
 
     The function is intentionally best-effort and idempotent. It never edits
@@ -4114,6 +4138,20 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     Qt's OWN text follows too -- see :func:`_follow_qt_own_catalogs` -- so a
     language chosen after launch reaches the right-click menu of every text
     field, not only the captions spaCR wrote.
+
+    ``only_new`` skips widgets this pass would translate to exactly what they
+    already say. Every visited widget is stamped with the language it was
+    translated into and the catalog generation that was current; a later pass
+    asked for ``only_new`` skips the ones whose stamp still matches. A
+    language change changes the stamp, and so does a catalog gaining a row,
+    so neither can be missed.
+
+    IT IS OFF BY DEFAULT AND THAT IS DELIBERATE. A caller that has just
+    replaced a caption itself wants the full pass -- `_translate_qt_text`
+    detects an outside setter by comparing the rendered value, and a skipped
+    widget is not compared. The one caller that asks for it is
+    `_LateCaptionTranslator`, where three near-root passes an event turn
+    apart re-walk the same tree while a module screen is being assembled.
     """
     if root is None:
         return
@@ -4143,7 +4181,24 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     except (AttributeError, RuntimeError):
         pass
 
+    stamp = _pass_stamp(code)
+    # A WIDGET WHOSE CAPTIONS ARE A COLLECTION IS NEVER "already done".
+    # `QTabWidget` renders its tabs, a combo its items, a table and a tree
+    # their headers -- all of which can GAIN an entry without the widget
+    # itself changing, and the pass caches the English sources in a list it
+    # refreshes only when the length moves. Measured as a real regression:
+    # open a second fold on the Classify screen and its tab arrives in
+    # English, because `_pass_root` correctly starts the pass at the STRIP
+    # and the strip was stamped when the first fold opened.
+    collections = (QTabWidget, QComboBox, QTableWidget, QTreeWidget)
     for widget in widgets:
+        if only_new:
+            try:
+                if (widget.property(_PASS_STAMP) == stamp
+                        and not isinstance(widget, collections)):
+                    continue
+            except (AttributeError, RuntimeError):
+                continue
         _translate_qt_text(
             widget, "windowTitle", "setWindowTitle",
             "_spacr_i18n_window_title", code)
@@ -4292,6 +4347,15 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 retranslate_content(code)
             except (AttributeError, RuntimeError, TypeError, ValueError):
                 pass
+        # STAMPED LAST, so a widget the pass gave up on part way is left
+        # unstamped and gets another try. The combo-box arm above `continue`s
+        # past this on purpose: those widgets opt out of the rest of the body
+        # too, so they have not had a full pass and must not read as if they
+        # had.
+        try:
+            widget.setProperty(_PASS_STAMP, stamp)
+        except (AttributeError, RuntimeError):
+            pass
 
     actions = []
     try:

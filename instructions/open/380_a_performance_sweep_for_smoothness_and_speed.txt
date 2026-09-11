@@ -600,3 +600,114 @@ forgotten, which is the part that made writing it unsafe.
   remaining display question: they are top-level windows Qt creates
   itself, and a test cannot open a native menu. That is a narrower thing
   to ask someone to look at than "does the theme still work".
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE TRIPLE TRANSLATION IS FIXED. 67-74% OF THE BUILD'S
+TRANSLATION WORK REMOVED, AND THE STRINGS ARE BYTE-IDENTICAL
+--------------------------------------------------------------------------------
+
+The 2026-09-10 note above located the defect and stopped, for a stated
+reason: "the failure mode of getting it wrong is a widget left in English in
+one of nine locales, which is invisible on this machine and to this test
+suite. It IS verifiable headlessly -- capture every translated widget's text
+after a build, apply the change, compare the sets -- and that verification is
+the first half of the job, not an afterthought."
+
+THE VERIFICATION WAS DONE FIRST AND IT IS WHAT MAKES THIS LANDABLE.
+`tools/translate_census.py` builds a module screen exactly as `MainWindow`
+does, lets the deferred passes run, and records every visible string on every
+widget keyed by its structural path -- text, tooltip, window title,
+placeholder, group title, accessible name and description. Four modules, two
+locales, before and after:
+
+    module           lang   strings   only-before  only-after  changed
+    measure          sv       3,777         0           0         0
+    measure          ko       3,777         0           0         0
+    mask             sv         532         0           0         0
+    mask             ko         532         0           0         0
+    classify         sv         272         0           0         0
+    classify         ko         271         0           0         0
+    analyze_plaques  sv         110         0           0         0
+    analyze_plaques  ko         110         0           0         0
+
+BYTE-IDENTICAL, with this much of the work gone:
+
+    module           per-widget translation calls    reduction
+    measure              72,139  ->  18,457            74.4 %
+    mask                 13,211  ->   3,840            70.9 %
+    classify              8,256  ->   2,557            69.0 %
+    analyze_plaques       3,376  ->   1,116            66.9 %
+
+THE CHANGE, which is the marker the 2026-09-10 note said was needed --
+"a marker that survives between turns, so a later overlapping pass skips what
+is already done and redoes it only when the language actually changes":
+
+  * `retranslate_widget_tree` stamps every widget it visits with
+    `<language>@<catalog generation>`, as a Qt dynamic property so it
+    survives the Python wrapper being collected and recreated.
+  * A new keyword-only `only_new=` skips widgets whose stamp still matches.
+  * `_LateCaptionTranslator._translate` -- the three near-root passes, an
+    event turn apart, that were the whole defect -- is the ONE caller that
+    asks for it.
+  * `add_translation` moves the generation, because apps hand their display
+    name to the catalogs as they register and that happens while screens
+    already exist. A stamp that did not move with the catalog would leave
+    that name in English for the life of the process.
+
+OFF BY DEFAULT, and that is the safety argument rather than caution.
+`_translate_qt_text` detects a caption replaced by application code by
+comparing what it last rendered, and a skipped widget is not compared -- so
+every caller that has just set a caption itself keeps the full walk. Only the
+build-time passes, where nothing has run between them, opt in.
+
+WHY THE STAMP CARRIES THE LANGUAGE rather than being a boolean. A boolean
+"already translated" flag would pin the first language a process ever
+rendered, and there is a test for exactly that.
+
+AND ONE MEASUREMENT MISTAKE WORTH RECORDING, because it cost an hour and
+would have been reported as "the change does nothing". The census script
+lives outside the worktree, and a Python SCRIPT puts its own directory on
+`sys.path` -- not the working directory. So it imported the INSTALLED spacr
+and measured 72,085 calls before and 72,088 after, from the same unchanged
+copy. The tell was in the output all along: the line numbers it attributed
+the calls to did not exist in the file being edited.
+
+    A HARNESS THAT REPORTS NO CHANGE MAY NOT BE LOOKING AT THE CHANGE.
+    Check which file it loaded before concluding anything about the edit.
+
+AND THE FIRST VERSION OF IT WAS WRONG, caught by the suite rather than by
+the census, which is why both exist. A `QTabWidget` renders its TABS, and a
+tab can arrive without the strip itself changing at all -- so a stamped
+strip meant the second fold opened on the Classify screen got an English tab
+over a Swedish page (`test_activation_folds_into_classify::
+test_the_second_fold_opened_is_translated_as_well`). Combo items and table
+and tree headers are the same shape: a caption CACHE keyed on a length that
+can grow.
+
+  A WIDGET WHOSE CAPTIONS ARE A COLLECTION IS NEVER "ALREADY DONE". Those
+  four classes are exempt from the skip, which costs one isinstance per
+  widget and is why the saving is 74.4% rather than 74.5%.
+
+  THE CENSUS COULD NOT HAVE FOUND IT. It builds a screen ONCE; the defect
+  needs a second subtree arriving on a strip that a previous pass already
+  saw. A whole-output comparison is necessary and is not sufficient.
+
+THE GUARD: `tests/qt/test_the_tree_is_translated_once_not_three_times.py`.
+Six tests, five of which hold the OUTPUT and one the cost:
+
+  * the build renders what a full pass renders -- built with the skip, then
+    walked again with it off, and nothing changes;
+  * a language change after the build reaches every widget;
+  * a row catalogued after a pass is not missed;
+  * a strip that gains a tab is not already done;
+  * `only_new` is off by default;
+  * and the ceiling: at most two widget visits per widget in the tree.
+
+CALIBRATED AGAINST THE DEFECT, per this file's own rule. With the change
+taken back out the ceiling test reports "852 widget visits to translate 252
+widgets (3.4 passes over the tree)" and fails; the other four pass in both
+states, which is what a safety property should do.
+
+WHAT THIS DOES NOT FIX. The cost is build-time only. Interaction latency was
+already measured clean, so this is about how long a module screen takes to
+appear, not about smoothness once it is there.
