@@ -127,13 +127,42 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            correlation columns were computed and written and nothing gated on
            them.
 
-           SO THE DEFECT IS NAMED: acceptance is decided by `peak_ratio`
-           alone, and a peak ratio of 45 sits happily beside a Pearson of
-           0.01. A phase-correlation peak says "this offset is sharper than
-           the others", NOT "these images overlap". The gate needs a
-           correlation check on the claimed overlap before `accepted` can
-           mean anything -- and PART 15's measured overlap gain was computed
-           on the assumption that it did.
+           SETTLED BY A SELF-CONTROL, after two weaker tests disagreed.
+           Windowed Pearson said 0.005 (no signal); FFT cross-correlation
+           said 0.092 against a 0.018 floor (signal). Both were too blunt.
+           Nuclei-mask Dice with a CONTROL settles it:
+
+               registered shift (-213, 9)         Dice 0.1039
+               same dy, dx wrong by 31 px         Dice 0.1010
+               dy wrong by 37 px                  Dice 0.1022
+               no shift at all                    Dice 0.1001
+               THE TILE AGAINST ITSELF, same shift Dice 0.1014
+
+           The self-control is the whole argument. A tile against ITSELF at a
+           non-zero shift scores 0.1014 -- that is chance at this nuclei
+           density (top 8% of pixels). The registered shift scores 0.1039,
+           and moving 31 px away costs nothing. THERE IS NO NUCLEI
+           CORRESPONDENCE AT THAT SHIFT. These tiles do not overlap.
+
+           SO WHAT IS THE ELEVATED CROSS-CORRELATION? Real, and not nuclei.
+           Consecutive sites are acquired seconds apart and share low-level
+           structure -- illumination, fixed-pattern, background state --
+           which different wells (acquired at another time) do not, which is
+           exactly why different wells were correctly rejected. The lock is
+           genuine shared signal that is not image content.
+
+           SO THE DEFECT IS NAMED, AND SO IS THE TEST THAT CATCHES IT.
+           Acceptance is decided by `peak_ratio` alone: a peak ratio of 45
+           coexists with chance-level nuclei agreement. The right gate is NOT
+           "is the correlation elevated" -- that passes here -- it is IS THE
+           MATCH SHARPLY PEAKED IN SHIFT SPACE. A true registration collapses
+           within a few pixels of the optimum; this one is flat for 30+ px in
+           both axes. Measure agreement at the optimum AND at the optimum
+           plus a small offset, and refuse when they are the same.
+
+           PART 15's measured overlap gain of 1.142x was computed on the
+           assumption that accepted placements overlap. On this acquisition
+           they do not.
 
            NEXT: find the real site->position mapping (the TIFF metadata is
            gone -- every file was rewritten by tifffile.py and carries only
