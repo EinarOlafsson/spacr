@@ -74,6 +74,13 @@ def test_owning_the_process_redirects_settings_before_the_app_exists(
         IniFormat = "ini"
         NativeFormat = "native"
         UserScope = "user"
+        # PRESENT BECAUSE THE REAL ONE IS. `bootstrap()` only redirects the
+        # user scope, so this class had no reason to carry it -- until
+        # `tests/conftest.py::_redirect_qsettings` reached this stand-in at
+        # teardown, before monkeypatch put the real QSettings back, and
+        # raised AttributeError as an ERROR against a passing test. That
+        # helper no longer assumes the name; this no longer omits it.
+        SystemScope = "system"
 
         @staticmethod
         def setDefaultFormat(fmt):

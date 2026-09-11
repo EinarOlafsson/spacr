@@ -324,8 +324,20 @@ def _redirect_qsettings(target) -> None:
     # this section already says why -- `QSettings(org, app)` is built with
     # NativeFormat ALWAYS and ignores the default format. Adding that call
     # here changed nothing on macOS and cost a CI round to find out.
-    for fmt in (settings.NativeFormat, settings.IniFormat):
-        for scope in (settings.UserScope, settings.SystemScope):
+    # ASK FOR EACH NAME RATHER THAN READING IT. This helper is autouse and
+    # runs at the teardown of EVERY test, including one that has monkeypatched
+    # `QtCore.QSettings` with a stand-in -- and teardown order puts this
+    # before `monkeypatch` undoes it, so the stand-in is what arrives here.
+    # `test_cov_1_generators_common.py::test_owning_the_process_redirects_
+    # settings_before_the_app_exists` has a stub with `UserScope` and no
+    # `SystemScope`, and the AttributeError came out as a teardown ERROR
+    # against a test that passed.
+    formats = [getattr(settings, name, None)
+               for name in ("NativeFormat", "IniFormat")]
+    scopes = [getattr(settings, name, None)
+              for name in ("UserScope", "SystemScope")]
+    for fmt in [value for value in formats if value is not None]:
+        for scope in [value for value in scopes if value is not None]:
             settings.setPath(fmt, scope, str(target))
 
 
