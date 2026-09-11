@@ -879,6 +879,52 @@ theme change. Both properties are pinned in the guard file, which is now
   state does not show up in the tests written for it. Seven tests moved,
   and only one of the seven was about theming.
 
+--------------------------------------------------------------------------------
+2026-09-11 -- THE LAST LEVER IS PRICED AND PROVEN REACHABLE, AND NOT TAKEN
+--------------------------------------------------------------------------------
+
+"Not sheeting the hidden screens either" was recorded as a bigger change
+with a number attached. It now has a shape as well, measured rather than
+sketched, because the question it turned on was whether the set to sheet
+can be enumerated at all.
+
+WHY THE WINDOW CANNOT BE THE TARGET. Qt cascades a window's sheet to every
+descendant, and with four modules open the window holds 8,002 widgets of
+which 7,595 are inside screens -- 95 %, of which one screen is visible.
+Sheeting the window necessarily repolishes every hidden screen, which is
+the whole of the remaining cost.
+
+THE CHROME IS 407 WIDGETS AND IS NOT WHERE ONE WOULD GUESS. It is not
+reachable from the central widget's children: of those 407, exactly TWO are.
+The rest hang off the window directly -- the dock, the sidebar, the status
+strip -- so an implementation that walked the central widget would leave
+405 widgets unstyled and look almost right.
+
+    ENUMERATED PROPERLY -- the window's direct children except the central
+    widget, the central widget's direct children except the stack, and the
+    stack's CURRENT page -- it is 27 targets reaching 1,525 of the 8,002.
+
+MEASURED, four modules open, alternating dark and light:
+
+    sheeting the whole window          945 ms first, ~1,479 ms steady
+    chrome + the visible screen        300 ms first,  ~310 ms steady
+
+4.8x, on top of the 4x the per-window change already banked.
+
+NOT TAKEN, and the reason is the failure mode rather than the work. Every
+widget that is not reached is unstyled, and the thing that makes this
+cheap -- touching 1,525 widgets instead of 8,002 -- is exactly what makes a
+missed root invisible until somebody opens the screen it was on. The
+per-window change was a quarter of this size and moved seven tests, one of
+which was a real regression that only a pixel assertion caught.
+
+    WHOEVER TAKES IT NEEDS TWO THINGS THAT DO NOT EXIST YET: a test that
+    every widget in the window resolves to the CURRENT theme (the dialog
+    guard does this for windows and would generalise), and the dirty-mark
+    on hidden screens so a screen shown later is sheeted on its
+    `showEvent`. The event filter that already catches new windows is the
+    natural home for the second.
+
 WHAT IS STILL ON THE TABLE. 3,057 ms is not 222 ms. The floor is not
 sheeting the hidden screens either, which needs a per-SCREEN sheet plus a
 dirty mark applied on `showEvent` -- a bigger change than this one, and one
