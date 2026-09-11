@@ -370,10 +370,12 @@ in each case rather than from the module's name.
 
   spacr/ops_phenotype.py            52.16 %   NOT A REASON -- A CRASH.
     `src[:, 0].ptp()` at line 531, removed by NumPy 2.0. Seven tests could
-    not get past it. Fixed; re-measured separately, and this number is
-    stale the moment that fix landed. IT IS THE WARNING FOR THIS WHOLE
-    SECTION: a low number is a question, not an answer, and the first
-    question is whether the module runs at all.
+    not get past it. Fixed, and RE-MEASURED: 52.16 % -> 87.06 %, 18
+    statements missing instead of 78. It leaves the below-80 set entirely
+    on one line of repair. IT IS THE WARNING FOR THIS WHOLE SECTION: a low
+    number is a question, not an answer, and the first question is whether
+    the module runs at all. Read as "ops_phenotype needs tests", the tests
+    would have been written against a function that raises.
 
   spacr/qt/hf_download.py           56.19 %   149 of 368 statements, in
     three large blocks (477-517, 583-637, 674-732). They are the download
