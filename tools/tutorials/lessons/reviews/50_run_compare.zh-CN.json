@@ -1,0 +1,27 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "zh-CN",
+  "title": "Run Compare：比较两个真实的Measure快照",
+  "description": "比较保存的Measure输出、设置和数量，区分缺少结果与科学上的阴性结论。",
+  "objectives": [
+    "从Home的Data打开Run Compare并准备可下载示例。",
+    "保留历史元数据，比较两次不同的真实运行。",
+    "正确解读设置、数量和警告，不夸大证据。"
+  ],
+  "prerequisite": "解压Run_Compare_real_snapshots.zip，在spaCR环境中运行prepare_run_compare_download.py并指定全新目标文件夹，然后用Browse选择。此步骤明确迁移两个数据库及其历史记录，不是GUI自动导入、新分析或完整项目归档。完整SHA-256与原始记录一致；仅项目位置、路径和迁移说明改变。两次真实运行使用spaCR 1.5.0.5，时间为2026年9月11日03:37:56和04:05:56 UTC。每次包含601个细胞、622个细胞核、373个病原体对象、601个细胞质对象和601行png_list，覆盖1块板、4个孔、16个视野。对象身份和设置一致，但数据库字节不同。不证明所有特征值相同、准确率或模型改善。不包含回归结果。API：spacr.run_compare.runs_in、compare_runs和spacr.artifacts.Registry。不使用GPU、AI服务或新分析，不发布。",
+  "scenes": [
+    "打开Home，选择Data，再打开Run Compare。这是主模块，不是Regression内的嵌套工具。它读取两次运行记录的输出。示例使用可下载数据流程产生的两个真实Measure快照，不会为了让比较有看点而虚构变化。",
+    "下载并解压配套快照压缩包。按照readme，在spaCR环境中运行准备脚本，指定一个全新的目标文件夹。它明确迁移两个未修改的数据库及其历史记录。这不是自动导入按钮，不是重新分析，也不是原始项目的完整副本。",
+    "点击Browse，选择准备好的比较文件夹。脚本保留原始运行标识、设置、版本、时间和内容哈希，仅更改复制索引中的地址与迁移说明。请保留原始项目；如果历史记录指向的数据库后来被覆盖，这条记录就不能充当保存的快照。",
+    "将较早的Measure运行选为基线A，较晚的选为B，然后点击Compare。两次均由spaCR一点五点零点五版本生成。较新的查看器不会改变历史版本。这里设置和数量一致，是一致性演示，不是模型得到改善的证据。",
+    "启用Show unchanged settings，查看记录值。Settings标签上的零表示没有差异，并非没有保存设置。展开条目，比较具体数值。这两次运行记录的设置完全相同，因此本例不能说明改变某个参数会产生什么效果。",
+    "Counts显示每次有六百零一个细胞、六百二十二个细胞核，覆盖十六个视野和四个孔。Delta是B减A，所有显示差值都是零。独立检查还核对了对象身份。仅仅总数相同，并不能证明对象相同或所有测量特征值一致。",
+    "Hits提示没有注册回归结果。这些快照仅包含测量，因此没有可显示的命中排序比较。这并不表示回归没有发现显著命中，而是这里根本没有回归结果。请通过Regression和Run History教程追踪所需输出。",
+    "两边选择同一次运行会出现警告。请阅读它，不要把产生比较结果当成自动验证。恢复为两次不同的运行，在下结论前核对来源、版本和范围。警告提示应调查原因，而不是要求强行得出结果。",
+    "现已恢复不同运行的组合，原始文件保持不变。Run Compare只读取并比较，不重新运行Measure，也不需要GPU或AI服务。Python提供runs_in和compare_runs进行相同比较。比较自己的运行前，请保存真实输出快照并记录其来源。"
+  ]
+}

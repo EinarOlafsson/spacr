@@ -1,0 +1,32 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "5f627353196b1e89c1f3953c924df4914b8aff572e09d847b8dab82d8556ebcd",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Volcano Explorer: skoða fyrirliggjandi niðurstöður og flytja út mynd",
+  "description": "Skoða raunverulega Regression-dæmið, samstilla stýringar, aðgreina sjónræna þröskulda frá prófum og vista stíla og myndir.",
+  "objectives": [
+    "Opna innbyggða verkfærið með einni leiðsögufjölskyldu.",
+    "Samstilla upphafsgildi með Save style og Load style.",
+    "Lesa auðkenni, ása, liti og línur án tilbúinna nýrra funda.",
+    "Endurheimta stíl og skoða PDF og PNG."
+  ],
+  "prerequisite": "Afþjappið Volcano_real_guide_family.zip og opnið results. Óbreytt úttak Regression-dæmis, ekki ný greining eða heildarsafn. Ein fjölskylda: 434 leiðsögur, log_pred, minimum_wells_threshold=2, plús-einn umraðana-P og BH-leiðrétting. Lægsta hráa P=.005, leiðrétta P=.39454545454545453; ekkert marktækt við upprunalegt alpha=.05. Staðlað jaðarhrif eru ekki samtímis metnir stuðlar eða log2-breytingar. Upphafsvilla helst: stýringar 1e-6/0/False en teikning .05/3/True. Vistið og lesið sama stíl fyrir breytingu; síðar endurheimtast allir 67 reitir. Alpha .5 setur 19 gildi undir þröskuld án nýrra marktæknimerkja. Endurstillið .05 og adjusted_p_value. Áhrifaþröskuldur .1 sinnum 3 gefur línur +/-0.3. Auðkenni, punktar, litir og frumgögn könnuð. Nafnstærð 7×5 tommur, 150 DPI; þétt skorin PDF 492.536×348.485 punktar, PNG 1026×726 mynddílar. Innfelld letur, engar rastamyndir í PDF, læsileiki endurskoðaður. Sum GUI-heiti eru skorin; viðvörun um hvítar útlínur á ljósum pappír. Samtenging athugasemda, rofnir ásar og MAD-reglur eru utan dæmisins. Upptaka spaCR 1.5.0.4; þrjár viðeigandi frumskrár óbreyttar. Ekkert nýtt próf, GPU, gervigreind, appbreyting, líffræðileg staðfesting eða birting. API: spacr.volcano_style.VolcanoStyle og render_volcano.",
+  "scenes": [
+    "Opnið Regression og innbyggða Volcano Explorer. Kennslan tilheyrir undireiningum Regression. Verkfærið les tilbúnar niðurstöður en endurkeyrir ekki greininguna. Við notum raunverulega niðurhalsdæmið; meðfylgjandi safn inniheldur nákvæmar niðurstöðutöflur og skráða myndstíla.",
+    "Veljið Open results og afþjöppuðu results-möppuna. Hver punktur er leiðsaga úr einni fjölskyldu 434 prófa með sömu útkomu og lágmarksbrunnareglu. Blandið ekki leiðréttingarfjölskyldum. Engin leiðsaga er marktæk við upprunalega leiðrétta P-þröskuldinn 0,05.",
+    "Áður en stillingu er breytt skal vista raunverulega teiknaða stílinn með Save style og lesa sömu skrá með Load style. Upphafsstýringar passa ekki við myndina í þessari útgáfu; tafarlaus breyting getur dregið inn röng sjálfgefin gildi. Þessi venjulega vistunar- og lestrarleið samstillir þau en lagar ekki appið.",
+    "Staðfestið síðan alfa 0,05, margfaldara þrjá og neikvæða lógaritmaumbreytingu. Sum heiti eru enn skorin, svo skoðið gildi og JSON. Lárétti ásinn sýnir stöðluð jaðarhrif, ekki log-tveggja hlutfallsbreytingu eða stuðul úr samtímis metnu fjölbreytulíkani.",
+    "Smellið á fyrirliggjandi punkt til að lesa upprunaröðina. Valin leiðsaga hefur hrátt P=0,005 en leiðrétt P um 0,39. Mikil jaðarhrif og fjórir stuðningsbrunnar gera hana ekki marktæka. Notið auðkenni og frumreiti frekar en að giska út frá staðsetningu.",
+    "Að breyta lóðrétta dálkinum í hrátt umraðana-P breytir stærðinni sem er teiknuð, ekki greiningunni. Lítil hrá gildi koma ekki í stað fjölskylduleiðréttra gilda. Endurheimtið leiðrétt P á eftir. Upprunaleg marktæknimerki haldast; verkfærið les og teiknar, það gerir ekki nýtt próf.",
+    "Rofinn fyrir neikvæðan tíundarlógaritma breytir P-birtingu. Virkur sýnir lítil P ofar; óvirkur sýnir upprunagildin. Hér endurheimtum við umbreytt leiðrétt P. Lesið alltaf ásinn og ruglið ekki þessari umbreytingu við aðra fjölprófunarleiðréttingu.",
+    "Í sýnikennslunni er alfa fært í 0,5 og viðmiðunarlínan færist. Nítján leiðrétt gildi liggja undir nýja P-þröskuldinum en ekkert fær nýtt marktæknimerki. Þetta eru ekki nítján uppgötvanir. Endurheimtið upprunalegt 0,05 áður en flutt er út eða túlkað.",
+    "Skýr áhrifaþröskuldur 0,1 með margfaldara þremur setur lóðréttar línur við mínus og plús 0,3. Athugið margfaldarann, ekki aðeins þröskuldsreitinn. Áhrifaþröskuldur kemur ekki í stað tölfræðilegrar leiðréttingar. Endurheimtið Auto; engin niðurstöðugildi eru endurskrifuð.",
+    "Litur eftir wells with guide sýnir raunverulegan stuðning úr frumtöflunni. Hann er ekki traustseinkunn eða sönnun nákvæmni. Farið aftur í upprunalega marktækniliti fyrir útflutning. Valfrjáls samtenging athugasemda og önnur uppsetning krefjast eigin sannprófunar og eru utan dæmisins.",
+    "Stillið myndstærð, letur og upplausn og skoðið útkomuna. Hér er nafnstærð sjö sinnum fimm tommur við 150 punkta á tommu. Þétt skurður breytir lokastærðinni. Læsileg útflutt mynd þýðir ekki að öll innbyggð stillingaheiti rúmist í glugganum.",
+    "Vistið lokastílinn sem JSON. Eftir tímabundna breytingu á punktastærð endurheimtir Load style alla skráða reiti. Geymið skrána með frumtöflunni svo endurskapa megi útlitið. Stíll lýsir framsetningu, ekki að önnur aðhvarfsgreining eða nýtt próf hafi verið keyrt.",
+    "Export PDF og PNG teikna myndina aftur, en taka ekki skjáskot. PDF hefur vigurmerki og innfelld letur; skoðið heiti, birtuskil og viðvörun um hvítar útlínur á ljósum pappír. Frumgögn haldast óbreytt. Python býður VolcanoStyle og render_volcano án GPU eða gervigreindarþjónustu."
+  ]
+}

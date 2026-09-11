@@ -1,0 +1,1623 @@
+{
+  "accepted": true,
+  "scope": "Unmodified Hit List widget in an explicit EXTERNAL companion; native shortcut remains broken",
+  "workflow": {
+    "lesson": "48_hit_list",
+    "accepted": true,
+    "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation",
+    "source_files": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_results_long.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/plate_heatmap_unique_counts.png": "38cac46a12f57b93e61477c0fb650fc88c3e65e15ed84a0c6b4e779bf85bedff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fraction_threshold.png": "a81ebca32662a7f6c8838cc5d2e751fb54eae2e2f1842bbf57a40d2441859971",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.png": "53253d808ba5822edfeee1f2879a810272315bd5f5ebb56a19b6634bc2d1b599",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.pdf": "c3f6d6b65d179703329f365f4f0066015d7ea520631e0896c5942d67de8de48a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/regression_data.csv": "3cee24356bfa81a33882dc76a6a107e35345421feecf9c7866a8169c0516ea76",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fit_resources.txt": "c482cf09cd93bf57644fbec5c6bd8c00937fe7f3dbed690ad41da3711c60d930",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/well_grna.csv": "bf6d4269329e2f037cccbc2f7584dde5523286b57bf288b83401b15f0132f7b1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/grna_well.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_diagnostics.png": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/collinear_guide_pairs.csv": "87cf6127c5016c0eba8df5ccf1c33944d2b3632aeb3d8e672ba75f8e8d9bbe67",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_identifiability.png": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/inference_diagnostics.png": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/diagnostic_summary.csv": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar.png": "2325261405749cdb24092696d6d30dc966702e77583b1e2e3d6a098a246460e1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_stats.csv": "96b49414728c97c813cde0373fb1185d1a546ea1685dd96c79f933cabbb672f8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_data.csv": "dfaab4139ded2a85a7969a8f5ef62c89e7e5848b27b7a4ee5bf7eeaa5ed10d4f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_summary.csv": "2c246824b1c6489890575b3b08277e41bb5749588e2f230f9bdfae7563ed8802",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_summary.csv": "b765d07311621c879145ead984940e7dd437930ddde35f20a5e2152115a63336",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_stats.csv": "2923e0da92efb16b3e391e5b0771e0f4b5db6a3c2f9a7cf0eb4b2ff99dd8f8f3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_data.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar.png": "bb19f9a527e7d7b05668597a0537bb05747a5cfc31238f659519d99ac18335c8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_stats.csv": "48863668aff61fa35de68680b870774efad82c4cf96ede8690100e81a282b49f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_summary.csv": "109729b506bb9b367c9dab497cd3b58536c26598702727e7d572b8f4bcf5d804",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_data.csv": "176e12e25ddbe781993341a80143f21f722ee8c723d9d0e5a563592189c28995",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar.png": "a02c1f12fb1d802bd6d556829f34b3cfd2bac49889b00b710e28edbe19744b63"
+    },
+    "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7",
+    "private_input_hashes": {
+      "results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+      "results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+      "results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+      "model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc"
+    },
+    "synthetic_results": false,
+    "app_source_modified": false,
+    "regression_recomputed": false,
+    "published": false,
+    "native_fold_state": {
+      "results_panel_exists": true,
+      "figures_card_visible": false,
+      "hits_exists": true,
+      "hits_visible": false,
+      "hits_selected": true,
+      "results_page_selected": true
+    },
+    "route_failure": [
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "MainWindow",
+        "visible": true,
+        "title": "spaCR"
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "StageLegend",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QWidget",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "ViewBoxMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QFrame",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      },
+      {
+        "type": "QMenu",
+        "visible": false,
+        "title": ""
+      }
+    ],
+    "companion": {
+      "explicit_external_launcher": true,
+      "launcher_sha256": "33280fce3db6e86d95681189876f9e75696f4cd7fe7bca9cb1e96d2322f0863d",
+      "title": "Tutorial companion — Hit List (not the Regression shortcut)",
+      "native_shortcut_fixed": false,
+      "app_widget_modified": false
+    },
+    "native_header_autosize_columns": [
+      1,
+      3,
+      5,
+      6,
+      9
+    ],
+    "checks": {
+      "03_all_325_ranked_genes_not_discoveries": {
+        "rows": 325,
+        "values_checked": 6175,
+        "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {}
+      },
+      "04_no_genes_pass_q_point05": {
+        "rows": 0,
+        "values_checked": 0,
+        "summary": "0 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "max_q": 0.05
+        }
+      },
+      "05_all_candidates_restored": {
+        "rows": 325,
+        "values_checked": 6175,
+        "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {}
+      },
+      "06_at_least_two_tested_guides": {
+        "rows": 117,
+        "values_checked": 2223,
+        "summary": "117 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "min_guides": 2
+        }
+      },
+      "07_all_tested_guides_same_sign": {
+        "rows": 57,
+        "values_checked": 1083,
+        "summary": "57 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "min_agreement": 1.0,
+          "min_guides": 2
+        }
+      },
+      "08_hide_controls_not_recalculate_q": {
+        "rows": 56,
+        "values_checked": 1064,
+        "summary": "56 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "min_agreement": 1.0,
+          "min_guides": 2,
+          "exclude_controls": true
+        }
+      },
+      "09_positive_effect_not_significance": {
+        "rows": 162,
+        "values_checked": 3078,
+        "summary": "162 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "direction": "up"
+        }
+      },
+      "10_positive_effect_magnitude_cut": {
+        "rows": 16,
+        "values_checked": 304,
+        "summary": "16 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "min_effect": 0.1,
+          "direction": "up"
+        }
+      },
+      "11_search_actual_positive_control": {
+        "rows": 1,
+        "values_checked": 19,
+        "summary": "1 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "query": "239740"
+        }
+      },
+      "12_no_search_match": {
+        "rows": 0,
+        "values_checked": 0,
+        "summary": "0 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "query": "not_a_gene_in_this_example"
+        }
+      },
+      "13_real_gene_returns": {
+        "rows": 1,
+        "values_checked": 19,
+        "summary": "1 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "query": "239740"
+        }
+      },
+      "14_all_genes_restored": {
+        "rows": 325,
+        "values_checked": 6175,
+        "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {}
+      },
+      "15_candidate_subset_for_export": {
+        "rows": 57,
+        "values_checked": 1083,
+        "summary": "57 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {
+          "min_agreement": 1.0,
+          "min_guides": 2
+        }
+      },
+      "18_original_ranked_population_restored": {
+        "rows": 325,
+        "values_checked": 6175,
+        "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+        "filters": {}
+      }
+    },
+    "family": {
+      "genes": 325,
+      "guides": 434,
+      "mixed_result_rows": 759,
+      "min_gene_q": 0.2708333333333333,
+      "significant_genes": 0,
+      "first_gene": "239740",
+      "first_effect": 0.4087575827959975,
+      "source_well_support": [
+        13,
+        3,
+        6,
+        5,
+        7,
+        5,
+        7,
+        3,
+        3,
+        8,
+        3,
+        6,
+        7,
+        4,
+        7,
+        4,
+        6,
+        2,
+        2,
+        6,
+        7,
+        4,
+        5,
+        6,
+        5,
+        2,
+        2,
+        5,
+        6,
+        7,
+        2,
+        5,
+        6,
+        5,
+        15,
+        2,
+        6,
+        3,
+        4,
+        3,
+        9,
+        3,
+        9,
+        2,
+        2,
+        3,
+        8,
+        6,
+        5,
+        6,
+        3,
+        7,
+        12,
+        3,
+        7,
+        11,
+        4,
+        2,
+        3,
+        5,
+        2,
+        18,
+        5,
+        5,
+        4,
+        2,
+        2,
+        4,
+        2,
+        4,
+        3,
+        2,
+        5,
+        8,
+        8,
+        6,
+        4,
+        2,
+        3,
+        2,
+        11,
+        2,
+        2,
+        14,
+        2,
+        6,
+        2,
+        3,
+        6,
+        13,
+        3,
+        6,
+        6,
+        7,
+        10,
+        4,
+        10,
+        11,
+        9,
+        6,
+        7,
+        9,
+        17,
+        6,
+        10,
+        2,
+        12,
+        2,
+        6,
+        3,
+        7,
+        3,
+        4,
+        2,
+        8,
+        8,
+        12,
+        12,
+        7,
+        2,
+        2,
+        2,
+        7,
+        5,
+        3,
+        3,
+        2,
+        4,
+        5,
+        6,
+        5,
+        3,
+        4,
+        2,
+        4,
+        12,
+        2,
+        3,
+        5,
+        2,
+        5,
+        4,
+        2,
+        6,
+        7,
+        3,
+        3,
+        3,
+        5,
+        6,
+        2,
+        2,
+        5,
+        2,
+        3,
+        6,
+        3,
+        7,
+        6,
+        7,
+        8,
+        5,
+        5,
+        5,
+        4,
+        6,
+        6,
+        3,
+        2,
+        3,
+        7,
+        3,
+        2,
+        6,
+        9,
+        2,
+        3,
+        4,
+        2,
+        5,
+        5,
+        7,
+        3,
+        3,
+        3,
+        2,
+        5,
+        2,
+        8,
+        4,
+        12,
+        2,
+        4,
+        4,
+        6,
+        4,
+        3,
+        3,
+        6,
+        2,
+        4,
+        10,
+        3,
+        48,
+        10,
+        2,
+        10,
+        6,
+        7,
+        2,
+        3,
+        6,
+        2,
+        3,
+        3,
+        9,
+        2,
+        5,
+        4,
+        3,
+        3,
+        16,
+        3,
+        2,
+        7,
+        6,
+        8,
+        2,
+        14,
+        10,
+        5,
+        4,
+        5,
+        3,
+        3,
+        2,
+        6,
+        6,
+        8,
+        14,
+        2,
+        3,
+        10,
+        7,
+        5,
+        4,
+        5,
+        3,
+        2,
+        2,
+        9,
+        4,
+        2,
+        3,
+        2,
+        9,
+        9,
+        2,
+        7,
+        3,
+        9,
+        4,
+        4,
+        4,
+        3,
+        3,
+        4,
+        4,
+        2,
+        2,
+        8,
+        32,
+        5,
+        4,
+        10,
+        7,
+        3,
+        3,
+        2,
+        7,
+        2,
+        9,
+        11,
+        9,
+        2,
+        8,
+        3,
+        5,
+        5,
+        2,
+        3,
+        6,
+        2,
+        10,
+        4,
+        5,
+        3,
+        4,
+        2,
+        7,
+        3,
+        4,
+        7,
+        2,
+        2,
+        3,
+        4,
+        10,
+        4,
+        5,
+        2,
+        2,
+        5,
+        3,
+        6,
+        5,
+        8,
+        4,
+        5,
+        3,
+        4,
+        6,
+        2,
+        3,
+        8
+      ],
+      "hit_n_obs_values": [
+        0
+      ]
+    },
+    "exports": {
+      "csv": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.csv",
+        "sha256": "fa7581f4c5541f5c64fd68fdc20bff89f229c1260e9423ea552962f0068bee3d",
+        "bytes": 7710,
+        "values_checked": 1083
+      },
+      "md": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.md",
+        "sha256": "f6975866cbe1cbc38c4c39bb734676b42b26aa4ae43ba1bbe24a0a6a77bee2cd",
+        "bytes": 4176
+      },
+      "html": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.html",
+        "sha256": "3c90d58a1ef28205c1639119dd2d4357701f8c3d3d95834d343cfb1d6f5f4885",
+        "bytes": 7878
+      }
+    },
+    "export_filters": {
+      "min_agreement": 1.0,
+      "min_guides": 2
+    },
+    "all_originals_unchanged": true,
+    "all_private_inputs_unchanged": true,
+    "active_jobs_after_close": 0
+  },
+  "export_values_checked": {
+    "csv": 1083,
+    "markdown": 513,
+    "html": 513
+  },
+  "download_sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
+  "native_shortcut_fixed": false,
+  "application_files_modified": false,
+  "published": false
+}

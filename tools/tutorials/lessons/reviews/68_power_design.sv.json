@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Power / Design: läs simulatorn och dess begränsningar",
+  "description": "Förstå de faktiska kontrollerna, simulerade kurvorna och varningarna utan att ta en liten demonstration eller motsägelsefull text för validerad planeringsrådgivning.",
+  "objectives": [
+    "Skilja simuleringsantaganden från insamlade försöksdata.",
+    "Läsa användbara modellanpassningar, detektionsandelar och osäkerhet rätt.",
+    "Känna igen det felaktiga rådet om samma design och bevara underlaget."
+  ],
+  "prerequisite": "Kritisk granskning av den inspelade simulatorn, inte kalibrerad statistisk styrka eller råd om stickprovsstorlek. Power_recorded_simulation_review.zip bevarar original-JSON och granskning; det är inte en importerbar körning eller GUI-export. Skärm, adapter, simulator och anpassningskod inspelade med spaCR 1.5.0.4 är fortfarande byte-identiska med aktuell kod. Två marginala svep gav 18 anpassningar och nio punkter, två upprepningar vardera; fyra icke-konvergerade anpassningar finns kvar i nämnaren. Två simuleringar begränsade sannolikheter. Samma nominella design med olika slumpdragningar ger 1/2 och 2/2 detektioner. Rådet att öka till det redan befintliga brunnsantalet avvisas och är inte åtgärdat. Vissa ändetiketter klipps; den kontrollerade tabellen har alla nio koordinater. Ingen ny simulering, insamlade data, biologisk kalibrering, GPU-uppgift, AI-förfrågan eller publicering hävdas. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve och spacr.qt.screens.power.run_power_sweep; spacr.power_simulate och spacr.power_model simulerar och anpassar.",
+  "scenes": [
+    "Power och Design undersöker antaganden med simulerade data. Det laddar inte ett insamlat experiment och visar inte att antagandena passar ditt. Lektionen läser en verklig inspelad körning med varningar och ett missvisande råd. Använd inte denna lilla demonstration som validerad rådgivning om stickprovsstorlek.",
+    "Börja med biblioteket och enheten som bedöms. Växling mellan guide och gen ändrar bedömningsenheten: 40 gener med fyra guider vardera ger 160 enheter vid guidebedömning. Genbedömning slår ihop guideinformationen. Det är undervisningsantaganden, inte nya biologiska mätningar.",
+    "Platt- och effektkontroller beskriver den antagna designen. Andelen positiva klassificeringar är en simulerad sannolikhet, inte ett organismantal eller en uppmätt infektionsfrekvens. Granska bakgrund, effekt och prevalens tillsammans; de visade antagandena validerar inte modellen.",
+    "En effekt under ett utlöser den inbyggda varningen om en riktning som inte stöds och inaktiverar Run. Inspelningen återställer sedan ett tillåtet värde och tillgängliga kontroller. Det är ett programvaruskydd, inte biologisk omöjlighet. Kringgå inte varningen för att få en bekväm kurva.",
+    "Demonstrationen använder bara två upprepningar per punkt. Detektion kräver en användbar anpassning som når vald tröskel för arean under ROC-kurvan. Det är inte en P-värdesgräns för hypotesprövning. Seed och backend registreras; Torch i sig bevisar inte GPU-körning.",
+    "Run startar den verkliga simulatorn i en arbetstråd. Cellantal och brunnsantal varieras separat, inte i alla kombinationer. Inspelningen slutförde 18 anpassningar över nio punkter. Spara inställningar och råa upprepningsdata tillsammans så att varje ritad andel kan spåras till anpassningarna bakom den.",
+    "Detektioner räknas över alla begärda upprepningar. Fyra anpassningar konvergerade inte och ligger kvar i nämnaren som icke-detektioner; de försvinner inte i det tysta. Hundra procent betyder här bara två av två. Ett så litet stickprov ger inte en exakt detektionssannolikhet.",
+    "Tabellen skiljer detektionsandelar från genomsnittlig prestanda bland användbara anpassningar. Ett otillgängligt medelvärde är inte noll. Average precision behöver även prevalensreferensen. Läs tabellen vid klippta ändetiketter och kontrollera utebliven konvergens i stället för att bara bedöma den blå linjen.",
+    "Sammanfattningen innehåller ett fel. Båda basestimat använder redan 96 brunnar, men olika slumpdragningar ger en av två detektioner i ett svep och två av två i det andra. Att gå till samma 96 brunnar förbättrar inte designen. Avvisa rådet; handledningen reparerar det inte.",
+    "Visa de återstående förbehållen. Två simulerade screeningar begränsade sannolikheter över ett, så realiserad beläggning avviker från begärt värde. Modellen har fler antaganden och begränsningar; att lista dem är inte validering. Läs varningar och misslyckade anpassningar före slutsatser.",
+    "Arkivet bevarar faktisk specifikation, upprepningar, kurvor, tabell och felaktig text. Det är ett externt underlag, inte en inbyggd GUI-export eller ett importerat resultat. Pythons designadapter och simulerings-API:er ger samma arbetsflöde, men verklig planering kräver separat validering av antaganden och osäkerhet."
+  ]
+}

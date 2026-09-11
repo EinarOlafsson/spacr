@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Hit List: Kandidaten in einem ausdrücklich externen Begleitfenster prüfen",
+  "description": "Unveränderte Regression-Ergebnisse mit echten Hit-List-Filtern und Exporten untersuchen; das versteckte native Panel wird ausdrücklich umgangen.",
+  "objectives": [
+    "Den defekten nativen Zugang vom externen Begleitprogramm unterscheiden.",
+    "Ranglisten interpretieren, ohne signifikante Entdeckungen zu behaupten.",
+    "Echte Ergebniszeilen filtern, wiederherstellen und exportieren."
+  ],
+  "prerequisite": "Hit_List_real_results_companion.zip entpacken, die spaCR-Umgebung aktivieren, python hit_list_companion.py ausführen und mit Browse results auswählen. Das Programm verwendet HitListScreen unverändert; es repariert weder die Navigation noch verbindet es Investigate. Das Archiv enthält ursprüngliche Ergebnisse, kein vollständiges Projekt: 325 Gene, 434 Guide-Zeilen, kein Gen mit q <= .05. Standardisierte marginale Effekte sind keine gleichzeitig geschätzten multivariablen Koeffizienten. Fehlende Intervalle sind nicht verfügbar. n_obs=0 beschreibt nicht die tatsächliche Unterstützung: wells_with_gene in results_gene.csv reicht von 2 bis 48. Metadaten-Verknüpfungen, penalisiertes Ranking und Investigate sind nicht Teil des Beispiels. Kein Training, keine neue Regression, GPU oder KI-Anbieteranfrage erforderlich. API: spacr.hits.build_hit_list und HitList.filter/write_csv/to_markdown/to_html.",
+  "scenes": [
+    "Hit List gehört zu Regression. In dieser Version wählt ein Klick auf Hits eine Seite in einem versteckten Panel; die Liste erscheint nicht. Das Tutorial zeigt diese Einschränkung offen. Das folgende Fenster ist ein externes Begleitprogramm und kein Beleg für einen reparierten nativen Zugang.",
+    "Entpacken Sie das verlinkte Beispiel, aktivieren Sie Ihre spaCR-Umgebung und starten Sie das mitgelieferte Hit-List-Begleitskript. Das gekennzeichnete Fenster öffnet spaCRs vorhandenes Widget ohne veränderte Berechnungen. Wählen Sie über Browse den Ordner results. Es wird keine Regression wiederholt; Investigate ist hier nicht angebunden.",
+    "Das ursprüngliche Beispiel lädt 325 Gene. Doppelklicken Sie auf Spaltengrenzen, wenn Werte abgeschnitten sind. Lesen Sie Effektrichtung, rohes P, korrigiertes q und Guide-Übereinstimmung getrennt. Fehlende Konfidenzintervalle sind nicht verfügbar. Es sind standardisierte marginale Effekte; die exportierte Beobachtungszahl null ist nicht die tatsächliche Zahl unterstützender Wells.",
+    "Setzen Sie Max q auf 0,05. Kein Gen bleibt übrig, weil der kleinste Gen-q-Wert etwa 0,271 beträgt. Eine leere gefilterte Tabelle bedeutet keinen Importfehler. Mit Max q gleich eins werden alle Kandidaten wieder sichtbar, aber nicht zu Entdeckungen erklärt.",
+    "Minimum guides gleich zwei behält 117 Gene mit mindestens zwei getesteten Guide-Zeilen. Gezählt wird verfügbare Evidenz, nicht jeder ursprünglich entworfene Guide. Der Filter ändert die sichtbare Teilmenge, ohne die ursprüngliche Korrektur multipler Tests neu zu berechnen.",
+    "Minimum agreement gleich eins behält zusätzlich 57 Gene, deren getestete Guides alle das Vorzeichen des Geneffekts teilen. Übereinstimmung beweist weder Signifikanz noch Kausalität. Die Zusammenfassung nennt weiterhin null signifikante, durch Guides gestützte Gene, obwohl diese Kandidaten übereinstimmende Guides besitzen.",
+    "Hide controls entfernt eine Kontrollzeile; 56 Kandidaten bleiben. Stellen Sie sie vor dem Export wieder her. Das Ausblenden von Kontrollen passt das Modell nicht neu an und ändert die Korrekturfamilie nicht. Behalten Sie ihre Identitäten bei der Interpretation im Blick.",
+    "Bei gelöschten anderen Filtern zeigt Direction up positive Effekte. Ein zusätzlicher minimaler absoluter Effekt von 0,1 lässt 16 Zeilen übrig. Das sind beispielhafte Anzeigeoptionen, keine empfohlenen Schwellenwerte. Setzen Sie Richtung und Effekt vor einer Suche oder einem anderen Vergleich zurück.",
+    "Suchen Sie eine aufgezeichnete Kennung, um eine echte Zeile zu prüfen. Ohne Treffer ist die Tabelle leer; die bekannte Kennung stellt die Zeile wieder her, eine leere Suche die gesamte Population. Das zeigt reversibles Filtern. Annotationsimporte und Investigate benötigen eigene Prüfungen.",
+    "Für den Export stellen Sie zwei Guides, vollständige Übereinstimmung, eingeschlossene Kontrollen und eine leere Suche ein. Alle drei Exporte enthalten hier dieselben 57 Kandidaten. Markdown und HTML runden Zahlen; CSV bewahrt numerische Details. Speichern Sie die Filter separat, denn die Dateien enthalten nicht jede Einstellung.",
+    "Löschen Sie die Filter, um alle 325 Gene wiederherzustellen. Trennen Sie exportierte Teilmengen von unveränderten Originalen und bezeichnen Sie nicht signifikante Kandidaten nicht als validierte Treffer. Python bietet denselben Leser und dieselben Filter; prüfen Sie bei größeren Listen die formatspezifischen Zeilenlimits."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Hit List: undersøg kandidater i et tydeligt eksternt hjælpevindue",
+  "description": "Brug uændrede Regression-resultater til de rigtige Hit List-filtre og eksporter med en tydeligt forklaret omvej uden om det skjulte panel.",
+  "objectives": [
+    "Skeln mellem den defekte indbyggede genvej og det eksterne hjælpeprogram.",
+    "Fortolk rangerede kandidater uden at kalde dem signifikante fund.",
+    "Filtrer, gendan og eksporter de faktiske rækker."
+  ],
+  "prerequisite": "Udpak Hit_List_real_results_companion.zip, aktivér spaCR-miljøet, kør python hit_list_companion.py, og vælg results med Browse. Programmet bruger uændret HitListScreen; det reparerer ikke navigationen og forbinder ikke Investigate. Arkivet indeholder oprindelige resultater, ikke et helt projekt: 325 gener, 434 guiderækker og ingen gener med q <= .05. Standardiserede marginale effekter er ikke samtidigt estimerede multivariable koefficienter. Manglende intervaller er utilgængelige. n_obs=0 angiver ikke den reelle brøndstøtte: wells_with_gene i results_gene.csv går fra 2 til 48. Metadatajoins, penaliseret rangering og Investigate er ikke med. Ingen træning, ny regression, GPU eller forespørgsel til en AI-udbyder kræves. API: spacr.hits.build_hit_list og HitList.filter/write_csv/to_markdown/to_html.",
+  "scenes": [
+    "Hit List hører under Regression. I denne version vælger et klik på Hits en side i et skjult panel, så listen ikke vises. Tutorialen viser begrænsningen åbent. Det næste vindue er et eksternt hjælpeprogram, ikke bevis for at den indbyggede genvej er rettet.",
+    "Udpak det linkede eksempel, aktivér dit spaCR-miljø, og kør det medfølgende Hit List-hjælpescript. Det mærkede vindue åbner spaCRs eksisterende widget uden at ændre beregningerne. Klik Browse, og vælg results. Regressionen køres ikke igen, og Investigate-integrationen er ikke tilsluttet her.",
+    "Det oprindelige eksempel indlæser 325 gener. Dobbeltklik på kolonnegrænserne, hvis værdier er beskåret. Læs effektretning, rå P, korrigeret q og guideoverensstemmelse hver for sig. Manglende konfidensintervaller er utilgængelige. Effekterne er standardiserede marginale effekter; nul i den eksporterede observationskolonne er ikke det faktiske antal understøttende brønde.",
+    "Sæt Max q til 0,05. Ingen gener bliver tilbage, fordi den mindste gen-q-værdi er cirka 0,271. En tom filtreret tabel betyder ikke importfejl. Gendan Max q til én for at få alle kandidater tilbage, uden at erklære dem for fund.",
+    "Minimum guides på to beholder 117 gener med mindst to testede guiderækker. Det tæller tilgængelig evidens, ikke alle guider oprindeligt designet til biblioteket. Filteret ændrer den viste delmængde uden at genberegne korrektionen for multiple test.",
+    "Minimum agreement på én beholder derefter 57 gener, hvor alle testede guider har samme fortegn som geneffekten. Enighed beviser hverken signifikans eller kausalitet. Resuméet angiver stadig nul signifikante gener understøttet af enige guider, selv om disse kandidater har enige guider.",
+    "Hide controls fjerner én kontrolrække og efterlader 56 kandidater. Gendan den før eksporten. At skjule kontroller tilpasser ikke modellen igen og ændrer ikke korrektionsfamilien; bevar deres identiteter i fortolkningen.",
+    "Når de andre filtre er nulstillet, viser Direction up positive effekter. En mindste absolut effekt på 0,1 efterlader 16 rækker. Det er illustrative visningsvalg, ikke anbefalede grænser. Gendan retning og effekt før søgning eller sammenligning af en anden delmængde.",
+    "Søg efter en registreret identifikator for at undersøge en faktisk række. En søgning uden træffere giver en tom tabel; den kendte identifikator gendanner rækken, og en tom søgning hele populationen. Filtreringen er reversibel. Annotationsimport og Investigate kræver egne kontroller.",
+    "Til eksport vælges igen to guider, fuld overensstemmelse, kontroller inkluderet og tom søgning. Alle tre eksporter indeholder de samme 57 kandidater her. Markdown og HTML afrunder tal; CSV bevarer numeriske detaljer. Gem filtrene separat, da filerne ikke registrerer alle indstillinger.",
+    "Nulstil filtrene for at få alle 325 gener tilbage. Hold eksporterede delmængder adskilt fra uændrede originaler, og kald ikke ikke-signifikante kandidater validerede fund. Python har samme læser og filtre; kontrollér hvert formats rækkegrænse ved større lister."
+  ]
+}

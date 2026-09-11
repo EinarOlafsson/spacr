@@ -11,6 +11,7 @@ import tifffile
 
 from build_evaluation_example import sha
 from curate_evidence import check_mask, check_tracks, painted_disk
+from curate_checkpoint import checkpoint
 
 
 def prepare(stage):
@@ -158,6 +159,8 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
         first_log=json.loads(log_path.read_text())
         snapshot('07_saved_mask_and_ledger',mask=check_mask(tifffile.imread(mask_path),painted.astype(np.uint16)),
             mask_sha256=sha(mask_path),ledger=first_log)
+        # Explicit external companion-script step, not an invented GUI action.
+        proof['external_first_mask_checkpoint']=checkpoint(mask_path,work/'checkpoint-before-reopen')
         # Reopening must be observed, not simulated by passing an old session.
         picker(panel._browse_mask,mask_path,'08_reopen_the_actual_saved_mask')
         brush=panel.brush;layer=brush.session.layer
@@ -172,6 +175,10 @@ def record_curate(app, window, stage, captures, capture, settle, write_json, tim
             second_log['edits'][:len(first_log['edits'])]==first_log['edits'])
         snapshot('10_second_session_saved_history',mask=check_mask(tifffile.imread(mask_path),second.astype(np.uint16)),
             ledger=second_log,prior_history_preserved=proof['mask_prior_history_preserved_after_second_save'])
+        proof['external_second_mask_checkpoint']=checkpoint(mask_path,work/'checkpoint-after-second-save')
+        if any(sha(p)!=v for p,v in proof['external_first_mask_checkpoint']['copied_sha256'].items()):
+            raise ValueError('The external first-session checkpoint did not survive reopening')
+        proof['external_first_history_still_preserved']=True
         click(brush.paint_button)
         picker(panel._browse_tracks,track_path,'11_actual_track_csv_picker')
         tr=panel.tracks

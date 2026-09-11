@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Power / Design: lesið herminn og takmarkanir hans",
+  "description": "Skiljið raunverulegar stillingar, hermdar kúrfur og viðvaranir án þess að líta á lítið kennsludæmi eða mótsagnakenndan texta sem staðfesta ráðgjöf um tilraunasnið.",
+  "objectives": [
+    "Greina forsendur hermunar frá mældum tilraunagögnum.",
+    "Lesa nothæfar líkanaaðlaganir, greiningarhlutföll og óvissu rétt.",
+    "Þekkja ranga ráðleggingu um óbreytt snið og varðveita gögnin."
+  ],
+  "prerequisite": "Gagnrýnin yfirferð á skráðum hermi, ekki kvörðuð tölfræðileg geta eða ráð um úrtaksstærð. Power_recorded_simulation_review.zip varðveitir upprunalegt JSON og yfirferð; það er hvorki keyrsla til innflutnings né útflutningur úr viðmótinu. Skjár, aðlögunarlag, hermir og líkanakóði frá spaCR 1.5.0.4 eru enn bæti fyrir bæti eins og núverandi kóði. Tvær jaðarskannanir gáfu 18 aðlaganir og níu punkta, tvær endurtekningar á punkt; fjórar aðlaganir sem náðu ekki samleitni eru áfram í nefnaranum. Tvær hermanir skáru líkur niður. Sama nafnlega snið með ólíkum slembiúrtökum gaf 1/2 og 2/2 greiningar. Ráðinu um að fjölga upp í þann holufjölda sem þegar er til staðar er hafnað og það er ekki lagað. Sum endamerki skerðast; staðfesta taflan hefur öll níu hnitin. Hvorki er fullyrt um nýja hermun, mæld gögn, líffræðilega kvörðun, GPU-verk, gervigreindarfyrirspurn né birtingu. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve og spacr.qt.screens.power.run_power_sweep; spacr.power_simulate og spacr.power_model sjá um hermun og aðlögun.",
+  "scenes": [
+    "Power og Design kannar forsendur með hermdum gögnum. Það hleður ekki mældri tilraun og staðfestir ekki að forsendurnar eigi við þína tilraun. Kennslan les raunverulega skráða keyrslu, með viðvörunum og villandi ráðleggingu. Ekki nota þetta litla dæmi sem staðfesta ráðgjöf um úrtaksstærð.",
+    "Byrjið á safninu og einingunni sem er metin. Að skipta milli leiðsagnar og gens breytir matseiningunni: 40 gen með fjórum leiðsögnum hvert gefa 160 einingar við mat á leiðsögnum. Genamat sameinar upplýsingar leiðsagnanna. Þetta eru kennsluforsendur, ekki nýjar líffræðilegar mælingar.",
+    "Plötu- og áhrifastillingar lýsa fyrirhuguðu sniði. Hlutfall jákvæðrar flokkunar er hermd flokkunarlíkindi, ekki fjöldi lífvera eða mæld sýkingartíðni. Skoðið bakgrunn, áhrif og algengi saman; birtar forsendur staðfesta ekki líkanið.",
+    "Áhrif undir einum kveikja á innbyggðri viðvörun um óstudda stefnu og gera Run óvirkt. Upptakan endurheimtir síðan leyfilegt gildi og virkar stýringar. Þetta er hugbúnaðarvörn, ekki líffræðilegur ómöguleiki. Ekki fara fram hjá viðvöruninni til að fá þægilega kúrfu.",
+    "Dæmið notar aðeins tvær endurtekningar á punkt. Greining krefst nothæfrar aðlögunar sem nær völdum þröskuldi flatarmáls undir ROC-kúrfu. Það er ekki P-gildisþröskuldur tilgátuprófs. Slembifræ og bakendi eru skráð; Torch eitt og sér sannar ekki GPU-keyrslu.",
+    "Run ræsir raunverulegan hermi á vinnsluþræði. Frumufjöldi og holufjöldi breytast hvor í sínu lagi, ekki í öllum samsetningum. Upptakan lauk 18 aðlögunum á níu punktum. Geymið stillingar og hrá endurtekningargögn saman svo rekja megi hvert teiknað hlutfall til aðlagananna á bak við það.",
+    "Teljið greiningar yfir allar umbeðnar endurtekningar. Fjórar aðlaganir náðu ekki samleitni og haldast í nefnaranum sem engin greining; þeim er ekki sleppt í laumi. Hundrað prósent merkir hér aðeins tvær af tveimur. Svo lítið úrtak staðfestir ekki nákvæmar greiningarlíkur.",
+    "Taflan aðgreinir greiningarhlutföll frá meðalframmistöðu nothæfra aðlagana. Meðaltal sem ekki er tiltækt er ekki núll. Average precision þarf einnig viðmið algengis. Lesið töfluna ef endamerki skerðast og skoðið skort á samleitni í stað þess að meta eingöngu bláu línuna.",
+    "Samantektin inniheldur villu. Bæði grunnmöt nota þegar 96 holur, en ólík slembiúrtök gefa eina greiningu af tveimur í annarri skönnun og tvær af tveimur í hinni. Að fara í sömu 96 holurnar bætir ekki sniðið. Hafnið ráðleggingunni; kennslan lagar hana ekki.",
+    "Opnið hina fyrirvarana. Tvær hermdar skimanir skáru líkur yfir einum niður, svo raunveruleg setning eininga í hermuninni víkur frá umbeðnu gildi. Líkanið hefur aðrar forsendur og takmarkanir; upptalning þeirra er ekki staðfesting. Lesið viðvaranir og misheppnaðar aðlaganir áður en ályktað er.",
+    "Tengda safnið varðveitir skráða lýsingu, endurtekningar, kúrfur, töflu og rangan texta. Þetta eru ytri gögn til skoðunar, ekki innbyggður útflutningur eða innflutt niðurstaða. Python-aðlögunarlagið og hermunar-API bjóða sama ferli, en raunveruleg áætlanagerð krefst sérstakrar staðfestingar forsendna og óvissu."
+  ]
+}

@@ -1,0 +1,471 @@
+{
+  "lesson": "42_curate",
+  "status": "Real native actions and external checkpoint scope verified; media pending",
+  "canonical_english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "scene_count": 11,
+  "narrated_words": 564,
+  "native_verification": {
+    "accepted": true,
+    "scope": "Verified practice edits and EXTERNAL exact-byte checkpoints; NOT automatic mask-history preservation",
+    "native_observation": {
+      "lesson": "42_curate",
+      "accepted": false,
+      "synthetic": true,
+      "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji",
+      "original_inputs": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/tracks/trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv": "b455eefca827d68a68d61ef808c65dbdc8e6450a5c29fa6eb313e1f41e88f793"
+      },
+      "app_source_modified": false,
+      "synthetic_actions_not_biological_corrections": true,
+      "published": false,
+      "checks": {
+        "04_original_sixteen_label_mask": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ]
+          },
+          "status": "mask.tif is as the pipeline produced it.",
+          "ledger_entries": 0
+        },
+        "05_practice_disk_not_a_real_object": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ]
+          },
+          "changed_pixels": 195,
+          "actual_centre": [
+            64.01054648687011,
+            64.01118536197296
+          ],
+          "radius": 8,
+          "label": 18,
+          "disk_file_unchanged": true
+        },
+        "06_undo_restores_every_original_pixel": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ]
+          },
+          "actions": [
+            "paint",
+            "undo"
+          ]
+        },
+        "07_saved_mask_and_ledger": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ]
+          },
+          "mask_sha256": "d6235b11b7665c60cafc6259010d1c9d01e6e735ec43557bea7911b6e0c758e9",
+          "ledger": {
+            "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif",
+            "edits": [
+              {
+                "detail": {
+                  "dabs": 1,
+                  "radius": 8.0,
+                  "replaced": [
+                    0
+                  ]
+                },
+                "kind": "paint",
+                "n_changed": 195,
+                "target": 18,
+                "when": "2026-09-11T09:09:20+00:00",
+                "who": "olafsson"
+              },
+              {
+                "detail": {
+                  "dabs": 1,
+                  "restored": [
+                    0
+                  ]
+                },
+                "kind": "undo",
+                "n_changed": 195,
+                "target": 18,
+                "when": "2026-09-11T09:09:21+00:00",
+                "who": "olafsson"
+              },
+              {
+                "detail": {
+                  "dabs": 1,
+                  "radius": 8.0,
+                  "replaced": [
+                    0
+                  ]
+                },
+                "kind": "paint",
+                "n_changed": 195,
+                "target": 18,
+                "when": "2026-09-11T09:09:22+00:00",
+                "who": "olafsson"
+              }
+            ],
+            "schema_version": 1,
+            "source": "spacr-qt curation"
+          }
+        },
+        "09_reopened_mask_history": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ]
+          },
+          "history": {
+            "previous_entries": 3,
+            "current_entries": 0,
+            "status": "mask.tif has been curated by hand — see mask.tif.curation.json for what changed."
+          }
+        },
+        "10_second_session_saved_history": {
+          "mask": {
+            "passed": true,
+            "pixels": 65536,
+            "labels": [
+              0,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ]
+          },
+          "ledger": {
+            "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif",
+            "edits": [
+              {
+                "detail": {
+                  "dabs": 1,
+                  "radius": 4.0,
+                  "replaced": [
+                    0
+                  ]
+                },
+                "kind": "paint",
+                "n_changed": 47,
+                "target": 19,
+                "when": "2026-09-11T09:09:30+00:00",
+                "who": "olafsson"
+              }
+            ],
+            "schema_version": 1,
+            "source": "spacr-qt curation"
+          },
+          "prior_history_preserved": false
+        },
+        "12_sixteen_tracks_128_rows": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 16,
+            "cells": 640
+          },
+          "status": "16 track(s) over 128 row(s); consistent. No corrections: this data is as the pipeline produced it."
+        },
+        "13_overlapping_tracks_cannot_join": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 16,
+            "cells": 640
+          },
+          "status": "tracks 2 and 3 are both present in frame(s) [0, 1, 2, 3, 4], so they are two objects at that time and cannot be one track. Split one of them first if the overlap is itself the error."
+        },
+        "14_split_tail_starts_at_frame_four": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 17,
+            "cells": 640
+          },
+          "status": "2026-09-11T09:09:43+00:00 by olafsson: split 2 (4 changed)\n17 track(s) over 128 row(s); consistent. 1 correction(s) by olafsson — 1 split. First 2026-09-11T09:09:43+00:00, last 2026-09-11T09:09:43+00:00. This data has been curated by hand."
+        },
+        "15_join_halves_restores_all_rows": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 16,
+            "cells": 640
+          },
+          "status": "2026-09-11T09:09:45+00:00 by olafsson: join [2, 18] (4 changed)\n16 track(s) over 128 row(s); consistent. 2 correction(s) by olafsson — 1 join, 1 split. First 2026-09-11T09:09:43+00:00, last 2026-09-11T09:09:45+00:00. This data has been curated by hand."
+        },
+        "16_saved_tracks_and_history": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 16,
+            "cells": 640
+          },
+          "ledger": {
+            "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/tracks.csv",
+            "edits": [
+              {
+                "detail": {
+                  "at_frame": 4,
+                  "head_frames": [
+                    0,
+                    1,
+                    2,
+                    3
+                  ],
+                  "new_track": 18,
+                  "tail_frames": [
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                },
+                "kind": "split",
+                "n_changed": 4,
+                "target": 2,
+                "when": "2026-09-11T09:09:43+00:00",
+                "who": "olafsson"
+              },
+              {
+                "detail": {
+                  "absorbed": 18,
+                  "frames": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  "kept": 2
+                },
+                "kind": "join",
+                "n_changed": 4,
+                "target": [
+                  2,
+                  18
+                ],
+                "when": "2026-09-11T09:09:45+00:00",
+                "who": "olafsson"
+              }
+            ],
+            "schema_version": 1,
+            "source": "spacr"
+          }
+        },
+        "17_unsaved_delete_removes_eight_rows": {
+          "tracks": {
+            "passed": true,
+            "rows": 120,
+            "tracks": 15,
+            "cells": 600
+          },
+          "status": "2026-09-11T09:09:49+00:00 by olafsson: delete 3 (8 changed)\n15 track(s) over 120 row(s); consistent. 3 correction(s) by olafsson — 1 delete, 1 join, 1 split. First 2026-09-11T09:09:43+00:00, last 2026-09-11T09:09:49+00:00. This data has been curated by hand."
+        },
+        "19_saved_tracks_and_two_actions_return": {
+          "tracks": {
+            "passed": true,
+            "rows": 128,
+            "tracks": 16,
+            "cells": 640
+          },
+          "actions": [
+            "split",
+            "join"
+          ],
+          "status": "16 track(s) over 128 row(s); consistent. 2 correction(s) by olafsson — 1 join, 1 split. First 2026-09-11T09:09:43+00:00, last 2026-09-11T09:09:45+00:00. This data has been curated by hand."
+        }
+      },
+      "external_first_mask_checkpoint": {
+        "source_sha256": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif": "d6235b11b7665c60cafc6259010d1c9d01e6e735ec43557bea7911b6e0c758e9",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif.curation.json": "920a0b24b96c4bc592825f1e62ed407f9ab596ba77986f72d10acb4dfb2ca67e"
+        },
+        "copied_sha256": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-before-reopen/mask.tif": "d6235b11b7665c60cafc6259010d1c9d01e6e735ec43557bea7911b6e0c758e9",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-before-reopen/mask.tif.curation.json": "920a0b24b96c4bc592825f1e62ed407f9ab596ba77986f72d10acb4dfb2ca67e"
+        },
+        "edit_count": 3,
+        "scope": "External exact-byte checkpoint, not automatic app history restoration",
+        "source_unchanged": true
+      },
+      "mask_history_on_reopen": {
+        "previous_entries": 3,
+        "current_entries": 0,
+        "status": "mask.tif has been curated by hand — see mask.tif.curation.json for what changed."
+      },
+      "mask_prior_history_preserved_after_second_save": false,
+      "external_second_mask_checkpoint": {
+        "source_sha256": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif": "0ad3b89126fe508365d2f721ac2a34439c4cef9999d92e12f2c82b99632f9bd8",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif.curation.json": "10a2aaccc58f396ea1f368e28565260448d8b54e076f75c75d24f678b28be028"
+        },
+        "copied_sha256": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-after-second-save/mask.tif": "0ad3b89126fe508365d2f721ac2a34439c4cef9999d92e12f2c82b99632f9bd8",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-after-second-save/mask.tif.curation.json": "10a2aaccc58f396ea1f368e28565260448d8b54e076f75c75d24f678b28be028"
+        },
+        "edit_count": 1,
+        "scope": "External exact-byte checkpoint, not automatic app history restoration",
+        "source_unchanged": true
+      },
+      "external_first_history_still_preserved": true,
+      "tracks_prior_history_preserved": true,
+      "hold": "The native mask reopening/save path loses prior ledger entries; no tutorial claims complete edit provenance.",
+      "original_inputs_preserved": true
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/scientific_acceptance.json": "f21ac726836b204d9f5b0e8703110de8141dc62fcc27db42d9133f6b3d2e8599",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/tracks/trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv": "b455eefca827d68a68d61ef808c65dbdc8e6450a5c29fa6eb313e1f41e88f793",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-before-reopen/mask.tif": "d6235b11b7665c60cafc6259010d1c9d01e6e735ec43557bea7911b6e0c758e9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-before-reopen/mask.tif.curation.json": "920a0b24b96c4bc592825f1e62ed407f9ab596ba77986f72d10acb4dfb2ca67e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-after-second-save/mask.tif": "0ad3b89126fe508365d2f721ac2a34439c4cef9999d92e12f2c82b99632f9bd8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/checkpoint-after-second-save/mask.tif.curation.json": "10a2aaccc58f396ea1f368e28565260448d8b54e076f75c75d24f678b28be028",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/mask.tif": "0ad3b89126fe508365d2f721ac2a34439c4cef9999d92e12f2c82b99632f9bd8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/tracks.csv": "eba4a98ca91f7440a66ca08f7c9dde3b3c6a5f95f7cfb52a64b3f368ea95fd5e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-8n259eji/tracks.csv.curation.json": "30b0a5ab29a5ee61f367b5b280dd362cd74e092155974a46e1752fbb98453243",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/provenance.json": "988a026f01774e4518007103d50a12f27ff86aea438c410116f7aaf0f0455853",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/frames.json": "e4b92775c009437aa80394141a10edbde46da6d0595a3742c0d54ad1747189ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/00_home.png": "c46afcc56a3cbbabef301cb3fdba1572ff56fbe2b0c59139dda18e482782b5d0",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/01_make_masks_host.png": "273e0719251d830a1cdfb17667fe1cc364712d8221c9c67c7c005b6a5b04beb1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/02_actual_curate_page.png": "c7b02f8e1109f28e7506e187b173683052bb6448186134082d330e493f5905c1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/03_actual_mask_picker.png": "f9c2b2aeff35566402597400cd17f43640e72ba5acf812783e84c79eb85b948c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/04_original_sixteen_label_mask.png": "02012a82fbcb7977bad459f7514faa154a81d30e348d07bd76328db9a6174daa",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/05_practice_disk_not_a_real_object.png": "66f73ab977a251c6ea94802dc5688539bdc1bf2e52b5919925635f74f5704c39",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/06_undo_restores_every_original_pixel.png": "4f727e0c7ee04cebce6a5e8a91809705802c0752fea7869f66d06ccf6af1509e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/07_saved_mask_and_ledger.png": "5a9f7e95e9d0d739742c1643977a485a10a76d1bad4f6f8b266d115eaf1aed70",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/08_reopen_the_actual_saved_mask.png": "6922566a686404584fb2d1b02072da0c1b4fe4715f92bd6f253def06b8db1191",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/09_reopened_mask_history.png": "52f238b96f514a6c85c199d8f31bfc37d4b15e1cdb450ad0eee7f1b4c3226711",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/10_second_session_saved_history.png": "ffd6ea9bbd7a8a89425f9dc57b202dc8308d0ada9a346654b32f01e13b617ac2",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/11_actual_track_csv_picker.png": "ceb68346c970444f37b0c420954229a09d10f3f749fdc314f78580d8759ddfba",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/12_sixteen_tracks_128_rows.png": "fdc3da780efe8a49430fd31d7376e1793117d297fde1626831676f422e79533d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/13_overlapping_tracks_cannot_join.png": "0f0b9001a0c361c6a89a6a0b298186082a99fda3ddde94da895670fd389f5f58",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/14_split_tail_starts_at_frame_four.png": "51b94746044366fc9f2fc292734b1842167ef0b28300f720342a68bc9c2ff24c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/15_join_halves_restores_all_rows.png": "38ef4da3824ed9b62965648ce153099bab43210fc0667067c5cba2c89b0c45e3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/16_saved_tracks_and_history.png": "17a0952158e4e2c6b196f38ae5067978e095129a93354b054d420c15419f0ecc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/17_unsaved_delete_removes_eight_rows.png": "3bd3e449183c1cb4d2305d903c0f34de5de10538a7cee25cafda2cf364b10b5c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/18_reload_discards_only_unsaved_deletion.png": "25edac6d5b08266a8a4c2b4709c6cc7b281efb2525061a94bb828e7600f6b355",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_explicit_checkpoints_v1/19_saved_tracks_and_two_actions_return.png": "9f0fcce6e739cffa11d4f31208b0d7561fffbd41fb3f54cee0ad656d326b5fda"
+    },
+    "mask_history_loss_fixed": false,
+    "synthetic": true,
+    "biological_correction_or_accuracy_validated": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "focused_tests_passed": 24,
+  "new_mutations_observed_red": 6,
+  "published": false,
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

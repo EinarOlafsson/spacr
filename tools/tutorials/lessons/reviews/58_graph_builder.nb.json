@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Graph Builder: reelle målinger, direkte filtrering og en overføringsgrense",
+  "description": "Lag grafer fra målekolonner, del etter opptaksmetadata og gjenkjenn feilen ved overføring til Annotate.",
+  "objectives": [
+    "Åpne den reelle databasen og velg cell.",
+    "Lag histogram, spredningsplott, fargegrupper og radpaneler.",
+    "Kontroller populasjonen etter filtrering og gjenoppretting.",
+    "Skill intern publisering av et utvalg fra fungerende overføring."
+  ],
+  "prerequisite": "Last ned og pakk ut måledatabasen i lenken, eller bruk det nedlastede Annotate-eksemplet. Arkivet inneholder målinger, ikke bildeutsnitt; ingen ny modellkjøring er nødvendig.",
+  "scenes": [
+    "Graph Builder utforsker en eksisterende tabell. Åpne det fra Home. Det er en hovedmodul med Plate Viewer og Small Multiples inni. Vi bruker reelle eksempelmålinger uten å trene en modell eller be en KI-tjeneste generere resultater.",
+    "Velg Load table og åpne measurements.db fra arkivet eller det nedlastede Annotate-eksemplet. Velg cell: 2 341 rader. Arkivet bevarer nøyaktig databasen brukt i opptaket, men inneholder ikke bildene som andre tabeller viser til.",
+    "Søk etter cell_area og dra kolonnen til X. Automatisk tegning lager et histogram med 30 intervaller. Hver søyle teller celler i et arealintervall; dette er ikke en behandlingssammenligning eller signifikanstest. Lagrede enheter beholdes uten ny fysisk kalibrering.",
+    "Dra cell_channel_1_mean_intensity til Y. Hvert punkt viser arealet og gjennomsnittsintensiteten i kanal én for én celle. Overlappende punkter kan skjule hverandre, selv om alle rader er representert her. Les radantallet; større datasett kan bruke en annen tegnemåte.",
+    "Sett columnID på Colour og les tegnforklaringen. Fargene skiller opptakskolonner, ikke forutsagte klasser eller kjente behandlinger. Synlig separasjon er beskrivende, ikke bevis for en effekt. Vi har kontrollert koordinater og farger mot kilderadene.",
+    "Sett rowID på fasettkanalen med pil ned for paneler per platerad. De inneholder 1 140 og 1 201 celler. Felles akser hjelper sammenligningen, men celler i samme brønn er ikke uavhengige eksperimentelle replikater.",
+    "Legg til cell_area i filterpanelet til høyre og sett minimum til 21 925. Grafen endres straks til 1 171 rader. Den opprundede medianen demonstrerer filteret; den er ikke en anbefalt biologisk grense. Legg merke til at aksegrensene også endres.",
+    "Velg Clear all i filteret for å gjenopprette alle 2 341 cellene. Det er forskjellig fra Clear all channels til venstre, som fjerner grafens kolonnekoblinger. Kontroller antall og akser igjen; en endret populasjon er ikke en ny måling.",
+    "Fjern radfasetten med det lille krysset og dra et rektangel i spredningsplottet. Denne versjonen har en feil: gesten i opptaket publiserer 653 objektnøkler internt, men viser null valgte og lar Open selection in Annotate være deaktivert. Ikke anta at annotasjoner ble åpnet eller opprettet.",
+    "Et vanlig klikk tømmer også det interne utvalget. Tutorialen kontrollerer gjenopprettingen, men reparerer ikke overføringen. Filtrering og utpeking er forskjellige handlinger; andre visninger kan dele tilstanden. Kontroller den aktive populasjonen fremfor å anta at grafen alltid viser hele databasen.",
+    "Snarveiene øverst åpner de underordnede Plate Viewer og Small Multiples, som har egne veiledninger. Denne skjermen har ingen knapp for å eksportere grafen eller spesifikasjonen. Databasearkivet er en ekstern tutorialnedlasting, ikke en eksport fra Graph Builder.",
+    "I Python laster read_table data, GraphSpec beskriver kanaler og fasetter, og utvalgs-API-et skiller filtre fra eksplisitte objektnøkler. Behold kilde, innstillinger og versjon sammen med tolkningen. API-ene validerer ikke biologiske konklusjoner og reparerer ikke overføringen til Annotate."
+  ]
+}

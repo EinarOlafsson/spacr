@@ -1,0 +1,32 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "5f627353196b1e89c1f3953c924df4914b8aff572e09d847b8dab82d8556ebcd",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Volcano Explorer: examinar resultados y exportar una figura",
+  "description": "Explorar el ejemplo real de Regression, sincronizar controles, distinguir umbrales visuales de pruebas estadísticas y guardar estilos y exportaciones.",
+  "objectives": [
+    "Abrir la herramienta anidada con una sola familia de guías.",
+    "Sincronizar controles mediante Save style y Load style.",
+    "Examinar identidades, ejes, colores y líneas sin inventar nuevos hallazgos.",
+    "Restaurar un estilo y comprobar PDF y PNG."
+  ],
+  "prerequisite": "Extraiga Volcano_real_guide_family.zip y abra results. Son salidas intactas del ejemplo Regression, no un análisis nuevo ni archivo completo. Una familia: 434 guías, log_pred, minimum_wells_threshold=2, P de permutación con corrección más-uno y BH. P bruto mínimo 0.005; ajustado mínimo 0.39454545454545453; ninguno significativo a alpha=0.05. Los efectos marginales estandarizados no son coeficientes simultáneos ni cambios log2. Se conserva el defecto inicial: controles 1e-6/0/False frente al renderizado .05/3/True. Antes de editar, Save style y Load del mismo archivo sincronizan los valores. Los 67 campos se restauran posteriormente. Alpha .5 deja 19 valores bajo el corte sin cambiar indicadores de significación; restaure .05 y adjusted_p_value. Corte de efecto .1 por 3 produce líneas +/-0.3. Identidades, coordenadas, colores y fuentes verificados. Tamaño nominal 7×5 pulgadas, 150 DPI; recorte final PDF 492.536×348.485 puntos, PNG 1026×726 píxeles. Fuentes incrustadas, sin imágenes ráster en PDF y legibilidad revisada. Algunas etiquetas GUI siguen cortadas; aviso sobre bordes blancos en fondo claro. Uniones de anotaciones, ejes partidos y reglas MAD fuera del ejemplo. Captura spaCR 1.5.0.4; tres fuentes pertinentes sin cambios. Sin nueva prueba, GPU, IA, modificación de la aplicación o validación biológica. API: spacr.volcano_style.VolcanoStyle y render_volcano. Sin publicar.",
+  "scenes": [
+    "Abra Regression y su Volcano Explorer anidado. Esta lección pertenece a los submódulos de Regression. El explorador lee resultados terminados, no ejecuta de nuevo el análisis. Usamos el ejemplo real con datos descargables; el archivo complementario contiene las tablas exactas y los estilos registrados.",
+    "Elija Open results y la carpeta results extraída. Cada punto representa una guía de una sola familia de cuatrocientas treinta y cuatro pruebas, con la misma variable y regla de pocillos mínimos. No mezcle familias de corrección. Ninguna guía es significativa al corte ajustado original de cero punto cero cinco.",
+    "Antes de cambiar un ajuste, use Save style para guardar el estilo realmente dibujado y Load style con ese mismo archivo. En esta versión los controles iniciales discrepan de la figura; editar inmediatamente puede aplicar valores predeterminados incorrectos. Este ciclo normal sincroniza los controles, pero no repara la aplicación.",
+    "Tras cargar, confirme alfa cero punto cero cinco, multiplicador tres y transformación logarítmica negativa. Algunas etiquetas siguen cortadas: compruebe valores y JSON. El eje horizontal es efecto marginal estandarizado, no cambio log dos ni coeficiente de un modelo multivariable ajustado simultáneamente.",
+    "Pulse un punto existente para examinar su fila original. La guía seleccionada tiene P bruto cero punto cero cero cinco, pero P ajustado aproximado cero punto treinta y nueve. El efecto grande y cuatro pocillos de apoyo no la hacen significativa. Use identidad y campos originales, no solo la posición del punto.",
+    "Cambiar el eje vertical a P bruto de permutación cambia la cantidad dibujada, no el análisis. Valores brutos pequeños no sustituyen a los ajustados por familia. Restaure después P ajustado. Los indicadores originales no cambian: el explorador lee y dibuja, no realiza una nueva prueba estadística.",
+    "El interruptor menos logaritmo decimal cambia la representación de P. Activado, los P pequeños aparecen más arriba; desactivado, muestra sus valores originales. Aquí restauramos P ajustado transformado. Lea siempre el eje y no confunda la transformación con otra corrección de pruebas múltiples.",
+    "Como demostración, mover alfa a cero punto cinco desplaza la línea de referencia. Diecinueve valores ajustados quedan bajo ese nuevo corte, pero ninguno recibe un nuevo indicador significativo. No son diecinueve descubrimientos. Restaure cero punto cero cinco antes de exportar o interpretar este ejemplo.",
+    "Un corte de efecto explícito de cero punto uno con multiplicador tres sitúa líneas verticales en menos y más cero punto tres. Revise el multiplicador, no solo el campo de corte. Un umbral de efecto no sustituye la corrección estadística. Restaure Auto; no se reescriben valores de resultados.",
+    "Colorear por wells with guide muestra el apoyo real de la tabla. No es una puntuación de confianza ni prueba de precisión. Vuelva a los colores originales de significación antes de exportar. Las uniones de anotaciones y otros diseños necesitan validación propia y quedan fuera del ejemplo.",
+    "Configure tamaño, fuentes y resolución y examine la figura. Aquí el tamaño nominal es siete por cinco pulgadas a ciento cincuenta puntos por pulgada. El recorte ajustado cambia las dimensiones finales. Una figura exportada legible no garantiza que todas las etiquetas de controles quepan en esta ventana.",
+    "Guarde el estilo final como JSON. Tras cambiar temporalmente el tamaño del marcador, Load style restaura todos los campos registrados. Conserve el archivo con la tabla original para reproducir la apariencia. El estilo describe presentación; no demuestra que se ejecutara otra regresión o prueba.",
+    "Export PDF y PNG vuelven a dibujar, no capturan la pantalla. El PDF tiene marcas vectoriales y fuentes incrustadas; revise etiquetas, contraste y el aviso sobre bordes blancos en papel claro. Los originales siguen intactos. Python ofrece VolcanoStyle y render_volcano para el mismo dibujo, sin GPU ni proveedor de IA."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "zh-CN",
+  "title": "Hit List：在明确标识的外部辅助窗口中检查候选项",
+  "description": "使用未改动的Regression结果演示真实Hit List筛选和导出，并明确说明绕过隐藏面板的外部操作。",
+  "objectives": [
+    "区分失效的内置入口与外部辅助程序。",
+    "解读排序候选项，不把它们宣称为显著发现。",
+    "筛选、恢复并导出真实结果行。"
+  ],
+  "prerequisite": "解压Hit_List_real_results_companion.zip，激活spaCR环境，运行python hit_list_companion.py，再用Browse选择results。辅助程序使用未修改的HitListScreen，不修复导航，也不连接Investigate。压缩包包含原始结果，不是完整项目：325个基因、434行向导数据，没有基因满足q <= .05。标准化边际效应不是同时拟合的多变量系数。缺失区间表示不可用。n_obs=0不是实际支持孔数；results_gene.csv中的wells_with_gene为2到48。元数据合并、惩罚模型排序和Investigate不在本演示范围。无需训练、新回归、GPU或请求AI服务商。API：spacr.hits.build_hit_list及HitList.filter/write_csv/to_markdown/to_html。",
+  "scenes": [
+    "Hit List归在Regression下。这个版本中，点击Hits只会选中隐藏面板内的页面，列表不会出现。教程明确展示这一限制。接下来的窗口是外部辅助程序，不代表内置入口已经修好。",
+    "解压链接中的示例，激活spaCR环境，运行随包提供的Hit List辅助脚本。带明确标识的窗口打开spaCR已有控件，不改变计算。点击Browse并选择results文件夹。不重新运行回归，也没有连接Investigate集成功能。",
+    "原始示例加载三百二十五个基因。如果数值被截断，双击列边界。分别阅读效应方向、原始P、校正q和向导一致性。缺失的置信区间表示不可用。这些是标准化边际效应；导出的观测数零并不是实际支持孔数。",
+    "把Max q设为零点零五。没有基因留下，因为最小基因q值约为零点二七一。筛选后空表不等于导入失败。把Max q恢复为一即可找回所有候选项，但这不把它们变成发现。",
+    "把Minimum guides设为二，保留至少两行已测试向导的基因，共一百一十七个。它统计可用证据，不是最初设计的全部向导。筛选只改变显示子集，不重新计算原来的多重检验校正。",
+    "再把Minimum agreement设为一，留下五十七个基因，其已测试向导都与基因效应同号。一致性不证明显著性或因果关系。虽然这些候选行有一致的向导，摘要中显著且获一致支持的基因数仍为零。",
+    "Hide controls隐藏一行对照，这个子集剩下五十六个候选项。导出前将其恢复。隐藏对照不重新拟合模型，也不改变校正检验族；解释分析时保留对照身份信息。",
+    "清除其他筛选后，Direction up显示正效应。再加入零点一的最小绝对效应，这里留下十六行。这些只是展示用选择，不是推荐阈值。搜索或比较另一子集前，恢复方向和效应设置。",
+    "搜索记录中的标识符，查看一条真实结果。没有匹配的查询会清空表格；改回已知标识符会恢复该行，清除搜索会恢复总体。这展示了可逆筛选。注释导入与Investigate流程需要各自验证。",
+    "导出时恢复两条向导、完全一致、包含对照和空搜索。本例三种导出都包含相同的五十七个候选项。Markdown与HTML会对数值取舍，CSV保留数值细节。请另存筛选条件，因为文件不会记录每个设置。",
+    "清除筛选，恢复全部三百二十五个基因。导出子集应与未改动原始文件分开，不要把不显著的候选项称为已验证命中。Python提供同样的读取与筛选功能，但导出更长列表时，要检查各格式的行数限制。"
+  ]
+}
