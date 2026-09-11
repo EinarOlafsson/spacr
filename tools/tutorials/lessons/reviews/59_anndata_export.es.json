@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "AnnData Export: ruta actual y alternativa verificada mediante la API",
+  "description": "Localice el exportador integrado, comprenda el fallo por metadatos ausentes y exporte el ejemplo real con una alternativa explícita y comprobada en Python.",
+  "objectives": [
+    "Localizar AnnData Export dentro de Measure y la base de medidas.",
+    "Distinguir el fallo de la interfaz de la alternativa mediante la API sin inventar metadatos.",
+    "Comparar matrices combinadas, celulares y nucleares y cuatro políticas de valores ausentes.",
+    "Reabrir archivos y conservar identidades, anotaciones, imágenes y procedencia."
+  ],
+  "prerequisite": "Use una COPIA de measurements.db del ejemplo descargado en Annotate y conserve las imágenes y el original. Coloque el script enlazado junto a la copia en el entorno de spaCR. Usa spacr.anndata_export.build_anndata y convierte únicamente columnas objeto de obs completamente ausentes en categorías vacías; siguen ausentes y no inventa calibración ni etiquetas ni modifica X durante esta conversión. NO repara la interfaz. Rechaza destinos existentes, escribe un archivo nuevo y verifica su lectura. Comparaciones SQLite independientes: combinado/keep 2341x1136; cell/keep y cell/mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Sin UMAP, cálculo GPU, imágenes incrustadas, solicitudes AI, validación biológica ni publicación. Se conserva el fallo original.",
+  "scenes": [
+    "Abra Measure y después su herramienta integrada AnnData Export. AnnData guarda una matriz de objetos por características, junto con metadatos de observación y nombres de características. Mostramos la ruta actual de la interfaz, pero las exportaciones correctas usan una alternativa explícita en Python. No afirmamos que el fallo de exportación de la interfaz esté reparado.",
+    "Use una copia de la base real de medidas descargada, no una tabla inventada. Conserve las imágenes y la base original sin cambios. La interfaz recibe la carpeta del proyecto; nuestro ejemplo de línea de comandos recibe el propio archivo de la base. Desactive la proyección opcional para esta comparación. Exportar una matriz no requiere GPU.",
+    "Primero observe cómo falla el escritor original. Algunas columnas de observación contienen únicamente valores ausentes con tipo objeto, que este escritor no puede serializar. La calibración desconocida de vóxeles es un ejemplo. El código de salida uno y un archivo parcial no indican éxito. No sustituya desconocidos por cero ni por el texto None para ocultar el error.",
+    "Descargue el script enlazado y examine su alternativa de almacenamiento. Usa la función real build_anndata y después codifica únicamente los metadatos objeto totalmente ausentes como columnas categóricas vacías. Lo ausente sigue ausente; esa codificación no cambia metadatos conocidos ni la matriz de características. Esto no convierte la calibración física en una magnitud científica categórica.",
+    "Ejecute el script con su base de origen, una ruta de salida nueva y la política keep. El ejemplo combinado tiene dos mil trescientas cuarenta y una células y mil ciento treinta y seis características. Las medidas de núcleos y patógenos relacionados se agregan por célula. Cuatrocientos mil trescientos veinte valores siguen ausentes, no se convierten en ceros.",
+    "Para las medidas propias de un tipo de objeto, añada single-table cell y conserve los valores ausentes. El archivo mantiene las dos mil trescientas cuarenta y una células, pero solo doscientas sesenta y una características. Faltan veintiocho valores. Compare nombres de características e identidades de filas, no solo tamaño de archivo o número de columnas.",
+    "La política mean es una decisión analítica separada, no parte de la alternativa de almacenamiento. Aquí rellena veintiocho valores ausentes con las medias observadas de sus columnas. La capa exportada de valores ausentes registra las posiciones originales. Compruebe si la imputación conviene al análisis; una matriz completa no es automáticamente mejor ni está libre de sesgos.",
+    "La política drop-features elimina columnas que contienen valores ausentes. Aquí se eliminan cuatro columnas y quedan doscientas cincuenta y siete características y todas las células. Examine qué medidas se eliminaron y por qué. Esta política cambia las características disponibles y puede descartar información útil; no es una recomendación universal de limpieza.",
+    "La política drop-objects elimina, en cambio, filas con valores de características ausentes. Aquí se retiran siete células y quedan dos mil trescientas treinta y cuatro filas y las doscientas sesenta y una características. La ausencia puede relacionarse con fenotipo, adquisición o segmentación. Revise las exclusiones antes de considerar representativas las células restantes.",
+    "Elija single-table nucleus para obtener una fila por núcleo, en lugar de características nucleares agregadas en filas celulares. Este ejemplo contiene dos mil seiscientos ochenta y dos núcleos y trescientas cuarenta y una características. Conserve relaciones parentales e identidades. Tener más núcleos que células no significa que aparecieran células adicionales durante la exportación.",
+    "Reabra cada archivo guardado. El script compara la matriz completa, el orden e identidad de objetos y características, la ausencia de valores y los metadatos; también pasaron las comprobaciones SQLite independientes de los seis archivos. Las anotaciones siguen como metadatos, no como variables de entrenamiento insertadas en la matriz. Las imágenes no están incrustadas: conserve los originales y sus rutas.",
+    "Use un nombre de salida nuevo para cada política y conserve script, ajustes y versiones. El script rechaza un destino existente en vez de sobrescribirlo. Estas comprobaciones prueban la conservación de los datos de este ejemplo, no validez biológica ni reparación de la interfaz. Consulte las lecciones enlazadas de API y medidas para el flujo completo."
+  ]
+}
