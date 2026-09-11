@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Barcode QC : comptages réels, compromis de seuil et graphiques enregistrés",
+  "description": "Examinez les comptages publiés, exécutez Barcode QC et comparez profondeur de lecture et seuils dans les graphiques réellement enregistrés.",
+  "objectives": [
+    "Trouver Barcode QC dans Map Barcodes et choisir des comptages réels.",
+    "Distinguer une cible illustrative d'un choix expérimental justifié.",
+    "Examiner avertissements, graphiques et tableaux vérifiés indépendamment.",
+    "Distinguer puits peu lus, puits au-dessus de la cible et collisions de séquences."
+  ],
+  "prerequisite": "Utilisez une copie de plate_1_unique_combinations.csv de l'exemple téléchargé de Regression et un nouveau dossier de sortie. Ce fichier ne vient pas de notre tentative FASTQ infructueuse. Il contient 172756 lignes, 49464341 lectures assignées, 384 puits et 1379 guides observés. Cible 5/médiane uniquement illustrative, fraction de faible profondeur 0.1, Plot/Save/Verbose activés. Entrées QC et références facultatives absentes. Vérification indépendante de 2884 champs sans erreur numérique. L'avertissement src et le panneau Figures vide restent présents ; les PNG sont montrés dans le vrai visualiseur externe. Pas d'aperçu en direct, de calcul GPU, de requête AI, de validation biologique ou de publication. API : spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Ouvrez Map Barcodes, puis son outil imbriqué Barcode QC. Ce flux examine les comptages après assignation ; il ne réassigne pas les lectures FASTQ. Nous utilisons le tableau publié de la leçon Regression liée. Il ne provient pas de notre précédente tentative infructueuse d'assignation des lectures brutes.",
+    "Dans Count data, choisissez une copie de plate one unique combinations. Vérifiez le fichier sélectionné au lieu de conserver un chemin fictif. Ce tableau réel contient environ quarante-neuf virgule cinq millions de lectures assignées dans trois cent quatre-vingt-quatre puits. Conservez l'original intact et choisissez une nouvelle destination pour les sorties QC.",
+    "Target gRNAs per well indique la cible servant à calculer un seuil d'abondance des lectures. Nous gardons ici la valeur illustrative cinq et utilisons la médiane. Ce n'est ni une recommandation expérimentale ni une preuve d'attribution à un guide unique. Choisissez selon votre plan expérimental et examinez les compromis, pas seulement le chiffre proposé.",
+    "La fraction de lectures faibles repère les puits ayant peu de lectures relativement à la médiane de la plaque. Elle vaut ici zéro virgule un, et aucun des trois cent quatre-vingt-quatre puits ne tombe sous le seuil obtenu. Cet indicateur de profondeur ne garantit pas la fiabilité de chaque puits, guide ou mesure biologique.",
+    "Activez Plot et Save, précisez la destination, puis cliquez sur Run. Il s'agit d'une petite analyse de tableau, pas d'une segmentation sur GPU ; cet écran n'a pas d'aperçu en direct. Nous laissons vides les entrées facultatives de QC d'assignation et de références de codes. Le tableau seul ne permet pas les conclusions nécessitant ces fichiers.",
+    "Lisez la console réelle, avertissements compris. Le calcul se termine, mais cette version signale à tort que src manque alors que le module utilise Count data. Nous avons vérifié l'entrée et les tableaux enregistrés ; nous n'avons pas réparé le contrôle préalable. Ce décalage diagnostiqué n'autorise pas à ignorer les autres erreurs.",
+    "Cette version laisse aussi le panneau Figures vide malgré deux graphiques PNG enregistrés. Ouvrez barcode tiret bas qc point png et threshold tiret bas sweep point png du dossier de sortie dans un visualiseur d'images. Les scènes suivantes montrent le vrai visualiseur système, pas des figures insérées dans spaCR ni une interface réparée.",
+    "Examinez profondeur de lecture, effets de lignes et colonnes et distribution de la bibliothèque observée. Le seuil pointillé repère les puits peu lus ; les barres comparent les médianes des lignes ou colonnes à celle de la plaque. La courbe montre une représentation inégale des guides observés. Sans référence, elle ne révèle pas quels guides attendus sont totalement absents.",
+    "Examinez le balayage plutôt que d'accepter aveuglément un seuil. Ici, le seuil dérivé vaut environ zéro virgule zéro un deux un, soit un virgule vingt et un pour cent des lectures d'un puits. Il donne une médiane de cinq guides, conserve tous les puits et environ cinquante-huit pour cent des lectures assignées ; quelque quarante pour cent des puits dépassent encore la cible.",
+    "La courbe rouge compte les puits dépassant la cible de cinq guides. Elle ne mesure pas la similarité des séquences de codes ; rester sous cette cible ne prouve pas une attribution à un guide unique. Assouplir le seuil augmente ici la proportion au-dessus de la cible sans gagner de puits. Comparez le tableau et justifiez votre choix, sans en faire un seuil universel.",
+    "Conservez ensemble comptages sources, réglages, journal, recommandation, tableaux et graphiques. Les contrôles indépendants ont reproduit les statistiques de puits, de positions et de balayage sans écart numérique. Ils vérifient ce calcul, pas son interprétation biologique. L'aide AI est facultative et aucune requête n'a été envoyée ici ; confrontez tout conseil ultérieur aux données réelles et à l'API."
+  ]
+}

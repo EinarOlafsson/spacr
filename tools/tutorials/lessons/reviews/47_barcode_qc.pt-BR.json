@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Barcode QC: contagens reais, escolhas de limiar e gráficos salvos",
+  "description": "Examine a tabela publicada, execute Barcode QC e compare profundidade de leitura e limiares nos gráficos realmente salvos.",
+  "objectives": [
+    "Encontrar Barcode QC dentro de Map Barcodes e selecionar contagens reais.",
+    "Distinguir uma meta ilustrativa de uma escolha experimental justificada.",
+    "Examinar avisos, gráficos salvos e tabelas verificadas independentemente.",
+    "Distinguir poços com poucas leituras, acima da meta e colisões de sequência."
+  ],
+  "prerequisite": "Use uma cópia de plate_1_unique_combinations.csv do exemplo baixado em Regression e uma nova pasta de saída. Não veio da nossa tentativa FASTQ malsucedida. Contém 172756 linhas, 49464341 leituras mapeadas, 384 poços e 1379 guias observados. Meta 5/mediana apenas ilustrativa, fração de escassez 0.1, Plot/Save/Verbose ativados. Entradas opcionais QC e referências omitidas. Verificados 2884 campos sem erro numérico. Aviso src e painel Figures vazio continuam sem correção; mostramos PNGs no visualizador externo real. Sem prévia ao vivo, cálculo GPU, solicitação AI, validação biológica ou publicação. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Abra Map Barcodes e depois a ferramenta aninhada Barcode QC. Esse fluxo examina contagens após o mapeamento; não remapeia leituras FASTQ. Usamos a tabela publicada do exemplo na aula vinculada de Regression. Ela não é resultado da nossa tentativa anterior malsucedida de mapear leituras brutas.",
+    "Em Count data, selecione uma cópia de plate one unique combinations. Confira o arquivo escolhido, sem deixar um caminho de exemplo. Essa tabela real contém cerca de quarenta e nove vírgula cinco milhões de leituras mapeadas em trezentos e oitenta e quatro poços. Preserve o original e escolha um novo destino para os resultados QC.",
+    "Target gRNAs per well expressa a meta usada para derivar um limiar de abundância de leituras. Aqui mantemos o valor ilustrativo cinco e usamos a mediana. Não é recomendação de desenho experimental nem prova de atribuição a um único guia. Escolha conforme seu desenho e examine as consequências, não apenas o número sugerido.",
+    "A fração de leituras escassas identifica poços com poucas leituras em relação à mediana da placa. Aqui vale zero vírgula um, e nenhum dos trezentos e oitenta e quatro poços fica abaixo do limiar resultante. É um indicador de profundidade de leitura, não garantia de confiabilidade de cada poço, guia ou medida biológica.",
+    "Ative Plot e Save, especifique o destino e pressione Run. É uma pequena análise de tabela, não segmentação por GPU, e essa tela não tem prévia ao vivo. Deixamos vazias as entradas opcionais de QC do mapeamento e referências de códigos. A tabela sozinha não permite conclusões que dependem desses arquivos.",
+    "Leia a console real, incluindo os avisos. O processo termina, mas essa versão reclama incorretamente da ausência de src, embora o módulo use Count data. Verificamos a entrada real e as tabelas salvas; não corrigimos a checagem prévia. Esse desencontro diagnosticado não autoriza ignorar outros erros.",
+    "Essa versão também deixa vazio o painel Figures, embora salve dois gráficos PNG. Abra barcode sublinhado qc ponto png e threshold sublinhado sweep ponto png da pasta de saída em um visualizador de imagens. As próximas cenas mostram o visualizador real do sistema, não gráficos inseridos no spaCR nem uma interface corrigida.",
+    "Examine profundidade de leitura, efeitos de linhas e colunas e distribuição da biblioteca observada. O limite tracejado identifica poços com poucas leituras; as barras comparam medianas de linhas ou colunas com a da placa. A curva mostra representação desigual entre guias observados. Sem biblioteca de referência, ela não identifica guias esperados totalmente ausentes.",
+    "Examine a varredura, em vez de aceitar um limiar sem análise. Aqui o limiar derivado é cerca de zero vírgula zero um dois um, ou um vírgula vinte e um por cento das leituras de um poço. Produz mediana de cinco guias, mantém todos os poços e cerca de cinquenta e oito por cento das leituras, enquanto aproximadamente quarenta por cento dos poços ainda supera a meta.",
+    "A curva vermelha conta poços acima da meta de cinco guias. Não mede semelhança de sequências de códigos, e ficar abaixo dessa meta não comprova atribuição a um único guia. Afrouxar o limiar aumenta aqui a fração acima da meta sem ganhar poços. Compare a tabela salva e justifique a escolha para sua análise, sem tratar o exemplo como limiar universal.",
+    "Mantenha juntos contagens de origem, configurações, console, recomendação, tabelas e gráficos. Checagens independentes reproduziram as estatísticas salvas de poços, posições e varredura sem diferença numérica. Isso verifica o cálculo, não sua interpretação biológica. A assistência AI é opcional e nenhuma solicitação foi enviada aqui; confira orientações posteriores com os dados reais e a API."
+  ]
+}

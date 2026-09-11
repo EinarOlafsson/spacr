@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Barcode QC: conteggi reali, compromessi delle soglie e grafici salvati",
+  "description": "Esamina i conteggi pubblicati, esegui Barcode QC e confronta profondità di lettura e soglie nei grafici realmente salvati.",
+  "objectives": [
+    "Trovare Barcode QC dentro Map Barcodes e scegliere conteggi reali.",
+    "Distinguere un obiettivo illustrativo da una scelta sperimentale giustificata.",
+    "Esaminare avvisi, grafici e tabelle verificate indipendentemente.",
+    "Distinguere pozzetti con poche letture, sopra obiettivo e collisioni di sequenza."
+  ],
+  "prerequisite": "Usa una copia di plate_1_unique_combinations.csv dell'esempio scaricato di Regression e una nuova destinazione. Non deriva dal nostro tentativo FASTQ fallito. Contiene 172756 righe, 49464341 letture mappate, 384 pozzetti e 1379 guide osservate. Obiettivo 5/mediana soltanto illustrativo, frazione di letture scarse 0.1, Plot/Save/Verbose attivi. Input QC e riferimenti facoltativi omessi. Verificati 2884 campi senza errore numerico. Avviso src e pannello Figures vuoto non sono risolti; mostriamo PNG nel vero visualizzatore esterno. Nessuna anteprima live, operazione GPU, richiesta AI, validazione biologica o pubblicazione. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Apri Map Barcodes, poi lo strumento annidato Barcode QC. Questo flusso esamina i conteggi dopo la mappatura; non rimappa letture FASTQ. Usiamo la tabella pubblicata dell'esempio nella lezione Regression collegata. Non è il risultato del nostro precedente tentativo fallito di mappare letture grezze.",
+    "In Count data, seleziona una copia di plate one unique combinations. Controlla il file scelto senza lasciare un percorso segnaposto. Questa tabella reale contiene circa quarantanove virgola cinque milioni di letture mappate in trecentottantaquattro pozzetti. Mantieni intatto l'originale e scegli una nuova destinazione per i risultati QC.",
+    "Target gRNAs per well indica l'obiettivo usato per derivare una soglia di abbondanza delle letture. Qui lasciamo il valore illustrativo cinque e usiamo la mediana. Non è una raccomandazione sperimentale né prova di attribuzione a una singola guida. Scegli in base al disegno e valuta i compromessi risultanti, non solo il numero suggerito.",
+    "La frazione di letture scarse identifica pozzetti con poche letture rispetto alla mediana della piastra. Qui è zero virgola uno e nessuno dei trecentottantaquattro pozzetti scende sotto la soglia risultante. È un indicatore di profondità di lettura, non una garanzia di affidabilità di ogni pozzetto, guida o misura biologica.",
+    "Attiva Plot e Save, specifica la destinazione e premi Run. È una piccola analisi tabellare, non segmentazione GPU; questa schermata non ha un'anteprima live. Lasciamo vuoti gli input facoltativi di QC della mappatura e riferimenti dei codici. La sola tabella non consente conclusioni che richiedono quei file.",
+    "Leggi la console reale, compresi gli avvisi. Il processo termina, ma questa versione segnala erroneamente src mancante anche se il modulo usa Count data. Abbiamo verificato input e tabelle salvate; non abbiamo riparato il controllo preliminare. Questa discrepanza diagnosticata non autorizza a ignorare altri errori.",
+    "Questa versione lascia anche vuoto il pannello Figures, pur salvando due grafici PNG. Apri barcode trattino basso qc punto png e threshold trattino basso sweep punto png dalla cartella di output in un visualizzatore di immagini. Le prossime scene mostrano il vero visualizzatore di sistema, non grafici inseriti in spaCR né un'interfaccia riparata.",
+    "Esamina profondità di lettura, effetti di righe e colonne e distribuzione della libreria osservata. La soglia tratteggiata identifica pozzetti con poche letture; le barre confrontano mediane di righe o colonne con quella della piastra. La curva mostra rappresentazione diseguale delle guide osservate. Senza libreria di riferimento non identifica guide attese del tutto assenti.",
+    "Esamina la scansione delle soglie invece di accettarne una alla cieca. Qui la soglia derivata è circa zero virgola zero uno due uno, ossia uno virgola ventuno per cento delle letture di un pozzetto. Dà una mediana di cinque guide, conserva tutti i pozzetti e circa cinquantotto per cento delle letture, mentre circa quaranta per cento dei pozzetti supera ancora l'obiettivo.",
+    "La curva rossa conta pozzetti sopra l'obiettivo di cinque guide. Non misura la somiglianza delle sequenze dei codici, e stare sotto quell'obiettivo non dimostra attribuzione a una singola guida. Allentare la soglia aumenta qui la frazione sopra obiettivo senza aggiungere pozzetti. Confronta la tabella e giustifica la scelta per la tua analisi, non come soglia universale.",
+    "Conserva insieme conteggi originali, impostazioni, console, raccomandazione, tabelle e grafici. Controlli indipendenti hanno riprodotto le statistiche salvate di pozzetti, posizioni e scansione senza discrepanze numeriche. Ciò verifica il calcolo, non l'interpretazione biologica. L'assistenza AI è facoltativa e qui non è stata inviata alcuna richiesta; confronta consigli successivi con dati reali e API."
+  ]
+}
