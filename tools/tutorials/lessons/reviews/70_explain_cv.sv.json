@@ -1,0 +1,31 @@
+{
+  "language": "sv",
+  "title": "Förklara CV-modellen",
+  "description": "Granska en verklig surrogatmodell i Classify och se när dess förklaringar inte ska tolkas.",
+  "objectives": [
+    "Välj tillhörande mätningar och prediktioner i det nästlade verktyget.",
+    "Skilj surrogatets överensstämmelse från oberoende validering av klassificeraren.",
+    "Granska otillräcklig modelltrohet, klassfel och fullständiga exporter."
+  ],
+  "prerequisite": "Använd mätdatabasen och prediktions-CSV:n för samma beskurna objekt. Här återanvänds 234 verkliga prediktioner från Annotate/Classify-exemplet tränat en epok, inte det portabla Evaluation-paketet. filename och predicted_label är oförändrade. Den ursprungliga klassificeraren delar brunnar mellan träning och test; ingen oberoende validering. Surrogatet använder 89 kompletta fall och 1126 egenskaper; 145 rader utesluts. Träning: 68 objekt från två brunnar; test: 21 från en tredje. Alla prediktioner är klass 1: modelltrohet 17/21, balanserad noggrannhet 0,5. Visad referens är 81/89 från alla kompletta fall. Importance och SHAP förklarar inte klassificeraren tillförlitligt. Namnfiltret utesluter 18 cv_intensity-mätningar utan att bevisa etikettläckage. GUI-tabellerna stannar vid 1000 rader; läs fullständiga CSV-filer. API: spacr.surrogate.explain_classifier, fit_surrogate och write_surrogate_result. Upprepningar, uteslutningar och SHAP-budget är inte fält i formuläret. CPU-exempel utan ny träning, extern AI-fråga, godkänd modersmålslyssning eller publicering.",
+  "scenes": [
+    "Öppna Classify och sedan ikonen Explain CV Model uppe till höger. Den öppnar ett nästlat verktyg, inte ännu en Home-modul. Vi återanvänder bildklassificerarens befintliga prediktioner och tillhörande mätningar från exemplet. Att förklara prediktionerna validerar inte klassificeraren i sig.",
+    "Välj den tillhörande mätdatabasen och CSV-filen med sparade prediktioner. De måste identifiera samma beskurna objekt, inte bara brunnar med liknande namn. Här används oförändrade kopior av 234 verkliga prediktioner. Det är varken en ny träning eller ett nyligen validerat dataset.",
+    "Om Browse behåller gamla kolumnval bekräftar du prediktionssökvägen med Enter. Välj filename som sökväg till bildutsnittet och predicted_label som modellens klassval, inte sanna etiketter eller en kontinuerlig sannolikhet. Välj Random Forest, gruppering well och en ny utdatamapp.",
+    "Klicka på Explain model. Surrogatet lär sig från uppmätta egenskaper att efterlikna befintliga klassval; bildmodellen körs inte igen. Exemplet använder CPU. Formuläret erbjuder backend och gruppering; permutationsupprepningar, uteslutna egenskaper och SHAP-budget är API-alternativ, inte kontroller i formuläret.",
+    "Läs Fidelity först. Alla prediktioner matchades, men bara 89 rader hade kompletta egenskaper. Surrogatet tränas på 68 objekt från två brunnar och testas på 21 från en tredje. Modelltroheten är cirka 81 procent, under den visade majoritetsreferensen på 91 procent. Referensen använder alla kompletta fall, inte bara den undanhållna brunnen.",
+    "Importance är dold eftersom kontrollen av modelltrohet misslyckades. Gör inte resultatet till ett påstående om vad bildklassificeraren känner igen. Granska även automatiska uteslutningar: varningen kallar 18 mätnamn läckor, men intensitetsnamn med variationskoefficient bevisar inte i sig etikettläckage.",
+    "Confusion jämför originalmodellens klassval med surrogatets, inte med biologisk sanning. Här väljer surrogatet klass 1 för alla undanhållna objekt: 17 överensstämmelser och fyra fel. Balanserad noggrannhet är 0,5. En hög total procentsats kan dölja ett misslyckande på den mindre klassen.",
+    "Per-cell SHAP är fortfarande synlig trots misslyckad modelltrohet. Värdena beskriver surrogatet; de räddar inte förklaringen av bildmodellen och fastställer ingen biologisk mekanism. Bifoga begränsningen till exporterade attributionstabeller. Aktiveringskartor besvarar en annan, rumslig fråga i sin egen lektion.",
+    "Granska Correlations och Feature distributions som datasammanfattningar, inte som bevis för orsakssamband. Varje GUI-tabell stannar vid 1000 rader. De fullständiga exporterna innehåller 1087 korrelationspar och 2252 fördelningsrader. Läs filerna innan du rapporterar totalsiffror eller saknade egenskaper.",
+    "Held-out cells bevarar objektidentiteterna och båda uppsättningarna prediktioner. Open held-out objects är inaktiverad i inspelningen, så öppning av bildutsnitt visas inte. Behåll de elva filerna, inställningarna och varningen om modelltrohet tillsammans. Evaluation förklarar valideringsgränserna; varken en figur, en SHAP-tabell eller ett svar från spaCR AI kan validera en klassificerare."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

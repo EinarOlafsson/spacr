@@ -1,0 +1,31 @@
+{
+  "language": "it",
+  "title": "Spiegare il modello di visione",
+  "description": "Esaminare un vero modello surrogato in Classify e riconoscere quando le sue spiegazioni non vanno interpretate.",
+  "objectives": [
+    "Selezionare misure e predizioni corrispondenti nello strumento annidato.",
+    "Distinguere l’accordo del surrogato dalla validazione indipendente del classificatore.",
+    "Controllare fedeltà insufficiente, errori per classe ed esportazioni complete."
+  ],
+  "prerequisite": "Usare database delle misure e CSV delle predizioni degli stessi oggetti ritagliati. Qui si riutilizzano 234 predizioni reali dell’esempio Annotate/Classify addestrato per un’epoca, non il pacchetto portatile Evaluation. filename e predicted_label sono invariati. Il classificatore originale condivide pozzetti fra addestramento e test: non è validazione indipendente. Il surrogato usa 89 casi completi e 1126 caratteristiche; esclude 145 righe. Addestramento: 68 oggetti di due pozzetti; test: 21 di un terzo. Predice sempre classe 1: fedeltà 17/21, accuratezza bilanciata 0,5. Il riferimento visualizzato è 81/89 di tutti i casi completi. Importanza e SHAP non spiegano fedelmente il classificatore. Il filtro dei nomi esclude 18 misure cv_intensity senza dimostrare fuga di etichette. Le tabelle mostrano al massimo 1000 righe: leggere i CSV completi. API: spacr.surrogate.explain_classifier, fit_surrogate, write_surrogate_result. Ripetizioni, esclusioni e budget SHAP non sono controlli di questo modulo. Esempio CPU, senza nuovo addestramento, richiesta IA esterna, approvazione di ascolto madrelingua o pubblicazione.",
+  "scenes": [
+    "Aprite Classify, poi l’icona Explain CV Model in alto a destra. Si apre uno strumento annidato, non un altro modulo Home. Riutilizziamo predizioni del classificatore di immagini e misure corrispondenti dell’esempio. Spiegare queste predizioni non valida il classificatore stesso.",
+    "Scegliete il database delle misure corrispondente e il CSV delle predizioni salvate. Devono identificare gli stessi oggetti ritagliati, non soltanto pozzetti con nomi simili. Usiamo copie invariate di duecentotrentaquattro predizioni reali. Non è un nuovo addestramento né un insieme di dati appena validato.",
+    "Se Browse mantiene le vecchie colonne, confermate il percorso delle predizioni con Enter. Scegliete filename per il percorso del ritaglio e predicted_label per le classi previste dal modello, non le etichette vere o una probabilità continua. Selezionate Random Forest, raggruppamento well e una nuova cartella di uscita.",
+    "Premete Explain model. Il surrogato impara dalle caratteristiche misurate a imitare le classi esistenti; non riesegue il modello di visione. Questo esempio usa la CPU. Il modulo offre algoritmo e raggruppamento; ripetizioni delle permutazioni, esclusioni e budget SHAP sono opzioni API, non controlli di questa schermata.",
+    "Leggete prima Fidelity. Tutte le predizioni sono state associate, ma solo ottantanove righe avevano caratteristiche complete. Il surrogato si addestra su sessantotto oggetti di due pozzetti e ne verifica ventuno di un terzo. La fedeltà è circa l’ottantuno per cento, sotto il riferimento maggioritario del novantuno per cento. Il riferimento comprende tutti i casi completi, non solo il pozzetto riservato.",
+    "Importance è nascosta perché il criterio di fedeltà è fallito. Non trasformate questo adattamento in un’affermazione su ciò che riconosce il classificatore di visione. Controllate anche le esclusioni automatiche: l’avviso indica diciotto nomi come fonti di fuga, ma un nome di intensità con coefficiente di variazione non dimostra da solo una fuga di etichette.",
+    "Confusion confronta le classi del modello originale con quelle del surrogato, non con la verità biologica. Qui il surrogato assegna classe uno a tutti gli oggetti riservati: diciassette concordanze e quattro errori. L’accuratezza bilanciata è la metà. Una percentuale complessiva apparentemente alta può nascondere il fallimento sulla classe minoritaria.",
+    "Per-cell SHAP rimane visibile nonostante la fedeltà insufficiente. Questi valori descrivono il surrogato; non rendono valida la sua spiegazione del modello di visione e non dimostrano un meccanismo biologico. Allegate questo limite alle tabelle esportate. Le mappe di attivazione rispondono a una domanda diversa, spaziale, trattata nella loro lezione.",
+    "Esaminate Correlations e Feature distributions come riepiloghi dei dati, non come prove di causalità. Ogni tabella dell’interfaccia si ferma a mille righe. Le esportazioni complete contengono milleottantasette coppie di correlazione e duemiladuecentocinquantadue righe di distribuzioni. Leggete i file prima di riportare totali o caratteristiche mancanti.",
+    "Held-out cells conserva le identità degli oggetti ed entrambe le predizioni. Open held-out objects è disattivato nella registrazione, quindi non viene mostrata l’apertura dei ritagli. Conservate insieme gli undici file, le impostazioni e l’avviso di fedeltà. Evaluation spiega i limiti di validazione: un grafico, una tabella SHAP o una risposta di spaCR AI non certifica un classificatore."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

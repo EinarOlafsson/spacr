@@ -1,0 +1,156 @@
+{
+  "lesson": "70_explain_cv",
+  "accepted": true,
+  "source_commit": "c7e27ead1e898a45e01bb0b6db67ad10565636ca",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/explain_cv_readable_final",
+  "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/explain_cv_runs/REAL-recorded-predictions-rcplb_ob",
+  "original_inputs_preserved": true,
+  "scope": "real saved prediction identities, surrogate arithmetic and display consistency only",
+  "independent_classifier_validation": false,
+  "biological_mechanism_inferred": false,
+  "published": false,
+  "prediction_rows": 234,
+  "joined_rows": 234,
+  "complete_feature_rows": 89,
+  "excluded_feature_rows": 145,
+  "feature_join_independently_reimplemented": false,
+  "population_basis": "Unfitted application join; finite values checked separately across every selected feature",
+  "partition": {
+    "passed": true,
+    "held_out_objects": 21,
+    "training_objects": 68,
+    "held_out_wells": [
+      [
+        "plate1",
+        "r12",
+        "c2"
+      ]
+    ],
+    "shared_wells": 0
+  },
+  "metrics": {
+    "passed": true,
+    "values": 3
+  },
+  "independent_counts": {
+    "n": 21,
+    "confusion": [
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        17
+      ]
+    ],
+    "class_metrics": [
+      {
+        "class_id": 0,
+        "support": 4,
+        "precision": 0,
+        "recall": 0,
+        "f1": 0
+      },
+      {
+        "class_id": 1,
+        "support": 17,
+        "precision": 0.8095238095238095,
+        "recall": 1,
+        "f1": 0.8947368421052632
+      }
+    ],
+    "fidelity": 0.8095238095238095,
+    "balanced_accuracy": 0.5,
+    "f1_macro": 0.4473684210526316
+  },
+  "displayed_baseline_uses": "all complete objects, not the held-out subset",
+  "source_majority_baseline": 0.9101123595505618,
+  "importance_presented": false,
+  "tables": {
+    "importance": {
+      "passed": true,
+      "displayed_rows": 0,
+      "source_rows": 0,
+      "cells": 0,
+      "truncated": false
+    },
+    "metrics": {
+      "passed": true,
+      "displayed_rows": 2,
+      "source_rows": 2,
+      "cells": 10,
+      "truncated": false
+    },
+    "confusion": {
+      "passed": true,
+      "displayed_rows": 2,
+      "source_rows": 2,
+      "cells": 6,
+      "truncated": false
+    },
+    "shap": {
+      "passed": true,
+      "displayed_rows": 21,
+      "source_rows": 21,
+      "cells": 23667,
+      "truncated": false
+    },
+    "correlations": {
+      "passed": true,
+      "displayed_rows": 1000,
+      "source_rows": 1087,
+      "cells": 3000,
+      "truncated": true
+    },
+    "held_out": {
+      "passed": true,
+      "displayed_rows": 21,
+      "source_rows": 21,
+      "cells": 252,
+      "truncated": false
+    },
+    "distributions": {
+      "passed": true,
+      "displayed_rows": 1000,
+      "source_rows": 2252,
+      "cells": 6000,
+      "truncated": true
+    }
+  },
+  "checked_cells": 32935,
+  "saved_artifacts": {
+    "held_out_predictions.csv": "9565b8b97da56009403f29e611b56700c60f4e4aee57b8ad73b7476c4dd655e3",
+    "manifest.json": "ffbf297288049756fb8ca0a87d17005a6800c1da6c6a120af0de5bf77ba99d70",
+    "held_out_feature_distributions.csv": "0b404997190b908489eb6b8c61917649c3e2851d2a79c18d37f2cda9fbc5117c",
+    "held_out_signed_shap.csv": "c09eaf9d74b3c75bb7e5708965cfd96e64a421af142dac78097042ab76eca008",
+    "feature_family_importance.csv": "1d7f3c84c23e2da230dbc59aa7bd5ff764585b684dd9069745b7a41f14554904",
+    "feature_importance.csv": "1b79432ef87db3e2fe453ba48addf43d38d9367d263f8d4930e95bfe00b385c0",
+    "held_out_shap_feature_values.csv": "7db4b800686874adad105df905613d79bc2822a25901db2b53eb273adc584d50",
+    "class_metrics.csv": "d470f5da0ef27b7edad64fde69081519175e348295fb3174edb256c48dcb4dcb",
+    "summary.txt": "9c1ba251b3411f9e4a3ab8c38589e6ddd89fc42483dc29943960f608c4ca8fa1",
+    "correlated_feature_pairs.csv": "9bc2cae756ac96350ea8f837f26347e56ea29da362f12a17afb16253fdb24c66",
+    "confusion_matrix.csv": "15ffdaf66ddf64d8d1079266f2a3a77536e6dce803784b9f242b3b4e20a6ae70"
+  },
+  "repeated_fit_comparison": {
+    "previous_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/explain_cv_confirm_prediction_path",
+    "identical_artifacts": [
+      "held_out_predictions.csv",
+      "manifest.json",
+      "held_out_feature_distributions.csv",
+      "held_out_signed_shap.csv",
+      "feature_family_importance.csv",
+      "feature_importance.csv",
+      "held_out_shap_feature_values.csv",
+      "class_metrics.csv",
+      "summary.txt",
+      "correlated_feature_pairs.csv",
+      "confusion_matrix.csv"
+    ],
+    "different_artifacts": []
+  },
+  "requested_font_scale": 2.5,
+  "effective_font_scale": 2.0,
+  "font_scale_note": "The real app clamps its preference to FONT_SCALE_MAX=2.00; this uses that supported maximum, not a modified font-limit implementation.",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5"
+}

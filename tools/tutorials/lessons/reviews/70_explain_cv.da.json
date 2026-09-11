@@ -1,0 +1,31 @@
+{
+  "language": "da",
+  "title": "Forklar CV-modellen",
+  "description": "Undersøg en reel surrogatmodel i Classify, og se, hvornår dens forklaringer ikke må fortolkes.",
+  "objectives": [
+    "Vælg tilhørende målinger og forudsigelser i det indlejrede værktøj.",
+    "Skeln mellem surrogatets overensstemmelse og uafhængig validering af klassifikatoren.",
+    "Undersøg utilstrækkelig modeltrofasthed, klassefejl og komplette eksporter."
+  ],
+  "prerequisite": "Brug måledatabasen og forudsigelses-CSV for de samme beskårne objekter. Her genbruges 234 reelle forudsigelser fra Annotate/Classify-eksemplet trænet i én epoke, ikke den portable Evaluation-pakke. filename og predicted_label er uændrede. Den oprindelige klassifikator deler brønde mellem træning og test; ingen uafhængig validering. Surrogatet bruger 89 komplette tilfælde og 1126 egenskaber; 145 rækker udelades. Træning: 68 objekter fra to brønde; test: 21 fra en tredje. Alle forudsigelser er klasse 1: modeltrofasthed 17/21, balanceret nøjagtighed 0,5. Den viste reference er 81/89 på tværs af alle komplette tilfælde. Importance og SHAP forklarer ikke klassifikatoren pålideligt. Navnefilteret fjerner 18 cv_intensity-målinger uden at bevise etiketlækage. GUI-tabeller stopper ved 1000 rækker; læs hele CSV-filerne. API: spacr.surrogate.explain_classifier, fit_surrogate og write_surrogate_result. Gentagelser, udeladelser og SHAP-budget er ikke felter i formularen. CPU-eksempel uden ny træning, ekstern AI-forespørgsel, modersmålslyttegodkendelse eller publicering.",
+  "scenes": [
+    "Åbn Classify og derefter ikonet Explain CV Model øverst til højre. Det åbner et indlejret værktøj, ikke endnu et Home-modul. Vi genbruger billedklassifikatorens eksisterende forudsigelser og de tilhørende målinger fra eksemplet. At forklare forudsigelserne validerer ikke selve klassifikatoren.",
+    "Vælg den tilhørende måledatabase og CSV-filen med gemte forudsigelser. De skal identificere de samme beskårne objekter, ikke bare brønde med lignende navne. Her bruges uændrede kopier af 234 reelle forudsigelser. Det er hverken ny træning eller et nyligt valideret datasæt.",
+    "Hvis Browse efterlader de gamle kolonnevalg, skal du bekræfte forudsigelsesstien med Enter. Vælg filename som beskæringens sti og predicted_label som modellens klassevalg, ikke sande etiketter eller en kontinuert sandsynlighed. Vælg Random Forest, gruppering efter well og en ny outputmappe.",
+    "Klik Explain model. Surrogatet lærer fra målte egenskaber at efterligne eksisterende klassevalg; billedmodellen køres ikke igen. Eksemplet bruger CPU. Formularen tilbyder backend og gruppering; permutationsgentagelser, udelukkede egenskaber og SHAP-budget er API-indstillinger, ikke kontroller på denne formular.",
+    "Læs først Fidelity. Alle forudsigelser blev sammenkædet, men kun 89 rækker havde komplette egenskaber. Surrogatet trænes på 68 objekter fra to brønde og testes på 21 fra en tredje. Modeltrofastheden er cirka 81 procent, under den viste flertalsreference på 91 procent. Referencen bruger alle komplette tilfælde, ikke kun den tilbageholdte brønd.",
+    "Importance er skjult, fordi kontrollen af modeltrofasthed fejlede. Brug ikke dette resultat til at hævde, hvad billedklassifikatoren genkender. Undersøg også automatiske udeladelser: Advarslen kalder 18 målenavne lækager, men intensitetsnavne med variationskoefficient beviser ikke i sig selv lækage af etiketter.",
+    "Confusion sammenligner den oprindelige models klassevalg med surrogatets, ikke med biologisk sandhed. Her vælger surrogatet klasse 1 for alle tilbageholdte objekter: 17 overensstemmelser og fire fejl. Balanceret nøjagtighed er 0,5. En høj samlet procent kan skjule fejl på den mindre klasse.",
+    "Per-cell SHAP er stadig synlig, selv om kontrollen af modeltrofasthed fejlede. Værdierne beskriver surrogatet; de redder ikke forklaringen af billedmodellen og dokumenterer ingen biologisk mekanisme. Vedlæg denne begrænsning til eksporterede attributionstabeller. Aktiveringskort besvarer et andet, rumligt spørgsmål i deres egen lektion.",
+    "Undersøg Correlations og Feature distributions som dataresuméer, ikke som bevis for årsagssammenhæng. Hver GUI-tabel stopper ved 1000 rækker. De komplette eksporter indeholder 1087 korrelationspar og 2252 fordelingsrækker. Læs filerne, før du rapporterer totaler eller manglende egenskaber.",
+    "Held-out cells bevarer objektidentiteter og begge sæt forudsigelser. Open held-out objects er deaktiveret i optagelsen, så åbning af beskæringer demonstreres ikke. Bevar de elleve filer, indstillinger og advarslen om modeltrofasthed samlet. Evaluation forklarer valideringsgrænserne; en figur, SHAP-tabel eller et svar fra spaCR AI kan ikke validere en klassifikator."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

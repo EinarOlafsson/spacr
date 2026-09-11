@@ -1,0 +1,31 @@
+{
+  "language": "es",
+  "title": "Explicar el modelo de visión",
+  "description": "Inspeccione un modelo sustituto real dentro de Classify y reconozca cuándo sus explicaciones no deben interpretarse.",
+  "objectives": [
+    "Seleccionar mediciones y predicciones correspondientes en el módulo anidado.",
+    "Distinguir la concordancia del sustituto de la validación independiente del clasificador.",
+    "Revisar la baja fidelidad, los errores por clase y las exportaciones completas."
+  ],
+  "prerequisite": "Use la base de mediciones y el CSV de predicciones de los mismos recortes. Aquí se reutilizan 234 predicciones reales del ejemplo Annotate/Classify de una época, no el paquete portátil de Evaluation. Se conservan filename y predicted_label. El clasificador original comparte pocillos entre entrenamiento y prueba: no es validación independiente. El sustituto usa 89 casos completos y 1126 características; excluye 145 filas. Entrena con 68 objetos de dos pocillos y prueba 21 de otro. Predice clase 1 para todos: fidelidad 17/21 y exactitud equilibrada 0,5. La referencia mostrada es 81/89 de todos los casos completos. No interprete la importancia ni SHAP como un mecanismo del clasificador. El filtro por nombre excluye 18 mediciones cv_intensity sin demostrar fuga de etiquetas. Las tablas muestran como máximo 1000 filas; consulte los CSV completos. API: spacr.surrogate.explain_classifier, fit_surrogate y write_surrogate_result. Repeticiones, exclusiones y presupuesto SHAP no son controles de este formulario. Demostración con CPU, sin nuevo entrenamiento, petición externa a IA, aprobación de escucha nativa ni publicación.",
+  "scenes": [
+    "Abra Classify y después el icono Explain CV Model, arriba a la derecha. Se abre una herramienta anidada, no otro módulo de Home. Reutilizamos predicciones del clasificador de imágenes y las mediciones correspondientes del ejemplo. Explicar esas predicciones no valida el propio clasificador.",
+    "Seleccione la base de mediciones correspondiente y el CSV de predicciones guardadas. Deben identificar los mismos objetos recortados, no simplemente pocillos con nombres parecidos. Usamos copias sin cambios de doscientas treinta y cuatro predicciones reales. No es un nuevo entrenamiento ni un conjunto de datos recién validado.",
+    "Si Browse mantiene las opciones antiguas de columnas, confirme la ruta de predicciones con Enter. Seleccione filename como ruta del recorte y predicted_label como clase predicha por el modelo, no las etiquetas verdaderas ni una probabilidad continua. Elija Random Forest, agrupación por well y una carpeta de salida nueva.",
+    "Pulse Explain model. El sustituto aprende a imitar las clases existentes a partir de características medidas; no vuelve a ejecutar el modelo de visión. Este ejemplo utiliza CPU. El formulario ofrece el algoritmo y la agrupación; las repeticiones de permutación, exclusiones y presupuesto SHAP son opciones de la API.",
+    "Lea primero Fidelity. Se unieron todas las predicciones, pero solo ochenta y nueve filas tenían características completas. El sustituto entrena con sesenta y ocho objetos de dos pocillos y prueba veintiuno de un tercero. La fidelidad ronda el ochenta y uno por ciento, por debajo del noventa y uno de referencia. Esa referencia usa todos los casos completos, no solo el pocillo reservado.",
+    "Importance se oculta porque falló el criterio de fidelidad. No convierta este ajuste en una afirmación sobre lo que reconoce el clasificador de visión. Revise también las exclusiones automáticas: el aviso señala dieciocho nombres de mediciones como fuentes de fuga de información, pero un nombre de intensidad con coeficiente de variación no demuestra por sí mismo fuga de etiquetas.",
+    "Confusion compara las clases del modelo original con las del sustituto, no con la verdad biológica. Aquí el sustituto asigna clase uno a todos los objetos reservados: diecisiete coincidencias y cuatro errores. La exactitud equilibrada es la mitad. Un porcentaje global aparentemente alto puede ocultar el fracaso en la clase minoritaria.",
+    "Per-cell SHAP sigue visible aunque la fidelidad haya fallado. Sus valores describen este sustituto; no rescatan la explicación del modelo de visión ni establecen un mecanismo biológico. Mantenga esta limitación junto a las tablas exportadas. Los mapas de activación responden a otra pregunta, espacial, que se explica en su propia lección.",
+    "Inspeccione Correlations y Feature distributions como resúmenes de datos, no como pruebas de causalidad. Cada tabla de la interfaz se limita a mil filas. Los archivos completos contienen mil ochenta y siete pares de correlación y dos mil doscientas cincuenta y dos filas de distribuciones. Consulte los archivos antes de informar totales o características ausentes.",
+    "Held-out cells conserva las identidades y ambos conjuntos de predicciones. Open held-out objects está desactivado en esta grabación, por lo que no se demuestra la apertura de recortes. Guarde juntos los once archivos, ajustes y aviso de fidelidad. Evaluation explica los límites de validación; una figura, una tabla SHAP o una respuesta de spaCR AI no puede certificar un clasificador."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

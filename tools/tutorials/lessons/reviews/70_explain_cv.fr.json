@@ -1,0 +1,31 @@
+{
+  "language": "fr",
+  "title": "Expliquer le modèle de vision",
+  "description": "Examiner un véritable modèle de substitution dans Classify et reconnaître quand ses explications ne sont pas interprétables.",
+  "objectives": [
+    "Choisir des mesures et prédictions correspondantes dans le module imbriqué.",
+    "Distinguer l’accord du substitut de la validation indépendante du classifieur.",
+    "Examiner la fidélité insuffisante, les erreurs par classe et les exports complets."
+  ],
+  "prerequisite": "Utiliser la base de mesures et le CSV de prédictions des mêmes objets recadrés. Cet exemple reprend 234 prédictions réelles d’un apprentissage d’une époque dans Annotate/Classify, pas le paquet portable Evaluation. filename et predicted_label sont conservés. Le classifieur initial partage des puits entre apprentissage et test : ce n’est pas une validation indépendante. Le substitut utilise 89 cas complets et 1126 variables ; 145 lignes sont exclues. Il apprend sur 68 objets de deux puits et teste 21 objets d’un autre. Il prédit toujours la classe 1 : fidélité 17/21, exactitude équilibrée 0,5. La référence affichée est 81/89 sur tous les cas complets. Importance et SHAP ne décrivent pas fidèlement le mécanisme du classifieur. Le filtre des noms écarte 18 mesures cv_intensity sans prouver une fuite d’étiquettes. Les tableaux s’arrêtent à 1000 lignes ; lire les CSV complets. API : spacr.surrogate.explain_classifier, fit_surrogate et write_surrogate_result. Répétitions, exclusions et budget SHAP ne sont pas des contrôles de ce formulaire. Exemple sur CPU, sans nouvel apprentissage, requête IA externe, validation d’écoute native ni publication.",
+  "scenes": [
+    "Ouvrez Classify, puis l’icône Explain CV Model en haut à droite. Elle ouvre un outil imbriqué, pas un autre module de Home. Nous réutilisons les prédictions d’un classifieur d’images et les mesures correspondantes de l’exemple. Expliquer ces prédictions ne valide pas le classifieur lui-même.",
+    "Choisissez la base de mesures correspondante et le CSV des prédictions enregistrées. Ils doivent identifier les mêmes objets recadrés, pas seulement des puits aux noms similaires. Nous utilisons des copies inchangées de deux cent trente-quatre prédictions réelles. Ce n’est ni un nouvel apprentissage ni un jeu de données nouvellement validé.",
+    "Si Browse conserve les anciens choix de colonnes, confirmez le chemin des prédictions avec Enter. Choisissez filename pour le chemin du recadrage et predicted_label pour les classes prédites, pas les vraies étiquettes ni une probabilité continue. Sélectionnez Random Forest, le regroupement well et un nouveau dossier de sortie.",
+    "Cliquez sur Explain model. Le substitut apprend à imiter les classes existantes à partir des variables mesurées ; il ne relance pas le modèle de vision. Cet exemple utilise le CPU. Le formulaire propose l’algorithme et le regroupement ; répétitions des permutations, exclusions et budget SHAP sont des options de l’API.",
+    "Lisez d’abord Fidelity. Toutes les prédictions ont été jointes, mais seules quatre-vingt-neuf lignes avaient des variables complètes. Le substitut apprend sur soixante-huit objets de deux puits et teste vingt et un objets d’un troisième. Sa fidélité avoisine quatre-vingt-un pour cent, sous la référence majoritaire affichée de quatre-vingt-onze pour cent. Cette référence utilise tous les cas complets, pas uniquement le puits réservé.",
+    "Importance est masquée car le critère de fidélité a échoué. N’en déduisez pas ce que reconnaît le classifieur de vision. Examinez aussi les exclusions automatiques : l’avertissement désigne dix-huit noms de mesures comme sources de fuite, mais un nom d’intensité contenant un coefficient de variation ne prouve pas à lui seul une fuite d’étiquettes.",
+    "Confusion compare les classes du modèle initial à celles du substitut, pas à une vérité biologique. Ici, le substitut attribue la classe un à tous les objets réservés : dix-sept accords et quatre erreurs. L’exactitude équilibrée vaut une moitié. Un pourcentage global élevé peut masquer l’échec sur la classe minoritaire.",
+    "Per-cell SHAP reste visible malgré l’échec de fidélité. Ces valeurs décrivent ce substitut ; elles ne réhabilitent pas son explication du modèle de vision et ne prouvent aucun mécanisme biologique. Joignez cette limite aux tableaux exportés. Les cartes d’activation répondent à une autre question, spatiale, traitée dans leur propre leçon.",
+    "Consultez Correlations et Feature distributions comme résumés des données, pas comme preuves de causalité. Chaque tableau de l’interface s’arrête à mille lignes. Les exports complets contiennent mille quatre-vingt-sept paires de corrélation et deux mille deux cent cinquante-deux lignes de distributions. Lisez les fichiers avant de signaler des totaux ou des variables absentes.",
+    "Held-out cells conserve les identités des objets et les deux séries de prédictions. Open held-out objects est désactivé dans cette capture ; aucune ouverture de recadrages n’est donc montrée. Conservez ensemble les onze fichiers, paramètres et avertissement de fidélité. Evaluation explique les limites de validation ; ni figure, ni tableau SHAP, ni réponse de spaCR AI ne certifie un classifieur."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

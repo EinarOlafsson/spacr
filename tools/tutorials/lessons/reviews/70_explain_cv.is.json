@@ -1,0 +1,31 @@
+{
+  "language": "is",
+  "title": "Útskýra CV-líkan",
+  "description": "Skoðaðu raunverulegt staðgengilslíkan í Classify og lærðu hvenær ekki má túlka skýringar þess.",
+  "objectives": [
+    "Velja mælingar og spár fyrir sömu hluti í innfellda verkfærinu.",
+    "Greina samræmi staðgengils frá óháðri sannprófun flokkarans.",
+    "Skoða ófullnægjandi samræmi, villur eftir flokkum og heilar útflutningsskrár."
+  ],
+  "prerequisite": "Notaðu mæligagnagrunn og CSV-spár fyrir sömu útskornu hlutina. Hér eru endurnýttar 234 raunverulegar spár úr Annotate/Classify-dæminu eftir eina þjálfunarlotu, ekki úr flytjanlega Evaluation-pakkanum. filename og predicted_label eru óbreytt. Upprunalegi flokkarinn deilir brunnum milli þjálfunar og prófunar; þetta er ekki óháð sannprófun. Staðgengillinn notar 89 tilvik með fullum gögnum og 1126 eiginleika; 145 línum er sleppt. Þjálfun: 68 hlutir úr tveimur brunnum; prófun: 21 úr þriðja brunni. Allar spár eru flokkur 1: samræmi 17/21, jafnað réttflokkunarhlutfall 0,5. Sýnt meirihlutaviðmið er 81/89 yfir öll tilvik með fullum gögnum. Importance og SHAP skýra flokkarann ekki áreiðanlega. Nafnasían útilokar 18 cv_intensity-mælingar án þess að sanna flokkamerkjaleka. Töflur sýna mest 1000 línur; lesið heilar CSV-skrár. API: spacr.surrogate.explain_classifier, fit_surrogate og write_surrogate_result. Endurtekningar, útilokanir og SHAP-hámark eru ekki reitir í þessu eyðublaði. CPU-dæmi, engin ný þjálfun, ytri gervigreindarfyrirspurn, samþykkt móðurmálshlustun eða útgáfa.",
+  "scenes": [
+    "Opnaðu Classify og síðan Explain CV Model-táknið efst til hægri. Það opnar innfellt verkfæri, ekki nýja Home-einingu. Við endurnýtum fyrirliggjandi spár myndflokkarans og tilheyrandi mælingar úr dæminu. Að útskýra spárnar sannprófar ekki flokkarann sjálfan.",
+    "Veldu tilheyrandi mæligagnagrunn og CSV-skrána með vistuðum spám. Þau verða að auðkenna sömu útskornu hlutina, ekki bara brunna með svipuðum nöfnum. Hér notum við óbreytt afrit af 234 raunverulegum spám. Þetta er hvorki ný þjálfun né nýlega sannprófað gagnasafn.",
+    "Ef Browse heldur gömlu dálkavalkostunum skaltu staðfesta slóð spánna með Enter. Veldu filename fyrir slóð myndskurðarins og predicted_label fyrir flokka líkansins, ekki rétta flokkamerkingu eða samfelldar líkur. Veldu Random Forest, flokkun eftir well og nýja úttaksmöppu.",
+    "Smelltu á Explain model. Staðgengillinn lærir af mældum eiginleikum að líkja eftir núverandi flokkun; myndlíkanið er ekki keyrt aftur. Dæmið notar CPU. Eyðublaðið býður reiknirit og hópun; endurtekningar umraðana, útilokaðir eiginleikar og SHAP-hámark eru API-valkostir, ekki stjórntæki á þessu eyðublaði.",
+    "Lestu fyrst Fidelity. Allar spárnar tengdust gögnunum, en aðeins 89 línur höfðu fulla eiginleika. Staðgengillinn lærir af 68 hlutum úr tveimur brunnum og prófar 21 úr þeim þriðja. Samræmið er um 81 prósent, undir sýndu meirihlutaviðmiði sem er 91 prósent. Viðmiðið notar öll tilvik með fullum gögnum, ekki aðeins frátekna brunninn.",
+    "Importance er falið því samræmisprófið stóðst ekki. Ekki nota þessa aðlögun til að fullyrða hvað myndflokkarinn þekkir. Skoðaðu einnig sjálfvirkar útilokanir: Viðvörunin merkir 18 mælinöfn sem leka, en styrkleikamælingar með breytileikastuðli sanna ekki einar og sér leka flokkamerkja.",
+    "Confusion ber saman flokka upprunalega líkansins og staðgengilsins, ekki líffræðilegan sannleika. Hér gefur staðgengillinn öllum fráteknum hlutum flokk 1: 17 samræmast og fjórir eru rangir. Jafnað réttflokkunarhlutfall er 0,5. Há heildarprósenta getur falið mistök í minni flokknum.",
+    "Per-cell SHAP er enn sýnilegt þótt samræmisprófið hafi ekki staðist. Gildin lýsa staðgenglinum; þau bjarga ekki skýringu hans á myndlíkaninu og staðfesta enga líffræðilega verkun. Láttu þessa takmörkun fylgja útfluttum framlagstöflum. Virknikort svara annarri, rúmfræðilegri spurningu í sérstakri kennslustund.",
+    "Skoðaðu Correlations og Feature distributions sem samantektir gagna, ekki sannanir fyrir orsakasamhengi. Hver viðmótstafla stoppar við 1000 línur. Heilar útflutningsskrár innihalda 1087 fylgnipör og 2252 dreifingarlínur. Lestu skrárnar áður en þú greinir frá heildarfjölda eða eiginleikum sem vantar.",
+    "Held-out cells varðveitir auðkenni hlutanna og báðar spárnar. Open held-out objects er óvirkt í upptökunni, svo opnun myndskurða er ekki sýnd. Varðveittu skrárnar ellefu, stillingarnar og samræmisviðvörunina saman. Evaluation útskýrir mörk sannprófunar; mynd, SHAP-tafla eða svar frá spaCR AI getur ekki sannprófað flokkara."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

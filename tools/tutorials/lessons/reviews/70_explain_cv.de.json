@@ -1,0 +1,31 @@
+{
+  "language": "de",
+  "title": "CV-Modell erklären",
+  "description": "Ein echtes Ersatzmodell in Classify prüfen und erkennen, wann seine Erklärungen nicht interpretiert werden dürfen.",
+  "objectives": [
+    "Zusammengehörige Messungen und Vorhersagen im verschachtelten Werkzeug auswählen.",
+    "Übereinstimmung des Ersatzmodells von unabhängiger Klassifikatorvalidierung unterscheiden.",
+    "Unzureichende Modelltreue, Klassenfehler und vollständige Exporte prüfen."
+  ],
+  "prerequisite": "Messdatenbank und Vorhersage-CSV müssen dieselben ausgeschnittenen Objekte beschreiben. Hier werden 234 echte Vorhersagen des über eine Epoche trainierten Annotate/Classify-Beispiels wiederverwendet, nicht das portable Evaluation-Paket. filename und predicted_label bleiben unverändert. Das ursprüngliche Klassifikatortraining teilt Wells mit dem Test; keine unabhängige Validierung. Das Ersatzmodell verwendet 89 vollständige Fälle und 1126 Merkmale, 145 Zeilen entfallen. Training: 68 Objekte aus zwei Wells; Test: 21 aus einem dritten. Alle Vorhersagen sind Klasse 1: Treue 17/21, ausgewogene Genauigkeit 0,5. Die angezeigte Referenz ist 81/89 über alle vollständigen Fälle. Merkmalswichtigkeit und SHAP erklären den Klassifikator nicht zuverlässig. Der Namensfilter entfernt 18 cv_intensity-Messungen ohne Nachweis eines Label-Lecks. GUI-Tabellen enden bei 1000 Zeilen; vollständige CSVs lesen. API: spacr.surrogate.explain_classifier, fit_surrogate, write_surrogate_result. Wiederholungen, Ausschlüsse und SHAP-Budget sind keine Formularfelder. CPU-Beispiel, kein neues Training, externer KI-Aufruf, muttersprachlicher Hörtest oder Veröffentlichung.",
+  "scenes": [
+    "Öffnen Sie Classify und oben rechts das Symbol Explain CV Model. Es öffnet ein verschachteltes Werkzeug, kein weiteres Home-Modul. Wir verwenden vorhandene Bildklassifikator-Vorhersagen und die zugehörigen Messungen des Beispiels. Diese Vorhersagen zu erklären validiert den Klassifikator selbst nicht.",
+    "Wählen Sie die passende Messdatenbank und die gespeicherte Vorhersage-CSV. Beide müssen dieselben ausgeschnittenen Objekte identifizieren, nicht bloß ähnlich benannte Wells. Hier verwenden wir unveränderte Kopien von 234 echten Vorhersagen. Das ist weder ein neues Training noch ein neu validierter Datensatz.",
+    "Bleiben nach Browse alte Spaltenoptionen stehen, bestätigen Sie den Vorhersagepfad mit Enter. Wählen Sie filename als Bildpfad und predicted_label für die vorhergesagten Klassen, nicht wahre Labels oder kontinuierliche Wahrscheinlichkeiten. Wählen Sie Random Forest, Gruppierung well und einen neuen Ausgabeordner.",
+    "Klicken Sie Explain model. Das Ersatzmodell lernt aus Messmerkmalen, vorhandene Klassenaufrufe nachzubilden; das Bildmodell läuft nicht erneut. Dieses Beispiel verwendet die CPU. Das Formular bietet Backend und Gruppierung; Permutationswiederholungen, Merkmalsausschlüsse und SHAP-Budget sind API-Optionen, keine Bedienelemente dieses Formulars.",
+    "Lesen Sie zuerst Fidelity. Alle Vorhersagen wurden zugeordnet, aber nur 89 Zeilen hatten vollständige Merkmale. Das Ersatzmodell trainiert mit 68 Objekten aus zwei Wells und testet 21 aus einem dritten. Seine Treue liegt bei etwa 81 Prozent, unter der angezeigten Mehrheitsreferenz von 91 Prozent. Diese Referenz nutzt alle vollständigen Fälle, nicht nur das zurückgehaltene Well.",
+    "Importance bleibt verborgen, weil die Treueprüfung scheiterte. Leiten Sie daraus keine Aussage darüber ab, was der Bildklassifikator erkennt. Prüfen Sie auch automatische Ausschlüsse: Die Warnung bezeichnet 18 Messnamen als Lecks, doch Intensitätsnamen mit Variationskoeffizient belegen allein keine Übernahme von Ziel-Labels in die Merkmale.",
+    "Confusion vergleicht Klassenaufrufe des ursprünglichen Modells mit denen des Ersatzmodells, nicht mit biologischer Wahrheit. Hier sagt das Ersatzmodell für alle zurückgehaltenen Objekte Klasse 1 voraus: 17 Übereinstimmungen und vier Fehler. Die ausgewogene Genauigkeit beträgt 0,5. Eine hohe Gesamtquote kann das Versagen bei der kleineren Klasse verdecken.",
+    "Per-cell SHAP bleibt trotz gescheiterter Treueprüfung sichtbar. Diese Werte beschreiben das Ersatzmodell; sie retten weder seine Erklärung des Bildmodells noch belegen sie einen biologischen Mechanismus. Fügen Sie diese Einschränkung exportierten Attributionstabellen bei. Aktivierungskarten beantworten eine andere, räumliche Frage und haben eine eigene Lektion.",
+    "Prüfen Sie Correlations und Feature distributions als Datenzusammenfassungen, nicht als Kausalitätsbelege. Jede GUI-Tabelle endet bei 1000 Zeilen. Die vollständigen Exporte enthalten hier 1087 Korrelationspaare und 2252 Verteilungszeilen. Lesen Sie die Dateien, bevor Sie Gesamtzahlen oder fehlende Merkmale berichten.",
+    "Held-out cells bewahrt Objektidentitäten und beide Vorhersagen. Open held-out objects ist in dieser Aufnahme deaktiviert; eine Übergabe der Bildausschnitte wird daher nicht gezeigt. Bewahren Sie die elf Dateien, Einstellungen und Treuewarnung gemeinsam auf. Evaluation erläutert die Validierungsgrenzen; weder Grafik noch SHAP-Tabelle noch Antwort von spaCR AI validiert einen Klassifikator."
+  ],
+  "lesson": "70_explain_cv",
+  "english_sha256": "220d1518a48d6f0f969a34f9995cff69bf81645ed1067383b7194ac4553655e5",
+  "review": {
+    "kind": "Editorial translation of frozen English; failed fidelity, recorded counts and UI limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}
