@@ -4104,6 +4104,121 @@ def _follow_qt_own_catalogs(code: str) -> None:
     install_qt_translations(app, code)
 
 
+#: The language a widget's static captions were last fully rendered in.
+#:
+#: 380 measured a module build translating its tree roughly three times over:
+#: 14 passes, 11,944 widget visits, 472 ms -- 30% of a 1,577 ms build -- with
+#: three near-root walks accounting for most of it. They arrive in different
+#: batches an event turn apart, as a screen is assembled, so deduplicating
+#: roots within one turn saves nothing. This marker survives between turns.
+#:
+#: A Qt DYNAMIC PROPERTY rather than a Python attribute or an ``id()`` set,
+#: for the same reason `_LateCaptionTranslator._HANDLED` is one: it has to
+#: survive the Python wrapper being collected and recreated, and the ``id()``
+#: of a dead widget gets reused by a live one.
+#:
+#: THE VALUE IS THE LANGUAGE CODE, not a boolean or a counter. A plain "done"
+#: flag would survive a language switch and leave the whole window in the
+#: previous language -- the single most likely way to get this wrong, and the
+#: one `test_switching_language_re_renders_a_screen_that_was_already_translated`
+#: exists to catch.
+_TRANSLATED_AT = "_spacr_i18n_translated_at"
+
+
+#: The Qt string properties the pass manages, as ``(getter, cached-source)``.
+#: Each has a ``<source>_last_rendered`` twin holding what the pass last put
+#: there, which is how :func:`_translate_qt_text` tells "nobody has touched
+#: this" from "a worker replaced it with a path".
+_MANAGED_TEXT = (
+    ("windowTitle", "_spacr_i18n_window_title"),
+    ("toolTip", "_spacr_i18n_tooltip"),
+    ("accessibleName", "_spacr_i18n_accessible_name"),
+    ("accessibleDescription", "_spacr_i18n_accessible_description"),
+    ("text", "_spacr_i18n_text"),
+    ("title", "_spacr_i18n_title"),
+    ("placeholderText", "_spacr_i18n_placeholder"),
+)
+
+
+def _drifted_since_last_pass(widget) -> bool:
+    """Whether anything replaced a caption this pass previously rendered.
+
+    THE SKIP MUST NOT HIDE THIS, which is the one way the marker can do
+    real damage rather than merely miss a saving. ``_translate_qt_text``
+    earns its keep by noticing that a caption it rendered has since been
+    replaced from outside -- a path, a progress value, a worker's result --
+    and setting ``i18nSkipText`` so no later pass restores stale chrome over
+    live data. A widget skipped wholesale never reaches that check, so the
+    opt-out would not be set until the next language change.
+
+    Cheap on purpose: a getter and a property read per managed string, with
+    no catalog lookup and no setter. The cost this skip exists to avoid is
+    the ``tr()`` calls and the writes, not these comparisons.
+    """
+    for getter_name, property_name in _MANAGED_TEXT:
+        getter = getattr(widget, getter_name, None)
+        if not callable(getter):
+            continue
+        try:
+            last = widget.property(f"{property_name}_last_rendered")
+            if last is None:
+                continue
+            if str(getter() or "") != str(last):
+                return True
+        except (AttributeError, RuntimeError, TypeError):
+            return True
+    return False
+
+
+def _already_rendered_in(widget, code: str) -> bool:
+    """Whether a pass can skip ``widget`` because it is already current.
+
+    NEVER SKIPS A TEMPLATE. A widget carrying `_spacr_i18n_text_template`
+    renders from stored VALUES as well as from a source string
+    ("Connecting to {provider}…"), and those values change without the
+    language changing. The saving from skipping them would be a rounding
+    error and the failure would be a caption frozen on a stale value, so
+    they are always re-rendered.
+
+    NEVER SKIPS A WIDGET SOMETHING ELSE HAS WRITTEN TO -- see
+    :func:`_drifted_since_last_pass`.
+    """
+    try:
+        if widget.property("_spacr_i18n_text_template"):
+            return False
+        if str(widget.property(_TRANSLATED_AT) or "") != code:
+            return False
+        return not _drifted_since_last_pass(widget)
+    except (AttributeError, RuntimeError):
+        return False
+
+
+def forget_translation_marks(root) -> None:
+    """Make the next pass over ``root`` a full one again.
+
+    For a caller that changed captions underneath the translator and needs
+    them re-read as sources. Nothing in spaCR needs this today; it exists so
+    that a future one does not reach for clearing the property by hand and
+    guess at its name.
+    """
+    if root is None:
+        return
+    try:
+        from PySide6.QtWidgets import QWidget
+    except Exception:
+        return
+    widgets = [root] if isinstance(root, QWidget) else []
+    try:
+        widgets.extend(root.findChildren(QWidget))
+    except (AttributeError, RuntimeError):
+        pass
+    for widget in widgets:
+        try:
+            widget.setProperty(_TRANSLATED_AT, "")
+        except (AttributeError, RuntimeError):
+            continue
+
+
 def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
     """Retranslate static text in ``root`` and all existing descendants.
 
@@ -4144,6 +4259,11 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         pass
 
     for widget in widgets:
+        # ALREADY CURRENT. See `_TRANSLATED_AT`: the walk below still
+        # DESCENDS through a translated widget -- its children may have
+        # arrived since -- it simply does not redo the widget itself.
+        if _already_rendered_in(widget, code):
+            continue
         _translate_qt_text(
             widget, "windowTitle", "setWindowTitle",
             "_spacr_i18n_window_title", code)
@@ -4292,6 +4412,13 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
                 retranslate_content(code)
             except (AttributeError, RuntimeError, TypeError, ValueError):
                 pass
+        # LAST, so a widget that raised on the way through is not marked
+        # done. A half-translated widget that a later pass skips is the
+        # failure this whole change has to avoid.
+        try:
+            widget.setProperty(_TRANSLATED_AT, code)
+        except (AttributeError, RuntimeError):
+            pass
 
     actions = []
     try:
@@ -4451,7 +4578,7 @@ __all__ = [
     "install_qt_translations",
     "language_choices",
     "normalize_language",
-    "retranslate_widget_tree",
+    "retranslate_widget_tree", "forget_translation_marks",
     "set_translatable_items",
     "set_translatable_text",
     "tr",
