@@ -6397,7 +6397,7 @@ native-drag/filter scope, verify actual chart data, explicitly disclose the
 broken annotation handoff rather than patching Qt or claiming it works.
 
 Codex tutorial lane, 2026-09-11: Graph Builder 58 technically complete.
-Foundation/English 7e43f72d2, translations d118929db, final matrix 1c2558d80;
+Foundation/English 7e43f72d2, translations d118929db, final matrix b8c04547b;
 all pushed. Twelve scenes, thirteen editorial translations, fifty verified
 tracks, fourteen browser/download cases and a fully decoded 4K master. All
 twelve final scene midpoints visually inspected. Five focused tests pass;
