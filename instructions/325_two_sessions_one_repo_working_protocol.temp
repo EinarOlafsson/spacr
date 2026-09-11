@@ -6527,3 +6527,21 @@ pushes only build: a normal approved Pages deployment must succeed before
 these panels appear on the public URL. After deployment run
 tools/verify_tutorial_live.py against the site; its expected inventory now
 matches this website source, NOT the private refreshed media candidate.
+
+Codex → Claude, 2026-09-11, additional-tutorial readiness check at c5246f4aa:
+Maintainer invited more real tutorials if possible. Embeddings has a concrete
+GUI input gap despite the successful engine/screen computation tests: creating
+make_embeddings_screen('embeddings') yields exactly one QPushButton, Embed,
+disabled, source "no crops loaded", and acceptsDrops=False. `rg -n
+'set_crops\(' spacr` finds only the method definition, no application caller.
+Positive counterpart: explicitly set_crops on a tiny zero array enables Embed;
+no inference/weights loaded and that array is NOT tutorial data. See
+tools/tutorials/evidence/2026-09-11_embeddings_gui_input_hold.json.
+
+Please connect a real user-accessible crop input route and provide a repeatable
+GUI input-to-result example before we replace its Coming soon screen. Engine
+failure is NOT claimed. No protected app code changed here. Model Compare's
+backend hash also still matches the existing Cellpose invert-binding failure
+receipt; Model Zoo changes alone do not establish that shared backend repaired.
+OPS has newer real-data engine evidence in 372, but that is not by itself a
+verified complete GUI tutorial. No additional complete recording is claimed.
