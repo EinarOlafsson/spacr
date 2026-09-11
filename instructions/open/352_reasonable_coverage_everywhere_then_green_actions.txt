@@ -779,3 +779,64 @@ any test in these jobs should need. IT DOES NOT BY ITSELF MAKE EITHER JOB
 FIT ITS BUDGET -- it makes the next run SAY whether the problem is one
 wedged test or a suite that has outgrown ninety minutes, which is the
 question that decides the real fix.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE FIRST VERDICT NIGHTLY HAS EVER HAD: 95 TESTS IN 33 FILES,
+AND THREE JOBS THAT CANNOT FINISH
+--------------------------------------------------------------------------------
+
+Dispatched run 34639565357 on 110911b97 RAN TO COMPLETION -- the first
+`tests` run on nightly to do so, against the twenty-five cancellations this
+file counted earlier. Conclusion: failure. The value is not the conclusion,
+it is that there is finally a list.
+
+    95 distinct failing tests across 33 files
+    12 of 12 coverage shards red
+    3 jobs cancelled by their OWN timeout rather than by a push
+
+THE THREE TIMEOUTS ARE THE FINDING. `Fast / Full suite control` at 1:30:32
+against `timeout-minutes: 90`, `Minimum dependencies` at ~2:01 against 120,
+`Qt shard 0 of 2` likewise. The same two were cancelled at 1:30:17 and
+2:01:09 on dispatch 34618149518 a day earlier, so it is systematic. Both
+`fast` and `minimum-dependencies` are blocking by the file's own statement.
+
+  SO NIGHTLY COULD NOT HAVE GONE GREEN TONIGHT WHATEVER THE TESTS SAID, and
+  fixing all 95 would not have changed that. This is a second, independent
+  reason the branch is red, it has been true for at least two dispatches,
+  and no amount of test-fixing reaches it.
+
+THE 33 FILES BY OWNER, because "95 failures" is not actionable and the
+split is not even:
+
+    the catalogs, 83        7 files  external_i18n_catalogs, i18n_caption_ratchet,
+                                     api_i18n_extractor, documentation_i18n,
+                                     i18n_coverage_audit, tutorial_catalog_i18n,
+                                     the_text_fits_sweep (every de-2.0 caption)
+    386, embeddings         4 files  readme_presentation, the_readme_describes...,
+                                     the_api_homepage..., every_module_lands_on_prose
+    the docstring ratchets  3 files  docstring_correctness, docstring_field_lists...,
+                                     nested_functions_are_documented
+    372, OPS                4 files  one_key_vocabulary, the_raw_reader_count...,
+                                     cov_r6_io, conda_forge_recipe
+    the figure writers      2 files  one_visual_system_not_twelve,
+                                     every_kept_figure_goes_through_one_writer
+    388                     1 file   a_bystander_column_reaches...
+    unattributed           12 files  see below
+
+  TWENTY-ONE OF THE THIRTY-THREE ARE ONE LANE'S WORK LANDING WITHOUT ITS
+  RATCHETS, and that is the shape rather than a coincidence: a registry
+  entry, a catalog inventory or a documented-symbol count is pinned in
+  several files at once, so one unmoved pin shows up as four or five red
+  files in four or five different shards. Reading the shard list as
+  "twelve independent problems" is what made this look worse than it is.
+
+OF THE TWELVE UNATTRIBUTED, four were run here first because they were the
+most likely to belong to the theme work -- `test_preferences_tabs`,
+`test_the_memory_budget`, `test_opening_things_does_not_hang`,
+`test_cov_r5_app_screen`. ALL 80 TESTS IN THOSE FILES PASS LOCALLY, so each
+is environment, ordering within its shard, or already fixed between
+110911b97 and now. PASSING ALONE IS NOT FIXED and this file does not claim
+it is; it records which ones cannot be reproduced from their own file, so
+the next step for them is the shard rather than the test.
+
