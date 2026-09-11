@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
+    parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
@@ -71,6 +72,8 @@ def main() -> int:
         parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
     if args.classifier_existing_split and (args.module != 'classify_merged' or args.classifier_family != 'cv' or not args.run):
         parser.error('--classifier-existing-split requires --module classify_merged --classifier-family cv --run')
+    if args.classify_overview and (args.module != 'classify_merged' or args.run or args.download or args.classifier_existing_split):
+        parser.error('--classify-overview requires classify_merged without a run or download')
     if args.anndata_api_introduction and args.module != 'anndata_export':
         parser.error('--anndata-api-introduction requires --module anndata_export')
     if args.barcode_saved_plots and args.module != 'barcode_qc':
@@ -454,6 +457,9 @@ def main() -> int:
         from capture_feature_explorer import record_explorer
         record_explorer(app, window, stage, captures, capture,
                         settle, write_json, args.timeout)
+    elif args.classify_overview:
+        from capture_classify_overview import record_overview
+        record_overview(app, window, captures, capture, settle, write_json)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'agreement': 'annotate',
