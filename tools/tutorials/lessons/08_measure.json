@@ -2,79 +2,80 @@
   "id": "08_measure",
   "number": 8,
   "slug": "measure",
-  "title": "Measure: live crop filters, real measurements and saved outputs",
+  "title": "Measure: live field views, real measurements and saved outputs",
   "series": 1,
   "app_key": "measure",
   "section": "Core",
-  "description": "Use the downloadable sixteen-field example to inspect live crops, control filter propagation, preserve intensity information, run with Plot enabled and verify the saved measurements.",
+  "description": "Use the downloadable sixteen-field example to inspect live fields and channels, restore raw-crop settings, read quality warnings, run with Plot enabled and verify saved measurements.",
   "objectives": [
     "Load the current Measure example and distinguish intensity channels from label-mask planes.",
-    "Test crop filters live, decide whether settings propagate, and distinguish display normalization from irreversible saved-crop normalization.",
+    "Inspect fields and channels live, distinguish the view selector from shared crop settings, and restore normalization before the batch.",
     "Run the full example, inspect real figures and console output, and locate verified measurements and crop files.",
     "Find the nested Illumination, AnnData Export and Motility workflows and understand the limits of the AI console and stale-output warning."
   ],
-  "prerequisite": "Open Measure from Home/Core and use Load test data. This lesson uses sixteen 1994x1994 merged uint16 arrays, intensity planes 0–3 and mask planes 4/5/6 for cells/nuclei/pathogen objects. The actual full run uses Plot on, Test mode off, one worker, save_measurements and save_png on, normalize off, and 224x224 RGB cell crops. No voxel calibration is supplied; area values are in pixels squared, not square micrometres. In the recorded E02 field, the live area filter changes 27 displayed objects to 13 at 22,650 pixels, then restores 27 at 8,000. Displayed candidates are not a promise of the final measured-cell count. Independent output checks cover cell area and four-channel sums/means, including five source-supported label merges, not every measurement or biological accuracy. The full example produced 601 cell records and crops, 622 nuclei, 373 pathogen objects and 48 figures. This build adds hash_inputs and _intensity_rescale_plan at runtime, so the successor strip can falsely report stale outputs despite unchanged visible settings. Automatic handoff is not certified; do not ignore arbitrary warnings. A separate test-mode diagnostic wrote its database under test/ but registered the root database; this lesson uses normal mode and checks the actual root output. API: spacr.measure.measure_crop. Nested Illumination and Motility have separate lessons; AnnData Export remains held after an independently reproduced export failure. No AI question is submitted, and no AI response, biological validation or publication is claimed.",
+  "prerequisite": "Open Measure from Home/Core and use Load test data. The measured subset is sixteen 1994x1994 merged uint16 arrays: intensity planes 0–3 and mask planes 4/5/6 for cells/nuclei/pathogen objects. Before the first Live preview, enable the main Normalize toggle; the panel initializes contrast at percentiles 1/99. Do not Run with that toggle on. Channel zero is a view-only choice, but the main Normalize setting also concerns saved crops. Turn Live off and restore Normalize off before running. The preview shows 27 objects in E02_1_1 and 15 in E02_9_1; channel changes preserve labels, areas and categories, and restoring All channels restores the original pixels. Preview and batch source arrays are byte-identical. Crop settings is oversized in this build; inaccessible normalization/propagation/filter-dialog scenes are deliberately not taught as usable. The background QC banner flags 3 failures and 16 warnings across 156 object-field records from the larger 52-field mask download, not just the 16 merged fields measured here. The data are illustrative, not certified clean. The full run uses Plot on, Test mode off, one worker, save_measurements/save_png on, normalize off and RGB224x224 cell crops. With no voxel calibration, areas are pixels squared. Independent checks cover 5409 area/intensity values including five source-supported label merges, not every feature or biological correctness. Outputs: 601 cell records/crops, 622 nuclei, 373 pathogen objects, 48 saved plots (47 in the GUI queue). Runtime-added hash_inputs and _intensity_rescale_plan cause this run's stale-output warning; arbitrary warnings and automatic handoff are not certified safe. A separate test-mode run registered the wrong database path; this lesson uses verified normal-mode outputs. API: spacr.measure.measure_crop. See Illumination, Motility and AnnData Export separately; AnnData teaches an explicit API workaround, not a repaired GUI. No AI question is sent, no response is demonstrated, and no human listening approval or publication is claimed.",
   "scenes": [
     {
-      "visual": "01_module",
+      "visual": "preview_01_module",
       "narration": "Open Measure from the Core modules. It turns existing image arrays and object masks into measurements and crops; it does not create a new segmentation. Illumination, AnnData Export and Motility are nested workflows under this main module. Their separate lessons belong under Measure in the tutorial navigation.",
       "related_lessons": [
         "07_mask",
         "43_illumination",
-        "18_motility"
+        "18_motility",
+        "59_anndata_export"
       ],
       "hold_after": 0.7
     },
     {
-      "visual": "03_data_ready",
+      "visual": "preview_03_data_ready",
       "narration": "Choose Load test data and wait for the actual example to finish loading. This download supplies sixteen merged fields. Check the source folder and channel mapping: intensity channels zero to three, cell mask four, nucleus mask five, and pathogen mask six. Mask labels are not intensity measurements.",
       "hold_after": 0.7
     },
     {
-      "visual": "04_live_crops",
-      "narration": "Switch Live on to inspect crops before committing to a batch. Choose a merged array and inspect the grid and its categories. The displayed candidates include objects that later filters may exclude. The category names describe mask relationships; they are not independently reviewed biological annotations.",
+      "visual": "preview_04_preview_normalization_setup",
+      "narration": "Before opening Live for the first time, search for Normalize in the main settings and turn it on. This initializes a readable preview because the raw sixteen-bit crops look dark. This is also a saved-crop setting, not just a display preference. Do not press Run; we will restore it first.",
       "hold_after": 0.7
     },
     {
-      "visual": "06_normalised_crops",
-      "narration": "Open Crop settings and inspect Object crops. The example's raw intensities look dark, so the real normalization control makes the preview easier to inspect. Do not mistake a brighter preview for better data. Propagating this setting can also change how crops are saved; we will preserve the unnormalized batch output.",
+      "visual": "preview_05_live_all_channels",
+      "narration": "Switch Live on and paste the merged-array path for field E zero two, one, one. The grid shows twenty-seven candidates, grouped by mask relationships; scroll to inspect the remaining categories. These labels are not independently reviewed biological annotations, and displayed candidates are not a promise of the final measured-cell count.",
       "hold_after": 0.7
     },
     {
-      "visual": "08_crops_filtered",
-      "narration": "In Filter settings, change Cell minimum area from eight thousand to twenty-two thousand six hundred fifty. The displayed grid changes from twenty-seven objects to thirteen without changing the source array. These are pixel areas, not calibrated square micrometres. Try filters on representative fields, not just the most attractive image.",
+      "visual": "preview_06_live_channel_zero",
+      "narration": "Choose channel zero in the displayed-channel selector. The same twenty-seven objects now appear in grayscale; their labels, areas and categories are unchanged. Unlike the main Normalize setting, this selector changes only the preview view. Return to All channels to restore the original color pixels without changing the batch settings.",
       "hold_after": 0.7
     },
     {
-      "visual": "09_crops_propagated",
-      "narration": "With propagation off, preview changes stay separate from the main batch form. Turn propagation on only when you want these choices copied back. We verified both behaviours. Restore the original minimum area, confirm the original twenty-seven candidates return, and turn propagation off again.",
+      "visual": "preview_07_live_second_field",
+      "narration": "Use the field selector to open E zero two, nine, one. This field has fifteen displayed candidates: inspect more than one field before trusting an attractive image. Also read the red segmentation-quality banner. Its flagged masks come from the larger downloaded set; successful preview rendering does not resolve those warnings or certify clean data.",
       "hold_after": 0.7
     },
     {
-      "visual": "19_crop_normalization_warning",
-      "narration": "The application warns before saving normalized crops because per-crop rescaling can remove intensity differences that cannot be recovered from those files. We choose No: that attempt does not start a worker. Then we turn saved-crop normalization off. Keep original arrays for later streaming, display choices and reproducible reanalysis.",
+      "visual": "preview_08_saved_normalization_restored",
+      "narration": "Turn Live off, search for Normalize again, and switch it off before running. We verified that all batch settings return to their original values and both source arrays remain unchanged. Per-crop normalization can remove intensity differences from saved images. Keep the original arrays; this lesson does not use the oversized Crop settings dialog.",
       "related_lessons": [
         "09_annotate"
       ],
       "hold_after": 0.7
     },
     {
-      "visual": "20_batch_settings",
+      "visual": "batch_20_batch_settings",
       "narration": "Keep Plot enabled, save measurements and crops, and use one worker for this demonstration. Test mode is off: this run processes all sixteen example fields into the main project output. A short test uses a separate test folder in this build, so do not confuse its database with the full-run result.",
       "hold_after": 0.7
     },
     {
-      "visual": "26_measure_console_complete",
+      "visual": "batch_26_measure_console_complete",
       "narration": "Press Run and follow the console. Check the attempted, succeeded and failed counts, not merely the presence of a finished message. Here all sixteen fields succeeded. Large plots can trigger an explicit export-resolution limit; read that warning as well. A successfully completed computation is not a biological quality certificate.",
       "hold_after": 0.7
     },
     {
-      "visual": "25_measure_figure_00",
+      "visual": "batch_25_measure_figure_00",
       "narration": "Use the figure list to inspect the actual before-filtering and after-filtering views. Drag the divider to give the figures more room. Size filters and parent-child merging can change which labels are measured. In this example, five saved cell objects combine source labels connected by a shared nucleus or pathogen mask.",
       "hold_after": 0.7
     },
     {
-      "visual": "25_measure_figure_02",
+      "visual": "batch_25_measure_figure_02",
       "narration": "Inspect the crop figure too, then keep the measurements database and its image paths together. This run saved six hundred one cell records and matching crops. Independent pixel checks verified area and four-channel intensity sums and means, including those merges; this does not validate every feature or the segmentation's biological correctness.",
       "related_lessons": [
         "09_annotate",
@@ -83,17 +84,18 @@
       "hold_after": 0.7
     },
     {
-      "visual": "24_batch_figure",
+      "visual": "batch_24_batch_figure",
       "narration": "This build can still display a stale-output warning after a successful run with unchanged visible settings. We traced this example to runtime-added metadata, but have not fixed the application. Verify the actual saved run and settings before continuing; do not dismiss other warnings or assume that automatic handoff has been validated. Also check the files: this recording's figure queue showed forty-seven of forty-eight saved plots.",
       "hold_after": 0.7
     },
     {
-      "visual": "30_ai_unsent_question",
+      "visual": "batch_30_ai_unsent_question",
       "narration": "The console also offers optional spaCR AI assistance. Here we enable the toggle and prepare a question without sending it, so no answer or external analysis is demonstrated. Treat any later response as advice to verify against the settings, API and saved results. Use the separate nested-workflow lessons for the next task.",
       "related_lessons": [
         "06_api",
         "43_illumination",
-        "18_motility"
+        "18_motility",
+        "59_anndata_export"
       ],
       "hold_after": 0.7
     }

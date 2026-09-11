@@ -8,8 +8,8 @@ import tempfile
 from stage_lesson import DEFAULT_STAGE
 
 
-def launch(module, name, option, timeout):
-    stage = DEFAULT_STAGE.resolve()
+def launch(module, name, option, timeout, *, stage=DEFAULT_STAGE):
+    stage = Path(stage).resolve()
     if (stage / 'captures' / name).exists():
         raise FileExistsError('Preserve the previous recording; use a new named run')
     env = dict(os.environ); root = stage / 'desktop' / name
@@ -26,7 +26,8 @@ def launch(module, name, option, timeout):
                OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2', MKL_NUM_THREADS='2')
     command = ['xvfb-run','-a','-s','-screen 0 3840x2160x24','dbus-run-session','--',
                sys.executable,str(Path(__file__).with_name('capture_refresh.py')),
-               '--module',module,'--capture-name',name,option,
+               '--module',module,'--capture-name',name,
+               *([option] if isinstance(option, str) else option),
                '--stage',str(stage),'--platform','xcb','--timeout',str(timeout)]
     return subprocess.run(command, env=env, timeout=timeout + 60).returncode
 

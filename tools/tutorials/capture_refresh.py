@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
+    parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
     parser.add_argument('--barcode-saved-plots', action='store_true', help='Show independently verified Barcode QC PNGs in the actual external viewer; no claim of GUI figure repair')
     parser.add_argument('--activation-saved-plots', action='store_true', help='Show independently verified Activation PNG grids in the real external viewer; does not certify GUI figures')
@@ -65,6 +66,8 @@ def main() -> int:
         parser.error('--preview-variants requires --preview')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
+    if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
+        parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
     if args.anndata_api_introduction and args.module != 'anndata_export':
         parser.error('--anndata-api-introduction requires --module anndata_export')
     if args.barcode_saved_plots and args.module != 'barcode_qc':
@@ -659,6 +662,10 @@ def main() -> int:
                 write_json(captures / 'dataset.json', {
                     'image_count': len(images), 'images': [p.name for p in images],
                     'bytes': sum(p.stat().st_size for p in images)})
+        if args.measure_preview_controls:
+            from capture_measure_controls import record_controls
+            record_controls(app, window, screen, captures, capture, settle,
+                            write_json, args.timeout)
         if args.preview and args.module == 'measure':
             import numpy as np
             # Native panel resizing, not screenshot enlargement: leave enough
