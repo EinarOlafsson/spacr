@@ -225,7 +225,15 @@ UNKNOWN = "unknown"
 #: tuple and raises on anything else, so an entry naming a kind that is not
 #: here fails at construction rather than being quietly filed as a Cellpose
 #: model and handed to CellposeModel later.
-KINDS = ("cellpose", "classifier", "detector")
+KINDS = ("cellpose", "classifier", "detector", "encoder")
+
+#: ``encoder`` is 386's kind: a self-supervised backbone that produces an
+#: EMBEDDING rather than a mask or a label. It belongs in the zoo for the
+#: reason 386 gives -- "an embedding that ships without one is a black box
+#: twice over" -- and it is a separate kind because nothing that consumes a
+#: classifier can consume one. Its weights are resolved by `timm` from the
+#: HuggingFace hub rather than shipped, so its entry describes a download
+#: that already happened; see :func:`spacr.embeddings.encoder_entry`.
 
 #: Filename endings that mark a Cellpose checkpoint. ``.CP_model`` is what
 #: :func:`spacr.submodules.train_cellpose` names its output.

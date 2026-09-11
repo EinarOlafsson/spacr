@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -53,6 +54,7 @@ __all__ = [
     "EMBEDDING_PREFIX", "DEFAULT_BACKBONE", "DEFAULT_POOL",
     "EmbeddingSpec", "EmbeddingResult",
     "embedding_column_names", "embed_array", "channel_of_column",
+    "ENCODER_KEY_PREFIX", "encoder_key", "encoder_entry",
 ]
 
 LOG = logging.getLogger("spacr.embeddings")
@@ -331,3 +333,134 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
         return np.concatenate(out, axis=0)
 
     return run
+
+
+# ---------------------------------------------------------------------------
+# The zoo entry: what produced these numbers, and can it be reproduced
+# ---------------------------------------------------------------------------
+
+#: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
+#: filename-derived key because an encoder has no file of spaCR's own -- it is
+#: named by backbone and policy, which together are what a later run must
+#: match for its numbers to be comparable.
+ENCODER_KEY_PREFIX = "encoder:"
+
+
+def encoder_key(spec: "EmbeddingSpec") -> str:
+    """The stable id for one encoder configuration.
+
+    BACKBONE AND POLICY TOGETHER, because they are jointly what makes two
+    runs' dimensions mean the same thing. The same backbone under
+    :data:`CHANNEL_PER_CHANNEL` and :data:`CHANNEL_PROJECT` produces columns
+    that are the same width, the same dtype and not remotely the same
+    quantity -- one is per-stain, the other is a mixture. A key that named
+    only the backbone would let those two be compared silently.
+    """
+    return f"{ENCODER_KEY_PREFIX}{spec.backbone}/{spec.channel_policy}"
+
+
+def _weights_on_disk(backbone: str) -> Tuple[str, str, int]:
+    """Find the cached weights ``timm`` resolved, and hash them.
+
+    :returns: ``(path, sha256, size_bytes)``; the path is ``''`` and the
+        digest ``''`` when the weights are not on this machine.
+
+    HASHES WHAT IS ACTUALLY THERE rather than trusting a published digest,
+    which is the same rule :class:`spacr.model_zoo.ModelEntry` states for a
+    downloaded model: "for a downloaded model this is the digest of the bytes
+    that were actually written". A pretrained encoder arrives through the
+    HuggingFace cache, so the bytes on this machine are the only thing that
+    can be checked here.
+    """
+    import hashlib
+
+    try:
+        import timm
+        from huggingface_hub import try_to_load_from_cache
+    except Exception:
+        return "", "", 0
+
+    try:
+        config = timm.get_pretrained_cfg(backbone)
+        repo = getattr(config, "hf_hub_id", None)
+        filename = getattr(config, "hf_hub_filename", None) or "model.safetensors"
+        if not repo:
+            return "", "", 0
+        path = try_to_load_from_cache(repo, filename)
+    except Exception:
+        return "", "", 0
+
+    if not path or not isinstance(path, str) or not os.path.exists(path):
+        return "", "", 0
+
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return path, digest.hexdigest(), os.path.getsize(path)
+
+
+def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
+                  scorecard: Optional[Mapping[str, Any]] = None):
+    """This encoder as a :class:`spacr.model_zoo.ModelEntry`.
+
+    386 STEP 3: "Register the encoder in `spacr/model_zoo.py` like any other
+    published model, with its checksum. Instruction 370's scorecard applies:
+    an embedding that ships without one is a black box twice over."
+
+    WHAT AN ENCODER'S PROVENANCE ACTUALLY IS. It has no spaCR checkpoint --
+    the weights are ImageNet or a public self-supervised run, resolved by
+    ``timm`` and cached by HuggingFace. So the entry records the backbone, the
+    channel policy, and the digest of the weights AS THEY SIT ON THIS MACHINE.
+    That is the thing a later run has to match, and it is checkable here
+    without a network call.
+
+    WHEN THE WEIGHTS ARE NOT CACHED the entry still exists and says so in its
+    notes, with an empty digest -- which
+    :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a
+    pass. An entry that quietly claimed a checksum it had not computed would
+    be worse than one that admits it cannot yet.
+
+    :param spec: the configuration to describe; the default spec when omitted.
+    :param scorecard: retrieval numbers from 386's "HOW TO KNOW IT WORKED" --
+        kNN accuracy on gene identity, embeddings versus the measured panel.
+        Attached as :attr:`ModelEntry.metrics`, which is where 370's
+        ``scorecard_lines`` reads them from.
+    :returns: a ``ModelEntry`` of kind ``'encoder'``.
+    """
+    from .model_zoo import UNKNOWN, ModelEntry
+
+    spec = spec if spec is not None else EmbeddingSpec()
+    path, digest, size = _weights_on_disk(spec.backbone)
+
+    notes = [
+        f"Channel policy: {spec.channel_policy}. Dimensions from one policy "
+        f"are not comparable with the other's.",
+    ]
+    if not digest:
+        notes.append(
+            "No checksum: the pretrained weights are not in this machine's "
+            "HuggingFace cache, so there are no bytes to hash yet. Run an "
+            "embedding once and re-read this entry.")
+    if scorecard is None:
+        notes.append(
+            "No scorecard. 386: an embedding that ships without one is a "
+            "black box twice over. Measure retrieval -- kNN accuracy on gene "
+            "identity against a known-phenotype control -- and attach it.")
+
+    return ModelEntry(
+        key=encoder_key(spec),
+        name=f"{spec.backbone} ({spec.channel_policy})",
+        kind="encoder",
+        source="local" if path else "remote",
+        path=path,
+        uri=f"timm:{spec.backbone}",
+        version="1",
+        sha256=digest,
+        size_bytes=size,
+        trained_on=UNKNOWN,
+        trained_by=f"timm / {spec.backbone} pretrained weights",
+        metrics=dict(scorecard or {}),
+        notes=tuple(notes),
+        verified=False,
+    )
