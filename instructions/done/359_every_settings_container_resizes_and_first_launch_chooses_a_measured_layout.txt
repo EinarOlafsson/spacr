@@ -427,3 +427,91 @@ evidence no longer holds.
 Seven tests in `tests/qt/test_the_first_run_layout_is_decided_once.py`,
 including that the second launch does not call `recommended_window_size` at
 all.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE DPI AXIS IS NOT AN UNTESTED GAP. IT IS A NON-AXIS.
+--------------------------------------------------------------------------------
+
+THE RECORDED REASON WAS WRONG AND IT WAS MINE. This file said:
+"`devicePixelRatio` is not something an offscreen platform lets a test set
+per case, and faking it would measure the fake." Both halves are false.
+
+QT SETS IT FROM THE ENVIRONMENT, offscreen included:
+
+    QT_SCALE_FACTOR=1  ->  devicePixelRatio 1.00, available 800x800
+    QT_SCALE_FACTOR=2  ->  devicePixelRatio 2.00, available 400x400
+
+That is not a fake. It is the same mechanism a real 2x display uses, and
+Qt halves the LOGICAL geometry exactly as a Retina panel does. A matrix
+over it needs one process per ratio, which the harness already is.
+
+SO THE MATRIX WAS RUN AT BOTH, 192 cases each, twelve minutes each:
+
+    rows             identical
+    minimum_width    identical   {1.0: 2100, 2.0: 2560}
+    unfixable        identical   28 cases
+    matrix           identical
+    differing rows   0 of 192
+
+BYTE-IDENTICAL, and the reason is worth more than the result. Qt lays out
+in LOGICAL pixels. `devicePixelRatio` decides how many physical pixels one
+logical pixel becomes -- it changes what the panel draws, not what the
+layout computes. Font metrics, size hints, splitter arithmetic and the
+sideways-scroll test are all logical, so none of them can move with it.
+
+    WHAT DOES CHANGE ON A RETINA PANEL IS THE AVAILABLE GEOMETRY IN
+    LOGICAL PIXELS -- 800 becomes 400 above -- and that axis the matrix
+    has always covered, because it sweeps width from 400 to 2560. The
+    "DPI axis" was the width axis wearing a different name.
+
+THIS POINT IS CLOSED, and not by deciding it was too hard. It was measured
+and it has no effect. The honest correction is that this file asked for an
+axis that does not exist, and the thing it should have asked for -- narrow
+logical widths -- was already in the harness on the day it was written.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. ALL FOUR REMAINING POINTS ARE ANSWERED.
+--------------------------------------------------------------------------------
+
+  1. REGRESSION CANNOT BE FIXED BY A WINDOW SIZE -- ANSWERED BY THE
+     MAINTAINER, on the M4, with the arithmetic in front of him: "the
+     settings container contents are not to thin ... if the container goes
+     below this width the contents stay and a horizontal scroll bar
+     apears." The content is not being squeezed. The three fixes this file
+     proposed were three ways to stop a squeeze that is not happening.
+
+  2. THE DPI / DEVICE-PIXEL-RATIO AXIS -- MEASURED, above, and it has no
+     effect: 192 cases at ratio 1 and ratio 2 are byte-identical, because
+     Qt lays out in logical pixels. The axis this file asked for does not
+     exist; the one that matters is narrow logical widths, which the
+     harness has swept from the day it was written.
+
+  3. FIRST-RUN SELECTION STORES NOTHING -- DONE. The width is resolved
+     once and recorded with the geometry and font scale that justified it,
+     and re-derived only when that evidence stops holding. Seven tests.
+
+  4. THE REAL M4 SMOKE TEST -- SERVED BY POINT 1. It is an M4 observation,
+     made by the person who filed the original report, about the exact
+     screen the report was about. No simulation closes it and none had to:
+     he looked.
+
+AND THE ORIGINAL REQUEST, point by point, is met:
+
+  * "fields must expand with the container" -- the field-growth policy
+    shipped for issue 115; `AllNonFixedFieldsGrow` is named explicitly in
+    `widgets/section.py` so the platform style cannot choose otherwise.
+  * "every module must initially open wide enough that the right side of
+    its settings is not cut off" -- `_open_at_the_measured_width`, from a
+    generated policy artifact measured over 192 cases, now recorded once
+    with its evidence.
+  * "simulate screen/window/font sizes, measure cutoff, ship the
+    resulting display map" -- `spacr/resources/layout_policy.json`, 192
+    cases, shipped in the wheel.
+  * "use first-run display metrics to select spaCR's best defaults" --
+    the same call, clamped to available geometry and only ever growing.
+
+WHAT THIS FILE LEAVES BEHIND, deliberately, is the 28 `unfixable` cases in
+the artifact. They are NOT a bug count: they are settings columns that
+scroll sideways rather than squeeze their content, which is the behaviour
+the maintainer looked at and accepted. The harness stays because it is how
+anyone would notice the day content stops fitting its own minimum.
