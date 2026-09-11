@@ -1,0 +1,140 @@
+================================================================================
+THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
+================================================================================
+
+Status:    OPEN AND ACTIONABLE, filed 2026-09-10. Nothing gates it. SMALL --
+           the engine already does the right thing; only the GUI's proposal
+           step insists on the filenames.
+Requested: 2026-09-10, verbatim -- "in the regression model as it is now the
+           user must name their count and score csvs starting with the plate
+           name. this is impractical and the user should be able to drag and
+           drop any file into any slot regardlett of nameing. if they do
+           share a name it can be used if the files do not the name should be
+           generated, first row plate 1 second row plate 2 and so on"
+Owner:     `spacr/qt/widgets/file_list.py` -- `suggest_file_pairs`,
+           `_plate_label`, `_best_unique`, `PairedFileTableWidget`.
+
+--------------------------------------------------------------------------------
+THE ENGINE IS ALREADY RIGHT, AND THAT IS THE POINT
+--------------------------------------------------------------------------------
+
+`load_regression_input_pairs` in `spacr/ml.py` says so in its own first line:
+"Read paired inputs and resolve plate identity WITHOUT FILENAME GUESSES.
+Resolution order is own column, partner column, then pair-row order."
+
+So the analysis layer already accepts what the maintainer is asking for --
+row order as the last resort, no filename involved. The `paired_data`
+documentation states the same contract: "Plate identity comes from both files
+when they agree, from the partner when only one declares plateID, or from the
+row order when neither does. A conflict is refused."
+
+WHAT INSISTS ON THE FILENAME IS THE PROPOSAL STEP IN THE GUI, one layer
+above, and it never got the memo. No engine change is expected here; a change
+there would be a second source of plate identity, which the code at
+`spacr/ml.py:8528` explicitly says must not exist.
+
+--------------------------------------------------------------------------------
+THE TWO CONSTRAINTS, EXACTLY
+--------------------------------------------------------------------------------
+
+Both are in `spacr/qt/widgets/file_list.py`.
+
+ONE: PAIRING REQUIRES A SHARED FILENAME TOKEN. `suggest_file_pairs` matches
+each score against the counts through `_best_unique`, which requires a token
+overlap that strictly beats the runner-up. With no overlap, `match is None`
+and the score gets a row whose count cell is empty; every unmatched count
+then gets a row of its own at the bottom with an empty score cell.
+
+So a user with `scores.csv` and `counts.csv` -- two perfectly ordinary names
+that share nothing -- does not get one row with a blank plate. They get TWO
+half-empty rows and no indication that the two files were meant to go
+together. The table is editable, so it is recoverable, but the user has to
+know to recover it.
+
+TWO: THE PLATE LABEL MUST LITERALLY START WITH "plate".
+
+    def _plate_label(tokens) -> str:
+        """The longest ``plate...`` token, which is what names the row."""
+        plates = sorted((token for token in tokens if token.startswith("plate")),
+                        key=len, reverse=True)
+        return plates[0] if plates else ""
+
+Two files that DO share a token still get a blank plate cell unless that
+token begins with the five letters `plate`. `exp42_scores.csv` and
+`exp42_counts.csv` pair correctly and are labelled with nothing. That is the
+narrower half of the complaint and it is the easier half to miss, because the
+pairing looks like it worked.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. PAIR BY POSITION WHEN TOKENS DO NOT DECIDE. After the token pass has taken
+   the unambiguous matches, pair what is left over in order: the first unused
+   score with the first unused count, and so on. The token pass keeps
+   priority -- a user who DID name their files carefully must not have that
+   overridden by arrival order.
+
+2. GENERATE THE PLATE LABEL FROM THE ROW when the filenames do not supply
+   one: `plate 1`, `plate 2`, in row order, exactly as asked. This applies to
+   both constraints above -- a row paired by token whose shared token is not
+   a `plate...` token also gets a generated label rather than a blank cell.
+
+3. A GENERATED LABEL MUST NOT BE MISTAKEN FOR A PARSED ONE. It is a default
+   the user is expected to overwrite, and it must be re-generated when rows
+   are reordered or removed -- a row labelled `plate 2` sitting first after a
+   deletion is worse than a blank cell, because it reads as a fact. Decide
+   whether a user's manual edit pins the label (it should) and make the
+   pinned/generated distinction survive `_repropose`, which rebuilds every
+   row from scratch and would otherwise discard it. `_apply_pinned` is the
+   existing precedent for exactly this problem with the database column.
+
+4. CHECK WHAT "ANY FILE INTO ANY SLOT" ALREADY DOES BEFORE CHANGING IT. The
+   drop router in `spacr/qt/dnd.py` classifies a dropped CSV by its HEADER,
+   not its name -- `side_for_header` -- and calls `add_paths_for_side`, so
+   a count table dropped anywhere on the widget already reaches the count
+   column whatever it is called. That half may need nothing. Confirm it
+   rather than assuming it, and if the maintainer meant dropping onto a
+   SPECIFIC CELL of a specific row, that is a distinct capability and should
+   be scoped separately.
+
+--------------------------------------------------------------------------------
+THE RISK, WHICH IS REAL AND IS NOT A REASON NOT TO DO IT
+--------------------------------------------------------------------------------
+
+Positional pairing can silently marry plate A's scores to plate B's counts.
+Today's behaviour refuses to guess and leaves two half-empty rows, which is
+safe and unhelpful; the requested behaviour guesses, which is helpful and can
+be wrong.
+
+Three things keep it honest, and all three already exist in some form:
+
+  * THE TABLE IS THE CONTRACT, not the proposal. `suggest_file_pairs` says so
+    already: "A proposal is never authoritative: the editable table is the
+    contract the user confirms." Keep that true -- a positionally paired row
+    must be as visible and as editable as a token-paired one.
+  * THE ENGINE STILL REFUSES CONFLICTS. If both files declare a `plateID`
+    and they disagree, `load_regression_input_pairs` refuses. Positional
+    pairing at the GUI layer cannot defeat that, which is the safety net
+    that makes guessing acceptable here.
+  * SAY WHICH HAPPENED. A row paired by a shared token and a row paired by
+    position are different claims. The user should be able to see which one
+    they are looking at without opening the files.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Dropping `scores.csv` and `counts.csv` -- sharing no token at all --
+    produces ONE row, paired, labelled `plate 1`.
+  * Dropping four such files produces two rows, `plate 1` and `plate 2`, in
+    the order they were added.
+  * `exp42_scores.csv` + `exp42_counts.csv` still pair by their shared token
+    AND now carry a label rather than a blank cell.
+  * `plate1_score.csv`, `plate2_score.csv` and their two counts still pair by
+    token and keep the plate names from the filenames -- the existing
+    behaviour is not regressed by the new fallback.
+  * A user's typed plate name survives adding another file, which triggers
+    `_repropose`.
+  * Deleting the first of three rows does not leave a row labelled `plate 2`
+    at the top.
