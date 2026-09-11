@@ -480,3 +480,58 @@ be compiled, run or looked at on this machine, and a GL change whose
 correctness is visual is the wrong thing to write untested. The arithmetic
 it should call is already extracted and tested (`target_render_size`), so
 the missing part is the plumbing and the eye.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE GPU NUMBERS THIS ITEM HAS BEEN WAITING FOR, AND THEY CLOSE
+THE REMAINING WORK RATHER THAN STARTING IT
+--------------------------------------------------------------------------------
+
+"WHAT IS LEFT, AND IT NEEDS A GPU" asks for render-to-texture on the GPU
+path: an FBO at `target_render_size`, the fragment shader drawn into it, a
+full-screen textured quad blitted back -- "a new pass, a second shader
+program and a resize-time allocation". It was deferred because the machine
+had no GPU to compile it on.
+
+THERE IS ONE. `tools/measure_the_backdrop.py` ran against an NVIDIA GeForce
+RTX 3090 Ti through a real GL context, two seconds per row:
+
+    shader        panel        windowed     2560x1440    3840x2160
+    orbit_gpu     0.19 ms      0.51 ms      1.15 ms      2.56 ms
+    cascade       0.11 ms      0.28 ms      0.61 ms      1.34 ms
+    orbit shared  0.12 ms      0.30 ms      0.66 ms      1.46 ms
+    space         0.38 ms      0.99 ms      2.19 ms      4.87 ms
+
+AT 4K THE SLOWEST GPU SHADER IS 4.87 ms, which is 205 fps against a 33.3 ms
+budget. The fastest is 1.34 ms. Every one of them has between seven and
+twenty-five times the headroom it needs.
+
+    SO RESOLUTION SCALING ON THE GPU PATH WOULD OPTIMISE SOMETHING THAT IS
+    ALREADY 6x TO 25x INSIDE ITS BUDGET. The FBO, the second program and
+    the resize-time allocation buy nothing a user could perceive, and they
+    add a failure surface to the one path that currently cannot fail that
+    way. NOT WORTH DOING. That is a stronger answer than "still blocked",
+    and it is the one the measurement gives.
+
+WHAT THE SAME RUN SAYS ABOUT WHERE THE CHOPPINESS IS. The CPU fold on 19
+threads, same machine, same sizes:
+
+    scale 1.00   panel 4.20 ms   windowed 13.86 ms   2560x1440 32.88 ms
+                 3840x2160 68.51 ms   OVER BUDGET
+    scale 0.58   panel 1.53 ms   windowed  4.37 ms   2560x1440  9.91 ms
+                 3840x2160 22.42 ms   within budget
+
+  THE CPU PATH AT 4K IS 68.5 ms A FRAME, 14.6 fps, and the adaptive scale
+  is what rescues it -- exactly the lever this item already found
+  disconnected. The GPU path is 2.56 ms for the same picture. A 27x gap.
+
+  THIS ITEM'S OPENING COMPLAINT -- "the fullscreen mode fractal is super
+  choppy while the normal background one is super smoothe" -- is therefore
+  a CPU-path or a compositing story, not a shader one. Anyone reading this
+  file for what to do next should start from the 68.51 ms and the
+  disconnected scale, and should not spend a day on the FBO.
+
+MEASURED FROM A LOCKED SESSION, which is fine for this and not for
+everything: the GL context, the shader compile and the frame timing are
+numbers the driver returns, and none of them needs anybody to look at the
+screen. What DOES need looking at is instruction 381's pixel check, and
+`tools/can_this_display_be_measured.py` exists to say so in five seconds.
