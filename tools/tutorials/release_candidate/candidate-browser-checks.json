@@ -1,0 +1,1283 @@
+{
+  "scope": "Candidate browser checks, not native-language listening or deployment",
+  "manifest_sha256": "241677dbb3fbe5a673f2c6cdd457df478a062f90fd6e3a111fa3b91fd8abc69e",
+  "placeholder_cases": [
+    {
+      "lesson": "12_map_barcodes",
+      "language": "en",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "en",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "en",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "en",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "en",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "es",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "es",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "es",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "es",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "es",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "fr",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "fr",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "fr",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "fr",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "fr",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "hi",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "hi",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "hi",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "hi",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "hi",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "it",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "it",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "it",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "it",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "it",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ja",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ja",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "ja",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ja",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "ja",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "pt-BR",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "pt-BR",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "pt-BR",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "pt-BR",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "pt-BR",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "zh-CN",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "zh-CN",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "zh-CN",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "zh-CN",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "zh-CN",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "da",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "da",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "da",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "da",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "da",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "de",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "de",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "de",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "de",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "de",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "is",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "is",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "is",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "is",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "is",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ko",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ko",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "ko",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "ko",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "ko",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "nb",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "nb",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "nb",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "nb",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "nb",
+      "passed": true
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "sv",
+      "passed": true
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "sv",
+      "passed": true
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "sv",
+      "passed": true
+    },
+    {
+      "lesson": "71_investigate_hit",
+      "language": "sv",
+      "passed": true
+    },
+    {
+      "lesson": "76_ops",
+      "language": "sv",
+      "passed": true
+    }
+  ],
+  "ready_playback_cases": [
+    {
+      "lesson": "01_pypi_github",
+      "audio_sha256": "59536101fed952887e965631932d451322b1f1342c2fbc3d6841d223f583fbce",
+      "clocks": {
+        "audio": 33.597952,
+        "video": 33.448614,
+        "expected": 33.597152528492785,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "02_conda_install",
+      "audio_sha256": "c42a5d7d2b6d34204b20c38cfa2a929265eeacd3761fc4ae42822d77b20f7630",
+      "clocks": {
+        "audio": 36.679125,
+        "video": 36.492361,
+        "expected": 36.67702829515606,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "03_pip_install",
+      "audio_sha256": "34d8cbef2ef81a8525e541f7fede5aa294a97d99a586acf34c28f3de064e9352",
+      "clocks": {
+        "audio": 31.549237,
+        "video": 31.583876,
+        "expected": 31.549237,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "04_platform_installers",
+      "audio_sha256": "2c648f36f3faeff3e97d5c99e81680c633ba7e35a953f05bb6c3c724dd4aa5b3",
+      "clocks": {
+        "audio": 42.4284,
+        "video": 42.384811,
+        "expected": 42.430486061261625,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "05_home",
+      "audio_sha256": "4d2ad81164d9e59c5c6c37b44ceeb7ae67ac1e7ddacefa61404526abab421b82",
+      "clocks": {
+        "audio": 29.895212,
+        "video": 29.774832,
+        "expected": 29.893183968523168,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "06_api",
+      "audio_sha256": "159113d6c25fc36462750020b254bbe8899e50233a89f2dd1d9a7290c59cf698",
+      "clocks": {
+        "audio": 37.895819,
+        "video": 37.956405,
+        "expected": 37.89243205165084,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "07_mask",
+      "audio_sha256": "a7005a5b8b6e61a5afeb8fe7e04081e6296b03f9f8937f6b3f7a2dca08246391",
+      "clocks": {
+        "audio": 43.070799,
+        "video": 43.150797,
+        "expected": 43.07015616184833,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "08_measure",
+      "audio_sha256": "17db122871a9da8ac6c7fa892a947aca62f7ffb1a19a3d5e91f3d29476a9761f",
+      "clocks": {
+        "audio": 40.457637,
+        "video": 40.332258,
+        "expected": 40.46006737461121,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "09_annotate",
+      "audio_sha256": "7f333a50fd497d7714a2fa7717e432a491499879c0841598ae605fa8bca6866d",
+      "clocks": {
+        "audio": 34.706138,
+        "video": 34.734289,
+        "expected": 34.70662959532005,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "10_classify_cv",
+      "audio_sha256": "c2015289967b7a5b54425a04bb5de27a7a69de3ccb9c83057d2d610456d0d315",
+      "clocks": {
+        "audio": 44.249968,
+        "video": 44.282639,
+        "expected": 44.25228239205769,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "11_classify_ml",
+      "audio_sha256": "d1d02e39b95d8e2f94e1f5c5bfd848f94f489871863a678714ecfd17620d263d",
+      "clocks": {
+        "audio": 39.053228,
+        "video": 39.040066,
+        "expected": 39.05096054367575,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "13_regression",
+      "audio_sha256": "86c73f5966642d96e3a284b7d72fc5b926f2767d8e6c540a19770ae053419b71",
+      "clocks": {
+        "audio": 31.451281,
+        "video": 31.362799,
+        "expected": 31.450338539982724,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "14_make_masks",
+      "audio_sha256": "2640a52b41eeefc9e7c81fe2114483f3cf4f336fc3a672c18aa94229ae12232e",
+      "clocks": {
+        "audio": 36.613446,
+        "video": 36.600702,
+        "expected": 36.613127268797456,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "15_image_umap",
+      "audio_sha256": "de76dfa8b024d6822bd8bd6e8699ade89341b52ca843dce98aca6bf3c7de29c0",
+      "clocks": {
+        "audio": 33.312637,
+        "video": 33.161826,
+        "expected": 33.311733005197034,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "16_activation",
+      "audio_sha256": "7d82db338c340fc07f019e865b8998c3ba0f4b8ee25260df4d5c73853ee92193",
+      "clocks": {
+        "audio": 43.931482,
+        "video": 43.983256,
+        "expected": 43.931211699815485,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "17_timelapse",
+      "audio_sha256": "712a21a680f4e8fbcb8b2a92189761a47ddef7f2d245e3dffa2bed9be3ddf146",
+      "clocks": {
+        "audio": 32.354436,
+        "video": 32.418755,
+        "expected": 32.354436,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "18_motility",
+      "audio_sha256": "3667e8942a445f04bebb7fa71d151f8da1690a8a178784785f792607e5737228",
+      "clocks": {
+        "audio": 34.328805,
+        "video": 34.416807,
+        "expected": 34.32922856608694,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "19_train_cellpose",
+      "audio_sha256": "3560db8d365079cc829442874e1a88724a49e3152f81f477c61c8cb47a46a68a",
+      "clocks": {
+        "audio": 39.330367,
+        "video": 39.242774,
+        "expected": 39.32927643455004,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "audio_sha256": "019211f20395e7d3f933fa9ab0817f1e0aaf6340cc0f6ba0c974bac1b8da2c47",
+      "clocks": {
+        "audio": 40.424793,
+        "video": 40.310006,
+        "expected": 40.425702260059836,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "23_agreement",
+      "audio_sha256": "435f49e386d252ce6e328d0e2562adc851f7cd1b0ef1b69f1202e7e5644e5b97",
+      "clocks": {
+        "audio": 34.743257,
+        "video": 34.735041,
+        "expected": 34.746485691744745,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "24_plaque",
+      "audio_sha256": "03208b89f042543e641cb1450e2ef58210ae7c45750a331349bff8d723a52055",
+      "clocks": {
+        "audio": 38.193917,
+        "video": 38.159544,
+        "expected": 38.194137259317586,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "25_recruitment",
+      "audio_sha256": "a5c71a0e061e2db16c7031b65908c33bbdcb826a3ffb87af59e99cac864854b0",
+      "clocks": {
+        "audio": 36.936585,
+        "video": 36.961095,
+        "expected": 36.93527337807606,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "26_invasion",
+      "audio_sha256": "d6f8b4b7dba66e4a91bfa812d3cbdfcb88f4c45a721c8467b0eeb0990360874a",
+      "clocks": {
+        "audio": 40.808142,
+        "video": 40.712063,
+        "expected": 40.80942752782265,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "27_replication",
+      "audio_sha256": "ac6454cf7c8aafa28bb5bcdde20d642f167f4f7308a468d4d3cd04233b02d976",
+      "clocks": {
+        "audio": 37.150078,
+        "video": 37.164766,
+        "expected": 37.151485623507895,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "28_training_runs",
+      "audio_sha256": "9b1bdd4943c973f8ad6d3cee931352a08ec6931f6974c85549d7748bdf99247b",
+      "clocks": {
+        "audio": 39.771462,
+        "video": 39.721502,
+        "expected": 39.772828937140865,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "29_report",
+      "audio_sha256": "358f72c38913be4cc164301dbc95d1ede2a3010288e34ce2dbbb0fa9bd210173",
+      "clocks": {
+        "audio": 33.260603,
+        "video": 33.322884,
+        "expected": 33.259745305097084,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "30_plate_queue",
+      "audio_sha256": "66017cb9504b83ff4982ea58357ba3a5ef74f1af76d43bbbe99ecf0b0451652a",
+      "clocks": {
+        "audio": 39.308555,
+        "video": 39.259298,
+        "expected": 39.30541558980912,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "31_external_masks",
+      "audio_sha256": "0ecd0e460c4d0c7da64442b0f886b41f22d54f641c85ab2dcf5957e8bbc48e14",
+      "clocks": {
+        "audio": 40.33978,
+        "video": 40.370012,
+        "expected": 40.338927168558804,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "32_align_stitch",
+      "audio_sha256": "1bc56f733b1e1f118f53a4bfea200d8408ff9d47b434ddf84a4a011d1500a66b",
+      "clocks": {
+        "audio": 35.999925,
+        "video": 35.975515,
+        "expected": 36.002538930706486,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "audio_sha256": "c65ed86250c34d45c25ac6dfc34cab30a9ceb7da45aa8efad2d4e55d792e4985",
+      "clocks": {
+        "audio": 13.226089,
+        "video": 13.196593,
+        "expected": 13.224771791654218,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "34_database",
+      "audio_sha256": "8ffb60c5213e1463ba38802e4ae3e6a25727c93948456ca508a39eccaa963c52",
+      "clocks": {
+        "audio": 11.442787,
+        "video": 11.34747,
+        "expected": 11.443201091521308,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "35_converter",
+      "audio_sha256": "eb395646a48eb633471f54bea415a3adf849f3f125631500f85c13acad0843fc",
+      "clocks": {
+        "audio": 39.219162,
+        "video": 39.239332,
+        "expected": 39.220649282712955,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "36_import",
+      "audio_sha256": "dc833380a39006cf253caf220dc3cf38695b998e5509aedb2fe7b8cc0f0134ff",
+      "clocks": {
+        "audio": 34.589899,
+        "video": 34.437988,
+        "expected": 34.59066857504049,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "37_batch",
+      "audio_sha256": "dd75e025f73832e2b013c46eb3610b1b41e7477628045edfd7eaa771db52a0ff",
+      "clocks": {
+        "audio": 36.726388,
+        "video": 36.744016,
+        "expected": 36.72464153372273,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "audio_sha256": "4d08e8f6ad7f07c58d3151493c920a4d94c576ea8ecbf5f4735691c5da1cd9e2",
+      "clocks": {
+        "audio": 40.747088,
+        "video": 40.690751,
+        "expected": 40.749019155889684,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "39_classifier_evaluation",
+      "audio_sha256": "811da405e507c452fc2b25df2e8b6c9861a83b7298835195b5365f8ace1c666a",
+      "clocks": {
+        "audio": 35.437228,
+        "video": 35.523199,
+        "expected": 35.43655378855044,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "40_run_history",
+      "audio_sha256": "f70070ad51e3fafd90160c2209181c3b604da40980ab5ac220ea388a556fa24d",
+      "clocks": {
+        "audio": 36.82004,
+        "video": 36.893648,
+        "expected": 36.81858299236278,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "41_classify",
+      "audio_sha256": "fd9c2e1c7ab6b6dd84ffa7ab609c3311b641a4cbb73fe6ca0c23674ce049ac65",
+      "clocks": {
+        "audio": 39.402934,
+        "video": 39.389243,
+        "expected": 39.40321851558694,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "42_curate",
+      "audio_sha256": "f4e28b1c3fe55c1f25ed528abbe2d438d4016f3c28b7d04f54413aff5463052e",
+      "clocks": {
+        "audio": 43.119631,
+        "video": 43.204583,
+        "expected": 43.119943571151595,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "43_illumination",
+      "audio_sha256": "acb4bcc2c45aae28cab8be8c67ec4ca6868a3f999de17e11148e51973675fa45",
+      "clocks": {
+        "audio": 35.229416,
+        "video": 35.276694,
+        "expected": 35.2279352124753,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "44_data_manager",
+      "audio_sha256": "1d2262536c298b8a9e768ae6b220033df5320816dfc44e7d885a3ec8260b2b12",
+      "clocks": {
+        "audio": 38.756138,
+        "video": 38.733728,
+        "expected": 38.75586566884293,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "45_project_browser",
+      "audio_sha256": "7f7e6ed7be5a83dd4ef7d431e11a2f08ec49768891e2f6f05252869ebb3aa1d1",
+      "clocks": {
+        "audio": 33.859754,
+        "video": 33.745664,
+        "expected": 33.857650112871276,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "46_napari_bridge",
+      "audio_sha256": "545e2fa5e687e3e9fa935db921bcfe2ef48e76d7a95af00d3c376e1b2dd462db",
+      "clocks": {
+        "audio": 41.005854,
+        "video": 40.873319,
+        "expected": 41.007053036638496,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "47_barcode_qc",
+      "audio_sha256": "acec3d453bfe7dd09a2775e059ba0ae7cce1b5eb65400fa668f5086b72fdd6a6",
+      "clocks": {
+        "audio": 39.935622,
+        "video": 39.864498,
+        "expected": 39.93478933133171,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "48_hit_list",
+      "audio_sha256": "f92cd76c66cd70ec88771812552e83430c0245578855ecd70e9eb4adc226e7f5",
+      "clocks": {
+        "audio": 40.248918,
+        "video": 40.20736,
+        "expected": 40.24955399129424,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "49_methods_results",
+      "audio_sha256": "d8eb34d22a612ee1f694ee5d3850ab136d2c8d618ad473cb1ffcfadfb2c04606",
+      "clocks": {
+        "audio": 43.122017,
+        "video": 43.034352,
+        "expected": 43.119039240249315,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "50_run_compare",
+      "audio_sha256": "7ad3426a1c62eb15e57ada9feb99e31b6dbda7291ebfa3c74f2a232a40ba8022",
+      "clocks": {
+        "audio": 43.240788,
+        "video": 43.153433,
+        "expected": 43.24155163877711,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "51_control_charts",
+      "audio_sha256": "2893348c0b60856d59a002e317724c0f410fcda357ca3d1c910b004d51bf935a",
+      "clocks": {
+        "audio": 36.50975,
+        "video": 36.549548,
+        "expected": 36.5114278477692,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "52_pipeline_graph",
+      "audio_sha256": "bb2ee9ab29ebed4136b43712b11215765c74df99eb52094333eeecfc454d5c42",
+      "clocks": {
+        "audio": 40.737542,
+        "video": 40.735866,
+        "expected": 40.73470136531622,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "53_prediction_profiler",
+      "audio_sha256": "9f07b5987abd53890e15b929eac8266e8ff5a6d614863eda075ddd2f972d9a94",
+      "clocks": {
+        "audio": 42.181136,
+        "video": 42.115591,
+        "expected": 42.183719955862074,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "54_qc_dashboard",
+      "audio_sha256": "dd88adbf6d6c6800951ff7b4c89ea9f29413416e07c22b5ca9d3ba4b38f5739e",
+      "clocks": {
+        "audio": 35.715701,
+        "video": 35.738636,
+        "expected": 35.71541535664084,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "55_image_scatter",
+      "audio_sha256": "117d58f4c42d0e596cd075c729ec5bb8d5b3d07aa9b8f1169c3db87457a0b71a",
+      "clocks": {
+        "audio": 37.726094,
+        "video": 37.70585,
+        "expected": 37.723593540861195,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "56_lineage",
+      "audio_sha256": "0bcea78150167f43fe72738cc8492b0330fb6641caf7b4a85aeaf31278e2ae30",
+      "clocks": {
+        "audio": 38.068675,
+        "video": 38.040884,
+        "expected": 38.068437618133714,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "57_layer_viewer",
+      "audio_sha256": "239516b6f334efd5f80282b1f8aaa3aa8a15795a30684a77298bd40a9ad149a3",
+      "clocks": {
+        "audio": 46.707577,
+        "video": 46.575694,
+        "expected": 46.70570318802297,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "58_graph_builder",
+      "audio_sha256": "bdaebf46adaa26af5f5b48c37f42c7d2599b98babb90675d110f41dc8c0a2dce",
+      "clocks": {
+        "audio": 35.688459,
+        "video": 35.713242,
+        "expected": 35.68954665293543,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "59_anndata_export",
+      "audio_sha256": "80abeeb65f3a0b3e0e54dc987965030d5c037cd3581292a62b4224e4af6028e9",
+      "clocks": {
+        "audio": 44.4336,
+        "video": 44.454984,
+        "expected": 44.43472058863368,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "60_pca",
+      "audio_sha256": "c56cd6069959327db77a4907685a71e7313cb7eded418a7dea01eaf60ecbec3e",
+      "clocks": {
+        "audio": 36.838818,
+        "video": 36.849529,
+        "expected": 36.83843462415964,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "61_tabulate",
+      "audio_sha256": "548b52aa38ae3049ca18e50dd8a985baf1eb170d7c048210a2201516aca9563f",
+      "clocks": {
+        "audio": 37.448951,
+        "video": 37.448267,
+        "expected": 37.44912433000518,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "audio_sha256": "63b89594e407ce293451397897b08cfb15fb5317a5b9ba208f7912daea284d1f",
+      "clocks": {
+        "audio": 27.927152,
+        "video": 27.797194,
+        "expected": 27.92860534555888,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "63_small_multiples",
+      "audio_sha256": "a494da31d5a0d53c11c4c08e33fd966787ef9fbe9c14f4e7b3ac26259fdb8a95",
+      "clocks": {
+        "audio": 37.431479,
+        "video": 37.515995,
+        "expected": 37.43019093185126,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "64_gate_editor",
+      "audio_sha256": "9c0acaa56ecd5b91405a7179d7e8597cf9de2cd19fa99d5f3854cc1c40bea711",
+      "clocks": {
+        "audio": 33.775841,
+        "video": 33.613963,
+        "expected": 33.77668352141485,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "65_feature_explorer",
+      "audio_sha256": "fddc06ebb923c47df7b92bcffba7eb60f1b272fbd2bf0135809b6ad0e98f3c65",
+      "clocks": {
+        "audio": 39.451659,
+        "video": 39.49218,
+        "expected": 39.45098068190025,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "66_outliers",
+      "audio_sha256": "d9a621ea5ee7b991589f9f68a729798c90610d7fab4fa3e44183cc715ad60441",
+      "clocks": {
+        "audio": 43.530207,
+        "video": 43.389376,
+        "expected": 43.52864882707814,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "67_experiment_design",
+      "audio_sha256": "4b19a96e946efe0bc39738b9e18a32f3745c05f933b696f20d578638bee4dc7e",
+      "clocks": {
+        "audio": 38.174131,
+        "video": 38.130731,
+        "expected": 38.17361309232457,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "68_power_design",
+      "audio_sha256": "3b69fa32add305124761e2b55a90c397315fb910e2f5d9510c52a23da25dbff5",
+      "clocks": {
+        "audio": 41.638377,
+        "video": 41.434657,
+        "expected": 41.637143427926326,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "69_dose_response",
+      "audio_sha256": "2d2aa2046658fab580cd3494a2fe1a67b8a628e90076cb642002be174498eeda",
+      "clocks": {
+        "audio": 36.445135,
+        "video": 36.468174,
+        "expected": 36.445852685831305,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "70_explain_cv",
+      "audio_sha256": "58ce377868afb0bb70661fcab4d01dc44fa8463f3d5d55ade5e1ec8f43cb8833",
+      "clocks": {
+        "audio": 39.148703,
+        "video": 39.168469,
+        "expected": 39.14838914765239,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "audio_sha256": "6d99a9391ff7acfc4add9feeffed1fe37cdd2471dbdc2e96e2c6918b02700a6f",
+      "clocks": {
+        "audio": 43.610163,
+        "video": 43.571237,
+        "expected": 43.610163,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "audio_sha256": "b89cbc70c889659bbc40c7df320476234f631e21837b3a7ca2a73985a5eb9e25",
+      "clocks": {
+        "audio": 32.565703,
+        "video": 32.649833,
+        "expected": 32.567118412716646,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "74_import_images",
+      "audio_sha256": "dbe7dabb322cf9672a73b610eedc3dcfe34243c84eb08007afb23720e952cf19",
+      "clocks": {
+        "audio": 29.477907,
+        "video": 29.38502,
+        "expected": 29.47506922055001,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "audio_sha256": "b7ae649d457a8f9cc01329a6eb050044668bd1dbcbe29edee583026f91cecdc1",
+      "clocks": {
+        "audio": 37.218012,
+        "video": 37.221985,
+        "expected": 37.21768081561906,
+        "width": 2560,
+        "height": 1440,
+        "error": null
+      },
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "published": false
+}

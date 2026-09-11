@@ -1,0 +1,17 @@
+{
+  "player_sha256": "060082dfbc7f85b0520dff72fd342d08f5e53fb3f1745e5a60b2758738c5f0ed",
+  "mutations": [
+    {
+      "guard": "availability guard",
+      "observed_red": true
+    },
+    {
+      "guard": "completion guard",
+      "observed_red": true
+    }
+  ],
+  "baseline_before_and_after_passed": true,
+  "source_files_modified": false,
+  "passed": true,
+  "published": false
+}
