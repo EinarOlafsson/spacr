@@ -178,6 +178,102 @@ stray show() away from a combo box drawn over the path, which is how this was
 reported twice". Out of the panel, not merely hidden.
 
 --------------------------------------------------------------------------------
+PART FIVE: THE NORMALISATION PERCENTILES ARE CAPPED AT TWO DECIMALS
+--------------------------------------------------------------------------------
+
+Requested 2026-09-10 -- "the normalization percentiles should be able to have
+as many desimals as the user wants, now they are capped at 2 desimals."
+
+WHERE IT IS. `spacr/qt/widgets/live_preview.py`, around line 1575:
+
+    self._lo_pct = QDoubleSpinBox(self)
+    self._lo_pct.setRange(0, 50); self._lo_pct.setValue(2.0)
+    self._hi_pct = QDoubleSpinBox(self)
+    self._hi_pct.setRange(50, 100); self._hi_pct.setValue(98.0)
+
+Neither calls `setDecimals`, and `QDoubleSpinBox` defaults to 2. So the cap is
+not a deliberate choice anywhere; it is Qt's default, never overridden.
+
+THE CAP DOES NOT MERELY ROUND THE DISPLAY, IT ROUNDS THE VALUE. A
+`QDoubleSpinBox` at two decimals stores what it shows, so a user who types
+99.995 gets 100.0 -- the upper end of the range -- and the stretch they asked
+for is not the stretch they get. It fails silently, which is the part that
+makes it worth fixing rather than documenting.
+
+WHY IT MATTERS AT THE TOP END SPECIFICALLY. The whole purpose of an upper
+percentile is to clip a handful of saturated or hot pixels without touching
+real signal. On a 4-megapixel field, 99.9 spares 4,000 pixels, 99.99 spares
+400 and 99.999 spares 40 -- three very different images, and two decimals
+cannot express the difference between the last two at all. A user chasing a
+few hot pixels has no setting between "99.99" and "off".
+
+WHAT TO DO. Give both boxes enough decimals to reach the pixel count (6 is
+ample: 99.999999 on a 4 MP field is under one pixel) and a step that does not
+make the arrow buttons useless at that precision -- a fixed `setSingleStep` of
+0.000001 would need a million clicks to cross a percent. Qt does not adapt the
+step to the cursor position on its own; if that behaviour is wanted it has to
+be written.
+
+CHECK THE SAME CAP ELSEWHERE BEFORE CALLING IT DONE. Twenty-odd
+`setDecimals` calls exist across `spacr/qt/**` at 1, 2, 3 and 4, and each was
+presumably chosen for its own field -- but the ones that were never set at all
+are the ones carrying Qt's default by accident, exactly as these two were. The
+percentile boxes are what was reported; they are unlikely to be the only pair.
+
+--------------------------------------------------------------------------------
+PART SIX: "REMOVE BACKGROUND" IS NOT REFLECTED IN THE LIVE IMAGE
+--------------------------------------------------------------------------------
+
+Requested 2026-09-10 -- "the remove backfground if true should be reflected in
+the live images so the user can see whet the cutoff lokks like live."
+
+THE FEATURE IS ALREADY BUILT AND IT IS GATED ON THE WRONG SETTING. This is
+not missing work; it is a one-key mismatch, and the mismatch is why it looks
+missing.
+
+`_apply_display_background` exists, does exactly what was asked, and its own
+docstring states the intent: "Show the intensity image the segmentation
+actually ran on ... the one pane that could show you *why* the objects changed
+was the pane still displaying the original pixels."
+
+But the two paths read DIFFERENT KEYS:
+
+    the worker  (live_preview.py ~932)   remove_background_{obj}   per object
+    the display (live_preview.py ~2516)  remove_background         one global
+
+So the display is switched on and off by a setting the worker never consults,
+and vice versa.
+
+THE DEFAULTS MAKE THIS THE OUT-OF-THE-BOX STATE, which is almost certainly
+what was seen. In `spacr/settings.py`:
+
+    remove_background            False     <- what the DISPLAY gates on
+    remove_background_cell       False
+    remove_background_nucleus    False
+    remove_background_pathogen   True      <- what the WORKER gates on
+
+With a pathogen channel selected and nothing touched, the worker removes the
+pathogen background and the display never shows it. The masks move; the image
+they are drawn over does not. That is the reported symptom exactly.
+
+WHAT TO DO. `_background_for_channel` already resolves a channel to its object
+type -- it loops `self._selected_object_types()` and matches the channel -- so
+it is one line from correct: gate on `remove_background_{obj}` for the object
+it just matched, not on the global key, and take that object's
+`{obj}_background` the way the worker does.
+
+  * THE GLOBAL KEY IS NOT NECESSARILY DEAD. `remove_background` is read
+    elsewhere in the pipeline (settings.py has it in three separate default
+    blocks). Find out whether the panel's common widget is meant to drive the
+    per-object keys or is a leftover, and say which in the fix. Silently
+    ignoring a control the user can still see and click would be a second
+    version of this same bug.
+  * THE TEST IS THE POINT. Assert that for a given channel and settings, the
+    display path and the worker path make the SAME decision and use the SAME
+    threshold. Two code paths that must agree, and did not, is the whole
+    defect -- a test on either one alone would have passed throughout.
+
+--------------------------------------------------------------------------------
 MAINTAINER ANSWERS, 2026-09-10 -- BOTH SETTLED, NOTHING LEFT TO ASK
 --------------------------------------------------------------------------------
 
@@ -210,3 +306,9 @@ HOW TO KNOW IT WORKED
   * The layout invariant test passes: no widget parented to
     `LivePreviewPanel` outside a layout except in the one container that is
     never shown. It fails on 96 widgets today, so a passing run is evidence.
+  * Typing 99.995 into the upper normalisation percentile leaves 99.995 in
+    it, and the rendered image differs from the one 99.99 produces.
+  * With stock defaults and a pathogen channel selected, switching background
+    removal on visibly changes the displayed image and not only the masks --
+    and a test asserts the display path and the worker path reach the same
+    decision from the same settings.
