@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Hit List: examinar candidatos com uma janela auxiliar explícita",
+  "description": "Explore os filtros e as exportações reais de Hit List com resultados de Regression inalterados e uma alternativa explícita ao painel oculto.",
+  "objectives": [
+    "Distinguir o atalho nativo defeituoso do programa auxiliar externo.",
+    "Interpretar candidatos ordenados sem afirmar descobertas significativas.",
+    "Filtrar, restaurar e exportar as linhas reais."
+  ],
+  "prerequisite": "Extraia Hit_List_real_results_companion.zip. Ative o ambiente spaCR, execute python hit_list_companion.py e selecione results com Browse. O programa usa HitListScreen sem alterações: não corrige a navegação nem conecta Investigate. O arquivo contém resultados originais, não um projeto completo: 325 genes, 434 linhas de guias e nenhum gene com q <= .05. Efeitos marginais padronizados não são coeficientes multivariáveis ajustados simultaneamente. Intervalos ausentes estão indisponíveis. n_obs=0 não informa o suporte real: wells_with_gene em results_gene.csv varia de 2 a 48. Junções de metadados, ordenação penalizada e Investigate ficam fora. Não é necessário treinamento, nova regressão, GPU ou chamada a provedores de IA. API: spacr.hits.build_hit_list e HitList.filter/write_csv/to_markdown/to_html.",
+  "scenes": [
+    "Hit List pertence a Regression. Nesta versão, clicar em Hits seleciona uma página dentro de um painel oculto, e a lista não aparece. O tutorial mostra essa limitação. A janela seguinte é um programa auxiliar externo, não uma prova de que o atalho nativo foi corrigido.",
+    "Extraia o exemplo vinculado, ative seu ambiente spaCR e execute o script auxiliar Hit List incluído. A janela identificada abre o componente existente do spaCR sem alterar seus cálculos. Clique em Browse e selecione results. A regressão não é refeita e a integração com Investigate não está conectada.",
+    "O exemplo original carrega trezentos e vinte e cinco genes. Dê dois cliques nas divisórias das colunas se os valores estiverem cortados. Leia separadamente direção do efeito, P bruto, q corrigido e concordância das guias. Intervalos ausentes estão indisponíveis. São efeitos marginais padronizados; a contagem exportada de observações igual a zero não é o número real de poços.",
+    "Defina Max q como zero vírgula zero cinco. Nenhum gene permanece, pois o menor q gênico é aproximadamente zero vírgula dois sete um. Uma tabela filtrada vazia não significa falha de importação. Volte Max q para um para recuperar os candidatos, sem declará-los descobertas.",
+    "Minimum guides igual a dois mantém cento e dezessete genes com pelo menos duas linhas de guias testadas. Isso conta evidências disponíveis, não todas as guias projetadas originalmente. O filtro altera o subconjunto exibido sem recalcular a correção original de testes múltiplos.",
+    "Minimum agreement igual a um mantém cinquenta e sete genes cujas guias testadas compartilham o sinal do efeito gênico. Concordância não comprova significância nem causalidade. O resumo continua indicando zero genes significativos corroborados, embora essas linhas candidatas tenham guias concordantes.",
+    "Hide controls remove uma linha de controle, deixando cinquenta e seis candidatos. Restaure-a antes da exportação. Ocultar controles não reajusta o modelo nem altera a família de correção; preserve suas identidades ao interpretar a análise.",
+    "Com os outros filtros limpos, Direction up mostra efeitos positivos. Adicionar efeito absoluto mínimo de zero vírgula um deixa dezesseis linhas. São escolhas ilustrativas de exibição, não limiares recomendados. Restaure direção e efeito antes de buscar ou comparar outro subconjunto.",
+    "Busque um identificador registrado para examinar uma linha real. Uma busca sem correspondência esvazia a tabela; retornar ao identificador conhecido a restaura, e limpar a busca recupera a população. A filtragem é reversível. Anotações e o fluxo Investigate exigem verificações próprias.",
+    "Para exportar, restaure duas guias, concordância completa, controles incluídos e busca vazia. As três exportações contêm os mesmos cinquenta e sete candidatos neste exemplo. Markdown e HTML arredondam os números; CSV preserva o detalhe numérico. Salve os filtros separadamente: os arquivos não registram todas as opções.",
+    "Limpe os filtros para recuperar os trezentos e vinte e cinco genes. Separe os subconjuntos exportados dos originais inalterados e não apresente candidatos não significativos como achados validados. Python oferece o mesmo leitor e os mesmos filtros; confira os limites de linhas de cada formato para listas maiores."
+  ]
+}

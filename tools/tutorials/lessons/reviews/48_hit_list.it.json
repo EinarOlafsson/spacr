@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Hit List: esaminare candidati con una finestra ausiliaria esplicita",
+  "description": "Esplora filtri ed esportazioni reali di Hit List usando risultati Regression invariati e un'alternativa esplicita al pannello nascosto.",
+  "objectives": [
+    "Distinguere la scorciatoia nativa difettosa dal programma ausiliario esterno.",
+    "Interpretare candidati ordinati senza dichiarare scoperte significative.",
+    "Filtrare, ripristinare ed esportare le righe reali."
+  ],
+  "prerequisite": "Estrai Hit_List_real_results_companion.zip. Attiva l'ambiente spaCR, esegui python hit_list_companion.py e scegli results con Browse. Il programma usa HitListScreen invariato: non ripara la navigazione né collega Investigate. L'archivio contiene risultati originali, non un progetto completo: 325 geni, 434 righe di guide e nessun gene con q <= .05. Gli effetti marginali standardizzati non sono coefficienti multivariabili stimati simultaneamente. Gli intervalli mancanti non sono disponibili. n_obs=0 non indica il supporto reale: wells_with_gene in results_gene.csv varia da 2 a 48. Join dei metadati, ordinamento penalizzato e Investigate sono esclusi. Non servono addestramento, nuova regressione, GPU o richieste a fornitori di IA. API: spacr.hits.build_hit_list e HitList.filter/write_csv/to_markdown/to_html.",
+  "scenes": [
+    "Hit List si trova sotto Regression. In questa versione, premere Hits seleziona una pagina dentro un pannello nascosto e la lista non appare. Il tutorial mostra apertamente questo limite. La finestra seguente è un programma ausiliario esterno, non dimostra che la scorciatoia nativa sia stata riparata.",
+    "Estrai l'esempio collegato, attiva il tuo ambiente spaCR ed esegui lo script ausiliario Hit List incluso. La finestra identificata apre il componente esistente di spaCR senza modificarne i calcoli. Premi Browse e scegli results. La regressione non viene ripetuta e l'integrazione Investigate non è collegata.",
+    "L'esempio originale carica trecentoventicinque geni. Fai doppio clic sui confini delle colonne se i valori sono tagliati. Leggi separatamente direzione dell'effetto, P grezzo, q corretto e concordanza delle guide. Gli intervalli assenti non sono disponibili. Sono effetti marginali standardizzati; il conteggio osservazioni esportato a zero non è il vero numero di pozzetti.",
+    "Imposta Max q a zero virgola zero cinque. Non rimane alcun gene: il q genico minimo è circa zero virgola due sette uno. Una tabella filtrata vuota non indica un errore di importazione. Riporta Max q a uno per recuperare i candidati, senza dichiararli scoperte.",
+    "Minimum guides a due mantiene centodiciassette geni con almeno due righe di guide testate. Conta le evidenze disponibili, non tutte le guide progettate in origine. Il filtro cambia il sottoinsieme mostrato senza ricalcolare la correzione originale per confronti multipli.",
+    "Minimum agreement a uno mantiene poi cinquantasette geni le cui guide testate condividono tutte il segno dell'effetto genico. La concordanza non prova significatività o causalità. Il riepilogo indica ancora zero geni significativi corroborati, anche se questi candidati hanno guide concordanti.",
+    "Hide controls elimina una riga di controllo, lasciando cinquantasei candidati. Ripristinala prima dell'esportazione. Nascondere i controlli non ristima il modello né cambia la famiglia di correzione; conserva le loro identità nell'interpretazione.",
+    "Con gli altri filtri azzerati, Direction up mostra effetti positivi. Aggiungere un effetto assoluto minimo di zero virgola uno lascia sedici righe. Sono scelte illustrative di visualizzazione, non soglie consigliate. Ripristina direzione ed effetto prima di cercare o confrontare un altro sottoinsieme.",
+    "Cerca un identificatore registrato per esaminare una riga reale. Una ricerca senza corrispondenze svuota la tabella; tornare all'identificatore noto la ripristina e cancellare la ricerca recupera la popolazione. Il filtraggio è reversibile. Annotazioni e percorso Investigate richiedono verifiche proprie.",
+    "Per esportare, ripristina due guide, concordanza completa, controlli inclusi e ricerca vuota. Qui tutte e tre le esportazioni contengono gli stessi cinquantasette candidati. Markdown e HTML arrotondano i numeri; CSV conserva il dettaglio numerico. Salva i filtri separatamente: i file non registrano tutte le impostazioni.",
+    "Azzera i filtri per recuperare i trecentoventicinque geni. Tieni separati i sottoinsiemi esportati dagli originali invariati e non chiamare risultati validati i candidati non significativi. Python offre lo stesso lettore e gli stessi filtri; verifica i limiti di righe di ogni formato per liste più grandi."
+  ]
+}
