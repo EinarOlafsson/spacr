@@ -21,8 +21,10 @@ The user confirmed these requirements on 9 September:
   from their current hosts.
 - Commit and push coherent checkpoints regularly. Do not publish to `main` or
   replace live remote media while the refreshed set is incomplete.
-- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 110`
+- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 100`
   and limit thread counts. Do not overlap another session's full coverage run.
+  The 100-GiB threshold is approximately 107 GB, below the maintainer's latest
+  110-GB ceiling. It watches total system usage and stops only the guarded job.
 - No further questions while the user is away; proceed with these choices.
 
 ## Checkpoints

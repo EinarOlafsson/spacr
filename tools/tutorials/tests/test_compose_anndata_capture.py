@@ -30,3 +30,11 @@ def test_verified_api_and_navigation_only_gui_are_distinguished():
 def test_partial_or_mislabelled_evidence_is_rejected(which, key, value):
     records = deepcopy(sources()); records[which][key] = value
     with pytest.raises(ValueError): check_sources(*records)
+
+
+@pytest.mark.parametrize('key,value', [('accepted', False), ('shape', [0, 3]),
+    ('matrix_cells_checked', 1), ('maximum_float32_discrepancy', 1)])
+def test_every_export_needs_full_independent_matrix_evidence(key, value):
+    records = deepcopy(sources()); records[1]['exports'][0][key] = value
+    with pytest.raises(ValueError, match='complete independent matrix'):
+        check_sources(*records)
