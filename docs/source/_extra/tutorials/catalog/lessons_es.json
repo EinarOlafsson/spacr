@@ -373,7 +373,7 @@
       "title": "Máscaras",
       "series": 1,
       "app_key": "mask",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Configure la segmentación, valídela con Live Preview y genere máscaras para las mediciones posteriores.",
       "objectives": [
         "Verificar los metadatos de origen y la asignación de canales.",
@@ -495,7 +495,7 @@
       "title": "Medición",
       "series": 1,
       "app_key": "measure",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Extraiga características a nivel de objeto de las imágenes y las máscaras; después, examine la galería de recortes resultante y la base de datos generada.",
       "objectives": [
         "Verificar la correspondencia entre los canales de imagen y los planos de máscara.",
@@ -583,7 +583,7 @@
       "title": "Anotación",
       "series": 1,
       "app_key": "annotate",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Revise recortes de objetos, asigne etiquetas coherentes, evalúe la cobertura y entregue las etiquetas guardadas a un clasificador.",
       "objectives": [
         "Configurar una vista de recortes y una columna de anotación coherentes.",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Entrene y evalúe un clasificador de imágenes a partir de recortes de objetos anotados, con validación agrupada y una búsqueda opcional de hiperparámetros.",
       "objectives": [
         "Integrar las etiquetas guardadas y los recortes de objetos en un conjunto de datos protegido contra fugas de información.",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Entrene y evalúe un clasificador basado en características de objetos medidos, con corrección por placa y una búsqueda opcional de hiperparámetros.",
       "objectives": [
         "Preparar características de medición válidas y etiquetas que tengan en cuenta las placas.",
@@ -870,79 +870,13 @@
       "title": "Mapear códigos de barras",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Módulos principales",
-      "description": "Decodifique las lecturas de secuenciación para obtener las posiciones de la placa y las identidades de las guías, con referencias explícitas y resultados de control de calidad.",
-      "objectives": [
-        "Configurar la dirección de lectura, las referencias de códigos de barras y el análisis sintáctico a partir del diseño de la biblioteca.",
-        "Validar el mapeo con un pequeño bloque de prueba.",
-        "Interpretar el progreso del mapeo y los resultados de control de calidad."
-      ],
-      "prerequisite": "Proporcione lecturas FASTQ y tablas de correspondencia verificadas que coincidan con el diseño de la biblioteca de secuenciación.",
-      "scenes": [
-        {
-          "narration": "Map Barcodes decodifica las lecturas de secuenciación para obtener las posiciones de la placa y las identidades de las guías. La consola informa sobre la detección de muestras, la validación del analizador sintáctico, el progreso de las lecturas, las rutas de salida y los fallos.",
-          "visual": "01_console",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Map Barcodes decodifica las lecturas de secuenciación para obtener las posiciones de la placa y las identidades de las guías. La consola informa sobre la detección de muestras, la validación del analizador sintáctico, el progreso de las lecturas, las rutas de salida y los fallos."
-        },
-        {
-          "narration": "Sequencing Input permite seleccionar la carpeta FASTQ y decidir si se combinan las lecturas emparejadas o se procesa una sola dirección de lectura. Confirme el patrón de nombres antes de iniciar una ejecución grande.",
-          "visual": "13_category_01_sequencing_input",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Sequencing Input permite seleccionar la carpeta FASTQ y decidir si se combinan las lecturas emparejadas o se procesa una sola dirección de lectura. Confirme el patrón de nombres antes de iniciar una ejecución grande."
-        },
-        {
-          "narration": "Essentials contiene las entradas y los controles de análisis necesarios para una primera ejecución. Utilice Modified para revisar los cambios específicos de la biblioteca, All para acceder a los controles avanzados y Recipes para guardar una disposición reutilizable.",
-          "visual": "09_all_settings",
-          "hold_after": 0.7,
-          "focus_key": "settings_controls",
-          "speech_text": "Essentials contiene las entradas y los controles de análisis necesarios para una primera ejecución. Utilice Modified para revisar los cambios específicos de la biblioteca, All para acceder a los controles avanzados y Recipes para guardar una disposición reutilizable."
-        },
-        {
-          "narration": "Barcode References apunta a las tablas de correspondencia de las guías, las filas de la placa y las columnas de la placa. Cada tabla debe asociar un nombre único con la secuencia prevista.",
-          "visual": "13_category_02_barcode_references",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Barcode References apunta a las tablas de correspondencia de las guías, las filas de la placa y las columnas de la placa. Cada tabla debe asociar un nombre único con la secuencia prevista."
-        },
-        {
-          "narration": "Read Parsing localiza una secuencia de anclaje conocida, extrae la ventana del código de barras y asigna grupos con nombre a la fila, la columna y la guía. Derive este patrón del diseño de la biblioteca y verifíquelo con lecturas de ejemplo.",
-          "visual": "13_category_03_read_parsing",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Read Parsing localiza una secuencia de anclaje conocida, extrae la ventana del código de barras y asigna grupos con nombre a la fila, la columna y la guía. Derive este patrón del diseño de la biblioteca y verifíquelo con lecturas de ejemplo."
-        },
-        {
-          "narration": "Runtime and Reliability establece el tamaño de los bloques, el número de procesos de trabajo y el modo de prueba. Comience con un bloque de prueba pequeño; reduzca el tamaño del bloque o el número de procesos cuando la memoria sea limitada.",
-          "visual": "13_category_05_runtime_reliability",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Runtime and Reliability establece el tamaño de los bloques, el número de procesos de trabajo y el modo de prueba. Comience con un bloque de prueba pequeño; reduzca el tamaño del bloque o el número de procesos cuando la memoria sea limitada."
-        },
-        {
-          "narration": "Run valida las rutas y las referencias, detecta las muestras, cuenta las lecturas e inicia el mapeo por bloques. Stop solicita una interrupción ordenada después del punto seguro actual.",
-          "visual": "20_run",
-          "hold_after": 0.7,
-          "focus_key": "actions",
-          "speech_text": "Run valida las rutas y las referencias, detecta las muestras, cuenta las lecturas e inicia el mapeo por bloques. Stop solicita una interrupción ordenada después del punto seguro actual."
-        },
-        {
-          "narration": "Observe la muestra activa, el número de lotes, la fracción de coincidencias y las advertencias en el indicador de progreso y en la consola. Investigue un mapeo deficiente antes de aceptar la ejecución completa.",
-          "visual": "21_running",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Observe la muestra activa, el número de lotes, la fracción de coincidencias y las advertencias en el indicador de progreso y en la consola. Investigue un mapeo deficiente antes de aceptar la ejecución completa."
-        },
-        {
-          "narration": "Una ejecución correcta guarda las combinaciones únicas de códigos de barras con la fila, la columna, la guía y el recuento, además de una tabla de control de calidad, los ajustes y un manifiesto que permiten reproducir el mapeo.",
-          "visual": "22_output",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Una ejecución correcta guarda las combinaciones únicas de códigos de barras con la fila, la columna, la guía y el recuento, además de una tabla de control de calidad, los ajustes y un manifiesto que permiten reproducir el mapeo."
-        }
-      ]
+      "section": "Core",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Próximamente"
     },
     {
       "id": "13_regression",
@@ -951,7 +885,7 @@
       "title": "Regresión",
       "series": 1,
       "app_key": "regression",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Relacione la abundancia de guías de un cribado agrupado con los fenotipos medidos mediante pruebas de permutación en bloques o regresión simultánea, y examine después el respaldo estadístico, los diagnósticos y las estimaciones de efecto.",
       "objectives": [
         "Alinear la información de fenotipos, recuentos de guías y controles.",
@@ -1046,7 +980,7 @@
       "title": "Crear máscaras",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Modelos de segmentación",
+      "section": "Segmentation models",
       "description": "Cree y corrija etiquetas de segmentación de forma interactiva para el control de calidad o para preparar pares de entrenamiento de Cellpose.",
       "objectives": [
         "Seleccionar una herramienta de edición adecuada para cada error de la máscara.",
@@ -1134,7 +1068,7 @@
       "title": "UMAP de imágenes",
       "series": 1,
       "app_key": "umap",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Proyecte objetos medidos en dos dimensiones y examine los vecindarios fenotípicos mediante sus recortes reales de microscopía.",
       "objectives": [
         "Seleccionar características y exclusiones biológicamente pertinentes.",
@@ -1230,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Examine qué regiones de la imagen influyen en un clasificador de visión entrenado y compruebe si esas explicaciones son creíbles.",
       "objectives": [
         "Hacer corresponder la ejecución de atribución con el modelo entrenado y sus entradas.",
@@ -1319,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Segmente imágenes con resolución temporal, enlace los objetos seleccionados para formar trayectorias y valide las películas y trayectorias resultantes.",
       "objectives": [
         "Asignar los ejes de adquisición y segmentar de forma coherente fotogramas representativos.",
@@ -1422,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Mida el movimiento calibrado a partir de imágenes con seguimiento y compare las trayectorias según la infección o el grupo experimental.",
       "objectives": [
         "Asignar correctamente los objetos seguidos y la calibración.",
@@ -1511,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentación",
+      "section": "Segmentation models",
       "description": "Ajuste un modelo compatible con Cellpose o CPSAM a partir de pares revisados de imágenes y máscaras de instancias.",
       "objectives": [
         "Validar los datos de entrenamiento emparejados y elegir un punto de control inicial adecuado.",
@@ -1593,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentación",
+      "section": "Segmentation models",
       "description": "Aplique un modelo de Cellpose incluido o personalizado, examine las máscaras y los flujos y guarde una máscara de etiquetas de instancias por campo.",
       "objectives": [
         "Hacer corresponder las imágenes, los canales, la escala de los objetos y el punto de control.",
@@ -1675,72 +1609,13 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentación",
-      "description": "Ejecute dos configuraciones de Cellpose en los mismos campos representativos y compare sus máscaras sin suponer que ninguna de ellas sea la referencia verdadera.",
-      "objectives": [
-        "Construir una comparación controlada entre dos modelos.",
-        "Verificar qué parámetros llegaron realmente a cada modelo.",
-        "Interpretar las métricas de concordancia junto con las máscaras mostradas en paralelo."
-      ],
-      "prerequisite": "Seleccione dos modelos o configuraciones compatibles y un conjunto acotado de imágenes representativas.",
-      "scenes": [
-        {
-          "narration": "Model Compare combina recuentos de objetos, concordancia del primer plano, emparejamiento, fragmentación y superposiciones en paralelo para evaluar dos candidatos de segmentación en los mismos campos.",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Model Compare combina recuentos de objetos, concordancia del primer plano, emparejamiento, fragmentación y superposiciones en paralelo para evaluar dos candidatos de segmentación en los mismos campos."
-        },
-        {
-          "narration": "Seleccione una carpeta de imágenes pequeña pero representativa y limite el número de campos para la comparación interactiva. Incluya ejemplos sencillos y difíciles, no solo campos sin problemas.",
-          "visual": "02_fields_loaded",
-          "hold_after": 0.7,
-          "focus_key": "source_controls",
-          "speech_text": "Seleccione una carpeta de imágenes pequeña pero representativa y limite el número de campos para la comparación interactiva. Incluya ejemplos sencillos y difíciles, no solo campos sin problemas."
-        },
-        {
-          "narration": "Configure Model A y Model B. Mantenga iguales los canales, la escala, el preprocesamiento y los umbrales compartidos, salvo cuando uno de estos ajustes sea precisamente la diferencia que desea evaluar.",
-          "visual": "03_models",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Configure Model A y Model B. Mantenga iguales los canales, la escala, el preprocesamiento y los umbrales compartidos, salvo cuando uno de estos ajustes sea precisamente la diferencia que desea evaluar."
-        },
-        {
-          "narration": "Compare segmenta cada campo seleccionado con las dos configuraciones resueltas. Los argumentos avanzados quedan registrados y los parámetros no compatibles se notifican, en lugar de tratarlos silenciosamente como si hubieran surtido efecto.",
-          "visual": "04_compare",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Compare segmenta cada campo seleccionado con las dos configuraciones resueltas. Los argumentos avanzados quedan registrados y los parámetros no compatibles se notifican, en lugar de tratarlos silenciosamente como si hubieran surtido efecto."
-        },
-        {
-          "narration": "Parameters that reached each model distingue los valores aplicados de los controles obsoletos o ignorados. Confirme que la comparación difiera realmente de la forma prevista.",
-          "visual": "06_parameters",
-          "hold_after": 0.7,
-          "focus_key": "parameters",
-          "speech_text": "Parameters that reached each model distingue los valores aplicados de los controles obsoletos o ignorados. Confirme que la comparación difiera realmente de la forma prevista."
-        },
-        {
-          "narration": "La tabla de campos informa de los recuentos, la concordancia del primer plano, el solapamiento emparejado, las divisiones, las fusiones, los objetos sin correspondencia y comprobaciones independientes de la calidad de las máscaras. Ninguna métrica aislada representa todos los tipos de fallo.",
-          "visual": "07_metrics",
-          "hold_after": 0.7,
-          "focus_key": "metrics",
-          "speech_text": "La tabla de campos informa de los recuentos, la concordancia del primer plano, el solapamiento emparejado, las divisiones, las fusiones, los objetos sin correspondencia y comprobaciones independientes de la calidad de las máscaras. Ninguna métrica aislada representa todos los tipos de fallo."
-        },
-        {
-          "narration": "Seleccione una fila para examinar ambas vistas previas. Busque nuevas detecciones, omisiones, cambios de límites, divisiones y fusiones; después, repita la revisión en campos representativos.",
-          "visual": "08_field_one",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "Seleccione una fila para examinar ambas vistas previas. Busque nuevas detecciones, omisiones, cambios de límites, divisiones y fusiones; después, repita la revisión en campos representativos."
-        },
-        {
-          "narration": "Elija un modelo únicamente cuando las diferencias visuales y las métricas mejoren los errores relevantes para el análisis posterior. Los resultados iguales también son informativos y no demuestran una mejora.",
-          "visual": "09_field_two",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "Elija un modelo únicamente cuando las diferencias visuales y las métricas mejoren los errores relevantes para el análisis posterior. Los resultados iguales también son informativos y no demuestran una mejora."
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Próximamente"
     },
     {
       "id": "22_model_zoo",
@@ -1750,72 +1625,13 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentación",
-      "description": "Explore, verifique, descargue y evalúe modelos reutilizables de segmentación y clasificación.",
-      "objectives": [
-        "Revisar la compatibilidad y la procedencia del modelo.",
-        "Evaluar un modelo en campos representativos.",
-        "Enviar dos candidatos a Model Compare."
-      ],
-      "prerequisite": "Prepare algunos campos representativos y conozca sus canales, el tipo de objeto y la escala aproximada.",
-      "scenes": [
-        {
-          "narration": "Model Zoo enumera los modelos reutilizables disponibles a partir de fuentes incluidas, locales o declaradas en el catálogo. Comience por comprobar la tarea, los canales, la escala de los objetos y el preprocesamiento previsto.",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "catalogue",
-          "speech_text": "Model Zoo enumera los modelos reutilizables disponibles a partir de fuentes incluidas, locales o declaradas en el catálogo. Comience por comprobar la tarea, los canales, la escala de los objetos y el preprocesamiento previsto."
-        },
-        {
-          "narration": "Seleccione una carpeta de modelos y analícela. El catálogo mantiene juntas las rutas locales y los metadatos remotos, al tiempo que evita entradas duplicadas.",
-          "visual": "02_scanned",
-          "hold_after": 0.7,
-          "focus_key": "scan_controls",
-          "speech_text": "Seleccione una carpeta de modelos y analícela. El catálogo mantiene juntas las rutas locales y los metadatos remotos, al tiempo que evita entradas duplicadas."
-        },
-        {
-          "narration": "Seleccione un modelo para revisar su procedencia, licencia, suma de comprobación, contexto de entrenamiento y geometría prevista. El hecho de que un modelo se cargue correctamente no significa que sea adecuado para sus imágenes.",
-          "visual": "03_provenance",
-          "hold_after": 0.7,
-          "focus_key": "detail",
-          "speech_text": "Seleccione un modelo para revisar su procedencia, licencia, suma de comprobación, contexto de entrenamiento y geometría prevista. El hecho de que un modelo se cargue correctamente no significa que sea adecuado para sus imágenes."
-        },
-        {
-          "narration": "Seleccione un pequeño conjunto de campos representativos, incluidos ejemplos difíciles, para realizar una evaluación acotada.",
-          "visual": "04_fields",
-          "hold_after": 0.7,
-          "focus_key": "field_controls",
-          "speech_text": "Seleccione un pequeño conjunto de campos representativos, incluidos ejemplos difíciles, para realizar una evaluación acotada."
-        },
-        {
-          "narration": "Pruebe un modelo instalado. La evaluación informa de la velocidad, los recuentos de objetos, los indicadores de calidad y las vistas previas sin presentar estas comprobaciones como una medida de exactitud respecto a una referencia verdadera.",
-          "visual": "05_test",
-          "hold_after": 0.7,
-          "focus_key": "test",
-          "speech_text": "Pruebe un modelo instalado. La evaluación informa de la velocidad, los recuentos de objetos, los indicadores de calidad y las vistas previas sin presentar estas comprobaciones como una medida de exactitud respecto a una referencia verdadera."
-        },
-        {
-          "narration": "Examine conjuntamente la tabla y la vista previa de las máscaras. Investigue las advertencias en el contexto de las imágenes antes de aceptar o rechazar un modelo.",
-          "visual": "07_benchmark",
-          "hold_after": 0.7,
-          "focus_key": "benchmark",
-          "speech_text": "Examine conjuntamente la tabla y la vista previa de las máscaras. Investigue las advertencias en el contexto de las imágenes antes de aceptar o rechazar un modelo."
-        },
-        {
-          "narration": "Seleccione dos modelos locales compatibles cuando necesite una evaluación controlada en paralelo.",
-          "visual": "09_two_selected",
-          "hold_after": 0.7,
-          "focus_key": "compare",
-          "speech_text": "Seleccione dos modelos locales compatibles cuando necesite una evaluación controlada en paralelo."
-        },
-        {
-          "narration": "Model Compare recibe ambos puntos de control y los mismos campos, de modo que las diferencias de las máscaras y las métricas de calidad puedan evaluarse con entradas idénticas.",
-          "visual": "10_compare_handoff",
-          "hold_after": 0.7,
-          "focus_key": "comparison",
-          "speech_text": "Model Compare recibe ambos puntos de control y los mismos campos, de modo que las diferencias de las máscaras y las métricas de calidad puedan evaluarse con entradas idénticas."
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Próximamente"
     },
     {
       "id": "23_agreement",
@@ -1825,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Mida la concordancia entre columnas de anotación y examine los objetos responsables de las discrepancias.",
       "objectives": [
         "Configurar una comparación equitativa de las etiquetas.",
@@ -1899,7 +1715,7 @@
       "title": "Ensayo de placas",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Ensayos de Toxoplasma",
+      "section": "Toxoplasma assays",
       "description": "Segmente o reutilice máscaras de placas de lisis, valídelas y resuma la formación de placas por condición.",
       "objectives": [
         "Elegir entre realizar una segmentación y utilizar máscaras existentes.",
@@ -1973,7 +1789,7 @@
       "title": "Ensayo de reclutamiento",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Ensayos de Toxoplasma",
+      "section": "Toxoplasma assays",
       "description": "Cuantifique el enriquecimiento de un marcador en las regiones asociadas a parásitos con respecto al fondo de la célula hospedadora.",
       "objectives": [
         "Asignar correctamente los canales y las máscaras.",
@@ -2047,7 +1863,7 @@
       "title": "Ensayo de invasión",
       "series": 3,
       "app_key": "invasion",
-      "section": "Ensayos de Toxoplasma",
+      "section": "Toxoplasma assays",
       "description": "Utilice una tinción exterior-frente-a-total para distinguir los parásitos adheridos de los internalizados.",
       "objectives": [
         "Asignar correctamente los canales de tinción.",
@@ -2121,7 +1937,7 @@
       "title": "Ensayo de replicación",
       "series": 3,
       "app_key": "replication",
-      "section": "Ensayos de Toxoplasma",
+      "section": "Toxoplasma assays",
       "description": "Asigne los parásitos a las vacuolas y resuma la replicación intracelular por condición.",
       "objectives": [
         "Configurar la asignación a vacuolas.",
@@ -2195,7 +2011,7 @@
       "title": "Ejecuciones de entrenamiento",
       "series": 4,
       "app_key": "train_compare",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Compare ejecuciones de entrenamiento superponiendo curvas y contrastando configuraciones.",
       "objectives": [
         "Cargar y validar ejecuciones comparables.",
@@ -2260,7 +2076,8 @@
           "focus_key": "diff",
           "speech_text": "Utilice las curvas por partición y las diferencias de configuración, junto con el rendimiento en los datos reservados, para seleccionar una ejecución reproducible."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -2269,7 +2086,7 @@
       "title": "Informe",
       "series": 4,
       "app_key": "report",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Cree un resumen compartible en HTML o PDF que incluya el control de calidad, las figuras, las estadísticas, la configuración y las versiones.",
       "objectives": [
         "Seleccionar la evidencia pertinente para el informe.",
@@ -2336,7 +2153,7 @@
       "title": "Cola de placas",
       "series": 4,
       "app_key": "queue",
-      "section": "Datos y ejecuciones por lotes",
+      "section": "Data and batch runs",
       "description": "Procese varias placas mediante la misma canalización validada, con un estado visible que permite reanudar la ejecución.",
       "objectives": [
         "Crear y revisar una cola de varias placas.",
@@ -2403,7 +2220,7 @@
       "title": "Máscaras externas",
       "series": 4,
       "app_key": "external_masks",
-      "section": "Datos y ejecuciones por lotes",
+      "section": "Data and batch runs",
       "description": "Importe imágenes y máscaras de etiquetas de terceros como un proyecto spaCR medido y trazable.",
       "objectives": [
         "Asignar correctamente las entradas externas.",
@@ -2468,7 +2285,8 @@
           "focus_key": "console",
           "speech_text": "Ejecute la importación revisada. Las imágenes, las máscaras, las mediciones y la información de procedencia resultantes quedan listas para la anotación posterior."
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -2477,7 +2295,7 @@
       "title": "Alinear y unir",
       "series": 4,
       "app_key": "align",
-      "section": "Datos y ejecuciones por lotes",
+      "section": "Data and batch runs",
       "description": "Registre mosaicos de imágenes y escriba una imagen ensamblada con un uso limitado de memoria.",
       "objectives": [
         "Describir la disposición del mosaico.",
@@ -2551,7 +2369,7 @@
       "title": "Visor de placas",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Explore las mediciones como mapas de calor de placas y detecte artefactos espaciales o efectos de borde.",
       "objectives": [
         "Crear un mapa de calor de placa adecuado.",
@@ -2616,7 +2434,8 @@
           "focus_key": "export",
           "speech_text": "Exporte la cuadrícula ordenada de pocillos actual, con los recuentos y las anotaciones espaciales, para auditarla o volver a representarla."
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -2625,7 +2444,7 @@
       "title": "Explorador de base de datos",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Datos",
+      "section": "Data",
       "description": "Explore, filtre y exporte bases de datos de mediciones de spaCR sin utilizar la línea de comandos.",
       "objectives": [
         "Abrir y recorrer una base de datos de forma segura.",
@@ -2699,7 +2518,7 @@
       "title": "Convertidor de formatos",
       "series": 4,
       "app_key": "convert",
-      "section": "Datos",
+      "section": "Data",
       "description": "Convierta formatos de microscopía en archivos TIFF con nombres compatibles con spaCR y un mapa de procedencia revisado.",
       "objectives": [
         "Configurar una asignación que tenga en cuenta la pérdida de información.",
@@ -2764,7 +2583,8 @@
           "focus_key": "resume",
           "speech_text": "Al reanudar, se validan los puntos de control de los campos terminados antes de omitirlos, por lo que se regeneran las salidas ausentes o dañadas."
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -2773,7 +2593,7 @@
       "title": "Importar proyecto",
       "series": 5,
       "app_key": "foreign",
-      "section": "Datos",
+      "section": "Data",
       "description": "Asigne las imágenes, máscaras y mediciones de otro laboratorio a un proyecto spaCR trazable.",
       "objectives": [
         "Asignar explícitamente los datos externos.",
@@ -2847,7 +2667,7 @@
       "title": "Ejecución por lotes",
       "series": 5,
       "app_key": "batch",
-      "section": "Datos y ejecuciones por lotes",
+      "section": "Data and batch runs",
       "description": "Valide, conserve y ejecute una cola ordenada de trabajos reales de módulos de spaCR, con dependencias y registros independientes.",
       "objectives": [
         "Añadir trabajos validados de módulo y configuración, con etiquetas, dependencias y sustituciones de la línea de comandos.",
@@ -2957,7 +2777,7 @@
       "title": "Trabajos distribuidos",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Datos y ejecuciones por lotes",
+      "section": "Data and batch runs",
       "description": "Envíe y supervise tareas de spaCR en estaciones de trabajo mediante SSH, clústeres Slurm o sistemas de nube y HPC.",
       "objectives": [
         "Comprender cuándo utilizar Distributed Jobs.",
@@ -3006,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Audite las predicciones sobre datos reservados, la validación cruzada anidada, la calibración, la fuga de información y el rendimiento por placa.",
       "objectives": [
         "Comprender cuándo utilizar Classifier Evaluation.",
@@ -3054,7 +2874,7 @@
       "title": "Historial de ejecuciones",
       "series": 5,
       "app_key": "run_history",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Consulte desde un solo lugar la configuración, los archivos, las advertencias, los fallos y el rendimiento de cada trabajo.",
       "objectives": [
         "Comprender cuándo utilizar Run History.",
@@ -3102,7 +2922,7 @@
       "title": "Clasificar",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Elija un flujo de clasificación para recortes de imágenes o características medidas y evalúelo sin distribuir objetos relacionados entre particiones distintas.",
       "objectives": [
         "Comprender cuándo utilizar Classify.",
@@ -3151,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Módulos principales",
+      "section": "Core",
       "description": "Corrija manualmente máscaras de segmentación y trayectorias, conservando un registro auditable de cada modificación.",
       "objectives": [
         "Comprender cuándo utilizar Curate.",
@@ -3200,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Datos",
+      "section": "Data",
       "description": "Estime y valide la corrección de campo plano antes de medir las características de intensidad.",
       "objectives": [
         "Comprender cuándo utilizar Illumination.",
@@ -3248,7 +3068,7 @@
       "title": "Gestor de datos",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Datos",
+      "section": "Data",
       "description": "Examine el almacenamiento del proyecto y libere espacio eliminando archivos derivados sin modificar las adquisiciones originales.",
       "objectives": [
         "Comprender cuándo utilizar Data Manager.",
@@ -3296,7 +3116,7 @@
       "title": "Explorador de proyectos",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Datos",
+      "section": "Data",
       "description": "Localice proyectos de spaCR y consulte en una sola tabla su etapa, tamaño, ejecución más reciente y salidas obsoletas.",
       "objectives": [
         "Comprender cuándo utilizar Project Browser.",
@@ -3345,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Modelos de segmentación",
+      "section": "Segmentation models",
       "description": "Revise una máscara en napari y devuelva a spaCR las etiquetas corregidas con información de procedencia.",
       "objectives": [
         "Comprender cuándo utilizar Napari Bridge.",
@@ -3394,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Compruebe la profundidad de mapeo, la cobertura, las colisiones, los efectos posicionales y un umbral de abundancia basado en la evidencia.",
       "objectives": [
         "Comprender cuándo utilizar Barcode QC.",
@@ -3443,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Ordene y revise los resultados positivos del cribado mediante el tamaño del efecto, la incertidumbre, la tasa de falsos descubrimientos y la concordancia entre guías.",
       "objectives": [
         "Comprender cuándo utilizar Hit List.",
@@ -3492,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Redacte textos trazables de métodos y resultados a partir de ejecuciones registradas, en vez de reconstruir de memoria la configuración.",
       "objectives": [
         "Comprender cuándo utilizar Methods & Results.",
@@ -3540,7 +3360,7 @@
       "title": "Comparar ejecuciones",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Compare dos ejecuciones en paralelo para comprender los cambios en la configuración, los recuentos, las salidas y los resultados positivos.",
       "objectives": [
         "Comprender cuándo utilizar Run Compare.",
@@ -3588,7 +3408,7 @@
       "title": "Gráficos de control",
       "series": 5,
       "app_key": "control_chart",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Supervise los controles entre placas y detecte desviaciones respecto a una referencia explícita.",
       "objectives": [
         "Comprender cuándo utilizar Control Charts.",
@@ -3627,7 +3447,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, puede exportar el gráfico, las alertas y la definición de la referencia para supervisar la campaña."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -3636,7 +3457,7 @@
       "title": "Grafo de la tubería",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Compruebe qué artefactos generaron cada resultado y qué salidas posteriores están obsoletas o ausentes.",
       "objectives": [
         "Comprender cuándo utilizar Pipeline Graph.",
@@ -3684,7 +3505,7 @@
       "title": "Perfilador de predicciones",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Varíe una entrada del modelo y observe cómo responde una predicción ajustada.",
       "objectives": [
         "Comprender cuándo utilizar Prediction Profiler.",
@@ -3723,7 +3544,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, la curva de respuesta describe el comportamiento del modelo, no un efecto biológico causal, y puede exportarse junto con su configuración."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -3732,7 +3554,7 @@
       "title": "Panel de control de QC",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Reúna en una sola vista las comprobaciones de segmentación, unidades, fuga de información, efectos de placa y anotaciones.",
       "objectives": [
         "Comprender cuándo utilizar QC Dashboard.",
@@ -3781,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Represente las mediciones y examine la imagen correspondiente a cualquier punto.",
       "objectives": [
         "Comprender cuándo utilizar Image Scatter.",
@@ -3829,7 +3651,7 @@
       "title": "Linaje",
       "series": 5,
       "app_key": "lineage",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Examine las relaciones de contención, como las asignaciones de células, núcleos, patógenos y orgánulos.",
       "objectives": [
         "Comprender cuándo utilizar Lineage.",
@@ -3868,7 +3690,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, la tabla de relaciones revisada ayuda a distinguir la estructura biológica de los errores de asignación."
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -3877,7 +3700,7 @@
       "title": "Visor de capas",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Examine imágenes, máscaras, puntos y regiones de interés como capas alineadas.",
       "objectives": [
         "Comprender cuándo utilizar Layer Viewer.",
@@ -3916,7 +3739,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, puede exportar la vista y las regiones seleccionadas sin modificar los orígenes, a menos que guarde explícitamente una edición."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -3925,7 +3749,7 @@
       "title": "Constructor de gráficos",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Cree gráficos exploratorios asignando columnas de una tabla a funciones visuales.",
       "objectives": [
         "Comprender cuándo utilizar Graph Builder.",
@@ -3974,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Escriba las mediciones de spaCR en un archivo AnnData para scanpy o scvi-tools.",
       "objectives": [
         "Comprender cuándo utilizar AnnData Export.",
@@ -4023,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Resuma mediciones correlacionadas mediante componentes principales y examine las características que los determinan.",
       "objectives": [
         "Comprender cuándo utilizar PCA.",
@@ -4071,7 +3895,7 @@
       "title": "Tabular",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Reorganice las mediciones en resúmenes agrupados manteniendo visible el recuento que contribuye a cada valor.",
       "objectives": [
         "Comprender cuándo utilizar Tabulate.",
@@ -4110,7 +3934,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, la tabla dinámica y su especificación permanecen vinculadas a la selección de origen."
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -4119,7 +3944,7 @@
       "title": "Diccionario de características",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Busque el significado de una característica medida por su nombre o concepto.",
       "objectives": [
         "Comprender cuándo utilizar Feature Dictionary.",
@@ -4167,7 +3992,7 @@
       "title": "Múltiplos pequeños",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Compare el mismo gráfico entre grupos en una cuadrícula con ejes compartidos que permitan una comparación fiel.",
       "objectives": [
         "Comprender cuándo utilizar Small Multiples.",
@@ -4206,7 +4031,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, puede exportar la especificación de la cuadrícula y la figura junto con los datos seleccionados."
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -4215,7 +4041,7 @@
       "title": "Editor de compuertas",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Dibuje, examine, anide y reutilice compuertas de población en 2D, 3D o en una proyección de alta dimensionalidad.",
       "objectives": [
         "Dibujar y examinar una compuerta de población en 2D.",
@@ -4282,7 +4108,7 @@
       "title": "Explorador de características",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Ordene las características por su capacidad para separar las clases seleccionadas y examine la evidencia que sustenta la clasificación.",
       "objectives": [
         "Comprender cuándo utilizar Feature Explorer.",
@@ -4321,7 +4147,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, la tabla ordenada y los gráficos describen la asociación con las clases, no una importancia causal."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -4330,7 +4157,7 @@
       "title": "Valores atípicos",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explorar",
+      "section": "Explore",
       "description": "Marque objetos o pocillos inusuales mediante reglas robustas, sin eliminar ninguna fila.",
       "objectives": [
         "Comprender cuándo utilizar Outliers.",
@@ -4369,7 +4196,8 @@
           "hold_after": 0.65,
           "speech_text": "Cuando finaliza el flujo de trabajo, espáquer escribe un indicador de valor atípico y los diagnósticos, en lugar de eliminar observaciones sin advertirlo."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -4378,7 +4206,7 @@
       "title": "Diseño de experimento",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Diseño",
+      "section": "Design",
       "description": "Distribuya las condiciones, los controles y las réplicas antes de la adquisición.",
       "objectives": [
         "Comprender cuándo utilizar Experiment Design.",
@@ -4426,7 +4254,7 @@
       "title": "Potencia / diseño",
       "series": 5,
       "app_key": "power",
-      "section": "Diseño",
+      "section": "Design",
       "description": "Estime el número de células y pocillos necesarios para detectar un efecto bajo supuestos explícitos.",
       "objectives": [
         "Comprender cuándo utilizar Power / Design.",
@@ -4474,7 +4302,7 @@
       "title": "Dosis–respuesta",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Diseño",
+      "section": "Design",
       "description": "Ajuste curvas de dosis-respuesta, informe de la incertidumbre y rechace las estimaciones de EC50 que no estén sustentadas por los datos.",
       "objectives": [
         "Comprender cuándo utilizar Dose–Response.",
@@ -4523,7 +4351,7 @@
       "series": 5,
       "app_key": "explain_cv",
       "host_app_key": "classify_merged",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información.",
       "objectives": [
         "Comprender cuándo utilizar Explain CV Model.",
@@ -4571,46 +4399,14 @@
       "title": "Investigar acierto",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Resultados y control de calidad",
-      "description": "Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
-      "objectives": [
-        "Comprender cuándo utilizar Investigate Hit.",
-        "Configurar las entradas y los ajustes importantes.",
-        "Ejecutar el flujo de trabajo y localizar sus resultados."
-      ],
-      "prerequisite": "Siga las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados de etapas previas.",
-      "scenes": [
-        {
-          "narration": "Este tutorial presenta Investigate Hit. Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "Este tutorial presenta Investigate Hit. Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas."
-        },
-        {
-          "narration": "Elija la ejecución de regresión, el resultado seleccionado a nivel de gen o guía, la dirección del fenotipo, el umbral de falsos descubrimientos, el soporte entre guías y la base de datos de mediciones correspondiente.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Elija la ejecución de regresión, el resultado seleccionado a nivel de gen o guía, la dirección del fenotipo, el umbral de falsos descubrimientos, el soporte entre guías y la base de datos de mediciones correspondiente."
-        },
-        {
-          "narration": "En el área principal de configuración, revise la tabla de objetos, la columna de puntuación, la agrupación por pozo de microplaca, los umbrales de evidencia, las covariables y la mezcla jerárquica con ajuste cruzado opcional.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "En el área principal de configuración, revise la tabla de objetos, la columna de puntuación, la agrupación por pozo de microplaca, los umbrales de evidencia, las covariables y la mezcla jerárquica con ajuste cruzado opcional."
-        },
-        {
-          "narration": "Previsualice las células candidatas ordenadas por puntuación y los resúmenes por pozo de microplaca. Ejecute el modelo con ajuste cruzado solo cuando el resultado seleccionado y el contrato de evidencia sean correctos.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Previsualice las células candidatas ordenadas por puntuación y los resúmenes por pozo de microplaca. Ejecute el modelo con ajuste cruzado solo cuando el resultado seleccionado y el contrato de evidencia sean correctos."
-        },
-        {
-          "narration": "Cuando finaliza el flujo de trabajo, spaCR guarda las células candidatas ordenadas, comparaciones entre pozos independientes, probabilidades opcionales de que cada célula coincida con el fenotipo seleccionado, la incertidumbre y una clasificación versionada que nunca sustituye las anotaciones manuales.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "Cuando finaliza el flujo de trabajo, espáquer guarda las células candidatas ordenadas, comparaciones entre pozos independientes, probabilidades opcionales de que cada célula coincida con el fenotipo seleccionado, la incertidumbre y una clasificación versionada que nunca sustituye las anotaciones manuales."
-        }
-      ]
+      "section": "Results and quality control",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Próximamente",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -4620,7 +4416,7 @@
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis.",
       "objectives": [
         "Comprender cuándo utilizar Volcano Explorer.",
@@ -4669,7 +4465,7 @@
       "series": 5,
       "app_key": "parameter_sweep",
       "host_app_key": "regression",
-      "section": "Resultados y control de calidad",
+      "section": "Results and quality control",
       "description": "Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles.",
       "objectives": [
         "Comprender cuándo utilizar Parameter Sweep.",
@@ -4916,6 +4712,37 @@
           "speech_text": "Vuelve a Regression para investigar las entradas o cambiar deliberadamente una opción de análisis. Un cambio requiere una ejecución nueva y nuevos diagnósticos; abrir esta carpeta nunca actualiza resultados antiguos. El tutorial de Regression explica el conjunto de datos, la consola, los resultados interactivos y la asistencia."
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "Próximamente",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Próximamente",
+      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ],
   "language": "es"

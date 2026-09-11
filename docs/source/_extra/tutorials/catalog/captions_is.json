@@ -27,7 +27,12 @@
         {
           "narration": "Notaðu conda-forge eða PyPI fyrir stýrt Python-umhverfi, GitHub Releases fyrir skjáborðsuppsetningarforrit og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarkennsluna fyrir þína leið."
         }
-      ]
+      ],
+      "number": 1,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pypi_github"
     },
     {
       "id": "02_conda_install",
@@ -53,7 +58,12 @@
         {
           "narration": "Þegar spacr-doctor stenst allar athuganir skaltu ræsa spaCR með skipuninni spacr. Hafðu umhverfið virkt í hvert sinn sem þú keyrir spaCR."
         }
-      ]
+      ],
+      "number": 2,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "conda_install"
     },
     {
       "id": "03_pip_install",
@@ -79,7 +89,12 @@
         {
           "narration": "Umhverfið er nú tilbúið. Hafðu það virkt þegar spaCR er notað og notaðu python -m pip install --upgrade spacr þegar þú ætlar sérstaklega að uppfæra forritið."
         }
-      ]
+      ],
+      "number": 3,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pip_install"
     },
     {
       "id": "04_platform_installers",
@@ -108,7 +123,12 @@
         {
           "narration": "Ræstu spaCR úr ræsivalmynd stýrikerfisins eftir uppsetningu. Ekki þarf að setja Python eða Conda upp sérstaklega."
         }
-      ]
+      ],
+      "number": 4,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "platform_installers"
     },
     {
       "id": "05_home",
@@ -128,7 +148,12 @@
         {
           "narration": "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."
         }
-      ]
+      ],
+      "number": 5,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "home"
     },
     {
       "id": "06_api",
@@ -148,7 +173,12 @@
         {
           "narration": "Fjarlægja prófvalkostinn fyrir fullt hlaup. Starf sem er ekki með höfuð geymir sömu útfærslur, stillingar, útgáfu skrá og skrá og vinnuflæði skrifborðsins."
         }
-      ]
+      ],
+      "number": 6,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "api"
     },
     {
       "id": "07_mask",
@@ -198,7 +228,12 @@
         {
           "narration": "Veldu grímurnar og milli skrá sem þú þarft í Útgáfu og Geymslu. Fyrst gerðu litla próf og vinndu síðan fullri uppspretta eftir að fyrirsýn og konsólustökur hafa liðið."
         }
-      ]
+      ],
+      "number": 7,
+      "app_key": "mask",
+      "series": 1,
+      "section": "Core",
+      "slug": "mask"
     },
     {
       "id": "08_measure",
@@ -233,7 +268,12 @@
         {
           "narration": "Eftir að prófið hefur tekist vel skaltu hlaupa upp alla uppspretta. Með mælingu er vistað sporanlegt hlutarlínur í mælingum db og allar óskaðar ávextir við hliðar afkomu verkefnisins."
         }
-      ]
+      ],
+      "number": 8,
+      "app_key": "measure",
+      "series": 1,
+      "section": "Core",
+      "slug": "measure"
     },
     {
       "id": "09_annotate",
@@ -268,7 +308,12 @@
         {
           "narration": "Annotations eru í mælingum dot db með fyrirbæra auðkenningum og uppruna ómeðhöndla. Framhald þar til nærri umfjöllun er fullnægjandi fyrir fyrirhugaða líkan eða ákvörðun um gæðastjórnun."
         }
-      ]
+      ],
+      "number": 9,
+      "app_key": "annotate",
+      "series": 1,
+      "section": "Core",
+      "slug": "annotate"
     },
     {
       "id": "10_classify_cv",
@@ -309,7 +354,13 @@
         {
           "narration": "Run staðfestir fyrst merkingar og skiptingar, svo fer og metur upp módelinn sem settur er upp. Skoðaðu haldnar mælikvarða og dæmi áður en þú notar það víða; spaCR geymir eftirlitsstaðinn, spá, stillingar og rekstur."
         }
-      ]
+      ],
+      "number": 10,
+      "app_key": "classify",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_cv"
     },
     {
       "id": "11_classify_ml",
@@ -347,39 +398,27 @@
         {
           "narration": "Run staðfestir stjórn, undirbýr eiginleika, beitir allar plötutilfæringar, metur flokkunarann, reiknar mikilvægi og geymir virktuð útgáfu. Skoðaðu viðhorf og hegðun fyrir plötu áður en þú notar spáfræðilega."
         }
-      ]
+      ],
+      "number": 11,
+      "app_key": "ml_analyze",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_ml"
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [
-        {
-          "narration": "Kort stígmerki dekóða sekúeningar lesast í plötur stöðum og leiðsögn persónuleika. Konsólinn skýrir frá sýnishornum, staðfestingu á sniðgefandi, framsetningu, útgáfuleiðum og mistökum."
-        },
-        {
-          "narration": "Sequencing Input velur FASTQ möppuna og hvort sameiginleg lesningur sé sameiginlegur eða einn lesningsháttur er meðhöndlaður einn. Stađfestir nafnmyndina fyrir stór hlaup."
-        },
-        {
-          "narration": "Essentials inniheldur innlegg og greiningarstjórnir sem þarf til fyrstu hlaup. Notaðu Modified til að skoða breytingar á bókasafnum, All fyrir háþróaðar stjórnsýnir og Recipes fyrir endurtekjanlegt skipulag."
-        },
-        {
-          "narration": "Barcode References vísar til leitarborða fyrir leiðarvísir, plötur röður og plötur dálkar. Hver borð þarf að setja sérstakt nafn í par með væntanlegu röð."
-        },
-        {
-          "narration": "Lestu Parsing finnur þekkt ankr, tekur út stígmerki glugga og skipar nöfn röð, stöng og leiðarhóp. Fylgi þessu mynstri úr hönnun bókasafnsins og staðfesta það á dæmi lesur."
-        },
-        {
-          "narration": "Kynningartíma og áreiðanleiki ákveður stærð hlutar, starfsmenn og prófleiða. Byrjaðu á litlum prófshluta; minnkaðu þunginn eða starfsmannatalinn þegar minni er takmarkað."
-        },
-        {
-          "narration": "Run staðfestir leiðir og vísbendingar, uppgötvar sýni, telur lesur og byrjar stykki kartlagningu. Stoppsskjallar um skipulögð afbrot eftir núverandi öruggan punkt."
-        },
-        {
-          "narration": "Horfðu á virkan sýn, fjölda flokka, samræmda brot og viðvörun í framfarasýningunni og þættinum. Rannsóknaðu slæma kortun áður en þú samþykkir að hlaupa í heild."
-        },
-        {
-          "narration": "Á vellíðan hlaup skrifar einstök stígmerki samsetningar með röð, stöng, leiðsögn og tal auk gæðastjórnastaðla, stillingar og manifest sem gera kortuninni endurnýjanleg."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 12,
+      "app_key": "map_barcodes",
+      "series": 1,
+      "section": "Core",
+      "slug": "map_barcodes"
     },
     {
       "id": "13_regression",
@@ -417,7 +456,12 @@
         {
           "narration": "Lokaverkefnið inniheldur samræmd greiningargögn, áhrifamat á stigi leiðsöguraða og gena, reynslu- eða líkanabyggðar marktæknitöflur, greiningarmyndir, vistaðar stillingar og keyranlegt birtingarskjal."
         }
-      ]
+      ],
+      "number": 13,
+      "app_key": "regression",
+      "series": 1,
+      "section": "Core",
+      "slug": "regression"
     },
     {
       "id": "14_make_masks",
@@ -452,7 +496,12 @@
         {
           "narration": "Fyrir mynd án merkingar skaltu búa til hluti með Brush eða Wand plus, hreinsa mörkin og vista nýja myndaskáppa fyrir módelþjálfun."
         }
-      ]
+      ],
+      "number": 14,
+      "app_key": "make_masks",
+      "series": 1,
+      "section": "Segmentation models",
+      "slug": "make_masks"
     },
     {
       "id": "15_image_umap",
@@ -490,7 +539,12 @@
         {
           "narration": "Lögð út kortið heldur UMAP-punktaflóðinni sýnilegri og yfirborgar litla gagnsæla mikroskópsgróður á fulltrúlegum stöðum. Sparað framleiðsla felur í sér samhæfingar, klúster merkingar, mynd, stillingar og endurnýjanleika manifest."
         }
-      ]
+      ],
+      "number": 15,
+      "app_key": "umap",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "image_umap"
     },
     {
       "id": "16_activation",
@@ -525,7 +579,13 @@
         {
           "narration": "Skoða kort í réttum, rangum, háum og lágum tilvörum dæmi, ásamt staðfestingarprófum. Að taka lífrænar niðurstöður aðeins úr staðfestri þjálfaðri flokkunargreiningu."
         }
-      ]
+      ],
+      "number": 16,
+      "app_key": "activation",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "activation"
     },
     {
       "id": "17_timelapse",
@@ -566,7 +626,13 @@
         {
           "narration": "Á árangursríkum verkefni er að finna tímavísunartengd grímur, stöðugir sporkenningar, gæðastjórnarskrár, myndir, sameinuð röð, vistað stillingar og endurnýjanlegt manifest."
         }
-      ]
+      ],
+      "number": 17,
+      "app_key": "timelapse",
+      "host_app_key": "mask",
+      "series": 2,
+      "section": "Core",
+      "slug": "timelapse"
     },
     {
       "id": "18_motility",
@@ -601,7 +667,13 @@
         {
           "narration": "Skoðaðu töflur fyrir ramma og fyrir braut ásamt braut- og gæðaeftirlits tölum. Staðfestir stöðugleika brautar, klúðunareiningar og flokksmerki áður en skilyrði eru samanburð."
         }
-      ]
+      ],
+      "number": 18,
+      "app_key": "motility",
+      "host_app_key": "measure",
+      "series": 2,
+      "section": "Core",
+      "slug": "motility"
     },
     {
       "id": "19_train_cellpose",
@@ -633,7 +705,13 @@
         {
           "narration": "Eftir þjálfun skal prófað prófaðili yfirvegar á þolandi völlum og skoða mistök, ekki aðeins tap. spaCR geymir innlit, staðsetningar, hlaupa manifestu og parrað sviði forskoðanir saman."
         }
-      ]
+      ],
+      "number": 19,
+      "app_key": "train_cellpose",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "train_cellpose"
     },
     {
       "id": "20_cellpose_masks",
@@ -665,65 +743,43 @@
         {
           "narration": "Skoðaðu fulltrúar frumvarp, yfirrit af vörum og flæðingarveldi í myndaskránni áður en mælingar eru gerðar í eftirrás. Veldu eðlilegingu og þröskulendur úr þeim fyrirsýn en ekki afrita kennslustömdir."
         }
-      ]
+      ],
+      "number": 20,
+      "app_key": "cellpose_masks",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "cellpose_masks"
     },
     {
       "id": "21_model_compare",
-      "scenes": [
-        {
-          "narration": "Samtalsmyndin samanber hlutalög, fyrirliðinn samning, samsvarandi, brotastöku og hlið við hlið yfirlagningar þannig að tveir flokkunarhæfingar geta verið metnir á sömu sviðum."
-        },
-        {
-          "narration": "Veldu litla en fulltrúlega myndaskrá og takmarkaðu fjölda sviða til að bera saman við samskipti. Lögðu fram auðveld og erfið dæmi í stað þess að aðeins hreinsa vel."
-        },
-        {
-          "narration": "Skipuleggja A- og B-mynd. Haldið fyrir að leiðar, stærð, fyrirvinnslu og sameiginleg þröskulær séu samsettir nema sú stilling sé ætlað munur."
-        },
-        {
-          "narration": "Samanburður á sviðum á hverju valdu velli með báðum löndum stillingum. Framfarin rök eru skráðar og óstuðluð parametrar eru greind um í stað þess að þöggt meðhöndla sem árangursrík."
-        },
-        {
-          "narration": "Áætlunarmiðlar sem náðu til hvers líkaskilda skilur virðismælir frá óþekktum eða vanræðum stjórnmálum. Staðfest að samanburðurinn sé í raun öðruvísi en ætlað er."
-        },
-        {
-          "narration": "Fylgtabla skýrslur telja, forgrunns samning, samsvarandi yfirlagningu, splits, sameiningar, ósamþykkt hlutir og sjálfstæðar mask gæðakönnun. Enginn metrikur tekur öll mistök."
-        },
-        {
-          "narration": "Veldu röð til að skoða bæði forsýningar. Leitaðu eftir nýjum greiningum, missum, breytingum á mörkum, skiptingum og sameiningum og endurtakið á milli fulltrúarsviða."
-        },
-        {
-          "narration": "Veldu einungis fyrirmynd þegar sjónrænar munir og mælikvarða bæta mistök sem skipta máli í niðurstreymslunni. Samtalsvirk niðurstöður eru upplýsandi og sýna ekki úrbætur."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 21,
+      "app_key": "model_compare",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_compare"
     },
     {
       "id": "22_model_zoo",
-      "scenes": [
-        {
-          "narration": "Listið á lífrænum dýralífsins er hægt að nota til endurtekningar lífræn sem er aðgengileg úr bundiðum, staðbundnum eða lýstum kjarnasafnum. Byrjaðu á að passa verkefnið, leiðir, hlutastöðu og væntanlega fyrirvinnslu."
-        },
-        {
-          "narration": "Veldu fyrirmynd mappa og skanna það. Í skráinni eru staðbundin leiðir og fjarskipta metadata saman og ekki er hægt að duplíta."
-        },
-        {
-          "narration": "Veldu fyrirmynd til að skoða uppruna, leyfi, hlutarum, þjálfunarsamþykki og væntanlega geometri. Ein módel sem hlaðir sig vel er ekki sjálfkrafa hentugur fyrir myndir þínar."
-        },
-        {
-          "narration": "Veldu lítið samanlag af fulltrúlegum sviðum fyrir takmörkuð viðmiðunarmerki, þar með talið erfið dæmi."
-        },
-        {
-          "narration": "Prófaðu eina uppsett fyrirmynd. Viðmiðunarmiðillinn skýrir hraða, hlutalög, gæðaflakar og forsjá án þess að líta á þessar athuganir sem nákvæmni á grundvelli sannleikans."
-        },
-        {
-          "narration": "Skoðaðu borðið og forsýning á grímunni saman. Rannsóknaðu viðvörun í myndasambandi áður en þú samþykkir eða hafnar módel."
-        },
-        {
-          "narration": "Veldu tvö samhæf staðbundin módel þegar þú þarft að hafa stjórn á hlutverki."
-        },
-        {
-          "narration": "Samtalsmyndin samræmist fær bæði stað og sömu sviði, þannig að munir á grímum og gæðametrikum geta verið dæmt á sömu innfærslum."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 22,
+      "app_key": "model_zoo",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_zoo"
     },
     {
       "id": "23_agreement",
@@ -752,7 +808,13 @@
         {
           "narration": "Skoðaðu fulltrúargróður áður en merkingar eða flokksskilgreiningar breytast. Samtalsstaða getur ekki útskýrt hvers vegna endurskoðendur voru ósammála."
         }
-      ]
+      ],
+      "number": 23,
+      "app_key": "agreement",
+      "host_app_key": "annotate",
+      "series": 3,
+      "section": "Results and quality control",
+      "slug": "agreement"
     },
     {
       "id": "24_plaque",
@@ -781,7 +843,12 @@
         {
           "narration": "Skoðaðu yfirborð og dreifingu á plötu áður en skilyrði eru samanburð. Gagnasafn, samantektir, tölfræði og gæðaeftirlit eru samt tengd rekstri."
         }
-      ]
+      ],
+      "number": 24,
+      "app_key": "analyze_plaques",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "plaque"
     },
     {
       "id": "25_recruitment",
@@ -810,7 +877,12 @@
         {
           "narration": "Skoðaðu skiptingu á skiptum og stjórna dreifingum áður en þú treystir samantektum á skilyrði. Efnis- og vel-útgangur halda upp úrgangsaðilinn."
         }
-      ]
+      ],
+      "number": 25,
+      "app_key": "recruitment",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "recruitment"
     },
     {
       "id": "26_invasion",
@@ -839,7 +911,12 @@
         {
           "narration": "Skoða fylgdar, innrásar og óvissa dæmi saman með vel staðsettum samantektum. Útflutningsúrslit hafa sett sett settar fyrir próf og kjaraskilgreinar."
         }
-      ]
+      ],
+      "number": 26,
+      "app_key": "invasion",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "invasion"
     },
     {
       "id": "27_replication",
@@ -868,7 +945,12 @@
         {
           "narration": "Skoðaðu prófvörur á öllum talsviðinu og skoðaðu sameinuð eða flokkað grímur. Sparaðar dreifingar og tölfræði eru samt tengd gögn á hlutastöðum."
         }
-      ]
+      ],
+      "number": 27,
+      "app_key": "replication",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "replication"
     },
     {
       "id": "28_training_runs",
@@ -897,7 +979,13 @@
         {
           "narration": "Notaðu per-fold curves og mismunandi stillingar með haldin út árangur til að velja endurstætt hlaup."
         }
-      ]
+      ],
+      "number": 28,
+      "app_key": "train_compare",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "training_runs",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -923,7 +1011,12 @@
         {
           "narration": "Skoðaðu lokið skýrslu og staðfesta niðurstöður, útfærslur og tengsl áður en þú deilir henni."
         }
-      ]
+      ],
+      "number": 29,
+      "app_key": "report",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "report"
     },
     {
       "id": "30_plate_queue",
@@ -949,7 +1042,12 @@
         {
           "narration": "Ferðir plötur geyma einangrað afkomu og rekstur; stöðvaðir eða ekki gengið er að finna og endurtaka."
         }
-      ]
+      ],
+      "number": 30,
+      "app_key": "queue",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "plate_queue"
     },
     {
       "id": "31_external_masks",
@@ -978,7 +1076,13 @@
         {
           "narration": "Kynntu innflutninginn sem hefur verið endurskoðað. Myndirnar, grímurnar, mælingar og uppruna eru tilbúnar til að nota niður."
         }
-      ]
+      ],
+      "number": 31,
+      "app_key": "external_masks",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "external_masks",
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -1007,7 +1111,12 @@
         {
           "narration": "Skrifaðu aðeins eftir að áætluninni sé samþykkt. spaCR geymir mosaikinn, breytir, samræmdir og skráningarskýrsla."
         }
-      ]
+      ],
+      "number": 32,
+      "app_key": "align",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "align_stitch"
     },
     {
       "id": "33_plate_viewer",
@@ -1036,7 +1145,13 @@
         {
           "narration": "Útflutningur á núverandi hreinsaðu brunngridir með talum og rúmlegum athugasemdum til endurskoðunar eða endurskrá."
         }
-      ]
+      ],
+      "number": 33,
+      "app_key": "plate_view",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "plate_viewer",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -1065,7 +1180,12 @@
         {
           "narration": "Útflutningur á heild sinni núverandi sía og sýnilega stöng val. Upphafsgögn er óbreytt."
         }
-      ]
+      ],
+      "number": 34,
+      "app_key": "db_browser",
+      "series": 4,
+      "section": "Data",
+      "slug": "database"
     },
     {
       "id": "35_converter",
@@ -1094,7 +1214,13 @@
         {
           "narration": "Formanútgáfa staðfestir lokið vettvangar eftirlit áður en þeir sleppa þeim, svo saknar eða skemmdir útgöngur eru endurbyggðar."
         }
-      ]
+      ],
+      "number": 35,
+      "app_key": "convert",
+      "series": 4,
+      "section": "Data",
+      "slug": "converter",
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -1123,7 +1249,12 @@
         {
           "narration": "Aðeins innflutningur á endurskoðaðu áætlun. spaCR skrifar kanónísk myndir, grímur, mælingar og uppruna en heldur áfram að hafa ytri kennitökur."
         }
-      ]
+      ],
+      "number": 36,
+      "app_key": "foreign",
+      "series": 5,
+      "section": "Data",
+      "slug": "import"
     },
     {
       "id": "37_batch",
@@ -1164,7 +1295,12 @@
         {
           "narration": "Allir þrír veraldir í undirvinnslu eru lokið. Framfarastöðinn er þrír af þremur, töfluð geymir hver stöðu og tímabil, samantektin greinar árangur, mislög, skip, ekki hlaupi og hlutfall og dagskrá valsins verkefnis inniheldur nákvæmlega skipun og umbreytingarskýrslu. Hver áfangastaður hefur fjögur TIFF og upprunafræðikort; allir kjarnahashar eru óbreyttir."
         }
-      ]
+      ],
+      "number": 37,
+      "app_key": "batch",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "batch"
     },
     {
       "id": "38_distributed_jobs",
@@ -1184,7 +1320,12 @@
         {
           "narration": "Þegar vinnuflökunni er lokið, staðbundin skráir rekja fjarlæg starf auðkenningar, dagskrá, ástand, fluttar ritgerðir og mistök."
         }
-      ]
+      ],
+      "number": 38,
+      "app_key": "distributed_jobs",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "distributed_jobs"
     },
     {
       "id": "39_classifier_evaluation",
@@ -1204,7 +1345,13 @@
         {
           "narration": "Þegar vinnuflökunin er lokið, gefur spaCR fram mismunun, útfærslu, rugl, lekki og styrktarskýrslur."
         }
-      ]
+      ],
+      "number": 39,
+      "app_key": "classifier_evaluation",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "classifier_evaluation"
     },
     {
       "id": "40_run_history",
@@ -1224,7 +1371,12 @@
         {
           "narration": "Þegar vinnuflökunin er lokið geturðu endurgefið, borið saman, haldið áfram eða tilkynnt frá fyrri vinnu án þess að giska á hvernig hún var unnin."
         }
-      ]
+      ],
+      "number": 40,
+      "app_key": "run_history",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_history"
     },
     {
       "id": "41_classify",
@@ -1244,7 +1396,12 @@
         {
           "narration": "Þegar vinnuflæði er lokið, líkan, spá, skiptir skrár, mælikvarða og stillingar eru áfram tengd rekstri."
         }
-      ]
+      ],
+      "number": 41,
+      "app_key": "classify_merged",
+      "series": 5,
+      "section": "Core",
+      "slug": "classify"
     },
     {
       "id": "42_curate",
@@ -1264,7 +1421,13 @@
         {
           "narration": "Þegar vinnufljósið er lokið eru leiðréttir merkingar og breytingar á brautinni geymdar með uppruna til að hægt sé að endurnýja mælingar í eftirrás."
         }
-      ]
+      ],
+      "number": 42,
+      "app_key": "curate",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Core",
+      "slug": "curate"
     },
     {
       "id": "43_illumination",
@@ -1284,7 +1447,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið eru samþykktar leiðréttingarfelda og greiningar geymdar til endurnýjanlegrar fyrirvinnslu."
         }
-      ]
+      ],
+      "number": 43,
+      "app_key": "illumination",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Data",
+      "slug": "illumination"
     },
     {
       "id": "44_data_manager",
@@ -1304,7 +1473,12 @@
         {
           "narration": "Þegar vinnuflökunin er lokið sýnir uppfært lager og hreinsunarskrá hvað er eftir og hvað er hægt að endurnýja."
         }
-      ]
+      ],
+      "number": 44,
+      "app_key": "data_manager",
+      "series": 5,
+      "section": "Data",
+      "slug": "data_manager"
     },
     {
       "id": "45_project_browser",
@@ -1324,7 +1498,12 @@
         {
           "narration": "Þegar vinnuflökunni er lokið tengir vafra þig við viðkomandi skrár og módelar án þess að breyta verkefnadata."
         }
-      ]
+      ],
+      "number": 45,
+      "app_key": "project_browser",
+      "series": 5,
+      "section": "Data",
+      "slug": "project_browser"
     },
     {
       "id": "46_napari_bridge",
@@ -1344,7 +1523,13 @@
         {
           "narration": "Þegar vinnuflökunni er lokið eru leiðréttir grímur og skráningarskrárinn tengdir upprunalegu sviði."
         }
-      ]
+      ],
+      "number": 46,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Segmentation models",
+      "slug": "napari_bridge"
     },
     {
       "id": "47_barcode_qc",
@@ -1364,7 +1549,13 @@
         {
           "narration": "Þegar vinnuflökun er lokið skráir skýrslan valinn mikið af, stuðningsgreiningar og áhrif brunnanna."
         }
-      ]
+      ],
+      "number": 47,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "barcode_qc"
     },
     {
       "id": "48_hit_list",
@@ -1384,7 +1575,13 @@
         {
           "narration": "Þegar vinnuflökunni er lokið, er álitinn á álitinn sem er síaður geymdur til einkunnanna, sönnun, athugasemdir og auðkenningar á heimildinni."
         }
-      ]
+      ],
+      "number": 48,
+      "app_key": "hit_list",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "hit_list"
     },
     {
       "id": "49_methods_results",
@@ -1404,7 +1601,13 @@
         {
           "narration": "Þegar vinnuflökunni er lokið er útflutningslegan aðferð og niðurstöður með samantekt um uppruna."
         }
-      ]
+      ],
+      "number": 49,
+      "app_key": "methods_export",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "methods_results"
     },
     {
       "id": "50_run_compare",
@@ -1424,7 +1627,12 @@
         {
           "narration": "Þegar vinnuflæði er lokið tengir samanburðarskýrslan hverja mismun aftur til báða kjarnaskiptinga."
         }
-      ]
+      ],
+      "number": 50,
+      "app_key": "run_compare",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_compare"
     },
     {
       "id": "51_control_charts",
@@ -1444,7 +1652,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið er hægt að flytja út graf, viðvörun og útgangsskilgreiningu til að fylgjast með herferðinni."
         }
-      ]
+      ],
+      "number": 51,
+      "app_key": "control_chart",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "control_charts",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -1464,7 +1678,12 @@
         {
           "narration": "Þegar vinnuflæði er lokið, greinar grafinn nákvæmlega móðul sem ætti að vera runnið aftur til að endurheimta samræmi."
         }
-      ]
+      ],
+      "number": 52,
+      "app_key": "pipeline_graph",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pipeline_graph"
     },
     {
       "id": "53_prediction_profiler",
@@ -1484,7 +1703,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið lýsir viðbrögðskurvan samdráttarviðferð, ekki orsaksfræðilega áhrif og er hægt að flytja út með stillingum hennar."
         }
-      ]
+      ],
+      "number": 53,
+      "app_key": "profiler",
+      "series": 5,
+      "section": "Explore",
+      "slug": "prediction_profiler",
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -1504,7 +1729,12 @@
         {
           "narration": "Þegar vinnuflökunin er lokið er samsett dómgreiningin eftir að vera rekin til einstakra skýrsla í stað þess að skipta þeim út."
         }
-      ]
+      ],
+      "number": 54,
+      "app_key": "qc_dashboard",
+      "series": 5,
+      "section": "Explore",
+      "slug": "qc_dashboard"
     },
     {
       "id": "55_image_scatter",
@@ -1524,7 +1754,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið er hægt að flytja út valda hluti og plótið með stöðugum kjarnorðkenningum."
         }
-      ]
+      ],
+      "number": 55,
+      "app_key": "image_scatter",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "image_scatter"
     },
     {
       "id": "56_lineage",
@@ -1544,7 +1780,13 @@
         {
           "narration": "Þegar vinnuflökunni er lokið hjálpar yfirlitin tengslatafla til að greina lífræna mannvirki frá verkefnasvikum."
         }
-      ]
+      ],
+      "number": 56,
+      "app_key": "lineage",
+      "series": 5,
+      "section": "Explore",
+      "slug": "lineage",
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -1564,7 +1806,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið er hægt að flytja út sýn og valda svæði án þess að breyta heimildum nema búið sé að vista útritun."
         }
-      ]
+      ],
+      "number": 57,
+      "app_key": "layer_viewer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "layer_viewer",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -1584,7 +1832,12 @@
         {
           "narration": "Þegar vinnuflæði er lokið er hægt að endurnýta grafsspecifikasöfnun og gagnavalið eða flytja það út."
         }
-      ]
+      ],
+      "number": 58,
+      "app_key": "graph_builder",
+      "series": 5,
+      "section": "Explore",
+      "slug": "graph_builder"
     },
     {
       "id": "59_anndata_export",
@@ -1604,7 +1857,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið, h5ad skrá varðveitir valið matrix, athugasemdir og uppruna til niðurstreymis."
         }
-      ]
+      ],
+      "number": 59,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Explore",
+      "slug": "anndata_export"
     },
     {
       "id": "60_pca",
@@ -1624,7 +1883,13 @@
         {
           "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út merkin, innlagningar, stillingar og plottur til að endurnýja sig."
         }
-      ]
+      ],
+      "number": 60,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pca"
     },
     {
       "id": "61_tabulate",
@@ -1644,7 +1909,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið, er snúandi borð og tilgreiningin á henni tengd upphafsaðvalinu."
         }
-      ]
+      ],
+      "number": 61,
+      "app_key": "tabulate",
+      "series": 5,
+      "section": "Explore",
+      "slug": "tabulate",
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -1664,7 +1935,12 @@
         {
           "narration": "Þegar vinnuflökunni er lokið er hægt að afrita valdu skilgreiningar eða flytja þær út ásamt greiningu."
         }
-      ]
+      ],
+      "number": 62,
+      "app_key": "feature_dict",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_dictionary"
     },
     {
       "id": "63_small_multiples",
@@ -1684,7 +1960,13 @@
         {
           "narration": "Þegar vinnufljósið er lokið er hægt að flytja út út út útferðarmerki og mynd með valiðum gögnum."
         }
-      ]
+      ],
+      "number": 63,
+      "app_key": "trellis",
+      "series": 5,
+      "section": "Explore",
+      "slug": "small_multiples",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -1710,7 +1992,12 @@
         {
           "narration": "Cluster Walk leitar eftir meðmörkuðum röð DBSCAN-sjára á sýndu mælingum og skýrir frá valdu sjári, fjölda fólks og útilokaðri brotinu. Skoðaðu niðurstaðan gates, svo athuga eða útflutningur aðeins eftir að íbúðirnar samsvara við sýnilegar gögn."
         }
-      ]
+      ],
+      "number": 64,
+      "app_key": "gate_editor",
+      "series": 5,
+      "section": "Explore",
+      "slug": "gate_editor"
     },
     {
       "id": "65_feature_explorer",
@@ -1730,7 +2017,13 @@
         {
           "narration": "Þegar vinnuflæði er lokið lýsir röðabók og plotti tengsl við flokkana, ekki orsaksverði."
         }
-      ]
+      ],
+      "number": 65,
+      "app_key": "feature_explorer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_explorer",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -1750,7 +2043,13 @@
         {
           "narration": "Þegar vinnuflökunin er lokið skrifar spaCR útlagandi flagg og greiningu í stað þess að eyða athugasemdum í þögnu máli."
         }
-      ]
+      ],
+      "number": 66,
+      "app_key": "outliers",
+      "series": 5,
+      "section": "Explore",
+      "slug": "outliers",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -1770,7 +2069,12 @@
         {
           "narration": "Þegar vinnuflökunni er lokið má staðfestan plötukort og metadata flytja út til að afla og síðar greina spaCR."
         }
-      ]
+      ],
+      "number": 67,
+      "app_key": "experiment_design",
+      "series": 5,
+      "section": "Design",
+      "slug": "experiment_design"
     },
     {
       "id": "68_power_design",
@@ -1790,7 +2094,12 @@
         {
           "narration": "Þegar vinnuflæði er lokið skráir skýrslan gát og mælt með sýnatöku í stað þess að koma fram einn tölur án samhengi."
         }
-      ]
+      ],
+      "number": 68,
+      "app_key": "power",
+      "series": 5,
+      "section": "Design",
+      "slug": "power_design"
     },
     {
       "id": "69_dose_response",
@@ -1810,7 +2119,12 @@
         {
           "narration": "Þegar vinnuflökunni er lokið er hægt að flytja út bökurparametrar, óvissa, greiningar og heimildatökur saman."
         }
-      ]
+      ],
+      "number": 69,
+      "app_key": "dose_response",
+      "series": 5,
+      "section": "Design",
+      "slug": "dose_response"
     },
     {
       "id": "70_explain_cv",
@@ -1830,27 +2144,28 @@
         {
           "narration": "Þegar verkflæðinu lýkur skráir það samsvörun, umstokkunarmikilvægi á sannprófunarsafninu, SHAP-yfirlit, útilokaða dálka, hópun, bakenda og uppruna; lítil samsvörun er tilgreind í stað þess að vera falin."
         }
-      ]
+      ],
+      "number": 70,
+      "app_key": "explain_cv",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "explain_cv"
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [
-        {
-          "narration": "Þetta kennsluefni fjallar um Investigate Hit. Rekið valda niðurstöðu aðhvarfsgreiningar aftur til mögulegra frumna og megindlegrar stoðar úr brunnnum örplötu án þess að yfirskrifa yfirfarnar merkingar."
-        },
-        {
-          "narration": "Veljið aðhvarfsgreiningarkeyrsluna, valda niðurstöðu á gena- eða stýriraðastigi, stefnu svipgerðar, þröskuld falskra uppgötvana, stuðning stýriraða og samsvarandi mælingagagnagrunn."
-        },
-        {
-          "narration": "Farið í aðalstillingasvæðinu yfir hlutatöfluna, stigadálkinn, hópun eftir brunni örplötu, sönnunarþröskulda, skýribreytur og valfrjálsa þveraðlagaða stigskipta blöndulíkanið."
-        },
-        {
-          "narration": "Forskoðið mögulegar frumur raðaðar eftir stigum og yfirlit brunna örplötu. Keyrið þveraðlagaða líkanið aðeins þegar valda niðurstaðan og skilyrði fyrir stoð eru rétt."
-        },
-        {
-          "narration": "Þegar verkflæðinu lýkur vistar spaCR raðaðar mögulegar frumur, samanburð óháðra brunna, valfrjálsar líkur á að hver fruma samsvari valinni svipgerð, óvissu og útgáfustýrða flokkun sem kemur aldrei í stað handvirkra merkinga."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 71,
+      "app_key": "investigate_hit",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "investigate_hit",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -1870,7 +2185,13 @@
         {
           "narration": "Þegar verkflæðinu lýkur eru PDF- og PNG-skrár endurgerðar úr skráðum gögnum og útliti í umbeðinni stærð, en upprunalegar niðurstöður aðhvarfsgreiningarinnar haldast óbreyttar."
         }
-      ]
+      ],
+      "number": 72,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "volcano_explorer"
     },
     {
       "id": "73_parameter_sweep",
@@ -1890,7 +2211,13 @@
         {
           "narration": "Þegar verkflæðinu lýkur skráir endurheimtanlega niðurstöðutaflan stillingar, stöðu, fjölda uppgötvana, sæti jákvæðrar viðmiðunar, keyrslutíma, úttaksmöppu og ástæðu bilunar fyrir hverja tilraun."
         }
-      ]
+      ],
+      "number": 73,
+      "app_key": "parameter_sweep",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "parameter_sweep"
     },
     {
       "id": "74_import_images",
@@ -2078,6 +2405,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Væntanlegt",
+      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

@@ -56,8 +56,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 75
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 528
+    assert len(catalog["lessons"]) == 77
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 498
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -128,7 +128,7 @@ def _folded_lesson_hosts():
 
 
 def _tutorial_catalog():
-    """The PUBLISHED collection -- what the live site currently serves."""
+    """Website SOURCE; use the live audit to establish what Pages serves."""
     return frames.load_catalog(
         ROOT / "docs" / "source" / "_extra" / "tutorials" /
         "lesson_catalog.js"
@@ -157,7 +157,9 @@ def _candidate_catalog():
     )
 
 
-def test_every_module_and_fold_has_exactly_one_current_tutorial_route():
+@pytest.mark.parametrize('catalog_loader', [_tutorial_catalog, _candidate_catalog],
+                         ids=['website-source', 'refreshed-candidate'])
+def test_every_module_and_fold_has_exactly_one_current_tutorial_route(catalog_loader):
     """Keep the course synchronized with tiles *and* consolidated modules.
 
     The old subset assertion allowed any number of retired tiles to remain
@@ -168,8 +170,8 @@ def test_every_module_and_fold_has_exactly_one_current_tutorial_route():
     """
     registry = _registered_gui_modules()
     folded_hosts = _folded_lesson_hosts()
-    # THE CANDIDATE, not the published collection -- see `_candidate_catalog`.
-    lessons = _candidate_catalog()["lessons"]
+    # Both collections now include placeholders; neither implies deployment.
+    lessons = catalog_loader()["lessons"]
     routed = [lesson for lesson in lessons if lesson.get("app_key")]
     lesson_keys = [lesson["app_key"] for lesson in routed]
 

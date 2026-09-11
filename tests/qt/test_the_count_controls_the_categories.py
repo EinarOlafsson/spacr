@@ -110,7 +110,37 @@ def test_an_old_settings_file_still_means_what_it_meant():
 
 
 def test_an_object_with_no_channel_brings_no_settings(mask):
-    """"do the same for the other object classes, except cell"."""
+    """"do the same for the other object classes, except cell".
+
+    THE PREMISE IS ESTABLISHED RATHER THAN ASSUMED, and it has to be.
+    `test_the_rule_is_decided_once_and_not_while_typing` types into
+    `nucleus_channel` six times and its last write is `5 % 3` -- it leaves
+    a 2 there -- and the panel remembers a typed value across windows, so
+    the NEXT test's freshly built screen opens with a nucleus channel and
+    the rule correctly shows the nucleus settings.
+
+    Measured: this file alone at `--randomly-seed=288` fails, and so does
+    the three-test sequence
+    `test_the_rule_is_decided_once_and_not_while_typing`,
+    `test_no_category_is_empty`, this one -- 3.5 seconds. The panel's
+    channel goes [None x6, '2' x8] as it settles. Nothing was wrong with
+    the visibility rule, which is where four earlier hypotheses went.
+
+    A test whose subject is "an object with NO channel" must make sure the
+    object has none. Assuming it made this test a report on whatever the
+    previous one typed.
+    """
+    model = mask._settings_model
+    for role in ("nucleus", "pathogen"):
+        widget = model._widgets.get(f"{role}_channel")
+        if widget is None:
+            continue
+        if hasattr(widget, "setText"):
+            widget.setText("")
+        elif hasattr(widget, "setCurrentText"):
+            widget.setCurrentText("")
+    model.refresh_object_visibility()
+
     # HIDDEN, NOT ABSENT. This read `_widgets` and required the rows to be
     # missing, which was true while an unset object's keys were dropped from
     # the build. That is exactly what made 356's reveal impossible, so the

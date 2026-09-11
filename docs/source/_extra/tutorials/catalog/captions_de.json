@@ -27,7 +27,12 @@
         {
           "narration": "Verwenden Sie conda-forge oder PyPI für eine verwaltete Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur, wenn Sie unveröffentlichte Änderungen benötigen. Wählen Sie anschließend das Installations-Tutorial für Ihren Weg."
         }
-      ]
+      ],
+      "number": 1,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pypi_github"
     },
     {
       "id": "02_conda_install",
@@ -53,7 +58,12 @@
         {
           "narration": "Wenn spacr-doctor alle Prüfungen bestanden hat, starten Sie spaCR mit dem Befehl spacr. Lassen Sie diese Umgebung bei jeder Verwendung von spaCR aktiviert."
         }
-      ]
+      ],
+      "number": 2,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "conda_install"
     },
     {
       "id": "03_pip_install",
@@ -79,7 +89,12 @@
         {
           "narration": "Die Umgebung ist nun einsatzbereit. Aktivieren Sie sie bei jeder Verwendung von spaCR und führen Sie python -m pip install --upgrade spacr nur aus, wenn Sie spaCR gezielt aktualisieren möchten."
         }
-      ]
+      ],
+      "number": 3,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pip_install"
     },
     {
       "id": "04_platform_installers",
@@ -108,7 +123,12 @@
         {
           "narration": "Starten Sie spaCR nach der Installation über den Programmstarter des Betriebssystems. Eine separate Einrichtung von Python oder Conda ist nicht erforderlich."
         }
-      ]
+      ],
+      "number": 4,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "platform_installers"
     },
     {
       "id": "05_home",
@@ -128,7 +148,12 @@
         {
           "narration": "Wählen Sie eine Modulkachel, um die zugehörigen Einstellungen zu öffnen. Modulname und Beschreibung am oberen Rand bestätigen den aktiven Arbeitsablauf."
         }
-      ]
+      ],
+      "number": 5,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "home"
     },
     {
       "id": "06_api",
@@ -148,7 +173,12 @@
         {
           "narration": "Entfernen Sie die Testoption für den vollen Betrieb. Headless Jobs speichern die gleichen Ausgänge, Einstellungen, Versionen und Logs wie der Desktop-Workflow."
         }
-      ]
+      ],
+      "number": 6,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "api"
     },
     {
       "id": "07_mask",
@@ -198,7 +228,12 @@
         {
           "narration": "Wählen Sie in Output und Storage die Masken und Zwischendateien aus, die Sie benötigen. Führen Sie zuerst einen kleinen Test durch, dann verarbeiten Sie die vollständige Quelle, nachdem die Vorschau- und Konsolenprüfungen vorbei sind."
         }
-      ]
+      ],
+      "number": 7,
+      "app_key": "mask",
+      "series": 1,
+      "section": "Core",
+      "slug": "mask"
     },
     {
       "id": "08_measure",
@@ -233,7 +268,12 @@
         {
           "narration": "Wenn der Test erfolgreich ist, laufen Sie die volle Quelle aus. Die Maßnahme speichert nachvollziehbare Objektreihen in Messpunkten db und alle angeforderten Pflanzen neben den Projektausgaben."
         }
-      ]
+      ],
+      "number": 8,
+      "app_key": "measure",
+      "series": 1,
+      "section": "Core",
+      "slug": "measure"
     },
     {
       "id": "09_annotate",
@@ -268,7 +308,12 @@
         {
           "narration": "Die Annotationen bleiben in den Messungen dot db mit Objektidentifikatoren und Herkunft intakt. Weiter bis die Abdeckung für das beabsichtigte Modell oder die Entscheidung zur Qualitätskontrolle ausreichend ist."
         }
-      ]
+      ],
+      "number": 9,
+      "app_key": "annotate",
+      "series": 1,
+      "section": "Core",
+      "slug": "annotate"
     },
     {
       "id": "10_classify_cv",
@@ -309,7 +354,13 @@
         {
           "narration": "Run validiert zuerst Etiketten und Splits, dann trainiert und bewertet das konfigurierte Modell. Überprüfen Sie die ausgehaltenen Metriken und Beispiele, bevor Sie sie breit anwenden; spaCR speichert den Checkpoint, Vorhersagen, Einstellungen und den Laufregister."
         }
-      ]
+      ],
+      "number": 10,
+      "app_key": "classify",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_cv"
     },
     {
       "id": "11_classify_ml",
@@ -347,39 +398,27 @@
         {
           "narration": "Run validiert die Steuerungen, bereitet Funktionen vor, wendet jede Plattenkorrektur an, bewertet den Klassifizierer, berechnet die Bedeutung und speichert aktivierte Ausgänge. Überprüfen Sie das ausgehaltenes und pro Plate Verhalten, bevor Sie Vorhersagen biologisch verwenden."
         }
-      ]
+      ],
+      "number": 11,
+      "app_key": "ml_analyze",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_ml"
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [
-        {
-          "narration": "Karten Barcodes dekodieren Sequenzierung Lesen in Plattenpositionen und Führung Identitäten. Die Konsole berichtet über Probenentdeckung, Parservalidierung, Lesung von Fortschritten, Ausgangswege und Fehler."
-        },
-        {
-          "narration": "Sequenzierung Input wählt den FASTQ-Ordner aus und bearbeitet, ob Paare von Lesungen kombiniert werden oder eine Leserichtung alleine verarbeitet wird. Bestätigen Sie das Namensmuster vor einem großen Lauf."
-        },
-        {
-          "narration": "Essentials enthält die Eingabe- und Parsierungsteuerungen, die für einen ersten Lauf benötigt werden. Verwenden Sie Modified, um Bibliotheksspezifische Änderungen zu überprüfen, All für fortgeschrittene Steuerungen und Rezepte für ein wiederverwendbares Layout."
-        },
-        {
-          "narration": "Barcode References zeigt auf Suchtabellen für Führungen, Plattenreihen und Plattenkolumnen. Jede Tabelle muss einen einzigartigen Namen mit der erwarteten Sequenz vereinen."
-        },
-        {
-          "narration": "Read Parsing findet eine bekannte Anker, extrahiert das Barcodefenster und zugeordnet Namen für Zeilen-, Spalten- und Leitgruppen. Dieses Muster aus dem Bibliotheksdesign ableiten und auf Beispiellässen überprüfen."
-        },
-        {
-          "narration": "Runtime und Reliability bestimmen die Stückgröße, die Arbeiter und den Testmodus. Beginnen Sie mit einem kleinen Teststück; reduzieren Sie die Anzahl der Teilnehmer oder Arbeiter, wenn das Gedächtnis eingeschränkt ist."
-        },
-        {
-          "narration": "Run validiert Wege und Referenzen, entdeckt Proben, zählt Lesungen und startet die Stückkartierung. Die Anforderung einer ordentlichen Unterbrechung nach dem aktuellen sicheren Punkt."
-        },
-        {
-          "narration": "Beobachten Sie die aktive Probe, die Anzahl der Chargen, die entsprechende Fraktion und die Warnungen auf dem Fortschrittsbildschirm und der Konsole. Untersuchen Sie schlechte Kartierung, bevor Sie den kompletten Lauf akzeptieren."
-        },
-        {
-          "narration": "Ein erfolgreicher Lauf schreibt einzigartige Barcode-Kombinationen mit Zeile, Spalte, Guide und Count sowie einer Qualitätskontrollabteilung, Einstellungen und einem Manifest, die das Kartieren reproduzierbar machen."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 12,
+      "app_key": "map_barcodes",
+      "series": 1,
+      "section": "Core",
+      "slug": "map_barcodes"
     },
     {
       "id": "13_regression",
@@ -417,7 +456,12 @@
         {
           "narration": "Das abgeschlossene Projekt enthält abgeglichene Analysedaten, Effektschätzungen auf Guide- und Genebene, empirische oder modellbasierte Signifikanztabellen, Diagnoseabbildungen, gespeicherte Einstellungen und ein erneut ausführbares Manifest."
         }
-      ]
+      ],
+      "number": 13,
+      "app_key": "regression",
+      "series": 1,
+      "section": "Core",
+      "slug": "regression"
     },
     {
       "id": "14_make_masks",
@@ -452,7 +496,12 @@
         {
           "narration": "Für ein Bild ohne Etiketten erstellen Sie Objekte mit Brush oder Wand plus, reinigen Sie die Grenzen und speichern Sie das neue Bild-Maskenpaar für das Modelltraining."
         }
-      ]
+      ],
+      "number": 14,
+      "app_key": "make_masks",
+      "series": 1,
+      "section": "Segmentation models",
+      "slug": "make_masks"
     },
     {
       "id": "15_image_umap",
@@ -490,7 +539,12 @@
         {
           "narration": "Die ausgefüllte Karte hält die UMAP-Punktwolke sichtbar und überlagert kleine transparente Mikroskopiepflanzen in repräsentativen Positionen. Zu den gespeicherten Outputs gehören Koordinaten, Clusteretiketten, die Figur, Einstellungen und ein Reproduzierbarkeitsmanifest."
         }
-      ]
+      ],
+      "number": 15,
+      "app_key": "umap",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "image_umap"
     },
     {
       "id": "16_activation",
@@ -525,7 +579,13 @@
         {
           "narration": "Überprüfen Sie Karten für richtige, falsche, hochverlässige und niedrigverlässige Beispiele, zusammen mit Validierungskontrollen. Die biologischen Schlussfolgerungen werden nur aus einem validierten geschulten Klassifizierungsverfahren gezogen."
         }
-      ]
+      ],
+      "number": 16,
+      "app_key": "activation",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "activation"
     },
     {
       "id": "17_timelapse",
@@ -566,7 +626,13 @@
         {
           "narration": "Ein erfolgreiches Projekt enthält zeitindexte Masken, stabile Track-Identitäten, Qualitätskontrollen, Filme, zusammengeschmolzenen Arrays, gespeicherte Einstellungen und ein wiederlaufenbares Manifest."
         }
-      ]
+      ],
+      "number": 17,
+      "app_key": "timelapse",
+      "host_app_key": "mask",
+      "series": 2,
+      "section": "Core",
+      "slug": "timelapse"
     },
     {
       "id": "18_motility",
@@ -601,7 +667,13 @@
         {
           "narration": "Überprüfung der Tabellen pro Rahmen und pro Strecke zusammen mit Flugbahn- und Qualitätskontrolle-Zahlen. Bestätigen Sie die Streckenkontinuität, Kalibrierungseinheiten und Gruppenetiketten, bevor Sie die Bedingungen vergleichen."
         }
-      ]
+      ],
+      "number": 18,
+      "app_key": "motility",
+      "host_app_key": "measure",
+      "series": 2,
+      "section": "Core",
+      "slug": "motility"
     },
     {
       "id": "19_train_cellpose",
@@ -633,7 +705,13 @@
         {
           "narration": "Nach der Ausbildung werden die Bewerber an den ausgehaltenen Feldern überprüft und Fehler, nicht nur Verluste, überprüft. spaCR speichert den Checkpoint, die Einstellungen, das Run Manifest und die Paarungs-Feld-Vorsichten zusammen."
         }
-      ]
+      ],
+      "number": 19,
+      "app_key": "train_cellpose",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "train_cellpose"
     },
     {
       "id": "20_cellpose_masks",
@@ -665,65 +743,43 @@
         {
           "narration": "Inspektieren Sie vor der Messung nach unten repräsentative Originale, Masken- und Flowfelder im Bildpaneel. Wählen Sie aus diesen Vorschauvorgaben Normung und Schwellenwerte aus, anstatt Tutorialwerte zu kopieren."
         }
-      ]
+      ],
+      "number": 20,
+      "app_key": "cellpose_masks",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "cellpose_masks"
     },
     {
       "id": "21_model_compare",
-      "scenes": [
-        {
-          "narration": "Modellvergleich kombiniert Objektzahlen, Vordergrundvereinbarung, Übereinstimmung, Fragmentierung und Seite an Seite-überlagerungen, so dass zwei Segmentierungskandidaten auf den gleichen Feldern bewertet werden können."
-        },
-        {
-          "narration": "Wählen Sie einen kleinen, aber repräsentativen Bildordner und begrenzen Sie die Feldzahl für den interaktiven Vergleich. Nehmen Sie einfache und schwierige Beispiele ein, anstatt nur saubere Felder einzubeziehen."
-        },
-        {
-          "narration": "Konfiguration von Modell A und Modell B. Halten Sie die Kanäle, die Skala, die Vorverarbeitung und die geteilten Schwellenwerte übereinstimmend, es sei denn, diese Einstellung ist der beabsichtigte Unterschied."
-        },
-        {
-          "narration": "Vergleichen Sie Segmente jedes ausgewählten Feld mit beiden gelösten Konfigurationen. Erweiterte Argumente werden aufgezeichnet und nicht unterstützte Parameter werden gemeldet, anstatt schweigend als wirksam behandelt zu werden."
-        },
-        {
-          "narration": "Die Parameter, die jedes Modell erreicht haben, trennen die ausgezeichneten Werte von veralteten oder ignorierten Kontrollen. Bestätigen Sie, daß sich der Vergleich tatsächlich auf die beabsichtigte Weise unterscheidet."
-        },
-        {
-          "narration": "Die Feldtabellberichte zählen, in den Vordergrund einig werden, die überlappenden, Spalten, Fusionen, unübertroffene Objekte und unabhängige Qualitätskontrollen der Masken. Keine einzelne Metrik erfasst jeden Ausfallmodus."
-        },
-        {
-          "narration": "Wählen Sie eine Reihe aus, um beide Vorschau zu überprüfen. Suchen Sie nach neuen Erkennungen, Verfehlungen, Grenzänderungen, Splits und Fusionen, und wiederholen Sie sich dann über repräsentative Felder hinweg."
-        },
-        {
-          "narration": "Wählen Sie nur dann ein Modell, wenn die visuellen Unterschiede und Messwerte die Fehler verbessern, die für die Nachstumsanalyse wichtig sind. Gleiches Ergebnis ist informativ und zeigt keine Verbesserung."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 21,
+      "app_key": "model_compare",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_compare"
     },
     {
       "id": "22_model_zoo",
-      "scenes": [
-        {
-          "narration": "Das Modell Zoo enthält eine Liste wiederverwendbarer Modelle, die aus gebündelten, lokalen oder deklarierten Katalogquellen verfügbar sind. Beginnen Sie mit der Abgleich der Aufgabe, Kanäle, Objektskala und erwarteter Vorverarbeitung."
-        },
-        {
-          "narration": "Wählen Sie einen Modellordner aus und scannen Sie ihn. Der Katalog hält lokale Wege und ferne Metadaten zusammen und vermeidet gleichzeitig duplizierte Einträge."
-        },
-        {
-          "narration": "Wählen Sie ein Modell aus, um seine Herkunft, Lizenz, Prüfsumme, Ausbildungskontext und erwartete Geometrie zu überprüfen. Ein erfolgreich geladenes Modell ist nicht automatisch für Ihre Bilder geeignet."
-        },
-        {
-          "narration": "Wählen Sie für einen begrenzten Benchmark eine kleine Reihe repräsentativer Felder, einschließlich schwieriger Beispiele."
-        },
-        {
-          "narration": "Test ein installiertes Modell. Die Benchmark berichtet über Geschwindigkeit, Objektezahl, Qualitätsflaggen und Vorschau, ohne diese Kontrollen als Grundwahrheit zu betrachten."
-        },
-        {
-          "narration": "Überprüfen Sie den Tisch und die Maskenvorführung zusammen. Untersuchen Sie die Warnungen im Bildkontext, bevor Sie ein Modell akzeptieren oder ablehnen."
-        },
-        {
-          "narration": "Wählen Sie zwei kompatible lokale Modelle aus, wenn Sie eine kontrollierte Seite an Seite-Basis-Evaluierung benötigen."
-        },
-        {
-          "narration": "Modellvergleich erhält sowohl Kontrollpunkte als auch die gleichen Felder, so dass Unterschiede in Masken und Qualitätsmessungen auf identischen Eingaben beurteilt werden können."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 22,
+      "app_key": "model_zoo",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_zoo"
     },
     {
       "id": "23_agreement",
@@ -752,7 +808,13 @@
         {
           "narration": "Inspektieren Sie repräsentative Kulturen, bevor Sie Etiketten oder Klassendefinitionen ändern. Aggregate Statistiken können nicht erklären, warum die Bewertungsleute nicht einverstanden waren."
         }
-      ]
+      ],
+      "number": 23,
+      "app_key": "agreement",
+      "host_app_key": "annotate",
+      "series": 3,
+      "section": "Results and quality control",
+      "slug": "agreement"
     },
     {
       "id": "24_plaque",
@@ -781,7 +843,12 @@
         {
           "narration": "Überlagerungen und Verteilungen der Plaque überprüfen, bevor Sie die Bedingungen vergleichen. Die Datenbank, Zusammenfassungen, Statistiken und Qualitätskontrolle sind weiterhin mit dem Betrieb verbunden."
         }
-      ]
+      ],
+      "number": 24,
+      "app_key": "analyze_plaques",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "plaque"
     },
     {
       "id": "25_recruitment",
@@ -810,7 +877,12 @@
         {
           "narration": "Überprüfen Sie Segmentierungsschläge und kontrollieren Sie die Verteilung, bevor Sie Konditionssummaries vertrauen. Objekt- und Well-Level-Ausgänge behalten ihre Quell-Identifikatoren."
         }
-      ]
+      ],
+      "number": 25,
+      "app_key": "recruitment",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "recruitment"
     },
     {
       "id": "26_invasion",
@@ -839,7 +911,12 @@
         {
           "narration": "Überprüfen Sie beigefügte, eingedrungen und unsichere Beispiele zusammen mit gut ausgebauten Zusammenfassungen. Die ausgeführten Ergebnisse behalten die Anwendungs- und Quellkennungswerte."
         }
-      ]
+      ],
+      "number": 26,
+      "app_key": "invasion",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "invasion"
     },
     {
       "id": "27_replication",
@@ -868,7 +945,12 @@
         {
           "narration": "Inspektieren Sie die Vakuolen über den Zählbereich hinweg und überprüfen Sie die verschmolzenen oder fragmentierten Masken. Die gespeicherten Verteilungen und Statistiken bleiben mit Objektsprüfungen verbunden."
         }
-      ]
+      ],
+      "number": 27,
+      "app_key": "replication",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "replication"
     },
     {
       "id": "28_training_runs",
@@ -897,7 +979,13 @@
         {
           "narration": "Verwenden Sie per Fold Kurven und die Einstellungen Diff mit ausgehaltenen Leistungen, um eine reproduzierbare Laufzeit auszuwählen."
         }
-      ]
+      ],
+      "number": 28,
+      "app_key": "train_compare",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "training_runs",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -923,7 +1011,12 @@
         {
           "narration": "Überprüfen Sie den abgeschlossenen Bericht und überprüfen Sie die Schlussfolgerungen, Versionen und Links, bevor Sie ihn teilen."
         }
-      ]
+      ],
+      "number": 29,
+      "app_key": "report",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "report"
     },
     {
       "id": "30_plate_queue",
@@ -949,7 +1042,12 @@
         {
           "narration": "Fertiggefertigte Platten behalten isolierte Ausgänge und führen Aufzeichnungen; gestoppte oder fehlgeschlagenen Elemente bleiben identifizierbar und können wieder aufgenommen werden."
         }
-      ]
+      ],
+      "number": 30,
+      "app_key": "queue",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "plate_queue"
     },
     {
       "id": "31_external_masks",
@@ -978,7 +1076,13 @@
         {
           "narration": "Führen Sie die überprüften Importe aus. Die daraus resultierenden Bilder, Masken, Messungen und Herkunft sind für die Abfassung im Nachstrom bereit."
         }
-      ]
+      ],
+      "number": 31,
+      "app_key": "external_masks",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "external_masks",
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -1007,7 +1111,12 @@
         {
           "narration": "Schreiben Sie erst, wenn der Plan akzeptabel ist. spaCR speichert das Mosaik, verwandelt, koordiniert und registriert."
         }
-      ]
+      ],
+      "number": 32,
+      "app_key": "align",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "align_stitch"
     },
     {
       "id": "33_plate_viewer",
@@ -1036,7 +1145,13 @@
         {
           "narration": "Exportieren Sie das aktuelle, ordentliche Brunnennetz mit Zählen und räumlichen Anmerkungen zur Prüfung oder Umgestaltung."
         }
-      ]
+      ],
+      "number": 33,
+      "app_key": "plate_view",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "plate_viewer",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -1065,7 +1180,12 @@
         {
           "narration": "Exportieren Sie den kompletten Stromfilter und die Auswahl der sichtbaren Spalten. Die Quelldatenbank bleibt unverändert."
         }
-      ]
+      ],
+      "number": 34,
+      "app_key": "db_browser",
+      "series": 4,
+      "section": "Data",
+      "slug": "database"
     },
     {
       "id": "35_converter",
@@ -1094,7 +1214,13 @@
         {
           "narration": "Das Lebenslauf validiert die abgeschlossenen Feldkontrollstellen, bevor man sie überspringt, so dass fehlende oder beschädigte Ausgänge wieder aufgebaut werden."
         }
-      ]
+      ],
+      "number": 35,
+      "app_key": "convert",
+      "series": 4,
+      "section": "Data",
+      "slug": "converter",
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -1123,7 +1249,12 @@
         {
           "narration": "Importieren Sie nur den überarbeiteten Plan. spaCR schreibt kanonische Bilder, Masken, Messungen und Herkunft, während er externe Identifikatoren behält."
         }
-      ]
+      ],
+      "number": 36,
+      "app_key": "foreign",
+      "series": 5,
+      "section": "Data",
+      "slug": "import"
     },
     {
       "id": "37_batch",
@@ -1164,7 +1295,12 @@
         {
           "narration": "Alle drei wirklichen Subprozess-Jobs sind erfolgreich abgeschlossen. Die Progressleiste erreicht drei von drei, die Tabelle bewahrt jeden Status und die Dauer, die Zusammenfassung unterscheidet Erfolg, Misserfolg, Übersprung, Nicht-Run und teilweise Ergebnisse, und das Protokoll des ausgewählten Jobs enthält seinen genauen Befehl- und Konversionsbericht. Jedes Ziel enthält vier TIFFs und eine Herkunftskarte; alle Quell-Hashes bleiben unverändert."
         }
-      ]
+      ],
+      "number": 37,
+      "app_key": "batch",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "batch"
     },
     {
       "id": "38_distributed_jobs",
@@ -1184,7 +1320,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, verfolgen lokale Aufzeichnungen Remote-Job-Identifikatoren, Logs, Zustand, übertragene Artefakte und Fehler."
         }
-      ]
+      ],
+      "number": 38,
+      "app_key": "distributed_jobs",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "distributed_jobs"
     },
     {
       "id": "39_classifier_evaluation",
@@ -1204,7 +1345,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, erstellt spaCR Diskriminierung, Kalibrierung, Verwirrung, Leckage und Robustkeitsberichte."
         }
-      ]
+      ],
+      "number": 39,
+      "app_key": "classifier_evaluation",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "classifier_evaluation"
     },
     {
       "id": "40_run_history",
@@ -1224,7 +1371,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können Sie vorherige Arbeiten reproduzieren, vergleichen, fortsetzen oder berichten, ohne zu raten, wie sie ausgeführt wurden."
         }
-      ]
+      ],
+      "number": 40,
+      "app_key": "run_history",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_history"
     },
     {
       "id": "41_classify",
@@ -1244,7 +1396,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, bleiben das Modell, die Vorhersagen, die Split-Date, die Messwerte und die Einstellungen mit dem Lauf verknüpft."
         }
-      ]
+      ],
+      "number": 41,
+      "app_key": "classify_merged",
+      "series": 5,
+      "section": "Core",
+      "slug": "classify"
     },
     {
       "id": "42_curate",
@@ -1264,7 +1421,13 @@
         {
           "narration": "Nach Abschluss des Workflows werden korrigierte Etiketten und Spuränderungen mit der Herkunft gespeichert, damit die nachgelagerten Messungen aktualisiert werden können."
         }
-      ]
+      ],
+      "number": 42,
+      "app_key": "curate",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Core",
+      "slug": "curate"
     },
     {
       "id": "43_illumination",
@@ -1284,7 +1447,13 @@
         {
           "narration": "Nach Abschluss des Workflows werden genehmigte Korrekturfelder und Diagnosen für reproduzierbare Vorverarbeitung gespeichert."
         }
-      ]
+      ],
+      "number": 43,
+      "app_key": "illumination",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Data",
+      "slug": "illumination"
     },
     {
       "id": "44_data_manager",
@@ -1304,7 +1473,12 @@
         {
           "narration": "Wenn der Arbeitsfluss abgeschlossen ist, zeigt die aktualisierte Bestandsaufnahme und die Reinigungsunterlagen, was noch übrig ist und was wiederhergestellt werden kann."
         }
-      ]
+      ],
+      "number": 44,
+      "app_key": "data_manager",
+      "series": 5,
+      "section": "Data",
+      "slug": "data_manager"
     },
     {
       "id": "45_project_browser",
@@ -1324,7 +1498,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, verknüpft der Browser Sie mit den relevanten Dateien und Modulen, ohne die Projektdaten zu ändern."
         }
-      ]
+      ],
+      "number": 45,
+      "app_key": "project_browser",
+      "series": 5,
+      "section": "Data",
+      "slug": "project_browser"
     },
     {
       "id": "46_napari_bridge",
@@ -1344,7 +1523,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, bleiben die korrigierten Masken und die Kurationsakte mit dem ursprünglichen Feld verbunden."
         }
-      ]
+      ],
+      "number": 46,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Segmentation models",
+      "slug": "napari_bridge"
     },
     {
       "id": "47_barcode_qc",
@@ -1364,7 +1549,13 @@
         {
           "narration": "Wenn der Arbeitsfluss abgeschlossen ist, wird der Bericht die ausgewählte Überflussschwelle, die Diagnosen unterstützen und die betroffenen Brunnen aufzeichnen."
         }
-      ]
+      ],
+      "number": 47,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "barcode_qc"
     },
     {
       "id": "48_hit_list",
@@ -1384,7 +1575,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, behalten die gefilterten Hitlisten Punkte, Beweise, Anmerkungen und Quellkennzeichen."
         }
-      ]
+      ],
+      "number": 48,
+      "app_key": "hit_list",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "hit_list"
     },
     {
       "id": "49_methods_results",
@@ -1404,7 +1601,13 @@
         {
           "narration": "Nach Abschluss des Workflows werden bearbeitbare Methoden und Ergebnissedokumente mit einer Übersicht über die Herkunft exportiert."
         }
-      ]
+      ],
+      "number": 49,
+      "app_key": "methods_export",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "methods_results"
     },
     {
       "id": "50_run_compare",
@@ -1424,7 +1627,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, verknüpft der Vergleichsbericht jeden Unterschied mit beiden Quellläufen."
         }
-      ]
+      ],
+      "number": 50,
+      "app_key": "run_compare",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_compare"
     },
     {
       "id": "51_control_charts",
@@ -1444,7 +1652,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können die Diagramme, Warnungen und die Basisdefinition für die Kampagnenüberwachung exportiert werden."
         }
-      ]
+      ],
+      "number": 51,
+      "app_key": "control_chart",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "control_charts",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -1464,7 +1678,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, wird die Grafik das genaue Modul identifiziert, das wieder ausgeführt werden sollte, um die Konsistenz wiederherzustellen."
         }
-      ]
+      ],
+      "number": 52,
+      "app_key": "pipeline_graph",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pipeline_graph"
     },
     {
       "id": "53_prediction_profiler",
@@ -1484,7 +1703,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, beschreibt die Reaktionskurve das Modellverhalten, nicht die kausalen biologischen Effekte, und kann mit seinen Einstellungen exportiert werden."
         }
-      ]
+      ],
+      "number": 53,
+      "app_key": "profiler",
+      "series": 5,
+      "section": "Explore",
+      "slug": "prediction_profiler",
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -1504,7 +1729,12 @@
         {
           "narration": "Wenn der Arbeitsfluss abgeschlossen ist, bleibt das kombinierte Urteil auf einzelne Berichte zurückzuführen, anstatt sie zu ersetzen."
         }
-      ]
+      ],
+      "number": 54,
+      "app_key": "qc_dashboard",
+      "series": 5,
+      "section": "Explore",
+      "slug": "qc_dashboard"
     },
     {
       "id": "55_image_scatter",
@@ -1524,7 +1754,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können ausgewählte Objekte und die Abbildung mit stabilen Quellidentifikatoren exportiert werden."
         }
-      ]
+      ],
+      "number": 55,
+      "app_key": "image_scatter",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "image_scatter"
     },
     {
       "id": "56_lineage",
@@ -1544,7 +1780,13 @@
         {
           "narration": "Wenn der Arbeitsfluss abgeschlossen ist, hilft die überarbeitete Beziehungstabelle, die biologische Struktur von Zuweisungsfehlern zu unterscheiden."
         }
-      ]
+      ],
+      "number": 56,
+      "app_key": "lineage",
+      "series": 5,
+      "section": "Explore",
+      "slug": "lineage",
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -1564,7 +1806,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können die Ansicht und ausgewählte Regionen ohne Änderung der Quellen exportiert werden, es sei denn, eine Bearbeitung wird explizit gespeichert."
         }
-      ]
+      ],
+      "number": 57,
+      "app_key": "layer_viewer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "layer_viewer",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -1584,7 +1832,12 @@
         {
           "narration": "Nach Abschluss des Workflows können die Spezifikation des Diagramms und die Auswahl der Daten wiederverwendet oder exportiert werden."
         }
-      ]
+      ],
+      "number": 58,
+      "app_key": "graph_builder",
+      "series": 5,
+      "section": "Explore",
+      "slug": "graph_builder"
     },
     {
       "id": "59_anndata_export",
@@ -1604,7 +1857,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, bewahrt die h5ad-Datei die ausgewählte Matrix, Anmerkungen und Herkunft für die Abwärtsanalyse."
         }
-      ]
+      ],
+      "number": 59,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Explore",
+      "slug": "anndata_export"
     },
     {
       "id": "60_pca",
@@ -1624,7 +1883,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können Scores, Laden, Einstellungen und Plots für reproduzierbare Explorationen exportiert werden."
         }
-      ]
+      ],
+      "number": 60,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pca"
     },
     {
       "id": "61_tabulate",
@@ -1644,7 +1909,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, bleiben die Drehtabelle und ihre Spezifikation an die Auswahl der Quelle verknüpft."
         }
-      ]
+      ],
+      "number": 61,
+      "app_key": "tabulate",
+      "series": 5,
+      "section": "Explore",
+      "slug": "tabulate",
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -1664,7 +1935,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können die ausgewählten Definitionen neben einer Analyse kopiert oder exportiert werden."
         }
-      ]
+      ],
+      "number": 62,
+      "app_key": "feature_dict",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_dictionary"
     },
     {
       "id": "63_small_multiples",
@@ -1684,7 +1960,13 @@
         {
           "narration": "Nach Abschluss des Workflows können die Aufstellungsbeschreibung und die Abbildung mit den ausgewählten Daten exportiert werden."
         }
-      ]
+      ],
+      "number": 63,
+      "app_key": "trellis",
+      "series": 5,
+      "section": "Explore",
+      "slug": "small_multiples",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -1710,7 +1992,12 @@
         {
           "narration": "Cluster Walk sucht auf den angezeigten Messungen eine begrenzte Sequenz von DBSCAN-Radien und berichtet über den ausgewählten Radius, die Bevölkerungszahl und den ausgeschlossenen Bruchteil. Inspektieren Sie die daraus resultierenden Toren, notieren Sie dann oder exportieren Sie nur, nachdem die Populationen mit den sichtbaren Daten übereinstimmen."
         }
-      ]
+      ],
+      "number": 64,
+      "app_key": "gate_editor",
+      "series": 5,
+      "section": "Explore",
+      "slug": "gate_editor"
     },
     {
       "id": "65_feature_explorer",
@@ -1730,7 +2017,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, beschreiben die geordneten Tabellen und Abbildungen die Assoziation zu den Klassen, nicht die ursächliche Bedeutung."
         }
-      ]
+      ],
+      "number": 65,
+      "app_key": "feature_explorer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_explorer",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -1750,7 +2043,13 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR eine Ausfallflagge und Diagnostik, anstatt die Beobachtungen still zu löschen."
         }
-      ]
+      ],
+      "number": 66,
+      "app_key": "outliers",
+      "series": 5,
+      "section": "Explore",
+      "slug": "outliers",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -1770,7 +2069,12 @@
         {
           "narration": "Nach Abschluss des Workflows können die validierten Plattenkarte und Metadaten für die Erfassung und spätere spaCR-Analyse exportiert werden."
         }
-      ]
+      ],
+      "number": 67,
+      "app_key": "experiment_design",
+      "series": 5,
+      "section": "Design",
+      "slug": "experiment_design"
     },
     {
       "id": "68_power_design",
@@ -1790,7 +2094,12 @@
         {
           "narration": "Wenn der Arbeitsfluss abgeschlossen ist, wird der Bericht Annahmen und empfohlene Stichproben erfassen, anstatt eine Zahl ohne Kontext zu präsentieren."
         }
-      ]
+      ],
+      "number": 68,
+      "app_key": "power",
+      "series": 5,
+      "section": "Design",
+      "slug": "power_design"
     },
     {
       "id": "69_dose_response",
@@ -1810,7 +2119,12 @@
         {
           "narration": "Wenn der Workflow abgeschlossen ist, können Kurvenparameter, Unsicherheit, Diagnose und Quelldaten zusammen exportiert werden."
         }
-      ]
+      ],
+      "number": 69,
+      "app_key": "dose_response",
+      "series": 5,
+      "section": "Design",
+      "slug": "dose_response"
     },
     {
       "id": "70_explain_cv",
@@ -1830,27 +2144,28 @@
         {
           "narration": "Nach Abschluss des Workflows werden Modelltreue, Permutationsbedeutung im Validierungssatz, SHAP-Zusammenfassungen, ausgeschlossene Spalten, Gruppierung, Backend und Provenienz protokolliert; eine geringe Modelltreue wird ausgewiesen und nicht verborgen."
         }
-      ]
+      ],
+      "number": 70,
+      "app_key": "explain_cv",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "explain_cv"
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [
-        {
-          "narration": "Dieses Tutorial behandelt Investigate Hit. Führen Sie einen ausgewählten Regressionsbefund auf Kandidatenzellen und quantitative Evidenz aus Mikroplatten-Wells zurück, ohne geprüfte Annotationen zu überschreiben."
-        },
-        {
-          "narration": "Wählen Sie den Regressionslauf, den ausgewählten Befund auf Gen- oder Guide-Ebene, die Phänotyprichtung, den Schwellenwert für die Falschentdeckungsrate, die Guide-Unterstützung und die zugehörige Messdatenbank."
-        },
-        {
-          "narration": "Prüfen Sie im Hauptkonfigurationsbereich die Objekttabelle, die Bewertungsspalte, die Gruppierung nach Mikroplatten-Well, die Evidenzschwellen, die Kovariaten und das optionale kreuzangepasste hierarchische Mischmodell."
-        },
-        {
-          "narration": "Zeigen Sie die nach Bewertung geordneten Kandidatenzellen und die Zusammenfassungen der Mikroplatten-Wells in der Vorschau an. Führen Sie das kreuzangepasste Modell nur aus, wenn der ausgewählte Befund und die Evidenzanforderungen korrekt sind."
-        },
-        {
-          "narration": "Nach Abschluss des Workflows speichert spaCR geordnete Kandidatenzellen, Vergleiche unabhängiger Wells, optionale Wahrscheinlichkeiten dafür, dass jede Zelle dem ausgewählten Phänotyp entspricht, Unsicherheiten und einen versionierten Aufruf, der manuelle Annotationen niemals ersetzt."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 71,
+      "app_key": "investigate_hit",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "investigate_hit",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -1870,7 +2185,13 @@
         {
           "narration": "Nach Abschluss des Workflows werden PDF- und PNG-Exporte aus den protokollierten Daten und der protokollierten Gestaltung in der angeforderten Größe neu gerendert, während die ursprünglichen Regressionsergebnisse unverändert bleiben."
         }
-      ]
+      ],
+      "number": 72,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "volcano_explorer"
     },
     {
       "id": "73_parameter_sweep",
@@ -1890,7 +2211,13 @@
         {
           "narration": "Nach Abschluss des Workflows protokolliert die fortsetzbare Ergebnistabelle für jeden Versuch die Einstellungen, den Status, die Anzahl der Entdeckungen, den Rang der Positivkontrolle, die Dauer, den Ausgabeordner und den Fehlergrund."
         }
-      ]
+      ],
+      "number": 73,
+      "app_key": "parameter_sweep",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "parameter_sweep"
     },
     {
       "id": "74_import_images",
@@ -2078,6 +2405,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Demnächst verfügbar",
+      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

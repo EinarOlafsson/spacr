@@ -373,7 +373,7 @@
       "title": "マスク生成",
       "series": 1,
       "app_key": "mask",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "パーツを構成し,ライブプレビューで検証し,下流測定のためのマスクを作成します.",
       "objectives": [
         "ソースメタデータとチャンネルマッピングを確認する",
@@ -495,7 +495,7 @@
       "title": "測定",
       "series": 1,
       "app_key": "measure",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "画像とマスクからオブジェクト単位の特徴量を抽出し、生成されたクロップギャラリーとデータベース出力を確認します。",
       "objectives": [
         "画像チャネルとマスク平面の対応付けを確認する。",
@@ -583,7 +583,7 @@
       "title": "アノテーション",
       "series": 1,
       "app_key": "annotate",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "オブジェクトクロップを確認して一貫したラベルを付与し、カバレッジを監査して、保存済みラベルを分類器へ渡します。",
       "objectives": [
         "一貫したクロップ表示とアノテーション列を設定する。",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "アノテーション済みオブジェクトクロップから画像分類器を学習して評価し、グループ化検証と任意のハイパーパラメーター検索を行います。",
       "objectives": [
         "保存済みラベルとオブジェクトクロップを、情報漏洩を防ぐデータセットに対応付ける。",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "測定済みオブジェクトから特徴量ベースの分類器を学習して評価し、プレートを考慮した補正と任意のハイパーパラメーター検索を行います。",
       "objectives": [
         "有効な測定特徴量とプレートを考慮したラベルを準備する。",
@@ -870,79 +870,13 @@
       "title": "バーコードマッピング",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "主要モジュール",
-      "description": "明示的な参照表と品質管理出力を使用し、シーケンスリードをプレート位置とガイド RNA 識別子へデコードします。",
-      "objectives": [
-        "ライブラリ設計に基づいてリード方向、バーコード参照表、解析方法を設定する。",
-        "小さなテストチャンクでマッピングを検証する。",
-        "マッピングの進捗と品質管理出力を解釈する。"
-      ],
-      "prerequisite": "シーケンスライブラリ設計に一致する FASTQ リードと検証済み参照表を用意します。",
-      "scenes": [
-        {
-          "narration": "Map Barcodes はシーケンスリードをプレート位置とガイド RNA 識別子へデコードします。コンソールには、サンプル検出、パーサー検証、リード処理の進捗、出力パス、失敗が報告されます。",
-          "visual": "01_console",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Map Barcodes はシーケンスリードをプレート位置とガイド RNA 識別子へデコードします。コンソールには、サンプル検出、パーサー検証、リード処理の進捗、出力パス、失敗が報告されます。"
-        },
-        {
-          "narration": "Core セクションから Map Barcodes を開きます。Sequencing Input では FASTQ フォルダーを選択し、ペアリードを結合するか、一方のリード方向だけを処理するかを指定します。大規模な実行前に命名パターンを確認してください。",
-          "visual": "13_category_01_sequencing_input",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Core セクションから Map Barcodes を開きます。Sequencing Input では FASTQ フォルダーを選択し、ペアリードを結合するか、一方のリード方向だけを処理するかを指定します。大規模な実行前に命名パターンを確認してください。"
-        },
-        {
-          "narration": "Essentials には初回実行に必要な入力と解析制御が含まれます。ライブラリ固有の変更確認には Modified、高度な制御には All、再利用可能な配置には Recipes を使用します。",
-          "visual": "09_all_settings",
-          "hold_after": 0.7,
-          "focus_key": "settings_controls",
-          "speech_text": "Essentials には初回実行に必要な入力と解析制御が含まれます。ライブラリ固有の変更確認には Modified、高度な制御には All、再利用可能な配置には Recipes を使用します。"
-        },
-        {
-          "narration": "Barcode References では、ガイド RNA、プレート行、プレート列の参照表を指定します。各表では、一意の名前と想定される配列が一対一で対応している必要があります。",
-          "visual": "13_category_02_barcode_references",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Barcode References では、ガイド RNA、プレート行、プレート列の参照表を指定します。各表では、一意の名前と想定される配列が一対一で対応している必要があります。"
-        },
-        {
-          "narration": "Read Parsing は既知のアンカーを特定し、バーコード範囲を抽出して、名前付きの行、列、ガイド RNA グループを割り当てます。ライブラリ設計からこのパターンを決め、例示リードで検証してください。",
-          "visual": "13_category_03_read_parsing",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Read Parsing は既知のアンカーを特定し、バーコード範囲を抽出して、名前付きの行、列、ガイド RNA グループを割り当てます。ライブラリ設計からこのパターンを決め、例示リードで検証してください。"
-        },
-        {
-          "narration": "Runtime and Reliability では、チャンクサイズ、ワーカー数、テストモードを設定します。最初は小さなテストチャンクを使用し、メモリが限られる場合はチャンクまたはワーカー数を減らしてください。",
-          "visual": "13_category_05_runtime_reliability",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Runtime and Reliability では、チャンクサイズ、ワーカー数、テストモードを設定します。最初は小さなテストチャンクを使用し、メモリが限られる場合はチャンクまたはワーカー数を減らしてください。"
-        },
-        {
-          "narration": "Run はパスと参照表を検証し、サンプルを検出してリード数を数え、チャンク単位のマッピングを開始します。停止要求は現在の安全な地点を終えてから順序よく中断します。",
-          "visual": "20_run",
-          "hold_after": 0.7,
-          "focus_key": "actions",
-          "speech_text": "Run はパスと参照表を検証し、サンプルを検出してリード数を数え、チャンク単位のマッピングを開始します。停止要求は現在の安全な地点を終えてから順序よく中断します。"
-        },
-        {
-          "narration": "進捗表示とコンソールで、処理中のサンプル、バッチ数、マッチ率、警告を確認します。完了した実行を採用する前に、マッピング不良の原因を調べてください。",
-          "visual": "21_running",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "進捗表示とコンソールで、処理中のサンプル、バッチ数、マッチ率、警告を確認します。完了した実行を採用する前に、マッピング不良の原因を調べてください。"
-        },
-        {
-          "narration": "正常に完了すると、行、列、ガイド RNA、カウントを含む一意のバーコード組み合わせに加えて、品質管理表、設定、マッピングを再現可能にするマニフェストが保存されます。",
-          "visual": "22_output",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "正常に完了すると、行、列、ガイド RNA、カウントを含む一意のバーコード組み合わせに加えて、品質管理表、設定、マッピングを再現可能にするマニフェストが保存されます。"
-        }
-      ]
+      "section": "Core",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "近日公開"
     },
     {
       "id": "13_regression",
@@ -951,7 +885,7 @@
       "title": "回帰分析",
       "series": 1,
       "app_key": "regression",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "プール型スクリーニングのガイド量と測定済み表現型を、ブロック化置換検定または同時回帰で関連付け、支持度、診断結果、効果推定値を確認します。",
       "objectives": [
         "表現型、ガイドカウント、対照情報を正しく対応付ける。",
@@ -1046,7 +980,7 @@
       "title": "マスク作成",
       "series": 1,
       "app_key": "make_masks",
-      "section": "セグメンテーションモデル",
+      "section": "Segmentation models",
       "description": "品質管理または Cellpose 学習用の画像とマスクの組を作成するため、分割ラベルを対話的に作成して修正します。",
       "objectives": [
         "マスクの誤りに応じた編集ツールを選択する。",
@@ -1134,7 +1068,7 @@
       "title": "画像UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "2次元で測定された物体を埋め込み 顕微鏡の実クロップを用いてフェノタイプ近所を検査します",
       "objectives": [
         "生物学的的に関連性のある特徴と排除を選択する.",
@@ -1230,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "学習済み画像分類器の予測に影響する画像領域を確認し、その説明が信頼できるか検証します。",
       "objectives": [
         "アトリビューション実行を学習済みモデルと入力に一致させる。",
@@ -1319,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "時系列画像を分割し、選択したオブジェクトを軌跡として連結して、生成された動画と軌跡を検証します。",
       "objectives": [
         "取得軸を正しく対応付け、代表的なフレームを一貫して分割する。",
@@ -1422,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "追跡済み画像から較正された運動を測定し、感染状態または実験グループ別に軌跡を比較します。",
       "objectives": [
         "追跡オブジェクトと較正情報を正しく対応付ける。",
@@ -1511,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
+      "section": "Segmentation models",
       "description": "確認済みの画像とインスタンスマスクの組を使用し、Cellpose または CPSAM と互換性のあるモデルを微調整します。",
       "objectives": [
         "対応する学習データを検証し、妥当な開始チェックポイントを選択する。",
@@ -1593,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
+      "section": "Segmentation models",
       "description": "同梱モデルまたはカスタム Cellpose モデルを適用し、マスクとフローフィールドを確認して、視野ごとにインスタンスラベルマスクを保存します。",
       "objectives": [
         "画像、チャネル、オブジェクト尺度、チェックポイントを一致させる。",
@@ -1675,72 +1609,13 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
-      "description": "同じ代表視野で 2 つの Cellpose 設定を実行し、どちらもグラウンドトゥルースとは仮定せずにマスクを比較します。",
-      "objectives": [
-        "制御された 2 モデル比較を構築する。",
-        "各モデルへ実際に渡されたパラメーターを確認する。",
-        "一致度指標を並列マスクと併せて解釈する。"
-      ],
-      "prerequisite": "互換性のあるモデルまたは設定を 2 つ選択し、規模を限定した代表画像セットを用意します。",
-      "scenes": [
-        {
-          "narration": "Model Compare は、オブジェクト数、前景一致度、マッチング、断片化、並列オーバーレイをまとめ、2 つの分割候補を同じ視野で評価できるようにします。",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Model Compare は、オブジェクト数、前景一致度、マッチング、断片化、並列オーバーレイをまとめ、2 つの分割候補を同じ視野で評価できるようにします。"
-        },
-        {
-          "narration": "Segmentation models セクションから Model Compare を開きます。小規模でも代表性のある画像フォルダーを選択し、対話的に比較できるよう視野数を制限します。きれいな視野だけでなく、簡単な例と難しい例の両方を含めてください。",
-          "visual": "02_fields_loaded",
-          "hold_after": 0.7,
-          "focus_key": "source_controls",
-          "speech_text": "Segmentation models セクションから Model Compare を開きます。小規模でも代表性のある画像フォルダーを選択し、対話的に比較できるよう視野数を制限します。きれいな視野だけでなく、簡単な例と難しい例の両方を含めてください。"
-        },
-        {
-          "narration": "Model A と Model B を設定します。比較したい差でない限り、チャネル、尺度、前処理、共有しきい値を一致させてください。",
-          "visual": "03_models",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Model A と Model B を設定します。比較したい差でない限り、チャネル、尺度、前処理、共有しきい値を一致させてください。"
-        },
-        {
-          "narration": "Compare は、解決済みの 2 つの設定で選択した各視野を分割します。高度な引数は記録され、未対応のパラメーターは有効と見なされず明示的に報告されます。",
-          "visual": "04_compare",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Compare は、解決済みの 2 つの設定で選択した各視野を分割します。高度な引数は記録され、未対応のパラメーターは有効と見なされず明示的に報告されます。"
-        },
-        {
-          "narration": "Parameters that reached each model では、実際に採用された値と、廃止済みまたは無視された制御項目を分けて表示します。比較が意図した点で異なることを確認してください。",
-          "visual": "06_parameters",
-          "hold_after": 0.7,
-          "focus_key": "parameters",
-          "speech_text": "Parameters that reached each model では、実際に採用された値と、廃止済みまたは無視された制御項目を分けて表示します。比較が意図した点で異なることを確認してください。"
-        },
-        {
-          "narration": "視野テーブルには、オブジェクト数、前景一致度、対応オブジェクトの重なり、分裂、結合、未対応オブジェクト、独立したマスク品質検査が報告されます。単一の指標ですべての失敗様式を捉えることはできません。",
-          "visual": "07_metrics",
-          "hold_after": 0.7,
-          "focus_key": "metrics",
-          "speech_text": "視野テーブルには、オブジェクト数、前景一致度、対応オブジェクトの重なり、分裂、結合、未対応オブジェクト、独立したマスク品質検査が報告されます。単一の指標ですべての失敗様式を捉えることはできません。"
-        },
-        {
-          "narration": "行を選択して両方のプレビューを確認します。新たな検出、見逃し、境界の変化、分割、結合を調べ、代表的な複数の視野で同じ確認を繰り返してください。",
-          "visual": "08_field_one",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "行を選択して両方のプレビューを確認します。新たな検出、見逃し、境界の変化、分割、結合を調べ、代表的な複数の視野で同じ確認を繰り返してください。"
-        },
-        {
-          "narration": "視覚的な差と指標の両方で、下流解析に重要な誤りが改善された場合にだけモデルを選択します。同じ結果にも情報価値はありますが、改善を示すものではありません。",
-          "visual": "09_field_two",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "視覚的な差と指標の両方で、下流解析に重要な誤りが改善された場合にだけモデルを選択します。同じ結果にも情報価値はありますが、改善を示すものではありません。"
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "近日公開"
     },
     {
       "id": "22_model_zoo",
@@ -1750,72 +1625,13 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
-      "description": "再利用可能な分割モデルと分類モデルを参照、検証、ダウンロードし、ベンチマークします。",
-      "objectives": [
-        "モデルの互換性と来歴を確認する。",
-        "代表視野でモデルをベンチマークする。",
-        "2 つの候補を Model Compare へ渡す。"
-      ],
-      "prerequisite": "代表的な視野を少数用意し、そのチャネル、オブジェクト種別、おおよその尺度を把握します。",
-      "scenes": [
-        {
-          "narration": "Model Zoo は、同梱、ローカル、または宣言済みカタログの各ソースから利用できる再利用可能なモデルを一覧表示します。まず、タスク、チャネル、オブジェクト尺度、想定前処理を一致させてください。",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "catalogue",
-          "speech_text": "Model Zoo は、同梱、ローカル、または宣言済みカタログの各ソースから利用できる再利用可能なモデルを一覧表示します。まず、タスク、チャネル、オブジェクト尺度、想定前処理を一致させてください。"
-        },
-        {
-          "narration": "Segmentation models セクションから Model Zoo を開きます。モデルフォルダーを選択してスキャンします。カタログはローカルパスとリモートメタデータをまとめて管理し、重複登録を避けます。",
-          "visual": "02_scanned",
-          "hold_after": 0.7,
-          "focus_key": "scan_controls",
-          "speech_text": "Segmentation models セクションから Model Zoo を開きます。モデルフォルダーを選択してスキャンします。カタログはローカルパスとリモートメタデータをまとめて管理し、重複登録を避けます。"
-        },
-        {
-          "narration": "モデルを選択し、来歴、ライセンス、チェックサム、学習背景、想定画像形状を確認します。正常に読み込めるモデルでも、現在の画像に適しているとは限りません。",
-          "visual": "03_provenance",
-          "hold_after": 0.7,
-          "focus_key": "detail",
-          "speech_text": "モデルを選択し、来歴、ライセンス、チェックサム、学習背景、想定画像形状を確認します。正常に読み込めるモデルでも、現在の画像に適しているとは限りません。"
-        },
-        {
-          "narration": "難しい例を含む少数の代表視野を選択し、範囲を限定したベンチマークを行います。",
-          "visual": "04_fields",
-          "hold_after": 0.7,
-          "focus_key": "field_controls",
-          "speech_text": "難しい例を含む少数の代表視野を選択し、範囲を限定したベンチマークを行います。"
-        },
-        {
-          "narration": "インストール済みモデルを 1 つテストします。ベンチマークには速度、オブジェクト数、品質フラグ、プレビューが報告されますが、これらの検査をグラウンドトゥルースに対する精度として扱うことはできません。",
-          "visual": "05_test",
-          "hold_after": 0.7,
-          "focus_key": "test",
-          "speech_text": "インストール済みモデルを 1 つテストします。ベンチマークには速度、オブジェクト数、品質フラグ、プレビューが報告されますが、これらの検査をグラウンドトゥルースに対する精度として扱うことはできません。"
-        },
-        {
-          "narration": "表とマスクのプレビューを併せて確認します。モデルを採用または却下する前に、画像上で警告の原因を調べてください。",
-          "visual": "07_benchmark",
-          "hold_after": 0.7,
-          "focus_key": "benchmark",
-          "speech_text": "表とマスクのプレビューを併せて確認します。モデルを採用または却下する前に、画像上で警告の原因を調べてください。"
-        },
-        {
-          "narration": "制御された並列評価が必要な場合は、互換性のあるローカルモデルを 2 つ選択します。",
-          "visual": "09_two_selected",
-          "hold_after": 0.7,
-          "focus_key": "compare",
-          "speech_text": "制御された並列評価が必要な場合は、互換性のあるローカルモデルを 2 つ選択します。"
-        },
-        {
-          "narration": "Model Compare には両方のチェックポイントと同じ視野が渡されるため、同一入力上でマスクと品質指標の差を判断できます。",
-          "visual": "10_compare_handoff",
-          "hold_after": 0.7,
-          "focus_key": "comparison",
-          "speech_text": "Model Compare には両方のチェックポイントと同じ視野が渡されるため、同一入力上でマスクと品質指標の差を判断できます。"
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "近日公開"
     },
     {
       "id": "23_agreement",
@@ -1825,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "アノテーション列間の一致度を測定し、不一致の原因となったオブジェクトを確認します。",
       "objectives": [
         "公平にラベルを比較できるよう設定する。",
@@ -1899,7 +1715,7 @@
       "title": "プラークアッセイ",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "トキソプラズマアッセイ",
+      "section": "Toxoplasma assays",
       "description": "プラークマスクをセグメンテーションまたは再利用し、妥当性を確認して、条件別にプラーク形成を要約します。",
       "objectives": [
         "新規セグメンテーションと既存マスクの再利用から適切な方法を選ぶ。",
@@ -1973,7 +1789,7 @@
       "title": "リクルートメント",
       "series": 3,
       "app_key": "recruitment",
-      "section": "トキソプラズマアッセイ",
+      "section": "Toxoplasma assays",
       "description": "宿主細胞の背景に対する、寄生虫関連領域へのマーカー濃縮を定量します。",
       "objectives": [
         "チャネルとマスクを正しく対応付ける。",
@@ -2047,7 +1863,7 @@
       "title": "侵入アッセイ",
       "series": 3,
       "app_key": "invasion",
-      "section": "トキソプラズマアッセイ",
+      "section": "Toxoplasma assays",
       "description": "細胞外染色と総寄生虫染色を用いて、付着した寄生虫と侵入した寄生虫を判別します。",
       "objectives": [
         "染色チャネルを正しく対応付ける。",
@@ -2121,7 +1937,7 @@
       "title": "複製アッセイ",
       "series": 3,
       "app_key": "replication",
-      "section": "トキソプラズマアッセイ",
+      "section": "Toxoplasma assays",
       "description": "寄生虫を液胞に割り当て、条件別に細胞内増殖を要約します。",
       "objectives": [
         "寄生虫の液胞への割り当てを設定する。",
@@ -2195,7 +2011,7 @@
       "title": "学習履歴",
       "series": 4,
       "app_key": "train_compare",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "曲線の重ね合わせと設定差分により、モデル学習の実行結果を比較します。",
       "objectives": [
         "比較可能な実行結果を読み込み、妥当性を確認する。",
@@ -2260,7 +2076,8 @@
           "focus_key": "diff",
           "speech_text": "フォールド別曲線、設定差分、ホールドアウト性能を併せて使用し、再現可能な実行を選択します。"
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -2269,7 +2086,7 @@
       "title": "レポート",
       "series": 4,
       "app_key": "report",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "品質管理、図、統計、設定、バージョンをまとめた共有可能な HTML または PDF レポートを作成します。",
       "objectives": [
         "レポートに適したエビデンスを選択する。",
@@ -2336,7 +2153,7 @@
       "title": "プレートキュー",
       "series": 4,
       "app_key": "queue",
-      "section": "データとバッチ実行",
+      "section": "Data and batch runs",
       "description": "検証済みの同一パイプラインで複数プレートを処理し、再開可能な状態を明示します。",
       "objectives": [
         "複数プレートのキューを構築して確認する。",
@@ -2403,7 +2220,7 @@
       "title": "外部マスク",
       "series": 4,
       "app_key": "external_masks",
-      "section": "データとバッチ実行",
+      "section": "Data and batch runs",
       "description": "外部で作成した画像とラベルマスクを、測定済みで追跡可能な spaCR プロジェクトとしてインポートします。",
       "objectives": [
         "外部入力を正しく対応付ける。",
@@ -2468,7 +2285,8 @@
           "focus_key": "console",
           "speech_text": "確認済みのインポートを実行します。生成された画像、マスク、測定値、来歴情報は、その後のアノテーションに使用できます。"
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -2477,7 +2295,7 @@
       "title": "位置合わせとスティッチ",
       "series": 4,
       "app_key": "align",
-      "section": "データとバッチ実行",
+      "section": "Data and batch runs",
       "description": "画像タイルを位置合わせし、メモリ使用量を制限しながら結合モザイクを書き出します。",
       "objectives": [
         "タイル配置を定義する。",
@@ -2551,7 +2369,7 @@
       "title": "プレートビューア",
       "series": 4,
       "app_key": "plate_view",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "測定値をプレートヒートマップとして表示し、空間的アーティファクトやエッジ効果を検出します。",
       "objectives": [
         "目的に適したプレートヒートマップを作成する。",
@@ -2616,7 +2434,8 @@
           "focus_key": "export",
           "speech_text": "監査または再描画に使用できるよう、カウントと空間アノテーションを含む現在の整然形式のウェルグリッドをエクスポートします。"
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -2625,7 +2444,7 @@
       "title": "データベースブラウザー",
       "series": 4,
       "app_key": "db_browser",
-      "section": "データ",
+      "section": "Data",
       "description": "コマンドラインを使わずに spaCR の測定データベースを閲覧、絞り込み、エクスポートします。",
       "objectives": [
         "データベースを安全に開き、ページ単位で閲覧する。",
@@ -2699,7 +2518,7 @@
       "title": "形式変換",
       "series": 4,
       "app_key": "convert",
-      "section": "データ",
+      "section": "Data",
       "description": "顕微鏡画像形式を、確認可能な来歴対応表を備えた spaCR 互換の TIFF 名に変換します。",
       "objectives": [
         "情報損失を考慮した対応付けを設定する。",
@@ -2764,7 +2583,8 @@
           "focus_key": "resume",
           "speech_text": "再開時は、完了済みフィールドのチェックポイントを検証してからスキップするため、欠損または破損した出力は再作成されます。"
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -2773,7 +2593,7 @@
       "title": "プロジェクトのインポート",
       "series": 5,
       "app_key": "foreign",
-      "section": "データ",
+      "section": "Data",
       "description": "別の研究室で作成された画像、マスク、測定値を、追跡可能な spaCR プロジェクトに対応付けます。",
       "objectives": [
         "外部データを明示的に対応付ける。",
@@ -2847,7 +2667,7 @@
       "title": "バッチ実行",
       "series": 5,
       "app_key": "batch",
-      "section": "データとバッチ実行",
+      "section": "Data and batch runs",
       "description": "依存関係と個別ログを持つ実際の spaCR モジュールジョブを順序付きキューとして検証、保存、実行します。",
       "objectives": [
         "ラベル、依存関係、コマンドライン上書きを指定して、検証済みのモジュールと設定のジョブを追加する。",
@@ -2957,7 +2777,7 @@
       "title": "分散ジョブ",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "データとバッチ実行",
+      "section": "Data and batch runs",
       "description": "SSH ワークステーション、Slurm クラスター、クラウドまたは HPC コマンドで spaCR ジョブを投入し、監視します。",
       "objectives": [
         "Distributed Jobs を使用する場面を理解する。",
@@ -3006,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "ホールドアウト予測、ネスト交差検証、較正、データ漏洩、プレート別性能を監査します。",
       "objectives": [
         "Classifier Evaluation を使用する場面を理解する。",
@@ -3054,7 +2874,7 @@
       "title": "実行履歴",
       "series": 5,
       "app_key": "run_history",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "すべてのジョブの設定、ファイル、警告、失敗、性能を一か所から検索します。",
       "objectives": [
         "Run History を使用する場面を理解する。",
@@ -3102,7 +2922,7 @@
       "title": "分類",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "画像クロップまたは測定特徴量に適した分類ワークフローを選び、関連オブジェクトがデータ分割間で漏洩しないよう評価します。",
       "objectives": [
         "Classify を使用する場面を理解する。",
@@ -3151,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "主要モジュール",
+      "section": "Core",
       "description": "分割マスクと軌跡を手作業で修正し、すべての編集について監査可能な記録を保持します。",
       "objectives": [
         "Curate を使用する場面を理解する。",
@@ -3200,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "データ",
+      "section": "Data",
       "description": "輝度特徴量を測定する前に、フラットフィールド補正を推定して検証します。",
       "objectives": [
         "Illumination を使用する場面を理解する。",
@@ -3248,7 +3068,7 @@
       "title": "データ管理",
       "series": 5,
       "app_key": "data_manager",
-      "section": "データ",
+      "section": "Data",
       "description": "元の取得データに触れずにプロジェクトの保存領域を確認し、派生ファイルを整理します。",
       "objectives": [
         "Data Manager を使用する場面を理解する。",
@@ -3296,7 +3116,7 @@
       "title": "プロジェクトブラウザー",
       "series": 5,
       "app_key": "project_browser",
-      "section": "データ",
+      "section": "Data",
       "description": "spaCR プロジェクトを検索し、段階、サイズ、最新実行、古くなった出力を 1 つのテーブルで確認します。",
       "objectives": [
         "Project Browser を使用する場面を理解する。",
@@ -3345,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "セグメンテーションモデル",
+      "section": "Segmentation models",
       "description": "napari でマスクを確認し、修正済みラベルを来歴情報とともに spaCR へ戻します。",
       "objectives": [
         "Napari Bridge を使用する場面を理解する。",
@@ -3394,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "マッピング深度、カバレッジ、衝突、位置効果、エビデンスに基づく存在量しきい値を確認します。",
       "objectives": [
         "Barcode QC を使用する場面を理解する。",
@@ -3443,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "効果量、不確実性、偽発見率、ガイド RNA の一致度を使用してスクリーニングヒットを順位付けし、確認します。",
       "objectives": [
         "Hit List を使用する場面を理解する。",
@@ -3492,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "設定を記憶から再構築せず、記録済み実行から追跡可能な Methods と Results の文章を作成します。",
       "objectives": [
         "Methods & Results を使用する場面を理解する。",
@@ -3540,7 +3360,7 @@
       "title": "実行比較",
       "series": 5,
       "app_key": "run_compare",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "2 つの実行を並べ、設定、カウント、出力、ヒットの変化を確認します。",
       "objectives": [
         "Run Compare を使用する場面を理解する。",
@@ -3588,7 +3408,7 @@
       "title": "管理図",
       "series": 5,
       "app_key": "control_chart",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "プレート間で対照を追跡し、明示したベースラインに対するドリフトを検出します。",
       "objectives": [
         "Control Charts を使用する場面を理解する。",
@@ -3627,7 +3447,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、チャート、アラート、ベースライン定義を一連の実験の監視用にエクスポートできます。"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -3636,7 +3457,7 @@
       "title": "パイプライングラフ",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "探索",
+      "section": "Explore",
       "description": "各結果を生成したアーティファクトと、古くなった、または欠けている下流出力を確認します。",
       "objectives": [
         "Pipeline Graph を使用する場面を理解する。",
@@ -3684,7 +3505,7 @@
       "title": "予測プロファイラー",
       "series": 5,
       "app_key": "profiler",
-      "section": "探索",
+      "section": "Explore",
       "description": "モデル入力を 1 つ変化させ、適合済み予測がどのように応答するかを観察します。",
       "objectives": [
         "Prediction Profiler を使用する場面を理解する。",
@@ -3723,7 +3544,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、応答曲線は因果的な生物学的効果ではなくモデルの挙動を表します。曲線は設定とともにエクスポートできます。"
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -3732,7 +3554,7 @@
       "title": "QCダッシュボード",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "探索",
+      "section": "Explore",
       "description": "分割、単位、情報漏洩、プレート効果、アノテーションの検査を 1 つの確認画面にまとめます。",
       "objectives": [
         "QC Dashboard を使用する場面を理解する。",
@@ -3781,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "探索",
+      "section": "Explore",
       "description": "測定値をプロットし、任意の点に対応する画像を確認します。",
       "objectives": [
         "Image Scatter を使用する場面を理解する。",
@@ -3829,7 +3651,7 @@
       "title": "系譜",
       "series": 5,
       "app_key": "lineage",
-      "section": "探索",
+      "section": "Explore",
       "description": "細胞、核、病原体、オルガネラの割り当てなど、包含関係を確認します。",
       "objectives": [
         "Lineage を使用する場面を理解する。",
@@ -3868,7 +3690,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、確認済み関係テーブルによって、生物学的構造と割り当て誤りを区別しやすくなります。"
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -3877,7 +3700,7 @@
       "title": "レイヤービューア",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "探索",
+      "section": "Explore",
       "description": "画像、マスク、点、関心領域を位置合わせ済みレイヤーとして確認します。",
       "objectives": [
         "Layer Viewer を使用する場面を理解する。",
@@ -3916,7 +3739,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、編集を明示的に保存しない限り元データを変更せずに、表示と選択領域をエクスポートできます。"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -3925,7 +3749,7 @@
       "title": "グラフ作成",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "探索",
+      "section": "Explore",
       "description": "テーブル列に視覚的な役割を割り当てて、探索的なチャートを作成します。",
       "objectives": [
         "Graph Builder を使用する場面を理解する。",
@@ -3974,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "探索",
+      "section": "Explore",
       "description": "spaCR の測定値を scanpy または scvi-tools 用の AnnData ファイルへ書き出します。",
       "objectives": [
         "AnnData Export を使用する場面を理解する。",
@@ -4023,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "探索",
+      "section": "Explore",
       "description": "相関する測定値を主成分で要約し、それらを規定する特徴量を確認します。",
       "objectives": [
         "PCA を使用する場面を理解する。",
@@ -4071,7 +3895,7 @@
       "title": "集計",
       "series": 5,
       "app_key": "tabulate",
-      "section": "探索",
+      "section": "Explore",
       "description": "寄与するデータ数を表示したまま、測定値をグループ別の要約へピボットします。",
       "objectives": [
         "Tabulate を使用する場面を理解する。",
@@ -4110,7 +3934,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、ピボットテーブルとその仕様は元データの選択に関連付けられたまま保存されます。"
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -4119,7 +3944,7 @@
       "title": "特徴量辞書",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "探索",
+      "section": "Explore",
       "description": "測定特徴量の意味を、名前または概念から調べます。",
       "objectives": [
         "Feature Dictionary を使用する場面を理解する。",
@@ -4167,7 +3992,7 @@
       "title": "スモールマルチプル",
       "series": 5,
       "app_key": "trellis",
-      "section": "探索",
+      "section": "Explore",
       "description": "データを正しく反映した共有軸のグリッドで、同じチャートをグループ間で比較します。",
       "objectives": [
         "Small Multiples を使用する場面を理解する。",
@@ -4206,7 +4031,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、トレリス仕様と図を選択データとともにエクスポートできます。"
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -4215,7 +4041,7 @@
       "title": "ゲートエディター",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "探索",
+      "section": "Explore",
       "description": "2D, 3D,または低次元高次元ビューで集団ゲートを描き,検査し,巣を作ったり再利用する.",
       "objectives": [
         "2Dで集団ゲートを描いて検査する",
@@ -4282,7 +4108,7 @@
       "title": "特徴量エクスプローラー",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "探索",
+      "section": "Explore",
       "description": "選択したクラスを分離する能力によって特徴量を順位付けし、その根拠を確認します。",
       "objectives": [
         "Feature Explorer を使用する場面を理解する。",
@@ -4321,7 +4147,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、順位テーブルとプロットはクラスとの関連を示しますが、因果的重要性を示すものではありません。"
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -4330,7 +4157,7 @@
       "title": "外れ値",
       "series": 5,
       "app_key": "outliers",
-      "section": "探索",
+      "section": "Explore",
       "description": "すべての行を保持したまま、ロバストな規則で異常なオブジェクトまたはウェルを示します。",
       "objectives": [
         "Outliers を使用する場面を理解する。",
@@ -4369,7 +4196,8 @@
           "hold_after": 0.65,
           "speech_text": "ワークフローが完了すると、スペーカー は観測を暗黙に削除せず、外れ値フラグと診断情報を書き込みます。"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -4378,7 +4206,7 @@
       "title": "実験計画",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "設計",
+      "section": "Design",
       "description": "取得前に実験条件、対照、反復を配置します。",
       "objectives": [
         "Experiment Design を使用する場面を理解する。",
@@ -4426,7 +4254,7 @@
       "title": "検出力 / 設計",
       "series": 5,
       "app_key": "power",
-      "section": "設計",
+      "section": "Design",
       "description": "明示した仮定のもとで、効果の検出に必要な細胞数とウェル数を推定します。",
       "objectives": [
         "Power / Design を使用する場面を理解する。",
@@ -4474,7 +4302,7 @@
       "title": "用量反応",
       "series": 5,
       "app_key": "dose_response",
-      "section": "設計",
+      "section": "Design",
       "description": "不確実性を報告し、データで支持されない EC50 推定を採用せずに、用量反応曲線を適合します。",
       "objectives": [
         "Dose–Response を使用する場面を理解する。",
@@ -4522,7 +4350,7 @@
       "title": "CVモデルの説明",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "測定済みの特徴量からコンピュータービジョンの予測を再現し、得られた説明が忠実で情報漏えいのないものか検証します。",
       "objectives": [
         "Explain CV Modelを使用する時期を理解する.",
@@ -4571,46 +4399,14 @@
       "title": "ヒットの検証",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "結果と品質管理",
-      "description": "選択した回帰結果を候補細胞とマイクロプレートのウェル単位の定量的エビデンスに結び付け、確認済みの注釈を上書きせずに調査します。",
-      "objectives": [
-        "Investigate Hit を何時使用するかを理解してください.",
-        "重要な入力と設定を設定する.",
-        "ワークフローを実行して,その出力を特定します."
-      ],
-      "prerequisite": "このモジュールは上流の結果を必要とする場合,以前のワークフローレッスンをフォローします.",
-      "scenes": [
-        {
-          "narration": "このチュートリアルでは Investigate Hit を説明します。選択した回帰結果を候補細胞とマイクロプレートのウェル単位の定量的エビデンスに結び付け、確認済みの注釈を上書きせずに調査します。",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "このチュートリアルでは Investigate Hit を説明します。選択した回帰結果を候補細胞とマイクロプレートのウェル単位の定量的エビデンスに結び付け、確認済みの注釈を上書きせずに調査します。"
-        },
-        {
-          "narration": "Results and quality control セクションから Investigate Hit を開きます。 回帰の実行結果、選択した遺伝子またはガイド単位の結果、表現型の方向、偽発見率のしきい値、ガイド間の支持、対応する測定データベースを選択します。",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Results and quality control セクションから Investigate Hit を開きます。 回帰の実行結果、選択した遺伝子またはガイド単位の結果、表現型の方向、偽発見率のしきい値、ガイド間の支持、対応する測定データベースを選択します。"
-        },
-        {
-          "narration": "メインの設定領域で、オブジェクト表、スコア列、マイクロプレートのウェル単位のグループ化、エビデンスのしきい値、共変量、任意のクロスフィット階層混合モデルを確認します。",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "メインの設定領域で、オブジェクト表、スコア列、マイクロプレートのウェル単位のグループ化、エビデンスのしきい値、共変量、任意のクロスフィット階層混合モデルを確認します。"
-        },
-        {
-          "narration": "スコア順の候補細胞とウェル単位の要約をプレビューします。選択した結果とエビデンスの条件が正しいことを確認してから、クロスフィットモデルを実行します。",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "スコア順の候補細胞とウェル単位の要約をプレビューします。選択した結果とエビデンスの条件が正しいことを確認してから、クロスフィットモデルを実行します。"
-        },
-        {
-          "narration": "ワークフローが完了すると、spaCR は候補細胞の順位、独立したウェル間の比較、各細胞が選択した表現型に一致する任意の確率、不確実性、バージョン付きの判定を保存します。手作業の注釈が上書きされることはありません。",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "ワークフローが完了すると、スペーカー は候補細胞の順位、独立したウェル間の比較、各細胞が選択した表現型に一致する任意の確率、不確実性、バージョン付きの判定を保存します。手作業の注釈が上書きされることはありません。"
-        }
-      ]
+      "section": "Results and quality control",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "近日公開",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -4619,7 +4415,7 @@
       "title": "ボルケーノプロット探索",
       "series": 5,
       "app_key": "volcano_explorer",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "完了した回帰結果を開き、各点を詳しく調べ、グラフの外観を調整し、解析を再実行せずに出版用サイズのベクター図を出力します。",
       "objectives": [
         "Volcano Explorer を何時使用するかを理解してください.",
@@ -4668,7 +4464,7 @@
       "title": "パラメータ探索",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "結果と品質管理",
+      "section": "Results and quality control",
       "description": "回帰設定を限定的に探索し、妥当な解析条件を変えても維持される結論を比較します。",
       "objectives": [
         "Parameter Sweep を何時使用するかを理解してください.",
@@ -4916,6 +4712,37 @@
           "speech_text": "入力を調べたり解析の選択を意図的に変更したりするには、Regression に戻ります。変更後には再実行と新しい診断が必要です。このフォルダーを開くだけでは古い結果は更新されません。データセット、コンソール、対話的な結果、支援機能の全体は Regression のチュートリアルで説明します。"
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "近日公開",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "近日公開",
+      "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ],
   "language": "ja"

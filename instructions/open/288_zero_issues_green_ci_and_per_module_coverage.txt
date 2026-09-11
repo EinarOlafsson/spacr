@@ -2418,6 +2418,60 @@ WHAT IS SOLIDLY KNOWN, and it is all a next session should rely on:
   wrongly for.
 
 --------------------------------------------------------------------------------
+2026-09-11, RESOLVED -- A TEST THAT ASSUMED ITS OWN PREMISE. SIX HYPOTHESES,
+FIVE WRONG, AND THE RULE WAS NEVER INVOLVED
+--------------------------------------------------------------------------------
+
+`test_an_object_with_no_channel_brings_no_settings` asserts that an object
+with no channel brings no settings, and never checked that the object had
+none.
+
+`test_the_rule_is_decided_once_and_not_while_typing` types into
+`nucleus_channel` six times to prove the rule is not re-run per keystroke.
+Its last write is `5 % 3`. IT LEAVES A 2 THERE. The panel remembers a typed
+value across windows, so the next test's freshly built screen opens with a
+nucleus channel, and the visibility rule correctly shows the nucleus
+settings. The ordering decides nothing except whether the typing test runs
+first.
+
+FIXED by clearing the nucleus and pathogen channels and re-running the rule
+before asserting -- establishing the premise instead of assuming it. 17
+passed at seeds 288, 2, 1, 3, 4, 5, 7 and 11; 288 and 2 failed before.
+
+THE REPRODUCTION SHRANK BY THREE ORDERS OF MAGNITUDE as the diagnosis
+improved, and that is the part worth keeping:
+
+    40 files, seeded chunk, ~4 minutes   where it was found
+    1 file, seeded, 12 seconds           once the chunk was ruled out
+    3 tests, 3.5 seconds                 once the predecessors were bisected
+    2 tests                              the actual pair
+
+FIVE WRONG MECHANISMS, each measured false, each kept above because each fit
+the evidence at the time: a parentless early return in `_set_row_visible`; a
+different settings shape; a mutated `CHANNELLED_OBJECTS`; the role's switch
+missing from the panel; and a stale visibility pass. `keys_hidden_by_their
+_object` was asked 279 times in the failing run and was wrong zero times.
+Every hide it ordered landed -- 627 watched through to the widget.
+
+    THE RULE WAS NEVER INVOLVED, and four of the five hypotheses were about
+    the rule. I went looking where the symptom was instead of where the
+    state came from.
+
+WHAT ACTUALLY FOUND IT: reading the FAILING TEST'S OWN FIXTURE through
+`item.funcargs` -- the channel reads '2', the passes go [None x6, '2' x8] --
+and then bisecting its predecessors. One line of output against five
+internally consistent and wrong stories built from aggregate counters.
+
+  AGGREGATES OVER A WHOLE RUN WILL TELL YOU A STORY FOR EVERY HYPOTHESIS
+  YOU BRING THEM. The object under test tells you one thing, and it is
+  true. Write that probe first; it is usually four lines.
+
+  AND A PERFECT DISCRIMINATOR IS NOT EVIDENCE IF IT WAS SAMPLED AT THE
+  WRONG MOMENT: the probe that reported 27 wrong shows in the failing run
+  and zero in the passing one was re-reading the channel AFTER the decision
+  it claimed to explain.
+
+--------------------------------------------------------------------------------
 2026-09-11, FINALLY -- THE RULE WAS RIGHT ALL ALONG. THE PANEL REALLY DOES
 HAVE A NUCLEUS CHANNEL, AND THE TEST'S PREMISE IS WHAT IS FALSE
 --------------------------------------------------------------------------------

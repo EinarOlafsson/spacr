@@ -27,7 +27,12 @@
         {
           "narration": "관리되는 Python 환경에는 conda-forge 또는 PyPI를 사용하고, 데스크톱 설치 프로그램에는 GitHub Releases를 사용하며, 아직 릴리스되지 않은 변경 사항이 필요한 경우에만 nightly를 사용하십시오. 그런 다음 선택한 방법의 설치 튜토리얼로 이동하십시오."
         }
-      ]
+      ],
+      "number": 1,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pypi_github"
     },
     {
       "id": "02_conda_install",
@@ -53,7 +58,12 @@
         {
           "narration": "spacr-doctor의 모든 검사를 통과하면 spacr 명령으로 spaCR을 시작하십시오. spaCR을 실행할 때마다 이 환경을 활성화한 상태로 유지하십시오."
         }
-      ]
+      ],
+      "number": 2,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "conda_install"
     },
     {
       "id": "03_pip_install",
@@ -79,7 +89,12 @@
         {
           "narration": "이제 환경을 사용할 수 있습니다. spaCR을 사용할 때마다 환경을 활성화하고, 의도적으로 업데이트할 때만 python -m pip install --upgrade spacr을 사용하십시오."
         }
-      ]
+      ],
+      "number": 3,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pip_install"
     },
     {
       "id": "04_platform_installers",
@@ -108,7 +123,12 @@
         {
           "narration": "설치 후 운영 체제의 애플리케이션 런처에서 spaCR을 시작하십시오. Python이나 Conda를 별도로 설정할 필요가 없습니다."
         }
-      ]
+      ],
+      "number": 4,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "platform_installers"
     },
     {
       "id": "05_home",
@@ -128,7 +148,12 @@
         {
           "narration": "모듈 타일을 선택하여 설정 화면을 여십시오. 화면 위쪽의 모듈 이름과 설명에서 활성 워크플로를 확인할 수 있습니다."
         }
-      ]
+      ],
+      "number": 5,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "home"
     },
     {
       "id": "06_api",
@@ -148,7 +173,12 @@
         {
           "narration": "전체 실행에 테스트 옵션을 제거하십시오. 헤드리스 작업은 데스크톱 작업 흐름과 동일한 출력, 설정, 버전 기록 및 로그를 저장합니다."
         }
-      ]
+      ],
+      "number": 6,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "api"
     },
     {
       "id": "07_mask",
@@ -198,7 +228,12 @@
         {
           "narration": "출력 및 저장에서 필요한 마스크와 중간 파일을 선택하십시오. 먼저 작은 테스트를 실행하고, 미리보기 및 콘솔 검사 통과 후 전체 소스를 처리합니다."
         }
-      ]
+      ],
+      "number": 7,
+      "app_key": "mask",
+      "series": 1,
+      "section": "Core",
+      "slug": "mask"
     },
     {
       "id": "08_measure",
@@ -233,7 +268,12 @@
         {
           "narration": "테스트가 성공하면 전체 소스를 실행하십시오. 측정은 측정점 db에서 추적 가능한 객체 행과 프로젝트 출력 옆에 요청된 모든 작물을 저장합니다."
         }
-      ]
+      ],
+      "number": 8,
+      "app_key": "measure",
+      "series": 1,
+      "section": "Core",
+      "slug": "measure"
     },
     {
       "id": "09_annotate",
@@ -268,7 +308,12 @@
         {
           "narration": "표기들은 객체 식별자와 출처와 함께 db 지점 측정에서 그대로 남아 있습니다. 계획된 모델이나 품질관리 결정에 대한 커버리가 충분할 때까지 계속하십시오."
         }
-      ]
+      ],
+      "number": 9,
+      "app_key": "annotate",
+      "series": 1,
+      "section": "Core",
+      "slug": "annotate"
     },
     {
       "id": "10_classify_cv",
@@ -309,7 +354,13 @@
         {
           "narration": "먼저 라벨과 스플릿을 검증하고, 그 다음 트레이닝하고 구성된 모델을 평가합니다. 광범위한 적용을 하기 전에 보유된 측정값과 예제를 검토하십시오. spaCR은 체크포인트, 예측, 설정 및 실행 기록을 저장합니다."
         }
-      ]
+      ],
+      "number": 10,
+      "app_key": "classify",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_cv"
     },
     {
       "id": "11_classify_ml",
@@ -347,39 +398,27 @@
         {
           "narration": "실행은 제어 장치를 검증하고 기능을 준비하고, 모든 판판 수정을 적용하고, 분류기를 평가하고, 중요성을 계산하고, 활성화 된 출력을 저장합니다. 생물학적 예측을 사용하기 전에 견고하고 평판 행동을 검토하십시오."
         }
-      ]
+      ],
+      "number": 11,
+      "app_key": "ml_analyze",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_ml"
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [
-        {
-          "narration": "지도 바코드 디코딩 순서열은 판 위치와 안내 식별에 읽습니다. 콘솔은 샘플 발견, 파서 검증, 읽기 진행, 출력 경로 및 오류를 보고합니다."
-        },
-        {
-          "narration": "순서 입력은 FASTQ 폴더를 선택하고, 복합 읽기 또는 한 읽기 방향이 결합되었는지 여부를 처리합니다. 큰 경주 전에 이름 패턴을 확인해 주세요."
-        },
-        {
-          "narration": "에센셜은 첫 번째 실행에 필요한 입력 및 파싱 제어 기능을 포함합니다. 라이브러리별 변경 사항을 검토하기 위해 수정된 것을 사용하십시오. 고급 제어 장치에 대한 모든 것, 재사용 가능한 레이아웃에 대한 레시피를 사용하십시오."
-        },
-        {
-          "narration": "바코드 참조는 가이드, 판 행 및 판 열의 검색 테이블에 지향합니다. 각 테이블은 예상 순서와 고유한 이름을 결합해야 합니다."
-        },
-        {
-          "narration": "읽기 파싱은 알려진 아커를 찾아, 바코드 창을 추출하고, 줄, 열, 가이드 그룹을 지정합니다. 이 패턴을 라이브러리 디자인에서 추출하고 예제 읽기에서 확인합니다."
-        },
-        {
-          "narration": "실행시간과 신뢰성 (Runtime and Reliability) 은 덩어리 크기와 작업자, 테스트 모드를 설정합니다. 작은 테스트 조각으로 시작하세요. 기억력이 제한되면 조각이나 작업자 수를 줄이세요."
-        },
-        {
-          "narration": "실행은 경로와 참조를 검증하고 샘플을 발견하고, 계산을 읽고, 조각된 지도를 시작합니다. 현재 안전점 이후 정해진 중단 요청"
-        },
-        {
-          "narration": "활성 샘플, 배트 수, 일치된 분자, 그리고 진전 디스플레이와 콘솔에서 경고를 관찰하십시오. 완전한 경주를 받아들이기 전에 잘못된 지도를 조사하십시오."
-        },
-        {
-          "narration": "성공적인 실행은 줄, 열, 가이드, 카운트, 그리고 품질 제어 테이블, 설정 및 매니프트를 작성하여 지도를 재생할 수 있습니다."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 12,
+      "app_key": "map_barcodes",
+      "series": 1,
+      "section": "Core",
+      "slug": "map_barcodes"
     },
     {
       "id": "13_regression",
@@ -417,7 +456,12 @@
         {
           "narration": "완료된 프로젝트에는 정렬된 분석 데이터, 가이드 및 유전자 수준 효과 추정값, 경험적 또는 모델 기반 유의성 테이블, 진단 그림, 저장된 설정 및 다시 실행할 수 있는 매니페스트가 포함됩니다."
         }
-      ]
+      ],
+      "number": 13,
+      "app_key": "regression",
+      "series": 1,
+      "section": "Core",
+      "slug": "regression"
     },
     {
       "id": "14_make_masks",
@@ -452,7 +496,12 @@
         {
           "narration": "라벨이 없는 이미지에 대해 브러시나 바드 플러스로 객체를 만들어, 경계를 청소하고, 새로운 이미지 마스크 쌍을 모델 훈련에 저장하십시오."
         }
-      ]
+      ],
+      "number": 14,
+      "app_key": "make_masks",
+      "series": 1,
+      "section": "Segmentation models",
+      "slug": "make_masks"
     },
     {
       "id": "15_image_umap",
@@ -490,7 +539,12 @@
         {
           "narration": "완성된 지도는 UMAP 포인트 클라우드를 가시하게 하고, 작은 투명한 현미경 작물을 대표적인 위치에 덮는다. 저장된 출력에는 좌표, 클러스터 레이블, 그림, 설정 및 재생가능성 매니스트가 포함됩니다."
         }
-      ]
+      ],
+      "number": 15,
+      "app_key": "umap",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "image_umap"
     },
     {
       "id": "16_activation",
@@ -525,7 +579,13 @@
         {
           "narration": "올바른, 잘못된, 높은 신뢰성, 낮은 신뢰성 사례를 위한 지도를 확인하고 검증 검사와 함께 검토합니다. 유효한 훈련된 분류자로부터 생물학적 결론을 얻을 수 있습니다."
         }
-      ]
+      ],
+      "number": 16,
+      "app_key": "activation",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "activation"
     },
     {
       "id": "17_timelapse",
@@ -566,7 +626,13 @@
         {
           "narration": "성공적인 프로젝트는 시간 지표가 있는 마스크, 안정적인 트랙 아이덴티티, 품질 제어 기록, 영화, 통합 배열, 저장된 설정, 그리고 다시 실행 가능한 매니페스트를 포함합니다."
         }
-      ]
+      ],
+      "number": 17,
+      "app_key": "timelapse",
+      "host_app_key": "mask",
+      "series": 2,
+      "section": "Core",
+      "slug": "timelapse"
     },
     {
       "id": "18_motility",
@@ -601,7 +667,13 @@
         {
           "narration": "프레임 및 트랙별 표를 궤도 및 품질 통제 수치와 함께 검토하십시오. 조건들을 비교하기 전에 트랙 연속성, 캘리브레이션 단위 및 그룹 라벨을 확인한다."
         }
-      ]
+      ],
+      "number": 18,
+      "app_key": "motility",
+      "host_app_key": "measure",
+      "series": 2,
+      "section": "Core",
+      "slug": "motility"
     },
     {
       "id": "19_train_cellpose",
@@ -633,7 +705,13 @@
         {
           "narration": "훈련 후, 시험 후보자는 지연된 현장에서 체크포인트를 점하고 손실뿐만 아니라 실패를 검사합니다. 스펙브랜드 토큰은 체크포인트, 설정, 런 매니페스트, 그리고 짝짓인 필드 미리보기 등을 함께 저장합니다."
         }
-      ]
+      ],
+      "number": 19,
+      "app_key": "train_cellpose",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "train_cellpose"
     },
     {
       "id": "20_cellpose_masks",
@@ -665,65 +743,43 @@
         {
           "narration": "하류 측정 전에 그림 패널에서 대표적인 원본, 마스크 라인 및 흐름 필드를 검사하십시오. 교과서 값을 복사하는 대신 그 미리보기에서 정상화와 임대점을 선택하십시오."
         }
-      ]
+      ],
+      "number": 20,
+      "app_key": "cellpose_masks",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "cellpose_masks"
     },
     {
       "id": "21_model_compare",
-      "scenes": [
-        {
-          "narration": "모델 비교는 객체 수, 전면 합의, 일치, 분해, 그리고 옆으로 덮인 것을 결합하여 두 개의 분할 후보자를 동일한 필드에서 평가할 수 있습니다."
-        },
-        {
-          "narration": "작은 하지만 대표적인 이미지 폴더를 선택하고 상호 비교를 위해 필드 수를 제한하십시오. 단순하고 어려운 예 를 들게 하고, 단지 깨끗한 분야 를 들게 하는 것 을 포함 해 보십시오."
-        },
-        {
-          "narration": "모델 A와 모델 B를 구성합니다. 그 설정이 의도된 차이일 경우만 채널, 규모, 사전 처리 및 공유 열을 일치하도록 유지하십시오."
-        },
-        {
-          "narration": "각 선택된 필드와 두 개의 해결된 구성과 세그먼트를 비교하십시오. 고급 주장은 기록되고, 지원되지 않은 매개 변수는 침묵으로 효과적인 것으로 취급되는 대신 보고됩니다."
-        },
-        {
-          "narration": "각각의 모델에 도달한 매개 변수는 명예의 값을 비정형 또는 무시된 제어로부터 분리합니다. 실제 비교가 의도된 방식으로 다르다는 것을 확인하세요."
-        },
-        {
-          "narration": "현장 테이블 보고서는 수, 전면 합의, 일치하는 초복, 분할, 합병, 일치하지 않는 객체 및 독립적인 마스크 품질 검사를합니다. 모든 실패 모드를 파악하는 메트릭은 없습니다."
-        },
-        {
-          "narration": "두 개 모두 미리보기하기 위해 행을 선택하세요. 새로운 탐지, 미스, 경계 변경, 분할, 합병을 찾아서, 표현된 필드를 반복하십시오."
-        },
-        {
-          "narration": "시각적 차이와 측정값이 하류 분석에 중요한 오류를 개선할 때만 모델을 선택하십시오. 동일한 결과는 정보적이며 개선이 나타나지 않습니다."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 21,
+      "app_key": "model_compare",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_compare"
     },
     {
       "id": "22_model_zoo",
-      "scenes": [
-        {
-          "narration": "모델 동물원은 복합, 지역 또는 선언된 카탈로그 소스에서 사용할 수 있는 재사용 가능한 모델을 목록으로 한다. 작업, 채널, 객체 규모, 예상 사전 처리와 일치하는 것으로 시작하십시오."
-        },
-        {
-          "narration": "모델 폴더를 선택하고 스캔하십시오. 카탈로그는 로컬 경로와 원격 메타데이터를 함께 유지하면서 복제 항목을 피합니다."
-        },
-        {
-          "narration": "본래의 출처, 라이선스, 체크섬, 훈련 컨텍스트 및 예상 기하학을 검토하기 위해 모델을 선택하십시오. 성공적으로 로드되는 모델은 자동으로 사진에 적합하지 않습니다."
-        },
-        {
-          "narration": "제한된 기준을 위해 어려운 예시를 포함한 작은 대표적인 필드를 선택하십시오."
-        },
-        {
-          "narration": "설치된 모델 1개를 테스트해 보세요. 벤치마크는 속도, 객체 수, 품질 표지판 및 미리보기 등이 보고되고, 이러한 검사를 기본 진실의 정확성으로 간주하지 않습니다."
-        },
-        {
-          "narration": "테이블과 마스크 미리보기 함께 검토하십시오. 모델을 받아들이거나 거부하기 전에 이미지의 맥락에서 경고를 조사하십시오."
-        },
-        {
-          "narration": "제어된 옆 평가가 필요할 때, 두 개의 호환 가능한 로컬 모델을 선택하십시오."
-        },
-        {
-          "narration": "모델 비교는 체크포인트와 동일한 필드를 모두 수신하므로 마스크와 품질 매트릭의 차이점은 동일한 입력값에 의해 판단될 수 있습니다."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 22,
+      "app_key": "model_zoo",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_zoo"
     },
     {
       "id": "23_agreement",
@@ -752,7 +808,13 @@
         {
           "narration": "표지판이나 클래스 정의를 변경하기 전에 대표적인 작물을 검사한다. 합계된 통계는 검토자들이 동의하지 않는 이유를 설명할 수 없습니다."
         }
-      ]
+      ],
+      "number": 23,
+      "app_key": "agreement",
+      "host_app_key": "annotate",
+      "series": 3,
+      "section": "Results and quality control",
+      "slug": "agreement"
     },
     {
       "id": "24_plaque",
@@ -781,7 +843,12 @@
         {
           "narration": "조건들을 비교하기 전에 판판 덮개와 분포를 검사하십시오. 데이터베이스, 요약, 통계 및 품질 통제 수치들은 계속 실행과 연결되어 있습니다."
         }
-      ]
+      ],
+      "number": 24,
+      "app_key": "analyze_plaques",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "plaque"
     },
     {
       "id": "25_recruitment",
@@ -810,7 +877,12 @@
         {
           "narration": "조건 요약에 신뢰하기 전에 세그먼트 초복을 검사하고 분포를 제어하십시오. 객체 및 우물 레벨 출력은 소스 식별자를 유지합니다."
         }
-      ]
+      ],
+      "number": 25,
+      "app_key": "recruitment",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "recruitment"
     },
     {
       "id": "26_invasion",
@@ -839,7 +911,12 @@
         {
           "narration": "첨부, 침략, 불확실한 예제를 잘 수준된 요약과 함께 검토하십시오. 수출된 결과는 검사 설정과 소스 식별자를 유지합니다."
         }
-      ]
+      ],
+      "number": 26,
+      "app_key": "invasion",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "invasion"
     },
     {
       "id": "27_replication",
@@ -868,7 +945,12 @@
         {
           "narration": "수량 범위에서 진공을 검사하고 합병 또는 분해 마스크를 검토하십시오. 저장된 분포와 통계는 객체 수준 증거와 연결됩니다."
         }
-      ]
+      ],
+      "number": 27,
+      "app_key": "replication",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "replication"
     },
     {
       "id": "28_training_runs",
@@ -897,7 +979,13 @@
         {
           "narration": "복제 가능한 실행을 선택하기 위해 을 통한 곡선을 사용하고, 유지된 성능으로 설정이 달라집니다."
         }
-      ]
+      ],
+      "number": 28,
+      "app_key": "train_compare",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "training_runs",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -923,7 +1011,12 @@
         {
           "narration": "완성된 보고서를 미리 보고, 보고서를 공유하기 전에 결론, 버전 및 링크를 확인하세요."
         }
-      ]
+      ],
+      "number": 29,
+      "app_key": "report",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "report"
     },
     {
       "id": "30_plate_queue",
@@ -949,7 +1042,12 @@
         {
           "narration": "완성된 판은 고립된 출력과 실행 기록을 유지하며, 중지되거나 실패한 항목은 식별되고 재개될 수 있습니다."
         }
-      ]
+      ],
+      "number": 30,
+      "app_key": "queue",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "plate_queue"
     },
     {
       "id": "31_external_masks",
@@ -978,7 +1076,13 @@
         {
           "narration": "검토된 수입을 실행하세요. 결과된 이미지, 마스크, 측정 및 출처는 하류 해설을 위해 준비되어 있습니다."
         }
-      ]
+      ],
+      "number": 31,
+      "app_key": "external_masks",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "external_masks",
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -1007,7 +1111,12 @@
         {
           "narration": "계획이 받아들여질 때만 글을 써라. 스펙브랜드 토큰은 모자이크를 저장하고 변환, 좌표를 기록하고 등록 보고서를 작성합니다."
         }
-      ]
+      ],
+      "number": 32,
+      "app_key": "align",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "align_stitch"
     },
     {
       "id": "33_plate_viewer",
@@ -1036,7 +1145,13 @@
         {
           "narration": "현재 정비된 우물 그리드를 수사와 공간적 해설을 통해 감사 또는 재계획을 위해 수출한다."
         }
-      ]
+      ],
+      "number": 33,
+      "app_key": "plate_view",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "plate_viewer",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -1065,7 +1180,12 @@
         {
           "narration": "전체 전류 필터 및 가시 열 선택을 수출합니다. 소스 데이터베이스는 변하지 않습니다."
         }
-      ]
+      ],
+      "number": 34,
+      "app_key": "db_browser",
+      "series": 4,
+      "section": "Data",
+      "slug": "database"
     },
     {
       "id": "35_converter",
@@ -1094,7 +1214,13 @@
         {
           "narration": "재개정서는 완료된 현장 점검소를 점프하기 전에 검증하므로 실종되거나 손상된 출력소를 재건합니다."
         }
-      ]
+      ],
+      "number": 35,
+      "app_key": "convert",
+      "series": 4,
+      "section": "Data",
+      "slug": "converter",
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -1123,7 +1249,12 @@
         {
           "narration": "검토된 계획만 수입하세요. 스펙브랜드 토켄은 외부 식별자를 유지하면서 정통적인 이미지, 마스크, 측정 및 출처를 작성합니다."
         }
-      ]
+      ],
+      "number": 36,
+      "app_key": "foreign",
+      "series": 5,
+      "section": "Data",
+      "slug": "import"
     },
     {
       "id": "37_batch",
@@ -1164,7 +1295,12 @@
         {
           "narration": "세 개의 실제 하위 프로세스 작업 모두 성공적으로 완료됩니다. 진행 바는 3개 중 3개로, 테이블은 각 상태와 기간을 보존하고, 요약은 성공, 실패, 점프, 실행되지 않은 및 부분 결과를 구분하고, 선택한 작업의 로그는 정확한 명령 및 변환 보고서를 포함합니다. 각 목적지는 4개의 TIFF와 출처 지도를 보유하고 있으며, 모든 출처 해시가 변하지 않습니다."
         }
-      ]
+      ],
+      "number": 37,
+      "app_key": "batch",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "batch"
     },
     {
       "id": "38_distributed_jobs",
@@ -1184,7 +1320,12 @@
         {
           "narration": "작업 흐름이 끝나면 로컬 기록은 원격 직무 식별자, 로그, 상태, 전송된 유물 및 오류를 추적합니다."
         }
-      ]
+      ],
+      "number": 38,
+      "app_key": "distributed_jobs",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "distributed_jobs"
     },
     {
       "id": "39_classifier_evaluation",
@@ -1204,7 +1345,13 @@
         {
           "narration": "작업 흐름이 끝나면 spaCR은 차별, 캘리브레이션, 혼란, 누출 및 강도 보고서를 생성합니다."
         }
-      ]
+      ],
+      "number": 39,
+      "app_key": "classifier_evaluation",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "classifier_evaluation"
     },
     {
       "id": "40_run_history",
@@ -1224,7 +1371,12 @@
         {
           "narration": "작업 흐름이 끝나면, 어떻게 실행되었는지 추측하지 않고 재현, 비교, 재개 또는 이전 작업을 보고할 수 있습니다."
         }
-      ]
+      ],
+      "number": 40,
+      "app_key": "run_history",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_history"
     },
     {
       "id": "41_classify",
@@ -1244,7 +1396,12 @@
         {
           "narration": "작업 흐름이 끝나면 모델, 예측, 분할 기록, 측정 및 설정이 실행과 연결됩니다."
         }
-      ]
+      ],
+      "number": 41,
+      "app_key": "classify_merged",
+      "series": 5,
+      "section": "Core",
+      "slug": "classify"
     },
     {
       "id": "42_curate",
@@ -1264,7 +1421,13 @@
         {
           "narration": "작업 흐름이 끝나면 수정된 라벨과 트랙 변경은 출처와 함께 저장되어 하류 측정이 업데이트될 수 있습니다."
         }
-      ]
+      ],
+      "number": 42,
+      "app_key": "curate",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Core",
+      "slug": "curate"
     },
     {
       "id": "43_illumination",
@@ -1284,7 +1447,13 @@
         {
           "narration": "작업 흐름이 완료되면 승인된 수정 필드와 진단이 재생 가능한 사전 처리를 위해 저장됩니다."
         }
-      ]
+      ],
+      "number": 43,
+      "app_key": "illumination",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Data",
+      "slug": "illumination"
     },
     {
       "id": "44_data_manager",
@@ -1304,7 +1473,12 @@
         {
           "narration": "작업 과정이 끝나면, 재구성된 재고와 청소 기록은 남은 것들과 재생될 수 있는 것을 보여줍니다."
         }
-      ]
+      ],
+      "number": 44,
+      "app_key": "data_manager",
+      "series": 5,
+      "section": "Data",
+      "slug": "data_manager"
     },
     {
       "id": "45_project_browser",
@@ -1324,7 +1498,12 @@
         {
           "narration": "작업 흐름이 끝나면 브라우저는 프로젝트 데이터를 변경하지 않고 관련 파일과 모듈에 연결합니다."
         }
-      ]
+      ],
+      "number": 45,
+      "app_key": "project_browser",
+      "series": 5,
+      "section": "Data",
+      "slug": "project_browser"
     },
     {
       "id": "46_napari_bridge",
@@ -1344,7 +1523,13 @@
         {
           "narration": "작업 흐름이 끝나면 수정된 마스크와 큐레이션 기록은 원래 필드에 연결됩니다."
         }
-      ]
+      ],
+      "number": 46,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Segmentation models",
+      "slug": "napari_bridge"
     },
     {
       "id": "47_barcode_qc",
@@ -1364,7 +1549,13 @@
         {
           "narration": "작업 흐름이 끝나면 보고서는 선택된 풍요의 문턱, 진단 및 영향을 받은 우물을 기록합니다."
         }
-      ]
+      ],
+      "number": 47,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "barcode_qc"
     },
     {
       "id": "48_hit_list",
@@ -1384,7 +1575,13 @@
         {
           "narration": "작업 흐름이 끝나면 필터링된 히트 리스트는 점수, 증거, 해설 및 소스 식별자를 저장합니다."
         }
-      ]
+      ],
+      "number": 48,
+      "app_key": "hit_list",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "hit_list"
     },
     {
       "id": "49_methods_results",
@@ -1404,7 +1601,13 @@
         {
           "narration": "작업 흐름이 완료되면 편집 가능한 방법과 결과 문서가 출처 요약과 함께 수출됩니다."
         }
-      ]
+      ],
+      "number": 49,
+      "app_key": "methods_export",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "methods_results"
     },
     {
       "id": "50_run_compare",
@@ -1424,7 +1627,12 @@
         {
           "narration": "작업 흐름이 끝나면 비교 보고서는 모든 차이를 두 소스 실행으로 연결합니다."
         }
-      ]
+      ],
+      "number": 50,
+      "app_key": "run_compare",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_compare"
     },
     {
       "id": "51_control_charts",
@@ -1444,7 +1652,13 @@
         {
           "narration": "작업 흐름이 완료되면, 캠페인 모니터링을 위해 차트, 알림 및 기본 정의를 수출할 수 있습니다."
         }
-      ]
+      ],
+      "number": 51,
+      "app_key": "control_chart",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "control_charts",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -1464,7 +1678,12 @@
         {
           "narration": "작업 흐름이 끝나면 그래프는 일관성을 회복하기 위해 다시 실행해야 할 정확한 모듈을 식별합니다."
         }
-      ]
+      ],
+      "number": 52,
+      "app_key": "pipeline_graph",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pipeline_graph"
     },
     {
       "id": "53_prediction_profiler",
@@ -1484,7 +1703,13 @@
         {
           "narration": "작업 흐름이 끝나면 반응 곡선은 원인과 생물학적 효과가 아닌 모델 행동을 설명하고 설정과 함께 수출할 수 있습니다."
         }
-      ]
+      ],
+      "number": 53,
+      "app_key": "profiler",
+      "series": 5,
+      "section": "Explore",
+      "slug": "prediction_profiler",
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -1504,7 +1729,12 @@
         {
           "narration": "작업 흐름이 끝나면, 합동 판결은 개별 보고서에 이어서 대체되는 것이 아니라 추적될 수 있습니다."
         }
-      ]
+      ],
+      "number": 54,
+      "app_key": "qc_dashboard",
+      "series": 5,
+      "section": "Explore",
+      "slug": "qc_dashboard"
     },
     {
       "id": "55_image_scatter",
@@ -1524,7 +1754,13 @@
         {
           "narration": "작업 흐름이 완료되면, 선택된 객체와 플롯은 안정적인 소스 식별자를 사용하여 수출될 수 있습니다."
         }
-      ]
+      ],
+      "number": 55,
+      "app_key": "image_scatter",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "image_scatter"
     },
     {
       "id": "56_lineage",
@@ -1544,7 +1780,13 @@
         {
           "narration": "작업 흐름이 끝나면 검토된 관계 테이블은 생물학적 구조와 할당 오류를 구별하는 데 도움이 됩니다."
         }
-      ]
+      ],
+      "number": 56,
+      "app_key": "lineage",
+      "series": 5,
+      "section": "Explore",
+      "slug": "lineage",
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -1564,7 +1806,13 @@
         {
           "narration": "작업 흐름이 완료되면, 문장 수정이 명시적으로 저장되지 않는 한, 보기 및 선택한 영역은 소스를 수정하지 않고 수출할 수 있습니다."
         }
-      ]
+      ],
+      "number": 57,
+      "app_key": "layer_viewer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "layer_viewer",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -1584,7 +1832,12 @@
         {
           "narration": "작업 흐름이 완료되면 차트 사양과 데이터 선택은 재사용 또는 수출이 가능합니다."
         }
-      ]
+      ],
+      "number": 58,
+      "app_key": "graph_builder",
+      "series": 5,
+      "section": "Explore",
+      "slug": "graph_builder"
     },
     {
       "id": "59_anndata_export",
@@ -1604,7 +1857,13 @@
         {
           "narration": "작업 흐름이 완료되면 h5ad 파일은 아래류 분석을 위해 선택한 매트릭스, 해설 및 출처를 보존합니다."
         }
-      ]
+      ],
+      "number": 59,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Explore",
+      "slug": "anndata_export"
     },
     {
       "id": "60_pca",
@@ -1624,7 +1883,13 @@
         {
           "narration": "작업 흐름이 끝나면 점수, 로딩, 설정 및 음반이 재현 가능한 탐색을 위해 수출될 수 있습니다."
         }
-      ]
+      ],
+      "number": 60,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pca"
     },
     {
       "id": "61_tabulate",
@@ -1644,7 +1909,13 @@
         {
           "narration": "작업 흐름이 완료되면, 회전 테이블과 그 사양은 원천 선택과 연결됩니다."
         }
-      ]
+      ],
+      "number": 61,
+      "app_key": "tabulate",
+      "series": 5,
+      "section": "Explore",
+      "slug": "tabulate",
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -1664,7 +1935,12 @@
         {
           "narration": "작업 흐름이 완료되면 선택된 정의는 분석과 함께 복사하거나 수출될 수 있습니다."
         }
-      ]
+      ],
+      "number": 62,
+      "app_key": "feature_dict",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_dictionary"
     },
     {
       "id": "63_small_multiples",
@@ -1684,7 +1960,13 @@
         {
           "narration": "작업 흐름이 완료되면, 선택된 데이터와 함께 트레리스 사양과 수치가 수출될 수 있습니다."
         }
-      ]
+      ],
+      "number": 63,
+      "app_key": "trellis",
+      "series": 5,
+      "section": "Explore",
+      "slug": "small_multiples",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -1710,7 +1992,12 @@
         {
           "narration": "클러스터 워크는 표시된 측정에 DBSCAN 반경의 제한된 순서를 검색하고 선택된 반경, 인구 수 및 제외된 분수를 보고합니다. 결과적인 게이트를 검사하고, 보고된 데이터와 인구가 일치한 후에만 해고하거나 수출하십시오."
         }
-      ]
+      ],
+      "number": 64,
+      "app_key": "gate_editor",
+      "series": 5,
+      "section": "Explore",
+      "slug": "gate_editor"
     },
     {
       "id": "65_feature_explorer",
@@ -1730,7 +2017,13 @@
         {
           "narration": "작업 흐름이 끝나면 순위 표와 음반은 계과 중요성이 아니라 클래스와 연관성을 설명합니다."
         }
-      ]
+      ],
+      "number": 65,
+      "app_key": "feature_explorer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_explorer",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -1750,7 +2043,13 @@
         {
           "narration": "작업 흐름이 끝나면, 스펙브랜드 토켄은 침묵으로 관찰을 삭제하는 대신 이상적인 플래그와 진단을 작성합니다."
         }
-      ]
+      ],
+      "number": 66,
+      "app_key": "outliers",
+      "series": 5,
+      "section": "Explore",
+      "slug": "outliers",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -1770,7 +2069,12 @@
         {
           "narration": "작업 흐름이 완료되면 검증된 판지도와 메타데이터를 수확 및 후속 스펙브랜드토켄 분석을 위해 수출할 수 있습니다."
         }
-      ]
+      ],
+      "number": 67,
+      "app_key": "experiment_design",
+      "series": 5,
+      "section": "Design",
+      "slug": "experiment_design"
     },
     {
       "id": "68_power_design",
@@ -1790,7 +2094,12 @@
         {
           "narration": "작업 흐름이 끝나면 보고서는 하나의 숫자를 맥락 없이 제시하는 대신 가정과 권장 샘플링을 기록합니다."
         }
-      ]
+      ],
+      "number": 68,
+      "app_key": "power",
+      "series": 5,
+      "section": "Design",
+      "slug": "power_design"
     },
     {
       "id": "69_dose_response",
@@ -1810,7 +2119,12 @@
         {
           "narration": "작업 흐름이 완료되면 곡선 매개 변수, 불확실성, 진단 및 소스 데이터 모두 함께 수출될 수 있습니다."
         }
-      ]
+      ],
+      "number": 69,
+      "app_key": "dose_response",
+      "series": 5,
+      "section": "Design",
+      "slug": "dose_response"
     },
     {
       "id": "70_explain_cv",
@@ -1830,27 +2144,28 @@
         {
           "narration": "워크플로가 완료되면 충실도, 검증 세트 순열 중요도, SHAP 요약, 제외된 열, 그룹화, 백엔드, 데이터 출처가 기록됩니다. 충실도가 낮으면 이를 숨기지 않고 보고합니다."
         }
-      ]
+      ],
+      "number": 70,
+      "app_key": "explain_cv",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "explain_cv"
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [
-        {
-          "narration": "이 튜토리얼에서는 Investigate Hit을 다룹니다. 검토가 끝난 주석을 덮어쓰지 않고 선택한 회귀 결과를 후보 세포와 정량적인 마이크로플레이트 웰 근거로 추적합니다."
-        },
-        {
-          "narration": "회귀 실행 결과, 선택한 유전자 또는 가이드 수준 결과, 표현형 방향, 위발견률 임계값, 가이드 지지도, 일치하는 측정 데이터베이스를 선택합니다."
-        },
-        {
-          "narration": "기본 구성 영역에서 객체 테이블, 점수 열, 마이크로플레이트 웰 그룹, 근거 임계값, 공변량, 선택 사항인 교차 적합 계층적 혼합 모델을 검토합니다."
-        },
-        {
-          "narration": "점수순 후보 세포와 마이크로플레이트 웰 요약을 미리 확인합니다. 선택한 결과와 근거 조건이 올바른 경우에만 교차 적합 모델을 실행합니다."
-        },
-        {
-          "narration": "워크플로가 완료되면 spaCR은 순위가 지정된 후보 세포, 독립 웰 간 비교, 각 세포가 선택한 표현형과 일치할 선택적 확률, 불확실성, 수동 주석을 대체하지 않는 버전 관리 판정을 저장합니다."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 71,
+      "app_key": "investigate_hit",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "investigate_hit",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -1870,7 +2185,13 @@
         {
           "narration": "워크플로가 완료되면 기록된 데이터와 스타일을 사용해 요청한 크기의 PDF와 PNG를 다시 렌더링하며, 원래 회귀 결과는 변경하지 않습니다."
         }
-      ]
+      ],
+      "number": 72,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "volcano_explorer"
     },
     {
       "id": "73_parameter_sweep",
@@ -1890,7 +2211,13 @@
         {
           "narration": "워크플로가 완료되면 재개 가능한 결과 테이블에 각 시행의 설정, 상태, 발견 수, 양성 대조군 순위, 소요 시간, 출력 폴더, 실패 원인이 기록됩니다."
         }
-      ]
+      ],
+      "number": 73,
+      "app_key": "parameter_sweep",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "parameter_sweep"
     },
     {
       "id": "74_import_images",
@@ -2078,6 +2405,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "곧 공개됩니다",
+      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }
