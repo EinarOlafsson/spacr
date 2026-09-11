@@ -1991,3 +1991,57 @@ WHAT IS LEFT, and none of it is a defect in this lane:
   * ONE ORDER-DEPENDENT FILE, `test_home_v2.py`, which is the only
     survivor of this item's original suspicion and the one thing here
     still worth bisecting.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE ONE ORDER-DEPENDENT FAILURE IS FOUND, FIXED AND CONFIRMED
+--------------------------------------------------------------------------------
+
+The sweep left exactly one genuinely order-dependent failure:
+`tests/qt/test_home_v2.py::test_the_alpha_and_beta_lists_are_the_ones_that
+_were_asked_for`, green in a run of 163 and red in company. It is the last
+survivor of this item's long-held suspicion that the Qt suite carries state
+between tests, and the suspicion was RIGHT about this one.
+
+THE CAUSE. `register_app()` writes TWO module-level globals -- it appends to
+`APPS` and it sets `APP_STAGE[key]`.
+`tests/test_cov_5_screen_factories.py::test_registering_a_screen_twice_adds
+_one_row` registered a screen, then restored `APPS` by removing its row and
+left `APP_STAGE[key]` behind. The failing test reads both:
+
+    for key, _name, _desc, _section in APPS:
+        by_stage.setdefault(app_stage(key), set()).add(key)
+    assert by_stage["alpha"] == ALPHA_MODULES
+
+so a stage left in the dict for a key no longer in `APPS` is a module the
+lists do not know about, whenever the two files land in the same process
+and in that order.
+
+HOW IT WAS FOUND, and the method is the transferable part. The bisect had
+to start by reproducing, and the first attempt FAILED TO: running the
+chunk's first nine files in file order gave 255 passed. The reason is that
+the naming run did not pass `-p no:randomly`, so `pytest-randomly` had
+shuffled the order and "the files before it" was not a fixed set.
+Re-running the whole chunk with FIXED SEEDS reproduced it on 1, 2 and 3.
+
+    A BISECT THAT CANNOT REPRODUCE IS MEASURING THE WRONG THING, and the
+    seed is part of the reproduction. Record it.
+
+CONFIRMED AFTER THE FIX, not assumed. Same chunk, same three seeds:
+
+    before   2 failed, 1154 passed
+    after    1 failed, 1155 passed   (seeds 1, 2 and 3 alike)
+
+and the one that remains is named:
+`test_i18n_caption_ratchet::test_external_caption_layer_is_complete_
+exclusive_and_pinned`, which is catalog staleness waiting on the merge from
+main and has nothing to do with ordering.
+
+AND A DETECTOR, so this class cannot come back quietly:
+`tests/qt/test_zz_the_app_registry_is_left_as_it_was_found.py` asserts every
+key with a STAGE still has a ROW. Proven against the real leak rather than
+a synthetic one -- with the restore taken back out it reports
+`['curate'] have a stage but no row in APPS`.
+
+SO THE SUITE'S ORDER-DEPENDENCE, AS OF TODAY, IS ZERO. One file, one cause,
+one line of restore, and a guard. That closes the question this item has
+carried since 345 and 346.
