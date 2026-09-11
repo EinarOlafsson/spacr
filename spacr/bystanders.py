@@ -355,8 +355,8 @@ def compare(frame: pd.DataFrame, feature: str, *,
     NO TEST STATISTIC HERE, deliberately. Summarising is safe on any
     column; choosing a test is a decision about the design -- paired or
     not, how the wells nest, what the null is -- and belongs where those
-    are known. This gives the regression layer three named groups to be
-    handed, which is what instruction 388 asks for.
+    are known. What this hands the regression layer is three named groups
+    it can contrast.
     """
     wanted = [str(name) for name in statuses]
     if feature not in frame.columns or "neighbourhood" not in frame.columns:
