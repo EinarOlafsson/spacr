@@ -48,9 +48,20 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            on the well-frame centroid so two runs number identically.
            Fifteen tests against planted truth.
 
-           STILL UNSTARTED: B5 (the on-disk gate), and Phases C, D and E.
-           B5 needs `ops_objects` written to measurements.db, which is the
-           Phase D contract, so those two land together.
+           PHASE D AND B5 ARE BUILT, 2026-09-11, and they did land
+           together as predicted: `spacr/ops_store.py`. sqlite is the
+           AUTHORITY and parquet a CACHE -- two stores that can disagree need
+           one right by definition, or a reader preferring the faster one
+           returns yesterday's numbers with no way to tell. Both are written
+           by one call, because two could not assert the row counts equal. A
+           stale cache is deleted rather than returned; a MISSING one falls
+           back silently, since that is a speed question. `objects_ready` is
+           B5 and it names WHICH failure -- no database, no table, or no rows
+           -- because those have three different fixes. Fifteen tests.
+
+           STILL UNSTARTED: Phases C and E. C is the real remaining work --
+           reading sequencing and phenotype channels at B4's coordinates --
+           and it is now unblocked, since its gate exists and passes.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
