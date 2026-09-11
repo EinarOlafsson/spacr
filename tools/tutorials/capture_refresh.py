@@ -652,6 +652,11 @@ def main() -> int:
                     'bytes': sum(p.stat().st_size for p in images)})
         if args.preview and args.module == 'measure':
             import numpy as np
+            # Native panel resizing, not screenshot enlargement: leave enough
+            # vertical space to see the live crop categories and their images.
+            if screen._usage_card.body.isVisible():
+                QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+            screen._runtime_splitter.setSizes([1400, 300])
             panel = screen._measure_preview
             screen._preview_switch.setChecked(True)
             settle()
@@ -1058,6 +1063,28 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'measure':
+                from capture_settings import require_unchanged_settings
+                before_tour = screen._settings_model.collect()
+                if screen._usage_card.body.isVisible():
+                    QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+                screen._runtime_splitter.setSizes([1400, 300])
+                for index in (0, 1, 2):
+                    queue.show_index(index)
+                    settle()
+                    capture(f'25_measure_figure_{index:02d}')
+                screen._runtime_splitter.setSizes([300, 1400])
+                screen._console._split.setSizes([1200, 100])
+                for block, _, _ in screen._console._pipeline_console_blocks():
+                    block.setFocus()
+                    QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+                screen._console.jump_to_the_end()
+                settle()
+                capture('26_measure_console_complete')
+                require_unchanged_settings(before_tour, screen._settings_model.collect())
+                write_json(captures / 'readable_results_tour.json', {
+                    'display_only': True, 'settings_unchanged': True,
+                    'figure_indices': [0, 1, 2], 'console_complete_shown': True})
             if args.module == 'recruitment':
                 # Preserve the genuine overlay and every calculated chart.
                 # The archived masks are NOT asserted to be the postprocessed

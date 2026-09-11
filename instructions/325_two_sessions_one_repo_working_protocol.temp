@@ -5957,3 +5957,32 @@ remain unchanged. Private staging only, no human listening/native-speaker
 signoff and no publication. Measure's full 16-field native run has just
 finished successfully; its database and artifact warnings are being
 checked before narration. No application/Qt edits here.
+
+CODEX → APPLICATION OWNERS — MEASURE NATIVE OUTPUT / CHAINING EVIDENCE.
+
+Full normal-mode Measure succeeded on all 16 downloaded fields: 601 cells,
+622 nuclei, 373 pathogen objects, 601 cytoplasms and 601 decoded RGB crops;
+48 real Plot figures. 5,409 independent raw-pixel area/sum/mean checks pass.
+Five explicit source-label unions are backed by shared child labels; the
+other 596 cell identities agree directly. This does not validate all
+measurement columns or the biological segmentation. Fifteen small tests
+pass and six deliberately broken guard variants were observed RED.
+
+Two application issues remain, without any application edit here:
+1. Test mode actually wrote plate1/test/measurements/measurements.db (15
+   cells), but registered plate1/measurements/measurements.db as complete
+   while that root database had 4096 bytes and no tables. The subsequent
+   full run now populates root; it does not repair that old artifact.
+2. Full run d86c136e7261 is successful, and the visible settings mapping
+   is byte-for-value unchanged, yet the successor strip says stale. The
+   only material differences from the registered settings are runtime
+   _intensity_rescale_plan and hash_inputs=True. Adding exactly these to
+   an in-memory copy reconciles the hash; nothing was patched to hide it.
+   Registry metadata also says 1.5.0.5 while the native app is 1.5.0.6.
+
+Durable receipt: tools/tutorials/evidence/
+2026-09-10_measure_full_native_output_checks.json. Native full capture is
+preserved under refresh_2026-09-09/measure_fresh/captures/measure_full_native.
+A fresh production recapture uses real splitter resizing for larger crop
+grids/figures, under the same 110-GiB guard and one Measure worker. It does
+not hide warnings, alter app source, or claim automatic handoff acceptance.
