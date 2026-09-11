@@ -47,6 +47,7 @@ def main() -> int:
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
+    parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
@@ -69,6 +70,8 @@ def main() -> int:
         parser.error('--preview-variants requires --preview')
     if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
         parser.error('--methods-review-export requires methods_export without a run or download')
+    if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
+        parser.error('--mask-bounded-recapture requires mask with --download and --run')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -1004,6 +1007,12 @@ def main() -> int:
                 }
             if args.measure_full_example:
                 presets['measure']['test_mode'] = False
+            if args.mask_bounded_recapture:
+                # The downloaded settings use 100, which the real console says
+                # disables flow filtering. Show explicit bounded example values
+                # instead, never silently teach 100 as a recommended default.
+                presets['mask'].update(cell_flow_threshold=.4,
+                    nucleus_flow_threshold=.4, pathogen_flow_threshold=.4)
             if args.module == 'classify_merged' and args.classifier_family == 'ml':
                 from capture_classify_ml import bounded_settings
                 presets['classify_merged'] = bounded_settings()
