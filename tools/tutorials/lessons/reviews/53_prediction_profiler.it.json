@@ -1,0 +1,31 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "review": {
+    "kind": "Editorial translation from frozen English; synthetic-data, no-refitting, range and noncausal boundaries preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Profilo delle previsioni",
+  "description": "Importare un modello stimato su dati sintetici e verificare come gli ingressi mantenuti fissi e le opzioni del grafico influenzano le previsioni.",
+  "objectives": [
+    "Aprire Prediction Profiler da Regression e importare coefficienti adatti.",
+    "Distinguere stima, link inverso, intervalli ipotizzati e risoluzione del grafico.",
+    "Confrontare i due ingressi, variare i valori fissi e ripristinare il punto medio."
+  ],
+  "prerequisite": "Estrarre l’esempio SYNTHETIC in una nuova cartella. Contiene 121 osservazioni costruite, coefficienti di una vera stima OLS con statsmodels, manifesto e script riproducibile. Nessuna validazione biologica o su dati tenuti da parte. La GUI importa feature/coefficient e Intercept, senza stimare il modello o leggere le osservazioni. Usare identity. Il percorso da file assume due righe con intervalli 0..1 e valori fissi 0.5. La graduatoria usa 0.05..0.95; le curve coprono 0..1. Verificati indipendentemente 338 valori delle curve e dodici della graduatoria. Effetti marginali di permutazione non sostituiscono un modello predittivo stimato congiuntamente. API: spacr.profiler.from_coefficients, profile, sensitivity. ProfilerScreen.set_model/set_design sono API, non selettori di file. Nessuna affermazione su intervalli di confidenza, causalità, pubblicazione o approvazione all’ascolto.",
+  "scenes": [
+    "Aprire Regression, quindi Prediction Profiler negli strumenti annidati. Questa lezione usa un esempio didattico chiaramente sintetico, non risultati di screening biologico. Esaminiamo un modello stimato variando un ingresso e mantenendo fisso l’altro. Il profiler legge il modello; non ne addestra un altro.",
+    "Scaricare ed estrarre l’esempio allegato, poi usare Browse per aprire il file dei coefficienti OLS sintetici. Contiene un’intercetta e due coefficienti stimati. L’archivio comprende anche le osservazioni e lo script di preparazione. I coefficienti provengono da una vera stima ai minimi quadrati su dati costruiti, non da risultati di regressione inventati.",
+    "Lasciare Link su identity: questo esempio è stato stimato con i minimi quadrati ordinari. Altri link appartengono ad altre famiglie di modelli; cambiare il selettore non converte né riaddestra il modello originale. Una curva plausibile su una scala di risposta sbagliata resta sbagliata. Usare sempre il link della stima.",
+    "Leggere lo stato: non è stata fornita una matrice del disegno, quindi l’importazione da file assume ingressi da zero a uno. I nostri ingressi sintetici hanno questo intervallo, ma i vostri potrebbero non averlo. La graduatoria usa il quinto e il novantacinquesimo percentile; Moves by non è la differenza tra gli estremi completi della curva.",
+    "L’ingresso A è selezionato per la variazione. Spostare il cursore di B dal punto medio a uno. La risposta prevista scende perché B ha un coefficiente stimato negativo. Cambia lo scenario a valori fissi, non i dati di addestramento o i coefficienti. Leggere i valori numerici agli estremi oltre alla forma della linea.",
+    "Spostare B a zero e confrontare di nuovo. La risposta sale. Il grafico adatta la scala verticale: linee apparentemente parallele possono rappresentare livelli di risposta diversi. Sono previsioni all’interno di un modello ipotizzato, non prove che modificare B causerebbe un effetto sperimentale.",
+    "Reset held values riporta i cursori al punto medio degli intervalli ipotizzati, qui un mezzo. Non stima di nuovo il modello. Importando solo i coefficienti, quel punto medio non è una mediana misurata nei dati originali: tali dati non sono mai stati caricati nel profiler.",
+    "Selezionare B nell’elenco ordinato. Ora B varia lungo l’asse orizzontale e A resta fisso a un mezzo. La curva discendente corrisponde al coefficiente negativo di B. L’elenco ordina la sensibilità del modello: non è un test di significatività, un intervallo di confidenza o un elenco di risultati biologici validati.",
+    "Cambiare Points da sessantuno a undici. Si sceglie quante posizioni valutare per tracciare la curva, senza cambiare la numerosità del campione o la qualità della stima. Il nostro esempio lineare mantiene gli stessi estremi. Più punti nel grafico non aggiungono osservazioni, non riducono l’incertezza e non migliorano un modello già stimato.",
+    "Con B ancora selezionato, spostare A a uno, leggere i nuovi estremi della risposta e infine ripristinare i valori. Per il proprio lavoro, fornire coefficienti di un modello stimato adatto e controllare link, intercetta, codifica e intervalli. Non sostituire un modello predittivo stimato congiuntamente con effetti separati di test di permutazione."
+  ]
+}
