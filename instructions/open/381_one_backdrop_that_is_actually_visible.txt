@@ -392,3 +392,60 @@ and `test_no_panel_is_a_black_slab` -- carry a note pointing at it.
   The only reason this one was caught is that a guard built on it failed
   LOUDLY rather than passing quietly -- which was luck, not design.
 
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- THE OTHER HALF OF A STALE PREMISE: A FIXTURE THAT
+REPRODUCES THE OLD WORLD, AND A GUARD THAT THEREFORE NEVER FAILS
+--------------------------------------------------------------------------------
+
+The sweep above found stale premises written in DOCSTRINGS and concluded the
+residue was a stale sentence. There is a second place a premise lives, it is
+worse, and one turned up the same evening in 380's lane.
+
+`ensure_widget_qss_applied` is what puts a block registered at a screen's
+import onto that screen before it paints. It opened:
+
+    app_sheet = app.styleSheet()
+    if not app_sheet:
+        return False
+
+which is correct reasoning -- a caller who never opted into spaCR styling is
+not opted in merely by constructing one of its widgets. Then per-window
+sheeting took the application sheet DOWN on purpose and gave each window its
+own.
+
+  SO "NOBODY OPTED IN" AND "WE DELIBERATELY TOOK IT DOWN" BECAME THE SAME
+  OBSERVATION, and the function did nothing in every production run.
+  Measured: opening one module registers four blocks -- `SettingsBox`,
+  `ClassEditor`, `SettingAlphabetChip`, `TableChip` -- and not one of the
+  four reached the screen that had just imported them.
+
+AND THE GUARD WRITTEN FOR EXACTLY THIS DEFECT KEPT PASSING.
+`test_a_late_registered_block_reaches_its_screen_before_first_paint` applies
+the theme with `app.setStyleSheet` through its fixture. That fixture
+reproduces the world the function was written for, so the function still
+answered the old question with the old answer, correctly, about a world that
+no longer exists.
+
+    A FIXTURE IS A CLAIM ABOUT THE WORLD THE CODE RUNS IN. When the claim
+    goes stale the test does not fail -- it stops being about anything, and
+    a test that is about nothing is green. That is strictly worse than the
+    docstring case above, because a docstring only misleads the next reader
+    while a fixture actively certifies.
+
+BOTH WERE CAUGHT BY ACCIDENT. The docstring one because a guard built on it
+failed LOUDLY instead of quietly; this one because somebody went looking at
+`app.styleSheet()` for an unrelated reason. Neither was caught by design,
+and nothing in the suite would have caught either.
+
+WHAT WOULD HAVE. The new guard,
+`test_the_late_block_seam_works_when_the_window_carries_the_sheet`, applies
+the theme the way the APPLICATION does rather than the way a fixture finds
+convenient, and it was verified to fail on the tree without the fix. The
+general form is cheap and worth copying:
+
+    WHEN A GUARD SETS UP GLOBAL STATE THAT PRODUCTION ALSO SETS UP, IT
+    SHOULD USE PRODUCTION'S OWN ENTRY POINT. `app.setStyleSheet` and
+    `apply_stylesheet_per_window` were the same thing once and are not now;
+    every guard that reached for the first is testing a world it chose.
+
