@@ -85,6 +85,30 @@ LEGACY_IDENTIFIERS = re.compile(
     r'|"Olafsson Lab", "SpaCR"'
 )
 
+#: THE TRANSLATION PIPELINE'S PROTECTED PLACEHOLDERS, which are all-caps by
+#: construction and must stay that way.
+#:
+#: `tools/tutorials/authoring/tools/translate_pre_app.py` wraps every term
+#: that must survive a sentence model as an upper-case token, and then has to
+#: put the real word back afterwards:
+#:
+#:     # NLLB occasionally rewrites the middle of the spaCR placeholder as a
+#:     # natural-language conjunction (for example SPACRANDTOKEN in German).
+#:     # The stable SPACR prefix and TOKEN suffix still identify it uniquely.
+#:     text = re.sub(r"SPACR[A-Z]*TOKEN", "spaCR", text)
+#:
+#: THE `SPACR` THERE IS A PATTERN, NOT A MENTION, and the replacement string
+#: on the same line already spells the project correctly. "Fixing" the
+#: spelling breaks the match, the placeholder is never restored, and every
+#: affected translation ships with a raw token in it -- so this rule would
+#: have caused the defect it exists to prevent.
+#:
+#: Matched only in the shape those placeholders actually take: all capitals,
+#: optionally carrying a regex class or group, ending in TOKEN. Ordinary
+#: prose cannot collide with it.
+PLACEHOLDER_TOKEN = re.compile(
+    r"\b[A-Z][A-Z0-9]*(?:\[[^\]]*\]\*?|\(\?:[^)]*\))?[A-Z0-9]*TOKEN\b")
+
 
 def _project_files():
     for path in sorted(ROOT.rglob("*")):
@@ -117,6 +141,7 @@ def _offenders():
             # still fails on the second one.
             line = ASSET.sub("", line)
             line = LEGACY_IDENTIFIERS.sub("", line)
+            line = PLACEHOLDER_TOKEN.sub("", line)
             if defines_a_constant and "SPACR" in line:
                 # `SPACR` IS AN IDENTIFIER IN THIS FILE, not a mention of the
                 # project. Several tests do `SPACR = <path to the package>`
