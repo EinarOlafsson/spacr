@@ -1,0 +1,33 @@
+{
+  "lesson": "56_lineage",
+  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Lineage: innihaldstengsl og staðfestir myndbútar foreldrafrumna",
+  "description": "Skoða vistuð tengsl, takmörk birtingar og rétta mynd af foreldrafrumu án þess að samþykkja rangar staðgengilsmyndir fyrir undirhluti.",
+  "objectives": [
+    "Opna Lineage innan Database Browser og byggja raunverulega tréð.",
+    "Greina heildarfjölda, sýndar fjölskyldur og auðkenni með hlutategund.",
+    "Þekkja ranga staðgengla og skoða aðeins staðfesta foreldrafrumu.",
+    "Nota innbyggðan aðdrátt og greina Python-útflutning frá skjástýringum."
+  ],
+  "prerequisite": "Notaðu niðurhalaða Annotate-dæmið með samsvarandi mælingum og frumumyndum. Graph Builder-safnið hefur sama gagnagrunn án mynda; Lineage-safnið inniheldur staðfesta API-CSV-skrá og yfirferð, ekki annan gagnagrunn. Ekki nota ranga staðgengilshegðun til að auðkenna eða merkja hluti sem vantar myndir af.",
+  "scenes": [
+    "Finndu Database Browser undir Help og opnaðu undireininguna Lineage. Hér merkir lineage vistuð tengsl um hvað er inni í hverju. Þetta er ekki saga frumuskiptinga, erfðafræðilegur uppruni eða ný myndskipting. Gagnagrunnsstýringar utan um sýnina tilheyra hýsileiningunni.",
+    "Veldu measurements.db úr raunverulega Annotate-dæminu og byggðu tréð. Við notum óbreytt einkaafrit. Breikkaðu Object og skilrúmið ef textinn er þröngur. Númer endurtaka sig milli myndsviða og hlutategunda; tala ein og sér er ekki auðkenni.",
+    "Heildargögnin hafa 2.341 frumu, 2.682 kjarna og 2.178 hluti í töflunni pathogen. Aðeins 2.000 foreldrafjölskyldur birtast í trénu. 341 er sleppt úr birtingu, ekki eytt úr gagnagrunninum.",
+    "Samantektin segir enga frumu tóma, því kjarni telst líka undirhlutur. Það merkir ekki að allar frumur hafi pathogen-hlut: 1.168 hafa hann ekki. Engir ótengdir undirhlutir merkir að skráðir foreldrar séu til, ekki að myndskiptingin sé líffræðilega rétt.",
+    "Opnaðu foreldri til að sjá undirhlutina. Á þessu myndsviði inniheldur fruma þrjú kjarna fimm og pathogen einn samkvæmt vistuðum tengslum. Þetta eru auðkenni með tegund, ekki skiptanlegar tölur. Að velja einn undirhlut er annað en að velja alla fjölskylduna.",
+    "Select with contents miðlar lyklum foreldris og undirhluta. Að velja foreldri ásamt undirhlut þess krefst ekki tvítekinna eintaka af undirhlutnum. Lyklarnir varðveita myndsvið og tegund, en lykildálkurinn er falinn. Miðlað auðkenni sannar ekki að samsvarandi myndbútur sé til.",
+    "Stórar fjölskyldur þurfa skoðun, ekki sjálfvirka líffræðilega túlkun. Dæmið hefur eina fjölskyldu með 33 hlutum alls. Tengsl geta endurspeglað myndskiptingar- eða upptökuvillur. Tréð sýnir vistuð tengsl en staðfestir ekki óvenjulegan fjölda sem uppgötvun.",
+    "Smellur á dálkhaus raðar sýndum fjölskyldum án þess að breyta tengslum. Takmörkin, 2.000 foreldrar, gilda áfram. Við athuguðum öll sýnd auðkenni, foreldratengsl og allt stigveldið. Röðuð eða stytt sýn er ekki breytt mælitafla.",
+    "Open crops þarfnast Annotate sem myndskoðara. Raunveruleg skilaboð biðja um að opna Annotate fyrst. Myndskoðari sem vantar er annað en mynd sem vantar. Hladdu samsvarandi verkefni áður en þú biður um myndbúta, ekki annarri keyrslu með svipuðum númerum fyrir tilviljun.",
+    "Niðurhalaða verkefnið gefur raunverulega frumumyndbúta. Safnið með aðeins gagnagrunninum inniheldur ekki þessar myndir. Við notum allt samsvarandi dæmið og varðveitum alla frumritsmyndbúta. Að opna upprunann þjálfar ekki flokkara og skilgreinir ekki nýjar merkingar.",
+    "Þessi útgáfa hefur alvarlega takmörkun. Þriggja hluta fjölskyldan sýnir frumu þrjú og síðan ótengdar frumur fimm og eitt í stað umbeðins kjarna og pathogen-hlutar. Uppruninn hefur aðeins frumumyndir. Hafnaðu staðgenglunum og ekki merkja þá sem undirhlutina sem vantar. Kennsluefnið lagar ekki villuna.",
+    "Staðfesti valkosturinn er þrengri: farðu aftur í Lineage og tvísmelltu aðeins á foreldrafrumuna. Ólíkt Open crops sendir það aðeins foreldrið, ekki fjölskylduna. Annotate sýnir nákvæmlega umbeðinn myndbút. Auðkenni og upprunaleg bæti voru staðfest; það felur ekki í sér stuðning við myndir undirhluta.",
+    "Haltu Shift og smelltu á smámynd foreldris til að stækka fyrirliggjandi forskoðun án flokkamerkingar. Escape endurheimtir grindina. Það hjálpar skoðun en býr ekki til meiri upplausn. Venjulegur vinstri smellur er merkingaraðgerð, ekki aðdrátturinn sem hér er sýndur.",
+    "Build tree endurnýjar sýnina. Í Python gefa read_object_tables, build_forest og lineage_frame sömu byggingu. Tengda CSV-skráin hefur alla 7.201 hnútana, líka fjölskyldur utan birtingar. Hún var skrifuð með API, ekki Lineage-útflutningshnappi, og er ekki líffræðileg staðfesting."
+  ]
+}

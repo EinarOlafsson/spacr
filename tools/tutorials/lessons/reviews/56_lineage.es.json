@@ -1,0 +1,33 @@
+{
+  "lesson": "56_lineage",
+  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Lineage: identidades de contención y recortes del padre verificados",
+  "description": "Revisar relaciones guardadas, límites de visualización y el recorte del padre sin aceptar la sustitución incorrecta de imágenes hijas.",
+  "objectives": [
+    "Abrir Lineage dentro de Database Browser y construir el árbol real.",
+    "Distinguir recuentos completos, familias visibles e identidades con tipo.",
+    "Reconocer la sustitución incorrecta e inspeccionar solo el padre verificado.",
+    "Usar el zoom nativo y distinguir la exportación Python de los controles gráficos."
+  ],
+  "prerequisite": "Use el ejemplo descargado de Annotate con mediciones y recortes celulares correspondientes. El archivo Graph Builder contiene la base exacta sin imágenes; el de Lineage contiene el CSV de la API y la revisión, no otra base. No use la sustitución actual para identificar o etiquetar hijos sin imagen.",
+  "scenes": [
+    "Busque Database Browser en Help y abra su herramienta anidada Lineage. Aquí lineage significa contención guardada: qué objetos pertenecen al interior de qué células. No es una historia de divisiones, ascendencia genética ni una nueva segmentación. Los controles de base que rodean la vista pertenecen al módulo anfitrión.",
+    "Abra measurements punto db del ejemplo real de Annotate y construya el árbol. Usamos una copia privada sin cambios. Ensanche Object y el separador si las etiquetas quedan estrechas. Los números se repiten entre campos y tipos de objeto; un número solo no identifica un objeto.",
+    "La fuente completa contiene dos mil trescientas cuarenta y una células, dos mil seiscientos ochenta y dos núcleos y dos mil ciento setenta y ocho objetos en la tabla pathogen. Solo aparecen dos mil familias: trescientas cuarenta y una quedan fuera de la vista, no se borran de la base.",
+    "El resumen dice que ninguna célula está vacía porque un núcleo también cuenta como hijo. No significa que todas tengan un objeto de la tabla pathogen: mil ciento sesenta y ocho no lo tienen. Que no haya hijos sin asignar solo indica que sus padres registrados existen, no que la segmentación sea biológicamente correcta.",
+    "Expanda un padre para ver sus hijos. En este campo, la célula tres contiene el núcleo cinco y el objeto pathogen uno según los vínculos guardados. Son identidades con tipo, no números intercambiables. Seleccionar un hijo solo es distinto de seleccionar toda la familia.",
+    "Select with contents publica el padre y sus hijos. Seleccionar un padre junto con uno de sus hijos no requiere duplicar ese hijo. Las claves conservan campo y tipo de objeto, aunque su columna está oculta. Publicar una identidad no demuestra que exista un recorte correspondiente.",
+    "Las familias grandes requieren inspección, no interpretación biológica automática. El ejemplo incluye una familia con treinta y tres objetos en total. La contención puede reflejar errores de segmentación o adquisición. El árbol informa relaciones guardadas, sin validar recuentos extraños como descubrimientos.",
+    "Un clic en el encabezado ordena las familias visibles sin cambiar su contención. Sigue vigente el límite de dos mil padres. Comprobamos cada identidad visible, cada vínculo parental y toda la jerarquía. Una vista reordenada o truncada no es una tabla de mediciones editada.",
+    "Open crops necesita Annotate como visor de imágenes. El mensaje pide abrir Annotate primero. Un visor ausente es distinto de una imagen faltante. Cargue el proyecto correspondiente antes de pedir recortes, no otra ejecución con números casualmente parecidos.",
+    "El proyecto descargado aporta recortes celulares reales. El archivo que solo contiene la base no incluye esas imágenes. Usamos el ejemplo completo correspondiente y preservamos todos los recortes originales. Abrir la fuente no entrena un clasificador ni establece nuevas etiquetas.",
+    "Esta versión tiene una limitación seria. Abrir la familia de tres objetos muestra la célula tres y después las células cinco y uno, ajenas a la solicitud, en vez del núcleo y el objeto pathogen. La fuente solo tiene recortes de células. Rechace la sustitución: no los etiquete como los hijos ausentes. El tutorial no repara el fallo.",
+    "La alternativa verificada es más limitada: vuelva a Lineage y haga doble clic únicamente en la célula padre. A diferencia de Open crops, envía solo el padre y no su familia. Annotate muestra exactamente ese recorte. Verificamos identidad y bytes originales, sin implicar compatibilidad con recortes hijos.",
+    "Mantenga Mayús y haga clic en la miniatura del padre para ampliar su vista previa sin asignar una clase. Escape vuelve a la cuadrícula. Esto facilita la inspección, pero no crea resolución adicional. Use el gesto correcto: un clic izquierdo normal anota, no activa el zoom mostrado.",
+    "Build tree actualiza la vista. En Python, read_object_tables, build_forest y lineage_frame ofrecen la misma estructura. El CSV enlazado contiene los siete mil doscientos un nodos, incluidas familias omitidas de la vista. Lo escribió la API, no un botón de exportación de Lineage, y no es validación biológica."
+  ]
+}

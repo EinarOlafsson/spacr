@@ -1,0 +1,33 @@
+{
+  "lesson": "56_lineage",
+  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Lineage: objekter inni celler og verifiserte foreldrecellebilder",
+  "description": "Undersøk lagrede relasjoner, visningsgrenser og riktig foreldrebilde uten å godta feil erstatningsbilder for manglende barn.",
+  "objectives": [
+    "Åpne Lineage i Database Browser og bygg det reelle treet.",
+    "Skill fullstendige tall, synlige familier og identiteter med type.",
+    "Gjenkjenn feil erstatning og undersøk bare den verifiserte forelderen.",
+    "Bruk innebygd zoom og skill Python-eksport fra GUI-kontroller."
+  ],
+  "prerequisite": "Bruk det nedlastede Annotate-eksemplet med samsvarende målinger og cellebilder. Graph Builder-arkivet har samme database uten bilder; Lineage-arkivet har verifisert API-CSV og gjennomgang, ikke en erstatningsdatabase. Ikke bruk den feilaktige reserveløsningen til å identifisere eller merke manglende barn.",
+  "scenes": [
+    "Finn Database Browser under Help og åpne det underordnede Lineage. Her betyr lineage lagrede relasjoner om hva som ligger inni hva. Det er ikke celledelingshistorie, genetisk avstamning eller ny segmentering. Databasekontrollene rundt visningen tilhører vertsmodulen.",
+    "Velg measurements.db fra det reelle Annotate-eksemplet og bygg treet. Vi bruker en uendret privat kopi. Utvid Object og skillelinjen hvis teksten blir trang. Numre gjentas mellom bildefelt og objekttyper; et tall alene er ikke en identitet.",
+    "Hele kilden inneholder 2 341 celler, 2 682 kjerner og 2 178 objekter i tabellen pathogen. Bare 2 000 foreldrefamilier vises i treet. 341 er utelatt fra visningen, ikke slettet fra databasen.",
+    "Sammendraget sier at ingen celler er tomme fordi en kjerne også teller som barn. Det betyr ikke at alle har et pathogen-objekt: 1 168 har ikke det. Ingen ufestede barn betyr at alle registrerte foreldre finnes, ikke at segmenteringen er biologisk korrekt.",
+    "Utvid en forelder for å se barna. I dette feltet inneholder celle tre kjerne fem og pathogen én ifølge lagrede koblinger. Dette er identiteter med type, ikke utbyttbare tall. Å velge ett barn er forskjellig fra å velge hele familien.",
+    "Select with contents publiserer forelderen og barna. Å velge en forelder sammen med et barn krever ingen ekstra kopi av barnet. Nøklene beholder bildefelt og type, men nøkkelkolonnen er skjult. Publisering beviser ikke at et tilsvarende bildeutsnitt finnes.",
+    "Store familier trenger inspeksjon, ikke automatisk biologisk tolkning. Eksemplet har én familie med totalt 33 objekter. Relasjonene kan gjenspeile segmenterings- eller opptaksfeil. Treet rapporterer lagrede koblinger og validerer ikke uvanlige antall som oppdagelser.",
+    "Et klikk på overskriften sorterer viste familier uten å endre relasjonene. Grensen på 2 000 foreldre gjelder fortsatt. Vi kontrollerte hver synlig identitet, hver foreldrekobling og hele hierarkiet. En sortert eller avkortet visning er ikke en redigert måletabell.",
+    "Open crops trenger Annotate som bildeviser. Den faktiske meldingen ber om å åpne Annotate først. En manglende viser er forskjellig fra et manglende bilde. Last det tilsvarende prosjektet før bildeforespørsler, ikke en annen kjøring med tilfeldigvis lignende numre.",
+    "Det nedlastede prosjektet gir reelle celleutsnitt. Arkivet med bare databasen inneholder ikke bildene. Vi bruker hele det samsvarende eksemplet og bevarer alle originaler. Å åpne kilden trener ingen klassifikator og fastsetter ingen nye etiketter.",
+    "Denne versjonen har en alvorlig begrensning. Familien med tre objekter viser celle tre og deretter de uvedkommende cellene fem og én i stedet for ønsket kjerne og pathogen. Kilden har bare cellebilder. Avvis erstatningen og ikke merk bildene som manglende barn. Tutorialen reparerer ikke feilen.",
+    "Det verifiserte alternativet er snevrere: gå tilbake til Lineage og dobbeltklikk bare foreldrecellen. I motsetning til Open crops sendes kun forelderen, ikke familien. Annotate viser nøyaktig ønsket utsnitt. Identitet og originalbytes er kontrollert; det innebærer ikke støtte for barnebilder.",
+    "Hold Skift og klikk på forelderens miniatyr for å forstørre eksisterende forhåndsvisning uten å tildele klasse. Escape gjenoppretter rutenettet. Det hjelper inspeksjonen, men skaper ikke ekstra oppløsning. Et vanlig venstreklikk annoterer og er ikke zoomgesten som vises.",
+    "Build tree oppdaterer visningen. I Python gir read_object_tables, build_forest og lineage_frame samme struktur. Den lenkede CSV-en har alle 7 201 noder, også familier utenfor visningen. Den ble skrevet via API-et, ikke en Lineage-eksportknapp, og er ikke biologisk validering."
+  ]
+}
