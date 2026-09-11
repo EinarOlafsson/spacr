@@ -304,7 +304,7 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     except ImportError as exc:                       # pragma: no cover
         raise EmbeddingError(
             "self-supervised embeddings need torch and timm; install the "
-            "`spacr[torch]` extra") from exc
+            "`spacr[embeddings]` extra") from exc
 
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
     model = timm.create_model(spec.backbone, pretrained=True, num_classes=0)

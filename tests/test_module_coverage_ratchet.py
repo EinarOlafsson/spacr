@@ -242,7 +242,16 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #                              the wheel, which is why it counts here
     #                              and does not count in the docstring
     #                              ratchets.
-    assert len(shipped) == 556
+    # 556 -> 558 on 2026-09-11 with the merge from main, +2/-0, named on the
+    # same principle:
+    #   `spacr/embeddings.py`      the self-supervised feature source: a
+    #                              pretrained backbone per channel, with the
+    #                              channel decision recorded rather than
+    #                              inherited
+    #   `spacr/ops_compose.py`     the canonical nuclear map, composed one
+    #                              window at a time instead of held as one
+    #                              1.4 GB array per channel
+    assert len(shipped) == 558
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

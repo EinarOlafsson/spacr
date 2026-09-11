@@ -77,9 +77,23 @@ def test_a_scorecard_of_only_counts_is_not_a_scorecard():
 
 def test_reading_a_scorecard_imports_neither_torch_nor_cellpose():
     """The Zoo imports without torch and a test asserts it; this is the same
-    promise for the scorecard that now hangs off every entry."""
-    for name in [m for m in sys.modules if m.split(".")[0] in ("torch", "cellpose")]:
-        sys.modules.pop(name, None)
+    promise for the scorecard that now hangs off every entry.
+
+    THE MODULES ARE PUT BACK, AND THAT IS NOT TIDINESS. Popping `torch` out
+    of `sys.modules` drops the last reference to it, and the garbage
+    collector then runs a C extension's teardown while the process is still
+    using it. Measured: this file followed by
+    `tests/test_test_suite_hygiene.py` segfaulted inside `ast.parse`, with
+    the fault frame reading "Garbage-collecting" -- in a test that has
+    nothing to do with torch, several minutes after this one passed.
+
+    Restoring the same module OBJECTS means nothing is collected and no
+    teardown runs. The pop still does its job: it is what stops an
+    already-imported torch from hiding a fresh import from the guard below.
+    """
+    poisoned = [m for m in list(sys.modules)
+                if m.split(".")[0] in ("torch", "cellpose")]
+    saved = {name: sys.modules.pop(name) for name in poisoned}
     real = builtins.__import__
 
     def guard(name, *args, **kwargs):
@@ -90,10 +104,21 @@ def test_reading_a_scorecard_imports_neither_torch_nor_cellpose():
     builtins.__import__ = guard
     try:
         entry = ModelEntry(key="m", name="M", metrics=read_scorecard_csv(CSV))
-        entry.scorecard_lines()
-        ModelEntry(key="b", name="B").scorecard_lines()
+        lines = entry.scorecard_lines()
+        blank = ModelEntry(key="b", name="B").scorecard_lines()
+        arrived = [m for m in sys.modules
+                   if m.split(".")[0] in ("torch", "cellpose")]
     finally:
         builtins.__import__ = real
+        sys.modules.update(saved)
+
+    # THE GUARD IS NOT THE ASSERTION, and a test whose only failure mode is
+    # someone else's exception is one that passes when the code under it
+    # stops running at all. So: the work actually happened, and neither
+    # package arrived while it did.
+    assert lines and any("F1" in line for line in lines)
+    assert all(isinstance(line, str) for line in blank)
+    assert not arrived
 
 
 def test_the_lines_lead_with_what_decides_a_choice():

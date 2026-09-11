@@ -12,7 +12,8 @@ That names neither the setting that is wrong nor the value it should have
 had. It was auto-filed to the spaCR tracker TEN TIMES in one day -- issues
 #79, #80, #81, #84 through #90, all fingerprint 500e6c -- from a real run.
 
-The defaults are `location_column='columnID'`, `positive_control='c2'`,
+The defaults are `location_column='columnID'`,
+`positive_control_id='c2'`,
 `negative_control='c1'`. A plate whose columns are named '1' and '2', or
 whose controls live in a different column, matches nothing.
 
@@ -79,7 +80,9 @@ def test_only_the_missing_control_is_named():
     # that appear there"), which is fine -- what must not happen is the
     # diagnosis blaming a control that matched.
     diagnosis = str(excinfo.value).split("\n")[0]
-    assert "positive_control='c2'" in diagnosis
+    # `positive_control_id`, not `positive_control`: 364 renamed the setting
+    # and the message follows the name the user can find in the panel.
+    assert "positive_control_id='c2'" in diagnosis
     assert "negative_control_id" not in diagnosis, (
         "the negative control matched, so naming it in the diagnosis sends "
         "the user to the wrong setting")

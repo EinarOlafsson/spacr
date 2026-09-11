@@ -192,7 +192,6 @@ __all__ = [
     "SelectivityIndex", "selectivity_index",
     "SYNERGY_BLISS", "SYNERGY_LOEWE", "SYNERGY_MODELS",
     "InteractionSurface", "bliss_surface", "loewe_surface",
-    "checkerboard_from_frame",
     "candidate_concentration_columns", "candidate_response_columns",
 ]
 
